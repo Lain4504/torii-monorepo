@@ -369,18 +369,12 @@ export class CourseService implements ICourseService {
         liveConfig: dto.liveConfig || null,
         durationWeeks: dto.durationWeeks || null,
         expirationMonths: (dto as any).expirationMonths || null,
-        startDate: (dto as any).startDate || null,
-        registrationClosedAt: (dto as any).registrationClosedAt || null,
-        isFree: dto.isFree ?? false,
         tags: dto.tags || [],
         learningOutcomes: dto.learningOutcomes || [],
         requirements: dto.requirements || [],
         createdBy: requester.sub,
         status: 'draft',
-        maxStudents: dto.maxStudents || null,
         lecturerId: dto.lecturerId || null,
-        isReadyForScheduling: false,
-        minimumLessons: (dto as any).minimumLessons || 8,
       };
 
       // Validation: Paid courses must have price > 0
@@ -396,23 +390,6 @@ export class CourseService implements ICourseService {
       // Validation: Course expirationMonths must be at most 6
       if (data.expirationMonths && data.expirationMonths > 6) {
         throw new BadRequestException('Course expiration duration cannot exceed 6 months');
-      }
-
-      // Validation: Live courses must have registrationClosedAt and expiresAt
-      if (data.type === 'live') {
-        if (!data.registrationClosedAt) {
-          throw new BadRequestException('Live courses must have a registration deadline (registrationClosedAt)');
-        }
-        if (!data.expiresAt) {
-          throw new BadRequestException('Live courses must have an end date (expiresAt)');
-        }
-        // Validation: course duration must be at most 6 months
-        const anchor = data.startDate ? new Date(data.startDate) : new Date();
-        const maxExpiry = new Date(anchor);
-        maxExpiry.setMonth(maxExpiry.getMonth() + 6);
-        if (new Date(data.expiresAt) > maxExpiry) {
-          throw new BadRequestException('Live course duration cannot exceed 6 months from the start date');
-        }
       }
 
       const course = await this.courseRepository.create(data);
@@ -479,16 +456,11 @@ export class CourseService implements ICourseService {
       if (dto.liveConfig !== undefined) updateData.liveConfig = dto.liveConfig;
       if (dto.durationWeeks !== undefined) updateData.durationWeeks = dto.durationWeeks;
       if ((dto as any).expirationMonths !== undefined) updateData.expirationMonths = (dto as any).expirationMonths;
-      if ((dto as any).startDate !== undefined) updateData.startDate = (dto as any).startDate;
-      if ((dto as any).registrationClosedAt !== undefined) updateData.registrationClosedAt = (dto as any).registrationClosedAt;
       if (dto.isFree !== undefined) updateData.isFree = dto.isFree;
       if (dto.tags !== undefined) updateData.tags = dto.tags;
       if (dto.learningOutcomes !== undefined) updateData.learningOutcomes = dto.learningOutcomes;
       if (dto.requirements !== undefined) updateData.requirements = dto.requirements;
-      if (dto.maxStudents !== undefined) updateData.maxStudents = dto.maxStudents;
       if (dto.lecturerId !== undefined) updateData.lecturerId = dto.lecturerId;
-      if ((dto as any).isReadyForScheduling !== undefined) updateData.isReadyForScheduling = (dto as any).isReadyForScheduling;
-      if ((dto as any).minimumLessons !== undefined) updateData.minimumLessons = (dto as any).minimumLessons;
 
       // Validation: Paid courses must have price > 0
       const finalIsFree = dto.isFree !== undefined ? dto.isFree : existing.isFree;
@@ -1060,7 +1032,7 @@ export class CourseService implements ICourseService {
 
       // 4. Check curriculum (minimum lessons)
       const lessonCount = await this.courseRepository.countLessons(courseId);
-      const minLessons = course.minimumLessons || 8;
+      const minLessons = 8;
 
       if (lessonCount < minLessons) {
         return {

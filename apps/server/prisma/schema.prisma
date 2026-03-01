@@ -14,7 +14,7 @@ datasource db {
   provider = "postgresql"
 }
 
-enum CourseStatus {
+enum CourseMasterStatus {
   draft
   pending_review
   published
@@ -48,47 +48,41 @@ enum LiveSessionStatus {
   CANCELLED
 }
 
-model Course {
-  id                   String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title                String       @db.VarChar(255)
-  slug                 String       @unique @db.VarChar(255)
-  type                 String       @default("vod") @db.VarChar(20) // 'vod' | 'live'
-  description          String?      @db.Text
-  shortDescription     String?      @map("short_description") @db.VarChar(500)
-  jlptLevel            String       @map("jlpt_level") @db.VarChar(5)
-  aiMetadata           Json?        @default("{}") @map("ai_metadata")
-  thumbnailUrl         String?      @map("thumbnail_url") @db.Text
-  previewVideoUrl      String?      @map("preview_video_url") @db.Text
-  price                Decimal      @default(0.00) @db.Decimal(10, 2)
-  discountPrice        Decimal?     @map("discount_price") @db.Decimal(10, 2)
-  liveConfig           Json?        @map("live_config")
-  durationWeeks        Int?         @map("duration_weeks") // Thời lượng nội dung khóa học (hiển thị cho học viên)
-  expirationMonths     Int?         @map("expiration_months") // 1-6 months: thời hạn truy cập sau khi enroll
-  startDate            DateTime?    @map("start_date") // WebRTC: ngày khai giảng
-  expiresAt            DateTime?    @map("expires_at") // WebRTC: ngày kết thúc khoá học
-  registrationClosedAt DateTime?    @map("registration_closed_at") // WebRTC: hạn chót đăng ký
-  totalLessons         Int          @default(0) @map("total_lessons")
-  totalQuizzes         Int          @default(0) @map("total_quizzes")
-  totalStudents        Int          @default(0) @map("total_students")
-  maxStudents          Int?         @map("max_students") // Max students for live courses
-  averageRating        Decimal      @default(0.00) @map("average_rating") @db.Decimal(3, 2)
-  totalReviews         Int          @default(0) @map("total_reviews")
-  status               CourseStatus @default(draft)
-  rejectionReason      String?      @map("rejection_reason") @db.Text
-  isFree               Boolean      @default(false) @map("is_free")
-  tags                 String[]     @default([]) @db.VarChar(50)
-  learningOutcomes     Json         @default("[]") @map("learning_outcomes")
-  requirements         Json         @default("[]")
-  createdBy            String?      @map("created_by") @db.Uuid
-  approvedBy           String?      @map("approved_by") @db.Uuid
-  approvedAt           DateTime?    @map("approved_at")
-  createdAt            DateTime     @default(now()) @map("created_at")
-  updatedAt            DateTime     @default(now()) @updatedAt @map("updated_at")
-  deletedAt            DateTime?    @map("deleted_at")
-
-  trialDays       Int? @map("trial_days") // Số ngày học thử
-  maxTrialLessons Int? @map("max_trial_lessons") // Giới hạn số bài học thử
-
+model CourseMaster {
+  id                   String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title                String             @db.VarChar(255)
+  slug                 String             @unique @db.VarChar(255)
+  type                 String             @default("vod") @db.VarChar(20) // 'vod' | 'live'
+  description          String?            @db.Text
+  shortDescription     String?            @map("short_description") @db.VarChar(500)
+  jlptLevel            String             @map("jlpt_level") @db.VarChar(5)
+  aiMetadata           Json?              @default("{}") @map("ai_metadata")
+  thumbnailUrl         String?            @map("thumbnail_url") @db.Text
+  previewVideoUrl      String?            @map("preview_video_url") @db.Text
+  price                Decimal            @default(0.00) @db.Decimal(10, 2)
+  discountPrice        Decimal?           @map("discount_price") @db.Decimal(10, 2)
+  liveConfig           Json?              @map("live_config")
+  durationWeeks        Int?               @map("duration_weeks") // Thời lượng nội dung khóa học (hiển thị cho học viên)
+  expirationMonths     Int?               @map("expiration_months") // 1-6 months: thời hạn truy cập sau khi enroll
+  totalLessons         Int                @default(0) @map("total_lessons")
+  totalQuizzes         Int                @default(0) @map("total_quizzes")
+  totalStudents        Int                @default(0) @map("total_students")
+  averageRating        Decimal            @default(0.00) @map("average_rating") @db.Decimal(3, 2)
+  totalReviews         Int                @default(0) @map("total_reviews")
+  status               CourseMasterStatus @default(draft)
+  rejectionReason      String?            @map("rejection_reason") @db.Text
+  isFree               Boolean            @default(false) @map("is_free")
+  tags                 String[]           @default([]) @db.VarChar(50)
+  learningOutcomes     Json               @default("[]") @map("learning_outcomes")
+  requirements         Json               @default("[]")
+  createdBy            String?            @map("created_by") @db.Uuid
+  approvedBy           String?            @map("approved_by") @db.Uuid
+  approvedAt           DateTime?          @map("approved_at")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @default(now()) @updatedAt @map("updated_at")
+  deletedAt            DateTime?          @map("deleted_at")
+  trialDays            Int?               @map("trial_days") // Số ngày học thử
+  maxTrialLessons      Int?               @map("max_trial_lessons") // Giới hạn số bài học thử
   // Relations
   modules           Module[]
   discussions       DiscussionTopic[]
@@ -104,40 +98,35 @@ model Course {
   versions          CourseVersion[]
   cartItems         CartItem[]
   courseRuns        CourseRun[]
-
-  lecturerId String? @map("lecturer_id") @db.Uuid
-  lecturer   User?   @relation("CoursesTaught", fields: [lecturerId], references: [id], onDelete: SetNull)
-
-  // Live Course Specific
-  isReadyForScheduling Boolean @default(false) @map("is_ready_for_scheduling")
-  minimumLessons       Int?    @default(8) @map("minimum_lessons")
+  lecturerId        String?            @map("lecturer_id") @db.Uuid
+  lecturer          User?              @relation("CourseMastersTaught", fields: [lecturerId], references: [id], onDelete: SetNull)
 
   @@index([jlptLevel])
   @@index([createdBy])
   @@index([approvedBy])
   @@index([lecturerId])
-  @@map("courses")
+  @@map("course_masters")
 }
 
 // 2. Model Versioning mới
 model CourseVersion {
   id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseId           String   @map("course_id") @db.Uuid
+  courseMasterId     String   @map("course_master_id") @db.Uuid
   versionTag         String   @map("version_tag") @db.VarChar(20) // v1.0, v1.1
   curriculumSnapshot Json     @map("curriculum_snapshot") @db.JsonB // Lưu mảng Module + Lesson
   changelog          String?  @db.Text
   publishedAt        DateTime @default(now()) @map("published_at")
 
-  course      Course       @relation(fields: [courseId], references: [id])
-  enrollments Enrollment[]
-  courseRuns  CourseRun[]
+  courseMaster CourseMaster @relation(fields: [courseMasterId], references: [id])
+  enrollments  Enrollment[]
+  courseRuns   CourseRun[]
 
   @@map("course_versions")
 }
 
 model CourseRun {
   id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseId  String  @map("course_id") @db.Uuid
+  courseMasterId  String  @map("course_master_id") @db.Uuid
   versionId String? @map("version_id") @db.Uuid
 
   title String @db.VarChar(255)
@@ -163,14 +152,14 @@ model CourseRun {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  course   Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  version  CourseVersion? @relation(fields: [versionId], references: [id], onDelete: SetNull)
-  lecturer User?          @relation("RunLecturer", fields: [lecturerId], references: [id], onDelete: SetNull)
+  courseMaster   CourseMaster   @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
+  version        CourseVersion? @relation(fields: [versionId], references: [id], onDelete: SetNull)
+  lecturer       User?          @relation("RunLecturer", fields: [lecturerId], references: [id], onDelete: SetNull)
 
   enrollments  Enrollment[]
   liveSessions LiveSession[]
 
-  @@index([courseId])
+  @@index([courseMasterId])
   @@index([versionId])
   @@index([lecturerId])
   @@index([status])
@@ -180,7 +169,7 @@ model CourseRun {
 // Modules: chapters/sections that belong to a Course
 model Module {
   id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseId        String    @map("course_id") @db.Uuid
+  courseMasterId  String    @map("course_master_id") @db.Uuid
   title           String    @db.VarChar(255)
   description     String?   @db.Text
   aiMetadata      Json?     @default("{}") @map("ai_metadata")
@@ -192,11 +181,11 @@ model Module {
   updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at")
   deletedAt       DateTime? @map("deleted_at")
 
-  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  lessons     Lesson[]
-  assignments Assignment[]
+  courseMaster CourseMaster @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
+  lessons      Lesson[]
+  assignments  Assignment[]
 
-  @@index([courseId])
+  @@index([courseMasterId])
   @@map("modules")
 }
 
@@ -273,9 +262,9 @@ model Assignment {
   type        AssignmentType @default(TEXT)
 
   // Associated with (at least one required)
-  courseId String? @map("course_id") @db.Uuid
-  moduleId String? @map("module_id") @db.Uuid
-  lessonId String? @map("lesson_id") @db.Uuid
+  courseMasterId String? @map("course_master_id") @db.Uuid
+  moduleId       String? @map("module_id") @db.Uuid
+  lessonId       String? @map("lesson_id") @db.Uuid
 
   // Grading config
   maxScore     Decimal  @default(100.00) @map("max_score") @db.Decimal(5, 2)
@@ -302,12 +291,12 @@ model Assignment {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  course      Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  module      Module?      @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  lesson      Lesson?      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  submissions Submission[]
+  courseMaster CourseMaster? @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
+  module       Module?       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  lesson       Lesson?       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  submissions  Submission[]
 
-  @@index([courseId])
+  @@index([courseMasterId])
   @@index([moduleId])
   @@index([lessonId])
   @@index([status])
@@ -403,7 +392,7 @@ model GradeHistory {
 // Live Session - Scheduled live classes for a course
 model LiveSession {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseId    String   @map("course_id") @db.Uuid
+  courseMasterId    String   @map("course_master_id") @db.Uuid
   lecturerId  String?  @map("lecturer_id") @db.Uuid
   title       String   @db.VarChar(255)
   description String?  @db.Text
@@ -427,13 +416,13 @@ model LiveSession {
   recordingUrl      String? @map("recording_url") @db.Text
   recordingDuration Int?    @map("recording_duration")
 
-  course      Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  courseRun   CourseRun?        @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
-  schedule    TeachingSchedule? @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
-  attendances Attendance[]
-  lesson      Lesson[]
+  courseMaster CourseMaster      @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
+  courseRun    CourseRun?        @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+  schedule     TeachingSchedule? @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
+  attendances  Attendance[]
+  lesson       Lesson[]
 
-  @@index([courseId])
+  @@index([courseMasterId])
   @@index([courseRunId])
   @@index([lecturerId])
   @@index([scheduleId])
@@ -467,21 +456,21 @@ model Attendance {
 
 // Teaching Schedule - Fixed weekly patterns for a course
 model TeachingSchedule {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseId   String   @map("course_id") @db.Uuid
-  lecturerId String   @map("lecturer_id") @db.Uuid
-  dayOfWeek  Int      @map("day_of_week") // 0 (Sun) to 6 (Sat)
-  startTime  String   @map("start_time") // HH:mm
-  duration   Int      @default(90) // minutes
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseMasterId String   @map("course_master_id") @db.Uuid
+  lecturerId     String   @map("lecturer_id") @db.Uuid
+  dayOfWeek      Int      @map("day_of_week") // 0 (Sun) to 6 (Sat)
+  startTime      String   @map("start_time") // HH:mm
+  duration       Int      @default(90) // minutes
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at")
 
-  course       Course                       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseMaster CourseMaster                 @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
   lecturer     User                         @relation("LecturerSchedules", fields: [lecturerId], references: [id], onDelete: Cascade)
   liveSessions LiveSession[]
   requests     LiveSessionScheduleRequest[]
 
-  @@index([courseId])
+  @@index([courseMasterId])
   @@index([lecturerId])
   @@map("teaching_schedules")
 }
@@ -491,7 +480,7 @@ model LiveSessionScheduleRequest {
   id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   lecturerId         String   @map("lecturer_id") @db.Uuid
   originalScheduleId String?  @map("original_schedule_id") @db.Uuid
-  courseId           String   @map("course_id") @db.Uuid
+  courseMasterId           String   @map("course_master_id") @db.Uuid
   dayOfWeek          Int      @map("day_of_week")
   startTime          String   @map("start_time")
   duration           Int      @default(90)
@@ -500,12 +489,12 @@ model LiveSessionScheduleRequest {
   createdAt          DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @default(now()) @updatedAt @map("updated_at")
 
-  lecturer User              @relation("LecturerScheduleRequests", fields: [lecturerId], references: [id], onDelete: Cascade)
-  schedule TeachingSchedule? @relation(fields: [originalScheduleId], references: [id], onDelete: SetNull)
-  course   Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lecturer     User              @relation("LecturerScheduleRequests", fields: [lecturerId], references: [id], onDelete: Cascade)
+  schedule     TeachingSchedule? @relation(fields: [originalScheduleId], references: [id], onDelete: SetNull)
+  courseMaster CourseMaster      @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
 
   @@index([lecturerId])
-  @@index([courseId])
+  @@index([courseMasterId])
   @@map("live_session_schedule_requests")
 }
 
@@ -694,8 +683,8 @@ model User {
   certificates            Certificate[]
   balance                 UserBalance?
 
-  coursesTaught Course[]    @relation("CoursesTaught") // Mối quan hệ mới
-  runsTaught    CourseRun[] @relation("RunLecturer")
+  coursesTaught CourseMaster[] @relation("CourseMastersTaught") // Mối quan hệ mới
+  runsTaught    CourseRun[]    @relation("RunLecturer")
 
   // Gamification Relations
   gamification    UserGamification?

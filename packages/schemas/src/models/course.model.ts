@@ -49,13 +49,9 @@ export const courseSchema = z.object({
     liveConfig: z.record(z.any()).optional().nullable(), // JSONB
     durationWeeks: z.number().min(0).optional(),         // Thời lượng nội dung khóa học (hiển thị)
     expirationMonths: z.number().int().min(1).max(6).optional(), // 1-6 tháng: thời hạn truy cập
-    startDate: z.date().optional(),              // WebRTC: ngày khai giảng
-    expiresAt: z.date().optional(),              // WebRTC: ngày kết thúc khoá học
-    registrationClosedAt: z.date().optional(),   // WebRTC: hạn chót đăng ký
     totalLessons: z.number().default(0),
     totalQuizzes: z.number().default(0),
     totalStudents: z.number().default(0),
-    maxStudents: z.number().min(0).optional(),
     averageRating: z.number().default(0),
     totalReviews: z.number().default(0),
     status: z.nativeEnum(CourseStatus), // Computed field derived from approvedBy/approvedAt
@@ -65,8 +61,6 @@ export const courseSchema = z.object({
     requirements: z.any().optional(), // JSONB
     createdBy: z.string().uuid().optional(),
     lecturerId: z.string().uuid().optional().nullable(),
-    isReadyForScheduling: z.boolean().default(false),
-    minimumLessons: z.number().int().min(1).default(8),
     approvedBy: z.string().uuid().optional(),
     approvedAt: z.date().optional(),
     rejectionReason: z.string().optional().nullable(),

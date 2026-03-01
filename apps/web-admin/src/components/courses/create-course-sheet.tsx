@@ -355,69 +355,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                             Hạn truy cập mặc định cho mô hình "Mua cả khóa". <br />
                                             Học viên cần gia hạn nếu muốn xem lại sau thời gian này.
                                         </p>
-                                        {watch('durationWeeks') && watch('expirationMonths') && (watch('expirationMonths') as any) < Math.ceil((watch('durationWeeks') || 0) / 4) && (
-                                            <p className="text-[10px] text-amber-500 font-medium mt-1 ml-1 animate-pulse">
-                                                ⚠️ Cảnh báo: Thời gian truy cập ngắn hơn thời lượng nội dung!
-                                            </p>
-                                        )}
                                     </Field>
-                                )}
-
-                                {/* WebRTC: Ngày khai giảng, kết thúc, hạn đăng ký */}
-                                {courseType === 'live' && (
-                                    <div className="space-y-4">
-                                        <div className="flex items-center gap-3 pb-1 border-b border-border/40">
-                                            <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50">Lịch Học</h3>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-6">
-                                            <Field>
-                                                <FieldLabel htmlFor="startDate" className="">
-                                                    Ngày Khai Giảng
-                                                </FieldLabel>
-                                                <Input
-                                                    id="startDate"
-                                                    type="datetime-local"
-                                                    {...register('startDate' as any)}
-                                                    className=""
-                                                />
-                                            </Field>
-                                            <Field>
-                                                <FieldLabel htmlFor="expiresAt" className="">
-                                                    Ngày Kết Thúc Khóa Học
-                                                </FieldLabel>
-                                                <Input
-                                                    id="expiresAt"
-                                                    type="datetime-local"
-                                                    {...register('expiresAt' as any)}
-                                                    className="mt-1"
-                                                />
-                                            </Field>
-                                        </div>
-                                        <Field>
-                                            <FieldLabel htmlFor="registrationClosedAt" className="">
-                                                Hạn Đăng Ký <span className="text-rose-500">*</span>
-                                            </FieldLabel>
-                                            <Input
-                                                id="registrationClosedAt"
-                                                type="datetime-local"
-                                                {...register('registrationClosedAt' as any)}
-                                                className="mt-1"
-                                            />
-                                        </Field>
-                                        <Field>
-                                            <FieldLabel htmlFor="maxStudents" className="">
-                                                Số Lượng Học Viên Tối Đa
-                                            </FieldLabel>
-                                            <Input
-                                                id="maxStudents"
-                                                type="number"
-                                                min="0"
-                                                {...register('maxStudents' as any, { valueAsNumber: true })}
-                                                placeholder="Bỏ trống nếu không giới hạn"
-                                                className="mt-1"
-                                            />
-                                        </Field>
-                                    </div>
                                 )}
 
                                 <div className="grid grid-cols-2 gap-6">

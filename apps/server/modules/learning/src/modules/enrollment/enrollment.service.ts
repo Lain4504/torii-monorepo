@@ -369,23 +369,17 @@ export class EnrollmentService implements IEnrollmentService {
         let courseRun: any = null;
         if (course.type === 'live') {
             const courseRunId = (input as any).courseRunId;
-            if (courseRunId) {
-                courseRun = await this.prisma.courseRun.findUnique({ where: { id: courseRunId } });
-                if (!courseRun) throw new NotFoundException('Course run not found');
+            if (!courseRunId) {
+                throw new BadRequestException('Course run ID is required for live courses');
+            }
+            courseRun = await this.prisma.courseRun.findUnique({ where: { id: courseRunId } });
+            if (!courseRun) throw new NotFoundException('Course run not found');
 
-                if (courseRun.enrollmentEnd && new Date() > new Date(courseRun.enrollmentEnd)) {
-                    throw new BadRequestException('Registration for this class has ended');
-                }
-                if (courseRun.maxStudents && courseRun.totalStudents >= courseRun.maxStudents) {
-                    throw new BadRequestException('This class is full');
-                }
-            } else {
-                if (course.registrationClosedAt && new Date() > new Date(course.registrationClosedAt)) {
-                    throw new BadRequestException('Registration for this course is closed');
-                }
-                if (course.maxStudents && course.totalStudents >= course.maxStudents) {
-                    throw new BadRequestException('This course is full');
-                }
+            if (courseRun.enrollmentEnd && new Date() > new Date(courseRun.enrollmentEnd)) {
+                throw new BadRequestException('Registration for this class has ended');
+            }
+            if (courseRun.maxStudents && courseRun.totalStudents >= courseRun.maxStudents) {
+                throw new BadRequestException('This class is full');
             }
         }
 
@@ -735,20 +729,10 @@ export class EnrollmentService implements IEnrollmentService {
         const now = new Date();
 
         if (course.type === 'live') {
-            if (courseRun) {
-                return courseRun.endDate ? new Date(courseRun.endDate) : undefined;
+            if (!courseRun) {
+                throw new BadRequestException('Course run ID is required for live courses');
             }
-
-            // Fallback to master course dates (legacy)
-            if (!course.registrationClosedAt) {
-                throw new BadRequestException('This live course is not open for registration (missing registration deadline)');
-            }
-
-            if (now > new Date(course.registrationClosedAt)) {
-                throw new BadRequestException('Registration for this course is closed');
-            }
-
-            return course.expiresAt ? new Date(course.expiresAt) : undefined;
+            return courseRun.endDate ? new Date(courseRun.endDate) : undefined;
         }
 
         // VOD: expires N months from enrollment date (default 6 months if not specified)

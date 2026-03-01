@@ -15,17 +15,11 @@ export const courseCreateDTOSchema = courseSchema.pick({
     isFree: true,
     durationWeeks: true,
     expirationMonths: true,
-    startDate: true,
-    expiresAt: true,
-    registrationClosedAt: true,
     tags: true,
     learningOutcomes: true,
     requirements: true,
     liveConfig: true,
-    maxStudents: true,
     aiMetadata: true,
-    isReadyForScheduling: true,
-    minimumLessons: true,
 }).extend({
     lecturerId: z.string().uuid().optional().nullable(),
 }).partial({
@@ -38,14 +32,10 @@ export const courseCreateDTOSchema = courseSchema.pick({
     isFree: true,
     durationWeeks: true,
     expirationMonths: true,
-    startDate: true,
-    expiresAt: true,
-    registrationClosedAt: true,
     tags: true,
     learningOutcomes: true,
     requirements: true,
     liveConfig: true,
-    maxStudents: true,
     aiMetadata: true,
 });
 
@@ -92,9 +82,6 @@ export const courseSearchResponseDTOSchema = courseSchema.pick({
     description: true,
     aiMetadata: true,
     type: true,
-    startDate: true,
-    expiresAt: true,
-    maxStudents: true,
 }).extend({
     lecturer: courseInstructorDTOSchema.optional().nullable(),
 });
