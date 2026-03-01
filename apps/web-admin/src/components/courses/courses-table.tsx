@@ -18,23 +18,23 @@ import { useState } from 'react';
 import { BookOpen } from 'lucide-react';
 import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 
-import type { CourseResponseDTO } from '@workspace/schemas';
+import type { CourseMasterResponseDTO } from '@workspace/schemas';
 import { getCoursesColumns } from './courses-columns.tsx';
 
 interface CoursesTableProps {
-    data: CourseResponseDTO[];
-    onEdit: (course: CourseResponseDTO) => void;
-    onDelete: (course: CourseResponseDTO) => void;
-    onModules: (course: CourseResponseDTO) => void;
-    onManageInstructors: (course: CourseResponseDTO) => void;
-    onManageEnrollments: (course: CourseResponseDTO) => void;
-    onPublish: (course: CourseResponseDTO) => void;
-    onSubmitForReview: (course: CourseResponseDTO) => void;
-    onUnpublish: (course: CourseResponseDTO) => void;
-    onReject: (course: CourseResponseDTO) => void;
-    onTitleClick: (course: CourseResponseDTO) => void;
-    onViewAuditLog: (course: CourseResponseDTO) => void;
-    onManageLiveSessions: (course: CourseResponseDTO) => void;
+    data: CourseMasterResponseDTO[];
+    onEdit: (course: CourseMasterResponseDTO) => void;
+    onDelete: (course: CourseMasterResponseDTO) => void;
+    onModules: (course: CourseMasterResponseDTO) => void;
+    onManageInstructors: (course: CourseMasterResponseDTO) => void;
+    onManageEnrollments: (course: CourseMasterResponseDTO) => void;
+    onPublish: (course: CourseMasterResponseDTO) => void;
+    onSubmitForReview: (course: CourseMasterResponseDTO) => void;
+    onUnpublish: (course: CourseMasterResponseDTO) => void;
+    onReject: (course: CourseMasterResponseDTO) => void;
+    onTitleClick: (course: CourseMasterResponseDTO) => void;
+    onViewAuditLog: (course: CourseMasterResponseDTO) => void;
+    onManageLiveSessions: (course: CourseMasterResponseDTO) => void;
     can: (permission: string) => boolean;
     page: number;
     limit: number;

@@ -1,47 +1,47 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
-import type { Course, CourseVersion, Prisma } from '@prisma/generated';
-import type { ICourseRepository } from '@server/learning/interfaces/repositories';
+import type { CourseMaster, CourseVersion, Prisma } from '@prisma/generated';
+import type { ICourseMasterRepository } from '@server/learning/interfaces/repositories';
 
 /**
  * Course Repository
  * Handles all database operations for Course entity
  */
 @Injectable()
-export class CourseRepository implements ICourseRepository {
-    private readonly logger = new Logger(CourseRepository.name);
+export class CourseMasterRepository implements ICourseMasterRepository {
+    private readonly logger = new Logger(CourseMasterRepository.name);
 
     constructor(private readonly prisma: PrismaService) { }
 
     /**
-     * Find course by ID
+     * Find course master by ID
      */
-    async findById(courseId: string): Promise<Course | null> {
-        return this.prisma.course.findUnique({
-            where: { id: courseId },
+    async findById(courseMasterId: string): Promise<CourseMaster | null> {
+        return this.prisma.courseMaster.findUnique({
+            where: { id: courseMasterId },
         });
     }
 
     /**
-     * Find course by slug
+     * Find course master by slug
      */
-    async findBySlug(slug: string): Promise<Course | null> {
-        return this.prisma.course.findFirst({
+    async findBySlug(slug: string): Promise<CourseMaster | null> {
+        return this.prisma.courseMaster.findFirst({
             where: { slug },
         });
     }
 
     /**
-     * Find all courses with pagination and filtering
+     * Find all course masters with pagination and filtering
      */
     async findMany(options: {
         skip: number;
         take: number;
-        where?: Prisma.CourseWhereInput;
-        orderBy?: Prisma.CourseOrderByWithRelationInput;
-        include?: Prisma.CourseInclude;
-    }): Promise<Course[]> {
-        return this.prisma.course.findMany({
+        where?: Prisma.CourseMasterWhereInput;
+        orderBy?: Prisma.CourseMasterOrderByWithRelationInput;
+        include?: Prisma.CourseMasterInclude;
+    }): Promise<CourseMaster[]> {
+        return this.prisma.courseMaster.findMany({
             where: options.where,
             skip: options.skip,
             take: options.take,
@@ -51,25 +51,25 @@ export class CourseRepository implements ICourseRepository {
     }
 
     /**
-     * Count courses with optional filter
+     * Count course masters with optional filter
      */
-    async count(where?: Prisma.CourseWhereInput): Promise<number> {
-        return this.prisma.course.count({ where });
+    async count(where?: Prisma.CourseMasterWhereInput): Promise<number> {
+        return this.prisma.courseMaster.count({ where });
     }
 
     /**
-     * Create new course
+     * Create new course master
      */
-    async create(data: Prisma.CourseCreateInput): Promise<Course> {
-        return this.prisma.course.create({ data });
+    async create(data: Prisma.CourseMasterCreateInput): Promise<CourseMaster> {
+        return this.prisma.courseMaster.create({ data });
     }
 
     /**
-     * Update course by ID
+     * Update course master by ID
      */
-    async update(courseId: string, data: Prisma.CourseUpdateInput): Promise<Course> {
-        return this.prisma.course.update({
-            where: { id: courseId },
+    async update(courseMasterId: string, data: Prisma.CourseMasterUpdateInput): Promise<CourseMaster> {
+        return this.prisma.courseMaster.update({
+            where: { id: courseMasterId },
             data: {
                 ...data,
                 updatedAt: new Date(),
@@ -78,20 +78,20 @@ export class CourseRepository implements ICourseRepository {
     }
 
     /**
-     * Delete course (hard delete)
+     * Delete course master (hard delete)
      */
-    async delete(courseId: string): Promise<void> {
-        await this.prisma.course.delete({
-            where: { id: courseId },
+    async delete(courseMasterId: string): Promise<void> {
+        await this.prisma.courseMaster.delete({
+            where: { id: courseMasterId },
         });
     }
 
     /**
-     * Soft delete course
+     * Soft delete course master
      */
-    async softDelete(courseId: string): Promise<Course> {
-        return this.prisma.course.update({
-            where: { id: courseId },
+    async softDelete(courseMasterId: string): Promise<CourseMaster> {
+        return this.prisma.courseMaster.update({
+            where: { id: courseMasterId },
             data: {
                 deletedAt: new Date(),
                 updatedAt: new Date(),
@@ -103,21 +103,21 @@ export class CourseRepository implements ICourseRepository {
      * Check if slug exists
      */
     async slugExists(slug: string, excludeId?: string): Promise<boolean> {
-        const where: Prisma.CourseWhereInput = { slug };
+        const where: Prisma.CourseMasterWhereInput = { slug };
 
         if (excludeId) {
             where.id = { not: excludeId };
         }
 
-        const course = await this.prisma.course.findFirst({ where });
+        const course = await this.prisma.courseMaster.findFirst({ where });
         return !!course;
     }
 
     /**
-     * Find courses by type (vod or live)
+     * Find course masters by type (vod or live)
      */
-    async findByType(type: 'vod' | 'live'): Promise<Course[]> {
-        return this.prisma.course.findMany({
+    async findByType(type: 'vod' | 'live'): Promise<CourseMaster[]> {
+        return this.prisma.courseMaster.findMany({
             where: {
                 type,
                 deletedAt: null,
@@ -127,23 +127,23 @@ export class CourseRepository implements ICourseRepository {
     }
 
     /**
-     * Find featured courses
+     * Find featured course masters
      */
-    async findFeatured(): Promise<Course[]> {
+    async findFeatured(): Promise<CourseMaster[]> {
         return [];
     }
 
     /**
-     * Update course statistics
+     * Update course master statistics
      */
-    async updateStats(courseId: string, stats: {
+    async updateStats(courseMasterId: string, stats: {
         totalStudents?: number;
         totalLessons?: number;
         totalQuizzes?: number;
         averageRating?: number;
         totalReviews?: number;
-    }): Promise<Course> {
-        const updateData: Prisma.CourseUpdateInput = {
+    }): Promise<CourseMaster> {
+        const updateData: Prisma.CourseMasterUpdateInput = {
             updatedAt: new Date(),
         };
 
@@ -153,18 +153,18 @@ export class CourseRepository implements ICourseRepository {
         if (stats.averageRating !== undefined) updateData.averageRating = stats.averageRating;
         if (stats.totalReviews !== undefined) updateData.totalReviews = stats.totalReviews;
 
-        return this.prisma.course.update({
-            where: { id: courseId },
+        return this.prisma.courseMaster.update({
+            where: { id: courseMasterId },
             data: updateData,
         });
     }
 
     /**
-     * Get lecturer for a course
+     * Get lecturer for a course master
      */
-    async getLecturer(courseId: string): Promise<any | null> {
-        const course = await this.prisma.course.findUnique({
-            where: { id: courseId },
+    async getLecturer(courseMasterId: string): Promise<any | null> {
+        const course = await this.prisma.courseMaster.findUnique({
+            where: { id: courseMasterId },
             select: {
                 lecturerId: true,
             },
@@ -195,24 +195,24 @@ export class CourseRepository implements ICourseRepository {
     }
 
     /**
-     * Get the latest published version for a course
+     * Get the latest published version for a course master
      */
-    async getLatestVersion(courseId: string): Promise<CourseVersion | null> {
+    async getLatestVersion(courseMasterId: string): Promise<CourseVersion | null> {
         return this.prisma.courseVersion.findFirst({
-            where: { courseId },
+            where: { id: courseMasterId },
             orderBy: { publishedAt: 'desc' },
         });
     }
 
     /**
-     * Count published quizzes for a course
+     * Count published quizzes for a course master
      */
-    async countQuizzes(courseId: string): Promise<number> {
+    async countQuizzes(courseMasterId: string): Promise<number> {
         return this.prisma.quiz.count({
             where: {
                 OR: [
-                    { courseId },
-                    { lesson: { module: { courseId } } }
+                    { id: courseMasterId },
+                    { lesson: { module: { id: courseMasterId } } }
                 ],
                 status: 'published',
             },
@@ -229,13 +229,13 @@ export class CourseRepository implements ICourseRepository {
     }
 
     /**
-     * Count published lessons for a course
+     * Count published lessons for a course master
      */
-    async countLessons(courseId: string): Promise<number> {
+    async countLessons(courseMasterId: string): Promise<number> {
         return this.prisma.lesson.count({
             where: {
                 module: {
-                    courseId,
+                    courseMasterId,
                     status: 'published',
                     deletedAt: null,
                 },
@@ -246,11 +246,11 @@ export class CourseRepository implements ICourseRepository {
     }
 
     /**
-     * Increment total students for a course
+     * Increment total students for a course master
      */
-    async incrementTotalStudents(courseId: string): Promise<void> {
-        await this.prisma.course.update({
-            where: { id: courseId },
+    async incrementTotalStudents(courseMasterId: string): Promise<void> {
+        await this.prisma.courseMaster.update({
+            where: { id: courseMasterId },
             data: {
                 totalStudents: {
                     increment: 1,

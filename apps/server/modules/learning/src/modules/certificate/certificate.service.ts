@@ -17,8 +17,8 @@ import {
     CERTIFICATE_REPOSITORY_TOKEN,
     IEnrollmentRepository,
     ENROLLMENT_REPOSITORY_TOKEN,
-    ICourseRepository,
-    COURSE_REPOSITORY_TOKEN
+    ICourseMasterRepository,
+    COURSE_MASTER_REPOSITORY_TOKEN
 } from '@server/learning/interfaces/repositories';
 import { SharedStorageService } from '@server/shared';
 import { v4 as uuidv4 } from 'uuid';
@@ -32,8 +32,8 @@ export class CertificateService implements ICertificateService {
         private readonly certificateRepository: ICertificateRepository,
         @Inject(ENROLLMENT_REPOSITORY_TOKEN)
         private readonly enrollmentRepository: IEnrollmentRepository,
-        @Inject(COURSE_REPOSITORY_TOKEN)
-        private readonly courseRepository: ICourseRepository,
+        @Inject(COURSE_MASTER_REPOSITORY_TOKEN)
+        private readonly courseMasterRepository: ICourseMasterRepository,
         private readonly storageService: SharedStorageService,
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
         @InjectMapper() private readonly mapper: Mapper,
@@ -100,7 +100,7 @@ export class CertificateService implements ICertificateService {
             }
 
             // 2. Fetch data (Course details and User details)
-            const course = await this.courseRepository.findById(courseId);
+            const course = await this.courseMasterRepository.findById(courseId);
             if (!course) throw new NotFoundException('Course not found');
 
             // Fetch User from Identity service

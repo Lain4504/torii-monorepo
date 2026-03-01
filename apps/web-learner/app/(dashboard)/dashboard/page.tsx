@@ -363,7 +363,7 @@ export default function DashboardClientPage() {
                                                     <td className="px-5 py-4 text-right">
                                                         {session.status === LiveSessionStatus.LIVE ? (
                                                             <Link
-                                                                href={`/live-classes/${session.courseId}`}
+                                                                href={`/live-classes/${session.courseMasterId}`}
                                                                 className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg text-xs transition-colors"
                                                             >
                                                                 Tham gia ngay
@@ -487,7 +487,7 @@ export default function DashboardClientPage() {
                                     {recentHistory.map((item) => (
                                         <tr key={item.id} className="border-b border-border hover:bg-muted/50 transition-colors">
                                             <td className="py-4 font-bold">
-                                                <Link href={`/dashboard/courses/${item.courseId}/learn?lesson=${item.lessonId}`} className="hover:text-primary transition-colors line-clamp-1 max-w-[220px] block">
+                                                <Link href={`/dashboard/courses/${item.courseMasterId}/learn?lesson=${item.lessonId}`} className="hover:text-primary transition-colors line-clamp-1 max-w-[220px] block">
                                                     {item.lessonTitle}
                                                 </Link>
                                             </td>

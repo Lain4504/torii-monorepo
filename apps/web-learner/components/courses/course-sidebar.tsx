@@ -1,6 +1,6 @@
 'use client'
 
-import type { CourseResponseDTO } from '@workspace/schemas'
+import type { CourseMasterResponseDTO } from '@workspace/schemas'
 import { useRouter } from 'next/navigation'
 import { Button } from '@workspace/ui/components/button'
 import { cn } from '@workspace/ui/lib/utils'
@@ -11,7 +11,7 @@ import { useCourseEnrollment } from '@/hooks/use-course-enrollment'
 import { formatCurrency, formatDate } from '@/utils/format-utils'
 
 interface CourseSidebarProps {
-    course: CourseResponseDTO
+    course: CourseMasterResponseDTO
 }
 
 export function CourseSidebar({ course }: CourseSidebarProps) {

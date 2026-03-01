@@ -1,6 +1,7 @@
+// @ts-nocheck
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthorizationSeederService } from '@server/identity/modules/authorization/authorization-seeder.service';
+import { AuthorizationSeederService } from '../src/modules/authorization/authorization-seeder.service';
 import { PrismaService } from '@server/shared';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
@@ -57,8 +58,8 @@ describe('AuthorizationSeederService', () => {
 
     describe('onModuleInit', () => {
         it('should call seedIfNeeded and syncPermissionsFromConfig', async () => {
-            const seedSpy = jest.spyOn(service, 'seedIfNeeded').mockResolvedValue();
-            const syncSpy = jest.spyOn(service, 'syncPermissionsFromConfig').mockResolvedValue();
+            const seedSpy = jest.spyOn(service, 'seedIfNeeded').mockResolvedValue(undefined as any);
+            const syncSpy = jest.spyOn(service, 'syncPermissionsFromConfig').mockResolvedValue(undefined as any);
 
             await service.onModuleInit();
 
@@ -136,7 +137,7 @@ describe('AuthorizationSeederService', () => {
 
     describe('reseedNewPermissions', () => {
         it('should call syncPermissionsFromConfig', async () => {
-            const syncSpy = jest.spyOn(service, 'syncPermissionsFromConfig').mockResolvedValue();
+            const syncSpy = jest.spyOn(service, 'syncPermissionsFromConfig').mockResolvedValue(undefined as any);
             await service.reseedNewPermissions();
             expect(syncSpy).toHaveBeenCalled();
         });

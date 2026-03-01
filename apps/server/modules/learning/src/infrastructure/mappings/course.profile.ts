@@ -2,13 +2,13 @@ import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
 import { Injectable } from '@nestjs/common';
 import { createMap, forMember, mapFrom } from '@automapper/core';
-import type { Course } from '@prisma/generated';
-import type { CourseResponseDTO } from '@workspace/schemas';
-import { CourseStatus } from '@workspace/schemas';
+import type { CourseMaster } from '@prisma/generated';
+import type { CourseMasterResponseDTO } from '@workspace/schemas';
+import { CourseMasterStatus } from '@workspace/schemas';
 
 /**
- * Course AutoMapper Profile
- * Maps Course entity (Prisma) to CourseResponseDTO
+ * CourseMaster AutoMapper Profile
+ * Maps CourseMaster entity (Prisma) to CourseMasterResponseDTO
  */
 @Injectable()
 export class CourseProfile extends AutomapperProfile {
@@ -20,132 +20,132 @@ export class CourseProfile extends AutomapperProfile {
     return (mapper) => {
       createMap(
         mapper,
-        'Course',
-        'CourseResponseDTO',
+        'CourseMaster',
+        'CourseMasterResponseDTO',
         // Map all fields explicitly to ensure compatibility with Prisma plain objects
         forMember(
-          (dest: CourseResponseDTO) => dest.id,
-          mapFrom((src: Course) => src.id),
+          (dest: CourseMasterResponseDTO) => dest.id,
+          mapFrom((src: CourseMaster) => src.id),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.title,
-          mapFrom((src: Course) => src.title),
+          (dest: CourseMasterResponseDTO) => dest.title,
+          mapFrom((src: CourseMaster) => src.title),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.slug,
-          mapFrom((src: Course) => src.slug),
+          (dest: CourseMasterResponseDTO) => dest.slug,
+          mapFrom((src: CourseMaster) => src.slug),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.type,
-          mapFrom((src: Course) => src.type as 'vod' | 'live'),
+          (dest: CourseMasterResponseDTO) => dest.type,
+          mapFrom((src: CourseMaster) => src.type as 'vod' | 'live'),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.description,
-          mapFrom((src: Course) => src.description || undefined),
+          (dest: CourseMasterResponseDTO) => dest.description,
+          mapFrom((src: CourseMaster) => src.description || undefined),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.shortDescription,
-          mapFrom((src: Course) => src.shortDescription || undefined),
+          (dest: CourseMasterResponseDTO) => dest.shortDescription,
+          mapFrom((src: CourseMaster) => src.shortDescription || undefined),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.jlptLevel,
-          mapFrom((src: Course) => src.jlptLevel as any),
+          (dest: CourseMasterResponseDTO) => dest.jlptLevel,
+          mapFrom((src: CourseMaster) => src.jlptLevel as any),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.aiMetadata,
-          mapFrom((src: Course) => (src.aiMetadata as any) || undefined),
+          (dest: CourseMasterResponseDTO) => dest.aiMetadata,
+          mapFrom((src: CourseMaster) => (src.aiMetadata as any) || undefined),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.thumbnailUrl,
-          mapFrom((src: Course) => src.thumbnailUrl || undefined),
+          (dest: CourseMasterResponseDTO) => dest.thumbnailUrl,
+          mapFrom((src: CourseMaster) => src.thumbnailUrl || undefined),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.previewVideoUrl,
-          mapFrom((src: Course) => src.previewVideoUrl || undefined),
+          (dest: CourseMasterResponseDTO) => dest.previewVideoUrl,
+          mapFrom((src: CourseMaster) => src.previewVideoUrl || undefined),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.price,
-          mapFrom((src: Course) => Number(src.price)),
+          (dest: CourseMasterResponseDTO) => dest.price,
+          mapFrom((src: CourseMaster) => Number(src.price)),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.discountPrice,
-          mapFrom((src: Course) => (src.discountPrice ? Number(src.discountPrice) : undefined)),
+          (dest: CourseMasterResponseDTO) => dest.discountPrice,
+          mapFrom((src: CourseMaster) => (src.discountPrice ? Number(src.discountPrice) : undefined)),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.liveConfig,
-          mapFrom((src: Course) => (src.liveConfig as any) || undefined),
+          (dest: CourseMasterResponseDTO) => dest.liveConfig,
+          mapFrom((src: CourseMaster) => (src.liveConfig as any) || undefined),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.durationWeeks,
-          mapFrom((src: Course) => src.durationWeeks || undefined),
+          (dest: CourseMasterResponseDTO) => dest.durationWeeks,
+          mapFrom((src: CourseMaster) => src.durationWeeks || undefined),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.totalLessons,
-          mapFrom((src: Course) => src.totalLessons),
+          (dest: CourseMasterResponseDTO) => dest.totalLessons,
+          mapFrom((src: CourseMaster) => src.totalLessons),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.totalQuizzes,
-          mapFrom((src: Course) => src.totalQuizzes),
+          (dest: CourseMasterResponseDTO) => dest.totalQuizzes,
+          mapFrom((src: CourseMaster) => src.totalQuizzes),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.totalStudents,
-          mapFrom((src: Course) => src.totalStudents),
+          (dest: CourseMasterResponseDTO) => dest.totalStudents,
+          mapFrom((src: CourseMaster) => src.totalStudents),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.averageRating,
-          mapFrom((src: Course) => Number(src.averageRating)),
+          (dest: CourseMasterResponseDTO) => dest.averageRating,
+          mapFrom((src: CourseMaster) => Number(src.averageRating)),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.totalReviews,
-          mapFrom((src: Course) => src.totalReviews),
+          (dest: CourseMasterResponseDTO) => dest.totalReviews,
+          mapFrom((src: CourseMaster) => src.totalReviews),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.status,
-          mapFrom((src: Course) => (src as any).status as CourseStatus),
+          (dest: CourseMasterResponseDTO) => dest.status,
+          mapFrom((src: CourseMaster) => (src as any).status as CourseMasterStatus),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.isFree,
-          mapFrom((src: Course) => src.isFree),
+          (dest: CourseMasterResponseDTO) => dest.isFree,
+          mapFrom((src: CourseMaster) => src.isFree),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.tags,
-          mapFrom((src: Course) => src.tags),
+          (dest: CourseMasterResponseDTO) => dest.tags,
+          mapFrom((src: CourseMaster) => src.tags),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.learningOutcomes,
-          mapFrom((src: Course) => src.learningOutcomes || undefined),
+          (dest: CourseMasterResponseDTO) => dest.learningOutcomes,
+          mapFrom((src: CourseMaster) => src.learningOutcomes || undefined),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.requirements,
-          mapFrom((src: Course) => src.requirements || undefined),
+          (dest: CourseMasterResponseDTO) => dest.requirements,
+          mapFrom((src: CourseMaster) => src.requirements || undefined),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.createdBy,
-          mapFrom((src: Course) => src.createdBy || undefined),
+          (dest: CourseMasterResponseDTO) => dest.createdBy,
+          mapFrom((src: CourseMaster) => src.createdBy || undefined),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.approvedBy,
-          mapFrom((src: Course) => src.approvedBy || undefined),
+          (dest: CourseMasterResponseDTO) => dest.approvedBy,
+          mapFrom((src: CourseMaster) => src.approvedBy || undefined),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.approvedAt,
-          mapFrom((src: Course) => src.approvedAt || undefined),
+          (dest: CourseMasterResponseDTO) => dest.approvedAt,
+          mapFrom((src: CourseMaster) => src.approvedAt || undefined),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.createdAt,
-          mapFrom((src: Course) => src.createdAt),
+          (dest: CourseMasterResponseDTO) => dest.createdAt,
+          mapFrom((src: CourseMaster) => src.createdAt),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.updatedAt,
-          mapFrom((src: Course) => src.updatedAt),
+          (dest: CourseMasterResponseDTO) => dest.updatedAt,
+          mapFrom((src: CourseMaster) => src.updatedAt),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.deletedAt,
-          mapFrom((src: Course) => src.deletedAt || undefined),
+          (dest: CourseMasterResponseDTO) => dest.deletedAt,
+          mapFrom((src: CourseMaster) => src.deletedAt || undefined),
         ),
         forMember(
-          (dest: CourseResponseDTO) => dest.lecturer,
-          mapFrom((src: Course) => {
+          (dest: CourseMasterResponseDTO) => dest.lecturer,
+          mapFrom((src: CourseMaster) => {
             const lecturer = (src as any).lecturer;
             if (lecturer) {
               return {

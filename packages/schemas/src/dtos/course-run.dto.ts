@@ -3,7 +3,7 @@ import { courseRunSchema } from '../models/course-run.model';
 import { paginationOptionsDTOSchema } from './common.dto';
 
 export const courseRunCreateDTOSchema = courseRunSchema.pick({
-    courseId: true,
+    courseMasterId: true,
     title: true,
     lecturerId: true,
     startDate: true,
@@ -39,7 +39,7 @@ export const courseRunResponseDTOSchema = courseRunSchema.extend({
 export type CourseRunResponseDTO = z.infer<typeof courseRunResponseDTOSchema>;
 
 export const courseRunSearchRequestDTOSchema = paginationOptionsDTOSchema.extend({
-    courseId: z.string().uuid().optional(),
+    courseMasterId: z.string().uuid().optional(),
     status: courseRunSchema.shape.status.optional(),
 });
 

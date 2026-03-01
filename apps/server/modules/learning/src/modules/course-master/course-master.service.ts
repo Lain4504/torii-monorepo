@@ -3,36 +3,36 @@ import { ClientProxy } from '@nestjs/microservices';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
 import { generateSlug } from '@server/shared';
-import { Course, CourseStatus as PrismaCourseStatus } from '@prisma/generated';
+import { CourseMaster, CourseMasterStatus as PrismaCourseMasterStatus } from '@prisma/generated';
 import { validate as uuidValidate } from 'uuid';
 
-import { CourseStatus } from '@workspace/schemas';
+import { CourseMasterStatus } from '@workspace/schemas';
 import type {
-  CourseCreateDTO,
-  CourseUpdateDTO,
-  CourseResponseDTO,
-  CourseSearchResponseDTO,
+  CourseMasterCreateDTO,
+  CourseMasterUpdateDTO,
+  CourseMasterResponseDTO,
+  CourseMasterSearchResponseDTO,
   PaginationOptionsDTO,
   PaginatedResponseDTO,
   Requester,
 } from '@workspace/schemas';
 
-import type { ICourseService, IEnrollmentService } from '@server/learning/interfaces/services';
-import type { ICourseRepository, IModuleRepository, ILessonRepository } from '@server/learning/interfaces/repositories';
-import { COURSE_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN, LESSON_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import type { ICourseMasterService, IEnrollmentService } from '@server/learning/interfaces/services';
+import type { ICourseMasterRepository, IModuleRepository, ILessonRepository } from '@server/learning/interfaces/repositories';
+import { COURSE_MASTER_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN, LESSON_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 import { ENROLLMENT_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 
 /**
- * Course Service
- * Handles course business logic operations
+ * Course Master Service
+ * Handles course master business logic operations
  */
 @Injectable()
-export class CourseService implements ICourseService {
-  private readonly logger = new Logger(CourseService.name);
+export class CourseMasterService implements ICourseMasterService {
+  private readonly logger = new Logger(CourseMasterService.name);
 
   constructor(
-    @Inject(COURSE_REPOSITORY_TOKEN)
-    private readonly courseRepository: ICourseRepository,
+    @Inject(COURSE_MASTER_REPOSITORY_TOKEN)
+    private readonly courseRepository: ICourseMasterRepository,
     @Inject(MODULE_REPOSITORY_TOKEN)
     private readonly moduleRepository: IModuleRepository,
     @Inject(LESSON_REPOSITORY_TOKEN)
@@ -73,10 +73,10 @@ export class CourseService implements ICourseService {
   }
 
   /**
-   * Map Course entity to CourseResponseDTO using AutoMapper
+   * Map Course Master entity to CourseMasterResponseDTO using AutoMapper
    */
-  private toCourseResponseDTO(course: Course): CourseResponseDTO {
-    return this.mapper.map<Course, CourseResponseDTO>(course, 'Course', 'CourseResponseDTO');
+  private toCourseMasterResponseDTO(course: CourseMaster): CourseMasterResponseDTO {
+    return this.mapper.map<CourseMaster, CourseMasterResponseDTO>(course, 'CourseMaster', 'CourseMasterResponseDTO');
   }
 
   /**
@@ -98,7 +98,7 @@ export class CourseService implements ICourseService {
     return `${baseSlug}-${dateStr}-${timestamp}`;
   }
 
-  async findAll(options: PaginationOptionsDTO & { status?: CourseStatus; jlptLevel?: string; instructorId?: string }): Promise<PaginatedResponseDTO<CourseResponseDTO>> {
+  async findAll(options: PaginationOptionsDTO & { status?: CourseMasterStatus; jlptLevel?: string; instructorId?: string }): Promise<PaginatedResponseDTO<CourseMasterResponseDTO>> {
     try {
       const { page = 1, limit = 10, search, status, jlptLevel, instructorId } = options;
       // Ensure page and limit are numbers for Prisma
@@ -158,15 +158,15 @@ export class CourseService implements ICourseService {
       const totalPages = Math.ceil(total / limitNum);
 
       return {
-        data: courses.map(course => this.toCourseResponseDTO(course)),
+        data: courses.map(course => this.toCourseMasterResponseDTO(course)),
         total,
         page: pageNum,
         limit: limitNum,
         totalPages,
       };
     } catch (error: any) {
-      this.logger.error('Failed to retrieve courses', error);
-      throw new BadRequestException('Failed to retrieve courses');
+      this.logger.error('Failed to retrieve course masters', error);
+      throw new BadRequestException('Failed to retrieve course masters');
     }
   }
 
@@ -182,7 +182,7 @@ export class CourseService implements ICourseService {
     priceMax?: number;
     ratingMin?: number;
     sortBy?: string;
-  }): Promise<PaginatedResponseDTO<CourseResponseDTO>> {
+  }): Promise<PaginatedResponseDTO<CourseMasterResponseDTO>> {
     try {
       const {
         page = 1,
@@ -268,36 +268,35 @@ export class CourseService implements ICourseService {
       const totalPages = Math.ceil(total / limitNum);
 
       return {
-        data: courses.map(course => this.toCourseResponseDTO(course as any)),
+        data: courses.map(course => this.toCourseMasterResponseDTO(course as any)),
         total,
         page: pageNum,
         limit: limitNum,
         totalPages,
       };
     } catch (error: any) {
-      this.logger.error('Failed to search courses', error);
-      throw new BadRequestException('Failed to search courses');
+      this.logger.error('Failed to search course masters', error);
+      throw new BadRequestException('Failed to search course masters');
     }
   }
 
   /**
-   * Find one course by ID
+   * Find one course master by ID
    */
-  async findById(courseId: string): Promise<CourseResponseDTO> {
-    const course = await this.courseRepository.findById(courseId);
+  async findById(courseMasterId: string): Promise<CourseMasterResponseDTO> {
+    const course = await this.courseRepository.findById(courseMasterId);
 
     if (!course || course.deletedAt) {
-      throw new NotFoundException(`Course with id ${courseId} not found`);
+      throw new NotFoundException(`Course master with id ${courseMasterId} not found`);
     }
 
-    const dto = this.toCourseResponseDTO(course);
+    const dto = this.toCourseMasterResponseDTO(course);
 
-    // Force recalculate stats to ensure "Live" accuracy for Admin/Staff
-    // This handles manual database edits being reflected in the UI
-    await this.recalculateStats(courseId);
+    // Force recalculate stats to ensure accuracy for Admin/Staff
+    await this.recalculateStats(courseMasterId);
 
     // Refresh DTO values from database after recalculation
-    const updated = await this.courseRepository.findById(courseId);
+    const updated = await this.courseRepository.findById(courseMasterId);
     if (updated) {
       dto.totalLessons = updated.totalLessons;
       dto.totalQuizzes = updated.totalQuizzes;
@@ -308,7 +307,7 @@ export class CourseService implements ICourseService {
       const lecturer = await this.courseRepository.getLecturer(course.id);
       dto.lecturer = lecturer;
     } catch (error) {
-      this.logger.warn(`Failed to fetch lecturer for course ${course.id}`, error);
+      this.logger.warn(`Failed to fetch lecturer for course master ${course.id}`, error);
       dto.lecturer = null;
     }
 
@@ -316,23 +315,23 @@ export class CourseService implements ICourseService {
   }
 
   /**
-   * Find course by slug
+   * Find course master by slug
    */
-  async findBySlug(slug: string): Promise<CourseResponseDTO> {
+  async findBySlug(slug: string): Promise<CourseMasterResponseDTO> {
     const course = await this.courseRepository.findBySlug(slug);
 
     if (!course || course.deletedAt) {
-      throw new NotFoundException(`Course with slug ${slug} not found`);
+      throw new NotFoundException(`Course master with slug ${slug} not found`);
     }
 
-    const dto = this.toCourseResponseDTO(course);
+    const dto = this.toCourseMasterResponseDTO(course);
 
     // Fetch lecturer
     try {
       const lecturer = await this.courseRepository.getLecturer(course.id);
       dto.lecturer = lecturer;
     } catch (error) {
-      this.logger.warn(`Failed to fetch lecturer for course ${course.id}`, error);
+      this.logger.warn(`Failed to fetch lecturer for course master ${course.id}`, error);
       dto.lecturer = null;
     }
 
@@ -340,12 +339,11 @@ export class CourseService implements ICourseService {
   }
 
   /**
-   * Create a new course
+   * Create a new course master
    */
-  async create(requester: Requester, dto: CourseCreateDTO): Promise<CourseResponseDTO> {
+  async create(requester: Requester, dto: CourseMasterCreateDTO): Promise<CourseMasterResponseDTO> {
     try {
-      // Business Rule: Only admin and staff-lms can create courses
-      // Lecturers can only be assigned to courses by admin/staff
+      // Business Rule: Only admin and staff-lms can create course masters
       if (requester.role?.toLowerCase() === 'lecturer') {
         throw new ForbiddenException('Lecturers cannot create courses. Courses must be assigned by admin or LMS staff.');
       }
@@ -379,7 +377,7 @@ export class CourseService implements ICourseService {
 
       // Validation: Paid courses must have price > 0
       if (!data.isFree && data.price <= 0) {
-        throw new BadRequestException('Paid courses must have a price greater than 0');
+        throw new BadRequestException('Paid course masters must have a price greater than 0');
       }
 
       // Validation: Course durationWeeks must be at most 26 (6 months)
@@ -396,40 +394,40 @@ export class CourseService implements ICourseService {
 
       await this.createAuditLog({
         userId: requester.sub,
-        action: 'course.create',
-        entity: 'course',
+        action: 'course-master.create',
+        entity: 'course-master',
         entityId: course.id,
-        description: `Created course: ${course.title}`,
+        description: `Created course master: ${course.title}`,
         newValues: course,
       });
 
-      return this.toCourseResponseDTO(course);
+      return this.toCourseMasterResponseDTO(course);
     } catch (error: any) {
-      this.logger.error('Error creating course', error);
-      throw new BadRequestException(`Failed to create course: ${error?.message || 'Unknown error'}`);
+      this.logger.error('Error creating course master', error);
+      throw new BadRequestException(`Failed to create course master: ${error?.message || 'Unknown error'}`);
     }
   }
 
   /**
-   * Update course
+   * Update course master
    */
-  async update(requester: Requester, courseId: string, dto: CourseUpdateDTO): Promise<CourseResponseDTO> {
+  async update(requester: Requester, courseMasterId: string, dto: CourseMasterUpdateDTO): Promise<CourseMasterResponseDTO> {
     // Check permissions
     if (!this.hasPermission(requester, 'course.update')) {
-      throw new ForbiddenException('You do not have permission to update courses');
+      throw new ForbiddenException('You do not have permission to update course masters');
     }
 
-    const existing = await this.courseRepository.findById(courseId);
+    const existing = await this.courseRepository.findById(courseMasterId);
 
     if (!existing || existing.deletedAt) {
-      throw new NotFoundException(`Course with id ${courseId} not found`);
+      throw new NotFoundException(`Course master with id ${courseMasterId} not found`);
     }
 
-    // If user cannot publish courses (staff/admin only), check if they are assigned to the course
+    // If user cannot publish course masters (staff/admin only), check if they are assigned to the course
     if (!this.hasPermission(requester, 'course.publish')) {
-      const isInstructor = await this.isInstructor(requester.sub, courseId);
+      const isInstructor = await this.isInstructor(requester.sub, courseMasterId);
       if (!isInstructor) {
-        throw new ForbiddenException('You are not assigned to this course');
+        throw new ForbiddenException('You are not assigned to this course master');
       }
     }
 
@@ -439,7 +437,7 @@ export class CourseService implements ICourseService {
       // Handle slug update if title changes
       if (dto.title && dto.title !== existing.title) {
         const baseSlug = generateSlug(dto.title);
-        updateData.slug = await this.ensureUniqueSlug(baseSlug, courseId);
+        updateData.slug = await this.ensureUniqueSlug(baseSlug, courseMasterId);
         updateData.title = dto.title;
       }
 
@@ -467,7 +465,7 @@ export class CourseService implements ICourseService {
       const finalPrice = dto.price !== undefined ? Number(dto.price) : Number(existing.price);
 
       if (!finalIsFree && finalPrice <= 0) {
-        throw new BadRequestException('Paid courses must have a price greater than 0');
+        throw new BadRequestException('Paid course masters must have a price greater than 0');
       }
 
       // Validation: Course durationWeeks must be at most 26 (6 months)
@@ -508,17 +506,17 @@ export class CourseService implements ICourseService {
       }
 
       if (Object.keys(updateData).length === 0) {
-        return this.toCourseResponseDTO(existing);
+        return this.toCourseMasterResponseDTO(existing);
       }
 
-      const course = await this.courseRepository.update(courseId, updateData);
+      const course = await this.courseRepository.update(courseMasterId, updateData);
 
       await this.createAuditLog({
         userId: requester.sub,
-        action: 'course.update',
-        entity: 'course',
-        entityId: courseId,
-        description: `Updated course: ${course.title}`,
+        action: 'course-master.update',
+        entity: 'course-master',
+        entityId: courseMasterId,
+        description: `Updated course master: ${course.title}`,
         oldValues: existing,
         newValues: course,
       });
@@ -526,169 +524,166 @@ export class CourseService implements ICourseService {
       // Emit event if publishing
       if (isPublishing) {
         try {
-          this.logger.log(`Course ${course.id} published, emitting event`);
+          this.logger.log(`Course master ${course.id} published, emitting event`);
           this.natsClient.emit(
-            { cmd: 'course.published' },
+            { cmd: 'course-master.published' },
             {
-              courseId: course.id,
+              courseMasterId: course.id,
               courseTitle: course.title,
               courseJlptLevel: course.jlptLevel,
             },
           );
         } catch (error: any) {
-          this.logger.error(`Failed to emit course.published event: ${error?.message}`, error);
+          this.logger.error(`Failed to emit course-master.published event: ${error?.message}`, error);
         }
       }
 
-      return this.toCourseResponseDTO(course);
+      return this.toCourseMasterResponseDTO(course);
     } catch (error: any) {
-      this.logger.error('Error updating course', error);
-      throw new BadRequestException(`Failed to update course: ${error?.message || 'Unknown error'}`);
+      this.logger.error('Error updating course master', error);
+      throw new BadRequestException(`Failed to update course master: ${error?.message || 'Unknown error'}`);
     }
   }
 
   /**
-   * Delete course
+   * Delete course master
    */
-  async delete(requester: Requester, courseId: string, hardDelete = false): Promise<{ message: string }> {
-    const permission = hardDelete ? 'course.delete' : 'course.delete'; // Both use same for now, or could use course.hard_delete if defined
+  async delete(requester: Requester, courseMasterId: string, hardDelete = false): Promise<{ message: string }> {
     if (!this.hasPermission(requester, 'course.delete')) {
-      throw new ForbiddenException('You do not have permission to delete courses');
+      throw new ForbiddenException('You do not have permission to delete course masters');
     }
 
-    const existing = await this.courseRepository.findById(courseId);
+    const existing = await this.courseRepository.findById(courseMasterId);
 
     if (!existing || existing.deletedAt) {
-      throw new NotFoundException(`Course with id ${courseId} not found`);
+      throw new NotFoundException(`Course master with id ${courseMasterId} not found`);
     }
 
     try {
       if (hardDelete) {
-        await this.courseRepository.delete(courseId);
+        await this.courseRepository.delete(courseMasterId);
       } else {
-        await this.courseRepository.softDelete(courseId);
+        await this.courseRepository.softDelete(courseMasterId);
       }
 
       await this.createAuditLog({
         userId: requester.sub,
-        action: hardDelete ? 'course.hard_delete' : 'course.delete',
-        entity: 'course',
-        entityId: courseId,
-        description: `${hardDelete ? 'Hard deleted' : 'Soft deleted'} course: ${existing.title}`,
+        action: hardDelete ? 'course-master.hard_delete' : 'course-master.delete',
+        entity: 'course-master',
+        entityId: courseMasterId,
+        description: `${hardDelete ? 'Hard deleted' : 'Soft deleted'} course master: ${existing.title}`,
         oldValues: existing,
       });
 
-      return { message: 'Course deleted successfully' };
+      return { message: 'Course master deleted successfully' };
     } catch (error: any) {
-      throw new BadRequestException(`Failed to delete course: ${error?.message || 'Unknown error'}`);
+      throw new BadRequestException(`Failed to delete course master: ${error?.message || 'Unknown error'}`);
     }
   }
 
   /**
-   * Get featured courses
-   * Note: Featured functionality removed. Use aiMetadata.featured or tags instead.
+   * Get featured course masters
    */
-  async getFeatured(): Promise<CourseResponseDTO[]> {
-    this.logger.warn('getFeatured() called but featured field is removed. Consider using aiMetadata or tags.');
+  async getFeatured(): Promise<CourseMasterResponseDTO[]> {
+    this.logger.warn('getFeatured() called but featured field is removed.');
     return [];
   }
 
   /**
-   * Get courses by type
+   * Get course masters by type
    */
-  async getByType(type: 'vod' | 'live'): Promise<CourseResponseDTO[]> {
+  async getByType(type: 'vod' | 'live'): Promise<CourseMasterResponseDTO[]> {
     const courses = await this.courseRepository.findByType(type);
-    return courses.map(course => this.toCourseResponseDTO(course));
+    return courses.map(course => this.toCourseMasterResponseDTO(course));
   }
 
   /**
-   * Submit a course for review
+   * Submit a course master for review
    */
-  async submitForReview(requester: Requester, courseId: string): Promise<CourseResponseDTO> {
+  async submitForReview(requester: Requester, courseMasterId: string): Promise<CourseMasterResponseDTO> {
     if (!this.hasPermission(requester, 'course.update')) {
-      throw new ForbiddenException('You do not have permission to submit courses for review');
+      throw new ForbiddenException('You do not have permission to submit course masters for review');
     }
 
-    const existing = await this.courseRepository.findById(courseId);
+    const existing = await this.courseRepository.findById(courseMasterId);
     if (!existing || existing.deletedAt) {
-      throw new NotFoundException(`Course with id ${courseId} not found`);
+      throw new NotFoundException(`Course master with id ${courseMasterId} not found`);
     }
 
     if (existing.status === 'published') {
-      throw new BadRequestException('Course is already published');
+      throw new BadRequestException('Course master is already published');
     }
 
-    const course = await this.courseRepository.update(courseId, {
-      status: (PrismaCourseStatus as any).pending_review,
+    const course = await this.courseRepository.update(courseMasterId, {
+      status: (PrismaCourseMasterStatus as any).pending_review,
       rejectionReason: null
     });
 
     await this.createAuditLog({
       userId: requester.sub,
-      action: 'course.submit_for_review',
-      entity: 'course',
-      entityId: courseId,
-      description: `Submitted course for review: ${existing.title}`,
+      action: 'course-master.submit_for_review',
+      entity: 'course-master',
+      entityId: courseMasterId,
+      description: `Submitted course master for review: ${existing.title}`,
       oldValues: existing,
       newValues: course,
     });
 
-    return this.toCourseResponseDTO(course);
+    return this.toCourseMasterResponseDTO(course);
   }
 
   /**
    * Update livestream configuration.
-   * Caller must have course.publish (admin/staff) or be an instructor assigned to this course.
    */
-  async updateLiveConfig(requester: Requester, courseId: string, config: any): Promise<CourseResponseDTO> {
-    const existing = await this.courseRepository.findById(courseId);
+  async updateLiveConfig(requester: Requester, courseMasterId: string, config: any): Promise<CourseMasterResponseDTO> {
+    const existing = await this.courseRepository.findById(courseMasterId);
     if (!existing || existing.deletedAt) {
-      throw new NotFoundException(`Course with id ${courseId} not found`);
+      throw new NotFoundException(`Course master with id ${courseMasterId} not found`);
     }
 
     if (existing.type !== 'live') {
-      throw new BadRequestException('Only live courses can have livestream configuration');
+      throw new BadRequestException('Only live course masters can have livestream configuration');
     }
 
     const canPublishOrManage = this.hasPermission(requester, 'course.publish');
     if (!canPublishOrManage) {
-      const isInstructor = await this.isInstructor(requester.sub, courseId);
+      const isInstructor = await this.isInstructor(requester.sub, courseMasterId);
       if (!isInstructor) {
-        throw new ForbiddenException('You must be assigned to this course to update live configuration');
+        throw new ForbiddenException('You must be assigned to this course master to update live configuration');
       }
     }
 
-    const course = await this.courseRepository.update(courseId, { liveConfig: config });
-    return this.toCourseResponseDTO(course);
+    const course = await this.courseRepository.update(courseMasterId, { liveConfig: config });
+    return this.toCourseMasterResponseDTO(course);
   }
 
   /**
-   * Publish a course (set approvedBy and approvedAt)
+   * Publish a course master (set approvedBy and approvedAt)
    * Also creates a CourseVersion snapshot.
    */
-  async publish(requester: Requester, courseId: string): Promise<CourseResponseDTO> {
+  async publish(requester: Requester, courseMasterId: string): Promise<CourseMasterResponseDTO> {
     if (!this.hasPermission(requester, 'course.publish')) {
-      throw new ForbiddenException('You do not have permission to publish courses');
+      throw new ForbiddenException('You do not have permission to publish course masters');
     }
 
-    const existing = await this.courseRepository.findById(courseId);
+    const existing = await this.courseRepository.findById(courseMasterId);
     if (!existing || existing.deletedAt) {
-      throw new NotFoundException(`Course with id ${courseId} not found`);
+      throw new NotFoundException(`Course master with id ${courseMasterId} not found`);
     }
 
     const publishUpdateData: any = {
       approvedBy: requester.sub,
       approvedAt: new Date(),
-      status: CourseStatus.PUBLISHED,
+      status: CourseMasterStatus.PUBLISHED,
       rejectionReason: null, // Clear any previous rejection
     };
 
-    const course = await this.courseRepository.update(courseId, publishUpdateData);
+    const course = await this.courseRepository.update(courseMasterId, publishUpdateData);
 
     // Create a new CourseVersion snapshot
     try {
       // 1. Fetch modules and lessons
-      const modules = await this.moduleRepository.findByCourseId(courseId);
+      const modules = await this.moduleRepository.findByCourseId(courseMasterId);
       const curriculumSnapshot = await Promise.all(
         modules.map(async (module) => {
           const lessons = await this.lessonRepository.findByModuleId(module.id);
@@ -714,7 +709,7 @@ export class CourseService implements ICourseService {
       );
 
       // 2. Determine version tag
-      const latestVersion = await this.courseRepository.getLatestVersion(courseId);
+      const latestVersion = await this.courseRepository.getLatestVersion(courseMasterId);
       let nextVersionNumber = 1;
       if (latestVersion && latestVersion.versionTag.startsWith('v')) {
         const currentVersion = parseFloat(latestVersion.versionTag.substring(1));
@@ -726,117 +721,115 @@ export class CourseService implements ICourseService {
 
       // 3. Create CourseVersion
       await this.courseRepository.createVersion({
-        course: { connect: { id: courseId } },
+        courseMaster: { connect: { id: courseMasterId } },
         versionTag,
         curriculumSnapshot: curriculumSnapshot as any,
         changelog: `Published version ${versionTag}`,
       });
-      this.logger.log(`Created new CourseVersion ${versionTag} for course ${courseId}`);
+      this.logger.log(`Created new CourseVersion ${versionTag} for course master ${courseMasterId}`);
     } catch (error: any) {
       this.logger.error(`Failed to create course version snapshot: ${error?.message}`, error);
-      // We don't throw an error here to prevent blocking the publish action, 
-      // but in a real system we might want this in a transaction.
     }
 
     await this.createAuditLog({
       userId: requester.sub,
-      action: 'course.publish',
-      entity: 'course',
-      entityId: courseId,
-      description: `Published course: ${existing.title}`,
+      action: 'course-master.publish',
+      entity: 'course-master',
+      entityId: courseMasterId,
+      description: `Published course master: ${existing.title}`,
       oldValues: existing,
       newValues: course,
     });
 
     // Emit event
     try {
-      this.logger.log(`Course ${course.id} published, emitting event`);
+      this.logger.log(`Course master ${course.id} published, emitting event`);
       this.natsClient.emit(
-        { cmd: 'course.published' },
+        { cmd: 'course-master.published' },
         {
-          courseId: course.id,
+          courseMasterId: course.id,
           courseTitle: course.title,
           courseJlptLevel: course.jlptLevel,
         },
       );
     } catch (error: any) {
-      this.logger.error(`Failed to emit course.published event: ${error?.message}`, error);
+      this.logger.error(`Failed to emit course-master.published event: ${error?.message}`, error);
     }
 
-    return this.toCourseResponseDTO(course);
+    return this.toCourseMasterResponseDTO(course);
   }
 
   /**
-   * Unpublish a course (clear approvedBy and approvedAt)
+   * Unpublish a course master (set status to archived)
    */
-  async unpublish(requester: Requester, courseId: string): Promise<CourseResponseDTO> {
+  async unpublish(requester: Requester, courseMasterId: string): Promise<CourseMasterResponseDTO> {
     if (!this.hasPermission(requester, 'course.publish')) {
-      throw new ForbiddenException('Only authorized staff can unpublish courses');
+      throw new ForbiddenException('Only authorized staff can unpublish course masters');
     }
 
-    const existing = await this.courseRepository.findById(courseId);
+    const existing = await this.courseRepository.findById(courseMasterId);
     if (!existing || existing.deletedAt) {
-      throw new NotFoundException(`Course with id ${courseId} not found`);
+      throw new NotFoundException(`Course master with id ${courseMasterId} not found`);
     }
 
     const unpublishUpdateData: any = {
-      status: CourseStatus.ARCHIVED,
+      status: CourseMasterStatus.ARCHIVED,
     };
 
-    const course = await this.courseRepository.update(courseId, unpublishUpdateData);
+    const course = await this.courseRepository.update(courseMasterId, unpublishUpdateData);
 
     await this.createAuditLog({
       userId: requester.sub,
-      action: 'course.unpublish',
-      entity: 'course',
-      entityId: courseId,
-      description: `Unpublished course (Archived): ${existing.title}`,
+      action: 'course-master.unpublish',
+      entity: 'course-master',
+      entityId: courseMasterId,
+      description: `Unpublished course master (Archived): ${existing.title}`,
       oldValues: existing,
       newValues: course,
     });
 
-    return this.toCourseResponseDTO(course);
+    return this.toCourseMasterResponseDTO(course);
   }
 
   /**
-   * Reject a course (set status to rejected and add rejection reason)
+   * Reject a course master (set status to rejected and add rejection reason)
    */
-  async reject(requester: Requester, courseId: string, reason: string): Promise<CourseResponseDTO> {
+  async reject(requester: Requester, courseMasterId: string, reason: string): Promise<CourseMasterResponseDTO> {
     if (!this.hasPermission(requester, 'course.publish')) {
-      throw new ForbiddenException('Only authorized staff can reject courses');
+      throw new ForbiddenException('Only authorized staff can reject course masters');
     }
 
-    const existing = await this.courseRepository.findById(courseId);
+    const existing = await this.courseRepository.findById(courseMasterId);
     if (!existing || existing.deletedAt) {
-      throw new NotFoundException(`Course with id ${courseId} not found`);
+      throw new NotFoundException(`Course master with id ${courseMasterId} not found`);
     }
 
     const rejectUpdateData: any = {
       approvedBy: requester.sub, // Track who rejected it
-      status: CourseStatus.REJECTED,
+      status: CourseMasterStatus.REJECTED,
       rejectionReason: reason,
     };
 
-    const course = await this.courseRepository.update(courseId, rejectUpdateData);
+    const course = await this.courseRepository.update(courseMasterId, rejectUpdateData);
 
     await this.createAuditLog({
       userId: requester.sub,
-      action: 'course.reject',
-      entity: 'course',
-      entityId: courseId,
-      description: `Rejected course: ${existing.title}. Reason: ${reason}`,
+      action: 'course-master.reject',
+      entity: 'course-master',
+      entityId: courseMasterId,
+      description: `Rejected course master: ${existing.title}. Reason: ${reason}`,
       oldValues: existing,
       newValues: course,
       metadata: { reason }
     });
 
-    return this.toCourseResponseDTO(course);
+    return this.toCourseMasterResponseDTO(course);
   }
 
   /**
-   * Get course curriculum (modules with lessons)
+   * Get course master curriculum (modules with lessons)
    */
-  async getCurriculum(courseId: string, requester?: Requester): Promise<{
+  async getCurriculum(courseMasterId: string, requester?: Requester): Promise<{
     modules: Array<{
       id: string;
       title: string;
@@ -856,10 +849,10 @@ export class CourseService implements ICourseService {
     }>;
   }> {
     const userId = requester?.sub;
-    // Verify course exists
-    const course = await this.courseRepository.findById(courseId);
+    // Verify course master exists
+    const course = await this.courseRepository.findById(courseMasterId);
     if (!course || course.deletedAt) {
-      throw new NotFoundException(`Course with id ${courseId} not found`);
+      throw new NotFoundException(`Course master with id ${courseMasterId} not found`);
     }
 
     // Check enrollment and instructor status if userId is provided
@@ -875,12 +868,12 @@ export class CourseService implements ICourseService {
 
     if (userId) {
       try {
-        enrollment = await this.enrollmentService.findByUserAndCourse(userId, courseId);
+        enrollment = await this.enrollmentService.findByUserAndCourse(userId, courseMasterId);
       } catch (error) {
-        this.logger.warn(`Failed to check enrollment for user ${userId} on course ${courseId}`, error);
+        this.logger.warn(`Failed to check enrollment for user ${userId} on course master ${courseMasterId}`, error);
       }
       try {
-        isInstructorForCourse = await this.isInstructor(userId, courseId);
+        isInstructorForCourse = await this.isInstructor(userId, courseMasterId);
       } catch (error) { }
     }
 
@@ -895,7 +888,7 @@ export class CourseService implements ICourseService {
         courseVersion = await this.courseRepository.getVersionById(enrollment.versionId);
       } else {
         // Not enrolled (or enrolled without version tracking), fetch latest published version
-        courseVersion = await this.courseRepository.getLatestVersion(courseId);
+        courseVersion = await this.courseRepository.getLatestVersion(courseMasterId);
       }
 
       if (courseVersion && courseVersion.curriculumSnapshot) {
@@ -935,7 +928,7 @@ export class CourseService implements ICourseService {
     }
 
     // Instructor path: Fetch from live/staging tables so they can preview draft content
-    const modules = await this.moduleRepository.findByCourseId(courseId);
+    const modules = await this.moduleRepository.findByCourseId(courseMasterId);
 
     const isEnrolled = !!enrollment || isInstructorForCourse || isAdminOrStaff;
 
@@ -977,81 +970,81 @@ export class CourseService implements ICourseService {
   }
 
   /**
-   * Recalculate course statistics (totalLessons, totalQuizzes)
+   * Recalculate course master statistics (totalLessons, totalQuizzes)
    * Only counts published items
    */
-  async recalculateStats(courseId: string): Promise<void> {
+  async recalculateStats(courseMasterId: string): Promise<void> {
     try {
-      const totalLessons = await this.courseRepository.countLessons(courseId);
-      const totalQuizzes = await this.courseRepository.countQuizzes(courseId);
+      const totalLessons = await this.courseRepository.countLessons(courseMasterId);
+      const totalQuizzes = await this.courseRepository.countQuizzes(courseMasterId);
 
-      await this.courseRepository.updateStats(courseId, { totalLessons, totalQuizzes });
-      this.logger.log(`Recalculated stats for course ${courseId}: totalLessons=${totalLessons}, totalQuizzes=${totalQuizzes}`);
+      await this.courseRepository.updateStats(courseMasterId, { totalLessons, totalQuizzes });
+      this.logger.log(`Recalculated stats for course master ${courseMasterId}: totalLessons=${totalLessons}, totalQuizzes=${totalQuizzes}`);
     } catch (error: any) {
-      this.logger.error(`Failed to recalculate stats for course ${courseId}`, error);
+      this.logger.error(`Failed to recalculate stats for course master ${courseMasterId}`, error);
     }
   }
 
   /**
-   * Check if a user is the lecturer for a course
+   * Check if a user is the lecturer for a course master
    */
-  async isInstructor(userId: string, courseId: string): Promise<boolean> {
+  async isInstructor(userId: string, courseMasterId: string): Promise<boolean> {
     try {
-      const course = await this.courseRepository.findById(courseId);
+      const course = await this.courseRepository.findById(courseMasterId);
       return course?.lecturerId === userId;
     } catch (error) {
-      this.logger.error(`Failed to check if user ${userId} is lecturer for course ${courseId}`, error);
+      this.logger.error(`Failed to check if user ${userId} is lecturer for course master ${courseMasterId}`, error);
       return false;
     }
   }
 
   /**
-   * Validate if a course is ready for scheduling
+   * Validate if a course master is ready for scheduling
    */
-  async validateForScheduling(courseId: string): Promise<{ isReady: boolean; message?: string }> {
+  async validateForScheduling(courseMasterId: string): Promise<{ isReady: boolean; message?: string }> {
     try {
-      const course = await this.courseRepository.findById(courseId);
+      const course = await this.courseRepository.findById(courseMasterId);
       if (!course || course.deletedAt) {
-        return { isReady: false, message: 'Course not found' };
+        return { isReady: false, message: 'Course master not found' };
       }
 
       // 1. Check status
       if (course.status !== 'published') {
-        return { isReady: false, message: 'Course must be published before scheduling' };
+        return { isReady: false, message: 'Course master must be published before scheduling' };
       }
 
       // 2. Check type
       if (course.type !== 'live') {
-        return { isReady: false, message: 'Only live courses can be scheduled' };
+        return { isReady: false, message: 'Only live course masters can be scheduled' };
       }
 
       // 3. Check lecturer
       if (!course.lecturerId) {
-        return { isReady: false, message: 'Course must have an assigned lecturer' };
+        return { isReady: false, message: 'Course master must have an assigned lecturer' };
       }
 
       // 4. Check curriculum (minimum lessons)
-      const lessonCount = await this.courseRepository.countLessons(courseId);
+      const lessonCount = await this.courseRepository.countLessons(courseMasterId);
       const minLessons = 8;
 
       if (lessonCount < minLessons) {
         return {
           isReady: false,
-          message: `Course must have at least ${minLessons} lessons in curriculum (currently has ${lessonCount})`
+          message: `Course master must have at least ${minLessons} lessons in curriculum (currently has ${lessonCount})`
         };
       }
 
       return { isReady: true };
     } catch (error: any) {
-      this.logger.error(`Failed to validate course ${courseId} for scheduling`, error);
+      this.logger.error(`Failed to validate course master ${courseMasterId} for scheduling`, error);
       return { isReady: false, message: 'Internal validation error' };
     }
   }
 
-  async getStudentCount(courseId: string): Promise<{ count: number }> {
-    const existing = await this.courseRepository.findById(courseId);
+  async getStudentCount(courseMasterId: string): Promise<{ count: number }> {
+    const existing = await this.courseRepository.findById(courseMasterId);
     if (!existing || existing.deletedAt) {
-      throw new NotFoundException(`Course with id ${courseId} not found`);
+      throw new NotFoundException(`Course master with id ${courseMasterId} not found`);
     }
 
     return { count: existing.totalStudents || 0 };

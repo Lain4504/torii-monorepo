@@ -11,13 +11,13 @@ import {
     type EnrollmentResponseDTO,
     type PaginatedResponseDTO,
     EnrollmentStatus,
-    CourseStatus,
+    CourseMasterStatus,
 } from '@workspace/schemas';
 import { PrismaService } from '@server/shared';
 import type { IEnrollmentService, ICertificateService } from '@server/learning/interfaces/services';
 import { CERTIFICATE_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import { EnrollmentRepository } from '@server/learning/modules/enrollment/enrollment.repository';
-import { ICourseRepository, COURSE_REPOSITORY_TOKEN, ILessonRepository, LESSON_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import { ICourseMasterRepository, COURSE_MASTER_REPOSITORY_TOKEN, ILessonRepository, LESSON_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 import type { Prisma } from '@prisma/generated';
 
 /**
@@ -31,8 +31,8 @@ export class EnrollmentService implements IEnrollmentService {
     constructor(
         private readonly enrollmentRepository: EnrollmentRepository,
         private readonly prisma: PrismaService,
-        @Inject(COURSE_REPOSITORY_TOKEN)
-        private readonly courseRepository: ICourseRepository,
+        @Inject(COURSE_MASTER_REPOSITORY_TOKEN)
+        private readonly courseRepository: ICourseMasterRepository,
         @Inject(LESSON_REPOSITORY_TOKEN)
         private readonly lessonRepository: ILessonRepository,
         @Inject(CERTIFICATE_SERVICE_TOKEN)
@@ -340,7 +340,7 @@ export class EnrollmentService implements IEnrollmentService {
         }
 
         // Check if course is published
-        if (course.status !== CourseStatus.PUBLISHED) {
+        if (course.status !== CourseMasterStatus.PUBLISHED) {
             throw new NotFoundException('Course not found');
         }
 

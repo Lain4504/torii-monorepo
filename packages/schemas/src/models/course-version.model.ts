@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const courseVersionSchema = z.object({
     id: z.string().uuid(),
-    courseId: z.string().uuid(),
+    courseMasterId: z.string().uuid(),
     versionTag: z.string(),
     curriculumSnapshot: z.any(), // JSONB containing modules and lessons
     changelog: z.string().optional().nullable(),

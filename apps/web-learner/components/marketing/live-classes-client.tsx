@@ -39,7 +39,7 @@ export function LiveClassesClient() {
         const matchesLevel = levelFilter ? course.jlptLevel === levelFilter : true;
         const matchesSearch = searchQuery ? course.title.toLowerCase().includes(searchQuery.toLowerCase()) : true;
 
-        const endDate = course.expiresAt ? new Date(course.expiresAt) : null;
+        const endDate = (course as any).expiresAt ? new Date((course as any).expiresAt) : null;
 
         if (statusFilter === 'upcoming') {
             return matchesLevel && matchesSearch && (!endDate || endDate >= now);
@@ -114,7 +114,7 @@ export function LiveClassesClient() {
                     ) : filteredCourses.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {filteredCourses.map(course => {
-                                const isSoldOut = course.totalStudents >= (course.maxStudents || 100);
+                                const isSoldOut = course.totalStudents >= ((course as any).maxStudents || 100);
                                 const isHot = course.totalStudents > 15; // Example logic
 
                                 return (
@@ -184,7 +184,7 @@ export function LiveClassesClient() {
                                                 <div className="flex flex-col gap-1 text-left">
                                                     <span className="text-[10px] uppercase text-muted-foreground/60 tracking-[0.2em] font-black">Khai giảng</span>
                                                     <span className="text-sm font-bold text-foreground">
-                                                        {course.startDate ? new Date(course.startDate).toLocaleDateString('vi-VN') : 'Sắp ra mắt'}
+                                                        {(course as any).startDate ? new Date((course as any).startDate).toLocaleDateString('vi-VN') : 'Sắp ra mắt'}
                                                     </span>
                                                 </div>
                                                 <div className="flex flex-col gap-1 text-left">
@@ -196,12 +196,12 @@ export function LiveClassesClient() {
                                             <div className="space-y-3">
                                                 <div className="flex justify-between items-end">
                                                     <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">Sĩ số lớp</span>
-                                                    <span className="text-[10px] font-black text-primary  bg-primary/10 px-2 py-0.5 rounded-full">{course.totalStudents || 0}/{course.maxStudents || 20}</span>
+                                                    <span className="text-[10px] font-black text-primary  bg-primary/10 px-2 py-0.5 rounded-full">{course.totalStudents || 0}/{(course as any).maxStudents || 20}</span>
                                                 </div>
                                                 <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
                                                     <motion.div
                                                         initial={{ width: 0 }}
-                                                        whileInView={{ width: `${Math.min(((course.totalStudents || 0) / (course.maxStudents || 20)) * 100, 100)}%` }}
+                                                        whileInView={{ width: `${Math.min(((course.totalStudents || 0) / ((course as any).maxStudents || 20)) * 100, 100)}%` }}
                                                         className="h-full bg-primary rounded-full shadow-[0_0_12px_oklch(var(--primary)/0.4)]"
                                                         transition={{ duration: 1, ease: "easeOut" }}
                                                     />

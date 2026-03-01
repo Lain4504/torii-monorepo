@@ -33,7 +33,7 @@ export class EnrollmentHandler {
 
     @MessagePattern({ cmd: 'learning.enrollment.createTrial' })
     async createTrial(@Payload() data: { userId: string; courseId: string }) {
-        return this.enrollmentService.createTrial(data.userId, data.courseId);
+        return this.enrollmentService.createTrial(data.userId, { courseId: data.courseId });
     }
 
     @MessagePattern({ cmd: 'learning.enrollment.activate' })

@@ -6,7 +6,7 @@ import { pojos } from '@automapper/pojos';
 import { PrismaModule, SharedModule, GlobalRpcExceptionFilter } from '@server/shared';
 
 // LMS Modules
-import { CourseModule } from '@server/learning/modules/course/course.module';
+import { CourseMasterModule } from '@server/learning/modules/course-master/course-master.module';
 import { ModuleModule } from '@server/learning/modules/module/module.module';
 import { LessonModule } from '@server/learning/modules/lesson/lesson.module';
 import { WishlistModule } from '@server/learning/modules/wishlist/wishlist.module';
@@ -83,7 +83,7 @@ import { AttendanceModule } from '@server/learning/modules/attendance/attendance
     SharedModule,
 
     // LMS Modules
-    CourseModule,
+    CourseMasterModule,
     ModuleModule,
     LessonModule,
     WishlistModule,

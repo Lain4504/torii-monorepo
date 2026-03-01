@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@workspace/ui/components/button';
-import type { CourseQueryDTO, CourseResponseDTO } from '@workspace/schemas';
+import type { CourseMasterQueryDTO, CourseMasterResponseDTO } from '@workspace/schemas';
 import { Can } from "@/lib/guard/can";
 import { useCourses, useUnpublishCourse, useSubmitCourseForReview } from "@/lib/api/services/courses.ts";
 import { CoursesPrimaryToolbar } from "@/components/courses/courses-primary-toolbar.tsx";
@@ -33,14 +33,14 @@ export default function CoursesPage() {
 
   // Dialog/Sheet States
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [editingCourse, setEditingCourse] = useState<CourseResponseDTO | null>(null);
-  const [deletingCourse, setDeletingCourse] = useState<CourseResponseDTO | null>(null);
-  const [managingInstructorsCourse, setManagingInstructorsCourse] = useState<CourseResponseDTO | null>(null);
-  const [publishingCourse, setPublishingCourse] = useState<CourseResponseDTO | null>(null);
-  const [rejectingCourse, setRejectingCourse] = useState<CourseResponseDTO | null>(null);
-  const [viewingAuditLogCourse, setViewingAuditLogCourse] = useState<CourseResponseDTO | null>(null);
+  const [editingCourse, setEditingCourse] = useState<CourseMasterResponseDTO | null>(null);
+  const [deletingCourse, setDeletingCourse] = useState<CourseMasterResponseDTO | null>(null);
+  const [managingInstructorsCourse, setManagingInstructorsCourse] = useState<CourseMasterResponseDTO | null>(null);
+  const [publishingCourse, setPublishingCourse] = useState<CourseMasterResponseDTO | null>(null);
+  const [rejectingCourse, setRejectingCourse] = useState<CourseMasterResponseDTO | null>(null);
+  const [viewingAuditLogCourse, setViewingAuditLogCourse] = useState<CourseMasterResponseDTO | null>(null);
 
-  const queryParams: CourseQueryDTO = {
+  const queryParams: CourseMasterQueryDTO = {
     page,
     limit: 10,
     ...(debouncedSearch && { search: debouncedSearch }),
@@ -64,7 +64,7 @@ export default function CoursesPage() {
     limit: coursesData.limit
   } : null;
 
-  const handleUnpublish = async (course: CourseResponseDTO) => {
+  const handleUnpublish = async (course: CourseMasterResponseDTO) => {
     try {
       await unpublishMutation.mutateAsync(course.id);
       toast.success('Hủy xuất bản khóa học thành công');
@@ -73,7 +73,7 @@ export default function CoursesPage() {
     }
   };
 
-  const handleSubmitForReview = async (course: CourseResponseDTO) => {
+  const handleSubmitForReview = async (course: CourseMasterResponseDTO) => {
     try {
       await submitForReviewMutation.mutateAsync(course.id);
       toast.success('Đã gửi yêu cầu kiểm duyệt khóa học');

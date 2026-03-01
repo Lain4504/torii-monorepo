@@ -886,15 +886,15 @@ export class ExamService implements IExamService {
 
             // Trigger stats recalculation for associated course via NATS
             if (quiz.courseId) {
-                this.natsClient.emit({ cmd: 'learning.course.recalculate_stats' }, { courseId: quiz.courseId });
+                this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseId: quiz.courseId });
             } else if (quiz.lessonId) {
                 // If linked to a lesson, find its course
                 const lesson = await this.prisma.lesson.findUnique({
                     where: { id: quiz.lessonId },
                     include: { module: true }
                 });
-                if (lesson?.module?.courseId) {
-                    this.natsClient.emit({ cmd: 'learning.course.recalculate_stats' }, { courseId: lesson.module.courseId });
+                if (lesson?.module?.courseMasterId) {
+                    this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseId: lesson.module.courseMasterId });
                 }
             }
 
@@ -955,7 +955,7 @@ export class ExamService implements IExamService {
                             where: { id: quiz.lessonId },
                             include: { module: true }
                         });
-                        return lesson?.module?.courseId ? [lesson.module.courseId] : [];
+                        return lesson?.module?.courseMasterId ? [lesson.module.courseMasterId] : [];
                     }
                     return [];
                 };
@@ -967,7 +967,7 @@ export class ExamService implements IExamService {
                 newIds.forEach(id => affectedCourses.add(id));
 
                 for (const courseId of affectedCourses) {
-                    this.natsClient.emit({ cmd: 'learning.course.recalculate_stats' }, { courseId });
+                    this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseId });
                 }
             }
 
@@ -998,14 +998,14 @@ export class ExamService implements IExamService {
 
             // Trigger stats recalculation via NATS
             if ((quiz as any).courseId) {
-                this.natsClient.emit({ cmd: 'learning.course.recalculate_stats' }, { courseId: (quiz as any).courseId });
+                this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseId: (quiz as any).courseId });
             } else if ((quiz as any).lessonId) {
                 const lesson = await this.prisma.lesson.findUnique({
                     where: { id: (quiz as any).lessonId },
                     include: { module: true }
                 });
-                if (lesson?.module?.courseId) {
-                    this.natsClient.emit({ cmd: 'learning.course.recalculate_stats' }, { courseId: lesson.module.courseId });
+                if (lesson?.module?.courseMasterId) {
+                    this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseId: lesson.module.courseMasterId });
                 }
             }
         } catch (error: any) {

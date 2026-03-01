@@ -47,7 +47,7 @@ export interface ILessonService {
      * @param courseId - The course's unique identifier
      * @returns Array of preview lessons
      */
-    findPreviewLessonsByCourseId(courseId: string): Promise<LessonResponseDTO[]>;
+    findPreviewLessonsByCourseId(courseMasterId: string): Promise<LessonResponseDTO[]>;
 
     /**
      * Create a new lesson

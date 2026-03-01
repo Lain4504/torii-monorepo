@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { LiveSessionStatus } from '../enums/live-session.enum';
 
 export const liveSessionCreateDTOSchema = z.object({
-    courseId: z.string().uuid(),
+    courseMasterId: z.string().uuid(),
     lecturerId: z.string().uuid().optional(),
     title: z.string().min(1, 'Title is required'),
     description: z.string().optional(),
@@ -14,7 +14,7 @@ export const liveSessionCreateDTOSchema = z.object({
 export type LiveSessionCreateDTO = z.infer<typeof liveSessionCreateDTOSchema>;
 
 export const liveSessionBulkCreateDTOSchema = z.object({
-    courseId: z.string().uuid(),
+    courseMasterId: z.string().uuid(),
     lecturerId: z.string().uuid().optional(),
     titlePrefix: z.string().min(1, 'Title prefix is required'),
     description: z.string().optional(),
@@ -39,7 +39,7 @@ export type LiveSessionUpdateDTO = z.infer<typeof liveSessionUpdateDTOSchema>;
 
 export interface LiveSessionResponseDTO {
     id: string;
-    courseId: string;
+    courseMasterId: string;
     courseRunId: string | null;
     lecturerId: string | null;
     title: string;

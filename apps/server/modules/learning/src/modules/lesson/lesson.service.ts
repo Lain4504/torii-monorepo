@@ -14,10 +14,10 @@ import type {
   LessonQueryDTO,
 } from '@workspace/schemas';
 
-import type { ILessonService, ICourseService, IEnrollmentService } from '@server/learning/interfaces/services';
+import type { ILessonService, ICourseMasterService, IEnrollmentService } from '@server/learning/interfaces/services';
 import type { ILessonRepository, IModuleRepository } from '@server/learning/interfaces/repositories';
 import { LESSON_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
-import { COURSE_SERVICE_TOKEN, ENROLLMENT_SERVICE_TOKEN } from '@server/learning/interfaces/services';
+import { COURSE_MASTER_SERVICE_TOKEN, ENROLLMENT_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 
 /**
  * Lesson Service
@@ -32,8 +32,8 @@ export class LessonService implements ILessonService {
     private readonly lessonRepository: ILessonRepository,
     @Inject(MODULE_REPOSITORY_TOKEN)
     private readonly moduleRepository: IModuleRepository,
-    @Inject(forwardRef(() => COURSE_SERVICE_TOKEN))
-    private readonly courseService: ICourseService,
+    @Inject(forwardRef(() => COURSE_MASTER_SERVICE_TOKEN))
+    private readonly courseMasterService: ICourseMasterService,
     @Inject(forwardRef(() => ENROLLMENT_SERVICE_TOKEN))
     private readonly enrollmentService: IEnrollmentService,
     @Inject('NATS_SERVICE')
@@ -76,7 +76,7 @@ export class LessonService implements ILessonService {
     try {
       const module = await this.moduleRepository.findById(moduleId);
       if (module) {
-        this.natsClient.emit({ cmd: 'learning.course.recalculate_stats' }, { courseId: module.courseId });
+        this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseMasterId: module.courseMasterId });
       }
     } catch (error) {
       this.logger.error('Failed to trigger stats update from LessonService', error);
@@ -233,7 +233,7 @@ export class LessonService implements ILessonService {
       try {
         const module = await this.moduleRepository.findById(lesson.moduleId);
         if (module) {
-          isAuthorized = await this.enrollmentService.checkAccess(requester.sub, module.courseId, lesson.id);
+          isAuthorized = await this.enrollmentService.checkAccess(requester.sub, module.courseMasterId, lesson.id);
         }
       } catch (error) {
         this.logger.warn(`Failed to check access for user ${requester.sub} on lesson ${lessonId}`, error);
@@ -271,7 +271,7 @@ export class LessonService implements ILessonService {
       try {
         const module = await this.moduleRepository.findById(moduleId);
         if (module) {
-          accessibleLessonIds = await this.enrollmentService.getAccessibleLessonIds(requester.sub, module.courseId);
+          accessibleLessonIds = await this.enrollmentService.getAccessibleLessonIds(requester.sub, module.courseMasterId);
         }
       } catch (error) {
         this.logger.warn(`Accessible lessons check failed for module ${moduleId}`, error);
@@ -298,8 +298,8 @@ export class LessonService implements ILessonService {
   /**
    * Find preview lessons for a course
    */
-  async findPreviewLessonsByCourseId(courseId: string): Promise<LessonResponseDTO[]> {
-    const lessons = await this.lessonRepository.findPreviewLessonsByCourseId(courseId);
+  async findPreviewLessonsByCourseId(courseMasterId: string): Promise<LessonResponseDTO[]> {
+    const lessons = await this.lessonRepository.findPreviewLessonsByCourseId(courseMasterId);
     return lessons.map(lesson => this.toLessonResponseDTO(lesson));
   }
 
@@ -311,7 +311,7 @@ export class LessonService implements ILessonService {
       const module = await this.moduleRepository.findById(dto.moduleId);
       if (!module) throw new NotFoundException('Module not found');
 
-      const course = await this.courseService.findById(module.courseId);
+      const course = await this.courseMasterService.findById(module.courseMasterId);
 
       // Pure Split: LIVE courses cannot have video lessons (must be article/PDF)
       if (course.type === 'live' && dto.contentType === 'video') {
@@ -383,7 +383,7 @@ export class LessonService implements ILessonService {
     if (!this.hasPermission(requester, 'course.publish')) {
       const module = await this.moduleRepository.findById(existing.moduleId);
       if (module) {
-        const isInstructor = await this.courseService.isInstructor(requester.sub, module.courseId);
+        const isInstructor = await this.courseMasterService.isInstructor(requester.sub, module.courseMasterId);
         if (!isInstructor) {
           throw new ForbiddenException('You are not assigned to this course');
         }

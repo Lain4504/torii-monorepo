@@ -12,7 +12,7 @@ import { Can } from "@/lib/guard/can";
 import { Button } from '@workspace/ui/components/button';
 import { CreateCourseSheet } from "@/components/courses/create-course-sheet.tsx";
 import { Plus } from 'lucide-react';
-import type { CourseResponseDTO } from '@workspace/schemas';
+import type { CourseMasterResponseDTO } from '@workspace/schemas';
 import { CourseAuditLogSheet } from '@/components/courses/course-audit-log-sheet';
 import { RejectCourseDialog } from '@/components/courses/reject-course-dialog';
 
@@ -32,11 +32,11 @@ export default function MyCoursesPage() {
     const { can } = usePermissions();
     const [debouncedSearch] = useDebounceValue(search, 500);
     const [showCreateDialog, setShowCreateDialog] = useState(false);
-    const [selectedCourse, setSelectedCourse] = useState<CourseResponseDTO | null>(null);
-    const [managingInstructorsCourse, setManagingInstructorsCourse] = useState<CourseResponseDTO | null>(null);
-    const [viewingAuditLogCourse, setViewingAuditLogCourse] = useState<CourseResponseDTO | null>(null);
-    const [rejectingCourse, setRejectingCourse] = useState<CourseResponseDTO | null>(null);
-    const [publishingCourse, setPublishingCourse] = useState<CourseResponseDTO | null>(null);
+    const [selectedCourse, setSelectedCourse] = useState<CourseMasterResponseDTO | null>(null);
+    const [managingInstructorsCourse, setManagingInstructorsCourse] = useState<CourseMasterResponseDTO | null>(null);
+    const [viewingAuditLogCourse, setViewingAuditLogCourse] = useState<CourseMasterResponseDTO | null>(null);
+    const [rejectingCourse, setRejectingCourse] = useState<CourseMasterResponseDTO | null>(null);
+    const [publishingCourse, setPublishingCourse] = useState<CourseMasterResponseDTO | null>(null);
 
     const submitForReviewMutation = useSubmitCourseForReview();
 
@@ -50,7 +50,7 @@ export default function MyCoursesPage() {
         instructorId: user?.id,
     });
 
-    const handleSubmitForReview = async (course: CourseResponseDTO) => {
+    const handleSubmitForReview = async (course: CourseMasterResponseDTO) => {
         try {
             await submitForReviewMutation.mutateAsync(course.id);
             toast.success('Đã gửi yêu cầu kiểm duyệt', {

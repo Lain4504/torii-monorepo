@@ -20,7 +20,7 @@ export interface ITeachingScheduleService {
     /**
      * Get all schedules for a course
      */
-    findByCourse(courseId: string): Promise<TeachingScheduleResponseDTO[]>;
+    findByCourse(courseMasterId: string): Promise<TeachingScheduleResponseDTO[]>;
 
     /**
      * Get all schedules for a lecturer

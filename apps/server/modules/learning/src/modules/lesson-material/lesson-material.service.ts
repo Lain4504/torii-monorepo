@@ -99,7 +99,7 @@ export class LessonMaterialService implements ILessonMaterialService {
 
         const lesson = await this.prisma.lesson.findUnique({
             where: { id: lessonId },
-            include: { module: { select: { courseId: true } } },
+            include: { module: { select: { courseMasterId: true } } },
         });
 
         if (!lesson || lesson.deletedAt) {
@@ -120,7 +120,7 @@ export class LessonMaterialService implements ILessonMaterialService {
         }
 
         // Non-preview: user must be actively enrolled in the course
-        const courseId = (lesson as any).module?.courseId;
+        const courseId = (lesson as any).module?.courseMasterId;
         if (!courseId) {
             this.logger.warn(`Could not resolve courseId for lesson ${lessonId}`);
             throw new ForbiddenException('Access denied: course information unavailable');

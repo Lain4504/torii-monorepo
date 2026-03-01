@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { LiveSessionService } from '@server/learning/modules/live-session/live-session.service';
-import { LIVE_SESSION_REPOSITORY_TOKEN, COURSE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import { LIVE_SESSION_REPOSITORY_TOKEN, COURSE_MASTER_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 import { PrismaService } from '@server/shared';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { UserRole, LiveSessionStatus } from '@workspace/schemas';
@@ -14,7 +14,7 @@ const mockMapper = {
 describe('LiveSessionService', () => {
     let service: LiveSessionService;
     let liveSessionRepository: any;
-    let courseRepository: any;
+    let courseMasterRepository: any;
     let prismaService: any;
     let natsClient: any;
 
@@ -23,7 +23,7 @@ describe('LiveSessionService', () => {
         update: jest.fn(),
     };
 
-    const mockCourseRepository = {
+    const mockCourseMasterRepository = {
         findById: jest.fn(),
     };
 
@@ -46,7 +46,7 @@ describe('LiveSessionService', () => {
             providers: [
                 LiveSessionService,
                 { provide: LIVE_SESSION_REPOSITORY_TOKEN, useValue: mockLiveSessionRepository },
-                { provide: COURSE_REPOSITORY_TOKEN, useValue: mockCourseRepository },
+                { provide: COURSE_MASTER_REPOSITORY_TOKEN, useValue: mockCourseMasterRepository },
                 { provide: PrismaService, useValue: mockPrismaService },
                 { provide: 'NATS_SERVICE', useValue: mockNatsClient },
                 { provide: getMapperToken(), useValue: mockMapper },
@@ -55,7 +55,7 @@ describe('LiveSessionService', () => {
 
         service = module.get<LiveSessionService>(LiveSessionService);
         liveSessionRepository = module.get(LIVE_SESSION_REPOSITORY_TOKEN);
-        courseRepository = module.get(COURSE_REPOSITORY_TOKEN);
+        courseMasterRepository = module.get(COURSE_MASTER_REPOSITORY_TOKEN);
         prismaService = module.get(PrismaService);
         natsClient = module.get('NATS_SERVICE');
 
@@ -82,7 +82,7 @@ describe('LiveSessionService', () => {
                 title: 'Session',
                 status: (LiveSessionStatus as any).LIVE
             });
-            mockCourseRepository.findById.mockResolvedValue({ id: courseId });
+            mockCourseMasterRepository.findById.mockResolvedValue({ id: courseId });
 
             const result = await service.joinSession(admin as any, sessionId);
             expect(result).toBeDefined();
@@ -96,7 +96,7 @@ describe('LiveSessionService', () => {
                 meetingId: 'm1',
                 status: (LiveSessionStatus as any).LIVE
             });
-            mockCourseRepository.findById.mockResolvedValue({ id: courseId });
+            mockCourseMasterRepository.findById.mockResolvedValue({ id: courseId });
             mockPrismaService.enrollment.findUnique.mockResolvedValue({
                 id: 'enr-1',
                 expiresAt: new Date(Date.now() - 1000) // Expired
@@ -116,7 +116,7 @@ describe('LiveSessionService', () => {
                 meetingId: 'm1',
                 status: (LiveSessionStatus as any).LIVE
             });
-            mockCourseRepository.findById.mockResolvedValue({ id: courseId });
+            mockCourseMasterRepository.findById.mockResolvedValue({ id: courseId });
             mockPrismaService.enrollment.findUnique.mockResolvedValue({
                 id: 'enr-1',
                 expiresAt: new Date(Date.now() + 100000), // Valid
@@ -138,7 +138,7 @@ describe('LiveSessionService', () => {
                 title: 'Session',
                 status: (LiveSessionStatus as any).LIVE
             });
-            mockCourseRepository.findById.mockResolvedValue({ id: courseId });
+            mockCourseMasterRepository.findById.mockResolvedValue({ id: courseId });
             mockPrismaService.enrollment.findUnique.mockResolvedValue({
                 id: 'enr-1',
                 expiresAt: new Date(Date.now() + 100000),

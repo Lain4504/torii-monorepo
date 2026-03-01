@@ -25,8 +25,8 @@ export class ModuleHandler {
     }
 
     @MessagePattern({ cmd: 'learning.module.findByCourseId' })
-    async findByCourseId(@Payload() data: { courseId: string, requester: Requester }) {
-        return this.moduleService.findByCourseId(data.courseId, data.requester);
+    async findByCourseId(@Payload() data: { courseMasterId: string, requester: Requester }) {
+        return this.moduleService.findByCourseId(data.courseMasterId, data.requester);
     }
 
     @MessagePattern({ cmd: 'learning.module.findById' })
@@ -47,9 +47,9 @@ export class ModuleHandler {
     }
 
     @MessagePattern({ cmd: 'learning.module.reorder' })
-    async reorder(@Payload() data: { courseId: string, moduleOrders: { id: string; orderIndex: number }[], requester: Requester }) {
-        const { courseId, moduleOrders, requester } = data;
-        return this.moduleService.reorder(requester, courseId, moduleOrders);
+    async reorder(@Payload() data: { courseMasterId: string, moduleOrders: { id: string; orderIndex: number }[], requester: Requester }) {
+        const { courseMasterId, moduleOrders, requester } = data;
+        return this.moduleService.reorder(requester, courseMasterId, moduleOrders);
     }
 }
 

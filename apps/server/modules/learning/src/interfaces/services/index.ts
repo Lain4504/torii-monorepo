@@ -1,4 +1,4 @@
-export * from './i-course.service';
+export * from './i-course-master.service';
 export * from './i-course-run.service';
 export * from './i-live-session.service';
 export * from './i-module.service';
@@ -18,7 +18,7 @@ export * from './i-certificate.service';
 export * from './i-attendance.service';
 
 // Injection tokens for services
-export const COURSE_SERVICE_TOKEN = Symbol('COURSE_SERVICE');
+export const COURSE_MASTER_SERVICE_TOKEN = Symbol('COURSE_MASTER_SERVICE');
 export const COURSE_RUN_SERVICE_TOKEN = Symbol('COURSE_RUN_SERVICE');
 export const MODULE_SERVICE_TOKEN = Symbol('MODULE_SERVICE');
 export const LESSON_SERVICE_TOKEN = Symbol('LESSON_SERVICE');

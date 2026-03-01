@@ -6,7 +6,7 @@ import { EnrollmentExpirationScheduler } from '@server/learning/modules/enrollme
 import { EnrollmentProfile } from '@server/learning/infrastructure/mappings/enrollment.profile';
 
 import { ENROLLMENT_SERVICE_TOKEN, ENROLLMENT_REPOSITORY_TOKEN } from '@server/learning/interfaces';
-import { CourseModule } from '@server/learning/modules/course/course.module';
+import { CourseMasterModule } from '@server/learning/modules/course-master/course-master.module';
 import { LessonModule } from '@server/learning/modules/lesson/lesson.module';
 import { CertificateModule } from '@server/learning/modules/certificate/certificate.module';
 
@@ -19,7 +19,7 @@ import { EnrollmentController } from './enrollment.controller';
     imports: [
         PrismaModule,
         NatsClientModule,
-        forwardRef(() => CourseModule),
+        forwardRef(() => CourseMasterModule),
         forwardRef(() => CertificateModule),
         forwardRef(() => LessonModule)
     ],

@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
 import type {
-  CourseResponseDTO,
-  CourseSearchResponseDTO,
+  CourseMasterResponseDTO,
+  CourseMasterSearchResponseDTO,
   StandardApiResponse,
   PaginatedApiResponse
 } from '@workspace/schemas';
@@ -40,8 +40,8 @@ export const courseApi = {
     jlptLevel?: string;
     status?: string;
     search?: string;
-  } = {}): Promise<PaginatedApiResponse<CourseResponseDTO>> => {
-    const response = await apiClient.get<PaginatedApiResponse<CourseResponseDTO>>('/api/courses', {
+  } = {}): Promise<PaginatedApiResponse<CourseMasterResponseDTO>> => {
+    const response = await apiClient.get<PaginatedApiResponse<CourseMasterResponseDTO>>('/api/courses', {
       params,
     });
     return response.data;
@@ -59,8 +59,8 @@ export const courseApi = {
     priceMax?: number;
     rating?: number;
     sort?: string;
-  } = {}): Promise<PaginatedApiResponse<CourseSearchResponseDTO>> => {
-    const response = await apiClient.get<PaginatedApiResponse<CourseSearchResponseDTO>>('/api/courses/advanced-search', {
+  } = {}): Promise<PaginatedApiResponse<CourseMasterSearchResponseDTO>> => {
+    const response = await apiClient.get<PaginatedApiResponse<CourseMasterSearchResponseDTO>>('/api/courses/advanced-search', {
       params,
     });
     return response.data;
@@ -77,16 +77,16 @@ export const courseApi = {
   /**
    * Get course by slug
    */
-  getCourseBySlug: async (slug: string): Promise<CourseResponseDTO | null> => {
-    const response = await apiClient.get<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/slug/${slug}`);
+  getCourseBySlug: async (slug: string): Promise<CourseMasterResponseDTO | null> => {
+    const response = await apiClient.get<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/courses/slug/${slug}`);
     return response.data.data!.course;
   },
 
   /**
    * Get course by id
    */
-  getCourseById: async (id: string): Promise<CourseResponseDTO | null> => {
-    const response = await apiClient.get<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}`);
+  getCourseById: async (id: string): Promise<CourseMasterResponseDTO | null> => {
+    const response = await apiClient.get<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/courses/${id}`);
     return response.data.data!.course;
   },
 
@@ -101,8 +101,8 @@ export const courseApi = {
   /**
    * Get courses by type (vod | live)
    */
-  getByType: async (type: 'vod' | 'live'): Promise<CourseResponseDTO[]> => {
-    const response = await apiClient.get<StandardApiResponse<{ courses: CourseResponseDTO[] }>>(`/api/courses/by-type/${type}`);
+  getByType: async (type: 'vod' | 'live'): Promise<CourseMasterResponseDTO[]> => {
+    const response = await apiClient.get<StandardApiResponse<{ courses: CourseMasterResponseDTO[] }>>(`/api/courses/by-type/${type}`);
     return response.data.data?.courses ?? [];
   },
 

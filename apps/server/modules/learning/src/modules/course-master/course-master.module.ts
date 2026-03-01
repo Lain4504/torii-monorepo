@@ -1,17 +1,17 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { NatsClientModule } from '@server/shared';
-import { CourseService } from '@server/learning/modules/course/course.service';
-import { CourseRepository } from '@server/learning/modules/course/course.repository';
+import { CourseMasterService } from './course-master.service';
+import { CourseMasterRepository } from './course-master.repository';
 import { CourseProfile } from '@server/learning/infrastructure/mappings/course.profile';
 import { ModuleModule } from '@server/learning/modules/module/module.module';
 import { LessonModule } from '@server/learning/modules/lesson/lesson.module';
 import { EnrollmentModule } from '@server/learning/modules/enrollment/enrollment.module';
-import { COURSE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
-import { COURSE_SERVICE_TOKEN } from '@server/learning/interfaces/services';
+import { COURSE_MASTER_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import { COURSE_MASTER_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 
 /**
- * Course Feature Module
- * Handles course management operations
+ * Course Master Feature Module
+ * Handles course master management operations
  */
 @Module({
   imports: [
@@ -22,16 +22,16 @@ import { COURSE_SERVICE_TOKEN } from '@server/learning/interfaces/services';
   ],
   providers: [
     {
-      provide: COURSE_REPOSITORY_TOKEN,
-      useClass: CourseRepository,
+      provide: COURSE_MASTER_REPOSITORY_TOKEN,
+      useClass: CourseMasterRepository,
     },
     {
-      provide: COURSE_SERVICE_TOKEN,
-      useClass: CourseService,
+      provide: COURSE_MASTER_SERVICE_TOKEN,
+      useClass: CourseMasterService,
     },
     CourseProfile,
   ],
-  exports: [COURSE_SERVICE_TOKEN, COURSE_REPOSITORY_TOKEN],
+  exports: [COURSE_MASTER_SERVICE_TOKEN, COURSE_MASTER_REPOSITORY_TOKEN],
 })
-export class CourseModule { }
+export class CourseMasterModule { }
 

@@ -46,8 +46,8 @@ import { ILiveSessionService } from '@server/learning/interfaces/services/i-live
 import {
     ILiveSessionRepository,
     LIVE_SESSION_REPOSITORY_TOKEN,
-    COURSE_REPOSITORY_TOKEN,
-    ICourseRepository,
+    COURSE_MASTER_REPOSITORY_TOKEN,
+    ICourseMasterRepository,
 } from '@server/learning/interfaces/repositories';
 import { PrismaService } from '@server/shared';
 
@@ -58,8 +58,8 @@ export class LiveSessionService implements ILiveSessionService {
     constructor(
         @Inject(LIVE_SESSION_REPOSITORY_TOKEN)
         private readonly liveSessionRepository: ILiveSessionRepository,
-        @Inject(COURSE_REPOSITORY_TOKEN)
-        private readonly courseRepository: ICourseRepository,
+        @Inject(COURSE_MASTER_REPOSITORY_TOKEN)
+        private readonly courseRepository: ICourseMasterRepository,
         private readonly prisma: PrismaService,
         @Inject('NATS_SERVICE')
         private readonly natsClient: ClientProxy,
@@ -82,8 +82,8 @@ export class LiveSessionService implements ILiveSessionService {
         return this.mapper.map<any, LiveSessionResponseDTO>(session, 'LiveSession', 'LiveSessionResponseDTO');
     }
 
-    async findByCourseId(courseId: string): Promise<LiveSessionResponseDTO[]> {
-        const sessions = await this.liveSessionRepository.findByCourseId(courseId);
+    async findByCourseId(courseMasterId: string): Promise<LiveSessionResponseDTO[]> {
+        const sessions = await this.liveSessionRepository.findByCourseId(courseMasterId);
         return sessions.map((s) => this.mapper.map<any, LiveSessionResponseDTO>(s, 'LiveSession', 'LiveSessionResponseDTO'));
     }
 
@@ -93,9 +93,9 @@ export class LiveSessionService implements ILiveSessionService {
             throw new ForbiddenException('Only authorized staff can schedule live sessions');
         }
 
-        const course = await this.courseRepository.findById(dto.courseId);
+        const course = await this.courseRepository.findById(dto.courseMasterId);
         if (!course) {
-            throw new NotFoundException(`Course with id ${dto.courseId} not found`);
+            throw new NotFoundException(`Course with id ${dto.courseMasterId} not found`);
         }
 
         if (course.type !== 'live') {
@@ -109,7 +109,7 @@ export class LiveSessionService implements ILiveSessionService {
             const title = `${dto.titlePrefix} - Buổi ${i + 1}`;
 
             const session = await this.liveSessionRepository.create({
-                course: { connect: { id: dto.courseId } },
+                courseMaster: { connect: { id: dto.courseMasterId } },
                 title: title,
                 description: dto.description,
                 scheduledAt: date,
@@ -129,9 +129,9 @@ export class LiveSessionService implements ILiveSessionService {
             throw new ForbiddenException('Only authorized staff can schedule live sessions');
         }
 
-        const course = await this.courseRepository.findById(dto.courseId);
+        const course = await this.courseRepository.findById(dto.courseMasterId);
         if (!course) {
-            throw new NotFoundException(`Course with id ${dto.courseId} not found`);
+            throw new NotFoundException(`Course with id ${dto.courseMasterId} not found`);
         }
 
         if (course.type !== 'live') {
@@ -139,7 +139,7 @@ export class LiveSessionService implements ILiveSessionService {
         }
 
         const session = await this.liveSessionRepository.create({
-            course: { connect: { id: dto.courseId } },
+            courseMaster: { connect: { id: dto.courseMasterId } },
             title: dto.title,
             description: dto.description,
             scheduledAt: new Date(dto.scheduledAt),
@@ -353,7 +353,7 @@ export class LiveSessionService implements ILiveSessionService {
                 where: {
                     userId_courseId: {
                         userId: requester.sub,
-                        courseId: session.courseId,
+                        courseId: session.courseMasterId,
                     },
                 },
                 include: { course: true },

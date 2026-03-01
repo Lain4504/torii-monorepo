@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { InstructorRole } from '../models/course.model';
+import { InstructorRole } from '../models/course-master.model';
 
 // Assign Lecturer to Course DTO
 export const courseInstructorAssignDTOSchema = z.object({

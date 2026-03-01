@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import { certificateSchema } from '../models/certificate.model';
 
-import { courseSchema } from '../models/course.model';
+import { courseMasterSchema } from '../models/course-master.model';
 
 export const certificateResponseDTOSchema = certificateSchema.extend({
-    course: courseSchema.optional(),
+    course: courseMasterSchema.optional(),
 });
 
 export type CertificateResponseDTO = z.infer<typeof certificateResponseDTOSchema>;

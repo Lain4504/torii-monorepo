@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const moduleSchema = z.object({
     id: z.string().uuid(),
-    courseId: z.string().uuid(),
+    courseMasterId: z.string().uuid(),
     title: z.string().min(1),
     description: z.string().optional(),
     aiMetadata: z.record(z.any()).default({}), // JSONB

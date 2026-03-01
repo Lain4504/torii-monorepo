@@ -249,7 +249,7 @@ export class SubmissionService {
       this.natsClient.emit('assignment.completed', {
         userId: submission.userId,
         assignmentId: submission.assignmentId,
-        courseId: assignment.courseId,
+        courseMasterId: assignment.courseMasterId,
         score: dto.score,
         maxScore: assignment.maxScore,
         completedAt: new Date(),

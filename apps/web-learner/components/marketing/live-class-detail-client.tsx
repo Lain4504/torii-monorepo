@@ -50,8 +50,8 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
     const isInCart = cartData?.items?.some(item => item.courseId === course?.id);
 
     const now = new Date();
-    const isSoldOut = course ? (course.totalStudents || 0) >= (course.maxStudents || 999999) : false;
-    const isFinished = course?.expiresAt ? new Date(course.expiresAt) < now : false;
+    const isSoldOut = course ? (course.totalStudents || 0) >= ((course as any).maxStudents || 999999) : false;
+    const isFinished = (course as any)?.expiresAt ? new Date((course as any).expiresAt) < now : false;
     const hasActiveSession = sessions.some(s => s.status === LiveSessionStatus.LIVE);
 
     const sortedSessions = [...sessions]
@@ -547,10 +547,10 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
                                                 <svg className="w-4 h-4 text-primary shrink-0" fill="currentColor" viewBox="0 0 20 20"><path clipRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fillRule="evenodd" /></svg>
                                                 Chứng nhận hoàn thành cuối khóa
                                             </li>
-                                            {course.maxStudents && course.maxStudents < 999999 && (
+                                            {(course as any).maxStudents && (course as any).maxStudents < 999999 && (
                                                 <li className="flex items-center gap-3 text-muted-foreground text-sm">
                                                     <svg className="w-4 h-4 text-primary shrink-0" fill="currentColor" viewBox="0 0 20 20"><path clipRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fillRule="evenodd" /></svg>
-                                                    Lớp học giới hạn {course.maxStudents} học viên
+                                                    Lớp học giới hạn {(course as any).maxStudents} học viên
                                                 </li>
                                             )}
                                         </ul>

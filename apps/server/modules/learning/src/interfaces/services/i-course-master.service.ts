@@ -1,24 +1,24 @@
 import type {
-    CourseResponseDTO,
-    CourseCreateDTO,
-    CourseUpdateDTO,
+    CourseMasterResponseDTO,
+    CourseMasterCreateDTO,
+    CourseMasterUpdateDTO,
     PaginationOptionsDTO,
     PaginatedResponseDTO,
     Requester,
-    CourseStatus,
+    CourseMasterStatus,
 } from '@workspace/schemas';
 
 /**
- * Course Service Interface
- * Defines the contract for course business logic operations
+ * Course Master Service Interface
+ * Defines the contract for course master business logic operations
  */
-export interface ICourseService {
+export interface ICourseMasterService {
     /**
      * Find all courses with pagination and search
      * @param options - Pagination options including page, limit, search, status, and jlptLevel
      * @returns Paginated response of courses
      */
-    findAll(options: PaginationOptionsDTO & { status?: CourseStatus; jlptLevel?: string; instructorId?: string }): Promise<PaginatedResponseDTO<CourseResponseDTO>>;
+    findAll(options: PaginationOptionsDTO & { status?: CourseMasterStatus; jlptLevel?: string; instructorId?: string }): Promise<PaginatedResponseDTO<CourseMasterResponseDTO>>;
 
     /**
      * Advanced search for clients
@@ -32,15 +32,15 @@ export interface ICourseService {
         priceMax?: number;
         ratingMin?: number;
         sortBy?: string;
-    }): Promise<PaginatedResponseDTO<CourseResponseDTO>>;
+    }): Promise<PaginatedResponseDTO<CourseMasterResponseDTO>>;
 
     /**
      * Find one course by ID
-     * @param courseId - The course's unique identifier
+     * @param courseMasterId - The course's unique identifier
      * @returns The course data
      * @throws NotFoundException if course not found
      */
-    findById(courseId: string): Promise<CourseResponseDTO>;
+    findById(courseMasterId: string): Promise<CourseMasterResponseDTO>;
 
     /**
      * Find course by slug
@@ -48,7 +48,7 @@ export interface ICourseService {
      * @returns The course data
      * @throws NotFoundException if course not found
      */
-    findBySlug(slug: string): Promise<CourseResponseDTO>;
+    findBySlug(slug: string): Promise<CourseMasterResponseDTO>;
 
     /**
      * Create a new course
@@ -58,97 +58,97 @@ export interface ICourseService {
      * @throws BadRequestException if slug already exists
      * @throws ForbiddenException if requester doesn't have permission
      */
-    create(requester: Requester, dto: CourseCreateDTO): Promise<CourseResponseDTO>;
+    create(requester: Requester, dto: CourseMasterCreateDTO): Promise<CourseMasterResponseDTO>;
 
     /**
      * Update course
      * @param requester - The user making the request
-     * @param courseId - The course's unique identifier
+     * @param courseMasterId - The course's unique identifier
      * @param dto - Course update data
      * @returns The updated course
      * @throws ForbiddenException if requester doesn't have permission
      * @throws NotFoundException if course not found
      */
-    update(requester: Requester, courseId: string, dto: CourseUpdateDTO): Promise<CourseResponseDTO>;
+    update(requester: Requester, courseMasterId: string, dto: CourseMasterUpdateDTO): Promise<CourseMasterResponseDTO>;
 
     /**
      * Delete course (soft or hard delete)
      * @param requester - The user making the request
-     * @param courseId - The course's unique identifier
+     * @param courseMasterId - The course's unique identifier
      * @param hardDelete - Whether to permanently delete (default: false for soft delete)
      * @returns Success message
      * @throws ForbiddenException if requester doesn't have permission
      * @throws NotFoundException if course not found
      */
-    delete(requester: Requester, courseId: string, hardDelete?: boolean): Promise<{ message: string }>;
+    delete(requester: Requester, courseMasterId: string, hardDelete?: boolean): Promise<{ message: string }>;
 
     /**
      * Get featured courses
      * @returns Array of featured courses
      */
-    getFeatured(): Promise<CourseResponseDTO[]>;
+    getFeatured(): Promise<CourseMasterResponseDTO[]>;
 
     /**
      * Get courses by type (vod or live)
      * @param type - Course type filter
      * @returns Array of courses
      */
-    getByType(type: 'vod' | 'live'): Promise<CourseResponseDTO[]>;
+    getByType(type: 'vod' | 'live'): Promise<CourseMasterResponseDTO[]>;
 
     /**
      * Submit course for review
      * @param requester - The user making the request
-     * @param courseId - The course's unique identifier
+     * @param courseMasterId - The course's unique identifier
      * @returns The updated course
      * @throws ForbiddenException if requester doesn't have permission
      * @throws NotFoundException if course not found
      */
-    submitForReview(requester: Requester, courseId: string): Promise<CourseResponseDTO>;
+    submitForReview(requester: Requester, courseMasterId: string): Promise<CourseMasterResponseDTO>;
 
     /**
      * Update livestream configuration. Caller must have course.publish or be an instructor assigned to the course.
      */
-    updateLiveConfig(requester: Requester, courseId: string, config: any): Promise<CourseResponseDTO>;
+    updateLiveConfig(requester: Requester, courseMasterId: string, config: any): Promise<CourseMasterResponseDTO>;
 
     /**
      * Publish a course
      * @param requester - The user making the request
-     * @param courseId - The course's unique identifier
+     * @param courseMasterId - The course's unique identifier
      * @returns The updated course
      * @throws ForbiddenException if requester doesn't have permission
      * @throws NotFoundException if course not found
      */
-    publish(requester: Requester, courseId: string): Promise<CourseResponseDTO>;
+    publish(requester: Requester, courseMasterId: string): Promise<CourseMasterResponseDTO>;
 
     /**
      * Unpublish a course (set to draft)
      * @param requester - The user making the request
-     * @param courseId - The course's unique identifier
+     * @param courseMasterId - The course's unique identifier
      * @returns The updated course
      * @throws ForbiddenException if requester doesn't have permission
      * @throws NotFoundException if course not found
      */
-    unpublish(requester: Requester, courseId: string): Promise<CourseResponseDTO>;
+    unpublish(requester: Requester, courseMasterId: string): Promise<CourseMasterResponseDTO>;
 
     /**
      * Reject a course (set to rejected and add reason)
      * @param requester - The user making the request
-     * @param courseId - The course's unique identifier
+     * @param courseMasterId - The course's unique identifier
      * @param reason - Rejection reason
      * @returns The updated course
      * @throws ForbiddenException if requester doesn't have permission
      * @throws NotFoundException if course not found
      */
-    reject(requester: Requester, courseId: string, reason: string): Promise<CourseResponseDTO>;
+    reject(requester: Requester, courseMasterId: string, reason: string): Promise<CourseMasterResponseDTO>;
 
     /**
      * Get course curriculum (modules with lessons)
-     * @param courseId - The course's unique identifier
+     * @param courseMasterId - The course's unique identifier
      * @param requester - The user making the request
      * @returns The curriculum data with modules and lessons
      * @throws NotFoundException if course not found
      */
-    getCurriculum(courseId: string, requester?: Requester): Promise<{
+    getCurriculum(courseMasterId: string, requester?: Requester): Promise<{
         modules: Array<{
             id: string;
             title: string;
@@ -170,28 +170,28 @@ export interface ICourseService {
 
     /**
      * Recalculate course statistics (totalLessons, totalQuizzes, etc.)
-     * @param courseId - The course's unique identifier
+     * @param courseMasterId - The course's unique identifier
      */
-    recalculateStats(courseId: string): Promise<void>;
+    recalculateStats(courseMasterId: string): Promise<void>;
 
     /**
      * Validate if a course is ready for scheduling
-     * @param courseId - The course's unique identifier
+     * @param courseMasterId - The course's unique identifier
      * @returns Boolean indicating if course is ready and validation message
      */
-    validateForScheduling(courseId: string): Promise<{ isReady: boolean; message?: string }>;
+    validateForScheduling(courseMasterId: string): Promise<{ isReady: boolean; message?: string }>;
 
     /**
      * Check if a user is an instructor for a course
      * @param userId - The user's unique identifier
-     * @param courseId - The course's unique identifier
+     * @param courseMasterId - The course's unique identifier
      */
-    isInstructor(userId: string, courseId: string): Promise<boolean>;
+    isInstructor(userId: string, courseMasterId: string): Promise<boolean>;
 
     /**
      * Get the number of students enrolled in a course
-     * @param courseId - The course's unique identifier
+     * @param courseMasterId - The course's unique identifier
      * @returns The number of students
      */
-    getStudentCount(courseId: string): Promise<{ count: number }>;
+    getStudentCount(courseMasterId: string): Promise<{ count: number }>;
 }

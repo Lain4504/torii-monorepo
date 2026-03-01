@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api/api-client.ts';
-import type { PaginatedApiResponse, CourseResponseDTO, CourseCreateDTO, CourseUpdateDTO, CourseQueryDTO, StandardApiResponse } from '@workspace/schemas';
+import type { PaginatedApiResponse, CourseMasterResponseDTO, CourseMasterCreateDTO, CourseMasterUpdateDTO, CourseMasterQueryDTO, StandardApiResponse } from '@workspace/schemas';
 
 // ============================================================================
 // API Functions
@@ -8,26 +8,26 @@ import type { PaginatedApiResponse, CourseResponseDTO, CourseCreateDTO, CourseUp
 
 export const coursesApi = {
     // POST /api/courses/search
-    async findAll(params: CourseQueryDTO): Promise<PaginatedApiResponse<CourseResponseDTO>> {
-        const response = await apiClient.post<PaginatedApiResponse<CourseResponseDTO>>('/api/courses/search', params);
+    async findAll(params: CourseMasterQueryDTO): Promise<PaginatedApiResponse<CourseMasterResponseDTO>> {
+        const response = await apiClient.post<PaginatedApiResponse<CourseMasterResponseDTO>>('/api/courses/search', params);
         return response.data;
     },
 
     // GET /api/admin/courses/:id
-    async findById(id: string): Promise<CourseResponseDTO> {
-        const response = await apiClient.get<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}`);
+    async findById(id: string): Promise<CourseMasterResponseDTO> {
+        const response = await apiClient.get<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/courses/${id}`);
         return response.data.data!.course;
     },
 
     // POST /api/admin/courses
-    async create(course: CourseCreateDTO): Promise<CourseResponseDTO> {
-        const response = await apiClient.post<StandardApiResponse<{ course: CourseResponseDTO }>>('/api/courses', course);
+    async create(course: CourseMasterCreateDTO): Promise<CourseMasterResponseDTO> {
+        const response = await apiClient.post<StandardApiResponse<{ course: CourseMasterResponseDTO }>>('/api/courses', course);
         return response.data.data!.course;
     },
 
     // PUT /api/courses/:id
-    async update(id: string, course: CourseUpdateDTO): Promise<CourseResponseDTO> {
-        const response = await apiClient.put<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}`, course);
+    async update(id: string, course: CourseMasterUpdateDTO): Promise<CourseMasterResponseDTO> {
+        const response = await apiClient.put<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/courses/${id}`, course);
         return response.data.data!.course;
     },
 
@@ -38,37 +38,37 @@ export const coursesApi = {
     },
 
     // PATCH /api/admin/courses/:id/restore
-    async restore(id: string): Promise<CourseResponseDTO> {
-        const response = await apiClient.patch<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}/restore`);
+    async restore(id: string): Promise<CourseMasterResponseDTO> {
+        const response = await apiClient.patch<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/courses/${id}/restore`);
         return response.data.data!.course;
     },
 
     // POST /api/courses/:id/publish
-    async publish(id: string): Promise<CourseResponseDTO> {
-        const response = await apiClient.post<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}/publish`);
+    async publish(id: string): Promise<CourseMasterResponseDTO> {
+        const response = await apiClient.post<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/courses/${id}/publish`);
         return response.data.data!.course;
     },
 
     // POST /api/courses/:id/submit-for-review
-    async submitForReview(id: string): Promise<CourseResponseDTO> {
-        const response = await apiClient.post<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}/submit-for-review`);
+    async submitForReview(id: string): Promise<CourseMasterResponseDTO> {
+        const response = await apiClient.post<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/courses/${id}/submit-for-review`);
         return response.data.data!.course;
     },
 
     // POST /api/courses/:id/unpublish
-    async unpublish(id: string): Promise<CourseResponseDTO> {
-        const response = await apiClient.post<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}/unpublish`);
+    async unpublish(id: string): Promise<CourseMasterResponseDTO> {
+        const response = await apiClient.post<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/courses/${id}/unpublish`);
         return response.data.data!.course;
     },
 
-    async updateLiveConfig(id: string, config: any): Promise<CourseResponseDTO> {
-        const response = await apiClient.patch<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}/live-config`, config);
+    async updateLiveConfig(id: string, config: any): Promise<CourseMasterResponseDTO> {
+        const response = await apiClient.patch<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/courses/${id}/live-config`, config);
         return response.data.data!.course;
     },
 
     // POST /api/courses/:id/reject
-    async reject(id: string, reason: string): Promise<CourseResponseDTO> {
-        const response = await apiClient.post<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}/reject`, { reason });
+    async reject(id: string, reason: string): Promise<CourseMasterResponseDTO> {
+        const response = await apiClient.post<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/courses/${id}/reject`, { reason });
         return response.data.data!.course;
     },
 };
@@ -80,7 +80,7 @@ export const coursesApi = {
 /**
  * Hook: Get courses list with pagination and filters
  */
-export function useCourses(params: CourseQueryDTO) {
+export function useCourses(params: CourseMasterQueryDTO) {
     return useQuery({
         queryKey: ['courses', params],
         queryFn: () => coursesApi.findAll(params),
@@ -106,7 +106,7 @@ export function useCreateCourse() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (course: CourseCreateDTO) => coursesApi.create(course),
+        mutationFn: (course: CourseMasterCreateDTO) => coursesApi.create(course),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['courses'] });
         },
@@ -120,7 +120,7 @@ export function useUpdateCourse() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ id, course }: { id: string; course: CourseUpdateDTO }) =>
+        mutationFn: ({ id, course }: { id: string; course: CourseMasterUpdateDTO }) =>
             coursesApi.update(id, course),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['courses', variables.id] });

@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { paginationOptionsDTOSchema } from './common.dto';
-import { courseSchema, CourseStatus } from '../models/course.model';
+import { courseMasterSchema, CourseMasterStatus } from '../models/course-master.model';
 
-export const courseCreateDTOSchema = courseSchema.pick({
+export const courseMasterCreateDTOSchema = courseMasterSchema.pick({
     title: true,
     description: true,
     shortDescription: true,
@@ -39,33 +39,33 @@ export const courseCreateDTOSchema = courseSchema.pick({
     aiMetadata: true,
 });
 
-export type CourseCreateDTO = z.infer<typeof courseCreateDTOSchema>;
+export type CourseMasterCreateDTO = z.infer<typeof courseMasterCreateDTOSchema>;
 
-export const courseUpdateDTOSchema = courseCreateDTOSchema.extend({
+export const courseMasterUpdateDTOSchema = courseMasterCreateDTOSchema.extend({
     approvedBy: z.string().uuid().optional(),
-    status: z.nativeEnum(CourseStatus).optional(),
+    status: z.nativeEnum(CourseMasterStatus).optional(),
 }).partial();
 
-export type CourseUpdateDTO = z.infer<typeof courseUpdateDTOSchema>;
+export type CourseMasterUpdateDTO = z.infer<typeof courseMasterUpdateDTOSchema>;
 
 // Basic User info for instructor
-export const courseInstructorDTOSchema = z.object({
+export const courseMasterInstructorDTOSchema = z.object({
     id: z.string().uuid(),
     displayName: z.string(),
     avatarUrl: z.string().optional().nullable(),
     email: z.string().optional(),
 });
 
-export type CourseInstructorDTO = z.infer<typeof courseInstructorDTOSchema>;
+export type CourseMasterInstructorDTO = z.infer<typeof courseMasterInstructorDTOSchema>;
 
-export const courseResponseDTOSchema = courseSchema.extend({
-    lecturer: courseInstructorDTOSchema.optional().nullable(),
+export const courseMasterResponseDTOSchema = courseMasterSchema.extend({
+    lecturer: courseMasterInstructorDTOSchema.optional().nullable(),
 });
 
-export type CourseResponseDTO = z.infer<typeof courseResponseDTOSchema>;
+export type CourseMasterResponseDTO = z.infer<typeof courseMasterResponseDTOSchema>;
 
 // DTO for learner-facing course search/catalog results
-export const courseSearchResponseDTOSchema = courseSchema.pick({
+export const courseMasterSearchResponseDTOSchema = courseMasterSchema.pick({
     id: true,
     title: true,
     slug: true,
@@ -83,16 +83,16 @@ export const courseSearchResponseDTOSchema = courseSchema.pick({
     aiMetadata: true,
     type: true,
 }).extend({
-    lecturer: courseInstructorDTOSchema.optional().nullable(),
+    lecturer: courseMasterInstructorDTOSchema.optional().nullable(),
 });
 
-export type CourseSearchResponseDTO = z.infer<typeof courseSearchResponseDTOSchema>;
+export type CourseMasterSearchResponseDTO = z.infer<typeof courseMasterSearchResponseDTOSchema>;
 
-export const courseSearchRequestDTOSchema = paginationOptionsDTOSchema.extend({
-    status: z.nativeEnum(CourseStatus).optional(),
+export const courseMasterSearchRequestDTOSchema = paginationOptionsDTOSchema.extend({
+    status: z.nativeEnum(CourseMasterStatus).optional(),
     jlptLevel: z.string().optional(),
     instructorId: z.string().uuid().optional(),
 });
 
-export type CourseSearchRequestDTO = z.infer<typeof courseSearchRequestDTOSchema>;
-export type CourseQueryDTO = CourseSearchRequestDTO;
+export type CourseMasterSearchRequestDTO = z.infer<typeof courseMasterSearchRequestDTOSchema>;
+export type CourseMasterQueryDTO = CourseMasterSearchRequestDTO;

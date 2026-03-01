@@ -23,12 +23,12 @@ export class StaffDashboardHandler {
             totalLecturers,
         ] = await Promise.all([
             // Total courses (including drafts, excluding deleted)
-            this.prisma.course.count({
+            this.prisma.courseMaster.count({
                 where: { deletedAt: null },
             }),
 
             // Active/Published courses
-            this.prisma.course.count({
+            this.prisma.courseMaster.count({
                 where: {
                     status: 'published',
                     deletedAt: null,
@@ -46,7 +46,7 @@ export class StaffDashboardHandler {
             }),
 
             // Total unique lecturers assigned to courses
-            this.prisma.course.findMany({
+            this.prisma.courseMaster.findMany({
                 where: { lecturerId: { not: null }, deletedAt: null },
                 select: { lecturerId: true },
                 distinct: ['lecturerId'],

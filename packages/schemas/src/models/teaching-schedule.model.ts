@@ -5,7 +5,7 @@ import { z } from 'zod';
 // ============================================================================
 export const teachingScheduleSchema = z.object({
     id: z.string(),
-    courseId: z.string(),
+    courseMasterId: z.string(),
     lecturerId: z.string(),
     dayOfWeek: z.number().min(0).max(6),
     startTime: z.string(),
@@ -17,7 +17,7 @@ export const teachingScheduleSchema = z.object({
 export type TeachingSchedule = z.infer<typeof teachingScheduleSchema>;
 
 export const teachingScheduleCreateDTOSchema = teachingScheduleSchema.pick({
-    courseId: true,
+    courseMasterId: true,
     lecturerId: true,
     dayOfWeek: true,
     startTime: true,
@@ -47,7 +47,7 @@ export const scheduleRequestSchema = z.object({
     id: z.string(),
     lecturerId: z.string().uuid(),
     originalScheduleId: z.string().uuid().optional().nullable(),
-    courseId: z.string().uuid(),
+    courseMasterId: z.string().uuid(),
     dayOfWeek: z.number().min(0).max(6),
     startTime: z.string(),
     duration: z.number().min(15),
@@ -60,7 +60,7 @@ export const scheduleRequestSchema = z.object({
 export const scheduleRequestCreateDTOSchema = scheduleRequestSchema.pick({
     lecturerId: true,
     originalScheduleId: true,
-    courseId: true,
+    courseMasterId: true,
     dayOfWeek: true,
     startTime: true,
     duration: true,

@@ -23,7 +23,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select";
-import { type CourseResponseDTO } from '@workspace/schemas';
+import { type CourseMasterResponseDTO } from '@workspace/schemas';
 import {
     useTeachingSchedules,
     useAssignTeachingSchedule,
@@ -40,7 +40,7 @@ import { ScrollArea } from '@workspace/ui/components/scroll-area';
 interface TeachingScheduleSheetProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    course: CourseResponseDTO | null;
+    course: CourseMasterResponseDTO | null;
 }
 
 interface ScheduleFormValues {

@@ -71,7 +71,7 @@ export class ModuleController {
 
     @Get('by-course/:courseId')
     async findByCourseId(
-        @Param('courseId') courseId: string,
+        @Param('courseId') courseMasterId: string,
         @Req() req: ReqWithRequester
     ) {
         try {
@@ -79,7 +79,7 @@ export class ModuleController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.module.findByCourseId' },
-                    { courseId, requester: req.requester }
+                    { courseMasterId, requester: req.requester }
                 )
             );
             return successResponse({ modules: result });
@@ -121,7 +121,7 @@ export class ModuleController {
     @Post('reorder/:courseId')
     @Permissions('module.update')
     async reorder(
-        @Param('courseId') courseId: string,
+        @Param('courseId') courseMasterId: string,
         @Body() moduleOrders: { id: string; orderIndex: number }[],
         @Req() req: ReqWithRequester
     ) {
@@ -130,7 +130,7 @@ export class ModuleController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.module.reorder' },
-                    { courseId, moduleOrders, requester: req.requester }
+                    { courseMasterId, moduleOrders, requester: req.requester }
                 )
             );
             return successResponse({ modules: result }, 'Modules reordered successfully');

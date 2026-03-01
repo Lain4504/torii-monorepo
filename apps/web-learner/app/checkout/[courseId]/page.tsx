@@ -26,7 +26,7 @@ import { toast } from '@workspace/ui/components/sonner'
 import { courseApi } from '@/lib/api/services/course-api'
 import { enrollmentApi } from '@/lib/api/services/enrollment-api'
 import { useAvailableCourseRuns } from '@/lib/api/services/course-run-api'
-import { CourseResponseDTO } from '@workspace/schemas'
+import { CourseMasterResponseDTO } from '@workspace/schemas'
 import { PaymentMethod, OrderType } from '@workspace/schemas'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { couponApi } from '@/lib/api/services/coupon-api'
@@ -58,7 +58,7 @@ export default function CheckoutPage() {
     const courseRunId = searchParams.get('runId')
     const user = useAppSelector((state) => state.auth.user)
 
-    const [course, setCourse] = useState<CourseResponseDTO | null>(null)
+    const [course, setCourse] = useState<CourseMasterResponseDTO | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const { data: balance = 0, isLoading: isLoadingBalance, refetch: refetchBalance } = useBalance()
     const { data: availableRuns } = useAvailableCourseRuns(courseId)

@@ -1271,7 +1271,7 @@ model DiscussionTopic {
 
   // Relations
   author User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course CourseMaster @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@index([courseId])
   @@index([moduleId])
@@ -1376,7 +1376,7 @@ model Quiz {
   updatedAt        DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  course        Course?        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course        CourseMaster?        @relation(fields: [courseId], references: [id], onDelete: Cascade)
   lesson        Lesson?        @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   quizQuestions QuizQuestion[]
   attempts      QuizAttempt[]
@@ -1488,7 +1488,7 @@ model Wishlist {
 
   // Relations
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course CourseMaster @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
   @@map("wishlist")
@@ -1506,7 +1506,7 @@ model Review {
 
   // Relations
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course CourseMaster @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId]) // Mỗi user chỉ review 1 lần cho 1 course
   @@index([courseId])
@@ -1543,7 +1543,7 @@ model Enrollment {
 
   // Relations
   user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course         Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course         CourseMaster           @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseRun      CourseRun?       @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
   version        CourseVersion?   @relation(fields: [versionId], references: [id], onDelete: SetNull)
   order          Order?           @relation(fields: [orderId], references: [id], onDelete: SetNull)
@@ -1681,7 +1681,7 @@ model CartItem {
   addedAt  DateTime @default(now()) @map("added_at")
 
   cart   Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course CourseMaster @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([cartId, courseId])
   @@index([cartId])
@@ -1979,7 +1979,7 @@ model Certificate {
   metadata        Json?    @default("{}")
 
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course     Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course     CourseMaster     @relation(fields: [courseId], references: [id], onDelete: Cascade)
   enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
 
   @@index([userId])

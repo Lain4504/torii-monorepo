@@ -62,7 +62,7 @@ export class AssignmentService {
         title: dto.title,
         description: dto.description,
         type: dto.type,
-        courseId: dto.courseId,
+        courseMasterId: dto.courseMasterId,
         moduleId: dto.moduleId,
         lessonId: dto.lessonId,
         maxScore: dto.maxScore,
@@ -156,7 +156,7 @@ export class AssignmentService {
     this.natsClient.emit('assignment.published', {
       assignmentId: assignment.id,
       title: assignment.title,
-      courseId: assignment.courseId,
+      courseMasterId: assignment.courseMasterId,
       moduleId: assignment.moduleId,
       lessonId: assignment.lessonId,
       dueDate: assignment.dueDate,
@@ -170,13 +170,13 @@ export class AssignmentService {
    * BR-02: Query Assignments
    */
   async findAll(requester: Requester, query: QueryAssignmentsDto) {
-    const { page = 1, limit = 20, courseId, moduleId, lessonId, status } = query;
+    const { page = 1, limit = 20, courseMasterId, moduleId, lessonId, status } = query;
     const skip = (page - 1) * limit;
 
     const where: any = {};
 
     // Filter by association
-    if (courseId) where.courseId = courseId;
+    if (courseMasterId) where.courseMasterId = courseMasterId;
     if (moduleId) where.moduleId = moduleId;
     if (lessonId) where.lessonId = lessonId;
 

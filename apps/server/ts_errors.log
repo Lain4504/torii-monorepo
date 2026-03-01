@@ -1,0 +1,3 @@
+modules/learning/src/handlers/enrollment.handler.ts(36,64): error TS2345: Argument of type 'string' is not assignable to parameter of type '{ courseId: string; courseRunId?: string | undefined; }'.
+modules/learning/src/infrastructure/mappings/teaching-schedule.profile.ts(52,17): error TS2554: Expected 2-3 arguments, but got 0.
+modules/learning/src/infrastructure/mappings/teaching-schedule.profile.ts(117,17): error TS2554: Expected 2-3 arguments, but got 0.

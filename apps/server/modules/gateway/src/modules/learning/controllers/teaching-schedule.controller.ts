@@ -57,9 +57,9 @@ export class TeachingScheduleController {
 
     @Get('course/:courseId')
     @Permissions('schedule.view')
-    async findByCourse(@Param('courseId') courseId: string) {
+    async findByCourse(@Param('courseId') courseMasterId: string) {
         const data = await firstValueFrom(
-            this.natsClient.send({ cmd: 'learning.teachingSchedule.findByCourse' }, { courseId })
+            this.natsClient.send({ cmd: 'learning.teachingSchedule.findByCourse' }, { courseMasterId })
         );
         return successResponse(data);
     }

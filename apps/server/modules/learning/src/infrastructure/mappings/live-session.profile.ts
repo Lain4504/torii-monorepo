@@ -26,8 +26,8 @@ export class LiveSessionProfile extends AutomapperProfile {
                     mapFrom((src: LiveSession) => src.id),
                 ),
                 forMember(
-                    (dest: LiveSessionResponseDTO) => dest.courseId,
-                    mapFrom((src: LiveSession) => src.courseId),
+                    (dest: LiveSessionResponseDTO) => dest.courseMasterId,
+                    mapFrom((src: LiveSession) => src.courseMasterId),
                 ),
                 forMember(
                     (dest: LiveSessionResponseDTO) => dest.lecturerId,

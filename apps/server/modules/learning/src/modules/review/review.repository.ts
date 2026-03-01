@@ -154,7 +154,7 @@ export class ReviewRepository implements IReviewRepository {
    * Find course by ID
    */
   async findCourse(courseId: string): Promise<{ id: string } | null> {
-    return this.prisma.course.findFirst({
+    return this.prisma.courseMaster.findFirst({
       where: { id: courseId, deletedAt: null },
       select: { id: true },
     });
@@ -178,7 +178,7 @@ export class ReviewRepository implements IReviewRepository {
     averageRating: number,
     totalReviews: number,
   ): Promise<void> {
-    await this.prisma.course.update({
+    await this.prisma.courseMaster.update({
       where: { id: courseId },
       data: {
         averageRating: Math.round(averageRating * 100) / 100,

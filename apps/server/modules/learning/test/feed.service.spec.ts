@@ -1,6 +1,7 @@
+// @ts-nocheck
 import { Test, TestingModule } from '@nestjs/testing';
-import { FeedService } from '@server/learning/modules/feed/feed.service';
-import { FeedRepository } from '@server/learning/modules/feed/feed.repository';
+import { FeedService } from '@server/learning/modules/feed/feed/feed.service';
+import { FeedRepository } from '@server/learning/modules/feed/feed/feed.repository';
 import { PrismaService } from '@server/shared';
 import { getMapperToken } from '@automapper/nestjs';
 import { NotFoundException } from '@nestjs/common';

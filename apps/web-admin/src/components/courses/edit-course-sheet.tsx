@@ -22,17 +22,17 @@ import {
     FieldError,
 } from '@workspace/ui/components/field';
 import { Users, Calendar, Save, Film, X, ImageIcon } from 'lucide-react';
-import type { CourseResponseDTO } from '@workspace/schemas';
-import { courseUpdateDTOSchema, type CourseUpdateDTO, JlptLevel } from '@workspace/schemas';
+import type { CourseMasterResponseDTO } from '@workspace/schemas';
+import { courseUpdateDTOSchema, type CourseMasterUpdateDTO, JlptLevel } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import { useUpdateCourse } from "@/lib/api/services/courses.ts";
 import { storageApi } from '@/lib/api/services/storage-api.ts';
 import { Spinner } from "@workspace/ui/components/spinner";
 
-type UpdateCourseFormData = CourseUpdateDTO;
+type UpdateCourseFormData = CourseMasterUpdateDTO;
 
 interface EditCourseSheetProps {
-    course: CourseResponseDTO | null;
+    course: CourseMasterResponseDTO | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
@@ -50,7 +50,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
         watch,
         setValue,
         formState: { isDirty },
-    } = useForm<CourseUpdateDTO>({
+    } = useForm<CourseMasterUpdateDTO>({
         resolver: zodResolver(courseUpdateDTOSchema),
         defaultValues: {
             title: '',

@@ -19,9 +19,9 @@ export class LiveSessionRepository implements ILiveSessionRepository {
         });
     }
 
-    async findByCourseId(courseId: string): Promise<LiveSession[]> {
+    async findByCourseId(courseMasterId: string): Promise<LiveSession[]> {
         return this.prisma.liveSession.findMany({
-            where: { courseId },
+            where: { courseMasterId },
             orderBy: { scheduledAt: 'asc' },
         });
     }

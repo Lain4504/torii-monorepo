@@ -26,8 +26,8 @@ export class ModuleProfile extends AutomapperProfile {
                     mapFrom((src) => src.id),
                 ),
                 forMember(
-                    (dest) => dest.courseId,
-                    mapFrom((src) => src.courseId),
+                    (dest) => dest.courseMasterId,
+                    mapFrom((src) => src.courseMasterId),
                 ),
                 forMember(
                     (dest) => dest.title,

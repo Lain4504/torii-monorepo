@@ -14,14 +14,14 @@ import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { CheckCircle2, AlertCircle, AlertTriangle, BookOpen, Users, Layers, Rocket, ShieldCheck, XCircle } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { cn } from '@workspace/ui/lib/utils';
-import type { CourseResponseDTO } from '@workspace/schemas';
+import type { CourseMasterResponseDTO } from '@workspace/schemas';
 import { Alert, AlertDescription } from '@workspace/ui/components/alert';
 import { Spinner } from "@workspace/ui/components/spinner";
 
 interface PublishCourseDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    course: CourseResponseDTO | null;
+    course: CourseMasterResponseDTO | null;
 }
 
 export function PublishCourseDialog({ open, onOpenChange, course }: PublishCourseDialogProps) {

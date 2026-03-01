@@ -13,7 +13,7 @@ export interface ILiveSessionService {
     /**
      * Get all live sessions for a course
      */
-    findByCourseId(courseId: string): Promise<LiveSessionResponseDTO[]>;
+    findByCourseId(courseMasterId: string): Promise<LiveSessionResponseDTO[]>;
 
     /**
      * Create a new live session

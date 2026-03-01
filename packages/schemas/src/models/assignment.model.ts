@@ -30,7 +30,7 @@ export const assignmentSchema = z.object({
   type: z.nativeEnum(AssignmentType),
 
   // Associated with (at least one required)
-  courseId: z.string().uuid().optional(),
+  courseMasterId: z.string().uuid().optional(),
   moduleId: z.string().uuid().optional(),
   lessonId: z.string().uuid().optional(),
 

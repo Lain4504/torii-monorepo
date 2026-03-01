@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { CourseRunService } from './course-run.service';
 import { CourseRunRepository } from './course-run.repository';
 import { COURSE_RUN_REPOSITORY_TOKEN } from '../../interfaces/repositories';
-import { CourseModule } from '../course/course.module';
+import { CourseMasterModule } from '../course-master/course-master.module';
 
 @Module({
-    imports: [CourseModule],
+    imports: [CourseMasterModule],
     providers: [
         CourseRunService,
         {

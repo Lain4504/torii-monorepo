@@ -31,10 +31,10 @@ export class LearningProgressController {
         return successResponse({ stats: result });
     }
 
-    @Get('completed-lessons/:courseId')
-    async getCompletedLessons(@Request() req: any, @Param('courseId') courseId: string) {
+    @Get('completed-lessons/:courseMasterId')
+    async getCompletedLessons(@Request() req: any, @Param('courseMasterId') courseMasterId: string) {
         const userId = req.requester.sub;
-        const result = await this.service.getCompletedLessons(userId, courseId);
+        const result = await this.service.getCompletedLessons(userId, courseMasterId);
         return successResponse({ lessonIds: result });
     }
 

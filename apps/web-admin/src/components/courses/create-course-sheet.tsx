@@ -32,7 +32,7 @@ import {
 
 import { toast } from '@workspace/ui/components/sonner';
 import { storageApi } from '@/lib/api/services/storage-api.ts';
-import { JlptLevel, courseCreateDTOSchema, type CourseCreateDTO } from '@workspace/schemas';
+import { JlptLevel, courseCreateDTOSchema, type CourseMasterCreateDTO } from '@workspace/schemas';
 import { useCreateCourse } from "@/lib/api/services/courses.ts";
 import { Spinner } from "@workspace/ui/components/spinner";
 
@@ -56,7 +56,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
         reset,
         watch,
         setValue,
-    } = useForm<CourseCreateDTO>({
+    } = useForm<CourseMasterCreateDTO>({
         resolver: zodResolver(courseCreateDTOSchema) as any,
         defaultValues: {
             title: '',
@@ -88,7 +88,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
         }
     };
 
-    const onSubmit = async (data: CourseCreateDTO) => {
+    const onSubmit = async (data: CourseMasterCreateDTO) => {
         // Validation: Paid courses must have price > 0
         if (!data.isFree && (data.price === undefined || data.price <= 0)) {
             toast.error('Giá tiền không hợp lệ', {

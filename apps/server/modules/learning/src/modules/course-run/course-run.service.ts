@@ -5,8 +5,8 @@ import { ClientProxy } from '@nestjs/microservices';
 import type { Requester } from '@workspace/schemas';
 import { CourseRunStatus, CourseRunCreateDTO, CourseRunUpdateDTO, CourseRunResponseDTO, CourseRunSearchRequestDTO, PaginatedApiResponse, UserRole } from '@workspace/schemas';
 import { ICourseRunRepository } from '../../interfaces/repositories/i-course-run.repository';
-import { ICourseRepository } from '../../interfaces/repositories/i-course.repository';
-import { COURSE_REPOSITORY_TOKEN, COURSE_RUN_REPOSITORY_TOKEN } from '../../interfaces/repositories';
+import { ICourseMasterRepository } from '../../interfaces/repositories/i-course-master.repository';
+import { COURSE_MASTER_REPOSITORY_TOKEN, COURSE_RUN_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 import { generateSlug } from '@server/shared';
 
 @Injectable()
@@ -16,8 +16,8 @@ export class CourseRunService {
     constructor(
         @Inject(COURSE_RUN_REPOSITORY_TOKEN)
         private readonly courseRunRepository: ICourseRunRepository,
-        @Inject(COURSE_REPOSITORY_TOKEN)
-        private readonly courseRepository: ICourseRepository,
+        @Inject(COURSE_MASTER_REPOSITORY_TOKEN)
+        private readonly courseRepository: ICourseMasterRepository,
         @Inject('NATS_SERVICE')
         private readonly natsClient: ClientProxy,
         @InjectMapper()
@@ -29,18 +29,18 @@ export class CourseRunService {
             throw new ForbiddenException('You do not have permission to create course runs');
         }
 
-        const course = await this.courseRepository.findById(dto.courseId);
-        if (!course) {
-            throw new NotFoundException(`Course with id ${dto.courseId} not found`);
+        const courseMaster = await this.courseRepository.findById(dto.courseMasterId);
+        if (!courseMaster) {
+            throw new NotFoundException(`Course master with id ${dto.courseMasterId} not found`);
         }
 
         // Ensure syllabus is published (has a version)
-        const latestVersion = await this.courseRepository.getLatestVersion(dto.courseId);
+        const latestVersion = await this.courseRepository.getLatestVersion(dto.courseMasterId);
         if (!latestVersion) {
-            throw new BadRequestException('Cannot create a run for an empty or unpublished course. Please publish the course first.');
+            throw new BadRequestException('Cannot create a run for an empty or unpublished course master. Please publish the course master first.');
         }
 
-        const baseSlug = `${course.slug}-${generateSlug(dto.title)}`;
+        const baseSlug = `${courseMaster.slug}-${generateSlug(dto.title)}`;
         const slug = await this.ensureUniqueSlug(baseSlug);
 
         const run = await this.courseRunRepository.create({
@@ -68,8 +68,8 @@ export class CourseRunService {
         const updateData: any = { ...dto };
 
         if (dto.title && dto.title !== existing.title) {
-            const course = await this.courseRepository.findById(existing.courseId);
-            const baseSlug = `${course?.slug || 'run'}-${generateSlug(dto.title)}`;
+            const courseMaster = await this.courseRepository.findById(existing.courseMasterId);
+            const baseSlug = `${courseMaster?.slug || 'run'}-${generateSlug(dto.title)}`;
             updateData.slug = await this.ensureUniqueSlug(baseSlug, id);
         }
 
@@ -89,17 +89,19 @@ export class CourseRunService {
     }
 
     async findAll(query: CourseRunSearchRequestDTO): Promise<PaginatedApiResponse<CourseRunResponseDTO>> {
-        const { page = 1, limit = 10, courseId, status } = query;
-        const skip = (page - 1) * limit;
+        const { page = 1, limit = 10, courseMasterId, status } = query;
+        const pageNum = Number(page);
+        const limitNum = Number(limit);
+        const skip = (pageNum - 1) * limitNum;
 
         const where: any = {};
-        if (courseId) where.courseId = courseId;
+        if (courseMasterId) where.courseMasterId = courseMasterId;
         if (status) where.status = status;
 
         const [items, total] = await Promise.all([
             this.courseRunRepository.findMany({
                 skip,
-                take: limit,
+                take: limitNum,
                 where,
                 include: { lecturer: true },
             }),
@@ -110,9 +112,9 @@ export class CourseRunService {
             success: true,
             data: items.map(item => this.toResponseDTO(item)),
             total,
-            page,
-            limit,
-            totalPages: Math.ceil(total / limit),
+            page: pageNum,
+            limit: limitNum,
+            totalPages: Math.ceil(total / limitNum),
         };
     }
 

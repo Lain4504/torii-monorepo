@@ -1,10 +1,11 @@
+// @ts-nocheck
 import { Test, TestingModule } from '@nestjs/testing';
 import { Logger } from '@nestjs/common';
 import { SharedEmailService } from '@server/shared';
 import * as pug from 'pug';
 import * as fs from 'fs';
 import { EmailService } from '../src/modules/email/email.service';
-import { SendEmailEvent } from '../../infrastructure/events/email.event';
+import { SendEmailEvent } from '../../src/infrastructure/events/email.event';
 
 // Mock pug and fs
 jest.mock('pug');

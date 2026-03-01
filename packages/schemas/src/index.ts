@@ -1,6 +1,6 @@
 // Models
 export * from './models/user.model';
-export * from './models/course.model';
+export * from './models/course-master.model';
 export * from './models/course-version.model';
 export * from './models/course-run.model';
 export * from './models/module.model';
@@ -55,7 +55,7 @@ export * from './dtos/exam.dto';
 export * from './dtos/lesson-material.dto';
 export * from './dtos/course-instructor.dto';
 export * from './dtos/staff-dashboard.dto';
-export * from './dtos/course.dto';
+export * from './dtos/course-master.dto';
 export * from './dtos/course-run.dto';
 export * from './dtos/enrollment.dto';
 export * from './dtos/order.dto';

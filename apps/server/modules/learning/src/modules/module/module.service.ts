@@ -2,7 +2,7 @@ import { Injectable, Logger, Inject, NotFoundException, BadRequestException, For
 import { ClientProxy } from '@nestjs/microservices';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
-import type { Module as CourseModule } from '@prisma/generated';
+import type { Module as CourseMasterModule } from '@prisma/generated';
 
 import type {
   ModuleCreateDTO,
@@ -13,10 +13,10 @@ import type {
   Requester,
 } from '@workspace/schemas';
 
-import type { IModuleService, ICourseService } from '@server/learning/interfaces/services';
+import type { IModuleService, ICourseMasterService } from '@server/learning/interfaces/services';
 import type { IModuleRepository } from '@server/learning/interfaces/repositories';
 import { MODULE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
-import { COURSE_SERVICE_TOKEN } from '@server/learning/interfaces/services';
+import { COURSE_MASTER_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 
 /**
  * Module Service
@@ -29,8 +29,8 @@ export class ModuleService implements IModuleService {
   constructor(
     @Inject(MODULE_REPOSITORY_TOKEN)
     private readonly moduleRepository: IModuleRepository,
-    @Inject(forwardRef(() => COURSE_SERVICE_TOKEN))
-    private readonly courseService: ICourseService,
+    @Inject(forwardRef(() => COURSE_MASTER_SERVICE_TOKEN))
+    private readonly courseMasterService: ICourseMasterService,
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
     @InjectMapper() private readonly mapper: Mapper,
@@ -70,8 +70,8 @@ export class ModuleService implements IModuleService {
   /**
    * Map Module entity to ModuleResponseDTO
    */
-  private toModuleResponseDTO(module: CourseModule): ModuleResponseDTO {
-    return this.mapper.map<CourseModule, ModuleResponseDTO>(module, 'Module', 'ModuleResponseDTO');
+  private toModuleResponseDTO(module: CourseMasterModule): ModuleResponseDTO {
+    return this.mapper.map<CourseMasterModule, ModuleResponseDTO>(module, 'Module', 'ModuleResponseDTO');
   }
 
   /**
@@ -134,12 +134,12 @@ export class ModuleService implements IModuleService {
   /**
    * Find all modules for a specific course
    */
-  async findByCourseId(courseId: string, requester?: Requester): Promise<ModuleResponseDTO[]> {
+  async findByCourseId(courseMasterId: string, requester?: Requester): Promise<ModuleResponseDTO[]> {
     let includeDrafts = false;
     if (requester && (this.hasPermission(requester, 'module.create') || this.hasPermission(requester, 'module.update'))) {
       includeDrafts = true;
     }
-    const modules = await this.moduleRepository.findByCourseId(courseId, includeDrafts);
+    const modules = await this.moduleRepository.findByCourseId(courseMasterId, includeDrafts);
     return modules.map(module => this.toModuleResponseDTO(module));
   }
 
@@ -151,12 +151,12 @@ export class ModuleService implements IModuleService {
       // Get next order index if not provided
       let orderIndex = dto.orderIndex;
       if (orderIndex === undefined) {
-        const maxOrder = await this.moduleRepository.getMaxOrderIndex(dto.courseId);
+        const maxOrder = await this.moduleRepository.getMaxOrderIndex(dto.courseMasterId);
         orderIndex = maxOrder + 1;
       }
 
       const data: any = {
-        course: { connect: { id: dto.courseId } },
+        courseMaster: { connect: { id: dto.courseMasterId } },
         title: dto.title,
         description: dto.description || null,
         aiMetadata: (dto as any).aiMetadata || {},
@@ -178,7 +178,7 @@ export class ModuleService implements IModuleService {
       });
 
       // Update course stats
-      await this.courseService.recalculateStats(dto.courseId);
+      await this.courseMasterService.recalculateStats(dto.courseMasterId);
 
       return this.toModuleResponseDTO(module);
     } catch (error: any) {
@@ -204,7 +204,7 @@ export class ModuleService implements IModuleService {
 
     // If user cannot publish courses (staff/admin only), check if they are assigned to the course
     if (!this.hasPermission(requester, 'course.publish')) {
-      const isInstructor = await this.courseService.isInstructor(requester.sub, existing.courseId);
+      const isInstructor = await this.courseMasterService.isInstructor(requester.sub, existing.courseMasterId);
       if (!isInstructor) {
         throw new ForbiddenException('You are not assigned to this course');
       }
@@ -238,7 +238,7 @@ export class ModuleService implements IModuleService {
 
       // Update course stats if status changed
       if ((dto as any).status !== undefined && (dto as any).status !== (existing as any).status) {
-        await this.courseService.recalculateStats(existing.courseId);
+        await this.courseMasterService.recalculateStats(existing.courseMasterId);
       }
 
       return this.toModuleResponseDTO(module);
@@ -281,7 +281,7 @@ export class ModuleService implements IModuleService {
       });
 
       // Update course stats
-      await this.courseService.recalculateStats(existing.courseId);
+      await this.courseMasterService.recalculateStats(existing.courseMasterId);
 
       return { message: 'Module deleted successfully' };
     }
@@ -295,7 +295,7 @@ export class ModuleService implements IModuleService {
    */
   async reorder(
     requester: Requester,
-    courseId: string,
+    courseMasterId: string,
     moduleOrders: { id: string; orderIndex: number }[]
   ): Promise<{ message: string }> {
     // Only authorized staff can reorder modules
@@ -304,14 +304,14 @@ export class ModuleService implements IModuleService {
     }
 
     try {
-      await this.moduleRepository.reorder(courseId, moduleOrders);
+      await this.moduleRepository.reorder(courseMasterId, moduleOrders);
 
       await this.createAuditLog({
         userId: requester.sub,
         action: 'course_module.reorder',
         entity: 'course_module',
-        entityId: courseId,
-        description: `Reordered modules in course ${courseId}`,
+        entityId: courseMasterId,
+        description: `Reordered modules in course ${courseMasterId}`,
         metadata: { moduleOrders },
       });
 

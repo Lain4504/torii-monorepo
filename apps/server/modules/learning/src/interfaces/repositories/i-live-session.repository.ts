@@ -13,7 +13,7 @@ export interface ILiveSessionRepository {
     /**
      * Find all live sessions for a course
      */
-    findByCourseId(courseId: string): Promise<LiveSession[]>;
+    findByCourseId(courseMasterId: string): Promise<LiveSession[]>;
 
     /**
      * Find scheduled sessions for a lecturer

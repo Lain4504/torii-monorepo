@@ -34,7 +34,7 @@ export interface HistoryItem {
     duration: number;
     slug: string;
     lessonId: string;
-    courseId: string;
+    courseMasterId: string;
     expiresAt: string | null;
 }
 

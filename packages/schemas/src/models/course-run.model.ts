@@ -3,7 +3,7 @@ import { CourseRunStatus } from '../enums/course-run.enum';
 
 export const courseRunSchema = z.object({
     id: z.string().uuid(),
-    courseId: z.string().uuid(),
+    courseMasterId: z.string().uuid(),
     versionId: z.string().uuid().optional().nullable(),
     title: z.string().min(1),
     slug: z.string(),

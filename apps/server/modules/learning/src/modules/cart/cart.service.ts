@@ -1,16 +1,16 @@
 import { Injectable, Inject, BadRequestException, NotFoundException } from '@nestjs/common';
 import { CartRepository } from './cart.repository';
-import { CourseRepository } from '../course/course.repository'; // Assuming this exists from Course module
+import { CourseMasterRepository } from '../course-master/course-master.repository'; // Assuming this exists from Course module
 import { PrismaService } from '@server/shared';
 
-import { COURSE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
-import { ICourseRepository } from '@server/learning/interfaces/repositories';
+import { COURSE_MASTER_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import { ICourseMasterRepository } from '@server/learning/interfaces/repositories';
 
 @Injectable()
 export class CartService {
     constructor(
         private readonly cartRepository: CartRepository,
-        @Inject(COURSE_REPOSITORY_TOKEN) private readonly courseRepository: ICourseRepository, // To validate course
+        @Inject(COURSE_MASTER_REPOSITORY_TOKEN) private readonly courseMasterRepository: ICourseMasterRepository, // To validate course
         private readonly prisma: PrismaService,
     ) { }
 
@@ -47,7 +47,7 @@ export class CartService {
 
     async addToCart(userId: string, courseId: string) {
         // 1. Validate Course
-        const course = await this.courseRepository.findById(courseId);
+        const course = await this.courseMasterRepository.findById(courseId);
         if (!course) {
             throw new NotFoundException('Course not found');
         }

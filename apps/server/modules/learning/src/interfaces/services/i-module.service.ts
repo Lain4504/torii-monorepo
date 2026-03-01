@@ -32,7 +32,7 @@ export interface IModuleService {
      * @param courseId - The course's unique identifier
      * @returns Array of modules ordered by orderIndex
      */
-    findByCourseId(courseId: string, requester?: Requester): Promise<ModuleResponseDTO[]>;
+    findByCourseId(courseMasterId: string, requester?: Requester): Promise<ModuleResponseDTO[]>;
 
     /**
      * Create a new module
@@ -75,7 +75,7 @@ export interface IModuleService {
      */
     reorder(
         requester: Requester,
-        courseId: string,
+        courseMasterId: string,
         moduleOrders: { id: string; orderIndex: number }[]
     ): Promise<{ message: string }>;
 }

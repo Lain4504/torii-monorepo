@@ -8,7 +8,7 @@ export enum JlptLevel {
     N1 = 'N1',
 }
 
-export enum CourseStatus {
+export enum CourseMasterStatus {
     DRAFT = 'draft',
     PENDING_REVIEW = 'pending_review',
     PUBLISHED = 'published',
@@ -25,15 +25,15 @@ export enum InstructorRole {
 /**
  * Helper function to derive course status from approvedBy and approvedAt
  */
-export function deriveCourseStatus(approvedBy: string | null | undefined, approvedAt: Date | null | undefined, isSubmittedForReview?: boolean, rejectionReason?: string | null, deletedAt?: Date | null): CourseStatus {
-    if (deletedAt) return CourseStatus.ARCHIVED;
-    if (approvedBy && approvedAt) return CourseStatus.PUBLISHED;
-    if (rejectionReason) return CourseStatus.REJECTED;
-    if (isSubmittedForReview) return CourseStatus.PENDING_REVIEW;
-    return CourseStatus.DRAFT;
+export function deriveCourseMasterStatus(approvedBy: string | null | undefined, approvedAt: Date | null | undefined, isSubmittedForReview?: boolean, rejectionReason?: string | null, deletedAt?: Date | null): CourseMasterStatus {
+    if (deletedAt) return CourseMasterStatus.ARCHIVED;
+    if (approvedBy && approvedAt) return CourseMasterStatus.PUBLISHED;
+    if (rejectionReason) return CourseMasterStatus.REJECTED;
+    if (isSubmittedForReview) return CourseMasterStatus.PENDING_REVIEW;
+    return CourseMasterStatus.DRAFT;
 }
 
-export const courseSchema = z.object({
+export const courseMasterSchema = z.object({
     id: z.string().uuid(),
     title: z.string().min(1),
     slug: z.string(),
@@ -54,7 +54,7 @@ export const courseSchema = z.object({
     totalStudents: z.number().default(0),
     averageRating: z.number().default(0),
     totalReviews: z.number().default(0),
-    status: z.nativeEnum(CourseStatus), // Computed field derived from approvedBy/approvedAt
+    status: z.nativeEnum(CourseMasterStatus), // Computed field derived from approvedBy/approvedAt
     isFree: z.boolean().default(false),
     tags: z.array(z.string()).optional(),
     learningOutcomes: z.any().optional(), // JSONB
@@ -69,7 +69,7 @@ export const courseSchema = z.object({
     deletedAt: z.date().optional(),
 });
 
-export type Course = z.infer<typeof courseSchema>;
+export type CourseMaster = z.infer<typeof courseMasterSchema>;
 
 
 

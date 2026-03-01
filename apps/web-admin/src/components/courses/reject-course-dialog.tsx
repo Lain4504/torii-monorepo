@@ -18,7 +18,7 @@ import {
 } from "@workspace/ui/components/field";
 import { Textarea } from "@workspace/ui/components/textarea";
 import { useRejectCourse } from "@/lib/api/services/courses";
-import type { CourseResponseDTO } from "@workspace/schemas";
+import type { CourseMasterResponseDTO } from "@workspace/schemas";
 import { toast } from "@workspace/ui/components/sonner";
 import { Spinner } from "@workspace/ui/components/spinner";
 
@@ -29,7 +29,7 @@ const formSchema = z.object({
 });
 
 interface RejectCourseDialogProps {
-    course: CourseResponseDTO | null;
+    course: CourseMasterResponseDTO | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }

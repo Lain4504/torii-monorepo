@@ -9,14 +9,14 @@ import {
     AlertDialogTitle,
 } from '@workspace/ui/components/alert-dialog';
 import { Button } from '@workspace/ui/components/button';
-import type { CourseResponseDTO } from '@workspace/schemas';
+import type { CourseMasterResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import { useDeleteCourse } from "@/lib/api/services/courses";
 import { AlertTriangle } from "lucide-react";
 import { Spinner } from "@workspace/ui/components/spinner";
 
 interface DeleteCourseDialogProps {
-    course: CourseResponseDTO | null;
+    course: CourseMasterResponseDTO | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }

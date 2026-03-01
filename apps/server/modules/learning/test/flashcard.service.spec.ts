@@ -170,7 +170,7 @@ describe('FlashcardService', () => {
     describe('deleteFlashcard', () => {
         it('should delete flashcard and update deck count', async () => {
             mockFlashcardRepository.findById.mockResolvedValue(mockFlashcard);
-            await service.deleteFlashcard('fc-1');
+            await service.deleteFlashcard('fc-1', 'user-1');
             expect(flashcardRepository.delete).toHaveBeenCalledWith('fc-1');
             expect(deckRepository.update).toHaveBeenCalled();
         });

@@ -123,7 +123,7 @@ export class LessonMaterialRepository implements ILessonMaterialRepository {
             include: {
                 module: {
                     include: {
-                        course: {
+                        courseMaster: {
                             select: {
                                 lecturerId: true,
                             },
@@ -134,7 +134,7 @@ export class LessonMaterialRepository implements ILessonMaterialRepository {
         });
 
         // Check if lesson exists and lecturer is assigned to the course
-        return !!(lesson && lesson.module.course.lecturerId === lecturerId);
+        return !!(lesson && lesson.module.courseMaster.lecturerId === lecturerId);
     }
 
     /**

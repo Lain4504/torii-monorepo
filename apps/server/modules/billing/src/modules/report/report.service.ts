@@ -133,7 +133,7 @@ export class ReportService {
 
   async exportCourseRevenue() {
     // Query completed course purchase orders join with enrollment -> course
-    const courses = await this.prisma.course.findMany({
+    const courses = await this.prisma.courseMaster.findMany({
       include: {
         enrollments: {
           include: {

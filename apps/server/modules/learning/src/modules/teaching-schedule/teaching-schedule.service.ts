@@ -11,15 +11,15 @@ import {
 } from '@workspace/schemas';
 import { v4 as uuidv4 } from 'uuid';
 import { ITeachingScheduleService } from '@server/learning/interfaces/services/i-teaching-schedule.service';
-import { ICourseService } from '@server/learning/interfaces/services/i-course.service';
-import { COURSE_SERVICE_TOKEN } from '@server/learning/interfaces/services';
+import { ICourseMasterService } from '@server/learning/interfaces/services/i-course-master.service';
+import { COURSE_MASTER_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 
 @Injectable()
 export class TeachingScheduleService implements ITeachingScheduleService {
     constructor(
         private readonly prisma: PrismaService,
-        @Inject(COURSE_SERVICE_TOKEN)
-        private readonly courseService: ICourseService,
+        @Inject(COURSE_MASTER_SERVICE_TOKEN)
+        private readonly courseMasterService: ICourseMasterService,
         @InjectMapper() private readonly mapper: Mapper,
     ) { }
 
@@ -40,7 +40,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
                 id: excludeScheduleId ? { not: excludeScheduleId } : undefined,
             },
             include: {
-                course: {
+                courseMaster: {
                     select: {
                         title: true,
                     },
@@ -58,7 +58,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
             available: conflicts.length === 0,
             conflicts: conflicts.length > 0 ? conflicts.map(c => ({
                 id: c.id,
-                courseTitle: c.course.title,
+                courseTitle: c.courseMaster.title,
                 startTime: c.startTime,
                 duration: c.duration,
             })) : undefined,
@@ -79,21 +79,21 @@ export class TeachingScheduleService implements ITeachingScheduleService {
         }
 
         // Validate course readiness for scheduling
-        const validation = await this.courseService.validateForScheduling(dto.courseId);
+        const validation = await this.courseMasterService.validateForScheduling(dto.courseMasterId);
         if (!validation.isReady) {
             throw new ConflictException(validation.message || 'Khóa học chưa sẵn sàng để gán lịch');
         }
 
         const schedule = await this.prisma.teachingSchedule.create({
             data: {
-                courseId: dto.courseId,
+                courseMasterId: dto.courseMasterId,
                 lecturerId: dto.lecturerId,
                 dayOfWeek: dto.dayOfWeek,
                 startTime: dto.startTime,
                 duration: dto.duration,
             },
             include: {
-                course: true,
+                courseMaster: true,
                 lecturer: true,
             },
         });
@@ -104,10 +104,10 @@ export class TeachingScheduleService implements ITeachingScheduleService {
         return this.mapper.map<any, TeachingScheduleResponseDTO>(schedule, 'TeachingSchedule', 'TeachingScheduleResponseDTO');
     }
 
-    async findByCourse(courseId: string): Promise<TeachingScheduleResponseDTO[]> {
+    async findByCourse(courseMasterId: string): Promise<TeachingScheduleResponseDTO[]> {
         const schedules = await this.prisma.teachingSchedule.findMany({
-            where: { courseId },
-            include: { lecturer: true, course: true },
+            where: { courseMasterId },
+            include: { lecturer: true, courseMaster: true },
         });
         return schedules.map(s => this.mapper.map<any, TeachingScheduleResponseDTO>(s, 'TeachingSchedule', 'TeachingScheduleResponseDTO'));
     }
@@ -115,7 +115,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
     async findByLecturer(lecturerId: string): Promise<TeachingScheduleResponseDTO[]> {
         const schedules = await this.prisma.teachingSchedule.findMany({
             where: { lecturerId },
-            include: { lecturer: true, course: true },
+            include: { lecturer: true, courseMaster: true },
         });
         return schedules.map(s => this.mapper.map<any, TeachingScheduleResponseDTO>(s, 'TeachingSchedule', 'TeachingScheduleResponseDTO'));
     }
@@ -148,7 +148,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
             data: {
                 lecturerId: requester.sub,
                 originalScheduleId: dto.originalScheduleId,
-                courseId: dto.courseId,
+                courseMasterId: dto.courseMasterId,
                 dayOfWeek: dto.dayOfWeek,
                 startTime: dto.startTime,
                 duration: dto.duration,
@@ -157,7 +157,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
             },
             include: {
                 lecturer: true,
-                course: true,
+                courseMaster: true,
             },
         });
 
@@ -172,7 +172,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
 
         const requests = await this.prisma.liveSessionScheduleRequest.findMany({
             where,
-            include: { lecturer: true, course: true },
+            include: { lecturer: true, courseMaster: true },
         });
         return requests.map(r => this.mapper.map<any, ScheduleRequestResponseDTO>(r, 'LiveSessionScheduleRequest', 'ScheduleRequestResponseDTO'));
     }
@@ -194,7 +194,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
             }
 
             // Validate course readiness for scheduling
-            const validation = await this.courseService.validateForScheduling(request.courseId);
+            const validation = await this.courseMasterService.validateForScheduling(request.courseMasterId);
             if (!validation.isReady) {
                 throw new ConflictException(validation.message || 'Khóa học chưa sẵn sàng để gán lịch');
             }
@@ -222,7 +222,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
                 // Create new schedule
                 const schedule = await this.prisma.teachingSchedule.create({
                     data: {
-                        courseId: request.courseId,
+                        courseMasterId: request.courseMasterId,
                         lecturerId: request.lecturerId,
                         dayOfWeek: request.dayOfWeek,
                         startTime: request.startTime,
@@ -247,14 +247,14 @@ export class TeachingScheduleService implements ITeachingScheduleService {
     private async generateLiveSessions(scheduleId: string, weeks: number) {
         const schedule = await this.prisma.teachingSchedule.findUnique({
             where: { id: scheduleId },
-            include: { course: true },
+            include: { courseMaster: true },
         });
         if (!schedule) return;
 
         // Fetch live lessons for sequential mapping
         const liveLessons = await this.prisma.lesson.findMany({
             where: {
-                module: { courseId: schedule.courseId },
+                module: { courseMasterId: schedule.courseMasterId },
                 contentType: 'live_session'
             },
             orderBy: [
@@ -280,14 +280,14 @@ export class TeachingScheduleService implements ITeachingScheduleService {
             const lesson = liveLessons[i];
 
             sessions.push({
-                courseId: schedule.courseId,
+                courseMasterId: schedule.courseMasterId,
                 lecturerId: schedule.lecturerId,
                 scheduleId: schedule.id,
                 moduleId: lesson?.moduleId || null,
                 lessonId: lesson?.id || null,
                 title: lesson
-                    ? `${schedule.course.title} - ${lesson.title}`
-                    : `${schedule.course.title} - Buổi học ${i + 1}`,
+                    ? `${schedule.courseMaster.title} - ${lesson.title}`
+                    : `${schedule.courseMaster.title} - Buổi học ${i + 1}`,
                 scheduledAt,
                 duration: schedule.duration,
                 status: 'scheduled',
