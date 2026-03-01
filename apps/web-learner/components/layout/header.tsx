@@ -93,14 +93,16 @@ export function Header() {
                     </Link>
 
                     {/* Desktop Navigation */}
-                    <nav className="hidden md:flex items-center space-x-1">
+                    <nav className="hidden md:flex items-center space-x-2">
                         {navigation.map((item) => (
                             <Link
                                 key={item.name}
                                 href={item.href}
                                 className={cn(
-                                    "px-4 py-2 text-sm font-semibold transition-colors rounded-md hover:bg-muted/50 hover:text-primary",
-                                    pathname === item.href ? "text-primary bg-primary/5" : "text-foreground/70"
+                                    "px-4 py-2 text-sm font-bold transition-all rounded-full hover:bg-slate-50",
+                                    pathname === item.href
+                                        ? "text-primary bg-primary/5"
+                                        : "text-slate-600 hover:text-primary"
                                 )}
                             >
                                 {item.name}
@@ -109,51 +111,45 @@ export function Header() {
                     </nav>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2 sm:gap-4">
-                        <div className="hidden sm:flex items-center">
-                            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
-                                <Search className="size-5" />
-                            </Button>
-                        </div>
-
+                    <div className="flex items-center gap-3">
                         {isAuthenticated ? (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="h-10 w-10 sm:h-12 sm:w-auto sm:px-2 rounded-full sm:rounded-lg gap-2">
+                                    <Button variant="ghost" className="h-10 w-10 sm:h-11 sm:w-auto sm:px-2 rounded-xl gap-2 hover:bg-slate-50 border border-transparent hover:border-slate-100">
                                         <Avatar className="size-8">
                                             <AvatarImage src={user?.avatarUrl || undefined} alt={user?.displayName || 'Avatar'} />
                                             <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-black">
                                                 {user?.displayName?.[0]?.toUpperCase() || 'U'}
                                             </AvatarFallback>
                                         </Avatar>
-                                        <ChevronDown className="hidden sm:block size-4 text-muted-foreground" />
+                                        <ChevronDown className="hidden sm:block size-4 text-slate-400" />
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent className="w-56" align="end">
-                                    <DropdownMenuLabel className="font-normal">
+                                <DropdownMenuContent className="w-64 p-2 rounded-2xl" align="end">
+                                    <DropdownMenuLabel className="font-normal p-3">
                                         <div className="flex flex-col space-y-1">
                                             <p className="text-sm font-bold leading-none">{user?.displayName}</p>
-                                            <p className="text-xs leading-none text-muted-foreground truncate">
+                                            <p className="text-xs leading-none text-slate-500 truncate">
                                                 {user?.email}
                                             </p>
                                         </div>
                                     </DropdownMenuLabel>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuGroup>
-                                        <DropdownMenuItem onClick={() => router.push('/dashboard')} className="cursor-pointer">
-                                            <LayoutDashboard className="mr-2 size-4 text-muted-foreground" />
-                                            <span>Bảng điều khiển</span>
+                                    <DropdownMenuGroup className="p-1">
+                                        <DropdownMenuItem onClick={() => router.push('/dashboard')} className="cursor-pointer rounded-xl h-10">
+                                            <LayoutDashboard className="mr-2 size-4 text-slate-400" />
+                                            <span className="font-bold text-slate-700">Bảng điều khiển</span>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem className="cursor-pointer">
-                                            <BookOpen className="mr-2 size-4 text-muted-foreground" />
-                                            <span>Khoá học của tôi</span>
+                                        <DropdownMenuItem className="cursor-pointer rounded-xl h-10">
+                                            <BookOpen className="mr-2 size-4 text-slate-400" />
+                                            <span className="font-bold text-slate-700">Khoá học của tôi</span>
                                         </DropdownMenuItem>
                                     </DropdownMenuGroup>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center justify-between">
+                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center justify-between rounded-xl h-10">
                                         <div className="flex items-center">
-                                            {theme === 'dark' ? <Sun className="mr-2 size-4 text-muted-foreground" /> : <Moon className="mr-2 size-4 text-muted-foreground" />}
-                                            <span>Chùm tối</span>
+                                            {theme === 'dark' ? <Sun className="mr-2 size-4 text-slate-400" /> : <Moon className="mr-2 size-4 text-slate-400" />}
+                                            <span className="font-bold text-slate-700">Chùm tối</span>
                                         </div>
                                         <Switch
                                             checked={theme === 'dark'}
@@ -164,7 +160,7 @@ export function Header() {
                                     <DropdownMenuItem
                                         onClick={handleLogout}
                                         disabled={isLoggingOut}
-                                        className="text-destructive focus:text-destructive cursor-pointer font-bold"
+                                        className="text-destructive focus:text-destructive cursor-pointer font-black rounded-xl h-10"
                                     >
                                         <LogOut className="mr-2 size-4" />
                                         {isLoggingOut ? 'Đang thoát...' : 'Thoát ra'}
@@ -173,10 +169,10 @@ export function Header() {
                             </DropdownMenu>
                         ) : (
                             <div className="flex items-center gap-2">
-                                <Button variant="ghost" className="hidden sm:flex text-sm font-bold h-10 px-4" asChild>
+                                <Button variant="ghost" className="hidden sm:flex text-sm font-black h-11 px-5 rounded-xl hover:bg-slate-50 text-slate-700 hover:text-primary transition-all" asChild>
                                     <Link href="/login">Vào học</Link>
                                 </Button>
-                                <Button className="h-10 sm:h-11 px-4 sm:px-6 font-bold text-xs uppercase tracking-wider rounded-lg" asChild>
+                                <Button className="h-11 px-6 font-black text-xs uppercase tracking-[0.1em] rounded-xl bg-primary hover:bg-red-700 shadow-lg shadow-red-200" asChild>
                                     <Link href="/register">Tham gia</Link>
                                 </Button>
                             </div>

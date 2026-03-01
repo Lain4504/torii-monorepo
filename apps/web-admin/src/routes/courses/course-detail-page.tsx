@@ -69,6 +69,7 @@ import { CreateAssignmentSheet } from '@/components/assignments/create-assignmen
 import { EditAssignmentSheet } from '@/components/assignments/edit-assignment-sheet';
 import { QuizzesTable } from '@/components/quizzes/quizzes-table';
 import { CreateQuizSheet } from '@/components/quizzes/create-quiz-sheet';
+import { EditQuizSheet } from '@/components/quizzes/edit-quiz-sheet';
 import { useQuizzes, useDeleteQuiz, usePublishQuiz, type QuizDTO } from '@/lib/api/services/quizzes';
 import { useEnrollmentsByCourse } from '@/lib/api/services/enrollments';
 import { Progress } from '@workspace/ui/components/progress';
@@ -111,6 +112,8 @@ export default function CourseDetailPage() {
     const [createQuizOpen, setCreateQuizOpen] = useState(false);
     const [selectedModuleIdForQuiz, setSelectedModuleIdForQuiz] = useState<string | null>(null);
     const [selectedLessonIdForQuiz, setSelectedLessonIdForQuiz] = useState<string | null>(null);
+    const [editQuizOpen, setEditQuizOpen] = useState(false);
+    const [selectedQuiz, setSelectedQuiz] = useState<QuizDTO | null>(null);
     const [quizPage] = useState(1);
 
 
@@ -283,9 +286,9 @@ export default function CourseDetailPage() {
         }
     };
 
-    const handleEditQuiz = (_quiz: QuizDTO) => {
-        // TODO: open edit sheet when EditQuizSheet is created
-        toast.info('Tính năng sửa quiz đang phát triển. Vui lòng vào Question Bank để chỉnh sửa.');
+    const handleEditQuiz = (quiz: QuizDTO) => {
+        setSelectedQuiz(quiz);
+        setEditQuizOpen(true);
     };
 
 
@@ -837,6 +840,11 @@ export default function CourseDetailPage() {
                 courseId={id}
                 moduleId={selectedModuleIdForQuiz || undefined}
                 lessonId={selectedLessonIdForQuiz || undefined}
+            />
+            <EditQuizSheet
+                open={editQuizOpen}
+                onOpenChange={setEditQuizOpen}
+                quiz={selectedQuiz as any}
             />
         </div>
     );

@@ -21,8 +21,10 @@ import {
     ChevronLeft, ChevronDown, ChevronUp, Menu, X,
     CheckCircle2, PlayCircle, Lock, FileText, BookOpen,
     MessageSquare, ChevronRight, Save, Download, Send,
-    AlertCircle, Clock, Trophy, HelpCircle, Timer, RotateCcw
+    AlertCircle, Clock, Trophy, HelpCircle, Timer, RotateCcw,
+    Paperclip
 } from 'lucide-react';
+import { MultiFileUpload } from '@/components/common/multi-file-upload';
 import type { CurriculumLesson, CurriculumModule } from '@/lib/api/services/course-api';
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -145,10 +147,12 @@ function AssignmentPanel({
     const submitMutation = useSubmitAssignment();
     const saveDraftMutation = useSaveDraft();
     const [textAnswer, setTextAnswer] = useState(submission?.textAnswer ?? '');
+    const [fileUrls, setFileUrls] = useState<string[]>(submission?.fileUrls ?? []);
 
     useEffect(() => {
         if (submission?.textAnswer) setTextAnswer(submission.textAnswer);
-    }, [submission?.textAnswer]);
+        if (submission?.fileUrls) setFileUrls(submission.fileUrls);
+    }, [submission?.textAnswer, submission?.fileUrls]);
 
     if (assignmentLoading) {
         return (
@@ -242,10 +246,10 @@ function AssignmentPanel({
             {/* Submission form */}
             {(assignment.type === 'TEXT' || assignment.type === 'BOTH') && (
                 <div>
-                    <label className="block font-semibold text-foreground mb-2 text-sm">Câu trả lời của bạn</label>
+                    <label className="block font-semibold text-foreground mb-3 text-sm uppercase tracking-widest">Câu trả lời bài viết</label>
                     <textarea
                         className="w-full h-48 p-4 bg-background border border-border rounded-xl text-foreground text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none resize-none transition"
-                        placeholder="Nhập câu trả lời của bạn..."
+                        placeholder="Nhập nội dung bài làm của bạn tại đây..."
                         value={textAnswer}
                         onChange={e => setTextAnswer(e.target.value)}
                         disabled={isSubmitted}
@@ -254,11 +258,24 @@ function AssignmentPanel({
                 </div>
             )}
 
+            {(assignment.type === 'FILE' || assignment.type === 'BOTH') && (
+                <div className="space-y-3">
+                    <label className="block font-semibold text-foreground text-sm uppercase tracking-widest">Tệp đính kèm bài làm</label>
+                    <MultiFileUpload
+                        currentUrls={fileUrls}
+                        onUploadChange={setFileUrls}
+                        disabled={isSubmitted}
+                        maxFiles={assignment.maxFiles}
+                        label="Tải lên tệp bài làm của bạn"
+                    />
+                </div>
+            )}
+
             {/* Action buttons */}
             {!isSubmitted ? (
                 <div className="flex flex-col sm:flex-row gap-3">
                     <button
-                        onClick={() => saveDraftMutation.mutate({ assignmentId: assignment.id, dto: { textAnswer } }, {
+                        onClick={() => saveDraftMutation.mutate({ assignmentId: assignment.id, dto: { textAnswer, fileUrls } }, {
                             onSuccess: () => toast.success('Đã lưu nháp!'),
                         })}
                         disabled={saveDraftMutation.isPending}
@@ -268,11 +285,11 @@ function AssignmentPanel({
                         {saveDraftMutation.isPending ? 'Đang lưu...' : 'Lưu nháp'}
                     </button>
                     <button
-                        onClick={() => submitMutation.mutate({ assignmentId: assignment.id, dto: { textAnswer } }, {
+                        onClick={() => submitMutation.mutate({ assignmentId: assignment.id, dto: { textAnswer, fileUrls } }, {
                             onSuccess: () => { toast.success('Đã nộp bài!'); onComplete(); },
                             onError: () => toast.error('Không thể nộp bài. Vui lòng thử lại.'),
                         })}
-                        disabled={submitMutation.isPending || !textAnswer.trim()}
+                        disabled={submitMutation.isPending || (assignment.type !== 'FILE' && !textAnswer.trim()) || (assignment.type === 'FILE' && fileUrls.length === 0)}
                         className="flex-1 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:bg-primary/90 transition flex items-center justify-center gap-2 disabled:opacity-60"
                     >
                         <Send className="h-4 w-4" />

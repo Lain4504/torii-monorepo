@@ -236,14 +236,6 @@
       <workItem from="1772038435231" duration="18000" />
       <workItem from="1772323258542" duration="267000" />
     </task>
-    <task id="LOCAL-00834" summary="refactor: update imports from @radix-ui to radix-ui for consistency">
-      <option name="closed" value="true" />
-      <created>1771679448227</created>
-      <option name="number" value="00834" />
-      <option name="presentableId" value="LOCAL-00834" />
-      <option name="project" value="LOCAL" />
-      <updated>1771679448228</updated>
-    </task>
     <task id="LOCAL-00835" summary="refactor: enhance layout and styling across multiple components, add react-resizable-panels dependency">
       <option name="closed" value="true" />
       <created>1771682661509</created>
@@ -628,7 +620,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772347722941</updated>
     </task>
-    <option name="localTasksCounter" value="883" />
+    <task id="LOCAL-00883" summary="cômmit">
+      <option name="closed" value="true" />
+      <created>1772347817546</created>
+      <option name="number" value="00883" />
+      <option name="presentableId" value="LOCAL-00883" />
+      <option name="project" value="LOCAL" />
+      <updated>1772347817546</updated>
+    </task>
+    <option name="localTasksCounter" value="884" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

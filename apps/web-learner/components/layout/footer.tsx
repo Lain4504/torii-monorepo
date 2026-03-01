@@ -52,18 +52,17 @@ const socials = [
 export function Footer() {
     const year = new Date().getFullYear()
     const pathname = usePathname()
-    const isHome = pathname === '/'
 
     return (
-        <footer className="bg-background border-t border-border pt-24 pb-12 relative overflow-hidden">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+        <footer className="bg-white border-t border-slate-100 pt-24 pb-12 relative overflow-hidden">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-red-100 to-transparent" />
 
-            <div className="container mx-auto px-4 max-w-7xl relative z-10">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8 mb-20">
+            <div className="container mx-auto px-6 max-w-[1200px] relative z-10">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-12 mb-20">
                     {/* Brand & Info */}
-                    <div className="lg:col-span-4 space-y-8">
-                        <Link href="/" className="flex items-center gap-3 transition-all duration-300 group">
-                            <div className="relative size-12 transition-transform duration-300 group-hover:scale-110">
+                    <div className="lg:col-span-4 space-y-10">
+                        <Link href="/" className="flex items-center gap-3 group">
+                            <div className="relative size-12 transition-transform duration-500 group-hover:rotate-12">
                                 <Image
                                     src="/logo.png"
                                     alt="Torii Nihongo"
@@ -73,31 +72,31 @@ export function Footer() {
                                 />
                             </div>
                             <div className="flex flex-col leading-none">
-                                <span className="text-2xl font-black tracking-tight uppercase italic text-foreground">
+                                <span className="text-2xl font-black tracking-tighter uppercase text-slate-900 group-hover:text-primary transition-colors">
                                     Torii
                                 </span>
-                                <span className="text-xs font-bold tracking-[0.2em] text-primary uppercase">
+                                <span className="text-[10px] font-black tracking-[0.3em] text-primary uppercase">
                                     Nihongo
                                 </span>
                             </div>
                         </Link>
 
-                        <p className="text-muted-foreground text-sm leading-relaxed max-w-sm font-medium">
-                            Nền tảng học tiếng Nhật thế hệ mới, kết hợp tinh hoa sư phạm truyền thống cùng sức mạnh trí tuệ nhân tạo để khai phá tiềm năng của mọi người học.
+                        <p className="text-slate-500 text-sm leading-relaxed max-w-sm font-semibold">
+                            Nền tảng học tiếng Nhật thế hệ mới, kết hợp tinh hoa sư phạm truyền thống cùng sức mạnh trí tuệ nhân tạo AI Sensei.
                         </p>
 
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-4 text-sm font-semibold group cursor-pointer">
-                                <div className="size-10 rounded-2xl bg-primary/5 text-primary flex items-center justify-center transition-all group-hover:bg-primary group-hover:text-white">
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-4 text-sm font-bold group cursor-pointer">
+                                <div className="size-10 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center transition-all group-hover:bg-primary group-hover:text-white group-hover:shadow-lg group-hover:shadow-red-200">
                                     <MapPin className="size-5" />
                                 </div>
-                                <span className="text-foreground/80 group-hover:text-primary transition-colors">Lô E2a-7, Đường D1, TP. Thủ Đức, HCM</span>
+                                <span className="text-slate-600 group-hover:text-slate-900 transition-colors">TP. Thủ Đức, TP. Hồ Chí Minh</span>
                             </div>
-                            <div className="flex items-center gap-4 text-sm font-semibold group cursor-pointer">
-                                <div className="size-10 rounded-2xl bg-primary/5 text-primary flex items-center justify-center transition-all group-hover:bg-primary group-hover:text-white">
+                            <div className="flex items-center gap-4 text-sm font-bold group cursor-pointer">
+                                <div className="size-10 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center transition-all group-hover:bg-primary group-hover:text-white group-hover:shadow-lg group-hover:shadow-red-200">
                                     <Mail className="size-5" />
                                 </div>
-                                <span className="text-foreground/80 group-hover:text-primary transition-colors">contact@toriinihongo.vn</span>
+                                <span className="text-slate-600 group-hover:text-slate-900 transition-colors">contact@toriinihongo.vn</span>
                             </div>
                         </div>
                     </div>
@@ -105,18 +104,18 @@ export function Footer() {
                     {/* Navigation Columns */}
                     <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-3 gap-8">
                         {Object.entries(footerLinks).map(([key, section]) => (
-                            <div key={key} className="space-y-6">
-                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-foreground/40">
+                            <div key={key} className="space-y-8">
+                                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">
                                     {section.title}
                                 </h3>
-                                <ul className="space-y-4">
+                                <ul className="space-y-5">
                                     {section.links.map((link) => (
                                         <li key={link.href}>
                                             <Link
                                                 href={link.href}
-                                                className="text-sm font-bold text-muted-foreground hover:text-primary transition-all flex items-center group"
+                                                className="text-sm font-bold text-slate-500 hover:text-primary transition-all flex items-center group"
                                             >
-                                                <div className="w-0 h-0.5 bg-primary mr-0 group-hover:w-2 group-hover:mr-2 transition-all duration-300" />
+                                                <div className="w-0 h-0.5 bg-primary mr-0 group-hover:w-3 group-hover:mr-2 transition-all duration-300 rounded-full" />
                                                 {link.name}
                                             </Link>
                                         </li>
@@ -127,44 +126,41 @@ export function Footer() {
                     </div>
 
                     {/* Newsletter */}
-                    <div className="lg:col-span-3 space-y-8">
-                        <div className="bg-primary/5 border border-primary/10 rounded-[2rem] p-8 space-y-6">
-                            <h3 className="text-lg font-black italic">Đăng ký nhận ưu đãi</h3>
-                            <p className="text-xs text-muted-foreground font-medium">Nhận thông báo về các khoá học mới và tài liệu JLPT miễn phí hàng tuần.</p>
+                    <div className="lg:col-span-3 space-y-10">
+                        <div className="bg-slate-50 border border-slate-100 rounded-[2.5rem] p-8 space-y-6 hover:bg-white hover:shadow-xl hover:shadow-slate-100 transition-all duration-500">
+                            <h3 className="text-lg font-black italic text-slate-900 tracking-tight">Đăng ký nhận ưu đãi</h3>
+                            <p className="text-xs text-slate-400 font-bold leading-relaxed">Nhận thông báo về các khoá học mới và tài liệu JLPT miễn phí hàng tuần.</p>
                             <div className="flex gap-2">
                                 <Input
-                                    placeholder="Email của bạn..."
-                                    className="h-12 bg-background border-border rounded-xl px-4 text-xs font-bold"
+                                    placeholder="Email..."
+                                    className="h-12 bg-white border-slate-200 rounded-xl px-4 text-xs font-bold focus:ring-primary/20"
                                 />
-                                <Button size="icon" className="size-12 rounded-xl shrink-0">
+                                <Button size="icon" className="size-12 rounded-xl shrink-0 bg-slate-900 hover:bg-primary shadow-lg shadow-slate-200 transition-all">
                                     <Send className="size-4" />
                                 </Button>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-4">
                             {socials.map((s) => (
                                 <Link
                                     key={s.label}
                                     href={s.href}
-                                    className="size-10 rounded-xl bg-muted/50 border border-border flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm"
+                                    className="size-11 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white hover:border-primary transition-all shadow-sm hover:shadow-red-200 hover:-translate-y-1"
                                     aria-label={s.label}
                                 >
-                                    <s.icon className="size-4" />
+                                    <s.icon className="size-5" />
                                 </Link>
                             ))}
                         </div>
                     </div>
                 </div>
 
-                <Separator className="opacity-50" />
-
-                <div className="mt-12 flex flex-col md:flex-row items-center justify-between gap-8 text-xs font-bold uppercase tracking-widest text-muted-foreground/40 italic">
-                    <p>© {year} Torii Nihongo Education. All Rights Reserved.</p>
+                <div className="pt-12 border-t border-slate-50 flex flex-col md:flex-row items-center justify-between gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">
+                    <p>© {year} Torii Nihongo. Crafted for Excellence.</p>
                     <div className="flex items-center gap-8">
                         <Link href="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
                         <Link href="/terms" className="hover:text-primary transition-colors">Terms</Link>
-                        <Link href="/cookies" className="hover:text-primary transition-colors">Cookies</Link>
                     </div>
                 </div>
             </div>

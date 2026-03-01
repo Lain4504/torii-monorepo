@@ -9,7 +9,7 @@ import { useCourseReviews, useRatingDistribution } from '@/lib/api/services/revi
 import { toast } from '@workspace/ui/components/sonner';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from '@workspace/ui/components/dialog';
-import { PlayCircle, FileText, HelpCircle, ChevronDown, Star, Users, Clock, Calendar, CheckCircle2, Heart, ShoppingCart } from 'lucide-react';
+import { PlayCircle, FileText, HelpCircle, ChevronDown, Star, Users, Clock, Calendar, CheckCircle2, Heart, ShoppingCart, BookOpen } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export function CourseDetailClient({ slug }: { slug: string }) {
@@ -205,9 +205,12 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                                                     {module.lessons?.map((lesson) => (
                                                         <div key={lesson.id} className="flex items-center justify-between py-4 group last:border-0 border-b border-border/40 hover:bg-muted/10 -mx-6 px-6 transition-colors">
                                                             <div className="flex items-center gap-4">
-                                                                {lesson.contentType === 'video' ? <PlayCircle className="w-5 h-5 text-emerald-500" /> :
-                                                                    lesson.contentType === 'document' ? <FileText className="w-5 h-5 text-indigo-500" /> :
-                                                                        <HelpCircle className="w-5 h-5 text-amber-500" />}
+                                                                <div className="size-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                                                                    {lesson.contentType === 'video' && <PlayCircle className="size-4" />}
+                                                                    {lesson.contentType === 'assignment' && <BookOpen className="size-4 text-amber-500" />}
+                                                                    {lesson.contentType === 'quiz' && <HelpCircle className="size-4 text-violet-500" />}
+                                                                    {lesson.contentType === 'document' && <FileText className="size-4" />}
+                                                                </div>
                                                                 <span className="text-sm font-medium text-foreground/80 group-hover:text-primary transition-colors line-clamp-1">
                                                                     {lesson.title}
                                                                 </span>

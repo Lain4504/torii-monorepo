@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import { HomeClient } from "@/components/marketing/home-client"
+import Home2Client from "@/components/marketing/home2-client"
 
 export const metadata: Metadata = {
     title: "Torii Nihongo - Học tiếng Nhật với AI Sensei",
@@ -15,5 +15,5 @@ export const metadata: Metadata = {
 }
 
 export default function HomePage() {
-    return <HomeClient />
+    return <Home2Client />
 }

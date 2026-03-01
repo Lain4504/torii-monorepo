@@ -10,7 +10,7 @@ import type {
 export interface CurriculumLesson {
   id: string;
   title: string;
-  contentType: 'video' | 'document' | 'assignment';
+  contentType: 'video' | 'document' | 'assignment' | 'quiz';
   videoDuration?: number;
   isUnlocked: boolean;
   isPreview: boolean;
