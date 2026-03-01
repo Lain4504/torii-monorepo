@@ -44,7 +44,7 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId }: CreateCou
     } = useForm<CourseRunCreateDTO>({
         resolver: zodResolver(courseRunCreateDTOSchema) as any,
         defaultValues: {
-            courseId,
+            courseMasterId: courseId,
             title: '',
             status: CourseRunStatus.PLANNING,
             maxStudents: 30,

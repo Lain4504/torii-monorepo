@@ -1050,4 +1050,10 @@ export class CourseMasterService implements ICourseMasterService {
     return { count: existing.totalStudents || 0 };
   }
 
+  /**
+   * Get a specific course version by ID
+   */
+  async getVersionById(versionId: string): Promise<any | null> {
+    return this.courseRepository.getVersionById(versionId);
+  }
 }

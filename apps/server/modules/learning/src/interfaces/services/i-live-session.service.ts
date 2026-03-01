@@ -53,5 +53,10 @@ export interface ILiveSessionService {
     /**
      * Synchronize session state when a Meet room ends
      */
-    syncEndedSession(meetingId: string): Promise<void>;
+    syncEndedSession(meetingId: string): Promise<LiveSessionResponseDTO | null>;
+
+    /**
+     * Find live session by meetingId
+     */
+    findByMeetingId(meetingId: string): Promise<LiveSessionResponseDTO | null>;
 }

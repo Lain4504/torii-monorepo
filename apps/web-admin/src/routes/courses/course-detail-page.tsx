@@ -154,7 +154,7 @@ export default function CourseDetailPage() {
 
     // Assignment Hooks
     const { data: assignmentsData, isLoading: isLoadingAssignments } = useAssignments({
-        courseId: id,
+        courseMasterId: id,
         page: assignmentPage,
         limit: 50,
     });
@@ -163,7 +163,7 @@ export default function CourseDetailPage() {
 
     // Quiz Hooks
     const { data: quizzesData, isLoading: isLoadingQuizzes } = useQuizzes({
-        courseId: id,
+        courseMasterId: id,
         page: quizPage,
         limit: 50,
     });
@@ -642,7 +642,7 @@ export default function CourseDetailPage() {
             <CreateAssignmentSheet
                 open={createAssignmentOpen}
                 onOpenChange={setCreateAssignmentOpen}
-                courseId={id}
+                courseMasterId={id}
                 moduleId={selectedModuleIdForAssignment || undefined}
                 lessonId={selectedLessonIdForAssignment || undefined}
             />
@@ -654,7 +654,7 @@ export default function CourseDetailPage() {
             <CreateQuizSheet
                 open={createQuizOpen}
                 onOpenChange={setCreateQuizOpen}
-                courseId={id}
+                courseMasterId={id}
                 moduleId={selectedModuleIdForQuiz || undefined}
                 lessonId={selectedLessonIdForQuiz || undefined}
             />

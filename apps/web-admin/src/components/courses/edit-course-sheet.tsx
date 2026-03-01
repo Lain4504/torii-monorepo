@@ -23,7 +23,7 @@ import {
 } from '@workspace/ui/components/field';
 import { Users, Calendar, Save, Film, X, ImageIcon } from 'lucide-react';
 import type { CourseMasterResponseDTO } from '@workspace/schemas';
-import { courseUpdateDTOSchema, type CourseMasterUpdateDTO, JlptLevel } from '@workspace/schemas';
+import { courseMasterUpdateDTOSchema, type CourseMasterUpdateDTO, JlptLevel } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import { useUpdateCourse } from "@/lib/api/services/courses.ts";
 import { storageApi } from '@/lib/api/services/storage-api.ts';
@@ -51,7 +51,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
         setValue,
         formState: { isDirty },
     } = useForm<CourseMasterUpdateDTO>({
-        resolver: zodResolver(courseUpdateDTOSchema),
+        resolver: zodResolver(courseMasterUpdateDTOSchema),
         defaultValues: {
             title: '',
             description: '',

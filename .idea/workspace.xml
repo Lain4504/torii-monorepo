@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: Rename courseId to courseMasterId and update related references across models and services">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: Implement attendance processing for live sessions and add course run status update functionality" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -52,25 +50,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "#254 on tienhn-update-week-6",
-    "go.import.settings.migrated": "true",
-    "javascript.preferred.runtime.type.id": "node",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "pnpm",
-    "ts.external.directory.path": "/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#254 on tienhn-update-week-6&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -238,22 +236,7 @@
       <workItem from="1772038435231" duration="18000" />
       <workItem from="1772323258542" duration="267000" />
       <workItem from="1772369862741" duration="5365000" />
-    </task>
-    <task id="LOCAL-00840" summary="refactor: update container widths and improve layout consistency across multiple sections">
-      <option name="closed" value="true" />
-      <created>1771687963435</created>
-      <option name="number" value="00840" />
-      <option name="presentableId" value="LOCAL-00840" />
-      <option name="project" value="LOCAL" />
-      <updated>1771687963437</updated>
-    </task>
-    <task id="LOCAL-00841" summary="refactor: replace MoreHorizontal icon with MoreVertical in multiple components, update layout and styling for consistency">
-      <option name="closed" value="true" />
-      <created>1771689574854</created>
-      <option name="number" value="00841" />
-      <option name="presentableId" value="LOCAL-00841" />
-      <option name="project" value="LOCAL" />
-      <updated>1771689574854</updated>
+      <workItem from="1772380160724" duration="1294000" />
     </task>
     <task id="LOCAL-00842" summary="refactor: replace MoreHorizontal icon with MoreVertical in multiple components, update layout and styling for consistency">
       <option name="closed" value="true" />
@@ -631,7 +614,23 @@
       <option name="project" value="LOCAL" />
       <updated>1772376557471</updated>
     </task>
-    <option name="localTasksCounter" value="889" />
+    <task id="LOCAL-00889" summary="feat: Implement attendance processing for live sessions and add course run status update functionality">
+      <option name="closed" value="true" />
+      <created>1772381154759</created>
+      <option name="number" value="00889" />
+      <option name="presentableId" value="LOCAL-00889" />
+      <option name="project" value="LOCAL" />
+      <updated>1772381154759</updated>
+    </task>
+    <task id="LOCAL-00890" summary="feat: Implement attendance processing for live sessions and add course run status update functionality">
+      <option name="closed" value="true" />
+      <created>1772381405376</created>
+      <option name="number" value="00890" />
+      <option name="presentableId" value="LOCAL-00890" />
+      <option name="project" value="LOCAL" />
+      <updated>1772381405376</updated>
+    </task>
+    <option name="localTasksCounter" value="891" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -674,8 +673,11 @@
     <MESSAGE value="feat: Add CourseRun and LiveSession enums, update related DTOs and services" />
     <MESSAGE value="feat: Add CourseRunDetailPage and update course-related components for better course run management" />
     <MESSAGE value="refactor: Remove unused course fields and simplify course management logic" />
+    <MESSAGE value="feat: Add updateStatus and getStudents methods to CourseRun service and controller, and extend CourseRunStatus enum" />
     <MESSAGE value="refactor: Rename courseId to courseMasterId and update related references across models and services" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: Rename courseId to courseMasterId and update related references across models and services" />
+    <MESSAGE value="feat: Add updateStatus and getStudents methods to CourseRun service and controller" />
+    <MESSAGE value="feat: Implement attendance processing for live sessions and add course run status update functionality" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: Implement attendance processing for live sessions and add course run status update functionality" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

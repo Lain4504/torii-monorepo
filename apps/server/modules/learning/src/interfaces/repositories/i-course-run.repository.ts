@@ -15,4 +15,5 @@ export interface ICourseRunRepository {
     update(id: string, data: Prisma.CourseRunUpdateInput): Promise<CourseRun>;
     delete(id: string): Promise<void>;
     slugExists(slug: string, excludeId?: string): Promise<boolean>;
+    findExpiredEnrollmentCourseRuns(): Promise<CourseRun[]>;
 }

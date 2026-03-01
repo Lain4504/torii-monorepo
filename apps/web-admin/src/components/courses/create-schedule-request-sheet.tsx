@@ -44,7 +44,7 @@ export function CreateScheduleRequestSheet({ open, onOpenChange, session }: Crea
             // but are required by the schema. These will be ignored or overwritten by backend
             // for "adjusting" a specific session if we implement it that way.
             lecturerId: session?.lecturerId || '00000000-0000-0000-0000-000000000000',
-            courseId: session?.courseId || '00000000-0000-0000-0000-000000000000',
+            courseMasterId: session?.courseMasterId || '00000000-0000-0000-0000-000000000000',
             dayOfWeek: 0,
             startTime: '',
             duration: session?.duration || 90,

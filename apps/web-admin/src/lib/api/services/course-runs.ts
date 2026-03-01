@@ -56,7 +56,7 @@ export function useCourseRuns(params: CourseRunSearchRequestDTO) {
     return useQuery({
         queryKey: ['course-runs', params],
         queryFn: () => courseRunsApi.findAll(params),
-        enabled: !!params.courseId,
+        enabled: !!params.courseMasterId,
     });
 }
 
@@ -80,7 +80,7 @@ export function useCreateCourseRun() {
     return useMutation({
         mutationFn: (run: CourseRunCreateDTO) => courseRunsApi.create(run),
         onSuccess: (_, variables) => {
-            queryClient.invalidateQueries({ queryKey: ['course-runs', { courseId: variables.courseId }] });
+            queryClient.invalidateQueries({ queryKey: ['course-runs', { courseMasterId: variables.courseMasterId }] });
         },
     });
 }
@@ -96,7 +96,7 @@ export function useUpdateCourseRun() {
             courseRunsApi.update(id, run),
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['course-runs', data.id] });
-            queryClient.invalidateQueries({ queryKey: ['course-runs', { courseId: data.courseId }] });
+            queryClient.invalidateQueries({ queryKey: ['course-runs', { courseMasterId: data.courseMasterId }] });
         },
     });
 }

@@ -7,7 +7,18 @@ import { CourseRunStatus, CourseRunCreateDTO, CourseRunUpdateDTO, CourseRunRespo
 import { ICourseRunRepository } from '../../interfaces/repositories/i-course-run.repository';
 import { ICourseMasterRepository } from '../../interfaces/repositories/i-course-master.repository';
 import { COURSE_MASTER_REPOSITORY_TOKEN, COURSE_RUN_REPOSITORY_TOKEN } from '../../interfaces/repositories';
-import { generateSlug } from '@server/shared';
+import { generateSlug, PrismaService } from '@server/shared';
+
+// Valid status transitions for Course Run
+const STATUS_TRANSITIONS: Record<CourseRunStatus, CourseRunStatus[]> = {
+    [CourseRunStatus.PLANNING]: [CourseRunStatus.ENROLLING],
+    [CourseRunStatus.ENROLLING]: [CourseRunStatus.IN_PROGRESS, CourseRunStatus.POSTPONED, CourseRunStatus.CANCELLED_BY_SYSTEM],
+    [CourseRunStatus.IN_PROGRESS]: [CourseRunStatus.COMPLETED, CourseRunStatus.POSTPONED],
+    [CourseRunStatus.POSTPONED]: [CourseRunStatus.ENROLLING, CourseRunStatus.CANCELLED_BY_SYSTEM],
+    [CourseRunStatus.COMPLETED]: [],
+    [CourseRunStatus.CANCELLED_BY_SYSTEM]: [],
+    [CourseRunStatus.CANCELLED]: [],
+};
 
 @Injectable()
 export class CourseRunService {
@@ -18,6 +29,7 @@ export class CourseRunService {
         private readonly courseRunRepository: ICourseRunRepository,
         @Inject(COURSE_MASTER_REPOSITORY_TOKEN)
         private readonly courseRepository: ICourseMasterRepository,
+        private readonly prisma: PrismaService,
         @Inject('NATS_SERVICE')
         private readonly natsClient: ClientProxy,
         @InjectMapper()
@@ -118,6 +130,81 @@ export class CourseRunService {
         };
     }
 
+    async updateStatus(requester: Requester, id: string, status: CourseRunStatus): Promise<CourseRunResponseDTO> {
+        if (!this.hasPermission(requester, 'course.update')) {
+            throw new ForbiddenException('You do not have permission to update course run status');
+        }
+
+        const existing = await this.courseRunRepository.findById(id);
+        if (!existing) {
+            throw new NotFoundException(`Course run with id ${id} not found`);
+        }
+
+        const currentStatus = existing.status as CourseRunStatus;
+        const allowedTransitions = STATUS_TRANSITIONS[currentStatus] || [];
+
+        if (!allowedTransitions.includes(status)) {
+            throw new BadRequestException(
+                `Cannot transition course run from '${currentStatus}' to '${status}'. Allowed transitions: [${allowedTransitions.join(', ') || 'none'}]`
+            );
+        }
+
+        // Guard: Cannot move to ENROLLING if no min/max students are set
+        if (status === CourseRunStatus.ENROLLING) {
+            if (!existing.startDate) {
+                throw new BadRequestException('Cannot open enrollment without a start date set');
+            }
+        }
+
+        // Guard: Cannot move to IN_PROGRESS if did not reach minimum enrollment
+        if (status === CourseRunStatus.IN_PROGRESS) {
+            const run = existing as any;
+            if (run.minStudents && run.totalStudents < run.minStudents) {
+                throw new BadRequestException(
+                    `Cannot start class: enrolled students (${run.totalStudents}) is less than minimum required (${run.minStudents})`
+                );
+            }
+        }
+
+        const updated = await this.courseRunRepository.update(id, { status: status as any });
+
+        await this.emitAuditLog(requester.sub, 'courserun.updateStatus', id,
+            `Updated course run status from '${currentStatus}' to '${status}'`,
+            { status: currentStatus },
+            { status }
+        );
+
+        return this.toResponseDTO(updated);
+    }
+
+    async getStudentsByCourseRun(id: string, page = 1, limit = 20): Promise<any> {
+        const existing = await this.courseRunRepository.findById(id);
+        if (!existing) {
+            throw new NotFoundException(`Course run with id ${id} not found`);
+        }
+
+        const skip = (page - 1) * limit;
+
+        const [total, items] = await Promise.all([
+            this.prisma.enrollment.count({ where: { courseRunId: id } }),
+            this.prisma.enrollment.findMany({
+                where: { courseRunId: id },
+                skip,
+                take: limit,
+                orderBy: { enrollmentDate: 'desc' },
+                include: { user: { select: { id: true, email: true, displayName: true, avatarUrl: true } } },
+            }),
+        ]);
+
+        return {
+            data: items,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
+    }
+
     async delete(requester: Requester, id: string): Promise<void> {
         if (!this.hasPermission(requester, 'course.delete')) {
             throw new ForbiddenException('You do not have permission to delete course runs');
@@ -128,10 +215,12 @@ export class CourseRunService {
             throw new NotFoundException(`Course run with id ${id} not found`);
         }
 
-        // Check if there are enrollments before deleting?
-        // For now, simple delete
-        await this.courseRunRepository.delete(id);
+        const run = existing as any;
+        if (run.totalStudents && run.totalStudents > 0) {
+            throw new BadRequestException('Cannot delete a course run with enrolled students');
+        }
 
+        await this.courseRunRepository.delete(id);
         await this.emitAuditLog(requester.sub, 'courserun.delete', id, `Deleted course run: ${existing.title}`);
     }
 

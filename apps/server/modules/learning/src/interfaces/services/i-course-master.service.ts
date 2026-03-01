@@ -146,7 +146,6 @@ export interface ICourseMasterService {
      * @param courseMasterId - The course's unique identifier
      * @param requester - The user making the request
      * @returns The curriculum data with modules and lessons
-     * @throws NotFoundException if course not found
      */
     getCurriculum(courseMasterId: string, requester?: Requester): Promise<{
         modules: Array<{
@@ -194,4 +193,9 @@ export interface ICourseMasterService {
      * @returns The number of students
      */
     getStudentCount(courseMasterId: string): Promise<{ count: number }>;
+
+    /**
+     * Get a specific course version by ID
+     */
+    getVersionById(versionId: string): Promise<any | null>;
 }

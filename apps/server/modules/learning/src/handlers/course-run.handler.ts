@@ -32,6 +32,18 @@ export class CourseRunHandler {
         return this.courseRunService.findAll(query);
     }
 
+    @MessagePattern({ cmd: 'learning.courserun.updateStatus' })
+    async updateStatus(@Payload() data: { id: string, status: any, requester: Requester }) {
+        const { id, status, requester } = data;
+        return this.courseRunService.updateStatus(requester, id, status);
+    }
+
+    @MessagePattern({ cmd: 'learning.courserun.getStudents' })
+    async getStudents(@Payload() data: { id: string, page?: number, limit?: number }) {
+        const { id, page, limit } = data;
+        return this.courseRunService.getStudentsByCourseRun(id, page, limit);
+    }
+
     @MessagePattern({ cmd: 'learning.courserun.delete' })
     async delete(@Payload() data: { id: string, requester: Requester }) {
         const { id, requester } = data;

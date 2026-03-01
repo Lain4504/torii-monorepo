@@ -118,7 +118,7 @@ export function TeachingScheduleSheet({ open, onOpenChange, course }: TeachingSc
         try {
             for (const day of selectedDays) {
                 await assignMutation.mutateAsync({
-                    courseId: course.id,
+                    courseMasterId: course.id,
                     lecturerId: values.lecturerId,
                     dayOfWeek: day,
                     startTime: values.startTime,

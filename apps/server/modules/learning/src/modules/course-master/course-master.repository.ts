@@ -199,7 +199,7 @@ export class CourseMasterRepository implements ICourseMasterRepository {
      */
     async getLatestVersion(courseMasterId: string): Promise<CourseVersion | null> {
         return this.prisma.courseVersion.findFirst({
-            where: { id: courseMasterId },
+            where: { courseMasterId },
             orderBy: { publishedAt: 'desc' },
         });
     }

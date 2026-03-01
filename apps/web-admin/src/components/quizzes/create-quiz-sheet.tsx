@@ -25,7 +25,7 @@ import { HelpCircle, Plus } from 'lucide-react';
 interface CreateQuizSheetProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    courseId?: string;
+    courseMasterId?: string;
     lessonId?: string;
     moduleId?: string;
 }
@@ -33,7 +33,7 @@ interface CreateQuizSheetProps {
 export function CreateQuizSheet({
     open,
     onOpenChange,
-    courseId,
+    courseMasterId,
     lessonId,
     moduleId: _moduleId,
 }: CreateQuizSheetProps) {
@@ -67,7 +67,7 @@ export function CreateQuizSheet({
             title: form.title.trim(),
             description: form.description.trim() || undefined,
             quizType: lessonId ? 'lesson' : 'course',
-            courseId,
+            courseMasterId,
             lessonId,
             totalTime: form.totalTime ? parseInt(form.totalTime, 10) : undefined,
             passingScore: form.passingScore ? parseFloat(form.passingScore) : 60,

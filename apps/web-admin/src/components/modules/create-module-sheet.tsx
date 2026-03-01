@@ -58,7 +58,7 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
         // The schema is compatible with ModuleCreateDTO, but we cast to satisfy React Hook Form's Resolver typing.
         resolver: zodResolver(createModuleSchema) as any,
         defaultValues: {
-            courseId: courseId || '',
+            courseMasterId: courseId || '',
             title: '',
             orderIndex: existingModules.length + 1,
             durationMinutes: 0,
@@ -69,7 +69,7 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
     useEffect(() => {
         if (courseId) {
             reset({
-                courseId: courseId,
+                courseMasterId: courseId,
                 title: '',
                 orderIndex: existingModules.length + 1,
                 durationMinutes: 0,
@@ -110,7 +110,7 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
                 <form onSubmit={handleSubmit(onSubmitForm)} className="flex flex-col h-full overflow-hidden" noValidate>
                     <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
-                            <input type="hidden" {...register('courseId')} />
+                            <input type="hidden" {...register('courseMasterId')} />
 
                             <Controller
                                 control={control}

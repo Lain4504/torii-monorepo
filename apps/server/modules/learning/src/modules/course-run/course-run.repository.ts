@@ -69,4 +69,15 @@ export class CourseRunRepository implements ICourseRunRepository {
         const run = await this.prisma.courseRun.findFirst({ where });
         return !!run;
     }
+
+    async findExpiredEnrollmentCourseRuns(): Promise<CourseRun[]> {
+        return this.prisma.courseRun.findMany({
+            where: {
+                status: 'ENROLLING',
+                enrollmentEnd: {
+                    lt: new Date(),
+                },
+            },
+        });
+    }
 }

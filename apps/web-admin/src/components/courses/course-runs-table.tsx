@@ -29,7 +29,7 @@ interface CourseRunsTableProps {
 
 export function CourseRunsTable({ courseId }: CourseRunsTableProps) {
     const navigate = useNavigate();
-    const { data: runsData, isLoading } = useCourseRuns({ courseId, page: 1, limit: 100 });
+    const { data: runsData, isLoading } = useCourseRuns({ courseMasterId: courseId, page: 1, limit: 100 });
     const deleteMutation = useDeleteCourseRun();
     const [isCreateOpen, setIsCreateOpen] = useState(false);
 

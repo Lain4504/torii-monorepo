@@ -32,7 +32,7 @@ import {
 
 import { toast } from '@workspace/ui/components/sonner';
 import { storageApi } from '@/lib/api/services/storage-api.ts';
-import { JlptLevel, courseCreateDTOSchema, type CourseMasterCreateDTO } from '@workspace/schemas';
+import { JlptLevel, courseMasterCreateDTOSchema, type CourseMasterCreateDTO } from '@workspace/schemas';
 import { useCreateCourse } from "@/lib/api/services/courses.ts";
 import { Spinner } from "@workspace/ui/components/spinner";
 
@@ -57,7 +57,7 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
         watch,
         setValue,
     } = useForm<CourseMasterCreateDTO>({
-        resolver: zodResolver(courseCreateDTOSchema) as any,
+        resolver: zodResolver(courseMasterCreateDTOSchema) as any,
         defaultValues: {
             title: '',
             description: '',

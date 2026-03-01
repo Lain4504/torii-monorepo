@@ -63,7 +63,7 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
         resolver: zodResolver(updateModuleSchema),
         defaultValues: {
             title: '',
-            courseId: '',
+            courseMasterId: '',
         },
     });
 
@@ -71,7 +71,7 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
         if (module) {
             reset({
                 title: module.title,
-                courseId: module.courseId,
+                courseMasterId: module.courseMasterId,
                 description: module.description,
                 orderIndex: module.orderIndex,
                 durationMinutes: module.durationMinutes,
@@ -110,7 +110,7 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
                 <form onSubmit={handleSubmit(onSubmitForm)} className="flex flex-col h-full overflow-hidden" noValidate>
                     <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
-                            <input type="hidden" {...register('courseId')} />
+                            <input type="hidden" {...register('courseMasterId')} />
 
                             {courseTitle && (
                                 <div className="space-y-1 opacity-80">

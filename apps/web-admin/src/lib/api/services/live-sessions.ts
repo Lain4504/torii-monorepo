@@ -98,11 +98,11 @@ export const liveSessionsApi = {
 // React Query Hooks - Live Sessions
 // ============================================================================
 
-export function useLiveSessions(courseId: string) {
+export function useLiveSessions(courseMasterId: string) {
     return useQuery({
-        queryKey: ['live-sessions', 'course', courseId],
-        queryFn: () => liveSessionsApi.findByCourse(courseId),
-        enabled: !!courseId,
+        queryKey: ['live-sessions', 'course', courseMasterId],
+        queryFn: () => liveSessionsApi.findByCourse(courseMasterId),
+        enabled: !!courseMasterId,
     });
 }
 
@@ -118,9 +118,9 @@ export function useDeleteLiveSession() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ id }: { id: string; courseId: string }) => liveSessionsApi.delete(id),
+        mutationFn: ({ id }: { id: string; courseMasterId: string }) => liveSessionsApi.delete(id),
         onSuccess: (_, variables) => {
-            queryClient.invalidateQueries({ queryKey: ['live-sessions', 'course', variables.courseId] });
+            queryClient.invalidateQueries({ queryKey: ['live-sessions', 'course', variables.courseMasterId] });
         },
     });
 }
@@ -132,7 +132,7 @@ export function useStartLiveSession() {
         mutationFn: (id: string) => liveSessionsApi.start(id),
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['live-sessions', data.id] });
-            queryClient.invalidateQueries({ queryKey: ['live-sessions', 'course', data.courseId] });
+            queryClient.invalidateQueries({ queryKey: ['live-sessions', 'course', data.courseMasterId] });
         },
     });
 }
@@ -144,7 +144,7 @@ export function useEndLiveSession() {
         mutationFn: (id: string) => liveSessionsApi.end(id),
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['live-sessions', data.id] });
-            queryClient.invalidateQueries({ queryKey: ['live-sessions', 'course', data.courseId] });
+            queryClient.invalidateQueries({ queryKey: ['live-sessions', 'course', data.courseMasterId] });
         },
     });
 }
@@ -153,11 +153,11 @@ export function useEndLiveSession() {
 // React Query Hooks - Teaching Schedules
 // ============================================================================
 
-export function useTeachingSchedules(courseId: string) {
+export function useTeachingSchedules(courseMasterId: string) {
     return useQuery({
-        queryKey: ['teaching-schedules', 'course', courseId],
-        queryFn: () => liveSessionsApi.findSchedulesByCourse(courseId),
-        enabled: !!courseId,
+        queryKey: ['teaching-schedules', 'course', courseMasterId],
+        queryFn: () => liveSessionsApi.findSchedulesByCourse(courseMasterId),
+        enabled: !!courseMasterId,
     });
 }
 
@@ -182,8 +182,8 @@ export function useAssignTeachingSchedule() {
     return useMutation({
         mutationFn: (dto: TeachingScheduleCreateDTO) => liveSessionsApi.assignSchedule(dto),
         onSuccess: (_, variables) => {
-            queryClient.invalidateQueries({ queryKey: ['teaching-schedules', 'course', variables.courseId] });
-            queryClient.invalidateQueries({ queryKey: ['live-sessions', 'course', variables.courseId] });
+            queryClient.invalidateQueries({ queryKey: ['teaching-schedules', 'course', variables.courseMasterId] });
+            queryClient.invalidateQueries({ queryKey: ['live-sessions', 'course', variables.courseMasterId] });
         },
     });
 }

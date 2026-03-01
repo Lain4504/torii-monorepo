@@ -219,13 +219,14 @@ export class LessonService implements ILessonService {
       this.hasPermission(requester, 'lesson.update')
     );
 
-    // Staff/Admin: return full content
+    // Staff/Admin: return full content from Master
     if (isStaff) {
       return this.toLessonResponseDTO(lesson);
     }
 
-    // Check enrollment only for non-preview lessons with a known user
+    // Check enrollment and versioning
     let isAuthorized = false;
+    let lessonData: any = lesson;
 
     if (lesson.isPreview) {
       isAuthorized = true;
@@ -233,18 +234,48 @@ export class LessonService implements ILessonService {
       try {
         const module = await this.moduleRepository.findById(lesson.moduleId);
         if (module) {
-          isAuthorized = await this.enrollmentService.checkAccess(requester.sub, module.courseMasterId, lesson.id);
+          const courseMasterId = module.courseMasterId;
+          const enrollmentDetails = await this.enrollmentService.checkEnrollmentDetails(requester.sub, courseMasterId);
+
+          if (enrollmentDetails.isEnrolled && enrollmentDetails.enrollment) {
+            isAuthorized = true;
+
+            // If enrollment is tied to a specific version, fetch content from snapshot
+            if (enrollmentDetails.enrollment.versionId) {
+              const version = await this.courseMasterService.getVersionById(enrollmentDetails.enrollment.versionId);
+              if (version && version.curriculumSnapshot) {
+                const snapshot = version.curriculumSnapshot as any;
+                // Find module in snapshot
+                const moduleSnapshot = snapshot.find((m: any) => m.id === module.id || m.title === module.title);
+                if (moduleSnapshot && moduleSnapshot.lessons) {
+                  // Find lesson in module snapshot
+                  const lessonSnapshot = moduleSnapshot.lessons.find((l: any) => l.id === lessonId || l.title === lesson.title);
+                  if (lessonSnapshot) {
+                    this.logger.log(`Serving lesson ${lessonId} from version snapshot ${version.versionTag}`);
+                    // Merge snapshot content into current lesson object
+                    lessonData = {
+                      ...lesson,
+                      title: lessonSnapshot.title || lesson.title,
+                      contentType: lessonSnapshot.contentType || lesson.contentType,
+                      videoUrl: lessonSnapshot.videoUrl || lesson.videoUrl,
+                      videoDuration: lessonSnapshot.videoDuration || lesson.videoDuration,
+                      articleContent: lessonSnapshot.articleContent || lesson.articleContent,
+                    };
+                  }
+                }
+              }
+            }
+          }
         }
       } catch (error) {
-        this.logger.warn(`Failed to check access for user ${requester.sub} on lesson ${lessonId}`, error);
+        this.logger.warn(`Failed to check access/version for user ${requester.sub} on lesson ${lessonId}`, error);
       }
     }
 
     // Only block if lesson is not published or explicitly locked
-    // Users who are enrolled should access all published lessons
     const isLessonAvailable = (lesson as any).status === 'published' || (lesson as any).status === undefined;
     isAuthorized = isAuthorized && isLessonAvailable;
-    return this.buildProtectedDTO(lesson, isAuthorized);
+    return this.buildProtectedDTO(lessonData, isAuthorized);
   }
 
   /**
@@ -265,21 +296,42 @@ export class LessonService implements ILessonService {
       return lessons.map(lesson => this.toLessonResponseDTO(lesson));
     }
 
-    // Learner: perform a check for accessible lessons
+    // Learner: perform a check for accessible lessons and check for versioning
     let accessibleLessonIds: string[] | 'ALL' = [];
+    let enrollment: any = null;
+
     if (requester?.sub) {
       try {
         const module = await this.moduleRepository.findById(moduleId);
         if (module) {
-          accessibleLessonIds = await this.enrollmentService.getAccessibleLessonIds(requester.sub, module.courseMasterId);
+          const details = await this.enrollmentService.checkEnrollmentDetails(requester.sub, module.courseMasterId);
+          if (details.isEnrolled) {
+            accessibleLessonIds = 'ALL';
+            enrollment = details.enrollment;
+          }
         }
       } catch (error) {
         this.logger.warn(`Accessible lessons check failed for module ${moduleId}`, error);
       }
     }
 
+    // Fetch version snapshot if needed
+    let curriculumSnapshot: any[] | null = null;
+    if (enrollment?.versionId) {
+      try {
+        const version = await this.courseMasterService.getVersionById(enrollment.versionId);
+        if (version?.curriculumSnapshot) {
+          curriculumSnapshot = version.curriculumSnapshot as any[];
+        }
+      } catch (error) {
+        this.logger.warn(`Failed to fetch version snapshot for version ${enrollment.versionId}`, error);
+      }
+    }
+
     return lessons.map(lesson => {
       let isUserAuthorized = false;
+      let lessonData: any = lesson;
+
       if (lesson.isPreview) {
         isUserAuthorized = true;
       } else if (accessibleLessonIds === 'ALL') {
@@ -288,10 +340,28 @@ export class LessonService implements ILessonService {
         isUserAuthorized = true;
       }
 
+      // If authorized and snapshot available, find lesson in snapshot
+      if (isUserAuthorized && curriculumSnapshot) {
+        const moduleSnapshot = curriculumSnapshot.find((m: any) => m.id === moduleId || (module && (module as any).title === m.title));
+        if (moduleSnapshot?.lessons) {
+          const lessonSnapshot = moduleSnapshot.lessons.find((l: any) => l.id === lesson.id || l.title === lesson.title);
+          if (lessonSnapshot) {
+            lessonData = {
+              ...lesson,
+              title: lessonSnapshot.title || lesson.title,
+              contentType: lessonSnapshot.contentType || lesson.contentType,
+              videoUrl: lessonSnapshot.videoUrl || lesson.videoUrl,
+              videoDuration: lessonSnapshot.videoDuration || lesson.videoDuration,
+              articleContent: lessonSnapshot.articleContent || lesson.articleContent,
+            };
+          }
+        }
+      }
+
       // Only block if lesson is not published
       const isLessonAvailable = (lesson as any).status === 'published' || (lesson as any).status === undefined;
       const isAuthorized = isUserAuthorized && isLessonAvailable;
-      return this.buildProtectedDTO(lesson, isAuthorized);
+      return this.buildProtectedDTO(lessonData, isAuthorized);
     });
   }
 

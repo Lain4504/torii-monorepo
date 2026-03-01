@@ -406,7 +406,7 @@ export class LiveSessionService implements ILiveSessionService {
         }
     }
 
-    async syncEndedSession(meetingId: string): Promise<void> {
+    async syncEndedSession(meetingId: string): Promise<LiveSessionResponseDTO | null> {
         this.logger.log(`Syncing ended session for meetingId: ${meetingId}`);
         const sessions = await this.prisma.liveSession.findMany({
             where: {
@@ -415,12 +415,24 @@ export class LiveSessionService implements ILiveSessionService {
             },
         });
 
+        let updatedSession: any = null;
         for (const session of sessions) {
-            await this.liveSessionRepository.update(session.id, {
+            const updated = await this.liveSessionRepository.update(session.id, {
                 status: LiveSessionStatus.ENDED,
             });
+            updatedSession = updated;
             this.logger.log(`Updated LiveSession ${session.id} to ENDED via sync`);
         }
+
+        return updatedSession ? this.mapper.map<any, LiveSessionResponseDTO>(updatedSession, 'LiveSession', 'LiveSessionResponseDTO') : null;
+    }
+
+    async findByMeetingId(meetingId: string): Promise<LiveSessionResponseDTO | null> {
+        const session = await this.prisma.liveSession.findFirst({
+            where: { meetingId },
+        });
+        if (!session) return null;
+        return this.mapper.map<any, LiveSessionResponseDTO>(session, 'LiveSession', 'LiveSessionResponseDTO');
     }
 }
 

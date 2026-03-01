@@ -12,7 +12,7 @@ export interface QuizDTO {
     description?: string;
     quizType: string;
     jlptLevel?: string;
-    courseId?: string;
+    courseMasterId?: string;
     lessonId?: string;
     totalTime?: number;
     totalQuestions: number;
@@ -30,7 +30,7 @@ export interface CreateQuizDTO {
     title: string;
     description?: string;
     quizType?: string; // default 'lesson'
-    courseId?: string;
+    courseMasterId?: string;
     lessonId?: string;
     totalTime?: number;
     passingScore?: number;
@@ -45,7 +45,7 @@ export interface UpdateQuizDTO extends Partial<CreateQuizDTO> { }
 export interface QuizQueryDTO {
     page?: number;
     limit?: number;
-    courseId?: string;
+    courseMasterId?: string;
     lessonId?: string;
     status?: string;
     quizType?: string;

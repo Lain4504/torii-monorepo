@@ -3,6 +3,7 @@ import {
     Get,
     Post,
     Put,
+    Patch,
     Delete,
     Body,
     Param,
@@ -81,6 +82,38 @@ export class CourseRunController {
             this.natsClient.send({ cmd: 'learning.courserun.findById' }, { id }),
         );
         return successResponse({ run: result });
+    }
+
+    @Patch(':id/status')
+    @Permissions('course.update')
+    async updateStatus(
+        @Param('id', new ParseUUIDPipe()) id: string,
+        @Body('status') status: any,
+        @Req() req: ReqWithRequester,
+    ) {
+        const result = await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'learning.courserun.updateStatus' },
+                { id, status, requester: req.requester },
+            ),
+        );
+        return successResponse({ run: result }, 'Course run status updated successfully');
+    }
+
+    @Get(':id/students')
+    @Permissions('course.update')
+    async getStudents(
+        @Param('id', new ParseUUIDPipe()) id: string,
+        @Query('page') page?: number,
+        @Query('limit') limit?: number,
+    ) {
+        const result = await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'learning.courserun.getStudents' },
+                { id, page, limit },
+            ),
+        );
+        return successPaginatedResponse(result);
     }
 
     @Delete(':id')

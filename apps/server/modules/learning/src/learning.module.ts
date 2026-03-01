@@ -1,162 +1,193 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import { APP_FILTER } from '@nestjs/core';
-import { ScheduleModule } from '@nestjs/schedule';
 import { AutomapperModule } from '@automapper/nestjs';
 import { pojos } from '@automapper/pojos';
+import { ScheduleModule } from '@nestjs/schedule';
 import { PrismaModule, SharedModule, GlobalRpcExceptionFilter } from '@server/shared';
+
+// Repositories
+import { COURSE_MASTER_REPOSITORY_TOKEN } from './interfaces/repositories';
+import { CourseMasterRepository } from './modules/course-master/course-master.repository';
+import { COURSE_RUN_REPOSITORY_TOKEN } from './interfaces/repositories';
+import { CourseRunRepository } from './modules/course-run/course-run.repository';
+import { MODULE_REPOSITORY_TOKEN } from './interfaces/repositories';
+import { ModuleRepository } from './modules/module/module.repository';
+import { LESSON_REPOSITORY_TOKEN } from './interfaces/repositories';
+import { LessonRepository } from './modules/lesson/lesson.repository';
+import { LESSON_MATERIAL_REPOSITORY_TOKEN } from './interfaces/repositories';
+import { LessonMaterialRepository } from './modules/lesson-material/lesson-material.repository';
+import { REVIEW_REPOSITORY_TOKEN } from './interfaces/repositories';
+import { ReviewRepository } from './modules/review/review.repository';
+import { EXAM_REPOSITORY_TOKEN } from './interfaces/repositories/i-exam.repository';
+import { ExamRepository } from './modules/exam/exam.repository';
+import { ENROLLMENT_REPOSITORY_TOKEN } from './interfaces/repositories';
+import { EnrollmentRepository } from './modules/enrollment/enrollment.repository';
+import { LIVE_SESSION_REPOSITORY_TOKEN } from './interfaces/repositories';
+import { LiveSessionRepository } from './modules/live-session/live-session.repository';
+import { COUPON_REPOSITORY_TOKEN } from './interfaces/repositories';
+import { CouponRepository } from './modules/coupon/coupon.repository';
+import { CERTIFICATE_REPOSITORY_TOKEN } from './interfaces/repositories';
+import { CertificateRepository } from './modules/certificate/certificate.repository';
+import { ATTENDANCE_REPOSITORY_TOKEN } from './interfaces/repositories';
+import { AttendanceRepository } from './modules/attendance/attendance.repository';
+
+// Services
+import { COURSE_MASTER_SERVICE_TOKEN } from './interfaces/services';
+import { CourseMasterService } from './modules/course-master/course-master.service';
+import { COURSE_RUN_SERVICE_TOKEN } from './interfaces/services';
+import { CourseRunService } from './modules/course-run/course-run.service';
+import { MODULE_SERVICE_TOKEN } from './interfaces/services';
+import { ModuleService } from './modules/module/module.service';
+import { LESSON_SERVICE_TOKEN } from './interfaces/services';
+import { LessonService } from './modules/lesson/lesson.service';
+import { LESSON_MATERIAL_SERVICE_TOKEN } from './interfaces/services';
+import { LessonMaterialService } from './modules/lesson-material/lesson-material.service';
+import { REVIEW_SERVICE_TOKEN } from './interfaces/services';
+import { ReviewService } from './modules/review/review.service';
+import { EXAM_SERVICE_TOKEN } from './interfaces/services';
+import { ExamService } from './modules/exam/exam.service';
+import { ENROLLMENT_SERVICE_TOKEN } from './interfaces/services';
+import { EnrollmentService } from './modules/enrollment/enrollment.service';
+import { LIVE_SESSION_SERVICE_TOKEN } from './interfaces/services';
+import { LiveSessionService } from './modules/live-session/live-session.service';
+import { COUPON_SERVICE_TOKEN } from './interfaces/services';
+import { CouponService } from './modules/coupon/coupon.service';
+import { CERTIFICATE_SERVICE_TOKEN } from './interfaces/services';
+import { CertificateService } from './modules/certificate/certificate.service';
+import { ATTENDANCE_SERVICE_TOKEN } from './interfaces/services';
+import { AttendanceService } from './modules/attendance/attendance.service';
+
+// Handlers
+import { CourseRunHandler } from './handlers/course-run.handler';
+import { LiveSessionHandler } from './handlers/live-session.handler';
+import { AttendanceHandler } from './handlers/attendance.handler';
+import { CourseHandler } from './handlers/course.handler';
+import { LessonHandler } from './handlers/lesson.handler';
+import { LessonMaterialHandler } from './handlers/lesson-material.handler';
+import { EnrollmentHandler } from './handlers/enrollment.handler';
+import { LearningProgressHandler } from './handlers/learning-progress.handler';
+import { ReviewHandler } from './handlers/review.handler';
+import { ExamHandler } from './handlers/exam.handler';
+import { CouponHandler } from './handlers/coupon.handler';
+import { CertificateHandler } from './handlers/certificate.handler';
+
+// Schedulers
+import { CouponScheduler } from './modules/coupon/coupon.scheduler';
+import { BlogAnalyticsScheduler } from './modules/blog/blog-analytics.scheduler';
+import { EnrollmentExpirationScheduler } from './modules/enrollment/enrollment-expiration.scheduler';
+import { CourseRunScheduler } from './modules/course-run/schedulers/course-run.scheduler';
 
 // LMS Modules
 import { CourseMasterModule } from '@server/learning/modules/course-master/course-master.module';
 import { ModuleModule } from '@server/learning/modules/module/module.module';
 import { LessonModule } from '@server/learning/modules/lesson/lesson.module';
-import { WishlistModule } from '@server/learning/modules/wishlist/wishlist.module';
-import { ReviewModule } from '@server/learning/modules/review/review.module';
 import { LessonMaterialModule } from '@server/learning/modules/lesson-material/lesson-material.module';
 import { EnrollmentModule } from '@server/learning/modules/enrollment/enrollment.module';
 import { LearningProgressModule } from '@server/learning/modules/learning-progress/learning-progress.module';
 import { LiveSessionModule } from '@server/learning/modules/live-session/live-session.module';
-import { CourseRunModule } from '@server/learning/modules/course-run/course-run.module';
+import { CourseRunModule } from './modules/course-run/course-run.module';
 import { TeachingScheduleModule } from '@server/learning/modules/teaching-schedule/teaching-schedule.module';
 import { CouponModule } from '@server/learning/modules/coupon/coupon.module';
 import { CertificateModule } from '@server/learning/modules/certificate/certificate.module';
-
-// Community Modules
-import { BlogModule } from '@server/learning/modules/blog/blog.module';
-import { CommentModule } from '@server/learning/modules/comment/comment.module';
-import { DiscussionModule } from '@server/learning/modules/discussion/discussion.module';
-
-// Assessment Modules
-import { QuestionModule } from '@server/learning/modules/question/question.module';
-import { QuestionPoolModule } from '@server/learning/modules/question-pool/question-pool.module';
-import { ExamModule } from '@server/learning/modules/exam/exam.module';
-
-// Flashcard Modules
-import { FlashcardDeckModule } from '@server/learning/modules/flashcard-deck/flashcard-deck.module';
-import { FlashcardModule } from '@server/learning/modules/flashcard/flashcard.module';
-
-// Notebook Module
-import { NotebookModule } from '@server/learning/modules/notebook/notebook.module';
-
-// Gamification Module
-import { GamificationModule } from '@server/learning/modules/gamification/gamification.module';
-
-// Handlers
-import { CourseHandler } from '@server/learning/handlers/course.handler';
-import { ModuleHandler } from '@server/learning/handlers/module.handler';
-import { LessonHandler } from '@server/learning/handlers/lesson.handler';
-import { LessonMaterialHandler } from '@server/learning/handlers/lesson-material.handler';
-import { StaffDashboardHandler } from '@server/learning/handlers/staff-dashboard.handler';
-import { ExamHandler } from '@server/learning/handlers/exam.handler';
-import { EnrollmentHandler } from '@server/learning/handlers/enrollment.handler';
-import { QuestionHandler } from '@server/learning/handlers/question.handler';
-import { QuestionPoolHandler } from '@server/learning/handlers/question-pool.handler';
-import { ReviewHandler } from '@server/learning/handlers/review.handler';
-import { WishlistHandler } from '@server/learning/handlers/wishlist.handler';
-import { BlogHandler } from '@server/learning/handlers/blog.handler';
-import { CommentHandler } from '@server/learning/handlers/comment.handler';
-import { DiscussionHandler } from '@server/learning/handlers/discussion.handler';
-import { FlashcardDeckHandler } from '@server/learning/handlers/flashcard-deck.handler';
-import { FlashcardHandler } from '@server/learning/handlers/flashcard.handler';
-import { FlashcardReviewHandler } from '@server/learning/handlers/flashcard-review.handler';
-import { LearningProgressHandler } from '@server/learning/handlers/learning-progress.handler';
-import { LiveSessionHandler } from '@server/learning/handlers/live-session.handler';
-import { TeachingScheduleHandler } from '@server/learning/handlers/teaching-schedule.handler';
-import { CouponHandler } from '@server/learning/handlers/coupon.handler';
-import { AnalyticsHandler } from '@server/learning/handlers/analytics.handler';
-import { AssignmentHandler } from '@server/learning/handlers/assignment.handler';
-import { SubmissionHandler } from '@server/learning/handlers/submission.handler';
-import { CertificateHandler } from '@server/learning/handlers/certificate.handler';
-import { NotebookHandler } from '@server/learning/handlers/notebook.handler';
-import { CartHandler } from '@server/learning/handlers/cart.handler';
-import { AttendanceHandler } from '@server/learning/handlers/attendance.handler';
-
-import { AssignmentModule } from '@server/learning/modules/assignment/assignment.module';
-import { SubmissionModule } from '@server/learning/modules/submission/submission.module';
-import { CartModule } from '@server/learning/modules/cart/cart.module';
 import { AttendanceModule } from '@server/learning/modules/attendance/attendance.module';
+import { WishlistModule } from '@server/learning/modules/wishlist/wishlist.module';
+import { ReviewModule } from '@server/learning/modules/review/review.module';
+import { BlogModule } from '@server/learning/modules/blog/blog.module';
+import { CartModule } from '@server/learning/modules/cart/cart.module';
 
 @Module({
   imports: [
-    ScheduleModule.forRoot(),
     AutomapperModule.forRoot({ strategyInitializer: pojos() }),
     PrismaModule,
     SharedModule,
-
-    // LMS Modules
-    CourseMasterModule,
-    ModuleModule,
-    LessonModule,
-    WishlistModule,
-    ReviewModule,
-    LessonMaterialModule,
-    EnrollmentModule,
-    LearningProgressModule,
-    LiveSessionModule,
+    ScheduleModule.forRoot(),
+    ClientsModule.register([
+      {
+        name: 'LEARNING_SERVICE',
+        transport: Transport.NATS,
+        options: {
+          servers: [process.env.NATS_URL || 'nats://localhost:4222'],
+        },
+      },
+      {
+        name: 'NATS_SERVICE',
+        transport: Transport.NATS,
+        options: {
+          servers: [process.env.NATS_URL || 'nats://localhost:4222'],
+        },
+      },
+    ]),
+    forwardRef(() => CourseMasterModule),
+    forwardRef(() => ModuleModule),
+    forwardRef(() => LessonModule),
+    forwardRef(() => LessonMaterialModule),
+    forwardRef(() => EnrollmentModule),
+    forwardRef(() => LearningProgressModule),
+    forwardRef(() => LiveSessionModule),
+    forwardRef(() => CourseRunModule),
     TeachingScheduleModule,
     CouponModule,
-    AssignmentModule,
-    SubmissionModule,
     CertificateModule,
-    CartModule,
     AttendanceModule,
-
-    // Community Modules
+    WishlistModule,
+    ReviewModule,
     BlogModule,
-    CommentModule,
-    DiscussionModule,
-
-    // Assessment Modules
-    QuestionModule,
-    QuestionPoolModule,
-    ExamModule,
-
-    // Flashcard Modules
-    FlashcardDeckModule,
-    FlashcardModule,
-
-    // Notebook Module
-    NotebookModule,
-
-    // Gamification Module
-    GamificationModule,
+    CartModule,
   ],
   controllers: [
-    // NATS Handlers
+    AttendanceHandler,
+    LiveSessionHandler,
+    CourseRunHandler,
     CourseHandler,
-    ModuleHandler,
     LessonHandler,
     LessonMaterialHandler,
-    StaffDashboardHandler,
-    ExamHandler,
     EnrollmentHandler,
-    QuestionHandler,
-    QuestionPoolHandler,
-    ReviewHandler,
-    WishlistHandler,
-    BlogHandler,
-    CommentHandler,
-    DiscussionHandler,
-    FlashcardDeckHandler,
-    FlashcardHandler,
-    FlashcardReviewHandler,
     LearningProgressHandler,
-    LiveSessionHandler,
-    TeachingScheduleHandler,
+    ReviewHandler,
+    ExamHandler,
     CouponHandler,
-    AnalyticsHandler,
-    AssignmentHandler,
-    SubmissionHandler,
     CertificateHandler,
-    NotebookHandler,
-    CartHandler,
-    AttendanceHandler,
   ],
   providers: [
     {
       provide: APP_FILTER,
       useClass: GlobalRpcExceptionFilter,
     },
+    { provide: COURSE_MASTER_REPOSITORY_TOKEN, useClass: CourseMasterRepository },
+    { provide: COURSE_RUN_REPOSITORY_TOKEN, useClass: CourseRunRepository },
+    { provide: MODULE_REPOSITORY_TOKEN, useClass: ModuleRepository },
+    { provide: LESSON_REPOSITORY_TOKEN, useClass: LessonRepository },
+    { provide: LESSON_MATERIAL_REPOSITORY_TOKEN, useClass: LessonMaterialRepository },
+    { provide: REVIEW_REPOSITORY_TOKEN, useClass: ReviewRepository },
+    { provide: EXAM_REPOSITORY_TOKEN, useClass: ExamRepository },
+    { provide: ENROLLMENT_REPOSITORY_TOKEN, useClass: EnrollmentRepository },
+    { provide: LIVE_SESSION_REPOSITORY_TOKEN, useClass: LiveSessionRepository },
+    { provide: COUPON_REPOSITORY_TOKEN, useClass: CouponRepository },
+    { provide: CERTIFICATE_REPOSITORY_TOKEN, useClass: CertificateRepository },
+    { provide: ATTENDANCE_REPOSITORY_TOKEN, useClass: AttendanceRepository },
+    { provide: COURSE_MASTER_SERVICE_TOKEN, useClass: CourseMasterService },
+    { provide: COURSE_RUN_SERVICE_TOKEN, useClass: CourseRunService },
+    { provide: MODULE_SERVICE_TOKEN, useClass: ModuleService },
+    { provide: LESSON_SERVICE_TOKEN, useClass: LessonService },
+    { provide: LESSON_MATERIAL_SERVICE_TOKEN, useClass: LessonMaterialService },
+    { provide: REVIEW_SERVICE_TOKEN, useClass: ReviewService },
+    { provide: EXAM_SERVICE_TOKEN, useClass: ExamService },
+    { provide: ENROLLMENT_SERVICE_TOKEN, useClass: EnrollmentService },
+    { provide: LIVE_SESSION_SERVICE_TOKEN, useClass: LiveSessionService },
+    { provide: COUPON_SERVICE_TOKEN, useClass: CouponService },
+    { provide: CERTIFICATE_SERVICE_TOKEN, useClass: CertificateService },
+    { provide: ATTENDANCE_SERVICE_TOKEN, useClass: AttendanceService },
+    CouponScheduler,
+    BlogAnalyticsScheduler,
+    EnrollmentExpirationScheduler,
+    CourseRunScheduler,
+  ],
+  exports: [
+    COURSE_RUN_SERVICE_TOKEN,
+    LIVE_SESSION_SERVICE_TOKEN,
+    ENROLLMENT_SERVICE_TOKEN,
+    ATTENDANCE_SERVICE_TOKEN,
   ],
 })
 export class LearningModule { }
-
