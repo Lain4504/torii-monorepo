@@ -61,11 +61,12 @@ export class SubmissionService {
     }
 
     // Find existing draft
-    const existing = await this.submissionRepository.findByAssignmentAndUser(assignmentId, requester.sub);
+    const existing = await this.submissionRepository.findByAssignmentAndUser(assignmentId, requester.sub, dto.courseRunId);
 
     const data: any = {
       textAnswer: dto.textAnswer,
       fileUrls: dto.fileUrls || [],
+      courseRunId: dto.courseRunId,
       status: 'DRAFT',
     };
 
@@ -77,6 +78,7 @@ export class SubmissionService {
       // Create new draft
       const submission = await this.submissionRepository.create({
         assignment: { connect: { id: assignmentId } },
+        courseRun: { connect: { id: dto.courseRunId } },
         userId: requester.sub,
         ...data,
         attemptNumber: existing ? existing.attemptNumber + 1 : 1,
@@ -135,11 +137,12 @@ export class SubmissionService {
     }
 
     // Find existing submission
-    const existing = await this.submissionRepository.findByAssignmentAndUser(assignmentId, requester.sub);
+    const existing = await this.submissionRepository.findByAssignmentAndUser(assignmentId, requester.sub, dto.courseRunId);
 
     const data: any = {
       textAnswer: dto.textAnswer,
       fileUrls: dto.fileUrls || [],
+      courseRunId: dto.courseRunId,
       status: 'SUBMITTED',
       submittedAt,
       isLate,
@@ -155,6 +158,7 @@ export class SubmissionService {
       // Resubmit after return
       submission = await this.submissionRepository.create({
         assignment: { connect: { id: assignmentId } },
+        courseRun: { connect: { id: dto.courseRunId } },
         userId: requester.sub,
         ...data,
         attemptNumber: existing.attemptNumber + 1,
@@ -164,6 +168,7 @@ export class SubmissionService {
       // New submission
       submission = await this.submissionRepository.create({
         assignment: { connect: { id: assignmentId } },
+        courseRun: { connect: { id: dto.courseRunId } },
         userId: requester.sub,
         ...data,
         attemptNumber: 1,
@@ -250,6 +255,7 @@ export class SubmissionService {
         userId: submission.userId,
         assignmentId: submission.assignmentId,
         courseMasterId: assignment.courseMasterId,
+        courseRunId: submission.courseRunId,
         score: dto.score,
         maxScore: assignment.maxScore,
         completedAt: new Date(),
@@ -308,8 +314,8 @@ export class SubmissionService {
   /**
    * Get student's submission for an assignment
    */
-  async getMySubmission(userId: string, assignmentId: string) {
-    const submission = await this.submissionRepository.findByAssignmentAndUser(assignmentId, userId);
+  async getMySubmission(userId: string, assignmentId: string, courseRunId?: string) {
+    const submission = await this.submissionRepository.findByAssignmentAndUser(assignmentId, userId, courseRunId);
     return submission ? this.toSubmissionResponseDTO(submission) : null;
   }
 
@@ -317,8 +323,8 @@ export class SubmissionService {
    * Get all submissions for an assignment (instructor view)
    * BR-05: Only returns the latest attempt for each user
    */
-  async getSubmissions(assignmentId: string) {
-    const allSubmissions = await this.submissionRepository.findByAssignmentId(assignmentId);
+  async getSubmissions(assignmentId: string, courseRunId?: string) {
+    const allSubmissions = await this.submissionRepository.findByAssignmentId(assignmentId, courseRunId);
 
     // Group by userId and pick the highest attemptNumber
     const latestSubmissionsMap = new Map<string, Submission>();

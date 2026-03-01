@@ -23,13 +23,15 @@ export class WishlistRepository implements IWishlistRepository {
     }
 
     /**
-     * Find wishlist by user and course
+     * Find wishlist by user and course run
      */
-    async findByUserAndCourse(userId: string, courseId: string): Promise<Wishlist | null> {
-        return this.prisma.wishlist.findFirst({
+    async findByUserAndCourseRun(userId: string, courseRunId: string): Promise<Wishlist | null> {
+        return this.prisma.wishlist.findUnique({
             where: {
-                userId,
-                courseId,
+                userId_courseRunId: {
+                    userId,
+                    courseRunId,
+                },
             },
         });
     }

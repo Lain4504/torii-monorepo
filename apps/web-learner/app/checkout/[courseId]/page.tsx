@@ -138,7 +138,8 @@ export default function CheckoutPage() {
 
             const response = await couponApi.validateCoupon({
                 code: couponCode,
-                courseId: course.id,
+                courseMasterId: course.id, // Validate against course master
+                courseRunId: courseRunId || undefined, // Specific run if selected
                 userId: user?.id,
             })
 
@@ -186,8 +187,7 @@ export default function CheckoutPage() {
             const description = `Thanh toan khoa hoc ${course.title}`.slice(0, 25)
 
             const order = await orderApi.createOrder({
-                courseId: course.id,
-                courseRunId: courseRunId || undefined,
+                courseRunId: courseRunId || course.id, // Use selected run or default to master ID
                 paymentMethod: PaymentMethod.BALANCE,
                 orderType: isGift ? OrderType.GIFT : OrderType.COURSE_PURCHASE,
                 description: description,
@@ -236,9 +236,9 @@ export default function CheckoutPage() {
 
     if (isLoading) return <PageLoading />
 
-    if (!course) return null
+    if (!course || !selectedRun) return null
 
-    const finalPrice = Math.max(0, Number(course.price) - couponDiscount)
+    const finalPrice = Math.max(0, Number(selectedRun.price) - couponDiscount)
 
     return (
         <div className="min-h-screen bg-background pb-20">
@@ -442,7 +442,7 @@ export default function CheckoutPage() {
                                 <div className="space-y-3">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-muted-foreground">Giá gốc</span>
-                                        <span className="font-medium">{formatNumber(course.price)} Coins</span>
+                                        <span className="font-medium">{formatNumber(selectedRun.price)} Coins</span>
                                     </div>
                                     {couponDiscount > 0 && (
                                         <div className="flex justify-between text-sm">

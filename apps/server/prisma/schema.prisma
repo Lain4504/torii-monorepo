@@ -53,25 +53,27 @@ model CourseMaster {
   title                String             @db.VarChar(255)
   slug                 String             @unique @db.VarChar(255)
   type                 String             @default("vod") @db.VarChar(20) // 'vod' | 'live'
+  // Content Blueprint (Syllabus)
   description          String?            @db.Text
   shortDescription     String?            @map("short_description") @db.VarChar(500)
   jlptLevel            String             @map("jlpt_level") @db.VarChar(5)
   aiMetadata           Json?              @default("{}") @map("ai_metadata")
   thumbnailUrl         String?            @map("thumbnail_url") @db.Text
   previewVideoUrl      String?            @map("preview_video_url") @db.Text
-  price                Decimal            @default(0.00) @db.Decimal(10, 2)
-  discountPrice        Decimal?           @map("discount_price") @db.Decimal(10, 2)
+  
+  // Commercial fields moved to CourseRun
+  // All transactions happen at the Run level
+  
   liveConfig           Json?              @map("live_config")
-  durationWeeks        Int?               @map("duration_weeks") // Thời lượng nội dung khóa học (hiển thị cho học viên)
-  expirationMonths     Int?               @map("expiration_months") // 1-6 months: thời hạn truy cập sau khi enroll
+  durationWeeks       Int?               @map("duration_weeks")
+  expirationMonths    Int?               @map("expiration_months")
   totalLessons         Int                @default(0) @map("total_lessons")
   totalQuizzes         Int                @default(0) @map("total_quizzes")
   totalStudents        Int                @default(0) @map("total_students")
-  averageRating        Decimal            @default(0.00) @map("average_rating") @db.Decimal(3, 2)
+  averageRating       Float              @default(0) @map("average_rating")
   totalReviews         Int                @default(0) @map("total_reviews")
   status               CourseMasterStatus @default(draft)
   rejectionReason      String?            @map("rejection_reason") @db.Text
-  isFree               Boolean            @default(false) @map("is_free")
   tags                 String[]           @default([]) @db.VarChar(50)
   learningOutcomes     Json               @default("[]") @map("learning_outcomes")
   requirements         Json               @default("[]")
@@ -85,21 +87,19 @@ model CourseMaster {
   maxTrialLessons      Int?               @map("max_trial_lessons") // Giới hạn số bài học thử
   // Relations
   modules           Module[]
-  discussions       DiscussionTopic[]
-  wishlists         Wishlist[]
-  reviews           Review[]
+
   quizzes           Quiz[]
   liveSessions      LiveSession[]
   teachingSchedules TeachingSchedule[]
   scheduleRequests  LiveSessionScheduleRequest[]
-  enrollments       Enrollment[]
   assignments       Assignment[]
   certificates      Certificate[]
   versions          CourseVersion[]
-  cartItems         CartItem[]
   courseRuns        CourseRun[]
   lecturerId        String?            @map("lecturer_id") @db.Uuid
   lecturer          User?              @relation("CourseMastersTaught", fields: [lecturerId], references: [id], onDelete: SetNull)
+
+
 
   @@index([jlptLevel])
   @@index([createdBy])
@@ -148,6 +148,9 @@ model CourseRun {
   discountPrice Decimal? @map("discount_price") @db.Decimal(10, 2)
 
   status CourseRunStatus @default(PLANNING)
+  
+  averageRating Decimal? @default(0.00) @map("average_rating") @db.Decimal(3, 2)
+  totalReviews  Int      @default(0) @map("total_reviews")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
@@ -157,7 +160,17 @@ model CourseRun {
   lecturer       User?          @relation("RunLecturer", fields: [lecturerId], references: [id], onDelete: SetNull)
 
   enrollments  Enrollment[]
+  discussions  DiscussionTopic[]
+  tickets      Ticket[]
+
   liveSessions LiveSession[]
+  wishlists    Wishlist[]
+  reviews      Review[]
+  cartItems    CartItem[]
+  assignments  Assignment[]
+  submissions  Submission[]
+  quizzes      Quiz[]
+  attempts     QuizAttempt[]
 
   @@index([courseMasterId])
   @@index([versionId])
@@ -263,6 +276,7 @@ model Assignment {
 
   // Associated with (at least one required)
   courseMasterId String? @map("course_master_id") @db.Uuid
+  courseRunId    String? @map("course_run_id") @db.Uuid
   moduleId       String? @map("module_id") @db.Uuid
   lessonId       String? @map("lesson_id") @db.Uuid
 
@@ -292,11 +306,13 @@ model Assignment {
 
   // Relations
   courseMaster CourseMaster? @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
+  courseRun    CourseRun?    @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
   module       Module?       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   lesson       Lesson?       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   submissions  Submission[]
 
   @@index([courseMasterId])
+  @@index([courseRunId])
   @@index([moduleId])
   @@index([lessonId])
   @@index([status])
@@ -325,6 +341,7 @@ model Submission {
   id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   assignmentId String @map("assignment_id") @db.Uuid
   userId       String @map("user_id") @db.Uuid
+  courseRunId  String @map("course_run_id") @db.Uuid
 
   // Submission content
   textAnswer String?  @map("text_answer") @db.Text
@@ -351,11 +368,13 @@ model Submission {
 
   // Relations
   assignment     Assignment     @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  courseRun      CourseRun      @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
   gradeHistories GradeHistory[]
 
   @@unique([assignmentId, userId, attemptNumber])
   @@index([assignmentId])
   @@index([userId])
+  @@index([courseRunId])
   @@index([status])
   @@index([submittedAt])
   @@index([gradedBy])
@@ -1252,9 +1271,11 @@ model DiscussionTopic {
   authorId String @map("author_id") @db.Uuid
 
   // Context
-  courseId String  @map("course_id") @db.Uuid
+  courseRunId    String @map("course_run_id") @db.Uuid
   moduleId String? @map("module_id") @db.Uuid
   lessonId String? @map("lesson_id") @db.Uuid
+
+
 
   // Categorization & Status
   category DiscussionTopicCategory @default(GENERAL)
@@ -1270,10 +1291,12 @@ model DiscussionTopic {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  author User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  course CourseMaster @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  courseRun CourseRun @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
 
-  @@index([courseId])
+  @@index([courseRunId])
+
+
   @@index([moduleId])
   @@index([lessonId])
   @@index([authorId])
@@ -1302,7 +1325,7 @@ model QuestionPool {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String   @db.VarChar(255)
   description String?  @db.Text
-  courseId    String?  @map("course_id") @db.Uuid
+  courseMasterId    String?  @map("course_master_id") @db.Uuid
   lessonId    String?  @map("lesson_id") @db.Uuid
   jlptLevel   String?  @map("jlpt_level") @db.VarChar(5)
   createdBy   String?  @map("created_by") @db.Uuid
@@ -1312,7 +1335,7 @@ model QuestionPool {
   // Relations
   questions Question[]
 
-  @@index([courseId])
+  @@index([courseMasterId])
   @@index([lessonId])
   @@index([jlptLevel])
   @@map("question_pools")
@@ -1361,7 +1384,8 @@ model Quiz {
   description      String?  @db.Text
   quizType         String   @default("practice") @map("quiz_type") @db.VarChar(30) // lesson, module, course, practice, jlpt_mock
   jlptLevel        String?  @map("jlpt_level") @db.VarChar(5)
-  courseId         String?  @map("course_id") @db.Uuid
+  courseMasterId   String?  @map("course_master_id") @db.Uuid
+  courseRunId      String?  @map("course_run_id") @db.Uuid
   lessonId         String?  @map("lesson_id") @db.Uuid
   sections         Json?    @db.JsonB // Array of section configs: [{ type: "vocab", timeLimit: 30, questionCount: 15 }, ...]
   totalTime        Int?     @map("time_limit_minutes") // Total time in minutes
@@ -1376,14 +1400,16 @@ model Quiz {
   updatedAt        DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  course        CourseMaster?        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseMaster  CourseMaster?  @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
+  courseRun     CourseRun?     @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
   lesson        Lesson?        @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   quizQuestions QuizQuestion[]
   attempts      QuizAttempt[]
 
   @@index([jlptLevel])
   @@index([status])
-  @@index([courseId])
+  @@index([courseMasterId])
+  @@index([courseRunId])
   @@index([lessonId])
   @@map("quizzes")
 }
@@ -1411,6 +1437,7 @@ model QuizAttempt {
   id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   quizId           String    @map("quiz_id") @db.Uuid
   userId           String    @map("user_id") @db.Uuid
+  courseRunId      String    @map("course_run_id") @db.Uuid
   status           String    @default("in-progress") @db.VarChar(20) // in-progress, completed, submitted, abandoned
   startedAt        DateTime  @default(now()) @map("started_at")
   submittedAt      DateTime? @map("submitted_at")
@@ -1430,11 +1457,13 @@ model QuizAttempt {
   updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  quiz    Quiz                @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  details QuizAttemptDetail[]
+  quiz      Quiz                @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  courseRun CourseRun           @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+  details   QuizAttemptDetail[]
 
   @@index([quizId])
   @@index([userId])
+  @@index([courseRunId])
   @@index([status])
   @@index([startedAt])
   @@map("quiz_attempts")
@@ -1481,35 +1510,35 @@ model Notification {
 
 // Wishlist - Favorite courses
 model Wishlist {
-  id       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId   String   @map("user_id") @db.Uuid
-  courseId String   @map("course_id") @db.Uuid
-  addedAt  DateTime @default(now()) @map("added_at")
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  courseRunId    String   @map("course_run_id") @db.Uuid
+  addedAt        DateTime @default(now()) @map("added_at")
 
   // Relations
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course CourseMaster @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseRun CourseRun    @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, courseId])
+  @@unique([userId, courseRunId])
   @@map("wishlist")
 }
 
 // Review - Course reviews by users
 model Review {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
-  courseId  String   @map("course_id") @db.Uuid
-  rating    Int // 1-5
-  comment   String?  @db.Text
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  courseRunId    String   @map("course_run_id") @db.Uuid
+  rating         Int // 1-5
+  comment        String?  @db.Text
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course CourseMaster @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseRun CourseRun    @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, courseId]) // Mỗi user chỉ review 1 lần cho 1 course
-  @@index([courseId])
+  @@unique([userId, courseRunId]) // Mỗi user chỉ review 1 lần cho 1 course run
+  @@index([courseRunId])
   @@index([userId])
   @@map("reviews")
 }
@@ -1519,8 +1548,7 @@ model Review {
 model Enrollment {
   id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId               String    @map("user_id") @db.Uuid
-  courseId             String    @map("course_id") @db.Uuid
-  courseRunId          String?   @map("course_run_id") @db.Uuid
+  courseRunId          String    @map("course_run_id") @db.Uuid
   versionId            String?   @map("version_id") @db.Uuid // Reference to CourseVersion for snapshot tracking
   enrollmentDate       DateTime  @default(now()) @map("enrollment_date")
   completionStatus     String    @default("in_progress") @map("completion_status") @db.VarChar(20) // pending_payment, in_progress, completed, dropped
@@ -1543,17 +1571,15 @@ model Enrollment {
 
   // Relations
   user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course         CourseMaster           @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  courseRun      CourseRun?       @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+  courseRun      CourseRun        @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
   version        CourseVersion?   @relation(fields: [versionId], references: [id], onDelete: SetNull)
   order          Order?           @relation(fields: [orderId], references: [id], onDelete: SetNull)
   sender         User?            @relation("GiftEnrollments", fields: [senderId], references: [id], onDelete: SetNull)
   lessonProgress LessonProgress[]
   certificate    Certificate?
 
-  @@unique([userId, courseId]) // Mỗi user chỉ enroll 1 lần cho 1 course
+  @@unique([userId, courseRunId]) // Mỗi user chỉ enroll 1 lần cho 1 course run
   @@index([userId])
-  @@index([courseId])
   @@index([courseRunId])
   @@index([versionId])
   @@index([completionStatus])
@@ -1675,17 +1701,18 @@ model Cart {
 }
 
 model CartItem {
-  id       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  cartId   String   @map("cart_id") @db.Uuid
-  courseId String   @map("course_id") @db.Uuid
-  addedAt  DateTime @default(now()) @map("added_at")
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cartId         String   @map("cart_id") @db.Uuid
+  courseRunId    String   @map("course_run_id") @db.Uuid
+  addedAt        DateTime @default(now()) @map("added_at")
 
-  cart   Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  course CourseMaster @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  // Relations
+  cart      Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  courseRun CourseRun @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
 
-  @@unique([cartId, courseId])
+  @@unique([cartId, courseRunId])
   @@index([cartId])
-  @@index([courseId])
+  @@index([courseRunId])
   @@map("cart_items")
 }
 
@@ -1894,9 +1921,11 @@ model Coupon {
   maxDiscountAmount Decimal?           @map("max_discount_amount") @db.Decimal(10, 2)
 
   // Conditions
-  minOrderAmount      Decimal? @map("min_order_amount") @db.Decimal(10, 2)
-  applicableCourseIds String[] @default([]) @map("applicable_course_ids") @db.Uuid
-  excludedCourseIds   String[] @default([]) @map("excluded_course_ids") @db.Uuid
+  minOrderAmount            Decimal? @map("min_order_amount") @db.Decimal(10, 2)
+  applicableCourseMasterIds String[] @default([]) @map("applicable_course_ids") @db.Uuid
+  excludedCourseMasterIds   String[] @default([]) @map("excluded_course_ids") @db.Uuid
+  applicableRunIds          String[] @default([]) @map("applicable_run_ids") @db.Uuid
+  excludedRunIds            String[] @default([]) @map("excluded_run_ids") @db.Uuid
 
   // Validity Period
   validFrom  DateTime @map("valid_from")
@@ -1951,19 +1980,26 @@ model Ticket {
   status      TicketStatus @default(PENDING)
   subject     String       @db.VarChar(255)
   description String       @db.Text
-  metadata    Json?        @default("{}") // Contains courseId, orderId if type is REFUND
+  courseRunId String?      @map("course_run_id") @db.Uuid
+  metadata    Json?        @default("{}") // Contains originalOrderId if type is REFUND
+
+
   response    String?      @db.Text
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  user    User  @relation("UserTickets", fields: [userId], references: [id], onDelete: Cascade)
-  handler User? @relation("HandlerTickets", fields: [handlerId], references: [id], onDelete: SetNull)
+  user      User       @relation("UserTickets", fields: [userId], references: [id], onDelete: Cascade)
+  handler   User?      @relation("HandlerTickets", fields: [handlerId], references: [id], onDelete: SetNull)
+  courseRun CourseRun? @relation(fields: [courseRunId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([handlerId])
   @@index([status])
   @@index([type])
+  @@index([courseRunId])
+
+
   @@map("tickets")
 }
 
@@ -1971,7 +2007,7 @@ model Ticket {
 model Certificate {
   id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId          String   @map("user_id") @db.Uuid
-  courseId        String   @map("course_id") @db.Uuid
+  courseMasterId  String   @map("course_master_id") @db.Uuid
   enrollmentId    String   @unique @map("enrollment_id") @db.Uuid
   certificateCode String   @unique @map("certificate_code") @db.VarChar(50)
   issueDate       DateTime @default(now()) @map("issue_date")
@@ -1979,11 +2015,11 @@ model Certificate {
   metadata        Json?    @default("{}")
 
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course     CourseMaster     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course     CourseMaster     @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
   enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@index([courseId])
+  @@index([courseMasterId])
   @@map("certificates")
 }
 

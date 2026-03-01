@@ -63,6 +63,7 @@ export class AssignmentService {
         description: dto.description,
         type: dto.type,
         courseMasterId: dto.courseMasterId,
+        courseRunId: dto.courseRunId,
         moduleId: dto.moduleId,
         lessonId: dto.lessonId,
         maxScore: dto.maxScore,
@@ -110,6 +111,7 @@ export class AssignmentService {
       if (dto.title) updateData.title = dto.title;
       if (dto.description) updateData.description = dto.description;
       if (dto.type) updateData.type = dto.type;
+      if (dto.courseRunId) updateData.courseRunId = dto.courseRunId;
       if (dto.maxScore !== undefined) updateData.maxScore = dto.maxScore;
       if (dto.passingScore !== undefined) updateData.passingScore = dto.passingScore;
       if (dto.dueDate) updateData.dueDate = new Date(dto.dueDate);
@@ -157,6 +159,7 @@ export class AssignmentService {
       assignmentId: assignment.id,
       title: assignment.title,
       courseMasterId: assignment.courseMasterId,
+      courseRunId: assignment.courseRunId,
       moduleId: assignment.moduleId,
       lessonId: assignment.lessonId,
       dueDate: assignment.dueDate,
@@ -177,6 +180,7 @@ export class AssignmentService {
 
     // Filter by association
     if (courseMasterId) where.courseMasterId = courseMasterId;
+    if (query.courseRunId) where.courseRunId = query.courseRunId;
     if (moduleId) where.moduleId = moduleId;
     if (lessonId) where.lessonId = lessonId;
 
@@ -213,6 +217,7 @@ export class AssignmentService {
       where: {
         assignmentId: { in: assignmentIds },
         userId: requester.sub,
+        ...(query.courseRunId ? { courseRunId: query.courseRunId } : {}),
       },
     });
 

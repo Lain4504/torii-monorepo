@@ -58,6 +58,8 @@ export const examSchema = z.object({
     totalQuestions: z.number().default(0),
     status: z.nativeEnum(ExamStatus).default(ExamStatus.DRAFT),
     createdBy: z.string().uuid().optional(),
+    courseMasterId: z.string().uuid().optional(),
+    courseRunId: z.string().uuid().optional(),
     createdAt: z.date(),
     updatedAt: z.date(),
 });
@@ -68,6 +70,7 @@ export const examSessionSchema = z.object({
     id: z.string().uuid(),
     examId: z.string().uuid(),
     userId: z.string().uuid(),
+    courseRunId: z.string().uuid(),
     status: z.nativeEnum(ExamSessionStatus).default(ExamSessionStatus.IN_PROGRESS),
     startedAt: z.date(),
     submittedAt: z.date().optional(),

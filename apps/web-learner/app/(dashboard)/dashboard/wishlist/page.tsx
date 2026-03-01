@@ -38,13 +38,13 @@ export default function WishlistPage() {
             const courseDetails = await Promise.all(
                 wishlistItems.map(async (item) => {
                     try {
-                        const course = await courseApi.getCourseById(item.courseId)
+                        const course = await courseApi.getCourseById(item.courseRunId)
                         if (course) {
                             return { ...course, wishlistId: item.id } as WishlistCourse
                         }
                         return null
                     } catch (error) {
-                        console.error(`Failed to fetch course ${item.courseId}`, error)
+                        console.error(`Failed to fetch course ${item.courseRunId}`, error)
                         return null
                     }
                 })
@@ -174,7 +174,7 @@ export default function WishlistPage() {
                                             Chi tiết
                                         </Button>
                                     </Link>
-                                    <Link href={`/checkout?courseId=${courseMaster.id}`} className="flex-1 md:flex-none">
+                                    <Link href={`/checkout?courseMasterId=${courseMaster.id}`} className="flex-1 md:flex-none">
                                         <Button size="sm" className="w-full md:w-auto">
                                             Mua ngay
                                         </Button>

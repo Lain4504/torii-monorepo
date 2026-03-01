@@ -22,75 +22,85 @@ export class CartService {
         }
 
         const totalPrice = cart.items.reduce((sum, item) => {
-            const price = item.course.discountPrice ? Number(item.course.discountPrice) : Number(item.course.price);
+            const run = item.courseRun;
+            const price = run.discountPrice ? Number(run.discountPrice) : Number(run.price);
             return sum + price;
         }, 0);
 
         return {
             id: cart.id,
-            items: cart.items.map(item => ({
-                ...item,
-                course: {
-                    id: item.course.id,
-                    title: item.course.title,
-                    slug: item.course.slug,
-                    thumbnailUrl: item.course.thumbnailUrl,
-                    price: Number(item.course.price),
-                    discountPrice: item.course.discountPrice ? Number(item.course.discountPrice) : null,
-                    instructor: 'Instructor Name', // Placeholder or fetch
-                }
-            })),
+            items: cart.items.map(item => {
+                const run = item.courseRun;
+                const master = run.courseMaster;
+                return {
+                    ...item,
+                    courseRunId: run.id,
+                    course: {
+                        id: master.id,
+                        title: master.title,
+                        slug: master.slug,
+                        thumbnailUrl: master.thumbnailUrl,
+                        price: Number(run.price),
+                        discountPrice: run.discountPrice ? Number(run.discountPrice) : null,
+                        instructor: 'Instructor Name', // Placeholder or fetch
+                    }
+                };
+            }),
             total: totalPrice,
             count: cart.items.length,
         };
     }
 
-    async addToCart(userId: string, courseId: string) {
-        // 1. Validate Course
-        const course = await this.courseMasterRepository.findById(courseId);
-        if (!course) {
-            throw new NotFoundException('Course not found');
+    async addToCart(userId: string, courseRunId: string) {
+        // 1. Validate Course Run
+        const courseRun = await this.prisma.courseRun.findUnique({
+            where: { id: courseRunId },
+            include: { courseMaster: true }
+        });
+        if (!courseRun) {
+            throw new NotFoundException('Course run not found');
         }
 
-        if (course.status !== 'published') {
-            throw new BadRequestException('Cannot add unpublished course to cart');
+        const master = courseRun.courseMaster;
+        if (master?.status !== 'published') {
+            throw new BadRequestException('Cannot add run of unpublished course to cart');
         }
 
         // 2. Get or Create Cart
         const cart = await this.cartRepository.findOrCreate(userId);
 
         // 3. Check if already in cart
-        const existingItem = await this.cartRepository.getItem(cart.id, courseId);
+        const existingItem = await this.cartRepository.getItem(cart.id, courseRunId);
         if (existingItem) {
-            throw new BadRequestException('Course is already in cart');
+            throw new BadRequestException('Course run is already in cart');
         }
 
-        // 4. Check if already enrolled (Optional, but good UX)
+        // 4. Check if already enrolled
         const enrollment = await this.prisma.enrollment.findUnique({
             where: {
-                userId_courseId: {
+                userId_courseRunId: {
                     userId,
-                    courseId,
+                    courseRunId,
                 }
             }
         });
         if (enrollment) {
-            throw new BadRequestException('You are already enrolled in this course');
+            throw new BadRequestException('You are already enrolled in this course run');
         }
 
         // 5. Add Item
-        await this.cartRepository.addItem(cart.id, courseId);
+        await this.cartRepository.addItem(cart.id, courseRunId);
 
         return this.getCart(userId);
     }
 
-    async removeFromCart(userId: string, courseId: string) {
+    async removeFromCart(userId: string, courseRunId: string) {
         const cart = await this.cartRepository.findByUserId(userId);
         if (!cart) {
             throw new NotFoundException('Cart not found');
         }
 
-        await this.cartRepository.removeItem(cart.id, courseId);
+        await this.cartRepository.removeItem(cart.id, courseRunId);
         return this.getCart(userId);
     }
 

@@ -56,13 +56,13 @@ export class QuestionPoolController {
         }
     }
 
-    @Get('course/:courseId')
-    async getByCourse(@Param('courseId') courseId: string) {
+    @Get('course/:courseMasterId')
+    async getByCourse(@Param('courseMasterId') courseMasterId: string) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.question-pool.getByCourse' },
-                    { courseId }
+                    { courseMasterId }
                 )
             );
             return successResponse({ pools: result });

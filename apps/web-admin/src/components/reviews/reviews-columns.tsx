@@ -11,7 +11,7 @@ export type Review = {
         displayName: string;
     };
     courseTitle?: string;
-    courseId: string;
+    courseRunId: string;
     rating: number;
     createdAt: string;
 };
@@ -46,7 +46,7 @@ export const getReviewsColumns = (
         {
             header: 'Khóa học',
             accessorKey: 'courseTitle',
-            cell: ({ row }) => <span className="text-sm text-foreground/80" title={row.original.courseTitle || row.original.courseId}>{row.original.courseTitle || row.original.courseId}</span>
+            cell: ({ row }) => <span className="text-sm text-foreground/80" title={row.original.courseTitle || row.original.courseRunId}>{row.original.courseTitle || row.original.courseRunId}</span>
         },
         {
             header: 'Đánh giá',

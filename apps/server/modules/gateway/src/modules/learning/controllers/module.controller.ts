@@ -69,9 +69,9 @@ export class ModuleController {
         }
     }
 
-    @Get('by-course/:courseId')
+    @Get('by-course/:courseMasterId')
     async findByCourseId(
-        @Param('courseId') courseMasterId: string,
+        @Param('courseMasterId') courseMasterId: string,
         @Req() req: ReqWithRequester
     ) {
         try {
@@ -118,10 +118,10 @@ export class ModuleController {
         }
     }
 
-    @Post('reorder/:courseId')
+    @Post('reorder/:courseMasterId')
     @Permissions('module.update')
     async reorder(
-        @Param('courseId') courseMasterId: string,
+        @Param('courseMasterId') courseMasterId: string,
         @Body() moduleOrders: { id: string; orderIndex: number }[],
         @Req() req: ReqWithRequester
     ) {

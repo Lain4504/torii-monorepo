@@ -17,19 +17,40 @@ export class CouponHandler {
 
     @MessagePattern({ cmd: 'billing.coupon.validate' })
     async validate(@Payload() data: CouponValidateRequestDTO) {
-        this.logger.log(`[CouponHandler] Received validation request for code: ${data.code}, userId: ${data.userId}, courseId: ${data.courseId}`);
+        this.logger.log(`[CouponHandler] Received validation request for code: ${data.code}, userId: ${data.userId}, courseMasterId: ${data.courseMasterId}, courseRunId: ${data.courseRunId}`);
 
         let orderAmount = 0;
-        if (data.courseId) {
+
+        // 1. Get correct price from either CourseRun or CourseMaster
+        if (data.courseRunId) {
             try {
-                const course = await lastValueFrom(
-                    this.natsClient.send({ cmd: 'learning.course.findById' }, { id: data.courseId })
+                const run = await lastValueFrom(
+                    this.natsClient.send({ cmd: 'learning.courserun.findById' }, { id: data.courseRunId })
                 );
-                if (course && course.price) {
-                    orderAmount = Number(course.price);
+                if (run && run.price) {
+                    orderAmount = Number(run.price);
+                } else if (run && run.courseMasterId) {
+                    // Fallback to master price if run price is null
+                    const master = await lastValueFrom(
+                        this.natsClient.send({ cmd: 'learning.coursemaster.findById' }, { id: run.courseMasterId })
+                    );
+                    if (master && master.price) {
+                        orderAmount = Number(master.price);
+                    }
                 }
             } catch (error: any) {
-                this.logger.warn(`[CouponHandler] Failed to fetch course ${data.courseId}: ${error.message}`);
+                this.logger.warn(`[CouponHandler] Failed to fetch run ${data.courseRunId}: ${error.message}`);
+            }
+        } else if (data.courseMasterId) {
+            try {
+                const master = await lastValueFrom(
+                    this.natsClient.send({ cmd: 'learning.coursemaster.findById' }, { id: data.courseMasterId })
+                );
+                if (master && master.price) {
+                    orderAmount = Number(master.price);
+                }
+            } catch (error: any) {
+                this.logger.warn(`[CouponHandler] Failed to fetch master ${data.courseMasterId}: ${error.message}`);
             }
         }
 
@@ -37,7 +58,9 @@ export class CouponHandler {
             const result = await this.couponService.validateCoupon(
                 data.code,
                 data.userId || '',
-                orderAmount
+                orderAmount,
+                data.courseMasterId,
+                data.courseRunId
             );
             this.logger.log(`[CouponHandler] Validation result: ${JSON.stringify(result)}`);
             return result;

@@ -225,13 +225,13 @@ export class NotificationService implements INotificationService {
    * Handle course published event - create notifications for interested learners
    */
   async handleCoursePublished(payload: {
-    courseId: string;
+    courseMasterId: string;
     courseTitle: string;
     courseJlptLevel: string;
     userIds?: string[]; // Optional: specific user IDs to notify
   }): Promise<void> {
     try {
-      this.logger.log(`Handling course published event for course: ${payload.courseId}`);
+      this.logger.log(`Handling course published event for course: ${payload.courseMasterId}`);
 
       let userIdsToNotify: string[] = [];
 
@@ -245,7 +245,7 @@ export class NotificationService implements INotificationService {
           const wishlistUsers = await this.prisma.$queryRaw<Array<{ user_id: string }>>`
             SELECT DISTINCT user_id 
             FROM wishlist 
-            WHERE course_id = ${payload.courseId}::uuid
+            WHERE course_master_id = ${payload.courseMasterId}::uuid
           `;
           userIdsToNotify = wishlistUsers.map((w) => w.user_id);
           this.logger.log(`Found ${userIdsToNotify.length} users from wishlist`);
@@ -268,7 +268,7 @@ export class NotificationService implements INotificationService {
         message: `Khóa học "${payload.courseTitle}" đã được phát hành và sẵn sàng để bạn học tập!`,
         notificationType: 'course' as const,
         metadata: {
-          courseId: payload.courseId,
+          courseMasterId: payload.courseMasterId,
           courseTitle: payload.courseTitle,
           courseJlptLevel: payload.courseJlptLevel,
         },
@@ -280,7 +280,7 @@ export class NotificationService implements INotificationService {
       await this.notificationRepository.createMany(notifications);
 
       this.logger.log(
-        `Successfully created ${notifications.length} notifications for course: ${payload.courseId}`,
+        `Successfully created ${notifications.length} notifications for course: ${payload.courseMasterId}`,
       );
     } catch (error: any) {
       this.logger.error('Error handling course published event:', error);

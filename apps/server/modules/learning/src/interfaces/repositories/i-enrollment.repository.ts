@@ -11,9 +11,9 @@ export interface IEnrollmentRepository {
     findById(id: string): Promise<Enrollment | null>;
 
     /**
-     * Find enrollment by user and course
+     * Find enrollment by user and course run
      */
-    findByUserAndCourse(userId: string, courseId: string): Promise<Enrollment | null>;
+    findByUserAndCourseRun(userId: string, courseRunId: string): Promise<Enrollment | null>;
 
     /**
      * Find all enrollments with pagination and filters

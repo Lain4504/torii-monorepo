@@ -21,9 +21,8 @@ export class WishlistHandler {
 
     @MessagePattern({ cmd: 'learning.wishlist.create' })
     async create(@Payload() data: WishlistCreateDTO & { userId: string }) {
-        const { userId, ...rest } = data;
-        const input = { ...rest, userId };
-        return this.wishlistService.create(input as WishlistCreateDTO);
+        const { userId, ...input } = data;
+        return this.wishlistService.create(userId, input);
     }
 
     @MessagePattern({ cmd: 'learning.wishlist.delete' })
@@ -32,14 +31,14 @@ export class WishlistHandler {
     }
 
     @MessagePattern({ cmd: 'learning.wishlist.toggle' })
-    async toggle(@Payload() data: { courseId: string, userId: string }) {
-        return this.wishlistService.toggle(data.userId, data.courseId);
+    async toggle(@Payload() data: { courseRunId: string, userId: string }) {
+        return this.wishlistService.toggle(data.userId, data.courseRunId);
     }
 
     @MessagePattern({ cmd: 'learning.wishlist.check' })
-    async checkWishlist(@Payload() data: { courseId: string, userId: string }) {
+    async checkWishlist(@Payload() data: { courseRunId: string, userId: string }) {
         if (!data.userId) return { isInWishlist: false };
-        const isInWishlist = await this.wishlistService.isInWishlist(data.userId, data.courseId);
+        const isInWishlist = await this.wishlistService.isInWishlist(data.userId, data.courseRunId);
         return { isInWishlist };
     }
 }

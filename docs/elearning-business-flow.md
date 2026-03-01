@@ -8,9 +8,13 @@ Tài liệu này tổng hợp và phân tích các luồng (flow) thực tế đ
 
 Để đáp ứng được khả năng mở rộng (scale) và vận hành thực tế (update giáo trình), hệ thống chia khóa học thành các khái niệm sau:
 
-1. **Course Master (Khung chương trình chuẩn)**: Chứa thông tin chung (Title, Description, Outline, Syllabus, tài liệu, bộ đề Quiz). Phù hợp cho VOD bán quanh năm hoặc làm gốc cho Live.
-2. **Course Master Version (Phiên bản nội dung)**: Quản lý versioning của khung chương trình. Khi đổi syllabus (thêm/bớt module, sửa tài liệu) cho lớp khai giảng mới, cần tạo một version mới (`MAJOR`/`MINOR`) để lớp/khóa đang học lịch sử cũ không bị ảnh hưởng (ngăn chặn rủi ro dữ liệu bị loạn gián đoạn).
-3. **Course Run / Class (Lớp/Khóa khai giảng)**: Dành riêng cho Live/Hybrid. Kế thừa và Reference tới 1 `Course Master Version` cụ thể. Chứa lịch khai giảng, giảng viên dạy chính, và danh sách học viên (`Enrollments`).
+1. **Course Master (Khung chương trình chuẩn)**: Đóng vai trò là **Syllabus Blueprint**. Chứa thông tin chung (Title, Description, Outline, Syllabus, tài liệu, bộ đề Quiz). Đây là thực thể quản lý nội dung học thuật, không chứa thông tin về giá hoặc lịch khai giảng cụ thể.
+2. **Course Master Version (Phiên bản nội dung)**: Quản lý versioning của khung chương trình. Khi đổi syllabus (thêm/bớt module, sửa tài liệu) cho lớp khai giảng mới, cần tạo một version mới (`MAJOR`/`MINOR`) để lớp/khóa đang học lịch sử cũ không bị ảnh hưởng.
+3. **Course Run / Class (Thực thể giao dịch & Vận hành)**: Đây là thực thể trọng tâm cho mọi hoạt động kinh doanh.
+    - **Giá tiền (Pricing)**: Được quy định cụ thể cho từng Run (cho phép các đợt khai giảng khác nhau có giá khác nhau hoặc áp dụng Tier-pricing).
+    - **VOD**: Mỗi Course Master loại VOD sẽ có **duy nhất 01 Course Run** để học viên đăng ký và bắt đầu học ngay.
+    - **Livestream/Live**: Có thể có nhiều Course Run (nhiều đợt khai giảng/cohort) cho cùng một Course Master.
+    - **Liên kết**: Chứa lịch khai giảng, giảng viên dạy chính, và danh sách học viên (`Enrollments`).
 4. **Live Session (Buổi học Live)**: Từng buổi học cụ thể thuộc một `Course Run`. Quản lý `lecturer_id` (nếu có dạy thay/nghỉ đột xuất), thời gian bắt đầu, kết thúc, và cấu hình phòng WebRTC.
 
 ---
@@ -58,6 +62,25 @@ Cấu trúc state chuẩn SaaS bắt buộc phải đi kèm Guard Logic (điều
 - `REFUNDED`: Đã rời lớp và hoàn tiền (Full refund trước start date hoặc Partial hoàn lại một phần).
 - `CANCELLED`: Tự hủy hoặc System kick.
 - `COMPLETED`: Thi đỗ và đạt đủ điều kiện khóa học.
+
+---
+
+## 4. Logic Marketing & Giao dịch (Marketing & Sales Logic)
+
+Để đảm bảo tính linh hoạt trong kinh doanh, các thực thể marketing được gắn chặt với **Course Run**:
+
+### 1. Coupon & Discount System
+- **Áp dụng (Applicability)**: Coupon có thể được thiết lập áp dụng cho toàn bộ Course Master (tất cả các đợt chạy) hoặc chỉ giới hạn cho một vài **Course Run** cụ thể (ưu đãi cho cohort cụ thể).
+- **Loại trừ (Exclusion)**: Hỗ trợ blacklist các Course Run không được áp dụng coupon (ví dụ: các đợt học chất lượng cao, giá đặc biệt).
+- **Giá tham chiếu**: Discount được tính toán dựa trên `price` quy định tại Course Run, không lấy từ Master.
+
+### 2. Giỏ hàng & Danh sách yêu thích (Cart & Wishlist)
+- **Cart**: Lưu trữ `courseRunId`. Học viên không mua "Khóa học chung chung", họ mua "Lịch học cụ thể" hoặc "Gói VOD cụ thể".
+- **Wishlist**: Tương tự Cart, lưu trữ `courseRunId`. Khi Course Run này kết thúc (Archive), hệ thống có thể gợi ý học viên chuyển sang Wishlist cho đợt Run mới nhất của cùng Master.
+
+### 3. Đánh giá & Review
+- **Review**: Review được gắn với `courseRunId`. Điều này giúp phân tách chất lượng giảng dạy giữa các cohort khác nhau (ví dụ: Course Run A do Giảng viên X dạy có review tốt hơn Course Run B do Giảng viên Y dạy).
+- **Aggregate**: Rate trung bình của Course Master sẽ được tính bằng cách aggregate tất cả review từ các Course Run thuộc Master đó.
 
 ---
 

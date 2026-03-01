@@ -37,7 +37,7 @@ export function CourseDetailClient({ slug }: { slug: string }) {
 
     const isEnrolled = enrollmentData?.isEnrolled;
     const isInWishlist = wishlistData?.isInWishlist;
-    const isInCart = cartData?.items?.some(item => item.courseId === course?.id);
+    const isInCart = cartData?.items?.some(item => item.courseRun?.courseMaster?.id === course?.id);
 
     useEffect(() => {
         const handleScroll = () => {

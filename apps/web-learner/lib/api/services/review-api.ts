@@ -5,7 +5,7 @@ import type { StandardApiResponse, PaginatedApiResponse } from '@workspace/schem
 export interface ReviewResponse {
   id: string;
   userId: string;
-  courseId: string;
+  courseRunId: string;
   rating: number;
   comment?: string;
   createdAt: string;
@@ -19,7 +19,7 @@ export interface ReviewResponse {
 
 
 export interface RatingDistribution {
-  courseId: string;
+  courseRunId: string;
   distribution: Array<{
     stars: number;
     count: number;

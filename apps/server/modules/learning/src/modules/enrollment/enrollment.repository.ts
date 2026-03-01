@@ -23,14 +23,14 @@ export class EnrollmentRepository implements IEnrollmentRepository {
     }
 
     /**
-     * Find enrollment by user and course
+     * Find enrollment by user and course run
      */
-    async findByUserAndCourse(userId: string, courseId: string): Promise<Enrollment | null> {
+    async findByUserAndCourseRun(userId: string, courseRunId: string): Promise<Enrollment | null> {
         return this.prisma.enrollment.findUnique({
             where: {
-                userId_courseId: {
+                userId_courseRunId: {
                     userId,
-                    courseId,
+                    courseRunId,
                 },
             },
         });

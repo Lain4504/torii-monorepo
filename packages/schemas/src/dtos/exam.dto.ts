@@ -19,6 +19,8 @@ export const examCreateDTOSchema = examSchema
         sections: true,
         totalTime: true,
         createdBy: true,
+        courseMasterId: true,
+        courseRunId: true,
     })
     .extend({
         sections: z.array(examSectionSchema),
@@ -36,6 +38,8 @@ export const examUpdateDTOSchema = examSchema
         sections: true,
         totalTime: true,
         status: true,
+        courseMasterId: true,
+        courseRunId: true,
     })
     .partial();
 
@@ -47,6 +51,8 @@ export const examQueryDTOSchema = z.object({
     jlptLevel: z.nativeEnum(QuestionJlptLevel).optional(),
     examType: z.nativeEnum(ExamType).optional(),
     status: z.nativeEnum(ExamStatus).optional(),
+    courseMasterId: z.string().uuid().optional(),
+    courseRunId: z.string().uuid().optional(),
     search: z.string().optional(),
 });
 
@@ -59,6 +65,7 @@ export type ExamResponseDTO = z.infer<typeof examResponseDTOSchema>;
 // Exam Session DTOs
 export const examSessionStartDTOSchema = z.object({
     examId: z.string().uuid(),
+    courseRunId: z.string().uuid(),
 });
 
 export type ExamSessionStartDTO = z.infer<typeof examSessionStartDTOSchema>;
@@ -131,6 +138,7 @@ export const examSessionQueryDTOSchema = z.object({
     limit: z.coerce.number().min(1).default(10),
     status: z.nativeEnum(ExamSessionStatus).optional(),
     examId: z.string().uuid().optional(),
+    courseRunId: z.string().uuid().optional(),
 });
 
 export type ExamSessionQueryDTO = z.infer<typeof examSessionQueryDTOSchema>;

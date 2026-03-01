@@ -60,7 +60,7 @@ export class EnrollmentExpirationScheduler {
                     // Emit event for notification service
                     this.natsClient.emit({ cmd: 'course_access_expired' }, {
                         userId: item.userId,
-                        courseId: item.courseId,
+                        courseMasterId: item.courseMasterId,
                         enrollmentId: item.id,
                         expiredAt: item.expiresAt,
                     });

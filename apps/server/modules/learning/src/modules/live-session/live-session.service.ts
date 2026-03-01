@@ -351,9 +351,9 @@ export class LiveSessionService implements ILiveSessionService {
             // Check enrollment for student
             const enrollment = await this.prisma.enrollment.findUnique({
                 where: {
-                    userId_courseId: {
+                    userId_courseMasterId: {
                         userId: requester.sub,
-                        courseId: session.courseMasterId,
+                        courseMasterId: session.courseMasterId,
                     },
                 },
                 include: { course: true },

@@ -25,25 +25,30 @@ export class ReviewRepository implements IReviewRepository {
         user: {
           select: { id: true, displayName: true, avatarUrl: true }
         },
-        course: {
-          select: { id: true, title: true }
+        courseRun: {
+          select: {
+            id: true,
+            courseMaster: {
+              select: { id: true, title: true }
+            }
+          }
         }
       } : undefined
     });
   }
 
   /**
-   * Find review by userId and courseId
+   * Find review by userId and courseMasterId
    */
-  async findByUserAndCourse(
+  async findByUserAndCourseRun(
     userId: string,
-    courseId: string,
+    courseRunId: string,
   ): Promise<Review | null> {
     return this.prisma.review.findUnique({
       where: {
-        userId_courseId: {
+        userId_courseRunId: {
           userId,
-          courseId,
+          courseRunId,
         },
       },
     });
@@ -53,7 +58,7 @@ export class ReviewRepository implements IReviewRepository {
    * Find reviews by course ID with pagination and relations
    */
   async findManyByCourseId(options: {
-    courseId: string;
+    courseMasterId: string;
     skip: number;
     take: number;
     includeUser?: boolean;
@@ -62,10 +67,10 @@ export class ReviewRepository implements IReviewRepository {
       user?: { id: string; displayName: string; avatarUrl: string | null };
     })[]
   > {
-    const { courseId, skip, take, includeUser = false } = options;
+    const { courseMasterId, skip, take, includeUser = false } = options;
 
     const result = await this.prisma.review.findMany({
-      where: { courseId },
+      where: { courseRun: { courseMasterId } },
       include: includeUser
         ? {
           user: {
@@ -90,9 +95,18 @@ export class ReviewRepository implements IReviewRepository {
   /**
    * Find all reviews by course ID
    */
-  async findAllByCourseId(courseId: string): Promise<Pick<Review, 'rating'>[]> {
+  async findAllByCourseId(courseMasterId: string): Promise<Pick<Review, 'rating'>[]> {
     return this.prisma.review.findMany({
-      where: { courseId },
+      where: { courseRun: { courseMasterId } },
+      select: { rating: true },
+    });
+  }
+  /**
+   * Find all reviews by course run ID
+   */
+  async findAllByCourseRunId(courseRunId: string): Promise<Pick<Review, 'rating'>[]> {
+    return this.prisma.review.findMany({
+      where: { courseRunId },
       select: { rating: true },
     });
   }
@@ -100,9 +114,9 @@ export class ReviewRepository implements IReviewRepository {
   /**
    * Count reviews by course ID
    */
-  async countByCourseId(courseId: string): Promise<number> {
+  async countByCourseId(courseMasterId: string): Promise<number> {
     return this.prisma.review.count({
-      where: { courseId },
+      where: { courseRun: { courseMasterId } },
     });
   }
 
@@ -118,14 +132,14 @@ export class ReviewRepository implements IReviewRepository {
    */
   async create(data: {
     userId: string;
-    courseId: string;
+    courseRunId: string;
     rating: number;
     comment?: string | null;
   }): Promise<Review & { user: { id: string; displayName: string; avatarUrl: string | null } }> {
     return this.prisma.review.create({
       data: {
         userId: data.userId,
-        courseId: data.courseId,
+        courseRunId: data.courseRunId,
         rating: data.rating,
         comment: data.comment || null,
       },
@@ -153,9 +167,9 @@ export class ReviewRepository implements IReviewRepository {
   /**
    * Find course by ID
    */
-  async findCourse(courseId: string): Promise<{ id: string } | null> {
+  async findCourse(courseMasterId: string): Promise<{ id: string } | null> {
     return this.prisma.courseMaster.findFirst({
-      where: { id: courseId, deletedAt: null },
+      where: { id: courseMasterId, deletedAt: null },
       select: { id: true },
     });
   }
@@ -174,16 +188,43 @@ export class ReviewRepository implements IReviewRepository {
    * Update course rating statistics
    */
   async updateCourseRatingStats(
-    courseId: string,
+    courseMasterId: string,
     averageRating: number,
     totalReviews: number,
   ): Promise<void> {
     await this.prisma.courseMaster.update({
-      where: { id: courseId },
+      where: { id: courseMasterId },
       data: {
         averageRating: Math.round(averageRating * 100) / 100,
         totalReviews,
       },
+    });
+  }
+
+  /**
+   * Update course run rating statistics
+   */
+  async updateCourseRunRatingStats(
+    courseRunId: string,
+    averageRating: number,
+    totalReviews: number,
+  ): Promise<void> {
+    await this.prisma.courseRun.update({
+      where: { id: courseRunId },
+      data: {
+        averageRating: Math.round(averageRating * 100) / 100,
+        totalReviews,
+      },
+    });
+  }
+
+  /**
+   * Find course run by ID
+   */
+  async findCourseRun(courseRunId: string): Promise<any | null> {
+    return this.prisma.courseRun.findUnique({
+      where: { id: courseRunId },
+      include: { courseMaster: true }
     });
   }
 }

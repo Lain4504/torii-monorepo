@@ -61,7 +61,7 @@ export class QuestionPoolService implements IQuestionPoolService {
             const {
                 page = 1,
                 limit = 10,
-                courseId,
+                courseMasterId,
                 lessonId,
                 jlptLevel,
                 search,
@@ -77,8 +77,8 @@ export class QuestionPoolService implements IQuestionPoolService {
 
             const whereClause: any = {};
 
-            if (courseId) {
-                whereClause.courseId = courseId;
+            if (courseMasterId) {
+                whereClause.courseMasterId = courseMasterId;
             }
 
             if (lessonId) {
@@ -144,7 +144,7 @@ export class QuestionPoolService implements IQuestionPoolService {
             const pool = await this.questionPoolRepository.create({
                 name: dto.name,
                 description: dto.description || null,
-                courseId: dto.courseId || null,
+                courseMasterId: dto.courseMasterId || null,
                 lessonId: dto.lessonId || null,
                 jlptLevel: dto.jlptLevel || null,
                 createdBy: requester.sub,
@@ -175,7 +175,7 @@ export class QuestionPoolService implements IQuestionPoolService {
 
             if (dto.name !== undefined) updateData.name = dto.name;
             if (dto.description !== undefined) updateData.description = dto.description;
-            if (dto.courseId !== undefined) updateData.courseId = dto.courseId;
+            if (dto.courseMasterId !== undefined) updateData.courseMasterId = dto.courseMasterId;
             if (dto.lessonId !== undefined) updateData.lessonId = dto.lessonId;
             if (dto.jlptLevel !== undefined) updateData.jlptLevel = dto.jlptLevel;
 
@@ -218,8 +218,8 @@ export class QuestionPoolService implements IQuestionPoolService {
     /**
      * Get pools by course
      */
-    async getByCourse(courseId: string): Promise<QuestionPoolResponseDTO[]> {
-        const pools = await this.questionPoolRepository.findByCourse(courseId);
+    async getByCourse(courseMasterId: string): Promise<QuestionPoolResponseDTO[]> {
+        const pools = await this.questionPoolRepository.findByCourse(courseMasterId);
         return pools.map((p) => this.toQuestionPoolDto(p));
     }
 

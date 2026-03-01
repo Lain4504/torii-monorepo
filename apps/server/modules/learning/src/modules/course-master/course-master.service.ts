@@ -1,5 +1,6 @@
 import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException, forwardRef } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { lastValueFrom } from 'rxjs';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
 import { generateSlug } from '@server/shared';
@@ -210,13 +211,6 @@ export class CourseMasterService implements ICourseMasterService {
         where.jlptLevel = { in: levels };
       }
 
-      // Filter by Price Range
-      if (priceMin !== undefined || priceMax !== undefined) {
-        where.price = {};
-        if (priceMin !== undefined) where.price.gte = Number(priceMin);
-        if (priceMax !== undefined) where.price.lte = Number(priceMax);
-      }
-
       if (search) {
         const searchConditions = [
           { title: { contains: search, mode: 'insensitive' } },
@@ -230,12 +224,6 @@ export class CourseMasterService implements ICourseMasterService {
       let orderBy: any = { createdAt: 'desc' };
       if (options.sortBy) {
         switch (options.sortBy) {
-          case 'price-asc':
-            orderBy = { price: 'asc' };
-            break;
-          case 'price-desc':
-            orderBy = { price: 'desc' };
-            break;
           case 'oldest':
             orderBy = { createdAt: 'asc' };
             break;
@@ -362,11 +350,6 @@ export class CourseMasterService implements ICourseMasterService {
         aiMetadata: dto.aiMetadata || {},
         thumbnailUrl: dto.thumbnailUrl || null,
         previewVideoUrl: dto.previewVideoUrl || null,
-        price: dto.price ?? 0,
-        discountPrice: dto.discountPrice || null,
-        liveConfig: dto.liveConfig || null,
-        durationWeeks: dto.durationWeeks || null,
-        expirationMonths: (dto as any).expirationMonths || null,
         tags: dto.tags || [],
         learningOutcomes: dto.learningOutcomes || [],
         requirements: dto.requirements || [],
@@ -374,11 +357,6 @@ export class CourseMasterService implements ICourseMasterService {
         status: 'draft',
         lecturerId: dto.lecturerId || null,
       };
-
-      // Validation: Paid courses must have price > 0
-      if (!data.isFree && data.price <= 0) {
-        throw new BadRequestException('Paid course masters must have a price greater than 0');
-      }
 
       // Validation: Course durationWeeks must be at most 26 (6 months)
       if (data.durationWeeks && data.durationWeeks > 26) {
@@ -449,24 +427,10 @@ export class CourseMasterService implements ICourseMasterService {
       if ((dto as any).aiMetadata !== undefined) updateData.aiMetadata = (dto as any).aiMetadata;
       if (dto.thumbnailUrl !== undefined) updateData.thumbnailUrl = dto.thumbnailUrl;
       if (dto.previewVideoUrl !== undefined) updateData.previewVideoUrl = dto.previewVideoUrl;
-      if (dto.price !== undefined) updateData.price = dto.price;
-      if (dto.discountPrice !== undefined) updateData.discountPrice = dto.discountPrice;
-      if (dto.liveConfig !== undefined) updateData.liveConfig = dto.liveConfig;
-      if (dto.durationWeeks !== undefined) updateData.durationWeeks = dto.durationWeeks;
-      if ((dto as any).expirationMonths !== undefined) updateData.expirationMonths = (dto as any).expirationMonths;
-      if (dto.isFree !== undefined) updateData.isFree = dto.isFree;
       if (dto.tags !== undefined) updateData.tags = dto.tags;
       if (dto.learningOutcomes !== undefined) updateData.learningOutcomes = dto.learningOutcomes;
       if (dto.requirements !== undefined) updateData.requirements = dto.requirements;
       if (dto.lecturerId !== undefined) updateData.lecturerId = dto.lecturerId;
-
-      // Validation: Paid courses must have price > 0
-      const finalIsFree = dto.isFree !== undefined ? dto.isFree : existing.isFree;
-      const finalPrice = dto.price !== undefined ? Number(dto.price) : Number(existing.price);
-
-      if (!finalIsFree && finalPrice <= 0) {
-        throw new BadRequestException('Paid course masters must have a price greater than 0');
-      }
 
       // Validation: Course durationWeeks must be at most 26 (6 months)
       const finalDurationWeeks = dto.durationWeeks !== undefined ? dto.durationWeeks : existing.durationWeeks;
@@ -719,14 +683,40 @@ export class CourseMasterService implements ICourseMasterService {
       }
       const versionTag = `v${nextVersionNumber}.0`;
 
-      // 3. Create CourseVersion
-      await this.courseRepository.createVersion({
+      // Create a new CourseVersion snapshot
+      const newVersion = await this.courseRepository.createVersion({
         courseMaster: { connect: { id: courseMasterId } },
         versionTag,
         curriculumSnapshot: curriculumSnapshot as any,
         changelog: `Published version ${versionTag}`,
       });
       this.logger.log(`Created new CourseVersion ${versionTag} for course master ${courseMasterId}`);
+
+      if (course.type === 'vod') {
+        try {
+          // Check if any run already exists
+          const existingRunsResult = await lastValueFrom(
+            this.natsClient.send({ cmd: 'learning.courserun.findAll' }, { courseMasterId: course.id, limit: 1 })
+          );
+
+          const existingRuns = (existingRunsResult as any).data;
+
+          if (!existingRuns || existingRuns.length === 0) {
+            this.logger.log(`Automatically creating default VOD run for syllabus ${course.id}`);
+            await lastValueFrom(
+              this.natsClient.send({ cmd: 'learning.courserun.create' }, {
+                courseMasterId: course.id,
+                title: `${course.title} (VOD)`,
+                versionId: latestVersion ? latestVersion.id : undefined,
+                price: 0,
+                status: 'enrolling', // VOD is generally always enrolling once published
+              })
+            );
+          }
+        } catch (runError: any) {
+          this.logger.error(`Failed to create default VOD run: ${runError.message}`);
+        }
+      }
     } catch (error: any) {
       this.logger.error(`Failed to create course version snapshot: ${error?.message}`, error);
     }

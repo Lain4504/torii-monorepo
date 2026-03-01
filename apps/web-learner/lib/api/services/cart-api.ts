@@ -15,18 +15,18 @@ export const cartApi = {
     },
 
     /**
-     * Add course to cart
+     * Add course run to cart
      */
-    async addToCart(courseId: string): Promise<CartResponse> {
-        const response = await apiClient.post<StandardApiResponse<CartResponse>>('/api/carts/items', { courseId });
+    async addToCart(courseRunId: string): Promise<CartResponse> {
+        const response = await apiClient.post<StandardApiResponse<CartResponse>>('/api/carts/items', { courseRunId });
         return response.data.data!;
     },
 
     /**
-     * Remove course from cart
+     * Remove course run from cart
      */
-    async removeFromCart(courseId: string): Promise<CartResponse> {
-        const response = await apiClient.delete<StandardApiResponse<CartResponse>>(`/api/carts/items/${courseId}`);
+    async removeFromCart(courseRunId: string): Promise<CartResponse> {
+        const response = await apiClient.delete<StandardApiResponse<CartResponse>>(`/api/carts/items/${courseRunId}`);
         return response.data.data!;
     },
 
@@ -55,7 +55,7 @@ export function useCart() {
 export function useAddToCart() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (courseId: string) => cartApi.addToCart(courseId),
+        mutationFn: (courseRunId: string) => cartApi.addToCart(courseRunId),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['cart'] });
         }
@@ -68,9 +68,10 @@ export function useAddToCart() {
 export function useRemoveFromCart() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (courseId: string) => cartApi.removeFromCart(courseId),
+        mutationFn: (courseRunId: string) => cartApi.removeFromCart(courseRunId),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['cart'] });
         }
     });
 }
+

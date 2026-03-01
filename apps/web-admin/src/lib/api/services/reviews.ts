@@ -6,7 +6,7 @@ import type { StandardApiResponse, PaginatedApiResponse } from '@workspace/schem
 export interface ReviewResponseDTO {
     id: string;
     userId: string;
-    courseId: string;
+    courseRunId: string;
     rating: number;
     comment?: string;
     createdAt: Date;
@@ -24,7 +24,7 @@ export type ReviewQueryDTO = {
     limit?: number;
     search?: string;
     rating?: number;
-    courseId?: string;
+    courseRunId?: string;
 };
 
 // ============================================================================

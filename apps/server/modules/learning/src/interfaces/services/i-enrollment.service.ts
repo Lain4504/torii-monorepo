@@ -23,14 +23,14 @@ export interface IEnrollmentService {
     findById(id: string): Promise<EnrollmentResponseDTO | null>;
 
     /**
-     * Find enrollment by user and course
+     * Find enrollment by user and course run
      */
-    findByUserAndCourse(userId: string, courseId: string): Promise<EnrollmentResponseDTO | null>;
+    findByUserAndCourseRun(userId: string, courseRunId: string): Promise<EnrollmentResponseDTO | null>;
 
     /**
      * Check enrollment details including version update info
      */
-    checkEnrollmentDetails(userId: string, courseId: string): Promise<{ isEnrolled: boolean; enrollment: EnrollmentResponseDTO | null; hasNewerVersion: boolean }>;
+    checkEnrollmentDetails(userId: string, courseRunId: string): Promise<{ isEnrolled: boolean; enrollment: EnrollmentResponseDTO | null; hasNewerVersion: boolean }>;
 
     /**
      * Create a new enrollment
@@ -45,18 +45,18 @@ export interface IEnrollmentService {
     /**
      * Check if user has access to a course or specific lesson (handling trial logic)
      */
-    checkAccess(userId: string, courseId: string, lessonId?: string): Promise<boolean>;
+    checkAccess(userId: string, courseMasterId: string, lessonId?: string): Promise<boolean>;
 
     /**
      * Get list of accessible lesson IDs for a user in a course
      * Returns 'ALL' if full access, or array of lesson IDs if limited (e.g. trial)
      */
-    getAccessibleLessonIds(userId: string, courseId: string): Promise<string[] | 'ALL'>;
+    getAccessibleLessonIds(userId: string, courseMasterId: string): Promise<string[] | 'ALL'>;
 
     /**
      * Check if user is enrolled in a course
      */
-    isEnrolled(userId: string, courseId: string): Promise<boolean>;
+    isEnrolled(userId: string, courseMasterId: string): Promise<boolean>;
 
     /**
      * Update enrollment progress
@@ -72,9 +72,9 @@ export interface IEnrollmentService {
     updateOrderId(enrollmentId: string, orderId: string): Promise<EnrollmentResponseDTO>;
 
     /**
-     * Delete enrollment by user and course
+     * Delete enrollment by user and course run
      */
-    deleteByUserAndCourse(userId: string, courseId: string): Promise<EnrollmentResponseDTO>;
+    deleteByUserAndCourseRun(userId: string, courseRunId: string): Promise<EnrollmentResponseDTO>;
 
     /**
      * Activate enrollment (switch from PENDING_PAYMENT to IN_PROGRESS)
@@ -84,7 +84,7 @@ export interface IEnrollmentService {
     /**
      * Upgrade enrollment to the latest course version
      */
-    upgradeVersion(userId: string, courseId: string): Promise<EnrollmentResponseDTO>;
+    upgradeVersion(userId: string, courseMasterId: string): Promise<EnrollmentResponseDTO>;
 }
 
 

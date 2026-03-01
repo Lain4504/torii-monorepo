@@ -91,8 +91,8 @@ export class LessonController {
         }
     }
 
-    @Get('preview/by-course/:courseId')
-    async findPreviewLessonsByCourseId(@Param('courseId') courseMasterId: string) {
+    @Get('preview/by-course/:courseMasterId')
+    async findPreviewLessonsByCourseId(@Param('courseMasterId') courseMasterId: string) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(

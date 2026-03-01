@@ -58,14 +58,14 @@ export class CourseMasterReviewController {
         }
     }
 
-    @Get(':courseId/reviews')
+    @Get(':courseMasterId/reviews')
     @Public()
-    async getReviewsByCourse(@Param('courseId') courseId: string, @Query() query: any) {
+    async getReviewsByCourse(@Param('courseMasterId') courseMasterId: string, @Query() query: any) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.review.findByCourseId' },
-                    { courseId, query }
+                    { courseMasterId, query }
                 )
             );
             return successPaginatedResponse(result);
@@ -90,14 +90,14 @@ export class CourseMasterReviewController {
         }
     }
 
-    @Get(':courseId/reviews/distribution')
+    @Get(':courseMasterId/reviews/distribution')
     @Public()
-    async getRatingDistribution(@Param('courseId') courseId: string) {
+    async getRatingDistribution(@Param('courseMasterId') courseMasterId: string) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.review.getRatingDistribution' },
-                    { courseId }
+                    { courseMasterId }
                 )
             );
             return successResponse(result);
@@ -106,15 +106,16 @@ export class CourseMasterReviewController {
         }
     }
 
-    @Post(':courseId/reviews')
+    @Post(':courseMasterId/reviews')
     @UseGuards(GatewayAuthGuard)
-    async createReview(@Param('courseId') courseId: string, @Body() input: any, @Req() req: ReqWithRequester) {
+    async createReview(@Param('courseMasterId') courseMasterId: string, @Body() input: any, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
+            // The client should send courseRunId in the input body now
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.review.create' },
-                    { ...input, courseId, userId: requester.sub }
+                    { ...input, userId: requester.sub }
                 )
             );
             return successResponse({ review: result });

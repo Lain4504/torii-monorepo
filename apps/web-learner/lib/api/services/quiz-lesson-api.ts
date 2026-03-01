@@ -12,7 +12,7 @@ export interface QuizResponseDTO {
     description?: string;
     quizType: string; // 'lesson' | 'module' | 'course' | 'practice' | 'jlpt_mock'
     jlptLevel?: string;
-    courseId?: string;
+    courseRunId?: string;
     lessonId?: string;
     totalTime?: number; // minutes
     totalQuestions: number;

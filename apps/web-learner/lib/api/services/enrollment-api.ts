@@ -42,9 +42,9 @@ export const enrollmentApi = {
     /**
      * Check if user is enrolled in a course
      */
-    async checkEnrollment(courseId: string): Promise<{ isEnrolled: boolean; enrollment?: EnrollmentResponseDTO; hasNewerVersion?: boolean }> {
+    async checkEnrollment(courseMasterId: string): Promise<{ isEnrolled: boolean; enrollment?: EnrollmentResponseDTO; hasNewerVersion?: boolean }> {
         const response = await apiClient.get<StandardApiResponse<{ isEnrolled: boolean; enrollment?: EnrollmentResponseDTO; hasNewerVersion?: boolean }>>(
-            `/api/enrollments/check/${courseId}`
+            `/api/enrollments/check/${courseMasterId}`
         );
         return response.data.data!;
     },
@@ -71,9 +71,9 @@ export const enrollmentApi = {
     /**
      * Upgrade enrollment to the latest course version
      */
-    async upgradeVersion(courseId: string): Promise<EnrollmentResponseDTO> {
+    async upgradeVersion(courseMasterId: string): Promise<EnrollmentResponseDTO> {
         const response = await apiClient.post<StandardApiResponse<{ enrollment: EnrollmentResponseDTO }>>(
-            `/api/enrollments/upgrade/${courseId}`
+            `/api/enrollments/upgrade/${courseMasterId}`
         );
         return response.data.data!.enrollment;
     },
@@ -81,10 +81,10 @@ export const enrollmentApi = {
     /**
      * Check if a gift recipient (by email) is enrolled in a course
      */
-    async checkGiftRecipient(email: string, courseId: string): Promise<{ isRegistered: boolean; isEnrolled: boolean }> {
+    async checkGiftRecipient(email: string, courseMasterId: string): Promise<{ isRegistered: boolean; isEnrolled: boolean }> {
         const response = await apiClient.get<StandardApiResponse<{ isRegistered: boolean; isEnrolled: boolean }>>(
             '/api/enrollments/check-gift',
-            { params: { email, courseId } }
+            { params: { email, courseMasterId } }
         );
         return response.data.data!;
     },
@@ -116,11 +116,11 @@ export function useEnrollment(id: string) {
 /**
  * Hook: Check enrollment status
  */
-export function useCheckEnrollment(courseId: string) {
+export function useCheckEnrollment(courseMasterId: string) {
     return useQuery({
-        queryKey: ['enrollments', 'check', courseId],
-        queryFn: () => enrollmentApi.checkEnrollment(courseId),
-        enabled: !!courseId,
+        queryKey: ['enrollments', 'check', courseMasterId],
+        queryFn: () => enrollmentApi.checkEnrollment(courseMasterId),
+        enabled: !!courseMasterId,
     });
 }
 
@@ -166,9 +166,9 @@ export function useUpgradeCourseVersion() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (courseId: string) => enrollmentApi.upgradeVersion(courseId),
-        onSuccess: (_, courseId) => {
-            queryClient.invalidateQueries({ queryKey: ['enrollments', 'check', courseId] });
+        mutationFn: (courseMasterId: string) => enrollmentApi.upgradeVersion(courseMasterId),
+        onSuccess: (_, courseMasterId) => {
+            queryClient.invalidateQueries({ queryKey: ['enrollments', 'check', courseMasterId] });
             queryClient.invalidateQueries({ queryKey: ['enrollments'] });
         },
     });

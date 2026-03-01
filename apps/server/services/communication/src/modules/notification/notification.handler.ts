@@ -92,13 +92,13 @@ export class NotificationHandler {
      */
     @MessagePattern({ cmd: 'course.published' })
     async handleCoursePublished(@Payload() payload: {
-        courseId: string;
+        courseMasterId: string;
         courseTitle: string;
         courseJlptLevel: string;
         userIds?: string[];
     }): Promise<void> {
         try {
-            this.logger.log(`Received course.published event for course: ${payload.courseId}`);
+            this.logger.log(`Received course.published event for course: ${payload.courseMasterId}`);
             await this.notificationService.handleCoursePublished(payload);
         } catch (error: any) {
             this.logger.error(`Error handling course.published event: ${error?.message}`, error);

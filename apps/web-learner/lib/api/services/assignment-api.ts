@@ -7,7 +7,7 @@ export interface AssignmentResponseDTO {
   title: string;
   description?: string;
   type: 'TEXT' | 'FILE' | 'BOTH';
-  courseId: string;
+  courseRunId: string;
   moduleId?: string;
   lessonId?: string;
   maxScore: number;
@@ -55,7 +55,8 @@ export interface SubmitAssignmentDto {
 export interface AssignmentQueryParams {
   page?: number;
   limit?: number;
-  courseId?: string;
+  courseMasterId?: string;
+  courseRunId?: string;
   moduleId?: string;
   lessonId?: string;
   status?: 'DRAFT' | 'PUBLISHED' | 'CLOSED';
@@ -99,7 +100,7 @@ export const assignmentApi = {
   /**
    * Get all assignments for the current user (across all enrolled courses)
    */
-  getMyAssignments: async (params: Omit<AssignmentQueryParams, 'courseId'> = {}): Promise<PaginatedApiResponse<AssignmentResponseDTO>> => {
+  getMyAssignments: async (params: Omit<AssignmentQueryParams, 'courseMasterId' | 'courseRunId'> = {}): Promise<PaginatedApiResponse<AssignmentResponseDTO>> => {
     const response = await apiClient.get<PaginatedApiResponse<AssignmentResponseDTO>>(
       '/api/assignments',
       { params: { ...params, status: 'PUBLISHED' } }
@@ -191,14 +192,14 @@ export function useCourseAssignments(params: AssignmentQueryParams) {
   return useQuery({
     queryKey: ['assignments', 'course', params],
     queryFn: () => assignmentApi.getCourseAssignments(params),
-    enabled: !!params.courseId,
+    enabled: !!params.courseMasterId || !!params.courseRunId,
   });
 }
 
 /**
  * Hook: Get all assignments for current user
  */
-export function useMyAssignments(params: Omit<AssignmentQueryParams, 'courseId'> = {}) {
+export function useMyAssignments(params: Omit<AssignmentQueryParams, 'courseMasterId' | 'courseRunId'> = {}) {
   return useQuery({
     queryKey: ['assignments', 'my', params],
     queryFn: () => assignmentApi.getMyAssignments(params),

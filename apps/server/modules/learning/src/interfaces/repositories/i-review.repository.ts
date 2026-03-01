@@ -8,8 +8,8 @@ export type ReviewWithRelations = Prisma.ReviewGetPayload<{
         user: {
             select: { id: true; displayName: true; avatarUrl: true };
         };
-        course: {
-            select: { id: true; title: true };
+        courseRun: {
+            select: { id: true; courseMasterId: true };
         };
     };
 }>;
@@ -30,23 +30,23 @@ export interface IReviewRepository {
     findById(reviewId: string, includeRelations?: boolean): Promise<Review | ReviewWithRelations | null>;
 
     /**
-     * Find review by userId and courseId
+     * Find review by userId and courseRunId
      * @param userId - The user's unique identifier
-     * @param courseId - The course's unique identifier
+     * @param courseRunId - The run's unique identifier
      * @returns The review if found, null otherwise
      */
-    findByUserAndCourse(
+    findByUserAndCourseRun(
         userId: string,
-        courseId: string,
+        courseRunId: string,
     ): Promise<Review | null>;
 
     /**
      * Find reviews by course ID with pagination and relations
-     * @param options - Query options including courseId, skip, take, and includeUser
+     * @param options - Query options including courseMasterId, skip, take, and includeUser
      * @returns Array of reviews with optional user relations
      */
     findManyByCourseId(options: {
-        courseId: string;
+        courseMasterId: string;
         skip: number;
         take: number;
         includeUser?: boolean;
@@ -58,17 +58,17 @@ export interface IReviewRepository {
 
     /**
      * Find all reviews by course ID (for rating distribution)
-     * @param courseId - The course's unique identifier
+     * @param courseMasterId - The course's unique identifier
      * @returns Array of reviews with rating only
      */
-    findAllByCourseId(courseId: string): Promise<Pick<Review, 'rating'>[]>;
+    findAllByCourseId(courseMasterId: string): Promise<Pick<Review, 'rating'>[]>;
 
     /**
      * Count reviews by course ID
-     * @param courseId - The course's unique identifier
+     * @param courseMasterId - The course's unique identifier
      * @returns Total count of reviews for the course
      */
-    countByCourseId(courseId: string): Promise<number>;
+    countByCourseId(courseMasterId: string): Promise<number>;
 
     /**
      * Count reviews with optional filter
@@ -84,7 +84,7 @@ export interface IReviewRepository {
      */
     create(data: {
         userId: string;
-        courseId: string;
+        courseRunId: string;
         rating: number;
         comment?: string | null;
     }): Promise<Review & { user: { id: string; displayName: string; avatarUrl: string | null } }>;
@@ -97,20 +97,27 @@ export interface IReviewRepository {
 
     /**
      * Find course by ID (helper for validation)
-     * @param courseId - The course's unique identifier
+     * @param courseMasterId - The course's unique identifier
      * @returns Course info if found, null otherwise
      */
-    findCourse(courseId: string): Promise<{ id: string } | null>;
+    findCourse(courseMasterId: string): Promise<{ id: string } | null>;
 
     /**
      * Update course rating statistics
-     * @param courseId - The course's unique identifier
+     * @param courseMasterId - The course's unique identifier
      * @param averageRating - The average rating value
      * @param totalReviews - The total number of reviews
      */
     updateCourseRatingStats(
-        courseId: string,
+        courseMasterId: string,
         averageRating: number,
         totalReviews: number,
     ): Promise<void>;
+
+    /**
+     * Find course run by ID (helper for validation)
+     * @param courseRunId - The run's unique identifier
+     * @returns Course run info with master if found, null otherwise
+     */
+    findCourseRun(courseRunId: string): Promise<any | null>;
 }

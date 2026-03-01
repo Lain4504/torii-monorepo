@@ -28,12 +28,12 @@ import { vi } from 'date-fns/locale'
 import { cn } from '@workspace/ui/lib/utils'
 
 interface LessonDiscussionProps {
-    courseId: string
+    courseRunId: string
     moduleId?: string
     lessonId: string
 }
 
-export function LessonDiscussion({ courseId, moduleId, lessonId }: LessonDiscussionProps) {
+export function LessonDiscussion({ courseRunId, moduleId, lessonId }: LessonDiscussionProps) {
     const { isAuthenticated, user } = useAppSelector(state => state.auth)
     const { data: discussions, isLoading, isError } = useDiscussions(lessonId)
     const createDiscussion = useCreateDiscussion()
@@ -58,7 +58,7 @@ export function LessonDiscussion({ courseId, moduleId, lessonId }: LessonDiscuss
             await createDiscussion.mutateAsync({
                 title: title.trim(),
                 content: content.trim(),
-                courseId,
+                courseRunId,
                 moduleId,
                 lessonId,
                 category: 'QUESTION'

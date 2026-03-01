@@ -5,7 +5,7 @@ import { discussionTopicModelSchema } from '../models/discussion-topic.model';
 export const discussionTopicCreateDTOSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255),
   content: z.string().min(1, 'Content is required'),
-  courseId: z.string().uuid('Invalid Course ID'),
+  courseRunId: z.string().uuid('Invalid Course Run ID'),
   moduleId: z.string().uuid('Invalid Module ID').nullable().optional(),
   lessonId: z.string().uuid('Invalid Lesson ID').nullable().optional(),
   category: z.string().optional(),
@@ -28,7 +28,7 @@ export const discussionTopicUpdateDTOSchema = z.object({
 export type DiscussionTopicUpdateDTO = z.infer<typeof discussionTopicUpdateDTOSchema>;
 
 export const discussionTopicQueryDTOSchema = paginationQuerySchema.extend({
-  courseId: z.string().uuid('Invalid Course ID').optional(),
+  courseRunId: z.string().uuid('Invalid Course Run ID').optional(),
   moduleId: z.string().uuid('Invalid Module ID').nullable().optional(),
   lessonId: z.string().uuid('Invalid Lesson ID').nullable().optional(),
   authorId: z.string().uuid('Invalid Author ID').optional(),
@@ -56,8 +56,8 @@ export const discussionTopicResponseDTOSchema: z.ZodType<DiscussionTopicResponse
     displayName: z.string(),
     avatarUrl: z.string().nullable().optional(),
   }).optional(),
-  isLiked: z.boolean().optional(), // No likes for now on DiscussionTopic, but keep for compatibility
-  replies: z.lazy(() => z.array(discussionTopicResponseDTOSchema)).optional(), // Self-referencing replies
+  isLiked: z.boolean().optional(),
+  replies: z.lazy(() => z.array(discussionTopicResponseDTOSchema)).optional(),
 });
 
 export const discussionTopicPaginatedResponseSchema = z.object({

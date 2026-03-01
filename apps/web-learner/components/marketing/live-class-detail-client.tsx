@@ -47,7 +47,7 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
 
     const isEnrolled = enrollmentData?.isEnrolled;
     const isInWishlist = wishlistData?.isInWishlist;
-    const isInCart = cartData?.items?.some(item => item.courseId === course?.id);
+    const isInCart = cartData?.items?.some(item => item.courseRun?.courseMaster?.id === course?.id);
 
     const now = new Date();
     const isSoldOut = course ? (course.totalStudents || 0) >= ((course as any).maxStudents || 999999) : false;

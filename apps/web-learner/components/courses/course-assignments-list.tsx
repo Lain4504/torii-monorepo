@@ -27,7 +27,7 @@ export function CourseAssignmentsList({ courseId, courseSlug, onAssignmentClick 
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('ALL')
   const [selectedAssignment, setSelectedAssignment] = useState<AssignmentResponseDTO | null>(null)
   const { isEnrolled, isLoadingEnrollment } = useCourseEnrollment(courseId, courseSlug)
-  const { data, isLoading: isLoadingAssignments } = useCourseAssignments({ courseId, status: 'PUBLISHED' })
+  const { data, isLoading: isLoadingAssignments } = useCourseAssignments({ courseMasterId: courseId, status: 'PUBLISHED' })
 
   // Hide for non-enrolled users
   if (!isLoadingEnrollment && !isEnrolled) {

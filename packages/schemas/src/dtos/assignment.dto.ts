@@ -13,6 +13,7 @@ export const createAssignmentDto = z.object({
 
   // At least one must be provided
   courseMasterId: z.preprocess((val) => (val === '' ? undefined : val), z.string().uuid().optional()),
+  courseRunId: z.preprocess((val) => (val === '' ? undefined : val), z.string().uuid().optional()),
   moduleId: z.preprocess((val) => (val === '' ? undefined : val), z.string().uuid().optional()),
   lessonId: z.preprocess((val) => (val === '' ? undefined : val), z.string().uuid().optional()),
 
@@ -37,9 +38,9 @@ export const createAssignmentDto = z.object({
   instructions: z.string().optional(),
   attachmentUrls: z.array(z.string().url()).default([]),
 }).refine(
-  (data) => data.courseMasterId || data.moduleId || data.lessonId,
+  (data) => data.courseMasterId || data.courseRunId || data.moduleId || data.lessonId,
   {
-    message: 'At least one of courseMasterId, moduleId, or lessonId must be provided',
+    message: 'At least one of courseMasterId, courseRunId, moduleId, or lessonId must be provided',
   }
 ).refine(
   (data) => !data.passingScore || data.passingScore <= data.maxScore,
@@ -57,6 +58,7 @@ export const updateAssignmentDto = z.object({
   type: z.nativeEnum(AssignmentType).optional(),
 
   courseMasterId: z.preprocess((val) => (val === '' || val === null ? undefined : val), z.string().uuid().optional()),
+  courseRunId: z.preprocess((val) => (val === '' || val === null ? undefined : val), z.string().uuid().optional()),
   moduleId: z.preprocess((val) => (val === '' || val === null ? undefined : val), z.string().uuid().optional()),
   lessonId: z.preprocess((val) => (val === '' || val === null ? undefined : val), z.string().uuid().optional()),
 
@@ -83,6 +85,7 @@ export type UpdateAssignmentDto = z.infer<typeof updateAssignmentDto>;
 // Query Assignments DTO
 export const queryAssignmentsDto = z.object({
   courseMasterId: z.string().uuid().optional(),
+  courseRunId: z.string().uuid().optional(),
   moduleId: z.string().uuid().optional(),
   lessonId: z.string().uuid().optional(),
   status: z.nativeEnum(AssignmentStatus).optional(),
@@ -98,6 +101,7 @@ export type QueryAssignmentsDto = z.infer<typeof queryAssignmentsDto>;
 
 // Submit Assignment DTO (create/update draft)
 export const submitAssignmentDto = z.object({
+  courseRunId: z.string().uuid(), // Required for submission
   textAnswer: z.string().optional(),
   fileUrls: z.array(z.string()).default([]), // Accept any string, not just URLs
 });
@@ -123,6 +127,7 @@ export type ReturnSubmissionDto = z.infer<typeof returnSubmissionDto>;
 // Query Submissions DTO
 export const querySubmissionsDto = z.object({
   assignmentId: z.string().uuid().optional(),
+  courseRunId: z.string().uuid().optional(),
   userId: z.string().uuid().optional(),
   status: z.nativeEnum(SubmissionStatus).optional(),
   page: z.coerce.number().min(1).default(1),

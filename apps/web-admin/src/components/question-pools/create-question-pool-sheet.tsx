@@ -50,13 +50,13 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
         defaultValues: {
             name: '',
             description: '',
-            courseId: undefined,
+            courseMasterId: undefined,
             lessonId: undefined,
             jlptLevel: undefined,
         },
     });
 
-    const selectedCourseId = watch('courseId');
+    const selectedCourseId = watch('courseMasterId');
     const selectedCourse = coursesData?.data?.find(c => c.id === selectedCourseId);
 
     const onSubmit = async (data: CreateQuestionPoolFormData) => {
@@ -123,7 +123,7 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
 
                                 <div className="grid grid-cols-2 gap-6">
                                     <Controller
-                                        name="courseId"
+                                        name="courseMasterId"
                                         control={control}
                                         render={({ field, fieldState }) => (
                                             <Field className="space-y-1" data-invalid={fieldState.invalid}>

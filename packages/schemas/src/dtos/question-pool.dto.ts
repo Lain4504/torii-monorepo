@@ -6,7 +6,7 @@ export const questionPoolCreateDTOSchema = questionPoolSchema
     .pick({
         name: true,
         description: true,
-        courseId: true,
+        courseMasterId: true,
         lessonId: true,
         jlptLevel: true,
         createdBy: true,
@@ -21,7 +21,7 @@ export const questionPoolUpdateDTOSchema = questionPoolSchema
     .pick({
         name: true,
         description: true,
-        courseId: true,
+        courseMasterId: true,
         lessonId: true,
         jlptLevel: true,
     })
@@ -32,7 +32,7 @@ export type QuestionPoolUpdateDTO = z.infer<typeof questionPoolUpdateDTOSchema>;
 export const questionPoolQueryDTOSchema = z.object({
     page: z.coerce.number().min(1).default(1),
     limit: z.coerce.number().min(1).default(10),
-    courseId: z.string().uuid().optional(),
+    courseMasterId: z.string().uuid().optional(),
     lessonId: z.string().uuid().optional(),
     jlptLevel: z.nativeEnum(QuestionJlptLevel).optional(),
     search: z.string().optional(),

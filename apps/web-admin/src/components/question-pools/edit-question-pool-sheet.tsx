@@ -53,13 +53,13 @@ export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestio
         defaultValues: {
             name: '',
             description: '',
-            courseId: undefined,
+            courseMasterId: undefined,
             lessonId: undefined,
             jlptLevel: undefined,
         },
     });
 
-    const selectedCourseId = watch('courseId');
+    const selectedCourseId = watch('courseMasterId');
     const selectedCourse = coursesData?.data?.find(c => c.id === selectedCourseId);
 
     useEffect(() => {
@@ -67,7 +67,7 @@ export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestio
             reset({
                 name: pool.name,
                 description: pool.description || '',
-                courseId: pool.courseId || undefined,
+                courseMasterId: pool.courseMasterId || undefined,
                 lessonId: pool.lessonId || undefined,
                 jlptLevel: pool.jlptLevel as QuestionJlptLevel || undefined,
             });
@@ -141,7 +141,7 @@ export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestio
 
                                 <div className="grid grid-cols-2 gap-6">
                                     <Controller
-                                        name="courseId"
+                                        name="courseMasterId"
                                         control={control}
                                         render={({ field, fieldState }) => (
                                             <Field className="space-y-1" data-invalid={fieldState.invalid}>

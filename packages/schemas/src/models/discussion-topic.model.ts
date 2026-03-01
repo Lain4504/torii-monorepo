@@ -18,7 +18,7 @@ export const discussionTopicModelSchema = baseModelSchema.extend({
   title: z.string().max(255),
   content: z.string(),
   authorId: z.string().uuid(),
-  courseId: z.string().uuid(),
+  courseRunId: z.string().uuid(),
   moduleId: z.string().uuid().nullable().optional(),
   lessonId: z.string().uuid().nullable().optional(),
   category: z.nativeEnum(DiscussionTopicCategory).default(DiscussionTopicCategory.GENERAL),

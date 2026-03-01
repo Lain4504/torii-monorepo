@@ -52,8 +52,8 @@ export class LearningProgressController {
         }
     }
 
-    @Get('completed-lessons/:courseId')
-    async getCompletedLessons(@Req() req: ReqWithRequester, @Param('courseId') courseMasterId: string) {
+    @Get('completed-lessons/:courseMasterId')
+    async getCompletedLessons(@Req() req: ReqWithRequester, @Param('courseMasterId') courseMasterId: string) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(

@@ -31,6 +31,7 @@ export const assignmentSchema = z.object({
 
   // Associated with (at least one required)
   courseMasterId: z.string().uuid().optional(),
+  courseRunId: z.string().uuid().optional(),
   moduleId: z.string().uuid().optional(),
   lessonId: z.string().uuid().optional(),
 
@@ -81,6 +82,7 @@ export const submissionSchema = z.object({
   id: z.string().uuid(),
   assignmentId: z.string().uuid(),
   userId: z.string().uuid(),
+  courseRunId: z.string().uuid(),
 
   // Submission content
   textAnswer: z.string().optional(),

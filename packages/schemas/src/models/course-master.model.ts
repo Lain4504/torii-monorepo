@@ -44,8 +44,6 @@ export const courseMasterSchema = z.object({
     aiMetadata: z.record(z.any()).default({}), // JSONB
     thumbnailUrl: z.string().optional(),
     previewVideoUrl: z.string().optional(),
-    price: z.number().min(0),
-    discountPrice: z.number().min(0).optional(),
     liveConfig: z.record(z.any()).optional().nullable(), // JSONB
     durationWeeks: z.number().min(0).optional(),         // Thời lượng nội dung khóa học (hiển thị)
     expirationMonths: z.number().int().min(1).max(6).optional(), // 1-6 tháng: thời hạn truy cập
@@ -55,7 +53,6 @@ export const courseMasterSchema = z.object({
     averageRating: z.number().default(0),
     totalReviews: z.number().default(0),
     status: z.nativeEnum(CourseMasterStatus), // Computed field derived from approvedBy/approvedAt
-    isFree: z.boolean().default(false),
     tags: z.array(z.string()).optional(),
     learningOutcomes: z.any().optional(), // JSONB
     requirements: z.any().optional(), // JSONB

@@ -144,7 +144,7 @@ export default function CourseReviewsPage() {
                                             <div>
                                                 <p className="text-xs font-medium text-muted-foreground mb-0.5">Khóa học</p>
                                                 <p className="text-sm font-semibold text-foreground">
-                                                    {reviewDetail.courseTitle || reviewDetail.courseId}
+                                                    {reviewDetail.courseTitle || reviewDetail.courseRunId}
                                                 </p>
                                             </div>
                                             <div className="flex flex-col items-end gap-1">

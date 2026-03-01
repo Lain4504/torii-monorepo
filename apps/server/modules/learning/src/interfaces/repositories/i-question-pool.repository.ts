@@ -43,7 +43,7 @@ export interface IQuestionPoolRepository {
     /**
      * Find pools by course
      */
-    findByCourse(courseId: string): Promise<QuestionPool[]>;
+    findByCourse(courseMasterId: string): Promise<QuestionPool[]>;
 
     /**
      * Find pools by lesson

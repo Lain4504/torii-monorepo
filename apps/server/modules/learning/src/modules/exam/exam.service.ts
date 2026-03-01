@@ -41,7 +41,7 @@ export class ExamService implements IExamService {
      * Get all exams with user session status
      * GET /api/v1/exams (with userId to get session status)
      */
-    async findAllWithStatus(query: ExamQueryDTO, userId?: string): Promise<PaginatedResponseDTO<ExamWithStatusResponseDTO>> {
+    async findAllWithStatus(userId: string, query: ExamQueryDTO): Promise<PaginatedResponseDTO<ExamWithStatusResponseDTO>> {
         try {
             const {
                 page = 1,
@@ -49,6 +49,8 @@ export class ExamService implements IExamService {
                 jlptLevel,
                 examType,
                 status,
+                courseMasterId,
+                courseRunId,
                 search,
             } = query;
 
@@ -85,9 +87,9 @@ export class ExamService implements IExamService {
                 whereClause.lessonId = (query as any).lessonId;
             }
 
-            // Filter by courseId if provided
-            if ((query as any).courseId) {
-                whereClause.courseId = (query as any).courseId;
+            // Filter by courseMasterId if provided
+            if ((query as any).courseMasterId) {
+                whereClause.courseMasterId = (query as any).courseMasterId;
             }
 
             this.logger.log(`Fetching quizzes (exams) with filters: ${JSON.stringify(whereClause)}`);
@@ -142,6 +144,7 @@ export class ExamService implements IExamService {
                         ...examDto,
                         sessionStatus: attempt ? (attempt.status as ExamSessionStatus) : undefined,
                         sessionId: attempt?.id,
+                        courseRunId: q.courseRunId ?? undefined,
                         score: attempt?.status === ExamSessionStatus.SUBMITTED ? this.calculateScore(attempt) : undefined,
                         maxScore: q.totalQuestions,
                         progress: attempt ? this.calculateProgress(attempt, q.totalQuestions) : undefined,
@@ -232,7 +235,7 @@ export class ExamService implements IExamService {
      * Start an exam session
      * POST /api/exams/:id/start
      */
-    async startExam(examId: string, userId: string): Promise<ExamSessionStartResponseDTO> {
+    async startExam(examId: string, userId: string, courseRunId: string): Promise<ExamSessionStartResponseDTO> {
         try {
             // Find quiz (using examId parameter for API compatibility)
             const quiz = await this.examRepository.findById(examId);
@@ -252,6 +255,7 @@ export class ExamService implements IExamService {
                 where: {
                     quizId: examId,
                     userId,
+                    courseRunId,
                     status: ExamSessionStatus.IN_PROGRESS,
                 },
             });
@@ -266,6 +270,7 @@ export class ExamService implements IExamService {
             const existingAttemptsCount = await this.examRepository.countAttempts({
                 quizId: examId,
                 userId,
+                courseRunId,
                 status: { in: [ExamSessionStatus.SUBMITTED, ExamSessionStatus.COMPLETED] },
             });
 
@@ -288,6 +293,7 @@ export class ExamService implements IExamService {
             // Create new attempt
             const attempt = await this.examRepository.createAttempt({
                 quiz: { connect: { id: examId } },
+                courseRun: { connect: { id: courseRunId } },
                 userId,
                 status: ExamSessionStatus.IN_PROGRESS,
                 startedAt: new Date(),
@@ -297,7 +303,8 @@ export class ExamService implements IExamService {
                 currentSection: (quiz.sections as any[])?.[0]?.type || null,
                 currentQuestion: 1,
                 attemptNumber: attemptNumber,
-            });
+                courseRunId,
+            } as any);
 
             return this.buildSessionStartResponse(attempt, quiz, questions);
         } catch (error: any) {
@@ -880,13 +887,15 @@ export class ExamService implements IExamService {
                 showExplanation: false, // Default
                 status: ExamStatus.DRAFT,
                 createdBy: requester.sub,
-            });
+                courseMasterId: dto.courseMasterId,
+                courseRunId: dto.courseRunId,
+            } as any);
 
             this.logger.log(`Exam ${quiz.id} created by ${requester.sub}`);
 
             // Trigger stats recalculation for associated course via NATS
-            if (quiz.courseId) {
-                this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseId: quiz.courseId });
+            if (quiz.courseMasterId) {
+                this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseMasterId: quiz.courseMasterId });
             } else if (quiz.lessonId) {
                 // If linked to a lesson, find its course
                 const lesson = await this.prisma.lesson.findUnique({
@@ -894,7 +903,7 @@ export class ExamService implements IExamService {
                     include: { module: true }
                 });
                 if (lesson?.module?.courseMasterId) {
-                    this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseId: lesson.module.courseMasterId });
+                    this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseMasterId: lesson.module.courseMasterId });
                 }
             }
 
@@ -928,6 +937,8 @@ export class ExamService implements IExamService {
             if (dto.examType !== undefined) updateData.quizType = dto.examType;
             if (dto.totalTime !== undefined) updateData.totalTime = dto.totalTime;
             if (dto.status !== undefined) updateData.status = dto.status;
+            if (dto.courseMasterId !== undefined) updateData.courseMasterId = dto.courseMasterId;
+            if (dto.courseRunId !== undefined) updateData.courseRunId = dto.courseRunId;
 
             // Update sections if provided
             if (dto.sections !== undefined) {
@@ -941,7 +952,8 @@ export class ExamService implements IExamService {
 
             // Recalculate stats for both OLD and NEW associations via NATS if status or association changed
             const statusChanged = dto.status !== undefined && dto.status !== (existingQuiz as any).status;
-            const associationChanged = ((dto as any).courseId !== undefined && (dto as any).courseId !== (existingQuiz as any).courseId) ||
+            const associationChanged = ((dto as any).courseMasterId !== undefined && (dto as any).courseMasterId !== (existingQuiz as any).courseMasterId) ||
+                ((dto as any).courseRunId !== undefined && (dto as any).courseRunId !== (existingQuiz as any).courseRunId) ||
                 ((dto as any).lessonId !== undefined && (dto as any).lessonId !== (existingQuiz as any).lessonId);
 
             if (statusChanged || associationChanged) {
@@ -949,7 +961,7 @@ export class ExamService implements IExamService {
                 const affectedCourses = new Set<string>();
 
                 const getCourseIds = async (quiz: any) => {
-                    if (quiz.courseId) return [quiz.courseId];
+                    if (quiz.courseMasterId) return [quiz.courseMasterId];
                     if (quiz.lessonId) {
                         const lesson = await this.prisma.lesson.findUnique({
                             where: { id: quiz.lessonId },
@@ -966,8 +978,8 @@ export class ExamService implements IExamService {
                 oldIds.forEach(id => affectedCourses.add(id));
                 newIds.forEach(id => affectedCourses.add(id));
 
-                for (const courseId of affectedCourses) {
-                    this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseId });
+                for (const courseMasterId of affectedCourses) {
+                    this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseMasterId });
                 }
             }
 
@@ -997,15 +1009,15 @@ export class ExamService implements IExamService {
             this.logger.log(`Exam ${examId} deleted by ${requester.sub}`);
 
             // Trigger stats recalculation via NATS
-            if ((quiz as any).courseId) {
-                this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseId: (quiz as any).courseId });
+            if ((quiz as any).courseMasterId) {
+                this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseMasterId: (quiz as any).courseMasterId });
             } else if ((quiz as any).lessonId) {
                 const lesson = await this.prisma.lesson.findUnique({
                     where: { id: (quiz as any).lessonId },
                     include: { module: true }
                 });
                 if (lesson?.module?.courseMasterId) {
-                    this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseId: lesson.module.courseMasterId });
+                    this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseMasterId: lesson.module.courseMasterId });
                 }
             }
         } catch (error: any) {

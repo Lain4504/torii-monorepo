@@ -25,8 +25,8 @@ export class LiveSessionController {
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy
     ) { }
 
-    @Get('course/:courseId')
-    async findByCourse(@Param('courseId') courseMasterId: string) {
+    @Get('course/:courseMasterId')
+    async findByCourse(@Param('courseMasterId') courseMasterId: string) {
         const result = await firstValueFrom(
             this.natsClient.send({ cmd: 'learning.liveSession.findByCourseId' }, { courseMasterId })
         );

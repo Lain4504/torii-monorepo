@@ -16,13 +16,14 @@ import { LessonDiscussion } from './lesson-discussion'
 
 interface LessonContentProps {
     description: string;
-    courseId?: string;
+    courseRunId?: string;
+    courseMasterId?: string;
     courseSlug?: string;
     lessonId?: string;
     moduleId?: string;
 }
 
-export function LessonContent({ description, courseId, courseSlug, lessonId, moduleId }: LessonContentProps) {
+export function LessonContent({ description, courseRunId, courseMasterId, courseSlug, lessonId, moduleId }: LessonContentProps) {
     return (
         <Tabs defaultValue="content" className="w-full">
             <TabsList>
@@ -96,8 +97,8 @@ export function LessonContent({ description, courseId, courseSlug, lessonId, mod
             </TabsContent>
 
             <TabsContent value="assignments" className="animate-in fade-in slide-in-from-bottom-2 duration-300 outline-none mt-6">
-                {courseId && courseSlug ? (
-                    <CourseAssignmentsList courseId={courseId} courseSlug={courseSlug} />
+                {courseMasterId && courseSlug ? (
+                    <CourseAssignmentsList courseId={courseMasterId} courseSlug={courseSlug} />
                 ) : (
                     <div className="flex flex-col items-center justify-center p-12 text-center space-y-4 rounded-lg border bg-muted/20">
                         <div className="size-16 bg-background rounded-lg flex items-center justify-center border shadow-sm">
@@ -114,8 +115,8 @@ export function LessonContent({ description, courseId, courseSlug, lessonId, mod
             </TabsContent>
 
             <TabsContent value="comments" className="animate-in fade-in slide-in-from-bottom-2 duration-300 outline-none mt-6">
-                {lessonId && courseId ? (
-                    <LessonDiscussion courseId={courseId} moduleId={moduleId} lessonId={lessonId} />
+                {lessonId && courseRunId ? (
+                    <LessonDiscussion courseRunId={courseRunId} moduleId={moduleId} lessonId={lessonId} />
                 ) : (
                     <div className="flex flex-col items-center justify-center p-12 text-center space-y-4 rounded-lg border bg-muted/20">
                         <div className="size-16 bg-background rounded-lg flex items-center justify-center border shadow-sm">

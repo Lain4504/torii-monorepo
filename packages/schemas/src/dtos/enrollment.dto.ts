@@ -25,8 +25,7 @@ export const enrollmentResponseDTOSchema = enrollmentSchema.extend({
 export type EnrollmentResponseDTO = z.infer<typeof enrollmentResponseDTOSchema>;
 
 export const enrollmentCreateDTOSchema = z.object({
-    courseId: z.string().uuid(),
-    courseRunId: z.string().uuid().optional(),
+    courseRunId: z.string().uuid(),
     isGift: z.boolean().optional(),
     giftMessage: z.string().optional(),
     senderId: z.string().uuid().optional(),
@@ -35,15 +34,15 @@ export const enrollmentCreateDTOSchema = z.object({
 export type EnrollmentCreateDTO = z.infer<typeof enrollmentCreateDTOSchema>;
 
 export const trialEnrollmentCreateDTOSchema = z.object({
-    courseId: z.string().uuid(),
-    courseRunId: z.string().uuid().optional(),
+    courseRunId: z.string().uuid(),
 });
 
 export type TrialEnrollmentCreateDTO = z.infer<typeof trialEnrollmentCreateDTOSchema>;
 
 export const enrollmentQueryDTOSchema = paginationQuerySchema.extend({
     userId: z.string().uuid().optional(),
-    courseId: z.string().uuid().optional(),
+    courseMasterId: z.string().uuid().optional(),
+    courseRunId: z.string().uuid().optional(),
     status: z.nativeEnum(EnrollmentStatus).optional(),
 });
 

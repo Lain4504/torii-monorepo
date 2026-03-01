@@ -94,13 +94,16 @@ export class ExamController {
     }
 
     @Post(':id/start')
-    async startExam(@Param('id') examId: string, @Req() req: ReqWithRequester) {
+    async startExam(
+        @Param('id') examId: string,
+        @Body('courseRunId') courseRunId: string,
+        @Req() req: ReqWithRequester
+    ) {
         try {
-            const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.exam.startExam' },
-                    { examId, requester: req.requester }
+                    { examId, courseRunId, requester: req.requester }
                 )
             );
             return successResponse({ session: result });

@@ -37,11 +37,11 @@ export class CartController {
     }
 
     @Post('items')
-    async addToCart(@Body() body: { courseId: string }, @Req() req: ReqWithRequester) {
+    async addToCart(@Body() body: { courseRunId: string }, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(
-                this.natsClient.send('cart.add', { userId: requester.sub, courseId: body.courseId })
+                this.natsClient.send('cart.add', { userId: requester.sub, courseRunId: body.courseRunId })
             );
             return successResponse(result);
         } catch (error: any) {
@@ -49,12 +49,12 @@ export class CartController {
         }
     }
 
-    @Delete('items/:courseId')
-    async removeFromCart(@Param('courseId') courseId: string, @Req() req: ReqWithRequester) {
+    @Delete('items/:courseRunId')
+    async removeFromCart(@Param('courseRunId') courseRunId: string, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(
-                this.natsClient.send('cart.remove', { userId: requester.sub, courseId })
+                this.natsClient.send('cart.remove', { userId: requester.sub, courseRunId })
             );
             return successResponse(result);
         } catch (error: any) {

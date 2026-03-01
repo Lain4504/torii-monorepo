@@ -11,9 +11,9 @@ export interface IWishlistRepository {
     findById(id: string): Promise<Wishlist | null>;
 
     /**
-     * Find wishlist by user and course
+     * Find wishlist by user and course run
      */
-    findByUserAndCourse(userId: string, courseId: string): Promise<Wishlist | null>;
+    findByUserAndCourseRun(userId: string, courseRunId: string): Promise<Wishlist | null>;
 
     /**
      * Find all wishlists with pagination and filters

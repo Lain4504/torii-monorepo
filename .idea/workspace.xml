@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: Rename course-related entities to use 'courseMaster' terminology and update related references" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="migation other code" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -239,46 +239,8 @@
       <workItem from="1772380160724" duration="1294000" />
       <workItem from="1772382138028" duration="734000" />
       <workItem from="1772385988999" duration="611000" />
-    </task>
-    <task id="LOCAL-00844" summary="refactor: update text labels to Vietnamese for consistency across multiple components">
-      <option name="closed" value="true" />
-      <created>1771691195864</created>
-      <option name="number" value="00844" />
-      <option name="presentableId" value="LOCAL-00844" />
-      <option name="project" value="LOCAL" />
-      <updated>1771691195864</updated>
-    </task>
-    <task id="LOCAL-00845" summary="refactor: update text labels to Vietnamese for consistency across multiple components">
-      <option name="closed" value="true" />
-      <created>1771691235973</created>
-      <option name="number" value="00845" />
-      <option name="presentableId" value="LOCAL-00845" />
-      <option name="project" value="LOCAL" />
-      <updated>1771691235973</updated>
-    </task>
-    <task id="LOCAL-00846" summary="refactor: update button styles and labels for consistency across multiple sheets">
-      <option name="closed" value="true" />
-      <created>1771691864181</created>
-      <option name="number" value="00846" />
-      <option name="presentableId" value="LOCAL-00846" />
-      <option name="project" value="LOCAL" />
-      <updated>1771691864182</updated>
-    </task>
-    <task id="LOCAL-00847" summary="refactor: update button styles and labels for consistency across multiple sheets">
-      <option name="closed" value="true" />
-      <created>1771692003490</created>
-      <option name="number" value="00847" />
-      <option name="presentableId" value="LOCAL-00847" />
-      <option name="project" value="LOCAL" />
-      <updated>1771692003490</updated>
-    </task>
-    <task id="LOCAL-00848" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
-      <option name="closed" value="true" />
-      <created>1771692669428</created>
-      <option name="number" value="00848" />
-      <option name="presentableId" value="LOCAL-00848" />
-      <option name="project" value="LOCAL" />
-      <updated>1771692669428</updated>
+      <workItem from="1772391988089" duration="121000" />
+      <workItem from="1772411315507" duration="3844000" />
     </task>
     <task id="LOCAL-00849" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
       <option name="closed" value="true" />
@@ -632,7 +594,47 @@
       <option name="project" value="LOCAL" />
       <updated>1772386505816</updated>
     </task>
-    <option name="localTasksCounter" value="893" />
+    <task id="LOCAL-00893" summary="migation other code">
+      <option name="closed" value="true" />
+      <created>1772411322189</created>
+      <option name="number" value="00893" />
+      <option name="presentableId" value="LOCAL-00893" />
+      <option name="project" value="LOCAL" />
+      <updated>1772411322189</updated>
+    </task>
+    <task id="LOCAL-00894" summary="migation other code">
+      <option name="closed" value="true" />
+      <created>1772412067326</created>
+      <option name="number" value="00894" />
+      <option name="presentableId" value="LOCAL-00894" />
+      <option name="project" value="LOCAL" />
+      <updated>1772412067326</updated>
+    </task>
+    <task id="LOCAL-00895" summary="migation other code">
+      <option name="closed" value="true" />
+      <created>1772412835150</created>
+      <option name="number" value="00895" />
+      <option name="presentableId" value="LOCAL-00895" />
+      <option name="project" value="LOCAL" />
+      <updated>1772412835150</updated>
+    </task>
+    <task id="LOCAL-00896" summary="migation other code">
+      <option name="closed" value="true" />
+      <created>1772415334643</created>
+      <option name="number" value="00896" />
+      <option name="presentableId" value="LOCAL-00896" />
+      <option name="project" value="LOCAL" />
+      <updated>1772415334643</updated>
+    </task>
+    <task id="LOCAL-00897" summary="migation other code">
+      <option name="closed" value="true" />
+      <created>1772416644103</created>
+      <option name="number" value="00897" />
+      <option name="presentableId" value="LOCAL-00897" />
+      <option name="project" value="LOCAL" />
+      <updated>1772416644103</updated>
+    </task>
+    <option name="localTasksCounter" value="898" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -680,7 +682,8 @@
     <MESSAGE value="feat: Add updateStatus and getStudents methods to CourseRun service and controller" />
     <MESSAGE value="feat: Implement attendance processing for live sessions and add course run status update functionality" />
     <MESSAGE value="refactor: Rename course-related entities to use 'courseMaster' terminology and update related references" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: Rename course-related entities to use 'courseMaster' terminology and update related references" />
+    <MESSAGE value="migation other code" />
+    <option name="LAST_COMMIT_MESSAGE" value="migation other code" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

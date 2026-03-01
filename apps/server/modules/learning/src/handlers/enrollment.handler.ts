@@ -21,8 +21,8 @@ export class EnrollmentHandler {
     }
 
     @MessagePattern({ cmd: 'learning.enrollment.check' })
-    async checkEnrollment(@Payload() data: { userId: string, courseId: string }) {
-        return this.enrollmentService.checkEnrollmentDetails(data.userId, data.courseId);
+    async checkEnrollment(@Payload() data: { userId: string, courseRunId: string }) {
+        return this.enrollmentService.checkEnrollmentDetails(data.userId, data.courseRunId);
     }
 
     @MessagePattern({ cmd: 'learning.enrollment.create' })
@@ -32,8 +32,8 @@ export class EnrollmentHandler {
     }
 
     @MessagePattern({ cmd: 'learning.enrollment.createTrial' })
-    async createTrial(@Payload() data: { userId: string; courseId: string }) {
-        return this.enrollmentService.createTrial(data.userId, { courseId: data.courseId });
+    async createTrial(@Payload() data: { userId: string; courseRunId: string }) {
+        return this.enrollmentService.createTrial(data.userId, { courseRunId: data.courseRunId });
     }
 
     @MessagePattern({ cmd: 'learning.enrollment.activate' })
@@ -52,28 +52,28 @@ export class EnrollmentHandler {
     }
 
     @MessagePattern({ cmd: 'learning.enrollment.checkAccess' })
-    async checkAccess(@Payload() data: { userId: string, courseId: string, lessonId?: string }) {
-        return this.enrollmentService.checkAccess(data.userId, data.courseId, data.lessonId);
+    async checkAccess(@Payload() data: { userId: string, courseMasterId: string, lessonId?: string }) {
+        return this.enrollmentService.checkAccess(data.userId, data.courseMasterId, data.lessonId);
     }
 
     @MessagePattern({ cmd: 'learning.enrollment.getAccessibleLessonIds' })
-    async getAccessibleLessonIds(@Payload() data: { userId: string, courseId: string }) {
-        return this.enrollmentService.getAccessibleLessonIds(data.userId, data.courseId);
+    async getAccessibleLessonIds(@Payload() data: { userId: string, courseMasterId: string }) {
+        return this.enrollmentService.getAccessibleLessonIds(data.userId, data.courseMasterId);
     }
 
     @MessagePattern({ cmd: 'learning.enrollment.isEnrolled' })
-    async isEnrolled(@Payload() data: { userId: string, courseId: string }) {
-        return this.enrollmentService.isEnrolled(data.userId, data.courseId);
+    async isEnrolled(@Payload() data: { userId: string, courseMasterId: string }) {
+        return this.enrollmentService.isEnrolled(data.userId, data.courseMasterId);
     }
 
     @MessagePattern({ cmd: 'learning.enrollment.delete' })
-    async delete(@Payload() data: { userId: string, courseId: string }) {
-        return this.enrollmentService.deleteByUserAndCourse(data.userId, data.courseId);
+    async delete(@Payload() data: { userId: string, courseRunId: string }) {
+        return this.enrollmentService.deleteByUserAndCourseRun(data.userId, data.courseRunId);
     }
 
     @MessagePattern({ cmd: 'learning.enrollment.upgradeVersion' })
-    async upgradeVersion(@Payload() data: { userId: string, courseId: string }) {
-        return this.enrollmentService.upgradeVersion(data.userId, data.courseId);
+    async upgradeVersion(@Payload() data: { userId: string, courseMasterId: string }) {
+        return this.enrollmentService.upgradeVersion(data.userId, data.courseMasterId);
     }
 }
 

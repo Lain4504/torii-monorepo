@@ -17,7 +17,7 @@ export class ExamHandler {
 
     @MessagePattern({ cmd: 'learning.exam.findAllWithStatus' })
     async findAllWithStatus(@Payload() data: { query: ExamQueryDTO, requester: Requester }) {
-        return this.examService.findAllWithStatus(data.query, data.requester.sub);
+        return this.examService.findAllWithStatus(data.requester.sub, data.query);
     }
 
     @MessagePattern({ cmd: 'learning.exam.getUserSessions' })
@@ -36,8 +36,8 @@ export class ExamHandler {
     }
 
     @MessagePattern({ cmd: 'learning.exam.startExam' })
-    async startExam(@Payload() data: { examId: string, requester: Requester }) {
-        return this.examService.startExam(data.examId, data.requester.sub);
+    async startExam(@Payload() data: { examId: string, courseRunId: string, requester: Requester }) {
+        return this.examService.startExam(data.examId, data.requester.sub, data.courseRunId);
     }
 
     @MessagePattern({ cmd: 'learning.exam.getAttemptDetails' })

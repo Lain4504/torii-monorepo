@@ -125,7 +125,7 @@ export class CouponService implements ICouponService {
      */
     async create(requester: Requester, dto: CouponCreateDTO): Promise<CouponResponseDTO> {
         this.logger.log(`Creating coupon with requester role: ${requester.role} (sub: ${requester.sub})`);
-        
+
         // Check permissions (only ADMIN and STAFF* can create coupons)
         if (![UserRole.ADMIN, UserRole.STAFF, UserRole.STAFF_FINANCE, UserRole.STAFF_SALES].includes(requester.role as UserRole)) {
             this.logger.warn(`Permission denied. UserRole: ${requester.role} is not authorized`);
@@ -181,15 +181,15 @@ export class CouponService implements ICouponService {
                 discountValue: dto.discountValue,
                 maxDiscountAmount: dto.maxDiscountAmount || null,
                 minOrderAmount: dto.minOrderAmount || null,
-                applicableCourseIds: dto.applicableCourseIds || [],
-                excludedCourseIds: dto.excludedCourseIds || [],
+                applicableCourseMasterIds: dto.applicableCourseMasterIds || [],
+                excludedCourseMasterIds: dto.excludedCourseMasterIds || [],
                 validFrom,
                 validUntil,
                 usageLimit: dto.usageLimit || null,
                 userUsageLimit: dto.userUsageLimit || 1,
                 status: dto.status || CouponStatus.ACTIVE,
                 creator: requester.sub ? { connect: { id: requester.sub } } : undefined,
-            });
+            } as any);
 
             // Log Audit
             await this.logAudit({
@@ -296,7 +296,6 @@ export class CouponService implements ICouponService {
                 throw new BadRequestException('User usage limit must be greater than 0');
             }
 
-            // Update coupon
             const updatedCoupon = await this.couponRepository.update(couponId, {
                 code: dto.code ? dto.code.toUpperCase() : undefined,
                 name: dto.name,
@@ -305,14 +304,16 @@ export class CouponService implements ICouponService {
                 discountValue: dto.discountValue,
                 maxDiscountAmount: dto.maxDiscountAmount !== undefined ? dto.maxDiscountAmount : undefined,
                 minOrderAmount: dto.minOrderAmount !== undefined ? dto.minOrderAmount : undefined,
-                applicableCourseIds: dto.applicableCourseIds,
-                excludedCourseIds: dto.excludedCourseIds,
+                applicableCourseMasterIds: dto.applicableCourseMasterIds,
+                excludedCourseMasterIds: dto.excludedCourseMasterIds,
+                applicableRunIds: dto.applicableRunIds, // Added
+                excludedRunIds: dto.excludedRunIds, // Added
                 validFrom: dto.validFrom ? validFrom : undefined,
                 validUntil: dto.validUntil ? validUntil : undefined,
                 usageLimit: dto.usageLimit !== undefined ? dto.usageLimit : undefined,
                 userUsageLimit: dto.userUsageLimit,
                 status: dto.status,
-            });
+            } as any);
 
             // Log Audit
             await this.logAudit({
@@ -407,8 +408,6 @@ export class CouponService implements ICouponService {
             }
 
             // 4. Check usage limit
-            // Reject if usageCount has reached or exceeded usageLimit
-            // Logic: usageCount < usageLimit means coupon is still available
             if (coupon.usageLimit !== null && coupon.usageCount >= coupon.usageLimit) {
                 return {
                     isValid: false,
@@ -431,14 +430,41 @@ export class CouponService implements ICouponService {
                 }
             }
 
-            // 6. Get course info
+            // 6. Get course/run info and determine base price
             let course: any;
-            try {
-                course = await firstValueFrom(
-                    this.natsClient.send({ cmd: 'learning.course.findById' }, { id: request.courseId })
-                );
-            } catch (error) {
-                this.logger.error(`Failed to fetch course ${request.courseId}`, error);
+            let courseRun: any;
+            let basePrice = 0;
+
+            if (request.courseRunId) {
+                try {
+                    courseRun = await firstValueFrom(
+                        this.natsClient.send({ cmd: 'learning.courserun.findById' }, { id: request.courseRunId })
+                    );
+                    if (courseRun) {
+                        basePrice = Number(courseRun.discountPrice ?? courseRun.price);
+                        if (!request.courseMasterId || request.courseMasterId !== courseRun.courseMasterId) {
+                            request.courseMasterId = courseRun.courseMasterId;
+                        }
+                    }
+                } catch (error) {
+                    this.logger.error(`Failed to fetch course run ${request.courseRunId}`, error);
+                }
+            }
+
+            if (basePrice === 0 && request.courseMasterId) {
+                try {
+                    course = await firstValueFrom(
+                        this.natsClient.send({ cmd: 'learning.coursemaster.findById' }, { id: request.courseMasterId })
+                    );
+                    if (course) {
+                        basePrice = Number(course.price || 0);
+                    }
+                } catch (error) {
+                    this.logger.error(`Failed to fetch course ${request.courseMasterId}`, error);
+                }
+            }
+
+            if (!courseRun && !course) {
                 return {
                     isValid: false,
                     coupon: this.mapper.map(coupon, 'Coupon', 'CouponResponseDTO'),
@@ -447,28 +473,55 @@ export class CouponService implements ICouponService {
                 };
             }
 
-            // 7. Check course applicability
-            if (coupon.applicableCourseIds.length > 0 && !coupon.applicableCourseIds.includes(request.courseId)) {
+            // 7. Check free course
+            if ((course && course.isFree) || basePrice === 0) {
                 return {
                     isValid: false,
                     coupon: this.mapper.map(coupon, 'Coupon', 'CouponResponseDTO'),
                     discountAmount: null,
-                    message: 'Coupon không áp dụng cho khóa học này',
+                    message: 'Khóa học miễn phí không cần coupon',
                 };
             }
 
-            // 8. Check course exclusion
-            if (coupon.excludedCourseIds.length > 0 && coupon.excludedCourseIds.includes(request.courseId)) {
+            // 8. Check applicability
+            const isRestrictedByApplicable = (coupon.applicableCourseMasterIds?.length > 0) || (coupon.applicableRunIds?.length > 0);
+            if (isRestrictedByApplicable) {
+                let isApplicable = false;
+                if (request.courseRunId && coupon.applicableRunIds?.includes(request.courseRunId)) {
+                    isApplicable = true;
+                } else if (request.courseMasterId && coupon.applicableCourseMasterIds?.includes(request.courseMasterId)) {
+                    isApplicable = true;
+                }
+
+                if (!isApplicable) {
+                    return {
+                        isValid: false,
+                        coupon: this.mapper.map(coupon, 'Coupon', 'CouponResponseDTO'),
+                        discountAmount: null,
+                        message: 'Coupon không áp dụng cho khóa học này',
+                    };
+                }
+            }
+
+            // 9. Check exclusions
+            if (request.courseRunId && coupon.excludedRunIds?.includes(request.courseRunId)) {
                 return {
                     isValid: false,
                     coupon: this.mapper.map(coupon, 'Coupon', 'CouponResponseDTO'),
                     discountAmount: null,
-                    message: 'Coupon không áp dụng cho khóa học này',
+                    message: 'Coupon này bị loại trừ cho đợt học này',
+                };
+            }
+            if (request.courseMasterId && coupon.excludedCourseMasterIds?.includes(request.courseMasterId)) {
+                return {
+                    isValid: false,
+                    coupon: this.mapper.map(coupon, 'Coupon', 'CouponResponseDTO'),
+                    discountAmount: null,
+                    message: 'Coupon này bị loại trừ cho khóa học này',
                 };
             }
 
-            // 9. Check min order amount
-            const basePrice = Number(course.discountPrice || course.price);
+            // 10. Check min order amount
             if (coupon.minOrderAmount && basePrice < Number(coupon.minOrderAmount)) {
                 return {
                     isValid: false,
@@ -478,20 +531,11 @@ export class CouponService implements ICouponService {
                 };
             }
 
-            // 10. Check free course
-            if (course.isFree || basePrice === 0) {
-                return {
-                    isValid: false,
-                    coupon: this.mapper.map(coupon, 'Coupon', 'CouponResponseDTO'),
-                    discountAmount: null,
-                    message: 'Khóa học miễn phí không cần coupon',
-                };
-            }
-
             // Calculate discount
             const discountResult = await this.calculateDiscount({
                 couponId: coupon.id,
-                courseId: request.courseId,
+                courseMasterId: request.courseMasterId,
+                courseRunId: request.courseRunId,
                 basePrice,
             });
 
@@ -527,7 +571,6 @@ export class CouponService implements ICouponService {
                 };
             }
 
-            // Quick validation check (should be done before calling this, but double-check)
             const now = new Date();
             if (coupon.status !== CouponStatus.ACTIVE) {
                 return {
@@ -547,23 +590,29 @@ export class CouponService implements ICouponService {
                 };
             }
 
+            let basePrice = request.basePrice;
+            if (basePrice === 0 && request.courseRunId) {
+                try {
+                    const courseRun = await firstValueFrom(
+                        this.natsClient.send({ cmd: 'learning.courserun.findById' }, { id: request.courseRunId })
+                    );
+                    if (courseRun) basePrice = Number(courseRun.discountPrice ?? courseRun.price);
+                } catch (error) {
+                    this.logger.error(`Error fetching run price for discount calculation: ${error.message}`);
+                }
+            }
+
             let discountAmount = 0;
-
             if (coupon.discountType === CouponDiscountType.PERCENTAGE) {
-                // Percentage discount
-                discountAmount = (request.basePrice * Number(coupon.discountValue)) / 100;
-
-                // Apply max discount cap if exists
+                discountAmount = (basePrice * Number(coupon.discountValue)) / 100;
                 if (coupon.maxDiscountAmount) {
                     discountAmount = Math.min(discountAmount, Number(coupon.maxDiscountAmount));
                 }
             } else {
-                // Fixed amount discount
-                discountAmount = Math.min(Number(coupon.discountValue), request.basePrice);
+                discountAmount = Math.min(Number(coupon.discountValue), basePrice);
             }
 
-            // Calculate final price (ensure it's not negative)
-            const finalPrice = Math.max(0, request.basePrice - discountAmount);
+            const finalPrice = Math.max(0, basePrice - discountAmount);
 
             return {
                 discountAmount,
@@ -599,7 +648,7 @@ export class CouponService implements ICouponService {
                 activeCoupons,
                 expiredCoupons,
                 totalUsage,
-                totalDiscountGiven: 0, // Cannot calculate without CouponUsage table
+                totalDiscountGiven: 0,
             };
         } catch (error: any) {
             this.logger.error('Failed to get coupon statistics', error);
@@ -608,40 +657,25 @@ export class CouponService implements ICouponService {
     }
 
     /**
-     * Get available coupons for a course
+     * Get available coupons for a course run
      */
-    async getAvailableCoupons(courseId: string): Promise<CouponResponseDTO[]> {
+    async getAvailableCoupons(courseRunId: string): Promise<CouponResponseDTO[]> {
         try {
-            const now = new Date();
-            const coupons = await this.couponRepository.findMany({
-                skip: 0,
-                take: 100,
-                where: {
-                    status: CouponStatus.ACTIVE,
-                    validFrom: { lte: now },
-                    validUntil: { gte: now },
-                    OR: [
-                        { applicableCourseIds: { isEmpty: true } },
-                        { applicableCourseIds: { has: courseId } },
-                    ],
-                    NOT: {
-                        excludedCourseIds: { has: courseId },
-                    },
-                },
-                orderBy: { createdAt: 'desc' },
-            });
+            let courseMasterId: string | undefined;
+            try {
+                const courseRun = await firstValueFrom(
+                    this.natsClient.send({ cmd: 'learning.courserun.findById' }, { id: courseRunId })
+                );
+                if (courseRun) courseMasterId = courseRun.courseMasterId;
+            } catch (error) {
+                this.logger.error(`Error fetching run ${courseRunId} for available coupons: ${error.message}`);
+            }
 
-            // Filter coupons that haven't reached usage limit
-            // Logic: usageCount < usageLimit (or usageLimit is null for unlimited)
-            const availableCoupons = coupons.filter(coupon => {
-                if (coupon.usageLimit === null) return true; // Unlimited coupons
-                return coupon.usageCount < coupon.usageLimit; // usageCount < usageLimit
-            });
-
-            return this.mapper.mapArray(availableCoupons, 'Coupon', 'CouponResponseDTO');
+            const coupons = await this.couponRepository.findAvailableForCourse(courseMasterId, courseRunId);
+            return this.mapper.mapArray(coupons, 'Coupon', 'CouponResponseDTO');
         } catch (error: any) {
-            this.logger.error('Failed to get available coupons', error);
-            throw new BadRequestException('Failed to get available coupons');
+            this.logger.error(`Error getting available coupons: ${error.message}`, error.stack);
+            return [];
         }
     }
 

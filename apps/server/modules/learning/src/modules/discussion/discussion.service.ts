@@ -28,9 +28,9 @@ export class DiscussionService {
     ) { }
 
     async createDiscussion(userId: string, dto: DiscussionCreateDTO): Promise<DiscussionTopicResponseDTO> {
-        // Validate Course Exists
-        if (!dto.courseId) {
-            throw new NotFoundException('Course ID is required for discussion');
+        // Validate Course Run Exists
+        if (!dto.courseRunId) {
+            throw new NotFoundException('Course Run ID is required for discussion');
         }
 
         const discussion = await this.discussionRepository.create({
@@ -40,9 +40,8 @@ export class DiscussionService {
             isLocked: dto.isLocked || false,
             category: (dto as any).category || DiscussionTopicCategory.GENERAL,
             status: (dto as any).status || DiscussionTopicStatus.OPEN,
-            course: { connect: { id: dto.courseId } },
+            courseRun: { connect: { id: dto.courseRunId } },
             author: { connect: { id: userId } },
-            // Connect optional module/lesson if provided
             ...(dto.moduleId ? { moduleId: dto.moduleId } : {}),
             ...(dto.lessonId ? { lessonId: dto.lessonId } : {}),
         });
@@ -58,8 +57,8 @@ export class DiscussionService {
 
         const where: Prisma.DiscussionTopicWhereInput = {};
 
-        if (query.courseId) {
-            where.courseId = query.courseId;
+        if (query.courseRunId) {
+            where.courseRunId = query.courseRunId;
         }
         if (query.moduleId) {
             where.moduleId = query.moduleId;
@@ -86,9 +85,6 @@ export class DiscussionService {
 
         const orderBy: Prisma.DiscussionTopicOrderByWithRelationInput = {};
 
-        // Priority to pinned topics
-        // Prisma sort by multiple fields: [ { isPinned: 'desc' }, { createdAt: 'desc' } ]
-
         const sortParams: Prisma.DiscussionTopicOrderByWithRelationInput[] = [
             { isPinned: 'desc' }
         ];
@@ -109,7 +105,6 @@ export class DiscussionService {
 
         const dtos = await Promise.all(items.map(async item => {
             const dto = this.mapper.map<any, DiscussionTopicResponseDTO>(item, 'DiscussionTopic', 'DiscussionTopicResponseDTO');
-            // Logic for isLiked if we add likes back. For now, defaulting to false or removing.
             return dto;
         }));
 
@@ -137,7 +132,6 @@ export class DiscussionService {
         if (!discussion) throw new NotFoundException('Discussion not found');
 
         if (discussion.authorId !== userId) {
-            // Check if admin/staff? For now strict ownership.
             throw new Error('Unauthorized to delete this Discussion');
         }
 

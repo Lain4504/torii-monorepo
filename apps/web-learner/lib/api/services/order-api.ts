@@ -33,16 +33,8 @@ export const orderApi = {
      * Create order
      */
     async createOrder(data: OrderCreateDTO): Promise<OrderResponseDTO> {
-        // Include courseId in metadata for course purchase type
-        const payload = {
-            ...data,
-            metadata: {
-                ...(data.metadata || {}),
-                courseId: data.courseId,
-                courseRunId: (data as any).courseRunId,
-            },
-        };
-        const response = await apiClient.post<StandardApiResponse<{ order: OrderResponseDTO }>>('/api/orders', payload);
+        // OrderCreateDTO already includes courseRunId
+        const response = await apiClient.post<StandardApiResponse<{ order: OrderResponseDTO }>>('/api/orders', data);
 
         if (!response.data.success || !response.data.data) {
             throw new Error(response.data.message || 'Failed to create order');
