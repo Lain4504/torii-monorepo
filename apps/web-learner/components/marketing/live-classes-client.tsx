@@ -216,7 +216,7 @@ export function LiveClassesClient() {
                                                         </span>
                                                     )}
                                                     <span className="text-2xl font-black text-foreground tracking-tighter">
-                                                        {(course.discountPrice || course.price).toLocaleString()}đ
+                                                        {(!course.discountPrice && (!course.price || course.price === 0)) ? 'Miễn phí' : `${(course.discountPrice || course.price).toLocaleString()}đ`}
                                                     </span>
                                                 </div>
                                                 <Button

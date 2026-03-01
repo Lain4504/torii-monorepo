@@ -128,10 +128,11 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
             );
         },
         cell: (info) => {
-            const formatted = formatCurrency(info.getValue());
+            const price = info.getValue() as number;
+            const isFree = price == null || price === 0;
             return (
                 <div className="text-center font-semibold text-sm text-foreground tabular-nums tracking-tight">
-                    {formatted}
+                    {isFree ? <span className="text-primary italic">Miễn phí</span> : formatCurrency(price)}
                 </div>
             );
         },

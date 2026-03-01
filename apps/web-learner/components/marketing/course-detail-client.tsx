@@ -422,10 +422,9 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2">
                                             <span className="text-3xl font-extrabold text-foreground">
-                                                {course.discountPrice != null
-                                                    ? `${course.discountPrice.toLocaleString()} ₫`
-                                                    : course.price != null
-                                                        ? `${course.price.toLocaleString()} ₫` : 'Miễn phí'}
+                                                {(!course.discountPrice && (!course.price || course.price === 0))
+                                                    ? 'Miễn phí'
+                                                    : `${(course.discountPrice || course.price).toLocaleString()} ₫`}
                                             </span>
                                             {course.price != null && course.discountPrice != null && course.price > course.discountPrice && (
                                                 <>

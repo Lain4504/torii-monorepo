@@ -56,11 +56,11 @@ export function CourseCard({ course }: CourseCardProps) {
                 </div>
 
                 <div className="pt-2 flex items-center justify-between border-t border-border">
-                    {course.price === 0 ? (
+                    {!course.price || course.price === 0 ? (
                         <span className="text-lg font-bold text-primary italic">Miễn phí</span>
                     ) : (
                         <span className="text-lg font-bold text-foreground">
-                            {Number(course.price || 0).toLocaleString()} ₫
+                            {Number(course.price).toLocaleString()} ₫
                         </span>
                     )}
                     <div className="flex gap-2">
