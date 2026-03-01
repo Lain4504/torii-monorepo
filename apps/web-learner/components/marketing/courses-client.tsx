@@ -17,6 +17,7 @@ import { Input } from '@workspace/ui/components/input';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@workspace/ui/components/input-group';
 import { ToggleGroup, ToggleGroupItem } from '@workspace/ui/components/toggle-group';
 import { useCourses } from '@/lib/api/services/course-api';
+import { CourseCard } from './course-card';
 
 const FadeIn = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => (
     <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay }}>
@@ -39,6 +40,7 @@ export function CoursesClient() {
     const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
     const [priceFilter, setPriceFilter] = useState<'all' | 'free' | 'paid'>('all');
     const [sortBy, setSortBy] = useState('popularity');
+    const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -55,6 +57,7 @@ export function CoursesClient() {
         q: search,
         priceFilter,
         sortBy,
+        topics: selectedTopics,
     });
 
     const courses = coursesData?.data || [];
@@ -72,6 +75,7 @@ export function CoursesClient() {
         setSelectedLevels([]);
         setPriceFilter('all');
         setSortBy('popularity');
+        setSelectedTopics([]);
         setPage(1);
     }, []);
 
@@ -93,25 +97,14 @@ export function CoursesClient() {
             <div className="bg-background text-foreground font-sans">
 
                 {/* Hero Header */}
-                <section className="relative pt-28 pb-14 overflow-hidden">
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,oklch(0.64_0.13_175/0.12),transparent)] pointer-events-none" />
+                <section className="pt-28 pb-12 border-b border-border/50 bg-muted/20">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <FadeIn>
-                            <Breadcrumb className="mb-5">
-                                <BreadcrumbList>
-                                    <BreadcrumbItem><BreadcrumbLink href="/">Trang chủ</BreadcrumbLink></BreadcrumbItem>
-                                    <BreadcrumbSeparator />
-                                    <BreadcrumbItem><BreadcrumbPage>Khóa học</BreadcrumbPage></BreadcrumbItem>
-                                </BreadcrumbList>
-                            </Breadcrumb>
-                            <Badge variant="outline" className="px-4 py-1.5 border-primary/40 text-primary font-bold tracking-widest uppercase text-[10px] mb-5">
-                                <BookOpen className="size-3 mr-1.5" /> Khám phá khóa học
-                            </Badge>
-                            <h1 className="text-5xl md:text-6xl font-black font-serif tracking-tight mb-4 leading-[1.1]">
-                                Danh Mục <span className="text-primary italic">Khóa Học</span>
+                            <h1 className="text-4xl font-bold tracking-tight mb-3">
+                                Khóa học
                             </h1>
-                            <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl">
-                                Tìm khóa học phù hợp với trình độ và mục tiêu của bạn — từ N5 cơ bản đến N1 chuyên gia.
+                            <p className="text-muted-foreground text-lg">
+                                Khám phá các lộ trình học tiếng Nhật toàn diện từ N5 đến N1.
                             </p>
                         </FadeIn>
                     </div>
@@ -181,8 +174,20 @@ export function CoursesClient() {
                                             { id: 'topic-business', label: 'Tiếng Nhật công sở' },
                                         ].map(({ id, label }) => (
                                             <div key={id} className="flex items-center gap-2.5">
-                                                <Checkbox id={id} className="size-3.5" />
-                                                <Label htmlFor={id} className="text-sm cursor-pointer">{label}</Label>
+                                                <Checkbox
+                                                    id={id}
+                                                    className="size-3.5"
+                                                    checked={selectedTopics.includes(id)}
+                                                    onCheckedChange={(checked) => {
+                                                        if (checked) {
+                                                            setSelectedTopics([...selectedTopics, id]);
+                                                        } else {
+                                                            setSelectedTopics(selectedTopics.filter(t => t !== id));
+                                                        }
+                                                        setPage(1);
+                                                    }}
+                                                />
+                                                <Label htmlFor={id} className="text-sm cursor-pointer hover:text-primary transition-colors">{label}</Label>
                                             </div>
                                         ))}
                                     </div>
@@ -234,65 +239,7 @@ export function CoursesClient() {
                             ) : courses.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                                     {courses.map((course) => (
-                                        <Link
-                                            key={course.id}
-                                            href={`/courses/${course.slug || course.id}`}
-                                            className="group bg-card text-card-foreground rounded-xl border border-border overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-                                        >
-                                            <div className="relative aspect-video overflow-hidden">
-                                                {course.thumbnailUrl ? (
-                                                    <img
-                                                        src={course.thumbnailUrl}
-                                                        alt={course.title}
-                                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                                    />
-                                                ) : (
-                                                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 transition-transform duration-500 group-hover:scale-110" />
-                                                )}
-                                                <div className="absolute top-3 left-3 flex gap-2">
-                                                    <span className="bg-primary/90 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">
-                                                        {course.jlptLevel || "N/A"}
-                                                    </span>
-                                                    <span className="bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">
-                                                        {course.jlptLevel || "General"}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div className="p-5 space-y-3">
-                                                <div>
-                                                    <h3 className="font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">{course.title}</h3>
-                                                    <p className="text-xs text-primary font-medium">{course.aiMetadata?.titleEn || "Japanese Course"}</p>
-                                                </div>
-                                                <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                                                    {course.shortDescription || course.description}
-                                                </p>
-                                                <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                                    <div className="flex items-center gap-1">
-                                                        {course.lecturer?.displayName === "AI Assistant" ? (
-                                                            <Bot className="size-4" />
-                                                        ) : (
-                                                            <User className="size-4" />
-                                                        )}
-                                                        <span>{course.lecturer?.displayName || "Torii Instructor"}</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-1">
-                                                        <Star className="size-4 text-yellow-500 fill-current" />
-                                                        <span className="font-bold text-foreground">{Number(course.averageRating).toFixed(1)}</span>
-                                                        <span>({course.totalReviews?.toLocaleString()})</span>
-                                                    </div>
-                                                </div>
-                                                <div className="pt-2 flex items-center justify-between">
-                                                    {course.price === 0 ? (
-                                                        <span className="text-lg font-bold text-primary italic">Free</span>
-                                                    ) : (
-                                                        <span className="text-lg font-bold text-foreground">
-                                                            ¥{Number(course.price).toLocaleString()}
-                                                        </span>
-                                                    )}
-                                                    <Button size="sm">Xem chi tiết</Button>
-                                                </div>
-                                            </div>
-                                        </Link>
+                                        <CourseCard key={course.id} course={course} />
                                     ))}
                                 </div>
                             ) : (

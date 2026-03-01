@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix: enhance course live class logic">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="cômmit" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -17,21 +15,25 @@
       <entry key="_/home/lain4504/SEP490/torii-monorepo" value="3AJuzETpsQRTDgsSxGzPnG3UJUp" />
     </persistenceIdMap>
   </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="1976" />
+    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "Lain4504"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Lain4504&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "git@github.com:Lain4504/torii-monorepo.git",
-    "accountId": "36ac2fd8-9a60-42a4-b2bf-7fe947db4431"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:Lain4504/torii-monorepo.git&quot;,
+    &quot;accountId&quot;: &quot;36ac2fd8-9a60-42a4-b2bf-7fe947db4431&quot;
   }
-}]]></component>
+}</component>
   <component name="GoLibraries">
     <option name="indexEntireGoPath" value="true" />
   </component>
@@ -39,10 +41,10 @@
     <commands />
     <urls />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 6
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 6
+}</component>
   <component name="ProjectId" id="3AJuzETpsQRTDgsSxGzPnG3UJUp" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -59,9 +61,11 @@
     "go.import.settings.migrated": "true",
     "javascript.preferred.runtime.type.id": "node",
     "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "pnpm",
-    "ts.external.directory.path": "/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib",
+    "ts.external.directory.path": "E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -231,86 +235,6 @@
       <workItem from="1771996036213" duration="3105000" />
       <workItem from="1772038435231" duration="18000" />
       <workItem from="1772323258542" duration="267000" />
-    </task>
-    <task id="LOCAL-00824" summary="refactor: enhance LiveKit module by injecting clients for improved configuration management">
-      <option name="closed" value="true" />
-      <created>1770208275900</created>
-      <option name="number" value="00824" />
-      <option name="presentableId" value="LOCAL-00824" />
-      <option name="project" value="LOCAL" />
-      <updated>1770208275900</updated>
-    </task>
-    <task id="LOCAL-00825" summary="refactor: implement AppConfigService for centralized configuration management across services">
-      <option name="closed" value="true" />
-      <created>1770211151581</created>
-      <option name="number" value="00825" />
-      <option name="presentableId" value="LOCAL-00825" />
-      <option name="project" value="LOCAL" />
-      <updated>1770211151581</updated>
-    </task>
-    <task id="LOCAL-00826" summary="docs: update FEATURES.md to detail Agents Service architecture and user flows">
-      <option name="closed" value="true" />
-      <created>1770817607394</created>
-      <option name="number" value="00826" />
-      <option name="presentableId" value="LOCAL-00826" />
-      <option name="project" value="LOCAL" />
-      <updated>1770817607394</updated>
-    </task>
-    <task id="LOCAL-00827" summary="feat: add implementation checklist for Agents Service to track progress on AI-related tasks">
-      <option name="closed" value="true" />
-      <created>1770818642299</created>
-      <option name="number" value="00827" />
-      <option name="presentableId" value="LOCAL-00827" />
-      <option name="project" value="LOCAL" />
-      <updated>1770818642299</updated>
-    </task>
-    <task id="LOCAL-00828" summary="refactor: improve course repository and service methods, add analytics handlers">
-      <option name="closed" value="true" />
-      <created>1771658892653</created>
-      <option name="number" value="00828" />
-      <option name="presentableId" value="LOCAL-00828" />
-      <option name="project" value="LOCAL" />
-      <updated>1771658892653</updated>
-    </task>
-    <task id="LOCAL-00829" summary="refactor: improve course repository and service methods, add analytics handlers">
-      <option name="closed" value="true" />
-      <created>1771659261712</created>
-      <option name="number" value="00829" />
-      <option name="presentableId" value="LOCAL-00829" />
-      <option name="project" value="LOCAL" />
-      <updated>1771659261712</updated>
-    </task>
-    <task id="LOCAL-00830" summary="refactor: restructure agent handlers and update request payloads">
-      <option name="closed" value="true" />
-      <created>1771661489923</created>
-      <option name="number" value="00830" />
-      <option name="presentableId" value="LOCAL-00830" />
-      <option name="project" value="LOCAL" />
-      <updated>1771661489924</updated>
-    </task>
-    <task id="LOCAL-00831" summary="refactor: enhance prompt and resource loading with dynamic path resolution">
-      <option name="closed" value="true" />
-      <created>1771662928313</created>
-      <option name="number" value="00831" />
-      <option name="presentableId" value="LOCAL-00831" />
-      <option name="project" value="LOCAL" />
-      <updated>1771662928313</updated>
-    </task>
-    <task id="LOCAL-00832" summary="chore: update dependencies and improve project configuration">
-      <option name="closed" value="true" />
-      <created>1771678828103</created>
-      <option name="number" value="00832" />
-      <option name="presentableId" value="LOCAL-00832" />
-      <option name="project" value="LOCAL" />
-      <updated>1771678828104</updated>
-    </task>
-    <task id="LOCAL-00833" summary="chore: update dependencies and improve project configuration">
-      <option name="closed" value="true" />
-      <created>1771678903444</created>
-      <option name="number" value="00833" />
-      <option name="presentableId" value="LOCAL-00833" />
-      <option name="project" value="LOCAL" />
-      <updated>1771678903444</updated>
     </task>
     <task id="LOCAL-00834" summary="refactor: update imports from @radix-ui to radix-ui for consistency">
       <option name="closed" value="true" />
@@ -624,7 +548,87 @@
       <option name="project" value="LOCAL" />
       <updated>1772302526060</updated>
     </task>
-    <option name="localTasksCounter" value="873" />
+    <task id="LOCAL-00873" summary="cômmit">
+      <option name="closed" value="true" />
+      <created>1772344265347</created>
+      <option name="number" value="00873" />
+      <option name="presentableId" value="LOCAL-00873" />
+      <option name="project" value="LOCAL" />
+      <updated>1772344265347</updated>
+    </task>
+    <task id="LOCAL-00874" summary="cômmit">
+      <option name="closed" value="true" />
+      <created>1772344917986</created>
+      <option name="number" value="00874" />
+      <option name="presentableId" value="LOCAL-00874" />
+      <option name="project" value="LOCAL" />
+      <updated>1772344917986</updated>
+    </task>
+    <task id="LOCAL-00875" summary="cômmit">
+      <option name="closed" value="true" />
+      <created>1772345308843</created>
+      <option name="number" value="00875" />
+      <option name="presentableId" value="LOCAL-00875" />
+      <option name="project" value="LOCAL" />
+      <updated>1772345308843</updated>
+    </task>
+    <task id="LOCAL-00876" summary="cômmit">
+      <option name="closed" value="true" />
+      <created>1772345472277</created>
+      <option name="number" value="00876" />
+      <option name="presentableId" value="LOCAL-00876" />
+      <option name="project" value="LOCAL" />
+      <updated>1772345472278</updated>
+    </task>
+    <task id="LOCAL-00877" summary="cômmit">
+      <option name="closed" value="true" />
+      <created>1772345718278</created>
+      <option name="number" value="00877" />
+      <option name="presentableId" value="LOCAL-00877" />
+      <option name="project" value="LOCAL" />
+      <updated>1772345718278</updated>
+    </task>
+    <task id="LOCAL-00878" summary="cômmit">
+      <option name="closed" value="true" />
+      <created>1772345960253</created>
+      <option name="number" value="00878" />
+      <option name="presentableId" value="LOCAL-00878" />
+      <option name="project" value="LOCAL" />
+      <updated>1772345960253</updated>
+    </task>
+    <task id="LOCAL-00879" summary="cômmit">
+      <option name="closed" value="true" />
+      <created>1772347173575</created>
+      <option name="number" value="00879" />
+      <option name="presentableId" value="LOCAL-00879" />
+      <option name="project" value="LOCAL" />
+      <updated>1772347173576</updated>
+    </task>
+    <task id="LOCAL-00880" summary="cômmit">
+      <option name="closed" value="true" />
+      <created>1772347386206</created>
+      <option name="number" value="00880" />
+      <option name="presentableId" value="LOCAL-00880" />
+      <option name="project" value="LOCAL" />
+      <updated>1772347386206</updated>
+    </task>
+    <task id="LOCAL-00881" summary="cômmit">
+      <option name="closed" value="true" />
+      <created>1772347399091</created>
+      <option name="number" value="00881" />
+      <option name="presentableId" value="LOCAL-00881" />
+      <option name="project" value="LOCAL" />
+      <updated>1772347399091</updated>
+    </task>
+    <task id="LOCAL-00882" summary="cômmit">
+      <option name="closed" value="true" />
+      <created>1772347722941</created>
+      <option name="number" value="00882" />
+      <option name="presentableId" value="LOCAL-00882" />
+      <option name="project" value="LOCAL" />
+      <updated>1772347722941</updated>
+    </task>
+    <option name="localTasksCounter" value="883" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -663,7 +667,8 @@
     <MESSAGE value="mapping api" />
     <MESSAGE value="stitch ui" />
     <MESSAGE value="fix: enhance course live class logic" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: enhance course live class logic" />
+    <MESSAGE value="cômmit" />
+    <option name="LAST_COMMIT_MESSAGE" value="cômmit" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

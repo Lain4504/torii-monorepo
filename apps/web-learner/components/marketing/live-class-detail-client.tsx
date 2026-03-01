@@ -6,6 +6,7 @@ import { useCheckEnrollment } from '@/lib/api/services/enrollment-api';
 import { useCheckWishlist, useToggleWishlist } from '@/lib/api/services/wishlist-api';
 import { useCart, useAddToCart } from '@/lib/api/services/cart-api';
 import { useLiveSessions, liveSessionsApi } from '@/lib/api/services/live-sessions';
+import { useCourseReviews, useRatingDistribution } from '@/lib/api/services/review-api';
 import { useRouter } from 'next/navigation';
 import { toast } from '@workspace/ui/components/sonner';
 import { Skeleton } from '@workspace/ui/components/skeleton';
@@ -36,6 +37,10 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
     const { data: wishlistData } = useCheckWishlist(course?.id || '');
     const { data: cartData } = useCart();
     const { data: sessions = [] } = useLiveSessions(course?.id || '');
+
+    // Fetch Reviews & Distribution
+    const { data: reviewsData } = useCourseReviews(course?.id);
+    const { data: distributionData } = useRatingDistribution(course?.id);
 
     const addToCart = useAddToCart();
     const toggleWishlist = useToggleWishlist();
@@ -118,94 +123,91 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
             `}</style>
 
             {/* Hero Section */}
-            <section className="relative pt-12 pb-20 overflow-hidden border-b border-border bg-foreground/[0.03] dark:bg-card">
-                {/* Decorative blurs */}
-                <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                    <div className="absolute -top-24 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px]" />
-                    <div className="absolute bottom-0 right-1/3 w-64 h-64 bg-primary/5 rounded-full blur-[80px]" />
-                </div>
-                {course.thumbnailUrl && (
-                    <div className="absolute inset-0 opacity-5">
-                        <img src={course.thumbnailUrl} alt="" className="w-full h-full object-cover" />
+            <div className="bg-slate-900 border-b border-slate-800">
+                <section className="relative pt-12 text-slate-50 pb-16 md:pt-16 md:pb-32 overflow-hidden">
+                    {/* Decorative blurs */}
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden mix-blend-screen opacity-40">
+                        <div className="absolute -top-24 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px]" />
+                        <div className="absolute bottom-0 right-1/3 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px]" />
                     </div>
-                )}
-                <div className="max-w-7xl mx-auto px-6 relative z-10">
-                    {/* Breadcrumbs */}
-                    <nav aria-label="Breadcrumb" className="flex mb-8 text-sm text-muted-foreground">
-                        <ol className="flex items-center space-x-2">
-                            <li><a className="hover:text-foreground transition" href="/">Trang chủ</a></li>
-                            <li><span className="mx-2">/</span></li>
-                            <li><a className="hover:text-foreground transition" href="/live-classes">Lớp học</a></li>
-                            <li><span className="mx-2">/</span></li>
-                            <li className="text-foreground font-medium line-clamp-1">{course.title}</li>
-                        </ol>
-                    </nav>
-                    <div className="grid grid-cols-12 gap-8">
-                        <div className="col-span-12 lg:col-span-8">
-                            {/* Badges */}
-                            <div className="flex items-center gap-3 mb-6 flex-wrap">
-                                {hasActiveSession && (
-                                    <span className="bg-destructive text-destructive-foreground text-[10px] font-bold px-2 py-1 rounded-sm flex items-center gap-1 animate-live-pulse">
-                                        <span className="w-1.5 h-1.5 bg-current rounded-full" /> 🔴 ĐANG LIVE
-                                    </span>
-                                )}
-                                {course.jlptLevel && (
-                                    <span className="bg-primary/10 text-primary border border-primary/20 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                                        JLPT {course.jlptLevel}
-                                    </span>
-                                )}
-                                {isEnrolled && (
-                                    <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                                        ✓ Đã đăng ký
-                                    </span>
-                                )}
-                                {isFinished && (
-                                    <span className="bg-muted text-muted-foreground border border-border text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                                        Đã kết thúc
-                                    </span>
-                                )}
-                            </div>
-                            {/* Title */}
-                            <h1 className="text-4xl md:text-5xl font-extrabold mb-6 leading-tight text-foreground">
-                                {course.title}
-                            </h1>
-                            {course.shortDescription && (
-                                <p className="text-xl text-muted-foreground mb-8 max-w-3xl">
-                                    {course.shortDescription}
-                                </p>
-                            )}
-                            {/* Meta */}
-                            <div className="flex flex-wrap items-center gap-6 text-sm mb-10">
-                                {(course.averageRating || 0) > 0 && (
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-amber-500 font-bold text-lg">{course.averageRating?.toFixed(1)}</span>
-                                        <div className="flex text-amber-500">
-                                            {[1, 2, 3, 4, 5].map(i => (
-                                                <svg key={i} className={`w-4 h-4 ${i <= Math.round(course.averageRating || 0) ? 'fill-current' : 'fill-muted-foreground/30'}`} viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                                            ))}
-                                        </div>
-                                        <span className="text-muted-foreground underline">({course.totalReviews || 0} đánh giá)</span>
-                                    </div>
-                                )}
-                                <div className="flex items-center gap-1 text-muted-foreground">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>
-                                    <span>{(course.totalStudents || 0).toLocaleString()} học viên</span>
+                    <div className="max-w-7xl mx-auto px-6 relative z-10">
+                        {/* Breadcrumbs */}
+                        <nav aria-label="Breadcrumb" className="flex mb-8 text-sm text-slate-400 font-medium">
+                            <ol className="flex items-center space-x-2">
+                                <li><a className="hover:text-white transition" href="/">Trang chủ</a></li>
+                                <li><span className="mx-2">/</span></li>
+                                <li><a className="hover:text-white transition" href="/live-classes">Lớp học</a></li>
+                                <li><span className="mx-2">/</span></li>
+                                <li className="text-white line-clamp-1">{course.title}</li>
+                            </ol>
+                        </nav>
+                        <div className="grid grid-cols-12 gap-8">
+                            <div className="col-span-12 lg:col-span-8">
+                                {/* Badges */}
+                                <div className="flex items-center gap-3 mb-6 flex-wrap">
+                                    {hasActiveSession && (
+                                        <span className="bg-destructive text-destructive-foreground text-[10px] font-bold px-2 py-1 rounded-sm flex items-center gap-1 animate-live-pulse shadow-[0_0_15px_rgba(239,68,68,0.5)]">
+                                            <span className="w-1.5 h-1.5 bg-current rounded-full" /> 🔴 ĐANG LIVE
+                                        </span>
+                                    )}
+                                    {course.jlptLevel && (
+                                        <span className="bg-primary/20 text-primary border border-primary/30 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-sm">
+                                            JLPT {course.jlptLevel}
+                                        </span>
+                                    )}
+                                    {isEnrolled && (
+                                        <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-sm">
+                                            ✓ Đã đăng ký
+                                        </span>
+                                    )}
+                                    {isFinished && (
+                                        <span className="bg-slate-800 text-slate-400 border border-slate-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                            Đã kết thúc
+                                        </span>
+                                    )}
                                 </div>
-                                {mainInstructor && (
-                                    <div className="flex items-center gap-3 pl-6 border-l border-border">
-                                        {mainInstructor.avatarUrl ? (
-                                            <img alt={mainInstructor.displayName} className="w-8 h-8 rounded-full border border-primary/30 object-cover" src={mainInstructor.avatarUrl} />
-                                        ) : (
-                                            <div className="w-8 h-8 rounded-full border border-primary/30 bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">{mainInstructor.displayName[0]}</div>
-                                        )}
-                                        <span className="text-muted-foreground">Giảng viên: <span className="font-semibold text-foreground">{mainInstructor.displayName}</span></span>
-                                    </div>
+                                {/* Title */}
+                                <h1 className="text-4xl md:text-5xl font-extrabold mb-6 leading-tight text-white tracking-tight">
+                                    {course.title}
+                                </h1>
+                                {course.shortDescription && (
+                                    <p className="text-xl text-slate-300 mb-8 max-w-3xl leading-relaxed">
+                                        {course.shortDescription}
+                                    </p>
                                 )}
+                                {/* Meta */}
+                                <div className="flex flex-wrap items-center gap-6 text-sm mb-4">
+                                    {(course.averageRating || 0) > 0 && (
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-yellow-500 font-bold text-lg">{course.averageRating?.toFixed(1)}</span>
+                                            <div className="flex text-yellow-500">
+                                                {[1, 2, 3, 4, 5].map(i => (
+                                                    <svg key={i} className={`w-4 h-4 ${i <= Math.round(course.averageRating || 0) ? 'fill-current' : 'text-slate-700 fill-slate-700'}`} viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                                                ))}
+                                            </div>
+                                            <span className="text-slate-400 underline underline-offset-4 hover:text-white transition-colors cursor-pointer">({course.totalReviews || 0} đánh giá)</span>
+                                        </div>
+                                    )}
+                                    <div className="flex items-center gap-1.5 text-slate-300">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>
+                                        <span>{(course.totalStudents || 0).toLocaleString()} học viên</span>
+                                    </div>
+                                    {mainInstructor && (
+                                        <div className="flex items-center gap-3 pl-6 border-l border-slate-700">
+                                            {mainInstructor.avatarUrl ? (
+                                                <img alt={mainInstructor.displayName} className="w-10 h-10 rounded-full object-cover border border-slate-700 shadow-inner shrink-0" src={mainInstructor.avatarUrl} />
+                                            ) : (
+                                                <div className="w-10 h-10 rounded-full border border-slate-700 bg-slate-800 flex items-center justify-center text-xs font-bold text-white shadow-inner shrink-0">{mainInstructor.displayName[0]}</div>
+                                            )}
+                                            <span className="text-slate-400">Giảng viên: <span className="font-semibold text-white">{mainInstructor.displayName}</span></span>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            </div>
 
             {/* Social Proof Banner */}
             {(course.totalStudents || 0) > 0 && (
@@ -219,10 +221,10 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
             )}
 
             {/* Main Content */}
-            <main className="max-w-7xl mx-auto px-6 py-12">
+            <main className="max-w-7xl mx-auto px-6 pb-20 pt-8 lg:pt-12 relative">
                 <div className="grid grid-cols-12 gap-12">
                     {/* Left Column */}
-                    <div className="col-span-12 lg:col-span-8">
+                    <div className="col-span-12 lg:col-span-8 bg-transparent">
                         {/* Benefits */}
                         {learningOutcomes.length > 0 && (
                             <section className="mb-16" data-purpose="benefits">
@@ -354,11 +356,84 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
                                 </div>
                             </section>
                         )}
+
+                        {/* Reviews */}
+                        {reviewsData?.data && reviewsData.data.length > 0 && (
+                            <section className="mb-16" data-purpose="reviews">
+                                <h2 className="text-2xl font-bold mb-8 flex items-center gap-2 text-foreground">
+                                    <span className="w-2 h-8 bg-primary rounded-full" />
+                                    Đánh giá từ học viên
+                                </h2>
+
+                                <div className="grid md:grid-cols-4 gap-8 mb-8">
+                                    <div className="text-center flex flex-col justify-center">
+                                        <span className="text-5xl font-extrabold text-[oklch(0.55_0.15_15)]">{distributionData?.averageRating?.toFixed(1) || course.averageRating?.toFixed(1) || '0.0'}</span>
+                                        <div className="flex justify-center my-2 text-yellow-500">
+                                            {[1, 2, 3, 4, 5].map(i => (
+                                                <svg key={i} className={`w-5 h-5 ${i <= Math.round(distributionData?.averageRating || course.averageRating || 0) ? 'fill-current' : 'text-slate-300 fill-slate-300'}`} viewBox="0 0 20 20">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                                </svg>
+                                            ))}
+                                        </div>
+                                        <p className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Xếp hạng lớp học</p>
+                                    </div>
+                                    <div className="md:col-span-3 space-y-2">
+                                        {[5, 4, 3, 2, 1].map((stars) => {
+                                            const distr = distributionData?.distribution?.find((d: any) => d.stars === stars);
+                                            const percent = distr ? distr.percent : 0;
+                                            return (
+                                                <div key={stars} className="flex items-center gap-4">
+                                                    <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                                                        <div className="h-full bg-foreground" style={{ width: `${percent}%` }}></div>
+                                                    </div>
+                                                    <div className="flex items-center gap-1 w-24">
+                                                        <span className="text-sm text-muted-foreground">{stars} sao</span>
+                                                        <span className="text-sm text-muted-foreground">{percent}%</span>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    {reviewsData.data.map((review: any) => (
+                                        <div key={review.id} className="p-6 bg-card rounded-2xl border border-border shadow-sm">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-muted-foreground overflow-hidden border border-border">
+                                                        {review.user?.avatarUrl ? (
+                                                            <img src={review.user.avatarUrl} alt={review.user.displayName} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            review.user?.displayName?.substring(0, 2) || "U"
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        <h5 className="font-bold text-foreground">{review.user?.displayName || "Người dùng ẩn danh"}</h5>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            Học viên đã tham gia • {new Date(review.createdAt).toLocaleDateString('vi-VN')}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="text-yellow-500 flex">
+                                                    {[1, 2, 3, 4, 5].map(i => (
+                                                        <svg key={i} className={`w-4 h-4 ${i <= review.rating ? 'fill-current' : 'text-slate-300 fill-slate-300'}`} viewBox="0 0 20 20">
+                                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                                        </svg>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <p className="text-muted-foreground">{review.comment || 'Không có bình luận.'}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
                     </div>
 
                     {/* Sidebar */}
-                    <aside className="col-span-12 lg:col-span-4 relative">
-                        <div className="sticky top-20">
+                    <aside className="col-span-12 lg:col-span-4 lg:-mt-[400px] relative z-20 pointer-events-none">
+                        <div className="sticky top-28 pointer-events-auto">
                             <div className="bg-card rounded-2xl shadow-xl border border-border overflow-hidden">
                                 {/* Thumbnail */}
                                 <div className="relative h-48 overflow-hidden">
@@ -389,7 +464,7 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
                                     <div className="space-y-3">
                                         {isEnrolled ? (
                                             <button
-                                                onClick={() => router.push(`/learning/${course.id}`)}
+                                                onClick={() => router.push(`/dashboard/courses/${course.id}/learn`)}
                                                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-4 rounded-xl text-lg flex items-center justify-center gap-2 transition active:scale-[0.98]"
                                             >
                                                 Vào học ngay

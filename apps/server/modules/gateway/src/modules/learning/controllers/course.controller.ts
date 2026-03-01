@@ -274,4 +274,15 @@ export class CourseController {
         return successResponse(result);
     }
 
+    @Get(':id/students/count')
+    @Public()
+    async getStudentCount(@Param('id', new ParseUUIDPipe()) id: string) {
+        const result = await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'learning.course.getStudentCount' },
+                { id }
+            )
+        );
+        return successResponse(result);
+    }
 }

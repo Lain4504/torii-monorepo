@@ -19,6 +19,7 @@ import { DiscussionController } from './controllers/discussion.controller';
 import { WishlistController } from './controllers/wishlist.controller';
 import { BlogController } from './controllers/blog.controller';
 import { CommentController } from './controllers/comment.controller';
+import { CartController } from './controllers/cart.controller';
 import { FeedController } from './controllers/feed.controller';
 import { FlashcardDeckController } from './controllers/flashcard-deck.controller';
 import { FlashcardController } from './controllers/flashcard.controller';
@@ -53,6 +54,7 @@ import { NotebookController } from './controllers/notebook.controller';
         WishlistController,
         BlogController,
         CommentController,
+        CartController,
         FeedController,
         FlashcardDeckController,
         FlashcardController,

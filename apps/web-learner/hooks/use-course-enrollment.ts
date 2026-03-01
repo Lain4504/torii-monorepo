@@ -101,7 +101,7 @@ export function useCourseEnrollment(courseId: string, courseSlug: string) {
             setIsExpired(false)
             setEnrollment(newEnrollment)
             toast.success('Đã đăng ký khóa học thành công!')
-            router.push(`/courses/${courseSlug}/learn`)
+            router.push(`/dashboard/courses/${courseId}/learn`)
         } catch (error: any) {
             console.error('Failed to enroll:', error)
             toast.error(error?.response?.data?.message || 'Không thể đăng ký khóa học')

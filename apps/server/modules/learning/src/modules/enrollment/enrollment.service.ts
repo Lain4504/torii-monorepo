@@ -59,9 +59,9 @@ export class EnrollmentService implements IEnrollmentService {
 
             const course = await this.courseRepository.findById(enrollment.courseId);
 
-        if (course?.type === 'live') {
-            await this.courseRepository.incrementTotalStudents(course.id);
-        }
+            if (course?.type === 'live') {
+                await this.courseRepository.incrementTotalStudents(course.id);
+            }
 
             // Audit Log
             await this.logAudit({

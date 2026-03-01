@@ -105,6 +105,14 @@ export const courseApi = {
     const response = await apiClient.get<StandardApiResponse<{ courses: CourseResponseDTO[] }>>(`/api/courses/by-type/${type}`);
     return response.data.data?.courses ?? [];
   },
+
+  /**
+   * Get student count for a course
+   */
+  getStudentCount: async (courseId: string): Promise<{ count: number }> => {
+    const response = await apiClient.get<StandardApiResponse<{ count: number }>>(`/api/courses/${courseId}/students/count`);
+    return response.data.data!;
+  },
 };
 
 /**
@@ -118,6 +126,7 @@ export function useCourses(params: {
   priceFilter?: 'all' | 'free' | 'paid';
   sortBy?: string;
   instructorId?: string;
+  topics?: string[];
 }) {
   return useQuery({
     queryKey: ['courses', params],
@@ -141,7 +150,8 @@ export function useCourses(params: {
         priceMin,
         priceMax,
         sort: params.sortBy,
-        instructorId: params.instructorId
+        instructorId: params.instructorId,
+        topics: params.topics?.length ? params.topics.join(',') : undefined,
       } as any);
     },
   });
@@ -188,5 +198,16 @@ export function useLiveCourses() {
   return useQuery({
     queryKey: ['courses', 'live'],
     queryFn: () => courseApi.getByType('live'),
+  });
+}
+
+/**
+ * Hook: Get student count
+ */
+export function useStudentCount(courseId?: string) {
+  return useQuery({
+    queryKey: ['courses', courseId, 'studentCount'],
+    queryFn: () => courseApi.getStudentCount(courseId!),
+    enabled: !!courseId,
   });
 }

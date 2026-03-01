@@ -188,4 +188,10 @@ export interface ICourseService {
      */
     isInstructor(userId: string, courseId: string): Promise<boolean>;
 
+    /**
+     * Get the number of students enrolled in a course
+     * @param courseId - The course's unique identifier
+     * @returns The number of students
+     */
+    getStudentCount(courseId: string): Promise<{ count: number }>;
 }

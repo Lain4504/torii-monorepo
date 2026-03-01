@@ -17,8 +17,11 @@ import {
     FileText,
     PenTool,
     ArrowUp,
-    ArrowDown
+    ArrowDown,
+    HelpCircle,
+    Users,
 } from 'lucide-react';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
 import { Card, CardContent } from '@workspace/ui/components/card';
 import {
@@ -46,7 +49,7 @@ import {
     useEndLiveSession,
     liveSessionsApi
 } from '@/lib/api/services/live-sessions';
-import type { ModuleResponseDTO, LessonResponseDTO, AssignmentResponseDTO } from '@workspace/schemas';
+import { EnrollmentStatus, type ModuleResponseDTO, type LessonResponseDTO, type AssignmentResponseDTO } from '@workspace/schemas';
 import { formatDateTime } from '@/lib/format-utils';
 import { toast } from '@workspace/ui/components/sonner';
 import {
@@ -64,6 +67,12 @@ import { TeachingScheduleSheet } from '@/components/courses/teaching-schedule-sh
 import { AssignmentsTable } from '@/components/assignments/assignments-table';
 import { CreateAssignmentSheet } from '@/components/assignments/create-assignment-sheet';
 import { EditAssignmentSheet } from '@/components/assignments/edit-assignment-sheet';
+import { QuizzesTable } from '@/components/quizzes/quizzes-table';
+import { CreateQuizSheet } from '@/components/quizzes/create-quiz-sheet';
+import { useQuizzes, useDeleteQuiz, usePublishQuiz, type QuizDTO } from '@/lib/api/services/quizzes';
+import { useEnrollmentsByCourse } from '@/lib/api/services/enrollments';
+import { Progress } from '@workspace/ui/components/progress';
+import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar';
 
 import { cn } from '@workspace/ui/lib/utils';
 import { PageLoading } from '@workspace/ui/components/page-loading';
@@ -76,6 +85,7 @@ export default function CourseDetailPage() {
     const { data: course, isLoading: isLoadingCourse } = useCourse(id || '');
     const { data: modulesData } = useCourseModules(id || '');
     const { data: liveSessions } = useLiveSessions(id || '');
+    const { data: enrollments, isLoading: isLoadingEnrollments } = useEnrollmentsByCourse(id || '');
 
     // Dialog States
     const [createModuleOpen, setCreateModuleOpen] = useState(false);
@@ -96,6 +106,14 @@ export default function CourseDetailPage() {
     const [selectedLessonIdForAssignment, setSelectedLessonIdForAssignment] = useState<string | null>(null);
     const [editAssignmentOpen, setEditAssignmentOpen] = useState(false);
     const [selectedAssignment, setSelectedAssignment] = useState<AssignmentResponseDTO | null>(null);
+
+    // Quiz States
+    const [createQuizOpen, setCreateQuizOpen] = useState(false);
+    const [selectedModuleIdForQuiz, setSelectedModuleIdForQuiz] = useState<string | null>(null);
+    const [selectedLessonIdForQuiz, setSelectedLessonIdForQuiz] = useState<string | null>(null);
+    const [quizPage] = useState(1);
+
+
 
     const [assignmentPage, setAssignmentPage] = useState(1);
 
@@ -157,6 +175,16 @@ export default function CourseDetailPage() {
     });
     const publishAssignmentMutation = usePublishAssignment();
     const deleteAssignmentMutation = useDeleteAssignment();
+
+    // Quiz Hooks
+    const { data: quizzesData, isLoading: isLoadingQuizzes } = useQuizzes({
+        courseId: id,
+        page: quizPage,
+        limit: 50,
+    });
+    const publishQuizMutation = usePublishQuiz();
+    const deleteQuizMutation = useDeleteQuiz();
+
 
     const toggleModule = (moduleId: string) => {
         const newExpanded = new Set(expandedModules);
@@ -235,6 +263,33 @@ export default function CourseDetailPage() {
         navigate(`/courses/${id}/assignments/${assignment.id}/submissions`);
     };
 
+    // Quiz handlers
+    const handlePublishQuiz = async (quiz: QuizDTO) => {
+        try {
+            await publishQuizMutation.mutateAsync(quiz.id);
+            toast.success(`Đã công bố quiz: ${quiz.title}`);
+        } catch {
+            toast.error('Công bố thất bại');
+        }
+    };
+
+    const handleDeleteQuiz = async (quiz: QuizDTO) => {
+        if (!confirm(`Bạn có chắc muốn xóa quiz "${quiz.title}"?`)) return;
+        try {
+            await deleteQuizMutation.mutateAsync(quiz.id);
+            toast.success('Đã xóa quiz');
+        } catch {
+            toast.error('Xóa thất bại');
+        }
+    };
+
+    const handleEditQuiz = (_quiz: QuizDTO) => {
+        // TODO: open edit sheet when EditQuizSheet is created
+        toast.info('Tính năng sửa quiz đang phát triển. Vui lòng vào Question Bank để chỉnh sửa.');
+    };
+
+
+
     if (isLoadingCourse) {
         return <PageLoading text="Đang tải dữ liệu khóa học..." className="min-h-[60vh]" />;
     }
@@ -310,6 +365,15 @@ export default function CourseDetailPage() {
                         <PenTool className="size-4" />
                         Bài Tập
                     </TabsTrigger>
+                    <TabsTrigger value="quizzes" className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest">
+                        <HelpCircle className="size-4" />
+                        Quiz
+                    </TabsTrigger>
+                    <TabsTrigger value="students" className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest">
+                        <Users className="size-4" />
+                        Học viên
+                    </TabsTrigger>
+
                 </TabsList>
 
                 {/* Curriculum Tab */}
@@ -639,7 +703,108 @@ export default function CourseDetailPage() {
                         )}
                     </div>
                 </TabsContent>
+
+                {/* Quizzes Tab */}
+                <TabsContent value="quizzes" className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <p className="text-sm text-muted-foreground">Quản lý quiz kiểm tra kiến thức cho học viên</p>
+                        <Button onClick={() => {
+                            setSelectedLessonIdForQuiz(null);
+                            setSelectedModuleIdForQuiz(null);
+                            setCreateQuizOpen(true);
+                        }}>
+                            <Plus className="mr-2 size-4" />
+                            Thêm Quiz mới
+                        </Button>
+                    </div>
+
+                    <Card className="overflow-hidden shadow-sm border-border">
+                        <CardContent className="p-0">
+                            <div className="bg-card/20 backdrop-blur-sm overflow-x-auto">
+                                <QuizzesTable
+                                    data={quizzesData?.data || []}
+                                    isLoading={isLoadingQuizzes}
+                                    onEdit={handleEditQuiz}
+                                    onDelete={handleDeleteQuiz}
+                                    onPublish={handlePublishQuiz}
+                                />
+                            </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
+                {/* Students Tab */}
+                <TabsContent value="students" className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <p className="text-sm text-muted-foreground">Danh sách học viên đang tham gia khóa học này</p>
+                    </div>
+
+                    <Card className="overflow-hidden shadow-sm border-border">
+                        <CardContent className="p-0">
+                            <Table>
+                                <TableHeader className="bg-muted/30 border-b border-border">
+                                    <TableRow className="hover:bg-transparent border-none">
+                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Học viên</TableHead>
+                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Ngày tham gia</TableHead>
+                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Tiến độ</TableHead>
+                                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4">Trạng thái</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {isLoadingEnrollments ? (
+                                        Array.from({ length: 3 }).map((_, i) => (
+                                            <TableRow key={i}>
+                                                <TableCell colSpan={4}><PageLoading text="Đang tải..." /></TableCell>
+                                            </TableRow>
+                                        ))
+                                    ) : enrollments && enrollments.length > 0 ? (
+                                        enrollments.map((enrollment) => (
+                                            <TableRow key={enrollment.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                                                <TableCell className="px-4 py-3">
+                                                    <div className="flex items-center gap-3">
+                                                        <Avatar className="size-8">
+                                                            <AvatarImage src={enrollment.user?.avatarUrl || ''} />
+                                                            <AvatarFallback>{enrollment.user?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                                                        </Avatar>
+                                                        <div className="flex flex-col">
+                                                            <span className="text-sm font-semibold">{enrollment.user?.displayName || 'Unknown'}</span>
+                                                            <span className="text-[10px] text-muted-foreground font-mono">{enrollment.user?.email}</span>
+                                                        </div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="px-4 py-3 text-sm">
+                                                    {new Date(enrollment.enrollmentDate).toLocaleDateString('vi-VN')}
+                                                </TableCell>
+                                                <TableCell className="px-4 py-3 w-[200px]">
+                                                    <div className="space-y-1.5">
+                                                        <div className="flex justify-between text-[10px] font-bold uppercase tracking-tighter">
+                                                            <span>Tiến độ</span>
+                                                            <span className="text-primary">{Math.round(enrollment.completionPercentage)}%</span>
+                                                        </div>
+                                                        <Progress value={enrollment.completionPercentage} className="h-1.5" />
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="px-4 py-3">
+                                                    <Badge variant={enrollment.completionStatus === EnrollmentStatus.COMPLETED ? 'success' as any : 'secondary'}>
+                                                        {enrollment.completionStatus === EnrollmentStatus.COMPLETED ? 'Hoàn thành' : 'Đang học'}
+                                                    </Badge>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell colSpan={4} className="h-40 text-center text-muted-foreground">
+                                                Chưa có học viên nào tham gia
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
             </Tabs>
+
 
             {/* Dialogs & Sheets */}
             <CreateModuleSheet open={createModuleOpen} onOpenChange={setCreateModuleOpen} courseId={id || ''} />
@@ -665,6 +830,13 @@ export default function CourseDetailPage() {
                 open={editAssignmentOpen}
                 onOpenChange={setEditAssignmentOpen}
                 assignment={selectedAssignment}
+            />
+            <CreateQuizSheet
+                open={createQuizOpen}
+                onOpenChange={setCreateQuizOpen}
+                courseId={id}
+                moduleId={selectedModuleIdForQuiz || undefined}
+                lessonId={selectedLessonIdForQuiz || undefined}
             />
         </div>
     );

@@ -80,6 +80,16 @@ export class ExamService implements IExamService {
                 ];
             }
 
+            // Filter by lessonId if provided (for lesson-linked quizzes)
+            if ((query as any).lessonId) {
+                whereClause.lessonId = (query as any).lessonId;
+            }
+
+            // Filter by courseId if provided
+            if ((query as any).courseId) {
+                whereClause.courseId = (query as any).courseId;
+            }
+
             this.logger.log(`Fetching quizzes (exams) with filters: ${JSON.stringify(whereClause)}`);
 
             const [total, quizzes] = await Promise.all([

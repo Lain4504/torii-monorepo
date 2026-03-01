@@ -170,31 +170,6 @@ export class CourseService implements ICourseService {
     }
   }
 
-  private toCourseSearchResponseDTO(course: any): CourseSearchResponseDTO {
-    return {
-      id: course.id,
-      type: course.type || 'vod',
-      title: course.title,
-      slug: course.slug,
-      thumbnailUrl: course.thumbnailUrl,
-      jlptLevel: course.jlptLevel,
-      price: course.price,
-      discountPrice: course.discountPrice,
-      totalStudents: course.totalStudents,
-      totalLessons: course.totalLessons,
-      durationWeeks: course.durationWeeks,
-      averageRating: course.averageRating,
-      totalReviews: course.totalReviews,
-      aiMetadata: course.aiMetadata || {},
-      lecturer: course.lecturer ? {
-        id: course.lecturer.id,
-        displayName: course.lecturer.displayName,
-        avatarUrl: course.lecturer.avatarUrl,
-        email: course.lecturer.email,
-      } : null,
-    };
-  }
-
   /**
    * Advanced search for client users
    */
@@ -1099,6 +1074,15 @@ export class CourseService implements ICourseService {
       this.logger.error(`Failed to validate course ${courseId} for scheduling`, error);
       return { isReady: false, message: 'Internal validation error' };
     }
+  }
+
+  async getStudentCount(courseId: string): Promise<{ count: number }> {
+    const existing = await this.courseRepository.findById(courseId);
+    if (!existing || existing.deletedAt) {
+      throw new NotFoundException(`Course with id ${courseId} not found`);
+    }
+
+    return { count: existing.totalStudents || 0 };
   }
 
 }

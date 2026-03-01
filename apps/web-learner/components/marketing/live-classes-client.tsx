@@ -52,27 +52,15 @@ export function LiveClassesClient() {
         <div className="bg-background text-foreground antialiased min-h-screen">
             <main>
                 {/* Hero Section */}
-                <section className="relative pt-28 pb-16 overflow-hidden">
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,oklch(0.64_0.13_175/0.12),transparent)] pointer-events-none" />
+                <section className="pt-28 pb-12 border-b border-border/50 bg-muted/20">
                     <div className="container mx-auto px-6 max-w-7xl">
                         <FadeIn>
-                            <Badge variant="outline" className="px-4 py-1.5 border-primary/40 text-primary font-bold tracking-widest uppercase text-[10px] mb-6">
-                                <Video className="size-3 mr-1.5" /> Live WebRTC Interaction
-                            </Badge>
-                            <h1 className="text-5xl md:text-6xl font-black font-serif tracking-tight mb-5 leading-[1.1]">
-                                Lớp Học <span className="text-primary italic">Trực Tuyến</span>
+                            <h1 className="text-4xl font-bold tracking-tight mb-3">
+                                Lớp học trực tuyến
                             </h1>
-                            <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl mb-8">
-                                Học trực tiếp với đội ngũ Sensei bản ngữ qua WebRTC. Tương tác thời gian thực, luyện phát âm và tham gia cộng đồng học viên năng động.
+                            <p className="text-muted-foreground text-lg">
+                                Lịch khai giảng các lớp trực tiếp tương tác cùng Sensei.
                             </p>
-                            <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
-                                {([['50+', 'Giảng viên bản ngữ', Users], ['200+', 'Lớp học mỗi tháng', Calendar], ['98%', 'Học viên hài lòng', Video]] as [string, string, React.ElementType][]).map(([v, l, Icon]) => (
-                                    <div key={l} className="flex items-center gap-2">
-                                        <div className="size-8 bg-primary/10 rounded-lg flex items-center justify-center"><Icon className="size-4 text-primary" /></div>
-                                        <div><span className="font-black text-foreground">{v}</span> <span>{l}</span></div>
-                                    </div>
-                                ))}
-                            </div>
                         </FadeIn>
                     </div>
                 </section>

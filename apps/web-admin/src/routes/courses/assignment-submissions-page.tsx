@@ -9,6 +9,8 @@ import { ChevronLeft } from 'lucide-react';
 import { Card, CardContent } from '@workspace/ui/components/card';
 import { SubmissionsTable } from '@/components/submissions/submissions-table';
 import type { SubmissionResponseDTO } from '@workspace/schemas';
+import { GradeSubmissionSheet } from '@/components/submissions/grade-submission-sheet';
+import { useState } from 'react';
 
 export default function AssignmentSubmissionsPage() {
     const { id: courseId, assignmentId } = useParams<{ id: string; assignmentId: string }>();
@@ -18,15 +20,17 @@ export default function AssignmentSubmissionsPage() {
     const { data: assignment, isLoading: isLoadingAssignment } = useAssignment(assignmentId || '');
     const { data: submissions, isLoading: isLoadingSubmissions } = useSubmissions(assignmentId || '');
 
+    const [gradingSubmission, setGradingSubmission] = useState<SubmissionResponseDTO | null>(null);
+
     const handleGrade = (submission: SubmissionResponseDTO) => {
-        // Implement grading logic or navigate to grading page
-        console.log('Grade submission:', submission);
+        setGradingSubmission(submission);
     };
 
     const handleView = (submission: SubmissionResponseDTO) => {
-        // Implement view logic
-        console.log('View submission:', submission);
+        // For now view is same as grade
+        setGradingSubmission(submission);
     };
+
 
     if (isLoadingCourse || isLoadingAssignment) {
         return <PageLoading text="Đang tải thông tin..." />;
@@ -78,6 +82,14 @@ export default function AssignmentSubmissionsPage() {
                     />
                 </CardContent>
             </Card>
+
+            <GradeSubmissionSheet
+                open={!!gradingSubmission}
+                onOpenChange={(open) => !open && setGradingSubmission(null)}
+                submission={gradingSubmission}
+                maxScore={assignment.maxScore}
+            />
         </div>
     );
 }
+

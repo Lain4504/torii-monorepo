@@ -99,4 +99,9 @@ export class CourseHandler {
     async validateScheduling(@Payload() data: { id: string }) {
         return this.courseService.validateForScheduling(data.id);
     }
+
+    @MessagePattern({ cmd: 'learning.course.getStudentCount' })
+    async getStudentCount(@Payload() data: { id: string }) {
+        return this.courseService.getStudentCount(data.id);
+    }
 }

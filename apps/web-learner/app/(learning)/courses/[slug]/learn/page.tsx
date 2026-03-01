@@ -1,15 +1,19 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useCourseById, useCurriculum } from '@/lib/api/services/course-api';
 import { useCheckEnrollment } from '@/lib/api/services/enrollment-api';
 import { useCompletedLessons, learningProgressApi } from '@/lib/api/services/learning-progress-api';
 import { useLesson, type LessonResponse } from '@/lib/api/services/lesson-api';
 import {
-    useAssignment, useMySubmission, useSubmitAssignment, useSaveDraft,
+    useAssignmentByLesson, useMySubmission, useSubmitAssignment, useSaveDraft,
     type AssignmentResponseDTO, type SubmissionResponseDTO
 } from '@/lib/api/services/assignment-api';
+import {
+    useQuizByLesson, useStartQuiz, useSaveQuizAnswers, useSubmitQuiz,
+    type QuizResponseDTO, type QuizSessionDTO, type QuizQuestionDTO,
+} from '@/lib/api/services/quiz-lesson-api';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from '@workspace/ui/components/sonner';
 import { Skeleton } from '@workspace/ui/components/skeleton';
@@ -17,7 +21,7 @@ import {
     ChevronLeft, ChevronDown, ChevronUp, Menu, X,
     CheckCircle2, PlayCircle, Lock, FileText, BookOpen,
     MessageSquare, ChevronRight, Save, Download, Send,
-    AlertCircle, Clock, Trophy
+    AlertCircle, Clock, Trophy, HelpCircle, Timer, RotateCcw
 } from 'lucide-react';
 import type { CurriculumLesson, CurriculumModule } from '@/lib/api/services/course-api';
 
@@ -38,7 +42,8 @@ function LessonIcon({ lesson, isActive, isCompleted }: {
     if (isCompleted) return <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500 shrink-0" />;
     if (!lesson.isUnlocked) return <Lock className="h-4 w-4 text-muted-foreground/40 shrink-0" />;
     if (lesson.contentType === 'document') return <FileText className={`h-4 w-4 shrink-0 ${isActive ? 'text-primary' : 'text-muted-foreground/60'}`} />;
-    if (lesson.contentType === 'assignment') return <BookOpen className={`h-4 w-4 shrink-0 ${isActive ? 'text-primary' : 'text-muted-foreground/60'}`} />;
+    if (lesson.contentType === 'assignment') return <BookOpen className={`h-4 w-4 shrink-0 ${isActive ? 'text-amber-500' : 'text-muted-foreground/60'}`} />;
+    if (lesson.contentType === 'quiz') return <HelpCircle className={`h-4 w-4 shrink-0 ${isActive ? 'text-violet-500' : 'text-muted-foreground/60'}`} />;
     return <PlayCircle className={`h-4 w-4 shrink-0 ${isActive ? 'text-primary' : 'text-muted-foreground/50'}`} />;
 }
 
@@ -134,8 +139,7 @@ function ArticleViewer({ lesson, onComplete }: { lesson: LessonResponse; onCompl
 function AssignmentPanel({
     lessonId, courseId, onComplete
 }: { lessonId: string; courseId: string; onComplete: () => void; }) {
-    const { data: assignments } = useAssignment(lessonId); // assignment by lessonId? use lesson's assignmentId if exists
-    const assignment = Array.isArray(assignments) ? assignments[0] : (assignments as AssignmentResponseDTO | undefined);
+    const { data: assignment, isLoading: assignmentLoading } = useAssignmentByLesson(lessonId);
 
     const { data: submission } = useMySubmission(assignment?.id ?? '');
     const submitMutation = useSubmitAssignment();
@@ -145,6 +149,15 @@ function AssignmentPanel({
     useEffect(() => {
         if (submission?.textAnswer) setTextAnswer(submission.textAnswer);
     }, [submission?.textAnswer]);
+
+    if (assignmentLoading) {
+        return (
+            <div className="p-8 space-y-4 max-w-3xl mx-auto">
+                <Skeleton className="h-8 w-2/3" />
+                <Skeleton className="h-32 w-full" />
+            </div>
+        );
+    }
 
     if (!assignment) {
         return (
@@ -276,7 +289,371 @@ function AssignmentPanel({
     );
 }
 
-// ─── Sidebar Module ───────────────────────────────────────────────────────────
+// ─── Quiz Panel ───────────────────────────────────────────────────────────────
+
+type QuizPanelState = 'intro' | 'in_progress' | 'result';
+
+function QuizPanel({
+    lessonId, courseId, onComplete
+}: { lessonId: string; courseId: string; onComplete: () => void; }) {
+    const { data: quiz, isLoading: quizLoading } = useQuizByLesson(lessonId);
+    const startMutation = useStartQuiz();
+    const saveAnswersMutation = useSaveQuizAnswers();
+    const submitMutation = useSubmitQuiz();
+
+    const [panelState, setPanelState] = useState<QuizPanelState>('intro');
+    const [session, setSession] = useState<QuizSessionDTO | null>(null);
+    const [answers, setAnswers] = useState<Record<string, string>>({});
+    const [currentQIdx, setCurrentQIdx] = useState(0);
+    const [timeLeft, setTimeLeft] = useState(0);
+    const [result, setResult] = useState<any>(null);
+    const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    // Auto-save every 15s while in_progress
+    const autoSaveRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    // Clear timers on unmount
+    useEffect(() => {
+        return () => {
+            if (timerRef.current) clearInterval(timerRef.current);
+            if (autoSaveRef.current) clearInterval(autoSaveRef.current);
+        };
+    }, []);
+
+    // Countdown timer
+    useEffect(() => {
+        if (panelState !== 'in_progress') return;
+        if (!session?.timeLimit) return;
+        setTimeLeft(session.timeRemaining ?? session.timeLimit);
+        timerRef.current = setInterval(() => {
+            setTimeLeft(prev => {
+                if (prev <= 1) {
+                    clearInterval(timerRef.current!);
+                    handleSubmit();
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+        return () => { if (timerRef.current) clearInterval(timerRef.current!); };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [panelState, session?.sessionId]);
+
+    // Auto-save
+    useEffect(() => {
+        if (panelState !== 'in_progress' || !session) return;
+        autoSaveRef.current = setInterval(() => {
+            saveAnswersMutation.mutate({
+                sessionId: session.sessionId,
+                data: { answers, timeRemaining: timeLeft, currentQuestion: currentQIdx + 1 },
+            });
+        }, 15_000);
+        return () => { if (autoSaveRef.current) clearInterval(autoSaveRef.current!); };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [panelState, session?.sessionId, answers, timeLeft, currentQIdx]);
+
+    const handleStart = async () => {
+        if (!quiz) return;
+        try {
+            const sess = await startMutation.mutateAsync(quiz.id);
+            setSession(sess);
+            setAnswers(sess.answers ?? {});
+            setCurrentQIdx((sess.currentQuestion ?? 1) - 1);
+            setPanelState('in_progress');
+        } catch (e: any) {
+            toast.error(e?.message || 'Không thể bắt đầu quiz. Thử lại sau.');
+        }
+    };
+
+    const handleAnswer = (questionId: string, answer: string) => {
+        setAnswers(prev => ({ ...prev, [questionId]: answer }));
+    };
+
+    const handleSubmit = async () => {
+        if (!session) return;
+        if (timerRef.current) clearInterval(timerRef.current);
+        if (autoSaveRef.current) clearInterval(autoSaveRef.current);
+        try {
+            const res = await submitMutation.mutateAsync(session.sessionId);
+            setResult(res);
+            setPanelState('result');
+            if (res.isPassed) { onComplete(); }
+        } catch (e: any) {
+            toast.error(e?.message || 'Không thể nộp bài. Thử lại.');
+        }
+    };
+
+    const fmtTime = (s: number) => {
+        const m = Math.floor(s / 60);
+        const sec = s % 60;
+        return `${m}:${String(sec).padStart(2, '0')}`;
+    };
+
+    // ── Loading
+    if (quizLoading) {
+        return (
+            <div className="p-8 space-y-4 max-w-3xl mx-auto">
+                <Skeleton className="h-10 w-1/2" />
+                <Skeleton className="h-32 w-full" />
+            </div>
+        );
+    }
+
+    // ── No quiz found
+    if (!quiz) {
+        return (
+            <div className="p-8 text-center text-muted-foreground max-w-3xl mx-auto">
+                <HelpCircle className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                <p className="font-semibold">Quiz chưa được thiết lập cho bài học này.</p>
+                <p className="text-sm mt-1">Vui lòng liên hệ giảng viên.</p>
+            </div>
+        );
+    }
+
+    const questions = session?.questions ?? [];
+    const currentQ = questions[currentQIdx];
+    const answeredCount = Object.keys(answers).length;
+
+    // ── Intro screen
+    if (panelState === 'intro') {
+        return (
+            <div className="p-6 sm:p-10 max-w-2xl mx-auto">
+                {/* Header */}
+                <div className="flex items-start gap-4 pb-6 border-b border-border mb-8">
+                    <div className="p-4 rounded-2xl bg-violet-500/10 shrink-0">
+                        <HelpCircle className="h-8 w-8 text-violet-500" />
+                    </div>
+                    <div>
+                        <p className="text-xs font-bold uppercase tracking-widest text-violet-500 mb-1">Quiz</p>
+                        <h2 className="text-2xl font-bold text-foreground">{quiz.title}</h2>
+                        {quiz.description && <p className="text-sm text-muted-foreground mt-1">{quiz.description}</p>}
+                    </div>
+                </div>
+
+                {/* Stats */}
+                <div className="grid grid-cols-3 gap-4 mb-8">
+                    <div className="bg-muted/40 rounded-xl p-4 text-center border border-border">
+                        <p className="text-2xl font-black text-foreground">{quiz.totalQuestions}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Câu hỏi</p>
+                    </div>
+                    <div className="bg-muted/40 rounded-xl p-4 text-center border border-border">
+                        <p className="text-2xl font-black text-foreground">{quiz.totalTime ?? '∞'}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Phút</p>
+                    </div>
+                    <div className="bg-muted/40 rounded-xl p-4 text-center border border-border">
+                        <p className="text-2xl font-black text-foreground">{quiz.passingScore ?? 60}%</p>
+                        <p className="text-xs text-muted-foreground mt-1">Đạt</p>
+                    </div>
+                </div>
+
+                {quiz.maxAttempts > 0 && (
+                    <p className="text-sm text-muted-foreground mb-6">
+                        Số lần làm tối đa: <strong>{quiz.maxAttempts}</strong>
+                    </p>
+                )}
+
+                <button
+                    onClick={handleStart}
+                    disabled={startMutation.isPending}
+                    className="w-full py-4 bg-violet-500 hover:bg-violet-600 text-white rounded-2xl font-bold text-base transition flex items-center justify-center gap-2 shadow-lg shadow-violet-500/25"
+                >
+                    <PlayCircle className="h-5 w-5" />
+                    {startMutation.isPending ? 'Đang chuẩn bị...' : 'Bắt đầu làm bài'}
+                </button>
+            </div>
+        );
+    }
+
+    // ── Result screen
+    if (panelState === 'result' && result) {
+        const pct = result.percentage ?? 0;
+        const passed = result.isPassed;
+
+        return (
+            <div className="p-6 sm:p-10 max-w-2xl mx-auto">
+                {/* Result header */}
+                <div className={`rounded-2xl p-8 text-center mb-8 ${passed
+                    ? 'bg-emerald-500/10 border border-emerald-500/20'
+                    : 'bg-red-500/10 border border-red-500/20'}`}>
+                    <div className={`h-20 w-20 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl
+                        ${passed ? 'bg-emerald-500/20' : 'bg-red-500/20'}`}>
+                        {passed ? '🎉' : '😔'}
+                    </div>
+                    <p className={`text-2xl font-black mb-1 ${passed ? 'text-emerald-600' : 'text-red-500'}`}>
+                        {passed ? 'Xuất sắc! Đã vượt qua!' : 'Chưa đạt — cố lên!'}
+                    </p>
+                    <p className="text-muted-foreground text-sm">{quiz.title}</p>
+                </div>
+
+                {/* Score */}
+                <div className="grid grid-cols-3 gap-4 mb-8">
+                    <div className="bg-muted/40 rounded-xl p-4 text-center border border-border">
+                        <p className="text-2xl font-black text-foreground">{Number(result.score ?? 0).toFixed(0)}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Điểm đạt</p>
+                    </div>
+                    <div className="bg-muted/40 rounded-xl p-4 text-center border border-border">
+                        <p className="text-2xl font-black text-foreground">{Number(result.maxScore ?? 0).toFixed(0)}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Tổng điểm</p>
+                    </div>
+                    <div className={`rounded-xl p-4 text-center border ${passed
+                        ? 'bg-emerald-500/10 border-emerald-500/20'
+                        : 'bg-red-500/10 border-red-500/20'}`}>
+                        <p className={`text-2xl font-black ${passed ? 'text-emerald-500' : 'text-red-500'}`}>
+                            {Number(pct).toFixed(0)}%
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">Tỉ lệ đúng</p>
+                    </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-col gap-3">
+                    {!passed && quiz.maxAttempts !== 1 && (
+                        <button
+                            onClick={() => { setPanelState('intro'); setSession(null); setAnswers({}); setResult(null); }}
+                            className="w-full py-3 border border-border rounded-xl font-semibold text-sm hover:bg-muted transition flex items-center justify-center gap-2"
+                        >
+                            <RotateCcw className="h-4 w-4" /> Làm lại
+                        </button>
+                    )}
+                    <button
+                        onClick={onComplete}
+                        className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:bg-primary/90 transition flex items-center justify-center gap-2"
+                    >
+                        <ChevronRight className="h-4 w-4" /> Tiếp tục học
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // ── In-progress screen
+    if (panelState === 'in_progress' && session && currentQ) {
+        const timePercent = session.timeLimit > 0 ? (timeLeft / session.timeLimit) * 100 : 100;
+        const isTimeLow = timeLeft < 60;
+        const options = (currentQ.options ?? {}) as Record<string, string>;
+        const optionKeys = Object.keys(options).filter(k => k !== 'audioUrl');
+
+        return (
+            <div className="flex flex-col h-full">
+                {/* Timer bar */}
+                {session.timeLimit > 0 && (
+                    <div className="w-full h-1.5 bg-muted shrink-0">
+                        <div
+                            className={`h-full transition-all duration-1000 ${isTimeLow ? 'bg-red-500' : 'bg-primary'}`}
+                            style={{ width: `${timePercent}%` }}
+                        />
+                    </div>
+                )}
+
+                <div className="p-5 sm:p-8 max-w-2xl mx-auto w-full flex flex-col gap-6">
+                    {/* Top bar */}
+                    <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground font-medium">
+                            Câu {currentQIdx + 1}/{questions.length}
+                            {answeredCount > 0 && <span className="ml-2 text-xs text-emerald-500">({answeredCount} đã trả lời)</span>}
+                        </span>
+                        {session.timeLimit > 0 && (
+                            <span className={`flex items-center gap-1.5 text-sm font-bold tabular-nums
+                                ${isTimeLow ? 'text-red-500 animate-pulse' : 'text-muted-foreground'}`}>
+                                <Timer className="h-4 w-4" />
+                                {fmtTime(timeLeft)}
+                            </span>
+                        )}
+                    </div>
+
+                    {/* Progress dots */}
+                    <div className="flex flex-wrap gap-1.5">
+                        {questions.map((q, idx) => (
+                            <button
+                                key={q.id}
+                                onClick={() => setCurrentQIdx(idx)}
+                                className={`h-6 w-6 rounded-md text-[10px] font-bold transition
+                                    ${idx === currentQIdx ? 'bg-primary text-primary-foreground scale-110' :
+                                        answers[q.id] ? 'bg-emerald-500/20 text-emerald-600 border border-emerald-500/30' :
+                                            'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+                            >
+                                {idx + 1}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Question */}
+                    <div className="bg-muted/40 rounded-2xl p-5 border border-border">
+                        <p className="text-foreground font-medium leading-relaxed">{currentQ.questionText}</p>
+                    </div>
+
+                    {/* Options */}
+                    {(currentQ.questionType === 'multiple_choice' || currentQ.questionType === 'true_false') && (
+                        <div className="space-y-3">
+                            {optionKeys.map(key => {
+                                const isSelected = answers[currentQ.id] === key;
+                                return (
+                                    <button
+                                        key={key}
+                                        onClick={() => handleAnswer(currentQ.id, key)}
+                                        className={`w-full text-left p-4 rounded-xl border-2 font-medium text-sm transition
+                                            ${isSelected
+                                                ? 'border-primary bg-primary/10 text-foreground'
+                                                : 'border-border bg-background hover:border-primary/40 hover:bg-muted/40 text-foreground/80'}`}
+                                    >
+                                        <span className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-black mr-3
+                                            ${isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                                            {key.toUpperCase()}
+                                        </span>
+                                        {options[key]}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
+
+                    {/* Fill blank */}
+                    {currentQ.questionType === 'fill_blank' && (
+                        <input
+                            type="text"
+                            value={answers[currentQ.id] ?? ''}
+                            onChange={e => handleAnswer(currentQ.id, e.target.value)}
+                            placeholder="Nhập câu trả lời..."
+                            className="w-full p-4 bg-background border border-border rounded-xl text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition"
+                        />
+                    )}
+
+                    {/* Nav buttons */}
+                    <div className="flex items-center justify-between pt-2">
+                        <button
+                            onClick={() => setCurrentQIdx(i => Math.max(0, i - 1))}
+                            disabled={currentQIdx === 0}
+                            className="px-5 py-2.5 border border-border rounded-xl font-semibold text-sm hover:bg-muted transition disabled:opacity-40 flex items-center gap-1"
+                        >
+                            <ChevronLeft className="h-4 w-4" /> Câu trước
+                        </button>
+
+                        {currentQIdx < questions.length - 1 ? (
+                            <button
+                                onClick={() => setCurrentQIdx(i => Math.min(questions.length - 1, i + 1))}
+                                className="px-5 py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:bg-primary/90 transition flex items-center gap-1"
+                            >
+                                Câu tiếp <ChevronRight className="h-4 w-4" />
+                            </button>
+                        ) : (
+                            <button
+                                onClick={handleSubmit}
+                                disabled={submitMutation.isPending}
+                                className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-sm transition flex items-center gap-1 disabled:opacity-60"
+                            >
+                                <Send className="h-4 w-4" />
+                                {submitMutation.isPending ? 'Đang nộp...' : `Nộp bài (${answeredCount}/${questions.length})`}
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    return null;
+}
+
 
 function ModuleItem({
     mod, isExpanded, onToggle, currentLessonId, completedIds, onSelectLesson
@@ -472,6 +849,8 @@ export default function CourseLearnPage() {
     const isVideoLesson = contentType === 'video';
     const isArticleLesson = contentType === 'article';
     const isAssignmentLesson = contentType === 'assignment';
+    const isQuizLesson = contentType === 'quiz';
+
 
     // ─────────────────────────────────────────────────────────────────────────
     return (
@@ -642,6 +1021,23 @@ export default function CourseLearnPage() {
                                 </button>
                             </div>
                             <AssignmentPanel lessonId={currentLesson.id} courseId={courseId} onComplete={markLessonComplete} />
+                        </>
+                    )}
+
+                    {/* Quiz lesson */}
+                    {isQuizLesson && currentLesson && !lessonLoading && (
+                        <>
+                            <div className="px-5 sm:px-10 pt-8 max-w-3xl mx-auto flex flex-wrap gap-2">
+                                <button onClick={() => goTo(prevLesson)} disabled={!prevLesson?.isUnlocked}
+                                    className="px-4 py-2 border border-border rounded-lg font-semibold text-sm hover:bg-muted transition disabled:opacity-40 flex items-center gap-1">
+                                    <ChevronLeft className="h-4 w-4" /> Bài trước
+                                </button>
+                                <button onClick={() => goTo(nextLesson)} disabled={!nextLesson?.isUnlocked}
+                                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold text-sm hover:bg-primary/90 transition disabled:opacity-40 flex items-center gap-1">
+                                    Bài tiếp theo <ChevronRight className="h-4 w-4" />
+                                </button>
+                            </div>
+                            <QuizPanel lessonId={currentLesson.id} courseId={courseId} onComplete={markLessonComplete} />
                         </>
                     )}
 

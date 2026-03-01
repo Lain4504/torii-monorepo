@@ -14,6 +14,9 @@ import { Badge } from '@workspace/ui/components/badge';
 import {
     Accordion, AccordionContent, AccordionItem, AccordionTrigger
 } from '@workspace/ui/components/accordion';
+import { useCourses, useStudentCount } from '@/lib/api/services/course-api';
+import { useAllReviews } from '@/lib/api/services/review-api';
+import { Skeleton } from '@workspace/ui/components/skeleton';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -475,6 +478,18 @@ function AIShowcaseSection() {
 
 function TestimonialsSection() {
     const [active, setActive] = React.useState(0);
+    const { data: reviewsData, isLoading } = useAllReviews({ limit: 5 });
+    const reviews = reviewsData?.data || [];
+
+    // Fallback if no real reviews
+    const displayReviews = reviews.length > 0 ? reviews : TESTIMONIALS.map(t => ({
+        id: Math.random().toString(),
+        content: t.content,
+        rating: 5,
+        user: { displayName: t.name, avatarUrl: t.avatar },
+        courseTitle: `Khóa học JLPT ${t.level.replace('Đỗ ', '')}`
+    }));
+
     return (
         <section className="py-24 bg-muted/20">
             <div className="container mx-auto px-4 max-w-7xl">
@@ -484,62 +499,129 @@ function TestimonialsSection() {
                         <p className="text-muted-foreground">Câu chuyện thành công từ cộng đồng Torii Nihongo.</p>
                     </div>
                 </FadeIn>
-                <div className="relative overflow-hidden">
-                    <motion.div
-                        className="flex"
-                        animate={{ x: `-${active * 100}%` }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 40 }}
-                    >
-                        {TESTIMONIALS.map((t, i) => (
-                            <div key={i} className="w-full flex-shrink-0 px-4">
-                                <div className="max-w-2xl mx-auto bg-card border border-border rounded-3xl p-8 md:p-10 space-y-6">
-                                    <div className="flex text-amber-400">{[1, 2, 3, 4, 5].map(i => <Star key={i} className="size-4 fill-current" />)}</div>
-                                    <p className="text-foreground text-lg leading-relaxed italic">"{t.content}"</p>
-                                    <div className="flex items-center gap-4 pt-4 border-t border-border/50">
-                                        <img src={t.avatar} alt={t.name} className="size-12 rounded-full bg-muted" />
-                                        <div>
-                                            <p className="font-bold text-sm">{t.name}</p>
-                                            <p className="text-[11px] text-muted-foreground">{t.role}</p>
-                                            <p className="text-[10px] text-primary font-black uppercase tracking-widest mt-0.5">{t.level}</p>
+
+                {isLoading ? (
+                    <div className="max-w-2xl mx-auto"><Skeleton className="h-64 w-full rounded-3xl" /></div>
+                ) : (
+                    <>
+                        <div className="relative overflow-hidden">
+                            <motion.div
+                                className="flex"
+                                animate={{ x: `-${active * 100}%` }}
+                                transition={{ type: 'spring', stiffness: 300, damping: 40 }}
+                            >
+                                {displayReviews.map((t: any, i: number) => (
+                                    <div key={t.id || i} className="w-full flex-shrink-0 px-4">
+                                        <div className="max-w-2xl mx-auto bg-card border border-border rounded-3xl p-8 md:p-10 space-y-6">
+                                            <div className="flex text-amber-400">
+                                                {Array.from({ length: t.rating || 5 }).map((_, j) => <Star key={j} className="size-4 fill-current" />)}
+                                            </div>
+                                            <p className="text-foreground text-lg leading-relaxed italic">"{t.content || t.comment}"</p>
+                                            <div className="flex items-center gap-4 pt-4 border-t border-border/50">
+                                                {t.user?.avatarUrl ? (
+                                                    <img src={t.user.avatarUrl} alt={t.user.displayName} className="size-12 rounded-full bg-muted object-cover" />
+                                                ) : (
+                                                    <div className="size-12 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">
+                                                        {t.user?.displayName?.charAt(0) || 'U'}
+                                                    </div>
+                                                )}
+                                                <div>
+                                                    <p className="font-bold text-sm">{t.user?.displayName || 'Học viên ẩn danh'}</p>
+                                                    <p className="text-[11px] text-muted-foreground">{t.courseTitle || 'Học viên Torii'}</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        ))}
-                    </motion.div>
-                </div>
-                <div className="flex items-center justify-center gap-2 mt-8">
-                    {TESTIMONIALS.map((_, i) => (
-                        <button key={i} onClick={() => setActive(i)} className={`rounded-full transition-all duration-300 cursor-pointer ${i === active ? 'w-6 h-2 bg-primary' : 'size-2 bg-muted-foreground/30 hover:bg-muted-foreground/60'}`} />
-                    ))}
-                </div>
+                                ))}
+                            </motion.div>
+                        </div>
+                        <div className="flex items-center justify-center gap-2 mt-8">
+                            {displayReviews.map((_, i: number) => (
+                                <button key={i} onClick={() => setActive(i)} className={`rounded-full transition-all duration-300 cursor-pointer ${i === active ? 'w-6 h-2 bg-primary' : 'size-2 bg-muted-foreground/30 hover:bg-muted-foreground/60'}`} />
+                            ))}
+                        </div>
+                    </>
+                )}
             </div>
         </section>
     );
 }
 
-const FEATURED_COURSES = [
-    {
-        level: 'N5', levelColor: '#3b82f6', title: 'Tiếng Nhật N5 Toàn Diện',
-        desc: 'Nền tảng vững chắc từ Hiragana, Katakana đến ngữ pháp cơ bản. Phù hợp cho người mới bắt đầu tuyệt đối.',
-        price: '499.000', originalPrice: '799.000', lessons: 48, hours: 24, students: 3200, rating: 4.9,
-        badge: 'Bán chạy nhất', href: '/courses/n5-toan-dien',
-    },
-    {
-        level: 'N3', levelColor: '#22c55e', title: 'JLPT N3 — Thực Chiến 90 Ngày',
-        desc: 'Lộ trình 90 ngày chinh phục N3 với flashcard AI, luyện đề thực tế và live Q&A hàng tuần.',
-        price: '899.000', originalPrice: '1.299.000', lessons: 72, hours: 40, students: 1850, rating: 4.8,
-        badge: 'Phổ biến', href: '/courses/n3-thuc-chien',
-    },
-    {
-        level: 'N2', levelColor: '#f59e0b', title: 'Tiếng Nhật Thương Mại N2',
-        desc: 'Ngôn ngữ doanh nghiệp, email văn phòng và kỹ năng thuyết trình chuyên nghiệp bằng tiếng Nhật.',
-        price: '1.199.000', originalPrice: '1.599.000', lessons: 60, hours: 35, students: 920, rating: 4.9,
-        badge: 'Mới nhất', href: '/courses/n2-thuong-mai',
-    },
-];
+function CourseCard({ course, index }: { course: any, index: number }) {
+    const { data: studentData } = useStudentCount(course.id);
+    const students = studentData?.count || course.totalStudents || 0;
+
+    // Fallbacks if not provided
+    const lessonsCount = course.totalLessons || 0;
+    const hours = course.durationWeeks ? course.durationWeeks * 2 : 0;
+    const originalPrice = course.price ? parseInt(course.price.toString()) : 0;
+    const discountPrice = course.discountPrice ? parseInt(course.discountPrice.toString()) : originalPrice;
+
+    const formatPrice = (p: number) => new Intl.NumberFormat('vi-VN').format(p);
+
+    return (
+        <FadeIn delay={index * 0.1}>
+            <Link href={`/courses/${course.slug}`} className="block group cursor-pointer h-full">
+                <div className="bg-card border border-border/60 rounded-3xl overflow-hidden hover:border-primary/40 hover:shadow-xl transition-all duration-300 h-full flex flex-col">
+                    <div className="relative h-44 flex items-center justify-center bg-primary/5">
+                        {course.thumbnailUrl ? (
+                            <img src={course.thumbnailUrl} alt={course.title} className="w-full h-full object-cover" />
+                        ) : (
+                            <div className="text-center space-y-2">
+                                <div className="size-16 rounded-2xl flex items-center justify-center font-black text-2xl text-white shadow-lg mx-auto bg-primary">
+                                    {course.jlptLevel || 'ALL'}
+                                </div>
+                                <p className="text-xs font-bold text-muted-foreground">{course.jlptLevel ? `JLPT ${course.jlptLevel}` : 'Khoá học'}</p>
+                            </div>
+                        )}
+                    </div>
+                    {/* Content */}
+                    <div className="p-6 flex flex-col flex-1 space-y-3">
+                        <h3 className="font-black text-base leading-tight group-hover:text-primary transition-colors line-clamp-2">{course.title}</h3>
+                        <p className="text-muted-foreground text-sm leading-relaxed flex-1 line-clamp-2">{course.shortDescription || course.description}</p>
+                        {/* Meta */}
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground font-medium">
+                            <span className="flex items-center gap-1"><PlayCircle className="size-3.5" />{lessonsCount} bài</span>
+                            <span className="flex items-center gap-1"><Clock className="size-3.5" />{hours}h</span>
+                            <span className="flex items-center gap-1"><Users className="size-3.5" />{students.toLocaleString()}</span>
+                        </div>
+                        {/* Rating */}
+                        <div className="flex items-center gap-1.5">
+                            <div className="flex text-amber-400">{[1, 2, 3, 4, 5].map(j => <Star key={j} className="size-3 fill-current" />)}</div>
+                            <span className="text-xs font-bold">{course.averageRating || '5.0'}</span>
+                        </div>
+                        {/* Price */}
+                        <div className="pt-2 border-t border-border/50 flex items-center justify-between mt-auto">
+                            {course.isFree ? (
+                                <span className="text-xl font-black text-primary">Miễn phí</span>
+                            ) : (
+                                <>
+                                    <div className="flex items-baseline gap-2">
+                                        <span className="text-xl font-black text-primary">{formatPrice(discountPrice)}₫</span>
+                                        {originalPrice > discountPrice && (
+                                            <span className="text-xs text-muted-foreground line-through">{formatPrice(originalPrice)}₫</span>
+                                        )}
+                                    </div>
+                                    {originalPrice > discountPrice && (
+                                        <div className="flex items-center gap-1 text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded-lg">
+                                            <Tag className="size-3" />
+                                            -{Math.round((1 - discountPrice / originalPrice) * 100)}%
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </Link>
+        </FadeIn>
+    );
+}
 
 function FeaturedCoursesSection() {
+    const { data: coursesData, isLoading } = useCourses({ limit: 3, sortBy: 'popular' });
+    const courses = coursesData?.data || [];
+
     return (
         <section className="py-24">
             <div className="container mx-auto px-4 max-w-7xl">
@@ -554,55 +636,25 @@ function FeaturedCoursesSection() {
                         <Link href="/courses">Xem tất cả khóa học <ArrowRight className="ml-1 size-4 group-hover:translate-x-1 transition-transform" /></Link>
                     </Button>
                 </div>
-                <div className="grid md:grid-cols-3 gap-6">
-                    {FEATURED_COURSES.map((c, i) => (
-                        <FadeIn key={i} delay={i * 0.1}>
-                            <Link href={c.href} className="block group cursor-pointer">
-                                <div className="bg-card border border-border/60 rounded-3xl overflow-hidden hover:border-primary/40 hover:shadow-xl transition-all duration-300 h-full flex flex-col">
-                                    {/* Thumbnail placeholder */}
-                                    <div className="relative h-44 flex items-center justify-center" style={{ backgroundColor: `${c.levelColor}18` }}>
-                                        <div className="text-center space-y-2">
-                                            <div className="size-16 rounded-2xl flex items-center justify-center font-black text-2xl text-white shadow-lg mx-auto" style={{ backgroundColor: c.levelColor }}>
-                                                {c.level}
-                                            </div>
-                                            <p className="text-xs font-bold text-muted-foreground">JLPT {c.level}</p>
-                                        </div>
-                                        <div className="absolute top-3 left-3">
-                                            <Badge className="text-[10px] font-black px-2 py-0.5">{c.badge}</Badge>
-                                        </div>
-                                    </div>
-                                    {/* Content */}
-                                    <div className="p-6 flex flex-col flex-1 space-y-3">
-                                        <h3 className="font-black text-base leading-tight group-hover:text-primary transition-colors">{c.title}</h3>
-                                        <p className="text-muted-foreground text-sm leading-relaxed flex-1">{c.desc}</p>
-                                        {/* Meta */}
-                                        <div className="flex items-center gap-4 text-xs text-muted-foreground font-medium">
-                                            <span className="flex items-center gap-1"><PlayCircle className="size-3.5" />{c.lessons} bài</span>
-                                            <span className="flex items-center gap-1"><Clock className="size-3.5" />{c.hours}h</span>
-                                            <span className="flex items-center gap-1"><Users className="size-3.5" />{c.students.toLocaleString()}</span>
-                                        </div>
-                                        {/* Rating */}
-                                        <div className="flex items-center gap-1.5">
-                                            <div className="flex text-amber-400">{[1, 2, 3, 4, 5].map(j => <Star key={j} className="size-3 fill-current" />)}</div>
-                                            <span className="text-xs font-bold">{c.rating}</span>
-                                        </div>
-                                        {/* Price */}
-                                        <div className="pt-2 border-t border-border/50 flex items-center justify-between">
-                                            <div className="flex items-baseline gap-2">
-                                                <span className="text-xl font-black text-primary">{c.price}₫</span>
-                                                <span className="text-xs text-muted-foreground line-through">{c.originalPrice}₫</span>
-                                            </div>
-                                            <div className="flex items-center gap-1 text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded-lg">
-                                                <Tag className="size-3" />
-                                                -{Math.round((1 - parseInt(c.price.replace(/\./g, '')) / parseInt(c.originalPrice.replace(/\./g, ''))) * 100)}%
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Link>
-                        </FadeIn>
-                    ))}
-                </div>
+                {isLoading ? (
+                    <div className="grid md:grid-cols-3 gap-6">
+                        {[1, 2, 3].map(i => (
+                            <Skeleton key={i} className="h-96 w-full rounded-3xl" />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="grid md:grid-cols-3 gap-6">
+                        {courses.length > 0 ? (
+                            courses.map((c, i) => (
+                                <CourseCard key={c.id} course={c} index={i} />
+                            ))
+                        ) : (
+                            <div className="col-span-3 text-center py-12 text-muted-foreground">
+                                Chưa có khóa học nào được hiển thị.
+                            </div>
+                        )}
+                    </div>
+                )}
                 <FadeIn delay={0.3}>
                     <div className="mt-10 text-center">
                         <p className="text-muted-foreground text-sm mb-4 flex items-center justify-center gap-2">
