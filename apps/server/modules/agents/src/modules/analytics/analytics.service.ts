@@ -5,7 +5,6 @@ import { FastMcpService } from '../../fastmcp/fastmcp.service';
 import { z } from 'zod';
 import { AgentReadinessProfileResponseSchema, AgentStudyPathResponseSchema, Requester } from '@workspace/schemas';
 import Redis from 'ioredis';
-import { AppConfigService } from '@server/shared';
 
 const SNAPSHOT_TTL_SECONDS = 24 * 60 * 60; // 24 hours
 const SNAPSHOT_KEY = (userId: string, targetLevel: string) =>
@@ -35,7 +34,6 @@ export class AnalyticsService implements OnModuleInit, OnModuleDestroy {
         private readonly prisma: PrismaService,
         private readonly appConfig: AppConfigService,
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-        private readonly appConfig: AppConfigService,
     ) { }
 
     private async deductCoins(userId: string, taskType: string, usage: any) {
@@ -55,31 +53,30 @@ export class AnalyticsService implements OnModuleInit, OnModuleDestroy {
         });
     }
 
-    onModuleInit() {
     async onModuleInit() {
-            // Init Redis connection
-            const redisUrl = process.env.REDIS_URL || process.env.REDIS_URI || 'redis://localhost:6379';
-            this.redis = new Redis(redisUrl, {
-                lazyConnect: true,
-                maxRetriesPerRequest: 3,
-                enableReadyCheck: false,
-            });
+        // Init Redis connection
+        const redisUrl = process.env.REDIS_URL || process.env.REDIS_URI || 'redis://localhost:6379';
+        this.redis = new Redis(redisUrl, {
+            lazyConnect: true,
+            maxRetriesPerRequest: 3,
+            enableReadyCheck: false,
+        });
 
-            try {
-                await this.redis.connect();
-                this.logger.log('✅ Redis connected for analytics cache');
-            } catch (err) {
-                this.logger.warn(`⚠️ Redis connection failed — analytics will run without cache: ${err.message}`);
-            }
-
-            this.registerTools();
+        try {
+            await this.redis.connect();
+            this.logger.log('✅ Redis connected for analytics cache');
+        } catch (err) {
+            this.logger.warn(`⚠️ Redis connection failed — analytics will run without cache: ${err.message}`);
         }
+
+        this.registerTools();
+    }
 
     async onModuleDestroy() {
-            if (this.redis?.status === 'ready') {
-                await this.redis.quit();
-            }
+        if (this.redis?.status === 'ready') {
+            await this.redis.quit();
         }
+    }
 
     // ── Redis helpers ────────────────────────────────────────────────────────
 

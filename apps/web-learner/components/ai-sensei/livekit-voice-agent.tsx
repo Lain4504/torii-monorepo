@@ -17,7 +17,6 @@ import { Track } from "livekit-client";
 import "@livekit/components-styles";
 import { Button } from "@workspace/ui/components/button";
 import { Mic, Loader2, Zap, PhoneOff, Radio } from "lucide-react";
-import { Mic } from "lucide-react";
 import { Spinner } from "@workspace/ui/components/spinner";
 import { apiClient, extractErrorMessage } from "@/lib/api/api-client";
 import { toast } from "sonner";
@@ -114,30 +113,7 @@ export function LivekitVoiceAgent() {
     }, []);
 
     if (!connectionData) {
-        return (
-            <InitialScreen onConnect={connectToVoice} isConnecting={isConnecting} />
-            <div className="flex flex-col items-center justify-center p-12 text-center h-full gap-6">
-                <div className="bg-primary/10 p-6 rounded-full">
-                    <Mic className="size-12 text-primary" />
-                </div>
-                <div className="space-y-4 max-w-md">
-                    <h3 className="text-2xl font-bold tracking-tight">Voice Roleplay with Sensei</h3>
-                    <p className="text-muted-foreground">
-                        Luyện tập giao tiếp trực tiếp với Sensei bằng giọng nói. Sensei có thể nghe, hiểu và phản hồi lại bạn bằng tiếng Nhật chuẩn với độ trễ cực thấp.
-                    </p>
-                </div>
-                <Button onClick={connectToVoice} disabled={isConnecting} size="lg" className="rounded-full px-8 mt-4">
-                    {isConnecting ? (
-                        <>
-                            <Spinner className="mr-2 h-4 w-4" />
-                            Connecting to Roleplay Cloud...
-                        </>
-                    ) : (
-                        "Start Voice Roleplay"
-                    )}
-                </Button>
-            </div>
-        );
+        return <InitialScreen onConnect={connectToVoice} isConnecting={isConnecting} />;
     }
 
     return (
@@ -223,210 +199,176 @@ function SessionUI({ sessionTokens }: { sessionTokens: SessionTokens }) {
                     <span className="text-xs font-semibold text-muted-foreground">
                         {stateLabel[state] ?? "Live Session"}
                     </span>
-                    <div className="flex flex-col items-center gap-12 w-full transition-all duration-500">
-                        <div className="relative flex items-center justify-center">
-                            {/* Outer Glow / Space Effect */}
-                            <div className={`absolute inset-0 rounded-full blur-[60px] transition-all duration-1000 opacity-40 ${state === 'speaking' ? 'bg-cyan-400 scale-125' :
-                                state === 'thinking' ? 'bg-amber-400 scale-110' : 'bg-primary/10 scale-90'
-                                }`} />
+                </div>
 
-                            {/* The Orb */}
-                            <div className={`relative w-48 h-48 md:w-56 md:h-56 rounded-full transition-all duration-700 flex items-center justify-center overflow-hidden border-[4px] ${state === 'speaking' ? 'border-white/20 bg-gradient-to-tr from-violet-600 via-indigo-600 to-cyan-500 shadow-2xl scale-105' :
-                                state === 'thinking' ? 'border-amber-400/30 bg-gradient-to-br from-amber-400 to-orange-500 animate-pulse' :
-                                    state === 'listening' ? 'border-primary/20 bg-background/40 backdrop-blur-2xl' :
-                                        'border-muted bg-muted/20 backdrop-blur-md'
-                                }`}>
-                                {state === 'speaking' ? (
-                                    <BarVisualizer
-                                        state={state}
-                                        barCount={15}
-                                        trackRef={audioTrack}
-                                        className="w-24 h-8 text-white/90"
-                                    />
-                                ) : state === 'thinking' ? (
-                                    <Spinner className="w-16 h-16 text-white opacity-50" />
-                                ) : state === 'listening' ? (
-                                    <div className="flex items-end gap-1.5 h-12">
-                                        {[0, 1, 2, 3, 4].map((i) => (
-                                            <div
-                                                key={i}
-                                                className="w-2 bg-primary/60 rounded-full animate-pulse"
-                                                style={{
-                                                    height: `${Math.random() * 60 + 20}%`,
-                                                    animationDelay: `${i * 0.15}s`,
-                                                    animationDuration: '0.8s'
-                                                }}
-                                            />
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="w-2 h-2 rounded-full bg-muted-foreground/30" />
-                                )}
-                            </div>
-
-                            {/* Token badge */}
-                            {sessionTokens.total > 0 && (
-                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                    <Zap className="size-3 text-yellow-500" />
-                                    <span className="font-medium">{sessionTokens.total.toLocaleString()} tokens</span>
-                                    <span className="text-muted-foreground/50">·</span>
-                                    <span className="text-primary font-semibold">
-                                        ≈ {Math.ceil(sessionTokens.input * 0.075 + sessionTokens.output * 0.3).toLocaleString()} Coins
-                                    </span>
-                                </div>
-                            )}
-
-                            {/* End session */}
-                            <DisconnectButton className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-destructive border border-border hover:border-destructive/40 bg-transparent hover:bg-destructive/5 rounded-lg px-3 py-1.5 transition-colors duration-200 cursor-pointer">
-                                <PhoneOff className="size-3.5" />
-                                Kết thúc
-                            </DisconnectButton>
-                        </div>
-
-                        {/* ── Main: star (all ring effects handled inside Three.js canvas) ── */}
-                        <div className="flex-1 flex flex-col items-center justify-center gap-6 min-h-0 px-6 py-4">
-                            <div className="flex items-center justify-center">
-                                <GeminiVisualizer agentState={state} agentTrackRef={audioTrack} />
-                            </div>
-
-                            {/* User audio feedback section */}
-                            <UserVisualizer state={state} />
-                        </div>
-
-                        {/* ── Mic toggle ── */}
-                        <div className="flex items-center justify-center py-4 pb-6 flex-shrink-0">
-                            <MicButton />
-                        </div>
-
-                        <RoomAudioRenderer />
-                    </div>
-                    );
-}
-
-                    // ─── Mic Button ───────────────────────────────────────────────────────────────
-
-                    function MicButton() {
-    return (
-                    <div className="relative">
-                        <div className="absolute inset-0 rounded-full bg-primary/15 blur-xl animate-pulse scale-150" />
-                        <div className="relative h-14 w-14 rounded-full border border-border bg-background shadow-md hover:shadow-lg hover:bg-accent transition-all duration-200 flex items-center justify-center">
-                            <TrackToggle
-                                source={Track.Source.Microphone}
-                                className="!w-full !h-full !bg-transparent !border-none !text-foreground focus-within:!ring-0"
-                            />
-                        </div>
-                    </div>
-                    );
-}
-
-                    // ─── User Visualizer ─────────────────────────────────────────────────────────
-
-                    function UserVisualizer({state}: {state: string }) {
-    const {localParticipant} = useLocalParticipant();
-                    const micPub = Array.from(localParticipant.trackPublications.values()).find(
-        (p) => p.source === Track.Source.Microphone
-                    );
-
-                    const isListening = state === "listening";
-
-                    return (
-                    <div className="w-full flex flex-col items-center gap-2">
-                        {/* Waveform — shows when listening or user has mic active */}
-                        <div
-                            className={`h-10 w-full max-w-xs flex items-center justify-center transition-opacity duration-300 ${isListening ? "opacity-100" : "opacity-30"
-                                }`}
-                        >
-                            {micPub?.track ? (
-                                <BarVisualizer
-                                    trackRef={{
-                                        participant: localParticipant,
-                                        publication: micPub,
-                                        source: Track.Source.Microphone,
-                                    }}
-                                    barCount={28}
-                                    className={`w-full h-full transition-colors duration-300 ${isListening ? "text-cyan-500" : "text-muted-foreground/40"
-                                        }`}
-                                    style={{ height: "40px" }}
-                                />
-                            ) : (
-                                <div className="h-px w-24 bg-border rounded-full" />
-                            )}
-                        </div>
-
-                        {/* Label */}
-                        <span
-                            className={`text-[10px] font-semibold uppercase tracking-widest transition-colors duration-300 ${isListening ? "text-cyan-500" : "text-muted-foreground/40"
-                                }`}
-                        >
-                            {isListening ? "Mời bạn nói" : "Bạn"}
+                {/* Token badge */}
+                {sessionTokens.total > 0 && (
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Zap className="size-3 text-yellow-500" />
+                        <span className="font-medium">{sessionTokens.total.toLocaleString()} tokens</span>
+                        <span className="text-muted-foreground/50">·</span>
+                        <span className="text-primary font-semibold">
+                            ≈ {Math.ceil(sessionTokens.input * 0.075 + sessionTokens.output * 0.3).toLocaleString()} Coins
                         </span>
                     </div>
-                    );
+                )}
+
+                {/* End session */}
+                <DisconnectButton className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-destructive border border-border hover:border-destructive/40 bg-transparent hover:bg-destructive/5 rounded-lg px-3 py-1.5 transition-colors duration-200 cursor-pointer">
+                    <PhoneOff className="size-3.5" />
+                    Kết thúc
+                </DisconnectButton>
+            </div>
+
+
+            {/* ── Main content ── */}
+            <div className="flex flex-col items-center gap-12 w-full flex-1 transition-all duration-500 py-6">
+
+                {/* ── Main: star (all ring effects handled inside Three.js canvas) ── */}
+                <div className="flex-1 flex flex-col items-center justify-center gap-6 min-h-0 px-6 py-4">
+                    <div className="flex items-center justify-center">
+                        <GeminiVisualizer agentState={state} agentTrackRef={audioTrack} />
+                    </div>
+
+                    {/* User audio feedback section */}
+                    <UserVisualizer state={state} />
+                </div>
+
+                {/* ── Mic toggle ── */}
+                <div className="flex items-center justify-center py-4 pb-6 flex-shrink-0">
+                    <MicButton />
+                </div>
+
+                <RoomAudioRenderer />
+            </div>
+        </div>
+    );
 }
 
-                    // ─── ConnectionHandler ────────────────────────────────────────────────────────
+// ─── Mic Button ───────────────────────────────────────────────────────────────
 
-                    function ConnectionHandler({
-                        roomName,
-                        onTokenUpdate,
+function MicButton() {
+    return (
+        <div className="relative">
+            <div className="absolute inset-0 rounded-full bg-primary/15 blur-xl animate-pulse scale-150" />
+            <div className="relative h-14 w-14 rounded-full border border-border bg-background shadow-md hover:shadow-lg hover:bg-accent transition-all duration-200 flex items-center justify-center">
+                <TrackToggle
+                    source={Track.Source.Microphone}
+                    className="!w-full !h-full !bg-transparent !border-none !text-foreground focus-within:!ring-0"
+                />
+            </div>
+        </div>
+    );
+}
+
+// ─── User Visualizer ─────────────────────────────────────────────────────────
+
+function UserVisualizer({ state }: { state: string }) {
+    const { localParticipant } = useLocalParticipant();
+    const micPub = Array.from(localParticipant.trackPublications.values()).find(
+        (p) => p.source === Track.Source.Microphone
+    );
+
+    const isListening = state === "listening";
+
+    return (
+        <div className="w-full flex flex-col items-center gap-2">
+            {/* Waveform — shows when listening or user has mic active */}
+            <div
+                className={`h-10 w-full max-w-xs flex items-center justify-center transition-opacity duration-300 ${isListening ? "opacity-100" : "opacity-30"
+                    }`}
+            >
+                {micPub?.track ? (
+                    <BarVisualizer
+                        trackRef={{
+                            participant: localParticipant,
+                            publication: micPub,
+                            source: Track.Source.Microphone,
+                        }}
+                        barCount={28}
+                        className={`w-full h-full transition-colors duration-300 ${isListening ? "text-cyan-500" : "text-muted-foreground/40"
+                            }`}
+                        style={{ height: "40px" }}
+                    />
+                ) : (
+                    <div className="h-px w-24 bg-border rounded-full" />
+                )}
+            </div>
+
+            {/* Label */}
+            <span
+                className={`text-[10px] font-semibold uppercase tracking-widest transition-colors duration-300 ${isListening ? "text-cyan-500" : "text-muted-foreground/40"
+                    }`}
+            >
+                {isListening ? "Mời bạn nói" : "Bạn"}
+            </span>
+        </div>
+    );
+}
+
+// ─── ConnectionHandler ────────────────────────────────────────────────────────
+
+function ConnectionHandler({
+    roomName,
+    onTokenUpdate,
 }: {
-                        roomName: string;
-                    onTokenUpdate: (data: {
-                        inputTokens: number;
-                    outputTokens: number;
-                    totalTokens: number;
+    roomName: string;
+    onTokenUpdate: (data: {
+        inputTokens: number;
+        outputTokens: number;
+        totalTokens: number;
     }) => void;
 }) {
     const connectionState = useConnectionState();
-                    const room = useRoomContext();
-                    const triggered = useRef(false);
-                    const dispatch = useAppDispatch();
+    const room = useRoomContext();
+    const triggered = useRef(false);
+    const dispatch = useAppDispatch();
 
     useDataChannel("billing_update", (msg) => {
         try {
             const data = JSON.parse(new TextDecoder().decode(msg.payload));
-                    if (data.type === "billing_update") {
-                        onTokenUpdate({
-                            inputTokens: data.inputTokens,
-                            outputTokens: data.outputTokens,
-                            totalTokens: data.totalTokens,
-                        });
+            if (data.type === "billing_update") {
+                onTokenUpdate({
+                    inputTokens: data.inputTokens,
+                    outputTokens: data.outputTokens,
+                    totalTokens: data.totalTokens,
+                });
             }
         } catch {
-                        /* ignore */
-                    }
+            /* ignore */
+        }
     });
 
     useEffect(() => {
         const disconnect = () => {
             if (room.state !== "disconnected") {
-                        room.disconnect();
+                room.disconnect();
             }
         };
         const handleBeforeUnload = () => disconnect();
-                    window.addEventListener("beforeunload", handleBeforeUnload);
+        window.addEventListener("beforeunload", handleBeforeUnload);
         const handlePageHide = () => disconnect();
-                    window.addEventListener("pagehide", handlePageHide);
+        window.addEventListener("pagehide", handlePageHide);
         return () => {
-                        disconnect();
-                    window.removeEventListener("beforeunload", handleBeforeUnload);
-                    window.removeEventListener("pagehide", handlePageHide);
+            disconnect();
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+            window.removeEventListener("pagehide", handlePageHide);
         };
     }, [room]);
 
     useEffect(() => {
         if (connectionState === "connected" && !triggered.current) {
-                        triggered.current = true;
-                    toast.promise(
-                    apiClient.post("/api/agents/livekit-join", {roomName}),
-                    {
-                        loading: "Calling Sensei...",
+            triggered.current = true;
+            toast.promise(
+                apiClient.post("/api/agents/livekit-join", { roomName }),
+                {
+                    loading: "Calling Sensei...",
                     success: "Sensei is in the room!",
                     error: "Sensei is busy. Please retry.",
                 }
-                    );
+            );
         }
     }, [connectionState, roomName]);
 
-                    return null;
+    return null;
 }
