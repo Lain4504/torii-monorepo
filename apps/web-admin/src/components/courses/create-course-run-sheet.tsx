@@ -18,7 +18,7 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { X, Save, ImageIcon, Video } from 'lucide-react';
+import { X, Save } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { courseRunCreateDTOSchema, type CourseRunCreateDTO, CourseRunStatus, UserRole } from '@workspace/schemas';
 import { useCreateCourseRun } from "@/lib/api/services/course-runs";

@@ -195,6 +195,20 @@ export interface ICourseMasterService {
     getStudentCount(courseMasterId: string): Promise<{ count: number }>;
 
     /**
+     * Get course version history
+     * @param courseMasterId - The course's unique identifier
+     */
+    getVersionHistory(courseMasterId: string): Promise<Array<{
+        id: string;
+        versionTag: string;
+        createdAt: Date;
+        createdBy?: string;
+        changelog?: string;
+        totalModules?: number;
+        totalLessons?: number;
+    }>>;
+
+    /**
      * Get a specific course version by ID
      */
     getVersionById(versionId: string): Promise<any | null>;

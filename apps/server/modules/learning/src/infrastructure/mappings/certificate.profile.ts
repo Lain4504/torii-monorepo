@@ -30,8 +30,8 @@ export class CertificateProfile extends AutomapperProfile {
                     mapFrom((src: Certificate) => src.userId),
                 ),
                 forMember(
-                    (dest: CertificateResponseDTO) => dest.courseMasterId,
-                    mapFrom((src: Certificate) => src.courseMasterId),
+                    (dest: CertificateResponseDTO) => dest.courseRunId,
+                    mapFrom((src: Certificate) => src.courseRunId),
                 ),
                 forMember(
                     (dest: CertificateResponseDTO) => dest.enrollmentId,

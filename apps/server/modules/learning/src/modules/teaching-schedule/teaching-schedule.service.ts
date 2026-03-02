@@ -40,7 +40,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
                 id: excludeScheduleId ? { not: excludeScheduleId } : undefined,
             },
             include: {
-                courseMaster: {
+                courseRun: {
                     select: {
                         title: true,
                     },
@@ -58,7 +58,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
             available: conflicts.length === 0,
             conflicts: conflicts.length > 0 ? conflicts.map(c => ({
                 id: c.id,
-                courseTitle: c.courseMaster.title,
+                courseTitle: (c as any).courseRun.title,
                 startTime: c.startTime,
                 duration: c.duration,
             })) : undefined,
@@ -78,36 +78,44 @@ export class TeachingScheduleService implements ITeachingScheduleService {
             });
         }
 
-        // Validate course readiness for scheduling
-        const validation = await this.courseMasterService.validateForScheduling(dto.courseMasterId);
+        // Validate course run for scheduling
+        const run = await this.prisma.courseRun.findUnique({
+            where: { id: dto.courseRunId },
+            include: { courseMaster: true }
+        });
+        if (!run) throw new NotFoundException('Lớp học không tồn tại');
+
+        const validation = await this.courseMasterService.validateForScheduling(run.courseMasterId);
         if (!validation.isReady) {
             throw new ConflictException(validation.message || 'Khóa học chưa sẵn sàng để gán lịch');
         }
 
         const schedule = await this.prisma.teachingSchedule.create({
             data: {
-                courseMasterId: dto.courseMasterId,
+                courseRunId: dto.courseRunId,
                 lecturerId: dto.lecturerId,
                 dayOfWeek: dto.dayOfWeek,
                 startTime: dto.startTime,
                 duration: dto.duration,
             },
             include: {
-                courseMaster: true,
+                courseRun: {
+                    include: { courseMaster: true }
+                },
                 lecturer: true,
             },
         });
 
-        // Generate live sessions for the next 8 weeks
-        await this.generateLiveSessions(schedule.id, 8);
+        // Generate live sessions for the next 8 weeks for this run
+        await this.regenerateSessionsForRun(dto.courseRunId, 8);
 
         return this.mapper.map<any, TeachingScheduleResponseDTO>(schedule, 'TeachingSchedule', 'TeachingScheduleResponseDTO');
     }
 
-    async findByCourse(courseMasterId: string): Promise<TeachingScheduleResponseDTO[]> {
+    async findByRun(courseRunId: string): Promise<TeachingScheduleResponseDTO[]> {
         const schedules = await this.prisma.teachingSchedule.findMany({
-            where: { courseMasterId },
-            include: { lecturer: true, courseMaster: true },
+            where: { courseRunId },
+            include: { lecturer: true, courseRun: { include: { courseMaster: true } } },
         });
         return schedules.map(s => this.mapper.map<any, TeachingScheduleResponseDTO>(s, 'TeachingSchedule', 'TeachingScheduleResponseDTO'));
     }
@@ -115,7 +123,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
     async findByLecturer(lecturerId: string): Promise<TeachingScheduleResponseDTO[]> {
         const schedules = await this.prisma.teachingSchedule.findMany({
             where: { lecturerId },
-            include: { lecturer: true, courseMaster: true },
+            include: { lecturer: true, courseRun: { include: { courseMaster: true } } },
         });
         return schedules.map(s => this.mapper.map<any, TeachingScheduleResponseDTO>(s, 'TeachingSchedule', 'TeachingScheduleResponseDTO'));
     }
@@ -128,16 +136,10 @@ export class TeachingScheduleService implements ITeachingScheduleService {
         const schedule = await this.prisma.teachingSchedule.findUnique({ where: { id } });
         if (!schedule) throw new NotFoundException('Schedule not found');
 
-        // Delete future scheduled sessions that haven't started
-        await this.prisma.liveSession.deleteMany({
-            where: {
-                scheduleId: id,
-                status: 'scheduled',
-                scheduledAt: { gt: new Date() },
-            },
-        });
-
         await this.prisma.teachingSchedule.delete({ where: { id } });
+
+        // Regenerate sessions for the run
+        await this.regenerateSessionsForRun(schedule.courseRunId, 8);
     }
 
     async createRequest(requester: Requester, dto: ScheduleRequestCreateDTO): Promise<ScheduleRequestResponseDTO> {
@@ -148,7 +150,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
             data: {
                 lecturerId: requester.sub,
                 originalScheduleId: dto.originalScheduleId,
-                courseMasterId: dto.courseMasterId,
+                courseRunId: (dto as any).courseRunId,
                 dayOfWeek: dto.dayOfWeek,
                 startTime: dto.startTime,
                 duration: dto.duration,
@@ -157,7 +159,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
             },
             include: {
                 lecturer: true,
-                courseMaster: true,
+                courseRun: { include: { courseMaster: true } },
             },
         });
 
@@ -172,7 +174,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
 
         const requests = await this.prisma.liveSessionScheduleRequest.findMany({
             where,
-            include: { lecturer: true, courseMaster: true },
+            include: { lecturer: true, courseRun: { include: { courseMaster: true } } },
         });
         return requests.map(r => this.mapper.map<any, ScheduleRequestResponseDTO>(r, 'LiveSessionScheduleRequest', 'ScheduleRequestResponseDTO'));
     }
@@ -193,8 +195,13 @@ export class TeachingScheduleService implements ITeachingScheduleService {
                 throw new ConflictException('Giảng viên đã có lịch dạy trùng, không thể phê duyệt');
             }
 
-            // Validate course readiness for scheduling
-            const validation = await this.courseMasterService.validateForScheduling(request.courseMasterId);
+            // Validate run for scheduling
+            const run = await this.prisma.courseRun.findUnique({
+                where: { id: request.courseRunId }
+            });
+            if (!run) throw new NotFoundException('Run not found');
+
+            const validation = await this.courseMasterService.validateForScheduling(run.courseMasterId);
             if (!validation.isReady) {
                 throw new ConflictException(validation.message || 'Khóa học chưa sẵn sàng để gán lịch');
             }
@@ -209,27 +216,19 @@ export class TeachingScheduleService implements ITeachingScheduleService {
                         duration: request.duration,
                     },
                 });
-                // Regenerate sessions
-                await this.prisma.liveSession.deleteMany({
-                    where: {
-                        scheduleId: request.originalScheduleId,
-                        status: 'scheduled',
-                        scheduledAt: { gt: new Date() },
-                    },
-                });
-                await this.generateLiveSessions(request.originalScheduleId, 8);
+                await this.regenerateSessionsForRun(request.courseRunId, 8);
             } else {
                 // Create new schedule
-                const schedule = await this.prisma.teachingSchedule.create({
+                await this.prisma.teachingSchedule.create({
                     data: {
-                        courseMasterId: request.courseMasterId,
+                        courseRunId: request.courseRunId,
                         lecturerId: request.lecturerId,
                         dayOfWeek: request.dayOfWeek,
                         startTime: request.startTime,
                         duration: request.duration,
                     },
                 });
-                await this.generateLiveSessions(schedule.id, 8);
+                await this.regenerateSessionsForRun(request.courseRunId, 8);
             }
 
             await this.prisma.liveSessionScheduleRequest.update({
@@ -244,17 +243,37 @@ export class TeachingScheduleService implements ITeachingScheduleService {
         }
     }
 
-    private async generateLiveSessions(scheduleId: string, weeks: number) {
-        const schedule = await this.prisma.teachingSchedule.findUnique({
-            where: { id: scheduleId },
-            include: { courseMaster: true },
+    private async regenerateSessionsForRun(courseRunId: string, weeks: number) {
+        const run = await this.prisma.courseRun.findUnique({
+            where: { id: courseRunId },
+            include: { courseMaster: true }
         });
-        if (!schedule) return;
+        if (!run) return;
 
-        // Fetch live lessons for sequential mapping
+        const courseMasterId = run.courseMasterId;
+
+        // Find all schedules for this run
+        const schedules = await this.prisma.teachingSchedule.findMany({
+            where: { courseRunId },
+            include: { courseRun: { include: { courseMaster: true } } },
+        });
+
+        if (schedules.length === 0) {
+            // No schedules, delete future sessions for this run
+            await this.prisma.liveSession.deleteMany({
+                where: {
+                    courseRunId,
+                    status: 'scheduled',
+                    scheduledAt: { gt: new Date() },
+                },
+            });
+            return;
+        }
+
+        // Fetch all live lessons for sequential mapping from CourseMaster
         const liveLessons = await this.prisma.lesson.findMany({
             where: {
-                module: { courseMasterId: schedule.courseMasterId },
+                module: { courseMasterId },
                 contentType: 'live_session'
             },
             orderBy: [
@@ -263,31 +282,68 @@ export class TeachingScheduleService implements ITeachingScheduleService {
             ]
         });
 
-        const sessions: any[] = [];
-        const [hours, minutes] = schedule.startTime.split(':').map(Number);
+        // Delete all future scheduled sessions for this run to start fresh
+        await this.prisma.liveSession.deleteMany({
+            where: {
+                courseRunId,
+                status: 'scheduled',
+                scheduledAt: { gt: new Date() },
+            },
+        });
 
-        let currentDate = new Date();
-        // Adjust start date to next occurrence of dayOfWeek
-        const currentDay = currentDate.getDay();
-        const daysUntil = (schedule.dayOfWeek - currentDay + 7) % 7;
-        currentDate.setDate(currentDate.getDate() + daysUntil);
-        currentDate.setHours(hours, minutes, 0, 0);
+        const futureSessions: any[] = [];
+        const now = new Date();
 
+        // Generate dates for the next X weeks
         for (let i = 0; i < weeks; i++) {
-            const scheduledAt = new Date(currentDate);
-            scheduledAt.setDate(scheduledAt.getDate() + (i * 7));
+            const weekStart = new Date(now);
+            weekStart.setDate(weekStart.getDate() + (i * 7));
 
+            // For each week, generate entries for each schedule
+            const weekEntries: any[] = [];
+
+            for (const schedule of schedules) {
+                const [hours, minutes] = schedule.startTime.split(':').map(Number);
+                const scheduledAt = new Date(weekStart);
+
+                // Adjust to the specific day of the week
+                const currentDay = scheduledAt.getDay();
+                const daysUntil = (schedule.dayOfWeek - currentDay + 7) % 7;
+                scheduledAt.setDate(scheduledAt.getDate() + daysUntil);
+                scheduledAt.setHours(hours, minutes, 0, 0);
+
+                // Only add if it's in the future
+                if (scheduledAt > now) {
+                    weekEntries.push({
+                        scheduledAt: new Date(scheduledAt),
+                        schedule,
+                    });
+                }
+            }
+
+            // Sort entries within the week by date and time
+            weekEntries.sort((a, b) => a.scheduledAt.getTime() - b.scheduledAt.getTime());
+            futureSessions.push(...weekEntries);
+        }
+
+        // Final sort of all generated sessions across weeks
+        futureSessions.sort((a, b) => a.scheduledAt.getTime() - b.scheduledAt.getTime());
+
+        // Map lessons to sessions sequentially
+        const finalSessions: any[] = [];
+        for (let i = 0; i < futureSessions.length; i++) {
+            const { scheduledAt, schedule } = futureSessions[i];
             const lesson = liveLessons[i];
 
-            sessions.push({
-                courseMasterId: schedule.courseMasterId,
+            finalSessions.push({
+                courseRunId,
                 lecturerId: schedule.lecturerId,
                 scheduleId: schedule.id,
                 moduleId: lesson?.moduleId || null,
                 lessonId: lesson?.id || null,
                 title: lesson
-                    ? `${schedule.courseMaster.title} - ${lesson.title}`
-                    : `${schedule.courseMaster.title} - Buổi học ${i + 1}`,
+                    ? `${run.title} - ${lesson.title}`
+                    : `${run.title} - Buổi học ${i + 1}`,
                 scheduledAt,
                 duration: schedule.duration,
                 status: 'scheduled',
@@ -295,27 +351,28 @@ export class TeachingScheduleService implements ITeachingScheduleService {
             });
         }
 
-        await this.prisma.liveSession.createMany({
-            data: sessions,
-        });
+        if (finalSessions.length > 0) {
+            await this.prisma.liveSession.createMany({
+                data: finalSessions,
+            });
 
-        // Update lessons to link back to the newly created live sessions
-        // We do this after createMany to get IDs if needed, but since we have session objects, 
-        // we actually need the IDs from the database after insertion.
-        // prisma.liveSession.createMany doesn't return created items with IDs in many DBs (except PG with supported Prisma version).
-        // Since we are likely using PG, let's just do it individually or batch if we can.
+            // Update lessons to link back to the newly created live sessions
+            const createdSessions = await this.prisma.liveSession.findMany({
+                where: {
+                    courseRunId,
+                    status: 'scheduled',
+                    scheduledAt: { gt: now }
+                },
+                orderBy: { scheduledAt: 'asc' }
+            });
 
-        const createdSessions = await this.prisma.liveSession.findMany({
-            where: { scheduleId: schedule.id, status: 'scheduled' },
-            orderBy: { scheduledAt: 'asc' }
-        });
-
-        for (const session of createdSessions) {
-            if (session.lessonId) {
-                await this.prisma.lesson.update({
-                    where: { id: session.lessonId },
-                    data: { liveSessionId: session.id }
-                });
+            for (const session of createdSessions) {
+                if (session.lessonId) {
+                    await this.prisma.lesson.update({
+                        where: { id: session.lessonId },
+                        data: { liveSessionId: session.id }
+                    });
+                }
             }
         }
     }

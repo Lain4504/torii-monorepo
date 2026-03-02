@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Calendar, ChevronRight, Search, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useCourseRuns } from '@/lib/api/services/course-run-api';
-import { CourseRunStatus } from '@workspace/schemas';
+import { CourseRunStatus, type CourseRunResponseDTO } from '@workspace/schemas';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
@@ -32,10 +32,10 @@ export function LiveClassesClient() {
         status: statusFilter === 'upcoming' ? CourseRunStatus.ENROLLING : CourseRunStatus.COMPLETED,
     });
 
-    const liveCourses = (runsData as any)?.data || [];
+    const liveCourses: CourseRunResponseDTO[] = (runsData as any)?.data || [];
 
     const now = new Date();
-    const filteredCourses = liveCourses.filter((run: any) => {
+    const filteredCourses: CourseRunResponseDTO[] = liveCourses.filter((run: CourseRunResponseDTO) => {
         const matchesLevel = run.courseMaster?.jlptLevel === levelFilter || !levelFilter;
         const matchesSearch = searchQuery ? run.title.toLowerCase().includes(searchQuery.toLowerCase()) : true;
 
@@ -110,7 +110,7 @@ export function LiveClassesClient() {
                         </div>
                     ) : filteredCourses.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {filteredCourses.map(run => {
+                            {filteredCourses.map((run: CourseRunResponseDTO) => {
                                 const isSoldOut = run.totalEnrolled >= (run.maxStudents || 100);
                                 const isHot = run.totalEnrolled > 15;
 

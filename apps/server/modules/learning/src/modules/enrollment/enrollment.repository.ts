@@ -48,7 +48,7 @@ export class EnrollmentRepository implements IEnrollmentRepository {
                     courseMasterId,
                 },
                 completionStatus: {
-                    in: ['ACTIVE', 'IN_PROGRESS'] as any,
+                    in: ['in_progress', 'completed', 'trial'],
                 },
             },
             orderBy: { enrollmentDate: 'desc' },

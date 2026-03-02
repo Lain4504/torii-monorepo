@@ -96,9 +96,9 @@ export class LiveSessionHandler {
         return this.liveSessionService.delete(requester, id);
     }
 
-    @MessagePattern({ cmd: 'learning.liveSession.findByCourseId' })
-    async findByCourseId(@Payload() data: { courseMasterId: string }) {
-        return this.liveSessionService.findByCourseId(data.courseMasterId);
+    @MessagePattern({ cmd: 'learning.liveSession.findByRunId' })
+    async findByRunId(@Payload() data: { courseRunId: string }) {
+        return this.liveSessionService.findByRunId(data.courseRunId);
     }
 
     @MessagePattern({ cmd: 'learning.liveSession.findById' })

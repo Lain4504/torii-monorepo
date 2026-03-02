@@ -95,6 +95,11 @@ export class CourseHandler {
         return this.courseMasterService.recalculateStats(data.courseMasterId);
     }
 
+    @MessagePattern({ cmd: 'learning.coursemaster.getVersionHistory' })
+    async getVersionHistory(@Payload() data: { id: string }) {
+        return this.courseMasterService.getVersionHistory(data.id);
+    }
+
     @MessagePattern({ cmd: 'learning.coursemaster.validateScheduling' })
     async validateScheduling(@Payload() data: { id: string }) {
         return this.courseMasterService.validateForScheduling(data.id);

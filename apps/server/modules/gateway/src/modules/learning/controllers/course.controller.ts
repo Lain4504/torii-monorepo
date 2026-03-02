@@ -187,7 +187,6 @@ export class CourseMasterController {
     }
 
     @Get(':id/curriculum')
-    @Public()
     async getCurriculum(@Param('id') id: string, @Req() req: ReqWithRequester) {
         const result = await firstValueFrom(
             this.natsClient.send(
@@ -260,6 +259,18 @@ export class CourseMasterController {
             )
         );
         return successResponse({ course: result }, 'Course rejected successfully');
+    }
+
+    @Get(':id/versions')
+    @Permissions('course.view_restricted', 'course.view_my', 'course.update')
+    async getVersionHistory(@Param('id') id: string) {
+        const result = await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'learning.coursemaster.getVersionHistory' },
+                { id }
+            )
+        );
+        return successResponse({ versions: result }, 'Version history retrieved successfully');
     }
 
     @Get(':id/validate-scheduling')

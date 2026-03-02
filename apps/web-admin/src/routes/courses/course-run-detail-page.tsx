@@ -143,7 +143,11 @@ export default function CourseRunDetailPage() {
             case CourseRunStatus.PLANNING:
                 return <Badge variant="outline">Đang lập kế hoạch</Badge>;
             case CourseRunStatus.ENROLLING:
-                return <Badge variant="secondary" className="bg-blue-100 text-blue-700">Đang tuyển sinh</Badge>;
+                return (
+                    <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                        {isVod ? 'Đang hoạt động' : 'Đang tuyển sinh'}
+                    </Badge>
+                );
             case CourseRunStatus.IN_PROGRESS:
                 return <Badge className="bg-green-100 text-green-700">Đang diễn ra</Badge>;
             case CourseRunStatus.COMPLETED:
@@ -200,10 +204,12 @@ export default function CourseRunDetailPage() {
                             Buổi học ({enrollments.length || 0})
                         </TabsTrigger>
                     )}
-                    <TabsTrigger value="enrollments" className="rounded-none data-[state=active]:bg-background border-b-2 border-b-transparent data-[state=active]:border-b-primary">
-                        <Users className="mr-2 h-4 w-4" />
-                        Học viên ({enrollments.length || 0})
-                    </TabsTrigger>
+                    {!isVod && (
+                        <TabsTrigger value="enrollments" className="rounded-none data-[state=active]:bg-background border-b-2 border-b-transparent data-[state=active]:border-b-primary">
+                            <Users className="mr-2 h-4 w-4" />
+                            Học viên ({enrollments.length || 0})
+                        </TabsTrigger>
+                    )}
                     <TabsTrigger value="quizzes" className="rounded-none data-[state=active]:bg-background border-b-2 border-b-transparent data-[state=active]:border-b-primary">
                         <HelpCircle className="mr-2 h-4 w-4" />
                         Quiz
@@ -226,44 +232,52 @@ export default function CourseRunDetailPage() {
                                 </CardHeader>
                                 <CardContent className="grid sm:grid-cols-2 gap-6">
                                     <div className="space-y-4">
-                                        <div className="flex items-start gap-3">
-                                            <div className="p-2 bg-primary/10 rounded-lg">
-                                                <Calendar className="h-5 w-5 text-primary" />
-                                            </div>
-                                            <div>
-                                                <p className="text-xs font-bold text-muted-foreground uppercase">Thời gian khai giảng</p>
-                                                <p className="font-semibold">{run.startDate ? formatDateTime(run.startDate) : 'Chưa định ngày'}</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-start gap-3">
-                                            <div className="p-2 bg-primary/10 rounded-lg">
-                                                <Clock className="h-5 w-5 text-primary" />
-                                            </div>
-                                            <div>
-                                                <p className="text-xs font-bold text-muted-foreground uppercase">Ngày kết thúc dự kiến</p>
-                                                <p className="font-semibold">{run.endDate ? formatDateTime(run.endDate) : 'Chưa định ngày'}</p>
-                                            </div>
-                                        </div>
+                                        {!isVod && (
+                                            <>
+                                                <div className="flex items-start gap-3">
+                                                    <div className="p-2 bg-primary/10 rounded-lg">
+                                                        <Calendar className="h-5 w-5 text-primary" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs font-bold text-muted-foreground uppercase">Thời gian khai giảng</p>
+                                                        <p className="font-semibold">{run.startDate ? formatDateTime(run.startDate) : 'Chưa định ngày'}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-start gap-3">
+                                                    <div className="p-2 bg-primary/10 rounded-lg">
+                                                        <Clock className="h-5 w-5 text-primary" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs font-bold text-muted-foreground uppercase">Ngày kết thúc dự kiến</p>
+                                                        <p className="font-semibold">{run.endDate ? formatDateTime(run.endDate) : 'Chưa định ngày'}</p>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )}
                                     </div>
                                     <div className="space-y-4">
-                                        <div className="flex items-start gap-3">
-                                            <div className="p-2 bg-primary/10 rounded-lg">
-                                                <Users className="h-5 w-5 text-primary" />
+                                        {!isVod && (
+                                            <div className="flex items-start gap-3">
+                                                <div className="p-2 bg-primary/10 rounded-lg">
+                                                    <Users className="h-5 w-5 text-primary" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-bold text-muted-foreground uppercase">Sĩ số hiện tại</p>
+                                                    <p className="font-semibold">{(run as any).totalEnrolled || 0} / {run.maxStudents || '∞'} học viên</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-xs font-bold text-muted-foreground uppercase">Sĩ số hiện tại</p>
-                                                <p className="font-semibold">{(run as any).totalEnrolled || 0} / {run.maxStudents || '∞'} học viên</p>
+                                        )}
+                                        {run.lecturer && (
+                                            <div className="flex items-start gap-3">
+                                                <div className="p-2 bg-primary/10 rounded-lg">
+                                                    <BookOpen className="h-5 w-5 text-primary" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-bold text-muted-foreground uppercase">Giảng viên</p>
+                                                    <p className="font-semibold">{run.lecturer.displayName}</p>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="flex items-start gap-3">
-                                            <div className="p-2 bg-primary/10 rounded-lg">
-                                                <BookOpen className="h-5 w-5 text-primary" />
-                                            </div>
-                                            <div>
-                                                <p className="text-xs font-bold text-muted-foreground uppercase">Giảng viên</p>
-                                                <p className="font-semibold">{run.lecturer?.displayName || 'Chưa phân công'}</p>
-                                            </div>
-                                        </div>
+                                        )}
                                         <div className="flex items-start gap-3">
                                             <div className="p-2 bg-primary/10 rounded-lg">
                                                 <Banknote className="h-5 w-5 text-primary" />
@@ -387,38 +401,40 @@ export default function CourseRunDetailPage() {
                     </TabsContent>
                 )}
 
-                <TabsContent value="enrollments" className="mt-6">
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between">
-                            <div>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Users className="h-5 w-5 text-primary" />
-                                    Danh sách Học viên
-                                </CardTitle>
-                                <CardDescription>Quản lý học viên đã đăng ký vào lớp này</CardDescription>
-                            </div>
-                            <Button 
-                                onClick={() => navigate(`/course-master/runs/${runId}/enrollments`)}
-                                className="font-bold uppercase tracking-widest text-xs"
-                            >
-                                Xem chi tiết
-                            </Button>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="py-12 flex flex-col items-center justify-center border border-dashed rounded-xl bg-muted/5">
-                                <Users className="h-10 w-10 text-muted-foreground/30 mb-2" />
-                                <p className="text-sm text-muted-foreground font-medium mb-4">Tổng cộng: {enrollments.length} học viên</p>
+                {!isVod && (
+                    <TabsContent value="enrollments" className="mt-6">
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between">
+                                <div>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <Users className="h-5 w-5 text-primary" />
+                                        Danh sách Học viên
+                                    </CardTitle>
+                                    <CardDescription>Quản lý học viên đã đăng ký vào lớp này</CardDescription>
+                                </div>
                                 <Button 
-                                    variant="outline"
                                     onClick={() => navigate(`/course-master/runs/${runId}/enrollments`)}
+                                    className="font-bold uppercase tracking-widest text-xs"
                                 >
-                                    <Users className="mr-2 h-4 w-4" />
-                                    Xem danh sách chi tiết
+                                    Xem chi tiết
                                 </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="py-12 flex flex-col items-center justify-center border border-dashed rounded-xl bg-muted/5">
+                                    <Users className="h-10 w-10 text-muted-foreground/30 mb-2" />
+                                    <p className="text-sm text-muted-foreground font-medium mb-4">Tổng cộng: {enrollments.length} học viên</p>
+                                    <Button 
+                                        variant="outline"
+                                        onClick={() => navigate(`/course-master/runs/${runId}/enrollments`)}
+                                    >
+                                        <Users className="mr-2 h-4 w-4" />
+                                        Xem danh sách chi tiết
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                )}
                 <TabsContent value="assignments" className="mt-6">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between gap-4">

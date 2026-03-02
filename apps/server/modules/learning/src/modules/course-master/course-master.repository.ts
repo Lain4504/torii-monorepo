@@ -203,6 +203,16 @@ export class CourseMasterRepository implements ICourseMasterRepository {
     }
 
     /**
+     * Get all versions for a course master
+     */
+    async getVersions(courseMasterId: string): Promise<CourseVersion[]> {
+        return this.prisma.courseVersion.findMany({
+            where: { courseMasterId },
+            orderBy: { publishedAt: 'desc' },
+        });
+    }
+
+    /**
      * Count published lessons for a course master
      */
     async countLessons(courseMasterId: string): Promise<number> {

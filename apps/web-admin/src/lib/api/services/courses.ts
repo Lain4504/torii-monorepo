@@ -71,6 +71,20 @@ export const coursesApi = {
         const response = await apiClient.post<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/course-masters/${id}/reject`, { reason });
         return response.data.data!.course;
     },
+
+    // GET /api/course-masters/:id/versions
+    async getVersionHistory(id: string): Promise<Array<{
+        id: string;
+        versionTag: string;
+        createdAt: Date;
+        createdBy?: string;
+        changelog?: string;
+        totalModules?: number;
+        totalLessons?: number;
+    }>> {
+        const response = await apiClient.get<StandardApiResponse<{ versions: any[] }>>(`/api/course-masters/${id}/versions`);
+        return response.data.data!.versions;
+    },
 };
 
 // ============================================================================
@@ -230,3 +244,16 @@ export function useUpdateLiveConfig() {
         },
     });
 }
+
+/**
+ * Hook: Get version history
+ */
+export function useCourseVersionHistory(id: string) {
+    return useQuery({
+        queryKey: ['courses', id, 'versions'],
+        queryFn: () => coursesApi.getVersionHistory(id),
+        enabled: !!id,
+        staleTime: 30000,
+    });
+}
+

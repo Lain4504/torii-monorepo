@@ -76,8 +76,20 @@ export class CourseMasterService implements ICourseMasterService {
   /**
    * Map Course Master entity to CourseMasterResponseDTO using AutoMapper
    */
-  private toCourseMasterResponseDTO(course: CourseMaster): CourseMasterResponseDTO {
-    return this.mapper.map<CourseMaster, CourseMasterResponseDTO>(course, 'CourseMaster', 'CourseMasterResponseDTO');
+  private async toCourseMasterResponseDTO(course: CourseMaster): Promise<CourseMasterResponseDTO> {
+    const dto = this.mapper.map<CourseMaster, CourseMasterResponseDTO>(course, 'CourseMaster', 'CourseMasterResponseDTO');
+    
+    // Enrich with latest version tag
+    try {
+      const latestVersion = await this.courseRepository.getLatestVersion(course.id);
+      if (latestVersion) {
+        (dto as any).latestVersionTag = latestVersion.versionTag;
+      }
+    } catch (error) {
+      this.logger.warn(`Failed to fetch latest version for course ${course.id}`);
+    }
+    
+    return dto;
   }
 
   /**
@@ -149,7 +161,7 @@ export class CourseMasterService implements ICourseMasterService {
       const totalPages = Math.ceil(total / limitNum);
 
       return {
-        data: courses.map(course => this.toCourseMasterResponseDTO(course)),
+        data: await Promise.all(courses.map(course => this.toCourseMasterResponseDTO(course))),
         total,
         page: pageNum,
         limit: limitNum,
@@ -243,7 +255,7 @@ export class CourseMasterService implements ICourseMasterService {
       const totalPages = Math.ceil(total / limitNum);
 
       return {
-        data: courses.map(course => this.toCourseMasterResponseDTO(course as any)),
+        data: await Promise.all(courses.map(course => this.toCourseMasterResponseDTO(course as any))),
         total,
         page: pageNum,
         limit: limitNum,
@@ -265,7 +277,7 @@ export class CourseMasterService implements ICourseMasterService {
       throw new NotFoundException(`Course master with id ${courseMasterId} not found`);
     }
 
-    const dto = this.toCourseMasterResponseDTO(course);
+    const dto = await this.toCourseMasterResponseDTO(course);
 
     // Force recalculate stats to ensure accuracy for Admin/Staff
     await this.recalculateStats(courseMasterId);
@@ -299,7 +311,7 @@ export class CourseMasterService implements ICourseMasterService {
       throw new NotFoundException(`Course master with slug ${slug} not found`);
     }
 
-    const dto = this.toCourseMasterResponseDTO(course);
+    const dto = await this.toCourseMasterResponseDTO(course);
 
     // Fetch lecturer
     try {
@@ -358,7 +370,7 @@ export class CourseMasterService implements ICourseMasterService {
         newValues: course,
       });
 
-      return this.toCourseMasterResponseDTO(course);
+      return await this.toCourseMasterResponseDTO(course);
     } catch (error: any) {
       this.logger.error('Error creating course master', error);
       throw new BadRequestException(`Failed to create course master: ${error?.message || 'Unknown error'}`);
@@ -367,6 +379,7 @@ export class CourseMasterService implements ICourseMasterService {
 
   /**
    * Update course master
+   * If course is PUBLISHED and has substantive changes, auto-revert to PENDING_REVIEW
    */
   async update(requester: Requester, courseMasterId: string, dto: CourseMasterUpdateDTO): Promise<CourseMasterResponseDTO> {
     // Check permissions
@@ -427,6 +440,7 @@ export class CourseMasterService implements ICourseMasterService {
       }
 
       let isPublishing = false;
+      let isAutoReverting = false;
 
       if (dto.approvedBy !== undefined) {
         // Explicit approval
@@ -437,10 +451,18 @@ export class CourseMasterService implements ICourseMasterService {
         updateData.approvedAt = new Date();
         updateData.status = 'published';
         isPublishing = true;
+      } else if (Object.keys(updateData).length > 0 && existing.status === 'published') {
+        // Auto-revert PUBLISHED course to PENDING_REVIEW when content changes
+        // This ensures staff review the changes before learners see them
+        this.logger.log(`Auto-reverting published course ${courseMasterId} to PENDING_REVIEW due to content updates`);
+        updateData.status = 'pending_review';
+        updateData.isSubmittedForReview = true;
+        updateData.rejectionReason = null; // Clear any previous rejection reason
+        isAutoReverting = true;
       }
 
       if (Object.keys(updateData).length === 0) {
-        return this.toCourseMasterResponseDTO(existing);
+        return await this.toCourseMasterResponseDTO(existing);
       }
 
       const course = await this.courseRepository.update(courseMasterId, updateData);
@@ -450,9 +472,10 @@ export class CourseMasterService implements ICourseMasterService {
         action: 'course-master.update',
         entity: 'course-master',
         entityId: courseMasterId,
-        description: `Updated course master: ${course.title}`,
+        description: `Updated course master: ${course.title}${isAutoReverting ? ' (auto-reverted to PENDING_REVIEW for review)' : ''}`,
         oldValues: existing,
         newValues: course,
+        metadata: { isAutoReverting }
       });
 
       // Emit event if publishing
@@ -472,7 +495,25 @@ export class CourseMasterService implements ICourseMasterService {
         }
       }
 
-      return this.toCourseMasterResponseDTO(course);
+      // Emit event if auto-reverting
+      if (isAutoReverting) {
+        try {
+          this.logger.log(`Course master ${course.id} auto-reverted to PENDING_REVIEW, emitting event`);
+          this.natsClient.emit(
+            { cmd: 'course-master.submitted-for-review' },
+            {
+              courseMasterId: course.id,
+              courseTitle: course.title,
+              submittedBy: requester.sub,
+              reason: 'Auto-submitted due to content updates',
+            },
+          );
+        } catch (error: any) {
+          this.logger.error(`Failed to emit course-master.submitted-for-review event: ${error?.message}`, error);
+        }
+      }
+
+      return await this.toCourseMasterResponseDTO(course);
     } catch (error: any) {
       this.logger.error('Error updating course master', error);
       throw new BadRequestException(`Failed to update course master: ${error?.message || 'Unknown error'}`);
@@ -528,7 +569,7 @@ export class CourseMasterService implements ICourseMasterService {
    */
   async getByType(type: 'vod' | 'live'): Promise<CourseMasterResponseDTO[]> {
     const courses = await this.courseRepository.findByType(type);
-    return courses.map(course => this.toCourseMasterResponseDTO(course));
+    return await Promise.all(courses.map(course => this.toCourseMasterResponseDTO(course)));
   }
 
   /**
@@ -563,7 +604,7 @@ export class CourseMasterService implements ICourseMasterService {
       newValues: course,
     });
 
-    return this.toCourseMasterResponseDTO(course);
+    return await this.toCourseMasterResponseDTO(course);
   }
 
   /**
@@ -590,7 +631,7 @@ export class CourseMasterService implements ICourseMasterService {
     // Live configuration is now managed at CourseRun level.
     // Keep this method as a no-op for backward compatibility.
     this.logger.warn('updateLiveConfig is deprecated: live configuration is now managed on CourseRun entities.');
-    return this.toCourseMasterResponseDTO(existing);
+    return await this.toCourseMasterResponseDTO(existing);
   }
 
   /**
@@ -718,7 +759,7 @@ export class CourseMasterService implements ICourseMasterService {
       this.logger.error(`Failed to emit course-master.published event: ${error?.message}`, error);
     }
 
-    return this.toCourseMasterResponseDTO(course);
+    return await this.toCourseMasterResponseDTO(course);
   }
 
   /**
@@ -750,7 +791,7 @@ export class CourseMasterService implements ICourseMasterService {
       newValues: course,
     });
 
-    return this.toCourseMasterResponseDTO(course);
+    return await this.toCourseMasterResponseDTO(course);
   }
 
   /**
@@ -785,7 +826,7 @@ export class CourseMasterService implements ICourseMasterService {
       metadata: { reason }
     });
 
-    return this.toCourseMasterResponseDTO(course);
+    return await this.toCourseMasterResponseDTO(course);
   }
 
   /**
@@ -826,6 +867,22 @@ export class CourseMasterService implements ICourseMasterService {
       isAdminOrStaff = this.hasPermission(requester, 'course.view_restricted') ||
         this.hasPermission(requester, 'course.publish') ||
         ['admin', 'staff'].includes(requester.role?.toLowerCase() || '');
+    }
+
+    // Resolve learner enrollment (based on CourseRun → CourseMaster linking)
+    if (userId) {
+      try {
+        const [hasAccess, enrollmentRecord] = await Promise.all([
+          this.enrollmentService.isEnrolled(userId, courseMasterId),
+          this.enrollmentService.findByUserAndCourseMaster(userId, courseMasterId),
+        ]);
+
+        if (hasAccess) {
+          enrollment = enrollmentRecord;
+        }
+      } catch {
+        // Swallow enrollment errors here; curriculum is still readable for public preview lessons
+      }
     }
 
     if (userId) {
@@ -939,6 +996,35 @@ export class CourseMasterService implements ICourseMasterService {
       this.logger.log(`Recalculated stats for course master ${courseMasterId}: totalLessons=${totalLessons}, totalQuizzes=${totalQuizzes}`);
     } catch (error: any) {
       this.logger.error(`Failed to recalculate stats for course master ${courseMasterId}`, error);
+    }
+  }
+
+  /**
+   * Get course version history
+   */
+  async getVersionHistory(courseMasterId: string): Promise<Array<{
+    id: string;
+    versionTag: string;
+    createdAt: Date;
+    createdBy?: string;
+    changelog?: string;
+    totalModules?: number;
+    totalLessons?: number;
+  }>> {
+    try {
+      const versions = await this.courseRepository.getVersions(courseMasterId);
+      return versions.map(v => ({
+        id: v.id,
+        versionTag: v.versionTag,
+        createdAt: v.publishedAt, // Use publishedAt as createdAt
+        createdBy: (v as any).createdBy,
+        changelog: v.changelog || undefined,
+        totalModules: (v.curriculumSnapshot as any[])?.length || 0,
+        totalLessons: (v.curriculumSnapshot as any[])?.reduce((sum, m) => sum + (m.lessons?.length || 0), 0) || 0,
+      }));
+    } catch (error: any) {
+      this.logger.error(`Failed to get version history for course master ${courseMasterId}`, error);
+      return [];
     }
   }
 

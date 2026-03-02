@@ -59,6 +59,7 @@ export const courseMasterSchema = z.object({
     approvedBy: z.string().uuid().optional(),
     approvedAt: z.date().optional(),
     rejectionReason: z.string().optional().nullable(),
+    latestVersionTag: z.string().optional().nullable(), // Latest published version tag (e.g., 'v2.0')
     createdAt: z.date(),
     updatedAt: z.date(),
     deletedAt: z.date().optional(),

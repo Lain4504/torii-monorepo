@@ -48,6 +48,8 @@ import {
     LIVE_SESSION_REPOSITORY_TOKEN,
     COURSE_MASTER_REPOSITORY_TOKEN,
     ICourseMasterRepository,
+    ICourseRunRepository,
+    COURSE_RUN_REPOSITORY_TOKEN,
 } from '@server/learning/interfaces/repositories';
 import { PrismaService } from '@server/shared';
 
@@ -60,6 +62,8 @@ export class LiveSessionService implements ILiveSessionService {
         private readonly liveSessionRepository: ILiveSessionRepository,
         @Inject(COURSE_MASTER_REPOSITORY_TOKEN)
         private readonly courseRepository: ICourseMasterRepository,
+        @Inject(COURSE_RUN_REPOSITORY_TOKEN)
+        private readonly courseRunRepository: ICourseRunRepository,
         private readonly prisma: PrismaService,
         @Inject('NATS_SERVICE')
         private readonly natsClient: ClientProxy,
@@ -82,8 +86,8 @@ export class LiveSessionService implements ILiveSessionService {
         return this.mapper.map<any, LiveSessionResponseDTO>(session, 'LiveSession', 'LiveSessionResponseDTO');
     }
 
-    async findByCourseId(courseMasterId: string): Promise<LiveSessionResponseDTO[]> {
-        const sessions = await this.liveSessionRepository.findByCourseId(courseMasterId);
+    async findByRunId(courseRunId: string): Promise<LiveSessionResponseDTO[]> {
+        const sessions = await this.liveSessionRepository.findByRunId(courseRunId);
         return sessions.map((s) => this.mapper.map<any, LiveSessionResponseDTO>(s, 'LiveSession', 'LiveSessionResponseDTO'));
     }
 
@@ -93,13 +97,18 @@ export class LiveSessionService implements ILiveSessionService {
             throw new ForbiddenException('Only authorized staff can schedule live sessions');
         }
 
-        const course = await this.courseRepository.findById(dto.courseMasterId);
+        const run = await this.courseRunRepository.findById(dto.courseRunId);
+        if (!run) {
+            throw new NotFoundException(`CourseRun with id ${dto.courseRunId} not found`);
+        }
+
+        const course = await this.courseRepository.findById(run.courseMasterId);
         if (!course) {
-            throw new NotFoundException(`Course with id ${dto.courseMasterId} not found`);
+            throw new NotFoundException(`Course with id ${run.courseMasterId} not found`);
         }
 
         if (course.type !== 'live') {
-            throw new BadRequestException('Live sessions can only be scheduled for live courses');
+            throw new BadRequestException('Live sessions can only be scheduled for live course runs');
         }
 
         const createdSessions: LiveSession[] = [];
@@ -109,13 +118,12 @@ export class LiveSessionService implements ILiveSessionService {
             const title = `${dto.titlePrefix} - Buổi ${i + 1}`;
 
             const session = await this.liveSessionRepository.create({
-                courseMaster: { connect: { id: dto.courseMasterId } },
+                courseRun: { connect: { id: dto.courseRunId } },
                 title: title,
                 description: dto.description,
                 scheduledAt: date,
                 duration: dto.duration,
                 lecturerId: dto.lecturerId,
-                ...((dto as any).courseRunId ? { courseRun: { connect: { id: (dto as any).courseRunId } } } : {}),
             });
             createdSessions.push(session);
         }
@@ -129,23 +137,23 @@ export class LiveSessionService implements ILiveSessionService {
             throw new ForbiddenException('Only authorized staff can schedule live sessions');
         }
 
-        const course = await this.courseRepository.findById(dto.courseMasterId);
-        if (!course) {
-            throw new NotFoundException(`Course with id ${dto.courseMasterId} not found`);
+        const run = await this.courseRunRepository.findById(dto.courseRunId);
+        if (!run) {
+            throw new NotFoundException(`CourseRun with id ${dto.courseRunId} not found`);
         }
 
-        if (course.type !== 'live') {
-            throw new BadRequestException('Live sessions can only be scheduled for live courses');
+        const course = await this.courseRepository.findById(run.courseMasterId);
+        if (!course || course.type !== 'live') {
+            throw new BadRequestException('Live sessions can only be created for live course runs');
         }
 
         const session = await this.liveSessionRepository.create({
-            courseMaster: { connect: { id: dto.courseMasterId } },
+            courseRun: { connect: { id: dto.courseRunId } },
             title: dto.title,
             description: dto.description,
             scheduledAt: new Date(dto.scheduledAt),
             duration: dto.duration,
             lecturerId: dto.lecturerId,
-            ...((dto as any).courseRunId ? { courseRun: { connect: { id: (dto as any).courseRunId } } } : {}),
         });
 
         return this.mapper.map<any, LiveSessionResponseDTO>(session, 'LiveSession', 'LiveSessionResponseDTO');
@@ -352,13 +360,11 @@ export class LiveSessionService implements ILiveSessionService {
             const enrollments = await this.prisma.enrollment.findMany({
                 where: {
                     userId: requester.sub,
-                    courseRun: {
-                        courseMasterId: session.courseMasterId,
-                    },
+                    courseRunId: session.courseRunId,
                 },
                 include: { courseRun: true },
             });
-            
+
             if (enrollments.length > 0) {
                 // Check if any enrollment is still valid
                 const enrollment = enrollments[0];

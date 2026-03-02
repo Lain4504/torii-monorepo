@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -34,12 +34,15 @@ import { ScrollArea } from "@workspace/ui/components/scroll-area";
 import { TiptapEditor } from "@workspace/ui/components/tiptap-editor";
 import { MultiFileUpload } from "@/components/common/multi-file-upload";
 import type { CreateAssignmentDto } from "@workspace/schemas";
-import { AssignmentType } from "@workspace/schemas";
+import { AssignmentType, LessonContentType } from "@workspace/schemas";
 import { useCreateAssignment } from "@/lib/api/services/assignments";
 import { toast } from "@workspace/ui/components/sonner";
-import { Paperclip, Info } from "lucide-react";
+import { Paperclip, Info, List } from "lucide-react";
 import { Textarea } from "@workspace/ui/components/textarea";
 import { Spinner } from "@workspace/ui/components/spinner";
+import { useCourseRun } from '@/lib/api/services/course-runs';
+import { useCourseModules } from '@/lib/api/services/modules';
+import { useModulesLessons } from '@/lib/api/services/lesson';
 
 interface CreateAssignmentSheetProps {
   open: boolean;
@@ -57,6 +60,27 @@ export function CreateAssignmentSheet({
   courseRunId,
 }: CreateAssignmentSheetProps) {
   const createMutation = useCreateAssignment();
+  const { data: courseRun } = useCourseRun(courseRunId || '');
+  const { data: modules = [] } = useCourseModules(courseRun?.courseMasterId || '');
+  const modulesLessonsQueries = useModulesLessons(modules);
+  const [selectedLessonId, setSelectedLessonId] = useState<string>(lessonId || '');
+
+  // Filter lessons to only show Assignment type
+  const assignmentLessons = useMemo(() => {
+    const allLessons = modulesLessonsQueries
+      .map(query => query.data?.data || [])
+      .flat();
+    
+    return allLessons.filter(lesson => 
+      lesson.contentType === LessonContentType.ASSIGNMENT
+    );
+  }, [modulesLessonsQueries]);
+
+  useEffect(() => {
+    if (lessonId) {
+      setSelectedLessonId(lessonId);
+    }
+  }, [lessonId]);
 
   const formSchema = z.object({
     title: z.string().min(1, "Vui lòng nhập tiêu đề"),
@@ -127,6 +151,7 @@ export function CreateAssignmentSheet({
         ...values,
         dueDate,
         ...(courseRunId ? { courseRunId } : {}),
+        ...((selectedLessonId && selectedLessonId !== 'none') ? { lessonId: selectedLessonId } : {}),
       };
       await createMutation.mutateAsync(data);
       toast.success("Tạo bài tập thành công");
@@ -143,7 +168,7 @@ export function CreateAssignmentSheet({
         <SheetHeader>
           <SheetTitle>Tạo Bài Tập Mới</SheetTitle>
           <SheetDescription>
-            Cấu hình các thông số cho bài tập của học viên
+            Cấu hình các thông số bài tập cho học viên trong lớp học này
           </SheetDescription>
         </SheetHeader>
 
@@ -200,6 +225,42 @@ export function CreateAssignmentSheet({
                     </Field>
                   )}
                 />
+
+                {courseRunId && (
+                  <Field>
+                    <FieldLabel className="flex items-center gap-2">
+                      <List className="size-4" />
+                      Gắn với Lesson (Assignment)
+                    </FieldLabel>
+                    <Select value={selectedLessonId} onValueChange={setSelectedLessonId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn lesson có type Assignment..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Không gắn với lesson cụ thể</SelectItem>
+                        {assignmentLessons.length === 0 ? (
+                          <SelectItem value="no-lessons" disabled>
+                            Không có lesson Assignment nào
+                          </SelectItem>
+                        ) : (
+                          assignmentLessons.map((lesson) => (
+                            <SelectItem key={lesson.id} value={lesson.id}>
+                              <div className="flex flex-col">
+                                <span className="font-medium">{lesson.title}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  ✏️ Assignment · ID: {lesson.id.slice(0, 8)}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FieldDescription>
+                      Chọn lesson để gắn bài tập này với nội dung bài học cụ thể
+                    </FieldDescription>
+                  </Field>
+                )}
 
                 <div className="grid grid-cols-2 gap-4">
                   <Controller

@@ -11,9 +11,9 @@ export interface ILiveSessionRepository {
     findById(id: string): Promise<LiveSession | null>;
 
     /**
-     * Find all live sessions for a course
+     * Find all live sessions for a course run
      */
-    findByCourseId(courseMasterId: string): Promise<LiveSession[]>;
+    findByRunId(courseRunId: string): Promise<LiveSession[]>;
 
     /**
      * Find scheduled sessions for a lecturer

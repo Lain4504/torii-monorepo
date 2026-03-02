@@ -40,7 +40,6 @@ export function CreateCourseMasterSheet({ open, onOpenChange }: CreateCourseMast
     const {
         handleSubmit,
         control,
-        formState: { errors },
         reset,
         watch,
     } = useForm<CourseMasterCreateDTO>({
@@ -50,8 +49,6 @@ export function CreateCourseMasterSheet({ open, onOpenChange }: CreateCourseMast
             description: '',
             shortDescription: '',
             jlptLevel: undefined,
-            thumbnailUrl: undefined,
-            previewVideoUrl: undefined,
             type: 'vod',
             durationWeeks: undefined,
             tags: [],
@@ -69,30 +66,6 @@ export function CreateCourseMasterSheet({ open, onOpenChange }: CreateCourseMast
         }
     };
 
-    const onSubmit = async (data: CourseMasterCreateDTO) => {
-        setUploading(true);
-        try {
-            await createMutation.mutateAsync({
-                ...data,
-                durationWeeks: (data.durationWeeks as any) === '' || isNaN(data.durationWeeks as any) ? undefined : data.durationWeeks,
-                tags: data.tags && data.tags.length ? data.tags : undefined,
-                learningOutcomes: data.learningOutcomes && (data.learningOutcomes as any[]).length ? data.learningOutcomes : [],
-                requirements: data.requirements && (data.requirements as any[]).length ? data.requirements : [],
-            });
-
-            toast.success('Đã tạo khung chương trình', {
-                description: 'Khung chương trình mới đã được tạo thành công.',
-            });
-            handleClose();
-        } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Tạo thất bại', {
-                description: 'Đã xảy ra lỗi khi tạo khung chương trình. Vui lòng thử lại.',
-            });
-        } finally {
-            setUploading(false);
-        }
-    };
-
     return (
         <Sheet open={open} onOpenChange={handleClose}>
             <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
@@ -103,7 +76,34 @@ export function CreateCourseMasterSheet({ open, onOpenChange }: CreateCourseMast
                     </SheetDescription>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden min-h-0" noValidate>
+                <form
+                    onSubmit={handleSubmit(async (rawData) => {
+                        const data = rawData as CourseMasterCreateDTO;
+                        setUploading(true);
+                        try {
+                            await createMutation.mutateAsync({
+                                ...data,
+                                durationWeeks: (data.durationWeeks as any) === '' || isNaN(data.durationWeeks as any) ? undefined : data.durationWeeks,
+                                tags: data.tags && data.tags.length ? data.tags : undefined,
+                                learningOutcomes: data.learningOutcomes && (data.learningOutcomes as any[]).length ? data.learningOutcomes : [],
+                                requirements: data.requirements && (data.requirements as any[]).length ? data.requirements : [],
+                            });
+
+                            toast.success('Đã tạo khung chương trình', {
+                                description: 'Khung chương trình mới đã được tạo thành công.',
+                            });
+                            handleClose();
+                        } catch (error: any) {
+                            toast.error(error.response?.data?.message || 'Tạo thất bại', {
+                                description: 'Đã xảy ra lỗi khi tạo khung chương trình. Vui lòng thử lại.',
+                            });
+                        } finally {
+                            setUploading(false);
+                        }
+                    })}
+                    className="flex flex-col flex-1 overflow-hidden min-h-0"
+                    noValidate
+                >
                     <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
                             <div className="space-y-6">

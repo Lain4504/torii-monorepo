@@ -81,10 +81,6 @@ model CourseMaster {
   // Relations
   modules           Module[]
 
-  liveSessions      LiveSession[]
-  teachingSchedules TeachingSchedule[]
-  scheduleRequests  LiveSessionScheduleRequest[]
-  certificates      Certificate[]
   versions          CourseVersion[]
   courseRuns        CourseRun[]
 
@@ -164,6 +160,10 @@ model CourseRun {
   submissions  Submission[]
   quizzes      Quiz[]
   attempts     QuizAttempt[]
+  certificates Certificate[]
+
+  teachingSchedules TeachingSchedule[]
+  scheduleRequests  LiveSessionScheduleRequest[]
 
   @@index([courseMasterId])
   @@index([versionId])
@@ -402,7 +402,7 @@ model GradeHistory {
 // Live Session - Scheduled live classes for a course
 model LiveSession {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseMasterId    String   @map("course_master_id") @db.Uuid
+  courseRunId String   @map("course_run_id") @db.Uuid
   lecturerId  String?  @map("lecturer_id") @db.Uuid
   title       String   @db.VarChar(255)
   description String?  @db.Text
@@ -414,7 +414,6 @@ model LiveSession {
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
   scheduleId  String?  @map("schedule_id") @db.Uuid
 
-  courseRunId       String?   @map("course_run_id") @db.Uuid
   originalStartTime DateTime? @map("original_start_time")
   rescheduleReason  String?   @map("reschedule_reason") @db.Text
 
@@ -426,13 +425,11 @@ model LiveSession {
   recordingUrl      String? @map("recording_url") @db.Text
   recordingDuration Int?    @map("recording_duration")
 
-  courseMaster CourseMaster      @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
-  courseRun    CourseRun?        @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+  courseRun    CourseRun         @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
   schedule     TeachingSchedule? @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
   attendances  Attendance[]
   lesson       Lesson[]
 
-  @@index([courseMasterId])
   @@index([courseRunId])
   @@index([lecturerId])
   @@index([scheduleId])
@@ -467,7 +464,7 @@ model Attendance {
 // Teaching Schedule - Fixed weekly patterns for a course
 model TeachingSchedule {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseMasterId String   @map("course_master_id") @db.Uuid
+  courseRunId    String   @map("course_run_id") @db.Uuid
   lecturerId     String   @map("lecturer_id") @db.Uuid
   dayOfWeek      Int      @map("day_of_week") // 0 (Sun) to 6 (Sat)
   startTime      String   @map("start_time") // HH:mm
@@ -475,12 +472,12 @@ model TeachingSchedule {
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @default(now()) @updatedAt @map("updated_at")
 
-  courseMaster CourseMaster                 @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
+  courseRun    CourseRun                    @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
   lecturer     User                         @relation("LecturerSchedules", fields: [lecturerId], references: [id], onDelete: Cascade)
   liveSessions LiveSession[]
   requests     LiveSessionScheduleRequest[]
 
-  @@index([courseMasterId])
+  @@index([courseRunId])
   @@index([lecturerId])
   @@map("teaching_schedules")
 }
@@ -490,7 +487,7 @@ model LiveSessionScheduleRequest {
   id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   lecturerId         String   @map("lecturer_id") @db.Uuid
   originalScheduleId String?  @map("original_schedule_id") @db.Uuid
-  courseMasterId           String   @map("course_master_id") @db.Uuid
+  courseRunId        String   @map("course_run_id") @db.Uuid
   dayOfWeek          Int      @map("day_of_week")
   startTime          String   @map("start_time")
   duration           Int      @default(90)
@@ -499,12 +496,12 @@ model LiveSessionScheduleRequest {
   createdAt          DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @default(now()) @updatedAt @map("updated_at")
 
-  lecturer     User              @relation("LecturerScheduleRequests", fields: [lecturerId], references: [id], onDelete: Cascade)
-  schedule     TeachingSchedule? @relation(fields: [originalScheduleId], references: [id], onDelete: SetNull)
-  courseMaster CourseMaster      @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
+  lecturer  User              @relation("LecturerScheduleRequests", fields: [lecturerId], references: [id], onDelete: Cascade)
+  schedule  TeachingSchedule? @relation(fields: [originalScheduleId], references: [id], onDelete: SetNull)
+  courseRun CourseRun         @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
 
   @@index([lecturerId])
-  @@index([courseMasterId])
+  @@index([courseRunId])
   @@map("live_session_schedule_requests")
 }
 
@@ -1997,7 +1994,7 @@ model Ticket {
 model Certificate {
   id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId          String   @map("user_id") @db.Uuid
-  courseMasterId  String   @map("course_master_id") @db.Uuid
+  courseRunId     String   @map("course_run_id") @db.Uuid
   enrollmentId    String   @unique @map("enrollment_id") @db.Uuid
   certificateCode String   @unique @map("certificate_code") @db.VarChar(50)
   issueDate       DateTime @default(now()) @map("issue_date")
@@ -2005,11 +2002,11 @@ model Certificate {
   metadata        Json?    @default("{}")
 
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course     CourseMaster     @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
+  courseRun  CourseRun  @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
   enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@index([courseMasterId])
+  @@index([courseRunId])
   @@map("certificates")
 }
 

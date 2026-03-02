@@ -73,7 +73,7 @@ export default function CourseMasterLiveSessionsPage() {
     const handleDelete = async (sessionId: string) => {
         if (!confirm('Bạn có chắc chắn muốn xóa buổi học này?')) return;
         try {
-            await deleteMutation.mutateAsync({ id: sessionId, courseMasterId: course.id });
+            await deleteMutation.mutateAsync({ id: sessionId, courseRunId: course.id });
             toast.success('Đã xóa buổi học');
         } catch (error) {
             toast.error('Không thể xóa buổi học');
@@ -280,7 +280,7 @@ export default function CourseMasterLiveSessionsPage() {
             <TeachingScheduleSheet
                 open={isScheduleSheetOpen}
                 onOpenChange={setIsScheduleSheetOpen}
-                course={course}
+                run={null}
             />
             <CreateScheduleRequestSheet
                 open={!!requestingSession}

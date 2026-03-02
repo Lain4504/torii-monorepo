@@ -11,13 +11,17 @@ import {
     Trash,
     MoreVertical,
     Calendar,
+    Edit3,
+    Plus,
+    Layers,
+    ChevronDown,
 } from 'lucide-react';
 import {
     useLiveSessions,
     useDeleteLiveSession,
     useStartLiveSession,
     useEndLiveSession,
-    liveSessionsApi
+    liveSessionsApi,
 } from '@/lib/api/services/live-sessions';
 import { useCourseRun } from '@/lib/api/services/course-runs';
 import { useCourse } from '@/lib/api/services/courses';
@@ -33,6 +37,8 @@ import { PageHeader } from '@/components/common/page-header';
 import { PageLoading } from '@workspace/ui/components/page-loading';
 import { TeachingScheduleSheet } from '@/components/courses/teaching-schedule-sheet';
 import { CreateScheduleRequestSheet } from '@/components/courses/create-schedule-request-sheet';
+import { EditLiveSessionSheet } from '@/components/courses/edit-live-session-sheet';
+import { CreateLiveSessionSheet } from '@/components/courses/create-live-session-sheet';
 import {
     Table,
     TableBody,
@@ -48,13 +54,14 @@ export default function CourseRunLiveSessionsPage() {
     const { runId } = useParams<{ runId: string }>();
     const navigate = useNavigate();
     const [isScheduleSheetOpen, setIsScheduleSheetOpen] = useState(false);
+    const [isCreateSheetOpen, setIsCreateSheetOpen] = useState(false);
     const [requestingSession, setRequestingSession] = useState<LiveSessionResponseDTO | null>(null);
+    const [editingSession, setEditingSession] = useState<LiveSessionResponseDTO | null>(null);
     const { can } = usePermissions();
 
     const { data: run, isLoading: isLoadingRun } = useCourseRun(runId || '');
     const { data: course } = useCourse(run?.courseMasterId || '');
-    // TODO: Replace with useLiveSessionsByRun once API supports it
-    const { data: sessions, isLoading: isLoadingSessions } = useLiveSessions(run?.courseMasterId || '');
+    const { data: sessions, isLoading: isLoadingSessions } = useLiveSessions(runId || '');
 
     const deleteMutation = useDeleteLiveSession();
     const startMutation = useStartLiveSession();
@@ -76,7 +83,7 @@ export default function CourseRunLiveSessionsPage() {
     const handleDelete = async (sessionId: string) => {
         if (!confirm('Bạn có chắc chắn muốn xóa buổi học này?')) return;
         try {
-            await deleteMutation.mutateAsync({ id: sessionId, courseMasterId: run.courseMasterId });
+            await deleteMutation.mutateAsync({ id: sessionId, courseRunId: runId || '' });
             toast.success('Đã xóa buổi học');
         } catch (error) {
             toast.error('Không thể xóa buổi học');
@@ -133,13 +140,33 @@ export default function CourseRunLiveSessionsPage() {
                     title="Quản lý Buổi học Trực tuyến"
                     subtitle={`Lớp học: ${run.title}`}
                     actions={
-                        <Button
-                            onClick={() => setIsScheduleSheetOpen(true)}
-                            className="h-10 px-6 rounded-xl bg-primary text-primary-foreground font-sans font-bold italic text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 transition-all"
-                        >
-                            <Settings className="mr-2 size-4" />
-                            Tạo buổi học
-                        </Button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    className="h-10 px-6 rounded-xl bg-primary text-primary-foreground font-sans font-bold italic text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 transition-all gap-2"
+                                >
+                                    <Plus className="size-4" />
+                                    Tạo buổi học
+                                    <ChevronDown className="size-3.5 opacity-60" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-xl border-border/40 shadow-xl">
+                                <DropdownMenuItem onClick={() => setIsScheduleSheetOpen(true)} className="rounded-lg gap-2 py-2.5">
+                                    <Layers className="size-4 text-primary" />
+                                    <div className="flex flex-col">
+                                        <span className="font-bold text-xs uppercase tracking-tight">Tạo chuỗi buổi học</span>
+                                        <span className="text-[10px] text-muted-foreground">Tạo lịch học định kỳ hàng tuần</span>
+                                    </div>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setIsCreateSheetOpen(true)} className="rounded-lg gap-2 py-2.5">
+                                    <Settings className="size-4 text-emerald-500" />
+                                    <div className="flex flex-col">
+                                        <span className="font-bold text-xs uppercase tracking-tight">Tạo một buổi học</span>
+                                        <span className="text-[10px] text-muted-foreground">Tạo buổi học lẻ, buổi bù...</span>
+                                    </div>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     }
                     stats={[
                         {
@@ -148,11 +175,11 @@ export default function CourseRunLiveSessionsPage() {
                         },
                         {
                             label: 'Đang live',
-                            value: sessions?.filter(s => s.status === 'LIVE').length || 0,
+                            value: sessions?.filter(s => s.status.toLowerCase() === 'live').length || 0,
                         },
                         {
                             label: 'Sắp diễn ra',
-                            value: sessions?.filter(s => s.status === 'SCHEDULED').length || 0,
+                            value: sessions?.filter(s => s.status.toLowerCase() === 'scheduled').length || 0,
                         },
                     ]}
                 />
@@ -197,17 +224,17 @@ export default function CourseRunLiveSessionsPage() {
                                     <TableCell className="font-mono text-xs text-muted-foreground">{idx + 1}</TableCell>
                                     <TableCell>
                                         <div className="flex items-center gap-2">
-                                            {session.status === 'LIVE' && (
+                                            {session.status.toLowerCase() === 'live' && (
                                                 <span className="relative flex h-2 w-2">
                                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                                                     <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                                                 </span>
                                             )}
                                             <Badge
-                                                variant={session.status === 'SCHEDULED' ? "outline" : session.status === 'LIVE' ? "destructive" : "secondary"}
+                                                variant={session.status.toLowerCase() === 'scheduled' ? "outline" : session.status.toLowerCase() === 'live' ? "destructive" : "secondary"}
                                                 className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg"
                                             >
-                                                {session.status === 'SCHEDULED' ? "Sắp diễn ra" : session.status === 'LIVE' ? "Đang live" : "Hoàn thành"}
+                                                {session.status.toLowerCase() === 'scheduled' ? "Sắp diễn ra" : session.status.toLowerCase() === 'live' ? "Đang live" : "Hoàn thành"}
                                             </Badge>
                                         </div>
                                     </TableCell>
@@ -231,7 +258,7 @@ export default function CourseRunLiveSessionsPage() {
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex items-center justify-end gap-2">
-                                            {session.status === 'LIVE' && (
+                                            {session.status.toLowerCase() === 'live' && (
                                                 <Button
                                                     variant="default"
                                                     size="sm"
@@ -249,17 +276,22 @@ export default function CourseRunLiveSessionsPage() {
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="rounded-xl border-border/40 shadow-xl min-w-[160px] p-1.5">
-                                                    {session.status === 'SCHEDULED' && can('live_class.manage') && (
+                                                    {session.status.toLowerCase() === 'scheduled' && can('live_class.manage') && (
                                                         <DropdownMenuItem onClick={() => handleStart(session.id)} className="rounded-lg text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 gap-2 py-2">
                                                             <PlayCircle className="size-3.5" /> <span className="font-bold text-xs uppercase">Bắt đầu</span>
                                                         </DropdownMenuItem>
                                                     )}
-                                                    {session.status === 'LIVE' && can('live_class.manage') && (
+                                                    {session.status.toLowerCase() === 'live' && can('live_class.manage') && (
                                                         <DropdownMenuItem onClick={() => handleEnd(session.id)} className="rounded-lg text-orange-600 focus:text-orange-700 focus:bg-orange-50 gap-2 py-2">
                                                             <StopCircle className="size-3.5" /> <span className="font-bold text-xs uppercase">Kết thúc</span>
                                                         </DropdownMenuItem>
                                                     )}
-                                                    {session.status === 'SCHEDULED' && can('live_class.request_change') && (
+                                                    {session.status.toLowerCase() === 'scheduled' && can('live_class.manage') && (
+                                                        <DropdownMenuItem onClick={() => setEditingSession(session)} className="rounded-lg text-amber-600 focus:text-amber-700 focus:bg-amber-50 gap-2 py-2">
+                                                            <Edit3 className="size-3.5" /> <span className="font-bold text-xs uppercase">Chỉnh sửa</span>
+                                                        </DropdownMenuItem>
+                                                    )}
+                                                    {session.status.toLowerCase() === 'scheduled' && can('live_class.request_change') && (
                                                         <DropdownMenuItem onClick={() => setRequestingSession(session)} className="rounded-lg text-blue-600 focus:text-blue-700 focus:bg-blue-50 gap-2 py-2">
                                                             <Calendar className="size-3.5" /> <span className="font-bold text-xs uppercase">Yêu cầu đổi lịch</span>
                                                         </DropdownMenuItem>
@@ -283,6 +315,18 @@ export default function CourseRunLiveSessionsPage() {
             <TeachingScheduleSheet
                 open={isScheduleSheetOpen}
                 onOpenChange={setIsScheduleSheetOpen}
+                run={run}
+            />
+            <CreateLiveSessionSheet
+                open={isCreateSheetOpen}
+                onOpenChange={setIsCreateSheetOpen}
+                course={course || null}
+                run={run || null}
+            />
+            <EditLiveSessionSheet
+                open={!!editingSession}
+                onOpenChange={(open) => !open && setEditingSession(null)}
+                session={editingSession}
                 course={course || null}
             />
             <CreateScheduleRequestSheet

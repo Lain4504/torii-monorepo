@@ -93,6 +93,11 @@ export interface ICourseMasterRepository {
     getLatestVersion(courseMasterId: string): Promise<CourseVersion | null>;
 
     /**
+     * Get all versions for a course master
+     */
+    getVersions(courseMasterId: string): Promise<CourseVersion[]>;
+
+    /**
      * Get a specific course version by ID
      */
     getVersionById(versionId: string): Promise<CourseVersion | null>;

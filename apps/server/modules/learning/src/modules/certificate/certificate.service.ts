@@ -18,7 +18,9 @@ import {
     IEnrollmentRepository,
     ENROLLMENT_REPOSITORY_TOKEN,
     ICourseMasterRepository,
-    COURSE_MASTER_REPOSITORY_TOKEN
+    COURSE_MASTER_REPOSITORY_TOKEN,
+    ICourseRunRepository,
+    COURSE_RUN_REPOSITORY_TOKEN,
 } from '@server/learning/interfaces/repositories';
 import { SharedStorageService } from '@server/shared';
 import { v4 as uuidv4 } from 'uuid';
@@ -34,6 +36,8 @@ export class CertificateService implements ICertificateService {
         private readonly enrollmentRepository: IEnrollmentRepository,
         @Inject(COURSE_MASTER_REPOSITORY_TOKEN)
         private readonly courseMasterRepository: ICourseMasterRepository,
+        @Inject(COURSE_RUN_REPOSITORY_TOKEN)
+        private readonly courseRunRepository: ICourseRunRepository,
         private readonly storageService: SharedStorageService,
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
         @InjectMapper() private readonly mapper: Mapper,
@@ -56,12 +60,12 @@ export class CertificateService implements ICertificateService {
     }
 
     async findAll(query: CertificateQueryDTO): Promise<CertificatePaginatedResponse> {
-        const { page = 1, limit = 10, userId, courseMasterId } = query;
+        const { page = 1, limit = 10, userId, courseRunId } = query;
         const skip = (Number(page) - 1) * Number(limit);
 
         const where: any = {};
         if (userId) where.userId = userId;
-        if (courseMasterId) where.courseMasterId = courseMasterId;
+        if (courseRunId) where.courseRunId = courseRunId;
 
         const [total, items] = await Promise.all([
             this.certificateRepository.count(where),
@@ -91,7 +95,7 @@ export class CertificateService implements ICertificateService {
         return cert ? this.toCertificateDto(cert) : null;
     }
 
-    async issueCertificate(userId: string, courseMasterId: string, enrollmentId: string): Promise<CertificateResponseDTO> {
+    async issueCertificate(userId: string, courseRunId: string, enrollmentId: string): Promise<CertificateResponseDTO> {
         try {
             // 1. Check if certificate already exists
             const existing = await this.certificateRepository.findByEnrollmentId(enrollmentId);
@@ -99,8 +103,11 @@ export class CertificateService implements ICertificateService {
                 return this.toCertificateDto(existing);
             }
 
-            // 2. Fetch data (Course details and User details)
-            const course = await this.courseMasterRepository.findById(courseMasterId);
+            // 2. Fetch data (Run and Course details)
+            const run = await this.courseRunRepository.findById(courseRunId);
+            if (!run) throw new NotFoundException('Course run not found');
+
+            const course = await this.courseMasterRepository.findById(run.courseMasterId);
             if (!course) throw new NotFoundException('Course not found');
 
             // Fetch User from Identity service
@@ -308,7 +315,7 @@ export class CertificateService implements ICertificateService {
             // 7. Save to DB
             const created = await this.certificateRepository.create({
                 user: { connect: { id: userId } },
-                course: { connect: { id: courseMasterId } },
+                courseRun: { connect: { id: courseRunId } },
                 enrollment: { connect: { id: enrollmentId } },
                 certificateCode,
                 fileUrl,

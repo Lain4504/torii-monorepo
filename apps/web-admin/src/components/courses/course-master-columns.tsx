@@ -88,7 +88,7 @@ export const getCourseMasterColumns = ({ onEdit, onDelete, onModules, onPublish,
         id: 'version',
         header: () => <div className="px-1 text-center">Phiên bản</div>,
         cell: ({ row }) => {
-            const version = (row.original as any).version || (row.original as any).versionTag || 'v1.0';
+            const version = (row.original as any).latestVersionTag || 'v1.0';
             return (
                 <div className="flex justify-center">
                     <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary/5 text-primary text-[10px] font-black tracking-tight border border-primary/10">
@@ -233,22 +233,34 @@ export const getCourseMasterColumns = ({ onEdit, onDelete, onModules, onPublish,
                                         <span>Từ chối & Phản hồi</span>
                                     </DropdownMenuItem>
                                 </>
-                            ) : course.status === 'published' && can('course.publish') ? (
+                            ) : course.status === 'published' ? (
                                 <>
-                                    <DropdownMenuItem
-                                        onClick={() => onPublish(course)}
-                                        className="rounded-lg px-3 py-2.5 text-xs font-medium text-emerald-600 focus:text-emerald-700 focus:bg-emerald-500/10 cursor-pointer flex gap-2.5"
-                                    >
-                                        <CheckCircle className="h-4 w-4 opacity-60" />
-                                        <span>Xuất bản bản cập nhật</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem
-                                        onClick={() => onUnpublish(course)}
-                                        className="rounded-lg px-3 py-2.5 text-xs font-medium text-amber-600 focus:text-amber-700 focus:bg-amber-500/10 cursor-pointer flex gap-2.5"
-                                    >
-                                        <XCircle className="h-4 w-4 opacity-60" />
-                                        <span>Gỡ bỏ khung chương trình</span>
-                                    </DropdownMenuItem>
+                                    {can('course.publish') ? (
+                                        <>
+                                            <DropdownMenuItem
+                                                onClick={() => onPublish(course)}
+                                                className="rounded-lg px-3 py-2.5 text-xs font-medium text-emerald-600 focus:text-emerald-700 focus:bg-emerald-500/10 cursor-pointer flex gap-2.5"
+                                            >
+                                                <CheckCircle className="h-4 w-4 opacity-60" />
+                                                <span>Xuất bản bản cập nhật</span>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                onClick={() => onUnpublish(course)}
+                                                className="rounded-lg px-3 py-2.5 text-xs font-medium text-amber-600 focus:text-amber-700 focus:bg-amber-500/10 cursor-pointer flex gap-2.5"
+                                            >
+                                                <XCircle className="h-4 w-4 opacity-60" />
+                                                <span>Gỡ bỏ khung chương trình</span>
+                                            </DropdownMenuItem>
+                                        </>
+                                    ) : (can('course.update') || can('module.update')) ? (
+                                        <DropdownMenuItem
+                                            onClick={() => onSubmitForReview(course)}
+                                            className="rounded-lg px-3 py-2.5 text-xs font-medium text-blue-600 focus:text-blue-700 focus:bg-blue-500/10 cursor-pointer flex gap-2.5"
+                                        >
+                                            <Layers className="h-4 w-4 opacity-60" />
+                                            <span>Gửi bản cập nhật để kiểm duyệt</span>
+                                        </DropdownMenuItem>
+                                    ) : null}
                                 </>
                             ) : null}
 

@@ -12,6 +12,10 @@ export class CourseRunRepository implements ICourseRunRepository {
     async findById(id: string): Promise<CourseRun | null> {
         return this.prisma.courseRun.findUnique({
             where: { id },
+            include: {
+                lecturer: true,
+                courseMaster: true,
+            },
         });
     }
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
     Sheet,
     SheetContent,
@@ -23,10 +23,13 @@ import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { toast } from '@workspace/ui/components/sonner';
 import { useCreateQuiz, type CreateQuizDTO } from '@/lib/api/services/quizzes';
 import { useQuestionPools } from '@/lib/api/services/question-pools';
-import { HelpCircle, Plus, BookOpen, Clock, Trash2, Layers } from 'lucide-react';
-import { QuestionJlptLevel } from '@workspace/schemas';
+import { HelpCircle, Plus, BookOpen, Clock, Trash2, Layers, List } from 'lucide-react';
+import { QuestionJlptLevel, LessonContentType } from '@workspace/schemas';
 import { Badge } from '@workspace/ui/components/badge';
 import { Card } from '@workspace/ui/components/card';
+import { useCourseRun } from '@/lib/api/services/course-runs';
+import { useCourseModules } from '@/lib/api/services/modules';
+import { useModulesLessons } from '@/lib/api/services/lesson';
 
 interface CreateQuizSheetProps {
     open: boolean;
@@ -44,6 +47,27 @@ export function CreateQuizSheet({
     moduleId: _moduleId,
 }: CreateQuizSheetProps) {
     const createMutation = useCreateQuiz();
+    const { data: courseRun } = useCourseRun(courseRunId || '');
+    const { data: modules = [] } = useCourseModules(courseRun?.courseMasterId || '');
+    const modulesLessonsQueries = useModulesLessons(modules);
+    const [selectedLessonId, setSelectedLessonId] = useState<string>(lessonId || '');
+
+    // Filter lessons to only show Quiz type
+    const quizLessons = useMemo(() => {
+        const allLessons = modulesLessonsQueries
+            .map(query => query.data?.data || [])
+            .flat();
+        
+        return allLessons.filter(lesson => 
+            lesson.contentType === LessonContentType.QUIZ
+        );
+    }, [modulesLessonsQueries]);
+
+    useEffect(() => {
+        if (lessonId) {
+            setSelectedLessonId(lessonId);
+        }
+    }, [lessonId]);
 
     const [form, setForm] = useState({
         title: '',
@@ -119,11 +143,11 @@ export function CreateQuizSheet({
         const dto: CreateQuizDTO = {
             title: form.title.trim(),
             description: form.description.trim() || undefined,
-            quizType: lessonId ? 'lesson' : 'course',
+            quizType: (selectedLessonId && selectedLessonId !== 'none') ? 'lesson' : 'course',
             examType: 'practice',
             jlptLevel: form.jlptLevel,
             courseRunId,
-            lessonId,
+            lessonId: (selectedLessonId && selectedLessonId !== 'none') ? selectedLessonId : undefined,
             totalTime: form.totalTime ? parseInt(form.totalTime, 10) : undefined,
             passingScore: form.passingScore ? parseFloat(form.passingScore) : 60,
             maxAttempts: form.maxAttempts ? parseInt(form.maxAttempts, 10) : 1,
@@ -178,7 +202,7 @@ export function CreateQuizSheet({
                         <div>
                             <SheetTitle className="text-lg font-bold">Tạo Quiz Mới</SheetTitle>
                             <SheetDescription className="text-sm">
-                                {lessonId ? 'Quiz gắn với bài học này' : 'Quiz cho khóa học'}
+                                {lessonId ? 'Quiz gắn với bài học này' : courseRunId ? 'Quiz cho lớp học này' : 'Quiz cho khóa học'}
                             </SheetDescription>
                         </div>
                     </div>
@@ -191,39 +215,78 @@ export function CreateQuizSheet({
                     <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
                             <div className="space-y-5">
-                                <div className="space-y-2">
-                                    <Label
-                                        htmlFor="quiz-title"
-                                        className="text-xs font-bold uppercase tracking-widest"
-                                    >
-                                        Tiêu đề Quiz <span className="text-destructive">*</span>
-                                    </Label>
-                                    <Input
-                                        id="quiz-title"
-                                        value={form.title}
-                                        onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-                                        placeholder="Ví dụ: Quiz Bài 3 — Từ vựng N4"
-                                        required
-                                    />
-                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2 md:col-span-2">
+                                        <Label
+                                            htmlFor="quiz-title"
+                                            className="text-xs font-bold uppercase tracking-widest"
+                                        >
+                                            Tiêu đề Quiz <span className="text-destructive">*</span>
+                                        </Label>
+                                        <Input
+                                            id="quiz-title"
+                                            value={form.title}
+                                            onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+                                            placeholder="Ví dụ: Quiz Bài 3 — Từ vựng N4"
+                                            required
+                                        />
+                                    </div>
 
-                                <div className="space-y-2">
-                                    <Label
-                                        htmlFor="quiz-desc"
-                                        className="text-xs font-bold uppercase tracking-widest"
-                                    >
-                                        Mô tả
-                                    </Label>
-                                    <Textarea
-                                        id="quiz-desc"
-                                        value={form.description}
-                                        onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                                        placeholder="Mô tả nội dung quiz..."
-                                        rows={3}
-                                    />
-                                </div>
+                                    <div className="space-y-2 md:col-span-2">
+                                        <Label
+                                            htmlFor="quiz-desc"
+                                            className="text-xs font-bold uppercase tracking-widest"
+                                        >
+                                            Mô tả
+                                        </Label>
+                                        <Textarea
+                                            id="quiz-desc"
+                                            value={form.description}
+                                            onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+                                            placeholder="Mô tả nội dung quiz..."
+                                            rows={3}
+                                        />
+                                    </div>
 
-                                <div className="grid grid-cols-2 gap-6">
+                                    {courseRunId && (
+                                        <div className="space-y-2 md:col-span-2">
+                                            <Label
+                                                htmlFor="quiz-lesson"
+                                                className="text-xs font-bold uppercase tracking-widest flex items-center gap-2"
+                                            >
+                                                <List className="size-4 text-violet-500" />
+                                                Gắn với Lesson (Quiz)
+                                            </Label>
+                                            <Select value={selectedLessonId} onValueChange={setSelectedLessonId}>
+                                                <SelectTrigger id="quiz-lesson">
+                                                    <SelectValue placeholder="Chọn lesson có type Quiz..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="none">Không gắn với lesson cụ thể</SelectItem>
+                                                    {quizLessons.length === 0 ? (
+                                                        <SelectItem value="no-lessons" disabled>
+                                                            Không có lesson Quiz nào
+                                                        </SelectItem>
+                                                    ) : (
+                                                        quizLessons.map((lesson) => (
+                                                            <SelectItem key={lesson.id} value={lesson.id}>
+                                                                <div className="flex flex-col">
+                                                                    <span className="font-medium">{lesson.title}</span>
+                                                                    <span className="text-xs text-muted-foreground">
+                                                                        📝 Quiz · ID: {lesson.id.slice(0, 8)}
+                                                                    </span>
+                                                                </div>
+                                                            </SelectItem>
+                                                        ))
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
+                                            <p className="text-xs text-muted-foreground">
+                                                Chọn lesson để gắn quiz này với nội dung bài học cụ thể
+                                            </p>
+                                        </div>
+                                    )}
+
                                     <div className="space-y-2">
                                         <Label
                                             htmlFor="quiz-time"

@@ -18,7 +18,6 @@ import {
 
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
-import { Card, CardContent } from '@workspace/ui/components/card';
 import { useCourse } from '@/lib/api/services/courses';
 import { useCourseModules, useReorderModules } from '@/lib/api/services/modules';
 import { useModulesLessons } from '@/lib/api/services/lesson';
@@ -34,6 +33,8 @@ import { PageLoading } from '@workspace/ui/components/page-loading';
 import { CourseRunsTable } from '@/components/courses/course-runs-table';
 import { ReorderModulesDialog } from '@/components/modules/reorder-modules-dialog';
 import { ReorderLessonsDialog } from '@/components/lessons/reorder-lessons-dialog';
+import { CourseStatusHeader } from '@/components/courses/course-status-header.tsx';
+import { CourseVersionHistory } from '@/components/courses/course-version-history.tsx';
 
 export default function CourseMasterPage() {
     const { id } = useParams<{ id: string }>();
@@ -244,6 +245,18 @@ export default function CourseMasterPage() {
                     Thiết kế Syllabus
                 </Button>
             </div>
+
+            {/* Course Status Header */}
+            <CourseStatusHeader course={course} onStatusChange={() => {
+                // Refetch course data on status change
+                const timer = setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+                return () => clearTimeout(timer);
+            }} />
+
+            {/* Version History */}
+            <CourseVersionHistory courseId={id!} />
 
             <Tabs defaultValue="curriculum" className="space-y-6">
                 <TabsList className="bg-muted/40 p-1 h-auto gap-1">

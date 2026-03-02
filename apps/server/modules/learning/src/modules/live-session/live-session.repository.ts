@@ -16,21 +16,24 @@ export class LiveSessionRepository implements ILiveSessionRepository {
     async findById(id: string): Promise<LiveSession | null> {
         return this.prisma.liveSession.findUnique({
             where: { id },
-        });
+            include: { courseRun: true },
+        }) as any;
     }
 
-    async findByCourseId(courseMasterId: string): Promise<LiveSession[]> {
+    async findByRunId(courseRunId: string): Promise<LiveSession[]> {
         return this.prisma.liveSession.findMany({
-            where: { courseMasterId },
+            where: { courseRunId },
+            include: { courseRun: true },
             orderBy: { scheduledAt: 'asc' },
-        });
+        }) as any;
     }
 
     async findByLecturerId(lecturerId: string): Promise<LiveSession[]> {
         return this.prisma.liveSession.findMany({
             where: { lecturerId },
+            include: { courseRun: true },
             orderBy: { scheduledAt: 'asc' },
-        });
+        }) as any;
     }
 
     async create(data: Prisma.LiveSessionCreateInput): Promise<LiveSession> {

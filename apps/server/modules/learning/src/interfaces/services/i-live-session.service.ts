@@ -11,9 +11,9 @@ export interface ILiveSessionService {
     findById(id: string): Promise<LiveSessionResponseDTO>;
 
     /**
-     * Get all live sessions for a course
+     * Get all live sessions for a course run
      */
-    findByCourseId(courseMasterId: string): Promise<LiveSessionResponseDTO[]>;
+    findByRunId(courseRunId: string): Promise<LiveSessionResponseDTO[]>;
 
     /**
      * Create a new live session
