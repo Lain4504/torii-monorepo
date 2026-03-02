@@ -19,6 +19,11 @@ export interface RoleplayResponse {
     vietnamese?: string;
     feedback?: string | null;
     isFinished: boolean;
+    tokenUsage?: {
+        promptTokens: number;
+        completionTokens: number;
+        totalTokens: number;
+    };
 }
 
 export interface ProgressTrackResponse {
@@ -132,13 +137,16 @@ export const agentApi = {
             message: string,
             history: any[] = [],
             isFinal: boolean = false
-        ) => {
-            const response = await apiClient.post<{ success: boolean; data: RoleplayResponse }>('/api/agents/roleplay', {
+        ): Promise<RoleplayResponse> => {
+            const response = await apiClient.post<{ success: boolean; data: RoleplayResponse; message?: string }>('/api/agents/roleplay', {
                 topic,
                 message,
                 history,
                 isFinal
             });
+            if (!response.data.success || !response.data.data) {
+                throw new Error(response.data.message || 'Failed to process roleplay');
+            }
             return response.data.data;
         },
         tts: async (text: string, voice?: string) => {
@@ -154,6 +162,10 @@ export const agentApi = {
                 resourceType,
                 level
             });
+            return response.data.data;
+        },
+        getQuotaStatus: async (): Promise<{ remainingTrial: number; cost: number; chargedCoins: boolean }> => {
+            const response = await apiClient.get<{ success: boolean; data: { remainingTrial: number; cost: number; chargedCoins: boolean } }>('/api/agents/sensei/quota-status');
             return response.data.data;
         }
     },

@@ -89,10 +89,10 @@ export class UserBalanceService {
     /**
      * Get balance transaction history with pagination
      */
-    async getHistory(userId: string, query: { page?: any, limit?: any, type?: any }) {
+    async getHistory(userId: string, query: { page?: any, limit?: any, type?: any, aiOnly?: any }) {
         const page = parseInt(query.page as string || '1', 10) || 1;
         const limit = parseInt(query.limit as string || '10', 10) || 10;
-        const { type } = query;
+        const { type, aiOnly } = query;
         const skip = (page - 1) * limit;
 
         const where: any = {
@@ -101,6 +101,14 @@ export class UserBalanceService {
 
         if (type) {
             where.type = type;
+        }
+
+        // Filter only AI-related transactions (those with metadata.taskType set)
+        if (aiOnly === true || aiOnly === 'true') {
+            where.metadata = {
+                path: ['taskType'],
+                not: 'null',
+            };
         }
 
         const [data, total] = await Promise.all([

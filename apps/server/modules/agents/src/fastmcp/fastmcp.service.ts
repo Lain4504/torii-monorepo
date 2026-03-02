@@ -140,14 +140,14 @@ export class FastMcpService {
     return null;
   }
 
-  public async callGemini(prompt: string): Promise<string> {
+  public async callGemini(prompt: string): Promise<{ text: string; usage: any }> {
     if (!this.genAI) {
       throw new Error('Gemini API Key is missing');
     }
 
     try {
       const model = this.genAI.getGenerativeModel({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-2.5-flash',
         generationConfig: {
           temperature: 0.7,
           topK: 40,
@@ -156,7 +156,16 @@ export class FastMcpService {
         },
       });
       const result = await model.generateContent(prompt);
-      return result.response.text();
+      const usage = result.response.usageMetadata;
+
+      if (process.env.DEBUG_AI) {
+        this.logger.debug(`AI Token Usage: ${JSON.stringify(usage)}`);
+      }
+
+      return {
+        text: result.response.text(),
+        usage: usage
+      };
     } catch (error: any) {
       this.logger.error('Gemini API Error:', error);
       throw new Error(`Gemini API Error: ${error.message}`);
@@ -203,17 +212,17 @@ export class FastMcpService {
     prompt: string,
     schema: z.ZodSchema<T>,
     options?: { maxRetries?: number },
-  ): Promise<T> {
+  ): Promise<{ data: T; usage: any }> {
     const maxRetries = options?.maxRetries ?? 1;
     let lastError: unknown = null;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      const raw = await this.callGemini(prompt);
+      const { text: raw, usage } = await this.callGemini(prompt);
       const json = this.cleanJsonResponse(raw);
 
       try {
         const parsed = schema.parse(json);
-        return parsed;
+        return { data: parsed, usage };
       } catch (err) {
         lastError = err;
         this.logger.warn(
@@ -221,7 +230,6 @@ export class FastMcpService {
         );
 
         if (attempt === maxRetries) {
-          // Ném lỗi cuối cùng kèm theo raw để phía trên có thể quyết định fallback.
           throw new Error(
             `AI output schema validation failed after ${maxRetries + 1} attempts`,
           );
@@ -229,7 +237,6 @@ export class FastMcpService {
       }
     }
 
-    // theoretically unreachable
     throw lastError as Error;
   }
 

@@ -19,13 +19,16 @@ import {
     RotateCcw,
     Ticket,
     CheckCircle2,
+    BrainCircuit,
+    MessageSquare,
+    Bot,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Button } from "@workspace/ui/components/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { Badge } from "@workspace/ui/components/badge"
 import { cn } from "@workspace/ui/lib/utils"
-import { useBalanceHistory, orderApi } from "@/lib/api/services/order-api"
+import { useBalanceHistory, useAiUsageHistory, orderApi } from "@/lib/api/services/order-api"
 import { useGamificationHistory } from "@/lib/api/services/gamification-api"
 import { useMyCoupons } from "@/lib/api/services/coupon-api"
 import { useAppSelector } from "@/hooks/hooks"
@@ -63,6 +66,7 @@ export default function WalletPage() {
     const { user } = useAppSelector((state) => state.auth)
     const [balancePage, setBalancePage] = React.useState(1)
     const [pointsPage, setPointsPage] = React.useState(1)
+    const [aiPage, setAiPage] = React.useState(1)
     const [isTopUpOpen, setIsTopUpOpen] = React.useState(false)
     const [topUpAmount, setTopUpAmount] = React.useState("50000")
     const [isSubmitting, setIsSubmitting] = React.useState(false)
@@ -82,6 +86,7 @@ export default function WalletPage() {
 
     const { data: balanceData, isLoading: balanceLoading } = useBalanceHistory({ page: balancePage, limit: 10 })
     const { data: pointsData, isLoading: pointsLoading } = useGamificationHistory({ page: pointsPage, limit: 10 })
+    const { data: aiData, isLoading: aiLoading } = useAiUsageHistory({ page: aiPage, limit: 10 })
     const { data: coupons, isLoading: couponsLoading } = useMyCoupons(!!user)
 
     const handleTopUp = async () => {
@@ -198,8 +203,11 @@ export default function WalletPage() {
                 </div>
 
                 <Tabs defaultValue="coins" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3 max-w-lg bg-muted/50 p-1">
+                    <TabsList className="grid w-full grid-cols-4 max-w-xl bg-muted/50 p-1">
                         <TabsTrigger value="coins" className="rounded-md font-bold text-xs uppercase tracking-widest data-[state=active]:shadow-sm">Số dư Coin</TabsTrigger>
+                        <TabsTrigger value="ai" className="rounded-md font-bold text-xs uppercase tracking-widest data-[state=active]:shadow-sm flex items-center gap-1.5">
+                            <BrainCircuit className="w-3 h-3" />Chi phí AI
+                        </TabsTrigger>
                         <TabsTrigger value="points" className="rounded-md font-bold text-xs uppercase tracking-widest data-[state=active]:shadow-sm">Thưởng (XP)</TabsTrigger>
                         <TabsTrigger value="coupons" className="rounded-md font-bold text-xs uppercase tracking-widest data-[state=active]:shadow-sm">Mã giảm giá</TabsTrigger>
                     </TabsList>
@@ -277,6 +285,130 @@ export default function WalletPage() {
                                     variant="outline" size="sm"
                                     disabled={balancePage === (balanceData?.totalPages ?? 0)}
                                     onClick={() => setBalancePage(p => p + 1)}
+                                    className="rounded-xl font-bold text-[10px] uppercase tracking-widest"
+                                >
+                                    Sau <ChevronRight className="w-3.5 h-3.5 ml-1" />
+                                </Button>
+                            </div>
+                        )}
+                    </TabsContent>
+
+                    {/* ── AI Usage Tab ── */}
+                    <TabsContent value="ai" className="pt-6 space-y-6">
+                        {/* Summary banner */}
+                        {(aiData?.data?.length ?? 0) > 0 && (
+                            <div className="flex flex-wrap items-center gap-4 p-4 rounded-2xl bg-violet-50 dark:bg-violet-950/30 border-2 border-violet-200 dark:border-violet-800">
+                                <div className="p-2.5 rounded-xl bg-violet-500/10 text-violet-600 border border-violet-500/20">
+                                    <BrainCircuit className="w-5 h-5" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-bold uppercase tracking-widest text-violet-600/70 dark:text-violet-400">Tổng chi phí AI (trang này)</p>
+                                    <p className="text-2xl font-black tabular-nums text-violet-700 dark:text-violet-300">
+                                        {formatNumber(
+                                            (aiData?.data ?? []).reduce((sum: number, tx: any) => sum + Math.abs(tx.amount), 0)
+                                        )}
+                                        <span className="text-sm font-bold ml-1.5 text-violet-500">Coins</span>
+                                    </p>
+                                </div>
+                                <div className="text-right shrink-0">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">Số giao dịch</p>
+                                    <p className="text-xl font-black tabular-nums">{aiData?.total ?? 0}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {aiLoading ? (
+                            <div className="py-20 flex flex-col items-center justify-center gap-4">
+                                <Spinner className="size-8" />
+                                <p className="text-sm text-muted-foreground font-medium">Đang tải lịch sử chi phí AI...</p>
+                            </div>
+                        ) : (aiData?.data?.length ?? 0) > 0 ? (
+                            <ItemGroup className="gap-2">
+                                {aiData?.data?.map((tx: any) => {
+                                    const meta = tx.metadata as any
+                                    const taskType: string = meta?.taskType ?? 'ai'
+                                    const usage = meta?.usage
+                                    const totalTokens: number = usage?.totalTokenCount ?? 0
+                                    const promptTokens: number = usage?.promptTokenCount ?? 0
+                                    const completionTokens: number = usage?.candidatesTokenCount ?? 0
+                                    const isRoleplay = taskType.toLowerCase().includes('roleplay')
+                                    const isAssessment = taskType.toLowerCase().includes('assessment')
+
+                                    return (
+                                        <Item key={tx.id} variant="outline" className="p-4 hover:border-violet-500/20 transition-all border-2">
+                                            <ItemMedia className="w-12 h-12 rounded-xl flex items-center justify-center border bg-violet-50 text-violet-600 border-violet-100 dark:bg-violet-950/40 dark:border-violet-800 shrink-0">
+                                                {isRoleplay ? <MessageSquare className="w-5 h-5" /> :
+                                                    isAssessment ? <Award className="w-5 h-5" /> :
+                                                        <Bot className="w-5 h-5" />}
+                                            </ItemMedia>
+                                            <ItemContent className="ml-2 min-w-0">
+                                                <ItemTitle className="text-base font-bold truncate">{tx.description || "Chi phí AI"}</ItemTitle>
+                                                <ItemDescription className="flex flex-wrap items-center gap-x-3 gap-y-1 font-medium mt-1">
+                                                    <span className="flex items-center gap-1">
+                                                        <Calendar className="w-3 h-3" />
+                                                        {formatDateTime(tx.createdAt, "HH:mm, dd MMM yyyy")}
+                                                    </span>
+                                                    {totalTokens > 0 && (
+                                                        <span className="flex items-center gap-1 text-violet-600/70 dark:text-violet-400 font-bold text-[10px] uppercase tracking-widest">
+                                                            <Zap className="w-3 h-3" />
+                                                            {formatNumber(totalTokens)} tokens
+                                                        </span>
+                                                    )}
+                                                </ItemDescription>
+                                                {totalTokens > 0 && (
+                                                    <div className="flex items-center gap-3 mt-2">
+                                                        <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest">
+                                                            Prompt: {formatNumber(promptTokens)}
+                                                        </span>
+                                                        <span className="text-muted-foreground/30">·</span>
+                                                        <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest">
+                                                            Output: {formatNumber(completionTokens)}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </ItemContent>
+                                            <ItemActions className="flex flex-col items-end gap-1 shrink-0">
+                                                <span className="text-lg font-black tabular-nums tracking-tight text-orange-600 dark:text-orange-400">
+                                                    {formatNumber(tx.amount)}
+                                                </span>
+                                                <Badge
+                                                    variant="outline"
+                                                    className="text-[8px] font-black uppercase tracking-[0.2em] bg-violet-500/10 text-violet-600 border-violet-500/20 dark:text-violet-400"
+                                                >
+                                                    {taskType}
+                                                </Badge>
+                                            </ItemActions>
+                                        </Item>
+                                    )
+                                })}
+                            </ItemGroup>
+                        ) : (
+                            <Empty className="py-16 border-2 border-dashed bg-muted/5">
+                                <EmptyMedia>
+                                    <BrainCircuit className="size-10 text-muted-foreground/20" />
+                                </EmptyMedia>
+                                <EmptyContent>
+                                    <EmptyTitle>Chưa có giao dịch AI nào</EmptyTitle>
+                                    <EmptyDescription>Các lần sử dụng Sensei AI (roleplay, hỏi đáp, v.v.) sẽ hiển thị tại đây cùng với số token đã dùng.</EmptyDescription>
+                                </EmptyContent>
+                            </Empty>
+                        )}
+
+                        {(aiData?.totalPages ?? 0) > 1 && (
+                            <div className="flex items-center justify-center gap-4 pt-4">
+                                <Button
+                                    variant="outline" size="sm"
+                                    disabled={aiPage === 1}
+                                    onClick={() => setAiPage(p => p - 1)}
+                                    className="rounded-xl font-bold text-[10px] uppercase tracking-widest"
+                                >
+                                    <ChevronLeft className="w-3.5 h-3.5 mr-1" /> Trước
+                                </Button>
+                                <span className="text-xs font-bold text-muted-foreground/60">{aiPage} / {aiData?.totalPages}</span>
+                                <Button
+                                    variant="outline" size="sm"
+                                    disabled={aiPage === (aiData?.totalPages ?? 0)}
+                                    onClick={() => setAiPage(p => p + 1)}
                                     className="rounded-xl font-bold text-[10px] uppercase tracking-widest"
                                 >
                                     Sau <ChevronRight className="w-3.5 h-3.5 ml-1" />

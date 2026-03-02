@@ -4,9 +4,11 @@ import { NatsClientModule } from '@server/shared';
 import { AnalyticsService } from './analytics.service';
 
 
+import { AIUsageTrackingService } from './ai-usage-tracking.service';
+
 @Module({
     imports: [FastMcpModule, NatsClientModule],
-    providers: [AnalyticsService],
-    exports: [AnalyticsService],
+    providers: [AnalyticsService, AIUsageTrackingService],
+    exports: [AnalyticsService, AIUsageTrackingService],
 })
 export class AnalyticsModule { }

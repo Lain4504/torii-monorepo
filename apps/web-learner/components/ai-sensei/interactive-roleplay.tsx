@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Send, User, Sparkles, RefreshCcw, CheckCircle, AlertCircle, Mic, MicOff, Volume2, VolumeX, Settings, Play } from "lucide-react"
+import { Send, User, Sparkles, RefreshCcw, CheckCircle, AlertCircle, Mic, MicOff, Volume2, VolumeX, Settings, Play, Zap } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
@@ -29,6 +29,9 @@ import { cn } from "@workspace/ui/lib/utils"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import { toast } from "sonner"
+import { useAppDispatch } from "@/hooks/hooks"
+import { refreshBalance } from "@/store/slices/authSlice"
 
 const topicSchema = z.object({
     topic: z.string().min(1, "Vui lòng nhập hoặc chọn chủ đề"),
@@ -51,11 +54,13 @@ interface Message {
 }
 
 export function InteractiveRoleplay() {
+    const dispatch = useAppDispatch()
     const [isStarted, setIsStarted] = React.useState(false)
     const [messages, setMessages] = React.useState<Message[]>([])
     const [isLoading, setIsLoading] = React.useState(false)
     const [history, setHistory] = React.useState<any[]>([])
     const [isFinished, setIsFinished] = React.useState(false)
+    const [sessionTokens, setSessionTokens] = React.useState({ prompt: 0, completion: 0, total: 0 })
 
     const topicForm = useForm<TopicFormData>({
         resolver: zodResolver(topicSchema),
@@ -70,6 +75,17 @@ export function InteractiveRoleplay() {
     const currentTopic = topicForm.watch("topic")
     const inputText = inputForm.watch("text")
     const scrollRef = React.useRef<HTMLDivElement>(null)
+
+    // Tracking for cleanup
+    const isStartedRef = React.useRef(isStarted)
+    const isFinishedRef = React.useRef(isFinished)
+    const historyRef = React.useRef(history)
+    const topicRef = React.useRef(currentTopic)
+
+    React.useEffect(() => { isStartedRef.current = isStarted }, [isStarted])
+    React.useEffect(() => { isFinishedRef.current = isFinished }, [isFinished])
+    React.useEffect(() => { historyRef.current = history }, [history])
+    React.useEffect(() => { topicRef.current = currentTopic }, [currentTopic])
 
     // Voice State
     const [isListening, setIsListening] = React.useState(false)
@@ -159,7 +175,36 @@ export function InteractiveRoleplay() {
             }
         }
 
+        // --- Cleanup deduction logic ---
+        const backgroundDeductAndRefresh = async (topic: string, history: any[]) => {
+            try {
+                console.log('[billing] Background session deduction started');
+                await agentApi.sensei.roleplay(topic, "", history, true);
+                // Refresh balance after server-side deduction is confirmed
+                setTimeout(() => dispatch(refreshBalance()), 1000);
+            } catch (err) {
+                console.error('[billing] Background deduction failed', err);
+            }
+        }
+
+        const triggerFinalCleanup = () => {
+            // Only trigger if started, not finished, and has at least one user message
+            const turnCount = historyRef.current.filter(m => m.role === 'user').length
+            if (isStartedRef.current && !isFinishedRef.current && turnCount > 0) {
+                backgroundDeductAndRefresh(topicRef.current, historyRef.current);
+            }
+        }
+
+        const handleBeforeUnload = () => {
+            triggerFinalCleanup()
+        }
+
+        window.addEventListener('beforeunload', handleBeforeUnload)
+
         return () => {
+            triggerFinalCleanup() // Component unmount
+            window.removeEventListener('beforeunload', handleBeforeUnload)
+
             if (recognitionRef.current) {
                 try {
                     recognitionRef.current.abort()
@@ -349,6 +394,17 @@ export function InteractiveRoleplay() {
         setIsSpeaking(false)
     }
 
+    const addTokenUsage = (usage?: { promptTokens: number; completionTokens: number; totalTokens: number }) => {
+        if (!usage) return
+        setSessionTokens(prev => ({
+            prompt: prev.prompt + usage.promptTokens,
+            completion: prev.completion + usage.completionTokens,
+            total: prev.total + usage.totalTokens,
+        }))
+        // Refresh Redux store balance so header/wallet shows updated value
+        dispatch(refreshBalance())
+    }
+
     const handleStart = async (data?: TopicFormData) => {
         const topicValue = data?.topic || topicForm.getValues("topic")
         if (!topicValue.trim()) return
@@ -357,6 +413,7 @@ export function InteractiveRoleplay() {
 
         try {
             const res = await agentApi.sensei.roleplay(topicValue, "", [])
+            addTokenUsage(res.tokenUsage)
 
             const aiMsg: Message = {
                 id: Date.now().toString(),
@@ -373,8 +430,10 @@ export function InteractiveRoleplay() {
                 setTimeout(() => speak(res.response), 500)
             }
 
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to start roleplay", error)
+            toast.error(error.message || "Không thể bắt đầu hội thoại. Vui lòng kiểm tra số dư Coins của bạn.")
+            setIsStarted(false)
         } finally {
             setIsLoading(false)
         }
@@ -406,6 +465,7 @@ export function InteractiveRoleplay() {
             const nextHistory = [...currentHistory, { role: 'user', content: userMsgText }]
 
             const data = await agentApi.sensei.roleplay(topicForm.getValues("topic"), userMsgText, nextHistory)
+            addTokenUsage(data.tokenUsage)
 
             const aiMsg: Message = {
                 id: (Date.now() + 1).toString(),
@@ -432,8 +492,9 @@ export function InteractiveRoleplay() {
                 setMessages(prev => [...prev, feedbackMsg])
             }
 
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to reply", error)
+            toast.error(error.message || "Không thể gửi tin nhắn. Vui lòng thử lại.")
         } finally {
             setIsLoading(false)
         }
@@ -447,12 +508,31 @@ export function InteractiveRoleplay() {
     }
 
     const handleReset = () => {
+        // Optimistic UI: Close immediately
+        const wasStarted = isStarted
+        const wasFinished = isFinished
+        const currentHistory = history
+        const currentTopic = topicForm.getValues("topic")
+
         setIsStarted(false)
         setMessages([])
         setHistory([])
+        setSessionTokens({ prompt: 0, completion: 0, total: 0 })
         topicForm.reset({ topic: "" })
         inputForm.reset({ text: "" })
         setVoiceError(null)
+        setIsFinished(false)
+
+        // Background deduction
+        const userTurns = currentHistory.filter(m => m.role === 'user').length
+        if (wasStarted && !wasFinished && userTurns > 0) {
+            console.log('[billing] Background deduction triggered by reset');
+            agentApi.sensei.roleplay(currentTopic, "", currentHistory, true).then(() => {
+                setTimeout(() => dispatch(refreshBalance()), 1000);
+            }).catch(err => {
+                console.error('[billing] Reset deduction failed', err);
+            });
+        }
     }
 
     const handleFinish = async () => {
@@ -465,6 +545,7 @@ export function InteractiveRoleplay() {
             // Signal backend to finish and generate feedback
             const data = await agentApi.sensei.roleplay(topicForm.getValues("topic"), "", history, true) // isFinal = true
             console.log('[DEBUG] Roleplay API response:', data);
+            addTokenUsage(data.tokenUsage)
 
             if (data.isFinished && data.feedback) {
                 const feedbackMsg: Message = {
@@ -557,6 +638,9 @@ export function InteractiveRoleplay() {
                                 {isLoading ? <Spinner className="mr-2" /> : null}
                                 Bắt đầu hội thoại
                             </Button>
+                            <p className="text-[10px] text-muted-foreground italic text-center w-full">
+                                * Tính năng này tiêu tốn 1 lượt dùng thử hoặc Coins/phiên hội thoại.
+                            </p>
                         </div>
 
                         <div className="pt-6 border-t">
@@ -591,9 +675,21 @@ export function InteractiveRoleplay() {
                     </div>
                     <div>
                         <h3 className="font-bold text-base leading-none">{topicForm.getValues("topic")}</h3>
-                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider mt-1.5">
-                            {isFinished ? "Đã kết thúc" : `${turnCount} lượt trao đổi • Đang hội thoại`}
-                        </p>
+                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
+                                {isFinished ? "Đã kết thúc" : `${turnCount} lượt trao đổi • Đang hội thoại`}
+                            </p>
+                            {sessionTokens.total > 0 && (
+                                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider">
+                                    <Zap className="size-3 text-yellow-500 shrink-0" />
+                                    <span className="text-muted-foreground">{sessionTokens.total.toLocaleString()} tokens</span>
+                                    <span className="text-muted-foreground/40">·</span>
+                                    <span className="text-blue-500">
+                                        ≈ {Math.ceil((sessionTokens.prompt * 0.0025) + (sessionTokens.completion * 0.01)).toLocaleString()} Coins
+                                    </span>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -788,6 +884,7 @@ export function InteractiveRoleplay() {
                         <span className="font-bold text-sm">Đang lắng nghe...</span>
                     </div>
                 )}
+
 
                 <div className="max-w-3xl mx-auto flex gap-2">
                     <Button

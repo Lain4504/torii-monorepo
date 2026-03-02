@@ -70,4 +70,20 @@ export class AnalyticsHandler {
       data.targetLevel || 'N5',
     );
   }
+
+  @MessagePattern({ cmd: 'agents.analytics.createUsageArtifacts' })
+  async createUsageArtifacts(
+    @Payload()
+    data: {
+      roomId: string;
+      userId: string;
+      type: 'text' | 'voice';
+    },
+  ) {
+    return this.analyticsService.createAIUsageArtifacts(
+      data.roomId,
+      data.userId,
+      data.type,
+    );
+  }
 }

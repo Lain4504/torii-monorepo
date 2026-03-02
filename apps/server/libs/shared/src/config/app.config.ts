@@ -111,6 +111,8 @@ const ConfigSchema = z.object({
         enabled: z.boolean().default(false),
         maxTranscriptionLangs: z.number().default(2),
         maxChatTransLangs: z.number().default(5),
+        coinRatePerUSD: z.number().default(25000),
+        services: z.record(z.any()).optional(),
     }),
     ingress: z.object({
         userIdPrefix: z.string().default('ingress_'),

@@ -23,6 +23,13 @@ export class SenseiHandler {
     return this.livekitAgentService.joinRoom(data.roomName, data.participantIdentity);
   }
 
+  @MessagePattern({ cmd: 'agents.livekit.clearJoinLock' })
+  async clearJoinLock(@Payload() data: { roomName: string; userId?: string }) {
+    console.log(`[SenseiHandler] Received agents.livekit.clearJoinLock for room: ${data.roomName}, user: ${data.userId}`);
+    this.livekitAgentService.clearJoinLock(data.roomName, data.userId);
+    return { success: true };
+  }
+
   @MessagePattern({ cmd: 'agents.sensei.grammarCheck' })
   async checkGrammar(@Payload() data: { text: string; requester: Requester }) {
     return this.senseiService.checkGrammar(data.requester, data.text);

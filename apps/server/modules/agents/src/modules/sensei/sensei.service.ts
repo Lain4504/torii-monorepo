@@ -2,6 +2,7 @@ import { Injectable, Logger, OnModuleInit, Inject } from '@nestjs/common';
 // Triggering reload for schema update
 import { FastMcpService } from '../../fastmcp/fastmcp.service';
 import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 import { z } from 'zod';
 import {
     AgentGrammarCheckResponseSchema,
@@ -14,7 +15,9 @@ import {
     Requester,
 } from '@workspace/schemas';
 
-import { PrismaService } from '@server/shared';
+import { PrismaService, AppConfigService } from '@server/shared';
+import { AIUsageTrackingService } from '../analytics/ai-usage-tracking.service';
+import { AnalyticsService } from '../analytics/analytics.service';
 
 @Injectable()
 export class SenseiService implements OnModuleInit {
@@ -23,8 +26,31 @@ export class SenseiService implements OnModuleInit {
     constructor(
         private readonly fastMcpService: FastMcpService,
         private readonly prisma: PrismaService,
+        private readonly aiUsageTracking: AIUsageTrackingService,
+        private readonly analyticsService: AnalyticsService,
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
+
+    private async deductCoins(userId: string, taskType: string, usage: any) {
+        try {
+            await firstValueFrom(
+                this.natsClient.send({ cmd: 'billing.quota.recordTokenUsage' }, {
+                    userId,
+                    taskType,
+                    usage: {
+                        promptTokenCount: usage.promptTokenCount,
+                        candidatesTokenCount: usage.candidatesTokenCount,
+                        totalTokenCount: usage.totalTokenCount,
+                        model: usage.model
+                    }
+                })
+            );
+            this.logger.log(`[billing] Synchronous deduction complete for user ${userId} (${taskType})`);
+        } catch (err: any) {
+            this.logger.error(`[billing] Synchronous deduction failed for user ${userId}: ${err.message}`);
+            // Still proceed, don't block the user but log the error
+        }
+    }
 
     onModuleInit() {
         this.registerTools();
@@ -43,11 +69,20 @@ export class SenseiService implements OnModuleInit {
                 const userContext = await this.fastMcpService.getUserContext(userId);
                 const template = this.fastMcpService.loadPromptTemplate('sensei/grammar-check.md');
                 const prompt = template({ text, userContext, timestamp: new Date().toISOString() });
-                return this.fastMcpService.callGeminiWithSchema(
+                const { data, usage } = await this.fastMcpService.callGeminiWithSchema(
                     prompt,
                     AgentGrammarCheckResponseSchema,
                     { maxRetries: 1 },
                 );
+
+                await this.aiUsageTracking.updateAITextChatUsage(
+                    `gen-${userId}`, userId, 'grammar_check',
+                    usage.promptTokenCount, usage.candidatesTokenCount, usage.totalTokenCount
+                );
+
+                await this.deductCoins(userId, 'grammar_check', usage);
+
+                return data;
             }
         );
 
@@ -65,11 +100,20 @@ export class SenseiService implements OnModuleInit {
                 const userContext = await this.fastMcpService.getUserContext(userId);
                 const template = this.fastMcpService.loadPromptTemplate('sensei/translation.md');
                 const prompt = template({ text, sourceLanguage, targetLanguage, userContext, timestamp: new Date().toISOString() });
-                return this.fastMcpService.callGeminiWithSchema(
+                const { data, usage } = await this.fastMcpService.callGeminiWithSchema(
                     prompt,
                     AgentTranslateResponseSchema,
                     { maxRetries: 1 },
                 );
+
+                await this.aiUsageTracking.updateAITextChatUsage(
+                    `gen-${userId}`, userId, 'translation',
+                    usage.promptTokenCount, usage.candidatesTokenCount, usage.totalTokenCount
+                );
+
+                await this.deductCoins(userId, 'translation', usage);
+
+                return data;
             }
         );
 
@@ -86,11 +130,20 @@ export class SenseiService implements OnModuleInit {
                 const userContext = await this.fastMcpService.getUserContext(userId);
                 const template = this.fastMcpService.loadPromptTemplate('sensei/flashcard-creation.md');
                 const prompt = template({ topic, level, userContext, timestamp: new Date().toISOString() });
-                return this.fastMcpService.callGeminiWithSchema(
+                const { data, usage } = await this.fastMcpService.callGeminiWithSchema(
                     prompt,
                     AgentFlashcardResponseSchema,
                     { maxRetries: 1 },
                 );
+
+                await this.aiUsageTracking.updateAITextChatUsage(
+                    `gen-${userId}`, userId, 'flashcard_creation',
+                    usage.promptTokenCount, usage.candidatesTokenCount, usage.totalTokenCount
+                );
+
+                await this.deductCoins(userId, 'flashcard_creation', usage);
+
+                return data;
             }
         );
 
@@ -109,11 +162,20 @@ export class SenseiService implements OnModuleInit {
                 const userContext = await this.fastMcpService.getUserContext(userId);
                 const template = this.fastMcpService.loadPromptTemplate('sensei/practice-drill.md');
                 const prompt = template({ type, topic, level, count, userContext, timestamp: new Date().toISOString() });
-                return this.fastMcpService.callGeminiWithSchema(
+                const { data, usage } = await this.fastMcpService.callGeminiWithSchema(
                     prompt,
                     AgentDrillResponseSchema,
                     { maxRetries: 1 },
                 );
+
+                await this.aiUsageTracking.updateAITextChatUsage(
+                    `gen-${userId}`, userId, `drill_${type}`,
+                    usage.promptTokenCount, usage.candidatesTokenCount, usage.totalTokenCount
+                );
+
+                await this.deductCoins(userId, `drill_${type}`, usage);
+
+                return data;
             }
         );
 
@@ -131,11 +193,20 @@ export class SenseiService implements OnModuleInit {
                 const userContext = await this.fastMcpService.getUserContext(userId);
                 const template = this.fastMcpService.loadPromptTemplate('sensei/conversation-simulation.md');
                 const prompt = template({ scenario, level, turns, userContext, timestamp: new Date().toISOString() });
-                return this.fastMcpService.callGeminiWithSchema(
+                const { data, usage } = await this.fastMcpService.callGeminiWithSchema(
                     prompt,
                     AgentConversationSimulationResponseSchema,
                     { maxRetries: 1 },
                 );
+
+                await this.aiUsageTracking.updateAITextChatUsage(
+                    `gen-${userId}`, userId, `conversation_${scenario}`,
+                    usage.promptTokenCount, usage.candidatesTokenCount, usage.totalTokenCount
+                );
+
+                await this.deductCoins(userId, `conversation_${scenario}`, usage);
+
+                return data;
             }
         );
 
@@ -207,11 +278,20 @@ export class SenseiService implements OnModuleInit {
                     timestamp: new Date().toISOString()
                 });
 
-                return this.fastMcpService.callGeminiWithSchema(
+                const { data, usage } = await this.fastMcpService.callGeminiWithSchema(
                     prompt,
                     AgentResourceRecommendationResponseSchema,
                     { maxRetries: 1 },
                 );
+
+                await this.aiUsageTracking.updateAITextChatUsage(
+                    `gen-${userId}`, userId, 'resource_recommendation',
+                    usage.promptTokenCount, usage.candidatesTokenCount, usage.totalTokenCount
+                );
+
+                await this.deductCoins(userId, 'resource_recommendation', usage);
+
+                return data;
             }
         );
 
@@ -228,11 +308,20 @@ export class SenseiService implements OnModuleInit {
                 const userContext = await this.fastMcpService.getUserContext(userId);
                 const template = this.fastMcpService.loadPromptTemplate('sensei/chat.md');
                 const prompt = template({ message, history, userContext, timestamp: new Date().toISOString() });
-                return this.fastMcpService.callGeminiWithSchema(
+                const { data, usage } = await this.fastMcpService.callGeminiWithSchema(
                     prompt,
                     AgentChatResponseSchema,
                     { maxRetries: 1 },
                 );
+
+                await this.aiUsageTracking.updateAITextChatUsage(
+                    `chat-${userId}`, userId, 'chat',
+                    usage.promptTokenCount, usage.candidatesTokenCount, usage.totalTokenCount
+                );
+
+                await this.deductCoins(userId, 'chat', usage);
+
+                return data;
             }
         );
 
@@ -253,8 +342,51 @@ export class SenseiService implements OnModuleInit {
                 // Calculate turns based on history length (each interaction is 2 turns: user + ai)
                 // Actually history usually contains previous messages.
                 const prompt = template({ topic, message, history, isFinal, userContext, timestamp: new Date().toISOString() });
-                const response = await this.fastMcpService.callGemini(prompt);
-                return this.fastMcpService.cleanJsonResponse(response);
+                const { text: response, usage } = await this.fastMcpService.callGemini(prompt);
+
+                // For roleplay, we use a consistent room ID to group the session
+                const roomId = `rp-${userId}`;
+                await this.aiUsageTracking.updateAITextChatUsage(
+                    roomId, userId, 'roleplay',
+                    usage.promptTokenCount, usage.candidatesTokenCount, usage.totalTokenCount
+                );
+
+                // session-based billing: only deduct when conversation is finished
+                if (isFinal) {
+                    this.logger.log(`Final turn detected for Roleplay session ${roomId}. Generating artifacts and deducting coins...`);
+
+                    // Retrieve total session usage from Redis
+                    const sessionUsage = await this.aiUsageTracking.getUsage(roomId);
+                    const totalPrompt = sessionUsage[`total_roleplay_prompt_tokens`] || 0;
+                    const totalCompletion = sessionUsage[`total_roleplay_completion_tokens`] || 0;
+                    const totalTokens = sessionUsage[`total_roleplay_tokens`] || 0;
+
+                    if (totalTokens > 0) {
+                        this.logger.log(`[billing] Session-based deduction for ${roomId}: ${totalTokens} tokens total.`);
+                        await this.deductCoins(userId, 'roleplay', {
+                            promptTokenCount: totalPrompt,
+                            candidatesTokenCount: totalCompletion,
+                            totalTokenCount: totalTokens
+                        });
+                    }
+
+                    // Delay slightly to ensure usage is recorded for artifacts
+                    setTimeout(() => {
+                        this.analyticsService.createAIUsageArtifacts(roomId, userId, 'text').catch(err => {
+                            this.logger.error(`Failed to generate artifacts for ${roomId}: ${err.message}`);
+                        });
+                    }, 1000);
+                }
+
+                const parsed = this.fastMcpService.cleanJsonResponse(response);
+                return {
+                    ...parsed,
+                    tokenUsage: {
+                        promptTokens: usage.promptTokenCount,
+                        completionTokens: usage.candidatesTokenCount,
+                        totalTokens: usage.totalTokenCount,
+                    }
+                };
             }
         );
     }
