@@ -337,7 +337,12 @@ function LearningFormats() {
                                         </li>
                                     ))}
                                 </ul>
-                                <Button className="rounded-2xl h-14 px-8 font-black bg-primary hover:bg-red-700 shadow-lg shadow-red-100 uppercase tracking-widest text-[11px]">Khám phá khóa học VOD</Button>
+                                <Button
+                                    className="rounded-2xl h-14 px-8 font-black bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 uppercase tracking-widest text-[11px]"
+                                    asChild
+                                >
+                                    <Link href="/courses?format=vod">Khám phá khóa học VOD</Link>
+                                </Button>
                             </div>
                             <div className="relative aspect-video rounded-[2rem] overflow-hidden bg-primary shadow-2xl group border-4 border-border/50">
                                 <img src="/hero-illustration.png" className="w-full h-full object-cover opacity-70 group-hover:scale-110 transition-transform duration-1000" alt="VOD" />
@@ -386,7 +391,12 @@ function LearningFormats() {
                                         </li>
                                     ))}
                                 </ul>
-                                <Button className="rounded-2xl h-14 px-8 font-black bg-primary hover:bg-red-700 shadow-lg shadow-red-100 uppercase tracking-widest text-[11px]">Xem lịch khai giảng</Button>
+                                <Button
+                                    className="rounded-2xl h-14 px-8 font-black bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 uppercase tracking-widest text-[11px]"
+                                    asChild
+                                >
+                                    <Link href="/live-classes">Xem lịch khai giảng</Link>
+                                </Button>
                             </div>
                         </div>
                     </FadeIn>
@@ -397,7 +407,85 @@ function LearningFormats() {
 }
 
 /**
- * 5. JLPT Roadmap: N5 -> N1
+ * 5. Featured Courses: Course Master + Course Run awareness
+ */
+function FeaturedCoursesSection() {
+    const featured = [
+        {
+            level: "N5",
+            title: "N5 Foundation – Nhập môn tiếng Nhật",
+            format: "VOD + Live",
+            highlight: "Phù hợp cho người mới bắt đầu, làm quen Hiragana/Katakana và mẫu câu giao tiếp cơ bản.",
+            runs: "2 lớp đang tuyển sinh"
+        },
+        {
+            level: "N3",
+            title: "N3 Accelerator – Sẵn sàng đi làm",
+            format: "Live Cohort",
+            highlight: "Tập trung luyện đọc – nghe – ngữ pháp cho mục tiêu thi JLPT và đi làm công ty Nhật.",
+            runs: "1 lớp khai giảng trong tháng này"
+        },
+        {
+            level: "Business",
+            title: "Business Nihongo – Giao tiếp công sở",
+            format: "VOD chuyên đề",
+            highlight: "Thực hành email, meeting, kính ngữ (Keigo) trong môi trường doanh nghiệp Nhật.",
+            runs: "Mở học ngay (VOD Run)"
+        }
+    ];
+
+    return (
+        <Section id="courses" className="bg-muted/30">
+            <SectionHeading
+                badge="Khóa học tiêu biểu"
+                title="Chọn khóa học, đăng ký đúng lớp khai giảng."
+                subtitle="Giới thiệu theo khung chương trình (Course Master), nhưng để học bạn sẽ tham gia vào từng đợt khai giảng cụ thể (Course Run)."
+            />
+
+            <div className="grid gap-6 lg:grid-cols-3">
+                {featured.map((course, index) => (
+                    <FadeIn key={course.title} delay={index * 0.1}>
+                        <Card className="h-full border border-primary/10 bg-background/80 backdrop-blur-xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+                            <CardHeader>
+                                <div className="flex items-center justify-between mb-2">
+                                    <Badge variant="outline" className="font-bold text-[10px] tracking-widest uppercase">
+                                        Level {course.level}
+                                    </Badge>
+                                    <Badge className="bg-primary/10 text-primary border-none text-[10px] font-black tracking-widest uppercase">
+                                        {course.format}
+                                    </Badge>
+                                </div>
+                                <CardTitle className="text-lg md:text-xl font-black tracking-tight">{course.title}</CardTitle>
+                                <CardDescription className="mt-2 text-xs md:text-sm leading-relaxed">{course.highlight}</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                    <div className="flex items-center gap-1.5">
+                                        <Calendar className="size-3.5" />
+                                        <span>{course.runs}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <Store className="size-3.5" />
+                                        <span>Thanh toán theo từng lớp</span>
+                                    </div>
+                                </div>
+                                <Button variant="outline" className="w-full font-bold text-xs md:text-sm" asChild>
+                                    <Link href="/courses">
+                                        Xem chi tiết & lịch khai giảng
+                                        <ChevronRight className="ml-1 size-3.5" />
+                                    </Link>
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    </FadeIn>
+                ))}
+            </div>
+        </Section>
+    );
+}
+
+/**
+ * 6. JLPT Roadmap: N5 -> N1
  */
 function JLPTRoadmap() {
     const levels = [
@@ -440,7 +528,70 @@ function JLPTRoadmap() {
 
 
 /**
- * 7. Final CTA: Urgency
+ * 7. FAQ: Giải đáp nhanh thắc mắc chính
+ */
+function FAQSection() {
+    return (
+        <Section className="bg-background">
+            <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] items-start">
+                <div>
+                    <SectionHeading
+                        centered={false}
+                        badge="Câu hỏi thường gặp"
+                        title="Trước khi đăng ký khóa học, bạn cần biết."
+                        subtitle="Chúng tôi thiết kế flow đăng ký đơn giản: chọn khóa học → chọn lớp (Course Run) phù hợp → thanh toán an toàn."
+                    />
+                </div>
+                <div>
+                    <Accordion type="single" collapsible className="space-y-3">
+                        <AccordionItem value="need-basic-japanese">
+                            <AccordionTrigger className="text-sm md:text-base font-semibold">
+                                Tôi chưa biết tiếng Nhật có học được không?
+                            </AccordionTrigger>
+                            <AccordionContent className="text-sm text-muted-foreground leading-relaxed">
+                                Được. Bạn có thể bắt đầu từ khóa N5 Foundation dành cho người mới hoàn toàn. Sau khi làm bài Placement Test, hệ
+                                thống sẽ gợi ý đúng khóa Master và lớp Run phù hợp nhất.
+                            </AccordionContent>
+                        </AccordionItem>
+
+                        <AccordionItem value="vod-vs-live">
+                            <AccordionTrigger className="text-sm md:text-base font-semibold">
+                                Khác nhau giữa khóa VOD và lớp Live là gì?
+                            </AccordionTrigger>
+                            <AccordionContent className="text-sm text-muted-foreground leading-relaxed">
+                                VOD giúp bạn học linh hoạt mọi lúc, còn lớp Live (Course Run dạng cohort) cho phép bạn tương tác trực tiếp với
+                                giảng viên và bạn học. Nhiều chương trình của Torii kết hợp cả hai để tối đa hiệu quả.
+                            </AccordionContent>
+                        </AccordionItem>
+
+                        <AccordionItem value="schedule-change">
+                            <AccordionTrigger className="text-sm md:text-base font-semibold">
+                                Nếu tôi bận không theo được lịch học Live thì sao?
+                            </AccordionTrigger>
+                            <AccordionContent className="text-sm text-muted-foreground leading-relaxed">
+                                Mỗi Course Run đều có chính sách hoãn/bảo lưu rõ ràng. Bạn có thể chuyển sang Run sau (nếu còn chỗ) hoặc được
+                                hỗ trợ xem lại VOD, tùy chính sách cụ thể của lớp.
+                            </AccordionContent>
+                        </AccordionItem>
+
+                        <AccordionItem value="refund-policy">
+                            <AccordionTrigger className="text-sm md:text-base font-semibold">
+                                Chính sách hoàn tiền & bảo lưu khóa học thế nào?
+                            </AccordionTrigger>
+                            <AccordionContent className="text-sm text-muted-foreground leading-relaxed">
+                                Tùy vào thời điểm so với ngày bắt đầu Course Run, bạn có thể được hoàn tiền toàn phần, một phần hoặc bảo lưu
+                                sang đợt khác. Thông tin chi tiết sẽ hiển thị rõ trong quá trình checkout trước khi thanh toán.
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
+                </div>
+            </div>
+        </Section>
+    );
+}
+
+/**
+ * 8. Final CTA: Urgency
  */
 function FinalCTA() {
     return (
@@ -463,8 +614,12 @@ function FinalCTA() {
 
                     <FadeIn delay={0.2}>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                            <Button size="lg" className="h-14 px-8 rounded-2xl text-lg font-black bg-primary hover:bg-red-700 shadow-xl shadow-primary/20 transition-all hover:scale-110 active:scale-95" asChild>
-                                <Link href="/register">Đăng ký ngay bây giờ</Link>
+                            <Button
+                                size="lg"
+                                className="h-14 px-8 rounded-2xl text-lg font-black bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 transition-all hover:scale-110 active:scale-95"
+                                asChild
+                            >
+                                <Link href="/courses">Đăng ký khóa học phù hợp</Link>
                             </Button>
                             <Button variant="outline" size="lg" className="h-14 px-8 rounded-2xl text-lg font-black hover:bg-muted border-border" asChild>
                                 <Link href="/support">Tư vấn lộ trình</Link>
@@ -485,7 +640,9 @@ export default function Home2Client() {
             <BenefitsSection />
             <AISenseiSection />
             <LearningFormats />
+            <FeaturedCoursesSection />
             <JLPTRoadmap />
+            <FAQSection />
             <FinalCTA />
         </main>
     );

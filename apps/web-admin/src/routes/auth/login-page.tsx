@@ -82,7 +82,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-md">
         <div className="flex flex-col items-center text-center mb-6">
           <img src="/logo.png" alt="Torii Nihongo" className="h-12 w-auto object-contain mb-2" />
           <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Cổng quản trị</span>
@@ -102,12 +102,14 @@ export default function LoginPage() {
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Địa chỉ Email</FieldLabel>
+                    <FieldLabel htmlFor={field.name} className="text-sm font-semibold">Email</FieldLabel>
                     <Input
                       {...field}
+                      id={field.name}
                       placeholder="admin@torii.academy"
                       type="email"
                       autoComplete="email"
+                      className="h-10 px-3"
                     />
                     {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                   </Field>
@@ -120,7 +122,7 @@ export default function LoginPage() {
                 render={({ field, fieldState }) => (
                   <Field>
                     <div className="flex items-center justify-between">
-                      <FieldLabel>Mật khẩu</FieldLabel>
+                      <FieldLabel htmlFor={field.name} className="text-sm font-semibold">Mật khẩu</FieldLabel>
                       <Button
                         type="button"
                         variant="link"
@@ -134,9 +136,11 @@ export default function LoginPage() {
                     <div className="relative">
                       <Input
                         {...field}
+                        id={field.name}
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
                         autoComplete="current-password"
+                        className="h-10 px-3"
                       />
                       <Button
                         type="button"
@@ -164,7 +168,7 @@ export default function LoginPage() {
                 </div>
               )}
 
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" size="lg" className="w-full h-10 text-base font-semibold" disabled={loading}>
                 {loading && <Spinner className="mr-2" />}
                 Đăng nhập
               </Button>

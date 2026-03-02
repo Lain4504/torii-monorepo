@@ -66,20 +66,21 @@ export function ResendVerificationForm() {
                     name="email"
                     render={({ field, fieldState }) => (
                         <Field data-invalid={fieldState.invalid}>
-                            <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                            <FieldLabel htmlFor={field.name} className="text-sm font-semibold">Email</FieldLabel>
                             <Input
                                 {...field}
                                 id={field.name}
                                 type="email"
                                 placeholder="your-registered-email@domain.com"
                                 autoComplete="email"
+                                className="h-10 px-3"
                             />
                             <FieldError errors={[fieldState.error]} />
                         </Field>
                     )}
                 />
 
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" size="lg" className="w-full h-10 text-base font-semibold" disabled={isLoading}>
                     {isLoading && <Spinner className="mr-2" />}
                     Gửi lại mã xác thực
                 </Button>

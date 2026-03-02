@@ -173,6 +173,7 @@ export class CourseMasterService implements ICourseMasterService {
     priceMax?: number;
     ratingMin?: number;
     sortBy?: string;
+    type?: string;
   }): Promise<PaginatedResponseDTO<CourseMasterResponseDTO>> {
     try {
       const {
@@ -182,7 +183,8 @@ export class CourseMasterService implements ICourseMasterService {
         levels,
         priceMin,
         priceMax,
-        ratingMin
+        ratingMin,
+        type,
       } = options;
 
       // Ensure page and limit are numbers for Prisma
@@ -199,6 +201,11 @@ export class CourseMasterService implements ICourseMasterService {
       // Filter by JLPT levels
       if (levels && levels.length > 0) {
         where.jlptLevel = { in: levels };
+      }
+
+      // Filter by type (VOD | LIVE)
+      if (type && ['VOD', 'LIVE'].includes(type.toUpperCase())) {
+        where.type = type.toUpperCase();
       }
 
       if (search) {

@@ -119,7 +119,7 @@ function ResetPasswordFormContent() {
                         Liên kết đặt lại mật khẩu đã hết hạn hoặc không hợp lệ. Vui lòng yêu cầu một liên kết mới.
                     </AlertDescription>
                 </Alert>
-                <Button asChild className="w-full">
+                <Button asChild size="lg" className="w-full h-10 text-base font-semibold">
                     <Link href="/forgot-password">Yêu cầu liên kết mới</Link>
                 </Button>
             </div>
@@ -135,14 +135,14 @@ function ResetPasswordFormContent() {
                         name="password"
                         render={({ field, fieldState }) => (
                             <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Mật khẩu mới</FieldLabel>
+                                <FieldLabel htmlFor={field.name} className="text-sm font-semibold">Mật khẩu mới</FieldLabel>
                                 <div className="relative">
                                     <Input
                                         {...field}
                                         id={field.name}
                                         type={showPassword ? 'text' : 'password'}
                                         placeholder="••••••••"
-                                        className="pr-10"
+                                        className="h-10 px-3 pr-10"
                                     />
                                     <Button
                                         type="button"
@@ -205,14 +205,14 @@ function ResetPasswordFormContent() {
                         name="confirmPassword"
                         render={({ field, fieldState }) => (
                             <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Xác nhận mật khẩu mới</FieldLabel>
+                                <FieldLabel htmlFor={field.name} className="text-sm font-semibold">Xác nhận mật khẩu mới</FieldLabel>
                                 <div className="relative">
                                     <Input
                                         {...field}
                                         id={field.name}
                                         type={showConfirmPassword ? 'text' : 'password'}
                                         placeholder="••••••••"
-                                        className="pr-10"
+                                        className="h-10 px-3 pr-10"
                                     />
                                     <Button
                                         type="button"
@@ -231,7 +231,7 @@ function ResetPasswordFormContent() {
                     />
                 </FieldGroup>
 
-                <Button type="submit" className="w-full" disabled={isLoading || strengthScore < 4}>
+                <Button type="submit" size="lg" className="w-full h-10 text-base font-semibold" disabled={isLoading || strengthScore < 4}>
                     {isLoading && <Spinner className="mr-2" />}
                     Thiết lập mật khẩu mới
                 </Button>

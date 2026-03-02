@@ -27,10 +27,10 @@ export function AuthLayout({
             <style>{`
             .glass-card {
                 background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-                }
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
             .text-sharp {
                 text-shadow:
                     2px 2px 0px rgba(0,0,0,1),
@@ -38,6 +38,9 @@ export function AuthLayout({
                     1px -1px 0px rgba(0,0,0,1),
                     -1px 1px 0px rgba(0,0,0,1),
                     0px 4px 10px rgba(0,0,0,0.5);
+            }
+            .auth-left-text, .auth-left-text * {
+                text-shadow: 0 1px 3px rgba(0,0,0,0.95), 0 2px 6px rgba(0,0,0,0.8), 0 0 24px rgba(0,0,0,0.6);
             }
             `}</style>
 
@@ -52,9 +55,8 @@ export function AuthLayout({
                     style={{ backgroundImage: "url('/background.png')" }}
                 />
 
-                {/* Subtle overlay for text readability */}
-                <div className="absolute inset-0 z-0 bg-gradient-to-r from-black/50 via-black/10 to-transparent pointer-events-none" />
-
+                {/* Dark overlay for text readability over background image */}
+                <div className="absolute inset-0 z-0 bg-gradient-to-r from-black/75 via-black/50 to-black/20 pointer-events-none" />
 
                 {/* Top Branding */}
                 <div className="relative z-10">
@@ -69,7 +71,11 @@ export function AuthLayout({
 
                 {/* Main Content */}
                 <div className="relative z-10 mt-20 flex-1">
-                    {false && leftPanel ? null : (
+                    {leftPanel ? (
+                        <div className="auth-left-text text-white [&_h2]:text-white [&_h2]:text-sharp [&_h2_.text-primary]:text-primary [&_p]:text-white [&_.text-muted-foreground]:text-white/95 [&_.bg-background]:bg-white/15 [&_.bg-background]:backdrop-blur-sm [&_.border]:border-white/25 [&_.text-xs]:text-white/90 animate-in fade-in slide-in-from-bottom duration-700">
+                            {leftPanel}
+                        </div>
+                    ) : (
                         <>
                             <h1 className="text-white text-5xl font-black leading-tight mb-8 text-sharp animate-in fade-in slide-in-from-bottom duration-700">
                                 Học tiếng Nhật<br />Thông minh hơn.
@@ -113,7 +119,7 @@ export function AuthLayout({
 
             {/* BEGIN: Right Panel (Auth Form) */}
             <section className="flex-1 flex flex-col justify-center items-center p-6 md:p-12 bg-background" data-purpose="auth-container">
-                <div className="w-full max-w-sm space-y-8 animate-in fade-in slide-in-from-right duration-700">
+                <div className="w-full max-w-[420px] space-y-8 animate-in fade-in slide-in-from-right duration-700">
                     {/* BEGIN: Header Branding */}
                     <div className="text-center space-y-2">
                         {/* Mobile logo */}

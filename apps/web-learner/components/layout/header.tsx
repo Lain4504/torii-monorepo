@@ -68,8 +68,8 @@ export function Header() {
     }
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur-sm">
-            <div className="container mx-auto px-4 max-w-7xl">
+        <header className="sticky top-0 z-50 w-full border-b border-border bg-background/98 backdrop-blur-md supports-[backdrop-filter]:bg-background/95">
+            <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
                 <div className="flex justify-between items-center h-16 sm:h-20">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2.5">
@@ -216,11 +216,11 @@ export function Header() {
                         </div>
                         {!isAuthenticated && (
                             <div className="grid grid-cols-2 gap-3 mt-4">
-                                <Button variant="outline" size="lg" className="w-full text-base font-bold" asChild>
-                                    <Link href="/login" onClick={() => setMobileMenuOpen(false)}>Vào học</Link>
+                                <Button variant="outline" size="lg" className="w-full text-base font-bold h-10" asChild>
+                                    <Link href="/login" onClick={() => setMobileMenuOpen(false)}>Đăng nhập</Link>
                                 </Button>
-                                <Button size="lg" className="w-full text-base font-bold" asChild>
-                                    <Link href="/register" onClick={() => setMobileMenuOpen(false)}>Tham gia</Link>
+                                <Button size="lg" className="w-full text-base font-bold h-10" asChild>
+                                    <Link href="/register" onClick={() => setMobileMenuOpen(false)}>Tham gia ngay</Link>
                                 </Button>
                             </div>
                         )}

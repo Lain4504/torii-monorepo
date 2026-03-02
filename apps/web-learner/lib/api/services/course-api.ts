@@ -127,6 +127,7 @@ export function useCourses(params: {
   sortBy?: string;
   instructorId?: string;
   topics?: string[];
+  type?: 'VOD' | 'LIVE';
 }) {
   return useQuery({
     queryKey: ['courses', params],
@@ -152,6 +153,7 @@ export function useCourses(params: {
         sort: params.sortBy,
         instructorId: params.instructorId,
         topics: params.topics?.length ? params.topics.join(',') : undefined,
+        type: params.type,
       } as any);
     },
   });

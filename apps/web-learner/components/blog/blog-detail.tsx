@@ -9,8 +9,8 @@ import Link from 'next/link';
 import { format, formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import {
-    Eye, MessageSquare, Clock, Calendar, User,
-    Share2, Copy, Heart, Send, ChevronDown, Loader2, Tag, ArrowLeft
+    Eye, MessageSquare, Clock, Calendar,
+    Share2, Copy, Heart, Send, ChevronDown, Loader2, Tag, ArrowLeft, BookOpen
 } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 
@@ -313,44 +313,35 @@ export function BlogDetail({ blog, recentBlogs }: { blog: BlogResponseDTO; recen
     return (
         <div className="min-h-screen bg-background text-foreground">
 
-            {/* ── PROFESSIONAL HERO ─────────────────────────────────────────────────────── */}
-            <div className="bg-slate-900 border-b border-slate-800" data-purpose="article-hero">
-                <section className="relative pt-12 text-slate-50 pb-16 md:pt-20 md:pb-32 overflow-hidden">
-                    {/* Decorative blurs */}
-                    <div className="absolute inset-0 pointer-events-none overflow-hidden mix-blend-screen opacity-40">
-                        <div className="absolute -top-24 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px]" />
-                        <div className="absolute bottom-0 right-1/3 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px]" />
-                    </div>
-
-                    <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
-                        {/* Go back */}
+            <div className="bg-muted/50 border-b border-border" data-purpose="article-hero">
+                <section className="relative pt-12 pb-16 md:pt-20 md:pb-24 overflow-hidden">
+                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
                         <div className="mb-8 flex justify-center">
-                            <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-white transition-colors">
+                            <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
                                 <ArrowLeft className="h-4 w-4" /> Tất cả bài viết
                             </Link>
                         </div>
 
                         {primaryTag && (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/20 border border-primary/30 text-primary text-xs font-bold tracking-wider uppercase backdrop-blur-sm mb-6">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold tracking-wider uppercase mb-6">
                                 <Tag className="h-3 w-3" /> {primaryTag}
                             </span>
                         )}
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight max-w-4xl mx-auto mb-8 drop-shadow-sm">
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight tracking-tight max-w-4xl mx-auto mb-8">
                             {blog.title}
                         </h1>
 
-                        {/* Meta */}
-                        <div className="flex flex-wrap items-center justify-center gap-6 text-slate-300 text-sm">
+                        <div className="flex flex-wrap items-center justify-center gap-6 text-muted-foreground text-sm">
                             <div className="flex items-center gap-1.5">
-                                <Calendar className="h-4 w-4 text-slate-400" />
+                                <Calendar className="h-4 w-4" />
                                 <span>{publishedDate}</span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                                <Clock className="h-4 w-4 text-slate-400" />
+                                <Clock className="h-4 w-4" />
                                 <span>{readTime} phút đọc</span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                                <Eye className="h-4 w-4 text-slate-400" />
+                                <Eye className="h-4 w-4" />
                                 <span>{fmtViews(blog.viewCount ?? 0)} lượt xem</span>
                             </div>
                         </div>
@@ -358,8 +349,7 @@ export function BlogDetail({ blog, recentBlogs }: { blog: BlogResponseDTO; recen
                 </section>
             </div>
 
-            {/* ── BODY ─────────────────────────────────────────────────────── */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
                 <div className="flex flex-col lg:flex-row gap-12">
 
                     {/* ── ARTICLE + COMMENTS ───────────────────────────────── */}
@@ -482,18 +472,19 @@ export function BlogDetail({ blog, recentBlogs }: { blog: BlogResponseDTO; recen
                                 Xem {blog.commentCount ?? 0} bình luận
                             </button>
 
-                            {/* CTA enroll */}
-                            <div className="bg-gradient-to-br from-primary to-primary/80 rounded-2xl p-5 text-primary-foreground shadow-lg shadow-primary/20">
-                                <div className="text-2xl mb-2">🎌</div>
-                                <h3 className="font-bold mb-1">Muốn học tiếng Nhật?</h3>
-                                <p className="text-xs text-primary-foreground/80 mb-4 leading-relaxed">
+                            <div className="bg-primary rounded-2xl p-5 text-primary-foreground shadow-lg">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <BookOpen className="size-5" />
+                                    <h3 className="font-bold">Muốn học tiếng Nhật?</h3>
+                                </div>
+                                <p className="text-xs text-primary-foreground/90 mb-4 leading-relaxed">
                                     Khám phá các khóa học từ N5 đến N1 được thiết kế chuyên biệt.
                                 </p>
                                 <Link
                                     href="/courses"
-                                    className="block w-full text-center py-2.5 bg-background text-primary rounded-xl font-bold text-sm hover:bg-accent transition"
+                                    className="block w-full text-center py-2.5 bg-background text-primary rounded-xl font-bold text-sm hover:bg-background/90 transition"
                                 >
-                                    Xem khóa học →
+                                    Xem khóa học
                                 </Link>
                             </div>
                         </div>
@@ -501,10 +492,9 @@ export function BlogDetail({ blog, recentBlogs }: { blog: BlogResponseDTO; recen
                 </div>
             </div>
 
-            {/* ── RELATED POSTS ─────────────────────────────────────────────── */}
             {recentBlogs.length > 0 && (
                 <section className="border-t border-border bg-muted/30 py-16">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex items-center justify-between mb-8">
                             <div>
                                 <h2 className="text-2xl font-bold text-foreground">Bài viết liên quan</h2>
@@ -522,7 +512,7 @@ export function BlogDetail({ blog, recentBlogs }: { blog: BlogResponseDTO; recen
                                         <div className="aspect-video overflow-hidden bg-muted">
                                             {post.coverImageUrl
                                                 ? <img src={post.coverImageUrl} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                                : <div className="w-full h-full flex items-center justify-center text-4xl">📝</div>
+                                                : <div className="w-full h-full flex items-center justify-center bg-muted"><BookOpen className="size-12 text-muted-foreground" /></div>
                                             }
                                         </div>
                                         <div className="p-5">

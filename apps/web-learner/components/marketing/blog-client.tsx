@@ -71,22 +71,21 @@ export function BlogClient() {
     const totalPages = blogsData?.totalPages || 1;
 
     return (
-        <div className="bg-background text-foreground min-h-screen">
-            {/* Hero Header */}
-            <section className="pt-28 pb-12 border-b border-border/50 bg-muted/20">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-muted/30 text-foreground">
+            <section className="pt-28 pb-12 border-b border-border/50 bg-background/80 backdrop-blur-sm">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     <FadeIn>
                         <h1 className="text-4xl font-bold tracking-tight mb-3">
                             Blog & Cẩm nang
                         </h1>
-                        <p className="text-muted-foreground text-lg">
+                        <p className="text-muted-foreground text-lg max-w-2xl">
                             Kiến thức tiếng Nhật, phương pháp học tập và văn hóa Nhật Bản.
                         </p>
                     </FadeIn>
                 </div>
             </section>
 
-            <div className="max-w-[1280px] mx-auto px-6 pt-12 pb-16 space-y-12">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-16 space-y-12">
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Sidebar */}
                     <aside className="w-full lg:w-72 space-y-6 order-2 lg:order-1">
@@ -101,8 +100,7 @@ export function BlogClient() {
                             />
                         </div>
 
-                        {/* Categories */}
-                        <div className="bg-card border border-border/60 rounded-2xl p-4 space-y-3">
+                        <div className="bg-background/80 backdrop-blur-xl border border-white/20 rounded-2xl p-4 space-y-3 shadow-sm">
                             <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Chuyên mục</h3>
                             <div className="flex flex-col gap-1">
                                 {categories.map((category) => {
@@ -130,8 +128,7 @@ export function BlogClient() {
                             </div>
                         </div>
 
-                        {/* Popular Tags */}
-                        <div className="bg-card border border-border/60 rounded-2xl p-4 space-y-3">
+                        <div className="bg-background/80 backdrop-blur-xl border border-white/20 rounded-2xl p-4 space-y-3 shadow-sm">
                             <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Thẻ phổ biến</h3>
                             <div className="flex flex-wrap gap-2">
                                 {popularTags.map((tag) => (
@@ -158,9 +155,9 @@ export function BlogClient() {
 
                     {/* Article Listing */}
                     <div className="flex-1 space-y-8 order-1 lg:order-2">
-                        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+                        <div className="flex items-center justify-between border-b border-border pb-4">
                             <h2 className="text-2xl font-bold">
-                                Bài viết mới nhất <span className="text-muted-foreground font-normal">/ Latest Posts</span>
+                                Bài viết mới nhất
                             </h2>
                             <div className="flex gap-2">
                                 <button
@@ -223,7 +220,7 @@ export function BlogClient() {
                                     <article
                                         key={post.id}
                                         className={cn(
-                                            "bg-card text-card-foreground border border-border rounded-2xl overflow-hidden group hover:shadow-xl hover:shadow-primary/5 transition-all flex",
+                                            "bg-background/80 backdrop-blur-sm border border-primary/10 rounded-2xl overflow-hidden group hover:shadow-lg hover:border-primary/20 transition-all flex cursor-pointer",
                                             viewMode === 'list' ? "flex-col md:flex-row" : "flex-col"
                                         )}
                                     >

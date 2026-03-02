@@ -1,33 +1,25 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, Video, Users, Calendar } from 'lucide-react';
+import { Calendar, ChevronRight, Search, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLiveCourses } from '@/lib/api/services/course-api';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
+import { Card, CardContent } from '@workspace/ui/components/card';
 import { Input } from '@workspace/ui/components/input';
 import { Tabs, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
 import { Separator } from '@workspace/ui/components/separator';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 const FadeIn = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => (
-    <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6, delay }}
-    >
+    <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay }}>
         {children}
     </motion.div>
 );
 
-
-
 export function LiveClassesClient() {
-    const router = useRouter();
     const [statusFilter, setStatusFilter] = useState<'upcoming' | 'finished'>('upcoming');
     const [levelFilter, setLevelFilter] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -49,25 +41,23 @@ export function LiveClassesClient() {
     });
 
     return (
-        <div className="bg-background text-foreground antialiased min-h-screen">
+        <div className="min-h-screen bg-muted/30 text-foreground">
             <main>
-                {/* Hero Section */}
-                <section className="pt-28 pb-12 border-b border-border/50 bg-muted/20">
-                    <div className="container mx-auto px-6 max-w-7xl">
+                <section className="pt-28 pb-12 border-b border-border/50 bg-background/80 backdrop-blur-sm">
+                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                         <FadeIn>
                             <h1 className="text-4xl font-bold tracking-tight mb-3">
-                                Lớp học trực tuyến
+                                Lịch khai giảng lớp Live
                             </h1>
-                            <p className="text-muted-foreground text-lg">
-                                Lịch khai giảng các lớp trực tiếp tương tác cùng Sensei.
+                            <p className="text-muted-foreground text-lg max-w-2xl">
+                                Các khóa học Live (Course Master) với nhiều đợt khai giảng (Course Run). Chọn lớp để xem lịch cụ thể và đăng ký.
                             </p>
                         </FadeIn>
                     </div>
                 </section>
 
-                {/* Filter & Search Bar */}
-                <div className="sticky top-16 z-30 bg-background/90 backdrop-blur-md border-y border-border/50 py-3 shadow-sm">
-                    <section className="container mx-auto px-6 max-w-7xl">
+                <div className="sticky top-16 z-30 bg-background/90 backdrop-blur-md border-y border-border py-3 shadow-sm">
+                    <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
                             <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                                 <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as 'upcoming' | 'finished')}>
@@ -105,8 +95,7 @@ export function LiveClassesClient() {
                     </section>
                 </div>
 
-                {/* Course Grid */}
-                <section className="max-w-7xl mx-auto px-6 py-16">
+                <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                     {isLoading ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {[1, 2, 3].map(i => <Skeleton key={i} className="h-[500px] w-full rounded-2xl" />)}
@@ -135,8 +124,8 @@ export function LiveClassesClient() {
                                                         </Badge>
                                                     )}
                                                     {isHot && !isSoldOut && (
-                                                        <Badge className="px-3 py-1 rounded-full text-[10px] font-black tracking-widest bg-amber-500 text-slate-950 border-none shadow-lg">
-                                                            🔥 HOT
+                                                        <Badge variant="secondary" className="px-3 py-1 rounded-full text-[10px] font-bold tracking-widest bg-amber-500/20 text-amber-700 border-amber-500/30">
+                                                            HOT
                                                         </Badge>
                                                     )}
                                                 </div>
@@ -156,7 +145,7 @@ export function LiveClassesClient() {
 
                                         <div className="p-8 flex-1 flex flex-col space-y-6">
                                             <div className="space-y-3">
-                                                <h3 className="serif-jp text-2xl font-black leading-tight group-hover:text-primary transition-colors line-clamp-1">
+                                                <h3 className="text-2xl font-bold leading-tight group-hover:text-primary transition-colors line-clamp-1">
                                                     <Link href={`/live-classes/${course.slug}`}>{course.title}</Link>
                                                 </h3>
                                                 <p className="text-sm text-muted-foreground/80 line-clamp-2 font-medium">
@@ -209,21 +198,22 @@ export function LiveClassesClient() {
                                             </div>
 
                                             <div className="mt-8 pt-6 flex items-center justify-between gap-4">
-                                                <div className="flex flex-col text-left">
-                                                    <span className="text-2xl font-black text-foreground tracking-tighter">
-                                                        Miễn phí
-                                                    </span>
-                                                </div>
+                                                <span className="text-sm text-muted-foreground">
+                                                    Xem giá & lịch theo từng đợt
+                                                </span>
                                                 <Button
                                                     disabled={isSoldOut || statusFilter === 'finished'}
-                                                    onClick={() => {
-                                                        if (!isSoldOut && statusFilter !== 'finished') {
-                                                            router.push(`/checkout/${course.id}`);
-                                                        }
-                                                    }}
-                                                    className={`px-8 h-12 text-xs font-black uppercase tracking-widest rounded-2xl transition-all shadow-xl ${isSoldOut || statusFilter === 'finished' ? 'bg-muted text-muted-foreground' : 'bg-primary hover:bg-primary/90 text-white shadow-primary/20 hover:scale-105 active:scale-95'}`}
+                                                    className="gap-1"
+                                                    asChild={!isSoldOut && statusFilter !== 'finished'}
                                                 >
-                                                    {statusFilter === 'finished' ? 'Kết thúc' : isSoldOut ? 'Hết chỗ' : 'Ghi danh'}
+                                                    {statusFilter === 'finished' || isSoldOut ? (
+                                                        <span>{statusFilter === 'finished' ? 'Kết thúc' : 'Hết chỗ'}</span>
+                                                    ) : (
+                                                        <Link href={`/live-classes/${course.slug}`}>
+                                                            Xem chi tiết & đăng ký
+                                                            <ChevronRight className="size-4" />
+                                                        </Link>
+                                                    )}
                                                 </Button>
                                             </div>
                                         </div>

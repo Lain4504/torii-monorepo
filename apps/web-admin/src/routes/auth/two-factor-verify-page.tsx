@@ -72,7 +72,7 @@ export default function TwoFactorVerifyPage() {
     useEffect(() => {
         if (!state?.tempToken) {
             toast.error('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
-            navigate('/auth/login', { replace: true });
+            navigate('/login', { replace: true });
         }
     }, [state, navigate]);
 
@@ -93,7 +93,7 @@ export default function TwoFactorVerifyPage() {
                 // Block learner role
                 if (user.role === 'learner') {
                     toast.error('Từ chối truy cập: Cổng quản trị bị hạn chế.');
-                    navigate('/auth/login', { replace: true });
+                    navigate('/login', { replace: true });
                     return;
                 }
 
@@ -115,7 +115,7 @@ export default function TwoFactorVerifyPage() {
     };
 
     const handleBackToLogin = () => {
-        navigate('/auth/login', { replace: true });
+        navigate('/login', { replace: true });
     };
 
     if (!state?.tempToken) {
@@ -124,7 +124,7 @@ export default function TwoFactorVerifyPage() {
 
     return (
         <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
-            <div className="w-full max-w-sm">
+            <div className="w-full max-w-md">
                 <div className="flex flex-col items-center text-center mb-6">
                     <img src="/logo.png" alt="Torii Nihongo" className="h-12 w-auto object-contain mb-2" />
                     <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Cổng quản trị</span>
@@ -152,7 +152,7 @@ export default function TwoFactorVerifyPage() {
                                             id={field.name}
                                             placeholder={useBackupCode ? "XXXXXXXX" : "000000"}
                                             maxLength={useBackupCode ? 8 : 6}
-                                            className="text-center text-2xl tracking-[0.5em] font-mono h-12"
+                                            className="text-center text-2xl tracking-[0.5em] font-mono h-10 px-3"
                                             autoComplete="off"
                                             autoFocus
                                         />
@@ -161,7 +161,7 @@ export default function TwoFactorVerifyPage() {
                                 )}
                             />
 
-                            <Button type="submit" className="w-full" disabled={isLoading}>
+                            <Button type="submit" size="lg" className="w-full h-10 text-base font-semibold" disabled={isLoading}>
                                 {isLoading && <Spinner className="mr-2" />}
                                 Xác thực
                             </Button>
