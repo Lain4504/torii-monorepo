@@ -21,6 +21,7 @@ import { Badge } from '@workspace/ui/components/badge';
 import type { SubmissionResponseDTO } from '@workspace/schemas';
 import { SubmissionStatus } from '@workspace/schemas';
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar";
+import { Link } from 'react-router-dom';
 
 interface SubmissionsColumnsProps {
   onGrade: (submission: SubmissionResponseDTO) => void;
@@ -43,6 +44,20 @@ export const getSubmissionsColumns = ({
         return <div className="text-center font-medium text-muted-foreground/60 tabular-nums text-xs">{stt}</div>;
       },
       size: 50,
+    },
+    {
+      id: 'courseRun',
+      header: () => <div className="text-center">Đợt</div>,
+      cell: ({ row }) => {
+        const runId = (row.original as any).courseRunId;
+        if (!runId) return <span className="text-muted-foreground/50 text-xs">—</span>;
+        return (
+          <Button variant="link" className="h-auto p-0 text-xs font-mono" asChild>
+            <Link to={`/courses/runs/${runId}`}>{runId.slice(0, 8)}…</Link>
+          </Button>
+        );
+      },
+      size: 90,
     },
     {
       accessorKey: 'student',

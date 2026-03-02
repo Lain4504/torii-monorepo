@@ -59,7 +59,7 @@ export default function AssignmentSubmissionsPage() {
                 </Button>
                 <PageHeader
                     title="Danh sách bài nộp"
-                    subtitle={`Bài tập: ${assignment.title} | Khóa học: ${course.title}`}
+                    subtitle={`Bài tập: ${assignment.title} | Khóa học: ${course.title}. Bài nộp từ học viên theo từng đợt khai giảng (Course Run).`}
                     stats={[
                         {
                             label: 'Tổng số bài nộp',

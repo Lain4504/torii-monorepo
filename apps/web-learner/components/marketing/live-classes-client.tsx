@@ -210,13 +210,8 @@ export function LiveClassesClient() {
 
                                             <div className="mt-8 pt-6 flex items-center justify-between gap-4">
                                                 <div className="flex flex-col text-left">
-                                                    {course.discountPrice && course.discountPrice < course.price && (
-                                                        <span className="text-xs text-muted-foreground/50 line-through font-bold">
-                                                            {course.price.toLocaleString()}đ
-                                                        </span>
-                                                    )}
                                                     <span className="text-2xl font-black text-foreground tracking-tighter">
-                                                        {(!course.discountPrice && (!course.price || course.price === 0)) ? 'Miễn phí' : `${(course.discountPrice || course.price).toLocaleString()}đ`}
+                                                        Miễn phí
                                                     </span>
                                                 </div>
                                                 <Button

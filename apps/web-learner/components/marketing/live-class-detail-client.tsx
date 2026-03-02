@@ -106,8 +106,10 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
     }
 
     const mainInstructor = course.lecturer;
-    const price = course.discountPrice && course.discountPrice < course.price ? course.discountPrice : course.price;
-    const originalPrice = course.discountPrice && course.discountPrice < course.price ? course.price : null;
+    // Note: Price information comes from CourseRun, not CourseMaster
+    // For live classes, pricing should be retrieved from available course runs
+    const price: number | null = 0; // Default: pricing to be fetched from course runs
+    const originalPrice: number | null = null;
     const learningOutcomes: string[] = Array.isArray(course.learningOutcomes) ? course.learningOutcomes : [];
     const requirements: string[] = Array.isArray(course.requirements) ? course.requirements : [];
 
@@ -454,10 +456,10 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
                                 <div className="p-6 space-y-4">
                                     <div className="flex items-baseline gap-3">
                                         <span className="text-3xl font-extrabold text-primary">
-                                            {price ? `${price.toLocaleString()} ₫` : 'Miễn phí'}
+                                            {price && price > 0 ? `${price.toLocaleString()} ₫` : 'Miễn phí'}
                                         </span>
-                                        {originalPrice && (
-                                            <span className="text-muted-foreground line-through text-lg">{originalPrice.toLocaleString()} ₫</span>
+                                        {originalPrice && originalPrice > 0 && (
+                                            <span className="text-muted-foreground line-through text-lg">{(originalPrice as number).toLocaleString()} ₫</span>
                                         )}
                                     </div>
 

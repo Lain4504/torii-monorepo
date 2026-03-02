@@ -34,6 +34,10 @@ export class SubmissionProfile extends AutomapperProfile {
           mapFrom((src: Submission) => src.userId),
         ),
         forMember(
+          (dest: SubmissionResponseDTO) => dest.courseRunId,
+          mapFrom((src: Submission) => src.courseRunId ?? undefined),
+        ),
+        forMember(
           (dest: SubmissionResponseDTO) => dest.textAnswer,
           mapFrom((src: Submission) => src.textAnswer || undefined),
         ),

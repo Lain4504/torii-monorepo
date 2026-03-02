@@ -63,8 +63,7 @@ model CourseMaster {
   
   // Commercial fields moved to CourseRun
   // All transactions happen at the Run level
-  
-  liveConfig           Json?              @map("live_config")
+
   expirationMonths    Int?               @map("expiration_months")
   totalLessons         Int                @default(0) @map("total_lessons")
   totalQuizzes         Int                @default(0) @map("total_quizzes")
@@ -84,11 +83,9 @@ model CourseMaster {
   // Relations
   modules           Module[]
 
-  quizzes           Quiz[]
   liveSessions      LiveSession[]
   teachingSchedules TeachingSchedule[]
   scheduleRequests  LiveSessionScheduleRequest[]
-  assignments       Assignment[]
   certificates      Certificate[]
   versions          CourseVersion[]
   courseRuns        CourseRun[]
@@ -138,6 +135,9 @@ model CourseRun {
 
   price         Decimal? @db.Decimal(10, 2)
   discountPrice Decimal? @map("discount_price") @db.Decimal(10, 2)
+
+  // Live class configuration (WebRTC, LiveKit, etc.) is per Run
+  liveConfig Json? @map("live_config")
 
   status CourseRunStatus @default(PLANNING)
   
@@ -267,7 +267,6 @@ model Assignment {
   type        AssignmentType @default(TEXT)
 
   // Associated with (at least one required)
-  courseMasterId String? @map("course_master_id") @db.Uuid
   courseRunId    String? @map("course_run_id") @db.Uuid
   moduleId       String? @map("module_id") @db.Uuid
   lessonId       String? @map("lesson_id") @db.Uuid
@@ -297,13 +296,11 @@ model Assignment {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  courseMaster CourseMaster? @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
   courseRun    CourseRun?    @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
   module       Module?       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   lesson       Lesson?       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   submissions  Submission[]
 
-  @@index([courseMasterId])
   @@index([courseRunId])
   @@index([moduleId])
   @@index([lessonId])
@@ -1375,7 +1372,6 @@ model Quiz {
   description      String?  @db.Text
   quizType         String   @default("practice") @map("quiz_type") @db.VarChar(30) // lesson, module, course, practice, jlpt_mock
   jlptLevel        String?  @map("jlpt_level") @db.VarChar(5)
-  courseMasterId   String?  @map("course_master_id") @db.Uuid
   courseRunId      String?  @map("course_run_id") @db.Uuid
   lessonId         String?  @map("lesson_id") @db.Uuid
   sections         Json?    @db.JsonB // Array of section configs: [{ type: "vocab", timeLimit: 30, questionCount: 15 }, ...]
@@ -1391,7 +1387,6 @@ model Quiz {
   updatedAt        DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  courseMaster  CourseMaster?  @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
   courseRun     CourseRun?     @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
   lesson        Lesson?        @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   quizQuestions QuizQuestion[]
@@ -1399,7 +1394,6 @@ model Quiz {
 
   @@index([jlptLevel])
   @@index([status])
-  @@index([courseMasterId])
   @@index([courseRunId])
   @@index([lessonId])
   @@map("quizzes")

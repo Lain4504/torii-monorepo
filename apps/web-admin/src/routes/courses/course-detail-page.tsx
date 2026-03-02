@@ -288,12 +288,10 @@ export default function CourseDetailPage() {
                         <Layers className="size-4" />
                         Syllabus & Giáo trình
                     </TabsTrigger>
-                    {course?.type === 'live' && (
-                        <TabsTrigger value="course-runs" className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest">
-                            <CalendarCheck2 className="size-4" />
-                            Đợt khai giảng (Runs)
-                        </TabsTrigger>
-                    )}
+                    <TabsTrigger value="course-runs" className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest">
+                        <CalendarCheck2 className="size-4" />
+                        Đợt khai giảng (Runs)
+                    </TabsTrigger>
                     <TabsTrigger value="assignments" className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest">
                         <PenTool className="size-4" />
                         Kho bài tập
@@ -458,17 +456,17 @@ export default function CourseDetailPage() {
                     )}
                 </TabsContent>
 
-                {/* Course Runs Tab - only for live courses */}
-                {course?.type === 'live' && (
-                    <TabsContent value="course-runs" className="space-y-4">
-                        <CourseRunsTable courseId={id!} />
-                    </TabsContent>
-                )}
+                {/* Course Runs Tab - VOD có 1 run, Live có nhiều run */}
+                <TabsContent value="course-runs" className="space-y-4">
+                    <CourseRunsTable courseId={id!} />
+                </TabsContent>
 
                 {/* Assignments Tab */}
                 <TabsContent value="assignments" className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <p className="text-sm text-muted-foreground">Quản lý bài tập về nhà và các bài kiểm tra định kỳ</p>
+                        <p className="text-sm text-muted-foreground">
+                            Bài tập mẫu trong khung chương trình (gắn học phần/bài học). Học viên và bài nộp theo từng đợt khai giảng.
+                        </p>
                         <Button
                             onClick={() => {
                                 setSelectedModuleIdForAssignment(null);
@@ -514,7 +512,9 @@ export default function CourseDetailPage() {
                 {/* Quizzes Tab */}
                 <TabsContent value="quizzes" className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <p className="text-sm text-muted-foreground">Kho câu hỏi trắc nghiệm của khung chương trình</p>
+                        <p className="text-sm text-muted-foreground">
+                            Đề mẫu / kho quiz của khung chương trình (gắn bài học hoặc đợt). Học viên làm bài theo từng đợt khai giảng.
+                        </p>
                         <Button onClick={() => {
                             setSelectedLessonIdForQuiz(null);
                             setSelectedModuleIdForQuiz(null);
@@ -556,7 +556,6 @@ export default function CourseDetailPage() {
             <CreateAssignmentSheet
                 open={createAssignmentOpen}
                 onOpenChange={setCreateAssignmentOpen}
-                courseMasterId={id}
                 moduleId={selectedModuleIdForAssignment || undefined}
                 lessonId={selectedLessonIdForAssignment || undefined}
             />
@@ -568,7 +567,6 @@ export default function CourseDetailPage() {
             <CreateQuizSheet
                 open={createQuizOpen}
                 onOpenChange={setCreateQuizOpen}
-                courseMasterId={id}
                 moduleId={selectedModuleIdForQuiz || undefined}
                 lessonId={selectedLessonIdForQuiz || undefined}
             />

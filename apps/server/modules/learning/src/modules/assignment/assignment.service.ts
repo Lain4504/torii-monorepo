@@ -62,7 +62,6 @@ export class AssignmentService {
         title: dto.title,
         description: dto.description,
         type: dto.type,
-        courseMasterId: dto.courseMasterId,
         courseRunId: dto.courseRunId,
         moduleId: dto.moduleId,
         lessonId: dto.lessonId,
@@ -158,7 +157,6 @@ export class AssignmentService {
     this.natsClient.emit('assignment.published', {
       assignmentId: assignment.id,
       title: assignment.title,
-      courseMasterId: assignment.courseMasterId,
       courseRunId: assignment.courseRunId,
       moduleId: assignment.moduleId,
       lessonId: assignment.lessonId,
@@ -179,10 +177,18 @@ export class AssignmentService {
     const where: any = {};
 
     // Filter by association
-    if (courseMasterId) where.courseMasterId = courseMasterId;
     if (query.courseRunId) where.courseRunId = query.courseRunId;
     if (moduleId) where.moduleId = moduleId;
     if (lessonId) where.lessonId = lessonId;
+
+    // Aggregate by course master if provided (via relations)
+    if (courseMasterId) {
+      where.OR = [
+        { courseRun: { courseMasterId } },
+        { module: { courseMasterId } },
+        { lesson: { module: { courseMasterId } } },
+      ];
+    }
 
     // Status filter
     if (status) {

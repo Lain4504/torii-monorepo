@@ -3,7 +3,8 @@ import { apiClient } from '../api-client';
 import type {
     PaginatedApiResponse,
     CourseRunResponseDTO,
-    CourseRunSearchRequestDTO
+    CourseRunSearchRequestDTO,
+    StandardApiResponse
 } from '@workspace/schemas';
 
 export const courseRunApi = {
@@ -15,6 +16,14 @@ export const courseRunApi = {
             params,
         });
         return response.data;
+    },
+
+    /**
+     * Get course run by ID
+     */
+    getCourseRunById: async (id: string): Promise<CourseRunResponseDTO | null> => {
+        const response = await apiClient.get<StandardApiResponse<{ courseRun: CourseRunResponseDTO }>>(`/api/course-runs/${id}`);
+        return response.data.data?.courseRun ?? null;
     },
 
     /**

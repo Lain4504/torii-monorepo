@@ -9,13 +9,16 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { wishlistApi } from '@/lib/api/services/wishlist-api'
 import { courseApi } from '@/lib/api/services/course-api'
-import type { CourseMasterResponseDTO } from '@workspace/schemas'
+import { courseRunApi } from '@/lib/api/services/course-run-api'
+import type { CourseMasterResponseDTO, CourseRunResponseDTO } from '@workspace/schemas'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { formatCurrency } from '@/utils/format-utils'
 
 interface WishlistCourse extends CourseMasterResponseDTO {
     wishlistId: string;
+    price?: number | null;
+    discountPrice?: number | null;
 }
 
 export default function WishlistPage() {
@@ -38,9 +41,19 @@ export default function WishlistPage() {
             const courseDetails = await Promise.all(
                 wishlistItems.map(async (item) => {
                     try {
-                        const course = await courseApi.getCourseById(item.courseRunId)
-                        if (course) {
-                            return { ...course, wishlistId: item.id } as WishlistCourse
+                        // Fetch both course master and course run details
+                        const [courseRun, courseMaster] = await Promise.all([
+                            courseRunApi.getCourseRunById(item.courseRunId),
+                            courseApi.getCourseById(item.courseRunId)
+                        ]);
+
+                        if (courseMaster) {
+                            return {
+                                ...courseMaster,
+                                wishlistId: item.id,
+                                price: courseRun?.price,
+                                discountPrice: courseRun?.discountPrice
+                            } as WishlistCourse
                         }
                         return null
                     } catch (error) {

@@ -65,7 +65,17 @@ export class AssignmentRepository implements IAssignmentRepository {
 
   async findByCourseId(courseMasterId: string): Promise<Assignment[]> {
     return this.prisma.assignment.findMany({
-      where: { courseMasterId, status: 'PUBLISHED' },
+      where: {
+        status: 'PUBLISHED',
+        OR: [
+          // Assignments attached via course run
+          { courseRun: { is: { courseMasterId } } },
+          // Assignments attached at module level
+          { module: { is: { courseMasterId } } },
+          // Assignments attached at lesson level
+          { lesson: { is: { module: { courseMasterId } } } },
+        ],
+      },
       orderBy: { createdAt: 'desc' },
     });
   }

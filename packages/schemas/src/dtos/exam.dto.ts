@@ -19,7 +19,6 @@ export const examCreateDTOSchema = examSchema
         sections: true,
         totalTime: true,
         createdBy: true,
-        courseMasterId: true,
         courseRunId: true,
     })
     .extend({
@@ -38,7 +37,6 @@ export const examUpdateDTOSchema = examSchema
         sections: true,
         totalTime: true,
         status: true,
-        courseMasterId: true,
         courseRunId: true,
     })
     .partial();
@@ -51,8 +49,8 @@ export const examQueryDTOSchema = z.object({
     jlptLevel: z.nativeEnum(QuestionJlptLevel).optional(),
     examType: z.nativeEnum(ExamType).optional(),
     status: z.nativeEnum(ExamStatus).optional(),
-    courseMasterId: z.string().uuid().optional(),
     courseRunId: z.string().uuid().optional(),
+    courseMasterId: z.string().uuid().optional(), // Filter by course master (via lesson or courseRun)
     search: z.string().optional(),
 });
 

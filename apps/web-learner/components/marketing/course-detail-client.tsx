@@ -39,6 +39,11 @@ export function CourseDetailClient({ slug }: { slug: string }) {
     const isInWishlist = wishlistData?.isInWishlist;
     const isInCart = cartData?.items?.some(item => item.courseRun?.courseMaster?.id === course?.id);
 
+    // Get pricing from selected run or first available run
+    const selectedRun = selectedRunId ? availableRuns?.find(r => r.id === selectedRunId) : availableRuns?.[0];
+    const coursePrice = selectedRun?.price ?? 0;
+    const discountPrice = selectedRun?.discountPrice ?? null;
+
     useEffect(() => {
         const handleScroll = () => {
             setIsSticky(window.scrollY > 500);
@@ -508,15 +513,15 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2">
                                             <span className="text-3xl font-extrabold text-foreground">
-                                                {(!course.discountPrice && (!course.price || course.price === 0))
+                                                {(!discountPrice && (!coursePrice || coursePrice === 0))
                                                     ? 'Miễn phí'
-                                                    : `${(course.discountPrice || course.price).toLocaleString()} ₫`}
+                                                    : `${(discountPrice || coursePrice).toLocaleString()} ₫`}
                                             </span>
-                                            {course.price != null && course.discountPrice != null && course.price > course.discountPrice && (
+                                            {coursePrice != null && discountPrice != null && coursePrice > discountPrice && (
                                                 <>
-                                                    <span className="text-muted-foreground line-through">{course.price.toLocaleString()} ₫</span>
+                                                    <span className="text-muted-foreground line-through">{coursePrice.toLocaleString()} ₫</span>
                                                     <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">
-                                                        -{Math.round(((course.price - course.discountPrice) / course.price) * 100)}%
+                                                        -{Math.round(((coursePrice - discountPrice) / coursePrice) * 100)}%
                                                     </span>
                                                 </>
                                             )}

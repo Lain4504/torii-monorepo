@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useCourseRun } from '@/lib/api/services/course-runs';
 import { useCourse } from '@/lib/api/services/courses';
 import { useEnrollmentsByCourse } from '@/lib/api/services/enrollments';
@@ -7,9 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@work
 import { Badge } from '@workspace/ui/components/badge';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
-import { ArrowLeft, Users, Calendar, Clock, BookOpen, Settings, LayoutDashboard, Video } from 'lucide-react';
+import { ArrowLeft, Users, Calendar, Clock, BookOpen, Settings, LayoutDashboard, Video, Banknote } from 'lucide-react';
 import { CourseRunStatus } from '@workspace/schemas';
-import { formatDateTime } from '@/lib/format-utils';
+import { formatCurrency, formatDateTime } from '@/lib/format-utils';
 
 export default function CourseRunDetailPage() {
     const { runId } = useParams<{ runId: string }>();
@@ -56,8 +56,10 @@ export default function CourseRunDetailPage() {
         <div className="p-8 space-y-6">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-                        <ArrowLeft className="h-5 w-5" />
+                    <Button variant="ghost" size="icon" asChild>
+                        <Link to={course ? `/courses/${course.id}` : '/courses'}>
+                            <ArrowLeft className="h-5 w-5" />
+                        </Link>
                     </Button>
                     <div>
                         <div className="flex items-center gap-2 mb-1">
@@ -66,7 +68,14 @@ export default function CourseRunDetailPage() {
                         </div>
                         <h1 className="text-3xl font-bold tracking-tight">{run.title}</h1>
                         <p className="text-muted-foreground mt-1">
-                            Thuộc khung chương trình: <span className="font-medium text-foreground">{course?.title}</span>
+                            Thuộc khung chương trình:{' '}
+                            {course ? (
+                                <Link to={`/courses/${course.id}`} className="font-medium text-primary hover:underline">
+                                    {course.title}
+                                </Link>
+                            ) : (
+                                <span className="font-medium text-foreground">—</span>
+                            )}
                         </p>
                     </div>
                 </div>
@@ -142,6 +151,19 @@ export default function CourseRunDetailPage() {
                                             <div>
                                                 <p className="text-xs font-bold text-muted-foreground uppercase">Giảng viên</p>
                                                 <p className="font-semibold">{run.lecturer?.displayName || 'Chưa phân công'}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                            <div className="p-2 bg-primary/10 rounded-lg">
+                                                <Banknote className="h-5 w-5 text-primary" />
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-bold text-muted-foreground uppercase">Học phí</p>
+                                                <p className="font-semibold">
+                                                    {(run as any).price != null && Number((run as any).price) > 0
+                                                        ? formatCurrency(Number((run as any).price))
+                                                        : 'Miễn phí'}
+                                                </p>
                                             </div>
                                         </div>
                                     </div>

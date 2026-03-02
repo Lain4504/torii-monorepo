@@ -15,7 +15,6 @@ export const courseMasterCreateDTOSchema = courseMasterSchema.pick({
     tags: true,
     learningOutcomes: true,
     requirements: true,
-    liveConfig: true,
     aiMetadata: true,
 }).extend({
     lecturerId: z.string().uuid().optional().nullable(),
@@ -30,7 +29,6 @@ export const courseMasterCreateDTOSchema = courseMasterSchema.pick({
     tags: true,
     learningOutcomes: true,
     requirements: true,
-    liveConfig: true,
     aiMetadata: true,
 });
 

@@ -30,7 +30,7 @@ export interface CreateQuizDTO {
     title: string;
     description?: string;
     quizType?: string; // default 'lesson'
-    courseMasterId?: string;
+    courseRunId?: string;
     lessonId?: string;
     totalTime?: number;
     passingScore?: number;
@@ -56,34 +56,36 @@ export interface QuizQueryDTO {
 // API
 // ============================================================================
 
+const ADMIN_EXAMS_BASE = '/api/admin/exams';
+
 export const quizApi = {
     async findAll(params: QuizQueryDTO): Promise<PaginatedApiResponse<QuizDTO>> {
-        const response = await apiClient.get<PaginatedApiResponse<QuizDTO>>('/api/exams', { params });
+        const response = await apiClient.get<PaginatedApiResponse<QuizDTO>>(ADMIN_EXAMS_BASE, { params });
         return response.data;
     },
 
     async findById(id: string): Promise<QuizDTO> {
-        const response = await apiClient.get<StandardApiResponse<{ exam: QuizDTO }>>(`/api/exams/${id}`);
+        const response = await apiClient.get<StandardApiResponse<{ exam: QuizDTO }>>(`${ADMIN_EXAMS_BASE}/${id}`);
         return response.data.data!.exam;
     },
 
     async create(data: CreateQuizDTO): Promise<QuizDTO> {
-        const response = await apiClient.post<StandardApiResponse<{ exam: QuizDTO }>>('/api/exams', data);
+        const response = await apiClient.post<StandardApiResponse<{ exam: QuizDTO }>>(ADMIN_EXAMS_BASE, data);
         return response.data.data!.exam;
     },
 
     async update(id: string, data: UpdateQuizDTO): Promise<QuizDTO> {
-        const response = await apiClient.put<StandardApiResponse<{ exam: QuizDTO }>>(`/api/exams/${id}`, data);
+        const response = await apiClient.put<StandardApiResponse<{ exam: QuizDTO }>>(`${ADMIN_EXAMS_BASE}/${id}`, data);
         return response.data.data!.exam;
     },
 
     async delete(id: string): Promise<boolean> {
-        const response = await apiClient.delete<StandardApiResponse<boolean>>(`/api/exams/${id}`);
+        const response = await apiClient.delete<StandardApiResponse<boolean>>(`${ADMIN_EXAMS_BASE}/${id}`);
         return response.data.success;
     },
 
     async publish(id: string): Promise<QuizDTO> {
-        const response = await apiClient.patch<StandardApiResponse<{ exam: QuizDTO }>>(`/api/exams/${id}/publish`, {});
+        const response = await apiClient.patch<StandardApiResponse<{ exam: QuizDTO }>>(`${ADMIN_EXAMS_BASE}/${id}/publish`, {});
         return response.data.data!.exam;
     },
 };

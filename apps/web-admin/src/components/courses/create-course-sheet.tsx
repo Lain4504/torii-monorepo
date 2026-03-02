@@ -21,7 +21,6 @@ import {
     FieldError,
 } from '@workspace/ui/components/field';
 import { Image as ImageIcon, Film, X, UploadCloud } from 'lucide-react';
-import { Checkbox } from '@workspace/ui/components/checkbox';
 import {
     Item,
     ItemMedia,
@@ -55,20 +54,16 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
         formState: { errors, isDirty },
         reset,
         watch,
-        setValue,
     } = useForm<CourseMasterCreateDTO>({
         resolver: zodResolver(courseMasterCreateDTOSchema) as any,
         defaultValues: {
             title: '',
             description: '',
             shortDescription: '',
-            price: 0,
-            discountPrice: 0,
             jlptLevel: undefined, // Will be set by user
             thumbnailUrl: undefined,
             previewVideoUrl: undefined,
             type: 'vod', // Default to vod
-            isFree: false,
             durationWeeks: undefined,
             tags: [],
             learningOutcomes: [],
@@ -76,7 +71,6 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
         },
     });
 
-    const isFree = watch('isFree');
     const courseType = watch('type');
 
     const handleClose = () => {
@@ -89,14 +83,6 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
     };
 
     const onSubmit = async (data: CourseMasterCreateDTO) => {
-        // Validation: Paid courses must have price > 0
-        if (!data.isFree && (data.price === undefined || data.price <= 0)) {
-            toast.error('Giá tiền không hợp lệ', {
-                description: 'Khóa học trả phí bắt buộc phải có học phí lớn hơn 0.',
-            });
-            return;
-        }
-
         setUploading(true);
         try {
             // Upload thumbnail if provided
@@ -116,8 +102,6 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
             // Create course
             await createMutation.mutateAsync({
                 ...data,
-                // normalize optional numeric and array fields
-                discountPrice: data.discountPrice ?? 0,
                 durationWeeks: data.durationWeeks ?? undefined,
                 tags: data.tags && data.tags.length ? data.tags : undefined,
                 learningOutcomes: data.learningOutcomes && (data.learningOutcomes as any[]).length ? data.learningOutcomes : [],
@@ -222,23 +206,6 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
 
                                 <div className="grid grid-cols-2 gap-6">
                                     <Field>
-                                        <FieldLabel htmlFor="price" className="">
-                                            Giá Niêm Yết <span className="text-destructive">*</span>
-                                        </FieldLabel>
-                                        <Input
-                                            id="price"
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            {...register('price', { valueAsNumber: true })}
-                                            disabled={isFree}
-                                            placeholder="0.00"
-                                            className="mt-1 font-mono tracking-tight"
-                                        />
-                                        {errors.price && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.price.message}</FieldError>}
-                                    </Field>
-
-                                    <Field>
                                         <FieldLabel htmlFor="jlptLevel" className="">
                                             Trình Độ JLPT
                                         </FieldLabel>
@@ -301,23 +268,6 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
 
                                 <div className="grid grid-cols-2 gap-6">
                                     <Field>
-                                        <FieldLabel htmlFor="discountPrice" className="">
-                                            Giá Khuyến Mãi
-                                        </FieldLabel>
-                                        <Input
-                                            id="discountPrice"
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            {...register('discountPrice', { valueAsNumber: true })}
-                                            disabled={isFree}
-                                            placeholder="0.00"
-                                            className="mt-1 font-mono tracking-tight disabled:opacity-50 disabled:bg-muted"
-                                        />
-                                        {errors.discountPrice && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.discountPrice.message}</FieldError>}
-                                    </Field>
-
-                                    <Field>
                                         <FieldLabel htmlFor="durationWeeks" className="">
                                             Thời Lượng (Tuần)
                                         </FieldLabel>
@@ -357,36 +307,6 @@ export function CreateCourseSheet({ open, onOpenChange }: CreateCourseSheetProps
                                         </p>
                                     </Field>
                                 )}
-
-                                <div className="grid grid-cols-2 gap-6">
-                                    <Field>
-                                        <FieldLabel htmlFor="isFree" className="">
-                                            Giá Cả
-                                        </FieldLabel>
-                                        <Controller
-                                            name="isFree"
-                                            control={control}
-                                            render={({ field }) => (
-                                                <div className="flex items-center gap-3 mt-1.5">
-                                                    <Checkbox
-                                                        id="isFree"
-                                                        checked={field.value}
-                                                        onCheckedChange={(checked) => {
-                                                            field.onChange(checked);
-                                                            if (checked) {
-                                                                setValue('price', 0);
-                                                                setValue('discountPrice', 0);
-                                                            }
-                                                        }}
-                                                    />
-                                                    <FieldLabel htmlFor="isFree" className="cursor-pointer mb-0">
-                                                        Truy cập mở / Khóa học miễn phí
-                                                    </FieldLabel>
-                                                </div>
-                                            )}
-                                        />
-                                    </Field>
-                                </div>
 
                                 <div className="space-y-6 pt-6">
                                     <div className="flex items-center gap-3 pb-2 border-b border-border/40">

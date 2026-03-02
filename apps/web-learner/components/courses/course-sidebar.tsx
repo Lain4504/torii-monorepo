@@ -11,11 +11,15 @@ import { useCourseEnrollment } from '@/hooks/use-course-enrollment'
 import { formatCurrency, formatDate } from '@/utils/format-utils'
 
 interface CourseSidebarProps {
-    course: CourseMasterResponseDTO
+    course: CourseMasterResponseDTO & {
+        price?: number | null;
+        discountPrice?: number | null;
+    };
 }
 
 export function CourseSidebar({ course }: CourseSidebarProps) {
     const router = useRouter()
+    const isFree = !course.price || course.price === 0
     const {
         isInWishlist,
         isEnrolled,
@@ -37,7 +41,7 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
             return
         }
 
-        if (course.isFree) {
+        if (isFree) {
             await handleEnroll()
             return
         }
@@ -71,13 +75,13 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
             <div className="bg-card p-6 rounded-2xl border shadow-xl space-y-6">
                 <div className="space-y-1">
                     <p className="text-3xl font-black">
-                        {course.isFree
+                        {isFree
                             ? 'MIỄN PHÍ'
                             : course.discountPrice
                                 ? formatCurrency(Number(course.discountPrice))
                                 : formatCurrency(Number(course.price))}
                     </p>
-                    {!course.isFree && course.discountPrice && (
+                    {!isFree && course.discountPrice && (
                         <p className="text-sm text-muted-foreground line-through">
                             {formatCurrency(Number(course.price))}
                             {discount && ` (${discount}% OFF)`}
@@ -129,7 +133,7 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
                                     onClick={handlePurchase}
                                     disabled={isEnrolling || isLoadingEnrollment}
                                 >
-                                    {isEnrolling ? 'Đang xử lý...' : course.isFree ? 'Bắt đầu ngay' : 'Đăng ký ngay'}
+                                    {isEnrolling ? 'Đang xử lý...' : isFree ? 'Bắt đầu ngay' : 'Đăng ký ngay'}
                                 </Button>
 
                                 {isAuthenticated && (

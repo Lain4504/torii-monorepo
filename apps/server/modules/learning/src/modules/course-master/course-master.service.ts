@@ -584,8 +584,10 @@ export class CourseMasterService implements ICourseMasterService {
       }
     }
 
-    const course = await this.courseRepository.update(courseMasterId, { liveConfig: config });
-    return this.toCourseMasterResponseDTO(course);
+    // Live configuration is now managed at CourseRun level.
+    // Keep this method as a no-op for backward compatibility.
+    this.logger.warn('updateLiveConfig is deprecated: live configuration is now managed on CourseRun entities.');
+    return this.toCourseMasterResponseDTO(existing);
   }
 
   /**
@@ -978,11 +980,9 @@ export class CourseMasterService implements ICourseMasterService {
       // 3. Check curriculum (minimum lessons)
       const lessonCount = await this.courseRepository.countLessons(courseMasterId);
 
-      // Support short/specialized courses by allowing minLessons to be configured in liveConfig
-      const liveConfig = course.liveConfig as any;
-      const minLessons = (liveConfig && typeof liveConfig.minLessons === 'number')
-        ? liveConfig.minLessons
-        : 1; // Default to 1 to allow short courses/workshops
+      // Support short/specialized courses with a simple minimum lesson rule.
+      // Detailed live configuration is now handled at CourseRun level.
+      const minLessons = 1; // Default to 1 to allow short courses/workshops
 
       if (lessonCount < minLessons) {
         return {

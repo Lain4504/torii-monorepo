@@ -49,10 +49,9 @@ export class ExamService implements IExamService {
                 jlptLevel,
                 examType,
                 status,
-                courseMasterId,
                 courseRunId,
                 search,
-            } = query;
+            } = query as any;
 
             const pageNum = typeof page === 'string' ? parseInt(page, 10) : Number(page) || 1;
             const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : Number(limit) || 10;
@@ -87,9 +86,9 @@ export class ExamService implements IExamService {
                 whereClause.lessonId = (query as any).lessonId;
             }
 
-            // Filter by courseMasterId if provided
-            if ((query as any).courseMasterId) {
-                whereClause.courseMasterId = (query as any).courseMasterId;
+            // Filter by courseRunId if provided
+            if (courseRunId) {
+                whereClause.courseRunId = courseRunId;
             }
 
             this.logger.log(`Fetching quizzes (exams) with filters: ${JSON.stringify(whereClause)}`);
@@ -175,6 +174,8 @@ export class ExamService implements IExamService {
                 examType,
                 status,
                 search,
+                courseRunId,
+                courseMasterId,
             } = query;
 
             const pageNum = typeof page === 'string' ? parseInt(page, 10) : Number(page) || 1;
@@ -198,11 +199,28 @@ export class ExamService implements IExamService {
                 whereClause.status = status;
             }
 
+            if (courseRunId) {
+                whereClause.courseRunId = courseRunId;
+            }
+
+            if (courseMasterId) {
+                whereClause.AND = whereClause.AND || [];
+                whereClause.AND.push({
+                    OR: [
+                        { lesson: { module: { courseMasterId } } },
+                        { courseRun: { courseMasterId } },
+                    ],
+                });
+            }
+
             if (search) {
-                whereClause.OR = [
-                    { title: { contains: search, mode: 'insensitive' } },
-                    { description: { contains: search, mode: 'insensitive' } },
-                ];
+                whereClause.AND = whereClause.AND || [];
+                whereClause.AND.push({
+                    OR: [
+                        { title: { contains: search, mode: 'insensitive' } },
+                        { description: { contains: search, mode: 'insensitive' } },
+                    ],
+                });
             }
 
             const [total, quizzes] = await Promise.all([
@@ -840,6 +858,37 @@ export class ExamService implements IExamService {
     }
 
     /**
+     * Resolve related course master IDs for a given quiz
+     */
+    private async getCourseMasterIdsForQuiz(quiz: any): Promise<string[]> {
+        const courseMasterIds = new Set<string>();
+
+        // From linked lesson -> module -> course master
+        if (quiz.lessonId) {
+            const lesson = await this.prisma.lesson.findUnique({
+                where: { id: quiz.lessonId },
+                include: { module: true },
+            });
+            if (lesson?.module?.courseMasterId) {
+                courseMasterIds.add(lesson.module.courseMasterId);
+            }
+        }
+
+        // From linked course run -> course master
+        if (quiz.courseRunId) {
+            const run = await this.prisma.courseRun.findUnique({
+                where: { id: quiz.courseRunId },
+                select: { courseMasterId: true },
+            });
+            if (run?.courseMasterId) {
+                courseMasterIds.add(run.courseMasterId);
+            }
+        }
+
+        return Array.from(courseMasterIds);
+    }
+
+    /**
      * Check if user has permission to manage exams
      */
     private checkPermission(requester: Requester, action: string): void {
@@ -887,24 +936,15 @@ export class ExamService implements IExamService {
                 showExplanation: false, // Default
                 status: ExamStatus.DRAFT,
                 createdBy: requester.sub,
-                courseMasterId: dto.courseMasterId,
-                courseRunId: dto.courseRunId,
+                courseRunId: (dto as any).courseRunId,
             } as any);
 
             this.logger.log(`Exam ${quiz.id} created by ${requester.sub}`);
 
             // Trigger stats recalculation for associated course via NATS
-            if (quiz.courseMasterId) {
-                this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseMasterId: quiz.courseMasterId });
-            } else if (quiz.lessonId) {
-                // If linked to a lesson, find its course
-                const lesson = await this.prisma.lesson.findUnique({
-                    where: { id: quiz.lessonId },
-                    include: { module: true }
-                });
-                if (lesson?.module?.courseMasterId) {
-                    this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseMasterId: lesson.module.courseMasterId });
-                }
+            const createdCourseIds = await this.getCourseMasterIdsForQuiz(quiz);
+            for (const courseMasterId of createdCourseIds) {
+                this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseMasterId });
             }
 
             return this.mapper.map<any, ExamResponseDTO>(quiz, 'Quiz', 'ExamResponseDTO');
@@ -937,8 +977,7 @@ export class ExamService implements IExamService {
             if (dto.examType !== undefined) updateData.quizType = dto.examType;
             if (dto.totalTime !== undefined) updateData.totalTime = dto.totalTime;
             if (dto.status !== undefined) updateData.status = dto.status;
-            if (dto.courseMasterId !== undefined) updateData.courseMasterId = dto.courseMasterId;
-            if (dto.courseRunId !== undefined) updateData.courseRunId = dto.courseRunId;
+            if ((dto as any).courseRunId !== undefined) updateData.courseRunId = (dto as any).courseRunId;
 
             // Update sections if provided
             if (dto.sections !== undefined) {
@@ -950,37 +989,16 @@ export class ExamService implements IExamService {
 
             this.logger.log(`Exam ${examId} updated by ${requester.sub}`);
 
-            // Recalculate stats for both OLD and NEW associations via NATS if status or association changed
-            const statusChanged = dto.status !== undefined && dto.status !== (existingQuiz as any).status;
-            const associationChanged = ((dto as any).courseMasterId !== undefined && (dto as any).courseMasterId !== (existingQuiz as any).courseMasterId) ||
-                ((dto as any).courseRunId !== undefined && (dto as any).courseRunId !== (existingQuiz as any).courseRunId) ||
-                ((dto as any).lessonId !== undefined && (dto as any).lessonId !== (existingQuiz as any).lessonId);
+            // Recalculate stats for both OLD and NEW associations via NATS
+            const affectedCourses = new Set<string>();
+            const oldIds = await this.getCourseMasterIdsForQuiz(existingQuiz);
+            const newIds = await this.getCourseMasterIdsForQuiz(updated);
 
-            if (statusChanged || associationChanged) {
-                // Get all affected courses
-                const affectedCourses = new Set<string>();
+            oldIds.forEach(id => affectedCourses.add(id));
+            newIds.forEach(id => affectedCourses.add(id));
 
-                const getCourseIds = async (quiz: any) => {
-                    if (quiz.courseMasterId) return [quiz.courseMasterId];
-                    if (quiz.lessonId) {
-                        const lesson = await this.prisma.lesson.findUnique({
-                            where: { id: quiz.lessonId },
-                            include: { module: true }
-                        });
-                        return lesson?.module?.courseMasterId ? [lesson.module.courseMasterId] : [];
-                    }
-                    return [];
-                };
-
-                const oldIds = await getCourseIds(existingQuiz);
-                const newIds = await getCourseIds(updated);
-
-                oldIds.forEach(id => affectedCourses.add(id));
-                newIds.forEach(id => affectedCourses.add(id));
-
-                for (const courseMasterId of affectedCourses) {
-                    this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseMasterId });
-                }
+            for (const courseMasterId of affectedCourses) {
+                this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseMasterId });
             }
 
             return this.mapper.map<any, ExamResponseDTO>(updated, 'Quiz', 'ExamResponseDTO');
@@ -1009,16 +1027,9 @@ export class ExamService implements IExamService {
             this.logger.log(`Exam ${examId} deleted by ${requester.sub}`);
 
             // Trigger stats recalculation via NATS
-            if ((quiz as any).courseMasterId) {
-                this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseMasterId: (quiz as any).courseMasterId });
-            } else if ((quiz as any).lessonId) {
-                const lesson = await this.prisma.lesson.findUnique({
-                    where: { id: (quiz as any).lessonId },
-                    include: { module: true }
-                });
-                if (lesson?.module?.courseMasterId) {
-                    this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseMasterId: lesson.module.courseMasterId });
-                }
+            const deletedCourseIds = await this.getCourseMasterIdsForQuiz(quiz);
+            for (const courseMasterId of deletedCourseIds) {
+                this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseMasterId });
             }
         } catch (error: any) {
             this.logger.error(`Error deleting exam ${examId}: ${error.message}`, error.stack);

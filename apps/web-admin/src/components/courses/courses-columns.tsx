@@ -10,7 +10,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
-import { formatCurrency, formatDateTime } from '@/lib/format-utils';
+import { formatDateTime } from '@/lib/format-utils';
 import { cn } from "@workspace/ui/lib/utils";
 
 const columnHelper = createColumnHelper<CourseMasterResponseDTO>();
@@ -112,29 +112,15 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
         },
         size: 100,
     }),
-    columnHelper.accessor('price', {
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                    className="-ml-4 h-9 px-4 text-xs font-semibold hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
-                >
-                    Giá niêm yết
-                    <ArrowUpDown className="ml-2 h-3.5 w-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
-                </Button>
-            );
-        },
-        cell: (info) => {
-            const price = info.getValue() as number;
-            const isFree = price == null || price === 0;
-            return (
-                <div className="text-center font-semibold text-sm text-foreground tabular-nums tracking-tight">
-                    {isFree ? <span className="text-primary italic">Miễn phí</span> : formatCurrency(price)}
-                </div>
-            );
-        },
-        size: 120,
+    columnHelper.display({
+        id: 'price',
+        header: () => <div className="px-1 text-center">Giá</div>,
+        cell: () => (
+            <div className="text-center text-sm text-muted-foreground">
+                —
+            </div>
+        ),
+        size: 80,
     }),
     columnHelper.accessor('status', {
         header: () => <div className="px-1 text-center">Trạng thái</div>,

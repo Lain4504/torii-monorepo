@@ -18,7 +18,7 @@ import {
 import { MoreVertical, Edit, Plus, Calendar, Users, LayoutDashboard, Trash } from 'lucide-react';
 import { useCourseRuns, useDeleteCourseRun } from '@/lib/api/services/course-runs';
 import { CourseRunStatus } from '@workspace/schemas';
-import { formatDateTime } from '@/lib/format-utils';
+import { formatCurrency, formatDateTime } from '@/lib/format-utils';
 import { toast } from '@workspace/ui/components/sonner';
 import { CreateCourseRunSheet } from './create-course-run-sheet';
 import { useNavigate } from 'react-router-dom';
@@ -91,6 +91,7 @@ export function CourseRunsTable({ courseId }: CourseRunsTableProps) {
                             <TableRow className="bg-muted/50">
                                 <TableHead className="w-[200px]">Tên Lớp</TableHead>
                                 <TableHead>Trạng Thái</TableHead>
+                                <TableHead>Học Phí</TableHead>
                                 <TableHead>Khai Giảng</TableHead>
                                 <TableHead>Sĩ Số</TableHead>
                                 <TableHead>Giảng Viên</TableHead>
@@ -104,6 +105,11 @@ export function CourseRunsTable({ courseId }: CourseRunsTableProps) {
                                         {run.title}
                                     </TableCell>
                                     <TableCell>{getStatusBadge(run.status)}</TableCell>
+                                    <TableCell>
+                                        {(run as any).price != null && Number((run as any).price) > 0
+                                            ? formatCurrency(Number((run as any).price))
+                                            : <span className="text-primary italic">Miễn phí</span>}
+                                    </TableCell>
                                     <TableCell>
                                         {run.startDate ? formatDateTime(run.startDate) : 'Chưa định ngày'}
                                     </TableCell>

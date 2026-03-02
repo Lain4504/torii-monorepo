@@ -44,7 +44,6 @@ import { Spinner } from "@workspace/ui/components/spinner";
 interface CreateAssignmentSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  courseMasterId?: string;
   moduleId?: string;
   lessonId?: string;
 }
@@ -52,7 +51,6 @@ interface CreateAssignmentSheetProps {
 export function CreateAssignmentSheet({
   open,
   onOpenChange,
-  courseMasterId,
   moduleId,
   lessonId,
 }: CreateAssignmentSheetProps) {
@@ -62,7 +60,6 @@ export function CreateAssignmentSheet({
     title: z.string().min(1, "Vui lòng nhập tiêu đề"),
     description: z.string().min(1, "Vui lòng nhập mô tả"),
     type: z.nativeEnum(AssignmentType),
-    courseMasterId: z.string().optional(),
     moduleId: z.string().optional(),
     lessonId: z.string().optional(),
     maxScore: z.number().min(0).max(1000),
@@ -81,7 +78,6 @@ export function CreateAssignmentSheet({
       title: "",
       description: "",
       type: AssignmentType.TEXT,
-      courseMasterId,
       moduleId,
       lessonId,
       maxScore: 100,
@@ -101,7 +97,6 @@ export function CreateAssignmentSheet({
         title: "",
         description: "",
         type: AssignmentType.TEXT,
-        courseMasterId,
         moduleId,
         lessonId,
         maxScore: 100,
@@ -113,7 +108,7 @@ export function CreateAssignmentSheet({
         attachmentUrls: [],
       });
     }
-  }, [open, courseMasterId, moduleId, lessonId, form]);
+  }, [open, moduleId, lessonId, form]);
 
   const onSubmit = async (values: CreateAssignmentDto) => {
     try {

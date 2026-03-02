@@ -37,8 +37,8 @@ export class AssignmentProfile extends AutomapperProfile {
           mapFrom((src) => src.type as any)
         ),
         forMember(
-          (dest) => dest.courseMasterId,
-          mapFrom((src) => src.courseMasterId || undefined)
+          (dest) => dest.courseRunId,
+          mapFrom((src) => src.courseRunId || undefined)
         ),
         forMember(
           (dest) => dest.moduleId,

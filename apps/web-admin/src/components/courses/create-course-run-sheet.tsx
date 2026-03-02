@@ -218,14 +218,17 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId }: CreateCou
 
                             <div className="grid grid-cols-2 gap-6">
                                 <Field>
-                                    <FieldLabel htmlFor="price">Giá Riêng Cho Lớp Này (Tùy chọn)</FieldLabel>
+                                    <FieldLabel htmlFor="price">Học Phí (Lớp Này)</FieldLabel>
                                     <Input
                                         id="price"
                                         type="number"
+                                        min="0"
+                                        step="0.01"
                                         {...register('price', { valueAsNumber: true })}
-                                        placeholder="Để trống nếu dùng giá mặc định khóa học"
-                                        className="mt-1"
+                                        placeholder="0 = Miễn phí"
+                                        className="mt-1 font-mono"
                                     />
+                                    <p className="text-[10px] text-muted-foreground mt-1 ml-1">Giá được quy định theo từng đợt khai giảng.</p>
                                 </Field>
                                 <Field>
                                     <FieldLabel htmlFor="maxStudents">Sĩ Số Tối Đa</FieldLabel>

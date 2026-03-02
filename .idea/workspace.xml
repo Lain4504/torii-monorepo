@@ -4,7 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="migation other code" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix to lauch success">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/assignment.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/assignment.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/exam.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/exam.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/assignment.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/assignment.model.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/course-master.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/course-master.model.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/course-run.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/course-run.model.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/exam.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/exam.model.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -241,14 +250,7 @@
       <workItem from="1772385988999" duration="611000" />
       <workItem from="1772391988089" duration="121000" />
       <workItem from="1772411315507" duration="3844000" />
-    </task>
-    <task id="LOCAL-00849" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
-      <option name="closed" value="true" />
-      <created>1771693019683</created>
-      <option name="number" value="00849" />
-      <option name="presentableId" value="LOCAL-00849" />
-      <option name="project" value="LOCAL" />
-      <updated>1771693019684</updated>
+      <workItem from="1772421520773" duration="876000" />
     </task>
     <task id="LOCAL-00850" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
       <option name="closed" value="true" />
@@ -634,7 +636,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772416644103</updated>
     </task>
-    <option name="localTasksCounter" value="898" />
+    <task id="LOCAL-00898" summary="fix to lauch success">
+      <option name="closed" value="true" />
+      <created>1772421927338</created>
+      <option name="number" value="00898" />
+      <option name="presentableId" value="LOCAL-00898" />
+      <option name="project" value="LOCAL" />
+      <updated>1772421927338</updated>
+    </task>
+    <option name="localTasksCounter" value="899" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -683,7 +693,8 @@
     <MESSAGE value="feat: Implement attendance processing for live sessions and add course run status update functionality" />
     <MESSAGE value="refactor: Rename course-related entities to use 'courseMaster' terminology and update related references" />
     <MESSAGE value="migation other code" />
-    <option name="LAST_COMMIT_MESSAGE" value="migation other code" />
+    <MESSAGE value="fix to lauch success" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix to lauch success" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

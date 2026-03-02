@@ -70,7 +70,7 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
         },
         {
             label: 'Học Phí',
-            valid: course?.price !== null && course?.price !== undefined && course?.price >= 0,
+            valid: true,
             icon: BookOpen,
         },
     ];

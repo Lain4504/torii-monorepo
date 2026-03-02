@@ -65,10 +65,6 @@ export class CourseProfile extends AutomapperProfile {
         ),
 
         forMember(
-          (dest: CourseMasterResponseDTO) => dest.liveConfig,
-          mapFrom((src: CourseMaster) => (src.liveConfig as any) || undefined),
-        ),
-        forMember(
           (dest: CourseMasterResponseDTO) => dest.totalLessons,
           mapFrom((src: CourseMaster) => src.totalLessons),
         ),

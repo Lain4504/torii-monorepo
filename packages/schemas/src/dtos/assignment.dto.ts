@@ -12,7 +12,6 @@ export const createAssignmentDto = z.object({
   type: z.nativeEnum(AssignmentType).default(AssignmentType.TEXT),
 
   // At least one must be provided
-  courseMasterId: z.preprocess((val) => (val === '' ? undefined : val), z.string().uuid().optional()),
   courseRunId: z.preprocess((val) => (val === '' ? undefined : val), z.string().uuid().optional()),
   moduleId: z.preprocess((val) => (val === '' ? undefined : val), z.string().uuid().optional()),
   lessonId: z.preprocess((val) => (val === '' ? undefined : val), z.string().uuid().optional()),
@@ -38,9 +37,9 @@ export const createAssignmentDto = z.object({
   instructions: z.string().optional(),
   attachmentUrls: z.array(z.string().url()).default([]),
 }).refine(
-  (data) => data.courseMasterId || data.courseRunId || data.moduleId || data.lessonId,
+  (data) => data.courseRunId || data.moduleId || data.lessonId,
   {
-    message: 'At least one of courseMasterId, courseRunId, moduleId, or lessonId must be provided',
+    message: 'At least one of courseRunId, moduleId, or lessonId must be provided',
   }
 ).refine(
   (data) => !data.passingScore || data.passingScore <= data.maxScore,
@@ -57,7 +56,6 @@ export const updateAssignmentDto = z.object({
   description: z.string().min(1).optional(),
   type: z.nativeEnum(AssignmentType).optional(),
 
-  courseMasterId: z.preprocess((val) => (val === '' || val === null ? undefined : val), z.string().uuid().optional()),
   courseRunId: z.preprocess((val) => (val === '' || val === null ? undefined : val), z.string().uuid().optional()),
   moduleId: z.preprocess((val) => (val === '' || val === null ? undefined : val), z.string().uuid().optional()),
   lessonId: z.preprocess((val) => (val === '' || val === null ? undefined : val), z.string().uuid().optional()),

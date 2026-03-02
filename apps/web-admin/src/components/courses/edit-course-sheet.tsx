@@ -12,7 +12,6 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
-import { Checkbox } from '@workspace/ui/components/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Separator } from '@workspace/ui/components/separator';
@@ -48,27 +47,22 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
         handleSubmit,
         reset,
         watch,
-        setValue,
         formState: { isDirty },
     } = useForm<CourseMasterUpdateDTO>({
         resolver: zodResolver(courseMasterUpdateDTOSchema),
         defaultValues: {
             title: '',
             description: '',
-            price: 0,
             shortDescription: '',
-            discountPrice: 0,
             jlptLevel: undefined,
             type: 'vod',
             tags: [],
             durationWeeks: undefined,
-            isFree: false,
             learningOutcomes: [],
             requirements: [],
         },
     });
 
-    const isFree = watch('isFree', course?.isFree ?? false);
     const courseType = watch('type', course?.type ?? 'vod');
 
     // Reset form when course changes
@@ -77,14 +71,11 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
             reset({
                 title: course.title,
                 description: course.description || '',
-                price: Number(course.price),
                 jlptLevel: course.jlptLevel as JlptLevel,
                 shortDescription: course.shortDescription || '',
-                discountPrice: course.discountPrice ? Number(course.discountPrice) : 0,
                 type: course.type,
                 tags: course.tags || [],
                 durationWeeks: course.durationWeeks ?? undefined,
-                isFree: course.isFree ?? false,
                 learningOutcomes: Array.isArray(course.learningOutcomes) ? course.learningOutcomes : [],
                 requirements: Array.isArray(course.requirements) ? course.requirements : [],
                 expirationMonths: (course as any).expirationMonths ?? undefined,
@@ -121,14 +112,6 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
 
     const onSubmitForm = async (data: UpdateCourseFormData) => {
         if (!course) return;
-
-        // Validation: Paid courses must have price > 0
-        if (!data.isFree && (data.price === undefined || data.price <= 0)) {
-            toast.error('Giá tiền không hợp lệ', {
-                description: 'Khung chương trình trả phí bắt buộc phải có giá niêm yết lớn hơn 0.',
-            });
-            return;
-        }
 
         setUploading(true);
         try {
@@ -258,29 +241,6 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                 <div className="grid grid-cols-2 gap-6">
                                     <Controller
                                         control={control}
-                                        name="price"
-                                        render={({ field, fieldState }) => (
-                                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name} className="">
-                                                    Giá Niêm Yết <span className="text-destructive">*</span>
-                                                </FieldLabel>
-                                                <Input
-                                                    id={field.name}
-                                                    type="number"
-                                                    {...field}
-                                                    disabled={isFree}
-                                                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                                    placeholder="0.00"
-                                                    className="mt-1 font-mono tracking-tight disabled:opacity-50 disabled:bg-muted"
-                                                    aria-invalid={fieldState.invalid}
-                                                />
-                                                <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
-                                            </Field>
-                                        )}
-                                    />
-
-                                    <Controller
-                                        control={control}
                                         name="jlptLevel"
                                         render={({ field, fieldState }) => (
                                             <Field className="space-y-2" data-invalid={fieldState.invalid}>
@@ -345,60 +305,9 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                             </Field>
                                         )}
                                     />
-
-                                    <Controller
-                                        control={control}
-                                        name="isFree"
-                                        render={({ field }) => (
-                                            <Field className="space-y-2">
-                                                <FieldLabel htmlFor="isFree" className="">
-                                                    Giá Cả
-                                                </FieldLabel>
-                                                <div className="flex items-center gap-3 mt-1.5">
-                                                    <Checkbox
-                                                        id="isFree"
-                                                        checked={field.value}
-                                                        onCheckedChange={(checked) => {
-                                                            field.onChange(checked);
-                                                            if (checked) {
-                                                                setValue('price', 0);
-                                                                setValue('discountPrice', 0);
-                                                            }
-                                                        }}
-                                                    />
-                                                    <FieldLabel htmlFor="isFree" className="cursor-pointer mb-0">
-                                                        Truy cập mở / Khóa học miễn phí
-                                                    </FieldLabel>
-                                                </div>
-                                            </Field>
-                                        )}
-                                    />
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-6">
-                                    <Controller
-                                        control={control}
-                                        name="discountPrice"
-                                        render={({ field, fieldState }) => (
-                                            <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name} className="">
-                                                    Giá Khuyến Mãi
-                                                </FieldLabel>
-                                                <Input
-                                                    id={field.name}
-                                                    type="number"
-                                                    {...field}
-                                                    disabled={isFree}
-                                                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                                    placeholder="0.00"
-                                                    className="mt-1 font-mono tracking-tight disabled:opacity-50 disabled:bg-muted"
-                                                    aria-invalid={fieldState.invalid}
-                                                />
-                                                <FieldError errors={[fieldState.error]} className="text-xs font-medium text-rose-500 pl-2" />
-                                            </Field>
-                                        )}
-                                    />
-
                                     <Controller
                                         control={control}
                                         name="durationWeeks"
