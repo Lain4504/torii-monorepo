@@ -34,8 +34,8 @@ export class QuestionPoolProfile extends AutomapperProfile {
                     mapFrom((src) => src.description || undefined),
                 ),
                 forMember(
-                    (dest) => dest.courseId,
-                    mapFrom((src) => src.courseId || undefined),
+                    (dest) => dest.courseMasterId,
+                    mapFrom((src) => src.courseMasterId || undefined),
                 ),
                 forMember(
                     (dest) => dest.lessonId,

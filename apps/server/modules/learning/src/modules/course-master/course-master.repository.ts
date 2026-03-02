@@ -137,21 +137,15 @@ export class CourseMasterRepository implements ICourseMasterRepository {
      * Update course master statistics
      */
     async updateStats(courseMasterId: string, stats: {
-        totalStudents?: number;
         totalLessons?: number;
         totalQuizzes?: number;
-        averageRating?: number;
-        totalReviews?: number;
     }): Promise<CourseMaster> {
         const updateData: Prisma.CourseMasterUpdateInput = {
             updatedAt: new Date(),
         };
 
-        if (stats.totalStudents !== undefined) updateData.totalStudents = stats.totalStudents;
         if (stats.totalLessons !== undefined) updateData.totalLessons = stats.totalLessons;
         if (stats.totalQuizzes !== undefined) updateData.totalQuizzes = stats.totalQuizzes;
-        if (stats.averageRating !== undefined) updateData.averageRating = stats.averageRating;
-        if (stats.totalReviews !== undefined) updateData.totalReviews = stats.totalReviews;
 
         return this.prisma.courseMaster.update({
             where: { id: courseMasterId },
@@ -161,30 +155,10 @@ export class CourseMasterRepository implements ICourseMasterRepository {
 
     /**
      * Get lecturer for a course master
+     * Note: Lecturers are now assigned at the CourseRun level, not CourseMaster level
      */
     async getLecturer(courseMasterId: string): Promise<any | null> {
-        const course = await this.prisma.courseMaster.findUnique({
-            where: { id: courseMasterId },
-            select: {
-                lecturerId: true,
-            },
-        });
-
-        if (!course?.lecturerId) {
-            return null;
-        }
-
-        const lecturer = await this.prisma.user.findUnique({
-            where: { id: course.lecturerId },
-            select: {
-                id: true,
-                displayName: true,
-                avatarUrl: true,
-                email: true,
-            },
-        });
-
-        return lecturer;
+        return null;
     }
 
     /**
@@ -247,15 +221,9 @@ export class CourseMasterRepository implements ICourseMasterRepository {
 
     /**
      * Increment total students for a course master
+     * Note: totalStudents is now on CourseRun, not CourseMaster
      */
     async incrementTotalStudents(courseMasterId: string): Promise<void> {
-        await this.prisma.courseMaster.update({
-            where: { id: courseMasterId },
-            data: {
-                totalStudents: {
-                    increment: 1,
-                },
-            },
-        });
+        // No-op: this method is kept for backward compatibility
     }
 }

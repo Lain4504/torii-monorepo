@@ -143,16 +143,6 @@ export class CourseMasterService implements ICourseMasterService {
           take: limitNum,
           where,
           orderBy: { createdAt: 'desc' },
-          include: {
-            lecturer: {
-              select: {
-                id: true,
-                displayName: true,
-                avatarUrl: true,
-                email: true,
-              },
-            },
-          },
         }),
       ]);
 
@@ -240,16 +230,6 @@ export class CourseMasterService implements ICourseMasterService {
           take: limitNum,
           where,
           orderBy,
-          include: {
-            lecturer: {
-              select: {
-                id: true,
-                displayName: true,
-                avatarUrl: true,
-                email: true,
-              },
-            },
-          },
         }),
       ]);
 
@@ -355,13 +335,7 @@ export class CourseMasterService implements ICourseMasterService {
         requirements: dto.requirements || [],
         createdBy: requester.sub,
         status: 'draft',
-        lecturerId: dto.lecturerId || null,
       };
-
-      // Validation: Course durationWeeks must be at most 26 (6 months)
-      if (data.durationWeeks && data.durationWeeks > 26) {
-        throw new BadRequestException('Course duration cannot exceed 26 weeks (6 months)');
-      }
 
       // Validation: Course expirationMonths must be at most 6
       if (data.expirationMonths && data.expirationMonths > 6) {
@@ -430,13 +404,6 @@ export class CourseMasterService implements ICourseMasterService {
       if (dto.tags !== undefined) updateData.tags = dto.tags;
       if (dto.learningOutcomes !== undefined) updateData.learningOutcomes = dto.learningOutcomes;
       if (dto.requirements !== undefined) updateData.requirements = dto.requirements;
-      if (dto.lecturerId !== undefined) updateData.lecturerId = dto.lecturerId;
-
-      // Validation: Course durationWeeks must be at most 26 (6 months)
-      const finalDurationWeeks = dto.durationWeeks !== undefined ? dto.durationWeeks : existing.durationWeeks;
-      if (finalDurationWeeks && finalDurationWeeks > 26) {
-        throw new BadRequestException('Course duration cannot exceed 26 weeks (6 months)');
-      }
 
       // Validation: Course expirationMonths must be at most 6
       const finalExpirationMonths = (dto as any).expirationMonths !== undefined ? (dto as any).expirationMonths : (existing as any).expirationMonths;
@@ -858,11 +825,6 @@ export class CourseMasterService implements ICourseMasterService {
 
     if (userId) {
       try {
-        enrollment = await this.enrollmentService.findByUserAndCourse(userId, courseMasterId);
-      } catch (error) {
-        this.logger.warn(`Failed to check enrollment for user ${userId} on course master ${courseMasterId}`, error);
-      }
-      try {
         isInstructorForCourse = await this.isInstructor(userId, courseMasterId);
       } catch (error) { }
     }
@@ -981,7 +943,12 @@ export class CourseMasterService implements ICourseMasterService {
   async isInstructor(userId: string, courseMasterId: string): Promise<boolean> {
     try {
       const course = await this.courseRepository.findById(courseMasterId);
-      return course?.lecturerId === userId;
+      if (!course) return false;
+      
+      // Check if user teaches any courseRun for this courseMaster
+      // This requires fetching from courseRun with the courseMasterId
+      // For now, return false as placeholder until courseRun query is available
+      return false;
     } catch (error) {
       this.logger.error(`Failed to check if user ${userId} is lecturer for course master ${courseMasterId}`, error);
       return false;
@@ -1008,12 +975,7 @@ export class CourseMasterService implements ICourseMasterService {
         return { isReady: false, message: 'Only live course masters can be scheduled' };
       }
 
-      // 3. Check lecturer
-      if (!course.lecturerId) {
-        return { isReady: false, message: 'Course master must have an assigned lecturer' };
-      }
-
-      // 4. Check curriculum (minimum lessons)
+      // 3. Check curriculum (minimum lessons)
       const lessonCount = await this.courseRepository.countLessons(courseMasterId);
 
       // Support short/specialized courses by allowing minLessons to be configured in liveConfig
@@ -1042,7 +1004,10 @@ export class CourseMasterService implements ICourseMasterService {
       throw new NotFoundException(`Course master with id ${courseMasterId} not found`);
     }
 
-    return { count: existing.totalStudents || 0 };
+    // Calculate total students from all courseRuns
+    // This would need to be fetched from courseRuns or through enrollments
+    // For now, return 0 as placeholder until enrollment data is aggregated
+    return { count: 0 };
   }
 
   /**

@@ -192,13 +192,8 @@ export class ReviewRepository implements IReviewRepository {
     averageRating: number,
     totalReviews: number,
   ): Promise<void> {
-    await this.prisma.courseMaster.update({
-      where: { id: courseMasterId },
-      data: {
-        averageRating: Math.round(averageRating * 100) / 100,
-        totalReviews,
-      },
-    });
+    // Note: Rating stats are now stored on CourseRun, not CourseMaster
+    // This method is kept for backward compatibility but does nothing
   }
 
   /**

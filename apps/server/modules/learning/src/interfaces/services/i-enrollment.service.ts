@@ -28,6 +28,16 @@ export interface IEnrollmentService {
     findByUserAndCourseRun(userId: string, courseRunId: string): Promise<EnrollmentResponseDTO | null>;
 
     /**
+     * Find any active enrollment by user and course master
+     */
+    findByUserAndCourseMaster(userId: string, courseMasterId: string): Promise<EnrollmentResponseDTO | null>;
+
+    /**
+     * Find all enrollments by user and course master
+     */
+    findAllByUserAndCourseMaster(userId: string, courseMasterId: string): Promise<EnrollmentResponseDTO[]>;
+
+    /**
      * Check enrollment details including version update info
      */
     checkEnrollmentDetails(userId: string, courseRunId: string): Promise<{ isEnrolled: boolean; enrollment: EnrollmentResponseDTO | null; hasNewerVersion: boolean }>;

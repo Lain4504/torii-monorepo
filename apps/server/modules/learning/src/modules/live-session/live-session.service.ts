@@ -348,25 +348,23 @@ export class LiveSessionService implements ILiveSessionService {
         let hasAccess = isAdmin || isLecturer || isStaff;
 
         if (!hasAccess) {
-            // Check enrollment for student
-            const enrollment = await this.prisma.enrollment.findUnique({
+            // Check enrollments for student in any course run of this session's course
+            const enrollments = await this.prisma.enrollment.findMany({
                 where: {
-                    userId_courseMasterId: {
-                        userId: requester.sub,
+                    userId: requester.sub,
+                    courseRun: {
                         courseMasterId: session.courseMasterId,
                     },
                 },
-                include: { course: true },
+                include: { courseRun: true },
             });
-            if (enrollment) {
+            
+            if (enrollments.length > 0) {
+                // Check if any enrollment is still valid
+                const enrollment = enrollments[0];
                 // Block if enrollment has expired
                 if (enrollment.expiresAt && enrollment.expiresAt < new Date()) {
                     throw new ForbiddenException('Your enrollment has expired');
-                }
-                // Block if course hasn't started yet
-                const course = enrollment.course as any;
-                if (course?.startDate && new Date() < new Date(course.startDate)) {
-                    throw new ForbiddenException('This course has not started yet');
                 }
                 hasAccess = true;
             }

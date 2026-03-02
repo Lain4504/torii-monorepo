@@ -245,6 +245,33 @@ export class EnrollmentService implements IEnrollmentService {
     }
 
     /**
+     * Find any active enrollment by user and course master
+     */
+    async findByUserAndCourseMaster(userId: string, courseMasterId: string): Promise<EnrollmentResponseDTO | null> {
+        try {
+            const item = await this.enrollmentRepository.findByUserAndCourseMaster(userId, courseMasterId);
+            if (!item) return null;
+            return this.toEnrollmentDto(item);
+        } catch (error: any) {
+            this.logger.error(`Error fetching enrollment by course master: ${error.message}`, error.stack);
+            return null;
+        }
+    }
+
+    /**
+     * Find all enrollments by user and course master
+     */
+    async findAllByUserAndCourseMaster(userId: string, courseMasterId: string): Promise<EnrollmentResponseDTO[]> {
+        try {
+            const items = await this.enrollmentRepository.findAllByUserAndCourseMaster(userId, courseMasterId);
+            return items.map(item => this.toEnrollmentDto(item));
+        } catch (error: any) {
+            this.logger.error(`Error fetching enrollments by course master: ${error.message}`, error.stack);
+            return [];
+        }
+    }
+
+    /**
      * Check enrollment details including version update info
      */
     async checkEnrollmentDetails(userId: string, courseRunId: string): Promise<{ isEnrolled: boolean; enrollment: EnrollmentResponseDTO | null; hasNewerVersion: boolean }> {

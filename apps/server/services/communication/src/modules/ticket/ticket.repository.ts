@@ -14,7 +14,6 @@ export class TicketRepository implements ITicketRepository {
                 type: data.type as any,
                 subject: data.subject,
                 description: data.description,
-                courseMasterId: data.courseMasterId,
                 courseRunId: data.courseRunId,
                 metadata: data.metadata || {},
                 status: TicketStatus.PENDING as any,
@@ -47,14 +46,13 @@ export class TicketRepository implements ITicketRepository {
     async findAll(query: TicketQueryDTO): Promise<{ data: any[]; total: number }> {
         const page = Number(query.page) || 1;
         const limit = Number(query.limit) || 10;
-        const { type, status, userId, courseMasterId, courseRunId, search } = query;
+        const { type, status, userId, courseRunId, search } = query;
         const skip = (page - 1) * limit;
 
         const where: any = {};
         if (type) where.type = type;
         if (status) where.status = status;
         if (userId) where.userId = userId;
-        if (courseMasterId) where.courseMasterId = courseMasterId;
         if (courseRunId) where.courseRunId = courseRunId;
         if (search) {
             where.OR = [

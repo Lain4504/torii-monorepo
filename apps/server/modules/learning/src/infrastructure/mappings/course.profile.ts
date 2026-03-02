@@ -63,21 +63,10 @@ export class CourseProfile extends AutomapperProfile {
           (dest: CourseMasterResponseDTO) => dest.previewVideoUrl,
           mapFrom((src: CourseMaster) => src.previewVideoUrl || undefined),
         ),
-        forMember(
-          (dest: CourseMasterResponseDTO) => dest.price,
-          mapFrom((src: CourseMaster) => Number(src.price)),
-        ),
-        forMember(
-          (dest: CourseMasterResponseDTO) => dest.discountPrice,
-          mapFrom((src: CourseMaster) => (src.discountPrice ? Number(src.discountPrice) : undefined)),
-        ),
+
         forMember(
           (dest: CourseMasterResponseDTO) => dest.liveConfig,
           mapFrom((src: CourseMaster) => (src.liveConfig as any) || undefined),
-        ),
-        forMember(
-          (dest: CourseMasterResponseDTO) => dest.durationWeeks,
-          mapFrom((src: CourseMaster) => src.durationWeeks || undefined),
         ),
         forMember(
           (dest: CourseMasterResponseDTO) => dest.totalLessons,
@@ -88,25 +77,10 @@ export class CourseProfile extends AutomapperProfile {
           mapFrom((src: CourseMaster) => src.totalQuizzes),
         ),
         forMember(
-          (dest: CourseMasterResponseDTO) => dest.totalStudents,
-          mapFrom((src: CourseMaster) => src.totalStudents),
-        ),
-        forMember(
-          (dest: CourseMasterResponseDTO) => dest.averageRating,
-          mapFrom((src: CourseMaster) => Number(src.averageRating)),
-        ),
-        forMember(
-          (dest: CourseMasterResponseDTO) => dest.totalReviews,
-          mapFrom((src: CourseMaster) => src.totalReviews),
-        ),
-        forMember(
           (dest: CourseMasterResponseDTO) => dest.status,
           mapFrom((src: CourseMaster) => (src as any).status as CourseMasterStatus),
         ),
-        forMember(
-          (dest: CourseMasterResponseDTO) => dest.isFree,
-          mapFrom((src: CourseMaster) => src.isFree),
-        ),
+
         forMember(
           (dest: CourseMasterResponseDTO) => dest.tags,
           mapFrom((src: CourseMaster) => src.tags),
@@ -142,21 +116,6 @@ export class CourseProfile extends AutomapperProfile {
         forMember(
           (dest: CourseMasterResponseDTO) => dest.deletedAt,
           mapFrom((src: CourseMaster) => src.deletedAt || undefined),
-        ),
-        forMember(
-          (dest: CourseMasterResponseDTO) => dest.lecturer,
-          mapFrom((src: CourseMaster) => {
-            const lecturer = (src as any).lecturer;
-            if (lecturer) {
-              return {
-                id: lecturer.id,
-                displayName: lecturer.displayName,
-                avatarUrl: lecturer.avatarUrl || undefined,
-                email: lecturer.email || undefined,
-              };
-            }
-            return undefined;
-          }),
         ),
       );
     };

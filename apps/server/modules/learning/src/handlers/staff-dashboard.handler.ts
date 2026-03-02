@@ -45,9 +45,9 @@ export class StaffDashboardHandler {
                 },
             }),
 
-            // Total unique lecturers assigned to courses
-            this.prisma.courseMaster.findMany({
-                where: { lecturerId: { not: null }, deletedAt: null },
+            // Total unique lecturers assigned to course runs
+            this.prisma.courseRun.findMany({
+                where: { lecturerId: { not: null } },
                 select: { lecturerId: true },
                 distinct: ['lecturerId'],
             }).then(lecturers => lecturers.length),

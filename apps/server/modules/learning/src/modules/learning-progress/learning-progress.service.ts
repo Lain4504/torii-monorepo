@@ -39,17 +39,16 @@ export class LearningProgressService implements ILearningProgressService {
                 completionStatus: { in: [EnrollmentStatus.IN_PROGRESS, EnrollmentStatus.COMPLETED] as any },
             },
             include: {
-                course: {
-                    select: {
-                        id: true,
-                        title: true,
-                        slug: true,
-                        thumbnailUrl: true,
-                        totalLessons: true,
-                        type: true,
-                        lecturer: {
+                courseRun: {
+                    include: {
+                        courseMaster: {
                             select: {
-                                displayName: true
+                                id: true,
+                                title: true,
+                                slug: true,
+                                thumbnailUrl: true,
+                                totalLessons: true,
+                                type: true,
                             }
                         }
                     }
@@ -140,8 +139,8 @@ export class LearningProgressService implements ILearningProgressService {
         if (!module) throw new NotFoundException('Module not found for lesson');
         const courseMasterId = module.courseMasterId;
 
-        // 2. Find Enrollment
-        const enrollment = await this.enrollmentRepo.findByUserAndCourse(userId, courseMasterId);
+        // 2. Find Enrollment - get any active enrollment for this user in any course run of this master
+        const enrollment = await this.enrollmentRepo.findByUserAndCourseMaster(userId, courseMasterId);
 
         if (!enrollment) {
             throw new BadRequestException('User is not enrolled in this course');
@@ -289,7 +288,7 @@ export class LearningProgressService implements ILearningProgressService {
 
     async getCompletedLessons(userId: string, courseMasterId: string): Promise<string[]> {
         // Find enrollment for this user and course
-        const enrollment = await this.enrollmentRepo.findByUserAndCourse(userId, courseMasterId);
+        const enrollment = await this.enrollmentRepo.findByUserAndCourseMaster(userId, courseMasterId);
 
         if (!enrollment) {
             return [];

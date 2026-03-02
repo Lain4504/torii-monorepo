@@ -30,8 +30,8 @@ export class WishlistProfile extends AutomapperProfile {
                     mapFrom((src) => src.userId),
                 ),
                 forMember(
-                    (dest) => dest.courseId,
-                    mapFrom((src) => src.courseId),
+                    (dest) => dest.courseRunId,
+                    mapFrom((src) => src.courseRunId),
                 ),
                 forMember(
                     (dest) => dest.addedAt,

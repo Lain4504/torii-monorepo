@@ -65,13 +65,9 @@ model CourseMaster {
   // All transactions happen at the Run level
   
   liveConfig           Json?              @map("live_config")
-  durationWeeks       Int?               @map("duration_weeks")
   expirationMonths    Int?               @map("expiration_months")
   totalLessons         Int                @default(0) @map("total_lessons")
   totalQuizzes         Int                @default(0) @map("total_quizzes")
-  totalStudents        Int                @default(0) @map("total_students")
-  averageRating       Float              @default(0) @map("average_rating")
-  totalReviews         Int                @default(0) @map("total_reviews")
   status               CourseMasterStatus @default(draft)
   rejectionReason      String?            @map("rejection_reason") @db.Text
   tags                 String[]           @default([]) @db.VarChar(50)
@@ -96,15 +92,11 @@ model CourseMaster {
   certificates      Certificate[]
   versions          CourseVersion[]
   courseRuns        CourseRun[]
-  lecturerId        String?            @map("lecturer_id") @db.Uuid
-  lecturer          User?              @relation("CourseMastersTaught", fields: [lecturerId], references: [id], onDelete: SetNull)
-
 
 
   @@index([jlptLevel])
   @@index([createdBy])
   @@index([approvedBy])
-  @@index([lecturerId])
   @@map("course_masters")
 }
 
@@ -702,7 +694,6 @@ model User {
   certificates            Certificate[]
   balance                 UserBalance?
 
-  coursesTaught CourseMaster[] @relation("CourseMastersTaught") // Mối quan hệ mới
   runsTaught    CourseRun[]    @relation("RunLecturer")
 
   // Gamification Relations

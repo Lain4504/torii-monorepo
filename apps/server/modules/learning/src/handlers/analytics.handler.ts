@@ -13,12 +13,10 @@ export class AnalyticsHandler {
             this.prisma.enrollment.count(),
             this.prisma.courseMaster.findMany({
                 where: { deletedAt: null, status: 'published' },
-                orderBy: { totalStudents: 'desc' },
                 take: 5,
                 select: {
                     id: true,
                     title: true,
-                    totalStudents: true,
                     jlptLevel: true,
                     thumbnailUrl: true
                 }

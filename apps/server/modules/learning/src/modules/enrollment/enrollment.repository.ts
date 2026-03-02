@@ -37,6 +37,40 @@ export class EnrollmentRepository implements IEnrollmentRepository {
     }
 
     /**
+     * Find any active enrollment by user and course master
+     * Useful when courseRunId is unknown but we have courseMasterId
+     */
+    async findByUserAndCourseMaster(userId: string, courseMasterId: string): Promise<Enrollment | null> {
+        return this.prisma.enrollment.findFirst({
+            where: {
+                userId,
+                courseRun: {
+                    courseMasterId,
+                },
+                completionStatus: {
+                    in: ['ACTIVE', 'IN_PROGRESS'] as any,
+                },
+            },
+            orderBy: { enrollmentDate: 'desc' },
+        });
+    }
+
+    /**
+     * Find all enrollments by user and course master
+     */
+    async findAllByUserAndCourseMaster(userId: string, courseMasterId: string): Promise<Enrollment[]> {
+        return this.prisma.enrollment.findMany({
+            where: {
+                userId,
+                courseRun: {
+                    courseMasterId,
+                },
+            },
+            orderBy: { enrollmentDate: 'desc' },
+        });
+    }
+
+    /**
      * Find all enrollments with pagination and filters
      */
     async findMany(options: {
