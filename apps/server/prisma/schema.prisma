@@ -1686,6 +1686,10 @@ model UserBalance {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String   @unique @map("user_id") @db.Uuid
   balance   Int      @default(0)
+  
+  aiRoleplayTrialLimit    Int @default(3) @map("ai_roleplay_trial_limit")
+  liveMeetingTrialLimit   Int @default(3) @map("live_meeting_trial_limit")
+
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -151,9 +151,9 @@ export class AssessmentService implements OnModuleInit {
                     score,
                     maxScore,
                     percentage,
-                    feedback: aiParsed.feedback || "",
+                    feedback: aiParsed.data.feedback || "",
                     details: details.map(d => {
-                        const aiDetail = aiParsed.details?.find((ad: any) => ad.questionId === d.questionId);
+                        const aiDetail = aiParsed.data.details?.find((ad: any) => ad.questionId === d.questionId);
                         return {
                             ...d,
                             explanation: aiDetail?.explanation || ""
@@ -296,11 +296,11 @@ export class AssessmentService implements OnModuleInit {
                 return {
                     userId,
                     assessedLevel: suggestedLevel,
-                    targetLevel: aiParsed.targetLevel || levels[levels.indexOf(suggestedLevel) + 1] || 'N1',
+                    targetLevel: aiParsed.data.targetLevel || levels[levels.indexOf(suggestedLevel) + 1] || 'N1',
                     scoreBreakdown,
                     score: totalCorrect,
                     maxScore: userAnswers.length,
-                    studyPathRecommendation: aiParsed.studyPathRecommendation || {}
+                    studyPathRecommendation: aiParsed.data.studyPathRecommendation || {}
                 };
             }
         );

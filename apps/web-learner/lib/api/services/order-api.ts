@@ -62,7 +62,7 @@ export const orderApi = {
     /**
      * Get user balance transaction history (internal coins)
      */
-    async getBalanceHistory(params: { page?: number; limit?: number; type?: string } = {}): Promise<BalanceTransactionPaginatedResponse> {
+    async getBalanceHistory(params: { page?: number; limit?: number; type?: string; aiOnly?: boolean } = {}): Promise<BalanceTransactionPaginatedResponse> {
         const response = await apiClient.get<StandardApiResponse<BalanceTransactionPaginatedResponse>>('/api/orders/wallet/balance-history', {
             params,
         });
@@ -108,10 +108,21 @@ export function useOrder(id: string) {
 /**
  * Hook: Get balance history
  */
-export function useBalanceHistory(params: { page?: number; limit?: number; type?: string } = {}) {
+export function useBalanceHistory(params: { page?: number; limit?: number; type?: string; aiOnly?: boolean } = {}) {
     return useQuery({
         queryKey: ['balance-history', params],
         queryFn: () => orderApi.getBalanceHistory(params),
+        staleTime: 30000,
+    });
+}
+
+/**
+ * Hook: Get AI usage (token billing) history
+ */
+export function useAiUsageHistory(params: { page?: number; limit?: number } = {}) {
+    return useQuery({
+        queryKey: ['ai-usage-history', params],
+        queryFn: () => orderApi.getBalanceHistory({ ...params, aiOnly: true }),
         staleTime: 30000,
     });
 }

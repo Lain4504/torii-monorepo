@@ -151,6 +151,21 @@ export const fetchProfile = createAsyncThunk(
     }
 );
 
+export const refreshBalance = createAsyncThunk(
+    'auth/refreshBalance',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await apiClient.get('/api/orders/wallet/balance');
+            if (response.data.success && response.data.data?.balance !== undefined) {
+                return response.data.data.balance as number;
+            }
+            return rejectWithValue('Failed to refresh balance');
+        } catch {
+            return rejectWithValue('Failed to refresh balance');
+        }
+    }
+);
+
 export const authSlice = createSlice({
     name: 'auth',
     initialState,
@@ -163,7 +178,12 @@ export const authSlice = createSlice({
             state.user = null;
             state.status = 'idle';
             state.error = null;
-        }
+        },
+        updateUserBalance: (state, action) => {
+            if (state.user) {
+                (state.user as any).balance = action.payload;
+            }
+        },
     },
     extraReducers: (builder) => {
         // Login
@@ -260,9 +280,17 @@ export const authSlice = createSlice({
             .addCase(fetchProfile.rejected, (state, action) => {
                 state.error = action.payload as string || 'Failed to fetch profile';
             });
+
+        // Refresh Balance
+        builder
+            .addCase(refreshBalance.fulfilled, (state, action) => {
+                if (state.user) {
+                    (state.user as any).balance = action.payload;
+                }
+            });
     },
 });
 
-export const { clearError, resetAuth } = authSlice.actions;
+export const { clearError, resetAuth, updateUserBalance } = authSlice.actions;
 
 export default authSlice.reducer;

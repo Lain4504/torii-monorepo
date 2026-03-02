@@ -112,13 +112,15 @@ const ConfigSchema = z.object({
         enabled: z.boolean().default(false),
         maxTranscriptionLangs: z.number().default(2),
         maxChatTransLangs: z.number().default(5),
+        coinRatePerUSD: z.number().default(25000),
         contextWindow: z.number().default(5), // Default context window for AI chat history
         services: z.record(z.enum([
             'transcription',
             'translation',
             'speech-synthesis',
             'ai_text_chat',
-            'meeting_summarizing'
+            'meeting_summarizing',
+            'live_voice',
         ]), z.object({
             provider: z.string(),
             id: z.string(), // Provider account ID
