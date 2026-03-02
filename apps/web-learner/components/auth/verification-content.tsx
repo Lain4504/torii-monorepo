@@ -86,7 +86,7 @@ export function VerificationContent() {
                 <h3 className="text-xl font-bold tracking-tight">Xác thực thất bại</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-[280px]">{message}</p>
             </div>
-            <Button onClick={() => router.push('/')} variant="outline" size="lg" className="w-full max-w-[240px] h-10 font-semibold">
+            <Button onClick={() => router.push('/')} variant="outline" size="lg" className="w-full max-w-[240px] font-semibold">
                 Trở về trang chủ
             </Button>
         </div>

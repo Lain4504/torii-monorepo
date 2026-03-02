@@ -174,7 +174,7 @@ export default function TwoFactorVerifyPage() {
                                             id={field.name}
                                             placeholder={useBackupCode ? "XXXXXXXX" : "000000"}
                                             maxLength={useBackupCode ? 8 : 6}
-                                            className="h-10 px-3 pl-11 text-center text-2xl font-mono tracking-[0.3em] rounded-2xl border-border/40 bg-muted/20 hover:bg-muted/30 focus:border-primary/40 transition-all placeholder:text-muted-foreground/20 shadow-sm"
+                                            className="pl-11 text-center text-2xl font-mono tracking-[0.3em] rounded-2xl border-border/40 bg-muted/20 hover:bg-muted/30 focus:border-primary/40 transition-all placeholder:text-muted-foreground/20 shadow-sm"
                                             autoComplete="off"
                                             autoFocus
                                         />
@@ -206,7 +206,7 @@ export default function TwoFactorVerifyPage() {
                     <Button
                         type="submit"
                         size="lg"
-                        className="w-full h-10 font-medium text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 active:scale-95 transition-all duration-300"
+                        className="w-full font-medium text-sm shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:-translate-y-0.5 active:scale-95 transition-all duration-300"
                         disabled={isLoading}
                     >
                         {isLoading ? (

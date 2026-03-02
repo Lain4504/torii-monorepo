@@ -128,7 +128,7 @@ export function LoginForm() {
                     type="button"
                     variant="outline"
                     size="lg"
-                    className="w-full gap-2 h-10"
+                    className="w-full gap-2"
                     onClick={handleGoogleButtonClick}
                     disabled={isLoading || googleLoading}
                 >
@@ -167,7 +167,6 @@ export function LoginForm() {
                                     type="email"
                                     placeholder="yourname@domain.com"
                                     autoComplete="email"
-                                    className="h-10 px-3"
                                 />
                                 <FieldError errors={[fieldState.error]} />
                             </Field>
@@ -195,7 +194,7 @@ export function LoginForm() {
                                         type={showPassword ? 'text' : 'password'}
                                         placeholder="••••••••"
                                         autoComplete="current-password"
-                                        className="h-10 px-3 pr-10"
+                                        className="pr-10"
                                     />
                                     <Button
                                         type="button"
@@ -225,7 +224,7 @@ export function LoginForm() {
                 </div>
 
                 {/* Submit Button */}
-                <Button type="submit" size="lg" className="w-full h-10 text-base font-semibold" disabled={isLoading || googleLoading}>
+                <Button type="submit" size="lg" className="w-full text-base font-semibold" disabled={isLoading || googleLoading}>
                     {isLoading && <Spinner className="mr-2" />}
                     Đăng nhập
                 </Button>

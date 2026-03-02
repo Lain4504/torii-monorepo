@@ -152,7 +152,7 @@ export default function TwoFactorVerifyPage() {
                                             id={field.name}
                                             placeholder={useBackupCode ? "XXXXXXXX" : "000000"}
                                             maxLength={useBackupCode ? 8 : 6}
-                                            className="text-center text-2xl tracking-[0.5em] font-mono h-10 px-3"
+                                            className="text-center text-2xl tracking-[0.5em] font-mono"
                                             autoComplete="off"
                                             autoFocus
                                         />
@@ -161,7 +161,7 @@ export default function TwoFactorVerifyPage() {
                                 )}
                             />
 
-                            <Button type="submit" size="lg" className="w-full h-10 text-base font-semibold" disabled={isLoading}>
+                            <Button type="submit" size="lg" className="w-full text-base font-semibold" disabled={isLoading}>
                                 {isLoading && <Spinner className="mr-2" />}
                                 Xác thực
                             </Button>

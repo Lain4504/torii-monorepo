@@ -216,10 +216,10 @@ export function Header() {
                         </div>
                         {!isAuthenticated && (
                             <div className="grid grid-cols-2 gap-3 mt-4">
-                                <Button variant="outline" size="lg" className="w-full text-base font-bold h-10" asChild>
+                                <Button variant="outline" size="lg" className="w-full text-base font-bold" asChild>
                                     <Link href="/login" onClick={() => setMobileMenuOpen(false)}>Đăng nhập</Link>
                                 </Button>
-                                <Button size="lg" className="w-full text-base font-bold h-10" asChild>
+                                <Button size="lg" className="w-full text-base font-bold" asChild>
                                     <Link href="/register" onClick={() => setMobileMenuOpen(false)}>Tham gia ngay</Link>
                                 </Button>
                             </div>

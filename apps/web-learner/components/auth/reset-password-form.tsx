@@ -119,7 +119,7 @@ function ResetPasswordFormContent() {
                         Liên kết đặt lại mật khẩu đã hết hạn hoặc không hợp lệ. Vui lòng yêu cầu một liên kết mới.
                     </AlertDescription>
                 </Alert>
-                <Button asChild size="lg" className="w-full h-10 text-base font-semibold">
+                <Button asChild size="lg" className="w-full text-base font-semibold">
                     <Link href="/forgot-password">Yêu cầu liên kết mới</Link>
                 </Button>
             </div>
@@ -142,7 +142,7 @@ function ResetPasswordFormContent() {
                                         id={field.name}
                                         type={showPassword ? 'text' : 'password'}
                                         placeholder="••••••••"
-                                        className="h-10 px-3 pr-10"
+                                        className="pr-10"
                                     />
                                     <Button
                                         type="button"
@@ -212,7 +212,7 @@ function ResetPasswordFormContent() {
                                         id={field.name}
                                         type={showConfirmPassword ? 'text' : 'password'}
                                         placeholder="••••••••"
-                                        className="h-10 px-3 pr-10"
+                                        className="pr-10"
                                     />
                                     <Button
                                         type="button"
@@ -231,7 +231,7 @@ function ResetPasswordFormContent() {
                     />
                 </FieldGroup>
 
-                <Button type="submit" size="lg" className="w-full h-10 text-base font-semibold" disabled={isLoading || strengthScore < 4}>
+                <Button type="submit" size="lg" className="w-full text-base font-semibold" disabled={isLoading || strengthScore < 4}>
                     {isLoading && <Spinner className="mr-2" />}
                     Thiết lập mật khẩu mới
                 </Button>

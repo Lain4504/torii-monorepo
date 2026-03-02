@@ -153,7 +153,6 @@ export function RegisterForm() {
                                     type="email"
                                     placeholder="futurehero@torii.jp"
                                     autoComplete="email"
-                                    className="h-10 px-3"
                                 />
                                 <FieldError errors={[fieldState.error]} />
                             </Field>
@@ -172,7 +171,7 @@ export function RegisterForm() {
                                         id={field.name}
                                         type={showPassword ? 'text' : 'password'}
                                         placeholder="••••••••"
-                                        className="h-10 px-3 pr-10"
+                                        className="pr-10"
                                     />
                                     <Button
                                         type="button"
@@ -220,7 +219,7 @@ export function RegisterForm() {
                                         id={field.name}
                                         type={showConfirmPassword ? 'text' : 'password'}
                                         placeholder="••••••••"
-                                        className="h-10 px-3 pr-10"
+                                        className="pr-10"
                                     />
                                     <Button
                                         type="button"
@@ -241,7 +240,7 @@ export function RegisterForm() {
                     />
                 </FieldGroup>
 
-                <Button type="submit" size="lg" className="w-full h-10 text-base font-semibold" disabled={isLoading || googleLoading}>
+                <Button type="submit" size="lg" className="w-full text-base font-semibold" disabled={isLoading || googleLoading}>
                     {isLoading && <Spinner className="mr-2" />}
                     Đăng ký
                 </Button>
@@ -257,7 +256,7 @@ export function RegisterForm() {
                 type="button"
                 variant="outline"
                 size="lg"
-                className="w-full gap-2 h-10"
+                className="w-full gap-2"
                 onClick={handleGoogleButtonClick}
                 disabled={isLoading || googleLoading}
             >

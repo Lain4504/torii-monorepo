@@ -62,7 +62,7 @@ export function ForgotPasswordForm() {
                         onClick={() => setEmailSent(false)}
                         variant="outline"
                         size="lg"
-                        className="w-full h-10 font-semibold"
+                        className="w-full font-semibold"
                     >
                         Gửi lại hoặc thử email khác
                     </Button>
@@ -89,14 +89,13 @@ export function ForgotPasswordForm() {
                                 type="email"
                                 placeholder="your-registered-email@domain.com"
                                 autoComplete="email"
-                                className="h-10 px-3"
                             />
                             <FieldError errors={[fieldState.error]} />
                         </Field>
                     )}
                 />
 
-                <Button type="submit" size="lg" className="w-full h-10 text-base font-semibold" disabled={isLoading}>
+                <Button type="submit" size="lg" className="w-full text-base font-semibold" disabled={isLoading}>
                     {isLoading && <Spinner className="mr-2" />}
                     Gửi link khôi phục
                 </Button>

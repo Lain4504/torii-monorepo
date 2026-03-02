@@ -49,7 +49,7 @@ export default function VerifyRequestPage() {
                     </p>
                 </div>
 
-                <Button asChild size="lg" className="w-full h-10 text-base font-semibold">
+                <Button asChild size="lg" className="w-full text-base font-semibold">
                     <Link href="/login">
                         Đăng nhập ngay
                         <ArrowRight className="ml-2 size-4" />

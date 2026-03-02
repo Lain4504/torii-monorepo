@@ -109,7 +109,6 @@ export default function LoginPage() {
                       placeholder="admin@torii.academy"
                       type="email"
                       autoComplete="email"
-                      className="h-10 px-3"
                     />
                     {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                   </Field>
@@ -140,7 +139,6 @@ export default function LoginPage() {
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
                         autoComplete="current-password"
-                        className="h-10 px-3"
                       />
                       <Button
                         type="button"
@@ -168,7 +166,7 @@ export default function LoginPage() {
                 </div>
               )}
 
-              <Button type="submit" size="lg" className="w-full h-10 text-base font-semibold" disabled={loading}>
+              <Button type="submit" size="lg" className="w-full text-base font-semibold" disabled={loading}>
                 {loading && <Spinner className="mr-2" />}
                 Đăng nhập
               </Button>

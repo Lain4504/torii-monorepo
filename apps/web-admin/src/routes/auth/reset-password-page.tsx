@@ -72,7 +72,6 @@ export default function ResetPasswordPage() {
                                 <Input
                                     id="password"
                                     type="password"
-                                    className="h-10 px-3"
                                     {...register('password')}
                                 />
                                 {errors.password && <p className="text-red-500">{errors.password.message}</p>}
@@ -82,12 +81,11 @@ export default function ResetPasswordPage() {
                                 <Input
                                     id="confirmPassword"
                                     type="password"
-                                    className="h-10 px-3"
                                     {...register('confirmPassword')}
                                 />
                                 {errors.confirmPassword && <p className="text-red-500">{errors.confirmPassword.message}</p>}
                             </Field>
-                            <Button type="submit" size="lg" className="w-full h-10 text-base font-semibold" disabled={mutation.isPending}>
+                            <Button type="submit" size="lg" className="w-full text-base font-semibold" disabled={mutation.isPending}>
                                 {mutation.isPending ? 'Đang xử lý...' : 'Đặt lại mật khẩu'}
                             </Button>
                         </FieldGroup>

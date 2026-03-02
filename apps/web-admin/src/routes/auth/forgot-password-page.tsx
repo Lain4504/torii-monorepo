@@ -93,13 +93,12 @@ export default function ForgotPasswordPage() {
                                                 placeholder="admin@torii.academy"
                                                 type="email"
                                                 autoComplete="email"
-                                                className="h-10 px-3"
                                             />
                                             {fieldState.error && <p className="text-sm text-destructive">{fieldState.error?.message}</p>}
                                         </div>
                                     )}
                                 />
-                                <Button type="submit" size="lg" className="w-full h-10 text-base font-semibold" disabled={isLoading}>
+                                <Button type="submit" size="lg" className="w-full text-base font-semibold" disabled={isLoading}>
                                     {isLoading && <Spinner className="mr-2" />}
                                     Gửi liên kết
                                 </Button>
