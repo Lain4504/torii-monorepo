@@ -22,6 +22,10 @@ export class CourseHandler {
 
     @MessagePattern({ cmd: 'learning.course.advancedSearch' })
     async advancedSearch(@Payload() query: any) {
+        // Parse levels from comma-separated string to array
+        if (query.levels && typeof query.levels === 'string') {
+            query.levels = query.levels.split(',').filter(Boolean);
+        }
         return this.courseService.advancedSearch(query);
     }
 
@@ -42,7 +46,7 @@ export class CourseHandler {
 
     @MessagePattern({ cmd: 'learning.course.getCurriculum' })
     async getCurriculum(@Payload() data: { id: string, requester?: Requester }) {
-        return this.courseService.getCurriculum(data.id, data.requester?.sub);
+        return this.courseService.getCurriculum(data.id, data.requester);
     }
 
     @MessagePattern({ cmd: 'learning.course.update' })
@@ -89,5 +93,10 @@ export class CourseHandler {
     @MessagePattern({ cmd: 'learning.course.recalculate_stats' })
     async recalculateStats(@Payload() data: { courseId: string }) {
         return this.courseService.recalculateStats(data.courseId);
+    }
+
+    @MessagePattern({ cmd: 'learning.course.validateScheduling' })
+    async validateScheduling(@Payload() data: { id: string }) {
+        return this.courseService.validateForScheduling(data.id);
     }
 }

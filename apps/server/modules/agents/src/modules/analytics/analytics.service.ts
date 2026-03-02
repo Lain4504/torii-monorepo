@@ -1,9 +1,23 @@
-import { Injectable, Logger, OnModuleInit, Inject } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, OnModuleDestroy, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { FastMcpService } from '../../fastmcp/fastmcp.service';
 import { z } from 'zod';
 import { AgentReadinessProfileResponseSchema, AgentStudyPathResponseSchema, Requester } from '@workspace/schemas';
+import Redis from 'ioredis';
+import { AppConfigService } from '@server/shared';
+
+const SNAPSHOT_TTL_SECONDS = 24 * 60 * 60; // 24 hours
+const SNAPSHOT_KEY = (userId: string, targetLevel: string) =>
+    `analytics:snapshot:${userId}:${targetLevel}`;
+
+export interface AnalyticsSnapshotCache {
+    progressData: any;
+    studyPathData: any;
+    profileData: any;
+    generatedAt: string; // ISO string
+    targetLevel: string;
+}
 
 import { AIUsageTrackingService } from './ai-usage-tracking.service';
 
@@ -11,8 +25,9 @@ import { PrismaService, AppConfigService } from '@server/shared';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
-export class AnalyticsService implements OnModuleInit {
+export class AnalyticsService implements OnModuleInit, OnModuleDestroy {
     private readonly logger = new Logger(AnalyticsService.name);
+    private redis: Redis;
 
     constructor(
         private readonly fastMcpService: FastMcpService,
@@ -20,6 +35,7 @@ export class AnalyticsService implements OnModuleInit {
         private readonly prisma: PrismaService,
         private readonly appConfig: AppConfigService,
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+        private readonly appConfig: AppConfigService,
     ) { }
 
     private async deductCoins(userId: string, taskType: string, usage: any) {
@@ -40,8 +56,110 @@ export class AnalyticsService implements OnModuleInit {
     }
 
     onModuleInit() {
-        this.registerTools();
+    async onModuleInit() {
+            // Init Redis connection
+            const redisUrl = process.env.REDIS_URL || process.env.REDIS_URI || 'redis://localhost:6379';
+            this.redis = new Redis(redisUrl, {
+                lazyConnect: true,
+                maxRetriesPerRequest: 3,
+                enableReadyCheck: false,
+            });
+
+            try {
+                await this.redis.connect();
+                this.logger.log('✅ Redis connected for analytics cache');
+            } catch (err) {
+                this.logger.warn(`⚠️ Redis connection failed — analytics will run without cache: ${err.message}`);
+            }
+
+            this.registerTools();
+        }
+
+    async onModuleDestroy() {
+            if (this.redis?.status === 'ready') {
+                await this.redis.quit();
+            }
+        }
+
+    // ── Redis helpers ────────────────────────────────────────────────────────
+
+    private async getCached(userId: string, targetLevel: string): Promise<AnalyticsSnapshotCache | null> {
+        try {
+            const raw = await this.redis.get(SNAPSHOT_KEY(userId, targetLevel));
+            if (!raw) return null;
+            const parsed: AnalyticsSnapshotCache = JSON.parse(raw);
+            return parsed;
+        } catch {
+            return null;
+        }
     }
+
+    private async setCache(userId: string, targetLevel: string, data: AnalyticsSnapshotCache): Promise<void> {
+        try {
+            await this.redis.set(
+                SNAPSHOT_KEY(userId, targetLevel),
+                JSON.stringify(data),
+                'EX', SNAPSHOT_TTL_SECONDS
+            );
+        } catch (err) {
+            this.logger.warn(`⚠️ Failed to write analytics cache: ${err.message}`);
+        }
+    }
+
+    // ── Public cache methods ─────────────────────────────────────────────────
+
+    /**
+     * getSnapshot — đọc cache từ Redis. Trả về null nếu không có hoặc đã expire (auto-handled by Redis TTL).
+     */
+    async getSnapshot(requester: Requester, targetLevel: string = 'N5'): Promise<{
+        snapshot: AnalyticsSnapshotCache | null;
+        isStale: boolean;
+    }> {
+        const snapshot = await this.getCached(requester.sub, targetLevel);
+        return {
+            snapshot,
+            isStale: !snapshot,
+        };
+    }
+
+    /**
+     * generateAndSaveSnapshot — gọi 3 AI APIs song song, lưu vào Redis với TTL 24h.
+     * Chỉ nên gọi khi user explicitly yêu cầu phân tích AI.
+     */
+    async generateAndSaveSnapshot(requester: Requester, targetLevel: string = 'N5'): Promise<AnalyticsSnapshotCache> {
+        this.logger.log(`🤖 Generating AI snapshot for user ${requester.sub} (${targetLevel})`);
+
+        // Gọi song song 3 AI tools
+        const [progressData, studyPathData, profileData] = await Promise.all([
+            this.fastMcpService.callTool('analytics_track_progress', {
+                userId: requester.sub,
+                timeframe: 'month',
+            }),
+            this.fastMcpService.callTool('analytics_suggest_study_path', {
+                userId: requester.sub,
+                targetLevel,
+            }),
+            this.fastMcpService.callTool('analytics_get_readiness_profile', {
+                userId: requester.sub,
+                targetLevel,
+            }),
+        ]);
+
+        const snapshot: AnalyticsSnapshotCache = {
+            progressData,
+            studyPathData,
+            profileData,
+            generatedAt: new Date().toISOString(),
+            targetLevel,
+        };
+
+        await this.setCache(requester.sub, targetLevel, snapshot);
+        this.logger.log(`✅ AI snapshot generated & cached for user ${requester.sub} (TTL: 24h)`);
+
+        return snapshot;
+    }
+
+    // ── Tool registration & legacy methods ───────────────────────────────────
 
     private registerTools() {
         // 1. Track Progress
@@ -178,7 +296,7 @@ export class AnalyticsService implements OnModuleInit {
         );
     }
 
-    // --- Public Methods (Delegate to Tools) ---
+    // --- Legacy Public Methods (Delegate to Tools) ---
 
     async trackProgress(requester: Requester, timeframe: 'week' | 'month' | 'quarter' | 'year' = 'month'): Promise<any> {
         return this.fastMcpService.callTool('analytics_track_progress', { userId: requester.sub, timeframe });

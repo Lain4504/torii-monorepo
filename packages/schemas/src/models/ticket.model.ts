@@ -9,8 +9,8 @@ export enum TicketType {
 export enum TicketStatus {
     PENDING = 'PENDING',
     PROCESSING = 'PROCESSING',
-    APPROVED = 'APPROVED',
-    REJECTED = 'REJECTED',
+    RESOLVED = 'RESOLVED',
+    CANCELLED = 'CANCELLED',
 }
 
 export const ticketSchema = z.object({

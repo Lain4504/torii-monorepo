@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -8,24 +9,33 @@ import {
     DialogTitle,
     DialogFooter
 } from '@workspace/ui/components/dialog';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@workspace/ui/components/alert-dialog';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
 import {
-    Clock,
-    CheckCircle2,
-    XCircle,
-    AlertCircle,
-    FileText,
-    ShieldCheck,
     User,
-    MessageCircle,
-    Calendar
+    Calendar,
+    AlertCircle,
+    XCircle,
+    Clock,
+    CheckCircle2
 } from 'lucide-react';
 import { TicketResponseDTO, TicketStatus } from '@workspace/schemas';
 import { formatDateTime } from '@/utils/format-utils';
-import { cn } from '@workspace/ui/lib/utils';
 import { ComponentLoading } from '@workspace/ui/components/component-loading';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
+import { useCancelTicket } from "@/lib/api/services/ticket-api";
+import { toast } from "sonner";
+import { Spinner } from "@workspace/ui/components/spinner";
 
 interface TicketDetailDialogProps {
     open: boolean;
@@ -36,147 +46,135 @@ interface TicketDetailDialogProps {
 
 const getStatusInfo = (status: TicketStatus) => {
     switch (status) {
-        case TicketStatus.APPROVED:
-            return {
-                label: 'Đã chấp nhận',
-                color: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
-                icon: <CheckCircle2 className="w-4 h-4" />
-            };
-        case TicketStatus.REJECTED:
-            return {
-                label: 'Đã từ chối',
-                color: 'bg-red-500/10 text-red-600 border-red-500/20',
-                icon: <XCircle className="w-4 h-4" />
-            };
+        case TicketStatus.RESOLVED:
+            return { label: 'Đã giải quyết', variant: 'default' as const };
+        case TicketStatus.CANCELLED:
+            return { label: 'Đã hủy', variant: 'destructive' as const };
         case TicketStatus.PROCESSING:
-            return {
-                label: 'Đang xử lý',
-                color: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
-                icon: <Clock className="w-4 h-4" />
-            };
+            return { label: 'Đang xử lý', variant: 'outline' as const };
         case TicketStatus.PENDING:
         default:
-            return {
-                label: 'Đang chờ',
-                color: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
-                icon: <AlertCircle className="w-4 h-4" />
-            };
+            return { label: 'Đang chờ', variant: 'secondary' as const };
     }
 };
 
 export function TicketDetailDialog({ open, onOpenChange, ticket, isLoading }: TicketDetailDialogProps) {
+    const [isConfirmCancelOpen, setConfirmCancelOpen] = useState(false);
+    const cancelTicket = useCancelTicket();
+
+    const handleConfirmCancel = async () => {
+        if (!ticket) return;
+        try {
+            await cancelTicket.mutateAsync(ticket.id);
+            toast.success('Yêu cầu đã được hủy.');
+            setConfirmCancelOpen(false);
+            onOpenChange(false); // Close the main dialog as well
+        } catch (error) {
+            toast.error('Hủy yêu cầu thất bại.');
+        }
+    };
+
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[700px] p-0 overflow-hidden">
-                {isLoading ? (
-                    <div className="flex items-center justify-center p-12">
-                        <ComponentLoading />
-                    </div>
-                ) : ticket ? (
-                    <>
-                        <DialogHeader className="p-6 border-b">
-                            <div className="flex items-center justify-between mb-2">
-                                <Badge variant="outline" className="font-mono text-[10px] uppercase">
-                                    #{ticket.id.slice(0, 8).toUpperCase()}
-                                </Badge>
-                                <Badge
-                                    variant={
-                                        ticket.status === TicketStatus.APPROVED ? "default" :
-                                            ticket.status === TicketStatus.REJECTED ? "destructive" :
-                                                ticket.status === TicketStatus.PROCESSING ? "outline" : "secondary"
-                                    }
-                                >
-                                    {getStatusInfo(ticket.status as TicketStatus).label}
-                                </Badge>
-                            </div>
-                            <DialogTitle className="text-2xl font-bold">{ticket.subject}</DialogTitle>
-                            <DialogDescription className="flex items-center gap-4 pt-2">
-                                <span className="flex items-center gap-1">
-                                    <User className="h-3 w-3" />
-                                    {ticket.user?.displayName || 'Người dùng'}
-                                </span>
-                                <span className="flex items-center gap-1">
-                                    <Calendar className="h-3 w-3" />
-                                    {formatDateTime(ticket.createdAt)}
-                                </span>
-                            </DialogDescription>
-                        </DialogHeader>
-
-                        <ScrollArea className="max-h-[60vh]">
-                            <div className="p-6 space-y-6">
-                                <div className="space-y-2">
-                                    <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                                        Nội dung yêu cầu
-                                    </h4>
-                                    <div className="rounded-lg border bg-muted/30 p-4">
-                                        <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                                            {ticket.description}
-                                        </p>
-                                    </div>
+        <>
+            <Dialog open={open} onOpenChange={onOpenChange}>
+                <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden">
+                    {isLoading ? (
+                        <>
+                            <DialogHeader className="p-6 border-b">
+                                <DialogTitle>Đang tải thông tin...</DialogTitle>
+                            </DialogHeader>
+                            <div className="p-12 flex justify-center"><ComponentLoading /></div>
+                        </>
+                    ) : ticket ? (
+                        <>
+                            <DialogHeader className="p-6 border-b">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-[10px] font-mono text-muted-foreground uppercase">#{ticket.id.slice(0, 8)}</span>
+                                    <Badge variant={getStatusInfo(ticket.status as TicketStatus).variant}>
+                                        {getStatusInfo(ticket.status as TicketStatus).label}
+                                    </Badge>
                                 </div>
+                                <DialogTitle className="text-xl">{ticket.subject}</DialogTitle>
+                                <DialogDescription className="flex gap-4 text-[10px] pt-1">
+                                    <span className="flex items-center gap-1"><User className="w-3 h-3" /> {ticket.user?.displayName}</span>
+                                    <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {formatDateTime(ticket.createdAt)}</span>
+                                </DialogDescription>
+                            </DialogHeader>
 
-                                {ticket.type === 'REFUND' && ticket.metadata && (
-                                    <div className="space-y-3">
-                                        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                                            Chi tiết hoàn tiền
-                                        </h4>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <div className="p-4 rounded-xl border bg-amber-500/5 border-amber-500/10 space-y-1">
-                                                <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Khóa học</span>
-                                                <p className="text-sm font-bold text-foreground">{(ticket.metadata as any).courseTitle || 'N/A'}</p>
-                                            </div>
-                                            <div className="p-4 rounded-xl border bg-indigo-500/5 border-indigo-500/10 space-y-1">
-                                                <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">Tiến độ lúc yêu cầu</span>
-                                                <p className="text-sm font-bold text-foreground">{(ticket.metadata as any).progress || 0}%</p>
-                                            </div>
-                                        </div>
+                            <ScrollArea className="max-h-[50vh]">
+                                <div className="p-6 space-y-6">
+                                    <div>
+                                        <h4 className="text-xs font-bold uppercase text-muted-foreground mb-2">Nội dung</h4>
+                                        <p className="text-sm p-3 rounded-md bg-muted/50 whitespace-pre-wrap leading-relaxed">{ticket.description}</p>
                                     </div>
-                                )}
 
-                                <div className="space-y-2">
-                                    <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                                        Phản hồi từ hệ thống
-                                    </h4>
-                                    {ticket.response ? (
-                                        <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
-                                            <p className="text-sm leading-relaxed font-medium">
-                                                {ticket.response}
-                                            </p>
-                                            <div className="flex items-center gap-2 mt-4 text-[10px] font-bold text-primary uppercase">
-                                                <ShieldCheck className="h-3 w-3" />
-                                                Đội ngũ hỗ trợ Torii
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="rounded-lg border border-dashed p-8 text-center bg-muted/20">
-                                            <div className="flex flex-col items-center gap-2">
-                                                <Clock className="h-6 w-6 text-muted-foreground/30" />
-                                                <p className="text-xs text-muted-foreground">
-                                                    Yêu cầu của bạn đang được xử lý. Chúng tôi sẽ phản hồi sớm nhất có thể.
-                                                </p>
-                                            </div>
+                                    {ticket.response && (
+                                        <div>
+                                            <h4 className="text-xs font-bold uppercase text-primary mb-2">Phản hồi từ hỗ trợ</h4>
+                                            <p className="text-sm p-4 rounded-md bg-primary/5 border border-primary/20 leading-relaxed italic">{ticket.response}</p>
                                         </div>
                                     )}
                                 </div>
-                            </div>
-                        </ScrollArea>
+                            </ScrollArea>
 
-                        <DialogFooter className="p-6 border-t bg-muted/10">
-                            <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
-                                Đóng
-                            </Button>
-                        </DialogFooter>
-                    </>
-                ) : (
-                    <div className="p-12 text-center">
-                        <AlertCircle className="h-10 w-10 text-muted-foreground/30 mx-auto mb-4" />
-                        <h3 className="font-semibold">Không tìm thấy yêu cầu</h3>
-                        <Button variant="link" onClick={() => onOpenChange(false)}>
-                            Quay lại
-                        </Button>
-                    </div>
-                )}
-            </DialogContent>
-        </Dialog>
+                            <DialogFooter className="p-6 border-t sm:justify-between flex-row justify-between items-center w-full">
+                                {ticket.status === TicketStatus.PENDING ? (
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                        onClick={() => setConfirmCancelOpen(true)}
+                                    >
+                                        <XCircle className="w-4 h-4 mr-2" />
+                                        Hủy yêu cầu
+                                    </Button>
+                                ) : (
+                                    <div className="flex-1" />
+                                )}
+                                <Button variant="outline" onClick={() => onOpenChange(false)}>Đóng</Button>
+                            </DialogFooter>
+                        </>
+                    ) : (
+                        <>
+                            <DialogHeader className="p-6 border-b">
+                                <DialogTitle>Thông báo</DialogTitle>
+                            </DialogHeader>
+                            <div className="p-12 text-center text-muted-foreground">
+                                <AlertCircle className="w-8 h-8 mx-auto mb-2 opacity-20" />
+                                <p>Không tìm thấy thông tin</p>
+                            </div>
+                        </>
+                    )}
+                </DialogContent>
+            </Dialog>
+
+            <AlertDialog open={isConfirmCancelOpen} onOpenChange={setConfirmCancelOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Bạn có chắc chắn muốn hủy?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Hành động này không thể được hoàn tác. Yêu cầu hỗ trợ của bạn sẽ được đánh dấu là đã hủy.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={cancelTicket.isPending}>Quay lại</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleConfirmCancel}
+                            disabled={cancelTicket.isPending}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            {cancelTicket.isPending ? (
+                                <>
+                                    <Spinner className="mr-2 h-4 w-4" />
+                                    Đang xử lý...
+                                </>
+                            ) : (
+                                "Xác nhận hủy"
+                            )}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </>
     );
 }

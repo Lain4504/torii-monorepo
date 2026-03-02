@@ -93,3 +93,11 @@ export function useLearningHistory() {
         queryFn: learningProgressApi.getHistory,
     });
 }
+
+export function useLearningStats() {
+    return useQuery({
+        queryKey: ['learning-stats'],
+        queryFn: learningProgressApi.getStats,
+        staleTime: 5 * 60 * 1000, // 5 min — stats update on lesson completion
+    });
+}

@@ -42,6 +42,7 @@ export const blogQueryDTOSchema = z.object({
     tagId: z.string().optional(),
     sortBy: z.string().optional(),
     sortOrder: z.enum(['asc', 'desc']).optional(),
+    showScheduled: z.coerce.boolean().optional(),
 });
 
 export type BlogQueryDTO = z.infer<typeof blogQueryDTOSchema>;

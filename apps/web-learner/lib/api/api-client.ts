@@ -39,6 +39,13 @@ const extractErrorMessage = (error: AxiosError): string => {
             }
             return data.message;
         }
+        // Fallback for standard NestJS error format if success: false is missing
+        if (data?.message) {
+            if (Array.isArray(data.message)) {
+                return data.message[0];
+            }
+            return data.message;
+        }
     }
 
     // 2. Network errors
@@ -92,35 +99,24 @@ const isPublicEndpoint = (url?: string): boolean => {
 };
 
 /**
+ * Check if the current page requires authentication.
+ * Instead of whitelisting everything public, we check for protected prefixes
+ * to allow 404s and search engines to reach non-existent pages or other public routes.
+ */
+const isProtectedRoute = (pathname: string): boolean => {
+    const protectedPrefixes = ['/learn', '/profile', '/settings', '/dashboard', '/checkout', '/ai-sensei'];
+    return protectedPrefixes.some(prefix => pathname === prefix || pathname.startsWith(prefix + '/'));
+};
+
+/**
  * Check if current page is public
  */
 const isPublicPage = (): boolean => {
     if (typeof window === 'undefined') return false;
-
     const pathname = window.location.pathname;
 
-    const publicPages = [
-        '/login',
-        '/register',
-        '/forgot-password',
-        '/reset-password',
-        '/verify',
-        '/verify-otp',
-        '/verify-request',
-    ];
-
-    // Home page is public
-    if (pathname === '/') return true;
-
-    // Course pages are public (course listing and course detail)
-    if (pathname.startsWith('/courses')) return true;
-
-    // Post and Live Classes pages are public
-    if (pathname.startsWith('/post')) return true;
-    if (pathname.startsWith('/live-classes')) return true;
-
-    // Match exact public pages or their sub-routes
-    return publicPages.some(page => pathname === page || pathname.startsWith(page + '/'));
+    // If it's explicitly a protected route, it's not public
+    return !isProtectedRoute(pathname);
 };
 
 /**
@@ -184,7 +180,7 @@ const redirectToLogin = async () => {
         // Ignore
     }
 
-    window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+    window.location.href = `/login?from=${encodeURIComponent(window.location.pathname + window.location.search)}`;
 };
 
 // Request interceptor - Add platform header for web

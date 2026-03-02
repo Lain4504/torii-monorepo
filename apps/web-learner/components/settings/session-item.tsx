@@ -42,7 +42,7 @@ export function SessionItem({ session, onRevoke, isRevoking }: SessionItemProps)
                         {session.deviceInfo || 'Thiết bị không xác định'}
                     </ItemTitle>
                     {session.isCurrent && (
-                        <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px] uppercase tracking-wide">
+                        <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/20 text-[10px] uppercase tracking-wide">
                             Phiên hiện tại
                         </Badge>
                     )}

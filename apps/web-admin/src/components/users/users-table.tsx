@@ -25,17 +25,17 @@ import { Skeleton } from '@workspace/ui/components/skeleton';
 interface UsersTableProps {
     data: UserResponseDTO[];
     onView: (user: UserResponseDTO) => void;
-    onEdit: (user: UserResponseDTO) => void;
-    onDelete: (user: UserResponseDTO) => void;
+    onEdit?: (user: UserResponseDTO) => void;
+    onChangeStatus: (user: UserResponseDTO) => void;
     page: number;
     limit: number;
     isLoading?: boolean;
 }
 
-export function UsersTable({ data, onView, onEdit, onDelete, page, limit, isLoading }: UsersTableProps) {
+export function UsersTable({ data, onView, onEdit, onChangeStatus, page, limit, isLoading }: UsersTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
-    const columns = getUsersColumns({ onView, onEdit, onDelete, page, limit });
+    const columns = getUsersColumns({ onView, onEdit, onChangeStatus, page, limit });
 
     const table = useReactTable({
         data,

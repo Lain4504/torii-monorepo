@@ -1,12 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api/api-client.ts';
-import type { PaginatedApiResponse, UserResponseDTO, UserCreateDTO, UserAdminUpdateDTO, AdminCreateInternalUserDTO, StandardApiResponse } from '@workspace/schemas';
+import type {
+    PaginatedApiResponse,
+    UserResponseDTO,
+    UserCreateDTO,
+    UserAdminUpdateDTO,
+    AdminCreateInternalUserDTO,
+    StandardApiResponse,
+    UserChangeStatusDTO
+} from '@workspace/schemas';
 
 export interface FindAllUsersParams {
     page?: number;
     limit?: number;
     search?: string;
     role?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
 }
 
 // ============================================================================
@@ -68,6 +78,15 @@ export const usersApi = {
         if (!response.data.success) {
             throw new Error(response.data.message || 'Failed to delete user');
         }
+    },
+
+    // PATCH /api/admin/users/:id/status
+    async changeStatus(id: string, dto: UserChangeStatusDTO): Promise<UserResponseDTO> {
+        const response = await apiClient.patch<StandardApiResponse<{ user: UserResponseDTO }>>(`/api/admin/users/${id}/status`, dto);
+        if (response.data.success && response.data.data) {
+            return response.data.data.user;
+        }
+        throw new Error(response.data.message || 'Failed to update user status');
     },
 };
 
@@ -155,3 +174,18 @@ export function useDeleteUser() {
     });
 }
 
+/**
+ * Hook: Change user status
+ */
+export function useChangeUserStatus() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, dto }: { id: string; dto: UserChangeStatusDTO }) =>
+            usersApi.changeStatus(id, dto),
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['users', variables.id] });
+            queryClient.invalidateQueries({ queryKey: ['users'] });
+        },
+    });
+}

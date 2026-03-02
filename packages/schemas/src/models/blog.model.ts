@@ -4,6 +4,7 @@ export enum BlogStatus {
     DRAFT = 'draft',
     PUBLISHED = 'published',
     ARCHIVED = 'archived',
+    SCHEDULED = 'scheduled',
 }
 
 export const blogSchema = z.object({

@@ -229,9 +229,9 @@ export function DashboardHeader() {
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator className="mx-2 mb-2" />
                             <DropdownMenuGroup className="space-y-1">
-                                <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/profile')}>
+                                <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/settings')}>
                                     <BadgeCheck className="mr-3 size-4 text-primary" />
-                                    <span>Hồ sơ cá nhân</span>
+                                    <span>Cài đặt cá nhân</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/notifications')}>
                                     <Bell className="mr-3 size-4 text-muted-foreground" />

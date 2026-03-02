@@ -44,11 +44,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 "group-data-[collapsible=icon]:!size-10 group-data-[collapsible=icon]:!p-0 group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:justify-center"
                             )}
                         >
-                            <div className="flex aspect-square size-8 items-center justify-center rounded-lg shrink-0">
-                                <Image src="/logo.png" alt="Torii Nihongo" width={32} height={32} className="rounded-lg" />
+                            <div className="flex items-center justify-start rounded-lg shrink-0">
+                                <Image src="/logo.png" alt="Torii Nihongo" width={200} height={40} className="h-8 w-auto object-contain" />
                             </div>
                             <div className="grid flex-1 text-left text-sm leading-tight ml-2 group-data-[collapsible=icon]:hidden">
-                                <span className="truncate font-bold text-base text-foreground">Torii Nihongo</span>
                                 <span className="truncate text-xs font-medium text-muted-foreground">Cổng học viên</span>
                             </div>
                         </SidebarMenuButton>

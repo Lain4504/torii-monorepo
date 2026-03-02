@@ -3,7 +3,7 @@ import type { UserResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
 
-import { ArrowUpDown, Pencil, Trash, UserCircle, Mail, Clock, MoreVertical } from 'lucide-react';
+import { ArrowUpDown, Pencil, UserCircle, Mail, Clock, MoreVertical, ShieldAlert } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -19,13 +19,13 @@ const columnHelper = createColumnHelper<UserResponseDTO>();
 
 export type UsersColumnsProps = {
     onView: (user: UserResponseDTO) => void;
-    onEdit: (user: UserResponseDTO) => void;
-    onDelete: (user: UserResponseDTO) => void;
+    onEdit?: (user: UserResponseDTO) => void;
+    onChangeStatus: (user: UserResponseDTO) => void;
     page: number;
     limit: number;
 };
 
-export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsProps) => [
+export const getUsersColumns = ({ onEdit, onChangeStatus, page, limit }: UsersColumnsProps) => [
     // STT Column
     columnHelper.display({
         id: 'stt',
@@ -227,22 +227,25 @@ export const getUsersColumns = ({ onEdit, onDelete, page, limit }: UsersColumnsP
                             className="w-[180px]"
                         >
                             <Can permission="user.manage">
+                                {onEdit && (
+                                    <>
+                                        <DropdownMenuItem
+                                            onClick={() => onEdit(user)}
+                                            className="flex gap-2"
+                                        >
+                                            <Pencil className="size-3.5 opacity-70" />
+                                            <span>Chỉnh sửa</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                    </>
+                                )}
+
                                 <DropdownMenuItem
-                                    onClick={() => onEdit(user)}
+                                    onClick={() => onChangeStatus(user)}
                                     className="flex gap-2"
                                 >
-                                    <Pencil className="size-3.5 opacity-70" />
-                                    <span>Chỉnh sửa</span>
-                                </DropdownMenuItem>
-
-                                <DropdownMenuSeparator />
-
-                                <DropdownMenuItem
-                                    onClick={() => onDelete(user)}
-                                    className="text-destructive focus:bg-destructive focus:text-destructive-foreground flex gap-2"
-                                >
-                                    <Trash className="size-3.5 opacity-70" />
-                                    <span>Xóa tài khoản</span>
+                                    <ShieldAlert className="size-3.5 opacity-70" />
+                                    <span>Thay đổi trạng thái</span>
                                 </DropdownMenuItem>
                             </Can>
                         </DropdownMenuContent>

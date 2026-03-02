@@ -1,42 +1,46 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
-import type { CourseResponseDTO, StandardApiResponse, PaginatedApiResponse } from '@workspace/schemas';
+import type {
+  CourseResponseDTO,
+  CourseSearchResponseDTO,
+  StandardApiResponse,
+  PaginatedApiResponse
+} from '@workspace/schemas';
+
+export interface CurriculumLesson {
+  id: string;
+  title: string;
+  contentType: 'video' | 'document' | 'assignment';
+  videoDuration?: number;
+  isUnlocked: boolean;
+  isPreview: boolean;
+  order: number;
+}
 
 export interface CurriculumModule {
   id: string;
   title: string;
-  description?: string;
   order: number;
   durationMinutes?: number;
-  lessons: Array<{
-    id: string;
-    title: string;
-    contentType: string;
-    videoUrl?: string;
-    videoDuration?: number;
-    order: number;
-    isPreview: boolean;
-    isUnlocked: boolean;
-  }>;
+  lessons: CurriculumLesson[];
 }
 
 export interface CurriculumResponse {
+  courseId: string;
   modules: CurriculumModule[];
-}
-
-export interface CourseQueryParams {
-  page?: number;
-  limit?: number;
-  jlptLevel?: string;
-  status?: string;
-  search?: string;
 }
 
 export const courseApi = {
   /**
    * Get all courses with pagination and filters
    */
-  findAll: async (params: CourseQueryParams = {}): Promise<PaginatedApiResponse<CourseResponseDTO>> => {
+  findAll: async (params: {
+    page?: number;
+    limit?: number;
+    jlptLevel?: string;
+    status?: string;
+    search?: string;
+  } = {}): Promise<PaginatedApiResponse<CourseResponseDTO>> => {
     const response = await apiClient.get<PaginatedApiResponse<CourseResponseDTO>>('/api/courses', {
       params,
     });
@@ -49,17 +53,25 @@ export const courseApi = {
   advancedSearch: async (params: {
     page?: number;
     limit?: number;
-    q?: string;
+    search?: string;
     levels?: string; // comma separated
     priceMin?: number;
     priceMax?: number;
     rating?: number;
     sort?: string;
-  } = {}): Promise<PaginatedApiResponse<CourseResponseDTO>> => {
-    const response = await apiClient.get<PaginatedApiResponse<CourseResponseDTO>>('/api/courses/advanced-search', {
+  } = {}): Promise<PaginatedApiResponse<CourseSearchResponseDTO>> => {
+    const response = await apiClient.get<PaginatedApiResponse<CourseSearchResponseDTO>>('/api/courses/advanced-search', {
       params,
     });
     return response.data;
+  },
+
+  /**
+   * Validate if a course is ready for scheduling
+   */
+  validateForScheduling: async (courseId: string): Promise<{ isReady: boolean; message?: string }> => {
+    const response = await apiClient.get<StandardApiResponse<{ isReady: boolean; message?: string }>>(`/api/courses/${courseId}/validate-scheduling`);
+    return response.data.data!;
   },
 
   /**
@@ -96,6 +108,47 @@ export const courseApi = {
 };
 
 /**
+ * Hook: Search courses for public catalog
+ */
+export function useCourses(params: {
+  page?: number;
+  limit?: number;
+  levels?: string[];
+  q?: string;
+  priceFilter?: 'all' | 'free' | 'paid';
+  sortBy?: string;
+  instructorId?: string;
+}) {
+  return useQuery({
+    queryKey: ['courses', params],
+    queryFn: async () => {
+      let priceMin: number | undefined;
+      let priceMax: number | undefined;
+
+      if (params.priceFilter === 'free') {
+        priceMax = 0;
+      } else if (params.priceFilter === 'paid') {
+        priceMin = 1;
+      }
+
+      const levelsString = params.levels?.length ? params.levels.join(',') : undefined;
+
+      return courseApi.advancedSearch({
+        page: params.page,
+        limit: params.limit,
+        search: params.q,
+        levels: levelsString,
+        priceMin,
+        priceMax,
+        sort: params.sortBy,
+        instructorId: params.instructorId
+      } as any);
+    },
+  });
+}
+
+
+/**
  * Hook: Get course by slug
  */
 export function useCourseBySlug(slug: string) {
@@ -103,6 +156,17 @@ export function useCourseBySlug(slug: string) {
     queryKey: ['courses', 'slug', slug],
     queryFn: () => courseApi.getCourseBySlug(slug),
     enabled: !!slug,
+  });
+}
+
+/**
+ * Hook: Get course by ID
+ */
+export function useCourseById(courseId?: string) {
+  return useQuery({
+    queryKey: ['courses', 'id', courseId],
+    queryFn: () => courseApi.getCourseById(courseId!),
+    enabled: !!courseId,
   });
 }
 
@@ -117,9 +181,12 @@ export function useCurriculum(courseId?: string) {
   });
 }
 
-
-
-
-
-
-
+/**
+ * Hook: Get live courses only (type === 'live')
+ */
+export function useLiveCourses() {
+  return useQuery({
+    queryKey: ['courses', 'live'],
+    queryFn: () => courseApi.getByType('live'),
+  });
+}

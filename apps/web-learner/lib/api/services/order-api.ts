@@ -37,13 +37,17 @@ export const orderApi = {
         const payload = {
             ...data,
             metadata: {
-                ...data.metadata,
+                ...(data.metadata || {}),
                 courseId: data.courseId, // Store courseId in metadata for later enrollment creation
             },
         };
         const response = await apiClient.post<StandardApiResponse<{ order: OrderResponseDTO }>>('/api/orders', payload);
 
-        return response.data.data!.order;
+        if (!response.data.success || !response.data.data) {
+            throw new Error(response.data.message || 'Failed to create order');
+        }
+
+        return response.data.data.order;
     },
 
     /**

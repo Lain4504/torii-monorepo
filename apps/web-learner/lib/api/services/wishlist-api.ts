@@ -1,3 +1,4 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
 import type { StandardApiResponse, PaginatedApiResponse } from '@workspace/schemas';
 
@@ -77,3 +78,28 @@ export const wishlistApi = {
     return response.data.data!;
   },
 };
+
+/**
+ * Hook: Check if a course is in wishlist
+ */
+export function useCheckWishlist(courseId?: string) {
+  return useQuery({
+    queryKey: ['wishlist', 'check', courseId],
+    queryFn: () => wishlistApi.checkWishlist(courseId!),
+    enabled: !!courseId,
+  });
+}
+
+/**
+ * Hook: Toggle wishlist (add/remove)
+ */
+export function useToggleWishlist() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (courseId: string) => wishlistApi.toggleWishlist(courseId),
+    onSuccess: (_data, courseId) => {
+      queryClient.invalidateQueries({ queryKey: ['wishlist', 'check', courseId] });
+      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
+    },
+  });
+}

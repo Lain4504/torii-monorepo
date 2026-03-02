@@ -44,8 +44,8 @@ export class TeachingScheduleHandler {
     }
 
     @MessagePattern({ cmd: 'learning.teachingSchedule.getPendingRequests' })
-    async getPendingRequests() {
-        return this.scheduleService.getPendingRequests();
+    async getPendingRequests(@Payload() data: { requester: Requester }) {
+        return this.scheduleService.getPendingRequests(data.requester);
     }
 
     @MessagePattern({ cmd: 'learning.teachingSchedule.handleRequest' })

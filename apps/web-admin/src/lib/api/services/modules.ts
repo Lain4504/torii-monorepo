@@ -55,11 +55,32 @@ export const modulesApi = {
         const response = await apiClient.patch<StandardApiResponse<{ module: ModuleResponseDTO }>>(`/api/modules/${id}/restore`);
         return response.data.data!.module;
     },
+
+    // POST /api/modules/reorder/:courseId
+    async reorder(courseId: string, moduleOrders: { id: string; orderIndex: number }[]): Promise<boolean> {
+        const response = await apiClient.post<StandardApiResponse<{ modules: ModuleResponseDTO[] }>>(`/api/modules/reorder/${courseId}`, moduleOrders);
+        return response.data.success;
+    },
 };
 
 // ============================================================================
 // React Query Hooks
 // ============================================================================
+
+/**
+ * Hook: Reorder modules
+ */
+export function useReorderModules() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ courseId, moduleOrders }: { courseId: string; moduleOrders: { id: string; orderIndex: number }[] }) =>
+            modulesApi.reorder(courseId, moduleOrders),
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['modules', 'course', variables.courseId] });
+        },
+    });
+}
 
 /**
  * Hook: Get modules list with pagination and filters

@@ -36,8 +36,8 @@ export class FlashcardHandler {
     }
 
     @MessagePattern({ cmd: 'learning.flashcard.delete' })
-    async delete(@Payload() data: { id: string }) {
-        await this.flashcardService.deleteFlashcard(data.id);
+    async delete(@Payload() data: { id: string; userId: string }) {
+        await this.flashcardService.deleteFlashcard(data.id, data.userId);
         return { success: true };
     }
 

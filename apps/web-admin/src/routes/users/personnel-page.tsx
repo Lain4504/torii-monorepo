@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { UsersPrimaryToolbar } from '@/components/users/users-primary-toolbar.tsx';
 import { UsersTable } from '@/components/users/users-table.tsx';
 import { CreateUserSheet } from '@/components/users/create-user-sheet.tsx';
-import { EditUserSheet } from '@/components/users/edit-user-sheet.tsx';
-import { DeleteUserDialog } from '@/components/users/delete-user-dialog.tsx';
+import { ChangeUserRoleDialog } from '@/components/users/change-user-role-dialog.tsx';
+import { ChangeUserStatusDialog } from '@/components/users/change-user-status-dialog.tsx';
 import { ViewUserSheet } from '@/components/users/view-user-sheet.tsx';
-import type { UserResponseDTO } from '@workspace/schemas';
+import { UserRole, type UserResponseDTO } from '@workspace/schemas';
 import { Card } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { useUsers } from "@/lib/api/services/users.ts";
@@ -32,7 +32,7 @@ export default function PersonnelPage() {
     // Dialog States
     const createDialog = useBoolean();
     const [editingUser, setEditingUser] = useState<UserResponseDTO | null>(null);
-    const [deletingUser, setDeletingUser] = useState<UserResponseDTO | null>(null);
+    const [statusChangingUser, setStatusChangingUser] = useState<UserResponseDTO | null>(null);
     const [viewingUser, setViewingUser] = useState<UserResponseDTO | null>(null);
 
     const limit = 10;
@@ -42,7 +42,9 @@ export default function PersonnelPage() {
         page,
         limit,
         search: debouncedSearch,
-        role: targetRole
+        role: targetRole,
+        sortBy,
+        sortOrder,
     });
 
     useEffect(() => {
@@ -118,7 +120,7 @@ export default function PersonnelPage() {
                     <UsersTable
                         data={users}
                         onEdit={setEditingUser}
-                        onDelete={setDeletingUser}
+                        onChangeStatus={setStatusChangingUser}
                         onView={setViewingUser}
                         page={page}
                         limit={limit}
@@ -140,18 +142,19 @@ export default function PersonnelPage() {
             <CreateUserSheet
                 open={createDialog.value}
                 onOpenChange={createDialog.setValue}
+                fixedRole={isLecturers ? UserRole.LECTURER : UserRole.STAFF}
             />
 
-            <EditUserSheet
+            <ChangeUserRoleDialog
                 open={!!editingUser}
                 onOpenChange={(open) => !open && setEditingUser(null)}
                 user={editingUser}
             />
 
-            <DeleteUserDialog
-                open={!!deletingUser}
-                onOpenChange={(open) => !open && setDeletingUser(null)}
-                user={deletingUser}
+            <ChangeUserStatusDialog
+                open={!!statusChangingUser}
+                onOpenChange={(open) => !open && setStatusChangingUser(null)}
+                user={statusChangingUser}
             />
 
             <ViewUserSheet

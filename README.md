@@ -1,4 +1,4 @@
-# Torii Nihongo Monorepo
+y# Torii Nihongo Monorepo
 Hệ thống học tiếng Nhật trực tuyến tích hợp Live Class (WebRTC) và AI Tutor (FastMCP). Monorepo được kiến trúc theo mô hình **Microservices** hiện đại, giao tiếp hybrid giữa **HTTP REST** và **NATS Message Broker**.
 
 ## 🌐 Danh sách Domains

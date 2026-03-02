@@ -55,6 +55,7 @@ export const courseSchema = z.object({
     totalLessons: z.number().default(0),
     totalQuizzes: z.number().default(0),
     totalStudents: z.number().default(0),
+    maxStudents: z.number().min(0).optional(),
     averageRating: z.number().default(0),
     totalReviews: z.number().default(0),
     status: z.nativeEnum(CourseStatus), // Computed field derived from approvedBy/approvedAt
@@ -63,6 +64,9 @@ export const courseSchema = z.object({
     learningOutcomes: z.any().optional(), // JSONB
     requirements: z.any().optional(), // JSONB
     createdBy: z.string().uuid().optional(),
+    lecturerId: z.string().uuid().optional().nullable(),
+    isReadyForScheduling: z.boolean().default(false),
+    minimumLessons: z.number().int().min(1).default(8),
     approvedBy: z.string().uuid().optional(),
     approvedAt: z.date().optional(),
     rejectionReason: z.string().optional().nullable(),
@@ -72,3 +76,6 @@ export const courseSchema = z.object({
 });
 
 export type Course = z.infer<typeof courseSchema>;
+
+
+

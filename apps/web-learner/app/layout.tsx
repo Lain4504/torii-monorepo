@@ -1,4 +1,4 @@
-import { Nunito, Noto_Sans_JP, Noto_Serif_JP } from "next/font/google"
+import { Nunito, Noto_Sans_JP, Noto_Serif_JP, Space_Grotesk } from "next/font/google"
 
 import "@workspace/ui/styles/globals.css"
 import { Providers } from "@/lib/providers/providers"
@@ -28,6 +28,12 @@ const fontJP = Noto_Sans_JP({
   weight: ["300", "400", "500", "700"],
 })
 
+const fontSpace = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space",
+  weight: ["300", "400", "500", "600", "700"],
+})
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -36,7 +42,7 @@ export default function RootLayout({
   return (
     <html lang="vi" suppressHydrationWarning>
       <body
-        className={`${fontHeading.variable} ${fontSans.variable} ${fontSerif.variable} ${fontJP.variable} font-sans antialiased`}
+        className={`${fontHeading.variable} ${fontSans.variable} ${fontSerif.variable} ${fontJP.variable} ${fontSpace.variable} font-sans antialiased`}
       >
         <Providers>
           {children}

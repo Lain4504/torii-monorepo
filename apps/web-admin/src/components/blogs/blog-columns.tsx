@@ -1,7 +1,7 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import type { BlogResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
-import { ArrowUpDown, Pencil, Trash, FileText, Eye as EyeIcon, MoreVertical } from 'lucide-react';
+import {ArrowUpDown, Pencil, Trash, Eye, FileText, MoreVertical} from 'lucide-react';
 import { Badge } from '@workspace/ui/components/badge';
 import {
     DropdownMenu,
@@ -11,6 +11,7 @@ import {
     DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu';
 import { formatDateTime } from '@/lib/format-utils';
+import { cn } from '@workspace/ui/lib/utils';
 
 import { Can } from "@/lib/guard/can";
 
@@ -29,6 +30,7 @@ const getStatusLabel = (status: string) => {
         published: 'Đã đăng',
         draft: 'Bản nháp',
         archived: 'Đã lưu trữ',
+        scheduled: 'Đã lên lịch',
     };
     return labels[status] || status;
 };
@@ -84,16 +86,23 @@ export const getBlogColumns = ({ onView, onEdit, onDelete, page, limit }: BlogCo
         header: 'Trạng thái',
         cell: (info) => {
             const status = info.getValue() as string;
+            const isScheduled = status === 'scheduled';
+
             return (
                 <Badge
                     variant={
-                        status === 'published'
-                            ? 'default'
-                            : status === 'draft'
-                                ? 'secondary'
-                                : 'outline'
+                        isScheduled
+                            ? 'outline'
+                            : status === 'published'
+                                ? 'default'
+                                : status === 'draft'
+                                    ? 'secondary'
+                                    : 'outline'
                     }
-                    className="uppercase"
+                    className={cn(
+                        "uppercase",
+                        isScheduled && "border-blue-500 text-blue-500 bg-blue-50 hover:bg-blue-50"
+                    )}
                 >
                     {getStatusLabel(status)}
                 </Badge>
@@ -185,8 +194,8 @@ export const getBlogColumns = ({ onView, onEdit, onDelete, page, limit }: BlogCo
                             <DropdownMenuItem
                                 onClick={() => onView(blog)}
                             >
-                                <EyeIcon className="h-4 w-4 mr-2" />
-                                <span>Xem Chi tiết</span>
+                                <Eye className="h-4 w-4 mr-2" />
+                                <span>Xem trước bài viết</span>
                             </DropdownMenuItem>
 
                             <Can permission="blog.manage">

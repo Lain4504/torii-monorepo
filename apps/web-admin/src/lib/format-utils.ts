@@ -75,3 +75,13 @@ export function formatNumber(value: number | string | undefined | null): string 
     const num = typeof value === "string" ? parseFloat(value) : value
     return new Intl.NumberFormat("vi-VN").format(num)
 }
+
+export function formatTimeToNow(date: Date | string | number | undefined | null): string {
+    if (!date) return "--";
+    try {
+        const d = new Date(date);
+        return formatDistanceToNow(d, { addSuffix: true, locale: vi });
+    } catch (e) {
+        return "--";
+    }
+}

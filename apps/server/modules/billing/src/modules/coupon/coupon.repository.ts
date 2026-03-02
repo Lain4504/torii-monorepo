@@ -72,22 +72,12 @@ export class CouponRepository {
 
     async findCouponsForUser(userId: string) {
         const now = new Date();
+        // Only return personal coupons (coupons that belong to this user)
+        // Public/event coupons will be entered manually by users and validated separately
         return this.prisma.coupon.findMany({
             where: {
-                OR: [
-                    // Personal Coupons
-                    {
-                        userId: userId,
-                        status: 'active',
-                    },
-                    // Public Coupons (Active & Valid)
-                    {
-                        userId: null,
-                        status: 'active',
-                        validFrom: { lte: now },
-                        validUntil: { gte: now },
-                    }
-                ]
+                userId: userId,
+                status: 'active',
             },
             orderBy: { validUntil: 'asc' }
         });

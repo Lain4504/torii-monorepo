@@ -5,14 +5,14 @@ import type { TicketQueryDTO, UpdateTicketStatusDTO } from '@workspace/schemas';
 export function useTickets(query: TicketQueryDTO) {
     return useQuery({
         queryKey: ['tickets', query],
-        queryFn: () => ticketApi.getTickets(query),
+        queryFn: () => ticketApi.findAll(query),
     });
 }
 
 export function useTicket(id: string) {
     return useQuery({
         queryKey: ['tickets', id],
-        queryFn: () => ticketApi.getTicket(id),
+        queryFn: () => ticketApi.findById(id),
         enabled: !!id,
     });
 }
@@ -21,7 +21,7 @@ export function useUpdateTicketStatus() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: ({ id, dto }: { id: string; dto: UpdateTicketStatusDTO }) =>
-            ticketApi.updateTicketStatus(id, dto),
+            ticketApi.updateStatus(id, dto),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['tickets'] });
         },

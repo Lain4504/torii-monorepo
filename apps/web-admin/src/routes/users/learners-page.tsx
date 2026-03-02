@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { UsersPrimaryToolbar } from '@/components/users/users-primary-toolbar.tsx';
 import { UsersTable } from '@/components/users/users-table.tsx';
 
-import { EditUserSheet } from '@/components/users/edit-user-sheet.tsx';
-import { DeleteUserDialog } from '@/components/users/delete-user-dialog.tsx';
+
+import { ChangeUserStatusDialog } from '@/components/users/change-user-status-dialog.tsx';
 import { ViewUserSheet } from '@/components/users/view-user-sheet.tsx';
 import type { UserResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
@@ -26,8 +26,8 @@ export default function LearnersPage() {
 
     // Dialog States
 
-    const [editingUser, setEditingUser] = useState<UserResponseDTO | null>(null);
-    const [deletingUser, setDeletingUser] = useState<UserResponseDTO | null>(null);
+
+    const [statusChangingUser, setStatusChangingUser] = useState<UserResponseDTO | null>(null);
     const [viewingUser, setViewingUser] = useState<UserResponseDTO | null>(null);
 
     const limit = 10;
@@ -37,7 +37,9 @@ export default function LearnersPage() {
         page,
         limit,
         search: debouncedSearch,
-        role: 'learner'
+        role: 'learner',
+        sortBy,
+        sortOrder,
     });
 
     useEffect(() => {
@@ -107,8 +109,7 @@ export default function LearnersPage() {
 
                         <UsersTable
                             data={users}
-                            onEdit={setEditingUser}
-                            onDelete={setDeletingUser}
+                            onChangeStatus={setStatusChangingUser}
                             onView={setViewingUser}
                             page={page}
                             limit={limit}
@@ -130,16 +131,12 @@ export default function LearnersPage() {
 
 
 
-            <EditUserSheet
-                open={!!editingUser}
-                onOpenChange={(open) => !open && setEditingUser(null)}
-                user={editingUser}
-            />
 
-            <DeleteUserDialog
-                open={!!deletingUser}
-                onOpenChange={(open) => !open && setDeletingUser(null)}
-                user={deletingUser}
+
+            <ChangeUserStatusDialog
+                open={!!statusChangingUser}
+                onOpenChange={(open) => !open && setStatusChangingUser(null)}
+                user={statusChangingUser}
             />
 
             <ViewUserSheet

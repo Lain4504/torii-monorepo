@@ -5,6 +5,7 @@ import type {
     PaginationOptionsDTO,
     PaginatedResponseDTO,
     Requester,
+    LessonQueryDTO,
 } from '@workspace/schemas';
 
 /**
@@ -18,6 +19,13 @@ export interface ILessonService {
      * @returns Paginated response of lessons
      */
     findAll(options: PaginationOptionsDTO): Promise<PaginatedResponseDTO<LessonResponseDTO>>;
+
+    /**
+     * Search lessons with complex filters
+     * @param options - Search filters and pagination
+     * @returns Paginated response of lessons
+     */
+    search(options: LessonQueryDTO): Promise<PaginatedResponseDTO<LessonResponseDTO>>;
 
     /**
      * Find one lesson by ID

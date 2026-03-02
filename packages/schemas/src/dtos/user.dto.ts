@@ -43,6 +43,7 @@ export const adminCreateInternalUserDTOSchema = z.object({
         UserRole.STAFF_LMS,
         UserRole.STAFF_SUPPORT,
         UserRole.STAFF_SALES,
+        UserRole.STAFF_FINANCE,
     ]),
 });
 
@@ -65,6 +66,14 @@ export const userAdminUpdateDTOSchema = userUpdateDTOSchema.extend({
 }).partial();
 
 export type UserAdminUpdateDTO = z.infer<typeof userAdminUpdateDTOSchema>;
+
+// User Status Change DTO
+export const userChangeStatusDTOSchema = z.object({
+    status: z.enum(['active', 'banned', 'deleted']),
+    bannedUntil: z.string().datetime().optional().nullable(),
+});
+
+export type UserChangeStatusDTO = z.infer<typeof userChangeStatusDTOSchema>;
 
 // Query/Filter DTO
 export const userCondDTOSchema = userSchema
@@ -112,6 +121,8 @@ export const userSearchRequestDTOSchema = z.object({
     limit: z.number().int().min(1).optional().default(10),
     search: z.string().optional().default(''),
     role: z.string().optional().default(''),
+    sortBy: z.string().optional().default('updatedAt'),
+    sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 });
 
 export type UserSearchRequestDTO = z.infer<typeof userSearchRequestDTOSchema>;

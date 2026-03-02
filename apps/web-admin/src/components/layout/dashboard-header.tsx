@@ -13,9 +13,13 @@ import { ChevronRight } from "lucide-react"
 import { ModeToggle } from "@/components/layout/mode-toggle.tsx"
 import { CommandMenu } from "@/components/layout/command-menu.tsx"
 import { NotificationsDropdown } from "@/components/layout/notifications-dropdown.tsx"
+import { useSelector } from "react-redux"
+import { selectUser } from "@/store/slices/auth-slice"
 
 export function DashboardHeader() {
   const location = useLocation()
+  const user = useSelector(selectUser)
+  const isLecturer = user?.role === 'lecturer'
 
   const pathSegments = location.pathname.split('/').filter(Boolean)
 
@@ -52,7 +56,10 @@ export function DashboardHeader() {
                       </BreadcrumbPage>
                     ) : (
                       <BreadcrumbLink asChild>
-                        <Link to={href} className="capitalize text-xs font-semibold text-muted-foreground/50 hover:text-foreground transition-colors">
+                        <Link
+                          to={(isLecturer && segment === 'courses') ? '/courses/my' : href}
+                          className="capitalize text-xs font-semibold text-muted-foreground/50 hover:text-foreground transition-colors"
+                        >
                           {segment.replace('-', ' ')}
                         </Link>
                       </BreadcrumbLink>

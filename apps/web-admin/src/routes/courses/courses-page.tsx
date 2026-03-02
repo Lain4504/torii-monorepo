@@ -115,6 +115,11 @@ export default function CoursesPage() {
           { label: "Tổng số khóa học", value: formatNumber(meta?.total) || 0 }
         ]}
         actions={
+          /* 
+            Business Rule: Only admin and staff-lms can create courses
+            Lecturers can only manage courses assigned to them by admin/staff
+            This button is hidden for lecturers who don't have course.create permission
+          */
           <Can permission="course.create">
             <Button onClick={() => setShowCreateDialog(true)} size="lg">
               <Plus />
@@ -145,6 +150,7 @@ export default function CoursesPage() {
 
               onTitleClick={(course) => navigate(`/courses/${course.id}`)}
               onModules={(course) => navigate(`/courses/${course.id}`)}
+              onManageEnrollments={(course) => navigate(`/courses/${course.id}/enrollments`)}
               onManageInstructors={setManagingInstructorsCourse}
               onPublish={setPublishingCourse}
               onReject={setRejectingCourse}

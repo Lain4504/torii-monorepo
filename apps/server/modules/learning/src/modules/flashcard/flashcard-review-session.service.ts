@@ -25,6 +25,18 @@ export class FlashcardReviewSessionService implements IFlashcardReviewSessionSer
     try {
       const { deckId, studyMode = 'normal', deviceType } = data;
 
+      // Auto-create user if not exists (defensive for microservices DB sync)
+      await this.prisma.user.upsert({
+        where: { id: userId },
+        create: {
+          id: userId,
+          email: `user-${userId}@temp.com`,
+          displayName: 'User',
+          role: 'LEARNER' as any,
+        },
+        update: {},
+      });
+
       // Simple stats initialization
       const session = await this.reviewRepository.createSession({
         user: { connect: { id: userId } },

@@ -27,6 +27,7 @@ interface CoursesTableProps {
     onDelete: (course: CourseResponseDTO) => void;
     onModules: (course: CourseResponseDTO) => void;
     onManageInstructors: (course: CourseResponseDTO) => void;
+    onManageEnrollments: (course: CourseResponseDTO) => void;
     onPublish: (course: CourseResponseDTO) => void;
     onSubmitForReview: (course: CourseResponseDTO) => void;
     onUnpublish: (course: CourseResponseDTO) => void;
@@ -46,6 +47,7 @@ export function CoursesTable({
     onDelete,
     onModules,
     onManageInstructors,
+    onManageEnrollments,
     onPublish,
     onSubmitForReview,
     onUnpublish,
@@ -65,6 +67,7 @@ export function CoursesTable({
         onDelete,
         onModules,
         onManageInstructors,
+        onManageEnrollments,
         onPublish,
         onSubmitForReview,
         onUnpublish,

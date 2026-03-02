@@ -88,6 +88,7 @@ const ConfigSchema = z.object({
             password: z.string().default('admin123'),
             displayName: z.string().default('System Administrator'),
         }),
+        auditLogRetentionMonths: z.number().default(6),
     }),
     upload: z.object({
         maxSizeMb: z.number().default(100),
@@ -113,6 +114,33 @@ const ConfigSchema = z.object({
         maxChatTransLangs: z.number().default(5),
         coinRatePerUSD: z.number().default(25000),
         services: z.record(z.any()).optional(),
+        contextWindow: z.number().default(5), // Default context window for AI chat history
+        services: z.record(z.enum([
+            'transcription',
+            'translation',
+            'speech-synthesis',
+            'ai_text_chat',
+            'meeting_summarizing'
+        ]), z.object({
+            provider: z.string(),
+            id: z.string(), // Provider account ID
+            options: z.record(z.string(), z.any()).optional().default({}), // Generic options like model name
+            pricing: z.record(z.string(), z.object({ // Key is model name, or "default"
+                inputPricePerMillionTokens: z.number().default(0),
+                outputPricePerMillionTokens: z.number().default(0),
+                pricePerMinute: z.number().default(0),
+                pricePerMillionCharacters: z.number().default(0),
+                pricePerHour: z.number().default(0),
+            })).optional().default({}),
+        })).optional().default({}),
+        providers: z.record(z.string(), z.array(z.object({
+            id: z.string(),
+            credentials: z.object({
+                apiKey: z.string().optional(),
+                region: z.string().optional(),
+            }).optional().default({}),
+            options: z.record(z.string(), z.any()).optional().default({}), // Provider-specific options
+        }))).optional().default({}),
     }),
     ingress: z.object({
         userIdPrefix: z.string().default('ingress_'),
