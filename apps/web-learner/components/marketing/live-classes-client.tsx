@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import { Calendar, ChevronRight, Search, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useLiveCourses } from '@/lib/api/services/course-api';
+import { useCourseRuns } from '@/lib/api/services/course-run-api';
+import { CourseRunStatus } from '@workspace/schemas';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
@@ -24,14 +25,21 @@ export function LiveClassesClient() {
     const [levelFilter, setLevelFilter] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
 
-    const { data: liveCourses = [], isLoading } = useLiveCourses();
+    const { data: runsData, isLoading } = useCourseRuns({
+        page: 1,
+        limit: 100,
+        type: 'live' as any,
+        status: statusFilter === 'upcoming' ? CourseRunStatus.ENROLLING : CourseRunStatus.COMPLETED,
+    });
+
+    const liveCourses = (runsData as any)?.data || [];
 
     const now = new Date();
-    const filteredCourses = liveCourses.filter(course => {
-        const matchesLevel = levelFilter ? course.jlptLevel === levelFilter : true;
-        const matchesSearch = searchQuery ? course.title.toLowerCase().includes(searchQuery.toLowerCase()) : true;
+    const filteredCourses = liveCourses.filter((run: any) => {
+        const matchesLevel = run.courseMaster?.jlptLevel === levelFilter || !levelFilter;
+        const matchesSearch = searchQuery ? run.title.toLowerCase().includes(searchQuery.toLowerCase()) : true;
 
-        const endDate = (course as any).expiresAt ? new Date((course as any).expiresAt) : null;
+        const endDate = run.endDate ? new Date(run.endDate) : null;
 
         if (statusFilter === 'upcoming') {
             return matchesLevel && matchesSearch && (!endDate || endDate >= now);
@@ -102,19 +110,23 @@ export function LiveClassesClient() {
                         </div>
                     ) : filteredCourses.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {filteredCourses.map(course => {
-                                const isSoldOut = course.totalStudents >= ((course as any).maxStudents || 100);
-                                const isHot = course.totalStudents > 15; // Example logic
+                            {filteredCourses.map(run => {
+                                const isSoldOut = run.totalEnrolled >= (run.maxStudents || 100);
+                                const isHot = run.totalEnrolled > 15;
 
                                 return (
-                                    <article key={course.id} className={`group bg-card border border-border/50 rounded-[2rem] overflow-hidden flex flex-col transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-1 ${isSoldOut ? 'opacity-75 grayscale-[0.5]' : ''}`}>
-                                        <Link href={`/live-classes/${course.slug}`}>
+                                    <article key={run.id} className={`group bg-card border border-border/50 rounded-[2rem] overflow-hidden flex flex-col transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-1 ${isSoldOut ? 'opacity-75 grayscale-[0.5]' : ''}`}>
+                                        <Link href={`/live-classes/${run.slug}`}>
                                             <div className="relative aspect-video overflow-hidden">
-                                                <img
-                                                    alt={course.title}
-                                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                                    src={course.thumbnailUrl || "https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?q=80&w=2000&auto=format&fit=crop"}
-                                                />
+                                                {run.coverUrl ? (
+                                                    <img
+                                                        alt={run.title}
+                                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                                        src={run.coverUrl}
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5" />
+                                                )}
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                                                 <div className="absolute top-4 left-4 flex flex-col gap-2">
@@ -123,16 +135,18 @@ export function LiveClassesClient() {
                                                             SẮP DIỄN RA
                                                         </Badge>
                                                     )}
+                                                    <div className="flex gap-2">
+                                                        <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-[10px] font-black tracking-widest uppercase">
+                                                            {run.courseMaster?.jlptLevel || 'N/A'}
+                                                        </Badge>
+                                                    </div>
+                                                </div>
+                                                <div className="absolute bottom-4 right-4">
                                                     {isHot && !isSoldOut && (
                                                         <Badge variant="secondary" className="px-3 py-1 rounded-full text-[10px] font-bold tracking-widest bg-amber-500/20 text-amber-700 border-amber-500/30">
                                                             HOT
                                                         </Badge>
                                                     )}
-                                                </div>
-                                                <div className="absolute bottom-4 right-4">
-                                                    <Badge className="px-4 py-1.5 rounded-full text-xs font-black bg-primary/90 backdrop-blur-md border-none shadow-xl">
-                                                        {course.jlptLevel}
-                                                    </Badge>
                                                 </div>
 
                                                 {isSoldOut && (
@@ -145,26 +159,26 @@ export function LiveClassesClient() {
 
                                         <div className="p-8 flex-1 flex flex-col space-y-6">
                                             <div className="space-y-3">
-                                                <h3 className="text-2xl font-bold leading-tight group-hover:text-primary transition-colors line-clamp-1">
-                                                    <Link href={`/live-classes/${course.slug}`}>{course.title}</Link>
+                                                <h3 className="text-xl font-bold text-foreground line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+                                                    <Link href={`/live-classes/${run.slug}`}>{run.title}</Link>
                                                 </h3>
-                                                <p className="text-sm text-muted-foreground/80 line-clamp-2 font-medium">
-                                                    {course.shortDescription || course.description}
+                                                <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                                                    {run.courseMaster?.shortDescription || run.courseMaster?.description}
                                                 </p>
                                             </div>
 
                                             <div className="flex items-center gap-4">
                                                 <div className="relative size-12 rounded-2xl border-2 border-primary/20 p-0.5 overflow-hidden group-hover:border-primary transition-colors">
                                                     <div className="w-full h-full rounded-[0.85rem] bg-muted flex items-center justify-center text-xs font-bold uppercase overflow-hidden">
-                                                        {course.lecturer?.avatarUrl ? (
-                                                            <img src={course.lecturer.avatarUrl} alt={course.lecturer.displayName} className="size-full object-cover" />
+                                                        {run.lecturer?.avatarUrl ? (
+                                                            <img src={run.lecturer.avatarUrl} alt={run.lecturer.displayName} className="size-full object-cover" />
                                                         ) : (
-                                                            course.lecturer?.displayName?.substring(0, 2) || "S"
+                                                            run.lecturer?.displayName?.substring(0, 2) || "S"
                                                         )}
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-col text-left">
-                                                    <span className="text-sm font-black text-foreground">{course.lecturer?.displayName || "Sensei"}</span>
+                                                    <span className="text-sm font-black text-foreground">{run.lecturer?.displayName || "Sensei"}</span>
                                                     <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground/60">Giảng viên Torii</span>
                                                 </div>
                                             </div>
@@ -173,24 +187,26 @@ export function LiveClassesClient() {
                                                 <div className="flex flex-col gap-1 text-left">
                                                     <span className="text-[10px] uppercase text-muted-foreground/60 tracking-[0.2em] font-black">Khai giảng</span>
                                                     <span className="text-sm font-bold text-foreground">
-                                                        {(course as any).startDate ? new Date((course as any).startDate).toLocaleDateString('vi-VN') : 'Sắp ra mắt'}
+                                                        {run.startDate ? new Date(run.startDate).toLocaleDateString('vi-VN') : 'Sắp ra mắt'}
                                                     </span>
                                                 </div>
-                                                <div className="flex flex-col gap-1 text-left">
-                                                    <span className="text-[10px] uppercase text-muted-foreground/60 tracking-[0.2em] font-black">Thời lượng</span>
-                                                    <span className="text-sm font-bold text-foreground">{course.durationWeeks || '?'} Tuần</span>
+                                                <div className="text-right">
+                                                    <div className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mb-1">Học phí</div>
+                                                    <div className="text-xl font-black text-foreground tabular-nums leading-none">
+                                                        {run.price ? `${Number(run.price).toLocaleString()} ₫` : 'Miễn phí'}
+                                                    </div>
                                                 </div>
                                             </div>
 
                                             <div className="space-y-3">
                                                 <div className="flex justify-between items-end">
                                                     <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">Sĩ số lớp</span>
-                                                    <span className="text-[10px] font-black text-primary  bg-primary/10 px-2 py-0.5 rounded-full">{course.totalStudents || 0}/{(course as any).maxStudents || 20}</span>
+                                                    <span className="text-[10px] font-black text-primary  bg-primary/10 px-2 py-0.5 rounded-full">{run.totalEnrolled || 0}/{run.maxStudents || 20}</span>
                                                 </div>
                                                 <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
                                                     <motion.div
                                                         initial={{ width: 0 }}
-                                                        whileInView={{ width: `${Math.min(((course.totalStudents || 0) / ((course as any).maxStudents || 20)) * 100, 100)}%` }}
+                                                        whileInView={{ width: `${Math.min(((run.totalEnrolled || 0) / (run.maxStudents || 20)) * 100, 100)}%` }}
                                                         className="h-full bg-primary rounded-full shadow-[0_0_12px_oklch(var(--primary)/0.4)]"
                                                         transition={{ duration: 1, ease: "easeOut" }}
                                                     />
@@ -209,7 +225,7 @@ export function LiveClassesClient() {
                                                     {statusFilter === 'finished' || isSoldOut ? (
                                                         <span>{statusFilter === 'finished' ? 'Kết thúc' : 'Hết chỗ'}</span>
                                                     ) : (
-                                                        <Link href={`/live-classes/${course.slug}`}>
+                                                        <Link href={`/live-classes/${run.slug}`}>
                                                             Xem chi tiết & đăng ký
                                                             <ChevronRight className="size-4" />
                                                         </Link>

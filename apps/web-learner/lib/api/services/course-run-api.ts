@@ -22,8 +22,10 @@ export const courseRunApi = {
      * Get course run by ID
      */
     getCourseRunById: async (id: string): Promise<CourseRunResponseDTO | null> => {
-        const response = await apiClient.get<StandardApiResponse<{ courseRun: CourseRunResponseDTO }>>(`/api/course-runs/${id}`);
-        return response.data.data?.courseRun ?? null;
+    const response = await apiClient.get<StandardApiResponse<{ run: CourseRunResponseDTO }>>(
+      `/api/course-runs/${id}`,
+    );
+    return (response.data.data as any)?.run ?? null;
     },
 
     /**
@@ -43,6 +45,16 @@ export const courseRunApi = {
 };
 
 /**
+ * Hook: Get course runs with filters
+ */
+export function useCourseRuns(params: CourseRunSearchRequestDTO) {
+    return useQuery({
+        queryKey: ['course-runs', params],
+        queryFn: () => courseRunApi.findAll(params),
+    });
+}
+
+/**
  * Hook: Get available course runs for enrollment
  */
 export function useAvailableCourseRuns(courseId?: string) {
@@ -50,5 +62,15 @@ export function useAvailableCourseRuns(courseId?: string) {
         queryKey: ['available-course-runs', courseId],
         queryFn: () => courseRunApi.getAvailableRuns(courseId!),
         enabled: !!courseId,
+    });
+}
+/**
+ * Hook: Get course run by ID
+ */
+export function useCourseRun(id?: string) {
+    return useQuery({
+        queryKey: ['course-runs', id],
+        queryFn: () => courseRunApi.getCourseRunById(id!),
+        enabled: !!id,
     });
 }

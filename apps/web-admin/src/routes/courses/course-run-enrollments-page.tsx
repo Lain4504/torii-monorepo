@@ -8,7 +8,7 @@ import { ChevronLeft, Users } from 'lucide-react';
 import { Card, CardContent } from '@workspace/ui/components/card';
 import { Badge } from '@workspace/ui/components/badge';
 import { EnrollmentStatus } from '@workspace/schemas';
-import { formatDateTime } from '@/lib/format-utils';
+import { formatDateTime, formatCurrency } from '@/lib/format-utils';
 import {
     Table,
     TableBody,
@@ -34,7 +34,7 @@ export default function CourseRunEnrollmentsPage() {
         return (
             <div className="flex flex-col items-center justify-center p-20 text-center space-y-4">
                 <p className="text-muted-foreground">Không tìm thấy lớp học</p>
-                <Button onClick={() => navigate('/courses')}>Quay lại danh sách</Button>
+                <Button onClick={() => navigate('/course-master')}>Quay lại danh sách</Button>
             </div>
         );
     }
@@ -69,7 +69,7 @@ export default function CourseRunEnrollmentsPage() {
                     variant="ghost"
                     size="sm"
                     className="h-8 px-0 text-muted-foreground hover:text-foreground gap-2 transition-colors hover:bg-transparent -ml-2 w-fit"
-                    onClick={() => navigate(`/courses/runs/${runId}`)}
+                    onClick={() => navigate(`/course-master/runs/${runId}`)}
                 >
                     <ChevronLeft className="size-4" />
                     <span className="text-xs font-sans font-bold italic uppercase tracking-wider">Quay lại chi tiết lớp học</span>
@@ -118,7 +118,7 @@ export default function CourseRunEnrollmentsPage() {
                                         <TableCell className="text-sm">{formatDateTime(enrollment.enrollmentDate, 'dd/MM/yyyy HH:mm')}</TableCell>
                                         <TableCell>{getEnrollmentBadge(enrollment.completionStatus)}</TableCell>
                                         <TableCell className="font-medium text-sm">
-                                            {enrollment.finalPrice?.toLocaleString('vi-VN')} ₫ || '-'
+                                            {enrollment.finalPrice ? formatCurrency(enrollment.finalPrice) : '-'}
                                         </TableCell>
                                     </TableRow>
                                 ))}

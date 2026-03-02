@@ -21,6 +21,10 @@ import { REVIEW_REPOSITORY_TOKEN } from './interfaces/repositories';
 import { ReviewRepository } from './modules/review/review.repository';
 import { EXAM_REPOSITORY_TOKEN } from './interfaces/repositories/i-exam.repository';
 import { ExamRepository } from './modules/exam/exam.repository';
+import { QUESTION_POOL_REPOSITORY_TOKEN } from './interfaces/repositories/i-question-pool.repository';
+import { QuestionPoolRepository } from './modules/question-pool/question-pool.repository';
+import { QUESTION_REPOSITORY_TOKEN } from './interfaces/repositories/i-question.repository';
+import { QuestionRepository } from './modules/question/question.repository';
 import { ENROLLMENT_REPOSITORY_TOKEN } from './interfaces/repositories';
 import { EnrollmentRepository } from './modules/enrollment/enrollment.repository';
 import { LIVE_SESSION_REPOSITORY_TOKEN } from './interfaces/repositories';
@@ -47,6 +51,10 @@ import { REVIEW_SERVICE_TOKEN } from './interfaces/services';
 import { ReviewService } from './modules/review/review.service';
 import { EXAM_SERVICE_TOKEN } from './interfaces/services';
 import { ExamService } from './modules/exam/exam.service';
+import { QUESTION_POOL_SERVICE_TOKEN } from './interfaces/services/i-question-pool.service';
+import { QuestionPoolService } from './modules/question-pool/question-pool.service';
+import { QUESTION_SERVICE_TOKEN } from './interfaces/services/i-question.service';
+import { QuestionService } from './modules/question/question.service';
 import { ENROLLMENT_SERVICE_TOKEN } from './interfaces/services';
 import { EnrollmentService } from './modules/enrollment/enrollment.service';
 import { LIVE_SESSION_SERVICE_TOKEN } from './interfaces/services';
@@ -69,8 +77,13 @@ import { EnrollmentHandler } from './handlers/enrollment.handler';
 import { LearningProgressHandler } from './handlers/learning-progress.handler';
 import { ReviewHandler } from './handlers/review.handler';
 import { ExamHandler } from './handlers/exam.handler';
+import { AssignmentHandler } from './handlers/assignment.handler';
 import { CouponHandler } from './handlers/coupon.handler';
 import { CertificateHandler } from './handlers/certificate.handler';
+import { BlogHandler } from './handlers/blog.handler';
+import { ModuleHandler } from './handlers/module.handler';
+import { QuestionPoolHandler } from './handlers/question-pool.handler';
+import { QuestionHandler } from './handlers/question.handler';
 
 // Schedulers
 import { CouponScheduler } from './modules/coupon/coupon.scheduler';
@@ -87,6 +100,8 @@ import { EnrollmentModule } from '@server/learning/modules/enrollment/enrollment
 import { LearningProgressModule } from '@server/learning/modules/learning-progress/learning-progress.module';
 import { LiveSessionModule } from '@server/learning/modules/live-session/live-session.module';
 import { CourseRunModule } from './modules/course-run/course-run.module';
+import { AssignmentModule } from '@server/learning/modules/assignment/assignment.module';
+import { SubmissionModule } from '@server/learning/modules/submission/submission.module';
 import { TeachingScheduleModule } from '@server/learning/modules/teaching-schedule/teaching-schedule.module';
 import { CouponModule } from '@server/learning/modules/coupon/coupon.module';
 import { CertificateModule } from '@server/learning/modules/certificate/certificate.module';
@@ -95,6 +110,8 @@ import { WishlistModule } from '@server/learning/modules/wishlist/wishlist.modul
 import { ReviewModule } from '@server/learning/modules/review/review.module';
 import { BlogModule } from '@server/learning/modules/blog/blog.module';
 import { CartModule } from '@server/learning/modules/cart/cart.module';
+import { QuestionPoolModule } from './modules/question-pool/question-pool.module';
+import { QuestionModule } from './modules/question/question.module';
 
 @Module({
   imports: [
@@ -126,6 +143,8 @@ import { CartModule } from '@server/learning/modules/cart/cart.module';
     forwardRef(() => LearningProgressModule),
     forwardRef(() => LiveSessionModule),
     forwardRef(() => CourseRunModule),
+    forwardRef(() => AssignmentModule),
+    forwardRef(() => SubmissionModule),
     TeachingScheduleModule,
     CouponModule,
     CertificateModule,
@@ -134,6 +153,8 @@ import { CartModule } from '@server/learning/modules/cart/cart.module';
     ReviewModule,
     BlogModule,
     CartModule,
+    QuestionPoolModule,
+    QuestionModule,
   ],
   controllers: [
     AttendanceHandler,
@@ -146,8 +167,13 @@ import { CartModule } from '@server/learning/modules/cart/cart.module';
     LearningProgressHandler,
     ReviewHandler,
     ExamHandler,
+    AssignmentHandler,
     CouponHandler,
     CertificateHandler,
+    BlogHandler,
+    ModuleHandler,
+    QuestionPoolHandler,
+    QuestionHandler,
   ],
   providers: [
     {
@@ -178,6 +204,10 @@ import { CartModule } from '@server/learning/modules/cart/cart.module';
     { provide: COUPON_SERVICE_TOKEN, useClass: CouponService },
     { provide: CERTIFICATE_SERVICE_TOKEN, useClass: CertificateService },
     { provide: ATTENDANCE_SERVICE_TOKEN, useClass: AttendanceService },
+    { provide: QUESTION_POOL_REPOSITORY_TOKEN, useClass: QuestionPoolRepository },
+    { provide: QUESTION_POOL_SERVICE_TOKEN, useClass: QuestionPoolService },
+    { provide: QUESTION_REPOSITORY_TOKEN, useClass: QuestionRepository },
+    { provide: QUESTION_SERVICE_TOKEN, useClass: QuestionService },
     CouponScheduler,
     BlogAnalyticsScheduler,
     EnrollmentExpirationScheduler,

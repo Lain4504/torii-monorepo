@@ -74,7 +74,6 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
                 courseMasterId: module.courseMasterId,
                 description: module.description,
                 orderIndex: module.orderIndex,
-                durationMinutes: module.durationMinutes,
             });
         }
     }, [module, reset]);
@@ -174,22 +173,6 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
                                     )}
                                 />
 
-                                <Controller
-                                    control={control}
-                                    name="durationMinutes"
-                                    render={({ field, fieldState }) => (
-                                        <Field className="space-y-1" data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor={field.name}>Thời Lượng (phút)</FieldLabel>
-                                            <Input
-                                                id={field.name}
-                                                type="number"
-                                                {...field}
-                                                onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                            />
-                                            <FieldError errors={[fieldState.error]} />
-                                        </Field>
-                                    )}
-                                />
                             </div>
                         </div>
                     </ScrollArea>

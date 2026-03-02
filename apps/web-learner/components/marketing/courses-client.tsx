@@ -13,7 +13,8 @@ import { Separator } from '@workspace/ui/components/separator';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Input } from '@workspace/ui/components/input';
 import { Tabs, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
-import { useCourses } from '@/lib/api/services/course-api';
+import { useCourseRuns } from '@/lib/api/services/course-run-api';
+import { CourseRunStatus } from '@workspace/schemas';
 import { CourseCard } from './course-card';
 
 const FadeIn = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => (
@@ -42,20 +43,32 @@ export function CoursesClient() {
         return () => clearTimeout(timer);
     }, [searchInput]);
 
-    const { data: coursesData, isLoading, isError } = useCourses({
+    const { data: runsData, isLoading, isError } = useCourseRuns({
         page,
         limit: 9,
-        levels: selectedLevels,
-        q: search,
-        priceFilter,
-        sortBy,
-        topics: selectedTopics,
-        type: formatFilter !== 'all' ? formatFilter : undefined,
+        status: CourseRunStatus.ENROLLING,
+        type: 'vod' as any,
     });
 
-    const courses = coursesData?.data || [];
-    const totalPages = coursesData?.totalPages || 1;
-    const totalItems = coursesData?.total || 0;
+    const courses = ((runsData as any)?.data || []).map((run: any) => ({
+        ...run,
+        // Adapt CourseRun to what CourseCard expects.
+        // IMPORTANT: use CourseMaster slug so /courses/[slug] resolves correctly.
+        id: run.courseMaster?.id ?? run.courseMasterId,
+        title: run.courseMaster?.title ?? run.title,
+        slug: run.courseMaster?.slug,
+        shortDescription: run.courseMaster?.shortDescription,
+        description: run.courseMaster?.description,
+        thumbnailUrl: run.coverUrl,
+        price: run.price,
+        discountPrice: run.discountPrice,
+        jlptLevel: run.courseMaster?.jlptLevel,
+        lecturer: run.lecturer,
+        averageRating: run.averageRating,
+        totalReviews: run.totalReviews,
+    }));
+    const totalPages = runsData?.totalPages || 1;
+    const totalItems = runsData?.total || 0;
 
     const handlePriceFilter = useCallback((value: 'all' | 'free' | 'paid') => {
         setPriceFilter(value);
@@ -131,9 +144,8 @@ export function CoursesClient() {
                                                     setSelectedLevels(isActive ? selectedLevels.filter((l) => l !== level) : [...selectedLevels, level]);
                                                     setPage(1);
                                                 }}
-                                                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer border ${
-                                                    isActive ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:border-primary/50'
-                                                }`}
+                                                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer border ${isActive ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:border-primary/50'
+                                                    }`}
                                             >
                                                 {level}
                                             </button>
@@ -161,9 +173,8 @@ export function CoursesClient() {
                                             key={val}
                                             type="button"
                                             onClick={() => handlePriceFilter(val)}
-                                            className={`flex-1 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
-                                                priceFilter === val ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
-                                            }`}
+                                            className={`flex-1 py-1.5 rounded-md text-xs font-bold transition-all cursor-pointer ${priceFilter === val ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+                                                }`}
                                         >
                                             {val === 'all' ? 'Tất cả' : val === 'free' ? 'Miễn phí' : 'Có phí'}
                                         </button>
@@ -174,30 +185,30 @@ export function CoursesClient() {
                             <div className="space-y-3">
                                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Chủ đề</h3>
                                 <div className="space-y-2">
-                                        {[
-                                            { id: 'topic-conversation', label: 'Hội thoại thực tế' },
-                                            { id: 'topic-grammar', label: 'Ngữ pháp chuyên sâu' },
-                                            { id: 'topic-kanji', label: 'Hán tự (Kanji)' },
-                                            { id: 'topic-kaiwa', label: 'Luyện thi Kaiwa' },
-                                            { id: 'topic-business', label: 'Tiếng Nhật công sở' },
-                                        ].map(({ id, label }) => (
-                                            <div key={id} className="flex items-center gap-2.5">
-                                                <Checkbox
-                                                    id={id}
-                                                    className="size-3.5"
-                                                    checked={selectedTopics.includes(id)}
-                                                    onCheckedChange={(checked) => {
-                                                        if (checked) {
-                                                            setSelectedTopics([...selectedTopics, id]);
-                                                        } else {
-                                                            setSelectedTopics(selectedTopics.filter(t => t !== id));
-                                                        }
-                                                        setPage(1);
-                                                    }}
-                                                />
-                                                <Label htmlFor={id} className="text-sm cursor-pointer hover:text-primary transition-colors">{label}</Label>
-                                            </div>
-                                        ))}
+                                    {[
+                                        { id: 'topic-conversation', label: 'Hội thoại thực tế' },
+                                        { id: 'topic-grammar', label: 'Ngữ pháp chuyên sâu' },
+                                        { id: 'topic-kanji', label: 'Hán tự (Kanji)' },
+                                        { id: 'topic-kaiwa', label: 'Luyện thi Kaiwa' },
+                                        { id: 'topic-business', label: 'Tiếng Nhật công sở' },
+                                    ].map(({ id, label }) => (
+                                        <div key={id} className="flex items-center gap-2.5">
+                                            <Checkbox
+                                                id={id}
+                                                className="size-3.5"
+                                                checked={selectedTopics.includes(id)}
+                                                onCheckedChange={(checked) => {
+                                                    if (checked) {
+                                                        setSelectedTopics([...selectedTopics, id]);
+                                                    } else {
+                                                        setSelectedTopics(selectedTopics.filter(t => t !== id));
+                                                    }
+                                                    setPage(1);
+                                                }}
+                                            />
+                                            <Label htmlFor={id} className="text-sm cursor-pointer hover:text-primary transition-colors">{label}</Label>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                             <Separator />
@@ -208,92 +219,92 @@ export function CoursesClient() {
                     </aside>
 
                     <section className="flex-1">
-                            {/* Sort + count bar */}
-                            <div className="flex items-center justify-between mb-4">
-                                <p className="text-sm text-muted-foreground">
-                                    {isLoading ? 'Đang tải...' : `${totalItems} khóa học`}
-                                </p>
-                                <div className="flex items-center gap-2">
-                                    <Select value={sortBy} onValueChange={(val) => { setSortBy(val); setPage(1); }}>
-                                        <SelectTrigger className="w-48">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="popularity">Phổ biến nhất</SelectItem>
-                                            <SelectItem value="newest">Mới nhất</SelectItem>
-                                            <SelectItem value="price_asc">Giá: Thấp đến Cao</SelectItem>
-                                            <SelectItem value="price_desc">Giá: Cao đến Thấp</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
+                        {/* Sort + count bar */}
+                        <div className="flex items-center justify-between mb-4">
+                            <p className="text-sm text-muted-foreground">
+                                {isLoading ? 'Đang tải...' : `${totalItems} khóa học`}
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <Select value={sortBy} onValueChange={(val) => { setSortBy(val); setPage(1); }}>
+                                    <SelectTrigger className="w-48">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="popularity">Phổ biến nhất</SelectItem>
+                                        <SelectItem value="newest">Mới nhất</SelectItem>
+                                        <SelectItem value="price_asc">Giá: Thấp đến Cao</SelectItem>
+                                        <SelectItem value="price_desc">Giá: Cao đến Thấp</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
+                        </div>
 
-                            {/* Course Grid */}
-                            {isLoading ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                                    {Array(6).fill(0).map((_, i) => (
-                                        <div key={i} className="space-y-4 bg-card rounded-xl p-4 border border-border shadow-sm">
-                                            <Skeleton className="aspect-video w-full rounded-lg" />
-                                            <Skeleton className="h-6 w-3/4" />
-                                            <Skeleton className="h-4 w-full" />
-                                            <Skeleton className="h-10 w-full rounded-lg" />
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : isError ? (
-                                <div className="text-center py-20 bg-muted/10 rounded-xl border border-dashed border-border">
-                                    <p className="text-slate-500">Đã có lỗi xảy ra khi tải danh sách khóa học.</p>
-                                </div>
-                            ) : courses.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                                    {courses.map((course) => (
-                                        <CourseCard key={course.id} course={course} />
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="text-center py-20 bg-muted/10 rounded-3xl border border-dashed border-border">
-                                    <p className="text-slate-500">Không tìm thấy khóa học nào phù hợp.</p>
-                                </div>
-                            )}
-                            {!isLoading && totalPages > 1 && (
-                                <Pagination className="mt-12">
-                                    <PaginationContent>
-                                        <PaginationItem>
-                                            <PaginationPrevious
-                                                href="#"
-                                                text="Trước"
-                                                onClick={(e) => { e.preventDefault(); setPage((p) => Math.max(1, p - 1)); }}
-                                                aria-disabled={page === 1}
-                                            />
-                                        </PaginationItem>
-                                        {renderPaginationItems().map((p, idx) =>
-                                            p === '...' ? (
-                                                <PaginationItem key={`ellipsis-${idx}`}>
-                                                    <PaginationEllipsis />
-                                                </PaginationItem>
-                                            ) : (
-                                                <PaginationItem key={p}>
-                                                    <PaginationLink
-                                                        href="#"
-                                                        isActive={p === page}
-                                                        onClick={(e) => { e.preventDefault(); setPage(p as number); }}
-                                                    >
-                                                        {p}
-                                                    </PaginationLink>
-                                                </PaginationItem>
-                                            )
-                                        )}
-                                        <PaginationItem>
-                                            <PaginationNext
-                                                href="#"
-                                                text="Tiếp"
-                                                onClick={(e) => { e.preventDefault(); setPage((p) => Math.min(totalPages, p + 1)); }}
-                                                aria-disabled={page === totalPages}
-                                            />
-                                        </PaginationItem>
-                                    </PaginationContent>
-                                </Pagination>
-                            )}
+                        {/* Course Grid */}
+                        {isLoading ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                {Array(6).fill(0).map((_, i) => (
+                                    <div key={i} className="space-y-4 bg-card rounded-xl p-4 border border-border shadow-sm">
+                                        <Skeleton className="aspect-video w-full rounded-lg" />
+                                        <Skeleton className="h-6 w-3/4" />
+                                        <Skeleton className="h-4 w-full" />
+                                        <Skeleton className="h-10 w-full rounded-lg" />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : isError ? (
+                            <div className="text-center py-20 bg-muted/10 rounded-xl border border-dashed border-border">
+                                <p className="text-slate-500">Đã có lỗi xảy ra khi tải danh sách khóa học.</p>
+                            </div>
+                        ) : courses.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                {courses.map((course) => (
+                                    <CourseCard key={course.id} course={course} />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-20 bg-muted/10 rounded-3xl border border-dashed border-border">
+                                <p className="text-slate-500">Không tìm thấy khóa học nào phù hợp.</p>
+                            </div>
+                        )}
+                        {!isLoading && totalPages > 1 && (
+                            <Pagination className="mt-12">
+                                <PaginationContent>
+                                    <PaginationItem>
+                                        <PaginationPrevious
+                                            href="#"
+                                            text="Trước"
+                                            onClick={(e) => { e.preventDefault(); setPage((p) => Math.max(1, p - 1)); }}
+                                            aria-disabled={page === 1}
+                                        />
+                                    </PaginationItem>
+                                    {renderPaginationItems().map((p, idx) =>
+                                        p === '...' ? (
+                                            <PaginationItem key={`ellipsis-${idx}`}>
+                                                <PaginationEllipsis />
+                                            </PaginationItem>
+                                        ) : (
+                                            <PaginationItem key={p}>
+                                                <PaginationLink
+                                                    href="#"
+                                                    isActive={p === page}
+                                                    onClick={(e) => { e.preventDefault(); setPage(p as number); }}
+                                                >
+                                                    {p}
+                                                </PaginationLink>
+                                            </PaginationItem>
+                                        )
+                                    )}
+                                    <PaginationItem>
+                                        <PaginationNext
+                                            href="#"
+                                            text="Tiếp"
+                                            onClick={(e) => { e.preventDefault(); setPage((p) => Math.min(totalPages, p + 1)); }}
+                                            aria-disabled={page === totalPages}
+                                        />
+                                    </PaginationItem>
+                                </PaginationContent>
+                            </Pagination>
+                        )}
                     </section>
                 </div>
             </main>

@@ -38,6 +38,27 @@ export class ExamService implements IExamService {
     ) { }
 
     /**
+     * Build ExamResponseDTO from Quiz entity
+     * This is a fallback to avoid AutoMapper mapping issues between "Quiz" and "ExamResponseDTO"
+     */
+    private buildExamResponseDTO(quiz: any): ExamResponseDTO {
+        return {
+            id: quiz.id,
+            title: quiz.title,
+            description: quiz.description ?? undefined,
+            jlptLevel: quiz.jlptLevel,
+            examType: quiz.quizType,
+            sections: (quiz.sections as any) ?? [],
+            totalTime: quiz.totalTime ?? 0,
+            totalQuestions: quiz.totalQuestions,
+            status: quiz.status,
+            createdBy: quiz.createdBy ?? undefined,
+            createdAt: quiz.createdAt,
+            updatedAt: quiz.updatedAt,
+        };
+    }
+
+    /**
      * Get all exams with user session status
      * GET /api/v1/exams (with userId to get session status)
      */
@@ -137,7 +158,7 @@ export class ExamService implements IExamService {
             return {
                 data: quizzes.map((q) => {
                     const attempt = attemptsByQuizId.get(q.id);
-                    const examDto = this.mapper.map<any, ExamResponseDTO>(q, 'Quiz', 'ExamResponseDTO');
+                    const examDto = this.buildExamResponseDTO(q);
 
                     return {
                         ...examDto,
@@ -236,7 +257,7 @@ export class ExamService implements IExamService {
             const totalPages = Math.ceil(total / validLimit);
 
             return {
-                data: quizzes.map((q) => this.mapper.map<any, ExamResponseDTO>(q, 'Quiz', 'ExamResponseDTO')),
+                data: quizzes.map((q) => this.buildExamResponseDTO(q)),
                 total,
                 page: validPage,
                 limit: validLimit,
@@ -739,7 +760,7 @@ export class ExamService implements IExamService {
 
         return {
             sessionId: attempt.id,
-            exam: this.mapper.map<any, ExamResponseDTO>(quiz, 'Quiz', 'ExamResponseDTO'),
+            exam: this.buildExamResponseDTO(quiz),
             questions,
             timeLimit: totalTimeSeconds,
             sections: quiz.sections as any,
@@ -805,7 +826,7 @@ export class ExamService implements IExamService {
             return {
                 data: attempts.map((a: any) => {
                     const sessionDto = this.mapper.map<any, ExamSessionResponseDTO>(a, 'QuizAttempt', 'ExamSessionResponseDTO');
-                    const exam = a.quiz ? this.mapper.map<any, ExamResponseDTO>(a.quiz, 'Quiz', 'ExamResponseDTO') : undefined;
+                    const exam = a.quiz ? this.buildExamResponseDTO(a.quiz) : undefined;
                     const score = a.status === ExamSessionStatus.SUBMITTED || a.status === ExamSessionStatus.COMPLETED
                         ? (a.score ? Number(a.score) : undefined)
                         : undefined;
@@ -947,7 +968,7 @@ export class ExamService implements IExamService {
                 this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseMasterId });
             }
 
-            return this.mapper.map<any, ExamResponseDTO>(quiz, 'Quiz', 'ExamResponseDTO');
+            return this.buildExamResponseDTO(quiz);
         } catch (error: any) {
             this.logger.error(`Error creating exam: ${error.message}`, error.stack);
             throw error;
@@ -1001,7 +1022,7 @@ export class ExamService implements IExamService {
                 this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseMasterId });
             }
 
-            return this.mapper.map<any, ExamResponseDTO>(updated, 'Quiz', 'ExamResponseDTO');
+            return this.buildExamResponseDTO(updated);
         } catch (error: any) {
             this.logger.error(`Error updating exam ${examId}: ${error.message}`, error.stack);
             throw error;
@@ -1049,7 +1070,7 @@ export class ExamService implements IExamService {
                 throw new NotFoundException('Exam not found');
             }
 
-            return this.mapper.map<any, ExamResponseDTO>(quiz, 'Quiz', 'ExamResponseDTO');
+            return this.buildExamResponseDTO(quiz);
         } catch (error: any) {
             this.logger.error(`Error fetching exam ${examId}: ${error.message}`, error.stack);
             throw error;
@@ -1085,7 +1106,7 @@ export class ExamService implements IExamService {
             });
 
             this.logger.log(`Exam ${examId} published by ${requester.sub}`);
-            return this.mapper.map<any, ExamResponseDTO>(updated, 'Quiz', 'ExamResponseDTO');
+            return this.buildExamResponseDTO(updated);
         } catch (error: any) {
             this.logger.error(`Error publishing exam ${examId}: ${error.message}`, error.stack);
             throw error;
@@ -1205,7 +1226,7 @@ export class ExamService implements IExamService {
             return {
                 data: attempts.map((a: any) => {
                     const sessionDto = this.mapper.map<any, ExamSessionResponseDTO>(a, 'QuizAttempt', 'ExamSessionResponseDTO');
-                    const exam = a.quiz ? this.mapper.map<any, ExamResponseDTO>(a.quiz, 'Quiz', 'ExamResponseDTO') : undefined;
+                    const exam = a.quiz ? this.buildExamResponseDTO(a.quiz) : undefined;
                     const score = a.status === ExamSessionStatus.SUBMITTED || a.status === ExamSessionStatus.COMPLETED
                         ? (a.score ? Number(a.score) : undefined)
                         : undefined;
@@ -1247,7 +1268,7 @@ export class ExamService implements IExamService {
                 throw new NotFoundException('Exam not found');
             }
 
-            const examDto = this.mapper.map<any, ExamResponseDTO>(quiz, 'Quiz', 'ExamResponseDTO');
+            const examDto = this.buildExamResponseDTO(quiz);
 
             // Get user's latest attempt if userId provided
             let userAttempt: any = null;
@@ -1333,7 +1354,7 @@ export class ExamService implements IExamService {
             return {
                 data: attempts.map((a: any) => {
                     const sessionDto = this.mapper.map<any, ExamSessionResponseDTO>(a, 'QuizAttempt', 'ExamSessionResponseDTO');
-                    const exam = a.quiz ? this.mapper.map<any, ExamResponseDTO>(a.quiz, 'Quiz', 'ExamResponseDTO') : undefined;
+                    const exam = a.quiz ? this.buildExamResponseDTO(a.quiz) : undefined;
                     const score = a.status === ExamSessionStatus.SUBMITTED || a.status === ExamSessionStatus.COMPLETED
                         ? (a.score ? Number(a.score) : undefined)
                         : undefined;

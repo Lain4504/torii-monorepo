@@ -162,7 +162,7 @@ export default function DashboardClientPage() {
                                                 </div>
                                             </div>
                                             <Link
-                                                href={`/dashboard/courses/${mainCourse.id}/learn`}
+                                                href={`/dashboard/courses/${mainCourse.courseRunId}/learn`}
                                                 className="mt-6 w-full md:max-w-max px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl transition-all shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] text-center text-sm"
                                             >
                                                 Tiếp tục học tập
@@ -271,7 +271,7 @@ export default function DashboardClientPage() {
                                         return (
                                             <Link
                                                 key={course.id}
-                                                href={`/dashboard/courses/${course.id}`}
+                                                href={`/dashboard/courses/${course.courseRunId}`}
                                                 className="bg-card p-4 rounded-2xl border border-border flex items-center justify-between hover-lift block"
                                             >
                                                 <div className="flex items-center gap-4">

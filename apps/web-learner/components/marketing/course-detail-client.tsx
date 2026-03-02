@@ -22,8 +22,6 @@ export function CourseDetailClient({ slug }: { slug: string }) {
 
     const { data: course, isLoading: isCourseLoading } = useCourseBySlug(slug);
     const { data: curriculum, isLoading: isCurriculumLoading } = useCurriculum(course?.id);
-    const { data: enrollmentData } = useCheckEnrollment(course?.id || '');
-    const { data: wishlistData } = useCheckWishlist(course?.id || '');
     const { data: cartData } = useCart();
     const { data: availableRuns, isLoading: isRunsLoading } = useAvailableCourseRuns(course?.id);
     const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
@@ -35,12 +33,16 @@ export function CourseDetailClient({ slug }: { slug: string }) {
     const addToCart = useAddToCart();
     const toggleWishlist = useToggleWishlist();
 
+    // Get pricing and enrollment from selected run or first available run
+    const selectedRun = selectedRunId ? availableRuns?.find(r => r.id === selectedRunId) : availableRuns?.[0];
+    const primaryRunId = selectedRun?.id;
+    const { data: wishlistData } = useCheckWishlist(primaryRunId || '');
+    const { data: enrollmentData } = useCheckEnrollment(primaryRunId || '');
     const isEnrolled = enrollmentData?.isEnrolled;
     const isInWishlist = wishlistData?.isInWishlist;
-    const isInCart = cartData?.items?.some(item => item.courseRun?.courseMaster?.id === course?.id);
-
-    // Get pricing from selected run or first available run
-    const selectedRun = selectedRunId ? availableRuns?.find(r => r.id === selectedRunId) : availableRuns?.[0];
+    const isInCart = primaryRunId
+        ? cartData?.items?.some(item => item.courseRunId === primaryRunId)
+        : false;
     const coursePrice = selectedRun?.price ?? 0;
     const discountPrice = selectedRun?.discountPrice ?? null;
 
@@ -100,57 +102,62 @@ export function CourseDetailClient({ slug }: { slug: string }) {
 
             <div className="bg-muted/30 text-foreground antialiased font-sans relative">
 
-                {/* Hero */}
-                <div className="bg-muted/50 border-b border-border">
-                    <section className="relative" data-purpose="hero-section">
-                        <div className="max-w-6xl mx-auto px-4 pt-10 pb-16 md:pt-16 md:pb-24 grid lg:grid-cols-3 gap-12 relative z-10">
+                {/*  BEGIN: Hero Section  */}
+                <div className="bg-slate-900 border-b border-slate-800">
+                    <section className="relative text-slate-50" data-purpose="hero-section">
+                        <div className="max-w-7xl mx-auto px-4 pt-10 pb-16 md:pt-16 md:pb-32 grid lg:grid-cols-3 gap-12 relative z-10">
                             <div className="lg:col-span-2">
-                                <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-                                    <a className="hover:text-primary transition-colors" href="/courses">Khóa học</a>
-                                    <ChevronDown className="w-4 h-4 -rotate-90" />
-                                    <span className="text-foreground line-clamp-1 font-medium">{course.title}</span>
+                                {/*  Breadcrumbs  */}
+                                <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-slate-400 mb-6 font-medium">
+                                    <a className="hover:text-white transition-colors" href="/courses">Khóa học</a>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
+                                    <span className="text-white line-clamp-1">{course.title}</span>
                                 </nav>
-                                <div className="flex flex-wrap gap-2 mb-4">
-                                    <Badge variant="secondary" className="font-bold uppercase tracking-wider">
-                                        {course.jlptLevel || 'ALL'}
-                                    </Badge>
-                                    <Badge className="bg-primary/10 text-primary border-none font-bold uppercase tracking-wider">
-                                        {course.type?.toUpperCase() === 'LIVE' ? 'Live' : course.type?.toUpperCase() === 'VOD' ? 'VOD' : 'Khóa học'}
-                                    </Badge>
-                                </div>
-                                <h1 className="text-3xl md:text-5xl font-bold leading-tight mb-6 text-foreground tracking-tight">
+                                {/*  JLPT Badge  */}
+                                <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary/20 border border-primary/30 text-primary text-xs font-bold uppercase tracking-widest mb-4">
+                                    Trình độ {course.jlptLevel || 'ALL'}
+                                </span>
+                                <h1 className="serif-jp text-3xl md:text-5xl lg:text-5xl font-extrabold leading-tight mb-6 text-white tracking-tight">
                                     {course.title}
                                 </h1>
-                                <p className="text-lg text-muted-foreground mb-8 max-w-2xl leading-relaxed">
+                                <p className="text-lg md:text-xl text-slate-300 mb-8 max-w-2xl leading-relaxed">
                                     {course.shortDescription || course.description}
                                 </p>
+                                {/*  Under Hero Metadata  */}
                                 <div className="flex flex-wrap items-center gap-6 text-sm">
                                     <div className="flex items-center gap-3">
-                                        <div className="size-10 rounded-full border border-border bg-background flex items-center justify-center font-bold text-xs uppercase overflow-hidden shrink-0">
+                                        <div className="w-10 h-10 rounded-full border border-slate-700 bg-slate-800 flex items-center justify-center font-bold text-xs uppercase overflow-hidden shadow-inner shrink-0">
                                             {course.lecturer?.avatarUrl ? (
                                                 <img src={course.lecturer.avatarUrl} alt={course.lecturer.displayName} className="size-full object-cover" />
                                             ) : (
-                                                course.lecturer?.displayName?.substring(0, 2) || 'S'
+                                                course.lecturer?.displayName?.substring(0, 2) || "S"
                                             )}
                                         </div>
                                         {course.lecturer?.id ? (
-                                            <a href={`/lecturers/${course.lecturer.id}`} className="font-medium text-foreground hover:text-primary transition-colors underline underline-offset-4">
-                                                {course.lecturer?.displayName || 'Torii Sensei'}
+                                            <a
+                                                href={`/lecturers/${course.lecturer.id}`}
+                                                className="font-medium text-white hover:text-primary transition-colors underline underline-offset-4"
+                                            >
+                                                {course.lecturer?.displayName || "Torii Sensei"}
                                             </a>
                                         ) : (
-                                            <span className="font-medium text-foreground">{course.lecturer?.displayName || 'Torii Sensei'}</span>
+                                            <span className="font-medium text-white">{course.lecturer?.displayName || "Torii Sensei"}</span>
                                         )}
                                     </div>
-                                    <div className="flex items-center gap-1.5">
-                                        <Star className="w-4 h-4 fill-primary text-primary" />
-                                        <span className="font-bold">{course.averageRating || 0}</span>
-                                        <span className="text-muted-foreground">({(course.totalReviews || 0).toLocaleString()} đánh giá)</span>
+                                    <div className="flex items-center gap-1.5 text-yellow-500">
+                                        <span className="font-bold text-white text-base">{course.averageRating || 0}</span>
+                                        <div className="flex">
+                                            {[1, 2, 3, 4, 5].map(i => (
+                                                <Star key={i} className={`w-4 h-4 ${i <= Math.round(course.averageRating || 0) ? 'fill-current' : 'text-slate-700 fill-slate-700'}`} />
+                                            ))}
+                                        </div>
+                                        <span className="text-slate-400 underline underline-offset-4 cursor-pointer ml-1 hover:text-white transition-colors">({course.totalReviews || 0} đánh giá)</span>
                                     </div>
-                                    <div className="flex items-center gap-1.5 text-muted-foreground">
+                                    <div className="flex items-center gap-1.5 text-slate-300">
                                         <Users className="w-4 h-4" />
                                         <span>{(course.totalStudents || 0).toLocaleString()} học viên</span>
                                     </div>
-                                    <div className="flex items-center gap-1.5 text-muted-foreground">
+                                    <div className="text-slate-400 flex items-center gap-1.5 font-medium">
                                         <Clock className="w-4 h-4" />
                                         <span>Cập nhật {new Date(course.updatedAt).toLocaleDateString('vi-VN')}</span>
                                     </div>
@@ -159,6 +166,7 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                         </div>
                     </section>
                 </div>
+                {/*  END: Hero Section  */}
                 {/*  BEGIN: Main Content Layout  */}
                 <main className="max-w-7xl mx-auto px-4 pb-20 relative">
                     <div className="grid lg:grid-cols-3 gap-12">
@@ -166,7 +174,7 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                         <div className="lg:col-span-2 space-y-12 bg-transparent pt-8 lg:pt-12">
                             {/*  What You Will Learn  */}
                             <section data-purpose="outcomes-section" id="outcomes">
-                                <h3 className="text-2xl font-bold mb-6">Bạn sẽ học được gì?</h3>
+                                <h3 className="serif-jp text-2xl font-bold mb-6">Bạn sẽ học được gì?</h3>
                                 <div className="p-6 bg-background rounded-2xl border border-border grid md:grid-cols-2 gap-4">
                                     {Array.isArray(course.learningOutcomes) ? course.learningOutcomes.map((outcome: string, i: number) => (
                                         <div key={i} className="flex gap-3">
@@ -181,7 +189,7 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                             {/*  Course Curriculum (Accordion)  */}
                             <section data-purpose="curriculum-section" id="curriculum">
                                 <div className="flex items-center justify-between mb-6">
-                                    <h3 className="text-2xl font-bold">Chương trình học</h3>
+                                    <h3 className="serif-jp text-2xl font-bold">Chương trình học</h3>
                                     <span className="text-sm text-muted-foreground">
                                         {curriculum?.modules?.length || 0} chương • {course.totalLessons || 0} bài học
                                     </span>
@@ -247,8 +255,8 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                                 <section data-purpose="runs-section" id="schedule">
                                     <div className="flex items-center justify-between mb-8">
                                         <div>
-                                            <h3 className="text-2xl font-bold mb-1">Lịch khai giảng (Course Run)</h3>
-                                            <p className="text-sm text-muted-foreground">Chọn đợt học cụ thể để đăng ký. Giá và lịch học áp dụng theo từng Run.</p>
+                                            <h3 className="serif-jp text-2xl font-bold mb-1">Lịch khai giảng sắp tới</h3>
+                                            <p className="text-sm text-muted-foreground">Chọn lịch học phù hợp nhất với thời gian của bạn.</p>
                                         </div>
                                         <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 transition-colors">
                                             {availableRuns?.length || 0} lớp đang mở
@@ -326,7 +334,7 @@ export function CourseDetailClient({ slug }: { slug: string }) {
 
                             {/*  Prerequisites  */}
                             <section data-purpose="prerequisites-section">
-                                <h3 className="text-2xl font-bold mb-6">Điều kiện tham gia</h3>
+                                <h3 className="serif-jp text-2xl font-bold mb-6">Điều kiện tham gia</h3>
                                 <div className="p-6 bg-muted rounded-2xl border border-border">
                                     <ul className="space-y-4">
                                         {Array.isArray(course.requirements) ? course.requirements.map((req: string, i: number) => (
@@ -345,7 +353,7 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                             </section>
                             {/*  Instructor  */}
                             <section data-purpose="instructor-section" id="instructor">
-                                <h3 className="text-2xl font-bold mb-6">Giảng viên</h3>
+                                <h3 className="serif-jp text-2xl font-bold mb-6">Giảng viên</h3>
                                 <div className="p-8 bg-background rounded-2xl border border-border flex flex-col md:flex-row gap-8">
                                     <div className="flex flex-col items-center text-center space-y-4 md:w-1/3">
                                         <div className="w-32 h-32 rounded-full border-4 border-slate-50 shadow-sm bg-muted flex items-center justify-center font-bold text-2xl uppercase overflow-hidden">
@@ -528,7 +536,14 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                                     <div className="space-y-3">
                                         {isEnrolled ? (
                                             <button
-                                                onClick={() => router.push(`/dashboard/courses/${course.id}/learn`)}
+                                                onClick={() => {
+                                                    const runId = enrollmentData?.enrollment?.courseRunId;
+                                                    if (runId) {
+                                                        router.push(`/courses/${runId}/learn`);
+                                                    } else {
+                                                        router.push(`/dashboard/my-courses`);
+                                                    }
+                                                }}
                                                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-4 rounded-xl font-bold text-lg shadow-lg transition-all"
                                             >
                                                 Ghé thăm lớp học
@@ -545,17 +560,22 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                                                             }
                                                             return;
                                                         }
-                                                        router.push(`/checkout/${course.id}${selectedRunId ? `?runId=${selectedRunId}` : ''}`);
+                                                        const targetRunId = selectedRun?.id || availableRuns?.[0]?.id;
+                                                        router.push(`/checkout/${course.id}${targetRunId ? `?runId=${targetRunId}` : ''}`);
                                                     }}
-                                                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-4 rounded-xl font-bold text-lg shadow-lg transition-colors">
+                                                    className="w-full bg-gradient-to-r from-[oklch(0.55_0.15_15)] to-rose-600 hover:from-[oklch(0.55_0.15_15)]Dark hover:to-rose-700 text-primary-foreground py-4 rounded-xl font-bold text-lg shadow-lg shadow-[oklch(0.55_0.15_15)]/30 transition-all hover:-translate-y-0.5 active:translate-y-0">
                                                     Đăng ký ngay
                                                 </button>
                                                 <button
                                                     onClick={() => {
+                                                        if (!primaryRunId) {
+                                                            toast.error('Không tìm thấy lớp học phù hợp để thêm vào giỏ hàng');
+                                                            return;
+                                                        }
                                                         if (isInCart) {
                                                             router.push('/dashboard/cart');
                                                         } else {
-                                                            addToCart.mutate(course.id, {
+                                                            addToCart.mutate(primaryRunId, {
                                                                 onSuccess: () => toast.success('Đã thêm vào giỏ hàng!'),
                                                                 onError: () => toast.error('Không thể thêm vào giỏ hàng'),
                                                             });
@@ -582,7 +602,11 @@ export function CourseDetailClient({ slug }: { slug: string }) {
 
                                         <button
                                             onClick={() => {
-                                                toggleWishlist.mutate(course.id, {
+                                                if (!primaryRunId) {
+                                                    toast.error('Không tìm thấy lớp học phù hợp để thêm vào yêu thích');
+                                                    return;
+                                                }
+                                                toggleWishlist.mutate(primaryRunId, {
                                                     onSuccess: (data) => toast.success(data.isInWishlist ? 'Đã thêm vào danh sách yêu thích!' : 'Đã xóa khỏi danh sách yêu thích'),
                                                     onError: () => toast.error('Không thể cập nhật danh sách yêu thích'),
                                                 });

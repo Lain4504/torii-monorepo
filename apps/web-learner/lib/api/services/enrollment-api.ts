@@ -40,11 +40,11 @@ export const enrollmentApi = {
     },
 
     /**
-     * Check if user is enrolled in a course
+     * Check if user is enrolled in a specific course run
      */
-    async checkEnrollment(courseMasterId: string): Promise<{ isEnrolled: boolean; enrollment?: EnrollmentResponseDTO; hasNewerVersion?: boolean }> {
+    async checkEnrollment(courseRunId: string): Promise<{ isEnrolled: boolean; enrollment?: EnrollmentResponseDTO; hasNewerVersion?: boolean }> {
         const response = await apiClient.get<StandardApiResponse<{ isEnrolled: boolean; enrollment?: EnrollmentResponseDTO; hasNewerVersion?: boolean }>>(
-            `/api/enrollments/check/${courseMasterId}`
+            `/api/enrollments/check/${courseRunId}`
         );
         return response.data.data!;
     },
@@ -116,11 +116,11 @@ export function useEnrollment(id: string) {
 /**
  * Hook: Check enrollment status
  */
-export function useCheckEnrollment(courseMasterId: string) {
+export function useCheckEnrollment(courseRunId: string) {
     return useQuery({
-        queryKey: ['enrollments', 'check', courseMasterId],
-        queryFn: () => enrollmentApi.checkEnrollment(courseMasterId),
-        enabled: !!courseMasterId,
+        queryKey: ['enrollments', 'check', courseRunId],
+        queryFn: () => enrollmentApi.checkEnrollment(courseRunId),
+        enabled: !!courseRunId,
     });
 }
 

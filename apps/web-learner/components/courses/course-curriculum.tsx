@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { ChevronDown, PlayCircle, FileText, Lock, CheckCircle } from 'lucide-react'
+import { ChevronDown, PlayCircle, FileText, Lock, CheckCircle, HelpCircle, ClipboardList } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { cn } from '@workspace/ui/lib/utils'
 import type { CurriculumResponse } from '@/lib/api/services/course-api'
@@ -73,38 +73,73 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
                         >
                             <div className="overflow-hidden">
                                 <div className="px-4 pb-4 space-y-3">
-                                    {module.lessons.map((lesson) => (
-                                        <div
-                                            key={lesson.id}
-                                            className={cn(
-                                                "flex items-center justify-between p-3 rounded-lg text-sm",
-                                                lesson.isUnlocked
-                                                    ? "bg-muted/50 hover:bg-muted cursor-pointer"
-                                                    : "bg-muted/30 opacity-60"
-                                            )}
-                                            onClick={() => handleLessonClick(lesson.id, lesson.isUnlocked)}
-                                        >
-                                            <div className="flex items-center gap-3 flex-1 min-w-0">
-                                                {lesson.contentType === 'video' ? (
-                                                    <PlayCircle className="size-5 text-blue-500 shrink-0" />
-                                                ) : (
-                                                    <FileText className="size-5 text-green-500 shrink-0" />
+                                    {module.lessons.map((lesson) => {
+                                        const isVideo = lesson.contentType === 'video'
+                                        const isQuiz = lesson.contentType === 'quiz'
+                                        const isAssignment = lesson.contentType === 'assignment'
+                                        const isDocument = lesson.contentType === 'document'
+
+                                        const TypeIcon = isQuiz
+                                            ? HelpCircle
+                                            : isAssignment
+                                                ? ClipboardList
+                                                : isVideo
+                                                    ? PlayCircle
+                                                    : FileText
+
+                                        const typeLabel = isQuiz
+                                            ? 'Quiz kiểm tra'
+                                            : isAssignment
+                                                ? 'Bài tập'
+                                                : isVideo
+                                                    ? 'Video bài giảng'
+                                                    : 'Tài liệu'
+
+                                        return (
+                                            <div
+                                                key={lesson.id}
+                                                className={cn(
+                                                    "flex items-center justify-between p-3 rounded-lg text-sm",
+                                                    lesson.isUnlocked
+                                                        ? "bg-muted/50 hover:bg-muted cursor-pointer"
+                                                        : "bg-muted/30 opacity-60"
                                                 )}
-                                                <span className="truncate">{lesson.title}</span>
-                                                {lesson.isPreview && (
-                                                    <span className="bg-primary text-primary-foreground text-[10px] px-2 py-0.5 rounded-full font-bold uppercase shrink-0">
-                                                        Xem thử
-                                                    </span>
-                                                )}
+                                                onClick={() => handleLessonClick(lesson.id, lesson.isUnlocked)}
+                                            >
+                                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                    <TypeIcon
+                                                        className={cn(
+                                                            "size-5 shrink-0",
+                                                            isQuiz
+                                                                ? "text-violet-500"
+                                                                : isAssignment
+                                                                    ? "text-amber-500"
+                                                                    : isVideo
+                                                                        ? "text-blue-500"
+                                                                        : "text-green-500"
+                                                        )}
+                                                    />
+                                                    <div className="flex flex-col min-w-0">
+                                                        <span className="truncate">{lesson.title}</span>
+                                                        <span className="text-[10px] text-muted-foreground/80 uppercase tracking-widest">
+                                                            {typeLabel}
+                                                        </span>
+                                                    </div>
+                                                    {lesson.isPreview && (
+                                                        <span className="bg-primary text-primary-foreground text-[10px] px-2 py-0.5 rounded-full font-bold uppercase shrink-0">
+                                                            Xem thử
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="flex items-center gap-2 shrink-0">
+                                                    {!lesson.isUnlocked && <Lock className="size-4 text-muted-foreground" />}
+                                                    {lesson.videoDuration && (
+                                                        <span className="text-muted-foreground">{formatDuration(lesson.videoDuration)}</span>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <div className="flex items-center gap-2 shrink-0">
-                                                {!lesson.isUnlocked && <Lock className="size-4 text-muted-foreground" />}
-                                                {lesson.videoDuration && (
-                                                    <span className="text-muted-foreground">{formatDuration(lesson.videoDuration)}</span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
+                                        )
+                                    })}
                                 </div>
                             </div>
                         </div>

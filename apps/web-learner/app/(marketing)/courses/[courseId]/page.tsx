@@ -3,11 +3,11 @@ import { CourseDetailClient } from '@/components/marketing/course-detail-client'
 import { courseApi } from '@/lib/api/services/course-api';
 
 interface CourseDetailPageProps {
-    params: Promise<{ slug: string }>
+    params: Promise<{ courseId: string }>
 }
 
 export async function generateMetadata({ params }: CourseDetailPageProps): Promise<Metadata> {
-    const { slug } = await params;
+    const { courseId: slug } = await params;
     try {
         const course = await courseApi.getCourseBySlug(slug);
         if (!course) return { title: 'Khóa học không tồn tại | Torii Nihongo' };
@@ -27,6 +27,6 @@ export async function generateMetadata({ params }: CourseDetailPageProps): Promi
 }
 
 export default async function CourseDetailPage({ params }: CourseDetailPageProps) {
-    const { slug } = await params;
+    const { courseId: slug } = await params;
     return <CourseDetailClient slug={slug} />;
 }

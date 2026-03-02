@@ -56,15 +56,6 @@ export class CourseProfile extends AutomapperProfile {
           mapFrom((src: CourseMaster) => (src.aiMetadata as any) || undefined),
         ),
         forMember(
-          (dest: CourseMasterResponseDTO) => dest.thumbnailUrl,
-          mapFrom((src: CourseMaster) => src.thumbnailUrl || undefined),
-        ),
-        forMember(
-          (dest: CourseMasterResponseDTO) => dest.previewVideoUrl,
-          mapFrom((src: CourseMaster) => src.previewVideoUrl || undefined),
-        ),
-
-        forMember(
           (dest: CourseMasterResponseDTO) => dest.totalLessons,
           mapFrom((src: CourseMaster) => src.totalLessons),
         ),

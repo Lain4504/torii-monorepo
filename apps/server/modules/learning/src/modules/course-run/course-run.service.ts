@@ -109,13 +109,21 @@ export class CourseRunService {
         const where: any = {};
         if (courseMasterId) where.courseMasterId = courseMasterId;
         if (status) where.status = status;
+        if (query.type) {
+            where.courseMaster = {
+                type: query.type,
+            };
+        }
 
         const [items, total] = await Promise.all([
             this.courseRunRepository.findMany({
                 skip,
                 take: limitNum,
                 where,
-                include: { lecturer: true },
+                include: {
+                    lecturer: true,
+                    courseMaster: true,
+                },
             }),
             this.courseRunRepository.count(where),
         ]);
@@ -140,6 +148,10 @@ export class CourseRunService {
             throw new NotFoundException(`Course run with id ${id} not found`);
         }
 
+        // Determine course type (vod/live) from course master
+        const courseMaster = await this.courseRepository.findById(existing.courseMasterId);
+        const isVod = (courseMaster as any)?.type === 'vod';
+
         const currentStatus = existing.status as CourseRunStatus;
         const allowedTransitions = STATUS_TRANSITIONS[currentStatus] || [];
 
@@ -149,8 +161,9 @@ export class CourseRunService {
             );
         }
 
-        // Guard: Cannot move to ENROLLING if no min/max students are set
-        if (status === CourseRunStatus.ENROLLING) {
+        // Guard: For LIVE classes, cannot move to ENROLLING if no start date is set.
+        // For VOD courses, startDate is optional and learners can enroll anytime.
+        if (status === CourseRunStatus.ENROLLING && !isVod) {
             if (!existing.startDate) {
                 throw new BadRequestException('Cannot open enrollment without a start date set');
             }

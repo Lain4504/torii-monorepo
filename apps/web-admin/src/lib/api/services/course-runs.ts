@@ -6,8 +6,9 @@ import type {
     CourseRunCreateDTO,
     CourseRunUpdateDTO,
     CourseRunSearchRequestDTO,
-    StandardApiResponse
+    StandardApiResponse,
 } from '@workspace/schemas';
+import { CourseRunStatus } from '@workspace/schemas';
 
 // ============================================================================
 // API Functions
@@ -35,6 +36,15 @@ export const courseRunsApi = {
     // PUT /api/course-runs/:id
     async update(id: string, run: CourseRunUpdateDTO): Promise<CourseRunResponseDTO> {
         const response = await apiClient.put<StandardApiResponse<{ run: CourseRunResponseDTO }>>(`/api/course-runs/${id}`, run);
+        return response.data.data!.run;
+    },
+
+    // PATCH /api/course-runs/:id/status
+    async updateStatus(id: string, status: CourseRunStatus): Promise<CourseRunResponseDTO> {
+        const response = await apiClient.patch<StandardApiResponse<{ run: CourseRunResponseDTO }>>(
+            `/api/course-runs/${id}/status`,
+            { status },
+        );
         return response.data.data!.run;
     },
 
@@ -95,6 +105,23 @@ export function useUpdateCourseRun() {
         mutationFn: ({ id, run }: { id: string; run: CourseRunUpdateDTO }) =>
             courseRunsApi.update(id, run),
         onSuccess: (data) => {
+            queryClient.invalidateQueries({ queryKey: ['course-runs', data.id] });
+            queryClient.invalidateQueries({ queryKey: ['course-runs', { courseMasterId: data.courseMasterId }] });
+        },
+    });
+}
+
+/**
+ * Hook: Update course run status
+ */
+export function useUpdateCourseRunStatus() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, status }: { id: string; status: CourseRunStatus }) =>
+            courseRunsApi.updateStatus(id, status),
+        onSuccess: (data) => {
+            // Invalidate both single run and list for this course master
             queryClient.invalidateQueries({ queryKey: ['course-runs', data.id] });
             queryClient.invalidateQueries({ queryKey: ['course-runs', { courseMasterId: data.courseMasterId }] });
         },

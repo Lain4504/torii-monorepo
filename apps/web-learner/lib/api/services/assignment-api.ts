@@ -74,13 +74,23 @@ export const assignmentApi = {
   },
 
   /**
-   * Get assignment linked to a specific lesson (query by lessonId)
-   * Returns the first PUBLISHED assignment for that lesson, or null
+   * Get assignment linked to a specific lesson (query by lessonId + optional courseRunId)
+   * Returns the first PUBLISHED assignment for that lesson in the current run, or null
    */
-  getAssignmentByLesson: async (lessonId: string): Promise<AssignmentResponseDTO | null> => {
+  getAssignmentByLesson: async (lessonId: string, courseRunId?: string): Promise<AssignmentResponseDTO | null> => {
+    const params: Record<string, unknown> = {
+      lessonId,
+      status: 'PUBLISHED',
+      limit: 1,
+    };
+
+    if (courseRunId) {
+      params.courseRunId = courseRunId;
+    }
+
     const response = await apiClient.get<PaginatedApiResponse<AssignmentResponseDTO>>(
       '/api/assignments',
-      { params: { lessonId, status: 'PUBLISHED', limit: 1 } }
+      { params }
     );
     const items = response.data?.data;
     return Array.isArray(items) && items.length > 0 ? (items[0] as AssignmentResponseDTO) : null;
@@ -174,13 +184,13 @@ export function useAssignment(assignmentId: string) {
 
 /**
  * Hook: Get assignment by lessonId (for learn page)
- * Correctly queries via list endpoint filtering by lessonId
+ * Filters by both lessonId and the active courseRunId when provided
  */
-export function useAssignmentByLesson(lessonId: string | undefined) {
+export function useAssignmentByLesson(lessonId: string | undefined, courseRunId?: string) {
   return useQuery({
-    queryKey: ['assignments', 'lesson', lessonId],
-    queryFn: () => assignmentApi.getAssignmentByLesson(lessonId!),
-    enabled: !!lessonId,
+    queryKey: ['assignments', 'lesson', lessonId, courseRunId],
+    queryFn: () => assignmentApi.getAssignmentByLesson(lessonId!, courseRunId),
+    enabled: !!lessonId && !!courseRunId,
     staleTime: 30_000,
   });
 }

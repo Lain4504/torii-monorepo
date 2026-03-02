@@ -18,7 +18,6 @@ export class AnalyticsHandler {
                     id: true,
                     title: true,
                     jlptLevel: true,
-                    thumbnailUrl: true
                 }
             }),
             this.prisma.courseMaster.count({

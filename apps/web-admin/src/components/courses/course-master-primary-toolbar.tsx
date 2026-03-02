@@ -8,7 +8,7 @@ import {
     SelectValue,
 } from '@workspace/ui/components/select';
 
-interface CoursesPrimaryToolbarProps {
+interface CourseMasterPrimaryToolbarProps {
     search: string;
     onSearchChange: (value: string) => void;
     statusFilter: string;
@@ -17,21 +17,21 @@ interface CoursesPrimaryToolbarProps {
     onJlptLevelFilterChange: (value: string) => void;
 }
 
-export function CoursesPrimaryToolbar({
+export function CourseMasterPrimaryToolbar({
     search,
     onSearchChange,
     statusFilter,
     onStatusFilterChange,
     jlptLevelFilter,
     onJlptLevelFilterChange,
-}: CoursesPrimaryToolbarProps) {
+}: CourseMasterPrimaryToolbarProps) {
     return (
         <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between w-full">
             {/* Search Input */}
             <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                    placeholder="Tìm kiếm khóa học theo tên hoặc mã..."
+                    placeholder="Tìm kiếm khung chương trình theo tên hoặc mã..."
                     value={search}
                     onChange={(e) => onSearchChange(e.target.value)}
                     className="pl-9"

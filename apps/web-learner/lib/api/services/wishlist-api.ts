@@ -75,7 +75,8 @@ export const wishlistApi = {
    */
   checkWishlist: async (courseRunId: string): Promise<{ isInWishlist: boolean }> => {
     const response = await apiClient.get<StandardApiResponse<{ isInWishlist: boolean }>>(`/api/wishlists/check/${courseRunId}`);
-    return response.data.data!;
+    // Fallback to false when data is missing to avoid undefined for react-query
+    return response.data.data ?? { isInWishlist: false };
   },
 };
 

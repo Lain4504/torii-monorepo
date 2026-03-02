@@ -8,10 +8,11 @@ import { formatDate } from '@/utils/format-utils'
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { ArrowLeft, Download, Share2 } from 'lucide-react'
 import { courseApi } from '@/lib/api/services/course-api'
+import { courseRunApi } from '@/lib/api/services/course-run-api'
 
 export default function CourseCertificatePage() {
     const params = useParams()
-    const slug = params.slug as string
+    const courseRunId = params.courseId as string
     const [course, setCourse] = useState<any>(null)
     const [loading, setLoading] = useState(true)
 
@@ -19,9 +20,12 @@ export default function CourseCertificatePage() {
         const fetchData = async () => {
             try {
                 setLoading(true)
-                const courseData = await courseApi.getCourseBySlug(slug)
-                if (courseData) {
-                    setCourse(courseData)
+                const runResult = await courseRunApi.getCourseRunById(courseRunId)
+                if (runResult) {
+                    const courseData = await courseApi.getCourseById(runResult.courseMasterId)
+                    if (courseData) {
+                        setCourse(courseData)
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching data:', error)
@@ -30,10 +34,10 @@ export default function CourseCertificatePage() {
             }
         }
 
-        if (slug) {
+        if (courseRunId) {
             fetchData()
         }
-    }, [slug])
+    }, [courseRunId])
 
     if (loading) {
         return (
@@ -57,7 +61,7 @@ export default function CourseCertificatePage() {
             <div className="border-b border-border bg-background">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center gap-4">
-                        <Link href={`/courses/${slug}`}>
+                        <Link href={`/courses/${courseRunId}/learn`}>
                             <Button variant="ghost" size="icon" className="rounded-full">
                                 <ArrowLeft className="w-4 h-4" />
                             </Button>

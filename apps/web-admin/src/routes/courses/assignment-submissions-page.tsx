@@ -40,7 +40,7 @@ export default function AssignmentSubmissionsPage() {
         return (
             <div className="flex flex-col items-center justify-center p-20 text-center space-y-4">
                 <p className="text-muted-foreground">Không tìm thấy thông tin bài tập hoặc khóa học</p>
-                <Button onClick={() => navigate(`/courses/${courseId}`)}>Quay lại chi tiết khóa học</Button>
+                <Button onClick={() => navigate(`/course-master/${courseId}`)}>Quay lại chi tiết khóa học</Button>
             </div>
         );
     }
@@ -52,7 +52,7 @@ export default function AssignmentSubmissionsPage() {
                     variant="ghost"
                     size="sm"
                     className="h-8 px-0 text-muted-foreground hover:text-foreground gap-2 transition-colors hover:bg-transparent -ml-2 w-fit"
-                    onClick={() => navigate(`/courses/${courseId}`)}
+                    onClick={() => navigate(`/course-master/${courseId}`)}
                 >
                     <ChevronLeft className="size-4" />
                     <span className="text-xs font-sans font-bold italic uppercase tracking-wider">Quay lại chi tiết khóa học</span>

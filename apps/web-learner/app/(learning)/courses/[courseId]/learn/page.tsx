@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useCourseById, useCurriculum } from '@/lib/api/services/course-api';
+import { useCourseRun } from '@/lib/api/services/course-run-api';
 import { useCheckEnrollment } from '@/lib/api/services/enrollment-api';
 import { useCompletedLessons, learningProgressApi } from '@/lib/api/services/learning-progress-api';
 import { useLesson, type LessonResponse } from '@/lib/api/services/lesson-api';
@@ -17,6 +18,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from '@workspace/ui/components/sonner';
 import { Skeleton } from '@workspace/ui/components/skeleton';
+import { Badge } from '@workspace/ui/components/badge';
 import {
     ChevronLeft, ChevronDown, ChevronUp, Menu, X,
     CheckCircle2, PlayCircle, Lock, FileText, BookOpen,
@@ -139,9 +141,9 @@ function ArticleViewer({ lesson, onComplete }: { lesson: LessonResponse; onCompl
 // ─── Assignment Panel ─────────────────────────────────────────────────────────
 
 function AssignmentPanel({
-    lessonId, courseId, onComplete
-}: { lessonId: string; courseId: string; onComplete: () => void; }) {
-    const { data: assignment, isLoading: assignmentLoading } = useAssignmentByLesson(lessonId);
+    lessonId, courseId, courseRunId, onComplete
+}: { lessonId: string; courseId: string; courseRunId?: string; onComplete: () => void; }) {
+    const { data: assignment, isLoading: assignmentLoading } = useAssignmentByLesson(lessonId, courseRunId);
 
     const { data: submission } = useMySubmission(assignment?.id ?? '');
     const submitMutation = useSubmitAssignment();
@@ -310,10 +312,17 @@ function AssignmentPanel({
 
 type QuizPanelState = 'intro' | 'in_progress' | 'result';
 
+const SectionTypeMap: Record<string, string> = {
+    'vocab': 'Từ vựng',
+    'grammar': 'Ngữ pháp',
+    'reading': 'Đọc hiểu',
+    'listening': 'Nghe hiểu'
+};
+
 function QuizPanel({
-    lessonId, courseId, onComplete
-}: { lessonId: string; courseId: string; onComplete: () => void; }) {
-    const { data: quiz, isLoading: quizLoading } = useQuizByLesson(lessonId);
+    lessonId, courseId, courseRunId, onComplete
+}: { lessonId: string; courseId: string; courseRunId?: string; onComplete: () => void; }) {
+    const { data: quiz, isLoading: quizLoading } = useQuizByLesson(lessonId, courseRunId);
     const startMutation = useStartQuiz();
     const saveAnswersMutation = useSaveQuizAnswers();
     const submitMutation = useSubmitQuiz();
@@ -469,6 +478,26 @@ function QuizPanel({
                     </p>
                 )}
 
+                {/* Sections preview if available */}
+                {(quiz as any).sections && (quiz as any).sections.length > 0 && (
+                    <div className="mb-8 space-y-3">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Cấu trúc bài thi</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {(quiz as any).sections.map((s: any, i: number) => (
+                                <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border/50">
+                                    <div className="size-8 rounded-lg bg-background flex items-center justify-center text-xs font-bold text-primary border border-border">
+                                        {i + 1}
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-bold truncate">{SectionTypeMap[s.type] || s.type}</p>
+                                        <p className="text-[10px] text-muted-foreground">{s.questionCount} câu · {s.timeLimit} phút</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 <button
                     onClick={handleStart}
                     disabled={startMutation.isPending}
@@ -594,9 +623,16 @@ function QuizPanel({
                         ))}
                     </div>
 
-                    {/* Question */}
-                    <div className="bg-muted/40 rounded-2xl p-5 border border-border">
-                        <p className="text-foreground font-medium leading-relaxed">{currentQ.questionText}</p>
+                    {/* Current Section & Question */}
+                    <div className="space-y-1">
+                        {currentQ.section && (
+                            <Badge variant="outline" className="bg-violet-500/5 text-violet-600 border-violet-500/20 text-[10px] uppercase font-bold tracking-widest px-2 py-0">
+                                Phần: {SectionTypeMap[currentQ.section] || currentQ.section}
+                            </Badge>
+                        )}
+                        <div className="bg-muted/40 rounded-2xl p-5 border border-border">
+                            <p className="text-foreground font-medium leading-relaxed">{currentQ.questionText}</p>
+                        </div>
                     </div>
 
                     {/* Options */}
@@ -741,16 +777,21 @@ function ModuleItem({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function CourseLearnPage() {
-    const params = useParams<{ slug: string }>();
-    const courseId = params.slug;
+    const params = useParams<{ courseId: string }>();
+    const courseRunId = params.courseId;
     const router = useRouter();
     const queryClient = useQueryClient();
 
     // ── API ────────────────────────────────────────────────────────────────
-    const { data: course, isLoading: courseLoading } = useCourseById(courseId);
-    const { data: curriculum, isLoading: curriculumLoading } = useCurriculum(courseId);
-    const { data: enrollmentData } = useCheckEnrollment(courseId);
-    const { data: completedLessonIds = [] } = useCompletedLessons(courseId);
+    // 1. Fetch the course run first
+    const { data: courseRun, isLoading: courseRunLoading } = useCourseRun(courseRunId);
+    const courseMasterId = courseRun?.courseMasterId;
+
+    // 2. Fetch other details using courseMasterId
+    const { data: course, isLoading: courseLoading } = useCourseById(courseMasterId);
+    const { data: curriculum, isLoading: curriculumLoading } = useCurriculum(courseMasterId);
+    const { data: enrollmentData } = useCheckEnrollment(courseRunId);
+    const { data: completedLessonIds = [] } = useCompletedLessons(courseMasterId ?? '');
 
     // ── State ──────────────────────────────────────────────────────────────
     const [currentLesson, setCurrentLesson] = useState<CurriculumLesson | null>(null);
@@ -795,12 +836,12 @@ export default function CourseLearnPage() {
         if (completedIds.has(currentLesson.id)) { toast.info('Bài học này đã được hoàn thành!'); return; }
         try {
             await learningProgressApi.trackProgress(currentLesson.id, 100, 100);
-            queryClient.invalidateQueries({ queryKey: ['completed-lessons', courseId] });
+            queryClient.invalidateQueries({ queryKey: ['completed-lessons', courseMasterId] });
             toast.success('Đã hoàn thành bài học! 🎉');
         } catch {
             toast.error('Không thể cập nhật tiến độ.');
         }
-    }, [currentLesson, completedIds, courseId, queryClient]);
+    }, [currentLesson, completedIds, courseMasterId, queryClient]);
 
     // ── Nav ────────────────────────────────────────────────────────────────
     const allLessons: CurriculumLesson[] = curriculum?.modules.flatMap(m => m.lessons) ?? [];
@@ -830,7 +871,7 @@ export default function CourseLearnPage() {
     const isCurrentDone = !!currentLesson && completedIds.has(currentLesson.id);
 
     // ── Loading ────────────────────────────────────────────────────────────
-    if (courseLoading || curriculumLoading) {
+    if (courseRunLoading || courseLoading || curriculumLoading) {
         return (
             <div className="bg-background h-screen flex flex-col">
                 <div className="h-16 border-b border-border bg-card flex items-center px-6 gap-4">
@@ -851,7 +892,7 @@ export default function CourseLearnPage() {
         );
     }
 
-    if (!course) {
+    if (!courseRun) {
         return (
             <div className="h-screen flex items-center justify-center bg-background">
                 <div className="text-center space-y-4">
@@ -884,7 +925,9 @@ export default function CourseLearnPage() {
                         <ChevronLeft className="h-5 w-5 text-foreground" />
                     </button>
                     <div className="hidden sm:block min-w-0">
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider truncate">{course.title}</p>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider truncate">
+                            {course?.title ?? courseRun.title}
+                        </p>
                         {currentLesson && <p className="text-sm font-bold text-foreground truncate">{currentLesson.title}</p>}
                     </div>
                 </div>
@@ -896,7 +939,7 @@ export default function CourseLearnPage() {
                         </div>
                     </div>
                     <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm shrink-0">
-                        {course.title?.[0] ?? 'T'}
+                        {(course?.title ?? courseRun.title)?.[0] ?? 'T'}
                     </div>
                 </div>
             </header>
@@ -969,10 +1012,10 @@ export default function CourseLearnPage() {
                                         <h3 className="text-xl font-bold text-foreground">Tổng quan bài học</h3>
                                         <p className="text-muted-foreground leading-relaxed">
                                             {lessonDetail?.description || (currentLesson
-                                                ? `Bài học "${currentLesson.title}" thuộc khóa học ${course.title}.`
+                                                ? `Bài học "${currentLesson.title}" thuộc khóa học ${course?.title ?? courseRun.title}.`
                                                 : 'Chọn một bài học để bắt đầu.')}
                                         </p>
-                                        {course.learningOutcomes && Array.isArray(course.learningOutcomes) && (course.learningOutcomes as string[]).length > 0 && (
+                                        {course?.learningOutcomes && Array.isArray(course.learningOutcomes) && (course.learningOutcomes as string[]).length > 0 && (
                                             <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl">
                                                 <h4 className="text-primary font-bold mb-3 uppercase text-sm tracking-widest">Mục tiêu khóa học</h4>
                                                 <ul className="space-y-2">
@@ -1037,7 +1080,12 @@ export default function CourseLearnPage() {
                                     Bài tiếp theo <ChevronRight className="h-4 w-4" />
                                 </button>
                             </div>
-                            <AssignmentPanel lessonId={currentLesson.id} courseId={courseId} onComplete={markLessonComplete} />
+                            <AssignmentPanel
+                                lessonId={currentLesson.id}
+                                courseId={courseMasterId ?? ''}
+                                courseRunId={courseRunId}
+                                onComplete={markLessonComplete}
+                            />
                         </>
                     )}
 
@@ -1054,7 +1102,12 @@ export default function CourseLearnPage() {
                                     Bài tiếp theo <ChevronRight className="h-4 w-4" />
                                 </button>
                             </div>
-                            <QuizPanel lessonId={currentLesson.id} courseId={courseId} onComplete={markLessonComplete} />
+                            <QuizPanel
+                                lessonId={currentLesson.id}
+                                courseId={courseMasterId ?? ''}
+                                courseRunId={courseRunId}
+                                onComplete={markLessonComplete}
+                            />
                         </>
                     )}
 

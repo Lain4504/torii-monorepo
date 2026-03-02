@@ -1,7 +1,7 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import type { BlogResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
-import {ArrowUpDown, Pencil, Trash, Eye, FileText, MoreVertical} from 'lucide-react';
+import { ArrowUpDown, Pencil, Trash, Eye, FileText, MoreVertical } from 'lucide-react';
 import { Badge } from '@workspace/ui/components/badge';
 import {
     DropdownMenu,
@@ -58,29 +58,63 @@ export const getBlogColumns = ({ onView, onEdit, onDelete, page, limit }: BlogCo
                 </Button>
             );
         },
-        cell: (info) => (
-            <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                    <FileText className="size-5 text-muted-foreground" />
+        cell: (info) => {
+            const blog = info.row.original;
+            return (
+                <div
+                    className="flex items-center gap-3 group/title cursor-pointer max-w-[280px]"
+                    onClick={() => onView(blog)}
+                >
+                    <div className="w-11 h-11 shrink-0 rounded-lg bg-muted border border-border flex items-center justify-center text-muted-foreground overflow-hidden">
+                        {blog.coverImageUrl ? (
+                            <img
+                                src={blog.coverImageUrl}
+                                alt={blog.title}
+                                className="w-full h-full object-cover transition-transform group-hover/title:scale-110"
+                            />
+                        ) : (
+                            <FileText className="size-5" />
+                        )}
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                        <span className="font-semibold text-foreground text-sm group-hover/title:text-primary transition-colors line-clamp-1">
+                            {info.getValue()}
+                        </span>
+                        <span className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wider truncate">
+                            ID: {blog.id.slice(0, 8)}
+                        </span>
+                    </div>
                 </div>
-                <div className="flex flex-col">
-                    <span className="font-semibold text-foreground line-clamp-1">{info.getValue()}</span>
-                    <span className="text-xs text-muted-foreground">ID: {info.row.original.id.slice(0, 8)}</span>
-                </div>
-            </div>
-        ),
+            );
+        },
     }),
     columnHelper.accessor('author', {
         header: 'Tác giả',
         cell: (info) => {
-            const author = info.getValue();
+            const author = info.getValue() as any;
+            if (!author) return <div className="text-muted-foreground text-sm">N/A</div>;
+
             return (
-                <div className="font-medium text-muted-foreground">
-                    {author?.displayName || 'N/A'}
+                <div className="flex items-center gap-2.5 min-w-[160px]">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary overflow-hidden shrink-0">
+                        {author.avatarUrl ? (
+                            <img src={author.avatarUrl} alt={author.displayName} className="w-full h-full object-cover" />
+                        ) : (
+                            <div className="text-[10px] font-bold uppercase">{author.displayName?.slice(0, 2)}</div>
+                        )}
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                        <span className="font-semibold text-foreground text-sm truncate">
+                            {author.displayName}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground/80 truncate">
+                            {author.email}
+                        </span>
+                    </div>
                 </div>
             );
         },
-        size: 120,
+        size: 200,
     }),
     columnHelper.accessor('status', {
         header: 'Trạng thái',

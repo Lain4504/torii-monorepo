@@ -25,7 +25,7 @@ import {
 import { storageApi } from '@/lib/api/services/storage-api.ts';
 import { LessonContentType, lessonCreateDTOSchema } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import { useCreateLesson } from "@/lib/api/services/lesson";
+import { useCreateLesson, lessonsApi } from "@/lib/api/services/lesson";
 import { Plus } from 'lucide-react';
 import { Spinner } from "@workspace/ui/components/spinner";
 
@@ -56,9 +56,9 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
             moduleId: moduleId || '',
             title: '',
             contentType: LessonContentType.VIDEO,
-            orderIndex: 0,
             isPreview: false,
             isUnlocked: false,
+            durationMinutes: 0,
         },
     });
 
@@ -69,9 +69,9 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
                 moduleId,
                 title: '',
                 contentType: LessonContentType.VIDEO,
-                orderIndex: 0,
                 isPreview: false,
                 isUnlocked: false,
+                durationMinutes: 0,
             });
             setVideoFile(null);
         }
@@ -87,10 +87,17 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
                 videoUrl = uploadedVideo.fileUrl;
             }
 
+            // Tự động tính orderIndex tiếp theo dựa trên số bài hiện có trong module
+            const existingLessons = await lessonsApi.findByModuleId(moduleId);
+            const nextOrderIndex =
+                existingLessons.length === 0
+                    ? 1
+                    : Math.max(...existingLessons.map((l: any) => l.orderIndex ?? 0)) + 1;
+
             const payload = {
                 ...data,
                 status: (data as any).status ?? 'published',
-                orderIndex: data.orderIndex ?? 0,
+                orderIndex: nextOrderIndex,
                 aiMetadata: (data as any).aiMetadata ?? {},
                 isPreview: data.isPreview ?? false,
                 isUnlocked: data.isUnlocked ?? false,
@@ -179,15 +186,15 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
 
                                     <Controller
                                         control={control}
-                                        name="orderIndex"
+                                        name="durationMinutes"
                                         render={({ field, fieldState }) => (
                                             <Field className="space-y-1" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name}>Thứ Tự</FieldLabel>
+                                                <FieldLabel htmlFor={field.name}>Thời Lượng (phút)</FieldLabel>
                                                 <Input
                                                     id={field.name}
                                                     type="number"
                                                     {...field}
-                                                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                                    onChange={(e) => field.onChange(e.target.value === '' ? 0 : e.target.valueAsNumber)}
                                                 />
                                             </Field>
                                         )}

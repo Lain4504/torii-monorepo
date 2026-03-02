@@ -21,7 +21,7 @@ import {
     CollapsibleTrigger,
 } from "@workspace/ui/components/collapsible";
 
-interface CourseAuditLogSheetProps {
+interface CourseMasterAuditLogSheetProps {
     courseId: string | null;
     courseTitle: string | null;
     onClose: () => void;
@@ -122,7 +122,7 @@ function LogItem({ log }: { log: AuditLog }) {
     );
 }
 
-export function CourseAuditLogSheet({ courseId, courseTitle, onClose }: CourseAuditLogSheetProps) {
+export function CourseMasterAuditLogSheet({ courseId, courseTitle, onClose }: CourseMasterAuditLogSheetProps) {
     const { data: logs, isLoading } = useEntityActivity('course', courseId || '', 50);
 
     return (
@@ -131,7 +131,7 @@ export function CourseAuditLogSheet({ courseId, courseTitle, onClose }: CourseAu
                 <SheetHeader>
                     <SheetTitle>Lịch sử Kiểm duyệt</SheetTitle>
                     <SheetDescription>
-                        {courseTitle || "Khóa học"}
+                        {courseTitle || "Khung chương trình"}
                     </SheetDescription>
                 </SheetHeader>
 
@@ -163,7 +163,7 @@ export function CourseAuditLogSheet({ courseId, courseTitle, onClose }: CourseAu
                                 <div className="space-y-1">
                                     <p className="text-sm font-bold text-foreground/40 uppercase tracking-widest">Chưa có dữ liệu</p>
                                     <p className="text-xs text-muted-foreground/40 max-w-[200px] leading-relaxed">
-                                        Hệ thống chưa ghi nhận hoạt động nào cho khóa học này.
+                                        Hệ thống chưa ghi nhận hoạt động nào cho khung chương trình này.
                                     </p>
                                 </div>
                             </div>

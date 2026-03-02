@@ -4,6 +4,7 @@ import { GatewayModule } from './gateway.module';
 import * as bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 
+// Trigger restart to pick up schema changes
 async function bootstrap() {
   const config = loadConfig();
   // Create app with custom body parser

@@ -89,7 +89,7 @@ export class BlogProfile extends AutomapperProfile {
         // Note: author field is populated separately in service
         forMember(
           (dest: BlogResponseDTO) => dest.author,
-          mapFrom(() => undefined),
+          mapFrom((src: any) => src.author),
         ),
       );
     };

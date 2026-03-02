@@ -10,14 +10,14 @@ import { ArrowLeft } from 'lucide-react'
 export default function TakeCourseQuizPage() {
     const params = useParams()
     const router = useRouter()
-    const slug = params.slug as string
+    const courseRunId = params.courseId as string
     const quizId = params.quizId as string
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         // TODO: Fetch quiz data
         setLoading(false)
-    }, [slug, quizId])
+    }, [courseRunId, quizId])
 
     if (loading) {
         return (
@@ -33,7 +33,7 @@ export default function TakeCourseQuizPage() {
             <div className="border-b border-border bg-background">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center gap-4">
-                        <Link href={`/courses/${slug}/quizzes`}>
+                        <Link href={`/courses/${courseRunId}/quizzes`}>
                             <Button variant="ghost" size="icon" className="rounded-full">
                                 <ArrowLeft className="w-4 h-4" />
                             </Button>
@@ -53,7 +53,7 @@ export default function TakeCourseQuizPage() {
                             Nội dung bài kiểm tra sẽ được hiển thị tại đây
                         </p>
                         <p className="text-sm text-muted-foreground">
-                            Khóa học: {slug} | Bài kiểm tra: {quizId}
+                            Khóa học: {courseRunId} | Bài kiểm tra: {quizId}
                         </p>
                     </CardContent>
                 </Card>

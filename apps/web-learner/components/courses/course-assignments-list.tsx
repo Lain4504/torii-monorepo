@@ -26,8 +26,14 @@ type FilterStatus = 'ALL' | 'PENDING' | 'SUBMITTED' | 'GRADED'
 export function CourseAssignmentsList({ courseId, courseSlug, onAssignmentClick }: CourseAssignmentsListProps) {
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('ALL')
   const [selectedAssignment, setSelectedAssignment] = useState<AssignmentResponseDTO | null>(null)
-  const { isEnrolled, isLoadingEnrollment } = useCourseEnrollment(courseId, courseSlug)
-  const { data, isLoading: isLoadingAssignments } = useCourseAssignments({ courseMasterId: courseId, status: 'PUBLISHED' })
+  const { isEnrolled, isLoadingEnrollment, enrollment } = useCourseEnrollment(courseId, courseSlug)
+
+  const activeCourseRunId = enrollment?.courseRunId
+
+  const { data, isLoading: isLoadingAssignments } = useCourseAssignments({
+    courseRunId: activeCourseRunId,
+    status: 'PUBLISHED',
+  })
 
   // Hide for non-enrolled users
   if (!isLoadingEnrollment && !isEnrolled) {

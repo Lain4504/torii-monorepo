@@ -19,16 +19,16 @@ import UserAnalytics from '@/routes/analytics/user-analytics.tsx'
 import LearnersPage from '@/routes/users/learners-page.tsx'
 import PersonnelPage from '@/routes/users/personnel-page.tsx'
 import CouponsPage from '@/routes/coupons/coupons-page.tsx'
-import CoursesPage from '@/routes/courses/courses-page.tsx'
-import CourseReviewsPage from '@/routes/courses/course-reviews-page.tsx'
-import CourseDetailPage from '@/routes/courses/course-detail-page.tsx'
+import CourseMasterPage from '@/routes/courses/course-master-page.tsx'
+import CourseMasterReviewsPage from '@/routes/courses/course-master-reviews-page.tsx'
+import CourseMasterDetailPage from '@/routes/courses/course-master-detail-page.tsx'
 import CourseRunDetailPage from '@/routes/courses/course-run-detail-page.tsx'
-import MyCoursesPage from '@/routes/courses/my-courses-page.tsx'
+import MyCourseMastersPage from '@/routes/courses/my-course-masters-page.tsx'
 import ScheduleRequestsPage from '@/routes/courses/schedule-requests-page.tsx'
 import CourseRunLiveSessionsPage from '@/routes/courses/course-run-live-sessions-page.tsx'
 import CourseRunEnrollmentsPage from '@/routes/courses/course-run-enrollments-page.tsx'
 import AssignmentSubmissionsPage from '@/routes/courses/assignment-submissions-page.tsx'
-import CourseDiscussionsPage from '@/routes/courses/course-discussions-page.tsx'
+import CourseMasterDiscussionsPage from '@/routes/courses/course-master-discussions-page.tsx'
 
 
 import RoomsPage from '@/routes/rooms/rooms-page.tsx'
@@ -87,17 +87,17 @@ function App() {
                 }>
                   <Route index element={<DashboardPage />} />
 
-                  <Route path="courses" element={<CoursesPage />} />
-                  <Route path="courses/my" element={<MyCoursesPage />} />
-                  <Route path="courses/reviews" element={<CourseReviewsPage />} />
-                  <Route path="courses/requests" element={<ScheduleRequestsPage />} />
-                  <Route path="courses/:id" element={<CourseDetailPage />} />
-                  <Route path="courses/runs/:runId" element={<CourseRunDetailPage />} />
-                  <Route path="courses/discussions" element={<CourseDiscussionsPage />} />
-                  <Route path="courses/:id/assignments/:assignmentId/submissions" element={<AssignmentSubmissionsPage />} />
+                  <Route path="course-master" element={<CourseMasterPage />} />
+                  <Route path="course-master/my" element={<MyCourseMastersPage />} />
+                  <Route path="course-master/reviews" element={<CourseMasterReviewsPage />} />
+                  <Route path="course-master/requests" element={<ScheduleRequestsPage />} />
+                  <Route path="course-master/:id" element={<CourseMasterDetailPage />} />
+                  <Route path="course-master/runs/:runId" element={<CourseRunDetailPage />} />
+                  <Route path="course-master/discussions" element={<CourseMasterDiscussionsPage />} />
+                  <Route path="course-master/:id/assignments/:assignmentId/submissions" element={<AssignmentSubmissionsPage />} />
                   {/* Course Run Management Routes - New Structure */}
-                  <Route path="courses/runs/:runId/live-sessions" element={<CourseRunLiveSessionsPage />} />
-                  <Route path="courses/runs/:runId/enrollments" element={<CourseRunEnrollmentsPage />} />
+                  <Route path="course-master/runs/:runId/live-sessions" element={<CourseRunLiveSessionsPage />} />
+                  <Route path="course-master/runs/:runId/enrollments" element={<CourseRunEnrollmentsPage />} />
 
                   <Route path="rooms" element={<RoomsPage />} />
 

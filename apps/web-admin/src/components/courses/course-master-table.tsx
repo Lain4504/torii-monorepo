@@ -19,14 +19,13 @@ import { BookOpen } from 'lucide-react';
 import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
 
 import type { CourseMasterResponseDTO } from '@workspace/schemas';
-import { getCoursesColumns } from './courses-columns.tsx';
+import { getCourseMasterColumns } from './course-master-columns.tsx';
 
-interface CoursesTableProps {
+interface CourseMasterTableProps {
     data: CourseMasterResponseDTO[];
     onEdit: (course: CourseMasterResponseDTO) => void;
     onDelete: (course: CourseMasterResponseDTO) => void;
     onModules: (course: CourseMasterResponseDTO) => void;
-    onManageInstructors: (course: CourseMasterResponseDTO) => void;
     onPublish: (course: CourseMasterResponseDTO) => void;
     onSubmitForReview: (course: CourseMasterResponseDTO) => void;
     onUnpublish: (course: CourseMasterResponseDTO) => void;
@@ -39,12 +38,11 @@ interface CoursesTableProps {
     isLoading?: boolean;
 }
 
-export function CoursesTable({
+export function CourseMasterTable({
     data,
     onEdit,
     onDelete,
     onModules,
-    onManageInstructors,
     onPublish,
     onSubmitForReview,
     onUnpublish,
@@ -55,14 +53,13 @@ export function CoursesTable({
     page,
     limit,
     isLoading
-}: CoursesTableProps) {
+}: CourseMasterTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
-    const columns = getCoursesColumns({
+    const columns = getCourseMasterColumns({
         onEdit,
         onDelete,
         onModules,
-        onManageInstructors,
         onPublish,
         onSubmitForReview,
         onUnpublish,
@@ -143,9 +140,9 @@ export function CoursesTable({
                                     <BookOpen className="size-8 text-muted-foreground" />
                                 </EmptyMedia>
                                 <EmptyContent>
-                                    <EmptyTitle>Không tìm thấy khóa học</EmptyTitle>
+                                    <EmptyTitle>Không tìm thấy khung chương trình</EmptyTitle>
                                     <EmptyDescription>
-                                        Chưa có dữ liệu khóa học nào trong hệ thống hoặc không khớp với bộ lọc hiện tại.
+                                        Chưa có dữ liệu khung chương trình nào trong hệ thống hoặc không khớp với bộ lọc hiện tại.
                                     </EmptyDescription>
                                 </EmptyContent>
                             </Empty>

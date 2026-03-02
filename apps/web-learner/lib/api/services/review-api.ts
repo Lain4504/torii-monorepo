@@ -36,7 +36,7 @@ export interface CreateReviewRequest {
 
 export const reviewApi = {
   /**
-   * Get reviews by course ID
+   * Get reviews by course ID (CourseMaster)
    */
   getReviewsByCourse: async (
     courseId: string,
@@ -44,7 +44,7 @@ export const reviewApi = {
     limit: number = 10,
   ): Promise<PaginatedApiResponse<ReviewResponse>> => {
     const response = await apiClient.get<PaginatedApiResponse<ReviewResponse>>(
-      `/api/courses/${courseId}/reviews`,
+      `/api/course-masters/${courseId}/reviews`,
       {
         params: { page, limit },
       },
@@ -53,13 +53,13 @@ export const reviewApi = {
   },
 
   /**
-   * Get rating distribution for a course
+   * Get rating distribution for a course (CourseMaster)
    */
   getRatingDistribution: async (
     courseId: string,
   ): Promise<RatingDistribution> => {
     const response = await apiClient.get<StandardApiResponse<RatingDistribution>>(
-      `/api/courses/${courseId}/reviews/distribution`,
+      `/api/course-masters/${courseId}/reviews/distribution`,
     );
     return response.data.data!;
   },
@@ -72,7 +72,7 @@ export const reviewApi = {
     data: CreateReviewRequest,
   ): Promise<ReviewResponse> => {
     const response = await apiClient.post<StandardApiResponse<{ review: ReviewResponse }>>(
-      `/api/courses/${courseId}/reviews`,
+      `/api/course-masters/${courseId}/reviews`,
       data,
     );
     return response.data.data!.review;
@@ -88,7 +88,7 @@ export const reviewApi = {
     search?: string
   ): Promise<PaginatedApiResponse<ReviewResponse & { courseTitle?: string; courseSlug?: string }>> => {
     const response = await apiClient.post<PaginatedApiResponse<ReviewResponse & { courseTitle?: string; courseSlug?: string }>>(
-      '/api/courses/reviews/search',
+      '/api/course-masters/reviews/search',
       { page, limit, rating, search },
     );
     return response.data;
@@ -98,7 +98,7 @@ export const reviewApi = {
    * Delete a review
    */
   deleteReview: async (reviewId: string): Promise<boolean> => {
-    await apiClient.delete(`/api/courses/reviews/${reviewId}`);
+    await apiClient.delete(`/api/course-masters/reviews/${reviewId}`);
     return true;
   },
 };

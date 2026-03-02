@@ -10,7 +10,7 @@ import { useCourseReviews, useRatingDistribution } from '@/lib/api/services/revi
 import { useRouter } from 'next/navigation';
 import { toast } from '@workspace/ui/components/sonner';
 import { Skeleton } from '@workspace/ui/components/skeleton';
-import { Heart, ShoppingCart, Users } from 'lucide-react';
+import { Heart, ShoppingCart } from 'lucide-react';
 import { LiveSessionStatus } from '@workspace/schemas';
 
 interface LiveClassDetailClientProps {
@@ -33,7 +33,6 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
     const [joiningSessionId, setJoiningSessionId] = useState<string | null>(null);
 
     const { data: course, isLoading } = useCourseBySlug(slug);
-    const { data: enrollmentData } = useCheckEnrollment(course?.id || '');
     const { data: wishlistData } = useCheckWishlist(course?.id || '');
     const { data: cartData } = useCart();
     const { data: sessions = [] } = useLiveSessions(course?.id || '');
@@ -45,7 +44,7 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
     const addToCart = useAddToCart();
     const toggleWishlist = useToggleWishlist();
 
-    const isEnrolled = enrollmentData?.isEnrolled;
+    const isEnrolled = false; // TODO: wire per-run enrollment if needed
     const isInWishlist = wishlistData?.isInWishlist;
     const isInCart = cartData?.items?.some(item => item.courseRun?.courseMaster?.id === course?.id);
 
@@ -124,28 +123,36 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
                 .animate-live-pulse { animation: pulse-live 2s infinite }
             `}</style>
 
-            <div className="bg-muted/50 border-b border-border">
-                <section className="relative pt-12 pb-16 md:pt-16 md:pb-24 overflow-hidden">
-                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                        <nav aria-label="Breadcrumb" className="flex mb-8 text-sm text-muted-foreground">
+            {/* Hero Section */}
+            <div className="bg-slate-900 border-b border-slate-800">
+                <section className="relative pt-12 text-slate-50 pb-16 md:pt-16 md:pb-32 overflow-hidden">
+                    {/* Decorative blurs */}
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden mix-blend-screen opacity-40">
+                        <div className="absolute -top-24 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px]" />
+                        <div className="absolute bottom-0 right-1/3 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px]" />
+                    </div>
+                    <div className="max-w-7xl mx-auto px-6 relative z-10">
+                        {/* Breadcrumbs */}
+                        <nav aria-label="Breadcrumb" className="flex mb-8 text-sm text-slate-400 font-medium">
                             <ol className="flex items-center space-x-2">
-                                <li><a className="hover:text-primary transition" href="/">Trang chủ</a></li>
+                                <li><a className="hover:text-white transition" href="/">Trang chủ</a></li>
                                 <li><span className="mx-2">/</span></li>
-                                <li><a className="hover:text-primary transition" href="/live-classes">Lớp Live</a></li>
+                                <li><a className="hover:text-white transition" href="/live-classes">Lớp học</a></li>
                                 <li><span className="mx-2">/</span></li>
-                                <li className="text-foreground line-clamp-1 font-medium">{course.title}</li>
+                                <li className="text-white line-clamp-1">{course.title}</li>
                             </ol>
                         </nav>
                         <div className="grid grid-cols-12 gap-8">
                             <div className="col-span-12 lg:col-span-8">
+                                {/* Badges */}
                                 <div className="flex items-center gap-3 mb-6 flex-wrap">
                                     {hasActiveSession && (
-                                        <span className="bg-destructive text-destructive-foreground text-[10px] font-bold px-2 py-1 rounded-sm flex items-center gap-1 animate-live-pulse">
-                                            <span className="w-1.5 h-1.5 bg-current rounded-full" /> ĐANG LIVE
+                                        <span className="bg-destructive text-destructive-foreground text-[10px] font-bold px-2 py-1 rounded-sm flex items-center gap-1 animate-live-pulse shadow-[0_0_15px_rgba(239,68,68,0.5)]">
+                                            <span className="w-1.5 h-1.5 bg-current rounded-full" /> 🔴 ĐANG LIVE
                                         </span>
                                     )}
                                     {course.jlptLevel && (
-                                        <span className="bg-primary/10 text-primary border border-primary/20 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                        <span className="bg-primary/20 text-primary border border-primary/30 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-sm">
                                             JLPT {course.jlptLevel}
                                         </span>
                                     )}
@@ -160,33 +167,40 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
                                         </span>
                                     )}
                                 </div>
-                                <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight text-foreground tracking-tight">
+                                {/* Title */}
+                                <h1 className="text-4xl md:text-5xl font-extrabold mb-6 leading-tight text-white tracking-tight">
                                     {course.title}
                                 </h1>
                                 {course.shortDescription && (
-                                    <p className="text-xl text-muted-foreground mb-8 max-w-3xl leading-relaxed">
+                                    <p className="text-xl text-slate-300 mb-8 max-w-3xl leading-relaxed">
                                         {course.shortDescription}
                                     </p>
                                 )}
+                                {/* Meta */}
                                 <div className="flex flex-wrap items-center gap-6 text-sm mb-4">
                                     {(course.averageRating || 0) > 0 && (
                                         <div className="flex items-center gap-2">
-                                            <span className="text-primary font-bold text-lg">{course.averageRating?.toFixed(1)}</span>
-                                            <span className="text-muted-foreground">({(course.totalReviews || 0).toLocaleString()} đánh giá)</span>
+                                            <span className="text-yellow-500 font-bold text-lg">{course.averageRating?.toFixed(1)}</span>
+                                            <div className="flex text-yellow-500">
+                                                {[1, 2, 3, 4, 5].map(i => (
+                                                    <svg key={i} className={`w-4 h-4 ${i <= Math.round(course.averageRating || 0) ? 'fill-current' : 'text-slate-700 fill-slate-700'}`} viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                                                ))}
+                                            </div>
+                                            <span className="text-slate-400 underline underline-offset-4 hover:text-white transition-colors cursor-pointer">({course.totalReviews || 0} đánh giá)</span>
                                         </div>
                                     )}
-                                    <div className="flex items-center gap-1.5 text-muted-foreground">
-                                        <Users className="w-4 h-4" />
+                                    <div className="flex items-center gap-1.5 text-slate-300">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>
                                         <span>{(course.totalStudents || 0).toLocaleString()} học viên</span>
                                     </div>
                                     {mainInstructor && (
-                                        <div className="flex items-center gap-3 pl-6 border-l border-border">
+                                        <div className="flex items-center gap-3 pl-6 border-l border-slate-700">
                                             {mainInstructor.avatarUrl ? (
-                                                <img alt={mainInstructor.displayName} className="w-10 h-10 rounded-full object-cover border border-border shrink-0" src={mainInstructor.avatarUrl} />
+                                                <img alt={mainInstructor.displayName} className="w-10 h-10 rounded-full object-cover border border-slate-700 shadow-inner shrink-0" src={mainInstructor.avatarUrl} />
                                             ) : (
-                                                <div className="w-10 h-10 rounded-full border border-border bg-muted flex items-center justify-center text-xs font-bold shrink-0">{mainInstructor.displayName[0]}</div>
+                                                <div className="w-10 h-10 rounded-full border border-slate-700 bg-slate-800 flex items-center justify-center text-xs font-bold text-white shadow-inner shrink-0">{mainInstructor.displayName[0]}</div>
                                             )}
-                                            <span className="text-muted-foreground">Giảng viên: <span className="font-semibold text-foreground">{mainInstructor.displayName}</span></span>
+                                            <span className="text-slate-400">Giảng viên: <span className="font-semibold text-white">{mainInstructor.displayName}</span></span>
                                         </div>
                                     )}
                                 </div>
@@ -196,11 +210,12 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
                 </section>
             </div>
 
+            {/* Social Proof Banner */}
             {(course.totalStudents || 0) > 0 && (
                 <div className="bg-primary/5 border-y border-primary/10 py-3">
-                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-4">
+                    <div className="max-w-7xl mx-auto px-6 flex items-center gap-4">
                         <p className="text-sm font-semibold text-foreground">
-                            Đã có <strong>{course.totalStudents?.toLocaleString()}</strong> học viên đăng ký lớp này
+                            🎓 Đã có <strong>{course.totalStudents?.toLocaleString()}</strong> học viên đăng ký khóa học này
                         </p>
                     </div>
                 </div>

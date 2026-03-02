@@ -64,7 +64,7 @@ export default function CheckoutPage() {
     const { data: availableRuns } = useAvailableCourseRuns(courseId)
     const [isCreatingLink, setIsCreatingLink] = useState(false)
 
-    const selectedRun = availableRuns?.find(r => r.id === courseRunId)
+    const selectedRun = courseRunId ? availableRuns?.find(r => r.id === courseRunId) : availableRuns?.[0]
 
     // Gift State
     const [isGift, setIsGift] = useState(false)

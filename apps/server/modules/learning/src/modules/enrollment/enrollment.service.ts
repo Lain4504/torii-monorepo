@@ -272,14 +272,20 @@ export class EnrollmentService implements IEnrollmentService {
     }
 
     /**
-     * Check enrollment details including version update info
+     * Check enrollment details for a specific course run (public API for /enrollments/check/:courseRunId).
+     *
+     * Internally this still looks up any enrollment for the underlying CourseMaster,
+     * but the identifier passed in MUST be a CourseRun ID.
      */
-    async checkEnrollmentDetails(userId: string, courseRunId: string): Promise<{ isEnrolled: boolean; enrollment: EnrollmentResponseDTO | null; hasNewerVersion: boolean }> {
+    async checkEnrollmentDetails(
+        userId: string,
+        courseRunId: string,
+    ): Promise<{ isEnrolled: boolean; enrollment: EnrollmentResponseDTO | null; hasNewerVersion: boolean }> {
         try {
-            // Find the run to get master context
+            // Resolve the underlying CourseMaster from the given courseRunId
             const courseRun = await this.prisma.courseRun.findUnique({
                 where: { id: courseRunId },
-                select: { courseMasterId: true }
+                select: { courseMasterId: true },
             });
 
             if (!courseRun) {
@@ -293,12 +299,12 @@ export class EnrollmentService implements IEnrollmentService {
             const enrollmentRecord = await this.prisma.enrollment.findFirst({
                 where: {
                     userId,
-                    courseRun: { courseMasterId }
+                    courseRun: { courseMasterId },
                 },
                 include: {
-                    courseRun: true
+                    courseRun: true,
                 },
-                orderBy: { enrollmentDate: 'desc' }
+                orderBy: { enrollmentDate: 'desc' },
             });
 
             if (!enrollmentRecord) {
@@ -320,8 +326,11 @@ export class EnrollmentService implements IEnrollmentService {
             ];
 
             return {
-                isEnrolled: inProgressStatus.includes(enrollment.completionStatus as any) ||
-                    (enrollment.completionStatus === EnrollmentStatus.TRIAL && !!enrollment.trialExpiresAt && new Date(enrollment.trialExpiresAt).getTime() > Date.now()),
+                isEnrolled:
+                    inProgressStatus.includes(enrollment.completionStatus as any) ||
+                    (enrollment.completionStatus === EnrollmentStatus.TRIAL &&
+                        !!enrollment.trialExpiresAt &&
+                        new Date(enrollment.trialExpiresAt).getTime() > Date.now()),
                 enrollment,
                 hasNewerVersion,
             };

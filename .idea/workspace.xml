@@ -4,15 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix to lauch success">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/assignment.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/assignment.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/exam.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/exam.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/assignment.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/assignment.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/course-master.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/course-master.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/course-run.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/course-run.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/exam.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/exam.model.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-master-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-master-detail-page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -251,38 +245,9 @@
       <workItem from="1772391988089" duration="121000" />
       <workItem from="1772411315507" duration="3844000" />
       <workItem from="1772421520773" duration="876000" />
-    </task>
-    <task id="LOCAL-00850" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
-      <option name="closed" value="true" />
-      <created>1771693198458</created>
-      <option name="number" value="00850" />
-      <option name="presentableId" value="LOCAL-00850" />
-      <option name="project" value="LOCAL" />
-      <updated>1771693198458</updated>
-    </task>
-    <task id="LOCAL-00851" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
-      <option name="closed" value="true" />
-      <created>1771693324764</created>
-      <option name="number" value="00851" />
-      <option name="presentableId" value="LOCAL-00851" />
-      <option name="project" value="LOCAL" />
-      <updated>1771693324764</updated>
-    </task>
-    <task id="LOCAL-00852" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
-      <option name="closed" value="true" />
-      <created>1771693548937</created>
-      <option name="number" value="00852" />
-      <option name="presentableId" value="LOCAL-00852" />
-      <option name="project" value="LOCAL" />
-      <updated>1771693548937</updated>
-    </task>
-    <task id="LOCAL-00853" summary="refactor: enhance order management with additional fields and update API methods for improved data handling">
-      <option name="closed" value="true" />
-      <created>1771693927384</created>
-      <option name="number" value="00853" />
-      <option name="presentableId" value="LOCAL-00853" />
-      <option name="project" value="LOCAL" />
-      <updated>1771693927384</updated>
+      <workItem from="1772437718203" duration="39000" />
+      <workItem from="1772448442034" duration="1160000" />
+      <workItem from="1772449707195" duration="399000" />
     </task>
     <task id="LOCAL-00854" summary="refactor: update layout and styling for user and module sheets">
       <option name="closed" value="true" />
@@ -644,7 +609,39 @@
       <option name="project" value="LOCAL" />
       <updated>1772421927338</updated>
     </task>
-    <option name="localTasksCounter" value="899" />
+    <task id="LOCAL-00899" summary="fix">
+      <option name="closed" value="true" />
+      <created>1772448550410</created>
+      <option name="number" value="00899" />
+      <option name="presentableId" value="LOCAL-00899" />
+      <option name="project" value="LOCAL" />
+      <updated>1772448550411</updated>
+    </task>
+    <task id="LOCAL-00900" summary="fix">
+      <option name="closed" value="true" />
+      <created>1772449184472</created>
+      <option name="number" value="00900" />
+      <option name="presentableId" value="LOCAL-00900" />
+      <option name="project" value="LOCAL" />
+      <updated>1772449184472</updated>
+    </task>
+    <task id="LOCAL-00901" summary="fix">
+      <option name="closed" value="true" />
+      <created>1772449518598</created>
+      <option name="number" value="00901" />
+      <option name="presentableId" value="LOCAL-00901" />
+      <option name="project" value="LOCAL" />
+      <updated>1772449518598</updated>
+    </task>
+    <task id="LOCAL-00902" summary="fix">
+      <option name="closed" value="true" />
+      <created>1772449712869</created>
+      <option name="number" value="00902" />
+      <option name="presentableId" value="LOCAL-00902" />
+      <option name="project" value="LOCAL" />
+      <updated>1772449712869</updated>
+    </task>
+    <option name="localTasksCounter" value="903" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -694,7 +691,8 @@
     <MESSAGE value="refactor: Rename course-related entities to use 'courseMaster' terminology and update related references" />
     <MESSAGE value="migation other code" />
     <MESSAGE value="fix to lauch success" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix to lauch success" />
+    <MESSAGE value="fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

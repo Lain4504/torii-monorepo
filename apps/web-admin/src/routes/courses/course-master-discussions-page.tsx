@@ -45,7 +45,7 @@ import {
     SelectValue,
 } from "@workspace/ui/components/select";
 
-export default function CourseDiscussionsPage() {
+export default function CourseMasterDiscussionsPage() {
     const [page, setPage] = useState(1);
     const [statusFilter, setStatusFilter] = useState<string>('all');
 

@@ -21,14 +21,20 @@ export class GlobalExceptionsFilter implements ExceptionFilter {
         // Log the raw exception for internal debugging
         // this.logger.debug('Catching exception:', JSON.stringify(exception));
 
+        let errors: any[] = [];
         if (exception instanceof HttpException) {
             status = exception.getStatus();
             const res = exception.getResponse();
             if (typeof res === 'string') {
                 message = res;
-            } else if (typeof res === 'object' && res !== null && 'message' in res) {
-                // @ts-ignore
-                message = Array.isArray(res.message) ? res.message.join(', ') : res.message;
+            } else if (typeof res === 'object' && res !== null) {
+                const resObj = res as any;
+                if ('message' in resObj) {
+                    message = Array.isArray(resObj.message) ? resObj.message.join(', ') : resObj.message;
+                }
+                if ('errors' in resObj) {
+                    errors = resObj.errors;
+                }
             }
         } else if (typeof exception === 'object' && exception !== null) {
             // Handle microservice error objects or plain objects
@@ -88,6 +94,6 @@ export class GlobalExceptionsFilter implements ExceptionFilter {
 
         response
             .status(status)
-            .json(errorResponse(message));
+            .json(errorResponse(message, errors));
     }
 }

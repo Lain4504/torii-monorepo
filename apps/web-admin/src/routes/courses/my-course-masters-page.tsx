@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useCourses } from "@/lib/api/services/courses.ts";
-import { CoursesTable } from "@/components/courses/courses-table.tsx";
-import { CoursesPrimaryToolbar } from "@/components/courses/courses-primary-toolbar.tsx";
+import { CourseMasterTable } from "@/components/courses/course-master-table.tsx";
+import { CourseMasterPrimaryToolbar } from "@/components/courses/course-master-primary-toolbar.tsx";
 import { usePermissions } from "@/hooks/use-permissions.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '@workspace/ui/components/pagination';
@@ -10,16 +10,15 @@ import { toast } from '@workspace/ui/components/sonner';
 import { useSubmitCourseForReview } from "@/lib/api/services/courses.ts";
 import { Can } from "@/lib/guard/can";
 import { Button } from '@workspace/ui/components/button';
-import { CreateCourseSheet } from "@/components/courses/create-course-sheet.tsx";
+import { CreateCourseMasterSheet } from "@/components/courses/create-course-master-sheet.tsx";
 import { Plus } from 'lucide-react';
 import type { CourseMasterResponseDTO } from '@workspace/schemas';
-import { CourseAuditLogSheet } from '@/components/courses/course-audit-log-sheet';
-import { RejectCourseDialog } from '@/components/courses/reject-course-dialog';
+import { CourseMasterAuditLogSheet } from '@/components/courses/course-master-audit-log-sheet';
+import { RejectCourseMasterDialog } from '@/components/courses/reject-course-master-dialog';
 
 import { useNavigate } from 'react-router-dom';
-import { EditCourseSheet } from "@/components/courses/edit-course-sheet.tsx";
-import { ManageInstructorsSheet } from "@/components/courses/manage-instructors-sheet.tsx";
-import { PublishCourseDialog } from "@/components/courses/publish-course-dialog.tsx";
+import { EditCourseMasterSheet } from "@/components/courses/edit-course-master-sheet.tsx";
+import { PublishCourseMasterDialog } from "@/components/courses/publish-course-master-dialog.tsx";
 
 import { useSelector } from 'react-redux';
 import { selectUser } from "@/store/slices/auth-slice";
@@ -33,7 +32,6 @@ export default function MyCoursesPage() {
     const [debouncedSearch] = useDebounceValue(search, 500);
     const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [selectedCourse, setSelectedCourse] = useState<CourseMasterResponseDTO | null>(null);
-    const [managingInstructorsCourse, setManagingInstructorsCourse] = useState<CourseMasterResponseDTO | null>(null);
     const [viewingAuditLogCourse, setViewingAuditLogCourse] = useState<CourseMasterResponseDTO | null>(null);
     const [rejectingCourse, setRejectingCourse] = useState<CourseMasterResponseDTO | null>(null);
     const [publishingCourse, setPublishingCourse] = useState<CourseMasterResponseDTO | null>(null);
@@ -54,7 +52,7 @@ export default function MyCoursesPage() {
         try {
             await submitForReviewMutation.mutateAsync(course.id);
             toast.success('Đã gửi yêu cầu kiểm duyệt', {
-                description: `Khóa học "${course.title}" đang chờ quản trị viên phê duyệt.`,
+                description: `Khung chương trình "${course.title}" đang chờ quản trị viên phê duyệt.`,
             });
         } catch (error) {
             toast.error('Gửi yêu cầu thất bại');
@@ -67,15 +65,15 @@ export default function MyCoursesPage() {
         <div className="flex flex-col gap-6 p-4 md:p-6 animate-in fade-in duration-500 pb-20">
             <div className="space-y-4 max-w-2xl text-left">
                 <h1 className="text-3xl md:text-4xl font-sans font-bold italic tracking-tight text-foreground uppercase leading-[0.9]">
-                    Khóa học <span className="text-primary not-italic">Của Tôi</span>
+                    Khung chương trình <span className="text-primary not-italic">Của Tôi</span>
                 </h1>
                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 italic border-l-2 border-primary/20 pl-4 mt-2">
-                    Quản lý các khóa học bạn đang phụ trách giảng dạy.
+                    Quản lý các khung chương trình bạn đang phụ trách xây dựng.
                 </p>
             </div>
 
             <div className="flex justify-between items-end gap-4">
-                <CoursesPrimaryToolbar
+                <CourseMasterPrimaryToolbar
                     search={search}
                     onSearchChange={setSearch}
                     statusFilter={""}
@@ -94,24 +92,23 @@ export default function MyCoursesPage() {
                         onClick={() => setShowCreateDialog(true)}
                         className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-sans font-bold italic text-xs uppercase tracking-wide shadow-sm hover:bg-primary/90 hover:shadow-md transition-all whitespace-nowrap"
                     >
-                        Tạo Khóa học Mới
+                        Tạo Khung chương trình Mới
                         <Plus className="ml-2 size-4" />
                     </Button>
                 </Can>
             </div>
 
-            <CoursesTable
+            <CourseMasterTable
                 data={data?.data || []}
                 onEdit={setSelectedCourse}
                 onDelete={() => { }}
-                onModules={(course) => navigate(`/courses/${course.id}`)}
-                onManageInstructors={setManagingInstructorsCourse}
+                onModules={(course: CourseMasterResponseDTO) => navigate(`/course-master/${course.id}`)}
                 onPublish={setPublishingCourse}
                 onReject={setRejectingCourse}
                 onViewAuditLog={setViewingAuditLogCourse}
                 onSubmitForReview={handleSubmitForReview}
                 onUnpublish={() => { }}
-                onTitleClick={(course) => navigate(`/courses/${course.id}`)}
+                onTitleClick={(course: CourseMasterResponseDTO) => navigate(`/course-master/${course.id}`)}
                 can={can}
                 page={page}
                 limit={10}
@@ -134,37 +131,31 @@ export default function MyCoursesPage() {
                 </div>
             )}
 
-            <CreateCourseSheet
+            <CreateCourseMasterSheet
                 open={showCreateDialog}
                 onOpenChange={setShowCreateDialog}
             />
 
-            <EditCourseSheet
+            <EditCourseMasterSheet
                 course={selectedCourse}
                 open={!!selectedCourse}
-                onOpenChange={(open) => !open && setSelectedCourse(null)}
+                onOpenChange={(open: boolean) => !open && setSelectedCourse(null)}
             />
 
-            <ManageInstructorsSheet
-                open={!!managingInstructorsCourse}
-                onOpenChange={(open) => !open && setManagingInstructorsCourse(null)}
-                course={managingInstructorsCourse}
-            />
-
-            <PublishCourseDialog
+            <PublishCourseMasterDialog
                 open={!!publishingCourse}
-                onOpenChange={(open) => !open && setPublishingCourse(null)}
+                onOpenChange={(open: boolean) => !open && setPublishingCourse(null)}
                 course={publishingCourse}
             />
 
-            <CourseAuditLogSheet
+            <CourseMasterAuditLogSheet
                 courseId={viewingAuditLogCourse?.id || null}
                 courseTitle={viewingAuditLogCourse?.title || null}
                 onClose={() => setViewingAuditLogCourse(null)}
             />
 
 
-            <RejectCourseDialog
+            <RejectCourseMasterDialog
                 open={!!rejectingCourse}
                 onOpenChange={(open: boolean) => !open && setRejectingCourse(null)}
                 course={rejectingCourse}

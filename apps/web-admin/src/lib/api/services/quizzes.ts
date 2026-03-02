@@ -13,6 +13,7 @@ export interface QuizDTO {
     quizType: string;
     jlptLevel?: string;
     courseMasterId?: string;
+    courseRunId?: string;
     lessonId?: string;
     totalTime?: number;
     totalQuestions: number;
@@ -21,7 +22,14 @@ export interface QuizDTO {
     shuffleQuestions: boolean;
     showExplanation: boolean;
     status: string;
-    sections?: any;
+    sections?: {
+        id: string;
+        type: string;
+        timeLimit: number;
+        questionCount: number;
+        poolId?: string;
+        questionIds?: string[];
+    }[];
     createdAt: string;
     updatedAt: string;
 }
@@ -30,6 +38,8 @@ export interface CreateQuizDTO {
     title: string;
     description?: string;
     quizType?: string; // default 'lesson'
+    examType?: string; // 'practice' or 'test'
+    jlptLevel?: string;
     courseRunId?: string;
     lessonId?: string;
     totalTime?: number;
@@ -38,6 +48,13 @@ export interface CreateQuizDTO {
     shuffleQuestions?: boolean;
     showExplanation?: boolean;
     status?: string;
+    sections?: {
+        type: string;
+        timeLimit: number;
+        questionCount: number;
+        poolId?: string;
+        questionIds?: string[];
+    }[];
 }
 
 export interface UpdateQuizDTO extends Partial<CreateQuizDTO> { }
@@ -46,6 +63,7 @@ export interface QuizQueryDTO {
     page?: number;
     limit?: number;
     courseMasterId?: string;
+    courseRunId?: string;
     lessonId?: string;
     status?: string;
     quizType?: string;
@@ -60,8 +78,12 @@ const ADMIN_EXAMS_BASE = '/api/admin/exams';
 
 export const quizApi = {
     async findAll(params: QuizQueryDTO): Promise<PaginatedApiResponse<QuizDTO>> {
-        const response = await apiClient.get<PaginatedApiResponse<QuizDTO>>(ADMIN_EXAMS_BASE, { params });
-        return response.data;
+        // Admin exams controller wraps result in a StandardApiResponse via successResponse
+        const response = await apiClient.get<StandardApiResponse<PaginatedApiResponse<QuizDTO>>>(
+            ADMIN_EXAMS_BASE,
+            { params }
+        );
+        return response.data.data!;
     },
 
     async findById(id: string): Promise<QuizDTO> {

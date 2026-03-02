@@ -121,7 +121,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     // Hide "My Courses" sub-item if the user is not a Lecturer
                     items: userRole === UserRole.LECTURER
                         ? item.items
-                        : item.items?.filter(subItem => subItem.url !== '/courses/my')
+                        : item.items?.filter(subItem => subItem.url !== '/course-master/my')
                 }))
             }))
         }));

@@ -11,20 +11,20 @@ import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 
-import { CheckCircle2, AlertCircle, AlertTriangle, BookOpen, Users, Layers, Rocket, ShieldCheck, XCircle } from 'lucide-react';
+import { CheckCircle2, AlertCircle, AlertTriangle, BookOpen, Layers, Rocket, ShieldCheck, XCircle } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { cn } from '@workspace/ui/lib/utils';
 import type { CourseMasterResponseDTO } from '@workspace/schemas';
 import { Alert, AlertDescription } from '@workspace/ui/components/alert';
 import { Spinner } from "@workspace/ui/components/spinner";
 
-interface PublishCourseDialogProps {
+interface PublishCourseMasterDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     course: CourseMasterResponseDTO | null;
 }
 
-export function PublishCourseDialog({ open, onOpenChange, course }: PublishCourseDialogProps) {
+export function PublishCourseMasterDialog({ open, onOpenChange, course }: PublishCourseMasterDialogProps) {
     const publishMutation = usePublishCourse();
 
     const handlePublish = async () => {
@@ -40,8 +40,8 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
 
         try {
             await publishMutation.mutateAsync(course.id);
-            toast.success('Đã Xuất Bản Khóa Học', {
-                description: 'Khóa học đã được xuất bản thành công.',
+            toast.success('Đã Xuất Bản Khung Chương Trình', {
+                description: 'Khung chương trình đã được xuất bản thành công.',
             });
             onOpenChange(false);
         } catch (error: any) {
@@ -54,44 +54,19 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
     // Critical validation checks - MUST pass to publish
     const criticalChecks = [
         {
-            label: 'Tên Khóa Học',
+            label: 'Tên Khung Chương Trình',
             valid: !!course?.title,
             icon: BookOpen,
         },
         {
-            label: 'Mô Tả Khóa Học',
+            label: 'Mô Tả Khung Chương Trình',
             valid: !!course?.description,
-            icon: BookOpen,
-        },
-        {
-            label: 'Giảng Viên',
-            valid: !!course?.lecturer,
-            icon: Users,
-        },
-        {
-            label: 'Học Phí',
-            valid: true,
             icon: BookOpen,
         },
     ];
 
     // Recommended validation checks - Should pass for best experience
     const recommendedChecks = [
-        {
-            label: 'Ảnh Bìa',
-            valid: !!course?.thumbnailUrl,
-            icon: BookOpen,
-        },
-        {
-            label: 'Video Giới Thiệu',
-            valid: !!course?.previewVideoUrl,
-            icon: BookOpen,
-        },
-        {
-            label: 'Giảng Viên Chính',
-            valid: !!course?.lecturer,
-            icon: Users,
-        },
         {
             label: 'Trình Độ JLPT',
             valid: !!course?.jlptLevel,
@@ -108,7 +83,7 @@ export function PublishCourseDialog({ open, onOpenChange, course }: PublishCours
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[540px]">
                 <DialogHeader>
-                    <DialogTitle>Xuất Bản Khóa Học</DialogTitle>
+                    <DialogTitle>Xuất Bản Khung Chương Trình</DialogTitle>
                     <DialogDescription>
                         Kiểm tra yêu cầu cho <span className="text-foreground font-semibold">{course?.title}</span>
                     </DialogDescription>

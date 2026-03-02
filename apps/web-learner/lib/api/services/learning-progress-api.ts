@@ -4,6 +4,7 @@ import type { StandardApiResponse } from '@workspace/schemas';
 
 export interface MyCourseResponse {
     id: string;
+    courseRunId: string;
     slug: string;
     title: string;
     thumbnailUrl: string | null;

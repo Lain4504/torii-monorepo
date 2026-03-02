@@ -11,7 +11,18 @@ export const cartApi = {
      */
     async getCart(): Promise<CartResponse> {
         const response = await apiClient.get<StandardApiResponse<CartResponse>>('/api/carts');
-        return response.data.data!;
+        const data = response.data.data;
+        // Ensure react-query queryFn never returns undefined
+        if (!data) {
+            return {
+                id: 'empty-cart',
+                userId: 'anonymous',
+                items: [],
+                total: 0,
+                count: 0,
+            } as any;
+        }
+        return data;
     },
 
     /**

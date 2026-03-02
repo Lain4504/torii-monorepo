@@ -8,11 +8,12 @@ import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import { ArrowLeft, Clock, CheckCircle2, Circle, Play } from 'lucide-react'
 import { courseApi } from '@/lib/api/services/course-api'
+import { courseRunApi } from '@/lib/api/services/course-run-api'
 
 export default function CourseQuizzesPage() {
     const params = useParams()
     const router = useRouter()
-    const slug = params.slug as string
+    const courseRunId = params.courseId as string
     const [course, setCourse] = useState<any>(null)
     const [quizzes, setQuizzes] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
@@ -21,33 +22,27 @@ export default function CourseQuizzesPage() {
         const fetchData = async () => {
             try {
                 setLoading(true)
-                const courseData = await courseApi.getCourseBySlug(slug)
-                if (courseData) {
-                    setCourse(courseData)
-                    // TODO: Fetch quizzes from API
-                    // const quizzesData = await courseApi.getCourseQuizzes(courseData.id)
-                    // setQuizzes(quizzesData)
-
-                    // Mock data
-                    setQuizzes([
-                        {
-                            id: '1',
-                            title: 'Quiz 1: Bảng chữ cái Hiragana',
-                            description: 'Kiểm tra kiến thức về bảng chữ cái Hiragana',
-                            totalQuestions: 20,
-                            timeLimit: 30,
-                            completed: true,
-                            score: 85,
-                        },
-                        {
-                            id: '2',
-                            title: 'Quiz 2: Bảng chữ cái Katakana',
-                            description: 'Kiểm tra kiến thức về bảng chữ cái Katakana',
-                            totalQuestions: 20,
-                            timeLimit: 30,
-                            completed: false,
-                        },
-                    ])
+                // 1. Get CourseRun
+                const runResult = await courseRunApi.getCourseRunById(courseRunId)
+                if (runResult) {
+                    const courseId = runResult.courseMasterId
+                    // 2. Get CourseMaster details
+                    const courseData = await courseApi.getCourseById(courseId)
+                    if (courseData) {
+                        setCourse(courseData)
+                        // Mock data for quizzes
+                        setQuizzes([
+                            {
+                                id: '1',
+                                title: 'Quiz 1: Bảng chữ cái Hiragana',
+                                description: 'Kiểm tra kiến thức về bảng chữ cái Hiragana',
+                                totalQuestions: 20,
+                                timeLimit: 30,
+                                completed: true,
+                                score: 85,
+                            },
+                        ])
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching data:', error)
@@ -56,10 +51,10 @@ export default function CourseQuizzesPage() {
             }
         }
 
-        if (slug) {
+        if (courseRunId) {
             fetchData()
         }
-    }, [slug])
+    }, [courseRunId])
 
     if (loading) {
         return (
@@ -83,7 +78,7 @@ export default function CourseQuizzesPage() {
             <div className="border-b border-border bg-background">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center gap-4">
-                        <Link href={`/courses/${slug}`}>
+                        <Link href={`/courses/${courseRunId}/learn`}>
                             <Button variant="ghost" size="icon" className="rounded-full">
                                 <ArrowLeft className="w-4 h-4" />
                             </Button>
@@ -140,7 +135,7 @@ export default function CourseQuizzesPage() {
                                             )}
                                         </div>
                                         <Button
-                                            onClick={() => router.push(`/courses/${slug}/quizzes/${quiz.id}`)}
+                                            onClick={() => router.push(`/courses/${courseRunId}/quizzes/${quiz.id}`)}
                                         >
                                             {quiz.completed ? 'Xem lại' : 'Làm bài'}
                                             <Play className="ml-2 w-4 h-4" />

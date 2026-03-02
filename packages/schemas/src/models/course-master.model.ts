@@ -42,9 +42,7 @@ export const courseMasterSchema = z.object({
     shortDescription: z.string().optional(),
     jlptLevel: z.nativeEnum(JlptLevel),
     aiMetadata: z.record(z.any()).default({}), // JSONB
-    thumbnailUrl: z.string().optional(),
-    previewVideoUrl: z.string().optional(),
-  // Live config moved to CourseRun (per-cohort configuration)
+    // Live config moved to CourseRun (per-cohort configuration)
     durationWeeks: z.number().min(0).optional(),         // Thời lượng nội dung khóa học (hiển thị)
     expirationMonths: z.number().int().min(1).max(6).optional(), // 1-6 tháng: thời hạn truy cập
     totalLessons: z.number().default(0),
@@ -64,6 +62,7 @@ export const courseMasterSchema = z.object({
     createdAt: z.date(),
     updatedAt: z.date(),
     deletedAt: z.date().optional(),
+    thumbnailUrl: z.string().optional().nullable(),
 });
 
 export type CourseMaster = z.infer<typeof courseMasterSchema>;

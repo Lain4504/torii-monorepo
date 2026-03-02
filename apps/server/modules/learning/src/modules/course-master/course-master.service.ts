@@ -335,8 +335,6 @@ export class CourseMasterService implements ICourseMasterService {
         shortDescription: dto.shortDescription || null,
         jlptLevel: dto.jlptLevel || null,
         aiMetadata: dto.aiMetadata || {},
-        thumbnailUrl: dto.thumbnailUrl || null,
-        previewVideoUrl: dto.previewVideoUrl || null,
         tags: dto.tags || [],
         learningOutcomes: dto.learningOutcomes || [],
         requirements: dto.requirements || [],
@@ -406,8 +404,6 @@ export class CourseMasterService implements ICourseMasterService {
       if (dto.shortDescription !== undefined) updateData.shortDescription = dto.shortDescription;
       if (dto.jlptLevel !== undefined) updateData.jlptLevel = dto.jlptLevel;
       if ((dto as any).aiMetadata !== undefined) updateData.aiMetadata = (dto as any).aiMetadata;
-      if (dto.thumbnailUrl !== undefined) updateData.thumbnailUrl = dto.thumbnailUrl;
-      if (dto.previewVideoUrl !== undefined) updateData.previewVideoUrl = dto.previewVideoUrl;
       if (dto.tags !== undefined) updateData.tags = dto.tags;
       if (dto.learningOutcomes !== undefined) updateData.learningOutcomes = dto.learningOutcomes;
       if (dto.requirements !== undefined) updateData.requirements = dto.requirements;

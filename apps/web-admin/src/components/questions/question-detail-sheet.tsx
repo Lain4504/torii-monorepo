@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
 import { Alert, AlertDescription } from '@workspace/ui/components/alert';
+import { formatDate } from '@/lib/format-utils';
 import {
     Item,
     ItemContent,
@@ -76,7 +77,7 @@ export function QuestionDetailSheet({
                     </div>
                     <SheetTitle>Chi Tiết Câu Hỏi</SheetTitle>
                     <SheetDescription>
-                        Mã số: {question.id.substring(0, 12)}... • {new Date(question.createdAt).toLocaleDateString('vi-VN')}
+                        Mã số: {question.id.substring(0, 12)}... • {formatDate(question.createdAt)}
                     </SheetDescription>
                 </SheetHeader>
 

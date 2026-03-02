@@ -46,11 +46,11 @@ export class LearningProgressService implements ILearningProgressService {
                                 id: true,
                                 title: true,
                                 slug: true,
-                                thumbnailUrl: true,
                                 totalLessons: true,
                                 type: true,
                             }
-                        }
+                        },
+                        lecturer: true,
                     }
                 }
             },
@@ -84,7 +84,7 @@ export class LearningProgressService implements ILearningProgressService {
             // Fallback: if no snapshot available, use live count of published lessons
             if (totalLessons === 0) {
                 totalLessons = await this.lessonRepo.count({
-                    module: { courseMasterId: e.courseMaster.id, deletedAt: null },
+                    module: { courseMasterId: e.courseRun.courseMaster.id, deletedAt: null },
                     deletedAt: null,
                     status: 'published'
                 } as any);
@@ -104,13 +104,14 @@ export class LearningProgressService implements ILearningProgressService {
                 progress = 0;
             }
 
+            const courseMaster = e.courseRun.courseMaster;
             return {
-                id: e.courseMaster.id,
-                slug: e.courseMaster.slug,
-                title: e.courseMaster.title,
-                thumbnailUrl: e.courseMaster.thumbnailUrl,
-                type: e.courseMaster.type ?? 'vod',
-                instructor: e.courseMaster.lecturer?.displayName || "Chuyên gia Torii",
+                id: courseMaster.id,
+                courseRunId: e.courseRun.id,
+                slug: courseMaster.slug,
+                title: courseMaster.title,
+                type: courseMaster.type ?? 'vod',
+                instructor: e.courseRun.lecturer?.displayName || "Chuyên gia Torii",
                 progress: progress,
                 totalLessons: totalLessons,
                 completedLessons: completedLessons,

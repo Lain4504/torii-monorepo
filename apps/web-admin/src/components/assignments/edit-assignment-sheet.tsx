@@ -30,7 +30,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@workspace/ui/components/select";
-import { Checkbox } from "@workspace/ui/components/checkbox";
+import { Switch } from "@workspace/ui/components/switch";
 import { ScrollArea } from "@workspace/ui/components/scroll-area";
 import { TiptapEditor } from "@workspace/ui/components/tiptap-editor";
 import { MultiFileUpload } from "@/components/common/multi-file-upload";
@@ -284,21 +284,25 @@ export function EditAssignmentSheet({
                 </div>
 
                 <FieldSet>
-                  <FieldLegend>Cấu hình nộp muộn</FieldLegend>
+                  <FieldLegend>Cấu hình nộp muộn (tùy chọn)</FieldLegend>
                   <FieldGroup>
                     <Controller
                       control={form.control}
                       name="allowLateSubmission"
                       render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid} className="flex flex-row items-start space-x-3 space-y-0">
-                          <Checkbox
-                            id={field.name}
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                          <div className="space-y-1 leading-none">
-                            <FieldLabel htmlFor={field.name}>Cho phép nộp muộn</FieldLabel>
-                            <FieldDescription>Học viên vẫn có thể nộp sau khi hết hạn</FieldDescription>
+                        <Field data-invalid={fieldState.invalid}>
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="space-y-1 leading-none">
+                              <FieldLabel htmlFor={field.name}>Cho phép nộp muộn</FieldLabel>
+                              <FieldDescription>
+                                Học viên vẫn có thể nộp bài sau hạn, hệ thống không tự trừ điểm.
+                              </FieldDescription>
+                            </div>
+                            <Switch
+                              id={field.name}
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
                           </div>
                         </Field>
                       )}
@@ -310,7 +314,7 @@ export function EditAssignmentSheet({
                         name="latePenaltyPercent"
                         render={({ field, fieldState }) => (
                           <Field data-invalid={fieldState.invalid}>
-                            <FieldLabel htmlFor={field.name}>Mức phạt (Gợi ý %)</FieldLabel>
+                        <FieldLabel htmlFor={field.name}>Mức phạt gợi ý (%)</FieldLabel>
                             <div className="flex items-center gap-2">
                               <Input
                                 type="number"
@@ -322,7 +326,9 @@ export function EditAssignmentSheet({
                               />
                               <span className="text-sm font-bold">%</span>
                             </div>
-                            <FieldDescription>Dùng để hiển thị gợi ý trừ điểm khi giảng viên chấm bài</FieldDescription>
+                            <FieldDescription>
+                              Chỉ hiển thị như gợi ý cho giảng viên khi chấm bài, ví dụ: 10 = trừ 10% tổng điểm.
+                            </FieldDescription>
                             <FieldError errors={[fieldState.error]} />
                           </Field>
                         )}

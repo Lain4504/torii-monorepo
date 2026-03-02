@@ -2,7 +2,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import type { CourseMasterResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 
-import { ArrowUpDown, Pencil, Trash, Users, CheckCircle, XCircle, BookOpen, Clock, MoreVertical, Target, Layers, History } from 'lucide-react';
+import { ArrowUpDown, Pencil, Trash, CheckCircle, XCircle, BookOpen, Clock, MoreVertical, Target, Layers, History } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -15,11 +15,10 @@ import { cn } from "@workspace/ui/lib/utils";
 
 const columnHelper = createColumnHelper<CourseMasterResponseDTO>();
 
-export type CoursesColumnsProps = {
+export type CourseMasterColumnsProps = {
     onEdit: (course: CourseMasterResponseDTO) => void;
     onDelete: (course: CourseMasterResponseDTO) => void;
     onModules: (course: CourseMasterResponseDTO) => void;
-    onManageInstructors: (course: CourseMasterResponseDTO) => void;
     onPublish: (course: CourseMasterResponseDTO) => void;
     onSubmitForReview: (course: CourseMasterResponseDTO) => void;
     onUnpublish: (course: CourseMasterResponseDTO) => void;
@@ -31,7 +30,7 @@ export type CoursesColumnsProps = {
     limit: number;
 };
 
-export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstructors, onPublish, onSubmitForReview, onUnpublish, onReject, onTitleClick, onViewAuditLog, can, page, limit }: CoursesColumnsProps) => [
+export const getCourseMasterColumns = ({ onEdit, onDelete, onModules, onPublish, onSubmitForReview, onUnpublish, onReject, onTitleClick, onViewAuditLog, can, page, limit }: CourseMasterColumnsProps) => [
     // STT Column
     columnHelper.display({
         id: 'stt',
@@ -70,33 +69,6 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
             </div>
         ),
     }),
-    columnHelper.accessor('lecturer.displayName', {
-        id: 'lecturer',
-        header: () => <div className="px-1 text-center">Giảng viên</div>,
-        cell: (info) => {
-            const lecturer = info.row.original.lecturer;
-            if (!lecturer) return (
-                <div className="flex justify-center italic text-muted-foreground/40 text-[10px]">Chưa phân công</div>
-            );
-            return (
-                <div className="flex justify-center">
-                    <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-primary/5 border border-primary/10 max-w-[150px]">
-                        <div className="w-5 h-5 rounded-md overflow-hidden bg-primary/20 flex-shrink-0">
-                            {lecturer.avatarUrl ? (
-                                <img src={lecturer.avatarUrl} alt="" className="w-full h-full object-cover" />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-primary">
-                                    {lecturer.displayName.charAt(0)}
-                                </div>
-                            )}
-                        </div>
-                        <span className="text-[10px] font-bold text-foreground truncate">{lecturer.displayName}</span>
-                    </div>
-                </div>
-            );
-        },
-        size: 150,
-    }),
     columnHelper.accessor('jlptLevel', {
         header: () => <div className="px-1 text-center">Trình độ</div>,
         cell: (info) => {
@@ -113,14 +85,19 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
         size: 100,
     }),
     columnHelper.display({
-        id: 'price',
-        header: () => <div className="px-1 text-center">Giá</div>,
-        cell: () => (
-            <div className="text-center text-sm text-muted-foreground">
-                —
-            </div>
-        ),
-        size: 80,
+        id: 'version',
+        header: () => <div className="px-1 text-center">Phiên bản</div>,
+        cell: ({ row }) => {
+            const version = (row.original as any).version || (row.original as any).versionTag || 'v1.0';
+            return (
+                <div className="flex justify-center">
+                    <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary/5 text-primary text-[10px] font-black tracking-tight border border-primary/10">
+                        {version}
+                    </div>
+                </div>
+            )
+        },
+        size: 90,
     }),
     columnHelper.accessor('status', {
         header: () => <div className="px-1 text-center">Trạng thái</div>,
@@ -156,38 +133,6 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
             </div>
         ),
         size: 90,
-    }),
-    columnHelper.accessor('totalQuizzes', {
-        id: 'quizzesCount',
-        header: () => <div className="px-1 text-center">Quiz</div>,
-        cell: (info) => (
-            <div className="flex flex-col items-center">
-                <div className="font-bold text-sm text-foreground">{info.getValue() || 0}</div>
-                <div className="text-[9px] font-medium text-muted-foreground/60 uppercase tracking-tight">Đã xuất bản</div>
-            </div>
-        ),
-        size: 90,
-    }),
-    columnHelper.accessor('totalStudents', {
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                    className="-ml-4 h-9 px-4 text-xs font-semibold hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
-                >
-                    Học viên
-                    <ArrowUpDown className="ml-2 h-3.5 w-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
-                </Button>
-            );
-        },
-        cell: (info) => (
-            <div className="flex flex-col items-center">
-                <div className="font-bold text-sm text-foreground">{info.getValue() || 0}</div>
-                <div className="text-[9px] font-medium text-muted-foreground/60">lượt mua</div>
-            </div>
-        ),
-        size: 100,
     }),
     columnHelper.accessor('updatedAt', {
         header: ({ column }) => {
@@ -252,15 +197,6 @@ export const getCoursesColumns = ({ onEdit, onDelete, onModules, onManageInstruc
                                 </DropdownMenuItem>
                             )}
 
-                            {can('course.update') && (
-                                <DropdownMenuItem
-                                    onClick={() => onManageInstructors(course)}
-                                    className="rounded-lg px-3 py-2.5 text-xs font-medium focus:bg-primary/10 focus:text-primary cursor-pointer flex gap-2.5"
-                                >
-                                    <Users className="h-4 w-4 opacity-50" />
-                                    <span>Quản lý nhóm giảng viên</span>
-                                </DropdownMenuItem>
-                            )}
 
                             <DropdownMenuItem
                                 onClick={() => onViewAuditLog(course)}

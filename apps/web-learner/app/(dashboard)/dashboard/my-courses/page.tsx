@@ -237,7 +237,11 @@ export default function MyCoursesPage() {
                                         <ChevronRight className="ml-1.5 w-3.5 h-3.5" />
                                     </Button>
                                 ) : (
-                                    <Link href={`/dashboard/courses/${course.id}/learn`} className="w-full" onClick={(e) => e.stopPropagation()}>
+                                    <Link
+                                        href={`/courses/${course.courseRunId}/learn`}
+                                        className="w-full"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
                                         <Button className="w-full text-xs">
                                             {course.progress === 0 ? 'Bắt đầu học' : course.progress >= 100 ? 'Xem lại' : 'Tiếp tục học'}
                                             <ChevronRight className="ml-1.5 w-3.5 h-3.5" />

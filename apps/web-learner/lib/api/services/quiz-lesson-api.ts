@@ -83,12 +83,22 @@ export interface SaveAnswersDTO {
 
 export const quizLessonApi = {
     /**
-     * Get quizzes linked to a specific lesson
+     * Get quizzes linked to a specific lesson (optionally scoped by courseRunId)
      */
-    getByLesson: async (lessonId: string): Promise<QuizResponseDTO | null> => {
+    getByLesson: async (lessonId: string, courseRunId?: string): Promise<QuizResponseDTO | null> => {
+        const params: Record<string, unknown> = {
+            lessonId,
+            status: 'published',
+            limit: 1,
+        };
+
+        if (courseRunId) {
+            params.courseRunId = courseRunId;
+        }
+
         const response = await apiClient.get<PaginatedApiResponse<QuizResponseDTO>>(
             '/api/exams',
-            { params: { lessonId, status: 'published', limit: 1 } }
+            { params }
         );
         const items = response.data?.data;
         return Array.isArray(items) && items.length > 0 ? (items[0] as QuizResponseDTO) : null;
@@ -146,11 +156,11 @@ export const quizLessonApi = {
 /**
  * Hook: Get quiz linked to a lesson
  */
-export function useQuizByLesson(lessonId: string | undefined) {
+export function useQuizByLesson(lessonId: string | undefined, courseRunId?: string) {
     return useQuery({
-        queryKey: ['quizzes', 'lesson', lessonId],
-        queryFn: () => quizLessonApi.getByLesson(lessonId!),
-        enabled: !!lessonId,
+        queryKey: ['quizzes', 'lesson', lessonId, courseRunId],
+        queryFn: () => quizLessonApi.getByLesson(lessonId!, courseRunId),
+        enabled: !!lessonId && !!courseRunId,
         staleTime: 60_000,
     });
 }

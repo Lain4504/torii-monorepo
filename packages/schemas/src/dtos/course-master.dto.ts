@@ -7,8 +7,6 @@ export const courseMasterCreateDTOSchema = courseMasterSchema.pick({
     description: true,
     shortDescription: true,
     jlptLevel: true,
-    thumbnailUrl: true,
-    previewVideoUrl: true,
     type: true,
     durationWeeks: true,
     expirationMonths: true,
@@ -21,8 +19,6 @@ export const courseMasterCreateDTOSchema = courseMasterSchema.pick({
 }).partial({
     description: true,
     shortDescription: true,
-    thumbnailUrl: true,
-    previewVideoUrl: true,
     type: true,
     durationWeeks: true,
     expirationMonths: true,
@@ -62,7 +58,6 @@ export const courseMasterSearchResponseDTOSchema = courseMasterSchema.pick({
     id: true,
     title: true,
     slug: true,
-    thumbnailUrl: true,
     jlptLevel: true,
     totalStudents: true,
     totalLessons: true,
@@ -73,6 +68,7 @@ export const courseMasterSearchResponseDTOSchema = courseMasterSchema.pick({
     description: true,
     aiMetadata: true,
     type: true,
+    thumbnailUrl: true,
 }).extend({
     lecturer: courseMasterInstructorDTOSchema.optional().nullable(),
 });

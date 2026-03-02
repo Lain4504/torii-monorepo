@@ -39,7 +39,6 @@ export class CartService {
                         id: master.id,
                         title: master.title,
                         slug: master.slug,
-                        thumbnailUrl: master.thumbnailUrl,
                         price: Number(run.price),
                         discountPrice: run.discountPrice ? Number(run.discountPrice) : null,
                         instructor: 'Instructor Name', // Placeholder or fetch

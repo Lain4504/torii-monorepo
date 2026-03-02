@@ -19,6 +19,7 @@ import {
 import type { TicketResponseDTO } from '@workspace/schemas';
 import { TicketStatus, TicketType } from '@workspace/schemas';
 import { cn } from "@workspace/ui/lib/utils";
+import { formatDate } from '@/lib/format-utils';
 
 interface TicketsColumnsProps {
     onView: (ticket: TicketResponseDTO) => void;
@@ -98,7 +99,7 @@ export const getTicketsColumns = ({ onView, onChangeStatus, page = 1, limit = 10
     {
         accessorKey: 'createdAt',
         header: 'Ngày tạo',
-        cell: ({ row }) => <span className="text-[11px] font-medium">{new Date(row.original.createdAt).toLocaleDateString('vi-VN')}</span>,
+        cell: ({ row }) => <span className="text-[11px] font-medium">{formatDate(row.original.createdAt)}</span>,
     },
     {
         id: 'actions',

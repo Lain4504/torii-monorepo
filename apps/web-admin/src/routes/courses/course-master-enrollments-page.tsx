@@ -6,6 +6,7 @@ import { PageLoading } from '@workspace/ui/components/page-loading';
 import { Button } from '@workspace/ui/components/button';
 import { ChevronLeft } from 'lucide-react';
 import { Card, CardContent } from '@workspace/ui/components/card';
+import { formatDate } from '@/lib/format-utils';
 import {
     Table,
     TableBody,
@@ -15,7 +16,7 @@ import {
     TableRow,
 } from '@workspace/ui/components/table';
 
-export default function CourseEnrollmentsPage() {
+export default function CourseMasterEnrollmentsPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
@@ -30,7 +31,7 @@ export default function CourseEnrollmentsPage() {
         return (
             <div className="flex flex-col items-center justify-center p-20 text-center space-y-4">
                 <p className="text-muted-foreground">Không tìm thấy khóa học</p>
-                <Button onClick={() => navigate('/courses')}>Quay lại danh sách</Button>
+                <Button onClick={() => navigate('/course-master')}>Quay lại danh sách</Button>
             </div>
         );
     }
@@ -38,11 +39,11 @@ export default function CourseEnrollmentsPage() {
     return (
         <div className="space-y-6 animate-in fade-in duration-700 pb-20">
             <div className="flex flex-col space-y-4">
-                 <Button
+                <Button
                     variant="ghost"
                     size="sm"
                     className="h-8 px-0 text-muted-foreground hover:text-foreground gap-2 transition-colors hover:bg-transparent -ml-2 w-fit"
-                    onClick={() => navigate(`/courses/${id}`)}
+                    onClick={() => navigate(`/course-master/${id}`)}
                 >
                     <ChevronLeft className="size-4" />
                     <span className="text-xs font-sans font-bold italic uppercase tracking-wider">Quay lại chi tiết khóa học</span>
@@ -50,7 +51,7 @@ export default function CourseEnrollmentsPage() {
                 <PageHeader
                     title="Danh sách học viên"
                     subtitle={`Khóa học: ${course.title}`}
-                     stats={[
+                    stats={[
                         {
                             label: 'Tổng số học viên',
                             value: enrollments?.length || 0,
@@ -77,7 +78,7 @@ export default function CourseEnrollmentsPage() {
                                     <TableRow key={enrollment.id}>
                                         <TableCell>{enrollment.user?.displayName}</TableCell>
                                         <TableCell>{enrollment.user?.email}</TableCell>
-                                        <TableCell>{new Date(enrollment.enrollmentDate).toLocaleDateString()}</TableCell>
+                                        <TableCell>{formatDate(enrollment.enrollmentDate)}</TableCell>
                                         <TableCell>{enrollment.completionStatus}</TableCell>
                                     </TableRow>
                                 ))}

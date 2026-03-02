@@ -43,7 +43,7 @@ import {
 import { usePermissions } from '@/hooks/use-permissions';
 import type { LiveSessionResponseDTO } from '@workspace/schemas';
 
-export default function CourseLiveSessionsPage() {
+export default function CourseMasterLiveSessionsPage() {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [isScheduleSheetOpen, setIsScheduleSheetOpen] = useState(false);
@@ -65,7 +65,7 @@ export default function CourseLiveSessionsPage() {
         return (
             <div className="flex flex-col items-center justify-center p-20 text-center space-y-4">
                 <p className="text-muted-foreground">Không tìm thấy khung chương trình</p>
-                <Button onClick={() => navigate('/courses')}>Quay lại danh sách</Button>
+                <Button onClick={() => navigate('/course-master')}>Quay lại danh sách</Button>
             </div>
         );
     }
@@ -120,7 +120,7 @@ export default function CourseLiveSessionsPage() {
                     variant="ghost"
                     size="sm"
                     className="h-8 px-0 text-muted-foreground hover:text-foreground gap-2 transition-colors hover:bg-transparent -ml-2 w-fit"
-                    onClick={() => navigate(`/courses/${id}`)}
+                    onClick={() => navigate(`/course-master/${id}`)}
                 >
                     <ChevronLeft className="size-4" />
                     <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Chi tiết khung chương trình</span>

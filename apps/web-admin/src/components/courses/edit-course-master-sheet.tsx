@@ -20,26 +20,22 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { Users, Calendar, Save, Film, X, ImageIcon } from 'lucide-react';
+import { Calendar, Save, X } from 'lucide-react';
 import type { CourseMasterResponseDTO } from '@workspace/schemas';
 import { courseMasterUpdateDTOSchema, type CourseMasterUpdateDTO, JlptLevel } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
+import { formatDate } from '@/lib/format-utils';
 import { useUpdateCourse } from "@/lib/api/services/courses.ts";
-import { storageApi } from '@/lib/api/services/storage-api.ts';
 import { Spinner } from "@workspace/ui/components/spinner";
 
-type UpdateCourseFormData = CourseMasterUpdateDTO;
-
-interface EditCourseSheetProps {
+interface EditCourseMasterSheetProps {
     course: CourseMasterResponseDTO | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
 
-export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetProps) {
+export function EditCourseMasterSheet({ course, open, onOpenChange }: EditCourseMasterSheetProps) {
     const updateCourse = useUpdateCourse();
-    const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
-    const [videoFile, setVideoFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
 
     const {
@@ -80,58 +76,15 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                 requirements: Array.isArray(course.requirements) ? course.requirements : [],
                 expirationMonths: (course as any).expirationMonths ?? undefined,
             });
-            setThumbnailFile(null);
-            setVideoFile(null);
         }
     }, [course, reset]);
 
-    const handleFileUpload = async (file: File, module: string) => {
-        try {
-            const uploadData = {
-                filename: file.name,
-                contentType: file.type,
-                module,
-            };
-            const { uploadUrl, fileId } = await storageApi.generateUploadUrl(uploadData);
-
-            await fetch(uploadUrl, {
-                method: 'PUT',
-                body: file,
-                headers: {
-                    'Content-Type': file.type,
-                },
-            });
-
-            const confirmResult = await storageApi.confirmUpload({ fileId });
-            return confirmResult.fileUrl;
-        } catch (error) {
-            console.error('Upload failed:', error);
-            throw error;
-        }
-    };
-
-    const onSubmitForm = async (data: UpdateCourseFormData) => {
+    const onSubmitForm = async (data: CourseMasterUpdateDTO) => {
         if (!course) return;
 
         setUploading(true);
         try {
-            let thumbnailUrl = course.thumbnailUrl;
-            let previewVideoUrl = course.previewVideoUrl;
-
-            if (thumbnailFile) {
-                thumbnailUrl = await handleFileUpload(thumbnailFile, 'course-thumbnails');
-            }
-            if (videoFile) {
-                previewVideoUrl = await handleFileUpload(videoFile, 'course-videos');
-            }
-
-            const updateData = {
-                ...data,
-                thumbnailUrl,
-                previewVideoUrl,
-            };
-
-            await updateCourse.mutateAsync({ id: course.id, course: updateData });
+            await updateCourse.mutateAsync({ id: course.id, course: data });
             toast.success('Đã Cập Nhật Khung Chương Trình', {
                 description: `Thông tin chi tiết khung chương trình đã được cập nhật.`,
             });
@@ -161,28 +114,13 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                     <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
                             {/* Key Metrics */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="p-5 rounded-2xl bg-background border border-border transition-all shadow-sm">
-                                    <div className="flex items-center gap-2.5 text-muted-foreground/60 mb-2">
-                                        <Users className="h-3.5 w-3.5" />
-                                        <span className="text-[10px] font-sans font-bold italic uppercase tracking-wider">Học Viên Hoạt Động</span>
-                                    </div>
-                                    <div className="text-2xl font-bold text-foreground tracking-tight pl-1">
-                                        {course.totalStudents || 0}
-                                    </div>
-                                </div>
-                                <div className="p-5 rounded-2xl bg-background border border-border transition-all shadow-sm">
-                                    <div className="flex items-center gap-2.5 text-muted-foreground/60 mb-2">
-                                        <Calendar className="h-3.5 w-3.5" />
-                                        <span className="text-[10px] font-sans font-bold italic uppercase tracking-wider">Cập Nhật Lần Cuối</span>
-                                    </div>
-                                    <div className="text-lg font-bold text-foreground tracking-tight pl-1">
-                                        {new Date(course.updatedAt).toLocaleDateString('vi-VN', {
-                                            day: '2-digit',
-                                            month: '2-digit',
-                                            year: 'numeric'
-                                        })}
-                                    </div>
+                            <div className="flex justify-end p-2">
+                                <div className="flex items-center gap-2 text-muted-foreground/60">
+                                    <Calendar className="h-3.5 w-3.5" />
+                                    <span className="text-[10px] font-sans font-bold italic uppercase tracking-wider">Cập Nhật Lần Cuối:</span>
+                                    <span className="text-xs font-bold text-foreground">
+                                        {formatDate(course.updatedAt)}
+                                    </span>
                                 </div>
                             </div>
 
@@ -203,7 +141,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                     name="title"
                                     render={({ field, fieldState }) => (
                                         <Field className="space-y-1.5" data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor={field.name} className="">
+                                            <FieldLabel htmlFor={field.name}>
                                                 Tên Khung Chương Trình <span className="text-destructive">*</span>
                                             </FieldLabel>
                                             <Input
@@ -223,13 +161,13 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                     name="description"
                                     render={({ field, fieldState }) => (
                                         <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor={field.name} className="">
+                                            <FieldLabel htmlFor={field.name}>
                                                 Mô Tả <span className="text-destructive">*</span>
                                             </FieldLabel>
                                             <Textarea
                                                 id={field.name}
                                                 {...field}
-                                                placeholder="Nhập mô tả chi tiết khóa học..."
+                                                placeholder="Nhập mô tả chi tiết khung chương trình..."
                                                 className="mt-1 resize-none"
                                                 aria-invalid={fieldState.invalid}
                                             />
@@ -244,7 +182,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                         name="jlptLevel"
                                         render={({ field, fieldState }) => (
                                             <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name} className="">
+                                                <FieldLabel htmlFor={field.name}>
                                                     Trình Độ JLPT
                                                 </FieldLabel>
                                                 <Select value={field.value || ''} onValueChange={field.onChange}>
@@ -268,7 +206,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                     name="shortDescription"
                                     render={({ field, fieldState }) => (
                                         <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor={field.name} className="">
+                                            <FieldLabel htmlFor={field.name}>
                                                 Mô Tả Ngắn
                                             </FieldLabel>
                                             <Textarea
@@ -289,7 +227,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                         name="type"
                                         render={({ field, fieldState }) => (
                                             <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name} className="">
+                                                <FieldLabel htmlFor={field.name}>
                                                     Loại Khóa Học
                                                 </FieldLabel>
                                                 <Select value={field.value || ''} onValueChange={field.onChange}>
@@ -313,7 +251,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                         name="durationWeeks"
                                         render={({ field, fieldState }) => (
                                             <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name} className="">
+                                                <FieldLabel htmlFor={field.name}>
                                                     Thời Lượng (Tuần)
                                                 </FieldLabel>
                                                 <Input
@@ -336,14 +274,13 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                     />
                                 </div>
 
-                                {/* VOD: Thời hạn truy cập */}
                                 {courseType === 'vod' && (
                                     <Controller
                                         control={control}
                                         name={'expirationMonths' as any}
                                         render={({ field, fieldState }) => (
                                             <Field className="space-y-2" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name} className="">
+                                                <FieldLabel htmlFor={field.name}>
                                                     Thời Hạn Truy Cập (Tháng)
                                                 </FieldLabel>
                                                 <Input
@@ -380,7 +317,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                         name="tags"
                                         render={({ field }) => (
                                             <Field className="space-y-2">
-                                                <FieldLabel htmlFor="tags" className="">
+                                                <FieldLabel htmlFor="tags">
                                                     Thẻ (Tags)
                                                 </FieldLabel>
                                                 <Input
@@ -406,7 +343,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                         name="learningOutcomes"
                                         render={({ field }) => (
                                             <Field className="space-y-2">
-                                                <FieldLabel htmlFor="learningOutcomes" className="">
+                                                <FieldLabel htmlFor="learningOutcomes">
                                                     Mục Tiêu Khóa Học
                                                 </FieldLabel>
                                                 <Textarea
@@ -433,7 +370,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                         name="requirements"
                                         render={({ field }) => (
                                             <Field className="space-y-2">
-                                                <FieldLabel htmlFor="requirements" className="">
+                                                <FieldLabel htmlFor="requirements">
                                                     Yêu Cầu
                                                 </FieldLabel>
                                                 <Textarea
@@ -455,104 +392,6 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                                         )}
                                     />
                                 </div>
-
-                                {/* Media Upload */}
-                                <div className="space-y-6 pt-6">
-                                    <div className="flex items-center gap-3 pb-2 border-b border-border/40">
-                                        <div className="h-px flex-1 bg-border/20 min-h-0" />
-                                        <h3 className="text-[10px] font-sans font-bold italic uppercase tracking-wider text-muted-foreground/50 text-center">
-                                            Phương Tiện
-                                        </h3>
-                                        <div className="h-px flex-1 bg-border/20 min-h-0" />
-                                    </div>
-
-                                    <Field className="space-y-2">
-                                        <FieldLabel htmlFor="thumbnail-upload" className="">
-                                            Ảnh Bìa
-                                        </FieldLabel>
-                                        <div className="space-y-3">
-                                            <div className="flex items-center gap-3">
-                                                <div className="relative flex-1 min-h-0">
-                                                    <Input
-                                                        id="thumbnail-upload"
-                                                        type="file"
-                                                        accept="image/*"
-                                                        onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
-                                                        className="mt-1 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer text-muted-foreground"
-                                                    />
-                                                    <ImageIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 pointer-events-none" />
-                                                </div>
-                                                {thumbnailFile && (
-                                                    <Button
-                                                        type="button"
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => setThumbnailFile(null)}
-                                                        className="h-11 w-11 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/10">
-                                                        <X className="h-4 w-4" />
-                                                    </Button>
-                                                )}
-                                            </div>
-
-                                            {(thumbnailFile || course.thumbnailUrl) && (
-                                                <div className="rounded-2xl overflow-hidden border border-border/40 bg-muted/30 aspect-video relative shadow-sm max-w-xs group">
-                                                    <img
-                                                        src={thumbnailFile ? URL.createObjectURL(thumbnailFile) : course.thumbnailUrl}
-                                                        alt="Thumbnail"
-                                                        className="object-cover w-full h-full transition-transform group-hover:scale-105"
-                                                    />
-                                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                </div>
-                                            )}
-                                        </div>
-                                    </Field>
-
-                                    <Field className="space-y-2">
-                                        <FieldLabel htmlFor="video-upload" className="">
-                                            Video Giới Thiệu
-                                        </FieldLabel>
-                                        <div className="space-y-3">
-                                            <div className="flex items-center gap-3">
-                                                <div className="relative flex-1 min-h-0">
-                                                    <Input
-                                                        id="video-upload"
-                                                        type="file"
-                                                        accept="video/*"
-                                                        onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-                                                        className="mt-1 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer text-muted-foreground"
-                                                    />
-                                                    <Film className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 pointer-events-none" />
-                                                </div>
-                                                {videoFile && (
-                                                    <Button
-                                                        type="button"
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => setVideoFile(null)}
-                                                        className="h-11 w-11 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/10">
-                                                        <X className="h-4 w-4" />
-                                                    </Button>
-                                                )}
-                                            </div>
-
-                                            {(course.previewVideoUrl && !videoFile) && (
-                                                <div className="flex items-center gap-2 p-3 rounded-xl bg-background border border-border">
-                                                    <Film className="h-4 w-4 text-muted-foreground" />
-                                                    <span className="text-xs font-bold text-foreground/80">Đã có video giới thiệu đính kèm</span>
-                                                </div>
-                                            )}
-                                            {videoFile && (
-                                                <div className="flex items-center gap-2 p-3 rounded-xl bg-background border border-border">
-                                                    <Film className="h-4 w-4 text-muted-foreground" />
-                                                    <span className="text-xs font-bold text-foreground/80">Đã chọn video mới</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </Field>
-                                </div>
-
-                                {/* AI & Metadata */}
-
                             </div>
                         </div>
                     </ScrollArea>
@@ -566,7 +405,7 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                         </Button>
                         <Button
                             type="submit"
-                            disabled={uploading || (!isDirty && !thumbnailFile && !videoFile)}>
+                            disabled={uploading || !isDirty}>
                             {uploading ? (
                                 <>
                                     <Spinner className="mr-2" />
@@ -582,6 +421,6 @@ export function EditCourseSheet({ course, open, onOpenChange }: EditCourseSheetP
                     </SheetFooter>
                 </form>
             </SheetContent>
-        </Sheet >
+        </Sheet>
     );
 }

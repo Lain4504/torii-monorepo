@@ -1,4 +1,4 @@
-﻿import { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useForm, Controller, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { moduleCreateDTOSchema, type ModuleResponseDTO, type ModuleCreateDTO } from '@workspace/schemas';
@@ -60,8 +60,8 @@ export function CreateModuleSheet({ open, onOpenChange, courseMasterId, existing
         defaultValues: {
             courseMasterId: courseMasterId || '',
             title: '',
+            description: '',
             orderIndex: existingModules.length + 1,
-            durationMinutes: 0,
         },
     });
 
@@ -71,8 +71,8 @@ export function CreateModuleSheet({ open, onOpenChange, courseMasterId, existing
             reset({
                 courseMasterId: courseMasterId,
                 title: '',
+                description: '',
                 orderIndex: existingModules.length + 1,
-                durationMinutes: 0,
             });
         }
     }, [courseMasterId, reset, existingModules.length]);
@@ -87,7 +87,7 @@ export function CreateModuleSheet({ open, onOpenChange, courseMasterId, existing
             reset();
         } catch (error: any) {
             toast.error('Tạo thất bại', {
-                description: error.response?.data?.error || error.message,
+                description: error.response?.data?.message || error.userMessage || error.message,
             });
         }
     };
@@ -156,29 +156,13 @@ export function CreateModuleSheet({ open, onOpenChange, courseMasterId, existing
                                                 id={field.name}
                                                 type="number"
                                                 {...field}
-                                                onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                                onChange={(e) => field.onChange(e.target.value === '' ? 0 : e.target.valueAsNumber)}
                                             />
                                             <FieldError errors={[fieldState.error]} />
                                         </Field>
                                     )}
                                 />
 
-                                <Controller
-                                    control={control}
-                                    name="durationMinutes"
-                                    render={({ field, fieldState }) => (
-                                        <Field className="space-y-1" data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor={field.name}>Thời Lượng (phút)</FieldLabel>
-                                            <Input
-                                                id={field.name}
-                                                type="number"
-                                                {...field}
-                                                onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                            />
-                                            <FieldError errors={[fieldState.error]} />
-                                        </Field>
-                                    )}
-                                />
                             </div>
                         </div>
                     </ScrollArea>

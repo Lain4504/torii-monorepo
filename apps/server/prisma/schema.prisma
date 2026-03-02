@@ -58,8 +58,6 @@ model CourseMaster {
   shortDescription     String?            @map("short_description") @db.VarChar(500)
   jlptLevel            String             @map("jlpt_level") @db.VarChar(5)
   aiMetadata           Json?              @default("{}") @map("ai_metadata")
-  thumbnailUrl         String?            @map("thumbnail_url") @db.Text
-  previewVideoUrl      String?            @map("preview_video_url") @db.Text
   
   // Commercial fields moved to CourseRun
   // All transactions happen at the Run level
@@ -136,6 +134,9 @@ model CourseRun {
   price         Decimal? @db.Decimal(10, 2)
   discountPrice Decimal? @map("discount_price") @db.Decimal(10, 2)
 
+  coverUrl      String? @map("cover_url") @db.Text
+  previewVideoUrl String? @map("preview_video_url") @db.Text
+
   // Live class configuration (WebRTC, LiveKit, etc.) is per Run
   liveConfig Json? @map("live_config")
 
@@ -202,6 +203,7 @@ model Lesson {
   contentType    String    @map("content_type") @db.VarChar(20)
   videoUrl       String?   @map("video_url") @db.Text
   videoDuration  Int?      @map("video_duration")
+  durationMinutes Int?      @map("duration_minutes")
   articleContent String?   @map("article_content") @db.Text
   aiMetadata     Json?     @default("{}") @map("ai_metadata")
   status         String    @default("published") @db.VarChar(20) // published, draft
@@ -719,6 +721,7 @@ model User {
   gamificationHistories GamificationHistory[]
   notebooks             Notebook[]
   cart                  Cart?
+  blogs                 Blog[]
 
   @@index([email])
   @@index([role])
@@ -1185,6 +1188,8 @@ model Blog {
   seoDescription String?   @map("seo_description") @db.VarChar(500)
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   @@index([status])
   @@index([publishedAt(sort: Desc)])

@@ -4,15 +4,14 @@ import { Button } from '@workspace/ui/components/button';
 import type { CourseMasterQueryDTO, CourseMasterResponseDTO } from '@workspace/schemas';
 import { Can } from "@/lib/guard/can";
 import { useCourses, useUnpublishCourse, useSubmitCourseForReview } from "@/lib/api/services/courses.ts";
-import { CoursesPrimaryToolbar } from "@/components/courses/courses-primary-toolbar.tsx";
-import { CoursesTable } from "@/components/courses/courses-table.tsx";
-import { CreateCourseSheet } from "@/components/courses/create-course-sheet.tsx";
-import { EditCourseSheet } from "@/components/courses/edit-course-sheet.tsx";
-import { DeleteCourseDialog } from "@/components/courses/delete-course-dialog.tsx";
-import { ManageInstructorsSheet } from "@/components/courses/manage-instructors-sheet.tsx";
-import { PublishCourseDialog } from "@/components/courses/publish-course-dialog.tsx";
-import { RejectCourseDialog } from "@/components/courses/reject-course-dialog.tsx";
-import { CourseAuditLogSheet } from "@/components/courses/course-audit-log-sheet.tsx";
+import { CourseMasterPrimaryToolbar } from "@/components/courses/course-master-primary-toolbar.tsx";
+import { CourseMasterTable } from "@/components/courses/course-master-table.tsx";
+import { CreateCourseMasterSheet } from "@/components/courses/create-course-master-sheet.tsx";
+import { EditCourseMasterSheet } from "@/components/courses/edit-course-master-sheet.tsx";
+import { DeleteCourseMasterDialog } from "@/components/courses/delete-course-master-dialog.tsx";
+import { PublishCourseMasterDialog } from "@/components/courses/publish-course-master-dialog.tsx";
+import { RejectCourseMasterDialog } from "@/components/courses/reject-course-master-dialog.tsx";
+import { CourseMasterAuditLogSheet } from "@/components/courses/course-master-audit-log-sheet.tsx";
 import { usePermissions } from "@/hooks/use-permissions.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { SmartPagination } from '@/components/common/smart-pagination';
@@ -22,7 +21,7 @@ import { PageHeader } from '@/components/common/page-header';
 import { Card, CardContent } from "@workspace/ui/components/card";
 import { formatNumber } from "@/lib/format-utils";
 
-export default function CoursesPage() {
+export default function CourseMasterPage() {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -35,7 +34,6 @@ export default function CoursesPage() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingCourse, setEditingCourse] = useState<CourseMasterResponseDTO | null>(null);
   const [deletingCourse, setDeletingCourse] = useState<CourseMasterResponseDTO | null>(null);
-  const [managingInstructorsCourse, setManagingInstructorsCourse] = useState<CourseMasterResponseDTO | null>(null);
   const [publishingCourse, setPublishingCourse] = useState<CourseMasterResponseDTO | null>(null);
   const [rejectingCourse, setRejectingCourse] = useState<CourseMasterResponseDTO | null>(null);
   const [viewingAuditLogCourse, setViewingAuditLogCourse] = useState<CourseMasterResponseDTO | null>(null);
@@ -131,7 +129,7 @@ export default function CoursesPage() {
 
 
       <div className="space-y-4">
-        <CoursesPrimaryToolbar
+        <CourseMasterPrimaryToolbar
           search={search}
           onSearchChange={setSearch}
           statusFilter={statusFilter}
@@ -143,13 +141,12 @@ export default function CoursesPage() {
         <Card className="overflow-hidden">
           <CardContent className="p-0">
 
-            <CoursesTable
+            <CourseMasterTable
               data={courses}
               onEdit={setEditingCourse}
               onDelete={setDeletingCourse}
-              onTitleClick={(course) => navigate(`/courses/${course.id}`)}
-              onModules={(course) => navigate(`/courses/${course.id}`)}
-              onManageInstructors={setManagingInstructorsCourse}
+              onTitleClick={(course: CourseMasterResponseDTO) => navigate(`/course-master/${course.id}`)}
+              onModules={(course: CourseMasterResponseDTO) => navigate(`/course-master/${course.id}`)}
               onPublish={setPublishingCourse}
               onReject={setRejectingCourse}
               onViewAuditLog={setViewingAuditLogCourse}
@@ -175,42 +172,37 @@ export default function CoursesPage() {
       </div>
 
       {/* Dialogs & Sheets */}
-      <CreateCourseSheet
+      <CreateCourseMasterSheet
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
       />
 
-      <EditCourseSheet
+      <EditCourseMasterSheet
         open={!!editingCourse}
-        onOpenChange={(open) => !open && setEditingCourse(null)}
+        onOpenChange={(open: boolean) => !open && setEditingCourse(null)}
         course={editingCourse}
       />
 
-      <DeleteCourseDialog
+      <DeleteCourseMasterDialog
         open={!!deletingCourse}
-        onOpenChange={(open) => !open && setDeletingCourse(null)}
+        onOpenChange={(open: boolean) => !open && setDeletingCourse(null)}
         course={deletingCourse}
       />
 
-      <ManageInstructorsSheet
-        open={!!managingInstructorsCourse}
-        onOpenChange={(open) => !open && setManagingInstructorsCourse(null)}
-        course={managingInstructorsCourse}
-      />
 
-      <PublishCourseDialog
+      <PublishCourseMasterDialog
         open={!!publishingCourse}
-        onOpenChange={(open) => !open && setPublishingCourse(null)}
+        onOpenChange={(open: boolean) => !open && setPublishingCourse(null)}
         course={publishingCourse}
       />
 
-      <RejectCourseDialog
+      <RejectCourseMasterDialog
         open={!!rejectingCourse}
-        onOpenChange={(open) => !open && setRejectingCourse(null)}
+        onOpenChange={(open: boolean) => !open && setRejectingCourse(null)}
         course={rejectingCourse}
       />
 
-      <CourseAuditLogSheet
+      <CourseMasterAuditLogSheet
         courseId={viewingAuditLogCourse?.id || null}
         courseTitle={viewingAuditLogCourse?.title || null}
         onClose={() => setViewingAuditLogCourse(null)}

@@ -235,14 +235,19 @@ export class LessonService implements ILessonService {
         const module = await this.moduleRepository.findById(lesson.moduleId);
         if (module) {
           const courseMasterId = module.courseMasterId;
-          const enrollmentDetails = await this.enrollmentService.checkEnrollmentDetails(requester.sub, courseMasterId);
 
-          if (enrollmentDetails.isEnrolled && enrollmentDetails.enrollment) {
+          // Check enrollment at CourseMaster level and fetch enrollment for versioning
+          const [hasAccess, enrollment] = await Promise.all([
+            this.enrollmentService.isEnrolled(requester.sub, courseMasterId),
+            this.enrollmentService.findByUserAndCourseMaster(requester.sub, courseMasterId),
+          ]);
+
+          if (hasAccess && enrollment) {
             isAuthorized = true;
 
             // If enrollment is tied to a specific version, fetch content from snapshot
-            if (enrollmentDetails.enrollment.versionId) {
-              const version = await this.courseMasterService.getVersionById(enrollmentDetails.enrollment.versionId);
+            if (enrollment.versionId) {
+              const version = await this.courseMasterService.getVersionById(enrollment.versionId);
               if (version && version.curriculumSnapshot) {
                 const snapshot = version.curriculumSnapshot as any;
                 // Find module in snapshot
@@ -304,10 +309,17 @@ export class LessonService implements ILessonService {
       try {
         const module = await this.moduleRepository.findById(moduleId);
         if (module) {
-          const details = await this.enrollmentService.checkEnrollmentDetails(requester.sub, module.courseMasterId);
-          if (details.isEnrolled) {
+          const courseMasterId = module.courseMasterId;
+
+          // Use CourseMaster-based helpers for access + enrollment info
+          const [hasAccess, enrollmentRecord] = await Promise.all([
+            this.enrollmentService.isEnrolled(requester.sub, courseMasterId),
+            this.enrollmentService.findByUserAndCourseMaster(requester.sub, courseMasterId),
+          ]);
+
+          if (hasAccess) {
             accessibleLessonIds = 'ALL';
-            enrollment = details.enrollment;
+            enrollment = enrollmentRecord;
           }
         }
       } catch (error) {

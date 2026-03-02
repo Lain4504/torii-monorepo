@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@workspace/ui/components/button";
@@ -10,7 +10,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@workspace/ui/components/dialog";
-import { Controller } from "react-hook-form";
 import {
     Field,
     FieldError,
@@ -28,17 +27,17 @@ const formSchema = z.object({
     }),
 });
 
-interface RejectCourseDialogProps {
+interface RejectCourseMasterDialogProps {
     course: CourseMasterResponseDTO | null;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
 
-export function RejectCourseDialog({
+export function RejectCourseMasterDialog({
     course,
     open,
     onOpenChange,
-}: RejectCourseDialogProps) {
+}: RejectCourseMasterDialogProps) {
     const mutation = useRejectCourse();
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -55,7 +54,7 @@ export function RejectCourseDialog({
                 id: course.id,
                 reason: values.reason,
             });
-            toast.success("Đã từ chối khóa học và gửi phản hồi");
+            toast.success("Đã từ chối khung chương trình và gửi phản hồi");
             onOpenChange(false);
             form.reset();
         } catch (error: any) {
@@ -69,13 +68,13 @@ export function RejectCourseDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle>Từ chối khóa học</DialogTitle>
+                    <DialogTitle>Từ chối khung chương trình</DialogTitle>
                     <DialogDescription>
-                        Bạn có chắc chắn muốn từ chối khóa học{' '}
+                        Bạn có chắc chắn muốn từ chối khung chương trình{' '}
                         <span className="font-semibold text-foreground">
                             {course?.title}
                         </span>
-                        ? Hành động này sẽ chuyển trạng thái về "Bị từ chối" và gửi lý do cho giảng viên.
+                        ? Hành động này sẽ chuyển trạng thái về "Bị từ chối" và gửi lý do phản hồi.
                     </DialogDescription>
                 </DialogHeader>
 

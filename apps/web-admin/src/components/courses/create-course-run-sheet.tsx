@@ -18,22 +18,24 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { X, Save } from 'lucide-react';
+import { X, Save, ImageIcon, Video } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
-import { courseRunCreateDTOSchema, type CourseRunCreateDTO, CourseRunStatus } from '@workspace/schemas';
+import { courseRunCreateDTOSchema, type CourseRunCreateDTO, CourseRunStatus, UserRole } from '@workspace/schemas';
 import { useCreateCourseRun } from "@/lib/api/services/course-runs";
 import { useUsers } from "@/lib/api/services/users";
 import { Spinner } from "@workspace/ui/components/spinner";
+import { FileUpload } from '@/components/common/file-upload';
 
 interface CreateCourseRunSheetProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     courseId: string;
+    courseType?: 'vod' | 'live';
 }
 
-export function CreateCourseRunSheet({ open, onOpenChange, courseId }: CreateCourseRunSheetProps) {
+export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType }: CreateCourseRunSheetProps) {
     const createMutation = useCreateCourseRun();
-    const { data: lecturersData, isLoading: isLoadingLecturers } = useUsers({ role: 'LECTURE', limit: 100 });
+    const { data: lecturersData, isLoading: isLoadingLecturers } = useUsers({ role: UserRole.LECTURER, limit: 100 });
 
     const {
         register,
@@ -48,6 +50,11 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId }: CreateCou
             title: '',
             status: CourseRunStatus.PLANNING,
             maxStudents: 30,
+            minStudents: 1,
+            price: undefined,
+            discountPrice: undefined,
+            coverUrl: undefined,
+            previewVideoUrl: undefined,
         },
     });
 
@@ -74,9 +81,20 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId }: CreateCou
         <Sheet open={open} onOpenChange={handleClose}>
             <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
                 <SheetHeader>
-                    <SheetTitle>Tạo Lớp Học Mới (Course Run)</SheetTitle>
+                    <SheetTitle>
+                        Tạo Lớp Học Mới (Course Run)
+                    </SheetTitle>
                     <SheetDescription>
-                        Thiết lập lịch học, giảng viên và sĩ số cho khóa khai giảng này.
+                        {courseType === 'vod' ? (
+                            <>
+                                Thiết lập lớp cho khóa học dạng video theo yêu cầu (VOD): chọn giảng viên, giá bán và nội dung hiển thị.
+                                Khóa VOD không giới hạn sĩ số; thời hạn truy cập được cấu hình tại Course Master.
+                            </>
+                        ) : (
+                            <>
+                                Thiết lập lịch học, giảng viên, sĩ số và thời gian tuyển sinh cho đợt khai giảng (Live).
+                            </>
+                        )}
                     </SheetDescription>
                 </SheetHeader>
 
@@ -144,77 +162,81 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId }: CreateCou
                                 </Field>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-6">
-                                <Field>
-                                    <FieldLabel htmlFor="startDate">Ngày Khai Giảng</FieldLabel>
-                                    <Controller
-                                        name="startDate"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <Input
-                                                id="startDate"
-                                                type="datetime-local"
-                                                value={field.value ? new Date(field.value as any).toISOString().slice(0, 16) : ''}
-                                                onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
-                                                className="mt-1"
+                            {courseType === 'live' && (
+                                <>
+                                    <div className="grid grid-cols-2 gap-6">
+                                        <Field>
+                                            <FieldLabel htmlFor="startDate">Ngày Khai Giảng</FieldLabel>
+                                            <Controller
+                                                name="startDate"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        id="startDate"
+                                                        type="datetime-local"
+                                                        value={field.value ? new Date(field.value as any).toISOString().slice(0, 16) : ''}
+                                                        onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
+                                                        className="mt-1"
+                                                    />
+                                                )}
                                             />
-                                        )}
-                                    />
-                                    {errors.startDate && <FieldError>{errors.startDate.message}</FieldError>}
-                                </Field>
-                                <Field>
-                                    <FieldLabel htmlFor="endDate">Ngày Kết Thúc Dự Kiến</FieldLabel>
-                                    <Controller
-                                        name="endDate"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <Input
-                                                id="endDate"
-                                                type="datetime-local"
-                                                value={field.value ? new Date(field.value as any).toISOString().slice(0, 16) : ''}
-                                                onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
-                                                className="mt-1"
+                                            {errors.startDate && <FieldError>{errors.startDate.message}</FieldError>}
+                                        </Field>
+                                        <Field>
+                                            <FieldLabel htmlFor="endDate">Ngày Kết Thúc Dự Kiến</FieldLabel>
+                                            <Controller
+                                                name="endDate"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        id="endDate"
+                                                        type="datetime-local"
+                                                        value={field.value ? new Date(field.value as any).toISOString().slice(0, 16) : ''}
+                                                        onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
+                                                        className="mt-1"
+                                                    />
+                                                )}
                                             />
-                                        )}
-                                    />
-                                    {errors.endDate && <FieldError>{errors.endDate.message}</FieldError>}
-                                </Field>
-                            </div>
+                                            {errors.endDate && <FieldError>{errors.endDate.message}</FieldError>}
+                                        </Field>
+                                    </div>
 
-                            <div className="grid grid-cols-2 gap-6">
-                                <Field>
-                                    <FieldLabel htmlFor="enrollmentStart">Ngày Mở Đăng Ký</FieldLabel>
-                                    <Controller
-                                        name="enrollmentStart"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <Input
-                                                id="enrollmentStart"
-                                                type="datetime-local"
-                                                value={field.value ? new Date(field.value as any).toISOString().slice(0, 16) : ''}
-                                                onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
-                                                className="mt-1"
+                                    <div className="grid grid-cols-2 gap-6">
+                                        <Field>
+                                            <FieldLabel htmlFor="enrollmentStart">Ngày Mở Đăng Ký</FieldLabel>
+                                            <Controller
+                                                name="enrollmentStart"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        id="enrollmentStart"
+                                                        type="datetime-local"
+                                                        value={field.value ? new Date(field.value as any).toISOString().slice(0, 16) : ''}
+                                                        onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
+                                                        className="mt-1"
+                                                    />
+                                                )}
                                             />
-                                        )}
-                                    />
-                                </Field>
-                                <Field>
-                                    <FieldLabel htmlFor="enrollmentEnd">Ngày Đóng Đăng Ký</FieldLabel>
-                                    <Controller
-                                        name="enrollmentEnd"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <Input
-                                                id="enrollmentEnd"
-                                                type="datetime-local"
-                                                value={field.value ? new Date(field.value as any).toISOString().slice(0, 16) : ''}
-                                                onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
-                                                className="mt-1"
+                                        </Field>
+                                        <Field>
+                                            <FieldLabel htmlFor="enrollmentEnd">Ngày Đóng Đăng Ký</FieldLabel>
+                                            <Controller
+                                                name="enrollmentEnd"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Input
+                                                        id="enrollmentEnd"
+                                                        type="datetime-local"
+                                                        value={field.value ? new Date(field.value as any).toISOString().slice(0, 16) : ''}
+                                                        onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
+                                                        className="mt-1"
+                                                    />
+                                                )}
                                             />
-                                        )}
-                                    />
-                                </Field>
-                            </div>
+                                        </Field>
+                                    </div>
+                                </>
+                            )}
 
                             <div className="grid grid-cols-2 gap-6">
                                 <Field>
@@ -228,15 +250,87 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId }: CreateCou
                                         placeholder="0 = Miễn phí"
                                         className="mt-1 font-mono"
                                     />
-                                    <p className="text-[10px] text-muted-foreground mt-1 ml-1">Giá được quy định theo từng đợt khai giảng.</p>
+                                    <p className="text-[10px] text-muted-foreground mt-1 ml-1">
+                                        {courseType === 'vod'
+                                            ? 'Giá áp dụng cho khóa VOD này. Học viên có thời hạn truy cập theo cấu hình ở Course Master.'
+                                            : 'Giá được quy định theo từng đợt khai giảng.'}
+                                    </p>
+                                </Field>
+                                {courseType === 'live' && (
+                                    <Field>
+                                        <FieldLabel htmlFor="maxStudents">Sĩ Số Tối Đa</FieldLabel>
+                                        <Input
+                                            id="maxStudents"
+                                            type="number"
+                                            {...register('maxStudents', { valueAsNumber: true })}
+                                            className="mt-1"
+                                        />
+                                    </Field>
+                                )}
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-6">
+                                <Field>
+                                    <FieldLabel htmlFor="minStudents">Sĩ Số Tối Thiểu</FieldLabel>
+                                    <Input
+                                        id="minStudents"
+                                        type="number"
+                                        min="1"
+                                        {...register('minStudents', { valueAsNumber: true })}
+                                        className="mt-1"
+                                    />
+                                    <p className="text-[10px] text-muted-foreground mt-1 ml-1">
+                                        Số lượng học viên tối thiểu để lớp được mở.
+                                    </p>
                                 </Field>
                                 <Field>
-                                    <FieldLabel htmlFor="maxStudents">Sĩ Số Tối Đa</FieldLabel>
+                                    <FieldLabel htmlFor="discountPrice">Giá Ưu Đãi (nếu có)</FieldLabel>
                                     <Input
-                                        id="maxStudents"
+                                        id="discountPrice"
                                         type="number"
-                                        {...register('maxStudents', { valueAsNumber: true })}
-                                        className="mt-1"
+                                        min="0"
+                                        step="0.01"
+                                        {...register('discountPrice', { valueAsNumber: true })}
+                                        placeholder="Để trống nếu không giảm giá"
+                                        className="mt-1 font-mono"
+                                    />
+                                </Field>
+                            </div>
+
+                            <div className="space-y-4 pt-4">
+                                <Field>
+                                    <FieldLabel>
+                                        Ảnh bìa đợt khai giảng
+                                    </FieldLabel>
+                                    <Controller
+                                        name="coverUrl"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <FileUpload
+                                                accept="image/*"
+                                                label="Tải lên ảnh bìa (JPEG/PNG)"
+                                                currentValue={field.value || undefined}
+                                                onUploadComplete={(url) => field.onChange(url || null)}
+                                            />
+                                        )}
+                                    />
+                                </Field>
+
+                                <Field>
+                                    <FieldLabel>
+                                        Video giới thiệu (tùy chọn)
+                                    </FieldLabel>
+                                    <Controller
+                                        name="previewVideoUrl"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <FileUpload
+                                                accept="video/*"
+                                                label="Tải lên video giới thiệu"
+                                                currentValue={field.value || undefined}
+                                                onUploadComplete={(url) => field.onChange(url || null)}
+                                            />
+                                        )}
                                     />
                                 </Field>
                             </div>

@@ -41,15 +41,15 @@ export const academicNavItems: NavItem[] = [
         icon: Home,
     },
     {
-        titleKey: "Khóa học",
-        url: "/courses",
+        titleKey: "Khung chương trình",
+        url: "/course-master",
         icon: BookOpen,
         anyPermission: ["course.create", "course.update", "course.publish", "course.view_restricted", "course.view_my"],
         items: [
-            { titleKey: "Khóa học của tôi", url: "/courses/my", permission: "course.view_my" },
-            { titleKey: "Quản lý khóa học", url: "/courses", permission: "course.view_restricted" },
-            { titleKey: "Phản hồi học viên", url: "/courses/reviews", anyPermission: ["course.update", "course.view_restricted"] },
-            { titleKey: "Yêu cầu đổi lịch", url: "/courses/requests", anyPermission: ["course.update", "course.view_restricted", "schedule.view"] },
+            { titleKey: "Khung chương trình của tôi", url: "/course-master/my", permission: "course.view_my" },
+            { titleKey: "Quản lý Khung chương trình", url: "/course-master", permission: "course.view_restricted" },
+            { titleKey: "Phản hồi học viên", url: "/course-master/reviews", anyPermission: ["course.update", "course.view_restricted"] },
+            { titleKey: "Yêu cầu đổi lịch", url: "/course-master/requests", anyPermission: ["course.update", "course.view_restricted", "schedule.view"] },
         ]
     },
     {
@@ -151,5 +151,3 @@ export const systemNavItems: NavItem[] = [
 // Compatibility exports
 export const mainNavItems = academicNavItems;
 export const managementNavItems = operationsNavItems;
-
-
