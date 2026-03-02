@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="remomve uiuxpromax">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-master-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-master-detail-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/live-session/live-session.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/live-session/live-session.module.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,6 +23,11 @@
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -248,22 +253,7 @@
       <workItem from="1772437718203" duration="39000" />
       <workItem from="1772448442034" duration="1160000" />
       <workItem from="1772449707195" duration="399000" />
-    </task>
-    <task id="LOCAL-00854" summary="refactor: update layout and styling for user and module sheets">
-      <option name="closed" value="true" />
-      <created>1771723497169</created>
-      <option name="number" value="00854" />
-      <option name="presentableId" value="LOCAL-00854" />
-      <option name="project" value="LOCAL" />
-      <updated>1771723497169</updated>
-    </task>
-    <task id="LOCAL-00855" summary="feat: add reset password functionality and update identity URLs">
-      <option name="closed" value="true" />
-      <created>1771817516446</created>
-      <option name="number" value="00855" />
-      <option name="presentableId" value="LOCAL-00855" />
-      <option name="project" value="LOCAL" />
-      <updated>1771817516446</updated>
+      <workItem from="1772474025610" duration="397000" />
     </task>
     <task id="LOCAL-00856" summary="refactor: change location of api folder to lib">
       <option name="closed" value="true" />
@@ -641,7 +631,23 @@
       <option name="project" value="LOCAL" />
       <updated>1772449712869</updated>
     </task>
-    <option name="localTasksCounter" value="903" />
+    <task id="LOCAL-00903" summary="remomve uiuxpromax">
+      <option name="closed" value="true" />
+      <created>1772473629488</created>
+      <option name="number" value="00903" />
+      <option name="presentableId" value="LOCAL-00903" />
+      <option name="project" value="LOCAL" />
+      <updated>1772473629488</updated>
+    </task>
+    <task id="LOCAL-00904" summary="remomve uiuxpromax">
+      <option name="closed" value="true" />
+      <created>1772473885875</created>
+      <option name="number" value="00904" />
+      <option name="presentableId" value="LOCAL-00904" />
+      <option name="project" value="LOCAL" />
+      <updated>1772473885875</updated>
+    </task>
+    <option name="localTasksCounter" value="905" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -692,7 +698,8 @@
     <MESSAGE value="migation other code" />
     <MESSAGE value="fix to lauch success" />
     <MESSAGE value="fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix" />
+    <MESSAGE value="remomve uiuxpromax" />
+    <option name="LAST_COMMIT_MESSAGE" value="remomve uiuxpromax" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

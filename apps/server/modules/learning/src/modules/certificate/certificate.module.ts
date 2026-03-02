@@ -10,6 +10,7 @@ import {
 } from '@server/learning/interfaces';
 import { EnrollmentModule } from '@server/learning/modules/enrollment/enrollment.module';
 import { CourseMasterModule } from '@server/learning/modules/course-master/course-master.module';
+import { CourseRunModule } from '@server/learning/modules/course-run/course-run.module';
 
 /**
  * Certificate Module
@@ -20,7 +21,8 @@ import { CourseMasterModule } from '@server/learning/modules/course-master/cours
         SharedModule,
         NatsClientModule,
         forwardRef(() => EnrollmentModule),
-        forwardRef(() => CourseMasterModule)
+        forwardRef(() => CourseMasterModule),
+        forwardRef(() => CourseRunModule)
     ],
     controllers: [],
     providers: [

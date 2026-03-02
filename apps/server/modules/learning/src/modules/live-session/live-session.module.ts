@@ -6,9 +6,10 @@ import { LIVE_SESSION_SERVICE_TOKEN } from '@server/learning/interfaces/services
 import { LiveSessionRepository } from '@server/learning/modules/live-session/live-session.repository';
 import { LiveSessionService } from '@server/learning/modules/live-session/live-session.service';
 import { CourseMasterModule } from '@server/learning/modules/course-master/course-master.module';
+import { CourseRunModule } from '@server/learning/modules/course-run/course-run.module';
 
 @Module({
-    imports: [NatsClientModule, forwardRef(() => CourseMasterModule)],
+    imports: [NatsClientModule, forwardRef(() => CourseMasterModule), forwardRef(() => CourseRunModule)],
     providers: [
         {
             provide: LIVE_SESSION_REPOSITORY_TOKEN,
