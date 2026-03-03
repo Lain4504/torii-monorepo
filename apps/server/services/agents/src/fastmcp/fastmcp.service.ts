@@ -85,10 +85,10 @@ export class FastMcpService {
           // 2. Src/Assets under currentDir (common in development)
           join(currentDir, 'src/assets/prompts', templatePath),
           // 3. Monorepo structure inside dist
-          join(currentDir, 'dist/modules/agents/src/assets/prompts', templatePath),
-          join(currentDir, 'modules/agents/src/assets/prompts', templatePath),
+          join(currentDir, 'dist/services/agents/src/assets/prompts', templatePath),
+          join(currentDir, 'services/agents/src/assets/prompts', templatePath),
           // 4. Nested monorepo path
-          join(currentDir, 'apps/server/modules/agents/src/assets/prompts', templatePath),
+          join(currentDir, 'apps/server/services/agents/src/assets/prompts', templatePath),
         ];
 
         for (const p of pathsToTry) {
@@ -118,9 +118,9 @@ export class FastMcpService {
         const pathsToTry = [
           join(currentDir, 'assets/resources', resourcePath),
           join(currentDir, 'src/assets/resources', resourcePath),
-          join(currentDir, 'dist/modules/agents/src/assets/resources', resourcePath),
-          join(currentDir, 'modules/agents/src/assets/resources', resourcePath),
-          join(currentDir, 'apps/server/modules/agents/src/assets/resources', resourcePath),
+          join(currentDir, 'dist/services/agents/src/assets/resources', resourcePath),
+          join(currentDir, 'services/agents/src/assets/resources', resourcePath),
+          join(currentDir, 'apps/server/services/agents/src/assets/resources', resourcePath),
         ];
 
         for (const p of pathsToTry) {

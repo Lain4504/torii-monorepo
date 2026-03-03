@@ -54,16 +54,16 @@
     },
     "agents": {
       "type": "application",
-      "root": "modules/agents",
+      "root": "services/agents",
       "entryFile": "main",
-      "sourceRoot": "modules/agents/src",
+      "sourceRoot": "services/agents/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/agents/tsconfig.app.json",
+        "tsConfigPath": "services/agents/tsconfig.app.json",
         "webpack": false,
         "assets": [
           {
             "include": "assets/**/*",
-            "outDir": "dist/modules/agents/src",
+            "outDir": "dist/services/agents/src",
             "watchAssets": true
           }
         ]
