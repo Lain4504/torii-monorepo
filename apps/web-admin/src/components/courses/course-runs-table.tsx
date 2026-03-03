@@ -148,7 +148,7 @@ export function CourseRunsTable({ courseId, courseType }: CourseRunsTableProps) 
                                         <TableCell>
                                             <div className="flex items-center gap-2">
                                                 <Users className="h-4 w-4 text-muted-foreground" />
-                                                <span>{(run as any).totalEnrolled || 0} / {run.maxStudents || '∞'}</span>
+                                                <span>{(run as any).totalStudents || 0} / {run.maxStudents || '∞'}</span>
                                             </div>
                                         </TableCell>
                                     )}

@@ -111,8 +111,8 @@ export function LiveClassesClient() {
                     ) : filteredCourses.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {filteredCourses.map((run: CourseRunResponseDTO) => {
-                                const isSoldOut = run.totalEnrolled >= (run.maxStudents || 100);
-                                const isHot = run.totalEnrolled > 15;
+                                const isSoldOut = run.totalStudents >= (run.maxStudents || 100);
+                                const isHot = run.totalStudents > 15;
 
                                 return (
                                     <article key={run.id} className={`group bg-card border border-border/50 rounded-[2rem] overflow-hidden flex flex-col transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-1 ${isSoldOut ? 'opacity-75 grayscale-[0.5]' : ''}`}>
@@ -201,12 +201,12 @@ export function LiveClassesClient() {
                                             <div className="space-y-3">
                                                 <div className="flex justify-between items-end">
                                                     <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">Sĩ số lớp</span>
-                                                    <span className="text-[10px] font-black text-primary  bg-primary/10 px-2 py-0.5 rounded-full">{run.totalEnrolled || 0}/{run.maxStudents || 20}</span>
+                                                    <span className="text-[10px] font-black text-primary  bg-primary/10 px-2 py-0.5 rounded-full">{run.totalStudents || 0}/{run.maxStudents || 20}</span>
                                                 </div>
                                                 <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
                                                     <motion.div
                                                         initial={{ width: 0 }}
-                                                        whileInView={{ width: `${Math.min(((run.totalEnrolled || 0) / (run.maxStudents || 20)) * 100, 100)}%` }}
+                                                        whileInView={{ width: `${Math.min(((run.totalStudents || 0) / (run.maxStudents || 20)) * 100, 100)}%` }}
                                                         className="h-full bg-primary rounded-full shadow-[0_0_12px_oklch(var(--primary)/0.4)]"
                                                         transition={{ duration: 1, ease: "easeOut" }}
                                                     />

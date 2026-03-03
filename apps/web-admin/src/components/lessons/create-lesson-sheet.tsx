@@ -51,7 +51,7 @@ export default function CreateLessonSheet({ open, onOpenChange, moduleId }: Crea
         reset,
         formState: { isDirty },
     } = useForm<CreateLessonFormData>({
-        resolver: zodResolver(createLessonSchema),
+        resolver: zodResolver(createLessonSchema) as any,
         defaultValues: {
             moduleId: moduleId || '',
             title: '',
@@ -85,7 +85,7 @@ export default function CreateLessonSheet({ open, onOpenChange, moduleId }: Crea
         }
     }, [moduleId, reset]);
 
-    const onSubmitForm = async (data: CreateLessonFormData) => {
+    const onSubmitForm = async (data: any) => {
         setUploading(true);
         try {
             let videoUrl = data.videoUrl;

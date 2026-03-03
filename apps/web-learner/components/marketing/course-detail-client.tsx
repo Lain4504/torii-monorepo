@@ -313,7 +313,7 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                                                                 <div className="flex flex-col">
                                                                     <span className="text-[10px] uppercase font-bold text-muted-foreground leading-none mb-0.5">Trạng thái</span>
                                                                     <span className="font-semibold text-foreground/90">
-                                                                        {(run as any).totalEnrolled || 0} / {run.maxStudents || '∞'} học viên
+                                                                        {run.totalStudents || 0} / {run.maxStudents || '∞'} học viên
                                                                     </span>
                                                                 </div>
                                                             </div>

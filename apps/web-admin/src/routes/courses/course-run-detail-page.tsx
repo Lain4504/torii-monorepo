@@ -53,7 +53,7 @@ export default function CourseRunDetailPage() {
     });
     const deleteQuizMutation = useDeleteQuiz();
     const publishQuizMutation = usePublishQuiz();
-    
+
     // Filter enrollments by this specific run
     const enrollments = allEnrollments?.filter(e => e.courseRun?.id === runId) || [];
 
@@ -263,7 +263,7 @@ export default function CourseRunDetailPage() {
                                                 </div>
                                                 <div>
                                                     <p className="text-xs font-bold text-muted-foreground uppercase">Sĩ số hiện tại</p>
-                                                    <p className="font-semibold">{(run as any).totalEnrolled || 0} / {run.maxStudents || '∞'} học viên</p>
+                                                    <p className="font-semibold">{(run as any).totalStudents || 0} / {run.maxStudents || '∞'} học viên</p>
                                                 </div>
                                             </div>
                                         )}
@@ -412,7 +412,7 @@ export default function CourseRunDetailPage() {
                                     </CardTitle>
                                     <CardDescription>Quản lý học viên đã đăng ký vào lớp này</CardDescription>
                                 </div>
-                                <Button 
+                                <Button
                                     onClick={() => navigate(`/course-master/runs/${runId}/enrollments`)}
                                     className="font-bold uppercase tracking-widest text-xs"
                                 >
@@ -423,7 +423,7 @@ export default function CourseRunDetailPage() {
                                 <div className="py-12 flex flex-col items-center justify-center border border-dashed rounded-xl bg-muted/5">
                                     <Users className="h-10 w-10 text-muted-foreground/30 mb-2" />
                                     <p className="text-sm text-muted-foreground font-medium mb-4">Tổng cộng: {enrollments.length} học viên</p>
-                                    <Button 
+                                    <Button
                                         variant="outline"
                                         onClick={() => navigate(`/course-master/runs/${runId}/enrollments`)}
                                     >

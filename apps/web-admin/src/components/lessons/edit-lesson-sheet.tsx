@@ -50,7 +50,7 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
         reset,
         formState: { isDirty },
     } = useForm<UpdateLessonFormData>({
-        resolver: zodResolver(updateLessonSchema),
+        resolver: zodResolver(updateLessonSchema) as any,
         defaultValues: {
             title: '',
             contentType: LessonContentType.VIDEO,
@@ -96,7 +96,7 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
         return confirmResult.fileUrl;
     };
 
-    const onSubmitForm = async (data: UpdateLessonFormData) => {
+    const onSubmitForm = async (data: any) => {
         if (!lesson) return;
 
         setUploading(true);
