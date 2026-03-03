@@ -35,8 +35,11 @@
       "@server/identity/*": [
         "./services/identity/src/*"
       ],
+      "@server/gamification": [
+        "./services/gamification/src"
+      ],
       "@server/gamification/*": [
-        "./modules/gamification/src/*"
+        "./services/gamification/src/*"
       ],
       "@server/agents/*": [
         "./modules/agents/src/*"

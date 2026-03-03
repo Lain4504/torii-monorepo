@@ -1,42 +1,35 @@
-import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
-import { PrismaService, REDIS_CLIENT } from '@server/shared';
+import { Injectable, Logger, Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import Redis from 'ioredis';
-import {
-    StreakStatusDto,
-    UserGamificationDto,
-} from '@workspace/schemas';
-import { ActivityService } from '@server/gamification/services';
+import type { UserGamificationDto, StreakStatusDto } from '@workspace/schemas';
+import { REDIS_CLIENT, PrismaService } from '@server/shared';
+import type { IProfilesService } from '@server/gamification/interfaces/services';
+import type { IProfilesRepository } from '@server/gamification/interfaces/repositories';
+import { PROFILES_REPOSITORY_TOKEN } from '@server/gamification/interfaces/repositories';
+import { GamificationTransactionType } from '@prisma/generated';
 
 @Injectable()
-export class StreakService {
-    private readonly logger = new Logger(StreakService.name);
+export class ProfilesService implements IProfilesService {
+    private readonly logger = new Logger(ProfilesService.name);
 
     constructor(
+        @Inject(PROFILES_REPOSITORY_TOKEN) private readonly profilesRepository: IProfilesRepository,
         private readonly prisma: PrismaService,
-        @Inject(forwardRef(() => ActivityService))
-        private readonly activityService: ActivityService,
-        @Inject(REDIS_CLIENT)
-        private readonly redis: Redis,
+        @Inject(REDIS_CLIENT) private readonly redis: Redis,
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
 
-    /**
-     * Get user's current streak status
-     */
-    /**
-     * Get user's full gamification profile
-     */
     async getGamificationProfile(userId: string): Promise<UserGamificationDto> {
-        let gamification = await this.prisma.userGamification.findUnique({
-            where: { userId },
-        });
+        let gamification = await this.profilesRepository.findByUserId(userId);
 
         if (!gamification) {
-            gamification = await this.prisma.userGamification.create({
-                data: { userId },
-            });
+            gamification = await this.profilesRepository.upsert(
+                userId,
+                {},
+                {}
+            );
         }
 
-        // Fetch actual balance from userBalances table
         const userBalance = await this.prisma.userBalance.findUnique({
             where: { userId }
         });
@@ -62,15 +55,10 @@ export class StreakService {
     }
 
     async getStreakStatus(userId: string): Promise<StreakStatusDto> {
-        let gamification = await this.prisma.userGamification.findUnique({
-            where: { userId },
-        });
+        let gamification = await this.profilesRepository.findByUserId(userId);
 
-        // Initialize if not exists
         if (!gamification) {
-            gamification = await this.prisma.userGamification.create({
-                data: { userId },
-            });
+            gamification = await this.profilesRepository.upsert(userId, {}, {});
         }
 
         const today = this.getToday();
@@ -78,14 +66,19 @@ export class StreakService {
         const yesterday = this.getYesterday();
         const willBreakTomorrow = !isActiveToday && gamification.lastActiveDate !== yesterday;
 
-        // Logic: Show toast if active today BUT haven't shown toast today yet
-        // Check Redis for the toast flag
         const redisKey = `streak_toast:${userId}:${today}`;
         const toastShownToday = await this.redis.get(redisKey);
         const shouldShowToast = isActiveToday && !toastShownToday;
 
-        // Fetch recent active dates (last 7 days) using ActivityService
-        const recentActiveDates = await this.activityService.getWeeklyActiveDates(userId, 7);
+        const activities = await this.prisma.dailyActivity.findMany({
+            where: {
+                userId,
+                date: { gte: this.getDaysAgo(7) },
+            },
+            select: { date: true },
+            distinct: ['date'],
+        });
+        const recentActiveDates = activities.map(a => a.date);
 
         return {
             currentStreak: gamification.currentStreak,
@@ -102,34 +95,18 @@ export class StreakService {
         };
     }
 
-    /**
-     * Mark streak toast as shown for today
-     */
     async markStreakToastShown(userId: string): Promise<void> {
         const today = this.getToday();
         const redisKey = `streak_toast:${userId}:${today}`;
 
-        // Calculate seconds until end of day (UTC midnight)
         const now = new Date();
         const endOfDay = new Date(now);
         endOfDay.setUTCHours(23, 59, 59, 999);
 
         const secondsUntilEndDay = Math.max(1, Math.floor((endOfDay.getTime() - now.getTime()) / 1000));
-
-        // Set flag in Redis with TTL until end of day (UTC)
         await this.redis.set(redisKey, '1', 'EX', secondsUntilEndDay);
-
-        this.logger.log(`Marked streak toast as shown for user ${userId} on ${today} (UTC TTL: ${secondsUntilEndDay}s)`);
     }
 
-    /**
-     * Record activity and update streak
-     * Returns { streakUpdated: boolean, newStreak: number, isMilestone: boolean }
-     */
-    /**
-     * Record activity and update streak
-     * Returns { streakUpdated: boolean, newStreak: number, isMilestone: boolean }
-     */
     async recordActivity(userId: string): Promise<{
         streakUpdated: boolean;
         oldStreak: number;
@@ -139,18 +116,12 @@ export class StreakService {
         const today = this.getToday();
         const yesterday = this.getYesterday();
 
-        let gamification = await this.prisma.userGamification.findUnique({
-            where: { userId },
-        });
+        let gamification = await this.profilesRepository.findByUserId(userId);
 
-        // Initialize if not exists
         if (!gamification) {
-            gamification = await this.prisma.userGamification.create({
-                data: { userId },
-            });
+            gamification = await this.profilesRepository.upsert(userId, {}, {});
         }
 
-        // Already active today - no streak change
         if (gamification.lastActiveDate === today) {
             return {
                 streakUpdated: false,
@@ -165,40 +136,27 @@ export class StreakService {
         let freezeCount = gamification.freezeCount;
         let freezeUsed = false;
 
-        // Calculate streak
         if (!gamification.lastActiveDate) {
-            // First-time activity: start streak at 1
             newStreak = 1;
         } else if (gamification.lastActiveDate === yesterday) {
-            // Continue streak from yesterday
             newStreak = gamification.currentStreak + 1;
         } else {
-            // Missed day(s) - check if we can save it with a freeze
             const daysMissed = this.getDaysDifference(gamification.lastActiveDate, today);
-
-            // If we missed exactly 1 day (yesterday) and have a freeze
-            // Note: daysMissed = 2 means Sunday was last active, today is Tuesday.
             if (daysMissed === 2 && freezeCount > 0) {
                 freezeCount -= 1;
                 newStreak = gamification.currentStreak + 1;
                 freezeUsed = true;
-                this.logger.log(`User ${userId} used a freeze during login. Remaining: ${freezeCount}`);
             } else {
-                // Too many days missed or no freezes left
                 newStreak = 1;
-                this.logger.log(`User ${userId} streak reset. Days missed: ${daysMissed}`);
             }
         }
 
-        // Update longest streak
         const longestStreak = Math.max(gamification.longestStreak, newStreak);
-
-        // Check if milestone
         const milestones = [3, 7, 14, 30, 50, 100, 365];
         const isMilestone = milestones.includes(newStreak);
 
-        // Update database and history if freeze used
         await this.prisma.$transaction(async (tx) => {
+            const lastActiveDate = gamification.lastActiveDate;
             await tx.userGamification.update({
                 where: { userId },
                 data: {
@@ -207,10 +165,10 @@ export class StreakService {
                     lastActiveDate: today,
                     freezeCount,
                     totalActiveDays: { increment: 1 },
-                    weeklyActiveCount: gamification.lastActiveDate && this.isThisWeek(gamification.lastActiveDate)
+                    weeklyActiveCount: lastActiveDate && this.isThisWeek(lastActiveDate)
                         ? { increment: 1 }
                         : 1,
-                    monthlyActiveCount: gamification.lastActiveDate && this.isThisMonth(gamification.lastActiveDate)
+                    monthlyActiveCount: lastActiveDate && this.isThisMonth(lastActiveDate)
                         ? { increment: 1 }
                         : 1,
                 },
@@ -221,7 +179,7 @@ export class StreakService {
                     data: {
                         userId,
                         amount: 0,
-                        type: 'OTHER' as any,
+                        type: GamificationTransactionType.OTHER as any,
                         description: 'Đã sử dụng 1 bùa bảo vệ chuỗi (Tự động)',
                         metadata: { reason: 'STREAK_FREEZE_USED', streak: oldStreak }
                     }
@@ -237,133 +195,130 @@ export class StreakService {
         };
     }
 
-    /**
-     * Grant freeze count to user (from achievement reward or purchase)
-     */
     async grantFreeze(userId: string, amount: number): Promise<void> {
-        await this.prisma.userGamification.upsert({
-            where: { userId },
-            update: {
-                freezeCount: { increment: amount },
-            },
-            create: {
-                userId,
-                freezeCount: amount,
-            },
-        });
-
-        this.logger.log(`Granted ${amount} freeze(s) to user ${userId}`);
+        await this.profilesRepository.upsert(
+            userId,
+            { freezeCount: { increment: amount } },
+            {}
+        );
     }
 
-    /**
-     * Daily job: Check and reset streaks for inactive users
-     */
     async checkStreaksDaily(): Promise<void> {
         const yesterday = this.getYesterday();
         const twoDaysAgo = this.getDaysAgo(2);
 
-        // Find users who were active 2 days ago but NOT yesterday
-        const usersAtRisk = await this.prisma.userGamification.findMany({
-            where: {
-                lastActiveDate: {
-                    equals: twoDaysAgo, // Last active was day before yesterday
-                },
-                currentStreak: {
-                    gt: 0,
-                },
-            },
-        });
+        const usersAtRisk = await this.profilesRepository.findUsersAtRiskOfStreakReset(twoDaysAgo);
 
         for (const gamification of usersAtRisk) {
             if (gamification.freezeCount > 0) {
-                // 1. Proactively consume freeze
-                // 2. IMPORTANT: Update lastActiveDate to yesterday so it bridges the gap
                 await this.prisma.$transaction([
                     this.prisma.userGamification.update({
                         where: { id: gamification.id },
                         data: {
                             freezeCount: { decrement: 1 },
-                            lastActiveDate: yesterday, // bridge the gap!
+                            lastActiveDate: yesterday,
                         },
                     }),
                     this.prisma.gamificationHistory.create({
                         data: {
                             userId: gamification.userId,
                             amount: 0,
-                            type: 'OTHER' as any,
+                            type: GamificationTransactionType.OTHER as any,
                             description: 'Đã sử dụng bùa bảo vệ chuỗi (Hệ thống)',
                             metadata: { reason: 'AUTO_STREAK_FREEZE', date: yesterday }
                         }
                     })
                 ]);
-                this.logger.log(`Auto-used freeze for user ${gamification.userId} to protect streak for ${yesterday}`);
             } else {
-                // Reset streak
-                await this.prisma.userGamification.update({
-                    where: { id: gamification.id },
-                    data: {
-                        currentStreak: 0,
-                    },
-                });
-                this.logger.log(`Reset streak for user ${gamification.userId}`);
+                await this.profilesRepository.update(gamification.userId, { currentStreak: 0 });
             }
         }
     }
 
-    // ========================================
-    // Helper Methods
-    // ========================================
+    async updateXP(userId: string, xpGain: number, activityType?: string): Promise<any> {
+        try {
+            let gamification = await this.profilesRepository.upsert(
+                userId,
+                {
+                    totalXp: { increment: xpGain },
+                    currentXp: { increment: xpGain },
+                    points: { increment: xpGain },
+                },
+                {
+                    totalXp: xpGain,
+                    level: 1,
+                    currentXp: xpGain,
+                    points: xpGain,
+                }
+            );
 
-    private getToday(): string {
-        return new Date().toISOString().split('T')[0]; // YYYY-MM-DD (UTC)
+            await this.prisma.gamificationHistory.create({
+                data: {
+                    userId,
+                    amount: xpGain,
+                    type: GamificationTransactionType.EARN as any,
+                    activityType: activityType as any,
+                    description: `Earned ${xpGain} points from ${activityType || 'activity'}`,
+                }
+            });
+
+            const totalXp = gamification.totalXp;
+            const newLevel = Math.floor(Math.sqrt(totalXp / 100)) + 1;
+
+            if (newLevel > gamification.level) {
+                const xpForCurrentLevel = Math.pow(newLevel - 1, 2) * 100;
+                const currentXp = totalXp - xpForCurrentLevel;
+
+                gamification = await this.profilesRepository.update(userId, {
+                    level: newLevel,
+                    currentXp: currentXp
+                });
+
+                this.natsClient.emit('user.level_up', { userId, level: newLevel, xp: totalXp });
+            }
+
+            this.natsClient.emit('user.xp_gained', { userId, xpGained: xpGain, totalXp: totalXp });
+
+            return gamification;
+        } catch (error) {
+            this.logger.error(`Failed to update XP for user ${userId}`, error.stack);
+            return null;
+        }
     }
 
+    // Helper Methods
+    private getToday(): string { return new Date().toISOString().split('T')[0]; }
     private getYesterday(): string {
         const date = new Date();
         date.setUTCDate(date.getUTCDate() - 1);
         return date.toISOString().split('T')[0];
     }
-
     private getDaysAgo(days: number): string {
         const date = new Date();
         date.setUTCDate(date.getUTCDate() - days);
         return date.toISOString().split('T')[0];
     }
-
     private parseDateToUtc(dateStr: string): Date {
         const [year, month, day] = dateStr.split('-').map(Number);
         return new Date(Date.UTC(year, month - 1, day));
     }
-
     private getDaysDifference(dateStr1: string, dateStr2: string): number {
         const date1 = this.parseDateToUtc(dateStr1);
         const date2 = this.parseDateToUtc(dateStr2);
         const diffTime = Math.abs(date2.getTime() - date1.getTime());
         return Math.floor(diffTime / (1000 * 60 * 60 * 24));
     }
-
     private isThisWeek(dateStr: string): boolean {
         const date = this.parseDateToUtc(dateStr);
-
-        // Today's date at UTC midnight
         const now = new Date();
-        const todayUtc = new Date(
-            Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
-        );
-
+        const todayUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
         const weekStart = new Date(todayUtc);
         weekStart.setUTCDate(todayUtc.getUTCDate() - todayUtc.getUTCDay());
-
         return date >= weekStart;
     }
-
     private isThisMonth(dateStr: string): boolean {
         const date = this.parseDateToUtc(dateStr);
         const now = new Date();
-        const currentMonth = now.getUTCMonth();
-        const currentYear = now.getUTCFullYear();
-
-        return date.getUTCMonth() === currentMonth &&
-            date.getUTCFullYear() === currentYear;
+        return date.getUTCMonth() === now.getUTCMonth() && date.getUTCFullYear() === now.getUTCFullYear();
     }
 }
