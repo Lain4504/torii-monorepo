@@ -4,6 +4,7 @@ import { OrderService } from './order.service';
 import { OrderRepository } from './order.repository';
 import { PayOSService } from './payos.service';
 import { PaymentCron } from './payment.cron';
+import { OrderHandler } from './order.handler';
 import { ORDER_SERVICE_TOKEN, ORDER_REPOSITORY_TOKEN } from '@server/billing/interfaces';
 import { CouponModule } from '@server/billing/modules/coupon/coupon.module';
 import { UserBalanceModule } from '@server/billing/modules/user-balance/user-balance.module';
@@ -15,6 +16,7 @@ import { PaymentProfile } from '@server/billing/infrastructure/mappings/payment.
  */
 @Module({
     imports: [PrismaModule, NatsClientModule, CouponModule, UserBalanceModule],
+    controllers: [OrderHandler],
     providers: [
         OrderService,
         PayOSService,

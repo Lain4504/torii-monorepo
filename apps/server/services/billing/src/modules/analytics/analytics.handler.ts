@@ -8,7 +8,6 @@ export class AnalyticsHandler {
 
     @MessagePattern({ cmd: 'billing.analytics.overview' })
     async getOverview() {
-        // Calculate total revenue from completed orders
         const revenueResult = await this.prisma.order.aggregate({
             where: { status: 'completed' },
             _sum: { amount: true }
@@ -16,7 +15,6 @@ export class AnalyticsHandler {
 
         const totalRevenue = revenueResult._sum.amount ? Number(revenueResult._sum.amount) : 0;
 
-        // Get 5 most recent sales with user info
         const recentSales = await this.prisma.order.findMany({
             where: { status: 'completed' },
             orderBy: { completedAt: 'desc' },
@@ -32,7 +30,6 @@ export class AnalyticsHandler {
             }
         });
 
-        // Get revenue growth for last 6 months
         const sixMonthsAgo = new Date();
         sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
@@ -41,7 +38,7 @@ export class AnalyticsHandler {
                 status: 'completed',
                 completedAt: { gte: sixMonthsAgo }
             },
-            include: { 
+            include: {
                 enrollment: {
                     include: {
                         courseRun: {

@@ -21,7 +21,6 @@ export class CouponHandler {
 
         let orderAmount = 0;
 
-        // 1. Get correct price from either CourseRun or CourseMaster
         if (data.courseRunId) {
             try {
                 const run = await lastValueFrom(
@@ -30,7 +29,6 @@ export class CouponHandler {
                 if (run && run.price) {
                     orderAmount = Number(run.price);
                 } else if (run && run.courseMasterId) {
-                    // Fallback to master price if run price is null
                     const master = await lastValueFrom(
                         this.natsClient.send({ cmd: 'learning.coursemaster.findById' }, { id: run.courseMasterId })
                     );

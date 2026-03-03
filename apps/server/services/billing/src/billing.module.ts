@@ -6,10 +6,7 @@ import { pojos } from '@automapper/pojos';
 import { PrismaModule, SharedModule, GlobalRpcExceptionFilter, NatsClientModule } from '@server/shared';
 
 // Billing Modules
-import { OrderModule, CouponModule, UserBalanceModule, ReportModule } from './modules';
-
-// Handlers
-import { OrderHandler, CouponHandler, AnalyticsHandler, UserBalanceHandler, ReportHandler } from './handlers';
+import { OrderModule, CouponModule, UserBalanceModule, ReportModule, AnalyticsModule } from './modules';
 
 @Module({
     imports: [
@@ -24,15 +21,9 @@ import { OrderHandler, CouponHandler, AnalyticsHandler, UserBalanceHandler, Repo
         CouponModule,
         UserBalanceModule,
         ReportModule,
+        AnalyticsModule,
     ],
-    controllers: [
-        // NATS Handlers
-        OrderHandler,
-        CouponHandler,
-        AnalyticsHandler,
-        UserBalanceHandler,
-        ReportHandler,
-    ],
+    controllers: [],
     providers: [
         {
             provide: APP_FILTER,

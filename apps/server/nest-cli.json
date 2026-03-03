@@ -108,11 +108,11 @@
     },
     "billing": {
       "type": "application",
-      "root": "modules/billing",
+      "root": "services/billing",
       "entryFile": "main",
-      "sourceRoot": "modules/billing/src",
+      "sourceRoot": "services/billing/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/billing/tsconfig.app.json",
+        "tsConfigPath": "services/billing/tsconfig.app.json",
         "webpack": false
       }
     }

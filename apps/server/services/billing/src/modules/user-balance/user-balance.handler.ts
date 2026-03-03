@@ -48,10 +48,6 @@ export class UserBalanceHandler {
         return this.featureQuotaService.recordTokenUsageAndDeduct(data.userId, data.taskType, data.usage);
     }
 
-    /**
-     * EventPattern version for fire-and-forget publishes from standalone workers
-     * (e.g. agent-entry.ts which uses raw NATS publish without replyTo)
-     */
     @EventPattern({ cmd: 'billing.quota.recordTokenUsage' })
     async recordTokenUsageEvent(@Payload() data: { userId: string, taskType: string, usage: any }) {
         this.logger.log(`[event] recordTokenUsage for user=${data.userId} taskType=${data.taskType}`);
