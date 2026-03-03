@@ -4,7 +4,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="remomve uiuxpromax" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="add gamification services and repositories; update tsconfig and module configurations">
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/gamification.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/gamification.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/handlers/activity.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/handlers/gamification.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/handlers/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/repositories/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/repositories/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/services/i-activities.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/services/i-activities.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/services/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/services/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/jobs/streak-check.job.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/jobs/streak-check.job.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/listeners/activity.listener.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/listeners/activity.listener.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/modules/achievements/achievements.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/modules/achievements/achievements.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/modules/activities/activities.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/modules/activities/activities.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/modules/activities/activities.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/modules/activities/activities.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/modules/profiles/profiles.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/modules/profiles/profiles.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/services/achievement.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/services/activity.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/services/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/services/leaderboard.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/services/redemption.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/services/streak.service.ts" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -251,22 +271,7 @@
       <workItem from="1772448442034" duration="1160000" />
       <workItem from="1772449707195" duration="399000" />
       <workItem from="1772474025610" duration="499000" />
-    </task>
-    <task id="LOCAL-00857" summary="refactor: change location of api folder to lib">
-      <option name="closed" value="true" />
-      <created>1771817780327</created>
-      <option name="number" value="00857" />
-      <option name="presentableId" value="LOCAL-00857" />
-      <option name="project" value="LOCAL" />
-      <updated>1771817780327</updated>
-    </task>
-    <task id="LOCAL-00858" summary="feat: add date-fns-tz dependency and implement formatNumber utility function">
-      <option name="closed" value="true" />
-      <created>1771823535746</created>
-      <option name="number" value="00858" />
-      <option name="presentableId" value="LOCAL-00858" />
-      <option name="project" value="LOCAL" />
-      <updated>1771823535747</updated>
+      <workItem from="1772518585740" duration="733000" />
     </task>
     <task id="LOCAL-00859" summary="feat: add date-fns-tz dependency and implement formatNumber utility function">
       <option name="closed" value="true" />
@@ -644,7 +649,23 @@
       <option name="project" value="LOCAL" />
       <updated>1772474509110</updated>
     </task>
-    <option name="localTasksCounter" value="906" />
+    <task id="LOCAL-00906" summary="add gamification services and repositories; update tsconfig and module configurations">
+      <option name="closed" value="true" />
+      <created>1772518956868</created>
+      <option name="number" value="00906" />
+      <option name="presentableId" value="LOCAL-00906" />
+      <option name="project" value="LOCAL" />
+      <updated>1772518956868</updated>
+    </task>
+    <task id="LOCAL-00907" summary="add gamification services and repositories; update tsconfig and module configurations">
+      <option name="closed" value="true" />
+      <created>1772518960984</created>
+      <option name="number" value="00907" />
+      <option name="presentableId" value="LOCAL-00907" />
+      <option name="project" value="LOCAL" />
+      <updated>1772518960984</updated>
+    </task>
+    <option name="localTasksCounter" value="908" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -661,7 +682,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="tienhn-update-week-6" />
+                        <option value="main" />
                       </list>
                     </value>
                   </entry>
@@ -696,7 +717,8 @@
     <MESSAGE value="fix to lauch success" />
     <MESSAGE value="fix" />
     <MESSAGE value="remomve uiuxpromax" />
-    <option name="LAST_COMMIT_MESSAGE" value="remomve uiuxpromax" />
+    <MESSAGE value="add gamification services and repositories; update tsconfig and module configurations" />
+    <option name="LAST_COMMIT_MESSAGE" value="add gamification services and repositories; update tsconfig and module configurations" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

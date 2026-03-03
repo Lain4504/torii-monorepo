@@ -1,12 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { StreakService } from '@server/gamification/services';
+import { PROFILES_SERVICE_TOKEN } from '@server/gamification/interfaces/services';
+import type { IProfilesService } from '@server/gamification/interfaces/services';
 
 @Injectable()
 export class StreakCheckJob {
     private readonly logger = new Logger(StreakCheckJob.name);
 
-    constructor(private readonly streakService: StreakService) { }
+    constructor(
+        @Inject(PROFILES_SERVICE_TOKEN) private readonly profilesService: IProfilesService
+    ) { }
 
     /**
      * Run daily at 00:00 UTC to check and reset streaks
@@ -18,11 +21,10 @@ export class StreakCheckJob {
         this.logger.log('🕐 Running daily streak check...');
 
         try {
-            await this.streakService.checkStreaksDaily();
+            await this.profilesService.checkStreaksDaily();
             this.logger.log('✅ Daily streak check completed successfully');
         } catch (error) {
             this.logger.error('❌ Daily streak check failed', error.stack);
-            // Consider alerting ops team here
         }
     }
 }

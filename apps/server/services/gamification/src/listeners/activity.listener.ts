@@ -1,13 +1,16 @@
-import { Controller, Logger } from '@nestjs/common';
+import { Controller, Logger, Inject } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
 import { UserActivityEvent } from '@workspace/schemas';
-import { ActivityService } from '@server/gamification/services';
+import { ACTIVITIES_SERVICE_TOKEN } from '@server/gamification/interfaces/services';
+import type { IActivitiesService } from '@server/gamification/interfaces/services';
 
 @Controller()
-export class ActivityHandler {
-    private readonly logger = new Logger(ActivityHandler.name);
+export class ActivityListener {
+    private readonly logger = new Logger(ActivityListener.name);
 
-    constructor(private readonly activityService: ActivityService) { }
+    constructor(
+        @Inject(ACTIVITIES_SERVICE_TOKEN) private readonly activityService: IActivitiesService
+    ) { }
 
     /**
      * Handle user activity events from other services
