@@ -8,10 +8,10 @@ import type {
 import { learningProgressApi } from './learning-progress-api';
 
 export const liveSessionApi = {
-    // GET /api/live-sessions/course/:courseId/active
-    async getActiveSession(courseId: string): Promise<LiveSessionResponseDTO | null> {
+    // GET /api/live-sessions/run/:courseRunId/active
+    async getActiveSession(courseRunId: string): Promise<LiveSessionResponseDTO | null> {
         try {
-            const response = await apiClient.get<StandardApiResponse<LiveSessionResponseDTO>>(`/api/live-sessions/course/${courseId}/active`);
+            const response = await apiClient.get<StandardApiResponse<LiveSessionResponseDTO>>(`/api/live-sessions/run/${courseRunId}/active`);
             return response.data.data ?? null;
         } catch (error) {
             console.error('Error fetching active live session:', error);
@@ -19,9 +19,9 @@ export const liveSessionApi = {
         }
     },
 
-    // GET /api/live-sessions/course/:courseId
-    async getSessions(courseId: string): Promise<LiveSessionResponseDTO[]> {
-        const response = await apiClient.get<StandardApiResponse<LiveSessionResponseDTO[]>>(`/api/live-sessions/course/${courseId}`);
+    // GET /api/live-sessions/run/:courseRunId
+    async getSessions(courseRunId: string): Promise<LiveSessionResponseDTO[]> {
+        const response = await apiClient.get<StandardApiResponse<LiveSessionResponseDTO[]>>(`/api/live-sessions/run/${courseRunId}`);
         return response.data.data ?? [];
     },
 
@@ -40,7 +40,7 @@ export const liveSessionApi = {
 
         const sessionArrays = await Promise.allSettled(
             liveCourses.map(course =>
-                liveSessionApi.getSessions(course.id).then(sessions =>
+                liveSessionApi.getSessions(course.courseRunId).then(sessions =>
                     sessions.map(s => ({
                         ...s,
                         courseTitle: course.title,

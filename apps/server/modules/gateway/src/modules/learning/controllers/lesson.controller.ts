@@ -91,13 +91,13 @@ export class LessonController {
         }
     }
 
-    @Get('preview/by-course/:courseId')
-    async findPreviewLessonsByCourseId(@Param('courseId') courseId: string) {
+    @Get('preview/by-course/:courseMasterId')
+    async findPreviewLessonsByCourseId(@Param('courseMasterId') courseMasterId: string) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.lesson.findPreviewLessonsByCourseId' },
-                    { courseId }
+                    { courseMasterId }
                 )
             );
             return successResponse({ lessons: result });

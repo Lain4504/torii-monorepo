@@ -22,16 +22,16 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { storageApi } from '@/lib/api/services/storage-api.ts';
+import { storageApi } from '@/lib/api/services/storage-api';
 import { LessonContentType, lessonCreateDTOSchema } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import { useCreateLesson } from "@/lib/api/services/lesson";
+import { useCreateLesson, lessonsApi } from "@/lib/api/services/lesson";
 import { Plus } from 'lucide-react';
 import { Spinner } from "@workspace/ui/components/spinner";
 
 const createLessonSchema = lessonCreateDTOSchema;
 
-type CreateLessonFormData = z.input<typeof createLessonSchema>;
+type CreateLessonFormData = z.infer<typeof createLessonSchema>;
 
 interface CreateLessonDialogProps {
     open: boolean;
@@ -39,7 +39,7 @@ interface CreateLessonDialogProps {
     moduleId: string;
 }
 
-export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLessonDialogProps) {
+export default function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLessonDialogProps) {
     const createLesson = useCreateLesson();
     const [videoFile, setVideoFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
@@ -51,14 +51,18 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
         reset,
         formState: { isDirty },
     } = useForm<CreateLessonFormData>({
-        resolver: zodResolver(createLessonSchema),
+        resolver: zodResolver(createLessonSchema) as any,
         defaultValues: {
             moduleId: moduleId || '',
             title: '',
             contentType: LessonContentType.VIDEO,
+            status: 'published',
             orderIndex: 0,
             isPreview: false,
             isUnlocked: false,
+            durationMinutes: 0,
+            videoUrl: '',
+            articleContent: '',
         },
     });
 
@@ -69,15 +73,19 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
                 moduleId,
                 title: '',
                 contentType: LessonContentType.VIDEO,
+                status: 'published',
                 orderIndex: 0,
                 isPreview: false,
                 isUnlocked: false,
+                durationMinutes: 0,
+                articleContent: '',
+                videoUrl: '',
             });
             setVideoFile(null);
         }
     }, [moduleId, reset]);
 
-    const onSubmitForm = async (data: CreateLessonFormData) => {
+    const onSubmitForm = async (data: any) => {
         setUploading(true);
         try {
             let videoUrl = data.videoUrl;
@@ -87,10 +95,17 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
                 videoUrl = uploadedVideo.fileUrl;
             }
 
+            // Tự động tính orderIndex tiếp theo dựa trên số bài hiện có trong module
+            const existingLessons = await lessonsApi.findByModuleId(moduleId);
+            const nextOrderIndex =
+                existingLessons.length === 0
+                    ? 1
+                    : Math.max(...existingLessons.map((l: any) => l.orderIndex ?? 0)) + 1;
+
             const payload = {
                 ...data,
                 status: (data as any).status ?? 'published',
-                orderIndex: data.orderIndex ?? 0,
+                orderIndex: nextOrderIndex,
                 aiMetadata: (data as any).aiMetadata ?? {},
                 isPreview: data.isPreview ?? false,
                 isUnlocked: data.isUnlocked ?? false,
@@ -119,7 +134,7 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Tạo Bài Học Mới</SheetTitle>
                     <SheetDescription>
@@ -179,15 +194,15 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
 
                                     <Controller
                                         control={control}
-                                        name="orderIndex"
+                                        name="durationMinutes"
                                         render={({ field, fieldState }) => (
                                             <Field className="space-y-1" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name}>Thứ Tự</FieldLabel>
+                                                <FieldLabel htmlFor={field.name}>Thời Lượng (phút)</FieldLabel>
                                                 <Input
                                                     id={field.name}
                                                     type="number"
                                                     {...field}
-                                                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                                    onChange={(e) => field.onChange(e.target.value === '' ? 0 : e.target.valueAsNumber)}
                                                 />
                                             </Field>
                                         )}

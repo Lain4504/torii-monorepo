@@ -12,13 +12,13 @@ export class CartHandler {
     }
 
     @MessagePattern('cart.add')
-    async addToCart(@Payload() data: { userId: string; courseId: string }) {
-        return this.cartService.addToCart(data.userId, data.courseId);
+    async addToCart(@Payload() data: { userId: string; courseRunId: string }) {
+        return this.cartService.addToCart(data.userId, data.courseRunId);
     }
 
     @MessagePattern('cart.remove')
-    async removeFromCart(@Payload() data: { userId: string; courseId: string }) {
-        return this.cartService.removeFromCart(data.userId, data.courseId);
+    async removeFromCart(@Payload() data: { userId: string; courseRunId: string }) {
+        return this.cartService.removeFromCart(data.userId, data.courseRunId);
     }
 
     @MessagePattern('cart.clear')

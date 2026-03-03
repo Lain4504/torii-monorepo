@@ -45,7 +45,7 @@ export class EnrollmentController {
     @Get('check-gift')
     async checkGiftRecipient(
         @Query('email') email: string,
-        @Query('courseId') courseId: string
+        @Query('courseMasterId') courseMasterId: string
     ) {
         try {
             // 1. Find user by email using the existing findAll endpoint with search
@@ -69,7 +69,7 @@ export class EnrollmentController {
             const isEnrolled = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.enrollment.isEnrolled' },
-                    { courseId, userId: user.id }
+                    { courseMasterId, userId: user.id }
                 )
             );
 
@@ -112,14 +112,14 @@ export class EnrollmentController {
         }
     }
 
-    @Get('check/:courseId')
-    async checkEnrollment(@Param('courseId') courseId: string, @Req() req: ReqWithRequester) {
+    @Get('check/:courseRunId')
+    async checkEnrollment(@Param('courseRunId') courseRunId: string, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.enrollment.check' },
-                    { courseId, userId: requester.sub }
+                    { courseRunId, userId: requester.sub }
                 )
             );
             return successResponse(result);
@@ -129,14 +129,14 @@ export class EnrollmentController {
     }
 
 
-    @Post('upgrade/:courseId')
-    async upgradeVersion(@Param('courseId') courseId: string, @Req() req: ReqWithRequester) {
+    @Post('upgrade/:courseMasterId')
+    async upgradeVersion(@Param('courseMasterId') courseMasterId: string, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.enrollment.upgradeVersion' },
-                    { courseId, userId: requester.sub }
+                    { courseMasterId, userId: requester.sub }
                 )
             );
             return successResponse({ enrollment: result }, 'Successfully upgraded to latest version');

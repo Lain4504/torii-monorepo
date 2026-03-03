@@ -50,7 +50,7 @@ export default function ForgotPasswordPage() {
 
     return (
         <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
-            <div className="w-full max-w-sm">
+            <div className="w-full max-w-md">
                 <div className="flex flex-col items-center text-center mb-6">
                     <img src="/logo.png" alt="Torii Nihongo" className="h-12 w-auto object-contain mb-2" />
                     <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Cổng quản trị</span>
@@ -73,7 +73,8 @@ export default function ForgotPasswordPage() {
                                 <Button
                                     onClick={() => setEmailSent(false)}
                                     variant="outline"
-                                    className="w-full"
+                                    size="lg"
+                                    className="w-full h-10 font-semibold"
                                 >
                                     Thử lại với email khác
                                 </Button>
@@ -85,7 +86,7 @@ export default function ForgotPasswordPage() {
                                     name="email"
                                     render={({ field, fieldState }) => (
                                         <div className="space-y-2">
-                                            <Label htmlFor={field.name}>Địa chỉ Email</Label>
+                                            <Label htmlFor={field.name} className="text-sm font-semibold">Email</Label>
                                             <Input
                                                 {...field}
                                                 id={field.name}
@@ -97,7 +98,7 @@ export default function ForgotPasswordPage() {
                                         </div>
                                     )}
                                 />
-                                <Button type="submit" className="w-full" disabled={isLoading}>
+                                <Button type="submit" size="lg" className="w-full text-base font-semibold" disabled={isLoading}>
                                     {isLoading && <Spinner className="mr-2" />}
                                     Gửi liên kết
                                 </Button>
@@ -106,7 +107,7 @@ export default function ForgotPasswordPage() {
                         <div className="mt-4 text-center">
                             <Button
                                 variant="link"
-                                onClick={() => navigate('/auth/login')}
+                                onClick={() => navigate('/login')}
                                 className="text-sm"
                             >
                                 <ArrowLeft className="mr-2 size-4" />

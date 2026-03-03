@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
 import type {
-  CourseResponseDTO,
-  CourseSearchResponseDTO,
+  CourseMasterResponseDTO,
+  CourseMasterSearchResponseDTO,
   StandardApiResponse,
   PaginatedApiResponse
 } from '@workspace/schemas';
@@ -10,7 +10,7 @@ import type {
 export interface CurriculumLesson {
   id: string;
   title: string;
-  contentType: 'video' | 'document' | 'assignment';
+  contentType: 'video' | 'document' | 'assignment' | 'quiz';
   videoDuration?: number;
   isUnlocked: boolean;
   isPreview: boolean;
@@ -40,8 +40,8 @@ export const courseApi = {
     jlptLevel?: string;
     status?: string;
     search?: string;
-  } = {}): Promise<PaginatedApiResponse<CourseResponseDTO>> => {
-    const response = await apiClient.get<PaginatedApiResponse<CourseResponseDTO>>('/api/courses', {
+  } = {}): Promise<PaginatedApiResponse<CourseMasterResponseDTO>> => {
+    const response = await apiClient.get<PaginatedApiResponse<CourseMasterResponseDTO>>('/api/course-masters', {
       params,
     });
     return response.data;
@@ -59,8 +59,8 @@ export const courseApi = {
     priceMax?: number;
     rating?: number;
     sort?: string;
-  } = {}): Promise<PaginatedApiResponse<CourseSearchResponseDTO>> => {
-    const response = await apiClient.get<PaginatedApiResponse<CourseSearchResponseDTO>>('/api/courses/advanced-search', {
+  } = {}): Promise<PaginatedApiResponse<CourseMasterSearchResponseDTO>> => {
+    const response = await apiClient.get<PaginatedApiResponse<CourseMasterSearchResponseDTO>>('/api/course-masters/advanced-search', {
       params,
     });
     return response.data;
@@ -70,23 +70,23 @@ export const courseApi = {
    * Validate if a course is ready for scheduling
    */
   validateForScheduling: async (courseId: string): Promise<{ isReady: boolean; message?: string }> => {
-    const response = await apiClient.get<StandardApiResponse<{ isReady: boolean; message?: string }>>(`/api/courses/${courseId}/validate-scheduling`);
+    const response = await apiClient.get<StandardApiResponse<{ isReady: boolean; message?: string }>>(`/api/course-masters/${courseId}/validate-scheduling`);
     return response.data.data!;
   },
 
   /**
    * Get course by slug
    */
-  getCourseBySlug: async (slug: string): Promise<CourseResponseDTO | null> => {
-    const response = await apiClient.get<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/slug/${slug}`);
+  getCourseBySlug: async (slug: string): Promise<CourseMasterResponseDTO | null> => {
+    const response = await apiClient.get<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/course-masters/slug/${slug}`);
     return response.data.data!.course;
   },
 
   /**
    * Get course by id
    */
-  getCourseById: async (id: string): Promise<CourseResponseDTO | null> => {
-    const response = await apiClient.get<StandardApiResponse<{ course: CourseResponseDTO }>>(`/api/courses/${id}`);
+  getCourseById: async (id: string): Promise<CourseMasterResponseDTO | null> => {
+    const response = await apiClient.get<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/course-masters/${id}`);
     return response.data.data!.course;
   },
 
@@ -94,16 +94,24 @@ export const courseApi = {
    * Get course curriculum (modules with lessons)
    */
   getCurriculum: async (courseId: string): Promise<CurriculumResponse> => {
-    const response = await apiClient.get<StandardApiResponse<CurriculumResponse>>(`/api/courses/${courseId}/curriculum`);
+    const response = await apiClient.get<StandardApiResponse<CurriculumResponse>>(`/api/course-masters/${courseId}/curriculum`);
     return response.data.data!;
   },
 
   /**
    * Get courses by type (vod | live)
    */
-  getByType: async (type: 'vod' | 'live'): Promise<CourseResponseDTO[]> => {
-    const response = await apiClient.get<StandardApiResponse<{ courses: CourseResponseDTO[] }>>(`/api/courses/by-type/${type}`);
+  getByType: async (type: 'vod' | 'live'): Promise<CourseMasterResponseDTO[]> => {
+    const response = await apiClient.get<StandardApiResponse<{ courses: CourseMasterResponseDTO[] }>>(`/api/course-masters/by-type/${type}`);
     return response.data.data?.courses ?? [];
+  },
+
+  /**
+   * Get student count for a course
+   */
+  getStudentCount: async (courseId: string): Promise<{ count: number }> => {
+    const response = await apiClient.get<StandardApiResponse<{ count: number }>>(`/api/course-masters/${courseId}/students/count`);
+    return response.data.data!;
   },
 };
 
@@ -118,6 +126,8 @@ export function useCourses(params: {
   priceFilter?: 'all' | 'free' | 'paid';
   sortBy?: string;
   instructorId?: string;
+  topics?: string[];
+  type?: 'VOD' | 'LIVE';
 }) {
   return useQuery({
     queryKey: ['courses', params],
@@ -141,7 +151,9 @@ export function useCourses(params: {
         priceMin,
         priceMax,
         sort: params.sortBy,
-        instructorId: params.instructorId
+        instructorId: params.instructorId,
+        topics: params.topics?.length ? params.topics.join(',') : undefined,
+        type: params.type,
       } as any);
     },
   });
@@ -188,5 +200,16 @@ export function useLiveCourses() {
   return useQuery({
     queryKey: ['courses', 'live'],
     queryFn: () => courseApi.getByType('live'),
+  });
+}
+
+/**
+ * Hook: Get student count
+ */
+export function useStudentCount(courseId?: string) {
+  return useQuery({
+    queryKey: ['courses', courseId, 'studentCount'],
+    queryFn: () => courseApi.getStudentCount(courseId!),
+    enabled: !!courseId,
   });
 }

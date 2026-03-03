@@ -127,6 +127,7 @@ export function LoginForm() {
                 <Button
                     type="button"
                     variant="outline"
+                    size="lg"
                     className="w-full gap-2"
                     onClick={handleGoogleButtonClick}
                     disabled={isLoading || googleLoading}
@@ -159,7 +160,7 @@ export function LoginForm() {
                         control={form.control}
                         render={({ field, fieldState }) => (
                             <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                                <FieldLabel htmlFor={field.name} className="text-sm font-semibold">Email</FieldLabel>
                                 <Input
                                     {...field}
                                     id={field.name}
@@ -178,7 +179,7 @@ export function LoginForm() {
                         render={({ field, fieldState }) => (
                             <Field data-invalid={fieldState.invalid}>
                                 <div className="flex items-center justify-between">
-                                    <FieldLabel htmlFor={field.name}>Mật khẩu</FieldLabel>
+                                    <FieldLabel htmlFor={field.name} className="text-sm font-semibold">Mật khẩu</FieldLabel>
                                     <Link
                                         href="/forgot-password"
                                         className="text-xs font-bold text-primary hover:underline"
@@ -223,7 +224,7 @@ export function LoginForm() {
                 </div>
 
                 {/* Submit Button */}
-                <Button type="submit" className="w-full" disabled={isLoading || googleLoading}>
+                <Button type="submit" size="lg" className="w-full text-base font-semibold" disabled={isLoading || googleLoading}>
                     {isLoading && <Spinner className="mr-2" />}
                     Đăng nhập
                 </Button>

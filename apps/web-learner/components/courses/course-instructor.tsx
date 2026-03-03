@@ -1,11 +1,11 @@
 import { Users } from 'lucide-react'
-import type { CourseResponseDTO } from '@workspace/schemas'
+import type { CourseMasterResponseDTO } from '@workspace/schemas'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Button } from '@workspace/ui/components/button'
 import Image from 'next/image'
 
 interface CourseInstructorProps {
-    course: CourseResponseDTO
+    course: CourseMasterResponseDTO
 }
 
 export function CourseInstructor({ course }: CourseInstructorProps) {

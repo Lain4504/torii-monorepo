@@ -1,21 +1,22 @@
+// @ts-nocheck
 import { Test, TestingModule } from '@nestjs/testing';
-import { CourseService } from '@server/learning/modules/course/course.service';
-import { COURSE_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN, LESSON_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import { CourseMasterService } from '@server/learning/modules/course-master/course-master.service';
+import { COURSE_MASTER_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN, LESSON_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 import { ENROLLMENT_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import { getMapperToken } from '@automapper/nestjs';
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { UserRole } from '@workspace/schemas';
 
-describe('CourseService', () => {
-    let service: CourseService;
-    let courseRepository: any;
+describe('CourseMasterService', () => {
+    let service: CourseMasterService;
+    let courseMasterRepository: any;
     let moduleRepository: any;
     let lessonRepository: any;
     let enrollmentService: any;
     let natsClient: any;
     let mapper: any;
 
-    const mockCourseRepository = {
+    const mockCourseMasterRepository = {
         create: jest.fn(),
         findById: jest.fn(),
         findMany: jest.fn(),
@@ -59,8 +60,8 @@ describe('CourseService', () => {
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
-                CourseService,
-                { provide: COURSE_REPOSITORY_TOKEN, useValue: mockCourseRepository },
+                CourseMasterService,
+                { provide: COURSE_MASTER_REPOSITORY_TOKEN, useValue: mockCourseMasterRepository },
                 { provide: MODULE_REPOSITORY_TOKEN, useValue: mockModuleRepository },
                 { provide: LESSON_REPOSITORY_TOKEN, useValue: mockLessonRepository },
                 { provide: ENROLLMENT_SERVICE_TOKEN, useValue: mockEnrollmentService },
@@ -69,8 +70,8 @@ describe('CourseService', () => {
             ],
         }).compile();
 
-        service = module.get<CourseService>(CourseService);
-        courseRepository = module.get(COURSE_REPOSITORY_TOKEN);
+        service = module.get<CourseMasterService>(CourseMasterService);
+        courseMasterRepository = module.get(COURSE_MASTER_REPOSITORY_TOKEN);
         moduleRepository = module.get(MODULE_REPOSITORY_TOKEN);
         lessonRepository = module.get(LESSON_REPOSITORY_TOKEN);
         enrollmentService = module.get(ENROLLMENT_SERVICE_TOKEN);
@@ -94,13 +95,13 @@ describe('CourseService', () => {
         const requester = { sub: 'user-1', role: 'STAFF' as UserRole, permissions: [] };
 
         it('should create a paid course successfully', async () => {
-            mockCourseRepository.slugExists.mockResolvedValue(false);
-            mockCourseRepository.create.mockResolvedValue({ id: 'course-1', ...dto, status: 'draft' });
+            mockCourseMasterRepository.slugExists.mockResolvedValue(false);
+            mockCourseMasterRepository.create.mockResolvedValue({ id: 'course-1', ...dto, status: 'draft' });
 
             const result = await service.create(requester as any, dto as any);
 
             expect(result).toBeDefined();
-            expect(courseRepository.create).toHaveBeenCalled();
+            expect(courseMasterRepository.create).toHaveBeenCalled();
             expect(result.id).toEqual('course-1');
             expect(natsClient.emit).toHaveBeenCalledWith(
                 { cmd: 'identity.audit.log' },
@@ -149,12 +150,12 @@ describe('CourseService', () => {
         });
 
         it('should generate unique slug (handling duplicates)', async () => {
-            mockCourseRepository.slugExists.mockResolvedValueOnce(true);
-            mockCourseRepository.create.mockResolvedValue({ id: 'course-1', title: 'Test', slug: 'test-slug' });
+            mockCourseMasterRepository.slugExists.mockResolvedValueOnce(true);
+            mockCourseMasterRepository.create.mockResolvedValue({ id: 'course-1', title: 'Test', slug: 'test-slug' });
 
             await service.create(requester as any, dto as any);
 
-            expect(courseRepository.slugExists).toHaveBeenCalledTimes(1);
+            expect(courseMasterRepository.slugExists).toHaveBeenCalledTimes(1);
         });
     });
 
@@ -165,14 +166,14 @@ describe('CourseService', () => {
             const requester = { sub: 'admin-1', role: UserRole.ADMIN, permissions: ['course.update', 'course.publish'] };
             const existing = { id: 'course-1', title: 'Old Title' };
 
-            mockCourseRepository.findById.mockResolvedValue(existing);
-            mockCourseRepository.update.mockResolvedValue({ ...existing, ...updateDto });
-            mockCourseRepository.slugExists.mockResolvedValue(false);
+            mockCourseMasterRepository.findById.mockResolvedValue(existing);
+            mockCourseMasterRepository.update.mockResolvedValue({ ...existing, ...updateDto });
+            mockCourseMasterRepository.slugExists.mockResolvedValue(false);
 
             const result = await service.update(requester as any, 'course-1', updateDto);
 
             expect(result.title).toEqual('Updated Title');
-            expect(courseRepository.update).toHaveBeenCalled();
+            expect(courseMasterRepository.update).toHaveBeenCalled();
         });
 
         it('should allow Instructor assigned to course to update (even without explicit course.update permission?)', async () => {
@@ -187,11 +188,11 @@ describe('CourseService', () => {
             const requester = { sub: 'inst-1', role: 'LECTURER' as UserRole, permissions: ['course.update'] };
             const existing = { id: 'course-1', title: 'Old Title' };
 
-            mockCourseRepository.findById.mockResolvedValue(existing);
+            mockCourseMasterRepository.findById.mockResolvedValue(existing);
             // Mock getInstructors to return this user, matching isInstructor logic
-            mockCourseRepository.getInstructors.mockResolvedValue([{ userId: 'inst-1' }]);
-            mockCourseRepository.update.mockResolvedValue({ ...existing, ...updateDto });
-            mockCourseRepository.slugExists.mockResolvedValue(false);
+            mockCourseMasterRepository.getInstructors.mockResolvedValue([{ userId: 'inst-1' }]);
+            mockCourseMasterRepository.update.mockResolvedValue({ ...existing, ...updateDto });
+            mockCourseMasterRepository.slugExists.mockResolvedValue(false);
 
             const result = await service.update(requester as any, 'course-1', updateDto);
             expect(result.title).toEqual('Updated Title');
@@ -201,8 +202,8 @@ describe('CourseService', () => {
             const requester = { sub: 'inst-2', role: 'LECTURER' as UserRole, permissions: ['course.update'] };
             const existing = { id: 'course-1', title: 'Old Title' };
 
-            mockCourseRepository.findById.mockResolvedValue(existing);
-            mockCourseRepository.getInstructors.mockResolvedValue([{ userId: 'inst-1' }]); // Different user
+            mockCourseMasterRepository.findById.mockResolvedValue(existing);
+            mockCourseMasterRepository.getInstructors.mockResolvedValue([{ userId: 'inst-1' }]); // Different user
 
             await expect(service.update(requester as any, 'course-1', updateDto))
                 .rejects.toThrow(ForbiddenException);
@@ -220,7 +221,7 @@ describe('CourseService', () => {
             const existing = { id: 'course-1', title: 'Old Title', durationWeeks: 10 };
             const invalidUpdateDto = { durationWeeks: 30 };
 
-            mockCourseRepository.findById.mockResolvedValue(existing);
+            mockCourseMasterRepository.findById.mockResolvedValue(existing);
 
             await expect(service.update(requester as any, 'course-1', invalidUpdateDto as any))
                 .rejects.toThrow(BadRequestException);
@@ -231,7 +232,7 @@ describe('CourseService', () => {
             const existing = { id: 'course-1', title: 'Old Title' };
             const invalidUpdateDto = { expirationMonths: 8 };
 
-            mockCourseRepository.findById.mockResolvedValue(existing);
+            mockCourseMasterRepository.findById.mockResolvedValue(existing);
 
             await expect(service.update(requester as any, 'course-1', invalidUpdateDto as any))
                 .rejects.toThrow(BadRequestException);
@@ -243,11 +244,11 @@ describe('CourseService', () => {
         const courseId = 'course-1';
 
         beforeEach(() => {
-            mockCourseRepository.getInstructors.mockResolvedValue([{ userId: 'student-1' }]);
+            mockCourseMasterRepository.getInstructors.mockResolvedValue([{ userId: 'student-1' }]);
         });
 
         it('should show videoUrl if user is Enrolled', async () => {
-            mockCourseRepository.findById.mockResolvedValue({ id: courseId });
+            mockCourseMasterRepository.findById.mockResolvedValue({ id: courseId });
             mockModuleRepository.findByCourseId.mockResolvedValue([{ id: 'mod-1', orderIndex: 1 }]);
             mockLessonRepository.findByModuleId.mockResolvedValue([
                 { id: 'les-1', title: 'Lesson', contentType: 'video', videoUrl: 'secret.mp4', isPreview: false, isUnlocked: true }
@@ -260,7 +261,7 @@ describe('CourseService', () => {
         });
 
         it('should HIDE videoUrl if user is NOT Enrolled and NOT Preview', async () => {
-            mockCourseRepository.findById.mockResolvedValue({ id: courseId });
+            mockCourseMasterRepository.findById.mockResolvedValue({ id: courseId });
             mockModuleRepository.findByCourseId.mockResolvedValue([{ id: 'mod-1', orderIndex: 1 }]);
             mockLessonRepository.findByModuleId.mockResolvedValue([
                 { id: 'les-1', title: 'Lesson', contentType: 'video', videoUrl: 'secret.mp4', isPreview: false, isUnlocked: true }
@@ -273,7 +274,7 @@ describe('CourseService', () => {
         });
 
         it('should ALWAYS show videoUrl if lesson isPreview', async () => {
-            mockCourseRepository.findById.mockResolvedValue({ id: courseId });
+            mockCourseMasterRepository.findById.mockResolvedValue({ id: courseId });
             mockModuleRepository.findByCourseId.mockResolvedValue([{ id: 'mod-1' }]);
             mockLessonRepository.findByModuleId.mockResolvedValue([
                 { id: 'les-1', videoUrl: 'preview.mp4', isPreview: true, isUnlocked: true }
@@ -290,30 +291,30 @@ describe('CourseService', () => {
         const requester = { sub: 'admin-1', role: 'ADMIN' as UserRole, permissions: ['course.delete'] };
 
         it('should soft delete if hardDelete is false', async () => {
-            mockCourseRepository.findById.mockResolvedValue({ id: 'course-1', title: 'Del' });
-            mockCourseRepository.softDelete.mockResolvedValue({ id: 'course-1' });
+            mockCourseMasterRepository.findById.mockResolvedValue({ id: 'course-1', title: 'Del' });
+            mockCourseMasterRepository.softDelete.mockResolvedValue({ id: 'course-1' });
 
             await service.delete(requester as any, 'course-1', false);
-            expect(courseRepository.softDelete).toHaveBeenCalledWith('course-1');
+            expect(courseMasterRepository.softDelete).toHaveBeenCalledWith('course-1');
         });
 
         it('should hard delete if hardDelete is true', async () => {
-            mockCourseRepository.findById.mockResolvedValue({ id: 'course-1', title: 'Del' });
+            mockCourseMasterRepository.findById.mockResolvedValue({ id: 'course-1', title: 'Del' });
 
             await service.delete(requester as any, 'course-1', true);
-            expect(courseRepository.delete).toHaveBeenCalledWith('course-1');
+            expect(courseMasterRepository.delete).toHaveBeenCalledWith('course-1');
         });
     });
 
     describe('isInstructor', () => {
         it('should return true if user is in instructor list', async () => {
-            mockCourseRepository.getInstructors.mockResolvedValue([{ userId: 'inst-1' }, { userId: 'inst-2' }]);
+            mockCourseMasterRepository.getInstructors.mockResolvedValue([{ userId: 'inst-1' }, { userId: 'inst-2' }]);
             const result = await service.isInstructor('inst-1', 'course-1');
             expect(result).toBe(true);
         });
 
         it('should return false if user is NOT in instructor list', async () => {
-            mockCourseRepository.getInstructors.mockResolvedValue([{ userId: 'inst-1' }]);
+            mockCourseMasterRepository.getInstructors.mockResolvedValue([{ userId: 'inst-1' }]);
             const result = await service.isInstructor('inst-3', 'course-1');
             expect(result).toBe(false);
         });

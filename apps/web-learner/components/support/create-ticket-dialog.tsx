@@ -37,15 +37,15 @@ const createTicketSchema = z.object({
     type: z.nativeEnum(TicketType),
     subject: z.string().min(5, 'Tiêu đề phải ít nhất 5 ký tự'),
     description: z.string().min(10, 'Nội dung phải ít nhất 10 ký tự'),
-    courseId: z.string().optional(),
+    courseMasterId: z.string().optional(),
 }).refine((data) => {
-    if (data.type === TicketType.REFUND && !data.courseId) {
+    if (data.type === TicketType.REFUND && !data.courseMasterId) {
         return false;
     }
     return true;
 }, {
     message: "Vui lòng chọn khóa học cần hoàn tiền",
-    path: ["courseId"],
+    path: ["courseMasterId"],
 });
 
 type CreateTicketFormValues = z.infer<typeof createTicketSchema>;
@@ -66,7 +66,7 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
             type: TicketType.SUPPORT,
             subject: '',
             description: '',
-            courseId: '',
+            courseMasterId: '',
         },
     });
 
@@ -89,7 +89,7 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
 
     const onSubmit = async (values: CreateTicketFormValues) => {
         try {
-            const selectedEnrollment = (enrollments as any[]).find((en: any) => en.courseId === values.courseId);
+            const selectedEnrollment = (enrollments as any[]).find((en: any) => en.course?.id === values.courseMasterId);
             const orderId = selectedEnrollment?.orderId;
 
             await createTicketMutation.mutateAsync({
@@ -97,7 +97,7 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
                 subject: values.subject,
                 description: values.description,
                 metadata: values.type === TicketType.REFUND ? {
-                    courseId: values.courseId,
+                    courseMasterId: values.courseMasterId,
                     orderId: orderId
                 } : {},
             });
@@ -152,20 +152,20 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
                                 <Field>
                                     <FieldLabel>Khóa học hoàn tiền</FieldLabel>
                                     <Select
-                                        onValueChange={(val) => setValue('courseId', val)}
+                                        onValueChange={(val) => setValue('courseMasterId', val)}
                                     >
                                         <SelectTrigger>
                                             <SelectValue placeholder={isLoadingEnrollments ? "Đang tải..." : "Chọn khóa học"} />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {enrollments.map((en: any) => (
-                                                <SelectItem key={en.courseId} value={en.courseId}>
+                                                <SelectItem key={en.course?.id} value={en.course?.id}>
                                                     {en.course?.title}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    {errors.courseId && <p className="text-xs text-destructive">{errors.courseId.message}</p>}
+                                    {errors.courseMasterId && <p className="text-xs text-destructive">{errors.courseMasterId.message}</p>}
                                 </Field>
                             )}
 

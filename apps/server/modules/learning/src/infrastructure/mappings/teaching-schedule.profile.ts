@@ -26,10 +26,6 @@ export class TeachingScheduleProfile extends AutomapperProfile {
                     mapFrom((src: any) => src.id),
                 ),
                 forMember(
-                    (dest: TeachingScheduleResponseDTO) => dest.courseId,
-                    mapFrom((src: any) => src.courseId),
-                ),
-                forMember(
                     (dest: TeachingScheduleResponseDTO) => dest.lecturerId,
                     mapFrom((src: any) => src.lecturerId),
                 ),
@@ -52,12 +48,6 @@ export class TeachingScheduleProfile extends AutomapperProfile {
                 forMember(
                     (dest: TeachingScheduleResponseDTO) => dest.updatedAt,
                     mapFrom((src: any) => src.updatedAt),
-                ),
-                forMember(
-                    (dest: TeachingScheduleResponseDTO) => dest.course,
-                    mapFrom((src: any) =>
-                        src.course ? { id: src.course.id, title: src.course.title } : undefined,
-                    ),
                 ),
                 forMember(
                     (dest: TeachingScheduleResponseDTO) => dest.lecturer,
@@ -85,10 +75,6 @@ export class TeachingScheduleProfile extends AutomapperProfile {
                 forMember(
                     (dest: ScheduleRequestResponseDTO) => dest.originalScheduleId,
                     mapFrom((src: any) => src.originalScheduleId),
-                ),
-                forMember(
-                    (dest: ScheduleRequestResponseDTO) => dest.courseId,
-                    mapFrom((src: any) => src.courseId),
                 ),
                 forMember(
                     (dest: ScheduleRequestResponseDTO) => dest.dayOfWeek,
@@ -124,12 +110,6 @@ export class TeachingScheduleProfile extends AutomapperProfile {
                         src.lecturer
                             ? { id: src.lecturer.id, displayName: src.lecturer.displayName }
                             : undefined,
-                    ),
-                ),
-                forMember(
-                    (dest: ScheduleRequestResponseDTO) => dest.course,
-                    mapFrom((src: any) =>
-                        src.course ? { id: src.course.id, title: src.course.title } : undefined,
                     ),
                 ),
             );

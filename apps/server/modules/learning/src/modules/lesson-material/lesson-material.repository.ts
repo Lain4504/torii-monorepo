@@ -123,9 +123,13 @@ export class LessonMaterialRepository implements ILessonMaterialRepository {
             include: {
                 module: {
                     include: {
-                        course: {
-                            select: {
-                                lecturerId: true,
+                        courseMaster: {
+                            include: {
+                                courseRuns: {
+                                    select: {
+                                        lecturerId: true,
+                                    },
+                                },
                             },
                         },
                     },
@@ -133,8 +137,11 @@ export class LessonMaterialRepository implements ILessonMaterialRepository {
             },
         });
 
-        // Check if lesson exists and lecturer is assigned to the course
-        return !!(lesson && lesson.module.course.lecturerId === lecturerId);
+        // Check if lesson exists and lecturer is teaching one of the course runs
+        if (!lesson) return false;
+        
+        // Lecturer who teaches any run of this course master can edit materials
+        return lesson.module.courseMaster.courseRuns.some(run => run.lecturerId === lecturerId);
     }
 
     /**

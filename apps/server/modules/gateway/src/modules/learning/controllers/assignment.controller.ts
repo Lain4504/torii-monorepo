@@ -73,9 +73,12 @@ export class AssignmentController {
 
     @Get(':id/submissions')
     @Permissions('submission.grade')
-    async getSubmissions(@Param('id', new ParseUUIDPipe()) id: string) {
+    async getSubmissions(
+        @Param('id', new ParseUUIDPipe()) id: string,
+        @Query('courseRunId') courseRunId?: string
+    ) {
         const result = await firstValueFrom(
-            this.natsClient.send({ cmd: 'learning.submission.findAll' }, { assignmentId: id })
+            this.natsClient.send({ cmd: 'learning.submission.findAll' }, { assignmentId: id, courseRunId })
         );
         return successResponse({ submissions: result });
     }

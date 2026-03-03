@@ -50,13 +50,14 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
         reset,
         formState: { isDirty },
     } = useForm<UpdateLessonFormData>({
-        resolver: zodResolver(updateLessonSchema),
+        resolver: zodResolver(updateLessonSchema) as any,
         defaultValues: {
             title: '',
             contentType: LessonContentType.VIDEO,
-            orderIndex: 0,
-            isPreview: false,
             isUnlocked: false,
+            durationMinutes: 0,
+            videoUrl: '',
+            articleContent: '',
         },
     });
 
@@ -68,9 +69,9 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
                 contentType: lesson.contentType as LessonContentType,
                 videoUrl: lesson.videoUrl,
                 articleContent: lesson.articleContent,
-                orderIndex: lesson.orderIndex,
                 isPreview: lesson.isPreview,
                 isUnlocked: lesson.isUnlocked,
+                durationMinutes: lesson.durationMinutes || 0,
             });
         }
     }, [lesson, reset]);
@@ -95,7 +96,7 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
         return confirmResult.fileUrl;
     };
 
-    const onSubmitForm = async (data: UpdateLessonFormData) => {
+    const onSubmitForm = async (data: any) => {
         if (!lesson) return;
 
         setUploading(true);
@@ -106,8 +107,10 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
                 videoUrl = await handleFileUpload(videoFile, 'lesson-videos');
             }
 
+            // Không cho user chỉnh orderIndex: loại bỏ khỏi payload nếu tồn tại
+            const { orderIndex, ...rest } = data as any;
             const updateData = {
-                ...data,
+                ...rest,
                 videoUrl,
             };
 
@@ -130,7 +133,7 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Chỉnh Sửa Bài Học</SheetTitle>
                     <SheetDescription>
@@ -190,15 +193,15 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
 
                                     <Controller
                                         control={control}
-                                        name="orderIndex"
+                                        name="durationMinutes"
                                         render={({ field, fieldState }) => (
                                             <Field className="space-y-1" data-invalid={fieldState.invalid}>
-                                                <FieldLabel htmlFor={field.name}>Thứ Tự</FieldLabel>
+                                                <FieldLabel htmlFor={field.name}>Thời Lượng (phút)</FieldLabel>
                                                 <Input
                                                     id={field.name}
                                                     type="number"
                                                     {...field}
-                                                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                                    onChange={(e) => field.onChange(e.target.value === '' ? 0 : e.target.valueAsNumber)}
                                                 />
                                             </Field>
                                         )}

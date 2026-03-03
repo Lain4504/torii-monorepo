@@ -27,23 +27,23 @@ import {
     ReqWithRequester,
     ZodValidationPipe,
 } from '@server/shared';
-import { CourseSearchRequestDTO, courseSearchRequestDTOSchema } from '@workspace/schemas';
+import { CourseMasterSearchRequestDTO, courseMasterSearchRequestDTOSchema } from '@workspace/schemas';
 
-@Controller('api/courses')
+@Controller('api/course-masters')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
-export class CourseController {
+export class CourseMasterController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Post('search')
     @Permissions('course.view_restricted', 'course.view_my')
     async searchCourses(
-        @Body(new ZodValidationPipe(courseSearchRequestDTOSchema)) dto: CourseSearchRequestDTO,
+        @Body(new ZodValidationPipe(courseMasterSearchRequestDTOSchema)) dto: CourseMasterSearchRequestDTO,
         @Req() req: ReqWithRequester
     ) {
         const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
-                { cmd: 'learning.course.findAll' },
+                { cmd: 'learning.coursemaster.findAll' },
                 { query: dto, requester }
             )
         );
@@ -56,7 +56,7 @@ export class CourseController {
     async createCourse(@Body() dto: any, @Req() req: ReqWithRequester) {
         const result = await firstValueFrom(
             this.natsClient.send(
-                { cmd: 'learning.course.create' },
+                { cmd: 'learning.coursemaster.create' },
                 { ...dto, requester: req.requester }
             )
         );
@@ -78,7 +78,7 @@ export class CourseController {
     @Public()
     async advancedSearch(@Query() query: any) {
         const result = await firstValueFrom(
-            this.natsClient.send({ cmd: 'learning.course.advancedSearch' }, query)
+            this.natsClient.send({ cmd: 'learning.coursemaster.advancedSearch' }, query)
         );
         return successPaginatedResponse(result);
     }
@@ -87,7 +87,7 @@ export class CourseController {
     @Public()
     async getByType(@Param('type') type: 'vod' | 'live') {
         const result = await firstValueFrom(
-            this.natsClient.send({ cmd: 'learning.course.getByType' }, { type })
+            this.natsClient.send({ cmd: 'learning.coursemaster.getByType' }, { type })
         );
         return successResponse({ courses: result });
     }
@@ -110,7 +110,7 @@ export class CourseController {
         }
 
         const result = await firstValueFrom(
-            this.natsClient.send({ cmd: 'learning.course.findAll' }, { query, requester })
+            this.natsClient.send({ cmd: 'learning.coursemaster.findAll' }, { query, requester })
         );
         return successPaginatedResponse(result);
     }
@@ -120,7 +120,7 @@ export class CourseController {
     async getCourse(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
         const result = await firstValueFrom(
             this.natsClient.send(
-                { cmd: 'learning.course.findById' },
+                { cmd: 'learning.coursemaster.findById' },
                 { id, requester: req.requester }
             )
         );
@@ -132,7 +132,7 @@ export class CourseController {
     async getCourseBySlug(@Param('slug') slug: string, @Req() req: ReqWithRequester) {
         const result = await firstValueFrom(
             this.natsClient.send(
-                { cmd: 'learning.course.findBySlug' },
+                { cmd: 'learning.coursemaster.findBySlug' },
                 { slug, requester: req.requester }
             )
         );
@@ -148,7 +148,7 @@ export class CourseController {
     ) {
         const result = await firstValueFrom(
             this.natsClient.send(
-                { cmd: 'learning.course.update' },
+                { cmd: 'learning.coursemaster.update' },
                 { id, ...dto, requester: req.requester }
             )
         );
@@ -160,7 +160,7 @@ export class CourseController {
     async deleteCourse(@Param('id') id: string, @Req() req: ReqWithRequester) {
         await firstValueFrom(
             this.natsClient.send(
-                { cmd: 'learning.course.delete' },
+                { cmd: 'learning.coursemaster.delete' },
                 { id, requester: req.requester }
             )
         );
@@ -177,7 +177,7 @@ export class CourseController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.enrollment.check' },
-                    { courseId: id, requester },
+                    { courseMasterId: id, requester },
                 ),
             );
             return successResponse(result);
@@ -187,11 +187,10 @@ export class CourseController {
     }
 
     @Get(':id/curriculum')
-    @Public()
     async getCurriculum(@Param('id') id: string, @Req() req: ReqWithRequester) {
         const result = await firstValueFrom(
             this.natsClient.send(
-                { cmd: 'learning.course.getCurriculum' },
+                { cmd: 'learning.coursemaster.getCurriculum' },
                 { id, requester: req.requester }
             )
         );
@@ -203,7 +202,7 @@ export class CourseController {
     async unpublishCourse(@Param('id') id: string, @Req() req: ReqWithRequester) {
         const result = await firstValueFrom(
             this.natsClient.send(
-                { cmd: 'learning.course.unpublish' },
+                { cmd: 'learning.coursemaster.unpublish' },
                 { id, requester: req.requester }
             )
         );
@@ -215,7 +214,7 @@ export class CourseController {
     async updateLiveConfig(@Param('id', new ParseUUIDPipe()) id: string, @Body() config: any, @Req() req: ReqWithRequester) {
         const result = await firstValueFrom(
             this.natsClient.send(
-                { cmd: 'learning.course.updateLiveConfig' },
+                { cmd: 'learning.coursemaster.updateLiveConfig' },
                 { id, config, requester: req.requester }
             )
         );
@@ -227,7 +226,7 @@ export class CourseController {
     async submitForReview(@Param('id') id: string, @Req() req: ReqWithRequester) {
         const result = await firstValueFrom(
             this.natsClient.send(
-                { cmd: 'learning.course.submitForReview' },
+                { cmd: 'learning.coursemaster.submitForReview' },
                 { id, requester: req.requester }
             )
         );
@@ -239,7 +238,7 @@ export class CourseController {
     async publishCourse(@Param('id') id: string, @Req() req: ReqWithRequester) {
         const result = await firstValueFrom(
             this.natsClient.send(
-                { cmd: 'learning.course.publish' },
+                { cmd: 'learning.coursemaster.publish' },
                 { id, requester: req.requester }
             )
         );
@@ -255,11 +254,23 @@ export class CourseController {
     ) {
         const result = await firstValueFrom(
             this.natsClient.send(
-                { cmd: 'learning.course.reject' },
+                { cmd: 'learning.coursemaster.reject' },
                 { id, reason: body.reason, requester: req.requester }
             )
         );
         return successResponse({ course: result }, 'Course rejected successfully');
+    }
+
+    @Get(':id/versions')
+    @Permissions('course.view_restricted', 'course.view_my', 'course.update')
+    async getVersionHistory(@Param('id') id: string) {
+        const result = await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'learning.coursemaster.getVersionHistory' },
+                { id }
+            )
+        );
+        return successResponse({ versions: result }, 'Version history retrieved successfully');
     }
 
     @Get(':id/validate-scheduling')
@@ -267,11 +278,22 @@ export class CourseController {
     async validateScheduling(@Param('id') id: string) {
         const result = await firstValueFrom(
             this.natsClient.send(
-                { cmd: 'learning.course.validateScheduling' },
+                { cmd: 'learning.coursemaster.validateScheduling' },
                 { id }
             )
         );
         return successResponse(result);
     }
 
+    @Get(':id/students/count')
+    @Public()
+    async getStudentCount(@Param('id', new ParseUUIDPipe()) id: string) {
+        const result = await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'learning.coursemaster.getStudentCount' },
+                { id }
+            )
+        );
+        return successResponse(result);
+    }
 }

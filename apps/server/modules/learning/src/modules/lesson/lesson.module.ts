@@ -4,7 +4,7 @@ import { LessonService } from '@server/learning/modules/lesson/lesson.service';
 import { LessonRepository } from '@server/learning/modules/lesson/lesson.repository';
 import { LESSON_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 import { LESSON_SERVICE_TOKEN } from '@server/learning/interfaces/services';
-import { CourseModule } from '@server/learning/modules/course/course.module';
+import { CourseMasterModule } from '@server/learning/modules/course-master/course-master.module';
 import { ModuleModule } from '@server/learning/modules/module/module.module';
 import { EnrollmentModule } from '@server/learning/modules/enrollment/enrollment.module';
 import { LessonProfile } from '@server/learning/infrastructure/mappings/lesson.profile';
@@ -16,7 +16,7 @@ import { LessonProfile } from '@server/learning/infrastructure/mappings/lesson.p
 @Module({
   imports: [
     NatsClientModule,
-    forwardRef(() => CourseModule),
+    forwardRef(() => CourseMasterModule),
     forwardRef(() => ModuleModule),
     forwardRef(() => EnrollmentModule),
   ],

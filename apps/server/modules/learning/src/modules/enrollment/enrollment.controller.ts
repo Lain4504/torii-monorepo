@@ -8,9 +8,9 @@ import type { EnrollmentQueryDTO, EnrollmentCreateDTO } from '@workspace/schemas
 export class EnrollmentController {
     constructor(private readonly enrollmentService: EnrollmentService) { }
 
-    @Get('course/:courseId')
-    async findByCourse(@Param('courseId') courseId: string, @Query() query: EnrollmentQueryDTO) {
-        return this.enrollmentService.findAll({ ...query, courseId });
+    @Get('course/:courseMasterId')
+    async findByCourse(@Param('courseMasterId') courseMasterId: string, @Query() query: EnrollmentQueryDTO) {
+        return this.enrollmentService.findAll({ ...query, courseMasterId });
     }
 
     @Get()

@@ -1,4 +1,4 @@
-﻿import { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useForm, Controller, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { moduleCreateDTOSchema, type ModuleResponseDTO, type ModuleCreateDTO } from '@workspace/schemas';
@@ -37,12 +37,12 @@ type CreateModuleFormData = ModuleCreateDTO;
 interface CreateModuleDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    courseId?: string;
+    courseMasterId?: string;
     existingModules?: ModuleResponseDTO[];
     courseTitle?: string;
 }
 
-export function CreateModuleSheet({ open, onOpenChange, courseId, existingModules = [], courseTitle }: CreateModuleDialogProps) {
+export function CreateModuleSheet({ open, onOpenChange, courseMasterId, existingModules = [], courseTitle }: CreateModuleDialogProps) {
     const createModule = useCreateModule();
 
     const existingTitles = existingModules.map((m) => m.title.trim());
@@ -58,24 +58,24 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
         // The schema is compatible with ModuleCreateDTO, but we cast to satisfy React Hook Form's Resolver typing.
         resolver: zodResolver(createModuleSchema) as any,
         defaultValues: {
-            courseId: courseId || '',
+            courseMasterId: courseMasterId || '',
             title: '',
+            description: '',
             orderIndex: existingModules.length + 1,
-            durationMinutes: 0,
         },
     });
 
     // Reset form when courseId changes
     useEffect(() => {
-        if (courseId) {
+        if (courseMasterId) {
             reset({
-                courseId: courseId,
+                courseMasterId: courseMasterId,
                 title: '',
+                description: '',
                 orderIndex: existingModules.length + 1,
-                durationMinutes: 0,
             });
         }
-    }, [courseId, reset, existingModules.length]);
+    }, [courseMasterId, reset, existingModules.length]);
 
     const onSubmitForm: SubmitHandler<CreateModuleFormData> = async (data) => {
         try {
@@ -87,7 +87,7 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
             reset();
         } catch (error: any) {
             toast.error('Tạo thất bại', {
-                description: error.response?.data?.error || error.message,
+                description: error.response?.data?.message || error.userMessage || error.message,
             });
         }
     };
@@ -110,7 +110,7 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
                 <form onSubmit={handleSubmit(onSubmitForm)} className="flex flex-col h-full overflow-hidden" noValidate>
                     <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
-                            <input type="hidden" {...register('courseId')} />
+                            <input type="hidden" {...register('courseMasterId')} />
 
                             <Controller
                                 control={control}
@@ -156,29 +156,13 @@ export function CreateModuleSheet({ open, onOpenChange, courseId, existingModule
                                                 id={field.name}
                                                 type="number"
                                                 {...field}
-                                                onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                                onChange={(e) => field.onChange(e.target.value === '' ? 0 : e.target.valueAsNumber)}
                                             />
                                             <FieldError errors={[fieldState.error]} />
                                         </Field>
                                     )}
                                 />
 
-                                <Controller
-                                    control={control}
-                                    name="durationMinutes"
-                                    render={({ field, fieldState }) => (
-                                        <Field className="space-y-1" data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor={field.name}>Thời Lượng (phút)</FieldLabel>
-                                            <Input
-                                                id={field.name}
-                                                type="number"
-                                                {...field}
-                                                onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                            />
-                                            <FieldError errors={[fieldState.error]} />
-                                        </Field>
-                                    )}
-                                />
                             </div>
                         </div>
                     </ScrollArea>

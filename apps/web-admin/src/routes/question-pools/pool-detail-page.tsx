@@ -18,6 +18,7 @@ import { PoolQuestionsTable } from '@/components/question-pools/pool-questions-t
 import { QuestionFormSheet } from '@/components/questions/question-form-sheet';
 import { QuestionDetailSheet } from '@/components/questions/question-detail-sheet';
 import { DeleteQuestionDialog } from '@/components/questions/delete-question-dialog.tsx';
+import { formatDate } from '@/lib/format-utils';
 
 export default function PoolDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -78,7 +79,7 @@ export default function PoolDetailPage() {
                     stats={[
                         { label: "Tổng số câu hỏi", value: questions.length },
                         { label: "Cấp độ", value: pool.jlptLevel || 'GLOBAL' },
-                        { label: "Lần cuối cập nhật", value: new Date(pool.updatedAt).toLocaleDateString('vi-VN') },
+                        { label: "Lần cuối cập nhật", value: formatDate(pool.updatedAt) },
                     ]}
                     actions={
                         <Button

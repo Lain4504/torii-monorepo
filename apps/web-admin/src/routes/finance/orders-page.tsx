@@ -105,7 +105,7 @@ export default function OrdersPage() {
         order.orderType,
         order.paymentMethod,
         getStatusLabel(order.status),
-        new Date(order.createdAt).toLocaleString('vi-VN')
+        formatDateTime(order.createdAt)
       ]);
 
       const csvContent =
@@ -363,7 +363,7 @@ export default function OrdersPage() {
               order.orderType,
               order.paymentMethod,
               getStatusLabel(order.status),
-              new Date(order.createdAt).toLocaleString('vi-VN')
+              formatDateTime(order.createdAt)
             ]];
             const csvContent =
               "data:text/csv;charset=utf-8,\uFEFF" +

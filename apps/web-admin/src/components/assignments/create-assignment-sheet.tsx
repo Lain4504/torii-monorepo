@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -29,40 +29,63 @@ import {
   SelectTrigger,
   SelectValue
 } from "@workspace/ui/components/select";
-import { Checkbox } from "@workspace/ui/components/checkbox";
+import { Switch } from "@workspace/ui/components/switch";
 import { ScrollArea } from "@workspace/ui/components/scroll-area";
 import { TiptapEditor } from "@workspace/ui/components/tiptap-editor";
 import { MultiFileUpload } from "@/components/common/multi-file-upload";
 import type { CreateAssignmentDto } from "@workspace/schemas";
-import { AssignmentType } from "@workspace/schemas";
+import { AssignmentType, LessonContentType } from "@workspace/schemas";
 import { useCreateAssignment } from "@/lib/api/services/assignments";
 import { toast } from "@workspace/ui/components/sonner";
-import { Paperclip, Info } from "lucide-react";
+import { Paperclip, Info, List } from "lucide-react";
 import { Textarea } from "@workspace/ui/components/textarea";
 import { Spinner } from "@workspace/ui/components/spinner";
+import { useCourseRun } from '@/lib/api/services/course-runs';
+import { useCourseModules } from '@/lib/api/services/modules';
+import { useModulesLessons } from '@/lib/api/services/lesson';
 
 interface CreateAssignmentSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  courseId?: string;
   moduleId?: string;
   lessonId?: string;
+  courseRunId?: string;
 }
 
 export function CreateAssignmentSheet({
   open,
   onOpenChange,
-  courseId,
   moduleId,
   lessonId,
+  courseRunId,
 }: CreateAssignmentSheetProps) {
   const createMutation = useCreateAssignment();
+  const { data: courseRun } = useCourseRun(courseRunId || '');
+  const { data: modules = [] } = useCourseModules(courseRun?.courseMasterId || '');
+  const modulesLessonsQueries = useModulesLessons(modules);
+  const [selectedLessonId, setSelectedLessonId] = useState<string>(lessonId || '');
+
+  // Filter lessons to only show Assignment type
+  const assignmentLessons = useMemo(() => {
+    const allLessons = modulesLessonsQueries
+      .map(query => query.data?.data || [])
+      .flat();
+    
+    return allLessons.filter(lesson => 
+      lesson.contentType === LessonContentType.ASSIGNMENT
+    );
+  }, [modulesLessonsQueries]);
+
+  useEffect(() => {
+    if (lessonId) {
+      setSelectedLessonId(lessonId);
+    }
+  }, [lessonId]);
 
   const formSchema = z.object({
     title: z.string().min(1, "Vui lòng nhập tiêu đề"),
     description: z.string().min(1, "Vui lòng nhập mô tả"),
     type: z.nativeEnum(AssignmentType),
-    courseId: z.string().optional(),
     moduleId: z.string().optional(),
     lessonId: z.string().optional(),
     maxScore: z.number().min(0).max(1000),
@@ -81,7 +104,6 @@ export function CreateAssignmentSheet({
       title: "",
       description: "",
       type: AssignmentType.TEXT,
-      courseId,
       moduleId,
       lessonId,
       maxScore: 100,
@@ -101,7 +123,6 @@ export function CreateAssignmentSheet({
         title: "",
         description: "",
         type: AssignmentType.TEXT,
-        courseId,
         moduleId,
         lessonId,
         maxScore: 100,
@@ -113,7 +134,7 @@ export function CreateAssignmentSheet({
         attachmentUrls: [],
       });
     }
-  }, [open, courseId, moduleId, lessonId, form]);
+  }, [open, moduleId, lessonId, form]);
 
   const onSubmit = async (values: CreateAssignmentDto) => {
     try {
@@ -129,6 +150,8 @@ export function CreateAssignmentSheet({
       const data = {
         ...values,
         dueDate,
+        ...(courseRunId ? { courseRunId } : {}),
+        ...((selectedLessonId && selectedLessonId !== 'none') ? { lessonId: selectedLessonId } : {}),
       };
       await createMutation.mutateAsync(data);
       toast.success("Tạo bài tập thành công");
@@ -145,7 +168,7 @@ export function CreateAssignmentSheet({
         <SheetHeader>
           <SheetTitle>Tạo Bài Tập Mới</SheetTitle>
           <SheetDescription>
-            Cấu hình các thông số cho bài tập của học viên
+            Cấu hình các thông số bài tập cho học viên trong lớp học này
           </SheetDescription>
         </SheetHeader>
 
@@ -202,6 +225,42 @@ export function CreateAssignmentSheet({
                     </Field>
                   )}
                 />
+
+                {courseRunId && (
+                  <Field>
+                    <FieldLabel className="flex items-center gap-2">
+                      <List className="size-4" />
+                      Gắn với Lesson (Assignment)
+                    </FieldLabel>
+                    <Select value={selectedLessonId} onValueChange={setSelectedLessonId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn lesson có type Assignment..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Không gắn với lesson cụ thể</SelectItem>
+                        {assignmentLessons.length === 0 ? (
+                          <SelectItem value="no-lessons" disabled>
+                            Không có lesson Assignment nào
+                          </SelectItem>
+                        ) : (
+                          assignmentLessons.map((lesson) => (
+                            <SelectItem key={lesson.id} value={lesson.id}>
+                              <div className="flex flex-col">
+                                <span className="font-medium">{lesson.title}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  ✏️ Assignment · ID: {lesson.id.slice(0, 8)}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FieldDescription>
+                      Chọn lesson để gắn bài tập này với nội dung bài học cụ thể
+                    </FieldDescription>
+                  </Field>
+                )}
 
                 <div className="grid grid-cols-2 gap-4">
                   <Controller
@@ -276,21 +335,25 @@ export function CreateAssignmentSheet({
                 </div>
 
                 <FieldSet>
-                  <FieldLegend>Cấu hình nộp muộn</FieldLegend>
+                  <FieldLegend>Cấu hình nộp muộn (tùy chọn)</FieldLegend>
                   <FieldGroup>
                     <Controller
                       control={form.control}
                       name="allowLateSubmission"
                       render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid} className="flex flex-row items-start space-x-3 space-y-0">
-                          <Checkbox
-                            id={field.name}
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                          <div className="space-y-1 leading-none">
-                            <FieldLabel htmlFor={field.name}>Cho phép nộp muộn</FieldLabel>
-                            <FieldDescription>Học viên vẫn có thể nộp sau khi hết hạn</FieldDescription>
+                        <Field data-invalid={fieldState.invalid}>
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="space-y-1 leading-none">
+                              <FieldLabel htmlFor={field.name}>Cho phép nộp muộn</FieldLabel>
+                              <FieldDescription>
+                                Học viên vẫn có thể nộp bài sau hạn, hệ thống không tự trừ điểm.
+                              </FieldDescription>
+                            </div>
+                            <Switch
+                              id={field.name}
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
                           </div>
                         </Field>
                       )}
@@ -302,7 +365,7 @@ export function CreateAssignmentSheet({
                         name="latePenaltyPercent"
                         render={({ field, fieldState }) => (
                           <Field data-invalid={fieldState.invalid}>
-                            <FieldLabel htmlFor={field.name}>Mức phạt (Gợi ý %)</FieldLabel>
+                        <FieldLabel htmlFor={field.name}>Mức phạt gợi ý (%)</FieldLabel>
                             <div className="flex items-center gap-2">
                               <Input
                                 type="number"
@@ -310,12 +373,14 @@ export function CreateAssignmentSheet({
                                 {...field}
                                 onChange={(e) => field.onChange(Number(e.target.value))}
                                 className="w-24"
-                              />
-                              <span className="text-sm font-bold">%</span>
-                            </div>
-                            <FieldDescription>Dùng để hiển thị gợi ý trừ điểm khi giảng viên chấm bài</FieldDescription>
-                            <FieldError errors={[fieldState.error]} />
-                          </Field>
+                            />
+                            <span className="text-sm font-bold">%</span>
+                          </div>
+                          <FieldDescription>
+                            Chỉ hiển thị như gợi ý cho giảng viên khi chấm bài, ví dụ: 10 = trừ 10% tổng điểm.
+                          </FieldDescription>
+                          <FieldError errors={[fieldState.error]} />
+                        </Field>
                         )}
                       />
                     )}

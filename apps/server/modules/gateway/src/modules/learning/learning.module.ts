@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { NatsClientModule } from '@server/shared';
-import { CourseController } from './controllers/course.controller';
+import { CourseMasterController } from './controllers/course.controller';
+import { CourseRunController } from './controllers/course-run.controller';
 
 import { ModuleController } from './controllers/module.controller';
 import { LessonController } from './controllers/lesson.controller';
@@ -11,7 +12,7 @@ import { ExamAdminController } from './controllers/exam-admin.controller';
 import { EnrollmentController } from './controllers/enrollment.controller';
 import { QuestionController } from './controllers/question.controller';
 import { QuestionPoolController } from './controllers/question-pool.controller';
-import { ReviewController } from './controllers/review.controller';
+import { CourseMasterReviewController } from './controllers/review.controller';
 import { LiveSessionController } from './controllers/live-session.controller';
 import { TeachingScheduleController } from './controllers/teaching-schedule.controller';
 import { DiscussionController } from './controllers/discussion.controller';
@@ -19,6 +20,7 @@ import { DiscussionController } from './controllers/discussion.controller';
 import { WishlistController } from './controllers/wishlist.controller';
 import { BlogController } from './controllers/blog.controller';
 import { CommentController } from './controllers/comment.controller';
+import { CartController } from './controllers/cart.controller';
 import { FeedController } from './controllers/feed.controller';
 import { FlashcardDeckController } from './controllers/flashcard-deck.controller';
 import { FlashcardController } from './controllers/flashcard.controller';
@@ -37,9 +39,10 @@ import { NotebookController } from './controllers/notebook.controller';
 @Module({
     imports: [NatsClientModule],
     controllers: [
-        ReviewController,
+        CourseMasterReviewController,
         TeachingScheduleController,
-        CourseController,
+        CourseMasterController,
+        CourseRunController,
         ModuleController,
         LessonController,
         LessonMaterialController,
@@ -53,6 +56,7 @@ import { NotebookController } from './controllers/notebook.controller';
         WishlistController,
         BlogController,
         CommentController,
+        CartController,
         FeedController,
         FlashcardDeckController,
         FlashcardController,

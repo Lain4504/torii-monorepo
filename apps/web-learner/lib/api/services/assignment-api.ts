@@ -7,7 +7,7 @@ export interface AssignmentResponseDTO {
   title: string;
   description?: string;
   type: 'TEXT' | 'FILE' | 'BOTH';
-  courseId: string;
+  courseRunId: string;
   moduleId?: string;
   lessonId?: string;
   maxScore: number;
@@ -55,7 +55,8 @@ export interface SubmitAssignmentDto {
 export interface AssignmentQueryParams {
   page?: number;
   limit?: number;
-  courseId?: string;
+  courseMasterId?: string;
+  courseRunId?: string;
   moduleId?: string;
   lessonId?: string;
   status?: 'DRAFT' | 'PUBLISHED' | 'CLOSED';
@@ -73,6 +74,29 @@ export const assignmentApi = {
   },
 
   /**
+   * Get assignment linked to a specific lesson (query by lessonId + optional courseRunId)
+   * Returns the first PUBLISHED assignment for that lesson in the current run, or null
+   */
+  getAssignmentByLesson: async (lessonId: string, courseRunId?: string): Promise<AssignmentResponseDTO | null> => {
+    const params: Record<string, unknown> = {
+      lessonId,
+      status: 'PUBLISHED',
+      limit: 1,
+    };
+
+    if (courseRunId) {
+      params.courseRunId = courseRunId;
+    }
+
+    const response = await apiClient.get<PaginatedApiResponse<AssignmentResponseDTO>>(
+      '/api/assignments',
+      { params }
+    );
+    const items = response.data?.data;
+    return Array.isArray(items) && items.length > 0 ? (items[0] as AssignmentResponseDTO) : null;
+  },
+
+  /**
    * Get all assignments for a course with pagination
    */
   getCourseAssignments: async (params: AssignmentQueryParams = {}): Promise<PaginatedApiResponse<AssignmentResponseDTO>> => {
@@ -86,7 +110,7 @@ export const assignmentApi = {
   /**
    * Get all assignments for the current user (across all enrolled courses)
    */
-  getMyAssignments: async (params: Omit<AssignmentQueryParams, 'courseId'> = {}): Promise<PaginatedApiResponse<AssignmentResponseDTO>> => {
+  getMyAssignments: async (params: Omit<AssignmentQueryParams, 'courseMasterId' | 'courseRunId'> = {}): Promise<PaginatedApiResponse<AssignmentResponseDTO>> => {
     const response = await apiClient.get<PaginatedApiResponse<AssignmentResponseDTO>>(
       '/api/assignments',
       { params: { ...params, status: 'PUBLISHED' } }
@@ -159,20 +183,33 @@ export function useAssignment(assignmentId: string) {
 }
 
 /**
+ * Hook: Get assignment by lessonId (for learn page)
+ * Filters by both lessonId and the active courseRunId when provided
+ */
+export function useAssignmentByLesson(lessonId: string | undefined, courseRunId?: string) {
+  return useQuery({
+    queryKey: ['assignments', 'lesson', lessonId, courseRunId],
+    queryFn: () => assignmentApi.getAssignmentByLesson(lessonId!, courseRunId),
+    enabled: !!lessonId && !!courseRunId,
+    staleTime: 30_000,
+  });
+}
+
+/**
  * Hook: Get course assignments with pagination
  */
 export function useCourseAssignments(params: AssignmentQueryParams) {
   return useQuery({
     queryKey: ['assignments', 'course', params],
     queryFn: () => assignmentApi.getCourseAssignments(params),
-    enabled: !!params.courseId,
+    enabled: !!params.courseMasterId || !!params.courseRunId,
   });
 }
 
 /**
  * Hook: Get all assignments for current user
  */
-export function useMyAssignments(params: Omit<AssignmentQueryParams, 'courseId'> = {}) {
+export function useMyAssignments(params: Omit<AssignmentQueryParams, 'courseMasterId' | 'courseRunId'> = {}) {
   return useQuery({
     queryKey: ['assignments', 'my', params],
     queryFn: () => assignmentApi.getMyAssignments(params),
@@ -195,7 +232,7 @@ export function useMySubmission(assignmentId: string) {
  */
 export function useSubmitAssignment() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: ({ assignmentId, dto }: { assignmentId: string; dto: SubmitAssignmentDto }) =>
       assignmentApi.submitAssignment(assignmentId, dto),
@@ -216,7 +253,7 @@ export function useSubmitAssignment() {
  */
 export function useSaveDraft() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: ({ assignmentId, dto }: { assignmentId: string; dto: SubmitAssignmentDto }) =>
       assignmentApi.saveDraft(assignmentId, dto),

@@ -4,7 +4,7 @@ import { EnrollmentStatus } from '../enums/enrollment.enum';
 
 export const enrollmentSchema = baseModelSchema.extend({
   userId: z.string().uuid(),
-  courseId: z.string().uuid(),
+  courseRunId: z.string().uuid(),
   versionId: z.string().uuid().nullable().optional(),
   enrollmentDate: z.date(),
   completionStatus: z.nativeEnum(EnrollmentStatus).default(EnrollmentStatus.IN_PROGRESS),
@@ -23,4 +23,3 @@ export const enrollmentSchema = baseModelSchema.extend({
 });
 
 export type Enrollment = z.infer<typeof enrollmentSchema>;
-

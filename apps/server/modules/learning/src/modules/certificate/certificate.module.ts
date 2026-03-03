@@ -9,7 +9,8 @@ import {
     CERTIFICATE_REPOSITORY_TOKEN
 } from '@server/learning/interfaces';
 import { EnrollmentModule } from '@server/learning/modules/enrollment/enrollment.module';
-import { CourseModule } from '@server/learning/modules/course/course.module';
+import { CourseMasterModule } from '@server/learning/modules/course-master/course-master.module';
+import { CourseRunModule } from '@server/learning/modules/course-run/course-run.module';
 
 /**
  * Certificate Module
@@ -20,7 +21,8 @@ import { CourseModule } from '@server/learning/modules/course/course.module';
         SharedModule,
         NatsClientModule,
         forwardRef(() => EnrollmentModule),
-        forwardRef(() => CourseModule)
+        forwardRef(() => CourseMasterModule),
+        forwardRef(() => CourseRunModule)
     ],
     controllers: [],
     providers: [

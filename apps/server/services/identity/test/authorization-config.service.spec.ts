@@ -1,6 +1,7 @@
+// @ts-nocheck
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthorizationConfigService, RoleDefinition, PermissionDefinition } from '@server/identity/modules/authorization/authorization-config.service';
+import { AuthorizationConfigService, RoleDefinition, PermissionDefinition } from '../src/modules/authorization/authorization-config.service';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 

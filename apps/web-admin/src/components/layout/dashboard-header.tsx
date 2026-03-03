@@ -57,7 +57,7 @@ export function DashboardHeader() {
                     ) : (
                       <BreadcrumbLink asChild>
                         <Link
-                          to={(isLecturer && segment === 'courses') ? '/courses/my' : href}
+                          to={(isLecturer && segment === 'course-master') ? '/course-master/my' : href}
                           className="capitalize text-xs font-semibold text-muted-foreground/50 hover:text-foreground transition-colors"
                         >
                           {segment.replace('-', ' ')}

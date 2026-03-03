@@ -41,7 +41,17 @@ export class AnalyticsHandler {
                 status: 'completed',
                 completedAt: { gte: sixMonthsAgo }
             },
-            select: { amount: true, completedAt: true, enrollment: { select: { course: { select: { jlptLevel: true } } } } }
+            include: { 
+                enrollment: {
+                    include: {
+                        courseRun: {
+                            include: {
+                                courseMaster: { select: { jlptLevel: true } }
+                            }
+                        }
+                    }
+                }
+            }
         });
 
         const growthData = sales.reduce((acc: any, sale) => {
@@ -52,7 +62,7 @@ export class AnalyticsHandler {
         }, {});
 
         const revenueByLevel = sales.reduce((acc: any, sale) => {
-            const level = sale.enrollment?.course?.jlptLevel || 'Other';
+            const level = sale.enrollment?.courseRun?.courseMaster?.jlptLevel || 'Other';
             acc[level] = (acc[level] || 0) + Number(sale.amount);
             return acc;
         }, {});

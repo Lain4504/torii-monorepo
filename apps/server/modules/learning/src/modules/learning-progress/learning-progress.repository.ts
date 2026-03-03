@@ -98,11 +98,12 @@ export class LearningProgressRepository implements ILearningProgressRepository {
                 },
                 enrollment: {
                     include: {
-                        course: {
+                        courseRun: {
                             select: {
                                 id: true,
                                 title: true,
                                 slug: true,
+                                courseMasterId: true,
                             }
                         }
                     }

@@ -21,7 +21,7 @@ export interface IExamService {
     /**
      * Find all exams with status information for learners
      */
-    findAllWithStatus(query: ExamQueryDTO, userId?: string): Promise<PaginatedResponseDTO<ExamWithStatusResponseDTO>>;
+    findAllWithStatus(userId: string, query: ExamQueryDTO): Promise<PaginatedResponseDTO<ExamWithStatusResponseDTO>>;
 
     /**
      * Find all exams (admin/staff view)
@@ -56,7 +56,7 @@ export interface IExamService {
     /**
      * Start an exam session
      */
-    startExam(examId: string, userId: string): Promise<ExamSessionStartResponseDTO>;
+    startExam(examId: string, userId: string, courseRunId: string): Promise<ExamSessionStartResponseDTO>;
 
     /**
      * Save exam session answers

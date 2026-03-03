@@ -98,12 +98,16 @@ export class BlogService implements IBlogService {
       excerpt: finalDto.excerpt,
       content: finalDto.content,
       coverImageUrl: finalDto.coverImageUrl,
-      authorId: finalDto.authorId,
       status: finalDto.status || BlogStatus.DRAFT,
       publishedAt: finalDto.publishedAt || null,
       tags: finalDto.tags || [],
       seoTitle: finalDto.seoTitle,
       seoDescription: finalDto.seoDescription,
+      author: {
+        connect: {
+          id: finalDto.authorId,
+        },
+      },
     });
 
     return this.toBlogResponseDTO(blog);

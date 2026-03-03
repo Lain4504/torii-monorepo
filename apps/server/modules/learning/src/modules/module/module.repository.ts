@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
-import type { Module as CourseModule, Prisma } from '@prisma/generated';
+import type { Module as CourseMasterModule, Prisma } from '@prisma/generated';
 import type { IModuleRepository } from '@server/learning/interfaces/repositories';
 
 /**
@@ -16,7 +16,7 @@ export class ModuleRepository implements IModuleRepository {
     /**
      * Find module by ID
      */
-    async findById(moduleId: string): Promise<CourseModule | null> {
+    async findById(moduleId: string): Promise<CourseMasterModule | null> {
         return this.prisma.module.findUnique({
             where: { id: moduleId },
         });
@@ -25,10 +25,10 @@ export class ModuleRepository implements IModuleRepository {
     /**
      * Find all modules for a course
      */
-    async findByCourseId(courseId: string, includeDrafts: boolean = false): Promise<CourseModule[]> {
+    async findByCourseId(courseMasterId: string, includeDrafts: boolean = false): Promise<CourseMasterModule[]> {
         return this.prisma.module.findMany({
             where: {
-                courseId,
+                courseMasterId,
                 deletedAt: null,
                 ...(includeDrafts ? {} : { status: 'published' }),
             },
@@ -45,7 +45,7 @@ export class ModuleRepository implements IModuleRepository {
         where?: Prisma.ModuleWhereInput;
         orderBy?: Prisma.ModuleOrderByWithRelationInput;
         include?: Prisma.ModuleInclude;
-    }): Promise<CourseModule[]> {
+    }): Promise<CourseMasterModule[]> {
         return this.prisma.module.findMany({
             where: options.where,
             skip: Number(options.skip) || 0,
@@ -65,14 +65,14 @@ export class ModuleRepository implements IModuleRepository {
     /**
      * Create new module
      */
-    async create(data: Prisma.ModuleCreateInput): Promise<CourseModule> {
+    async create(data: Prisma.ModuleCreateInput): Promise<CourseMasterModule> {
         return this.prisma.module.create({ data });
     }
 
     /**
      * Update module by ID
      */
-    async update(moduleId: string, data: Prisma.ModuleUpdateInput): Promise<CourseModule> {
+    async update(moduleId: string, data: Prisma.ModuleUpdateInput): Promise<CourseMasterModule> {
         return this.prisma.module.update({
             where: { id: moduleId },
             data: {
@@ -94,7 +94,7 @@ export class ModuleRepository implements IModuleRepository {
     /**
      * Soft delete module
      */
-    async softDelete(moduleId: string): Promise<CourseModule> {
+    async softDelete(moduleId: string): Promise<CourseMasterModule> {
         return this.prisma.module.update({
             where: { id: moduleId },
             data: {
@@ -107,7 +107,7 @@ export class ModuleRepository implements IModuleRepository {
     /**
      * Reorder modules in a course
      */
-    async reorder(courseId: string, moduleOrders: { id: string; orderIndex: number }[]): Promise<void> {
+    async reorder(courseMasterId: string, moduleOrders: { id: string; orderIndex: number }[]): Promise<void> {
         // Use transaction to ensure atomicity
         await this.prisma.$transaction(
             moduleOrders.map(({ id, orderIndex }) =>
@@ -122,9 +122,9 @@ export class ModuleRepository implements IModuleRepository {
     /**
      * Get max order index for a course
      */
-    async getMaxOrderIndex(courseId: string): Promise<number> {
+    async getMaxOrderIndex(courseMasterId: string): Promise<number> {
         const result = await this.prisma.module.aggregate({
-            where: { courseId, deletedAt: null },
+            where: { courseMasterId, deletedAt: null },
             _max: { orderIndex: true },
         });
         return result._max.orderIndex ?? 0;

@@ -20,7 +20,7 @@ export class CouponService {
     /**
      * Validate coupon without redeeming (for UI check)
      */
-    async validateCoupon(code: string, userId: string, orderAmount: number): Promise<CouponValidateResponseDTO> {
+    async validateCoupon(code: string, userId: string, orderAmount: number, courseMasterId?: string, courseRunId?: string): Promise<CouponValidateResponseDTO> {
         const coupon = await this.couponRepository.findByCode(code);
 
         if (!coupon) {
@@ -48,6 +48,35 @@ export class CouponService {
             return { isValid: false, message: `Minimum order amount of ${coupon.minOrderAmount} required` };
         }
 
+        // --- Course Eligibility Check ---
+        const isRestricted = coupon.applicableCourseMasterIds.length > 0 || coupon.applicableRunIds.length > 0;
+
+        if (isRestricted) {
+            let isFound = false;
+
+            // Check run inclusion first (explicit)
+            if (courseRunId && coupon.applicableRunIds.includes(courseRunId)) {
+                isFound = true;
+            }
+            // Then check master inclusion
+            else if (courseMasterId && coupon.applicableCourseMasterIds.includes(courseMasterId)) {
+                isFound = true;
+            }
+
+            if (!isFound) {
+                return { isValid: false, message: 'Coupon is not applicable to this course' };
+            }
+        }
+
+        // Check exclusions (even for global coupons)
+        if (courseRunId && coupon.excludedRunIds.includes(courseRunId)) {
+            return { isValid: false, message: 'Coupon is excluded for this specific run' };
+        }
+        if (courseMasterId && coupon.excludedCourseMasterIds.includes(courseMasterId)) {
+            return { isValid: false, message: 'Coupon is excluded for this course' };
+        }
+        // --------------------------------
+
         // Ownership check (Personal Coupons)
         if (coupon.userId && coupon.userId !== userId) {
             this.logger.warn(`Coupon ${code} verification failed: Ownership mismatch. Coupon belongs to ${coupon.userId}, but used by ${userId}`);
@@ -70,7 +99,6 @@ export class CouponService {
                 discountValue: Number(coupon.discountValue),
                 maxDiscountAmount: coupon.maxDiscountAmount ? Number(coupon.maxDiscountAmount) : null,
                 minOrderAmount: coupon.minOrderAmount ? Number(coupon.minOrderAmount) : null,
-                // Ensure other Decimal/Date fields are handled if needed by DTO
             } as any,
             discountAmount,
             message: 'Coupon is valid'
@@ -80,7 +108,7 @@ export class CouponService {
     /**
      * Redeem coupon with distributed lock
      */
-    async redeemCoupon(code: string, userId: string, orderAmount: number): Promise<{ couponId: string, discountAmount: number }> {
+    async redeemCoupon(code: string, userId: string, orderAmount: number, courseMasterId?: string, courseRunId?: string): Promise<{ couponId: string, discountAmount: number }> {
         const lockKey = `lock:coupon:${code}`;
         // Try to acquire lock for 5 seconds
         // NX: Set only if not exists
@@ -94,7 +122,7 @@ export class CouponService {
 
         try {
             // Re-validate everything inside the lock
-            const validation = await this.validateCoupon(code, userId, orderAmount);
+            const validation = await this.validateCoupon(code, userId, orderAmount, courseMasterId, courseRunId);
 
             if (!validation.isValid) {
                 throw new BadRequestException(validation.message || 'Invalid coupon');

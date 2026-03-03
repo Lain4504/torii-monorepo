@@ -19,7 +19,17 @@ export class BlogRepository implements IBlogRepository {
     async findById(id: string): Promise<Blog | null> {
         return this.prisma.blog.findUnique({
             where: { id },
-        });
+            include: {
+                author: {
+                    select: {
+                        id: true,
+                        displayName: true,
+                        email: true,
+                        avatarUrl: true,
+                    }
+                }
+            }
+        } as any) as any;
     }
 
     /**
@@ -28,7 +38,17 @@ export class BlogRepository implements IBlogRepository {
     async findBySlug(slug: string): Promise<Blog | null> {
         return this.prisma.blog.findUnique({
             where: { slug },
-        });
+            include: {
+                author: {
+                    select: {
+                        id: true,
+                        displayName: true,
+                        email: true,
+                        avatarUrl: true,
+                    }
+                }
+            }
+        } as any) as any;
     }
 
     /**
@@ -45,7 +65,17 @@ export class BlogRepository implements IBlogRepository {
             skip: options.skip,
             take: options.take,
             orderBy: options.orderBy || { publishedAt: 'desc' },
-        });
+            include: {
+                author: {
+                    select: {
+                        id: true,
+                        displayName: true,
+                        email: true,
+                        avatarUrl: true,
+                    }
+                }
+            }
+        } as any) as any;
     }
 
     /**
@@ -61,7 +91,17 @@ export class BlogRepository implements IBlogRepository {
     async create(data: Prisma.BlogCreateInput): Promise<Blog> {
         return this.prisma.blog.create({
             data,
-        });
+            include: {
+                author: {
+                    select: {
+                        id: true,
+                        displayName: true,
+                        email: true,
+                        avatarUrl: true,
+                    }
+                }
+            }
+        } as any) as any;
     }
 
     /**
@@ -74,7 +114,17 @@ export class BlogRepository implements IBlogRepository {
                 ...data,
                 updatedAt: new Date(),
             },
-        });
+            include: {
+                author: {
+                    select: {
+                        id: true,
+                        displayName: true,
+                        email: true,
+                        avatarUrl: true,
+                    }
+                }
+            }
+        } as any) as any;
     }
 
     /**

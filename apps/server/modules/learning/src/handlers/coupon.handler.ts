@@ -68,8 +68,8 @@ export class CouponHandler {
     }
 
     @MessagePattern({ cmd: 'learning.coupon.getAvailableCoupons' })
-    async getAvailableCoupons(@Payload() data: { courseId: string }) {
-        return this.couponService.getAvailableCoupons(data.courseId);
+    async getAvailableCoupons(@Payload() data: { courseRunId: string }) {
+        return this.couponService.getAvailableCoupons(data.courseRunId);
     }
 }
 

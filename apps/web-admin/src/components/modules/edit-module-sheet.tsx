@@ -63,7 +63,7 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
         resolver: zodResolver(updateModuleSchema),
         defaultValues: {
             title: '',
-            courseId: '',
+            courseMasterId: '',
         },
     });
 
@@ -71,10 +71,9 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
         if (module) {
             reset({
                 title: module.title,
-                courseId: module.courseId,
+                courseMasterId: module.courseMasterId,
                 description: module.description,
                 orderIndex: module.orderIndex,
-                durationMinutes: module.durationMinutes,
             });
         }
     }, [module, reset]);
@@ -110,7 +109,7 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
                 <form onSubmit={handleSubmit(onSubmitForm)} className="flex flex-col h-full overflow-hidden" noValidate>
                     <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
-                            <input type="hidden" {...register('courseId')} />
+                            <input type="hidden" {...register('courseMasterId')} />
 
                             {courseTitle && (
                                 <div className="space-y-1 opacity-80">
@@ -174,22 +173,6 @@ export function EditModuleSheet({ module, open, onOpenChange, existingModules = 
                                     )}
                                 />
 
-                                <Controller
-                                    control={control}
-                                    name="durationMinutes"
-                                    render={({ field, fieldState }) => (
-                                        <Field className="space-y-1" data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor={field.name}>Thời Lượng (phút)</FieldLabel>
-                                            <Input
-                                                id={field.name}
-                                                type="number"
-                                                {...field}
-                                                onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                            />
-                                            <FieldError errors={[fieldState.error]} />
-                                        </Field>
-                                    )}
-                                />
                             </div>
                         </div>
                     </ScrollArea>

@@ -133,7 +133,7 @@ export class CouponController {
      */
     @Post('validate')
     @Public()
-    async validate(@Body() dto: { code: string; courseId: string; userId?: string }) {
+    async validate(@Body() dto: { code: string; courseRunId: string; courseMasterId?: string; userId?: string }) {
         const result = await firstValueFrom(
             this.natsClient.send({ cmd: 'learning.coupon.validate' }, dto)
         );
@@ -146,7 +146,7 @@ export class CouponController {
      */
     @Post('calculate-discount')
     @Public()
-    async calculateDiscount(@Body() dto: { couponId: string; courseId: string; basePrice: number }) {
+    async calculateDiscount(@Body() dto: { couponId: string; courseRunId: string; courseMasterId?: string; basePrice: number }) {
         const result = await firstValueFrom(
             this.natsClient.send({ cmd: 'learning.coupon.calculateDiscount' }, dto)
         );
@@ -167,16 +167,16 @@ export class CouponController {
     }
 
     /**
-     * Get available coupons for a course
-     * GET /api/coupons/available/:courseId
+     * Get available coupons for a course run
+     * GET /api/coupons/available/:courseRunId
      */
-    @Get('available/:courseId')
+    @Get('available/:courseRunId')
     @Public()
-    async getAvailableCoupons(@Param('courseId', ParseUUIDPipe) courseId: string) {
+    async getAvailableCoupons(@Param('courseRunId', ParseUUIDPipe) courseRunId: string) {
         const result = await firstValueFrom(
             this.natsClient.send(
                 { cmd: 'learning.coupon.getAvailableCoupons' },
-                { courseId }
+                { courseRunId }
             )
         );
         return successResponse({ coupons: result });

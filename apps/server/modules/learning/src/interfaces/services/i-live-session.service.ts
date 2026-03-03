@@ -11,9 +11,9 @@ export interface ILiveSessionService {
     findById(id: string): Promise<LiveSessionResponseDTO>;
 
     /**
-     * Get all live sessions for a course
+     * Get all live sessions for a course run
      */
-    findByCourseId(courseId: string): Promise<LiveSessionResponseDTO[]>;
+    findByRunId(courseRunId: string): Promise<LiveSessionResponseDTO[]>;
 
     /**
      * Create a new live session
@@ -53,5 +53,25 @@ export interface ILiveSessionService {
     /**
      * Synchronize session state when a Meet room ends
      */
-    syncEndedSession(meetingId: string): Promise<void>;
+    syncEndedSession(meetingId: string): Promise<LiveSessionResponseDTO | null>;
+
+    /**
+     * Get the current active live session for a course run
+     */
+    findActiveByRunId(courseRunId: string): Promise<LiveSessionResponseDTO | null>;
+
+    /**
+     * Get all live sessions for all runs of a course master
+     */
+    findByCourseId(courseMasterId: string): Promise<LiveSessionResponseDTO[]>;
+
+    /**
+     * Get the current active live session for any run of a course master
+     */
+    findActiveByCourseId(courseMasterId: string): Promise<LiveSessionResponseDTO | null>;
+
+    /**
+     * Find live session by meetingId
+     */
+    findByMeetingId(meetingId: string): Promise<LiveSessionResponseDTO | null>;
 }

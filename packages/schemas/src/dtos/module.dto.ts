@@ -3,7 +3,7 @@ import { moduleSchema } from '../models/module.model';
 
 export const moduleCreateDTOSchema = moduleSchema
     .pick({
-        courseId: true,
+        courseMasterId: true,
         title: true,
         description: true,
         orderIndex: true,
@@ -16,7 +16,7 @@ export type ModuleCreateDTO = z.infer<typeof moduleCreateDTOSchema>;
 
 export const moduleUpdateDTOSchema = moduleSchema
     .pick({
-        courseId: true,
+        courseMasterId: true,
         title: true,
         description: true,
         orderIndex: true,
@@ -33,7 +33,7 @@ export type ModuleUpdateDTO = z.infer<typeof moduleUpdateDTOSchema>;
 export const moduleQueryDTOSchema = z.object({
     page: z.coerce.number().min(1).default(1),
     limit: z.coerce.number().min(1).default(10),
-    courseId: z.string().uuid().optional(),
+    courseMasterId: z.string().uuid().optional(),
     search: z.string().optional(),
     status: z.enum(['published', 'draft']).optional(),
 });

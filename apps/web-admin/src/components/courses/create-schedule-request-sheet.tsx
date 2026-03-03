@@ -11,13 +11,14 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
+import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import {
     Field,
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import type { LiveSessionResponseDTO, ScheduleRequestCreateDTO } from '@workspace/schemas';
-import { scheduleRequestCreateDTOSchema } from '@workspace/schemas';
+import { type LiveSessionResponseDTO, type ScheduleRequestCreateDTO, scheduleRequestCreateDTOSchema } from '@workspace/schemas';
+import { z } from 'zod';
 import { useCreateScheduleRequest } from '@/lib/api/services/live-sessions';
 import { toast } from '@workspace/ui/components/sonner';
 
@@ -34,26 +35,33 @@ export function CreateScheduleRequestSheet({ open, onOpenChange, session }: Crea
         control,
         handleSubmit,
         formState: { errors },
-    } = useForm<ScheduleRequestCreateDTO>({
-        resolver: zodResolver(scheduleRequestCreateDTOSchema),
+    } = useForm<ScheduleRequestCreateDTO & { newTime: string }>({
+        resolver: zodResolver(scheduleRequestCreateDTOSchema.extend({
+            newTime: z.string().min(1, 'Vui lòng chọn thời gian mới'),
+        })),
         values: {
-            liveSessionId: session?.id || '',
             reason: '',
             newTime: '',
-            // Provide dummy values for required fields that are not in this form
-            // but are required by the schema. These will be ignored or overwritten by backend
-            // for "adjusting" a specific session if we implement it that way.
             lecturerId: session?.lecturerId || '00000000-0000-0000-0000-000000000000',
-            courseId: session?.courseId || '00000000-0000-0000-0000-000000000000',
-            dayOfWeek: 0,
-            startTime: '',
+            courseRunId: session?.courseRunId || '00000000-0000-0000-0000-000000000000',
+            dayOfWeek: session ? new Date(session.scheduledAt).getDay() : 0,
+            startTime: session ? new Date(session.scheduledAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '',
             duration: session?.duration || 90,
         },
     });
 
-    const onSubmit = async (data: ScheduleRequestCreateDTO) => {
+    const onSubmit = async (data: ScheduleRequestCreateDTO & { newTime: string }) => {
         try {
-            await createMutation.mutateAsync({ ...data, liveSessionId: session?.id || '' });
+            const date = new Date(data.newTime);
+            const dayOfWeek = date.getDay();
+            const startTime = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+            const { newTime: _, ...dto } = data;
+            await createMutation.mutateAsync({
+                ...dto,
+                dayOfWeek,
+                startTime
+            });
             toast.success('Đã gửi yêu cầu thay đổi lịch');
             onOpenChange(false);
         } catch (error) {
@@ -63,41 +71,45 @@ export function CreateScheduleRequestSheet({ open, onOpenChange, session }: Crea
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent>
-                <SheetHeader>
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col p-0">
+                <SheetHeader className="p-6 pb-0">
                     <SheetTitle>Yêu cầu thay đổi lịch học</SheetTitle>
                     <SheetDescription>
                         Đề xuất một thời gian mới cho buổi học này và cung cấp lý do.
                     </SheetDescription>
                 </SheetHeader>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-6">
-                    <Controller
-                        name="newTime"
-                        control={control}
-                        render={({ field }) => (
-                            <Field>
-                                <FieldLabel htmlFor="newTime">Thời gian mới</FieldLabel>
-                                <Input id="newTime" type="datetime-local" {...field} value={field.value || ''} />
-                                {errors.newTime && <FieldError>{errors.newTime.message}</FieldError>}
-                            </Field>
-                        )}
-                    />
-                    <Controller
-                        name="reason"
-                        control={control}
-                        render={({ field }) => (
-                            <Field>
-                                <FieldLabel htmlFor="reason">Lý do</FieldLabel>
-                                <Textarea id="reason" {...field} value={field.value || ''} />
-                                {errors.reason && <FieldError>{errors.reason.message}</FieldError>}
-                            </Field>
-                        )}
-                    />
-                    <SheetFooter>
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden min-h-0">
+                    <ScrollArea className="flex-1 min-h-0">
+                        <div className="space-y-6 p-6">
+                            <Controller
+                                name="newTime"
+                                control={control}
+                                render={({ field }) => (
+                                    <Field>
+                                        <FieldLabel htmlFor="newTime">Thời gian mới</FieldLabel>
+                                        <Input id="newTime" type="datetime-local" {...field} value={field.value || ''} />
+                                        {errors.newTime && <FieldError>{errors.newTime.message}</FieldError>}
+                                    </Field>
+                                )}
+                            />
+                            <Controller
+                                name="reason"
+                                control={control}
+                                render={({ field }) => (
+                                    <Field>
+                                        <FieldLabel htmlFor="reason">Lý do</FieldLabel>
+                                        <Textarea id="reason" {...field} value={field.value || ''} />
+                                        {errors.reason && <FieldError>{errors.reason.message}</FieldError>}
+                                    </Field>
+                                )}
+                            />
+                        </div>
+                    </ScrollArea>
+                    <SheetFooter className="p-6 border-t bg-muted/5">
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
                             Hủy
                         </Button>
-                        <Button type="submit">Gửi yêu cầu</Button>
+                        <Button type="submit" className="flex-1">Gửi yêu cầu</Button>
                     </SheetFooter>
                 </form>
             </SheetContent>

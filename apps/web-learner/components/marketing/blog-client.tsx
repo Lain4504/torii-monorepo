@@ -14,7 +14,7 @@ import {
     Search,
     Newspaper
 } from 'lucide-react'
-import { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { useBlogs } from '@/lib/api/services/blog-api'
@@ -45,38 +45,47 @@ const popularTags = ['#Kanji', '#Keigo', '#N2', '#Listening', '#Anime']
 export function BlogClient() {
     const [page, setPage] = useState(1);
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchInput, setSearchInput] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [activeCategory, setActiveCategory] = useState<string | null>(null);
+    const [activeTag, setActiveTag] = useState<string | null>(null);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchInput);
+            setPage(1);
+        }, 400);
+        return () => clearTimeout(timer);
+    }, [searchInput]);
+
     const { data: blogsData, isLoading, isError } = useBlogs({
         page,
         limit: 10,
         sortBy: "publishedAt",
-        sortOrder: "desc"
-    });
+        sortOrder: "desc",
+        search: debouncedSearch || undefined,
+        tags: activeTag ? [activeTag] : undefined,
+    } as any);
 
     const blogs = blogsData?.data || [];
     const totalPages = blogsData?.totalPages || 1;
 
     return (
-        <div className="bg-background text-foreground min-h-screen">
-            {/* Hero Header */}
-            <section className="relative pt-28 pb-14 overflow-hidden border-b border-border/50">
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,oklch(0.64_0.13_175/0.12),transparent)] pointer-events-none" />
-                <div className="max-w-[1280px] mx-auto px-6">
+        <div className="min-h-screen bg-muted/30 text-foreground">
+            <section className="pt-28 pb-12 border-b border-border/50 bg-background/80 backdrop-blur-sm">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     <FadeIn>
-                        <Badge variant="outline" className="px-4 py-1.5 border-primary/40 text-primary font-bold tracking-widest uppercase text-[10px] mb-5">
-                            <Newspaper className="size-3 mr-1.5" /> Cộng đồng Nihongo
-                        </Badge>
-                        <h1 className="text-5xl md:text-6xl font-black font-serif tracking-tight mb-4 leading-[1.1]">
-                            Blog <span className="text-primary italic">Nihongo</span>
+                        <h1 className="text-4xl font-bold tracking-tight mb-3">
+                            Blog & Cẩm nang
                         </h1>
-                        <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl">
-                            Kiến thức tiếng Nhật, văn hóa Nhật Bản và kinh nghiệm học JLPT từ cộng đồng Torii Nihongo.
+                        <p className="text-muted-foreground text-lg max-w-2xl">
+                            Kiến thức tiếng Nhật, phương pháp học tập và văn hóa Nhật Bản.
                         </p>
                     </FadeIn>
                 </div>
             </section>
 
-            <div className="max-w-[1280px] mx-auto px-6 pt-12 pb-16 space-y-12">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-16 space-y-12">
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Sidebar */}
                     <aside className="w-full lg:w-72 space-y-6 order-2 lg:order-1">
@@ -86,47 +95,59 @@ export function BlogClient() {
                             <Input
                                 placeholder="Tìm kiếm bài viết..."
                                 className="pl-10 h-9 bg-muted/40 border-border/50 focus:bg-background text-sm transition-all"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
+                                value={searchInput}
+                                onChange={(e) => setSearchInput(e.target.value)}
                             />
                         </div>
 
-                        {/* Categories */}
-                        <div className="bg-card border border-border/60 rounded-2xl p-4 space-y-3">
+                        <div className="bg-background/80 backdrop-blur-xl border border-white/20 rounded-2xl p-4 space-y-3 shadow-sm">
                             <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Chuyên mục</h3>
                             <div className="flex flex-col gap-1">
                                 {categories.map((category) => {
-                                    const Icon = category.icon
+                                    const Icon = category.icon;
+                                    const isActive = activeCategory === category.name;
                                     return (
-                                        <a
+                                        <button
                                             key={category.name}
+                                            onClick={() => {
+                                                setActiveCategory(isActive ? null : category.name);
+                                                setPage(1);
+                                            }}
                                             className={cn(
-                                                "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors cursor-pointer text-sm",
-                                                category.active
+                                                "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors cursor-pointer text-sm w-full text-left",
+                                                isActive
                                                     ? 'bg-primary/10 text-primary font-bold'
                                                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                                             )}
-                                            href={category.href}
                                         >
                                             <Icon className="w-4 h-4 flex-shrink-0" />
                                             <span>{category.name}</span>
-                                        </a>
+                                        </button>
                                     )
                                 })}
                             </div>
                         </div>
 
-                        {/* Popular Tags */}
-                        <div className="bg-card border border-border/60 rounded-2xl p-4 space-y-3">
+                        <div className="bg-background/80 backdrop-blur-xl border border-white/20 rounded-2xl p-4 space-y-3 shadow-sm">
                             <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Thẻ phổ biến</h3>
                             <div className="flex flex-wrap gap-2">
                                 {popularTags.map((tag) => (
-                                    <span
+                                    <button
                                         key={tag}
-                                        className="px-3 py-1 bg-muted/60 border border-border/50 text-muted-foreground text-xs font-bold rounded-full cursor-pointer hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all"
+                                        onClick={() => {
+                                            const tagName = tag.replace('#', '');
+                                            setActiveTag(activeTag === tagName ? null : tagName);
+                                            setPage(1);
+                                        }}
+                                        className={cn(
+                                            "px-3 py-1 border text-xs font-bold rounded-full cursor-pointer transition-all",
+                                            activeTag === tag.replace('#', '')
+                                                ? "bg-primary text-primary-foreground border-primary"
+                                                : "bg-muted/60 border-border/50 text-muted-foreground hover:bg-primary/10 hover:text-primary hover:border-primary/30"
+                                        )}
                                     >
                                         {tag}
-                                    </span>
+                                    </button>
                                 ))}
                             </div>
                         </div>
@@ -134,9 +155,9 @@ export function BlogClient() {
 
                     {/* Article Listing */}
                     <div className="flex-1 space-y-8 order-1 lg:order-2">
-                        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+                        <div className="flex items-center justify-between border-b border-border pb-4">
                             <h2 className="text-2xl font-bold">
-                                Bài viết mới nhất <span className="text-muted-foreground font-normal">/ Latest Posts</span>
+                                Bài viết mới nhất
                             </h2>
                             <div className="flex gap-2">
                                 <button
@@ -199,7 +220,7 @@ export function BlogClient() {
                                     <article
                                         key={post.id}
                                         className={cn(
-                                            "bg-card text-card-foreground border border-border rounded-2xl overflow-hidden group hover:shadow-xl hover:shadow-primary/5 transition-all flex",
+                                            "bg-background/80 backdrop-blur-sm border border-primary/10 rounded-2xl overflow-hidden group hover:shadow-lg hover:border-primary/20 transition-all flex cursor-pointer",
                                             viewMode === 'list' ? "flex-col md:flex-row" : "flex-col"
                                         )}
                                     >

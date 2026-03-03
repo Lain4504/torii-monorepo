@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAppSelector } from '@/hooks/hooks'
 import { Button } from '@workspace/ui/components/button'
@@ -21,11 +21,12 @@ import {
     DialogTitle,
 } from "@workspace/ui/components/dialog"
 import { formatNumber } from '@/utils/format-utils'
-import { ShieldCheck, ArrowLeft, X, Lock, CheckCircle2, Gift, TicketPercent, ArrowRight, Sparkles, BookOpen, Users, Wallet, CreditCard } from 'lucide-react'
+import { ShieldCheck, ArrowLeft, X, Lock, CheckCircle2, Gift, TicketPercent, ArrowRight, Sparkles, BookOpen, Users, Wallet, CreditCard, Calendar } from 'lucide-react'
 import { toast } from '@workspace/ui/components/sonner'
 import { courseApi } from '@/lib/api/services/course-api'
 import { enrollmentApi } from '@/lib/api/services/enrollment-api'
-import { CourseResponseDTO } from '@workspace/schemas'
+import { useAvailableCourseRuns } from '@/lib/api/services/course-run-api'
+import { CourseMasterResponseDTO } from '@workspace/schemas'
 import { PaymentMethod, OrderType } from '@workspace/schemas'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { couponApi } from '@/lib/api/services/coupon-api'
@@ -51,14 +52,19 @@ import {
 
 export default function CheckoutPage() {
     const params = useParams()
+    const searchParams = useSearchParams()
     const router = useRouter()
     const courseId = params.courseId as string
+    const courseRunId = searchParams.get('runId')
     const user = useAppSelector((state) => state.auth.user)
 
-    const [course, setCourse] = useState<CourseResponseDTO | null>(null)
+    const [course, setCourse] = useState<CourseMasterResponseDTO | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const { data: balance = 0, isLoading: isLoadingBalance, refetch: refetchBalance } = useBalance()
+    const { data: availableRuns } = useAvailableCourseRuns(courseId)
     const [isCreatingLink, setIsCreatingLink] = useState(false)
+
+    const selectedRun = courseRunId ? availableRuns?.find(r => r.id === courseRunId) : availableRuns?.[0]
 
     // Gift State
     const [isGift, setIsGift] = useState(false)
@@ -132,7 +138,8 @@ export default function CheckoutPage() {
 
             const response = await couponApi.validateCoupon({
                 code: couponCode,
-                courseId: course.id,
+                courseMasterId: course.id, // Validate against course master
+                courseRunId: selectedRun?.id, // Specific run if selected
                 userId: user?.id,
             })
 
@@ -180,7 +187,7 @@ export default function CheckoutPage() {
             const description = `Thanh toan khoa hoc ${course.title}`.slice(0, 25)
 
             const order = await orderApi.createOrder({
-                courseId: course.id,
+                courseRunId: selectedRun!.id,
                 paymentMethod: PaymentMethod.BALANCE,
                 orderType: isGift ? OrderType.GIFT : OrderType.COURSE_PURCHASE,
                 description: description,
@@ -192,7 +199,7 @@ export default function CheckoutPage() {
                     giftMessage: isGift ? giftMessage : undefined,
                 },
                 couponCode: appliedCoupon ? couponCode : undefined,
-            })
+            } as any)
 
             if (order.status === 'completed') {
                 toast.success('Thanh toán thành công!')
@@ -229,9 +236,9 @@ export default function CheckoutPage() {
 
     if (isLoading) return <PageLoading />
 
-    if (!course) return null
+    if (!course || !selectedRun || !selectedRun.id) return null
 
-    const finalPrice = Math.max(0, Number(course.price) - couponDiscount)
+    const finalPrice = Math.max(0, Number(selectedRun.price) - couponDiscount)
 
     return (
         <div className="min-h-screen bg-background pb-20">
@@ -289,6 +296,15 @@ export default function CheckoutPage() {
                                                     <ItemTitle>{course.totalLessons} bài học</ItemTitle>
                                                 </ItemContent>
                                             </Item>
+                                            {selectedRun && (
+                                                <Item size="sm">
+                                                    <ItemMedia variant="icon"><Calendar /></ItemMedia>
+                                                    <ItemContent>
+                                                        <ItemTitle>Lớp: {selectedRun.title}</ItemTitle>
+                                                        <ItemDescription>Khai giảng: {new Date(selectedRun.startDate!).toLocaleDateString('vi-VN')}</ItemDescription>
+                                                    </ItemContent>
+                                                </Item>
+                                            )}
                                         </ItemGroup>
                                     </div>
                                 </div>
@@ -426,7 +442,7 @@ export default function CheckoutPage() {
                                 <div className="space-y-3">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-muted-foreground">Giá gốc</span>
-                                        <span className="font-medium">{formatNumber(course.price)} Coins</span>
+                                        <span className="font-medium">{formatNumber(selectedRun.price)} Coins</span>
                                     </div>
                                     {couponDiscount > 0 && (
                                         <div className="flex justify-between text-sm">

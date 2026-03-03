@@ -31,7 +31,7 @@ export const attendanceQueryDTOSchema = paginationQuerySchema.extend({
   liveSessionId: z.string().uuid().optional(),
   userId: z.string().uuid().optional(),
   status: z.enum(['present', 'absent', 'late', 'excused']).optional(),
-  courseId: z.string().uuid().optional(), // To filter by course
+  courseMasterId: z.string().uuid().optional(), // To filter by course master
 });
 
 export type AttendanceQueryDTO = z.infer<typeof attendanceQueryDTOSchema>;

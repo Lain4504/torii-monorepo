@@ -133,11 +133,11 @@ export class LessonRepository implements ILessonRepository {
     /**
      * Find preview lessons for a course (through modules)
      */
-    async findPreviewLessonsByCourseId(courseId: string): Promise<Lesson[]> {
+    async findPreviewLessonsByCourseId(courseMasterId: string): Promise<Lesson[]> {
         return this.prisma.lesson.findMany({
             where: {
                 module: {
-                    courseId,
+                    courseMasterId,
                 },
                 isPreview: true,
                 status: 'published',
@@ -162,11 +162,11 @@ export class LessonRepository implements ILessonRepository {
     /**
      * Find top N lessons for a course (ordered by module and lesson index)
      */
-    async findTopLessonsByCourse(courseId: string, limit: number): Promise<Lesson[]> {
+    async findTopLessonsByCourse(courseMasterId: string, limit: number): Promise<Lesson[]> {
         return this.prisma.lesson.findMany({
             where: {
                 module: {
-                    courseId,
+                    courseMasterId,
                     deletedAt: null,
                     status: 'published',
                 },

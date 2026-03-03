@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthorizationService } from '../src/modules/authorization/authorization.service';

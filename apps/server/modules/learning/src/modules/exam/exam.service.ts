@@ -38,10 +38,31 @@ export class ExamService implements IExamService {
     ) { }
 
     /**
+     * Build ExamResponseDTO from Quiz entity
+     * This is a fallback to avoid AutoMapper mapping issues between "Quiz" and "ExamResponseDTO"
+     */
+    private buildExamResponseDTO(quiz: any): ExamResponseDTO {
+        return {
+            id: quiz.id,
+            title: quiz.title,
+            description: quiz.description ?? undefined,
+            jlptLevel: quiz.jlptLevel,
+            examType: quiz.quizType,
+            sections: (quiz.sections as any) ?? [],
+            totalTime: quiz.totalTime ?? 0,
+            totalQuestions: quiz.totalQuestions,
+            status: quiz.status,
+            createdBy: quiz.createdBy ?? undefined,
+            createdAt: quiz.createdAt,
+            updatedAt: quiz.updatedAt,
+        };
+    }
+
+    /**
      * Get all exams with user session status
      * GET /api/v1/exams (with userId to get session status)
      */
-    async findAllWithStatus(query: ExamQueryDTO, userId?: string): Promise<PaginatedResponseDTO<ExamWithStatusResponseDTO>> {
+    async findAllWithStatus(userId: string, query: ExamQueryDTO): Promise<PaginatedResponseDTO<ExamWithStatusResponseDTO>> {
         try {
             const {
                 page = 1,
@@ -49,8 +70,9 @@ export class ExamService implements IExamService {
                 jlptLevel,
                 examType,
                 status,
+                courseRunId,
                 search,
-            } = query;
+            } = query as any;
 
             const pageNum = typeof page === 'string' ? parseInt(page, 10) : Number(page) || 1;
             const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : Number(limit) || 10;
@@ -78,6 +100,16 @@ export class ExamService implements IExamService {
                     { title: { contains: search, mode: 'insensitive' } },
                     { description: { contains: search, mode: 'insensitive' } },
                 ];
+            }
+
+            // Filter by lessonId if provided (for lesson-linked quizzes)
+            if ((query as any).lessonId) {
+                whereClause.lessonId = (query as any).lessonId;
+            }
+
+            // Filter by courseRunId if provided
+            if (courseRunId) {
+                whereClause.courseRunId = courseRunId;
             }
 
             this.logger.log(`Fetching quizzes (exams) with filters: ${JSON.stringify(whereClause)}`);
@@ -126,12 +158,13 @@ export class ExamService implements IExamService {
             return {
                 data: quizzes.map((q) => {
                     const attempt = attemptsByQuizId.get(q.id);
-                    const examDto = this.mapper.map<any, ExamResponseDTO>(q, 'Quiz', 'ExamResponseDTO');
+                    const examDto = this.buildExamResponseDTO(q);
 
                     return {
                         ...examDto,
                         sessionStatus: attempt ? (attempt.status as ExamSessionStatus) : undefined,
                         sessionId: attempt?.id,
+                        courseRunId: q.courseRunId ?? undefined,
                         score: attempt?.status === ExamSessionStatus.SUBMITTED ? this.calculateScore(attempt) : undefined,
                         maxScore: q.totalQuestions,
                         progress: attempt ? this.calculateProgress(attempt, q.totalQuestions) : undefined,
@@ -162,6 +195,8 @@ export class ExamService implements IExamService {
                 examType,
                 status,
                 search,
+                courseRunId,
+                courseMasterId,
             } = query;
 
             const pageNum = typeof page === 'string' ? parseInt(page, 10) : Number(page) || 1;
@@ -185,11 +220,28 @@ export class ExamService implements IExamService {
                 whereClause.status = status;
             }
 
+            if (courseRunId) {
+                whereClause.courseRunId = courseRunId;
+            }
+
+            if (courseMasterId) {
+                whereClause.AND = whereClause.AND || [];
+                whereClause.AND.push({
+                    OR: [
+                        { lesson: { module: { courseMasterId } } },
+                        { courseRun: { courseMasterId } },
+                    ],
+                });
+            }
+
             if (search) {
-                whereClause.OR = [
-                    { title: { contains: search, mode: 'insensitive' } },
-                    { description: { contains: search, mode: 'insensitive' } },
-                ];
+                whereClause.AND = whereClause.AND || [];
+                whereClause.AND.push({
+                    OR: [
+                        { title: { contains: search, mode: 'insensitive' } },
+                        { description: { contains: search, mode: 'insensitive' } },
+                    ],
+                });
             }
 
             const [total, quizzes] = await Promise.all([
@@ -205,7 +257,7 @@ export class ExamService implements IExamService {
             const totalPages = Math.ceil(total / validLimit);
 
             return {
-                data: quizzes.map((q) => this.mapper.map<any, ExamResponseDTO>(q, 'Quiz', 'ExamResponseDTO')),
+                data: quizzes.map((q) => this.buildExamResponseDTO(q)),
                 total,
                 page: validPage,
                 limit: validLimit,
@@ -222,7 +274,7 @@ export class ExamService implements IExamService {
      * Start an exam session
      * POST /api/exams/:id/start
      */
-    async startExam(examId: string, userId: string): Promise<ExamSessionStartResponseDTO> {
+    async startExam(examId: string, userId: string, courseRunId: string): Promise<ExamSessionStartResponseDTO> {
         try {
             // Find quiz (using examId parameter for API compatibility)
             const quiz = await this.examRepository.findById(examId);
@@ -242,6 +294,7 @@ export class ExamService implements IExamService {
                 where: {
                     quizId: examId,
                     userId,
+                    courseRunId,
                     status: ExamSessionStatus.IN_PROGRESS,
                 },
             });
@@ -256,6 +309,7 @@ export class ExamService implements IExamService {
             const existingAttemptsCount = await this.examRepository.countAttempts({
                 quizId: examId,
                 userId,
+                courseRunId,
                 status: { in: [ExamSessionStatus.SUBMITTED, ExamSessionStatus.COMPLETED] },
             });
 
@@ -278,6 +332,7 @@ export class ExamService implements IExamService {
             // Create new attempt
             const attempt = await this.examRepository.createAttempt({
                 quiz: { connect: { id: examId } },
+                courseRun: { connect: { id: courseRunId } },
                 userId,
                 status: ExamSessionStatus.IN_PROGRESS,
                 startedAt: new Date(),
@@ -287,7 +342,8 @@ export class ExamService implements IExamService {
                 currentSection: (quiz.sections as any[])?.[0]?.type || null,
                 currentQuestion: 1,
                 attemptNumber: attemptNumber,
-            });
+                courseRunId,
+            } as any);
 
             return this.buildSessionStartResponse(attempt, quiz, questions);
         } catch (error: any) {
@@ -704,7 +760,7 @@ export class ExamService implements IExamService {
 
         return {
             sessionId: attempt.id,
-            exam: this.mapper.map<any, ExamResponseDTO>(quiz, 'Quiz', 'ExamResponseDTO'),
+            exam: this.buildExamResponseDTO(quiz),
             questions,
             timeLimit: totalTimeSeconds,
             sections: quiz.sections as any,
@@ -770,7 +826,7 @@ export class ExamService implements IExamService {
             return {
                 data: attempts.map((a: any) => {
                     const sessionDto = this.mapper.map<any, ExamSessionResponseDTO>(a, 'QuizAttempt', 'ExamSessionResponseDTO');
-                    const exam = a.quiz ? this.mapper.map<any, ExamResponseDTO>(a.quiz, 'Quiz', 'ExamResponseDTO') : undefined;
+                    const exam = a.quiz ? this.buildExamResponseDTO(a.quiz) : undefined;
                     const score = a.status === ExamSessionStatus.SUBMITTED || a.status === ExamSessionStatus.COMPLETED
                         ? (a.score ? Number(a.score) : undefined)
                         : undefined;
@@ -823,6 +879,37 @@ export class ExamService implements IExamService {
     }
 
     /**
+     * Resolve related course master IDs for a given quiz
+     */
+    private async getCourseMasterIdsForQuiz(quiz: any): Promise<string[]> {
+        const courseMasterIds = new Set<string>();
+
+        // From linked lesson -> module -> course master
+        if (quiz.lessonId) {
+            const lesson = await this.prisma.lesson.findUnique({
+                where: { id: quiz.lessonId },
+                include: { module: true },
+            });
+            if (lesson?.module?.courseMasterId) {
+                courseMasterIds.add(lesson.module.courseMasterId);
+            }
+        }
+
+        // From linked course run -> course master
+        if (quiz.courseRunId) {
+            const run = await this.prisma.courseRun.findUnique({
+                where: { id: quiz.courseRunId },
+                select: { courseMasterId: true },
+            });
+            if (run?.courseMasterId) {
+                courseMasterIds.add(run.courseMasterId);
+            }
+        }
+
+        return Array.from(courseMasterIds);
+    }
+
+    /**
      * Check if user has permission to manage exams
      */
     private checkPermission(requester: Requester, action: string): void {
@@ -870,25 +957,18 @@ export class ExamService implements IExamService {
                 showExplanation: false, // Default
                 status: ExamStatus.DRAFT,
                 createdBy: requester.sub,
-            });
+                courseRunId: (dto as any).courseRunId,
+            } as any);
 
             this.logger.log(`Exam ${quiz.id} created by ${requester.sub}`);
 
             // Trigger stats recalculation for associated course via NATS
-            if (quiz.courseId) {
-                this.natsClient.emit({ cmd: 'learning.course.recalculate_stats' }, { courseId: quiz.courseId });
-            } else if (quiz.lessonId) {
-                // If linked to a lesson, find its course
-                const lesson = await this.prisma.lesson.findUnique({
-                    where: { id: quiz.lessonId },
-                    include: { module: true }
-                });
-                if (lesson?.module?.courseId) {
-                    this.natsClient.emit({ cmd: 'learning.course.recalculate_stats' }, { courseId: lesson.module.courseId });
-                }
+            const createdCourseIds = await this.getCourseMasterIdsForQuiz(quiz);
+            for (const courseMasterId of createdCourseIds) {
+                this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseMasterId });
             }
 
-            return this.mapper.map<any, ExamResponseDTO>(quiz, 'Quiz', 'ExamResponseDTO');
+            return this.buildExamResponseDTO(quiz);
         } catch (error: any) {
             this.logger.error(`Error creating exam: ${error.message}`, error.stack);
             throw error;
@@ -918,6 +998,7 @@ export class ExamService implements IExamService {
             if (dto.examType !== undefined) updateData.quizType = dto.examType;
             if (dto.totalTime !== undefined) updateData.totalTime = dto.totalTime;
             if (dto.status !== undefined) updateData.status = dto.status;
+            if ((dto as any).courseRunId !== undefined) updateData.courseRunId = (dto as any).courseRunId;
 
             // Update sections if provided
             if (dto.sections !== undefined) {
@@ -929,39 +1010,19 @@ export class ExamService implements IExamService {
 
             this.logger.log(`Exam ${examId} updated by ${requester.sub}`);
 
-            // Recalculate stats for both OLD and NEW associations via NATS if status or association changed
-            const statusChanged = dto.status !== undefined && dto.status !== (existingQuiz as any).status;
-            const associationChanged = ((dto as any).courseId !== undefined && (dto as any).courseId !== (existingQuiz as any).courseId) ||
-                ((dto as any).lessonId !== undefined && (dto as any).lessonId !== (existingQuiz as any).lessonId);
+            // Recalculate stats for both OLD and NEW associations via NATS
+            const affectedCourses = new Set<string>();
+            const oldIds = await this.getCourseMasterIdsForQuiz(existingQuiz);
+            const newIds = await this.getCourseMasterIdsForQuiz(updated);
 
-            if (statusChanged || associationChanged) {
-                // Get all affected courses
-                const affectedCourses = new Set<string>();
+            oldIds.forEach(id => affectedCourses.add(id));
+            newIds.forEach(id => affectedCourses.add(id));
 
-                const getCourseIds = async (quiz: any) => {
-                    if (quiz.courseId) return [quiz.courseId];
-                    if (quiz.lessonId) {
-                        const lesson = await this.prisma.lesson.findUnique({
-                            where: { id: quiz.lessonId },
-                            include: { module: true }
-                        });
-                        return lesson?.module?.courseId ? [lesson.module.courseId] : [];
-                    }
-                    return [];
-                };
-
-                const oldIds = await getCourseIds(existingQuiz);
-                const newIds = await getCourseIds(updated);
-
-                oldIds.forEach(id => affectedCourses.add(id));
-                newIds.forEach(id => affectedCourses.add(id));
-
-                for (const courseId of affectedCourses) {
-                    this.natsClient.emit({ cmd: 'learning.course.recalculate_stats' }, { courseId });
-                }
+            for (const courseMasterId of affectedCourses) {
+                this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseMasterId });
             }
 
-            return this.mapper.map<any, ExamResponseDTO>(updated, 'Quiz', 'ExamResponseDTO');
+            return this.buildExamResponseDTO(updated);
         } catch (error: any) {
             this.logger.error(`Error updating exam ${examId}: ${error.message}`, error.stack);
             throw error;
@@ -987,16 +1048,9 @@ export class ExamService implements IExamService {
             this.logger.log(`Exam ${examId} deleted by ${requester.sub}`);
 
             // Trigger stats recalculation via NATS
-            if ((quiz as any).courseId) {
-                this.natsClient.emit({ cmd: 'learning.course.recalculate_stats' }, { courseId: (quiz as any).courseId });
-            } else if ((quiz as any).lessonId) {
-                const lesson = await this.prisma.lesson.findUnique({
-                    where: { id: (quiz as any).lessonId },
-                    include: { module: true }
-                });
-                if (lesson?.module?.courseId) {
-                    this.natsClient.emit({ cmd: 'learning.course.recalculate_stats' }, { courseId: lesson.module.courseId });
-                }
+            const deletedCourseIds = await this.getCourseMasterIdsForQuiz(quiz);
+            for (const courseMasterId of deletedCourseIds) {
+                this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseMasterId });
             }
         } catch (error: any) {
             this.logger.error(`Error deleting exam ${examId}: ${error.message}`, error.stack);
@@ -1016,7 +1070,7 @@ export class ExamService implements IExamService {
                 throw new NotFoundException('Exam not found');
             }
 
-            return this.mapper.map<any, ExamResponseDTO>(quiz, 'Quiz', 'ExamResponseDTO');
+            return this.buildExamResponseDTO(quiz);
         } catch (error: any) {
             this.logger.error(`Error fetching exam ${examId}: ${error.message}`, error.stack);
             throw error;
@@ -1052,7 +1106,7 @@ export class ExamService implements IExamService {
             });
 
             this.logger.log(`Exam ${examId} published by ${requester.sub}`);
-            return this.mapper.map<any, ExamResponseDTO>(updated, 'Quiz', 'ExamResponseDTO');
+            return this.buildExamResponseDTO(updated);
         } catch (error: any) {
             this.logger.error(`Error publishing exam ${examId}: ${error.message}`, error.stack);
             throw error;
@@ -1172,7 +1226,7 @@ export class ExamService implements IExamService {
             return {
                 data: attempts.map((a: any) => {
                     const sessionDto = this.mapper.map<any, ExamSessionResponseDTO>(a, 'QuizAttempt', 'ExamSessionResponseDTO');
-                    const exam = a.quiz ? this.mapper.map<any, ExamResponseDTO>(a.quiz, 'Quiz', 'ExamResponseDTO') : undefined;
+                    const exam = a.quiz ? this.buildExamResponseDTO(a.quiz) : undefined;
                     const score = a.status === ExamSessionStatus.SUBMITTED || a.status === ExamSessionStatus.COMPLETED
                         ? (a.score ? Number(a.score) : undefined)
                         : undefined;
@@ -1214,7 +1268,7 @@ export class ExamService implements IExamService {
                 throw new NotFoundException('Exam not found');
             }
 
-            const examDto = this.mapper.map<any, ExamResponseDTO>(quiz, 'Quiz', 'ExamResponseDTO');
+            const examDto = this.buildExamResponseDTO(quiz);
 
             // Get user's latest attempt if userId provided
             let userAttempt: any = null;
@@ -1300,7 +1354,7 @@ export class ExamService implements IExamService {
             return {
                 data: attempts.map((a: any) => {
                     const sessionDto = this.mapper.map<any, ExamSessionResponseDTO>(a, 'QuizAttempt', 'ExamSessionResponseDTO');
-                    const exam = a.quiz ? this.mapper.map<any, ExamResponseDTO>(a.quiz, 'Quiz', 'ExamResponseDTO') : undefined;
+                    const exam = a.quiz ? this.buildExamResponseDTO(a.quiz) : undefined;
                     const score = a.status === ExamSessionStatus.SUBMITTED || a.status === ExamSessionStatus.COMPLETED
                         ? (a.score ? Number(a.score) : undefined)
                         : undefined;

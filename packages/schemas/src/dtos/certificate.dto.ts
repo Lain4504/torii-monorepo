@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import { certificateSchema } from '../models/certificate.model';
 
-import { courseSchema } from '../models/course.model';
+import { courseRunResponseDTOSchema } from './course-run.dto';
 
 export const certificateResponseDTOSchema = certificateSchema.extend({
-    course: courseSchema.optional(),
+    courseRun: courseRunResponseDTOSchema.optional(),
 });
 
 export type CertificateResponseDTO = z.infer<typeof certificateResponseDTOSchema>;
@@ -13,14 +13,14 @@ export const certificateQueryDTOSchema = z.object({
     page: z.string().optional(),
     limit: z.string().optional(),
     userId: z.string().uuid().optional(),
-    courseId: z.string().uuid().optional(),
+    courseRunId: z.string().uuid().optional(),
 });
 
 export type CertificateQueryDTO = z.infer<typeof certificateQueryDTOSchema>;
 
 export const certificateIssueDTOSchema = z.object({
     userId: z.string().uuid(),
-    courseId: z.string().uuid(),
+    courseRunId: z.string().uuid(),
     enrollmentId: z.string().uuid(),
 });
 

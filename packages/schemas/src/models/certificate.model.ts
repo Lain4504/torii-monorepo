@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const certificateSchema = z.object({
     id: z.string().uuid(),
     userId: z.string().uuid(),
-    courseId: z.string().uuid(),
+    courseRunId: z.string().uuid(),
     enrollmentId: z.string().uuid(),
     certificateCode: z.string().max(50),
     issueDate: z.date(),

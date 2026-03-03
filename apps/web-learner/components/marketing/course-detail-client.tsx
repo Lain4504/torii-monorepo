@@ -5,28 +5,46 @@ import { useCourseBySlug, useCurriculum } from '@/lib/api/services/course-api';
 import { useCheckEnrollment } from '@/lib/api/services/enrollment-api';
 import { useCheckWishlist, useToggleWishlist } from '@/lib/api/services/wishlist-api';
 import { useCart, useAddToCart } from '@/lib/api/services/cart-api';
+import { useCourseReviews, useRatingDistribution } from '@/lib/api/services/review-api';
+import { useAvailableCourseRuns } from '@/lib/api/services/course-run-api';
 import { toast } from '@workspace/ui/components/sonner';
 import { Skeleton } from '@workspace/ui/components/skeleton';
-import { PlayCircle, FileText, HelpCircle, ChevronDown, Star, Users, Clock, Calendar, CheckCircle2, Heart, ShoppingCart } from 'lucide-react';
+import { Badge } from '@workspace/ui/components/badge';
+import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from '@workspace/ui/components/dialog';
+import { PlayCircle, FileText, HelpCircle, ChevronDown, Star, Users, Clock, Calendar, CheckCircle2, Heart, ShoppingCart, BookOpen } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export function CourseDetailClient({ slug }: { slug: string }) {
     const router = useRouter();
     const [isSticky, setIsSticky] = useState(false);
     const [openAccordion, setOpenAccordion] = useState<number | null>(1);
+    const [previewLesson, setPreviewLesson] = useState<any | null>(null);
 
     const { data: course, isLoading: isCourseLoading } = useCourseBySlug(slug);
     const { data: curriculum, isLoading: isCurriculumLoading } = useCurriculum(course?.id);
-    const { data: enrollmentData } = useCheckEnrollment(course?.id || '');
-    const { data: wishlistData } = useCheckWishlist(course?.id || '');
     const { data: cartData } = useCart();
+    const { data: availableRuns, isLoading: isRunsLoading } = useAvailableCourseRuns(course?.id);
+    const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
+
+    // Fetch Reviews & Distribution
+    const { data: reviewsData } = useCourseReviews(course?.id);
+    const { data: distributionData } = useRatingDistribution(course?.id);
 
     const addToCart = useAddToCart();
     const toggleWishlist = useToggleWishlist();
 
+    // Get pricing and enrollment from selected run or first available run
+    const selectedRun = selectedRunId ? availableRuns?.find(r => r.id === selectedRunId) : availableRuns?.[0];
+    const primaryRunId = selectedRun?.id;
+    const { data: wishlistData } = useCheckWishlist(primaryRunId || '');
+    const { data: enrollmentData } = useCheckEnrollment(primaryRunId || '');
     const isEnrolled = enrollmentData?.isEnrolled;
     const isInWishlist = wishlistData?.isInWishlist;
-    const isInCart = cartData?.items?.some(item => item.courseId === course?.id);
+    const isInCart = primaryRunId
+        ? cartData?.items?.some(item => item.courseRunId === primaryRunId)
+        : false;
+    const coursePrice = selectedRun?.price ?? 0;
+    const discountPrice = selectedRun?.discountPrice ?? null;
 
     useEffect(() => {
         const handleScroll = () => {
@@ -82,40 +100,33 @@ export function CourseDetailClient({ slug }: { slug: string }) {
         }
       `}</style>
 
-            <div className="bg-muted/30 text-foreground antialiased font-sans">
+            <div className="bg-muted/30 text-foreground antialiased font-sans relative">
 
                 {/*  BEGIN: Hero Section  */}
-                <section className="relative bg-foreground text-primary-foreground overflow-hidden" data-purpose="hero-section">
-                    {/*  Background Image with Overlay  */}
-                    <div className="absolute inset-0 z-0">
-                        <img alt={course.title} className="w-full h-full object-cover opacity-40" src={course.thumbnailUrl || "https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?q=80&w=2000&auto=format&fit=crop"} />
-                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent"></div>
-                    </div>
-                    <div className="relative z-10 max-w-7xl mx-auto px-4 pt-12 pb-16 md:pt-20 md:pb-24">
-                        {/*  Breadcrumbs  */}
-                        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-                            <a className="hover:text-primary-foreground transition-colors" href="#">Trang chủ</a>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
-                            <a className="hover:text-primary-foreground transition-colors" href="#">Khóa học</a>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
-                            <span className="text-primary-foreground font-medium">{course.title}</span>
-                        </nav>
-                        <div className="grid lg:grid-cols-3 gap-12 items-center">
+                <div className="bg-slate-900 border-b border-slate-800">
+                    <section className="relative text-slate-50" data-purpose="hero-section">
+                        <div className="max-w-7xl mx-auto px-4 pt-10 pb-16 md:pt-16 md:pb-32 grid lg:grid-cols-3 gap-12 relative z-10">
                             <div className="lg:col-span-2">
+                                {/*  Breadcrumbs  */}
+                                <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-slate-400 mb-6 font-medium">
+                                    <a className="hover:text-white transition-colors" href="/courses">Khóa học</a>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path></svg>
+                                    <span className="text-white line-clamp-1">{course.title}</span>
+                                </nav>
                                 {/*  JLPT Badge  */}
-                                <span className="inline-block px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest mb-4">
+                                <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary/20 border border-primary/30 text-primary text-xs font-bold uppercase tracking-widest mb-4">
                                     Trình độ {course.jlptLevel || 'ALL'}
                                 </span>
-                                <h1 className="serif-jp text-3xl md:text-5xl font-extrabold leading-tight mb-6">
+                                <h1 className="serif-jp text-3xl md:text-5xl lg:text-5xl font-extrabold leading-tight mb-6 text-white tracking-tight">
                                     {course.title}
                                 </h1>
-                                <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl opacity-90">
+                                <p className="text-lg md:text-xl text-slate-300 mb-8 max-w-2xl leading-relaxed">
                                     {course.shortDescription || course.description}
                                 </p>
                                 {/*  Under Hero Metadata  */}
                                 <div className="flex flex-wrap items-center gap-6 text-sm">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-10 h-10 rounded-full border-2 border-background/20 bg-muted flex items-center justify-center font-bold text-xs uppercase overflow-hidden">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full border border-slate-700 bg-slate-800 flex items-center justify-center font-bold text-xs uppercase overflow-hidden shadow-inner shrink-0">
                                             {course.lecturer?.avatarUrl ? (
                                                 <img src={course.lecturer.avatarUrl} alt={course.lecturer.displayName} className="size-full object-cover" />
                                             ) : (
@@ -125,53 +136,42 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                                         {course.lecturer?.id ? (
                                             <a
                                                 href={`/lecturers/${course.lecturer.id}`}
-                                                className="font-medium text-primary-foreground underline underline-offset-4 cursor-pointer hover:opacity-80 transition-opacity"
+                                                className="font-medium text-white hover:text-primary transition-colors underline underline-offset-4"
                                             >
                                                 {course.lecturer?.displayName || "Torii Sensei"}
                                             </a>
                                         ) : (
-                                            <span className="font-medium text-primary-foreground">{course.lecturer?.displayName || "Torii Sensei"}</span>
+                                            <span className="font-medium text-white">{course.lecturer?.displayName || "Torii Sensei"}</span>
                                         )}
                                     </div>
-                                    <div className="flex items-center gap-1 text-yellow-400">
-                                        <span className="font-bold text-primary-foreground">{course.averageRating || 0}</span>
-                                        <Star className="w-4 h-4 fill-current" />
-                                        <span className="text-muted-foreground">({course.totalReviews || 0} đánh giá)</span>
+                                    <div className="flex items-center gap-1.5 text-yellow-500">
+                                        <span className="font-bold text-white text-base">{course.averageRating || 0}</span>
+                                        <div className="flex">
+                                            {[1, 2, 3, 4, 5].map(i => (
+                                                <Star key={i} className={`w-4 h-4 ${i <= Math.round(course.averageRating || 0) ? 'fill-current' : 'text-slate-700 fill-slate-700'}`} />
+                                            ))}
+                                        </div>
+                                        <span className="text-slate-400 underline underline-offset-4 cursor-pointer ml-1 hover:text-white transition-colors">({course.totalReviews || 0} đánh giá)</span>
                                     </div>
-                                    <div className="flex items-center gap-1 text-muted-foreground">
+                                    <div className="flex items-center gap-1.5 text-slate-300">
                                         <Users className="w-4 h-4" />
-                                        <span>{course.totalStudents || 0} học viên</span>
+                                        <span>{(course.totalStudents || 0).toLocaleString()} học viên</span>
                                     </div>
-                                    <div className="bg-background/10 px-3 py-1 rounded-md flex items-center gap-1.5 border border-background/10">
+                                    <div className="text-slate-400 flex items-center gap-1.5 font-medium">
                                         <Clock className="w-4 h-4" />
                                         <span>Cập nhật {new Date(course.updatedAt).toLocaleDateString('vi-VN')}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
+                </div>
                 {/*  END: Hero Section  */}
                 {/*  BEGIN: Main Content Layout  */}
-                <main className="max-w-7xl mx-auto px-4 py-12 relative">
+                <main className="max-w-7xl mx-auto px-4 pb-20 relative">
                     <div className="grid lg:grid-cols-3 gap-12">
                         {/*  Left Column: Content (2/3)  */}
-                        <div className="lg:col-span-2 space-y-12">
-                            {/*  Social Proof Strip  */}
-                            <section className="grid grid-cols-3 gap-4 p-6 bg-background rounded-2xl border border-border shadow-sm" data-purpose="social-proof-strip">
-                                <div className="text-center border-r border-border last:border-0">
-                                    <p className="text-2xl font-bold text-foreground">{course.totalLessons || 0}</p>
-                                    <p className="text-sm text-muted-foreground">Bài học</p>
-                                </div>
-                                <div className="text-center border-r border-border last:border-0">
-                                    <p className="text-2xl font-bold text-foreground">{course.durationWeeks || '?'}</p>
-                                    <p className="text-sm text-muted-foreground">Tuần học</p>
-                                </div>
-                                <div className="text-center">
-                                    <p className="text-2xl font-bold text-foreground">Trọn đời</p>
-                                    <p className="text-sm text-muted-foreground">Truy cập</p>
-                                </div>
-                            </section>
+                        <div className="lg:col-span-2 space-y-12 bg-transparent pt-8 lg:pt-12">
                             {/*  What You Will Learn  */}
                             <section data-purpose="outcomes-section" id="outcomes">
                                 <h3 className="serif-jp text-2xl font-bold mb-6">Bạn sẽ học được gì?</h3>
@@ -214,20 +214,31 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                                             <div className="accordion-content">
                                                 <div className="px-6 py-2 border-t border-border">
                                                     {module.lessons?.map((lesson) => (
-                                                        <div key={lesson.id} className="flex items-center justify-between py-4 group last:border-0 border-b border-border/50">
-                                                            <div className="flex items-center gap-3">
-                                                                {lesson.contentType === 'video' ? <PlayCircle className="w-4 h-4 text-primary" /> :
-                                                                    lesson.contentType === 'document' ? <FileText className="w-4 h-4 text-primary" /> :
-                                                                        <HelpCircle className="w-4 h-4 text-primary" />}
-                                                                <span className="text-sm font-medium text-foreground/80 group-hover:text-primary transition-colors">
+                                                        <div key={lesson.id} className="flex items-center justify-between py-4 group last:border-0 border-b border-border/40 hover:bg-muted/10 -mx-6 px-6 transition-colors">
+                                                            <div className="flex items-center gap-4">
+                                                                <div className="size-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                                                                    {lesson.contentType === 'video' && <PlayCircle className="size-4" />}
+                                                                    {lesson.contentType === 'assignment' && <BookOpen className="size-4 text-amber-500" />}
+                                                                    {lesson.contentType === 'quiz' && <HelpCircle className="size-4 text-violet-500" />}
+                                                                    {lesson.contentType === 'document' && <FileText className="size-4" />}
+                                                                </div>
+                                                                <span className="text-sm font-medium text-foreground/80 group-hover:text-primary transition-colors line-clamp-1">
                                                                     {lesson.title}
                                                                 </span>
                                                             </div>
-                                                            <div className="flex items-center gap-3">
+                                                            <div className="flex items-center gap-3 shrink-0">
                                                                 {lesson.isPreview && (
-                                                                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold uppercase">Xem thử</span>
+                                                                    <button
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            setPreviewLesson(lesson);
+                                                                        }}
+                                                                        className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold uppercase hover:bg-primary hover:text-white transition-colors cursor-pointer"
+                                                                    >
+                                                                        Xem thử
+                                                                    </button>
                                                                 )}
-                                                                <span className="text-xs text-muted-foreground">
+                                                                <span className="text-xs text-muted-foreground w-12 text-right">
                                                                     {lesson.videoDuration ? `${Math.floor(lesson.videoDuration / 60)}:${(lesson.videoDuration % 60).toString().padStart(2, '0')}` : ''}
                                                                 </span>
                                                             </div>
@@ -239,6 +250,88 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                                     ))}
                                 </div>
                             </section>
+                            {/*  Course Schedule / Available Runs (For LIVE courses)  */}
+                            {course.type?.toUpperCase() === 'LIVE' && (
+                                <section data-purpose="runs-section" id="schedule">
+                                    <div className="flex items-center justify-between mb-8">
+                                        <div>
+                                            <h3 className="serif-jp text-2xl font-bold mb-1">Lịch khai giảng sắp tới</h3>
+                                            <p className="text-sm text-muted-foreground">Chọn lịch học phù hợp nhất với thời gian của bạn.</p>
+                                        </div>
+                                        <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 transition-colors">
+                                            {availableRuns?.length || 0} lớp đang mở
+                                        </Badge>
+                                    </div>
+
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        {isRunsLoading ? (
+                                            [1, 2].map(i => <Skeleton key={i} className="h-32 w-full rounded-2xl" />)
+                                        ) : availableRuns && availableRuns.length > 0 ? (
+                                            availableRuns.map((run) => (
+                                                <div
+                                                    key={run.id}
+                                                    onClick={() => !isEnrolled && setSelectedRunId(run.id)}
+                                                    className={`group relative p-6 rounded-2xl border-2 transition-all cursor-pointer overflow-hidden ${selectedRunId === run.id
+                                                        ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
+                                                        : 'border-border bg-background hover:border-primary/50'
+                                                        } ${isEnrolled ? 'opacity-80 cursor-not-allowed' : ''}`}
+                                                >
+                                                    {/* Glassmorphism background effect */}
+                                                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/20 transition-all"></div>
+
+                                                    <div className="relative z-10 flex flex-col h-full">
+                                                        <div className="flex justify-between items-start mb-4">
+                                                            <div>
+                                                                <h4 className="font-bold text-lg group-hover:text-primary transition-colors line-clamp-1">{run.title}</h4>
+                                                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                                                                    <Users className="size-3" />
+                                                                    <span>Cần tối thiểu {run.minStudents} học viên</span>
+                                                                </div>
+                                                            </div>
+                                                            {selectedRunId === run.id && (
+                                                                <CheckCircle2 className="size-5 text-primary fill-primary/10" />
+                                                            )}
+                                                        </div>
+
+                                                        <div className="space-y-2.5 mt-auto">
+                                                            <div className="flex items-center gap-3 text-sm">
+                                                                <div className="size-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                                                                    <Calendar className="size-4 text-primary" />
+                                                                </div>
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-[10px] uppercase font-bold text-muted-foreground leading-none mb-0.5">Khai giảng</span>
+                                                                    <span className="font-semibold text-foreground/90">
+                                                                        {run.startDate ? new Date(run.startDate).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Sắp ra mắt'}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="flex items-center gap-3 text-sm">
+                                                                <div className="size-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                                                                    <Users className="size-4 text-primary" />
+                                                                </div>
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-[10px] uppercase font-bold text-muted-foreground leading-none mb-0.5">Trạng thái</span>
+                                                                    <span className="font-semibold text-foreground/90">
+                                                                        {run.totalStudents || 0} / {run.maxStudents || '∞'} học viên
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="col-span-2 p-12 text-center rounded-2xl border-2 border-dashed border-border bg-muted/5">
+                                                <Calendar className="size-10 text-muted-foreground/30 mx-auto mb-4" />
+                                                <p className="text-muted-foreground font-medium">Hiện chưa có lịch khai giảng mới cho khóa học này.</p>
+                                                <p className="text-xs text-muted-foreground/60 mt-1">Đăng ký nhận thông báo để không bỏ lỡ đợt tuyển sinh tiếp theo.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </section>
+                            )}
+
                             {/*  Prerequisites  */}
                             <section data-purpose="prerequisites-section">
                                 <h3 className="serif-jp text-2xl font-bold mb-6">Điều kiện tham gia</h3>
@@ -311,107 +404,126 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                                 </div>
                             </section>
                             {/*  Reviews  */}
-                            <section data-purpose="reviews-section" id="reviews">
-                                <h3 className="text-2xl font-bold mb-6">Đánh giá từ học viên</h3>
-                                <div className="grid md:grid-cols-4 gap-8 mb-8">
-                                    <div className="text-center flex flex-col justify-center">
-                                        <span className="text-5xl font-extrabold text-[oklch(0.55_0.15_15)]">4.8</span>
-                                        <div className="flex justify-center my-2 text-yellow-400">
-                                            <svg className="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                            <svg className="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                            <svg className="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                            <svg className="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                            <svg className="w-5 h-5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            {reviewsData?.data && reviewsData.data.length > 0 && (
+                                <section data-purpose="reviews-section" id="reviews">
+                                    <h3 className="text-2xl font-bold mb-6">Đánh giá từ học viên</h3>
+
+                                    <div className="grid md:grid-cols-4 gap-8 mb-8">
+                                        <div className="text-center flex flex-col justify-center">
+                                            <span className="text-5xl font-extrabold text-[oklch(0.55_0.15_15)]">{distributionData?.averageRating?.toFixed(1) || course.averageRating?.toFixed(1) || '0.0'}</span>
+                                            <div className="flex justify-center my-2 text-yellow-400">
+                                                {[1, 2, 3, 4, 5].map(i => (
+                                                    <svg key={i} className={`w-5 h-5 ${i <= Math.round(distributionData?.averageRating || course.averageRating || 0) ? 'fill-current' : 'text-slate-300 fill-slate-300'}`} viewBox="0 0 20 20">
+                                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                                    </svg>
+                                                ))}
+                                            </div>
+                                            <p className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Xếp hạng khóa học</p>
                                         </div>
-                                        <p className="text-sm font-bold text-muted-foreground uppercase tracking-wide">Xếp hạng khóa học</p>
-                                    </div>
-                                    <div className="md:col-span-3 space-y-2">
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
-                                                <div className="h-full bg-foreground" style={{ width: '85%' }}></div>
-                                            </div>
-                                            <div className="flex items-center gap-1 w-24">
-                                                <span className="text-sm text-muted-foreground">5 sao</span>
-                                                <span className="text-sm text-muted-foreground">85%</span>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
-                                                <div className="h-full bg-foreground" style={{ width: '10%' }}></div>
-                                            </div>
-                                            <div className="flex items-center gap-1 w-24">
-                                                <span className="text-sm text-muted-foreground">4 sao</span>
-                                                <span className="text-sm text-muted-foreground">10%</span>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
-                                                <div className="h-full bg-foreground" style={{ width: '5%' }}></div>
-                                            </div>
-                                            <div className="flex items-center gap-1 w-24">
-                                                <span className="text-sm text-muted-foreground">3 sao</span>
-                                                <span className="text-sm text-muted-foreground">5%</span>
-                                            </div>
+                                        <div className="md:col-span-3 space-y-2">
+                                            {[5, 4, 3, 2, 1].map((stars) => {
+                                                const distr = distributionData?.distribution?.find((d: any) => d.stars === stars);
+                                                const percent = distr ? distr.percent : 0;
+                                                return (
+                                                    <div key={stars} className="flex items-center gap-4">
+                                                        <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                                                            <div className="h-full bg-foreground" style={{ width: `${percent}%` }}></div>
+                                                        </div>
+                                                        <div className="flex items-center gap-1 w-24">
+                                                            <span className="text-sm text-muted-foreground">{stars} sao</span>
+                                                            <span className="text-sm text-muted-foreground">{percent}%</span>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </div>
-                                </div>
-                                <div className="space-y-4">
-                                    {/*  Review Card 1  */}
-                                    <div className="p-6 bg-background rounded-2xl border border-border">
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-muted-foreground">HN</div>
-                                                <div>
-                                                    <h5 className="font-bold">Hoàng Nam</h5>
-                                                    <p className="text-xs text-muted-foreground">Học viên đã xác thực • 2 tháng trước</p>
+
+                                    <div className="space-y-4">
+                                        {reviewsData.data.map((review: any) => (
+                                            <div key={review.id} className="p-6 bg-background rounded-2xl border border-border">
+                                                <div className="flex items-center justify-between mb-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-muted-foreground overflow-hidden">
+                                                            {review.user?.avatarUrl ? (
+                                                                <img src={review.user.avatarUrl} alt={review.user.displayName} className="w-full h-full object-cover" />
+                                                            ) : (
+                                                                review.user?.displayName?.substring(0, 2) || "U"
+                                                            )}
+                                                        </div>
+                                                        <div>
+                                                            <h5 className="font-bold">{review.user?.displayName || "Người dùng ẩn danh"}</h5>
+                                                            <p className="text-xs text-muted-foreground">
+                                                                Học viên đã xác thực • {new Date(review.createdAt).toLocaleDateString('vi-VN')}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-yellow-400 flex">
+                                                        {[1, 2, 3, 4, 5].map(i => (
+                                                            <svg key={i} className={`w-4 h-4 ${i <= review.rating ? 'fill-current' : 'text-slate-300 fill-slate-300'}`} viewBox="0 0 20 20">
+                                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                                            </svg>
+                                                        ))}
+                                                    </div>
                                                 </div>
+                                                <p className="text-muted-foreground">{review.comment || 'Không có bình luận.'}</p>
                                             </div>
-                                            <div className="text-yellow-400 flex">
-                                                <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                                <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                                <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                                <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                                <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                            </div>
-                                        </div>
-                                        <p className="text-muted-foreground">Khóa học cực kỳ chi tiết, phần giải thích ngữ pháp rất dễ hiểu so với tự học trong sách. Đặc biệt là các bài tập bổ trợ trên app rất hiệu quả.</p>
+                                        ))}
                                     </div>
-                                </div>
-                            </section>
+                                </section>
+                            )}
                         </div>
                         {/*  Right Column: Sidebar (1/3)  */}
-                        <aside className="lg:col-span-1" data-purpose="sidebar">
-                            <div className="sticky top-24 bg-background rounded-2xl border border-border shadow-xl overflow-hidden" data-purpose="enrollment-card">
+                        <aside className="lg:col-span-1 lg:-mt-[440px] relative z-20 pointer-events-none" data-purpose="sidebar">
+                            <div className="sticky top-28 pointer-events-auto bg-background rounded-2xl border border-border/80 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] overflow-hidden" data-purpose="enrollment-card">
                                 {/*  Thumbnail & Preview Button  */}
-                                <div className="relative group cursor-pointer aspect-video overflow-hidden">
-                                    <img alt="Preview Video" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFO3FHJFEuOp_NuOdhutPNQQD_b8opqGLq5Iyg2fVZ-GP6qy9diClug33bNZekfdG15yVSoRffAPpF0Od3uAD0unbU1nVbePnhJ7uDHdzwwiXySi-mcBaNV_TSb5jVCT_PrELqVTACwwzYR-Tx09yWIJyzW6zFboeK9SGNr673DJD5RRqJRpSI2gDAMD26aVtBFgaI4qBhCTcqE7X-hUyNZ40_NdJbTpJF1_M01SBHrlTq9ANzZjB4-Lncc8PT0Eutyzpx9HQpqPQ" />
-                                    <div className="absolute inset-0 bg-foreground/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <div className="bg-background/90 p-4 rounded-full">
-                                            <svg className="w-8 h-8 text-[oklch(0.55_0.15_15)] fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <div className="relative group cursor-pointer aspect-video overflow-hidden">
+                                            <img alt="Preview Video" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src={course.thumbnailUrl || "https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?q=80&w=2000&auto=format&fit=crop"} />
+                                            <div className="absolute inset-0 bg-foreground/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <div className="bg-background/90 p-4 rounded-full">
+                                                    <svg className="w-8 h-8 text-[oklch(0.55_0.15_15)] fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+                                                </div>
+                                            </div>
+                                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-full px-4">
+                                                <button className="w-full bg-background/10 backdrop-blur-md text-primary-foreground border border-background/30 py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:bg-background/20 transition-all">
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                    Xem thử khóa học
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-full px-4">
-                                        <button className="w-full bg-background/10 backdrop-blur-md text-primary-foreground border border-background/30 py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:bg-background/20 transition-all">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            Xem thử khóa học
-                                        </button>
-                                    </div>
-                                </div>
+                                    </DialogTrigger>
+                                    <DialogContent className="sm:max-w-[800px] p-0 bg-black/90 border-slate-800 overflow-hidden">
+                                        <DialogTitle className="sr-only">Video giới thiệu khóa học</DialogTitle>
+                                        <DialogDescription className="sr-only">Xem video giới thiệu khóa học này</DialogDescription>
+                                        <div className="aspect-video w-full bg-black">
+                                            {/* Assume course.trailerUrl is available, fallback to a placeholder */}
+                                            <video
+                                                controls
+                                                autoPlay
+                                                className="w-full h-full"
+                                                src={(course as any).trailerUrl || (course as any).videoUrl || 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'}
+                                            >
+                                                Trình duyệt của bạn không hỗ trợ thẻ video.
+                                            </video>
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
                                 {/*  Pricing & CTA  */}
                                 <div className="p-6 space-y-6">
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2">
                                             <span className="text-3xl font-extrabold text-foreground">
-                                                {course.discountPrice != null
-                                                    ? `${course.discountPrice.toLocaleString()} ₫`
-                                                    : course.price != null
-                                                        ? `${course.price.toLocaleString()} ₫` : 'Miễn phí'}
+                                                {(!discountPrice && (!coursePrice || coursePrice === 0))
+                                                    ? 'Miễn phí'
+                                                    : `${(discountPrice || coursePrice).toLocaleString()} ₫`}
                                             </span>
-                                            {course.price != null && course.discountPrice != null && course.price > course.discountPrice && (
+                                            {coursePrice != null && discountPrice != null && coursePrice > discountPrice && (
                                                 <>
-                                                    <span className="text-muted-foreground line-through">{course.price.toLocaleString()} ₫</span>
+                                                    <span className="text-muted-foreground line-through">{coursePrice.toLocaleString()} ₫</span>
                                                     <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">
-                                                        -{Math.round(((course.price - course.discountPrice) / course.price) * 100)}%
+                                                        -{Math.round(((coursePrice - discountPrice) / coursePrice) * 100)}%
                                                     </span>
                                                 </>
                                             )}
@@ -424,7 +536,14 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                                     <div className="space-y-3">
                                         {isEnrolled ? (
                                             <button
-                                                onClick={() => router.push(`/learning/${course.id}`)}
+                                                onClick={() => {
+                                                    const runId = enrollmentData?.enrollment?.courseRunId;
+                                                    if (runId) {
+                                                        router.push(`/courses/${runId}/learn`);
+                                                    } else {
+                                                        router.push(`/dashboard/my-courses`);
+                                                    }
+                                                }}
                                                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-4 rounded-xl font-bold text-lg shadow-lg transition-all"
                                             >
                                                 Ghé thăm lớp học
@@ -432,16 +551,31 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                                         ) : (
                                             <>
                                                 <button
-                                                    onClick={() => router.push(`/checkout/${course.id}`)}
+                                                    onClick={() => {
+                                                        if (course.type?.toUpperCase() === 'LIVE' && !selectedRunId) {
+                                                            toast.error('Vui lòng chọn lịch khai giảng phù hợp');
+                                                            const scheduleSection = document.getElementById('schedule');
+                                                            if (scheduleSection) {
+                                                                scheduleSection.scrollIntoView({ behavior: 'smooth' });
+                                                            }
+                                                            return;
+                                                        }
+                                                        const targetRunId = selectedRun?.id || availableRuns?.[0]?.id;
+                                                        router.push(`/checkout/${course.id}${targetRunId ? `?runId=${targetRunId}` : ''}`);
+                                                    }}
                                                     className="w-full bg-gradient-to-r from-[oklch(0.55_0.15_15)] to-rose-600 hover:from-[oklch(0.55_0.15_15)]Dark hover:to-rose-700 text-primary-foreground py-4 rounded-xl font-bold text-lg shadow-lg shadow-[oklch(0.55_0.15_15)]/30 transition-all hover:-translate-y-0.5 active:translate-y-0">
                                                     Đăng ký ngay
                                                 </button>
                                                 <button
                                                     onClick={() => {
+                                                        if (!primaryRunId) {
+                                                            toast.error('Không tìm thấy lớp học phù hợp để thêm vào giỏ hàng');
+                                                            return;
+                                                        }
                                                         if (isInCart) {
                                                             router.push('/dashboard/cart');
                                                         } else {
-                                                            addToCart.mutate(course.id, {
+                                                            addToCart.mutate(primaryRunId, {
                                                                 onSuccess: () => toast.success('Đã thêm vào giỏ hàng!'),
                                                                 onError: () => toast.error('Không thể thêm vào giỏ hàng'),
                                                             });
@@ -468,8 +602,16 @@ export function CourseDetailClient({ slug }: { slug: string }) {
 
                                         <button
                                             onClick={() => {
-                                                toggleWishlist.mutate(course.id, {
-                                                    onSuccess: (data) => toast.success(data.isInWishlist ? 'Đã thêm vào danh sách yêu thích!' : 'Đã xóa khỏi danh sách yêu thích'),
+                                                if (!primaryRunId) {
+                                                    toast.error('Không tìm thấy lớp học phù hợp để thêm vào yêu thích');
+                                                    return;
+                                                }
+                                                toggleWishlist.mutate(primaryRunId, {
+                                                    onSuccess: (data) => {
+                                                        if (data) {
+                                                            toast.success(data.isInWishlist ? 'Đã thêm vào danh sách yêu thích!' : 'Đã xóa khỏi danh sách yêu thích');
+                                                        }
+                                                    },
                                                     onError: () => toast.error('Không thể cập nhật danh sách yêu thích'),
                                                 });
                                             }}
@@ -509,7 +651,24 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                     </div>
                 </main>
                 {/*  END: Main Content Layout  */}
-            </div >
+            </div>
+            <Dialog open={!!previewLesson} onOpenChange={(open) => !open && setPreviewLesson(null)}>
+                <DialogContent className="sm:max-w-[800px] p-0 bg-black/90 border-slate-800 overflow-hidden">
+                    <DialogTitle className="p-4 text-white border-b border-white/10">{previewLesson?.title}</DialogTitle>
+                    <div className="aspect-video w-full bg-black">
+                        {previewLesson && (
+                            <video
+                                controls
+                                autoPlay
+                                className="w-full h-full"
+                                src={previewLesson.videoUrl || 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'}
+                            >
+                                Trình duyệt của bạn không hỗ trợ thẻ video.
+                            </video>
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }

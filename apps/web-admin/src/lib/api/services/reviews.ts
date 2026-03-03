@@ -6,7 +6,7 @@ import type { StandardApiResponse, PaginatedApiResponse } from '@workspace/schem
 export interface ReviewResponseDTO {
     id: string;
     userId: string;
-    courseId: string;
+    courseRunId: string;
     rating: number;
     comment?: string;
     createdAt: Date;
@@ -24,7 +24,7 @@ export type ReviewQueryDTO = {
     limit?: number;
     search?: string;
     rating?: number;
-    courseId?: string;
+    courseRunId?: string;
 };
 
 // ============================================================================
@@ -32,21 +32,21 @@ export type ReviewQueryDTO = {
 // ============================================================================
 
 export class ReviewsApi {
-    // POST /api/courses/reviews/search
+    // POST /api/course-masters/reviews/search
     static async findAll(params: ReviewQueryDTO): Promise<PaginatedApiResponse<ReviewResponseDTO>> {
-        const response = await apiClient.post<PaginatedApiResponse<ReviewResponseDTO>>('/api/courses/reviews/search', params);
+        const response = await apiClient.post<PaginatedApiResponse<ReviewResponseDTO>>('/api/course-masters/reviews/search', params);
         return response.data;
     }
 
-    // GET /api/courses/reviews/:id
+    // GET /api/course-masters/reviews/:id
     static async findById(id: string): Promise<ReviewResponseDTO> {
-        const response = await apiClient.get<StandardApiResponse<ReviewResponseDTO>>(`/api/courses/reviews/${id}`);
+        const response = await apiClient.get<StandardApiResponse<ReviewResponseDTO>>(`/api/course-masters/reviews/${id}`);
         return response.data.data!;
     }
 
-    // DELETE /api/courses/reviews/:id
+    // DELETE /api/course-masters/reviews/:id
     static async delete(id: string): Promise<boolean> {
-        const response = await apiClient.delete<StandardApiResponse<boolean>>(`/api/courses/reviews/${id}`);
+        const response = await apiClient.delete<StandardApiResponse<boolean>>(`/api/course-masters/reviews/${id}`);
         return response.data.success;
     }
 }

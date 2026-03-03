@@ -5,7 +5,7 @@ import type { StandardApiResponse, PaginatedApiResponse } from '@workspace/schem
 export interface WishlistItem {
   id: string;
   userId: string;
-  courseId: string;
+  courseRunId: string;
   addedAt: string;
 }
 
@@ -28,15 +28,15 @@ export const wishlistApi = {
   },
 
   /**
-   * Check if course is in wishlist
+   * Check if course run is in wishlist
    */
   checkCourseInWishlist: async (
-    courseId: string,
+    courseRunId: string,
     userId: string,
   ): Promise<WishlistItem | null> => {
     try {
       const response = await wishlistApi.getWishlist(userId, 1, 100);
-      const item = response.data?.find((item) => item.courseId === courseId);
+      const item = response.data?.find((item) => item.courseRunId === courseRunId);
       return item || null;
     } catch (error) {
       console.error('Failed to check wishlist:', error);
@@ -45,17 +45,17 @@ export const wishlistApi = {
   },
 
   /**
-   * Add course to wishlist
+   * Add course run to wishlist
    */
-  addToWishlist: async (courseId: string): Promise<WishlistItem> => {
+  addToWishlist: async (courseRunId: string): Promise<WishlistItem> => {
     const response = await apiClient.post<StandardApiResponse<{ wishlist: WishlistItem }>>('/api/wishlists', {
-      courseId,
+      courseRunId,
     });
     return response.data.data!.wishlist;
   },
 
   /**
-   * Remove course from wishlist
+   * Remove course run from wishlist
    */
   removeFromWishlist: async (wishlistId: string): Promise<boolean> => {
     await apiClient.delete(`/api/wishlists/${wishlistId}`);
@@ -63,30 +63,36 @@ export const wishlistApi = {
   },
 
   /**
-   * Toggle wishlist (add/remove course from wishlist)
+   * Toggle wishlist (add/remove course run from wishlist)
    */
-  toggleWishlist: async (courseId: string): Promise<{ isInWishlist: boolean }> => {
-    const response = await apiClient.post<StandardApiResponse<{ isInWishlist: boolean }>>(`/api/wishlists/toggle/${courseId}`);
-    return response.data.data!;
+  toggleWishlist: async (courseRunId: string): Promise<{ isInWishlist: boolean }> => {
+    const response = await apiClient.post<StandardApiResponse<{ isInWishlist: boolean }>>(`/api/wishlists/toggle/${courseRunId}`);
+    if (!response.data.success || !response.data.data) {
+      throw new Error(response.data.message || 'Failed to toggle wishlist');
+    }
+    return response.data.data;
   },
 
   /**
-   * Check if course is in wishlist
+   * Check if course run is in wishlist
    */
-  checkWishlist: async (courseId: string): Promise<{ isInWishlist: boolean }> => {
-    const response = await apiClient.get<StandardApiResponse<{ isInWishlist: boolean }>>(`/api/wishlists/check/${courseId}`);
-    return response.data.data!;
+  checkWishlist: async (courseRunId: string): Promise<{ isInWishlist: boolean }> => {
+    const response = await apiClient.get<StandardApiResponse<{ isInWishlist: boolean }>>(`/api/wishlists/check/${courseRunId}`);
+    if (!response.data.success || !response.data.data) {
+      return { isInWishlist: false };
+    }
+    return response.data.data;
   },
 };
 
 /**
- * Hook: Check if a course is in wishlist
+ * Hook: Check if a course run is in wishlist
  */
-export function useCheckWishlist(courseId?: string) {
+export function useCheckWishlist(courseRunId?: string) {
   return useQuery({
-    queryKey: ['wishlist', 'check', courseId],
-    queryFn: () => wishlistApi.checkWishlist(courseId!),
-    enabled: !!courseId,
+    queryKey: ['wishlist', 'check', courseRunId],
+    queryFn: () => wishlistApi.checkWishlist(courseRunId!),
+    enabled: !!courseRunId,
   });
 }
 
@@ -96,10 +102,11 @@ export function useCheckWishlist(courseId?: string) {
 export function useToggleWishlist() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (courseId: string) => wishlistApi.toggleWishlist(courseId),
-    onSuccess: (_data, courseId) => {
-      queryClient.invalidateQueries({ queryKey: ['wishlist', 'check', courseId] });
+    mutationFn: (courseRunId: string) => wishlistApi.toggleWishlist(courseRunId),
+    onSuccess: (_data, courseRunId) => {
+      queryClient.invalidateQueries({ queryKey: ['wishlist', 'check', courseRunId] });
       queryClient.invalidateQueries({ queryKey: ['wishlist'] });
     },
   });
 }
+

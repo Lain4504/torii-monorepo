@@ -245,15 +245,19 @@ export class FastMcpService {
       const enrollments = await this.prisma.enrollment.findMany({
         where: { userId },
         include: {
-          course: {
-            select: { id: true, title: true, aiMetadata: true, jlptLevel: true },
+          courseRun: {
+            include: {
+              courseMaster: {
+                select: { id: true, title: true, aiMetadata: true, jlptLevel: true },
+              },
+            },
           },
         },
       });
 
-      const courseMetadata = enrollments.map(e => e.course.aiMetadata).filter(Boolean);
-      const courseTitles = enrollments.map(e => e.course.title);
-      const jlptLevels = [...new Set(enrollments.map(e => e.course.jlptLevel).filter(Boolean))];
+      const courseMetadata = enrollments.map(e => e.courseRun?.courseMaster?.aiMetadata).filter(Boolean);
+      const courseTitles = enrollments.map(e => e.courseRun?.courseMaster?.title).filter(Boolean);
+      const jlptLevels = [...new Set(enrollments.map(e => e.courseRun?.courseMaster?.jlptLevel).filter(Boolean))];
 
       // Fetch Recent Activity (Last 30 Days)
       const thirtyDaysAgo = new Date();

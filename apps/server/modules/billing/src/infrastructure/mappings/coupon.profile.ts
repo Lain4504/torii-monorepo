@@ -55,12 +55,12 @@ export class CouponProfile extends AutomapperProfile {
                     mapFrom((src: Coupon) => src.minOrderAmount ? Number(src.minOrderAmount) : undefined),
                 ),
                 forMember(
-                    (dest: CouponResponseDTO) => dest.applicableCourseIds,
-                    mapFrom((src: Coupon) => src.applicableCourseIds || []),
+                    (dest: CouponResponseDTO) => dest.applicableCourseMasterIds,
+                    mapFrom((src: Coupon) => src.applicableCourseMasterIds || []),
                 ),
                 forMember(
-                    (dest: CouponResponseDTO) => dest.excludedCourseIds,
-                    mapFrom((src: Coupon) => src.excludedCourseIds || []),
+                    (dest: CouponResponseDTO) => dest.excludedCourseMasterIds,
+                    mapFrom((src: Coupon) => src.excludedCourseMasterIds || []),
                 ),
                 forMember(
                     (dest: CouponResponseDTO) => dest.validFrom,

@@ -7,7 +7,7 @@ import { Button } from '@workspace/ui/components/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@workspace/ui/components/dialog'
 import { Textarea } from '@workspace/ui/components/textarea'
-import type { CourseResponseDTO } from '@workspace/schemas'
+import type { CourseMasterResponseDTO } from '@workspace/schemas'
 import { reviewApi, type ReviewResponse, type RatingDistribution } from '@/lib/api/services/review-api'
 import { useAppSelector } from '@/hooks/hooks'
 import { useCourseEnrollment } from '@/hooks/use-course-enrollment'
@@ -45,7 +45,7 @@ const courseReviewSchema = z.object({
 type CourseReviewFormData = z.infer<typeof courseReviewSchema>
 
 interface CourseReviewsProps {
-    course: CourseResponseDTO
+    course: CourseMasterResponseDTO
 }
 
 export function CourseReviews({ course }: CourseReviewsProps) {

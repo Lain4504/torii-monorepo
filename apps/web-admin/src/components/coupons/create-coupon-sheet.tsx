@@ -60,8 +60,10 @@ export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps
             userUsageLimit: 1,
             validFrom: new Date(),
             validUntil: defaultValidUntil,
-            applicableCourseIds: [],
-            excludedCourseIds: [],
+            applicableCourseMasterIds: [],
+            excludedCourseMasterIds: [],
+            applicableRunIds: [],
+            excludedRunIds: [],
         },
     });
 

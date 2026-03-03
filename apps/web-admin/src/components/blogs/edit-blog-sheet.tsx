@@ -102,10 +102,13 @@ export function EditBlogSheet({
         control,
         handleSubmit,
         reset,
+        watch,
         formState: { isDirty },
     } = useForm<EditBlogFormData>({
         resolver: zodResolver(editBlogSchema),
     });
+
+    const status = watch('status');
 
     const updateBlog = useUpdateBlog();
 
@@ -215,7 +218,7 @@ export function EditBlogSheet({
             onOpenChange(false);
         } catch (error: any) {
             toast.error('Cập nhật thất bại', {
-                description: error.response?.data?.message || error.message,
+                description: error.response?.data?.message || error.userMessage || error.message,
             });
         } finally {
             setUploading(false);
@@ -325,10 +328,10 @@ export function EditBlogSheet({
                                                             <SelectValue placeholder="Chọn trạng thái" />
                                                         </SelectTrigger>
                                                         <SelectContent>
-<SelectItem value={BlogStatus.DRAFT}>Bản nháp</SelectItem>
-<SelectItem value={BlogStatus.PUBLISHED}>Đã xuất bản</SelectItem>
-<SelectItem value={BlogStatus.SCHEDULED}>Đã lên lịch</SelectItem>
-<SelectItem value={BlogStatus.ARCHIVED}>Đã lưu trữ</SelectItem>
+                                                            <SelectItem value={BlogStatus.DRAFT}>Bản nháp</SelectItem>
+                                                            <SelectItem value={BlogStatus.PUBLISHED}>Đã xuất bản</SelectItem>
+                                                            <SelectItem value={BlogStatus.SCHEDULED}>Đã lên lịch</SelectItem>
+                                                            <SelectItem value={BlogStatus.ARCHIVED}>Đã lưu trữ</SelectItem>
                                                         </SelectContent>
                                                     </Select>
                                                     <FieldError errors={[fieldState.error]} />
@@ -336,55 +339,60 @@ export function EditBlogSheet({
                                             )}
                                         />
 
-                                        <Controller
-                                            control={control}
-                                            name="publishedAt"
-                                            render={({ field, fieldState }) => (
-                                                <Field data-invalid={fieldState.invalid}>
-                                                    <FieldLabel htmlFor={field.name}>Ngày đăng</FieldLabel>
-                                                    <Popover>
-                                                        <PopoverTrigger asChild>
-                                                            <Button
-                                                                variant="outline"
-                                                                className={cn(
-                                                                    "w-full justify-start text-left font-normal",
-                                                                    !field.value && "text-muted-foreground"
-                                                                )}
-                                                            >
-                                                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                                                {field.value ? format(field.value, "PP") : <span>Chọn ngày</span>}
-                                                            </Button>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="w-auto p-0" align="start">
-                                                            <Calendar
-                                                                mode="single"
-                                                                selected={field.value}
-                                                                onSelect={field.onChange}
-                                                                initialFocus
-                                                            />
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                    <FieldError errors={[fieldState.error]} />
-                                                </Field>
-                                            )}
-                                        />
+                                        {status === BlogStatus.SCHEDULED && (
+                                            <>
+                                                <Controller
+                                                    control={control}
+                                                    name="publishedAt"
+                                                    render={({ field, fieldState }) => (
+                                                        <Field data-invalid={fieldState.invalid}>
+                                                            <FieldLabel htmlFor={field.name}>Ngày đăng</FieldLabel>
+                                                            <Popover>
+                                                                <PopoverTrigger asChild>
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        className={cn(
+                                                                            "w-full justify-start text-left font-normal",
+                                                                            !field.value && "text-muted-foreground"
+                                                                        )}
+                                                                    >
+                                                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                                                        {field.value ? format(field.value, "PP") : <span>Chọn ngày</span>}
+                                                                    </Button>
+                                                                </PopoverTrigger>
+                                                                <PopoverContent className="w-auto p-0" align="start">
+                                                                    <Calendar
+                                                                        mode="single"
+                                                                        selected={field.value}
+                                                                        onSelect={field.onChange}
+                                                                        initialFocus
+                                                                    />
+                                                                </PopoverContent>
+                                                            </Popover>
+                                                            <FieldError errors={[fieldState.error]} />
+                                                        </Field>
+                                                    )}
+                                                />
 
-                                        <Controller
-                                            control={control}
-                                            name="publishedTime"
-                                            render={({ field, fieldState }) => (
-                                                <Field data-invalid={fieldState.invalid}>
-                                                    <FieldLabel htmlFor={field.name}>Giờ đăng</FieldLabel>
-                                                    <Input
-                                                        id={field.name}
-                                                        type="time"
-                                                        {...field}
-                                                        className="w-full"
-                                                    />
-                                                    <FieldError errors={[fieldState.error]} />
-                                                </Field>
-                                            )}
-                                        />
+                                                <Controller
+                                                    control={control}
+                                                    name="publishedTime"
+                                                    render={({ field, fieldState }) => (
+                                                        <Field data-invalid={fieldState.invalid}>
+                                                            <FieldLabel htmlFor={field.name}>Giờ đăng</FieldLabel>
+                                                            <Input
+                                                                id={field.name}
+                                                                type="time"
+                                                                {...field}
+                                                                value={field.value || '00:00'}
+                                                                className="w-full"
+                                                            />
+                                                            <FieldError errors={[fieldState.error]} />
+                                                        </Field>
+                                                    )}
+                                                />
+                                            </>
+                                        )}
                                     </FieldGroup>
 
                                     <Controller

@@ -145,8 +145,8 @@ export function RegisterForm() {
                         control={form.control}
                         name="email"
                         render={({ field, fieldState }) => (
-                            <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                                <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name} className="text-sm font-semibold">Email</FieldLabel>
                                 <Input
                                     {...field}
                                     id={field.name}
@@ -164,7 +164,7 @@ export function RegisterForm() {
                         name="password"
                         render={({ field, fieldState }) => (
                             <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Tạo mật khẩu</FieldLabel>
+                                <FieldLabel htmlFor={field.name} className="text-sm font-semibold">Tạo mật khẩu</FieldLabel>
                                 <div className="relative">
                                     <Input
                                         {...field}
@@ -212,7 +212,7 @@ export function RegisterForm() {
                         name="confirmPassword"
                         render={({ field, fieldState }) => (
                             <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name}>Xác nhận mật khẩu mới</FieldLabel>
+                                <FieldLabel htmlFor={field.name} className="text-sm font-semibold">Xác nhận mật khẩu mới</FieldLabel>
                                 <div className="relative">
                                     <Input
                                         {...field}
@@ -240,7 +240,7 @@ export function RegisterForm() {
                     />
                 </FieldGroup>
 
-                <Button type="submit" className="w-full" disabled={isLoading || googleLoading}>
+                <Button type="submit" size="lg" className="w-full text-base font-semibold" disabled={isLoading || googleLoading}>
                     {isLoading && <Spinner className="mr-2" />}
                     Đăng ký
                 </Button>
@@ -255,6 +255,7 @@ export function RegisterForm() {
             <Button
                 type="button"
                 variant="outline"
+                size="lg"
                 className="w-full gap-2"
                 onClick={handleGoogleButtonClick}
                 disabled={isLoading || googleLoading}

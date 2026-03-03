@@ -58,16 +58,16 @@ export class AttendanceService implements IAttendanceService {
     }
 
     async findAll(query: AttendanceQueryDTO): Promise<AttendancePaginatedResponse> {
-        const { page = 1, limit = 10, liveSessionId, userId, status, courseId } = query;
+        const { page = 1, limit = 10, liveSessionId, userId, status, courseMasterId } = query as any;
         const skip = (page - 1) * limit;
 
         const where: any = {};
         if (liveSessionId) where.liveSessionId = liveSessionId;
         if (userId) where.userId = userId;
         if (status) where.status = status;
-        if (courseId) {
+        if (courseMasterId) {
             where.liveSession = {
-                courseId: courseId
+                courseMasterId: courseMasterId
             };
         }
 
@@ -108,5 +108,59 @@ export class AttendanceService implements IAttendanceService {
             joinTime: new Date(), // Assume join now if marking present
         });
         return this.toDTO(created);
+    }
+
+    async processUserJoined(liveSessionId: string, userId: string): Promise<void> {
+        const existing = await this.attendanceRepository.findBySessionAndUser(liveSessionId, userId);
+        const now = new Date();
+
+        if (existing) {
+            await this.attendanceRepository.update(existing.id, {
+                joinTime: now,
+                updatedAt: now,
+            });
+        } else {
+            await this.attendanceRepository.create({
+                liveSession: { connect: { id: liveSessionId } },
+                user: { connect: { id: userId } },
+                status: 'absent', // Default to absent until duration threshold met
+                joinTime: now,
+            });
+        }
+    }
+
+    async processUserLeft(liveSessionId: string, userId: string): Promise<void> {
+        const existing = await this.attendanceRepository.findBySessionAndUser(liveSessionId, userId);
+        if (!existing || !existing.joinTime) return;
+
+        const now = new Date();
+        const sessionDurationSeconds = Math.floor((now.getTime() - existing.joinTime.getTime()) / 1000);
+
+        await this.attendanceRepository.update(existing.id, {
+            leaveTime: now,
+            duration: { increment: sessionDurationSeconds },
+            updatedAt: now,
+        });
+    }
+
+    async processFinalAttendance(liveSessionId: string): Promise<void> {
+        const attendances = await this.attendanceRepository.findMany({
+            skip: 0,
+            take: 1000, // Process all enrollees
+            where: { liveSessionId },
+            include: { liveSession: true }
+        }) as any[];
+
+        for (const attendance of attendances) {
+            // liveSession.duration is in minutes, convert to seconds
+            const plannedDurationSeconds = (attendance.liveSession?.duration || 90) * 60;
+            const thresholdSeconds = plannedDurationSeconds * 0.7;
+            const isPresent = attendance.duration >= thresholdSeconds;
+
+            await this.attendanceRepository.update(attendance.id, {
+                status: isPresent ? 'present' : 'absent',
+                updatedAt: new Date(),
+            });
+        }
     }
 }

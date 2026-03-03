@@ -12,4 +12,7 @@ export interface IAttendanceService {
     findById(id: string): Promise<AttendanceResponseDTO | null>;
     findAll(query: AttendanceQueryDTO): Promise<AttendancePaginatedResponse>;
     markAttendance(liveSessionId: string, userId: string, status: string): Promise<AttendanceResponseDTO>;
+    processUserJoined(liveSessionId: string, userId: string): Promise<void>;
+    processUserLeft(liveSessionId: string, userId: string): Promise<void>;
+    processFinalAttendance(liveSessionId: string): Promise<void>;
 }

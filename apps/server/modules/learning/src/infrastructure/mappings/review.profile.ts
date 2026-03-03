@@ -30,8 +30,8 @@ export class ReviewProfile extends AutomapperProfile {
                     mapFrom((src: Review) => src.userId),
                 ),
                 forMember(
-                    (dest: ReviewResponseDTO) => dest.courseId,
-                    mapFrom((src: Review) => src.courseId),
+                    (dest: ReviewResponseDTO) => dest.courseRunId,
+                    mapFrom((src: Review) => src.courseRunId),
                 ),
                 forMember(
                     (dest: ReviewResponseDTO) => dest.rating,

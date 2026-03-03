@@ -12,7 +12,7 @@ describe('TeachingScheduleService', () => {
 
     const mockSchedule = {
         id: 'ts-1',
-        courseId: 'c-1',
+        courseMasterId: "cm1",
         lecturerId: 'l-1',
         dayOfWeek: 1,
         startTime: '09:00',
@@ -98,7 +98,7 @@ describe('TeachingScheduleService', () => {
             mockPrismaService.teachingSchedule.findUnique.mockResolvedValue(mockSchedule); // For generation
 
             const result = await service.assignSchedule(mockRequester as any, {
-                courseId: 'c-1',
+                courseMasterId: "cm1",
                 lecturerId: 'l-1',
                 dayOfWeek: 1,
                 startTime: '09:00',
@@ -113,7 +113,7 @@ describe('TeachingScheduleService', () => {
         it('should throw ConflictException if unavailable', async () => {
             mockPrismaService.teachingSchedule.findMany.mockResolvedValue([mockSchedule]);
             await expect(service.assignSchedule(mockRequester as any, {
-                courseId: 'c-2',
+                courseMasterId: "cm1",
                 lecturerId: 'l-1',
                 dayOfWeek: 1,
                 startTime: '09:00',

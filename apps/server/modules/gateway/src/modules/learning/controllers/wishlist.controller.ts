@@ -86,14 +86,14 @@ export class WishlistController {
         }
     }
 
-    @Post('toggle/:courseId')
-    async toggle(@Param('courseId') courseId: string, @Req() req: ReqWithRequester) {
+    @Post('toggle/:courseRunId')
+    async toggle(@Param('courseRunId') courseRunId: string, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.wishlist.toggle' },
-                    { courseId, userId: requester.sub }
+                    { courseRunId, userId: requester.sub }
                 )
             );
             return successResponse(result);
@@ -102,8 +102,8 @@ export class WishlistController {
         }
     }
 
-    @Get('check/:courseId')
-    async checkWishlist(@Param('courseId') courseId: string, @Req() req: ReqWithRequester) {
+    @Get('check/:courseRunId')
+    async checkWishlist(@Param('courseRunId') courseRunId: string, @Req() req: ReqWithRequester) {
         try {
             const requester = req.requester;
             if (!requester) return successResponse({ isInWishlist: false });
@@ -111,7 +111,7 @@ export class WishlistController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.wishlist.check' },
-                    { courseId, userId: requester.sub }
+                    { courseRunId, userId: requester.sub }
                 )
             );
             return successResponse(result);

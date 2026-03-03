@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { LessonService } from '@server/learning/modules/lesson/lesson.service';
 import { LESSON_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
-import { COURSE_SERVICE_TOKEN, ENROLLMENT_SERVICE_TOKEN } from '@server/learning/interfaces/services';
+import { COURSE_MASTER_SERVICE_TOKEN, ENROLLMENT_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import { BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { UserRole } from '@workspace/schemas';
 import { getMapperToken } from '@automapper/nestjs';
@@ -14,7 +14,7 @@ describe('LessonService', () => {
     let service: LessonService;
     let lessonRepository: any;
     let moduleRepository: any;
-    let courseService: any;
+    let courseMasterService: any;
     let enrollmentService: any;
     let natsClient: any;
 
@@ -35,7 +35,7 @@ describe('LessonService', () => {
         findById: jest.fn(),
     };
 
-    const mockCourseService = {
+    const mockCourseMasterService = {
         findById: jest.fn(),
         recalculateStats: jest.fn(),
         isInstructor: jest.fn(),
@@ -55,7 +55,7 @@ describe('LessonService', () => {
                 LessonService,
                 { provide: LESSON_REPOSITORY_TOKEN, useValue: mockLessonRepository },
                 { provide: MODULE_REPOSITORY_TOKEN, useValue: mockModuleRepository },
-                { provide: COURSE_SERVICE_TOKEN, useValue: mockCourseService },
+                { provide: COURSE_MASTER_SERVICE_TOKEN, useValue: mockCourseMasterService },
                 { provide: ENROLLMENT_SERVICE_TOKEN, useValue: mockEnrollmentService },
                 { provide: 'NATS_SERVICE', useValue: mockNatsClient },
                 { provide: getMapperToken(), useValue: mockMapper },
@@ -65,7 +65,7 @@ describe('LessonService', () => {
         service = module.get<LessonService>(LessonService);
         lessonRepository = module.get(LESSON_REPOSITORY_TOKEN);
         moduleRepository = module.get(MODULE_REPOSITORY_TOKEN);
-        courseService = module.get(COURSE_SERVICE_TOKEN);
+        courseMasterService = module.get(COURSE_MASTER_SERVICE_TOKEN);
         enrollmentService = module.get(ENROLLMENT_SERVICE_TOKEN);
         natsClient = module.get('NATS_SERVICE');
 
@@ -87,7 +87,7 @@ describe('LessonService', () => {
 
         it('nên tạo bài học thành công cho VOD course', async () => {
             mockModuleRepository.findById.mockResolvedValue({ id: 'mod-1', courseId: 'course-1' });
-            mockCourseService.findById.mockResolvedValue({ id: 'course-1', type: 'vod' });
+            mockCourseMasterService.findById.mockResolvedValue({ id: 'course-1', type: 'vod' });
             mockLessonRepository.getMaxOrderIndex.mockResolvedValue(5);
             mockLessonRepository.create.mockResolvedValue({ id: 'les-1', ...dto, orderIndex: 6 });
 
@@ -103,7 +103,7 @@ describe('LessonService', () => {
 
         it('nên báo lỗi khi tạo bài học Video cho LIVE course (Business Logic Check)', async () => {
             mockModuleRepository.findById.mockResolvedValue({ id: 'mod-1', courseId: 'course-1' });
-            mockCourseService.findById.mockResolvedValue({ id: 'course-1', type: 'live' });
+            mockCourseMasterService.findById.mockResolvedValue({ id: 'course-1', type: 'live' });
 
             await expect(service.create(requester as any, dto as any))
                 .rejects.toThrow(BadRequestException);
@@ -188,7 +188,7 @@ describe('LessonService', () => {
             const existing = { id: 'les-1', moduleId: 'mod-1', courseId: 'course-1' };
             mockLessonRepository.findById.mockResolvedValue(existing);
             mockModuleRepository.findById.mockResolvedValue({ courseId: 'course-1' });
-            mockCourseService.isInstructor.mockResolvedValue(true);
+            mockCourseMasterService.isInstructor.mockResolvedValue(true);
             mockLessonRepository.update.mockResolvedValue({ ...existing, title: 'Updated Title' });
 
             const result = await service.update(requester as any, 'les-1', updateDto);
@@ -200,7 +200,7 @@ describe('LessonService', () => {
             const existing = { id: 'les-1', moduleId: 'mod-1' };
             mockLessonRepository.findById.mockResolvedValue(existing);
             mockModuleRepository.findById.mockResolvedValue({ courseId: 'course-1' });
-            mockCourseService.isInstructor.mockResolvedValue(false); // Không phải chủ khóa học
+            mockCourseMasterService.isInstructor.mockResolvedValue(false); // Không phải chủ khóa học
 
             await expect(service.update(requester as any, 'les-1', updateDto))
                 .rejects.toThrow(ForbiddenException);

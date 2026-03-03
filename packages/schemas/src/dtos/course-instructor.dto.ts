@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { InstructorRole } from '../models/course.model';
+import { InstructorRole } from '../models/course-master.model';
 
 // Assign Lecturer to Course DTO
 export const courseInstructorAssignDTOSchema = z.object({
-    courseId: z.string().uuid('Invalid course ID'),
+    courseMasterId: z.string().uuid('Invalid course master ID'),
     lecturerId: z.string().uuid('Invalid lecturer ID'),
     role: z.nativeEnum(InstructorRole).default(InstructorRole.MAIN),
     isPrimary: z.boolean().default(false),
@@ -22,7 +22,7 @@ export type CourseInstructorUpdateDTO = z.infer<typeof courseInstructorUpdateDTO
 // Response DTO with lecturer information
 export interface CourseInstructorResponseDTO {
     id: string;
-    courseId: string;
+    courseMasterId: string;
     lecturerId: string;
     role: InstructorRole;
     isPrimary: boolean;
@@ -48,7 +48,7 @@ export interface CourseInstructorResponseDTO {
 
 // List response for course instructors
 export interface CourseInstructorsListResponseDTO {
-    courseId: string;
+    courseMasterId: string;
     instructors: CourseInstructorResponseDTO[];
     totalInstructors: number;
 }

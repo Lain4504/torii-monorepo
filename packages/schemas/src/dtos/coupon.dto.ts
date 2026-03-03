@@ -8,25 +8,27 @@ export const couponCreateDTOSchema = z.object({
   code: z.string().min(1).max(50).regex(/^[A-Z0-9_-]+$/, 'Code must contain only uppercase letters, numbers, hyphens, and underscores'),
   name: z.string().min(1).max(100),
   description: z.string().optional().nullable(),
-  
+
   // Discount Configuration
   discountType: z.nativeEnum(CouponDiscountType),
   discountValue: z.number().positive(),
   maxDiscountAmount: z.number().positive().optional().nullable(),
-  
+
   // Conditions
   minOrderAmount: z.number().nonnegative().optional().nullable(),
-  applicableCourseIds: z.array(z.string().uuid()).default([]),
-  excludedCourseIds: z.array(z.string().uuid()).default([]),
-  
+  applicableCourseMasterIds: z.array(z.string().uuid()).default([]),
+  excludedCourseMasterIds: z.array(z.string().uuid()).default([]),
+  applicableRunIds: z.array(z.string().uuid()).default([]),
+  excludedRunIds: z.array(z.string().uuid()).default([]),
+
   // Validity Period
   validFrom: z.date().or(z.string().datetime()),
   validUntil: z.date().or(z.string().datetime()),
-  
+
   // Usage Limits
   usageLimit: z.number().int().positive().optional().nullable(),
   userUsageLimit: z.number().int().positive().default(1),
-  
+
   // Status
   status: z.nativeEnum(CouponStatus).default(CouponStatus.ACTIVE),
 });
@@ -54,7 +56,8 @@ export type CouponResponseDTO = z.infer<typeof couponResponseDTOSchema>;
  */
 export const couponValidateRequestDTOSchema = z.object({
   code: z.string().min(1),
-  courseId: z.string().uuid(),
+  courseMasterId: z.string().uuid(),
+  courseRunId: z.string().uuid().optional(),
   userId: z.string().uuid().optional(),
 });
 
@@ -77,7 +80,8 @@ export type CouponValidateResponseDTO = z.infer<typeof couponValidateResponseDTO
  */
 export const couponCalculateDiscountRequestDTOSchema = z.object({
   couponId: z.string().uuid(),
-  courseId: z.string().uuid(),
+  courseMasterId: z.string().uuid(),
+  courseRunId: z.string().uuid().optional(),
   basePrice: z.number().nonnegative(),
 });
 

@@ -62,7 +62,7 @@ export class AssignmentService {
         title: dto.title,
         description: dto.description,
         type: dto.type,
-        courseId: dto.courseId,
+        courseRunId: dto.courseRunId,
         moduleId: dto.moduleId,
         lessonId: dto.lessonId,
         maxScore: dto.maxScore,
@@ -110,6 +110,7 @@ export class AssignmentService {
       if (dto.title) updateData.title = dto.title;
       if (dto.description) updateData.description = dto.description;
       if (dto.type) updateData.type = dto.type;
+      if (dto.courseRunId) updateData.courseRunId = dto.courseRunId;
       if (dto.maxScore !== undefined) updateData.maxScore = dto.maxScore;
       if (dto.passingScore !== undefined) updateData.passingScore = dto.passingScore;
       if (dto.dueDate) updateData.dueDate = new Date(dto.dueDate);
@@ -156,7 +157,7 @@ export class AssignmentService {
     this.natsClient.emit('assignment.published', {
       assignmentId: assignment.id,
       title: assignment.title,
-      courseId: assignment.courseId,
+      courseRunId: assignment.courseRunId,
       moduleId: assignment.moduleId,
       lessonId: assignment.lessonId,
       dueDate: assignment.dueDate,
@@ -170,15 +171,24 @@ export class AssignmentService {
    * BR-02: Query Assignments
    */
   async findAll(requester: Requester, query: QueryAssignmentsDto) {
-    const { page = 1, limit = 20, courseId, moduleId, lessonId, status } = query;
+    const { page = 1, limit = 20, courseMasterId, moduleId, lessonId, status } = query;
     const skip = (page - 1) * limit;
 
     const where: any = {};
 
     // Filter by association
-    if (courseId) where.courseId = courseId;
+    if (query.courseRunId) where.courseRunId = query.courseRunId;
     if (moduleId) where.moduleId = moduleId;
     if (lessonId) where.lessonId = lessonId;
+
+    // Aggregate by course master if provided (via relations)
+    if (courseMasterId) {
+      where.OR = [
+        { courseRun: { courseMasterId } },
+        { module: { courseMasterId } },
+        { lesson: { module: { courseMasterId } } },
+      ];
+    }
 
     // Status filter
     if (status) {
@@ -213,6 +223,7 @@ export class AssignmentService {
       where: {
         assignmentId: { in: assignmentIds },
         userId: requester.sub,
+        ...(query.courseRunId ? { courseRunId: query.courseRunId } : {}),
       },
     });
 

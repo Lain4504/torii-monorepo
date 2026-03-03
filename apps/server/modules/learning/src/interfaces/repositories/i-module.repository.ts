@@ -1,4 +1,4 @@
-import type { Module as CourseModule, Prisma } from '@prisma/generated';
+import type { Module as CourseMasterModule, Prisma } from '@prisma/generated';
 
 /**
  * Module Repository Interface
@@ -8,12 +8,12 @@ export interface IModuleRepository {
     /**
      * Find module by ID
      */
-    findById(moduleId: string): Promise<CourseModule | null>;
+    findById(moduleId: string): Promise<CourseMasterModule | null>;
 
     /**
      * Find all modules for a course
      */
-    findByCourseId(courseId: string, includeDrafts?: boolean): Promise<CourseModule[]>;
+    findByCourseId(courseMasterId: string, includeDrafts?: boolean): Promise<CourseMasterModule[]>;
 
     /**
      * Find all modules with pagination and filtering
@@ -24,7 +24,7 @@ export interface IModuleRepository {
         where?: Prisma.ModuleWhereInput;
         orderBy?: Prisma.ModuleOrderByWithRelationInput;
         include?: Prisma.ModuleInclude;
-    }): Promise<CourseModule[]>;
+    }): Promise<CourseMasterModule[]>;
 
     /**
      * Count modules with optional filter
@@ -34,12 +34,12 @@ export interface IModuleRepository {
     /**
      * Create new module
      */
-    create(data: Prisma.ModuleCreateInput): Promise<CourseModule>;
+    create(data: Prisma.ModuleCreateInput): Promise<CourseMasterModule>;
 
     /**
      * Update module by ID
      */
-    update(moduleId: string, data: Prisma.ModuleUpdateInput): Promise<CourseModule>;
+    update(moduleId: string, data: Prisma.ModuleUpdateInput): Promise<CourseMasterModule>;
 
     /**
      * Delete module (hard delete)
@@ -49,15 +49,15 @@ export interface IModuleRepository {
     /**
      * Soft delete module
      */
-    softDelete(moduleId: string): Promise<CourseModule>;
+    softDelete(moduleId: string): Promise<CourseMasterModule>;
 
     /**
      * Reorder modules in a course
      */
-    reorder(courseId: string, moduleOrders: { id: string; orderIndex: number }[]): Promise<void>;
+    reorder(courseMasterId: string, moduleOrders: { id: string; orderIndex: number }[]): Promise<void>;
 
     /**
      * Get max order index for a course
      */
-    getMaxOrderIndex(courseId: string): Promise<number>;
+    getMaxOrderIndex(courseMasterId: string): Promise<number>;
 }

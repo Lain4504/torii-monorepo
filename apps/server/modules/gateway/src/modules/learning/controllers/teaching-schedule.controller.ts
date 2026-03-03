@@ -55,11 +55,11 @@ export class TeachingScheduleController {
         return successResponse(data, 'Đã gán lịch dạy thành công');
     }
 
-    @Get('course/:courseId')
+    @Get('run/:courseRunId')
     @Permissions('schedule.view')
-    async findByCourse(@Param('courseId') courseId: string) {
+    async findByRun(@Param('courseRunId') courseRunId: string) {
         const data = await firstValueFrom(
-            this.natsClient.send({ cmd: 'learning.teachingSchedule.findByCourse' }, { courseId })
+            this.natsClient.send({ cmd: 'learning.teachingSchedule.findByRun' }, { courseRunId })
         );
         return successResponse(data);
     }

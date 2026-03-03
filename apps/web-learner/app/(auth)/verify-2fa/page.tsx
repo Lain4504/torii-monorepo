@@ -174,7 +174,7 @@ export default function TwoFactorVerifyPage() {
                                             id={field.name}
                                             placeholder={useBackupCode ? "XXXXXXXX" : "000000"}
                                             maxLength={useBackupCode ? 8 : 6}
-                                            className="h-14 pl-11 text-center text-2xl font-mono tracking-[0.3em] rounded-2xl border-border/40 bg-muted/20 hover:bg-muted/30 focus:border-primary/40 transition-all placeholder:text-muted-foreground/20 shadow-sm"
+                                            className="pl-11 text-center text-2xl font-mono tracking-[0.3em] rounded-2xl border-border/40 bg-muted/20 hover:bg-muted/30 focus:border-primary/40 transition-all placeholder:text-muted-foreground/20 shadow-sm"
                                             autoComplete="off"
                                             autoFocus
                                         />

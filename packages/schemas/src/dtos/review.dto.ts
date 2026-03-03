@@ -14,6 +14,7 @@ export type ReviewResponseDTO = z.infer<typeof reviewResponseDTOSchema>;
 
 // Create Review DTO
 export const reviewCreateDTOSchema = z.object({
+    courseRunId: z.string().uuid(),
     rating: z.number().int().min(1).max(5),
     comment: z.string().optional(),
 });
@@ -22,7 +23,8 @@ export type ReviewCreateDTO = z.infer<typeof reviewCreateDTOSchema>;
 
 // Query Reviews DTO
 export const reviewQueryDTOSchema = z.object({
-    courseId: z.string().uuid(),
+    courseMasterId: z.string().uuid().optional(),
+    courseRunId: z.string().uuid().optional(),
     page: z.coerce.number().min(1).default(1),
     limit: z.coerce.number().min(1).max(100).default(10),
 });
@@ -42,7 +44,8 @@ export type PaginatedReviewResponseDTO = z.infer<typeof paginatedReviewResponseD
 
 // Rating Distribution Response
 export const ratingDistributionDTOSchema = z.object({
-    courseId: z.string().uuid(),
+    courseMasterId: z.string().uuid(),
+    courseRunId: z.string().uuid().optional(),
     distribution: z.array(z.object({
         stars: z.number().int().min(1).max(5),
         count: z.number(),

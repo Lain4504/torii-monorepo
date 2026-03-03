@@ -24,8 +24,8 @@ export class LearningProgressHandler {
     }
 
     @MessagePattern({ cmd: 'learning.progress.completedLessons' })
-    async getCompletedLessons(@Payload() data: { userId: string, courseId: string }) {
-        return this.service.getCompletedLessons(data.userId, data.courseId);
+    async getCompletedLessons(@Payload() data: { userId: string, courseMasterId: string }) {
+        return this.service.getCompletedLessons(data.userId, data.courseMasterId);
     }
 
     @MessagePattern({ cmd: 'learning.progress.history' })

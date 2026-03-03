@@ -5,9 +5,11 @@ import {
     Put,
     Body,
     Param,
+    Query,
     UseGuards,
     Inject,
     Req,
+    ParseUUIDPipe,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -17,6 +19,7 @@ import {
     Permissions,
     ZodValidationPipe,
     ReqWithRequester,
+    successResponse,
 } from '@server/shared';
 import {
     submitAssignmentDto,
@@ -44,14 +47,24 @@ export class SubmissionController {
     }
 
     @Get('my/:assignmentId')
-    my(@Param('assignmentId') assignmentId: string, @Req() req: ReqWithRequester) {
-        return this.sendCmd('getMySubmission', { assignmentId, userId: req.requester.sub });
+    my(
+        @Param('assignmentId') assignmentId: string,
+        @Query('courseRunId') courseRunId: string,
+        @Req() req: ReqWithRequester
+    ) {
+        return this.sendCmd('getMySubmission', { assignmentId, userId: req.requester.sub, courseRunId });
     }
 
-    @Get('assignment/:assignmentId')
+    @Get(':id/submissions')
     @Permissions('submission.grade')
-    all(@Param('assignmentId') assignmentId: string) {
-        return this.sendCmd('findAll', { assignmentId });
+    async getSubmissions(
+        @Param('id', new ParseUUIDPipe()) id: string,
+        @Query('courseRunId') courseRunId?: string
+    ) {
+        const result = await firstValueFrom(
+            this.natsClient.send({ cmd: 'learning.submission.findAll' }, { assignmentId: id, courseRunId })
+        );
+        return successResponse({ submissions: result });
     }
 
     @Put(':id/grade')

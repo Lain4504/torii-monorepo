@@ -8,12 +8,16 @@ export const lessonCreateDTOSchema = lessonSchema
         contentType: true,
         videoUrl: true,
         videoDuration: true,
+        durationMinutes: true,
         articleContent: true,
         orderIndex: true,
         isPreview: true,
         isUnlocked: true,
         status: true,
         createdBy: true,
+    })
+    .extend({
+        status: z.enum(['published', 'draft']),
     });
 
 export type LessonCreateDTO = z.infer<typeof lessonCreateDTOSchema>;
@@ -25,6 +29,7 @@ export const lessonUpdateDTOSchema = lessonSchema
         contentType: true,
         videoUrl: true,
         videoDuration: true,
+        durationMinutes: true,
         articleContent: true,
         orderIndex: true,
         isPreview: true,

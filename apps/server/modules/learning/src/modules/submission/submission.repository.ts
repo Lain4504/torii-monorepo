@@ -14,8 +14,8 @@ export interface ISubmissionRepository {
   create(data: Prisma.SubmissionCreateInput): Promise<Submission>;
   update(id: string, data: Prisma.SubmissionUpdateInput): Promise<Submission>;
   upsert(where: Prisma.SubmissionWhereUniqueInput, create: Prisma.SubmissionCreateInput, update: Prisma.SubmissionUpdateInput): Promise<Submission>;
-  findByAssignmentAndUser(assignmentId: string, userId: string): Promise<Submission | null>;
-  findByAssignmentId(assignmentId: string): Promise<Submission[]>;
+  findByAssignmentAndUser(assignmentId: string, userId: string, courseRunId?: string): Promise<Submission | null>;
+  findByAssignmentId(assignmentId: string, courseRunId?: string): Promise<Submission[]>;
   createGradeHistory(data: any): Promise<any>;
 }
 
@@ -60,16 +60,23 @@ export class SubmissionRepository implements ISubmissionRepository {
     return this.prisma.submission.upsert({ where, create, update });
   }
 
-  async findByAssignmentAndUser(assignmentId: string, userId: string): Promise<Submission | null> {
+  async findByAssignmentAndUser(assignmentId: string, userId: string, courseRunId?: string): Promise<Submission | null> {
     return this.prisma.submission.findFirst({
-      where: { assignmentId, userId },
+      where: {
+        assignmentId,
+        userId,
+        ...(courseRunId ? { courseRunId } : {})
+      },
       orderBy: { attemptNumber: 'desc' }, // Get latest attempt
     });
   }
 
-  async findByAssignmentId(assignmentId: string): Promise<Submission[]> {
+  async findByAssignmentId(assignmentId: string, courseRunId?: string): Promise<Submission[]> {
     return this.prisma.submission.findMany({
-      where: { assignmentId },
+      where: {
+        assignmentId,
+        ...(courseRunId ? { courseRunId } : {})
+      },
       orderBy: { submittedAt: 'desc' },
     });
   }

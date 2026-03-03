@@ -4,7 +4,7 @@ import { LearningProgressController } from '@server/learning/modules/learning-pr
 import { LearningProgressService } from '@server/learning/modules/learning-progress/learning-progress.service';
 import { LearningProgressRepository } from '@server/learning/modules/learning-progress/learning-progress.repository';
 import { EnrollmentRepository } from '@server/learning/modules/enrollment/enrollment.repository';
-import { CourseRepository } from '@server/learning/modules/course/course.repository';
+import { CourseMasterRepository } from '@server/learning/modules/course-master/course-master.repository';
 import { LessonRepository } from '@server/learning/modules/lesson/lesson.repository';
 import { ModuleRepository } from '@server/learning/modules/module/module.repository';
 import { CertificateModule } from '@server/learning/modules/certificate/certificate.module';
@@ -13,7 +13,7 @@ import { LEARNING_PROGRESS_SERVICE_TOKEN } from '@server/learning/interfaces/ser
 import {
     LEARNING_PROGRESS_REPOSITORY_TOKEN,
     ENROLLMENT_REPOSITORY_TOKEN,
-    COURSE_REPOSITORY_TOKEN,
+    COURSE_MASTER_REPOSITORY_TOKEN,
     LESSON_REPOSITORY_TOKEN,
     MODULE_REPOSITORY_TOKEN
 } from '@server/learning/interfaces/repositories';
@@ -39,8 +39,8 @@ import {
             useClass: EnrollmentRepository,
         },
         {
-            provide: COURSE_REPOSITORY_TOKEN,
-            useClass: CourseRepository,
+            provide: COURSE_MASTER_REPOSITORY_TOKEN,
+            useClass: CourseMasterRepository,
         },
         {
             provide: LESSON_REPOSITORY_TOKEN,

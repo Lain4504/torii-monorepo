@@ -6,7 +6,7 @@ import { toast } from '@workspace/ui/components/sonner'
 import { useRouter } from 'next/navigation'
 import { type EnrollmentResponseDTO, EnrollmentStatus } from '@workspace/schemas'
 
-export function useCourseEnrollment(courseId: string, courseSlug: string) {
+export function useCourseEnrollment(courseMasterId: string, courseSlug: string) {
     const [isInWishlist, setIsInWishlist] = useState(false)
     const [isEnrolled, setIsEnrolled] = useState(false)
     const [isExpired, setIsExpired] = useState(false)
@@ -22,16 +22,16 @@ export function useCourseEnrollment(courseId: string, courseSlug: string) {
     const router = useRouter()
 
     useEffect(() => {
-        if (isAuthenticated && user?.id && courseId) {
+        if (isAuthenticated && user?.id && courseMasterId) {
             checkWishlistStatus()
             checkEnrollmentStatus()
         }
-    }, [isAuthenticated, user?.id, courseId])
+    }, [isAuthenticated, user?.id, courseMasterId])
 
     const checkWishlistStatus = async () => {
         try {
             setIsLoadingWishlist(true)
-            const result = await wishlistApi.checkWishlist(courseId)
+            const result = await wishlistApi.checkWishlist(courseMasterId)
             setIsInWishlist(result.isInWishlist)
         } catch (error) {
             console.error('Failed to check wishlist status:', error)
@@ -43,7 +43,7 @@ export function useCourseEnrollment(courseId: string, courseSlug: string) {
     const checkEnrollmentStatus = async () => {
         try {
             setIsLoadingEnrollment(true)
-            const result = await enrollmentApi.checkEnrollment(courseId)
+            const result = await enrollmentApi.checkEnrollment(courseMasterId)
             setIsEnrolled(result.isEnrolled)
             if (result.enrollment) {
                 setEnrollment(result.enrollment)
@@ -76,7 +76,7 @@ export function useCourseEnrollment(courseId: string, courseSlug: string) {
 
         try {
             setIsToggling(true)
-            const result = await wishlistApi.toggleWishlist(courseId)
+            const result = await wishlistApi.toggleWishlist(courseMasterId)
             setIsInWishlist(result.isInWishlist)
             toast.success(result.isInWishlist ? 'Đã thêm vào yêu thích' : 'Đã xóa khỏi yêu thích')
         } catch (error: any) {
@@ -96,12 +96,12 @@ export function useCourseEnrollment(courseId: string, courseSlug: string) {
 
         try {
             setIsEnrolling(true)
-            const newEnrollment = await enrollmentApi.createEnrollment({ courseId })
+            const newEnrollment = await enrollmentApi.createEnrollment({ courseRunId: courseMasterId })
             setIsEnrolled(true)
             setIsExpired(false)
             setEnrollment(newEnrollment)
             toast.success('Đã đăng ký khóa học thành công!')
-            router.push(`/courses/${courseSlug}/learn`)
+            router.push(`/dashboard/courses/${courseMasterId}/learn`)
         } catch (error: any) {
             console.error('Failed to enroll:', error)
             toast.error(error?.response?.data?.message || 'Không thể đăng ký khóa học')

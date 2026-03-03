@@ -52,12 +52,12 @@ export class LearningProgressController {
         }
     }
 
-    @Get('completed-lessons/:courseId')
-    async getCompletedLessons(@Req() req: ReqWithRequester, @Param('courseId') courseId: string) {
+    @Get('completed-lessons/:courseMasterId')
+    async getCompletedLessons(@Req() req: ReqWithRequester, @Param('courseMasterId') courseMasterId: string) {
         try {
             const requester = req.requester;
             const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'learning.progress.completedLessons' }, { userId: requester.sub, courseId })
+                this.natsClient.send({ cmd: 'learning.progress.completedLessons' }, { userId: requester.sub, courseMasterId })
             );
             return successResponse({ lessonIds: result });
         } catch (error: any) {

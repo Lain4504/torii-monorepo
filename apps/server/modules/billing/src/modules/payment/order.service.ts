@@ -77,10 +77,10 @@ export class OrderService implements IOrderService {
                 });
 
                 for (const order of expiredOrders) {
-                    if (order.enrollmentId && (order.metadata as any)?.courseId) {
+                    if (order.enrollmentId && (order.metadata as any)?.courseRunId) {
                         this.natsClient.send({ cmd: 'learning.enrollment.delete' }, {
                             userId: order.userId,
-                            courseId: (order.metadata as any).courseId
+                            courseRunId: (order.metadata as any).courseRunId
                         }).subscribe(); // Fire and forget but using standard pattern
                     }
                 }
@@ -304,43 +304,62 @@ export class OrderService implements IOrderService {
 
         let amount = 0;
         let course: any = null;
+        let courseRun: any = null;
+        let courseMasterId: string | undefined;
 
-        const courseId = input.courseId || input.metadata?.courseId;
+        const courseRunId = input.courseRunId;
+
         let originalAmount: number | undefined;
         let discountAmount: number | undefined;
 
-        if (input.orderType === OrderType.COURSE_PURCHASE && courseId) {
-            // Fetch course via NATS
-            try {
-                course = await lastValueFrom(
-                    this.natsClient.send({ cmd: 'learning.course.findById' }, { id: courseId })
-                );
-            } catch (error: any) {
-                this.logger.error(`Error calling learning.course.findById: ${error.message}`);
-                course = null;
+        if (input.orderType === OrderType.COURSE_PURCHASE && courseRunId) {
+            // 1. Fetch details based on what's being purchased
+            if (courseRunId) {
+                try {
+                    courseRun = await lastValueFrom(
+                        this.natsClient.send({ cmd: 'learning.courserun.findById' }, { id: courseRunId })
+                    );
+                    if (courseRun) {
+                        // Use run price if available, otherwise we'll need the master
+                        amount = courseRun.price ? Number(courseRun.price) : 0;
+                        if (courseRun.discountPrice) {
+                            originalAmount = amount;
+                            amount = Number(courseRun.discountPrice);
+                            discountAmount = originalAmount - amount;
+                        }
+                    }
+                } catch (error: any) {
+                    this.logger.error(`Error calling learning.courserun.findById: ${error.message}`);
+                }
             }
 
-            if (!course) {
-                this.logger.error(`Course not found: ${courseId}`);
-                throw new NotFoundException('Course not found');
+            // Always fetch master for metadata/fallback
+            const fetchMasterId = courseRun?.courseMasterId;
+            courseMasterId = fetchMasterId;
+            if (fetchMasterId) {
+                try {
+                    course = await lastValueFrom(
+                        this.natsClient.send({ cmd: 'learning.coursemaster.findById' }, { id: fetchMasterId })
+                    );
+                } catch (error: any) {
+                    this.logger.error(`Error calling learning.coursemaster.findById: ${error.message}`);
+                }
             }
 
-            const hasDiscount = course.discountPrice !== null && course.discountPrice !== undefined;
-            amount = hasDiscount ? Number(course.discountPrice) : Number(course.price);
-
-            if (hasDiscount) {
-                originalAmount = Number(course.price);
-                discountAmount = originalAmount - amount;
+            if (!course && !courseRun) {
+                this.logger.error(`Product not found: run=${courseRunId}`);
+                throw new NotFoundException('Product not found');
             }
 
-            this.logger.log(`Creating order for course ${courseId}: price=${course.price}, discountPrice=${course.discountPrice}, calculatedAmount=${amount}, isFree=${course.isFree}`);
-
-            // If amount is 0, we still allow order creation (e.g. 100% discount coupon)
-            // The system will handle it as a free transaction in the next steps.
-            if (course && (amount === 0 || course.isFree)) {
-                this.logger.log(`Order for course ${courseId} has 0 amount. isFree: ${course.isFree}, calculatedAmount: ${amount}`);
-                // We don't throw here anymore to support 100% coupons in the checkout flow
+            // Finalize amount logic
+            if (courseRun) {
+                // amount already determined from courseRun fetch logic above
+                this.logger.log(`Creating order for run: ${courseRunId}, finalAmount=${amount}`);
+            } else {
+                throw new BadRequestException('CourseRunId is required for course purchases');
             }
+
+            this.logger.log(`Creating order for course: run=${courseRunId}, finalAmount=${amount}`);
         } else if (input.orderType === OrderType.TOP_UP) {
             amount = Number((input as any).amount);
             if (!amount || amount <= 0) {
@@ -348,8 +367,8 @@ export class OrderService implements IOrderService {
             }
             this.logger.log(`Creating top-up order for user ${userId}: amount=${amount}`);
 
-        } else if (!courseId && input.orderType === OrderType.COURSE_PURCHASE) {
-            throw new BadRequestException('CourseId is required for course_purchase order type');
+        } else if (!courseRunId && input.orderType === OrderType.COURSE_PURCHASE) {
+            throw new BadRequestException('CourseRunId is required for course_purchase order type');
         }
 
         // Handle Gift Order Validation
@@ -377,7 +396,7 @@ export class OrderService implements IOrderService {
                 const isAlreadyOwned = await lastValueFrom(
                     this.natsClient.send({ cmd: 'learning.enrollment.isEnrolled' }, {
                         userId: identityResponse.user.id,
-                        courseId: courseId,
+                        courseMasterId,
                     })
                 );
 
@@ -409,7 +428,7 @@ export class OrderService implements IOrderService {
             this.logger.log(`[OrderService] Attempting to redeem coupon: ${input.couponCode}`);
             try {
                 // Redeem coupon - this increments usage count safely
-                const redemption = await this.couponService.redeemCoupon(input.couponCode, userId, amount);
+                const redemption = await this.couponService.redeemCoupon(input.couponCode, userId, amount, courseMasterId, courseRunId);
                 couponId = redemption.couponId;
                 couponDiscount = redemption.discountAmount;
 
@@ -435,7 +454,8 @@ export class OrderService implements IOrderService {
         try {
             const metadata = {
                 ...input.metadata,
-                courseId: courseId,
+                courseRunId,
+                courseMasterId,
                 ...(originalAmount !== undefined && { originalAmount }),
                 ...(discountAmount !== undefined && { discountAmount: (discountAmount || 0) + couponDiscount }), // Combine course discount and coupon discount
                 couponCode: input.couponCode,
@@ -444,12 +464,12 @@ export class OrderService implements IOrderService {
 
             // Create Enrollment in PENDING_PAYMENT status
             let enrollmentId: string | undefined;
-            if (input.orderType === OrderType.COURSE_PURCHASE && courseId && !input.metadata?.isGift) {
+            if (input.orderType === OrderType.COURSE_PURCHASE && courseRunId && !input.metadata?.isGift) {
                 try {
                     const enrollment = await lastValueFrom(
                         this.natsClient.send({ cmd: 'learning.enrollment.create' }, {
                             userId,
-                            courseId,
+                            courseRunId,
                             status: 'pending_payment', // Use string literal to avoid import issue if enum not updated in context
                             finalPrice: amount
                         })
@@ -592,7 +612,7 @@ export class OrderService implements IOrderService {
             });
 
             const metadata = order.metadata as Record<string, any>;
-            if ((order.orderType === OrderType.COURSE_PURCHASE || order.orderType === OrderType.GIFT) && metadata?.courseId) {
+            if ((order.orderType === OrderType.COURSE_PURCHASE || order.orderType === OrderType.GIFT) && metadata?.courseMasterId) {
                 try {
                     // Check if it's a gift
                     const isGift = order.orderType === OrderType.GIFT || !!metadata.isGift;
@@ -609,11 +629,10 @@ export class OrderService implements IOrderService {
                         // Gift Flow: Always create new enrollment (Active)
                         const enrollmentPayload = {
                             userId: targetUserId,
-                            courseId: metadata.courseId,
+                            courseRunId: metadata.courseRunId,
                             isGift: isGift,
                             giftMessage: metadata.giftMessage,
                             senderId: isGift ? order.userId : undefined,
-                            // status: 'in_progress' - REMOVED: EnrollmentService will force pending_payment for paid courses
                         };
 
                         const enrollment = await lastValueFrom(
@@ -621,7 +640,7 @@ export class OrderService implements IOrderService {
                         );
                         enrollmentId = enrollment?.id;
 
-                        this.logger.log(`Gift enrollment created for user ${targetUserId} and course ${metadata.courseId} (ID: ${enrollment?.id})`);
+                        this.logger.log(`Gift enrollment created for user ${targetUserId} and run ${metadata.courseRunId} (ID: ${enrollment?.id})`);
 
                         // Activate the gift enrollment immediately (since payment is confirmed)
                         if (enrollmentId) {
@@ -639,7 +658,7 @@ export class OrderService implements IOrderService {
                             this.logger.warn(`Order ${orderId} missing enrollmentId, attempting to create/find...`);
                             const enrollmentPayload = {
                                 userId: targetUserId,
-                                courseId: metadata.courseId,
+                                courseRunId: metadata.courseRunId,
                                 status: 'in_progress'
                             };
                             const enrollment = await lastValueFrom(
@@ -672,7 +691,7 @@ export class OrderService implements IOrderService {
                     // Emit order_payment_success event
                     try {
                         const course = await lastValueFrom(
-                            this.natsClient.send({ cmd: 'learning.course.findById' }, { id: metadata.courseId })
+                            this.natsClient.send({ cmd: 'learning.coursemaster.findById' }, { id: metadata.courseMasterId })
                         );
                         const user = await this.orderRepository.getUserById(order.userId);
 
@@ -682,7 +701,7 @@ export class OrderService implements IOrderService {
                                 userEmail: user.email,
                                 userName: user.displayName || user.email || 'User',
                                 orderId: order.id,
-                                courseId: course.id,
+                                courseMasterId: course.id,
                                 courseName: course.title,
                                 amount: Number(order.amount),
                                 currency: order.currency,
@@ -699,7 +718,7 @@ export class OrderService implements IOrderService {
                                         recipientEmail: recipientUser.email,
                                         senderId: order.userId,
                                         senderName: user.displayName || user.email || 'A friend',
-                                        courseId: course.id,
+                                        courseMasterId: course.id,
                                         courseName: course.title,
                                         giftMessage: metadata.giftMessage,
                                         enrollmentId: enrollmentId,
@@ -871,11 +890,11 @@ export class OrderService implements IOrderService {
         });
 
         // Clean up enrollment if any
-        const courseId = (order.metadata as any)?.courseId;
-        if (order.enrollmentId && courseId) {
+        const courseRunId = (order.metadata as any)?.courseRunId;
+        if (order.enrollmentId && courseRunId) {
             this.natsClient.send({ cmd: 'learning.enrollment.delete' }, {
                 userId: order.userId,
-                courseId: courseId
+                courseRunId: courseRunId
             }).subscribe();
         }
 
@@ -931,21 +950,22 @@ export class OrderService implements IOrderService {
             metadata: {
                 originalOrderId: order.id,
                 refundReason: reason,
-                courseId: (order.metadata as any)?.courseId
+                courseRunId: (order.metadata as any)?.courseRunId,
+                courseMasterId: (order.metadata as any)?.courseMasterId
             },
             completedAt: new Date(),
         });
 
         const metadata = order.metadata as Record<string, any>;
-        const courseId = metadata?.courseId;
+        const courseRunId = metadata?.courseRunId;
 
         // 3. Un-enroll and Add Balance
-        if (courseId) {
+        if (courseRunId) {
             try {
                 const deletedEnrollment = await lastValueFrom(
                     this.natsClient.send({ cmd: 'learning.enrollment.delete' }, {
                         userId: order.userId,
-                        courseId: courseId
+                        courseRunId: courseRunId
                     })
                 );
 

@@ -10,9 +10,9 @@ import type {
 // ============================================================================
 
 export const liveSessionsApi = {
-    // GET /api/live-sessions/course/:courseId
-    async findByCourse(courseId: string): Promise<LiveSessionResponseDTO[]> {
-        const response = await apiClient.get<StandardApiResponse<LiveSessionResponseDTO[]>>(`/api/live-sessions/course/${courseId}`);
+    // GET /api/live-sessions/run/:runId
+    async findByRun(runId: string): Promise<LiveSessionResponseDTO[]> {
+        const response = await apiClient.get<StandardApiResponse<LiveSessionResponseDTO[]>>(`/api/live-sessions/run/${runId}`);
         return response.data.data!;
     },
 
@@ -27,10 +27,10 @@ export const liveSessionsApi = {
 // React Query Hooks - Live Sessions
 // ============================================================================
 
-export function useLiveSessions(courseId: string) {
+export function useLiveSessions(runId: string) {
     return useQuery({
-        queryKey: ['live-sessions', 'course', courseId],
-        queryFn: () => liveSessionsApi.findByCourse(courseId),
-        enabled: !!courseId,
+        queryKey: ['live-sessions', 'run', runId],
+        queryFn: () => liveSessionsApi.findByRun(runId),
+        enabled: !!runId,
     });
 }

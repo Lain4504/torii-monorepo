@@ -4,15 +4,14 @@ import { wishlistSchema } from '../models/wishlist.model';
 export const wishlistResponseDTOSchema = wishlistSchema.pick({
   id: true,
   userId: true,
-  courseId: true,
+  courseRunId: true,
   addedAt: true,
 });
 
 export type WishlistResponseDTO = z.infer<typeof wishlistResponseDTOSchema>;
 
 export const wishlistCreateDTOSchema = z.object({
-  userId: z.string().uuid(),
-  courseId: z.string().uuid(),
+  courseRunId: z.string().uuid(),
 });
 
 export type WishlistCreateDTO = z.infer<typeof wishlistCreateDTOSchema>;
@@ -21,7 +20,7 @@ export const wishlistQueryDTOSchema = z.object({
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).default(10),
   userId: z.string().uuid().optional(),
-  courseId: z.string().uuid().optional(),
+  courseRunId: z.string().uuid().optional(),
 });
 
 export type WishlistQueryDTO = z.infer<typeof wishlistQueryDTOSchema>;

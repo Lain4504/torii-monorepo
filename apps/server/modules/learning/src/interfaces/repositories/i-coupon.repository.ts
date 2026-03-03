@@ -80,4 +80,9 @@ export interface ICouponRepository {
      * Update coupon status
      */
     updateStatus(couponId: string, status: string): Promise<Coupon>;
+
+    /**
+     * Find available coupons for a course (Master and Run)
+     */
+    findAvailableForCourse(courseMasterId?: string, courseRunId?: string): Promise<Coupon[]>;
 }

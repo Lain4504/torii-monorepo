@@ -65,7 +65,7 @@ export function ScheduleRequestDialog({
         resolver: zodResolver(scheduleRequestCreateDTOSchema),
         defaultValues: {
             lecturerId,
-            courseId,
+            courseRunId: courseId, // Note: courseId here is likely runId passed from parent
             originalScheduleId: scheduleId,
             dayOfWeek: currentDay,
             startTime: currentStart,

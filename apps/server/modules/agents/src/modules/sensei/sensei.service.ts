@@ -224,7 +224,7 @@ export class SenseiService implements OnModuleInit {
                 const userContext = await this.fastMcpService.getUserContext(userId);
 
                 // Hybrid Search: Fetch candidates from DB (Courses & Lessons)
-                const courses = await this.prisma.course.findMany({
+                const courses = await this.prisma.courseMaster.findMany({
                     where: {
                         ...(level ? { jlptLevel: level } : {}),
                         OR: [
@@ -242,13 +242,13 @@ export class SenseiService implements OnModuleInit {
                         title: { contains: topic, mode: 'insensitive' },
                         status: 'published',
                         module: {
-                            course: {
+                            courseMaster: {
                                 ...(level ? { jlptLevel: level } : {})
                             }
                         }
                     },
                     take: 5,
-                    select: { id: true, title: true, module: { select: { course: { select: { id: true, title: true } } } } }
+                    select: { id: true, title: true, module: { select: { courseMaster: { select: { id: true, title: true } } } } }
                 });
 
                 const candidates = [
@@ -263,8 +263,8 @@ export class SenseiService implements OnModuleInit {
                         title: l.title,
                         type: 'Lesson',
                         level: level || 'N/A',
-                        url: `/learning/${l.module.course.id}/lesson/${l.id}`,
-                        description: `Lesson in course: ${l.module.course.title}`
+                        url: `/learning/${l.module.courseMaster.id}/lesson/${l.id}`,
+                        description: `Lesson in course: ${l.module.courseMaster.title}`
                     }))
                 ];
 

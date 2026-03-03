@@ -1,14 +1,9 @@
 import { z } from 'zod';
-
-export enum LiveSessionStatus {
-    SCHEDULED = 'scheduled',
-    LIVE = 'live',
-    ENDED = 'ended',
-    CANCELLED = 'cancelled',
-}
+import { LiveSessionStatus } from '../enums/live-session.enum';
+import { CourseRunResponseDTO } from './course-run.dto';
 
 export const liveSessionCreateDTOSchema = z.object({
-    courseId: z.string().uuid(),
+    courseRunId: z.string().uuid(),
     lecturerId: z.string().uuid().optional(),
     title: z.string().min(1, 'Title is required'),
     description: z.string().optional(),
@@ -19,7 +14,7 @@ export const liveSessionCreateDTOSchema = z.object({
 export type LiveSessionCreateDTO = z.infer<typeof liveSessionCreateDTOSchema>;
 
 export const liveSessionBulkCreateDTOSchema = z.object({
-    courseId: z.string().uuid(),
+    courseRunId: z.string().uuid(),
     lecturerId: z.string().uuid().optional(),
     titlePrefix: z.string().min(1, 'Title prefix is required'),
     description: z.string().optional(),
@@ -43,7 +38,7 @@ export type LiveSessionUpdateDTO = z.infer<typeof liveSessionUpdateDTOSchema>;
 
 export interface LiveSessionResponseDTO {
     id: string;
-    courseId: string;
+    courseRunId: string;
     lecturerId: string | null;
     title: string;
     description: string | null;
@@ -59,6 +54,7 @@ export interface LiveSessionResponseDTO {
         displayName: string;
         avatarUrl: string | null;
     };
+    courseRun?: CourseRunResponseDTO;
 }
 
 export interface LiveSessionJoinResponseDTO {

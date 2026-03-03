@@ -40,7 +40,7 @@ export class CertificateHandler {
     @MessagePattern({ cmd: 'learning.certificate.issue' })
     @UsePipes(new ZodValidationPipe(certificateIssueDTOSchema))
     async issue(@Payload() data: CertificateIssueDTO) {
-        return this.certificateService.issueCertificate(data.userId, data.courseId, data.enrollmentId);
+        return this.certificateService.issueCertificate(data.userId, (data as any).courseRunId, data.enrollmentId);
     }
 }
 

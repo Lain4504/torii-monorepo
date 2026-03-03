@@ -6,7 +6,7 @@ export const orderResponseDTOSchema = orderSchema;
 export type OrderResponseDTO = z.infer<typeof orderResponseDTOSchema>;
 
 export const orderCreateDTOSchema = z.object({
-    courseId: z.string().uuid().optional(),
+    courseRunId: z.string().uuid().optional(), // Optional for non-COURSE_PURCHASE orders like TOP_UP
     amount: z.coerce.number().optional(), // For TOP_UP order type
     paymentMethod: z.nativeEnum(PaymentMethod).default(PaymentMethod.BALANCE),
     paymentGateway: z.nativeEnum(PaymentGateway).optional(),
@@ -25,7 +25,8 @@ export const orderQueryDTOSchema = z.object({
     limit: z.coerce.number().min(1).default(10),
     search: z.string().optional(),
     userId: z.string().uuid().optional(),
-    courseId: z.string().uuid().optional(),
+    courseMasterId: z.string().uuid().optional(),
+    courseRunId: z.string().uuid().optional(),
     status: z.nativeEnum(OrderStatus).optional(),
     startDate: z.string().optional(),
     endDate: z.string().optional(),

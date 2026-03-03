@@ -1,4 +1,5 @@
-export * from './i-course.repository';
+export * from './i-course-master.repository';
+export * from './i-course-run.repository';
 export * from './i-live-session.repository';
 export * from './i-module.repository';
 export * from './i-lesson.repository';
@@ -17,7 +18,8 @@ export * from './i-certificate.repository';
 export * from './i-attendance.repository';
 
 // Injection tokens for repositories
-export const COURSE_REPOSITORY_TOKEN = Symbol('COURSE_REPOSITORY');
+export const COURSE_MASTER_REPOSITORY_TOKEN = Symbol('COURSE_MASTER_REPOSITORY');
+export const COURSE_RUN_REPOSITORY_TOKEN = Symbol('COURSE_RUN_REPOSITORY');
 export const MODULE_REPOSITORY_TOKEN = Symbol('MODULE_REPOSITORY');
 export const LESSON_REPOSITORY_TOKEN = Symbol('LESSON_REPOSITORY');
 export const LESSON_MATERIAL_REPOSITORY_TOKEN = Symbol('LESSON_MATERIAL_REPOSITORY');

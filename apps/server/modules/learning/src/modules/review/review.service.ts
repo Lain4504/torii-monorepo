@@ -30,7 +30,7 @@ export class ReviewService implements IReviewService {
    */
   async findAll(query: any): Promise<PaginatedReviewResponseDTO> {
     try {
-      const { page = 1, limit = 10, search, rating, courseId } = query;
+      const { page = 1, limit = 10, search, rating, courseMasterId, courseRunId } = query;
       const pageNum = parseInt(String(page || 1), 10);
       const limitNum = parseInt(String(limit || 10), 10);
       const skip = (pageNum - 1) * limitNum;
@@ -41,15 +41,19 @@ export class ReviewService implements IReviewService {
         where.rating = parseInt(String(rating), 10);
       }
 
-      if (courseId) {
-        where.courseId = courseId;
+      if (courseRunId) {
+        // Filter by specific course run
+        where.courseRunId = courseRunId;
+      } else if (courseMasterId) {
+        // Filter by all course runs of a course master (aggregate)
+        where.courseRun = { courseMasterId };
       }
 
       if (search) {
         where.OR = [
           { comment: { contains: search, mode: 'insensitive' } },
           { user: { displayName: { contains: search, mode: 'insensitive' } } },
-          { course: { title: { contains: search, mode: 'insensitive' } } }
+          { courseRun: { courseMaster: { title: { contains: search, mode: 'insensitive' } } } }
         ];
       }
 
@@ -61,7 +65,9 @@ export class ReviewService implements IReviewService {
           where,
           include: {
             user: true,
-            course: true,
+            courseRun: {
+              include: { courseMaster: true }
+            },
           }
         }),
       ]);
@@ -71,8 +77,8 @@ export class ReviewService implements IReviewService {
       return {
         data: reviews.map((review) => ({
           ...this.mapper.map<any, ReviewResponseDTO>(review, 'Review', 'ReviewResponseDTO'),
-          courseTitle: (review as any).course?.title,
-          courseSlug: (review as any).course?.slug,
+          courseTitle: (review as any).courseRun?.courseMaster?.title,
+          courseSlug: (review as any).courseRun?.courseMaster?.slug,
         })),
         total,
         page: pageNum,
@@ -95,7 +101,7 @@ export class ReviewService implements IReviewService {
    * Get reviews by course ID with pagination
    */
   async findByCourseId(
-    courseId: string,
+    courseMasterId: string,
     query: ReviewQueryDTO,
   ): Promise<PaginatedReviewResponseDTO> {
     try {
@@ -105,9 +111,9 @@ export class ReviewService implements IReviewService {
       const skip = (pageNum - 1) * limitNum;
 
       const [total, reviews] = await Promise.all([
-        this.reviewRepository.countByCourseId(courseId),
+        this.reviewRepository.countByCourseId(courseMasterId),
         this.reviewRepository.findManyByCourseId({
-          courseId,
+          courseMasterId,
           skip,
           take: limitNum,
           includeUser: true,
@@ -141,10 +147,10 @@ export class ReviewService implements IReviewService {
    * Get rating distribution for a course
    */
   async getRatingDistribution(
-    courseId: string,
+    courseMasterId: string,
   ): Promise<RatingDistributionDTO> {
     try {
-      const reviews = await this.reviewRepository.findAllByCourseId(courseId);
+      const reviews = await this.reviewRepository.findAllByCourseId(courseMasterId);
 
       const totalReviews = reviews.length;
       const distribution = [1, 2, 3, 4, 5].map((stars) => {
@@ -159,7 +165,7 @@ export class ReviewService implements IReviewService {
           : 0;
 
       return {
-        courseId,
+        courseMasterId,
         distribution,
         averageRating: Math.round(averageRating * 100) / 100,
         totalReviews,
@@ -167,7 +173,7 @@ export class ReviewService implements IReviewService {
     } catch (error: any) {
       this.logger.error('Failed to get rating distribution', error);
       return {
-        courseId,
+        courseMasterId,
         distribution: [1, 2, 3, 4, 5].map((stars) => ({
           stars,
           count: 0,
@@ -184,54 +190,57 @@ export class ReviewService implements IReviewService {
    */
   async create(
     userId: string,
-    courseId: string,
     input: ReviewCreateDTO,
   ): Promise<ReviewResponseDTO> {
     try {
-      const course = await this.reviewRepository.findCourse(courseId);
+      const courseRunId = input.courseRunId;
+      const courseRun = await this.reviewRepository.findCourseRun(courseRunId);
 
-      if (!course) {
+      if (!courseRun) {
         throw new RpcException({
           status: 404,
-          message: `Course with id ${courseId} not found`,
+          message: `Course run with id ${courseRunId} not found`,
         });
       }
 
-      const enrollment = await this.enrollmentRepository.findByUserAndCourse(
+      const courseMasterId = courseRun.courseMasterId;
+
+      const enrollment = await this.enrollmentRepository.findByUserAndCourseRun(
         userId,
-        courseId,
+        courseRunId,
       );
 
       if (!enrollment) {
         this.logger.warn(
-          `User ${userId} attempted to review course ${courseId} without enrollment`,
+          `User ${userId} attempted to review course run ${courseRunId} without enrollment`,
         );
         throw new RpcException({
           status: 403,
-          message: 'You must be enrolled in this course to leave a review',
+          message: 'You must be enrolled in this course run to leave a review',
         });
       }
 
-      const existingReview = await this.reviewRepository.findByUserAndCourse(
+      const existingReview = await this.reviewRepository.findByUserAndCourseRun(
         userId,
-        courseId,
+        courseRunId,
       );
 
       if (existingReview) {
         throw new RpcException({
           status: 400,
-          message: 'You have already reviewed this course',
+          message: 'You have already reviewed this course run',
         });
       }
 
       const review = await this.reviewRepository.create({
         userId,
-        courseId,
+        courseRunId,
         rating: input.rating,
         comment: input.comment || null,
       });
 
-      await this.updateCourseRatingStats(courseId);
+      await this.updateCourseRatingStats(courseMasterId);
+      await this.updateCourseRunRatingStats(courseRunId);
 
       return this.mapper.map<any, ReviewResponseDTO>(review, 'Review', 'ReviewResponseDTO');
     } catch (error: any) {
@@ -249,9 +258,9 @@ export class ReviewService implements IReviewService {
   /**
    * Update course rating statistics
    */
-  private async updateCourseRatingStats(courseId: string): Promise<void> {
+  private async updateCourseRatingStats(courseMasterId: string): Promise<void> {
     try {
-      const reviews = await this.reviewRepository.findAllByCourseId(courseId);
+      const reviews = await this.reviewRepository.findAllByCourseId(courseMasterId);
 
       const totalReviews = reviews.length;
       const averageRating =
@@ -260,12 +269,35 @@ export class ReviewService implements IReviewService {
           : 0;
 
       await this.reviewRepository.updateCourseRatingStats(
-        courseId,
+        courseMasterId,
         averageRating,
         totalReviews,
       );
     } catch (error: any) {
       this.logger.error('Failed to update course rating stats', error);
+    }
+  }
+
+  /**
+   * Update course run rating statistics
+   */
+  private async updateCourseRunRatingStats(courseRunId: string): Promise<void> {
+    try {
+      const reviews = await this.reviewRepository.findAllByCourseRunId(courseRunId);
+
+      const totalReviews = reviews.length;
+      const averageRating =
+        totalReviews > 0
+          ? reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews
+          : 0;
+
+      await this.reviewRepository.updateCourseRunRatingStats(
+        courseRunId,
+        averageRating,
+        totalReviews,
+      );
+    } catch (error: any) {
+      this.logger.error('Failed to update course run rating stats', error);
     }
   }
 
@@ -285,7 +317,7 @@ export class ReviewService implements IReviewService {
 
       return {
         ...this.mapper.map<any, ReviewResponseDTO>(review, 'Review', 'ReviewResponseDTO'),
-        courseTitle: (review as any).course?.title,
+        courseTitle: (review as any).courseRun?.courseMaster?.title,
       };
     } catch (error: any) {
       this.logger.error(`Failed to find review ${id}`, error);
@@ -320,11 +352,16 @@ export class ReviewService implements IReviewService {
         });
       }
 
-      const courseId = review.courseId;
+      const courseRun = await this.reviewRepository.findCourseRun(review.courseRunId);
+      const courseMasterId = courseRun?.courseMasterId;
 
       await this.reviewRepository.delete(reviewId);
 
-      await this.updateCourseRatingStats(courseId);
+      if (courseMasterId) {
+        await this.updateCourseRatingStats(courseMasterId);
+        await this.updateCourseRunRatingStats(review.courseRunId);
+        await this.updateCourseRunRatingStats(review.courseRunId);
+      }
 
       return true;
     } catch (error: any) {

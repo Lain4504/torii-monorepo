@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ModuleService } from '@server/learning/modules/module/module.service';
 import { MODULE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
-import { COURSE_SERVICE_TOKEN } from '@server/learning/interfaces/services';
+import { COURSE_MASTER_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import { BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { UserRole } from '@workspace/schemas';
 import { getMapperToken } from '@automapper/nestjs';
@@ -13,7 +13,7 @@ const mockMapper = {
 describe('ModuleService', () => {
     let service: ModuleService;
     let moduleRepository: any;
-    let courseService: any;
+    let courseMasterService: any;
     let natsClient: any;
 
     // Mock Dependencies
@@ -30,7 +30,7 @@ describe('ModuleService', () => {
         getMaxOrderIndex: jest.fn(),
     };
 
-    const mockCourseService = {
+    const mockCourseMasterService = {
         recalculateStats: jest.fn(),
         isInstructor: jest.fn(),
     };
@@ -44,7 +44,7 @@ describe('ModuleService', () => {
             providers: [
                 ModuleService,
                 { provide: MODULE_REPOSITORY_TOKEN, useValue: mockModuleRepository },
-                { provide: COURSE_SERVICE_TOKEN, useValue: mockCourseService },
+                { provide: COURSE_MASTER_SERVICE_TOKEN, useValue: mockCourseMasterService },
                 { provide: 'NATS_SERVICE', useValue: mockNatsClient },
                 { provide: getMapperToken(), useValue: mockMapper },
             ],
@@ -52,7 +52,7 @@ describe('ModuleService', () => {
 
         service = module.get<ModuleService>(ModuleService);
         moduleRepository = module.get(MODULE_REPOSITORY_TOKEN);
-        courseService = module.get(COURSE_SERVICE_TOKEN);
+        courseMasterService = module.get(COURSE_MASTER_SERVICE_TOKEN);
         natsClient = module.get('NATS_SERVICE');
 
         jest.clearAllMocks();
@@ -89,7 +89,7 @@ describe('ModuleService', () => {
                 orderIndex: 1,
                 createdBy: 'user-1'
             }));
-            expect(courseService.recalculateStats).toHaveBeenCalledWith('course-1');
+            expect(courseMasterService.recalculateStats).toHaveBeenCalledWith('course-1');
             expect(natsClient.emit).toHaveBeenCalledWith(
                 { cmd: 'identity.audit.log' },
                 expect.objectContaining({ action: 'course_module.create' })
@@ -113,7 +113,7 @@ describe('ModuleService', () => {
             const existingModule = { id: moduleId, courseId: 'course-1', title: 'Old Title' };
 
             mockModuleRepository.findById.mockResolvedValue(existingModule);
-            mockCourseService.isInstructor.mockResolvedValue(true);
+            mockCourseMasterService.isInstructor.mockResolvedValue(true);
             mockModuleRepository.update.mockResolvedValue({
                 ...existingModule,
                 ...updateDto,
@@ -123,14 +123,14 @@ describe('ModuleService', () => {
             const result = await service.update(requester as any, moduleId, updateDto);
 
             expect(result.title).toBe(updateDto.title);
-            expect(courseService.isInstructor).toHaveBeenCalledWith('inst-1', 'course-1');
+            expect(courseMasterService.isInstructor).toHaveBeenCalledWith('inst-1', 'course-1');
         });
 
         it('should throw ForbiddenException if user is not assigned to course', async () => {
             const existingModule = { id: moduleId, courseId: 'course-1' };
 
             mockModuleRepository.findById.mockResolvedValue(existingModule);
-            mockCourseService.isInstructor.mockResolvedValue(false); // Not instructor
+            mockCourseMasterService.isInstructor.mockResolvedValue(false); // Not instructor
 
             await expect(service.update(requester as any, moduleId, updateDto))
                 .rejects.toThrow(ForbiddenException);
@@ -164,7 +164,7 @@ describe('ModuleService', () => {
 
             expect(result.message).toContain('successfully');
             expect(moduleRepository.softDelete).toHaveBeenCalledWith(moduleId);
-            expect(courseService.recalculateStats).toHaveBeenCalledWith('course-1');
+            expect(courseMasterService.recalculateStats).toHaveBeenCalledWith('course-1');
         });
 
         it('should hard delete module successfully', async () => {
@@ -176,7 +176,7 @@ describe('ModuleService', () => {
 
             expect(result.message).toContain('successfully');
             expect(moduleRepository.delete).toHaveBeenCalledWith(moduleId);
-            expect(courseService.recalculateStats).toHaveBeenCalledWith('course-1');
+            expect(courseMasterService.recalculateStats).toHaveBeenCalledWith('course-1');
         });
 
         it('should throw ForbiddenException if user lacks delete permission', async () => {

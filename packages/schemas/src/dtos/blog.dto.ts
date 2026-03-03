@@ -51,6 +51,7 @@ export const blogResponseDTOSchema = blogSchema.extend({
     author: z.object({
         id: z.string().uuid(),
         displayName: z.string(),
+        email: z.string(),
         avatarUrl: z.string().optional(),
     }).optional(),
 });

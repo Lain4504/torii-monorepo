@@ -208,5 +208,56 @@ export class CouponRepository implements ICouponRepository {
             data: { status: status as any },
         });
     }
+
+    /**
+     * Find available coupons for a course (Master and Run)
+     */
+    async findAvailableForCourse(courseMasterId?: string, courseRunId?: string): Promise<Coupon[]> {
+        const now = new Date();
+        const where: Prisma.CouponWhereInput = {
+            status: 'active' as any,
+            deletedAt: null,
+            validFrom: { lte: now },
+            validUntil: { gte: now },
+        };
+
+        const conditions: Prisma.CouponWhereInput[] = [
+            // No restrictions
+            {
+                AND: [
+                    { applicableCourseMasterIds: { isEmpty: true } },
+                    { applicableRunIds: { isEmpty: true } }
+                ]
+            }
+        ];
+
+        if (courseMasterId) {
+            conditions.push({ applicableCourseMasterIds: { has: courseMasterId } });
+        }
+
+        if (courseRunId) {
+            conditions.push({ applicableRunIds: { has: courseRunId } });
+        }
+
+        where.OR = conditions;
+
+        // Exclude exclusions
+        if (courseMasterId || courseRunId) {
+            where.NOT = {
+                OR: [
+                    ...(courseMasterId ? [{ excludedCourseMasterIds: { has: courseMasterId } }] : []),
+                    ...(courseRunId ? [{ excludedRunIds: { has: courseRunId } }] : [])
+                ]
+            };
+        }
+
+        const coupons = await this.prisma.coupon.findMany({
+            where,
+            orderBy: { createdAt: 'desc' },
+        });
+
+        // Filter by usage count
+        return coupons.filter(c => c.usageLimit === null || c.usageCount < c.usageLimit);
+    }
 }
 

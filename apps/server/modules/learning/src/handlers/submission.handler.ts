@@ -34,15 +34,15 @@ export class SubmissionHandler {
   }
 
   @MessagePattern({ cmd: 'learning.submission.getMySubmission' })
-  async getMySubmission(@Payload() data: { assignmentId: string; userId: string }) {
-    const { assignmentId, userId } = data;
-    return this.submissionService.getMySubmission(userId, assignmentId);
+  async getMySubmission(@Payload() data: { assignmentId: string; userId: string; courseRunId: string }) {
+    const { assignmentId, userId, courseRunId } = data;
+    return this.submissionService.getMySubmission(userId, assignmentId, courseRunId);
   }
 
   @MessagePattern({ cmd: 'learning.submission.findAll' })
-  async findAll(@Payload() data: { assignmentId: string }) {
-    const { assignmentId } = data;
-    return this.submissionService.getSubmissions(assignmentId);
+  async findAll(@Payload() data: { assignmentId: string; courseRunId?: string }) {
+    const { assignmentId, courseRunId } = data;
+    return this.submissionService.getSubmissions(assignmentId, courseRunId);
   }
 }
 

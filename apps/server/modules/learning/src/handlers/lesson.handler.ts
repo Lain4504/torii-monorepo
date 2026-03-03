@@ -32,8 +32,8 @@ export class LessonHandler {
     }
 
     @MessagePattern({ cmd: 'learning.lesson.findPreviewLessonsByCourseId' })
-    async findPreviewLessonsByCourseId(@Payload() data: { courseId: string }) {
-        return this.lessonService.findPreviewLessonsByCourseId(data.courseId);
+    async findPreviewLessonsByCourseId(@Payload() data: { courseMasterId: string }) {
+        return this.lessonService.findPreviewLessonsByCourseId(data.courseMasterId);
     }
 
     @MessagePattern({ cmd: 'learning.lesson.findById' })

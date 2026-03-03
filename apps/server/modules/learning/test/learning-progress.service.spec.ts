@@ -3,7 +3,7 @@ import { LearningProgressService } from '@server/learning/modules/learning-progr
 import {
     LEARNING_PROGRESS_REPOSITORY_TOKEN,
     ENROLLMENT_REPOSITORY_TOKEN,
-    COURSE_REPOSITORY_TOKEN,
+    COURSE_MASTER_REPOSITORY_TOKEN,
     LESSON_REPOSITORY_TOKEN,
     MODULE_REPOSITORY_TOKEN
 } from '@server/learning/interfaces/repositories';
@@ -83,7 +83,7 @@ describe('LearningProgressService', () => {
                     useValue: mockEnrollmentRepo,
                 },
                 {
-                    provide: COURSE_REPOSITORY_TOKEN,
+                    provide: COURSE_MASTER_REPOSITORY_TOKEN,
                     useValue: mockCourseRepo,
                 },
                 {
@@ -108,7 +108,7 @@ describe('LearningProgressService', () => {
         service = module.get<LearningProgressService>(LearningProgressService);
         progressRepo = module.get(LEARNING_PROGRESS_REPOSITORY_TOKEN);
         enrollmentRepo = module.get(ENROLLMENT_REPOSITORY_TOKEN);
-        courseRepo = module.get(COURSE_REPOSITORY_TOKEN);
+        courseRepo = module.get(COURSE_MASTER_REPOSITORY_TOKEN);
         lessonRepo = module.get(LESSON_REPOSITORY_TOKEN);
         moduleRepo = module.get(MODULE_REPOSITORY_TOKEN);
         certificateService = module.get(CERTIFICATE_SERVICE_TOKEN);

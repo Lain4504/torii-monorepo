@@ -6,16 +6,18 @@ import type { Mapper } from '@automapper/core';
 
 import {
     type EnrollmentCreateDTO,
+    type TrialEnrollmentCreateDTO,
     type EnrollmentQueryDTO,
     type EnrollmentResponseDTO,
     type PaginatedResponseDTO,
     EnrollmentStatus,
-    CourseStatus,
+    CourseMasterStatus,
 } from '@workspace/schemas';
+import { PrismaService } from '@server/shared';
 import type { IEnrollmentService, ICertificateService } from '@server/learning/interfaces/services';
 import { CERTIFICATE_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import { EnrollmentRepository } from '@server/learning/modules/enrollment/enrollment.repository';
-import { ICourseRepository, COURSE_REPOSITORY_TOKEN, ILessonRepository, LESSON_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import { ICourseMasterRepository, COURSE_MASTER_REPOSITORY_TOKEN, ILessonRepository, LESSON_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 import type { Prisma } from '@prisma/generated';
 
 /**
@@ -28,8 +30,9 @@ export class EnrollmentService implements IEnrollmentService {
 
     constructor(
         private readonly enrollmentRepository: EnrollmentRepository,
-        @Inject(COURSE_REPOSITORY_TOKEN)
-        private readonly courseRepository: ICourseRepository,
+        private readonly prisma: PrismaService,
+        @Inject(COURSE_MASTER_REPOSITORY_TOKEN)
+        private readonly courseRepository: ICourseMasterRepository,
         @Inject(LESSON_REPOSITORY_TOKEN)
         private readonly lessonRepository: ILessonRepository,
         @Inject(CERTIFICATE_SERVICE_TOKEN)
@@ -57,11 +60,23 @@ export class EnrollmentService implements IEnrollmentService {
                 completionStatus: EnrollmentStatus.IN_PROGRESS,
             });
 
-            const course = await this.courseRepository.findById(enrollment.courseId);
+            // Fetch run with master info to know if we need to increment students
+            const enrollmentWithRun = await this.prisma.enrollment.findUnique({
+                where: { id: enrollmentId },
+                include: { courseRun: { include: { courseMaster: true } } }
+            });
 
-        if (course?.type === 'live') {
-            await this.courseRepository.incrementTotalStudents(course.id);
-        }
+            const courseRun = enrollmentWithRun?.courseRun;
+            const course = courseRun?.courseMaster;
+
+            if (course?.type === 'live' && courseRun) {
+                await this.prisma.courseRun.update({
+                    where: { id: courseRun.id },
+                    data: { totalStudents: { increment: 1 } },
+                });
+            } else if (course) {
+                await this.courseRepository.incrementTotalStudents(course.id);
+            }
 
             // Audit Log
             await this.logAudit({
@@ -86,7 +101,7 @@ export class EnrollmentService implements IEnrollmentService {
                         userId: enrollment.userId,
                         userEmail: user.email,
                         userName: user.displayName || user.email || 'User',
-                        courseId: course.id,
+                        courseMasterId: course.id,
                         courseName: course.title,
                         enrollmentId: enrollment.id,
                     });
@@ -145,7 +160,7 @@ export class EnrollmentService implements IEnrollmentService {
      */
     async findAll(query: EnrollmentQueryDTO): Promise<PaginatedResponseDTO<EnrollmentResponseDTO>> {
         try {
-            const { page = 1, limit = 10, userId, courseId, status } = query;
+            const { page = 1, limit = 10, userId, courseMasterId, courseRunId, status } = query;
             const pageNum = typeof page === 'string' ? parseInt(page, 10) : Number(page) || 1;
             const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : Number(limit) || 10;
             const validPage = pageNum > 0 ? pageNum : 1;
@@ -154,7 +169,13 @@ export class EnrollmentService implements IEnrollmentService {
 
             const whereClause: Prisma.EnrollmentWhereInput = {};
             if (userId) whereClause.userId = userId;
-            if (courseId) whereClause.courseId = courseId;
+            if (courseRunId) {
+                // Filter by specific course run
+                whereClause.courseRunId = courseRunId;
+            } else if (courseMasterId) {
+                // Filter by all course runs of a course master (aggregate)
+                whereClause.courseRun = { courseMasterId };
+            }
             if (status) whereClause.completionStatus = status;
 
             const [total, items] = await Promise.all([
@@ -164,7 +185,13 @@ export class EnrollmentService implements IEnrollmentService {
                     take: validLimit,
                     skip,
                     orderBy: { enrollmentDate: 'desc' },
-                    include: { course: true }, // Include course details
+                    include: {
+                        courseRun: {
+                            include: {
+                                courseMaster: true
+                            }
+                        }
+                    }, // Include run and course details
                 }),
             ]);
 
@@ -204,11 +231,11 @@ export class EnrollmentService implements IEnrollmentService {
     }
 
     /**
-     * Find enrollment by user and course
+     * Find enrollment by user and course run
      */
-    async findByUserAndCourse(userId: string, courseId: string): Promise<EnrollmentResponseDTO | null> {
+    async findByUserAndCourseRun(userId: string, courseRunId: string): Promise<EnrollmentResponseDTO | null> {
         try {
-            const item = await this.enrollmentRepository.findByUserAndCourse(userId, courseId);
+            const item = await this.enrollmentRepository.findByUserAndCourseRun(userId, courseRunId);
             if (!item) return null;
             return this.toEnrollmentDto(item);
         } catch (error: any) {
@@ -218,26 +245,92 @@ export class EnrollmentService implements IEnrollmentService {
     }
 
     /**
-     * Check enrollment details including version update info
+     * Find any active enrollment by user and course master
      */
-    async checkEnrollmentDetails(userId: string, courseId: string): Promise<{ isEnrolled: boolean; enrollment: EnrollmentResponseDTO | null; hasNewerVersion: boolean }> {
+    async findByUserAndCourseMaster(userId: string, courseMasterId: string): Promise<EnrollmentResponseDTO | null> {
         try {
-            const enrollment = await this.findByUserAndCourse(userId, courseId);
-            let hasNewerVersion = false;
+            const item = await this.enrollmentRepository.findByUserAndCourseMaster(userId, courseMasterId);
+            if (!item) return null;
+            return this.toEnrollmentDto(item);
+        } catch (error: any) {
+            this.logger.error(`Error fetching enrollment by course master: ${error.message}`, error.stack);
+            return null;
+        }
+    }
 
-            if (enrollment) {
-                const latestVersion = await this.courseRepository.getLatestVersion(courseId);
-                if (latestVersion && enrollment.versionId !== latestVersion.id) {
-                    hasNewerVersion = true;
-                }
+    /**
+     * Find all enrollments by user and course master
+     */
+    async findAllByUserAndCourseMaster(userId: string, courseMasterId: string): Promise<EnrollmentResponseDTO[]> {
+        try {
+            const items = await this.enrollmentRepository.findAllByUserAndCourseMaster(userId, courseMasterId);
+            return items.map(item => this.toEnrollmentDto(item));
+        } catch (error: any) {
+            this.logger.error(`Error fetching enrollments by course master: ${error.message}`, error.stack);
+            return [];
+        }
+    }
+
+    /**
+     * Check enrollment details for a specific course run (public API for /enrollments/check/:courseRunId).
+     *
+     * Internally this still looks up any enrollment for the underlying CourseMaster,
+     * but the identifier passed in MUST be a CourseRun ID.
+     */
+    async checkEnrollmentDetails(
+        userId: string,
+        courseRunId: string,
+    ): Promise<{ isEnrolled: boolean; enrollment: EnrollmentResponseDTO | null; hasNewerVersion: boolean }> {
+        try {
+            // Resolve the underlying CourseMaster from the given courseRunId
+            const courseRun = await this.prisma.courseRun.findUnique({
+                where: { id: courseRunId },
+                select: { courseMasterId: true },
+            });
+
+            if (!courseRun) {
+                return { isEnrolled: false, enrollment: null, hasNewerVersion: false };
             }
 
+            const courseMasterId = courseRun.courseMasterId;
+
+            // Since an enrollment is now tied to a CourseRun, we check if user has any enrollment
+            // for ANY run of this CourseMaster.
+            const enrollmentRecord = await this.prisma.enrollment.findFirst({
+                where: {
+                    userId,
+                    courseRun: { courseMasterId },
+                },
+                include: {
+                    courseRun: true,
+                },
+                orderBy: { enrollmentDate: 'desc' },
+            });
+
+            if (!enrollmentRecord) {
+                return { isEnrolled: false, enrollment: null, hasNewerVersion: false };
+            }
+
+            const enrollment = this.toEnrollmentDto(enrollmentRecord);
+            let hasNewerVersion = false;
+
+            const latestVersion = await this.courseRepository.getLatestVersion(courseMasterId);
+            if (latestVersion && enrollmentRecord.versionId !== latestVersion.id) {
+                hasNewerVersion = true;
+            }
+
+            const inProgressStatus = [
+                EnrollmentStatus.IN_PROGRESS,
+                EnrollmentStatus.COMPLETED,
+                EnrollmentStatus.TRIAL,
+            ];
+
             return {
-                isEnrolled: !!enrollment && (
-                    enrollment.completionStatus === 'in_progress' ||
-                    enrollment.completionStatus === 'completed' ||
-                    (enrollment.completionStatus === 'trial' && !!enrollment.trialExpiresAt && new Date(enrollment.trialExpiresAt).getTime() > Date.now())
-                ),
+                isEnrolled:
+                    inProgressStatus.includes(enrollment.completionStatus as any) ||
+                    (enrollment.completionStatus === EnrollmentStatus.TRIAL &&
+                        !!enrollment.trialExpiresAt &&
+                        new Date(enrollment.trialExpiresAt).getTime() > Date.now()),
                 enrollment,
                 hasNewerVersion,
             };
@@ -250,12 +343,16 @@ export class EnrollmentService implements IEnrollmentService {
     /**
      * Create a new trial enrollment
      */
-    async createTrial(userId: string, courseId: string): Promise<EnrollmentResponseDTO> {
-        // Check if course exists
-        const course = await this.courseRepository.findById(courseId);
-        if (!course) {
-            throw new NotFoundException('Course not found');
-        }
+    async createTrial(userId: string, input: TrialEnrollmentCreateDTO): Promise<EnrollmentResponseDTO> {
+        const courseRunId = input.courseRunId;
+        const courseRun = await this.prisma.courseRun.findUnique({
+            where: { id: courseRunId },
+            include: { courseMaster: true }
+        });
+        if (!courseRun) throw new NotFoundException('Course run not found');
+
+        const course = courseRun.courseMaster;
+        if (!course) throw new NotFoundException('Course not found');
 
         // Check if course allows trial
         if (!course.trialDays || course.trialDays <= 0) {
@@ -263,9 +360,9 @@ export class EnrollmentService implements IEnrollmentService {
         }
 
         // Check if already enrolled (any status)
-        const existing = await this.enrollmentRepository.findByUserAndCourse(userId, courseId);
+        const existing = await this.enrollmentRepository.findByUserAndCourseRun(userId, courseRunId);
         if (existing) {
-            throw new BadRequestException('User already has an enrollment record for this course');
+            throw new BadRequestException('User already has an enrollment record for this course run');
         }
 
         try {
@@ -273,33 +370,28 @@ export class EnrollmentService implements IEnrollmentService {
             const trialExpiresAt = new Date(now);
             trialExpiresAt.setDate(now.getDate() + course.trialDays);
 
-            // Get latest course version
-            const latestVersion = await this.courseRepository.getLatestVersion(courseId);
-            const versionId = latestVersion ? latestVersion.id : undefined;
+            const versionId = courseRun.versionId || (await this.courseRepository.getLatestVersion(course.id))?.id;
 
-            const created = await this.enrollmentRepository.create({
+            const result = await this.enrollmentRepository.create({
                 user: { connect: { id: userId } },
-                course: { connect: { id: courseId } },
+                courseRun: { connect: { id: courseRunId } },
                 ...(versionId ? { version: { connect: { id: versionId } } } : {}),
                 enrollmentDate: now,
-                lastAccessedAt: now,
                 completionStatus: EnrollmentStatus.TRIAL,
-                completionPercentage: 0,
+                trialExpiresAt,
                 finalPrice: 0,
-                trialExpiresAt: trialExpiresAt,
-            });
+            } as any);
 
             // Log Audit
             await this.logAudit({
-                action: 'enrollment.create_trial',
+                userId,
+                action: 'enrollment.trial_create',
                 entity: 'enrollment',
-                entityId: created.id,
-                userId: userId,
-                description: `Created trial enrollment for user ${userId} and course ${courseId}`,
-                newValues: { completionStatus: EnrollmentStatus.TRIAL, trialExpiresAt },
+                entityId: result.id,
+                description: `Created trial enrollment for course run ${courseRunId}`,
             });
 
-            return this.toEnrollmentDto(created);
+            return this.toEnrollmentDto(result);
         } catch (error: any) {
             this.logger.error(`Error creating trial enrollment: ${error.message}`, error.stack);
             throw error;
@@ -310,28 +402,33 @@ export class EnrollmentService implements IEnrollmentService {
      * Create a new enrollment
      */
     async create(userId: string, input: EnrollmentCreateDTO): Promise<EnrollmentResponseDTO> {
-        if (!input.courseId) {
-            throw new BadRequestException('CourseId is required');
+        const courseRunId = input.courseRunId;
+        if (!courseRunId) {
+            throw new BadRequestException('CourseRunId is required');
         }
 
-        // Check if course exists
-        const course = await this.courseRepository.findById(input.courseId);
-        if (!course) {
-            throw new NotFoundException('Course not found');
-        }
+        // Fetch courseRun with courseMaster info
+        const courseRun = await this.prisma.courseRun.findUnique({
+            where: { id: courseRunId },
+            include: { courseMaster: true }
+        });
+        if (!courseRun) throw new NotFoundException('Course run not found');
+
+        const course = courseRun.courseMaster;
+        if (!course) throw new NotFoundException('Associated course not found');
 
         // Check if course is published
-        if (course.status !== CourseStatus.PUBLISHED) {
-            throw new NotFoundException('Course not found');
+        if (course.status !== CourseMasterStatus.PUBLISHED) {
+            throw new BadRequestException('Course is not available for enrollment');
         }
 
         // Check if already enrolled
-        const existing = await this.enrollmentRepository.findByUserAndCourse(userId, input.courseId);
+        const existing = await this.enrollmentRepository.findByUserAndCourseRun(userId, courseRunId);
 
         // If already enrolled and NOT expired, block
         if (existing) {
             if (existing.completionStatus === EnrollmentStatus.PENDING_PAYMENT) {
-                this.logger.log(`Found existing pending enrollment ${existing.id} for user ${userId} and course ${input.courseId}`);
+                this.logger.log(`Found existing pending enrollment ${existing.id} for user ${userId} and run ${courseRunId}`);
                 return this.toEnrollmentDto(existing);
             }
 
@@ -339,46 +436,34 @@ export class EnrollmentService implements IEnrollmentService {
             const isMarkedExpired = existing.completionStatus === EnrollmentStatus.EXPIRED;
 
             if (!isExpired && !isMarkedExpired) {
-                throw new BadRequestException('Already enrolled in this course');
+                throw new BadRequestException('Already enrolled in this course run');
             }
 
             // If it IS expired, we allow "renewal" by updating the existing record below
-            this.logger.log(`Renewing enrollment ${existing.id} for user ${userId} and course ${input.courseId}`);
+            this.logger.log(`Renewing enrollment ${existing.id} for user ${userId} and run ${courseRunId}`);
         }
 
         // Validation: For Live courses, check registration deadline
         if (course.type === 'live') {
-            if (course.registrationClosedAt && new Date() > new Date(course.registrationClosedAt)) {
-                throw new BadRequestException('Registration for this course is closed');
+            if (courseRun.enrollmentEnd && new Date() > new Date(courseRun.enrollmentEnd)) {
+                throw new BadRequestException('Registration for this class has ended');
             }
-            if (course.maxStudents && course.totalStudents >= course.maxStudents) {
-                throw new BadRequestException('This course is full');
+            if (courseRun.maxStudents && courseRun.totalStudents >= courseRun.maxStudents) {
+                throw new BadRequestException('This class is full');
             }
         }
 
         try {
-            const expiresAt = this.computeEnrollmentExpiry(course);
-            const finalPrice = course.discountPrice ? Number(course.discountPrice) : Number(course.price);
+            const expiresAt = this.computeEnrollmentExpiry(course, courseRun);
+            const finalPrice = courseRun.price !== undefined && courseRun.price !== null
+                ? Number(courseRun.discountPrice ?? courseRun.price)
+                : 0;
 
-            // Get latest course version for snapshot tracking
-            const latestVersion = await this.courseRepository.getLatestVersion(input.courseId);
-            const versionId = latestVersion ? latestVersion.id : undefined;
+            // Get latest course version for snapshot tracking from the run or master
+            const versionId = courseRun.versionId || (await this.courseRepository.getLatestVersion(course.id))?.id;
 
-            const created = await this.enrollmentRepository.create({
-                user: { connect: { id: userId } },
-                course: { connect: { id: input.courseId } },
-                ...(versionId ? { version: { connect: { id: versionId } } } : {}),
-                enrollmentDate: new Date(),
-                lastAccessedAt: new Date(),
-                completionStatus: finalPrice > 0 ? EnrollmentStatus.PENDING_PAYMENT : EnrollmentStatus.IN_PROGRESS,
-                completionPercentage: 0,
-                finalPrice,
-                isGift: (input as any).isGift || false,
-                giftMessage: (input as any).giftMessage,
-                sender: (input as any).senderId ? { connect: { id: (input as any).senderId } } : undefined,
-            });
-            let result;
             const completionStatus = finalPrice > 0 ? EnrollmentStatus.PENDING_PAYMENT : EnrollmentStatus.IN_PROGRESS;
+            let result;
 
             if (existing) {
                 // Renewal logic: Update existing record
@@ -386,26 +471,27 @@ export class EnrollmentService implements IEnrollmentService {
                     enrollmentDate: new Date(),
                     lastAccessedAt: new Date(),
                     completionStatus,
-                    // Keep existing progress or reset if it was 100? 
-                    // Usually keep for Gia hạn để tiếp tục
+                    ...(versionId ? { version: { connect: { id: versionId } } } : {}),
+                    courseRun: { connect: { id: courseRunId } },
                     expiresAt,
                     finalPrice,
-                });
+                } as any);
             } else {
                 // New enrollment logic
                 result = await this.enrollmentRepository.create({
                     user: { connect: { id: userId } },
-                    course: { connect: { id: input.courseId } },
+                    courseRun: { connect: { id: courseRunId } },
+                    ...(versionId ? { version: { connect: { id: versionId } } } : {}),
                     enrollmentDate: new Date(),
                     lastAccessedAt: new Date(),
                     completionStatus,
                     completionPercentage: 0,
                     finalPrice,
-                    isGift: (input as any).isGift || false,
-                    giftMessage: (input as any).giftMessage,
-                    sender: (input as any).senderId ? { connect: { id: (input as any).senderId } } : undefined,
+                    isGift: input.isGift || false,
+                    giftMessage: input.giftMessage,
+                    sender: input.senderId ? { connect: { id: input.senderId } } : undefined,
                     expiresAt,
-                });
+                } as any);
             }
 
             // If it's a free enrollment (finalPrice is 0) or explicitly active, emit success event for notification/email
@@ -424,7 +510,7 @@ export class EnrollmentService implements IEnrollmentService {
                             userId: userId,
                             userEmail: user.email,
                             userName: user.displayName || user.email || 'User',
-                            courseId: course.id,
+                            courseMasterId: course.id,
                             courseName: course.title,
                             enrollmentId: result.id,
                         });
@@ -446,8 +532,13 @@ export class EnrollmentService implements IEnrollmentService {
     /**
      * Check if user has access to a course or specific lesson (handling trial logic)
      */
-    async checkAccess(userId: string, courseId: string, lessonId?: string): Promise<boolean> {
-        const enrollment = await this.enrollmentRepository.findByUserAndCourse(userId, courseId);
+    async checkAccess(userId: string, courseMasterId: string, lessonId?: string): Promise<boolean> {
+        const enrollment = await this.prisma.enrollment.findFirst({
+            where: {
+                userId,
+                courseRun: { courseMasterId }
+            }
+        });
 
         // 1. No enrollment
         if (!enrollment) {
@@ -473,7 +564,7 @@ export class EnrollmentService implements IEnrollmentService {
             }
 
             // If checking specific lesson
-            const course = await this.courseRepository.findById(courseId);
+            const course = await this.courseRepository.findById(courseMasterId);
             if (!course) {
                 return false;
             }
@@ -484,15 +575,20 @@ export class EnrollmentService implements IEnrollmentService {
             }
 
             // Check if lesson is within the first N lessons
-            const allowedLessons = await this.lessonRepository.findTopLessonsByCourse(courseId, course.maxTrialLessons);
+            const allowedLessons = await this.lessonRepository.findTopLessonsByCourse(courseMasterId, course.maxTrialLessons);
             return allowedLessons.some(l => l.id === lessonId);
         }
 
         return false;
     }
 
-    async getAccessibleLessonIds(userId: string, courseId: string): Promise<string[] | 'ALL'> {
-        const enrollment = await this.enrollmentRepository.findByUserAndCourse(userId, courseId);
+    async getAccessibleLessonIds(userId: string, courseMasterId: string): Promise<string[] | 'ALL'> {
+        const enrollment = await this.prisma.enrollment.findFirst({
+            where: {
+                userId,
+                courseRun: { courseMasterId }
+            }
+        });
         if (!enrollment) return [];
 
         if (enrollment.completionStatus === EnrollmentStatus.IN_PROGRESS ||
@@ -505,12 +601,12 @@ export class EnrollmentService implements IEnrollmentService {
                 return [];
             }
 
-            const course = await this.courseRepository.findById(courseId);
+            const course = await this.courseRepository.findById(courseMasterId);
             if (!course || !course.maxTrialLessons) {
                 return 'ALL'; // No lesson limit defined for trial -> allow all (time-based only)
             }
 
-            const lessons = await this.lessonRepository.findTopLessonsByCourse(courseId, course.maxTrialLessons);
+            const lessons = await this.lessonRepository.findTopLessonsByCourse(courseMasterId, course.maxTrialLessons);
             return lessons.map(l => l.id);
         }
 
@@ -520,9 +616,14 @@ export class EnrollmentService implements IEnrollmentService {
     /**
      * Check if user is enrolled in a course
      */
-    async isEnrolled(userId: string, courseId: string): Promise<boolean> {
+    async isEnrolled(userId: string, courseMasterId: string): Promise<boolean> {
         try {
-            const enrollment = await this.enrollmentRepository.findByUserAndCourse(userId, courseId);
+            const enrollment = await this.prisma.enrollment.findFirst({
+                where: {
+                    userId,
+                    courseRun: { courseMasterId }
+                }
+            });
 
             if (!enrollment) return false;
 
@@ -571,9 +672,18 @@ export class EnrollmentService implements IEnrollmentService {
                 });
 
                 // Trigger certificate issuance
-                this.certificateService.issueCertificate(enrollment.userId, enrollment.courseId, enrollmentId).catch((err: any) => {
-                    this.logger.error(`Failed to automatically issue certificate: ${err.message}`, err.stack);
+                // Fetch run to get masterId for certificate
+                const fullEnrollment = await this.prisma.enrollment.findUnique({
+                    where: { id: enrollmentId },
+                    include: { courseRun: true }
                 });
+                const masterId = fullEnrollment?.courseRun?.courseMasterId;
+
+                if (masterId) {
+                    this.certificateService.issueCertificate(enrollment.userId, masterId, enrollmentId).catch((err: any) => {
+                        this.logger.error(`Failed to automatically issue certificate: ${err.message}`, err.stack);
+                    });
+                }
 
                 return this.toEnrollmentDto({ ...updated, completionStatus: EnrollmentStatus.COMPLETED, completedAt: new Date() });
             }
@@ -603,16 +713,21 @@ export class EnrollmentService implements IEnrollmentService {
     /**
      * Upgrade enrollment to the latest course version
      */
-    async upgradeVersion(userId: string, courseId: string): Promise<EnrollmentResponseDTO> {
+    async upgradeVersion(userId: string, courseMasterId: string): Promise<EnrollmentResponseDTO> {
         try {
-            const enrollment = await this.enrollmentRepository.findByUserAndCourse(userId, courseId);
+            const enrollment = await this.prisma.enrollment.findFirst({
+                where: {
+                    userId,
+                    courseRun: { courseMasterId }
+                }
+            });
             if (!enrollment) {
                 throw new NotFoundException('Enrollment not found');
             }
 
-            const latestVersion = await this.courseRepository.getLatestVersion(courseId);
+            const latestVersion = await this.courseRepository.getLatestVersion(courseMasterId);
             if (!latestVersion) {
-                return this.toEnrollmentDto(enrollment);
+                throw new NotFoundException('Latest version not found');
             }
 
             if (enrollment.versionId === latestVersion.id) {
@@ -644,14 +759,14 @@ export class EnrollmentService implements IEnrollmentService {
     /**
      * Delete enrollment by user and course
      */
-    async deleteByUserAndCourse(userId: string, courseId: string): Promise<EnrollmentResponseDTO> {
+    async deleteByUserAndCourseRun(userId: string, courseRunId: string): Promise<EnrollmentResponseDTO> {
         try {
-            const enrollment = await this.enrollmentRepository.findByUserAndCourse(userId, courseId);
+            const enrollment = await this.enrollmentRepository.findByUserAndCourseRun(userId, courseRunId);
             if (!enrollment) {
                 throw new NotFoundException('Enrollment not found');
             }
             await this.enrollmentRepository.delete(enrollment.id);
-            this.logger.log(`Deleted enrollment ${enrollment.id} for user ${userId} and course ${courseId}`);
+            this.logger.log(`Deleted enrollment ${enrollment.id} for user ${userId} and run ${courseRunId}`);
 
             // Log Audit
             await this.logAudit({
@@ -659,7 +774,7 @@ export class EnrollmentService implements IEnrollmentService {
                 action: 'enrollment.delete',
                 entity: 'enrollment',
                 entityId: enrollment.id,
-                description: `Deleted enrollment for user ${userId} and course ${courseId}`,
+                description: `Deleted enrollment for user ${userId} and run ${courseRunId}`,
                 oldValues: enrollment,
             });
 
@@ -707,22 +822,14 @@ export class EnrollmentService implements IEnrollmentService {
      * WebRTC:  enrollment.expiresAt = course.expiresAt (fixed course end date)
      *          + registrationClosedAt is REQUIRED — enrollment blocked past this date
      */
-    private computeEnrollmentExpiry(course: any): Date | undefined {
+    private computeEnrollmentExpiry(course: any, courseRun?: any): Date | undefined {
         const now = new Date();
 
         if (course.type === 'live') {
-            // Gate: registrationClosedAt is required for live courses
-            if (!course.registrationClosedAt) {
-                throw new BadRequestException('This live course is not open for registration (missing registration deadline)');
+            if (!courseRun) {
+                throw new BadRequestException('Course run ID is required for live courses');
             }
-
-            // Gate: block enrollment past registration deadline
-            if (now > new Date(course.registrationClosedAt)) {
-                throw new BadRequestException('Registration for this course is closed');
-            }
-
-            // WebRTC: enrollment access expires when the course itself expires
-            return course.expiresAt ? new Date(course.expiresAt) : undefined;
+            return courseRun.endDate ? new Date(courseRun.endDate) : undefined;
         }
 
         // VOD: expires N months from enrollment date (default 6 months if not specified)

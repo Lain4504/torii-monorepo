@@ -29,10 +29,10 @@ export interface IModuleService {
 
     /**
      * Find all modules for a specific course
-     * @param courseId - The course's unique identifier
+     * @param courseMasterId - The course's unique identifier
      * @returns Array of modules ordered by orderIndex
      */
-    findByCourseId(courseId: string, requester?: Requester): Promise<ModuleResponseDTO[]>;
+    findByCourseId(courseMasterId: string, requester?: Requester): Promise<ModuleResponseDTO[]>;
 
     /**
      * Create a new module
@@ -68,14 +68,14 @@ export interface IModuleService {
     /**
      * Reorder modules within a course
      * @param requester - The user making the request
-     * @param courseId - The course's unique identifier
+     * @param courseMasterId - The course's unique identifier
      * @param moduleOrders - Array of module IDs with their new order indices
      * @returns Success message
      * @throws ForbiddenException if requester doesn't have permission
      */
     reorder(
         requester: Requester,
-        courseId: string,
+        courseMasterId: string,
         moduleOrders: { id: string; orderIndex: number }[]
     ): Promise<{ message: string }>;
 }

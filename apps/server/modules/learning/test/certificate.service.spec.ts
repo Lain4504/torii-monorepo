@@ -3,7 +3,7 @@ import { CertificateService } from '@server/learning/modules/certificate/certifi
 import {
     CERTIFICATE_REPOSITORY_TOKEN,
     ENROLLMENT_REPOSITORY_TOKEN,
-    COURSE_REPOSITORY_TOKEN
+    COURSE_MASTER_REPOSITORY_TOKEN
 } from '@server/learning/interfaces/repositories';
 import { SharedStorageService } from '@server/shared';
 import { getMapperToken } from '@automapper/nestjs';
@@ -44,7 +44,7 @@ describe('CertificateService', () => {
     let service: CertificateService;
     let certificateRepository: any;
     let enrollmentRepository: any;
-    let courseRepository: any;
+    let courseMasterRepository: any;
     let storageService: any;
     let natsClient: any;
     let mapper: any;
@@ -76,7 +76,7 @@ describe('CertificateService', () => {
         findById: jest.fn(),
     };
 
-    const mockCourseRepository = {
+    const mockCourseMasterRepository = {
         findById: jest.fn(),
     };
 
@@ -106,8 +106,8 @@ describe('CertificateService', () => {
                     useValue: mockEnrollmentRepository,
                 },
                 {
-                    provide: COURSE_REPOSITORY_TOKEN,
-                    useValue: mockCourseRepository,
+                    provide: COURSE_MASTER_REPOSITORY_TOKEN,
+                    useValue: mockCourseMasterRepository,
                 },
                 {
                     provide: SharedStorageService,
@@ -127,7 +127,7 @@ describe('CertificateService', () => {
         service = module.get<CertificateService>(CertificateService);
         certificateRepository = module.get(CERTIFICATE_REPOSITORY_TOKEN);
         enrollmentRepository = module.get(ENROLLMENT_REPOSITORY_TOKEN);
-        courseRepository = module.get(COURSE_REPOSITORY_TOKEN);
+        courseMasterRepository = module.get(COURSE_MASTER_REPOSITORY_TOKEN);
         storageService = module.get(SharedStorageService);
         natsClient = module.get('NATS_SERVICE');
         mapper = module.get(getMapperToken());
@@ -158,12 +158,12 @@ describe('CertificateService', () => {
             const result = await service.issueCertificate('user-1', 'course-1', 'enr-1');
 
             expect(result.id).toBe(mockCertificate.id);
-            expect(courseRepository.findById).not.toHaveBeenCalled();
+            expect(courseMasterRepository.findById).not.toHaveBeenCalled();
         });
 
         it('should create and upload new certificate', async () => {
             mockCertificateRepository.findByEnrollmentId.mockResolvedValue(null);
-            mockCourseRepository.findById.mockResolvedValue(mockCourse);
+            mockCourseMasterRepository.findById.mockResolvedValue(mockCourse);
             mockNatsClient.send.mockReturnValue(of({ user: { displayName: 'John Doe' } }));
             mockCertificateRepository.create.mockResolvedValue(mockCertificate);
 
@@ -176,7 +176,7 @@ describe('CertificateService', () => {
 
         it('should throw NotFoundException if course not found', async () => {
             mockCertificateRepository.findByEnrollmentId.mockResolvedValue(null);
-            mockCourseRepository.findById.mockResolvedValue(null);
+            mockCourseMasterRepository.findById.mockResolvedValue(null);
 
             await expect(service.issueCertificate('user-1', 'course-1', 'enr-1'))
                 .rejects.toThrow(NotFoundException);

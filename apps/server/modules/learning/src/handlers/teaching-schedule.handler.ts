@@ -22,9 +22,9 @@ export class TeachingScheduleHandler {
         return this.scheduleService.assignSchedule(requester, dto);
     }
 
-    @MessagePattern({ cmd: 'learning.teachingSchedule.findByCourse' })
-    async findByCourse(@Payload() data: { courseId: string }) {
-        return this.scheduleService.findByCourse(data.courseId);
+    @MessagePattern({ cmd: 'learning.teachingSchedule.findByRun' })
+    async findByRun(@Payload() data: { courseRunId: string }) {
+        return this.scheduleService.findByRun(data.courseRunId);
     }
 
     @MessagePattern({ cmd: 'learning.teachingSchedule.findByLecturer' })

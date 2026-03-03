@@ -61,8 +61,10 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
             validFrom: new Date(coupon.validFrom),
             validUntil: new Date(coupon.validUntil),
             status: coupon.status,
-            applicableCourseIds: coupon.applicableCourseIds,
-            excludedCourseIds: coupon.excludedCourseIds,
+            applicableCourseMasterIds: coupon.applicableCourseMasterIds,
+            excludedCourseMasterIds: coupon.excludedCourseMasterIds,
+            applicableRunIds: coupon.applicableRunIds || [],
+            excludedRunIds: coupon.excludedRunIds || [],
         },
     });
 
@@ -81,8 +83,10 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                 validFrom: new Date(coupon.validFrom),
                 validUntil: new Date(coupon.validUntil),
                 status: coupon.status,
-                applicableCourseIds: coupon.applicableCourseIds,
-                excludedCourseIds: coupon.excludedCourseIds,
+                applicableCourseMasterIds: coupon.applicableCourseMasterIds,
+                excludedCourseMasterIds: coupon.excludedCourseMasterIds,
+                applicableRunIds: coupon.applicableRunIds || [],
+                excludedRunIds: coupon.excludedRunIds || [],
             });
         }
     }, [open, coupon, reset]);

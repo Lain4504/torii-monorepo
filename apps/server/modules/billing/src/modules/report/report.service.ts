@@ -132,12 +132,16 @@ export class ReportService {
   }
 
   async exportCourseRevenue() {
-    // Query completed course purchase orders join with enrollment -> course
-    const courses = await this.prisma.course.findMany({
+    // Query completed course purchase orders join with enrollment -> courseRun -> course
+    const courses = await this.prisma.courseMaster.findMany({
       include: {
-        enrollments: {
+        courseRuns: {
           include: {
-            order: true,
+            enrollments: {
+              include: {
+                order: true,
+              },
+            },
           },
         },
       },
@@ -166,19 +170,22 @@ export class ReportService {
       let totalCash = 0;
       let enrollmentCount = 0;
 
-      course.enrollments.forEach((enrollment) => {
-        if (enrollment.order && enrollment.order.status === 'completed') {
-          enrollmentCount++;
-          const amount = Number(enrollment.order.amount);
-          if (
-            enrollment.order.paymentMethod === 'coin' ||
-            enrollment.order.paymentMethod === 'balance'
-          ) {
-            totalCoin += amount;
-          } else {
-            totalCash += amount;
+      // Aggregate enrollments from all course runs
+      course.courseRuns?.forEach((courseRun) => {
+        courseRun.enrollments?.forEach((enrollment) => {
+          if (enrollment.order && enrollment.order.status === 'completed') {
+            enrollmentCount++;
+            const amount = Number(enrollment.order.amount);
+            if (
+              enrollment.order.paymentMethod === 'coin' ||
+              enrollment.order.paymentMethod === 'balance'
+            ) {
+              totalCoin += amount;
+            } else {
+              totalCash += amount;
+            }
           }
-        }
+        });
       });
 
       sheet.addRow({

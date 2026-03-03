@@ -40,7 +40,7 @@ export interface IQuestionPoolService {
     /**
      * Get pools by course
      */
-    getByCourse(courseId: string): Promise<QuestionPoolResponseDTO[]>;
+    getByCourse(courseMasterId: string): Promise<QuestionPoolResponseDTO[]>;
 
     /**
      * Get pools by lesson

@@ -121,7 +121,7 @@ export default function StaffDashboardPage() {
                     </CardHeader>
                     <CardContent className="space-y-2">
                         <Link
-                            to="/courses"
+                            to="/course-master"
                             className="block p-3 rounded-lg hover:bg-muted/50 transition-colors"
                         >
                             <div className="text-sm font-semibold">Quản lý khóa học</div>

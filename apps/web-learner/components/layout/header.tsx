@@ -68,8 +68,8 @@ export function Header() {
     }
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur-sm">
-            <div className="container mx-auto px-4 max-w-7xl">
+        <header className="sticky top-0 z-50 w-full border-b border-border bg-background/98 backdrop-blur-md supports-[backdrop-filter]:bg-background/95">
+            <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
                 <div className="flex justify-between items-center h-16 sm:h-20">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2.5">
@@ -93,14 +93,16 @@ export function Header() {
                     </Link>
 
                     {/* Desktop Navigation */}
-                    <nav className="hidden md:flex items-center space-x-1">
+                    <nav className="hidden md:flex items-center space-x-2">
                         {navigation.map((item) => (
                             <Link
                                 key={item.name}
                                 href={item.href}
                                 className={cn(
-                                    "px-4 py-2 text-sm font-semibold transition-colors rounded-md hover:bg-muted/50 hover:text-primary",
-                                    pathname === item.href ? "text-primary bg-primary/5" : "text-foreground/70"
+                                    "px-4 py-2 text-base font-bold transition-all rounded-full hover:bg-muted",
+                                    pathname === item.href
+                                        ? "text-primary bg-primary/5"
+                                        : "text-muted-foreground hover:text-primary"
                                 )}
                             >
                                 {item.name}
@@ -109,51 +111,43 @@ export function Header() {
                     </nav>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2 sm:gap-4">
-                        <div className="hidden sm:flex items-center">
-                            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
-                                <Search className="size-5" />
-                            </Button>
-                        </div>
-
+                    <div className="flex items-center gap-3">
                         {isAuthenticated ? (
                             <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="h-10 w-10 sm:h-12 sm:w-auto sm:px-2 rounded-full sm:rounded-lg gap-2">
-                                        <Avatar className="size-8">
-                                            <AvatarImage src={user?.avatarUrl || undefined} alt={user?.displayName || 'Avatar'} />
-                                            <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-black">
-                                                {user?.displayName?.[0]?.toUpperCase() || 'U'}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <ChevronDown className="hidden sm:block size-4 text-muted-foreground" />
-                                    </Button>
+                                <DropdownMenuTrigger className="flex items-center gap-2 outline-none group rounded-full p-1 pr-2 hover:bg-muted transition-colors focus-visible:ring-2 focus-visible:ring-primary">
+                                    <Avatar className="size-10 border border-border">
+                                        <AvatarImage src={user?.avatarUrl || undefined} alt={user?.displayName || 'Avatar'} />
+                                        <AvatarFallback className="bg-primary/10 text-primary text-xs font-black">
+                                            {user?.displayName?.[0]?.toUpperCase() || 'U'}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <ChevronDown className="hidden sm:block size-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent className="w-56" align="end">
-                                    <DropdownMenuLabel className="font-normal">
+                                <DropdownMenuContent className="w-64 p-2 rounded-2xl" align="end">
+                                    <DropdownMenuLabel className="font-normal p-3">
                                         <div className="flex flex-col space-y-1">
-                                            <p className="text-sm font-bold leading-none">{user?.displayName}</p>
-                                            <p className="text-xs leading-none text-muted-foreground truncate">
+                                            <p className="text-base font-bold leading-none">{user?.displayName}</p>
+                                            <p className="text-sm leading-none text-muted-foreground truncate">
                                                 {user?.email}
                                             </p>
                                         </div>
                                     </DropdownMenuLabel>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuGroup>
-                                        <DropdownMenuItem onClick={() => router.push('/dashboard')} className="cursor-pointer">
+                                    <DropdownMenuGroup className="p-1">
+                                        <DropdownMenuItem onClick={() => router.push('/dashboard')} className="cursor-pointer rounded-xl h-10">
                                             <LayoutDashboard className="mr-2 size-4 text-muted-foreground" />
-                                            <span>Bảng điều khiển</span>
+                                            <span className="font-bold text-foreground">Bảng điều khiển</span>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem className="cursor-pointer">
+                                        <DropdownMenuItem className="cursor-pointer rounded-xl h-10">
                                             <BookOpen className="mr-2 size-4 text-muted-foreground" />
-                                            <span>Khoá học của tôi</span>
+                                            <span className="font-bold text-foreground">Khoá học của tôi</span>
                                         </DropdownMenuItem>
                                     </DropdownMenuGroup>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center justify-between">
+                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="flex items-center justify-between rounded-xl h-10">
                                         <div className="flex items-center">
                                             {theme === 'dark' ? <Sun className="mr-2 size-4 text-muted-foreground" /> : <Moon className="mr-2 size-4 text-muted-foreground" />}
-                                            <span>Chùm tối</span>
+                                            <span className="font-bold text-foreground">Giao diện tối</span>
                                         </div>
                                         <Switch
                                             checked={theme === 'dark'}
@@ -164,7 +158,7 @@ export function Header() {
                                     <DropdownMenuItem
                                         onClick={handleLogout}
                                         disabled={isLoggingOut}
-                                        className="text-destructive focus:text-destructive cursor-pointer font-bold"
+                                        className="text-destructive focus:text-destructive cursor-pointer font-black rounded-xl h-10"
                                     >
                                         <LogOut className="mr-2 size-4" />
                                         {isLoggingOut ? 'Đang thoát...' : 'Thoát ra'}
@@ -173,11 +167,11 @@ export function Header() {
                             </DropdownMenu>
                         ) : (
                             <div className="flex items-center gap-2">
-                                <Button variant="ghost" className="hidden sm:flex text-sm font-bold h-10 px-4" asChild>
-                                    <Link href="/login">Vào học</Link>
+                                <Button variant="ghost" size="lg" className="hidden sm:flex text-base font-bold" asChild>
+                                    <Link href="/login">Đăng nhập</Link>
                                 </Button>
-                                <Button className="h-10 sm:h-11 px-4 sm:px-6 font-bold text-xs uppercase tracking-wider rounded-lg" asChild>
-                                    <Link href="/register">Tham gia</Link>
+                                <Button size="lg" className="text-base font-bold" asChild>
+                                    <Link href="/register">Tham gia ngay</Link>
                                 </Button>
                             </div>
                         )}
@@ -222,11 +216,11 @@ export function Header() {
                         </div>
                         {!isAuthenticated && (
                             <div className="grid grid-cols-2 gap-3 mt-4">
-                                <Button variant="outline" className="h-12 w-full font-bold" asChild>
-                                    <Link href="/login" onClick={() => setMobileMenuOpen(false)}>Vào học</Link>
+                                <Button variant="outline" size="lg" className="w-full text-base font-bold" asChild>
+                                    <Link href="/login" onClick={() => setMobileMenuOpen(false)}>Đăng nhập</Link>
                                 </Button>
-                                <Button className="h-12 w-full font-bold" asChild>
-                                    <Link href="/register" onClick={() => setMobileMenuOpen(false)}>Tham gia</Link>
+                                <Button size="lg" className="w-full text-base font-bold" asChild>
+                                    <Link href="/register" onClick={() => setMobileMenuOpen(false)}>Tham gia ngay</Link>
                                 </Button>
                             </div>
                         )}

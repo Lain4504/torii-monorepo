@@ -9,8 +9,8 @@ import Link from 'next/link';
 import { format, formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import {
-    Eye, MessageSquare, Clock, Calendar, User,
-    Share2, Copy, Heart, Send, ChevronDown, Loader2, Tag, ArrowLeft
+    Eye, MessageSquare, Clock, Calendar,
+    Share2, Copy, Heart, Send, ChevronDown, Loader2, Tag, ArrowLeft, BookOpen
 } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 
@@ -313,99 +313,55 @@ export function BlogDetail({ blog, recentBlogs }: { blog: BlogResponseDTO; recen
     return (
         <div className="min-h-screen bg-background text-foreground">
 
-            {/* ── HERO ─────────────────────────────────────────────────────── */}
-            <div className="relative w-full h-[480px] sm:h-[560px] overflow-hidden bg-slate-900" data-purpose="article-hero">
-                <img
-                    src={coverImage}
-                    alt={blog.title}
-                    className="absolute inset-0 w-full h-full object-cover opacity-50"
-                />
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/50 to-slate-900/10" />
+            <div className="bg-muted/50 border-b border-border" data-purpose="article-hero">
+                <section className="relative pt-12 pb-16 md:pt-20 md:pb-24 overflow-hidden">
+                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+                        <div className="mb-8 flex justify-center">
+                            <Link href="/blog" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                                <ArrowLeft className="h-4 w-4" /> Tất cả bài viết
+                            </Link>
+                        </div>
 
-                {/* Back button */}
-                <div className="absolute top-6 left-6">
-                    <Link
-                        href="/blog"
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-black/30 hover:bg-black/50 backdrop-blur-md text-white rounded-full text-sm font-medium transition"
-                    >
-                        <ArrowLeft className="h-4 w-4" /> Tất cả bài viết
-                    </Link>
-                </div>
+                        {primaryTag && (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold tracking-wider uppercase mb-6">
+                                <Tag className="h-3 w-3" /> {primaryTag}
+                            </span>
+                        )}
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight tracking-tight max-w-4xl mx-auto mb-8">
+                            {blog.title}
+                        </h1>
 
-                {/* Share buttons */}
-                <div className="absolute top-6 right-6 flex gap-2">
-                    <button
-                        onClick={() => copyToClipboard(window.location.href)}
-                        className="p-2.5 bg-black/30 hover:bg-black/50 backdrop-blur-md text-white rounded-full transition"
-                        title="Sao chép liên kết"
-                    >
-                        <Copy className="h-4 w-4" />
-                    </button>
-                    <button
-                        onClick={() => {
-                            if (navigator.share) navigator.share({ title: blog.title, url: window.location.href });
-                            else copyToClipboard(window.location.href);
-                        }}
-                        className="p-2.5 bg-black/30 hover:bg-black/50 backdrop-blur-md text-white rounded-full transition"
-                        title="Chia sẻ"
-                    >
-                        <Share2 className="h-4 w-4" />
-                    </button>
-                </div>
-
-                {/* Hero content */}
-                <div className="absolute bottom-0 left-0 right-0 px-6 pb-10 sm:px-12 max-w-5xl mx-auto">
-                    {primaryTag && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-bold tracking-wider uppercase mb-4">
-                            <Tag className="h-3 w-3" /> {primaryTag}
-                        </span>
-                    )}
-                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-5 max-w-3xl drop-shadow-lg">
-                        {blog.title}
-                    </h1>
-                    {/* Meta */}
-                    <div className="flex flex-wrap items-center gap-5 text-slate-300 text-sm">
-                        <div className="flex items-center gap-2.5">
-                            {authorAvatar
-                                ? <img src={authorAvatar} alt={authorName} className="w-9 h-9 rounded-full object-cover ring-2 ring-white/30" />
-                                : <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center font-bold text-white text-sm">{authorName[0]}</div>
-                            }
-                            <div>
-                                <p className="font-semibold text-white leading-none">{authorName}</p>
-                                <p className="text-xs text-slate-400">Tác giả</p>
+                        <div className="flex flex-wrap items-center justify-center gap-6 text-muted-foreground text-sm">
+                            <div className="flex items-center gap-1.5">
+                                <Calendar className="h-4 w-4" />
+                                <span>{publishedDate}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                                <Clock className="h-4 w-4" />
+                                <span>{readTime} phút đọc</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                                <Eye className="h-4 w-4" />
+                                <span>{fmtViews(blog.viewCount ?? 0)} lượt xem</span>
                             </div>
                         </div>
-                        <div className="flex items-center gap-1.5">
-                            <Calendar className="h-4 w-4 opacity-70" />
-                            <span>{publishedDate}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                            <Clock className="h-4 w-4 opacity-70" />
-                            <span>{readTime} phút đọc</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                            <Eye className="h-4 w-4 opacity-70" />
-                            <span>{fmtViews(blog.viewCount ?? 0)} lượt xem</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                            <MessageSquare className="h-4 w-4 opacity-70" />
-                            <span>{blog.commentCount ?? 0} bình luận</span>
-                        </div>
                     </div>
-                </div>
+                </section>
             </div>
 
-            {/* ── BODY ─────────────────────────────────────────────────────── */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
                 <div className="flex flex-col lg:flex-row gap-12">
 
                     {/* ── ARTICLE + COMMENTS ───────────────────────────────── */}
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 xl:pr-8">
+
+                        <div className="mb-10 rounded-2xl overflow-hidden aspect-[2/1] relative bg-slate-100 dark:bg-slate-900 border border-border shadow-sm">
+                            <img className="w-full h-full object-cover" src={coverImage} alt={blog.title} />
+                        </div>
 
                         {/* Excerpt */}
                         {blog.excerpt && (
-                            <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed mb-8 font-medium px-5 py-4 border-l-4 border-primary bg-primary/5 rounded-r-xl">
+                            <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed mb-8 font-medium px-5 py-5 border-l-4 border-primary bg-primary/5 rounded-r-2xl">
                                 {blog.excerpt}
                             </p>
                         )}
@@ -431,32 +387,14 @@ export function BlogDetail({ blog, recentBlogs }: { blog: BlogResponseDTO; recen
                                     {blog.tags.map(tag => (
                                         <span
                                             key={tag}
-                                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-muted hover:bg-primary/10 hover:text-primary text-muted-foreground rounded-full text-sm font-medium transition cursor-pointer"
+                                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-muted hover:bg-primary/10 hover:text-primary text-muted-foreground rounded-full text-sm font-medium transition cursor-pointer"
                                         >
-                                            <Tag className="h-3 w-3" /> {tag}
+                                            <Tag className="h-3.5 w-3.5" /> {tag}
                                         </span>
                                     ))}
                                 </div>
                             </div>
                         )}
-
-                        {/* Author card */}
-                        <div className="mt-10 p-6 sm:p-8 bg-card border border-border rounded-2xl flex flex-col sm:flex-row gap-5 items-center shadow-sm">
-                            {authorAvatar
-                                ? <img src={authorAvatar} alt={authorName} className="w-20 h-20 rounded-full object-cover ring-4 ring-border shrink-0" />
-                                : <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center font-black text-3xl text-primary shrink-0">{authorName[0]}</div>
-                            }
-                            <div className="text-center sm:text-left">
-                                <div className="flex items-center gap-2 justify-center sm:justify-start mb-1">
-                                    <User className="h-4 w-4 text-primary" />
-                                    <span className="text-xs font-bold text-primary uppercase tracking-widest">Tác giả</span>
-                                </div>
-                                <h3 className="text-xl font-bold text-foreground mb-2">{authorName}</h3>
-                                <p className="text-sm text-muted-foreground">
-                                    Cảm ơn bạn đã đọc bài viết này. Hãy tiếp tục cố gắng chinh phục tiếng Nhật mỗi ngày! 🇯🇵
-                                </p>
-                            </div>
-                        </div>
 
                         {/* Comments */}
                         <CommentSection blogId={blog.id} commentCount={blog.commentCount ?? 0} />
@@ -534,18 +472,19 @@ export function BlogDetail({ blog, recentBlogs }: { blog: BlogResponseDTO; recen
                                 Xem {blog.commentCount ?? 0} bình luận
                             </button>
 
-                            {/* CTA enroll */}
-                            <div className="bg-gradient-to-br from-primary to-primary/80 rounded-2xl p-5 text-primary-foreground shadow-lg shadow-primary/20">
-                                <div className="text-2xl mb-2">🎌</div>
-                                <h3 className="font-bold mb-1">Muốn học tiếng Nhật?</h3>
-                                <p className="text-xs text-primary-foreground/80 mb-4 leading-relaxed">
+                            <div className="bg-primary rounded-2xl p-5 text-primary-foreground shadow-lg">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <BookOpen className="size-5" />
+                                    <h3 className="font-bold">Muốn học tiếng Nhật?</h3>
+                                </div>
+                                <p className="text-xs text-primary-foreground/90 mb-4 leading-relaxed">
                                     Khám phá các khóa học từ N5 đến N1 được thiết kế chuyên biệt.
                                 </p>
                                 <Link
                                     href="/courses"
-                                    className="block w-full text-center py-2.5 bg-background text-primary rounded-xl font-bold text-sm hover:bg-accent transition"
+                                    className="block w-full text-center py-2.5 bg-background text-primary rounded-xl font-bold text-sm hover:bg-background/90 transition"
                                 >
-                                    Xem khóa học →
+                                    Xem khóa học
                                 </Link>
                             </div>
                         </div>
@@ -553,10 +492,9 @@ export function BlogDetail({ blog, recentBlogs }: { blog: BlogResponseDTO; recen
                 </div>
             </div>
 
-            {/* ── RELATED POSTS ─────────────────────────────────────────────── */}
             {recentBlogs.length > 0 && (
                 <section className="border-t border-border bg-muted/30 py-16">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex items-center justify-between mb-8">
                             <div>
                                 <h2 className="text-2xl font-bold text-foreground">Bài viết liên quan</h2>
@@ -574,7 +512,7 @@ export function BlogDetail({ blog, recentBlogs }: { blog: BlogResponseDTO; recen
                                         <div className="aspect-video overflow-hidden bg-muted">
                                             {post.coverImageUrl
                                                 ? <img src={post.coverImageUrl} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                                : <div className="w-full h-full flex items-center justify-center text-4xl">📝</div>
+                                                : <div className="w-full h-full flex items-center justify-center bg-muted"><BookOpen className="size-12 text-muted-foreground" /></div>
                                             }
                                         </div>
                                         <div className="p-5">

@@ -35,7 +35,7 @@ export class WishlistService implements IWishlistService {
     query: WishlistQueryDTO,
   ): Promise<PaginatedResponseDTO<WishlistResponseDTO>> {
     try {
-      const { page = 1, limit = 10, userId, courseId } = query;
+      const { page = 1, limit = 10, userId, courseRunId } = query;
       const pageNum =
         typeof page === 'string' ? parseInt(page, 10) : Number(page) || 1;
       const limitNum =
@@ -46,7 +46,7 @@ export class WishlistService implements IWishlistService {
 
       const whereClause: Prisma.WishlistWhereInput = {};
       if (userId) whereClause.userId = userId;
-      if (courseId) whereClause.courseId = courseId;
+      if (courseRunId) whereClause.courseRunId = courseRunId;
 
       const [total, items] = await Promise.all([
         this.wishlistRepository.count(whereClause),
@@ -102,26 +102,23 @@ export class WishlistService implements IWishlistService {
   /**
    * Create a new wishlist
    */
-  async create(input: WishlistCreateDTO): Promise<WishlistResponseDTO> {
-    if (!input.userId) {
-      throw new Error('UserId is required');
-    }
-    if (!input.courseId) {
-      throw new Error('CourseId is required');
-    }
+  async create(userId: string, input: WishlistCreateDTO): Promise<WishlistResponseDTO> {
+    const { courseRunId } = input;
+    if (!userId) throw new Error('UserId is required');
+    if (!courseRunId) throw new Error('CourseRunId is required');
 
     try {
       const created = await this.wishlistRepository.create({
-        user: { connect: { id: input.userId } },
-        course: { connect: { id: input.courseId } },
-      });
+        user: { connect: { id: userId } },
+        courseRun: { connect: { id: courseRunId } },
+      } as any);
       return this.toWishlistDto(created);
     } catch (error: any) {
-      // Handle unique constraint (userId + courseId) -> return existing
+      // Handle unique constraint (userId + courseRunId) -> return existing
       if (error?.code === 'P2002') {
-        const existing = await this.wishlistRepository.findByUserAndCourse(
-          input.userId,
-          input.courseId,
+        const existing = await this.wishlistRepository.findByUserAndCourseRun(
+          userId,
+          courseRunId,
         );
         if (existing) return this.toWishlistDto(existing);
       }
@@ -154,9 +151,9 @@ export class WishlistService implements IWishlistService {
   /**
    * Toggle wishlist (add if not exists, remove if exists)
    */
-  async toggle(userId: string, courseId: string): Promise<{ isInWishlist: boolean; wishlist?: WishlistResponseDTO }> {
+  async toggle(userId: string, courseRunId: string): Promise<{ isInWishlist: boolean; wishlist?: WishlistResponseDTO }> {
     try {
-      const existing = await this.wishlistRepository.findByUserAndCourse(userId, courseId);
+      const existing = await this.wishlistRepository.findByUserAndCourseRun(userId, courseRunId);
 
       if (existing) {
         // Remove from wishlist
@@ -166,8 +163,8 @@ export class WishlistService implements IWishlistService {
         // Add to wishlist
         const created = await this.wishlistRepository.create({
           user: { connect: { id: userId } },
-          course: { connect: { id: courseId } },
-        });
+          courseRun: { connect: { id: courseRunId } },
+        } as any);
         return { isInWishlist: true, wishlist: this.toWishlistDto(created) };
       }
     } catch (error: any) {
@@ -180,11 +177,11 @@ export class WishlistService implements IWishlistService {
   }
 
   /**
-   * Check if course is in user's wishlist
+   * Check if course run is in user's wishlist
    */
-  async isInWishlist(userId: string, courseId: string): Promise<boolean> {
+  async isInWishlist(userId: string, courseRunId: string): Promise<boolean> {
     try {
-      const existing = await this.wishlistRepository.findByUserAndCourse(userId, courseId);
+      const existing = await this.wishlistRepository.findByUserAndCourseRun(userId, courseRunId);
       return existing !== null;
     } catch (error: any) {
       this.logger.error(

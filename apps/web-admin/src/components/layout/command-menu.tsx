@@ -86,7 +86,7 @@ export function CommandMenu() {
                             <User className="mr-2 h-4 w-4" />
                             <span>Danh sách học viên</span>
                         </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/courses"))}>
+                        <CommandItem onSelect={() => runCommand(() => navigate("/course-master"))}>
                             <BookOpen className="mr-2 h-4 w-4" />
                             <span>Quản lý khóa học</span>
                         </CommandItem>

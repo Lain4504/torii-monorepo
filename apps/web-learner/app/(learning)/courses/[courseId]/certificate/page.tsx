@@ -1,0 +1,123 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
+import Link from 'next/link'
+import { Button } from '@workspace/ui/components/button'
+import { formatDate } from '@/utils/format-utils'
+import { Card, CardContent } from '@workspace/ui/components/card'
+import { ArrowLeft, Download, Share2 } from 'lucide-react'
+import { courseApi } from '@/lib/api/services/course-api'
+import { courseRunApi } from '@/lib/api/services/course-run-api'
+
+export default function CourseCertificatePage() {
+    const params = useParams()
+    const courseRunId = params.courseId as string
+    const [course, setCourse] = useState<any>(null)
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true)
+                const runResult = await courseRunApi.getCourseRunById(courseRunId)
+                if (runResult) {
+                    const courseData = await courseApi.getCourseById(runResult.courseMasterId)
+                    if (courseData) {
+                        setCourse(courseData)
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        if (courseRunId) {
+            fetchData()
+        }
+    }, [courseRunId])
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <p className="text-muted-foreground">Đang tải...</p>
+            </div>
+        )
+    }
+
+    if (!course) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <p className="text-muted-foreground">Không tìm thấy khóa học</p>
+            </div>
+        )
+    }
+
+    return (
+        <div className="min-h-screen bg-background">
+            {/* Header */}
+            <div className="border-b border-border bg-background">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                    <div className="flex items-center gap-4">
+                        <Link href={`/courses/${courseRunId}/learn`}>
+                            <Button variant="ghost" size="icon" className="rounded-full">
+                                <ArrowLeft className="w-4 h-4" />
+                            </Button>
+                        </Link>
+                        <div>
+                            <h1 className="text-xl font-bold text-foreground">Chứng chỉ hoàn thành</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Certificate */}
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-4xl">
+                <Card className="border-2">
+                    <CardContent className="p-12">
+                        <div className="text-center space-y-6">
+                            <div className="border-b-2 border-primary pb-6">
+                                <h2 className="text-3xl font-bold text-foreground mb-2">
+                                    Chứng chỉ hoàn thành
+                                </h2>
+                                <p className="text-muted-foreground">
+                                    Chứng nhận rằng học viên đã hoàn thành thành công khóa học
+                                </p>
+                            </div>
+
+                            <div className="py-8">
+                                <h3 className="text-2xl font-semibold text-foreground mb-4">
+                                    {course.title}
+                                </h3>
+                                <p className="text-muted-foreground mb-2">
+                                    Ngày hoàn thành: {formatDate(new Date())}
+                                </p>
+                            </div>
+
+                            <div className="border-t-2 border-primary pt-6">
+                                <p className="text-sm text-muted-foreground">
+                                    Chứng chỉ này được cấp bởi Torii Nihongo
+                                </p>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Actions */}
+                <div className="flex items-center justify-center gap-4 mt-6">
+                    <Button size="lg">
+                        <Download className="mr-2 w-4 h-4" />
+                        Tải xuống PDF
+                    </Button>
+                    <Button variant="outline" size="lg">
+                        <Share2 className="mr-2 w-4 h-4" />
+                        Chia sẻ
+                    </Button>
+                </div>
+            </div>
+        </div>
+    )
+}
+

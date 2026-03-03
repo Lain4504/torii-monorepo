@@ -20,9 +20,9 @@ export const liveSessionsApi = {
         return response.data.data!;
     },
 
-    // GET /api/live-sessions/course/:courseId
-    async findByCourse(courseId: string): Promise<LiveSessionResponseDTO[]> {
-        const response = await apiClient.get<StandardApiResponse<LiveSessionResponseDTO[]>>(`/api/live-sessions/course/${courseId}`);
+    // GET /api/live-sessions/run/:runId
+    async findByRun(runId: string): Promise<LiveSessionResponseDTO[]> {
+        const response = await apiClient.get<StandardApiResponse<LiveSessionResponseDTO[]>>(`/api/live-sessions/run/${runId}`);
         return response.data.data!;
     },
 
@@ -50,6 +50,18 @@ export const liveSessionsApi = {
         return response.data.data!;
     },
 
+    // PATCH /api/live-sessions/:id
+    async update(id: string, dto: any): Promise<LiveSessionResponseDTO> {
+        const response = await apiClient.patch<StandardApiResponse<LiveSessionResponseDTO>>(`/api/live-sessions/${id}`, dto);
+        return response.data.data!;
+    },
+
+    // POST /api/live-sessions
+    async create(dto: any): Promise<LiveSessionResponseDTO> {
+        const response = await apiClient.post<StandardApiResponse<LiveSessionResponseDTO>>('/api/live-sessions', dto);
+        return response.data.data!;
+    },
+
     // --- Teaching Schedule API ---
 
     // GET /api/teaching-schedules/check-availability
@@ -64,9 +76,9 @@ export const liveSessionsApi = {
         return response.data.data!;
     },
 
-    // GET /api/teaching-schedules/course/:courseId
-    async findSchedulesByCourse(courseId: string): Promise<TeachingScheduleResponseDTO[]> {
-        const response = await apiClient.get<StandardApiResponse<TeachingScheduleResponseDTO[]>>(`/api/teaching-schedules/course/${courseId}`);
+    // GET /api/teaching-schedules/run/:runId
+    async findSchedulesByRun(runId: string): Promise<TeachingScheduleResponseDTO[]> {
+        const response = await apiClient.get<StandardApiResponse<TeachingScheduleResponseDTO[]>>(`/api/teaching-schedules/run/${runId}`);
         return response.data.data!;
     },
 
@@ -98,11 +110,11 @@ export const liveSessionsApi = {
 // React Query Hooks - Live Sessions
 // ============================================================================
 
-export function useLiveSessions(courseId: string) {
+export function useLiveSessions(runId: string) {
     return useQuery({
-        queryKey: ['live-sessions', 'course', courseId],
-        queryFn: () => liveSessionsApi.findByCourse(courseId),
-        enabled: !!courseId,
+        queryKey: ['live-sessions', 'run', runId],
+        queryFn: () => liveSessionsApi.findByRun(runId),
+        enabled: !!runId,
     });
 }
 
@@ -114,13 +126,24 @@ export function useLiveSession(id: string) {
     });
 }
 
+export function useCreateLiveSession() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (dto: any) => liveSessionsApi.create(dto),
+        onSuccess: (data) => {
+            queryClient.invalidateQueries({ queryKey: ['live-sessions', 'run', data.courseRunId] });
+        },
+    });
+}
+
 export function useDeleteLiveSession() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ id }: { id: string; courseId: string }) => liveSessionsApi.delete(id),
+        mutationFn: ({ id }: { id: string; courseRunId: string }) => liveSessionsApi.delete(id),
         onSuccess: (_, variables) => {
-            queryClient.invalidateQueries({ queryKey: ['live-sessions', 'course', variables.courseId] });
+            queryClient.invalidateQueries({ queryKey: ['live-sessions', 'run', variables.courseRunId] });
         },
     });
 }
@@ -132,7 +155,7 @@ export function useStartLiveSession() {
         mutationFn: (id: string) => liveSessionsApi.start(id),
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['live-sessions', data.id] });
-            queryClient.invalidateQueries({ queryKey: ['live-sessions', 'course', data.courseId] });
+            queryClient.invalidateQueries({ queryKey: ['live-sessions', 'run', data.courseRunId] });
         },
     });
 }
@@ -144,7 +167,19 @@ export function useEndLiveSession() {
         mutationFn: (id: string) => liveSessionsApi.end(id),
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ['live-sessions', data.id] });
-            queryClient.invalidateQueries({ queryKey: ['live-sessions', 'course', data.courseId] });
+            queryClient.invalidateQueries({ queryKey: ['live-sessions', 'run', data.courseRunId] });
+        },
+    });
+}
+
+export function useUpdateLiveSession() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, dto }: { id: string; dto: any }) => liveSessionsApi.update(id, dto),
+        onSuccess: (data) => {
+            queryClient.invalidateQueries({ queryKey: ['live-sessions', data.id] });
+            queryClient.invalidateQueries({ queryKey: ['live-sessions', 'run', data.courseRunId] });
         },
     });
 }
@@ -153,11 +188,11 @@ export function useEndLiveSession() {
 // React Query Hooks - Teaching Schedules
 // ============================================================================
 
-export function useTeachingSchedules(courseId: string) {
+export function useTeachingSchedules(runId: string) {
     return useQuery({
-        queryKey: ['teaching-schedules', 'course', courseId],
-        queryFn: () => liveSessionsApi.findSchedulesByCourse(courseId),
-        enabled: !!courseId,
+        queryKey: ['teaching-schedules', 'run', runId],
+        queryFn: () => liveSessionsApi.findSchedulesByRun(runId),
+        enabled: !!runId,
     });
 }
 
@@ -182,8 +217,8 @@ export function useAssignTeachingSchedule() {
     return useMutation({
         mutationFn: (dto: TeachingScheduleCreateDTO) => liveSessionsApi.assignSchedule(dto),
         onSuccess: (_, variables) => {
-            queryClient.invalidateQueries({ queryKey: ['teaching-schedules', 'course', variables.courseId] });
-            queryClient.invalidateQueries({ queryKey: ['live-sessions', 'course', variables.courseId] });
+            queryClient.invalidateQueries({ queryKey: ['teaching-schedules', 'run', variables.courseRunId] });
+            queryClient.invalidateQueries({ queryKey: ['live-sessions', 'run', variables.courseRunId] });
         },
     });
 }

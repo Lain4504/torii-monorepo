@@ -63,7 +63,7 @@ export interface ICouponService {
     getStatistics(): Promise<CouponStatisticsDTO>;
 
     /**
-     * Get available coupons for a course
+     * Get available coupons for a course run
      */
-    getAvailableCoupons(courseId: string): Promise<CouponResponseDTO[]>;
+    getAvailableCoupons(courseRunId: string): Promise<CouponResponseDTO[]>;
 }

@@ -9,6 +9,8 @@ import { ChevronLeft } from 'lucide-react';
 import { Card, CardContent } from '@workspace/ui/components/card';
 import { SubmissionsTable } from '@/components/submissions/submissions-table';
 import type { SubmissionResponseDTO } from '@workspace/schemas';
+import { GradeSubmissionSheet } from '@/components/submissions/grade-submission-sheet';
+import { useState } from 'react';
 
 export default function AssignmentSubmissionsPage() {
     const { id: courseId, assignmentId } = useParams<{ id: string; assignmentId: string }>();
@@ -18,15 +20,17 @@ export default function AssignmentSubmissionsPage() {
     const { data: assignment, isLoading: isLoadingAssignment } = useAssignment(assignmentId || '');
     const { data: submissions, isLoading: isLoadingSubmissions } = useSubmissions(assignmentId || '');
 
+    const [gradingSubmission, setGradingSubmission] = useState<SubmissionResponseDTO | null>(null);
+
     const handleGrade = (submission: SubmissionResponseDTO) => {
-        // Implement grading logic or navigate to grading page
-        console.log('Grade submission:', submission);
+        setGradingSubmission(submission);
     };
 
     const handleView = (submission: SubmissionResponseDTO) => {
-        // Implement view logic
-        console.log('View submission:', submission);
+        // For now view is same as grade
+        setGradingSubmission(submission);
     };
+
 
     if (isLoadingCourse || isLoadingAssignment) {
         return <PageLoading text="Đang tải thông tin..." />;
@@ -36,7 +40,7 @@ export default function AssignmentSubmissionsPage() {
         return (
             <div className="flex flex-col items-center justify-center p-20 text-center space-y-4">
                 <p className="text-muted-foreground">Không tìm thấy thông tin bài tập hoặc khóa học</p>
-                <Button onClick={() => navigate(`/courses/${courseId}`)}>Quay lại chi tiết khóa học</Button>
+                <Button onClick={() => navigate(`/course-master/${courseId}`)}>Quay lại chi tiết khóa học</Button>
             </div>
         );
     }
@@ -48,14 +52,14 @@ export default function AssignmentSubmissionsPage() {
                     variant="ghost"
                     size="sm"
                     className="h-8 px-0 text-muted-foreground hover:text-foreground gap-2 transition-colors hover:bg-transparent -ml-2 w-fit"
-                    onClick={() => navigate(`/courses/${courseId}`)}
+                    onClick={() => navigate(`/course-master/${courseId}`)}
                 >
                     <ChevronLeft className="size-4" />
                     <span className="text-xs font-sans font-bold italic uppercase tracking-wider">Quay lại chi tiết khóa học</span>
                 </Button>
                 <PageHeader
                     title="Danh sách bài nộp"
-                    subtitle={`Bài tập: ${assignment.title} | Khóa học: ${course.title}`}
+                    subtitle={`Bài tập: ${assignment.title} | Khóa học: ${course.title}. Bài nộp từ học viên theo từng đợt khai giảng (Course Run).`}
                     stats={[
                         {
                             label: 'Tổng số bài nộp',
@@ -78,6 +82,14 @@ export default function AssignmentSubmissionsPage() {
                     />
                 </CardContent>
             </Card>
+
+            <GradeSubmissionSheet
+                open={!!gradingSubmission}
+                onOpenChange={(open) => !open && setGradingSubmission(null)}
+                submission={gradingSubmission}
+                maxScore={assignment.maxScore}
+            />
         </div>
     );
 }
+

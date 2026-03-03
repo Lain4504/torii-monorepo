@@ -78,9 +78,9 @@ export class QuestionPoolRepository implements IQuestionPoolRepository {
     /**
      * Find pools by course
      */
-    async findByCourse(courseId: string): Promise<QuestionPool[]> {
+    async findByCourse(courseMasterId: string): Promise<QuestionPool[]> {
         return this.prisma.questionPool.findMany({
-            where: { courseId },
+            where: { courseMasterId },
             orderBy: { createdAt: 'desc' },
         });
     }

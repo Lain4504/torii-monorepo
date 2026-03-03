@@ -7,10 +7,18 @@ import type { EnrollmentResponseDTO, StandardApiResponse } from '@workspace/sche
 // ============================================================================
 
 export const enrollmentsApi = {
-    // GET /api/enrollments/course/:courseId
-    async findByCourse(courseId: string): Promise<EnrollmentResponseDTO[]> {
-        const response = await apiClient.get<StandardApiResponse<EnrollmentResponseDTO[]>>(`/api/enrollments/course/${courseId}`);
-        return response.data.data!;
+    // GET /api/enrollments?courseMasterId=...
+    async findByCourse(courseMasterId: string): Promise<EnrollmentResponseDTO[]> {
+        const response = await apiClient.get<StandardApiResponse<{ data: EnrollmentResponseDTO[] }>>(
+            '/api/enrollments',
+            { params: { courseMasterId } }
+        );
+        // Gateway returns a paginated structure via successPaginatedResponse, but
+        // here we only care about the data array.
+        const anyData: any = response.data as any;
+        const items: EnrollmentResponseDTO[] =
+            anyData?.data?.data ?? anyData?.data?.items ?? anyData?.data ?? [];
+        return items;
     },
 };
 
@@ -18,10 +26,10 @@ export const enrollmentsApi = {
 // React Query Hooks
 // ============================================================================
 
-export function useEnrollmentsByCourse(courseId: string) {
+export function useEnrollmentsByCourse(courseMasterId: string) {
     return useQuery({
-        queryKey: ['enrollments', 'course', courseId],
-        queryFn: () => enrollmentsApi.findByCourse(courseId),
-        enabled: !!courseId,
+        queryKey: ['enrollments', 'course', courseMasterId],
+        queryFn: () => enrollmentsApi.findByCourse(courseMasterId),
+        enabled: !!courseMasterId,
     });
 }

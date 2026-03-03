@@ -23,7 +23,7 @@ export interface IWishlistService {
     /**
      * Create a new wishlist
      */
-    create(input: WishlistCreateDTO): Promise<WishlistResponseDTO>;
+    create(userId: string, input: WishlistCreateDTO): Promise<WishlistResponseDTO>;
 
     /**
      * Delete wishlist by ID
@@ -33,11 +33,11 @@ export interface IWishlistService {
     /**
      * Toggle wishlist (add if not exists, remove if exists)
      */
-    toggle(userId: string, courseId: string): Promise<{ isInWishlist: boolean; wishlist?: WishlistResponseDTO }>;
+    toggle(userId: string, courseRunId: string): Promise<{ isInWishlist: boolean; wishlist?: WishlistResponseDTO }>;
 
     /**
-     * Check if course is in user's wishlist
+     * Check if course run is in user's wishlist
      */
-    isInWishlist(userId: string, courseId: string): Promise<boolean>;
+    isInWishlist(userId: string, courseRunId: string): Promise<boolean>;
 }
 

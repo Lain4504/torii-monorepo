@@ -22,7 +22,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/av
 import { User as UserIcon, Trash2, Plus } from 'lucide-react';
 import { Badge } from '@workspace/ui/components/badge';
 import { toast } from '@workspace/ui/components/sonner';
-import { type CourseResponseDTO, UserRole } from '@workspace/schemas';
+import { type CourseMasterResponseDTO, UserRole } from '@workspace/schemas';
 import { useUsers } from '@/lib/api/services/users';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import { Field, FieldLabel } from '@workspace/ui/components/field';
@@ -31,7 +31,7 @@ import { Field, FieldLabel } from '@workspace/ui/components/field';
 interface ManageInstructorsSheetProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    course: CourseResponseDTO | null;
+    course: CourseMasterResponseDTO | null;
 }
 
 export function ManageInstructorsSheet({ open, onOpenChange, course }: ManageInstructorsSheetProps) {

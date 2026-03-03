@@ -14,6 +14,7 @@ export const lessonSchema = z.object({
     contentType: z.nativeEnum(LessonContentType),
     videoUrl: z.string().optional(),
     videoDuration: z.number().optional(),
+    durationMinutes: z.number().optional(),
     articleContent: z.string().optional(),
     aiMetadata: z.record(z.any()).optional(), // JSONB
     orderIndex: z.number().default(0),

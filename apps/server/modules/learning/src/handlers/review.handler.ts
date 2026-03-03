@@ -13,10 +13,10 @@ export class ReviewHandler {
     }
 
     @MessagePattern({ cmd: 'learning.review.findByCourseId' })
-    async findByCourseId(@Payload() data: { courseId: string, query: any }) {
-        return this.reviewService.findByCourseId(data.courseId, {
+    async findByCourseId(@Payload() data: { courseMasterId: string, query: any }) {
+        return this.reviewService.findByCourseId(data.courseMasterId, {
             ...data.query,
-            courseId: data.courseId,
+            courseMasterId: data.courseMasterId,
         });
     }
 
@@ -26,14 +26,14 @@ export class ReviewHandler {
     }
 
     @MessagePattern({ cmd: 'learning.review.getRatingDistribution' })
-    async getRatingDistribution(@Payload() data: { courseId: string }) {
-        return this.reviewService.getRatingDistribution(data.courseId);
+    async getRatingDistribution(@Payload() data: { courseMasterId: string }) {
+        return this.reviewService.getRatingDistribution(data.courseMasterId);
     }
 
     @MessagePattern({ cmd: 'learning.review.create' })
-    async create(@Payload() data: ReviewCreateDTO & { courseId: string, userId: string }) {
-        const { userId, courseId, ...dto } = data;
-        return this.reviewService.create(userId, courseId, dto);
+    async create(@Payload() data: ReviewCreateDTO & { userId: string }) {
+        const { userId, ...dto } = data;
+        return this.reviewService.create(userId, dto);
     }
 
     @MessagePattern({ cmd: 'learning.review.findById' })

@@ -3,7 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import {
     ILearningProgressRepository, LEARNING_PROGRESS_REPOSITORY_TOKEN,
     IEnrollmentRepository, ENROLLMENT_REPOSITORY_TOKEN,
-    ICourseRepository, COURSE_REPOSITORY_TOKEN,
+    ICourseMasterRepository, COURSE_MASTER_REPOSITORY_TOKEN,
     ILessonRepository, LESSON_REPOSITORY_TOKEN,
     IModuleRepository, MODULE_REPOSITORY_TOKEN
 } from '@server/learning/interfaces/repositories';
@@ -20,8 +20,8 @@ export class LearningProgressService implements ILearningProgressService {
         private readonly progressRepo: ILearningProgressRepository,
         @Inject(ENROLLMENT_REPOSITORY_TOKEN)
         private readonly enrollmentRepo: IEnrollmentRepository,
-        @Inject(COURSE_REPOSITORY_TOKEN)
-        private readonly courseRepo: ICourseRepository,
+        @Inject(COURSE_MASTER_REPOSITORY_TOKEN)
+        private readonly courseRepo: ICourseMasterRepository,
         @Inject(LESSON_REPOSITORY_TOKEN)
         private readonly lessonRepo: ILessonRepository,
         @Inject(MODULE_REPOSITORY_TOKEN)
@@ -39,19 +39,18 @@ export class LearningProgressService implements ILearningProgressService {
                 completionStatus: { in: [EnrollmentStatus.IN_PROGRESS, EnrollmentStatus.COMPLETED] as any },
             },
             include: {
-                course: {
-                    select: {
-                        id: true,
-                        title: true,
-                        slug: true,
-                        thumbnailUrl: true,
-                        totalLessons: true,
-                        type: true,
-                        lecturer: {
+                courseRun: {
+                    include: {
+                        courseMaster: {
                             select: {
-                                displayName: true
+                                id: true,
+                                title: true,
+                                slug: true,
+                                totalLessons: true,
+                                type: true,
                             }
-                        }
+                        },
+                        lecturer: true,
                     }
                 }
             },
@@ -85,7 +84,7 @@ export class LearningProgressService implements ILearningProgressService {
             // Fallback: if no snapshot available, use live count of published lessons
             if (totalLessons === 0) {
                 totalLessons = await this.lessonRepo.count({
-                    module: { courseId: e.course.id, deletedAt: null },
+                    module: { courseMasterId: e.courseRun.courseMaster.id, deletedAt: null },
                     deletedAt: null,
                     status: 'published'
                 } as any);
@@ -105,13 +104,14 @@ export class LearningProgressService implements ILearningProgressService {
                 progress = 0;
             }
 
+            const courseMaster = e.courseRun.courseMaster;
             return {
-                id: e.course.id,
-                slug: e.course.slug,
-                title: e.course.title,
-                thumbnailUrl: e.course.thumbnailUrl,
-                type: e.course.type ?? 'vod',
-                instructor: e.course.lecturer?.displayName || "Chuyên gia Torii",
+                id: courseMaster.id,
+                courseRunId: e.courseRun.id,
+                slug: courseMaster.slug,
+                title: courseMaster.title,
+                type: courseMaster.type ?? 'vod',
+                instructor: e.courseRun.lecturer?.displayName || "Chuyên gia Torii",
                 progress: progress,
                 totalLessons: totalLessons,
                 completedLessons: completedLessons,
@@ -131,17 +131,17 @@ export class LearningProgressService implements ILearningProgressService {
     }
 
     async trackLessonProgress(userId: string, lessonId: string, seconds: number, totalSeconds: number) {
-        // 1. Get lesson to find courseId
+        // 1. Get lesson to find courseMasterId
         const lesson = await this.lessonRepo.findById(lessonId);
         if (!lesson) throw new NotFoundException('Lesson not found');
 
-        // Use moduleRepo to get courseId since lessonRepo.findById doesn't include module
+        // Use moduleRepo to get courseMasterId since lessonRepo.findById doesn't include module
         const module = await this.moduleRepo.findById(lesson.moduleId);
         if (!module) throw new NotFoundException('Module not found for lesson');
-        const courseId = module.courseId;
+        const courseMasterId = module.courseMasterId;
 
-        // 2. Find Enrollment
-        const enrollment = await this.enrollmentRepo.findByUserAndCourse(userId, courseId);
+        // 2. Find Enrollment - get any active enrollment for this user in any course run of this master
+        const enrollment = await this.enrollmentRepo.findByUserAndCourseMaster(userId, courseMasterId);
 
         if (!enrollment) {
             throw new BadRequestException('User is not enrolled in this course');
@@ -183,7 +183,7 @@ export class LearningProgressService implements ILearningProgressService {
         // Use strict published count
         const totalPublishedLessons = await this.lessonRepo.count({
             module: {
-                courseId: courseId,
+                courseMasterId: courseMasterId,
                 status: 'published',
                 deletedAt: null
             },
@@ -209,7 +209,7 @@ export class LearningProgressService implements ILearningProgressService {
 
         // Trigger certificate issuance if course completed
         if (percentage >= 100) {
-            this.certificateService.issueCertificate(userId, courseId, enrollment.id).catch((err: any) => {
+            this.certificateService.issueCertificate(userId, courseMasterId, enrollment.id).catch((err: any) => {
                 this.logger.error(`Failed to automatically issue certificate: ${err.message}`, err.stack);
             });
         }
@@ -223,7 +223,7 @@ export class LearningProgressService implements ILearningProgressService {
                     activityType: 'VIDEO_WATCH',
                     meta: {
                         lessonId,
-                        courseId,
+                        courseMasterId,
                         watchedDuration: Math.floor(seconds),
                     },
                     timestamp: new Date().toISOString(),
@@ -238,7 +238,7 @@ export class LearningProgressService implements ILearningProgressService {
                     activityType: 'LESSON_COMPLETE',
                     meta: {
                         lessonId,
-                        courseId,
+                        courseMasterId,
                         completionPercentage: percentage,
                         courseCompleted: percentage >= 100,
                     },
@@ -287,9 +287,9 @@ export class LearningProgressService implements ILearningProgressService {
         };
     }
 
-    async getCompletedLessons(userId: string, courseId: string): Promise<string[]> {
+    async getCompletedLessons(userId: string, courseMasterId: string): Promise<string[]> {
         // Find enrollment for this user and course
-        const enrollment = await this.enrollmentRepo.findByUserAndCourse(userId, courseId);
+        const enrollment = await this.enrollmentRepo.findByUserAndCourseMaster(userId, courseMasterId);
 
         if (!enrollment) {
             return [];
@@ -307,13 +307,13 @@ export class LearningProgressService implements ILearningProgressService {
             // Wait, findRecentProgress returns LessonProgress. It has composite key `enrollmentId_lessonId` usually.
             // Let's use a combination or just index if needed, but frontend expects unique ID.
             // item is LessonProgress.
-            courseTitle: item.enrollment.course.title,
+            courseTitle: item.enrollment.courseMaster.title,
             lessonTitle: item.lesson.title,
             timestamp: item.lastWatchedAt,
             duration: item.watchedDuration, // In seconds
-            slug: item.enrollment.course.slug,
+            slug: item.enrollment.courseMaster.slug,
             lessonId: item.lessonId,
-            courseId: item.enrollment.course.id,
+            courseMasterId: item.enrollment.courseMaster.id,
             expiresAt: item.enrollment.expiresAt ? item.enrollment.expiresAt.toISOString() : null
         }));
     }

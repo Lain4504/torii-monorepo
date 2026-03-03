@@ -25,7 +25,7 @@ export default function CertificatesPage() {
         if (navigator.share) {
             navigator.share({
                 title: 'Chứng chỉ Torii Academy',
-                text: `Tôi đã hoàn thành khóa học ${cert.course?.title}!`,
+                text: `Tôi đã hoàn thành khóa học ${cert.courseRun?.courseMaster?.title}!`,
                 url: verifyUrl,
             }).catch(console.error)
         } else {
@@ -90,14 +90,14 @@ export default function CertificatesPage() {
                             <div className="aspect-[1.4] bg-muted/30 border-b border-border flex flex-col items-center justify-center p-6 text-center space-y-3 relative group-hover:bg-muted/50 transition-colors">
                                 <div className="absolute top-3 right-3">
                                     <Badge className="text-xs font-bold bg-background text-foreground border-border shadow-sm">
-                                        {cert.course?.jlptLevel || 'CERT'}
+                                        {cert.courseRun?.courseMaster?.jlptLevel || 'CERT'}
                                     </Badge>
                                 </div>
                                 <div className="w-16 h-16 rounded-full bg-background shadow-md flex items-center justify-center border border-border/20 group-hover:scale-105 transition-transform duration-500">
                                     <Award className="w-8 h-8 text-primary" />
                                 </div>
                                 <div>
-                                    <h3 className="text-sm font-bold text-foreground line-clamp-2 px-2 leading-snug">{cert.course?.title}</h3>
+                                    <h3 className="text-sm font-bold text-foreground line-clamp-2 px-2 leading-snug">{cert.courseRun?.courseMaster?.title}</h3>
                                     <p className="text-xs text-muted-foreground mt-1 font-mono">{cert.certificateCode}</p>
                                 </div>
                             </div>

@@ -3,7 +3,7 @@ import { baseModelSchema } from './base.model';
 
 export const cartItemModelSchema = baseModelSchema.extend({
   cartId: z.string().uuid(),
-  courseId: z.string().uuid(),
+  courseRunId: z.string().uuid(),
   addedAt: z.date(),
 });
 

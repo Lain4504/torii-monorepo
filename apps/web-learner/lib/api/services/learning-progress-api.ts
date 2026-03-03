@@ -4,6 +4,7 @@ import type { StandardApiResponse } from '@workspace/schemas';
 
 export interface MyCourseResponse {
     id: string;
+    courseRunId: string;
     slug: string;
     title: string;
     thumbnailUrl: string | null;
@@ -34,7 +35,7 @@ export interface HistoryItem {
     duration: number;
     slug: string;
     lessonId: string;
-    courseId: string;
+    courseMasterId: string;
     expiresAt: string | null;
 }
 

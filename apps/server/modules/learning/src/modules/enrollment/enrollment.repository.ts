@@ -23,16 +23,50 @@ export class EnrollmentRepository implements IEnrollmentRepository {
     }
 
     /**
-     * Find enrollment by user and course
+     * Find enrollment by user and course run
      */
-    async findByUserAndCourse(userId: string, courseId: string): Promise<Enrollment | null> {
+    async findByUserAndCourseRun(userId: string, courseRunId: string): Promise<Enrollment | null> {
         return this.prisma.enrollment.findUnique({
             where: {
-                userId_courseId: {
+                userId_courseRunId: {
                     userId,
-                    courseId,
+                    courseRunId,
                 },
             },
+        });
+    }
+
+    /**
+     * Find any active enrollment by user and course master
+     * Useful when courseRunId is unknown but we have courseMasterId
+     */
+    async findByUserAndCourseMaster(userId: string, courseMasterId: string): Promise<Enrollment | null> {
+        return this.prisma.enrollment.findFirst({
+            where: {
+                userId,
+                courseRun: {
+                    courseMasterId,
+                },
+                completionStatus: {
+                    in: ['in_progress', 'completed', 'trial'],
+                },
+            },
+            orderBy: { enrollmentDate: 'desc' },
+        });
+    }
+
+    /**
+     * Find all enrollments by user and course master
+     */
+    async findAllByUserAndCourseMaster(userId: string, courseMasterId: string): Promise<Enrollment[]> {
+        return this.prisma.enrollment.findMany({
+            where: {
+                userId,
+                courseRun: {
+                    courseMasterId,
+                },
+            },
+            orderBy: { enrollmentDate: 'desc' },
         });
     }
 

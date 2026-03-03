@@ -44,7 +44,7 @@ export default function ResetPasswordPage() {
             password: data.password,
         }),
         onSuccess: () => {
-            navigate('/login')
+            navigate('/login', { replace: true })
         },
     })
 
@@ -53,8 +53,13 @@ export default function ResetPasswordPage() {
     }
 
     return (
-        <div className="flex min-h-screen items-center justify-center">
-            <Card className="w-full max-w-md">
+        <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
+            <div className="w-full max-w-md">
+                <div className="flex flex-col items-center text-center mb-6">
+                    <img src="/logo.png" alt="Torii Nihongo" className="h-12 w-auto object-contain mb-2" />
+                    <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Cổng quản trị</span>
+                </div>
+            <Card className="w-full">
                 <CardHeader>
                     <CardTitle>Đặt lại mật khẩu</CardTitle>
                     <CardDescription>Nhập mật khẩu mới cho tài khoản của bạn.</CardDescription>
@@ -63,7 +68,7 @@ export default function ResetPasswordPage() {
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <FieldGroup>
                             <Field>
-                                <FieldLabel htmlFor="password">Mật khẩu mới</FieldLabel>
+                                <FieldLabel htmlFor="password" className="text-sm font-semibold">Mật khẩu mới</FieldLabel>
                                 <Input
                                     id="password"
                                     type="password"
@@ -72,7 +77,7 @@ export default function ResetPasswordPage() {
                                 {errors.password && <p className="text-red-500">{errors.password.message}</p>}
                             </Field>
                             <Field>
-                                <FieldLabel htmlFor="confirmPassword">Xác nhận mật khẩu</FieldLabel>
+                                <FieldLabel htmlFor="confirmPassword" className="text-sm font-semibold">Xác nhận mật khẩu</FieldLabel>
                                 <Input
                                     id="confirmPassword"
                                     type="password"
@@ -80,13 +85,14 @@ export default function ResetPasswordPage() {
                                 />
                                 {errors.confirmPassword && <p className="text-red-500">{errors.confirmPassword.message}</p>}
                             </Field>
-                            <Button type="submit" className="w-full" disabled={mutation.isPending}>
+                            <Button type="submit" size="lg" className="w-full text-base font-semibold" disabled={mutation.isPending}>
                                 {mutation.isPending ? 'Đang xử lý...' : 'Đặt lại mật khẩu'}
                             </Button>
                         </FieldGroup>
                     </form>
                 </CardContent>
             </Card>
+            </div>
         </div>
     )
 }

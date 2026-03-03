@@ -18,9 +18,9 @@ export interface ITeachingScheduleService {
     assignSchedule(requester: Requester, dto: TeachingScheduleCreateDTO): Promise<TeachingScheduleResponseDTO>;
 
     /**
-     * Get all schedules for a course
+     * Get all schedules for a course run
      */
-    findByCourse(courseId: string): Promise<TeachingScheduleResponseDTO[]>;
+    findByRun(courseRunId: string): Promise<TeachingScheduleResponseDTO[]>;
 
     /**
      * Get all schedules for a lecturer
