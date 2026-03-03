@@ -5,6 +5,7 @@ export interface ICourseRunService {
     update(requester: Requester, id: string, dto: CourseRunUpdateDTO): Promise<CourseRunResponseDTO>;
     updateStatus(requester: Requester, id: string, status: CourseRunStatus): Promise<CourseRunResponseDTO>;
     findById(id: string): Promise<CourseRunResponseDTO>;
+    findBySlug(slug: string): Promise<CourseRunResponseDTO>;
     findAll(query: CourseRunSearchRequestDTO): Promise<PaginatedApiResponse<CourseRunResponseDTO>>;
     getStudentsByCourseRun(id: string, page?: number, limit?: number): Promise<any>;
     delete(requester: Requester, id: string): Promise<void>;

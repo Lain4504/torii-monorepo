@@ -55,13 +55,13 @@ const MEET_URL =
 
 // Slots = 2h blocks from 07:00 to 21:00 (7 slots)
 const SLOTS = [
-    { label: 'Slot 1', startHour: 7, endHour: 9 },
+    { label: 'Sáng sớm', startHour: 0, endHour: 9 },
     { label: 'Slot 2', startHour: 9, endHour: 11 },
     { label: 'Slot 3', startHour: 11, endHour: 13 },
     { label: 'Slot 4', startHour: 13, endHour: 15 },
     { label: 'Slot 5', startHour: 15, endHour: 17 },
     { label: 'Slot 6', startHour: 17, endHour: 19 },
-    { label: 'Slot 7', startHour: 19, endHour: 21 },
+    { label: 'Tối muộn', startHour: 19, endHour: 24 },
 ]
 
 type ScheduleSession = LiveSessionResponseDTO & {
@@ -72,7 +72,10 @@ type ScheduleSession = LiveSessionResponseDTO & {
 function getSessionsForCell(sessions: ScheduleSession[], day: Date, slot: (typeof SLOTS)[0]) {
     return sessions.filter((s) => {
         const d = new Date(s.scheduledAt)
-        return isSameDay(d, day) && d.getHours() >= slot.startHour && d.getHours() < slot.endHour
+        // Use inclusive matching for boundaries and ensure proper day comparison
+        const sameDay = isSameDay(d, day)
+        const hour = d.getHours()
+        return sameDay && hour >= slot.startHour && hour < slot.endHour
     })
 }
 
@@ -85,8 +88,9 @@ function SessionPill({
     onJoin: (id: string) => void
     joiningId: string | null
 }) {
-    const isLive = session.status === 'live'
-    const isEnded = session.status === 'ended' || (session.status !== 'live' && isPast(new Date(session.scheduledAt)))
+    const normalizedStatus = (session.status || '').toLowerCase()
+    const isLive = normalizedStatus === 'live'
+    const isEnded = normalizedStatus === 'ended' || (normalizedStatus !== 'live' && isPast(new Date(session.scheduledAt)))
 
     return (
         <div
@@ -169,9 +173,9 @@ export default function SchedulePage() {
         return d >= weekStart && d < addDays(weekEnd, 1)
     })
 
-    const liveSessions = allSessions.filter((s) => s.status === 'live')
+    const liveSessions = allSessions.filter((s) => (s.status || '').toLowerCase() === 'live')
     const upcomingSessions = allSessions.filter(
-        (s) => s.status === 'scheduled' && isFuture(new Date(s.scheduledAt))
+        (s) => (s.status || '').toLowerCase() === 'scheduled' && isFuture(new Date(s.scheduledAt))
     )
 
     const handleJoin = async (sessionId: string) => {
@@ -389,8 +393,8 @@ export default function SchedulePage() {
                                                     <TableCell
                                                         key={di}
                                                         className={cn(
-                                                            'align-top p-1 border-l border-border/20 min-h-[100px] h-[1px] transition-all group-hover/row:bg-muted/5',
-                                                            isToday(day) && 'bg-primary/[0.01]',
+                                                            'align-top p-1 border-l border-border/20 min-h-[120px]',
+                                                            isToday(day) && 'bg-primary/[0.03]',
                                                         )}
                                                     >
                                                         {cellSessions.length === 0 ? (
@@ -400,7 +404,7 @@ export default function SchedulePage() {
                                                                 </span>
                                                             </div>
                                                         ) : (
-                                                            <div className="h-full flex flex-col gap-1">
+                                                            <div className="h-full min-h-[100px] flex flex-col gap-1">
                                                                 {cellSessions.map((s) => (
                                                                     <SessionPill
                                                                         key={s.id}

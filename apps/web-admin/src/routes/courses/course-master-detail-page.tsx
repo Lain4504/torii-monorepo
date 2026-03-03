@@ -23,18 +23,18 @@ import { useCourseModules, useReorderModules } from '@/lib/api/services/modules'
 import { useModulesLessons } from '@/lib/api/services/lesson';
 import { type ModuleResponseDTO, type LessonResponseDTO } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import { CreateModuleSheet } from '@/components/modules/create-module-sheet.tsx';
-import { EditModuleSheet } from '@/components/modules/edit-module-sheet.tsx';
-const CreateLessonSheet = lazy(() => import('@/components/lessons/create-lesson-sheet.tsx').then(m => ({ default: m.CreateLessonSheet })));
-import { EditLessonSheet } from '@/components/lessons/edit-lesson-sheet.tsx';
+import { CreateModuleSheet } from '@/components/modules/create-module-sheet';
+import { EditModuleSheet } from '@/components/modules/edit-module-sheet';
+const CreateLessonSheet = lazy(() => import('@/components/lessons/create-lesson-sheet'));
+import { EditLessonSheet } from '@/components/lessons/edit-lesson-sheet';
 import { DeleteModuleDialog } from '@/components/modules/delete-module-dialog';
 import { DeleteLessonDialog } from '@/components/lessons/delete-lesson-dialog';
 import { PageLoading } from '@workspace/ui/components/page-loading';
 import { CourseRunsTable } from '@/components/courses/course-runs-table';
 import { ReorderModulesDialog } from '@/components/modules/reorder-modules-dialog';
 import { ReorderLessonsDialog } from '@/components/lessons/reorder-lessons-dialog';
-import { CourseStatusHeader } from '@/components/courses/course-status-header.tsx';
-import { CourseVersionHistory } from '@/components/courses/course-version-history.tsx';
+import { CourseStatusHeader } from '@/components/courses/course-status-header';
+import { CourseVersionHistory } from '@/components/courses/course-version-history';
 
 export default function CourseMasterPage() {
     const { id } = useParams<{ id: string }>();

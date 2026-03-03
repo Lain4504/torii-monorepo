@@ -607,7 +607,11 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                                                     return;
                                                 }
                                                 toggleWishlist.mutate(primaryRunId, {
-                                                    onSuccess: (data) => toast.success(data.isInWishlist ? 'Đã thêm vào danh sách yêu thích!' : 'Đã xóa khỏi danh sách yêu thích'),
+                                                    onSuccess: (data) => {
+                                                        if (data) {
+                                                            toast.success(data.isInWishlist ? 'Đã thêm vào danh sách yêu thích!' : 'Đã xóa khỏi danh sách yêu thích');
+                                                        }
+                                                    },
                                                     onError: () => toast.error('Không thể cập nhật danh sách yêu thích'),
                                                 });
                                             }}

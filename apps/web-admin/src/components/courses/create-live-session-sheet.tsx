@@ -87,7 +87,7 @@ export function CreateLiveSessionSheet({ open, onOpenChange, course, run }: Crea
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[600px] flex flex-col p-0">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col p-0">
                 <SheetHeader className="p-6 pb-0">
                     <SheetTitle>Tạo Buổi học Lẻ</SheetTitle>
                     <SheetDescription>
@@ -95,115 +95,117 @@ export function CreateLiveSessionSheet({ open, onOpenChange, course, run }: Crea
                     </SheetDescription>
                 </SheetHeader>
 
-                <ScrollArea className="flex-1">
-                    <form id="create-session-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6 p-6">
-                        <FieldGroup>
-                            <Controller
-                                name="title"
-                                control={control}
-                                render={({ field }) => (
-                                    <Field>
-                                        <FieldLabel htmlFor="title">Tiêu đề buổi học</FieldLabel>
-                                        <Input id="title" {...field} placeholder="Ví dụ: Buổi ôn tập, Buổi bù..." />
-                                        {errors.title && <FieldError errors={[errors.title]} />}
-                                    </Field>
-                                )}
-                            />
-
-                            <Controller
-                                name="lecturerId"
-                                control={control}
-                                render={({ field }) => (
-                                    <Field>
-                                        <FieldLabel htmlFor="lecturerId">Giảng viên</FieldLabel>
-                                        <Select onValueChange={field.onChange} value={field.value || ''}>
-                                            <SelectTrigger id="lecturerId">
-                                                <SelectValue placeholder="Chọn giảng viên..." />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectGroup>
-                                                    <SelectLabel>Giảng viên có sẵn</SelectLabel>
-                                                    {run?.lecturer && (
-                                                        <SelectItem value={run.lecturer.id}>
-                                                            {run.lecturer.displayName} (Giảng viên lớp)
-                                                        </SelectItem>
-                                                    )}
-                                                    {course?.lecturer && course.lecturer.id !== run?.lecturerId && (
-                                                        <SelectItem value={course.lecturer.id}>
-                                                            {course.lecturer.displayName} (Trưởng môn)
-                                                        </SelectItem>
-                                                    )}
-                                                </SelectGroup>
-                                            </SelectContent>
-                                        </Select>
-                                        {errors.lecturerId && <FieldError errors={[errors.lecturerId]} />}
-                                    </Field>
-                                )}
-                            />
-
-                            <div className="grid grid-cols-2 gap-4">
+                <form id="create-session-form" onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden min-h-0">
+                    <ScrollArea className="flex-1 min-h-0">
+                        <div className="space-y-6 p-6">
+                            <FieldGroup>
                                 <Controller
-                                    name="scheduledAt"
+                                    name="title"
                                     control={control}
                                     render={({ field }) => (
                                         <Field>
-                                            <FieldLabel htmlFor="scheduledAt">Thời gian bắt đầu</FieldLabel>
-                                            <Input
-                                                id="scheduledAt"
-                                                type="datetime-local"
-                                                {...field}
-                                                value={typeof field.value === 'string' ? field.value : ''}
-                                            />
-                                            {errors.scheduledAt && <FieldError errors={[errors.scheduledAt]} />}
+                                            <FieldLabel htmlFor="title">Tiêu đề buổi học</FieldLabel>
+                                            <Input id="title" {...field} placeholder="Ví dụ: Buổi ôn tập, Buổi bù..." />
+                                            {errors.title && <FieldError errors={[errors.title]} />}
                                         </Field>
                                     )}
                                 />
+
                                 <Controller
-                                    name="duration"
+                                    name="lecturerId"
                                     control={control}
                                     render={({ field }) => (
                                         <Field>
-                                            <FieldLabel htmlFor="duration">Thời lượng (phút)</FieldLabel>
-                                            <Input
-                                                id="duration"
-                                                type="number"
-                                                {...field}
-                                                onChange={(e) => field.onChange(parseInt(e.target.value))}
-                                            />
-                                            {errors.duration && <FieldError errors={[errors.duration]} />}
+                                            <FieldLabel htmlFor="lecturerId">Giảng viên</FieldLabel>
+                                            <Select onValueChange={field.onChange} value={field.value || ''}>
+                                                <SelectTrigger id="lecturerId">
+                                                    <SelectValue placeholder="Chọn giảng viên..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectGroup>
+                                                        <SelectLabel>Giảng viên có sẵn</SelectLabel>
+                                                        {run?.lecturer && (
+                                                            <SelectItem value={run.lecturer.id}>
+                                                                {run.lecturer.displayName} (Giảng viên lớp)
+                                                            </SelectItem>
+                                                        )}
+                                                        {course?.lecturer && course.lecturer.id !== run?.lecturerId && (
+                                                            <SelectItem value={course.lecturer.id}>
+                                                                {course.lecturer.displayName} (Trưởng môn)
+                                                            </SelectItem>
+                                                        )}
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                            {errors.lecturerId && <FieldError errors={[errors.lecturerId]} />}
                                         </Field>
                                     )}
                                 />
-                            </div>
 
-                            <Controller
-                                name="description"
-                                control={control}
-                                render={({ field }) => (
-                                    <Field>
-                                        <FieldLabel htmlFor="description">Mô tả buổi học</FieldLabel>
-                                        <Textarea
-                                            id="description"
-                                            {...field}
-                                            placeholder="Nội dung chi tiết..."
-                                            className="min-h-[100px]"
-                                        />
-                                        {errors.description && <FieldError errors={[errors.description]} />}
-                                    </Field>
-                                )}
-                            />
-                        </FieldGroup>
-                    </form>
-                </ScrollArea>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Controller
+                                        name="scheduledAt"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Field>
+                                                <FieldLabel htmlFor="scheduledAt">Thời gian bắt đầu</FieldLabel>
+                                                <Input
+                                                    id="scheduledAt"
+                                                    type="datetime-local"
+                                                    {...field}
+                                                    value={typeof field.value === 'string' ? field.value : ''}
+                                                />
+                                                {errors.scheduledAt && <FieldError errors={[errors.scheduledAt]} />}
+                                            </Field>
+                                        )}
+                                    />
+                                    <Controller
+                                        name="duration"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Field>
+                                                <FieldLabel htmlFor="duration">Thời lượng (phút)</FieldLabel>
+                                                <Input
+                                                    id="duration"
+                                                    type="number"
+                                                    {...field}
+                                                    onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                                />
+                                                {errors.duration && <FieldError errors={[errors.duration]} />}
+                                            </Field>
+                                        )}
+                                    />
+                                </div>
 
-                <SheetFooter className="p-6 border-t bg-muted/5">
-                    <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
-                        Hủy
-                    </Button>
-                    <Button type="submit" form="create-session-form" disabled={createMutation.isPending} className="flex-1">
-                        {createMutation.isPending ? 'Đang tạo...' : 'Tạo buổi học'}
-                    </Button>
-                </SheetFooter>
+                                <Controller
+                                    name="description"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Field>
+                                            <FieldLabel htmlFor="description">Mô tả buổi học</FieldLabel>
+                                            <Textarea
+                                                id="description"
+                                                {...field}
+                                                placeholder="Nội dung chi tiết..."
+                                                className="min-h-[100px]"
+                                            />
+                                            {errors.description && <FieldError errors={[errors.description]} />}
+                                        </Field>
+                                    )}
+                                />
+                            </FieldGroup>
+                        </div>
+                    </ScrollArea>
+
+                    <SheetFooter className="p-6 border-t bg-muted/5">
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
+                            Hủy
+                        </Button>
+                        <Button type="submit" disabled={createMutation.isPending} className="flex-1">
+                            {createMutation.isPending ? 'Đang tạo...' : 'Tạo buổi học'}
+                        </Button>
+                    </SheetFooter>
+                </form>
             </SheetContent>
         </Sheet>
     );

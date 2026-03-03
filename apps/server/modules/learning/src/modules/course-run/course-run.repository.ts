@@ -22,6 +22,10 @@ export class CourseRunRepository implements ICourseRunRepository {
     async findBySlug(slug: string): Promise<CourseRun | null> {
         return this.prisma.courseRun.findUnique({
             where: { slug },
+            include: {
+                lecturer: true,
+                courseMaster: true,
+            },
         });
     }
 

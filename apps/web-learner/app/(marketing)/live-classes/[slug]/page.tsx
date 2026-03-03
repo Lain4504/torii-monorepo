@@ -1,5 +1,5 @@
 import { LiveClassDetailClient } from '@/components/marketing/live-class-detail-client';
-import { courseApi } from '@/lib/api/services/course-api';
+import { courseRunApi } from '@/lib/api/services/course-run-api';
 import type { Metadata } from 'next';
 
 interface Props {
@@ -9,15 +9,16 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
     try {
-        const course = await courseApi.getCourseBySlug(slug);
+        const run = await courseRunApi.getCourseRunBySlug(slug);
+        const course = run?.courseMaster;
         if (!course) return { title: 'Lớp học trực tuyến | Torii Nihongo' };
         return {
             title: `${course.title} | Torii Nihongo`,
-            description: course.shortDescription || course.description,
+            description: (course as any).shortDescription || course.description,
             openGraph: {
                 title: course.title,
-                description: course.shortDescription || course.description,
-                images: course.thumbnailUrl ? [course.thumbnailUrl] : [],
+                description: (course as any).shortDescription || course.description,
+                images: (course as any).thumbnailUrl ? [(course as any).thumbnailUrl] : [],
             },
         };
     } catch {

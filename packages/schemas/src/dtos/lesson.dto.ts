@@ -15,6 +15,9 @@ export const lessonCreateDTOSchema = lessonSchema
         isUnlocked: true,
         status: true,
         createdBy: true,
+    })
+    .extend({
+        status: z.enum(['published', 'draft']),
     });
 
 export type LessonCreateDTO = z.infer<typeof lessonCreateDTOSchema>;

@@ -37,6 +37,12 @@ export const courseRunResponseDTOSchema = courseRunSchema.extend({
         jlptLevel: z.string().optional().nullable(),
         shortDescription: z.string().optional().nullable(),
         description: z.string().optional().nullable(),
+        learningOutcomes: z.any().optional().nullable(),
+        requirements: z.any().optional().nullable(),
+        totalLessons: z.number().int().default(0),
+        totalQuizzes: z.number().int().default(0),
+        durationWeeks: z.number().int().optional().nullable(),
+        thumbnailUrl: z.string().optional().nullable(),
     }).optional().nullable(),
     lecturer: z.object({
         id: z.string().uuid(),
@@ -45,7 +51,6 @@ export const courseRunResponseDTOSchema = courseRunSchema.extend({
     }).optional().nullable(),
     averageRating: z.number().optional().nullable(),
     totalReviews: z.number().int().optional().nullable(),
-    totalEnrolled: z.number().int().default(0),
 });
 
 export type CourseRunResponseDTO = z.infer<typeof courseRunResponseDTOSchema>;

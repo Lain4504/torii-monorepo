@@ -11,6 +11,7 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
+import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import {
     Field,
     FieldLabel,
@@ -70,41 +71,45 @@ export function CreateScheduleRequestSheet({ open, onOpenChange, session }: Crea
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent>
-                <SheetHeader>
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col p-0">
+                <SheetHeader className="p-6 pb-0">
                     <SheetTitle>Yêu cầu thay đổi lịch học</SheetTitle>
                     <SheetDescription>
                         Đề xuất một thời gian mới cho buổi học này và cung cấp lý do.
                     </SheetDescription>
                 </SheetHeader>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-6">
-                    <Controller
-                        name="newTime"
-                        control={control}
-                        render={({ field }) => (
-                            <Field>
-                                <FieldLabel htmlFor="newTime">Thời gian mới</FieldLabel>
-                                <Input id="newTime" type="datetime-local" {...field} value={field.value || ''} />
-                                {errors.newTime && <FieldError>{errors.newTime.message}</FieldError>}
-                            </Field>
-                        )}
-                    />
-                    <Controller
-                        name="reason"
-                        control={control}
-                        render={({ field }) => (
-                            <Field>
-                                <FieldLabel htmlFor="reason">Lý do</FieldLabel>
-                                <Textarea id="reason" {...field} value={field.value || ''} />
-                                {errors.reason && <FieldError>{errors.reason.message}</FieldError>}
-                            </Field>
-                        )}
-                    />
-                    <SheetFooter>
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden min-h-0">
+                    <ScrollArea className="flex-1 min-h-0">
+                        <div className="space-y-6 p-6">
+                            <Controller
+                                name="newTime"
+                                control={control}
+                                render={({ field }) => (
+                                    <Field>
+                                        <FieldLabel htmlFor="newTime">Thời gian mới</FieldLabel>
+                                        <Input id="newTime" type="datetime-local" {...field} value={field.value || ''} />
+                                        {errors.newTime && <FieldError>{errors.newTime.message}</FieldError>}
+                                    </Field>
+                                )}
+                            />
+                            <Controller
+                                name="reason"
+                                control={control}
+                                render={({ field }) => (
+                                    <Field>
+                                        <FieldLabel htmlFor="reason">Lý do</FieldLabel>
+                                        <Textarea id="reason" {...field} value={field.value || ''} />
+                                        {errors.reason && <FieldError>{errors.reason.message}</FieldError>}
+                                    </Field>
+                                )}
+                            />
+                        </div>
+                    </ScrollArea>
+                    <SheetFooter className="p-6 border-t bg-muted/5">
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
                             Hủy
                         </Button>
-                        <Button type="submit">Gửi yêu cầu</Button>
+                        <Button type="submit" className="flex-1">Gửi yêu cầu</Button>
                     </SheetFooter>
                 </form>
             </SheetContent>

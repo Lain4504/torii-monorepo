@@ -4,7 +4,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { AutomapperModule } from '@automapper/nestjs';
 import { pojos } from '@automapper/pojos';
 import { ScheduleModule } from '@nestjs/schedule';
-import { PrismaModule, SharedModule, GlobalRpcExceptionFilter } from '@server/shared';
+import { PrismaModule, SharedModule, GlobalRpcExceptionFilter, NatsClientModule } from '@server/shared';
 
 // Repositories
 import { COURSE_MASTER_REPOSITORY_TOKEN } from './interfaces/repositories';
@@ -84,6 +84,18 @@ import { BlogHandler } from './handlers/blog.handler';
 import { ModuleHandler } from './handlers/module.handler';
 import { QuestionPoolHandler } from './handlers/question-pool.handler';
 import { QuestionHandler } from './handlers/question.handler';
+import { TeachingScheduleHandler } from './handlers/teaching-schedule.handler';
+import { CartHandler } from './handlers/cart.handler';
+import { WishlistHandler } from './handlers/wishlist.handler';
+import { DiscussionHandler } from './handlers/discussion.handler';
+import { AnalyticsHandler } from './handlers/analytics.handler';
+import { CommentHandler } from './handlers/comment.handler';
+import { FlashcardDeckHandler } from './handlers/flashcard-deck.handler';
+import { FlashcardReviewHandler } from './handlers/flashcard-review.handler';
+import { FlashcardHandler } from './handlers/flashcard.handler';
+import { NotebookHandler } from './handlers/notebook.handler';
+import { StaffDashboardHandler } from './handlers/staff-dashboard.handler';
+import { SubmissionHandler } from './handlers/submission.handler';
 
 // Schedulers
 import { CouponScheduler } from './modules/coupon/coupon.scheduler';
@@ -112,29 +124,20 @@ import { BlogModule } from '@server/learning/modules/blog/blog.module';
 import { CartModule } from '@server/learning/modules/cart/cart.module';
 import { QuestionPoolModule } from './modules/question-pool/question-pool.module';
 import { QuestionModule } from './modules/question/question.module';
+import { ExamModule } from './modules/exam/exam.module';
+import { DiscussionModule } from './modules/discussion/discussion.module';
+import { FlashcardModule } from './modules/flashcard/flashcard.module';
+import { FlashcardDeckModule } from './modules/flashcard-deck/flashcard-deck.module';
+import { NotebookModule } from './modules/notebook/notebook.module';
+import { CommentModule } from './modules/comment/comment.module';
 
 @Module({
   imports: [
     AutomapperModule.forRoot({ strategyInitializer: pojos() }),
     PrismaModule,
     SharedModule,
+    NatsClientModule,
     ScheduleModule.forRoot(),
-    ClientsModule.register([
-      {
-        name: 'LEARNING_SERVICE',
-        transport: Transport.NATS,
-        options: {
-          servers: [process.env.NATS_URL || 'nats://localhost:4222'],
-        },
-      },
-      {
-        name: 'NATS_SERVICE',
-        transport: Transport.NATS,
-        options: {
-          servers: [process.env.NATS_URL || 'nats://localhost:4222'],
-        },
-      },
-    ]),
     forwardRef(() => CourseMasterModule),
     forwardRef(() => ModuleModule),
     forwardRef(() => LessonModule),
@@ -155,6 +158,12 @@ import { QuestionModule } from './modules/question/question.module';
     CartModule,
     QuestionPoolModule,
     QuestionModule,
+    forwardRef(() => ExamModule),
+    forwardRef(() => DiscussionModule),
+    forwardRef(() => FlashcardModule),
+    forwardRef(() => FlashcardDeckModule),
+    forwardRef(() => NotebookModule),
+    forwardRef(() => CommentModule),
   ],
   controllers: [
     AttendanceHandler,
@@ -174,6 +183,18 @@ import { QuestionModule } from './modules/question/question.module';
     ModuleHandler,
     QuestionPoolHandler,
     QuestionHandler,
+    TeachingScheduleHandler,
+    CartHandler,
+    WishlistHandler,
+    DiscussionHandler,
+    AnalyticsHandler,
+    CommentHandler,
+    FlashcardDeckHandler,
+    FlashcardReviewHandler,
+    FlashcardHandler,
+    NotebookHandler,
+    StaffDashboardHandler,
+    SubmissionHandler,
   ],
   providers: [
     {
@@ -186,7 +207,6 @@ import { QuestionModule } from './modules/question/question.module';
     { provide: LESSON_REPOSITORY_TOKEN, useClass: LessonRepository },
     { provide: LESSON_MATERIAL_REPOSITORY_TOKEN, useClass: LessonMaterialRepository },
     { provide: REVIEW_REPOSITORY_TOKEN, useClass: ReviewRepository },
-    { provide: EXAM_REPOSITORY_TOKEN, useClass: ExamRepository },
     { provide: ENROLLMENT_REPOSITORY_TOKEN, useClass: EnrollmentRepository },
     { provide: LIVE_SESSION_REPOSITORY_TOKEN, useClass: LiveSessionRepository },
     { provide: COUPON_REPOSITORY_TOKEN, useClass: CouponRepository },
@@ -198,7 +218,6 @@ import { QuestionModule } from './modules/question/question.module';
     { provide: LESSON_SERVICE_TOKEN, useClass: LessonService },
     { provide: LESSON_MATERIAL_SERVICE_TOKEN, useClass: LessonMaterialService },
     { provide: REVIEW_SERVICE_TOKEN, useClass: ReviewService },
-    { provide: EXAM_SERVICE_TOKEN, useClass: ExamService },
     { provide: ENROLLMENT_SERVICE_TOKEN, useClass: EnrollmentService },
     { provide: LIVE_SESSION_SERVICE_TOKEN, useClass: LiveSessionService },
     { provide: COUPON_SERVICE_TOKEN, useClass: CouponService },

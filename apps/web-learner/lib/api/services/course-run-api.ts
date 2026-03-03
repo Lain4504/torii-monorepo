@@ -22,10 +22,20 @@ export const courseRunApi = {
      * Get course run by ID
      */
     getCourseRunById: async (id: string): Promise<CourseRunResponseDTO | null> => {
-    const response = await apiClient.get<StandardApiResponse<{ run: CourseRunResponseDTO }>>(
-      `/api/course-runs/${id}`,
-    );
-    return (response.data.data as any)?.run ?? null;
+        const response = await apiClient.get<StandardApiResponse<{ run: CourseRunResponseDTO }>>(
+            `/api/course-runs/${id}`,
+        );
+        return (response.data.data as any)?.run ?? null;
+    },
+
+    /**
+     * Get course run by slug
+     */
+    getCourseRunBySlug: async (slug: string): Promise<CourseRunResponseDTO | null> => {
+        const response = await apiClient.get<StandardApiResponse<{ run: CourseRunResponseDTO }>>(
+            `/api/course-runs/slug/${slug}`,
+        );
+        return (response.data.data as any)?.run ?? null;
     },
 
     /**
@@ -72,5 +82,16 @@ export function useCourseRun(id?: string) {
         queryKey: ['course-runs', id],
         queryFn: () => courseRunApi.getCourseRunById(id!),
         enabled: !!id,
+    });
+}
+
+/**
+ * Hook: Get course run by Slug
+ */
+export function useCourseRunBySlug(slug?: string) {
+    return useQuery({
+        queryKey: ['course-runs', 'slug', slug],
+        queryFn: () => courseRunApi.getCourseRunBySlug(slug!),
+        enabled: !!slug,
     });
 }

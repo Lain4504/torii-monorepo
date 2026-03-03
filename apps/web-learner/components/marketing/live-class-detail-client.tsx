@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useCourseBySlug } from '@/lib/api/services/course-api';
+import { useCourseRunBySlug } from '@/lib/api/services/course-run-api';
 import { useCheckEnrollment } from '@/lib/api/services/enrollment-api';
 import { useCheckWishlist, useToggleWishlist } from '@/lib/api/services/wishlist-api';
 import { useCart, useAddToCart } from '@/lib/api/services/cart-api';
@@ -32,10 +32,12 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
     const router = useRouter();
     const [joiningSessionId, setJoiningSessionId] = useState<string | null>(null);
 
-    const { data: course, isLoading } = useCourseBySlug(slug);
-    const { data: wishlistData } = useCheckWishlist(course?.id || '');
+    const { data: run, isLoading } = useCourseRunBySlug(slug);
+    const course = run?.courseMaster;
+
+    const { data: wishlistData } = useCheckWishlist(run?.id || '');
     const { data: cartData } = useCart();
-    const { data: sessions = [] } = useLiveSessions(course?.id || '');
+    const { data: sessions = [] } = useLiveSessions(run?.id || '');
 
     // Fetch Reviews & Distribution
     const { data: reviewsData } = useCourseReviews(course?.id);
@@ -46,10 +48,10 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
 
     const isEnrolled = false; // TODO: wire per-run enrollment if needed
     const isInWishlist = wishlistData?.isInWishlist;
-    const isInCart = cartData?.items?.some(item => item.courseRun?.courseMaster?.id === course?.id);
+    const isInCart = cartData?.items?.some(item => item.courseRun?.id === run?.id);
 
     const now = new Date();
-    const isSoldOut = course ? (course.totalStudents || 0) >= ((course as any).maxStudents || 999999) : false;
+    const isSoldOut = run ? ((run as any).totalStudents || 0) >= ((run as any).maxStudents || 999999) : false;
     const isFinished = (course as any)?.expiresAt ? new Date((course as any).expiresAt) < now : false;
     const hasActiveSession = sessions.some(s => s.status === LiveSessionStatus.LIVE);
 
@@ -104,13 +106,12 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
         );
     }
 
-    const mainInstructor = course.lecturer;
+    const mainInstructor = run?.lecturer;
     // Note: Price information comes from CourseRun, not CourseMaster
-    // For live classes, pricing should be retrieved from available course runs
-    const price: number | null = 0; // Default: pricing to be fetched from course runs
-    const originalPrice: number | null = null;
-    const learningOutcomes: string[] = Array.isArray(course.learningOutcomes) ? course.learningOutcomes : [];
-    const requirements: string[] = Array.isArray(course.requirements) ? course.requirements : [];
+    const price: number | null = run?.price ? Number(run.price) : 0;
+    const originalPrice: number | null = run?.discountPrice ? Number(run.discountPrice) : null;
+    const learningOutcomes: string[] = Array.isArray((course as any)?.learningOutcomes) ? (course as any).learningOutcomes : [];
+    const requirements: string[] = Array.isArray((course as any)?.requirements) ? (course as any).requirements : [];
 
     return (
         <div className="bg-background text-foreground antialiased font-sans">
@@ -178,20 +179,20 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
                                 )}
                                 {/* Meta */}
                                 <div className="flex flex-wrap items-center gap-6 text-sm mb-4">
-                                    {(course.averageRating || 0) > 0 && (
+                                    {(Number((run as any)?.averageRating) || 0) > 0 && (
                                         <div className="flex items-center gap-2">
-                                            <span className="text-yellow-500 font-bold text-lg">{course.averageRating?.toFixed(1)}</span>
+                                            <span className="text-yellow-500 font-bold text-lg">{Number((run as any)?.averageRating).toFixed(1)}</span>
                                             <div className="flex text-yellow-500">
                                                 {[1, 2, 3, 4, 5].map(i => (
-                                                    <svg key={i} className={`w-4 h-4 ${i <= Math.round(course.averageRating || 0) ? 'fill-current' : 'text-slate-700 fill-slate-700'}`} viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                                                    <svg key={i} className={`w-4 h-4 ${i <= Math.round(Number((run as any)?.averageRating) || 0) ? 'fill-current' : 'text-slate-700 fill-slate-700'}`} viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
                                                 ))}
                                             </div>
-                                            <span className="text-slate-400 underline underline-offset-4 hover:text-white transition-colors cursor-pointer">({course.totalReviews || 0} đánh giá)</span>
+                                            <span className="text-slate-400 underline underline-offset-4 hover:text-white transition-colors cursor-pointer">({(run as any)?.totalReviews || 0} đánh giá)</span>
                                         </div>
                                     )}
                                     <div className="flex items-center gap-1.5 text-slate-300">
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>
-                                        <span>{(course.totalStudents || 0).toLocaleString()} học viên</span>
+                                        <span>{((run as any)?.totalStudents || 0).toLocaleString()} học viên</span>
                                     </div>
                                     {mainInstructor && (
                                         <div className="flex items-center gap-3 pl-6 border-l border-slate-700">
@@ -211,11 +212,11 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
             </div>
 
             {/* Social Proof Banner */}
-            {(course.totalStudents || 0) > 0 && (
+            {((run as any)?.totalStudents || 0) > 0 && (
                 <div className="bg-primary/5 border-y border-primary/10 py-3">
                     <div className="max-w-7xl mx-auto px-6 flex items-center gap-4">
                         <p className="text-sm font-semibold text-foreground">
-                            🎓 Đã có <strong>{course.totalStudents?.toLocaleString()}</strong> học viên đăng ký khóa học này
+                            🎓 Đã có <strong>{((run as any)?.totalStudents)?.toLocaleString()}</strong> học viên đăng ký khóa học này
                         </p>
                     </div>
                 </div>
@@ -368,10 +369,10 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
 
                                 <div className="grid md:grid-cols-4 gap-8 mb-8">
                                     <div className="text-center flex flex-col justify-center">
-                                        <span className="text-5xl font-extrabold text-[oklch(0.55_0.15_15)]">{distributionData?.averageRating?.toFixed(1) || course.averageRating?.toFixed(1) || '0.0'}</span>
+                                        <span className="text-5xl font-extrabold text-[oklch(0.55_0.15_15)]">{distributionData?.averageRating?.toFixed(1) || Number((run as any)?.averageRating || 0).toFixed(1) || '0.0'}</span>
                                         <div className="flex justify-center my-2 text-yellow-500">
                                             {[1, 2, 3, 4, 5].map(i => (
-                                                <svg key={i} className={`w-5 h-5 ${i <= Math.round(distributionData?.averageRating || course.averageRating || 0) ? 'fill-current' : 'text-slate-300 fill-slate-300'}`} viewBox="0 0 20 20">
+                                                <svg key={i} className={`w-5 h-5 ${i <= Math.round(distributionData?.averageRating || Number((run as any)?.averageRating || 0)) ? 'fill-current' : 'text-slate-300 fill-slate-300'}`} viewBox="0 0 20 20">
                                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
                                                 </svg>
                                             ))}
@@ -438,13 +439,13 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
                             <div className="bg-card rounded-2xl shadow-xl border border-border overflow-hidden">
                                 {/* Thumbnail */}
                                 <div className="relative h-48 overflow-hidden">
-                                    {course.thumbnailUrl ? (
-                                        <img src={course.thumbnailUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover" />
+                                    {(course as any)?.thumbnailUrl ? (
+                                        <img src={(course as any).thumbnailUrl} alt={course?.title} className="absolute inset-0 w-full h-full object-cover" />
                                     ) : (
                                         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
                                             <div className="text-center text-primary">
                                                 <div className="text-5xl font-black mb-2">日本語</div>
-                                                <div className="text-sm font-bold tracking-[0.2em] uppercase opacity-70">Nihongo {course.jlptLevel || ''}</div>
+                                                <div className="text-sm font-bold tracking-[0.2em] uppercase opacity-70">Nihongo {course?.jlptLevel || ''}</div>
                                             </div>
                                         </div>
                                     )}
@@ -488,16 +489,17 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
                                             <>
                                                 <button
                                                     onClick={() => {
+                                                        if (!run?.id) return;
                                                         if (isInCart) {
                                                             router.push('/dashboard/cart');
                                                         } else {
-                                                            addToCart.mutate(course.id, {
+                                                            addToCart.mutate(run.id, {
                                                                 onSuccess: () => toast.success('Đã thêm vào giỏ hàng!'),
                                                                 onError: () => toast.error('Không thể thêm vào giỏ hàng'),
                                                             });
                                                         }
                                                     }}
-                                                    disabled={addToCart.isPending}
+                                                    disabled={addToCart.isPending || !run?.id}
                                                     className="w-full border border-border text-foreground font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-muted/50 transition disabled:opacity-60"
                                                 >
                                                     <ShoppingCart className="w-4 h-4" />
@@ -505,12 +507,17 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
                                                 </button>
                                                 <button
                                                     onClick={() => {
-                                                        toggleWishlist.mutate(course.id, {
-                                                            onSuccess: (data) => toast.success(data.isInWishlist ? 'Đã thêm vào yêu thích!' : 'Đã xóa khỏi yêu thích'),
+                                                        if (!run?.id) return;
+                                                        toggleWishlist.mutate(run.id, {
+                                                            onSuccess: (data) => {
+                                                                if (data) {
+                                                                    toast.success(data.isInWishlist ? 'Đã thêm vào yêu thích!' : 'Đã xóa khỏi yêu thích');
+                                                                }
+                                                            },
                                                             onError: () => toast.error('Không thể cập nhật danh sách yêu thích'),
                                                         });
                                                     }}
-                                                    disabled={toggleWishlist.isPending}
+                                                    disabled={toggleWishlist.isPending || !run?.id}
                                                     className="w-full border border-border text-foreground font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-muted/50 transition disabled:opacity-60"
                                                 >
                                                     <Heart className={`w-4 h-4 transition-colors ${isInWishlist ? 'fill-rose-500 text-rose-500' : ''}`} />
@@ -528,16 +535,16 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
                                     <div className="space-y-3">
                                         <h5 className="text-sm font-bold text-foreground uppercase tracking-widest">Khóa học bao gồm:</h5>
                                         <ul className="space-y-2">
-                                            {course.durationWeeks && (
+                                            {(course as any)?.durationWeeks && (
                                                 <li className="flex items-center gap-3 text-muted-foreground text-sm">
                                                     <svg className="w-4 h-4 text-primary shrink-0" fill="currentColor" viewBox="0 0 20 20"><path clipRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fillRule="evenodd" /></svg>
-                                                    Thời gian học: {course.durationWeeks} tuần
+                                                    Thời gian học: {(course as any).durationWeeks} tuần
                                                 </li>
                                             )}
-                                            {course.totalLessons > 0 && (
+                                            {(course as any)?.totalLessons && (course as any).totalLessons > 0 && (
                                                 <li className="flex items-center gap-3 text-muted-foreground text-sm">
                                                     <svg className="w-4 h-4 text-primary shrink-0" fill="currentColor" viewBox="0 0 20 20"><path clipRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fillRule="evenodd" /></svg>
-                                                    {course.totalLessons} buổi học trực tuyến
+                                                    {(course as any).totalLessons} buổi học trực tuyến
                                                 </li>
                                             )}
                                             <li className="flex items-center gap-3 text-muted-foreground text-sm">
@@ -558,17 +565,17 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
                                     </div>
 
                                     {/* Stats */}
-                                    {(course.totalStudents > 0 || (course.averageRating && course.averageRating > 0)) && (
+                                    {((run as any)?.totalStudents && (run as any).totalStudents > 0 || ((run as any)?.averageRating && Number((run as any).averageRating) > 0)) && (
                                         <div className="flex justify-center gap-6 pt-2">
                                             <div className="flex flex-col items-center">
-                                                <span className="text-sm font-bold text-foreground">{course.totalStudents?.toLocaleString() || '0'}+</span>
+                                                <span className="text-sm font-bold text-foreground">{((run as any)?.totalStudents)?.toLocaleString() || '0'}+</span>
                                                 <span className="text-[10px] text-muted-foreground">Học viên</span>
                                             </div>
-                                            {course.averageRating && course.averageRating > 0 && (
+                                            {(run as any)?.averageRating && Number((run as any).averageRating) > 0 && (
                                                 <>
                                                     <div className="w-px h-8 bg-border" />
                                                     <div className="flex flex-col items-center">
-                                                        <span className="text-sm font-bold text-foreground">{course.averageRating.toFixed(1)}</span>
+                                                        <span className="text-sm font-bold text-foreground">{Number((run as any).averageRating).toFixed(1)}</span>
                                                         <span className="text-[10px] text-muted-foreground">Điểm đánh giá</span>
                                                     </div>
                                                 </>

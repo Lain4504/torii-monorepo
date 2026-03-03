@@ -54,9 +54,10 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
         defaultValues: {
             title: '',
             contentType: LessonContentType.VIDEO,
-            isPreview: false,
             isUnlocked: false,
             durationMinutes: 0,
+            videoUrl: '',
+            articleContent: '',
         },
     });
 
@@ -132,7 +133,7 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Chỉnh Sửa Bài Học</SheetTitle>
                     <SheetDescription>

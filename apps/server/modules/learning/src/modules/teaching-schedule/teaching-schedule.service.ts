@@ -168,7 +168,11 @@ export class TeachingScheduleService implements ITeachingScheduleService {
 
     async getPendingRequests(requester: Requester): Promise<ScheduleRequestResponseDTO[]> {
         const where: any = { status: 'pending' };
-        if (requester.role === 'lecturer') {
+
+        const canManageSchedules = this.hasPermission(requester, 'live_class.schedule');
+
+        if (!canManageSchedules) {
+            // If they can't manage all schedules, they only see their own requests
             where.lecturerId = requester.sub;
         }
 
@@ -387,7 +391,8 @@ export class TeachingScheduleService implements ITeachingScheduleService {
     }
 
     private hasPermission(requester: Requester, permission: string): boolean {
-        return requester.role === 'admin' || requester.role === 'staff' || requester.role === 'lecturer';
+        if (!requester.permissions) return false;
+        return requester.permissions.includes('*') || requester.permissions.includes(permission);
     }
 }
 

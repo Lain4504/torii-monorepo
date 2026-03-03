@@ -141,7 +141,7 @@ export function TeachingScheduleSheet({ open, onOpenChange, run }: TeachingSched
 
         try {
             // Validate readiness
-            await apiClient.get<StandardApiResponse<{ isReady: boolean; message?: string }>>(`/api/courses/${run.courseMasterId}/validate-scheduling`);
+            await apiClient.get<StandardApiResponse<{ isReady: boolean; message?: string }>>(`/api/course-masters/${run.courseMasterId}/validate-scheduling`);
 
             for (const entry of values.schedules) {
                 await assignMutation.mutateAsync({
@@ -179,7 +179,7 @@ export function TeachingScheduleSheet({ open, onOpenChange, run }: TeachingSched
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-full sm:max-w-[800px] flex flex-col p-0">
+            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col p-0">
                 <SheetHeader className="p-6 pb-0">
                     <SheetTitle>Lịch dạy Cố định</SheetTitle>
                     <SheetDescription>
@@ -187,210 +187,211 @@ export function TeachingScheduleSheet({ open, onOpenChange, run }: TeachingSched
                     </SheetDescription>
                 </SheetHeader>
 
-                <ScrollArea className="flex-1">
-                    <div className="space-y-8 p-6">
-                        {/* Current Schedules */}
-                        <div className="space-y-4">
-                            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                                <Info className="size-3" />
-                                Lịch hiện tại
-                            </h3>
-                            {schedules && schedules.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    {schedules.map((schedule) => (
-                                        <Card key={schedule.id} className="p-4 bg-muted/30 border-muted-foreground/10 hover:border-primary/20 transition-colors">
-                                            <div className="flex items-start justify-between gap-4">
-                                                <div className="space-y-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <Badge variant="secondary" className="font-bold text-[10px]">
-                                                            {DAYS_OF_WEEK[schedule.dayOfWeek]}
-                                                        </Badge>
-                                                        <span className="text-[10px] text-muted-foreground font-medium">
-                                                            {schedule.lecturer?.displayName}
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex items-center gap-3 text-sm font-semibold">
-                                                        <div className="flex items-center gap-1.5 grayscale opacity-70">
-                                                            <Clock className="size-3.5" />
-                                                            {schedule.startTime}
+                <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden min-h-0">
+                    <ScrollArea className="flex-1 min-h-0">
+                        <div className="space-y-6 p-6">
+                            {/* Current Schedules */}
+                            <div className="space-y-4">
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                                    <Info className="size-3" />
+                                    Lịch hiện tại
+                                </h3>
+                                {schedules && schedules.length > 0 ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        {schedules.map((schedule) => (
+                                            <Card key={schedule.id} className="p-4 bg-muted/30 border-muted-foreground/10 hover:border-primary/20 transition-colors">
+                                                <div className="flex items-start justify-between gap-4">
+                                                    <div className="space-y-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <Badge variant="secondary" className="font-bold text-[10px]">
+                                                                {DAYS_OF_WEEK[schedule.dayOfWeek]}
+                                                            </Badge>
+                                                            <span className="text-[10px] text-muted-foreground font-medium">
+                                                                {schedule.lecturer?.displayName}
+                                                            </span>
                                                         </div>
-                                                        <div className="flex items-center gap-1.5 grayscale opacity-70">
-                                                            <Calendar className="size-3.5" />
-                                                            {schedule.duration}ph
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => handleRemove(schedule.id)}
-                                                    className="size-7 text-destructive hover:bg-destructive/10 -mt-1 -mr-1"
-                                                >
-                                                    <Trash className="size-3.5" />
-                                                </Button>
-                                            </div>
-                                        </Card>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="p-8 text-center border border-dashed rounded-2xl bg-muted/5">
-                                    <AlertCircle className="size-8 mx-auto mb-3 text-muted-foreground/20" />
-                                    <p className="text-xs text-muted-foreground font-medium">Chưa có lịch cố định nào</p>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Add New Schedule Section */}
-                        <FieldGroup className="pt-6 border-t">
-                            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">
-                                Thiết lập lịch học mới
-                            </h3>
-
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                                <Controller
-                                    name="lecturerId"
-                                    control={form.control}
-                                    render={({ field, fieldState }) => (
-                                        <Field data-invalid={fieldState.invalid}>
-                                            <FieldLabel htmlFor="lecturerId">Giảng viên phụ trách</FieldLabel>
-                                            <Select onValueChange={field.onChange} value={field.value} disabled={!!run?.lecturerId}>
-                                                <SelectTrigger id="lecturerId" aria-invalid={fieldState.invalid} className="h-11">
-                                                    <SelectValue placeholder="Chọn giảng viên..." />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectGroup>
-                                                        <SelectLabel>Giảng viên</SelectLabel>
-                                                        {run?.lecturer && (
-                                                            <SelectItem key={run.lecturer.id} value={run.lecturer.id}>
-                                                                {run.lecturer.displayName} (Giảng viên lớp)
-                                                            </SelectItem>
-                                                        )}
-                                                        {run?.courseMaster?.lecturer && run.courseMaster.lecturer.id !== run?.lecturerId && (
-                                                            <SelectItem key={run.courseMaster.lecturer.id} value={run.courseMaster.lecturer.id}>
-                                                                {run.courseMaster.lecturer.displayName} (Trưởng môn)
-                                                            </SelectItem>
-                                                        )}
-                                                    </SelectGroup>
-                                                </SelectContent>
-                                            </Select>
-                                            {run?.lecturerId && (
-                                                <p className="text-[10px] text-muted-foreground mt-1 px-1 italic">
-                                                    * Giảng viên được cố định theo lớp (Course Run).
-                                                </p>
-                                            )}
-                                            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                                        </Field>
-                                    )}
-                                />
-
-                                <div className="space-y-3">
-                                    <FieldLabel>Chọn các ngày trong tuần</FieldLabel>
-                                    <div className="flex flex-wrap gap-2">
-                                        {DAYS_SHORT.map((day, idx) => {
-                                            const isSelected = fields.some(f => f.dayOfWeek === idx);
-                                            return (
-                                                <Button
-                                                    key={idx}
-                                                    type="button"
-                                                    variant={isSelected ? "default" : "outline"}
-                                                    className={cn(
-                                                        "size-12 rounded-xl transition-all font-bold",
-                                                        isSelected ? "ring-2 ring-primary ring-offset-2" : "text-muted-foreground"
-                                                    )}
-                                                    onClick={() => handleDayToggle(idx)}
-                                                >
-                                                    {day}
-                                                </Button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-
-                                {fields.length > 0 && (
-                                    <div className="space-y-4 pt-4">
-                                        <FieldSeparator />
-                                        <div className="space-y-6">
-                                            {fields.map((field, index) => (
-                                                <Card key={field.id} className="p-5 border-primary/10 shadow-sm relative overflow-hidden">
-                                                    <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
-                                                    <div className="flex flex-col gap-4">
-                                                        <div className="flex items-center justify-between">
-                                                            <div className="flex items-center gap-2">
-                                                                <Badge className="h-6 px-3 rounded-full text-[11px] font-black uppercase">
-                                                                    {DAYS_OF_WEEK[field.dayOfWeek]}
-                                                                </Badge>
-                                                                <span className="text-xs text-muted-foreground italic font-medium">Cấu hình thời gian</span>
+                                                        <div className="flex items-center gap-3 text-sm font-semibold">
+                                                            <div className="flex items-center gap-1.5 grayscale opacity-70">
+                                                                <Clock className="size-3.5" />
+                                                                {schedule.startTime}
                                                             </div>
-                                                            <Button
-                                                                variant="outline"
-                                                                size="sm"
-                                                                type="button"
-                                                                className="h-7 text-[10px] font-bold uppercase tracking-tighter text-blue-600 border-blue-200 hover:bg-blue-50"
-                                                                onClick={() => handleCheckAvailability(index)}
-                                                            >
-                                                                Check lịch
-                                                            </Button>
-                                                        </div>
-
-                                                        <div className="grid grid-cols-2 gap-4">
-                                                            <Controller
-                                                                name={`schedules.${index}.startTime`}
-                                                                control={form.control}
-                                                                render={({ field: inputField, fieldState }) => (
-                                                                    <Field data-invalid={fieldState.invalid}>
-                                                                        <FieldLabel className="text-[10px] uppercase font-bold tracking-widest opacity-70">Bắt đầu</FieldLabel>
-                                                                        <Input
-                                                                            {...inputField}
-                                                                            type="time"
-                                                                            className="h-10 bg-muted/20"
-                                                                        />
-                                                                    </Field>
-                                                                )}
-                                                            />
-                                                            <Controller
-                                                                name={`schedules.${index}.duration`}
-                                                                control={form.control}
-                                                                render={({ field: inputField, fieldState }) => (
-                                                                    <Field data-invalid={fieldState.invalid}>
-                                                                        <FieldLabel className="text-[10px] uppercase font-bold tracking-widest opacity-70">Lượng (phút)</FieldLabel>
-                                                                        <Input
-                                                                            {...inputField}
-                                                                            type="number"
-                                                                            onChange={(e) => inputField.onChange(parseInt(e.target.value))}
-                                                                            className="h-10 bg-muted/20"
-                                                                        />
-                                                                    </Field>
-                                                                )}
-                                                            />
+                                                            <div className="flex items-center gap-1.5 grayscale opacity-70">
+                                                                <Calendar className="size-3.5" />
+                                                                {schedule.duration}ph
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </Card>
-                                            ))}
-                                        </div>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => handleRemove(schedule.id)}
+                                                        className="size-7 text-destructive hover:bg-destructive/10 -mt-1 -mr-1"
+                                                    >
+                                                        <Trash className="size-3.5" />
+                                                    </Button>
+                                                </div>
+                                            </Card>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="p-8 text-center border border-dashed rounded-2xl bg-muted/5">
+                                        <AlertCircle className="size-8 mx-auto mb-3 text-muted-foreground/20" />
+                                        <p className="text-xs text-muted-foreground font-medium">Chưa có lịch cố định nào</p>
                                     </div>
                                 )}
+                            </div>
 
-                                <div className="flex gap-3 pt-6">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={() => onOpenChange(false)}
-                                        className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-widest"
-                                    >
-                                        Hủy bỏ
-                                    </Button>
-                                    <Button
-                                        type="submit"
-                                        disabled={assignMutation.isPending || fields.length === 0}
-                                        className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-primary/20"
-                                    >
-                                        {assignMutation.isPending ? 'Đang lưu...' : 'Gán lịch chọn'}
-                                    </Button>
+                            {/* Add New Schedule Section */}
+                            <FieldGroup className="pt-6 border-t">
+                                <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">
+                                    Thiết lập lịch học mới
+                                </h3>
+
+                                <div className="space-y-6">
+                                    <Controller
+                                        name="lecturerId"
+                                        control={form.control}
+                                        render={({ field, fieldState }) => (
+                                            <Field data-invalid={fieldState.invalid}>
+                                                <FieldLabel htmlFor="lecturerId">Giảng viên phụ trách</FieldLabel>
+                                                <Select onValueChange={field.onChange} value={field.value} disabled={!!run?.lecturerId}>
+                                                    <SelectTrigger id="lecturerId" aria-invalid={fieldState.invalid} className="h-11">
+                                                        <SelectValue placeholder="Chọn giảng viên..." />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectGroup>
+                                                            <SelectLabel>Giảng viên</SelectLabel>
+                                                            {run?.lecturer && (
+                                                                <SelectItem key={run.lecturer.id} value={run.lecturer.id}>
+                                                                    {run.lecturer.displayName} (Giảng viên lớp)
+                                                                </SelectItem>
+                                                            )}
+                                                            {run?.courseMaster?.lecturer && run.courseMaster.lecturer.id !== run?.lecturerId && (
+                                                                <SelectItem key={run.courseMaster.lecturer.id} value={run.courseMaster.lecturer.id}>
+                                                                    {run.courseMaster.lecturer.displayName} (Trưởng môn)
+                                                                </SelectItem>
+                                                            )}
+                                                        </SelectGroup>
+                                                    </SelectContent>
+                                                </Select>
+                                                {run?.lecturerId && (
+                                                    <p className="text-[10px] text-muted-foreground mt-1 px-1 italic">
+                                                        * Giảng viên được cố định theo lớp (Course Run).
+                                                    </p>
+                                                )}
+                                                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                                            </Field>
+                                        )}
+                                    />
+
+                                    <div className="space-y-3">
+                                        <FieldLabel>Chọn các ngày trong tuần</FieldLabel>
+                                        <div className="flex flex-wrap gap-2">
+                                            {DAYS_SHORT.map((day, idx) => {
+                                                const isSelected = fields.some(f => f.dayOfWeek === idx);
+                                                return (
+                                                    <Button
+                                                        key={idx}
+                                                        type="button"
+                                                        variant={isSelected ? "default" : "outline"}
+                                                        className={cn(
+                                                            "size-12 rounded-xl transition-all font-bold",
+                                                            isSelected ? "ring-2 ring-primary ring-offset-2" : "text-muted-foreground"
+                                                        )}
+                                                        onClick={() => handleDayToggle(idx)}
+                                                    >
+                                                        {day}
+                                                    </Button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+
+                                    {fields.length > 0 && (
+                                        <div className="space-y-4 pt-4">
+                                            <FieldSeparator />
+                                            <div className="space-y-6">
+                                                {fields.map((field, index) => (
+                                                    <Card key={field.id} className="p-5 border-primary/10 shadow-sm relative overflow-hidden">
+                                                        <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
+                                                        <div className="flex flex-col gap-4">
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Badge className="h-6 px-3 rounded-full text-[11px] font-black uppercase">
+                                                                        {DAYS_OF_WEEK[field.dayOfWeek]}
+                                                                    </Badge>
+                                                                    <span className="text-xs text-muted-foreground italic font-medium">Cấu hình thời gian</span>
+                                                                </div>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    type="button"
+                                                                    className="h-7 text-[10px] font-bold uppercase tracking-tighter text-blue-600 border-blue-200 hover:bg-blue-50"
+                                                                    onClick={() => handleCheckAvailability(index)}
+                                                                >
+                                                                    Check lịch
+                                                                </Button>
+                                                            </div>
+
+                                                            <div className="grid grid-cols-2 gap-4">
+                                                                <Controller
+                                                                    name={`schedules.${index}.startTime`}
+                                                                    control={form.control}
+                                                                    render={({ field: inputField, fieldState }) => (
+                                                                        <Field data-invalid={fieldState.invalid}>
+                                                                            <FieldLabel className="text-[10px] uppercase font-bold tracking-widest opacity-70">Bắt đầu</FieldLabel>
+                                                                            <Input
+                                                                                {...inputField}
+                                                                                type="time"
+                                                                                className="h-10 bg-muted/20"
+                                                                            />
+                                                                        </Field>
+                                                                    )}
+                                                                />
+                                                                <Controller
+                                                                    name={`schedules.${index}.duration`}
+                                                                    control={form.control}
+                                                                    render={({ field: inputField, fieldState }) => (
+                                                                        <Field data-invalid={fieldState.invalid}>
+                                                                            <FieldLabel className="text-[10px] uppercase font-bold tracking-widest opacity-70">Lượng (phút)</FieldLabel>
+                                                                            <Input
+                                                                                {...inputField}
+                                                                                type="number"
+                                                                                onChange={(e) => inputField.onChange(parseInt(e.target.value))}
+                                                                                className="h-10 bg-muted/20"
+                                                                            />
+                                                                        </Field>
+                                                                    )}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </Card>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
-                            </form>
-                        </FieldGroup>
+                            </FieldGroup>
+                        </div>
+                    </ScrollArea>
+                    <div className="p-6 border-t flex gap-3">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                            className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-widest"
+                        >
+                            Hủy bỏ
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={assignMutation.isPending || fields.length === 0}
+                            className="flex-1 h-11 rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-primary/20"
+                        >
+                            {assignMutation.isPending ? 'Đang lưu...' : 'Gán lịch chọn'}
+                        </Button>
                     </div>
-                </ScrollArea>
+                </form>
             </SheetContent>
         </Sheet>
     );

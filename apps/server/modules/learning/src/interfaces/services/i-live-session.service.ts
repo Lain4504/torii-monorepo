@@ -56,6 +56,21 @@ export interface ILiveSessionService {
     syncEndedSession(meetingId: string): Promise<LiveSessionResponseDTO | null>;
 
     /**
+     * Get the current active live session for a course run
+     */
+    findActiveByRunId(courseRunId: string): Promise<LiveSessionResponseDTO | null>;
+
+    /**
+     * Get all live sessions for all runs of a course master
+     */
+    findByCourseId(courseMasterId: string): Promise<LiveSessionResponseDTO[]>;
+
+    /**
+     * Get the current active live session for any run of a course master
+     */
+    findActiveByCourseId(courseMasterId: string): Promise<LiveSessionResponseDTO | null>;
+
+    /**
      * Find live session by meetingId
      */
     findByMeetingId(meetingId: string): Promise<LiveSessionResponseDTO | null>;

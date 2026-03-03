@@ -59,40 +59,26 @@ export class LiveSessionHandler {
     }
 
     @MessagePattern({ cmd: 'learning.liveSession.create' })
-    async create(@Payload() data: LiveSessionCreateDTO & { userId: string; userRole: string; userEmail: string; displayName?: string }) {
-        const { userId, userRole, userEmail, displayName, ...dto } = data;
-        const requester: Requester & { email: string; displayName?: string } = {
-            sub: userId,
-            role: userRole as any,
-            email: userEmail,
-            displayName,
-        };
+    async create(@Payload() data: LiveSessionCreateDTO & { requester: Requester }) {
+        const { requester, ...dto } = data;
         return this.liveSessionService.create(requester, dto);
     }
 
     @MessagePattern({ cmd: 'learning.liveSession.bulkCreate' })
-    async bulkCreate(@Payload() data: LiveSessionBulkCreateDTO & { userId: string; userRole: string; userEmail: string; displayName?: string }) {
-        const { userId, userRole, userEmail, displayName, ...dto } = data;
-        const requester: Requester & { email: string; displayName?: string } = {
-            sub: userId,
-            role: userRole as any,
-            email: userEmail,
-            displayName,
-        };
+    async bulkCreate(@Payload() data: LiveSessionBulkCreateDTO & { requester: Requester }) {
+        const { requester, ...dto } = data;
         return this.liveSessionService.bulkCreate(requester, dto);
     }
 
     @MessagePattern({ cmd: 'learning.liveSession.update' })
-    async update(@Payload() data: LiveSessionUpdateDTO & { id: string; userId: string; userRole: string; userEmail: string }) {
-        const { id, userId, userRole, userEmail, ...dto } = data;
-        const requester: Requester & { email: string } = { sub: userId, role: userRole as any, email: userEmail };
+    async update(@Payload() data: LiveSessionUpdateDTO & { id: string; requester: Requester }) {
+        const { id, requester, ...dto } = data;
         return this.liveSessionService.update(requester, id, dto);
     }
 
     @MessagePattern({ cmd: 'learning.liveSession.delete' })
-    async delete(@Payload() data: { id: string; userId: string; userRole: string; userEmail: string }) {
-        const { id, userId, userRole, userEmail } = data;
-        const requester: Requester & { email: string } = { sub: userId, role: userRole as any, email: userEmail };
+    async delete(@Payload() data: { id: string; requester: Requester }) {
+        const { id, requester } = data;
         return this.liveSessionService.delete(requester, id);
     }
 
@@ -101,34 +87,41 @@ export class LiveSessionHandler {
         return this.liveSessionService.findByRunId(data.courseRunId);
     }
 
+    @MessagePattern({ cmd: 'learning.liveSession.findActiveByRunId' })
+    async findActiveByRunId(@Payload() data: { courseRunId: string }) {
+        return this.liveSessionService.findActiveByRunId(data.courseRunId);
+    }
+
+    @MessagePattern({ cmd: 'learning.liveSession.findByCourseId' })
+    async findByCourseId(@Payload() data: { courseMasterId: string }) {
+        return this.liveSessionService.findByCourseId(data.courseMasterId);
+    }
+
+    @MessagePattern({ cmd: 'learning.liveSession.findActiveByCourseId' })
+    async findActiveByCourseId(@Payload() data: { courseMasterId: string }) {
+        return this.liveSessionService.findActiveByCourseId(data.courseMasterId);
+    }
+
     @MessagePattern({ cmd: 'learning.liveSession.findById' })
     async findById(@Payload() data: { id: string }) {
         return this.liveSessionService.findById(data.id);
     }
 
     @MessagePattern({ cmd: 'learning.liveSession.start' })
-    async start(@Payload() data: { id: string; userId: string; userRole: string; userEmail: string }) {
-        const { id, userId, userRole, userEmail } = data;
-        const requester: Requester & { email: string } = { sub: userId, role: userRole as any, email: userEmail };
+    async start(@Payload() data: { id: string; requester: Requester }) {
+        const { id, requester } = data;
         return this.liveSessionService.startSession(requester, id);
     }
 
     @MessagePattern({ cmd: 'learning.liveSession.end' })
-    async end(@Payload() data: { id: string; userId: string; userRole: string; userEmail: string }) {
-        const { id, userId, userRole, userEmail } = data;
-        const requester: Requester & { email: string } = { sub: userId, role: userRole as any, email: userEmail };
+    async end(@Payload() data: { id: string; requester: Requester }) {
+        const { id, requester } = data;
         return this.liveSessionService.endSession(requester, id);
     }
 
     @MessagePattern({ cmd: 'learning.liveSession.join' })
-    async join(@Payload() data: { id: string; userId: string; userRole: string; userEmail: string; displayName?: string }) {
-        const { id, userId, userRole, userEmail, displayName } = data;
-        const requester: Requester & { email: string; displayName?: string } = {
-            sub: userId,
-            role: userRole as any,
-            email: userEmail,
-            displayName,
-        };
+    async join(@Payload() data: { id: string; requester: Requester }) {
+        const { id, requester } = data;
         return this.liveSessionService.joinSession(requester, id);
     }
 }

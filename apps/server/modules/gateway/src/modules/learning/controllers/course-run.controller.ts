@@ -84,6 +84,15 @@ export class CourseRunController {
         return successResponse({ run: result });
     }
 
+    @Get('slug/:slug')
+    @Public()
+    async findBySlug(@Param('slug') slug: string) {
+        const result = await firstValueFrom(
+            this.natsClient.send({ cmd: 'learning.courserun.findBySlug' }, { slug }),
+        );
+        return successResponse({ run: result });
+    }
+
     @Patch(':id/status')
     @Permissions('course.update')
     async updateStatus(

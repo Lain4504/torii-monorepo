@@ -208,7 +208,7 @@ export class LiveSessionService implements ILiveSessionService {
         const isAssigned = existing.lecturerId === requester.sub;
         const hasManagePermission = this.hasPermission(requester, 'live_class.manage');
 
-        if (!isAssigned && !hasManagePermission) {
+        if (!isAssigned && !hasManagePermission && requester.role !== 'admin') {
             throw new ForbiddenException('You are not authorized to start this session');
         }
 
@@ -317,7 +317,7 @@ export class LiveSessionService implements ILiveSessionService {
         const isAssigned = existing.lecturerId === requester.sub;
         const hasManagePermission = this.hasPermission(requester, 'live_class.manage');
 
-        if (!isAssigned && !hasManagePermission) {
+        if (!isAssigned && !hasManagePermission && requester.role !== 'admin') {
             throw new ForbiddenException('You are not authorized to end this session');
         }
 
@@ -349,11 +349,11 @@ export class LiveSessionService implements ILiveSessionService {
         }
 
         // Authorization check
-        const isAdmin = requester.role === UserRole.ADMIN;
+        const hasManagePermission = this.hasPermission(requester, 'live_class.manage');
+        const hasViewRestricted = this.hasPermission(requester, 'course.view_restricted');
         const isLecturer = session.lecturerId === requester.sub;
-        const isStaff = requester.role === UserRole.STAFF;
 
-        let hasAccess = isAdmin || isLecturer || isStaff;
+        let hasAccess = hasManagePermission || hasViewRestricted || isLecturer || requester.role === 'admin';
 
         if (!hasAccess) {
             // Check enrollments for student in any course run of this session's course
@@ -388,14 +388,14 @@ export class LiveSessionService implements ILiveSessionService {
                     userInfo: {
                         userId: requester.sub,
                         name: requester.user_metadata?.displayName || 'User',
-                        isAdmin: isAdmin || isLecturer || isStaff,
+                        isAdmin: hasManagePermission || hasViewRestricted || isLecturer || requester.role === 'admin',
                     },
                 })
             );
 
             // Get room info to return SID
             const roomInfo = await lastValueFrom(
-                this.natsClient.send({ cmd: 'room.getRoomInfo' }, { roomId: session.meetingId })
+                this.natsClient.send({ cmd: 'room.getRoomInfoByRoomId' }, { roomId: session.meetingId, isRunning: true })
             );
 
             return {
@@ -429,6 +429,44 @@ export class LiveSessionService implements ILiveSessionService {
         }
 
         return updatedSession ? this.mapper.map<any, LiveSessionResponseDTO>(updatedSession, 'LiveSession', 'LiveSessionResponseDTO') : null;
+    }
+
+    async findActiveByRunId(courseRunId: string): Promise<LiveSessionResponseDTO | null> {
+        const session = await this.prisma.liveSession.findFirst({
+            where: {
+                courseRunId,
+                status: LiveSessionStatus.LIVE,
+            },
+        });
+        if (!session) return null;
+        return this.mapper.map<any, LiveSessionResponseDTO>(session, 'LiveSession', 'LiveSessionResponseDTO');
+    }
+
+    async findByCourseId(courseMasterId: string): Promise<LiveSessionResponseDTO[]> {
+        const sessions = await this.prisma.liveSession.findMany({
+            where: {
+                courseRun: {
+                    courseMasterId,
+                },
+            },
+            orderBy: {
+                scheduledAt: 'asc',
+            },
+        });
+        return sessions.map((s) => this.mapper.map<any, LiveSessionResponseDTO>(s, 'LiveSession', 'LiveSessionResponseDTO'));
+    }
+
+    async findActiveByCourseId(courseMasterId: string): Promise<LiveSessionResponseDTO | null> {
+        const session = await this.prisma.liveSession.findFirst({
+            where: {
+                courseRun: {
+                    courseMasterId,
+                },
+                status: LiveSessionStatus.LIVE,
+            },
+        });
+        if (!session) return null;
+        return this.mapper.map<any, LiveSessionResponseDTO>(session, 'LiveSession', 'LiveSessionResponseDTO');
     }
 
     async findByMeetingId(meetingId: string): Promise<LiveSessionResponseDTO | null> {

@@ -22,7 +22,7 @@ import {
     FieldLabel,
     FieldError,
 } from '@workspace/ui/components/field';
-import { storageApi } from '@/lib/api/services/storage-api.ts';
+import { storageApi } from '@/lib/api/services/storage-api';
 import { LessonContentType, lessonCreateDTOSchema } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
 import { useCreateLesson, lessonsApi } from "@/lib/api/services/lesson";
@@ -31,7 +31,7 @@ import { Spinner } from "@workspace/ui/components/spinner";
 
 const createLessonSchema = lessonCreateDTOSchema;
 
-type CreateLessonFormData = z.input<typeof createLessonSchema>;
+type CreateLessonFormData = z.infer<typeof createLessonSchema>;
 
 interface CreateLessonDialogProps {
     open: boolean;
@@ -39,7 +39,7 @@ interface CreateLessonDialogProps {
     moduleId: string;
 }
 
-export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLessonDialogProps) {
+export default function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLessonDialogProps) {
     const createLesson = useCreateLesson();
     const [videoFile, setVideoFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
@@ -56,9 +56,13 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
             moduleId: moduleId || '',
             title: '',
             contentType: LessonContentType.VIDEO,
+            status: 'published',
+            orderIndex: 0,
             isPreview: false,
             isUnlocked: false,
             durationMinutes: 0,
+            videoUrl: '',
+            articleContent: '',
         },
     });
 
@@ -69,9 +73,13 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
                 moduleId,
                 title: '',
                 contentType: LessonContentType.VIDEO,
+                status: 'published',
+                orderIndex: 0,
                 isPreview: false,
                 isUnlocked: false,
                 durationMinutes: 0,
+                articleContent: '',
+                videoUrl: '',
             });
             setVideoFile(null);
         }
@@ -126,7 +134,7 @@ export function CreateLessonSheet({ open, onOpenChange, moduleId }: CreateLesson
 
     return (
         <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
+            <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
                 <SheetHeader>
                     <SheetTitle>Tạo Bài Học Mới</SheetTitle>
                     <SheetDescription>

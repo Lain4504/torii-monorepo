@@ -67,7 +67,10 @@ export const wishlistApi = {
    */
   toggleWishlist: async (courseRunId: string): Promise<{ isInWishlist: boolean }> => {
     const response = await apiClient.post<StandardApiResponse<{ isInWishlist: boolean }>>(`/api/wishlists/toggle/${courseRunId}`);
-    return response.data.data!;
+    if (!response.data.success || !response.data.data) {
+      throw new Error(response.data.message || 'Failed to toggle wishlist');
+    }
+    return response.data.data;
   },
 
   /**
@@ -75,8 +78,10 @@ export const wishlistApi = {
    */
   checkWishlist: async (courseRunId: string): Promise<{ isInWishlist: boolean }> => {
     const response = await apiClient.get<StandardApiResponse<{ isInWishlist: boolean }>>(`/api/wishlists/check/${courseRunId}`);
-    // Fallback to false when data is missing to avoid undefined for react-query
-    return response.data.data ?? { isInWishlist: false };
+    if (!response.data.success || !response.data.data) {
+      return { isInWishlist: false };
+    }
+    return response.data.data;
   },
 };
 

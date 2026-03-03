@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="remomve uiuxpromax">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/live-session/live-session.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/modules/learning/src/modules/live-session/live-session.module.ts" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="remomve uiuxpromax" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -253,15 +250,7 @@
       <workItem from="1772437718203" duration="39000" />
       <workItem from="1772448442034" duration="1160000" />
       <workItem from="1772449707195" duration="399000" />
-      <workItem from="1772474025610" duration="397000" />
-    </task>
-    <task id="LOCAL-00856" summary="refactor: change location of api folder to lib">
-      <option name="closed" value="true" />
-      <created>1771817703777</created>
-      <option name="number" value="00856" />
-      <option name="presentableId" value="LOCAL-00856" />
-      <option name="project" value="LOCAL" />
-      <updated>1771817703777</updated>
+      <workItem from="1772474025610" duration="499000" />
     </task>
     <task id="LOCAL-00857" summary="refactor: change location of api folder to lib">
       <option name="closed" value="true" />
@@ -647,7 +636,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772473885875</updated>
     </task>
-    <option name="localTasksCounter" value="905" />
+    <task id="LOCAL-00905" summary="remomve uiuxpromax">
+      <option name="closed" value="true" />
+      <created>1772474509110</created>
+      <option name="number" value="00905" />
+      <option name="presentableId" value="LOCAL-00905" />
+      <option name="project" value="LOCAL" />
+      <updated>1772474509110</updated>
+    </task>
+    <option name="localTasksCounter" value="906" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

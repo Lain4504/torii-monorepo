@@ -139,7 +139,7 @@ export default function CheckoutPage() {
             const response = await couponApi.validateCoupon({
                 code: couponCode,
                 courseMasterId: course.id, // Validate against course master
-                courseRunId: courseRunId || undefined, // Specific run if selected
+                courseRunId: selectedRun?.id, // Specific run if selected
                 userId: user?.id,
             })
 
@@ -187,7 +187,7 @@ export default function CheckoutPage() {
             const description = `Thanh toan khoa hoc ${course.title}`.slice(0, 25)
 
             const order = await orderApi.createOrder({
-                courseRunId: courseRunId || course.id, // Use selected run or default to master ID
+                courseRunId: selectedRun!.id,
                 paymentMethod: PaymentMethod.BALANCE,
                 orderType: isGift ? OrderType.GIFT : OrderType.COURSE_PURCHASE,
                 description: description,
@@ -236,7 +236,7 @@ export default function CheckoutPage() {
 
     if (isLoading) return <PageLoading />
 
-    if (!course || !selectedRun) return null
+    if (!course || !selectedRun || !selectedRun.id) return null
 
     const finalPrice = Math.max(0, Number(selectedRun.price) - couponDiscount)
 

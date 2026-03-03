@@ -27,6 +27,11 @@ export class CourseRunHandler {
         return this.courseRunService.findById(data.id);
     }
 
+    @MessagePattern({ cmd: 'learning.courserun.findBySlug' })
+    async findBySlug(@Payload() data: { slug: string }) {
+        return this.courseRunService.findBySlug(data.slug);
+    }
+
     @MessagePattern({ cmd: 'learning.courserun.findAll' })
     async findAll(@Payload() query: CourseRunSearchRequestDTO) {
         return this.courseRunService.findAll(query);

@@ -30,7 +30,10 @@ export const cartApi = {
      */
     async addToCart(courseRunId: string): Promise<CartResponse> {
         const response = await apiClient.post<StandardApiResponse<CartResponse>>('/api/carts/items', { courseRunId });
-        return response.data.data!;
+        if (!response.data.success || !response.data.data) {
+            throw new Error(response.data.message || 'Failed to add to cart');
+        }
+        return response.data.data;
     },
 
     /**
@@ -38,7 +41,10 @@ export const cartApi = {
      */
     async removeFromCart(courseRunId: string): Promise<CartResponse> {
         const response = await apiClient.delete<StandardApiResponse<CartResponse>>(`/api/carts/items/${courseRunId}`);
-        return response.data.data!;
+        if (!response.data.success || !response.data.data) {
+            throw new Error(response.data.message || 'Failed to remove from cart');
+        }
+        return response.data.data;
     },
 
     /**

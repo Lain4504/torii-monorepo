@@ -100,6 +100,14 @@ export class CourseRunService {
         return this.toResponseDTO(run);
     }
 
+    async findBySlug(slug: string): Promise<CourseRunResponseDTO> {
+        const run = await this.courseRunRepository.findBySlug(slug);
+        if (!run) {
+            throw new NotFoundException(`Course run with slug ${slug} not found`);
+        }
+        return this.toResponseDTO(run);
+    }
+
     async findAll(query: CourseRunSearchRequestDTO): Promise<PaginatedApiResponse<CourseRunResponseDTO>> {
         const { page = 1, limit = 10, courseMasterId, status } = query;
         const pageNum = Number(page);
