@@ -34,11 +34,11 @@
     },
     "learning": {
       "type": "application",
-      "root": "modules/learning",
+      "root": "services/learning",
       "entryFile": "main",
-      "sourceRoot": "modules/learning/src",
+      "sourceRoot": "services/learning/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/learning/tsconfig.app.json",
+        "tsConfigPath": "services/learning/tsconfig.app.json",
         "webpack": false
       }
     },

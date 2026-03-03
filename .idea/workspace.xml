@@ -5,25 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="add gamification services and repositories; update tsconfig and module configurations">
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/gamification.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/gamification.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/handlers/activity.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/handlers/gamification.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/handlers/index.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/repositories/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/repositories/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/services/i-activities.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/services/i-activities.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/services/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/services/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/jobs/streak-check.job.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/jobs/streak-check.job.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/listeners/activity.listener.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/listeners/activity.listener.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/modules/achievements/achievements.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/modules/achievements/achievements.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/modules/activities/activities.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/modules/activities/activities.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/modules/activities/activities.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/modules/activities/activities.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/modules/profiles/profiles.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/modules/profiles/profiles.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/services/achievement.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/services/activity.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/services/index.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/services/leaderboard.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/services/redemption.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/services/streak.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/nest-cli.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/nest-cli.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/tsconfig.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,30 +59,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;#254 on tienhn-update-week-6&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "refactor-learning-service",
+    "go.import.settings.migrated": "true",
+    "javascript.preferred.runtime.type.id": "node",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "pnpm",
+    "ts.external.directory.path": "/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-28b599e66164-intellij.indexing.shared.core-IU-242.26775.15" />
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-IU-242.26775.15" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.31033.133" />
       </set>
     </attachedChunks>
   </component>

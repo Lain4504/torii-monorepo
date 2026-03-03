@@ -100,7 +100,71 @@ apps/server/services/identity/
 
 ## 4. Lộ trình Refactor
 
-1.  **Rename Top-level:** Đổi `modules` -> `services`. Fix `tsconfig.json`.
-2.  **Refactor Identity:** Áp dụng cấu trúc `modules/users/` (gom handler, service, repo vào một chỗ) cho Identity Service trước làm mẫu.
-3.  **Refactor Gateway:** Đảm bảo Gateway dùng DTO từ `@packages/schemas`.
-4.  **Refactor các Service còn lại:** Áp dụng tương tự Identity.
+1.  ✅ **Rename Top-level:** Đổi `modules` -> `services`. Fix `tsconfig.json`.
+2.  ✅ **Refactor Identity:** Áp dụng cấu trúc `modules/users/` (gom handler, service, repo vào một chỗ) cho Identity Service trước làm mẫu.
+3.  ⏳ **Refactor Gateway:** Đảm bảo Gateway dùng DTO từ `@packages/schemas`.
+4.  ✅ **Refactor Learning Service:** Hoàn tất refactor cho Learning Service theo pattern của Identity Service
+
+---
+
+## 5. Chi tiết Refactor Learning Service
+
+### 5.1. Cấu trúc sau refactor
+
+```text
+apps/server/services/learning/
+├── src/
+│   ├── modules/                    # Feature Modules (27 modules)
+│   │   ├── assignment/
+│   │   │   ├── assignment.handler.ts
+│   │   │   ├── assignment.service.ts
+│   │   │   ├── assignment.repository.ts
+│   │   │   └── assignment.module.ts
+│   │   ├── enrollment/
+│   │   ├── course-master/
+│   │   └── ... (24 more modules)
+│   │
+│   ├── infrastructure/              # Shared utilities & mappings
+│   ├── interfaces/                  # Central interfaces & DI tokens
+│   ├── learning.module.ts           # Root Module
+│   └── main.ts                      # Entry point
+│
+└── ...
+```
+
+### 5.2. Key Changes
+
+1. **Handlers now integrated into modules:**
+   - Mỗi feature module chứa `*.handler.ts` (transport layer)
+   - Handler được khai báo trong `*.module.ts` với `controllers: [Handler]`
+
+2. **Root Module simplified:**
+   - Chỉ import feature modules, không import handler/service/repo trực tiếp
+   - GlobalRpcExceptionFilter provide ở đây
+
+3. **Service Tokens centralized:**
+   - `interfaces/services/index.ts` - tất cả COURSE_MASTER_SERVICE_TOKEN, ENROLLMENT_SERVICE_TOKEN, etc
+
+### 5.3. Configuration Updates
+
+- ✅ `tsconfig.json`: Updated `@server/learning/*` path to `services/learning/src/*`
+- ✅ `nest-cli.json`: Updated learning project root to `services/learning`
+
+---
+
+## 6. Implementation Status
+
+### Completed Tasks:
+- ✅ Copied `modules/learning` → `services/learning`
+- ✅ Moved handlers into feature modules
+- ✅ Updated all 27 module files with proper controllers declaration
+- ✅ Fixed duplicate imports and circular dependencies
+- ✅ Updated `tsconfig.json` paths
+- ✅ Updated `nest-cli.json` project configuration
+- ✅ Verified build (compilation successful, no errors)
+
+### Remaining Tasks:
+- ⏳ Test Learning Service runtime with pnpm run dev:learning
+- ⏳ Update and refactor remaining services (billing, agents)
+- ⏳ Remove old `modules/learning` after testing
+- ⏳ Update CI/CD pipeline```
