@@ -4,7 +4,49 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="remomve uiuxpromax" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="add gamification services and repositories; update tsconfig and module configurations">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/billing.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/handlers/analytics.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/handlers/coupon.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/handlers/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/handlers/order.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/handlers/report.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/handlers/user-balance.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/infrastructure/mappings/coupon.profile.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/infrastructure/mappings/order.profile.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/infrastructure/mappings/payment.profile.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/interfaces/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/interfaces/repositories/i-order.repository.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/interfaces/repositories/i-user-balance.repository.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/interfaces/repositories/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/interfaces/services/i-order.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/interfaces/services/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/main.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/coupon/coupon.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/coupon/coupon.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/coupon/coupon.repository.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/coupon/coupon.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/payment/order.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/payment/order.repository.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/payment/order.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/payment/payment.cron.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/payment/payos.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/report/report.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/report/report.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/user-balance/feature-quota.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/user-balance/user-balance.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/user-balance/user-balance.repository.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/user-balance/user-balance.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/test/coupon.service.spec.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/test/payos.service.spec.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/test/user-balance.service.spec.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/tsconfig.app.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/nest-cli.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/nest-cli.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/tsconfig.json" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -55,25 +97,60 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;#254 on tienhn-update-week-6&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Jest.CouponService.executor": "Run",
+    "Jest.PayOSService.executor": "Run",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "refactor-billing-service",
+    "go.import.settings.migrated": "true",
+    "javascript.preferred.runtime.type.id": "node",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs.jest.jest_package": "/home/lain4504/SEP490/torii-monorepo/apps/server/node_modules/jest",
+    "nodejs_package_manager_path": "pnpm",
+    "ts.external.directory.path": "/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
+  <component name="RunManager" selected="Jest.PayOSService">
+    <configuration name="CouponService" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/apps/server/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$/apps/server" />
+      <envs />
+      <scope-kind value="SUITE" />
+      <test-file value="$PROJECT_DIR$/apps/server/services/billing/test/coupon.service.spec.ts" />
+      <test-names>
+        <test-name value="CouponService" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <configuration name="PayOSService" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/apps/server/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$/apps/server" />
+      <envs />
+      <scope-kind value="SUITE" />
+      <test-file value="$PROJECT_DIR$/apps/server/services/billing/test/payos.service.spec.ts" />
+      <test-names>
+        <test-name value="PayOSService" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Jest.PayOSService" />
+        <item itemvalue="Jest.CouponService" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -251,22 +328,7 @@
       <workItem from="1772448442034" duration="1160000" />
       <workItem from="1772449707195" duration="399000" />
       <workItem from="1772474025610" duration="499000" />
-    </task>
-    <task id="LOCAL-00857" summary="refactor: change location of api folder to lib">
-      <option name="closed" value="true" />
-      <created>1771817780327</created>
-      <option name="number" value="00857" />
-      <option name="presentableId" value="LOCAL-00857" />
-      <option name="project" value="LOCAL" />
-      <updated>1771817780327</updated>
-    </task>
-    <task id="LOCAL-00858" summary="feat: add date-fns-tz dependency and implement formatNumber utility function">
-      <option name="closed" value="true" />
-      <created>1771823535746</created>
-      <option name="number" value="00858" />
-      <option name="presentableId" value="LOCAL-00858" />
-      <option name="project" value="LOCAL" />
-      <updated>1771823535747</updated>
+      <workItem from="1772518585740" duration="733000" />
     </task>
     <task id="LOCAL-00859" summary="feat: add date-fns-tz dependency and implement formatNumber utility function">
       <option name="closed" value="true" />
@@ -644,7 +706,23 @@
       <option name="project" value="LOCAL" />
       <updated>1772474509110</updated>
     </task>
-    <option name="localTasksCounter" value="906" />
+    <task id="LOCAL-00906" summary="add gamification services and repositories; update tsconfig and module configurations">
+      <option name="closed" value="true" />
+      <created>1772518956868</created>
+      <option name="number" value="00906" />
+      <option name="presentableId" value="LOCAL-00906" />
+      <option name="project" value="LOCAL" />
+      <updated>1772518956868</updated>
+    </task>
+    <task id="LOCAL-00907" summary="add gamification services and repositories; update tsconfig and module configurations">
+      <option name="closed" value="true" />
+      <created>1772518960984</created>
+      <option name="number" value="00907" />
+      <option name="presentableId" value="LOCAL-00907" />
+      <option name="project" value="LOCAL" />
+      <updated>1772518960984</updated>
+    </task>
+    <option name="localTasksCounter" value="908" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -661,7 +739,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="tienhn-update-week-6" />
+                        <option value="main" />
                       </list>
                     </value>
                   </entry>
@@ -696,7 +774,8 @@
     <MESSAGE value="fix to lauch success" />
     <MESSAGE value="fix" />
     <MESSAGE value="remomve uiuxpromax" />
-    <option name="LAST_COMMIT_MESSAGE" value="remomve uiuxpromax" />
+    <MESSAGE value="add gamification services and repositories; update tsconfig and module configurations" />
+    <option name="LAST_COMMIT_MESSAGE" value="add gamification services and repositories; update tsconfig and module configurations" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

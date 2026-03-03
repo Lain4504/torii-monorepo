@@ -71,11 +71,11 @@
     },
     "gamification": {
       "type": "application",
-      "root": "modules/gamification",
+      "root": "services/gamification",
       "entryFile": "main",
-      "sourceRoot": "modules/gamification/src",
+      "sourceRoot": "services/gamification/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/gamification/tsconfig.app.json",
+        "tsConfigPath": "services/gamification/tsconfig.app.json",
         "webpack": false
       }
     },
@@ -108,11 +108,11 @@
     },
     "billing": {
       "type": "application",
-      "root": "modules/billing",
+      "root": "services/billing",
       "entryFile": "main",
-      "sourceRoot": "modules/billing/src",
+      "sourceRoot": "services/billing/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/billing/tsconfig.app.json",
+        "tsConfigPath": "services/billing/tsconfig.app.json",
         "webpack": false
       }
     }
