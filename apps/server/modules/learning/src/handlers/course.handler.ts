@@ -109,4 +109,9 @@ export class CourseHandler {
     async getStudentCount(@Payload() data: { id: string }) {
         return this.courseMasterService.getStudentCount(data.id);
     }
+
+    @MessagePattern({ cmd: 'learning.course.getStudentCount' })
+    async getStudentCount(@Payload() data: { id: string }) {
+        return this.courseService.getStudentCount(data.id);
+    }
 }
