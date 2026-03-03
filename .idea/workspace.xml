@@ -4,45 +4,53 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="add gamification services and repositories; update tsconfig and module configurations">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(billing): restructure billing service modules and interfaces">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/billing.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/handlers/analytics.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/handlers/coupon.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/handlers/index.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/handlers/order.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/handlers/report.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/handlers/user-balance.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/infrastructure/mappings/coupon.profile.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/infrastructure/mappings/order.profile.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/infrastructure/mappings/payment.profile.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/interfaces/index.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/interfaces/repositories/i-order.repository.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/interfaces/repositories/i-user-balance.repository.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/interfaces/repositories/index.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/interfaces/services/i-order.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/interfaces/services/index.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/main.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/coupon/coupon.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/coupon/coupon.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/coupon/coupon.repository.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/coupon/coupon.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/index.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/payment/order.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/payment/order.repository.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/payment/order.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/payment/payment.cron.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/payment/payos.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/report/report.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/report/report.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/user-balance/feature-quota.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/user-balance/user-balance.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/user-balance/user-balance.repository.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/src/modules/user-balance/user-balance.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/test/coupon.service.spec.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/test/payos.service.spec.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/test/user-balance.service.spec.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/billing/tsconfig.app.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/agents.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/analytics/progress-tracking.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/analytics/readiness-profile.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/analytics/report-generation.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/analytics/study-path-suggestion.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/assessment/jlpt-test-generation.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/assessment/placement-evaluation.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/assessment/placement-test.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/assessment/test-evaluation.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/chat.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/conversation-simulation.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/flashcard-creation.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/grammar-check.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/practice-drill.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/resource-recommendation.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/roleplay.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/translation.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/resources/jlpt-syllabus.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/dtos/analytics.dto.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/dtos/assessment.dto.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/dtos/sensei.dto.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/fastmcp/fastmcp.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/fastmcp/fastmcp.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/handlers/analytics.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/handlers/assessment.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/handlers/sensei.handler.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/main.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/analytics/ai-usage-tracking.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/analytics/analytics.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/analytics/analytics.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/assessment/assessment.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/assessment/assessment.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/livekit/agent-entry.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/livekit/livekit-agent.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/sensei/sensei.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/sensei/sensei.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/sensei/tts.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/test/analytics.service.spec.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/test/assessment.service.spec.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/test/sensei.service.spec.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/test/tts.service.spec.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/tsconfig.app.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/nest-cli.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/nest-cli.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/tsconfig.json" afterDir="false" />
@@ -64,7 +72,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="refactor-billing-service" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -99,58 +107,23 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Jest.CouponService.executor": "Run",
-    "Jest.PayOSService.executor": "Run",
     "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.go.formatter.settings.were.checked": "true",
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "refactor-billing-service",
+    "git-widget-placeholder": "refactor-agent-service",
     "go.import.settings.migrated": "true",
     "javascript.preferred.runtime.type.id": "node",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs.jest.jest_package": "/home/lain4504/SEP490/torii-monorepo/apps/server/node_modules/jest",
     "nodejs_package_manager_path": "pnpm",
     "ts.external.directory.path": "/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected="Jest.PayOSService">
-    <configuration name="CouponService" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
-      <node-interpreter value="project" />
-      <jest-package value="$PROJECT_DIR$/apps/server/node_modules/jest" />
-      <working-dir value="$PROJECT_DIR$/apps/server" />
-      <envs />
-      <scope-kind value="SUITE" />
-      <test-file value="$PROJECT_DIR$/apps/server/services/billing/test/coupon.service.spec.ts" />
-      <test-names>
-        <test-name value="CouponService" />
-      </test-names>
-      <method v="2" />
-    </configuration>
-    <configuration name="PayOSService" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
-      <node-interpreter value="project" />
-      <jest-package value="$PROJECT_DIR$/apps/server/node_modules/jest" />
-      <working-dir value="$PROJECT_DIR$/apps/server" />
-      <envs />
-      <scope-kind value="SUITE" />
-      <test-file value="$PROJECT_DIR$/apps/server/services/billing/test/payos.service.spec.ts" />
-      <test-names>
-        <test-name value="PayOSService" />
-      </test-names>
-      <method v="2" />
-    </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Jest.PayOSService" />
-        <item itemvalue="Jest.CouponService" />
-      </list>
-    </recent_temporary>
-  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -329,14 +302,6 @@
       <workItem from="1772449707195" duration="399000" />
       <workItem from="1772474025610" duration="499000" />
       <workItem from="1772518585740" duration="733000" />
-    </task>
-    <task id="LOCAL-00859" summary="feat: add date-fns-tz dependency and implement formatNumber utility function">
-      <option name="closed" value="true" />
-      <created>1771823552828</created>
-      <option name="number" value="00859" />
-      <option name="presentableId" value="LOCAL-00859" />
-      <option name="project" value="LOCAL" />
-      <updated>1771823552828</updated>
     </task>
     <task id="LOCAL-00860" summary="refactor: improve layout and styling across multiple components">
       <option name="closed" value="true" />
@@ -722,7 +687,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772518960984</updated>
     </task>
-    <option name="localTasksCounter" value="908" />
+    <task id="LOCAL-00908" summary="feat(billing): restructure billing service modules and interfaces">
+      <option name="closed" value="true" />
+      <created>1772531383503</created>
+      <option name="number" value="00908" />
+      <option name="presentableId" value="LOCAL-00908" />
+      <option name="project" value="LOCAL" />
+      <updated>1772531383503</updated>
+    </task>
+    <option name="localTasksCounter" value="909" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -775,7 +748,8 @@
     <MESSAGE value="fix" />
     <MESSAGE value="remomve uiuxpromax" />
     <MESSAGE value="add gamification services and repositories; update tsconfig and module configurations" />
-    <option name="LAST_COMMIT_MESSAGE" value="add gamification services and repositories; update tsconfig and module configurations" />
+    <MESSAGE value="feat(billing): restructure billing service modules and interfaces" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(billing): restructure billing service modules and interfaces" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
