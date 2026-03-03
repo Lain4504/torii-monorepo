@@ -42,10 +42,10 @@
         "./services/gamification/src/*"
       ],
       "@server/agents/*": [
-        "./modules/agents/src/*"
+        "./services/agents/src/*"
       ],
       "@server/billing/*": [
-        "./modules/billing/src/*"
+        "./services/billing/src/*"
       ],
       "@server/meet/*": [
         "./services/meet/src/*"
