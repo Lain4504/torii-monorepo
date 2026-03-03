@@ -1,6 +1,5 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { Inject } from '@nestjs/common';
 import { ORDER_SERVICE_TOKEN, IOrderService } from '@server/billing/interfaces/services';
 import { OrderCreateDTO, OrderQueryDTO, OrderConfirmDTO, PaymentQueryDTO } from '@workspace/schemas';
 import { PayOSService } from '@server/billing/modules/payment/payos.service';
@@ -43,11 +42,9 @@ export class OrderHandler {
         return this.orderService.confirm(data.id, data.input);
     }
 
-    // PayOS Webhook
     @MessagePattern({ cmd: 'billing.payos.webhook' })
     async handleWebhook(@Payload() webhookData: any) {
         this.payOSService.verifyPaymentWebhookData(webhookData);
-        // Handle the webhook in OrderService, passing only the data part
         return this.orderService.handleWebhook(webhookData.data);
     }
 
