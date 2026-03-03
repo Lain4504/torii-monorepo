@@ -34,11 +34,11 @@
     },
     "learning": {
       "type": "application",
-      "root": "modules/learning",
+      "root": "services/learning",
       "entryFile": "main",
-      "sourceRoot": "modules/learning/src",
+      "sourceRoot": "services/learning/src",
       "compilerOptions": {
-        "tsConfigPath": "modules/learning/tsconfig.app.json",
+        "tsConfigPath": "services/learning/tsconfig.app.json",
         "webpack": false
       }
     },
@@ -54,16 +54,16 @@
     },
     "agents": {
       "type": "application",
-      "root": "services/agents",
+      "root": "modules/agents",
       "entryFile": "main",
-      "sourceRoot": "services/agents/src",
+      "sourceRoot": "modules/agents/src",
       "compilerOptions": {
-        "tsConfigPath": "services/agents/tsconfig.app.json",
+        "tsConfigPath": "modules/agents/tsconfig.app.json",
         "webpack": false,
         "assets": [
           {
             "include": "assets/**/*",
-            "outDir": "dist/services/agents/src",
+            "outDir": "dist/modules/agents/src",
             "watchAssets": true
           }
         ]
@@ -108,11 +108,11 @@
     },
     "billing": {
       "type": "application",
-      "root": "services/billing",
+      "root": "modules/billing",
       "entryFile": "main",
-      "sourceRoot": "services/billing/src",
+      "sourceRoot": "modules/billing/src",
       "compilerOptions": {
-        "tsConfigPath": "services/billing/tsconfig.app.json",
+        "tsConfigPath": "modules/billing/tsconfig.app.json",
         "webpack": false
       }
     }

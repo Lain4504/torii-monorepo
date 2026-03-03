@@ -4,55 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(billing): restructure billing service modules and interfaces">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="add gamification services and repositories; update tsconfig and module configurations">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/agents.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/analytics/progress-tracking.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/analytics/readiness-profile.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/analytics/report-generation.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/analytics/study-path-suggestion.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/assessment/jlpt-test-generation.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/assessment/placement-evaluation.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/assessment/placement-test.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/assessment/test-evaluation.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/chat.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/conversation-simulation.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/flashcard-creation.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/grammar-check.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/practice-drill.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/resource-recommendation.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/roleplay.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/translation.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/resources/jlpt-syllabus.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/dtos/analytics.dto.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/dtos/assessment.dto.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/dtos/sensei.dto.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/fastmcp/fastmcp.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/fastmcp/fastmcp.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/handlers/analytics.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/handlers/assessment.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/handlers/sensei.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/main.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/.gitkeep" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/analytics/ai-usage-tracking.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/analytics/analytics.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/analytics/analytics.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/assessment/assessment.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/assessment/assessment.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/index.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/livekit/agent-entry.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/livekit/livekit-agent.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/sensei/sensei.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/sensei/sensei.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/sensei/tts.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/test/analytics.service.spec.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/test/assessment.service.spec.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/test/sensei.service.spec.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/test/tts.service.spec.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/tsconfig.app.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/nest-cli.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/nest-cli.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/tsconfig.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -72,7 +26,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="refactor-billing-service" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -112,7 +66,7 @@
     "RunOnceActivity.go.formatter.settings.were.checked": "true",
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "refactor-agent-service",
+    "git-widget-placeholder": "refactor-learning-service",
     "go.import.settings.migrated": "true",
     "javascript.preferred.runtime.type.id": "node",
     "kotlin-language-version-configured": "true",
@@ -127,8 +81,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-28b599e66164-intellij.indexing.shared.core-IU-242.26775.15" />
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-IU-242.26775.15" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.31033.133" />
       </set>
     </attachedChunks>
   </component>
@@ -302,6 +255,14 @@
       <workItem from="1772449707195" duration="399000" />
       <workItem from="1772474025610" duration="499000" />
       <workItem from="1772518585740" duration="733000" />
+    </task>
+    <task id="LOCAL-00859" summary="feat: add date-fns-tz dependency and implement formatNumber utility function">
+      <option name="closed" value="true" />
+      <created>1771823552828</created>
+      <option name="number" value="00859" />
+      <option name="presentableId" value="LOCAL-00859" />
+      <option name="project" value="LOCAL" />
+      <updated>1771823552828</updated>
     </task>
     <task id="LOCAL-00860" summary="refactor: improve layout and styling across multiple components">
       <option name="closed" value="true" />
@@ -687,15 +648,7 @@
       <option name="project" value="LOCAL" />
       <updated>1772518960984</updated>
     </task>
-    <task id="LOCAL-00908" summary="feat(billing): restructure billing service modules and interfaces">
-      <option name="closed" value="true" />
-      <created>1772531383503</created>
-      <option name="number" value="00908" />
-      <option name="presentableId" value="LOCAL-00908" />
-      <option name="project" value="LOCAL" />
-      <updated>1772531383503</updated>
-    </task>
-    <option name="localTasksCounter" value="909" />
+    <option name="localTasksCounter" value="908" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -748,8 +701,7 @@
     <MESSAGE value="fix" />
     <MESSAGE value="remomve uiuxpromax" />
     <MESSAGE value="add gamification services and repositories; update tsconfig and module configurations" />
-    <MESSAGE value="feat(billing): restructure billing service modules and interfaces" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(billing): restructure billing service modules and interfaces" />
+    <option name="LAST_COMMIT_MESSAGE" value="add gamification services and repositories; update tsconfig and module configurations" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

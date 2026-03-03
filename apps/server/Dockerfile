@@ -7,8 +7,8 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Install Build Dependencies (openssl for Prisma + python3 for edge-tts)
-RUN apt-get update -y && apt-get install -y openssl python3 python3-pip python3-venv && rm -rf /var/lib/apt/lists/*
+# Install Build Dependencies (openssl for Prisma)
+RUN apt-get update -y && apt-get install -y openssl
 
 # Copy workspace configuration
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
@@ -64,14 +64,8 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Install Runtime Dependencies (openssl for Prisma + python3 for edge-tts Neural TTS)
-RUN apt-get update -y && apt-get install -y openssl python3 python3-pip python3-venv && rm -rf /var/lib/apt/lists/*
-
-# Create Python venv with edge-tts at the path expected by tts.service.ts
-# tts.service.ts resolves: path.join(process.cwd(), '.venv/bin/edge-tts')
-# process.cwd() in container = /app/apps/server
-RUN python3 -m venv /app/apps/server/.venv && \
-    /app/apps/server/.venv/bin/pip install --no-cache-dir edge-tts
+# Install Runtime Dependencies (openssl for Prisma)
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 # Copy production dependencies (using node_modules from builder for simplicity)
 COPY --from=builder /app/node_modules ./node_modules

@@ -42,16 +42,19 @@
         "./services/gamification/src/*"
       ],
       "@server/agents/*": [
-        "./services/agents/src/*"
+        "./modules/agents/src/*"
       ],
       "@server/billing/*": [
-        "./services/billing/src/*"
+        "./modules/billing/src/*"
       ],
       "@server/meet/*": [
         "./services/meet/src/*"
       ],
+      "@server/learning": [
+        "./services/learning/src"
+      ],
       "@server/learning/*": [
-        "./modules/learning/src/*"
+        "./services/learning/src/*"
       ],
       "@server/communication/*": [
         "./services/communication/src/*"
