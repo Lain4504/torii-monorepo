@@ -1,7 +1,8 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { AnalyticsService } from '@server/agents/modules';
 import { Requester } from '@workspace/schemas';
+
+import { AnalyticsService } from './analytics.service';
 
 /**
  * NATS Handler for Analytics Agent

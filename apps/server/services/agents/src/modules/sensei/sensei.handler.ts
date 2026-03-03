@@ -1,9 +1,10 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { SenseiService } from '@server/agents/modules';
-import { TTSService } from '@server/agents/modules/sensei/tts.service';
-import { LivekitAgentService } from '../modules/livekit/livekit-agent.service';
 import { Requester } from '@workspace/schemas';
+
+import { SenseiService } from './sensei.service';
+import { TTSService } from './tts.service';
+import { LivekitAgentService } from '../livekit/livekit-agent.service';
 
 /**
  * NATS Handler for Sensei Agent

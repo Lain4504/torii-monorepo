@@ -42,7 +42,7 @@
         "./services/gamification/src/*"
       ],
       "@server/agents/*": [
-        "./modules/agents/src/*"
+        "./services/agents/src/*"
       ],
       "@server/billing/*": [
         "./modules/billing/src/*"
