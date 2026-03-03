@@ -21,7 +21,7 @@
     "dev:communication": "nest start communication --watch",
     "dev:storage": "nest start storage --watch",
     "dev:billing": "nest start billing --watch",
-    "prod:gateway": "node dist/modules/gateway/src/main",
+    "prod:gateway": "node dist/services/gateway/src/main",
     "prod:identity": "node dist/services/identity/src/main",
     "prod:learning": "node dist/modules/learning/src/main",
     "prod:meet": "node dist/services/meet/src/main",
