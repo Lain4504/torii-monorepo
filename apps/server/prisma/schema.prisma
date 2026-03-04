@@ -14,6 +14,12 @@ datasource db {
   provider = "postgresql"
 }
 
+// ==================================================
+// ENUMS
+// ==================================================
+
+// --- Course ---
+
 enum CourseMasterStatus {
   DRAFT
   PENDING_REVIEW
@@ -22,7 +28,6 @@ enum CourseMasterStatus {
   ARCHIVED
 }
 
-// Thêm các Enums mới cho mô hình Master/Run
 enum CourseRunStatus {
   DRAFT
   PENDING_REVIEW
@@ -38,14 +43,34 @@ enum CourseRunStatus {
   ARCHIVED
 }
 
+// --- Enrollment ---
+
 enum EnrollmentStatus {
   PENDING_PAYMENT // Order placed, awaiting payment
-  ACTIVE          // Paid and learning in progress
-  COMPLETED       // Finished all lessons/requirements
-  SUSPENDED       // Temporarily suspended by admin
-  REFUNDED        // Payment returned
-  CANCELLED       // Cancelled / dropped
+  ACTIVE // Paid and learning in progress
+  COMPLETED // Finished all lessons/requirements
+  SUSPENDED // Temporarily suspended by admin
+  REFUNDED // Payment returned
+  CANCELLED // Cancelled / dropped
 }
+
+// --- Reviews & Approval ---
+
+enum MasterReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CHANGES_REQUIRED
+}
+
+enum RunReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CHANGES_REQUIRED
+}
+
+// --- Live Sessions ---
 
 enum LiveSessionStatus {
   SCHEDULED
@@ -60,6 +85,193 @@ enum ScheduleRequestStatus {
   APPROVED
   REJECTED
 }
+
+// --- Assessment ---
+
+enum AssignmentType {
+  TEXT // Text answer only
+  FILE // File upload only
+  BOTH // Text + File
+}
+
+enum AssignmentStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+}
+
+enum SubmissionStatus {
+  DRAFT // Đang soạn (chưa nộp)
+  SUBMITTED // Đã nộp
+  GRADED // Đã chấm
+  RETURNED // Trả lại để sửa
+}
+
+// --- Flashcard / SRS ---
+
+enum FlashcardState {
+  new
+  learning
+  review
+  relearning
+}
+
+enum FlashcardGenerationMethod {
+  manual
+  ai_auto
+  ai_assisted
+  import
+}
+
+enum JapanesePartOfSpeech {
+  noun
+  verb_ichidan
+  verb_godan
+  verb_suru
+  verb_kuru
+  adjective_i
+  adjective_na
+  adverb
+  particle
+  conjunction
+  interjection
+  pronoun
+  number
+  other
+}
+
+enum ReviewQuality {
+  ZERO // Again (incorrect)
+  ONE // Hard
+  TWO // Good
+  THREE // Easy
+  FOUR // Easy+
+}
+
+// --- Commerce ---
+
+enum OrderStatus {
+  pending
+  processing
+  completed
+  failed
+  refunded
+  cancelled
+  timed_out
+}
+
+enum OrderType {
+  course_purchase
+  subscription
+  top_up
+  gift
+  refund
+}
+
+enum PaymentMethod {
+  credit_card
+  bank_transfer
+  momo
+  zalopay
+  vnpay
+  sepay
+  mock // For testing
+}
+
+enum PaymentGateway {
+  stripe
+  paypal
+  vnpay
+  momo
+  sepay
+  mock // For testing
+}
+
+enum CouponStatus {
+  active
+  inactive
+  expired
+}
+
+enum CouponDiscountType {
+  percentage
+  fixed_amount
+}
+
+// --- Support ---
+
+enum TicketType {
+  REFUND
+  SUPPORT
+  ERROR_REPORT
+}
+
+enum TicketStatus {
+  PENDING
+  PROCESSING
+  RESOLVED
+  CANCELLED
+}
+
+enum DiscussionTopicStatus {
+  OPEN
+  ANSWERED
+  RESOLVED
+  CLOSED
+}
+
+enum DiscussionTopicCategory {
+  GENERAL
+  QUESTION
+  ANNOUNCEMENT
+}
+
+// --- Gamification ---
+
+enum ActivityType {
+  LESSON_COMPLETE
+  QUIZ_ANSWER
+  VIDEO_WATCH
+  REVIEW
+  PRACTICE
+  FLASHCARD_REVIEW
+  EXAM_COMPLETE
+  BLOG_CREATE
+  COMMENT_CREATE
+  LOGIN
+}
+
+enum AchievementCategory {
+  STREAK
+  CONSISTENCY
+  LEARNING_PROGRESS
+  RECOVERY
+  SOCIAL
+  MASTERY
+}
+
+enum BalanceTransactionType {
+  TOP_UP // Nạp tiền vào tài khoản
+  REFUND // Hoàn tiền từ ticket/order
+  PURCHASE // Dùng coin mua khóa học/dịch vụ
+  REWARD // Thưởng từ hệ thống
+  BONUS // Bonus từ sự kiện
+  OTHER // Khác
+}
+
+enum GamificationTransactionType {
+  EARN // Nhận điểm từ hoạt động học tập
+  REDEEM // Đổi điểm lấy coupon/quà
+  BONUS // Điểm thưởng bonus
+  EXPIRATION // Điểm hết hạn
+  OTHER // Khác
+}
+
+// ==================================================
+// 1. COURSE BLUEPRINT  (CourseMaster → Version → Module → Lesson)
+// ==================================================
+
+// --- Blueprint ---
 
 model CourseMaster {
   id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -89,7 +301,7 @@ model CourseMaster {
   versions      CourseVersion[]
   courseRuns    CourseRun[]
   masterReviews CourseMasterReview[]
-  creator       User?               @relation("CourseMasterCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  creator       User?                @relation("CourseMasterCreator", fields: [createdBy], references: [id], onDelete: SetNull)
 
   @@index([jlptLevel])
   @@index([createdBy])
@@ -97,7 +309,6 @@ model CourseMaster {
   @@map("course_masters")
 }
 
-// 2. Model Versioning mới
 model CourseVersion {
   id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   courseMasterId     String   @map("course_master_id") @db.Uuid
@@ -106,13 +317,126 @@ model CourseVersion {
   changelog          String?  @db.Text
   publishedAt        DateTime @default(now()) @map("published_at")
 
-  courseMaster  CourseMaster       @relation(fields: [courseMasterId], references: [id])
+  courseMaster  CourseMaster         @relation(fields: [courseMasterId], references: [id])
   enrollments   Enrollment[]
   courseRuns    CourseRun[]
   masterReviews CourseMasterReview[]
 
   @@map("course_versions")
 }
+
+model Module {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseMasterId  String    @map("course_master_id") @db.Uuid
+  title           String    @db.VarChar(255)
+  description     String?   @db.Text
+  status          String    @default("published") @db.VarChar(20) // published, draft
+  orderIndex      Int       @default(0) @map("order_index")
+  durationMinutes Int?      @map("duration_minutes")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  courseMaster CourseMaster @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
+  lessons      Lesson[]
+
+  @@index([courseMasterId])
+  @@map("modules")
+}
+
+model Lesson {
+  id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  moduleId             String    @map("module_id") @db.Uuid
+  title                String    @db.VarChar(255)
+  contentType          String    @map("content_type") @db.VarChar(20)
+  videoUrl             String?   @map("video_url") @db.Text
+  durationMinutes      Int?      @map("duration_minutes")
+  articleContent       String?   @map("article_content") @db.Text
+  hasQuiz              Boolean   @default(false) @map("has_quiz")
+  hasAssignment        Boolean   @default(false) @map("has_assignment")
+  requiresPassingGrade Boolean   @default(false) @map("requires_passing_grade")
+  status               String    @default("published") @db.VarChar(20) // published, draft
+  orderIndex           Int       @default(0) @map("order_index")
+  isPreview            Boolean   @default(false) @map("is_preview")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at")
+  deletedAt            DateTime? @map("deleted_at")
+
+  module            Module            @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  quizzes           Quiz[]
+  materials         LessonMaterial[]
+  lessonProgress    LessonProgress[]
+  assignments       Assignment[]
+  runLessons        CourseRunLesson[]
+  // Lessons that list THIS lesson as a prerequisite (back-reference)
+  isPrerequisiteFor CourseRunLesson[] @relation("RunLessonPrerequisite")
+
+  @@index([moduleId])
+  @@map("lessons")
+}
+
+model LessonMaterial {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  lessonId    String   @map("lesson_id") @db.Uuid
+  fileAssetId String   @map("file_asset_id") @db.Uuid
+  type        String   @db.VarChar(50) // 'slides' | 'video' | 'reading' | 'assignment'
+  usageType   String   @default("pre_class") @map("usage_type") @db.VarChar(20) // 'pre_class' | 'post_class' | 'recording'
+  title       String?  @db.VarChar(255)
+  orderIndex  Int      @default(0) @map("order_index")
+  createdBy   String   @map("created_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  lesson    Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  fileAsset FileAsset @relation(fields: [fileAssetId], references: [id], onDelete: Restrict)
+
+  @@unique([lessonId, fileAssetId])
+  @@index([lessonId])
+  @@index([fileAssetId])
+  @@map("lesson_materials")
+}
+
+model CourseRunLesson {
+  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseRunId String @map("course_run_id") @db.Uuid
+  lessonId    String @map("lesson_id") @db.Uuid
+
+  // Run-specific ordering (can differ from the Master blueprint)
+  orderIndex Int @default(0) @map("order_index")
+
+  // Run-specific content overrides
+  videoUrl       String? @map("video_url") @db.Text
+  videoDuration  Int?    @map("video_duration")
+  articleContent String? @map("article_content") @db.Text
+  recordingUrl   String? @map("recording_url") @db.Text
+
+  // Drip content: access control per Run
+  // isUnlocked=false → locked by default; the scheduler flips it based on rules below
+  isUnlocked           Boolean @default(true) @map("is_unlocked")
+  // Unlock N calendar days after CourseRun.enrollmentStart (null = no time gate)
+  unlocksOnDay         Int?    @map("unlocks_on_day")
+  // Unlock only after a specific lesson is completed (null = no prerequisite)
+  prerequisiteLessonId String? @map("prerequisite_lesson_id") @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  courseRun          CourseRun @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+  lesson             Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  prerequisiteLesson Lesson?   @relation("RunLessonPrerequisite", fields: [prerequisiteLessonId], references: [id], onDelete: SetNull)
+
+  @@unique([courseRunId, lessonId])
+  @@index([courseRunId])
+  @@index([lessonId])
+  @@index([prerequisiteLessonId])
+  @@map("course_run_lessons")
+}
+
+// ==================================================
+// 2. COURSE DELIVERY  (CourseRun → Enrollment → Progress)
+// ==================================================
+
+// --- Delivery ---
 
 model CourseRun {
   id             String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -186,152 +510,47 @@ model CourseRun {
   @@map("course_runs")
 }
 
-enum MasterReviewStatus {
-  PENDING
-  APPROVED
-  REJECTED
-  CHANGES_REQUIRED
-}
-
-model CourseMasterReview {
-  id             String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseMasterId String             @map("course_master_id") @db.Uuid
-  versionId      String?            @map("version_id") @db.Uuid
-  reviewerId     String             @map("reviewer_id") @db.Uuid
-  status         MasterReviewStatus @default(PENDING)
-  checklist      Json               @default("{}")
-  comments       String?            @db.Text
-  rejectionReason String?           @map("rejection_reason") @db.Text
-  reviewedAt     DateTime?          @map("reviewed_at")
-  createdAt      DateTime           @default(now()) @map("created_at")
-
-  courseMaster CourseMaster @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
-  version      CourseVersion? @relation(fields: [versionId], references: [id], onDelete: SetNull)
-  reviewer     User           @relation(fields: [reviewerId], references: [id])
-
-  @@index([courseMasterId])
-  @@index([status])
-  @@index([reviewerId])
-  @@map("course_master_reviews")
-}
-
-enum RunReviewStatus {
-  PENDING
-  APPROVED
-  REJECTED
-  CHANGES_REQUIRED
-}
-
-model CourseRunReview {
-  id           String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseRunId  String          @map("course_run_id") @db.Uuid
-  reviewerId   String          @map("reviewer_id") @db.Uuid
-  status       RunReviewStatus @default(PENDING)
-  roundNumber  Int             @default(1) @map("round_number")
-  checklist    Json            @default("{}")
-  comments     String?         @db.Text
-  rejectionReason String?      @map("rejection_reason") @db.Text
-  reviewedAt   DateTime?       @map("reviewed_at")
-  createdAt    DateTime        @default(now()) @map("created_at")
-
-  courseRun CourseRun @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
-  reviewer  User      @relation(fields: [reviewerId], references: [id])
-
-  @@index([courseRunId])
-  @@index([status])
-  @@index([reviewerId])
-  @@map("course_run_reviews")
-}
-
-// Modules: chapters/sections that belong to a Course
-model Module {
-  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseMasterId  String    @map("course_master_id") @db.Uuid
-  title           String    @db.VarChar(255)
-  description     String?   @db.Text
-  status          String    @default("published") @db.VarChar(20) // published, draft
-  orderIndex      Int       @default(0) @map("order_index")
-  durationMinutes Int?      @map("duration_minutes")
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at")
-  deletedAt       DateTime? @map("deleted_at")
-
-  courseMaster CourseMaster @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
-  lessons      Lesson[]
-
-  @@index([courseMasterId])
-  @@map("modules")
-}
-
-// Lessons: individual content items that belong to Modules
-model Lesson {
+model Enrollment {
   id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  moduleId             String    @map("module_id") @db.Uuid
-  title                String    @db.VarChar(255)
-  contentType          String    @map("content_type") @db.VarChar(20)
-  videoUrl             String?   @map("video_url") @db.Text
-  durationMinutes      Int?      @map("duration_minutes")
-  articleContent       String?   @map("article_content") @db.Text
-  hasQuiz              Boolean   @default(false) @map("has_quiz")
-  hasAssignment        Boolean   @default(false) @map("has_assignment")
-  requiresPassingGrade Boolean   @default(false) @map("requires_passing_grade")
-  status               String    @default("published") @db.VarChar(20) // published, draft
-  orderIndex           Int       @default(0) @map("order_index")
-  isPreview            Boolean   @default(false) @map("is_preview")
+  userId               String    @map("user_id") @db.Uuid
+  courseRunId          String    @map("course_run_id") @db.Uuid
+  versionId            String?   @map("version_id") @db.Uuid // Reference to CourseVersion for snapshot tracking
+  enrollmentDate       DateTime  @default(now()) @map("enrollment_date")
+  completionPercentage Decimal   @default(0.00) @map("completion_percentage") @db.Decimal(5, 2)
+  lastAccessedAt       DateTime? @map("last_accessed_at")
+  completedAt          DateTime? @map("completed_at")
+  orderId              String?   @unique @map("order_id") @db.Uuid
+  couponAppliedId      String?   @map("coupon_applied_id") @db.Uuid
+  finalPrice           Decimal   @map("final_price") @db.Decimal(10, 2)
+  isGift               Boolean   @default(false) @map("is_gift")
+  giftMessage          String?   @map("gift_message") @db.Text
+  senderId             String?   @map("sender_id") @db.Uuid
+  expiresAt            DateTime? @map("expires_at")
+  trialExpiresAt       DateTime? @map("trial_expires_at") // Hết hạn học thử
   createdAt            DateTime  @default(now()) @map("created_at")
   updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at")
-  deletedAt            DateTime? @map("deleted_at")
 
-  module         Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  quizzes        Quiz[]
-  materials      LessonMaterial[]
+  enrollmentStatus EnrollmentStatus @default(PENDING_PAYMENT) @map("enrollment_status")
+
+  // Relations
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseRun      CourseRun        @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+  version        CourseVersion?   @relation(fields: [versionId], references: [id], onDelete: SetNull)
+  order          Order?           @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  couponApplied  Coupon?          @relation("EnrollmentCoupon", fields: [couponAppliedId], references: [id], onDelete: SetNull)
+  sender         User?            @relation("GiftEnrollments", fields: [senderId], references: [id], onDelete: SetNull)
   lessonProgress LessonProgress[]
-  assignments    Assignment[]
-  runLessons     CourseRunLesson[]
-  // Lessons that list THIS lesson as a prerequisite (back-reference)
-  isPrerequisiteFor CourseRunLesson[] @relation("RunLessonPrerequisite")
+  certificate    Certificate?
 
-  @@index([moduleId])
-  @@map("lessons")
-}
-
-model CourseRunLesson {
-  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseRunId    String    @map("course_run_id") @db.Uuid
-  lessonId       String    @map("lesson_id") @db.Uuid
-
-  // Run-specific ordering (can differ from the Master blueprint)
-  orderIndex     Int       @default(0) @map("order_index")
-
-  // Run-specific content overrides
-  videoUrl       String?   @map("video_url") @db.Text
-  videoDuration  Int?      @map("video_duration")
-  articleContent String?   @map("article_content") @db.Text
-  recordingUrl   String?   @map("recording_url") @db.Text
-
-  // Drip content: access control per Run
-  // isUnlocked=false → locked by default; the scheduler flips it based on rules below
-  isUnlocked           Boolean @default(true) @map("is_unlocked")
-  // Unlock N calendar days after CourseRun.enrollmentStart (null = no time gate)
-  unlocksOnDay         Int?    @map("unlocks_on_day")
-  // Unlock only after a specific lesson is completed (null = no prerequisite)
-  prerequisiteLessonId String? @map("prerequisite_lesson_id") @db.Uuid
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  courseRun          CourseRun @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
-  lesson             Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  prerequisiteLesson Lesson?   @relation("RunLessonPrerequisite", fields: [prerequisiteLessonId], references: [id], onDelete: SetNull)
-
-  @@unique([courseRunId, lessonId])
+  @@unique([userId, courseRunId]) // Mỗi user chỉ enroll 1 lần cho 1 course run
+  @@index([userId])
   @@index([courseRunId])
-  @@index([lessonId])
-  @@index([prerequisiteLessonId])
-  @@map("course_run_lessons")
+  @@index([versionId])
+  @@index([enrollmentDate])
+  @@index([expiresAt])
+  @@map("enrollments")
 }
 
-// Lesson Progress - Tracks progress for each lesson within an enrollment
 model LessonProgress {
   id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   enrollmentId    String    @map("enrollment_id") @db.Uuid
@@ -354,169 +573,95 @@ model LessonProgress {
   @@map("lesson_progress")
 }
 
-// ============================================
-// ASSIGNMENTS & SUBMISSIONS
-// ============================================
+// ==================================================
+// 3. REVIEWS & APPROVAL
+// ==================================================
 
-// Assignment Types
-enum AssignmentType {
-  TEXT // Text answer only
-  FILE // File upload only
-  BOTH // Text + File
+// --- Course Reviews ---
+
+model CourseMasterReview {
+  id              String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseMasterId  String             @map("course_master_id") @db.Uuid
+  versionId       String?            @map("version_id") @db.Uuid
+  reviewerId      String             @map("reviewer_id") @db.Uuid
+  status          MasterReviewStatus @default(PENDING)
+  checklist       Json               @default("{}")
+  comments        String?            @db.Text
+  rejectionReason String?            @map("rejection_reason") @db.Text
+  reviewedAt      DateTime?          @map("reviewed_at")
+  createdAt       DateTime           @default(now()) @map("created_at")
+
+  courseMaster CourseMaster   @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
+  version      CourseVersion? @relation(fields: [versionId], references: [id], onDelete: SetNull)
+  reviewer     User           @relation(fields: [reviewerId], references: [id])
+
+  @@index([courseMasterId])
+  @@index([status])
+  @@index([reviewerId])
+  @@map("course_master_reviews")
 }
 
-// Assignment - Bài tập do giảng viên tạo
-model Assignment {
-  id          String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title       String         @db.VarChar(255)
-  description String         @db.Text
-  type        AssignmentType @default(TEXT)
+model CourseRunReview {
+  id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseRunId     String          @map("course_run_id") @db.Uuid
+  reviewerId      String          @map("reviewer_id") @db.Uuid
+  status          RunReviewStatus @default(PENDING)
+  roundNumber     Int             @default(1) @map("round_number")
+  checklist       Json            @default("{}")
+  comments        String?         @db.Text
+  rejectionReason String?         @map("rejection_reason") @db.Text
+  reviewedAt      DateTime?       @map("reviewed_at")
+  createdAt       DateTime        @default(now()) @map("created_at")
 
-  // Associated with
-  courseRunId String  @map("course_run_id") @db.Uuid
-  lessonId    String? @map("lesson_id") @db.Uuid
-
-  // Grading config
-  maxScore     Decimal  @default(100.00) @map("max_score") @db.Decimal(5, 2)
-  passingScore Decimal? @map("passing_score") @db.Decimal(5, 2)
-
-  // Deadlines
-  dueDate             DateTime? @map("due_date")
-  allowLateSubmission Boolean   @default(true) @map("allow_late_submission")
-  latePenaltyPercent  Decimal?  @map("late_penalty_percent") @db.Decimal(5, 2) // Optional reference, không auto-apply
-
-  // File upload config
-  allowedFileTypes String[] @default([]) @map("allowed_file_types") @db.VarChar(20) // ["pdf", "docx", "png"]
-  maxFileSize      Int?     @default(52428800) @map("max_file_size") // bytes (default 50MB)
-  maxFiles         Int?     @default(5) @map("max_files")
-
-  // Metadata
-  instructions   String?          @db.Text
-  attachmentUrls String[]         @default([]) @map("attachment_urls") @db.Text
-  createdBy      String           @map("created_by") @db.Uuid
-  status         AssignmentStatus @default(DRAFT)
-  publishedAt    DateTime?        @map("published_at")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  courseRun   CourseRun    @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
-  lesson      Lesson?      @relation(fields: [lessonId], references: [id], onDelete: SetNull)
-  creator     User         @relation("AssignmentCreator", fields: [createdBy], references: [id], onDelete: Restrict)
-  submissions Submission[]
+  courseRun CourseRun @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+  reviewer  User      @relation(fields: [reviewerId], references: [id])
 
   @@index([courseRunId])
-  @@index([lessonId])
   @@index([status])
-  @@index([dueDate])
-  @@index([createdBy])
-  @@map("assignments")
+  @@index([reviewerId])
+  @@map("course_run_reviews")
 }
 
-// Assignment Status
-enum AssignmentStatus {
-  DRAFT
-  PUBLISHED
-  CLOSED
-}
+// --- Student Reviews ---
 
-// Submission Status
-enum SubmissionStatus {
-  DRAFT // Đang soạn (chưa nộp)
-  SUBMITTED // Đã nộp
-  GRADED // Đã chấm
-  RETURNED // Trả lại để sửa
-}
-
-// Submission - Bài nộp của học viên
-model Submission {
-  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  assignmentId String @map("assignment_id") @db.Uuid
-  userId       String @map("user_id") @db.Uuid
-  courseRunId  String @map("course_run_id") @db.Uuid
-
-  // Submission content
-  textAnswer String?  @map("text_answer") @db.Text
-  fileUrls   String[] @default([]) @map("file_urls") @db.Text
-
-  // Status tracking
-  status      SubmissionStatus @default(DRAFT)
-  submittedAt DateTime?        @map("submitted_at")
-  isLate      Boolean          @default(false) @map("is_late")
-  daysLate    Int?             @default(0) @map("days_late") // For BR-04: penalty calculation
-
-  // Grading
-  score    Decimal?  @db.Decimal(5, 2)
-  feedback String?   @db.Text
-  gradedBy String?   @map("graded_by") @db.Uuid
-  gradedAt DateTime? @map("graded_at")
-
-  // History tracking
-  attemptNumber Int @default(1) @map("attempt_number")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  assignment     Assignment     @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  courseRun      CourseRun      @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
-  user           User           @relation("SubmissionUser", fields: [userId], references: [id], onDelete: Cascade)
-  grader         User?          @relation("SubmissionGrader", fields: [gradedBy], references: [id], onDelete: SetNull)
-  gradeHistories GradeHistory[]
-
-  @@unique([assignmentId, userId, attemptNumber])
-  @@index([assignmentId])
-  @@index([userId])
-  @@index([courseRunId])
-  @@index([status])
-  @@index([submittedAt])
-  @@index([gradedBy])
-  @@map("submissions")
-}
-
-// GradeHistory - Lịch sử thay đổi điểm (Audit Trail) cho BR-05, BR-07
-model GradeHistory {
-  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  submissionId String @map("submission_id") @db.Uuid
-
-  oldScore Decimal? @map("old_score") @db.Decimal(5, 2)
-  newScore Decimal  @map("new_score") @db.Decimal(5, 2)
-
-  oldFeedback String? @map("old_feedback") @db.Text
-  newFeedback String? @map("new_feedback") @db.Text
-
-  changedBy String   @map("changed_by") @db.Uuid
-  reason    String?  @db.Text
-  createdAt DateTime @default(now()) @map("created_at")
-
-  // Relations
-  submission    Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-  changedByUser User       @relation("GradeHistoryChanger", fields: [changedBy], references: [id], onDelete: Restrict)
-
-  @@index([submissionId])
-  @@index([changedBy])
-  @@map("grade_histories")
-}
-
-// ============================================
-// COURSE INSTRUCTOR
-// ============================================
-
-// Live Session - Scheduled live classes for a course
-model LiveSession {
+model Review {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
   courseRunId String   @map("course_run_id") @db.Uuid
-  lecturerId  String?  @map("lecturer_id") @db.Uuid
-  title       String   @db.VarChar(255)
-  description String?  @db.Text
-  scheduledAt DateTime @map("scheduled_at")
+  rating      Int // 1-5
+  comment     String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseRun CourseRun @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseRunId]) // Mỗi user chỉ review 1 lần cho 1 course run
+  @@index([courseRunId])
+  @@index([userId])
+  @@map("reviews")
+}
+
+// ==================================================
+// 4. LIVE SESSIONS & SCHEDULING
+// ==================================================
+
+// --- Scheduling ---
+
+model LiveSession {
+  id          String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseRunId String            @map("course_run_id") @db.Uuid
+  lecturerId  String?           @map("lecturer_id") @db.Uuid
+  title       String            @db.VarChar(255)
+  description String?           @db.Text
+  scheduledAt DateTime          @map("scheduled_at")
   duration    Int               @default(90) // minutes
   status      LiveSessionStatus @default(SCHEDULED)
   meetingId   String?           @map("meeting_id") @db.VarChar(100)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
-  scheduleId  String?  @map("schedule_id") @db.Uuid
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @default(now()) @updatedAt @map("updated_at")
+  scheduleId  String?           @map("schedule_id") @db.Uuid
 
   originalStartTime DateTime? @map("original_start_time")
   rescheduleReason  String?   @map("reschedule_reason") @db.Text
@@ -542,7 +687,6 @@ model LiveSession {
   @@map("live_sessions")
 }
 
-// Attendance - Tracking student participation in live sessions
 model Attendance {
   id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   liveSessionId String    @map("live_session_id") @db.Uuid
@@ -565,7 +709,6 @@ model Attendance {
   @@map("attendances")
 }
 
-// Teaching Schedule - Fixed weekly patterns for a course
 model TeachingSchedule {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   courseRunId String   @map("course_run_id") @db.Uuid
@@ -586,19 +729,18 @@ model TeachingSchedule {
   @@map("teaching_schedules")
 }
 
-// Schedule Change Request - For lecturers to request adjustments
 model LiveSessionScheduleRequest {
-  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  lecturerId         String   @map("lecturer_id") @db.Uuid
-  originalScheduleId String?  @map("original_schedule_id") @db.Uuid
-  courseRunId        String   @map("course_run_id") @db.Uuid
-  dayOfWeek          Int      @map("day_of_week")
-  startTime          String   @map("start_time")
-  duration           Int      @default(90)
-  reason             String?  @db.Text
+  id                 String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  lecturerId         String                @map("lecturer_id") @db.Uuid
+  originalScheduleId String?               @map("original_schedule_id") @db.Uuid
+  courseRunId        String                @map("course_run_id") @db.Uuid
+  dayOfWeek          Int                   @map("day_of_week")
+  startTime          String                @map("start_time")
+  duration           Int                   @default(90)
+  reason             String?               @db.Text
   status             ScheduleRequestStatus @default(PENDING)
-  createdAt          DateTime @default(now()) @map("created_at")
-  updatedAt          DateTime @default(now()) @updatedAt @map("updated_at")
+  createdAt          DateTime              @default(now()) @map("created_at")
+  updatedAt          DateTime              @default(now()) @updatedAt @map("updated_at")
 
   lecturer  User              @relation("LecturerScheduleRequests", fields: [lecturerId], references: [id], onDelete: Cascade)
   schedule  TeachingSchedule? @relation(fields: [originalScheduleId], references: [id], onDelete: SetNull)
@@ -609,27 +751,7 @@ model LiveSessionScheduleRequest {
   @@map("live_session_schedule_requests")
 }
 
-// Lesson Material - Junction table linking lessons to file assets for teaching materials
-model LessonMaterial {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  lessonId    String   @map("lesson_id") @db.Uuid
-  fileAssetId String   @map("file_asset_id") @db.Uuid
-  type        String   @db.VarChar(50) // 'slides' | 'video' | 'reading' | 'assignment'
-  usageType   String   @default("pre_class") @map("usage_type") @db.VarChar(20) // 'pre_class' | 'post_class' | 'recording'
-  title       String?  @db.VarChar(255)
-  orderIndex  Int      @default(0) @map("order_index")
-  createdBy   String   @map("created_by") @db.Uuid
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
-
-  lesson    Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  fileAsset FileAsset @relation(fields: [fileAssetId], references: [id], onDelete: Restrict)
-
-  @@unique([lessonId, fileAssetId])
-  @@index([lessonId])
-  @@index([fileAssetId])
-  @@map("lesson_materials")
-}
+// --- Room Artifacts ---
 
 model RoomInfo {
   id                 Int    @id @default(autoincrement())
@@ -694,60 +816,541 @@ model RoomArtifact {
   @@map("room_artifacts")
 }
 
-// ============================================
-// RBAC Models (Editable via Admin UI)
-// ============================================
+// ==================================================
+// 5. ASSESSMENT  (Assignment / Quiz / Placement)
+// ==================================================
 
-model RolePermission {
-  roleCode       String   @map("role_code") @db.VarChar(50)
-  permissionCode String   @map("permission_code") @db.VarChar(100)
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp()
+// --- Assignments ---
 
-  @@id([roleCode, permissionCode])
-  @@index([roleCode])
-  @@map("role_permissions")
-}
+model Assignment {
+  id          String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String         @db.VarChar(255)
+  description String         @db.Text
+  type        AssignmentType @default(TEXT)
 
-// ============================================
-// Audit Log (Generic System-Wide Logging)
-// ============================================
+  // Associated with
+  courseRunId String  @map("course_run_id") @db.Uuid
+  lessonId    String? @map("lesson_id") @db.Uuid
 
-model AuditLog {
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  // Grading config
+  maxScore     Decimal  @default(100.00) @map("max_score") @db.Decimal(5, 2)
+  passingScore Decimal? @map("passing_score") @db.Decimal(5, 2)
 
-  // Who performed the action
-  userId String @map("user_id") @db.Uuid
+  // Deadlines
+  dueDate             DateTime? @map("due_date")
+  allowLateSubmission Boolean   @default(true) @map("allow_late_submission")
+  latePenaltyPercent  Decimal?  @map("late_penalty_percent") @db.Decimal(5, 2) // Optional reference, không auto-apply
 
-  // What action was performed
-  action   String  @db.VarChar(100) // e.g., "permission.grant", "user.create", "course.delete"
-  entity   String  @db.VarChar(100) // e.g., "role_permission", "user", "course"
-  entityId String? @map("entity_id") @db.VarChar(255) // ID of affected entity
+  // File upload config
+  allowedFileTypes String[] @default([]) @map("allowed_file_types") @db.VarChar(20) // ["pdf", "docx", "png"]
+  maxFileSize      Int?     @default(52428800) @map("max_file_size") // bytes (default 50MB)
+  maxFiles         Int?     @default(5) @map("max_files")
 
-  // Action details
-  description String @db.Text // Human-readable description
-  metadata    Json? // Flexible JSON for action-specific data
+  // Metadata
+  instructions   String?          @db.Text
+  attachmentUrls String[]         @default([]) @map("attachment_urls") @db.Text
+  createdBy      String           @map("created_by") @db.Uuid
+  status         AssignmentStatus @default(DRAFT)
+  publishedAt    DateTime?        @map("published_at")
 
-  // State changes (for updates)
-  oldValues Json? @map("old_values") // Previous state
-  newValues Json? @map("new_values") // New state
-
-  // Timestamp
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp()
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  user User @relation("UserAuditLogs", fields: [userId], references: [id], onDelete: Cascade)
+  courseRun   CourseRun    @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+  lesson      Lesson?      @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  creator     User         @relation("AssignmentCreator", fields: [createdBy], references: [id], onDelete: Restrict)
+  submissions Submission[]
 
-  @@index([userId])
-  @@index([action])
-  @@index([entity])
-  @@index([entityId])
-  @@index([createdAt])
-  @@map("audit_logs")
+  @@index([courseRunId])
+  @@index([lessonId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([createdBy])
+  @@map("assignments")
 }
 
-// ============================================
-// User Model
-// ============================================
+model Submission {
+  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  assignmentId String @map("assignment_id") @db.Uuid
+  userId       String @map("user_id") @db.Uuid
+  courseRunId  String @map("course_run_id") @db.Uuid
+
+  // Submission content
+  textAnswer String?  @map("text_answer") @db.Text
+  fileUrls   String[] @default([]) @map("file_urls") @db.Text
+
+  // Status tracking
+  status      SubmissionStatus @default(DRAFT)
+  submittedAt DateTime?        @map("submitted_at")
+  isLate      Boolean          @default(false) @map("is_late")
+  daysLate    Int?             @default(0) @map("days_late") // For BR-04: penalty calculation
+
+  // Grading
+  score    Decimal?  @db.Decimal(5, 2)
+  feedback String?   @db.Text
+  gradedBy String?   @map("graded_by") @db.Uuid
+  gradedAt DateTime? @map("graded_at")
+
+  // History tracking
+  attemptNumber Int @default(1) @map("attempt_number")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  assignment     Assignment     @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  courseRun      CourseRun      @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+  user           User           @relation("SubmissionUser", fields: [userId], references: [id], onDelete: Cascade)
+  grader         User?          @relation("SubmissionGrader", fields: [gradedBy], references: [id], onDelete: SetNull)
+  gradeHistories GradeHistory[]
+
+  @@unique([assignmentId, userId, attemptNumber])
+  @@index([assignmentId])
+  @@index([userId])
+  @@index([courseRunId])
+  @@index([status])
+  @@index([submittedAt])
+  @@index([gradedBy])
+  @@map("submissions")
+}
+
+model GradeHistory {
+  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  submissionId String @map("submission_id") @db.Uuid
+
+  oldScore Decimal? @map("old_score") @db.Decimal(5, 2)
+  newScore Decimal  @map("new_score") @db.Decimal(5, 2)
+
+  oldFeedback String? @map("old_feedback") @db.Text
+  newFeedback String? @map("new_feedback") @db.Text
+
+  changedBy String   @map("changed_by") @db.Uuid
+  reason    String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  submission    Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  changedByUser User       @relation("GradeHistoryChanger", fields: [changedBy], references: [id], onDelete: Restrict)
+
+  @@index([submissionId])
+  @@index([changedBy])
+  @@map("grade_histories")
+}
+
+// --- Quizzes ---
+
+model QuestionPool {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String   @db.VarChar(255)
+  description    String?  @db.Text
+  courseMasterId String?  @map("course_master_id") @db.Uuid
+  lessonId       String?  @map("lesson_id") @db.Uuid
+  jlptLevel      String?  @map("jlpt_level") @db.VarChar(5)
+  createdBy      String?  @map("created_by") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at")
+  usageType      String?  @map("usage_type") @db.VarChar(20) // PLACEMENT, COURSE_ASSESS, JLPT_MOCK, PRACTICE
+
+  // Relations
+  questions Question[]
+
+  @@index([courseMasterId])
+  @@index([lessonId])
+  @@index([jlptLevel])
+  @@map("question_pools")
+}
+
+model Question {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  poolId        String?  @map("pool_id") @db.Uuid
+  questionText  String   @map("question_text") @db.Text
+  questionType  String   @map("question_type") @db.VarChar(30)
+  jlptLevel     String?  @map("jlpt_level") @db.VarChar(5)
+  category      String?  @db.VarChar(50)
+  subcategory   String?  @db.VarChar(50)
+  difficulty    String?  @db.VarChar(20)
+  options       Json?    @db.JsonB // { "A": "text", "B": "text", ... }
+  correctAnswer String?  @map("correct_answer") @db.Text
+  explanation   String?  @db.Text
+  metadata      Json?    @default("{}") @db.JsonB // Rich content: audio, images, reading passages
+  createdBy     String?  @map("created_by") @db.Uuid
+  status        String   @default("active") @db.VarChar(20)
+  usageCount    Int      @default(0) @map("usage_count")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  pool               QuestionPool?       @relation(fields: [poolId], references: [id], onDelete: SetNull)
+  quizQuestions      QuizQuestion[]
+  quizAttemptDetails QuizAttemptDetail[]
+
+  @@index([questionType])
+  @@index([jlptLevel])
+  @@index([difficulty])
+  @@index([status])
+  @@index([category])
+  @@index([createdBy])
+  @@index([poolId])
+  @@map("questions")
+}
+
+model Quiz {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title            String   @db.VarChar(255)
+  description      String?  @db.Text
+  quizType         String   @default("practice") @map("quiz_type") @db.VarChar(30) // lesson, module, course, practice, jlpt_mock
+  jlptLevel        String?  @map("jlpt_level") @db.VarChar(5)
+  courseRunId      String?  @map("course_run_id") @db.Uuid
+  lessonId         String?  @map("lesson_id") @db.Uuid
+  sections         Json?    @db.JsonB // Array of section configs: [{ type: "vocab", timeLimit: 30, questionCount: 15 }, ...]
+  totalTime        Int?     @map("time_limit_minutes") // Total time in minutes
+  totalQuestions   Int      @default(0) @map("total_questions")
+  passingScore     Decimal? @map("passing_score") @db.Decimal(5, 2) // Minimum score to pass (percentage)
+  maxAttempts      Int      @default(1) @map("max_attempts")
+  shuffleQuestions Boolean  @default(true) @map("shuffle_questions")
+  showExplanation  Boolean  @default(false) @map("show_explanation")
+  status           String   @default("draft") @db.VarChar(20) // draft, published, archived
+  createdBy        String?  @map("created_by") @db.Uuid
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  courseRun        CourseRun?        @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+  lesson           Lesson?           @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  quizQuestions    QuizQuestion[]
+  attempts         QuizAttempt[]
+  placementResults PlacementResult[]
+
+  @@index([jlptLevel])
+  @@index([status])
+  @@index([courseRunId])
+  @@index([lessonId])
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  quizId      String  @map("quiz_id") @db.Uuid
+  questionId  String  @map("question_id") @db.Uuid
+  orderIndex  Int     @map("order_index")
+  points      Decimal @default(1.00) @db.Decimal(5, 2)
+  sectionType String? @map("section_type") @db.VarChar(50) // vocab, grammar, reading, listening
+
+  quiz     Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([quizId, orderIndex])
+  @@index([quizId])
+  @@index([questionId])
+  @@map("quiz_questions")
+}
+
+model QuizAttempt {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  quizId           String    @map("quiz_id") @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  courseRunId      String?   @map("course_run_id") @db.Uuid
+  status           String    @default("in-progress") @db.VarChar(20) // in-progress, completed, submitted, abandoned
+  startedAt        DateTime  @default(now()) @map("started_at")
+  submittedAt      DateTime? @map("submitted_at")
+  completedAt      DateTime? @map("completed_at")
+  score            Decimal?  @db.Decimal(5, 2)
+  maxScore         Decimal?  @map("max_score") @db.Decimal(5, 2)
+  percentage       Decimal?  @db.Decimal(5, 2)
+  isPassed         Boolean?  @map("is_passed")
+  timeTakenSeconds Int?      @map("time_taken_seconds")
+  attemptNumber    Int       @default(1) @map("attempt_number")
+  timeRemaining    Int?      @map("time_remaining") // Seconds remaining
+  answers          Json      @default("{}") @db.JsonB // { questionId: "answer", ... }
+  flaggedQuestions String[]  @default([]) @map("flagged_questions") @db.Uuid
+  currentSection   String?   @map("current_section") @db.VarChar(50)
+  currentQuestion  Int?      @default(1) @map("current_question")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  quiz            Quiz                @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  courseRun       CourseRun?          @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+  user            User                @relation("QuizAttemptUser", fields: [userId], references: [id], onDelete: Cascade)
+  placementResult PlacementResult?
+  details         QuizAttemptDetail[]
+
+  @@index([quizId])
+  @@index([userId])
+  @@index([courseRunId])
+  @@index([status])
+  @@index([startedAt])
+  @@map("quiz_attempts")
+}
+
+model QuizAttemptDetail {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  attemptId        String   @map("attempt_id") @db.Uuid
+  questionId       String   @map("question_id") @db.Uuid
+  userAnswer       String?  @map("user_answer") @db.Text
+  isCorrect        Boolean? @map("is_correct")
+  pointsEarned     Decimal? @map("points_earned") @db.Decimal(5, 2)
+  timeSpentSeconds Int?     @map("time_spent_seconds")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  // Relations
+  attempt  QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([attemptId])
+  @@index([questionId])
+  @@map("quiz_attempt_details")
+}
+
+model PlacementResult {
+  id                     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId                 String   @map("user_id") @db.Uuid
+  quizId                 String   @map("quiz_id") @db.Uuid
+  attemptId              String   @unique @map("attempt_id") @db.Uuid
+  overallScore           Decimal  @map("overall_score") @db.Decimal(5, 2)
+  vocabScore             Decimal? @map("vocab_score") @db.Decimal(5, 2)
+  grammarScore           Decimal? @map("grammar_score") @db.Decimal(5, 2)
+  readingScore           Decimal? @map("reading_score") @db.Decimal(5, 2)
+  listeningScore         Decimal? @map("listening_score") @db.Decimal(5, 2)
+  recommendedLevel       String   @map("recommended_level") @db.VarChar(10)
+  recommendedCourseRunId String?  @map("recommended_course_run_id") @db.Uuid
+  createdAt              DateTime @default(now()) @map("created_at")
+
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz    Quiz        @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  attempt QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([quizId])
+  @@index([attemptId])
+  @@map("placement_results")
+}
+
+// ==================================================
+// 6. FLASHCARD / SRS
+// ==================================================
+
+// --- Flashcards ---
+
+model FlashcardDeck {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  name         String   @db.VarChar(255)
+  description  String?  @db.Text
+  jlptLevel    String?  @map("jlpt_level") @db.VarChar(5)
+  isPublic     Boolean  @default(false) @map("is_public")
+  tags         String[] @default([]) @db.VarChar(50)
+  cardCount    Int      @default(0) @map("card_count")
+  studiedCount Int      @default(0) @map("studied_count")
+
+  // SRS Settings (Anki-like)
+  srsSettings Json? @default("{\"newCardsPerDay\":20,\"maxReviewsPerDay\":200,\"easyBonus\":1.3,\"intervalModifier\":1.0,\"maximumInterval\":36500}") @map("srs_settings")
+
+  // AI Integration Settings
+  aiSettings Json?   @default("{\"autoGenerate\":false,\"requireApproval\":true,\"minConfidence\":0.8,\"filters\":[]}") @map("ai_settings")
+  sourceType String? @default("manual") @map("source_type") @db.VarChar(20)
+
+  // Activity Tracking
+  lastStudiedAt     DateTime? @map("last_studied_at")
+  totalStudyTime    Int       @default(0) @map("total_study_time") // seconds
+  masteryPercentage Decimal?  @map("mastery_percentage") @db.Decimal(5, 2)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  user           User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  flashcards     Flashcard[]
+  reviews        FlashcardReview[]
+  reviewSessions FlashcardReviewSession[]
+
+  @@index([userId])
+  @@map("flashcard_decks")
+}
+
+model Flashcard {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  deckId          String   @map("deck_id") @db.Uuid
+  frontText       String   @map("front_text") @db.Text
+  backText        String   @map("back_text") @db.Text
+  exampleSentence String?  @map("example_sentence") @db.Text
+  pronunciation   String?  @db.Text
+  imageUrl        String?  @map("image_url") @db.Text
+  audioUrl        String?  @map("audio_url") @db.Text
+  tags            String[] @default([]) @db.VarChar(50)
+  difficulty      String   @default("medium") @db.VarChar(20)
+
+  // Japanese-specific fields
+  furigana      String?               @db.Text
+  kanji         String?               @db.Text
+  partOfSpeech  JapanesePartOfSpeech? @map("part_of_speech")
+  wordJlptLevel String?               @map("word_jlpt_level") @db.VarChar(5)
+  meanings      Json?                 @default("[]") // Structured meanings with examples
+
+  // AI Integration fields
+  aiGenerated        Boolean                   @default(false) @map("ai_generated")
+  sourceDocumentId   String?                   @map("source_document_id") @db.Uuid
+  generationMethod   FlashcardGenerationMethod @default(manual) @map("generation_method")
+  generationMetadata Json?                     @default("{}") @map("generation_metadata")
+
+  // Metadata
+  notes      String? @db.Text
+  isArchived Boolean @default(false) @map("is_archived")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  deck           FlashcardDeck           @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  sourceDocument FileAsset?              @relation("FlashcardSourceDocument", fields: [sourceDocumentId], references: [id], onDelete: SetNull)
+  userProgress   FlashcardUserProgress[]
+  reviews        FlashcardReview[]
+
+  @@index([deckId])
+  @@index([aiGenerated])
+  @@index([wordJlptLevel])
+  @@index([sourceDocumentId])
+  @@map("flashcards")
+}
+
+model FlashcardUserProgress {
+  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String @map("user_id") @db.Uuid
+  flashcardId String @map("flashcard_id") @db.Uuid
+
+  // Card State (Anki-like)
+  state FlashcardState @default(new)
+
+  // SRS Algorithm fields (per-user)
+  currentInterval Int       @default(0) @map("current_interval") // Days until next review
+  easeFactor      Decimal   @default(2.50) @map("ease_factor") @db.Decimal(4, 2)
+  lastReviewedAt  DateTime? @map("last_reviewed_at")
+  nextReviewDate  DateTime? @map("next_review_date") @db.Date
+
+  // Review statistics (per-user)
+  timesReviewed      Int @default(0) @map("times_reviewed")
+  timesCorrect       Int @default(0) @map("times_correct")
+  timesIncorrect     Int @default(0) @map("times_incorrect")
+  consecutiveCorrect Int @default(0) @map("consecutive_correct")
+
+  // Daily limits
+  reviewedToday  Int       @default(0) @map("reviewed_today")
+  lastReviewDate DateTime? @map("last_review_date") @db.Date
+
+  // Performance metrics
+  averageResponseTime Int  @default(0) @map("average_response_time")
+  lastResponseTime    Int? @map("last_response_time")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  flashcard Flashcard @relation(fields: [flashcardId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, flashcardId])
+  @@index([userId])
+  @@index([flashcardId])
+  @@index([userId, nextReviewDate])
+  @@index([userId, state])
+  @@map("flashcard_user_progress")
+}
+
+model FlashcardReview {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String  @map("user_id") @db.Uuid
+  flashcardId String  @map("flashcard_id") @db.Uuid
+  sessionId   String? @map("session_id") @db.Uuid
+  deckId      String  @map("deck_id") @db.Uuid
+
+  // Review result
+  quality   ReviewQuality // 0=Again, 1=Hard, 2=Good, 3-4=Easy
+  timeSpent Int           @default(0) @map("time_spent") // milliseconds
+
+  // SRS calculation (before review)
+  previousInterval   Int?            @map("previous_interval")
+  previousEaseFactor Decimal?        @map("previous_ease_factor") @db.Decimal(4, 2)
+  previousState      FlashcardState? @map("previous_state")
+
+  // SRS calculation (after review)
+  newInterval       Int?            @map("new_interval")
+  newEaseFactor     Decimal?        @map("new_ease_factor") @db.Decimal(4, 2)
+  newState          FlashcardState? @map("new_state")
+  newNextReviewDate DateTime?       @map("new_next_review_date") @db.Date
+
+  // Review metadata
+  reviewDate DateTime @default(now()) @map("review_date")
+  userAnswer String?  @map("user_answer") @db.Text
+
+  // Analytics
+  deviceType     String? @map("device_type") @db.VarChar(50)
+  reviewDuration Int?    @map("review_duration")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user      User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  flashcard Flashcard               @relation(fields: [flashcardId], references: [id], onDelete: Cascade)
+  deck      FlashcardDeck           @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  session   FlashcardReviewSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([flashcardId])
+  @@index([sessionId])
+  @@index([deckId])
+  @@index([reviewDate])
+  @@map("flashcard_reviews")
+}
+
+model FlashcardReviewSession {
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+  deckId String @map("deck_id") @db.Uuid
+
+  // Session tracking
+  startedAt       DateTime  @default(now()) @map("started_at")
+  completedAt     DateTime? @map("completed_at")
+  durationSeconds Int       @default(0) @map("duration_seconds")
+
+  // Statistics
+  totalCards    Int @default(0) @map("total_cards")
+  newCards      Int @default(0) @map("new_cards")
+  learningCards Int @default(0) @map("learning_cards")
+  reviewCards   Int @default(0) @map("review_cards")
+
+  correctCount   Int @default(0) @map("correct_count")
+  incorrectCount Int @default(0) @map("incorrect_count")
+  hardCount      Int @default(0) @map("hard_count")
+  easyCount      Int @default(0) @map("easy_count")
+
+  // Performance
+  averageResponseTime Int      @default(0) @map("average_response_time")
+  masteryScore        Decimal? @map("mastery_score") @db.Decimal(5, 2)
+
+  // Metadata
+  deviceType String? @map("device_type") @db.VarChar(50)
+  studyMode  String? @map("study_mode") @db.VarChar(50)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  user    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deck    FlashcardDeck     @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  reviews FlashcardReview[]
+
+  @@index([userId])
+  @@index([deckId])
+  @@index([startedAt])
+  @@map("flashcard_review_sessions")
+}
+
+// ==================================================
+// 7. USER & AUTH
+// ==================================================
+
+// --- Identity ---
 
 model User {
   id          String @id @default(uuid()) @db.Uuid
@@ -849,64 +1452,6 @@ model User {
   @@map("users")
 }
 
-// ============================================
-// Balance & Gamification History Models
-// ============================================
-
-enum BalanceTransactionType {
-  TOP_UP // Nạp tiền vào tài khoản
-  REFUND // Hoàn tiền từ ticket/order
-  PURCHASE // Dùng coin mua khóa học/dịch vụ
-  REWARD // Thưởng từ hệ thống
-  BONUS // Bonus từ sự kiện
-  OTHER // Khác
-}
-
-model BalanceTransaction {
-  id          String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId      String                 @map("user_id") @db.Uuid
-  amount      Int // Số tiền biến động (dùng Int vì UserBalance dùng Int)
-  type        BalanceTransactionType
-  description String?                @db.Text
-  metadata    Json?                  @default("{}") // Lưu trữ orderId, ticketId, v.v.
-  createdAt   DateTime               @default(now()) @map("created_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([type])
-  @@index([createdAt])
-  @@map("balance_transactions")
-}
-
-enum GamificationTransactionType {
-  EARN // Nhận điểm từ hoạt động học tập
-  REDEEM // Đổi điểm lấy coupon/quà
-  BONUS // Điểm thưởng bonus
-  EXPIRATION // Điểm hết hạn
-  OTHER // Khác
-}
-
-model GamificationHistory {
-  id           String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String                      @map("user_id") @db.Uuid
-  amount       Int // Số điểm biến động
-  type         GamificationTransactionType
-  activityType ActivityType?               @map("activity_type")
-  description  String?                     @db.Text
-  metadata     Json?                       @default("{}") // Lưu trữ achievementId, v.v.
-  createdAt    DateTime                    @default(now()) @map("created_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([type])
-  @@index([activityType])
-  @@index([createdAt])
-  @@map("gamification_histories")
-}
-
-// User Identity Model - For OAuth providers (email, google, etc.)
 model UserIdentity {
   id     String @id @default(uuid()) @db.Uuid
   userId String @map("user_id") @db.Uuid
@@ -932,7 +1477,6 @@ model UserIdentity {
   @@map("user_identities")
 }
 
-// Session Model - For managing user sessions and refresh tokens
 model Session {
   id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String @map("user_id") @db.Uuid
@@ -954,7 +1498,6 @@ model Session {
   @@map("sessions")
 }
 
-// Two-Factor Authentication Model - For 2FA configuration
 model TwoFactorAuth {
   id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId String @unique @map("user_id") @db.Uuid
@@ -983,772 +1526,87 @@ model TwoFactorAuth {
   @@map("two_factor_auth")
 }
 
-// ============================================
-// FLASHCARD ENUMS - Anki-like SRS System
-// ============================================
+// --- Permissions & Audit ---
 
-enum FlashcardState {
-  new
-  learning
-  review
-  relearning
+model RolePermission {
+  roleCode       String   @map("role_code") @db.VarChar(50)
+  permissionCode String   @map("permission_code") @db.VarChar(100)
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  @@id([roleCode, permissionCode])
+  @@index([roleCode])
+  @@map("role_permissions")
 }
 
-enum FlashcardGenerationMethod {
-  manual
-  ai_auto
-  ai_assisted
-  import
-}
-
-enum JapanesePartOfSpeech {
-  noun
-  verb_ichidan
-  verb_godan
-  verb_suru
-  verb_kuru
-  adjective_i
-  adjective_na
-  adverb
-  particle
-  conjunction
-  interjection
-  pronoun
-  number
-  other
-}
-
-enum ReviewQuality {
-  ZERO // Again (incorrect)
-  ONE // Hard
-  TWO // Good
-  THREE // Easy
-  FOUR // Easy+
-}
-
-// ============================================
-// FLASHCARD MODELS
-// ============================================
-
-// Improved Flashcard Deck với SRS settings và AI integration
-model FlashcardDeck {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String   @map("user_id") @db.Uuid
-  name         String   @db.VarChar(255)
-  description  String?  @db.Text
-  jlptLevel    String?  @map("jlpt_level") @db.VarChar(5)
-  isPublic     Boolean  @default(false) @map("is_public")
-  tags         String[] @default([]) @db.VarChar(50)
-  cardCount    Int      @default(0) @map("card_count")
-  studiedCount Int      @default(0) @map("studied_count")
-
-  // SRS Settings (Anki-like)
-  srsSettings Json? @default("{\"newCardsPerDay\":20,\"maxReviewsPerDay\":200,\"easyBonus\":1.3,\"intervalModifier\":1.0,\"maximumInterval\":36500}") @map("srs_settings")
-
-  // AI Integration Settings
-  aiSettings Json?   @default("{\"autoGenerate\":false,\"requireApproval\":true,\"minConfidence\":0.8,\"filters\":[]}") @map("ai_settings")
-  sourceType String? @default("manual") @map("source_type") @db.VarChar(20)
-
-  // Activity Tracking
-  lastStudiedAt     DateTime? @map("last_studied_at")
-  totalStudyTime    Int       @default(0) @map("total_study_time") // seconds
-  masteryPercentage Decimal?  @map("mastery_percentage") @db.Decimal(5, 2)
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  user           User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  flashcards     Flashcard[]
-  reviews        FlashcardReview[]
-  reviewSessions FlashcardReviewSession[]
-
-  @@index([userId])
-  @@map("flashcard_decks")
-}
-
-// Improved Flashcard với Japanese fields và AI metadata
-model Flashcard {
-  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  deckId          String   @map("deck_id") @db.Uuid
-  frontText       String   @map("front_text") @db.Text
-  backText        String   @map("back_text") @db.Text
-  exampleSentence String?  @map("example_sentence") @db.Text
-  pronunciation   String?  @db.Text
-  imageUrl        String?  @map("image_url") @db.Text
-  audioUrl        String?  @map("audio_url") @db.Text
-  tags            String[] @default([]) @db.VarChar(50)
-  difficulty      String   @default("medium") @db.VarChar(20)
-
-  // Japanese-specific fields
-  furigana      String?               @db.Text
-  kanji         String?               @db.Text
-  partOfSpeech  JapanesePartOfSpeech? @map("part_of_speech")
-  wordJlptLevel String?               @map("word_jlpt_level") @db.VarChar(5)
-  meanings      Json?                 @default("[]") // Structured meanings with examples
-
-  // AI Integration fields
-  aiGenerated        Boolean                   @default(false) @map("ai_generated")
-  sourceDocumentId   String?                   @map("source_document_id") @db.Uuid
-  generationMethod   FlashcardGenerationMethod @default(manual) @map("generation_method")
-  generationMetadata Json?                     @default("{}") @map("generation_metadata")
-
-  // Metadata
-  notes      String? @db.Text
-  isArchived Boolean @default(false) @map("is_archived")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  deck           FlashcardDeck           @relation(fields: [deckId], references: [id], onDelete: Cascade)
-  sourceDocument FileAsset?              @relation("FlashcardSourceDocument", fields: [sourceDocumentId], references: [id], onDelete: SetNull)
-  userProgress   FlashcardUserProgress[]
-  reviews        FlashcardReview[]
-
-  @@index([deckId])
-  @@index([aiGenerated])
-  @@index([wordJlptLevel])
-  @@index([sourceDocumentId])
-  @@map("flashcards")
-}
-
-// Per-user progress tracking (CRITICAL for SRS)
-model FlashcardUserProgress {
-  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId      String @map("user_id") @db.Uuid
-  flashcardId String @map("flashcard_id") @db.Uuid
-
-  // Card State (Anki-like)
-  state FlashcardState @default(new)
-
-  // SRS Algorithm fields (per-user)
-  currentInterval Int       @default(0) @map("current_interval") // Days until next review
-  easeFactor      Decimal   @default(2.50) @map("ease_factor") @db.Decimal(4, 2)
-  lastReviewedAt  DateTime? @map("last_reviewed_at")
-  nextReviewDate  DateTime? @map("next_review_date") @db.Date
-
-  // Review statistics (per-user)
-  timesReviewed      Int @default(0) @map("times_reviewed")
-  timesCorrect       Int @default(0) @map("times_correct")
-  timesIncorrect     Int @default(0) @map("times_incorrect")
-  consecutiveCorrect Int @default(0) @map("consecutive_correct")
-
-  // Daily limits
-  reviewedToday  Int       @default(0) @map("reviewed_today")
-  lastReviewDate DateTime? @map("last_review_date") @db.Date
-
-  // Performance metrics
-  averageResponseTime Int  @default(0) @map("average_response_time")
-  lastResponseTime    Int? @map("last_response_time")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  flashcard Flashcard @relation(fields: [flashcardId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, flashcardId])
-  @@index([userId])
-  @@index([flashcardId])
-  @@index([userId, nextReviewDate])
-  @@index([userId, state])
-  @@map("flashcard_user_progress")
-}
-
-// Review history tracking
-model FlashcardReview {
-  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId      String  @map("user_id") @db.Uuid
-  flashcardId String  @map("flashcard_id") @db.Uuid
-  sessionId   String? @map("session_id") @db.Uuid
-  deckId      String  @map("deck_id") @db.Uuid
-
-  // Review result
-  quality   ReviewQuality // 0=Again, 1=Hard, 2=Good, 3-4=Easy
-  timeSpent Int           @default(0) @map("time_spent") // milliseconds
-
-  // SRS calculation (before review)
-  previousInterval   Int?            @map("previous_interval")
-  previousEaseFactor Decimal?        @map("previous_ease_factor") @db.Decimal(4, 2)
-  previousState      FlashcardState? @map("previous_state")
-
-  // SRS calculation (after review)
-  newInterval       Int?            @map("new_interval")
-  newEaseFactor     Decimal?        @map("new_ease_factor") @db.Decimal(4, 2)
-  newState          FlashcardState? @map("new_state")
-  newNextReviewDate DateTime?       @map("new_next_review_date") @db.Date
-
-  // Review metadata
-  reviewDate DateTime @default(now()) @map("review_date")
-  userAnswer String?  @map("user_answer") @db.Text
-
-  // Analytics
-  deviceType     String? @map("device_type") @db.VarChar(50)
-  reviewDuration Int?    @map("review_duration")
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  // Relations
-  user      User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  flashcard Flashcard               @relation(fields: [flashcardId], references: [id], onDelete: Cascade)
-  deck      FlashcardDeck           @relation(fields: [deckId], references: [id], onDelete: Cascade)
-  session   FlashcardReviewSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
-
-  @@index([userId])
-  @@index([flashcardId])
-  @@index([sessionId])
-  @@index([deckId])
-  @@index([reviewDate])
-  @@map("flashcard_reviews")
-}
-
-// Review session tracking
-model FlashcardReviewSession {
-  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  deckId String @map("deck_id") @db.Uuid
-
-  // Session tracking
-  startedAt       DateTime  @default(now()) @map("started_at")
-  completedAt     DateTime? @map("completed_at")
-  durationSeconds Int       @default(0) @map("duration_seconds")
-
-  // Statistics
-  totalCards    Int @default(0) @map("total_cards")
-  newCards      Int @default(0) @map("new_cards")
-  learningCards Int @default(0) @map("learning_cards")
-  reviewCards   Int @default(0) @map("review_cards")
-
-  correctCount   Int @default(0) @map("correct_count")
-  incorrectCount Int @default(0) @map("incorrect_count")
-  hardCount      Int @default(0) @map("hard_count")
-  easyCount      Int @default(0) @map("easy_count")
-
-  // Performance
-  averageResponseTime Int      @default(0) @map("average_response_time")
-  masteryScore        Decimal? @map("mastery_score") @db.Decimal(5, 2)
-
-  // Metadata
-  deviceType String? @map("device_type") @db.VarChar(50)
-  studyMode  String? @map("study_mode") @db.VarChar(50)
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  user    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  deck    FlashcardDeck     @relation(fields: [deckId], references: [id], onDelete: Cascade)
-  reviews FlashcardReview[]
-
-  @@index([userId])
-  @@index([deckId])
-  @@index([startedAt])
-  @@map("flashcard_review_sessions")
-}
-
-// File Assets - Source of Truth for all files in the system
-model FileAsset {
+model AuditLog {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 
-  // File Identification
-  fileUrl String @unique @map("file_url") @db.Text
+  // Who performed the action
+  userId String @map("user_id") @db.Uuid
 
-  // File Details
-  mimeType String? @map("mime_type") @db.VarChar(100)
-  fileSize BigInt? @map("file_size")
-  isPublic Boolean @default(false) @map("is_public")
+  // What action was performed
+  action   String  @db.VarChar(100) // e.g., "permission.grant", "user.create", "course.delete"
+  entity   String  @db.VarChar(100) // e.g., "role_permission", "user", "course"
+  entityId String? @map("entity_id") @db.VarChar(255) // ID of affected entity
 
-  // Upload Status: 'pending' | 'uploaded' | 'failed'
-  status String @default("pending") @db.VarChar(20)
+  // Action details
+  description String @db.Text // Human-readable description
+  metadata    Json? // Flexible JSON for action-specific data
 
-  // Flexible Metadata (JSONB)
-  metadata     Json?   @default("{}") @map("metadata")
-  ownerId      String? @map("owner_id") @db.Uuid
-  moduleOrigin String? @map("module_origin") @db.VarChar(50) // 'USER', 'COURSE', 'CHAT'
+  // State changes (for updates)
+  oldValues Json? @map("old_values") // Previous state
+  newValues Json? @map("new_values") // New state
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  lessonMaterials     LessonMaterial[]
-  flashcardSourceDocs Flashcard[]      @relation("FlashcardSourceDocument")
-
-  @@index([ownerId])
-  @@index([fileUrl])
-  @@index([status])
-  @@map("file_assets")
-}
-
-// Blogs
-model Blog {
-  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title          String    @db.VarChar(255)
-  slug           String    @unique @db.VarChar(255)
-  excerpt        String?   @db.VarChar(500)
-  content        String    @db.Text
-  coverImageUrl  String?   @map("cover_image_url") @db.Text
-  authorId       String    @map("author_id") @db.Uuid
-  status         String    @default("draft") @db.VarChar(20) // draft, published, archived
-  publishedAt    DateTime? @map("published_at")
-  viewCount      Int       @default(0) @map("view_count")
-  commentCount   Int       @default(0) @map("comment_count")
-  tags           String[]  @default([]) @db.VarChar(50)
-  seoTitle       String?   @map("seo_title") @db.VarChar(255)
-  seoDescription String?   @map("seo_description") @db.VarChar(500)
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
-
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
-
-  @@index([status])
-  @@index([publishedAt(sort: Desc)])
-  @@index([authorId])
-  @@map("blogs")
-}
-
-enum CommentTargetType {
-  BLOG
-  DISCUSSION
-  LESSON
-}
-
-enum DiscussionTopicStatus {
-  OPEN
-  ANSWERED
-  RESOLVED
-  CLOSED
-}
-
-enum DiscussionTopicCategory {
-  GENERAL
-  QUESTION
-  ANNOUNCEMENT
-}
-
-// Comments - Comments on posts with nested replies support
-model Comment {
-  id              String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId          String  @map("user_id") @db.Uuid
-  parentCommentId String? @map("parent_comment_id") @db.Uuid // For nested replies
-
-  content   String   @db.Text
-  status    String   @default("approved") @db.VarChar(20) // pending, approved, spam, deleted
+  // Timestamp
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamp()
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
 
-  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  parent  Comment?        @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
-  replies Comment[]       @relation("CommentReplies")
-  likes   CommentLike[]
-  targets CommentTarget[]
+  // Relations
+  user User @relation("UserAuditLogs", fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@index([parentCommentId])
-  @@index([createdAt(sort: Desc)])
-  @@map("comments")
+  @@index([action])
+  @@index([entity])
+  @@index([entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
 }
 
-model CommentTarget {
-  id         String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  commentId  String            @map("comment_id") @db.Uuid
-  targetType CommentTargetType @map("target_type")
-  targetId   String            @map("target_id") @db.Uuid
-  createdAt  DateTime          @default(now()) @map("created_at")
+// ==================================================
+// 8. COMMERCE  (Order / Payment / Coupon / Cart)
+// ==================================================
 
-  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+// --- Cart ---
 
-  @@unique([commentId, targetType, targetId])
-  @@index([targetType, targetId])
-  @@map("comment_targets")
-}
-
-// ============================================
-// DISCUSSION SYSTEM (Replaces Feed)
-// ============================================
-
-model DiscussionTopic {
-  id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title    String @db.VarChar(255)
-  content  String @db.Text
-  authorId String @map("author_id") @db.Uuid
-
-  // Context
-  courseRunId String  @map("course_run_id") @db.Uuid
-  moduleId    String? @map("module_id") @db.Uuid
-  lessonId    String? @map("lesson_id") @db.Uuid
-
-  // Categorization & Status
-  category DiscussionTopicCategory @default(GENERAL)
-  status   DiscussionTopicStatus   @default(OPEN)
-
-  // Status
-  isPinned     Boolean @default(false) @map("is_pinned")
-  isLocked     Boolean @default(false) @map("is_locked")
-  viewCount    Int     @default(0) @map("view_count")
-  commentCount Int     @default(0) @map("comment_count")
-
-  createdAt DateTime @default(now()) @map("created_at")
+model Cart {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @unique @map("user_id") @db.Uuid
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  // Relations
-  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  courseRun CourseRun @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+  items CartItem[]
 
-  @@index([courseRunId])
-  @@index([moduleId])
-  @@index([lessonId])
-  @@index([authorId])
-  @@index([status])
-  @@index([category])
-  @@index([createdAt(sort: Desc)])
-  @@map("discussion_topics")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("carts")
 }
 
-model CommentLike {
-  commentId String   @map("comment_id") @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
-  createdAt DateTime @default(now()) @map("created_at")
-
-  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([commentId, userId])
-  @@index([commentId])
-  @@index([userId])
-  @@map("comment_likes")
-}
-
-// Question Pools - Nhóm câu hỏi theo course/lesson
-model QuestionPool {
-  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name           String   @db.VarChar(255)
-  description    String?  @db.Text
-  courseMasterId String?  @map("course_master_id") @db.Uuid
-  lessonId       String?  @map("lesson_id") @db.Uuid
-  jlptLevel      String?  @map("jlpt_level") @db.VarChar(5)
-  createdBy      String?  @map("created_by") @db.Uuid
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at")
-  usageType      String?  @map("usage_type") @db.VarChar(20) // PLACEMENT, COURSE_ASSESS, JLPT_MOCK, PRACTICE
-
-  // Relations
-  questions Question[]
-
-  @@index([courseMasterId])
-  @@index([lessonId])
-  @@index([jlptLevel])
-  @@map("question_pools")
-}
-
-// Question - Questions for quizzes and assessments
-model Question {
-  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  poolId        String?  @map("pool_id") @db.Uuid
-  questionText  String   @map("question_text") @db.Text
-  questionType  String   @map("question_type") @db.VarChar(30)
-  jlptLevel     String?  @map("jlpt_level") @db.VarChar(5)
-  category      String?  @db.VarChar(50)
-  subcategory   String?  @db.VarChar(50)
-  difficulty    String?  @db.VarChar(20)
-  options       Json?    @db.JsonB // { "A": "text", "B": "text", ... }
-  correctAnswer String?  @map("correct_answer") @db.Text
-  explanation   String?  @db.Text
-  metadata      Json?    @default("{}") @db.JsonB // Rich content: audio, images, reading passages
-  tags          String[] @default([]) @db.VarChar(50)
-  createdBy     String?  @map("created_by") @db.Uuid
-  status        String   @default("active") @db.VarChar(20)
-  usageCount    Int      @default(0) @map("usage_count")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  pool               QuestionPool?       @relation(fields: [poolId], references: [id], onDelete: SetNull)
-  quizQuestions      QuizQuestion[]
-  quizAttemptDetails QuizAttemptDetail[]
-
-  @@index([questionType])
-  @@index([jlptLevel])
-  @@index([difficulty])
-  @@index([status])
-  @@index([category])
-  @@index([createdBy])
-  @@index([poolId])
-  @@map("questions")
-}
-
-// Quiz - Practice quiz template with sections
-model Quiz {
-  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title            String   @db.VarChar(255)
-  description      String?  @db.Text
-  quizType         String   @default("practice") @map("quiz_type") @db.VarChar(30) // lesson, module, course, practice, jlpt_mock
-  jlptLevel        String?  @map("jlpt_level") @db.VarChar(5)
-  courseRunId      String?  @map("course_run_id") @db.Uuid
-  lessonId         String?  @map("lesson_id") @db.Uuid
-  sections         Json?    @db.JsonB // Array of section configs: [{ type: "vocab", timeLimit: 30, questionCount: 15 }, ...]
-  totalTime        Int?     @map("time_limit_minutes") // Total time in minutes
-  totalQuestions   Int      @default(0) @map("total_questions")
-  passingScore     Decimal? @map("passing_score") @db.Decimal(5, 2) // Minimum score to pass (percentage)
-  maxAttempts      Int      @default(1) @map("max_attempts")
-  shuffleQuestions Boolean  @default(true) @map("shuffle_questions")
-  showExplanation  Boolean  @default(false) @map("show_explanation")
-  status           String   @default("draft") @db.VarChar(20) // draft, published, archived
-  createdBy        String?  @map("created_by") @db.Uuid
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  courseRun        CourseRun?        @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
-  lesson           Lesson?           @relation(fields: [lessonId], references: [id], onDelete: SetNull)
-  quizQuestions    QuizQuestion[]
-  attempts         QuizAttempt[]
-  placementResults PlacementResult[]
-
-  @@index([jlptLevel])
-  @@index([status])
-  @@index([courseRunId])
-  @@index([lessonId])
-  @@map("quizzes")
-}
-
-// Quiz Questions - Links quiz to question bank
-model QuizQuestion {
-  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  quizId      String  @map("quiz_id") @db.Uuid
-  questionId  String  @map("question_id") @db.Uuid
-  orderIndex  Int     @map("order_index")
-  points      Decimal @default(1.00) @db.Decimal(5, 2)
-  sectionType String? @map("section_type") @db.VarChar(50) // vocab, grammar, reading, listening
-
-  quiz     Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-
-  @@unique([quizId, orderIndex])
-  @@index([quizId])
-  @@index([questionId])
-  @@map("quiz_questions")
-}
-
-// Quiz Attempt - User's attempt at a quiz
-model QuizAttempt {
-  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  quizId           String    @map("quiz_id") @db.Uuid
-  userId           String    @map("user_id") @db.Uuid
-  courseRunId      String?   @map("course_run_id") @db.Uuid
-  status           String    @default("in-progress") @db.VarChar(20) // in-progress, completed, submitted, abandoned
-  startedAt        DateTime  @default(now()) @map("started_at")
-  submittedAt      DateTime? @map("submitted_at")
-  completedAt      DateTime? @map("completed_at")
-  score            Decimal?  @db.Decimal(5, 2)
-  maxScore         Decimal?  @map("max_score") @db.Decimal(5, 2)
-  percentage       Decimal?  @db.Decimal(5, 2)
-  isPassed         Boolean?  @map("is_passed")
-  timeTakenSeconds Int?      @map("time_taken_seconds")
-  attemptNumber    Int       @default(1) @map("attempt_number")
-  timeRemaining    Int?      @map("time_remaining") // Seconds remaining
-  answers          Json      @default("{}") @db.JsonB // { questionId: "answer", ... }
-  flaggedQuestions String[]  @default([]) @map("flagged_questions") @db.Uuid
-  currentSection   String?   @map("current_section") @db.VarChar(50)
-  currentQuestion  Int?      @default(1) @map("current_question")
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  quiz            Quiz                @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  courseRun       CourseRun?          @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
-  user            User                @relation("QuizAttemptUser", fields: [userId], references: [id], onDelete: Cascade)
-  placementResult PlacementResult?
-  details         QuizAttemptDetail[]
-
-  @@index([quizId])
-  @@index([userId])
-  @@index([courseRunId])
-  @@index([status])
-  @@index([startedAt])
-  @@map("quiz_attempts")
-}
-
-// Quiz Attempt Detail - Details for each question in the attempt
-model QuizAttemptDetail {
-  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  attemptId        String   @map("attempt_id") @db.Uuid
-  questionId       String   @map("question_id") @db.Uuid
-  userAnswer       String?  @map("user_answer") @db.Text
-  isCorrect        Boolean? @map("is_correct")
-  pointsEarned     Decimal? @map("points_earned") @db.Decimal(5, 2)
-  timeSpentSeconds Int?     @map("time_spent_seconds")
-  createdAt        DateTime @default(now()) @map("created_at")
-
-  // Relations
-  attempt  QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
-  question Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
-
-  @@index([attemptId])
-  @@index([questionId])
-  @@map("quiz_attempt_details")
-}
-
-model PlacementResult {
-  id                     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId                 String   @map("user_id") @db.Uuid
-  quizId                 String   @map("quiz_id") @db.Uuid
-  attemptId              String   @unique @map("attempt_id") @db.Uuid
-  overallScore           Decimal  @map("overall_score") @db.Decimal(5, 2)
-  vocabScore             Decimal? @map("vocab_score") @db.Decimal(5, 2)
-  grammarScore           Decimal? @map("grammar_score") @db.Decimal(5, 2)
-  readingScore           Decimal? @map("reading_score") @db.Decimal(5, 2)
-  listeningScore         Decimal? @map("listening_score") @db.Decimal(5, 2)
-  recommendedLevel       String   @map("recommended_level") @db.VarChar(10)
-  recommendedCourseRunId String?  @map("recommended_course_run_id") @db.Uuid
-  createdAt              DateTime @default(now()) @map("created_at")
-
-  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  quiz    Quiz        @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  attempt QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([quizId])
-  @@index([attemptId])
-  @@map("placement_results")
-}
-
-// Notification model - matches database.sql schema
-model Notification {
-  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId           String    @map("user_id") @db.Uuid
-  title            String    @db.VarChar(255)
-  message          String    @db.Text
-  notificationType String?   @map("notification_type") @db.VarChar(50)
-  metadata         Json?     @map("data")
-  isRead           Boolean   @default(false) @map("is_read")
-  readAt           DateTime? @map("read_at")
-  sentVia          String[]  @default([]) @map("sent_via") @db.VarChar(20)
-  createdAt        DateTime  @default(now()) @map("created_at")
-
-  @@index([userId])
-  @@index([isRead])
-  @@index([createdAt])
-  @@map("notifications")
-}
-
-// Wishlist - Favorite courses
-model Wishlist {
+model CartItem {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId      String   @map("user_id") @db.Uuid
+  cartId      String   @map("cart_id") @db.Uuid
   courseRunId String   @map("course_run_id") @db.Uuid
   addedAt     DateTime @default(now()) @map("added_at")
 
   // Relations
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cart      Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
   courseRun CourseRun @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, courseRunId])
-  @@map("wishlist")
-}
-
-// Review - Course reviews by users
-model Review {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId      String   @map("user_id") @db.Uuid
-  courseRunId String   @map("course_run_id") @db.Uuid
-  rating      Int // 1-5
-  comment     String?  @db.Text
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  courseRun CourseRun @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, courseRunId]) // Mỗi user chỉ review 1 lần cho 1 course run
+  @@unique([cartId, courseRunId])
+  @@index([cartId])
   @@index([courseRunId])
-  @@index([userId])
-  @@map("reviews")
+  @@map("cart_items")
 }
 
-// Enrollment - Student enrollment in courses
-// Based on database.sql (lines 256-272)
-model Enrollment {
-  id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId               String    @map("user_id") @db.Uuid
-  courseRunId          String    @map("course_run_id") @db.Uuid
-  versionId            String?   @map("version_id") @db.Uuid // Reference to CourseVersion for snapshot tracking
-  enrollmentDate       DateTime  @default(now()) @map("enrollment_date")
-  completionPercentage Decimal   @default(0.00) @map("completion_percentage") @db.Decimal(5, 2)
-  lastAccessedAt       DateTime? @map("last_accessed_at")
-  completedAt          DateTime? @map("completed_at")
-  orderId              String?   @unique @map("order_id") @db.Uuid
-  couponAppliedId      String?   @map("coupon_applied_id") @db.Uuid
-  finalPrice           Decimal   @map("final_price") @db.Decimal(10, 2)
-  isGift               Boolean   @default(false) @map("is_gift")
-  giftMessage          String?   @map("gift_message") @db.Text
-  senderId             String?   @map("sender_id") @db.Uuid
-  expiresAt            DateTime? @map("expires_at")
-  trialExpiresAt       DateTime? @map("trial_expires_at") // Hết hạn học thử
-  createdAt            DateTime  @default(now()) @map("created_at")
-  updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at")
+// --- Orders & Payments ---
 
-  enrollmentStatus EnrollmentStatus @default(PENDING_PAYMENT) @map("enrollment_status")
-
-  // Relations
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  courseRun     CourseRun      @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
-  version       CourseVersion? @relation(fields: [versionId], references: [id], onDelete: SetNull)
-  order         Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
-  couponApplied Coupon?        @relation("EnrollmentCoupon", fields: [couponAppliedId], references: [id], onDelete: SetNull)
-  sender        User?          @relation("GiftEnrollments", fields: [senderId], references: [id], onDelete: SetNull)
-  lessonProgress LessonProgress[]
-  certificate    Certificate?
-
-  @@unique([userId, courseRunId]) // Mỗi user chỉ enroll 1 lần cho 1 course run
-  @@index([userId])
-  @@index([courseRunId])
-  @@index([versionId])
-  @@index([enrollmentDate])
-  @@index([expiresAt])
-  @@map("enrollments")
-}
-
-enum OrderStatus {
-  pending
-  processing
-  completed
-  failed
-  refunded
-  cancelled
-  timed_out
-}
-
-enum PaymentMethod {
-  credit_card
-  bank_transfer
-  momo
-  zalopay
-  vnpay
-  sepay
-  mock // For testing
-}
-
-enum PaymentGateway {
-  stripe
-  paypal
-  vnpay
-  momo
-  sepay
-  mock // For testing
-}
-
-enum OrderType {
-  course_purchase
-  subscription
-  top_up
-  gift
-  refund
-}
-
-// Order - Business entity representing a purchase intent (Invoice)
 model Order {
   id                   String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId               String      @map("user_id") @db.Uuid
@@ -1785,7 +1643,6 @@ model Order {
   @@map("orders")
 }
 
-// Payment - Actual money movement / bank transaction (Receipt)
 model Payment {
   id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   orderId       String?  @map("order_id") @db.Uuid
@@ -1807,230 +1664,7 @@ model Payment {
   @@map("payments")
 }
 
-// ============================================
-// CART SYSTEM
-// ============================================
-
-model Cart {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId    String   @unique @map("user_id") @db.Uuid
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  items CartItem[]
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("carts")
-}
-
-model CartItem {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  cartId      String   @map("cart_id") @db.Uuid
-  courseRunId String   @map("course_run_id") @db.Uuid
-  addedAt     DateTime @default(now()) @map("added_at")
-
-  // Relations
-  cart      Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  courseRun CourseRun @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
-
-  @@unique([cartId, courseRunId])
-  @@index([cartId])
-  @@index([courseRunId])
-  @@map("cart_items")
-}
-
-// ============================================
-// GAMIFICATION SYSTEM (Duolingo-style)
-// ============================================
-
-enum ActivityType {
-  LESSON_COMPLETE
-  QUIZ_ANSWER
-  VIDEO_WATCH
-  REVIEW
-  PRACTICE
-  FLASHCARD_REVIEW
-  EXAM_COMPLETE
-  BLOG_CREATE
-  COMMENT_CREATE
-  LOGIN
-}
-
-enum AchievementCategory {
-  STREAK
-  CONSISTENCY
-  LEARNING_PROGRESS
-  RECOVERY
-  SOCIAL
-  MASTERY
-}
-
-// Thay thế cho UserStreak cũ - Quản lý toàn bộ hồ sơ Gamification của User
-model UserGamification {
-  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId String @unique @map("user_id") @db.Uuid
-
-  // --- XP & Level System ---
-  level     Int @default(1)
-  currentXp Int @default(0) @map("current_xp") // XP hiện tại ở level này
-  totalXp   Int @default(0) @map("total_xp") // Tổng XP tích lũy (dùng để đua Top)
-
-  // --- Currency (Economy - Chuẩn bị sẵn cho tương lai) ---
-  points Int @default(0) // Điểm thưởng dùng để đổi mã giảm giá
-  gems   Int @default(0) // Đơn vị cao cấp (nếu có)
-
-  // --- Streak System (Gộp từ UserStreak cũ vào đây) ---
-  currentStreak  Int     @default(0) @map("current_streak")
-  longestStreak  Int     @default(0) @map("longest_streak")
-  lastActiveDate String? @map("last_active_date") @db.VarChar(10) // YYYY-MM-DD
-  freezeCount    Int     @default(0) @map("freeze_count") // Số 'bùa' bảo vệ streak
-
-  // --- Stats Aggregate (Lưu sẵn để đỡ phải count từ bảng khác) ---
-  totalActiveDays    Int @default(0) @map("total_active_days")
-  weeklyActiveCount  Int @default(0) @map("weekly_active_count")
-  monthlyActiveCount Int @default(0) @map("monthly_active_count")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Index tối ưu
-  @@index([totalXp(sort: Desc)]) // Index quan trọng nhất để lấy Leaderboard (Bảng xếp hạng)
-  @@index([userId])
-  @@map("user_gamification")
-}
-
-model UserBalance {
-  id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId  String @unique @map("user_id") @db.Uuid
-  balance Int    @default(0)
-
-  aiRoleplayTrialLimit  Int @default(3) @map("ai_roleplay_trial_limit")
-  liveMeetingTrialLimit Int @default(3) @map("live_meeting_trial_limit")
-
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("user_balances")
-}
-
-// Daily Activity Log (for audit + analytics)
-model DailyActivity {
-  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String       @map("user_id") @db.Uuid
-  date         String       @db.VarChar(10) // YYYY-MM-DD
-  activityType ActivityType @map("activity_type")
-
-  // Metadata for analytics
-  meta Json? @default("{}")
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, date, activityType])
-  @@index([userId])
-  @@index([date])
-  @@index([activityType])
-  @@map("daily_activities")
-}
-
-// Achievement Definitions (seeded data)
-model Achievement {
-  id       String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  code     String              @unique @db.VarChar(50) // e.g., "STREAK_7"
-  category AchievementCategory
-
-  // Display
-  title       String  @db.VarChar(100)
-  description String  @db.Text
-  icon        String? @db.VarChar(100) // emoji or icon name
-
-  // Requirements (JSON for flexibility)
-  requirements Json @default("{}")
-
-  // Rewards (JSON for flexibility)
-  rewards Json @default("{}") // e.g., {"freezeCount": 1, "xp": 100}
-
-  // Metadata
-  isActive   Boolean @default(true) @map("is_active")
-  orderIndex Int     @default(0) @map("order_index")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  userAchievements UserAchievement[]
-
-  @@index([category])
-  @@index([isActive])
-  @@map("achievements")
-}
-
-// User Achievement Progress
-model UserAchievement {
-  id            String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId        String @map("user_id") @db.Uuid
-  achievementId String @map("achievement_id") @db.Uuid
-
-  // Progress tracking
-  isUnlocked Boolean @default(false) @map("is_unlocked")
-  progress   Json?   @default("{}") // For multi-step achievements
-
-  unlockedAt DateTime? @map("unlocked_at")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, achievementId])
-  @@index([userId])
-  @@index([achievementId])
-  @@index([isUnlocked])
-  @@map("user_achievements")
-}
-
-// Point Redemption Rewards (Deals)
-model PointReward {
-  id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name              String             @db.VarChar(100)
-  description       String?            @db.Text
-  points            Int
-  discountType      CouponDiscountType @map("discount_type")
-  discountValue     Decimal            @map("discount_value") @db.Decimal(10, 2)
-  maxDiscountAmount Decimal?           @map("max_discount_amount") @db.Decimal(10, 2)
-  minOrderAmount    Decimal?           @map("min_order_amount") @db.Decimal(10, 2)
-
-  validDuration Int?    @default(30) @map("valid_duration") // days
-  isActive      Boolean @default(true) @map("is_active")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  @@map("point_rewards")
-}
-
-// ============================================
-// Coupon Models
-// ============================================
-
-enum CouponStatus {
-  active
-  inactive
-  expired
-}
-
-enum CouponDiscountType {
-  percentage
-  fixed_amount
-}
+// --- Coupons & Wishlist ---
 
 model Coupon {
   id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -2083,18 +1717,373 @@ model Coupon {
   @@map("coupons")
 }
 
-enum TicketType {
-  REFUND
-  SUPPORT
-  ERROR_REPORT
+model Wishlist {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  courseRunId String   @map("course_run_id") @db.Uuid
+  addedAt     DateTime @default(now()) @map("added_at")
+
+  // Relations
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseRun CourseRun @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseRunId])
+  @@map("wishlist")
 }
 
-enum TicketStatus {
-  PENDING
-  PROCESSING
-  RESOLVED
-  CANCELLED
+// ==================================================
+// 9. GAMIFICATION
+// ==================================================
+
+// --- Gamification ---
+
+model UserGamification {
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @unique @map("user_id") @db.Uuid
+
+  // --- XP & Level System ---
+  level     Int @default(1)
+  currentXp Int @default(0) @map("current_xp") // XP hiện tại ở level này
+  totalXp   Int @default(0) @map("total_xp") // Tổng XP tích lũy (dùng để đua Top)
+
+  // --- Currency (Economy - Chuẩn bị sẵn cho tương lai) ---
+  points Int @default(0) // Điểm thưởng dùng để đổi mã giảm giá
+  gems   Int @default(0) // Đơn vị cao cấp (nếu có)
+
+  // --- Streak System (Gộp từ UserStreak cũ vào đây) ---
+  currentStreak  Int     @default(0) @map("current_streak")
+  longestStreak  Int     @default(0) @map("longest_streak")
+  lastActiveDate String? @map("last_active_date") @db.VarChar(10) // YYYY-MM-DD
+  freezeCount    Int     @default(0) @map("freeze_count") // Số 'bùa' bảo vệ streak
+
+  // --- Stats Aggregate (Lưu sẵn để đỡ phải count từ bảng khác) ---
+  totalActiveDays    Int @default(0) @map("total_active_days")
+  weeklyActiveCount  Int @default(0) @map("weekly_active_count")
+  monthlyActiveCount Int @default(0) @map("monthly_active_count")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Index tối ưu
+  @@index([totalXp(sort: Desc)]) // Index quan trọng nhất để lấy Leaderboard (Bảng xếp hạng)
+  @@index([userId])
+  @@map("user_gamification")
 }
+
+model UserBalance {
+  id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId  String @unique @map("user_id") @db.Uuid
+  balance Int    @default(0)
+
+  aiRoleplayTrialLimit  Int @default(3) @map("ai_roleplay_trial_limit")
+  liveMeetingTrialLimit Int @default(3) @map("live_meeting_trial_limit")
+
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_balances")
+}
+
+model DailyActivity {
+  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String       @map("user_id") @db.Uuid
+  date         String       @db.VarChar(10) // YYYY-MM-DD
+  activityType ActivityType @map("activity_type")
+
+  // Metadata for analytics
+  meta Json? @default("{}")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date, activityType])
+  @@index([userId])
+  @@index([date])
+  @@index([activityType])
+  @@map("daily_activities")
+}
+
+model Achievement {
+  id       String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code     String              @unique @db.VarChar(50) // e.g., "STREAK_7"
+  category AchievementCategory
+
+  // Display
+  title       String  @db.VarChar(100)
+  description String  @db.Text
+  icon        String? @db.VarChar(100) // emoji or icon name
+
+  // Requirements (JSON for flexibility)
+  requirements Json @default("{}")
+
+  // Rewards (JSON for flexibility)
+  rewards Json @default("{}") // e.g., {"freezeCount": 1, "xp": 100}
+
+  // Metadata
+  isActive   Boolean @default(true) @map("is_active")
+  orderIndex Int     @default(0) @map("order_index")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  userAchievements UserAchievement[]
+
+  @@index([category])
+  @@index([isActive])
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String @map("user_id") @db.Uuid
+  achievementId String @map("achievement_id") @db.Uuid
+
+  // Progress tracking
+  isUnlocked Boolean @default(false) @map("is_unlocked")
+  progress   Json?   @default("{}") // For multi-step achievements
+
+  unlockedAt DateTime? @map("unlocked_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@index([achievementId])
+  @@index([isUnlocked])
+  @@map("user_achievements")
+}
+
+model PointReward {
+  id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name              String             @db.VarChar(100)
+  description       String?            @db.Text
+  points            Int
+  discountType      CouponDiscountType @map("discount_type")
+  discountValue     Decimal            @map("discount_value") @db.Decimal(10, 2)
+  maxDiscountAmount Decimal?           @map("max_discount_amount") @db.Decimal(10, 2)
+  minOrderAmount    Decimal?           @map("min_order_amount") @db.Decimal(10, 2)
+
+  validDuration Int?    @default(30) @map("valid_duration") // days
+  isActive      Boolean @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("point_rewards")
+}
+
+// --- Finance Ledger ---
+
+model BalanceTransaction {
+  id          String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String                 @map("user_id") @db.Uuid
+  amount      Int // Số tiền biến động (dùng Int vì UserBalance dùng Int)
+  type        BalanceTransactionType
+  description String?                @db.Text
+  metadata    Json?                  @default("{}") // Lưu trữ orderId, ticketId, v.v.
+  createdAt   DateTime               @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("balance_transactions")
+}
+
+model GamificationHistory {
+  id           String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String                      @map("user_id") @db.Uuid
+  amount       Int // Số điểm biến động
+  type         GamificationTransactionType
+  activityType ActivityType?               @map("activity_type")
+  description  String?                     @db.Text
+  metadata     Json?                       @default("{}") // Lưu trữ achievementId, v.v.
+  createdAt    DateTime                    @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([activityType])
+  @@index([createdAt])
+  @@map("gamification_histories")
+}
+
+// ==================================================
+// 10. CONTENT & SOCIAL  (Blog / Discussion / Notification)
+// ==================================================
+
+// --- Files ---
+
+model FileAsset {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  // File Identification
+  fileUrl String @unique @map("file_url") @db.Text
+
+  // File Details
+  mimeType String? @map("mime_type") @db.VarChar(100)
+  fileSize BigInt? @map("file_size")
+  isPublic Boolean @default(false) @map("is_public")
+
+  // Upload Status: 'pending' | 'uploaded' | 'failed'
+  status String @default("pending") @db.VarChar(20)
+
+  // Flexible Metadata (JSONB)
+  metadata     Json?   @default("{}") @map("metadata")
+  ownerId      String? @map("owner_id") @db.Uuid
+  moduleOrigin String? @map("module_origin") @db.VarChar(50) // 'USER', 'COURSE', 'CHAT'
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  lessonMaterials     LessonMaterial[]
+  flashcardSourceDocs Flashcard[]      @relation("FlashcardSourceDocument")
+
+  @@index([ownerId])
+  @@index([fileUrl])
+  @@index([status])
+  @@map("file_assets")
+}
+
+// --- Blog ---
+
+model Blog {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title         String    @db.VarChar(255)
+  slug          String    @unique @db.VarChar(255)
+  description   String    @db.VarChar(255)
+  content       String    @db.Text
+  coverImageUrl String?   @map("cover_image_url") @db.Text
+  authorId      String    @map("author_id") @db.Uuid
+  status        String    @default("draft") @db.VarChar(20) // draft, published, archived
+  publishedAt   DateTime? @map("published_at")
+  viewCount     Int       @default(0) @map("view_count")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([publishedAt(sort: Desc)])
+  @@index([authorId])
+  @@map("blogs")
+}
+
+// --- Discussion & Social ---
+
+model Comment {
+  id              String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String  @map("user_id") @db.Uuid
+  parentCommentId String? @map("parent_comment_id") @db.Uuid // For nested replies
+
+  content   String   @db.Text
+  status    String   @default("approved") @db.VarChar(20) // pending, approved, spam, deleted
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp()
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp()
+
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent  Comment?      @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  replies Comment[]     @relation("CommentReplies")
+  likes   CommentLike[]
+
+  @@index([userId])
+  @@index([parentCommentId])
+  @@index([createdAt(sort: Desc)])
+  @@map("comments")
+}
+
+model CommentLike {
+  commentId String   @map("comment_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([commentId, userId])
+  @@index([commentId])
+  @@index([userId])
+  @@map("comment_likes")
+}
+
+model DiscussionTopic {
+  id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title    String @db.VarChar(255)
+  content  String @db.Text
+  authorId String @map("author_id") @db.Uuid
+
+  // Context
+  courseRunId String  @map("course_run_id") @db.Uuid
+  moduleId    String? @map("module_id") @db.Uuid
+  lessonId    String? @map("lesson_id") @db.Uuid
+
+  // Categorization & Status
+  category DiscussionTopicCategory @default(GENERAL)
+  status   DiscussionTopicStatus   @default(OPEN)
+
+  // Status
+  isPinned     Boolean @default(false) @map("is_pinned")
+  isLocked     Boolean @default(false) @map("is_locked")
+  viewCount    Int     @default(0) @map("view_count")
+  commentCount Int     @default(0) @map("comment_count")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  courseRun CourseRun @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+
+  @@index([courseRunId])
+  @@index([moduleId])
+  @@index([lessonId])
+  @@index([authorId])
+  @@index([status])
+  @@index([category])
+  @@index([createdAt(sort: Desc)])
+  @@map("discussion_topics")
+}
+
+// --- Notifications ---
+
+model Notification {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  title            String    @db.VarChar(255)
+  message          String    @db.Text
+  notificationType String?   @map("notification_type") @db.VarChar(50)
+  metadata         Json?     @map("data")
+  isRead           Boolean   @default(false) @map("is_read")
+  readAt           DateTime? @map("read_at")
+  sentVia          String[]  @default([]) @map("sent_via") @db.VarChar(20)
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+// ==================================================
+// 11. SUPPORT & MISC
+// ==================================================
+
+// --- Support ---
 
 model Ticket {
   id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -2124,7 +2113,6 @@ model Ticket {
   @@map("tickets")
 }
 
-// Certificate - Issued when a user completes a course
 model Certificate {
   id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId          String   @map("user_id") @db.Uuid
@@ -2144,9 +2132,7 @@ model Certificate {
   @@map("certificates")
 }
 
-// ─────────────────────────────────────────────────
-// Notebook & NoteEntry - Personal Vocabulary Notebook
-// ─────────────────────────────────────────────────
+// --- Notes ---
 
 model Notebook {
   id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid

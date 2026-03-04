@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update create review submit flow for course and course master">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="gop theo tinh nang">
       <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -264,55 +264,7 @@
       <workItem from="1772616293477" duration="1966000" />
       <workItem from="1772633951974" duration="1482000" />
       <workItem from="1772642951151" duration="2417000" />
-      <workItem from="1772648293401" duration="808000" />
-    </task>
-    <task id="LOCAL-00903" summary="remomve uiuxpromax">
-      <option name="closed" value="true" />
-      <created>1772473629488</created>
-      <option name="number" value="00903" />
-      <option name="presentableId" value="LOCAL-00903" />
-      <option name="project" value="LOCAL" />
-      <updated>1772473629488</updated>
-    </task>
-    <task id="LOCAL-00904" summary="remomve uiuxpromax">
-      <option name="closed" value="true" />
-      <created>1772473885875</created>
-      <option name="number" value="00904" />
-      <option name="presentableId" value="LOCAL-00904" />
-      <option name="project" value="LOCAL" />
-      <updated>1772473885875</updated>
-    </task>
-    <task id="LOCAL-00905" summary="remomve uiuxpromax">
-      <option name="closed" value="true" />
-      <created>1772474509110</created>
-      <option name="number" value="00905" />
-      <option name="presentableId" value="LOCAL-00905" />
-      <option name="project" value="LOCAL" />
-      <updated>1772474509110</updated>
-    </task>
-    <task id="LOCAL-00906" summary="add gamification services and repositories; update tsconfig and module configurations">
-      <option name="closed" value="true" />
-      <created>1772518956868</created>
-      <option name="number" value="00906" />
-      <option name="presentableId" value="LOCAL-00906" />
-      <option name="project" value="LOCAL" />
-      <updated>1772518956868</updated>
-    </task>
-    <task id="LOCAL-00907" summary="add gamification services and repositories; update tsconfig and module configurations">
-      <option name="closed" value="true" />
-      <created>1772518960984</created>
-      <option name="number" value="00907" />
-      <option name="presentableId" value="LOCAL-00907" />
-      <option name="project" value="LOCAL" />
-      <updated>1772518960984</updated>
-    </task>
-    <task id="LOCAL-00908" summary="feat(billing): restructure billing service modules and interfaces">
-      <option name="closed" value="true" />
-      <created>1772531383503</created>
-      <option name="number" value="00908" />
-      <option name="presentableId" value="LOCAL-00908" />
-      <option name="project" value="LOCAL" />
-      <updated>1772531383503</updated>
+      <workItem from="1772648293401" duration="1549000" />
     </task>
     <task id="LOCAL-00909" summary="add comment for interface">
       <option name="closed" value="true" />
@@ -658,7 +610,55 @@
       <option name="project" value="LOCAL" />
       <updated>1772648780637</updated>
     </task>
-    <option name="localTasksCounter" value="952" />
+    <task id="LOCAL-00952" summary="update create review submit flow for course and course master">
+      <option name="closed" value="true" />
+      <created>1772649198872</created>
+      <option name="number" value="00952" />
+      <option name="presentableId" value="LOCAL-00952" />
+      <option name="project" value="LOCAL" />
+      <updated>1772649198872</updated>
+    </task>
+    <task id="LOCAL-00953" summary="gop theo tinh nang">
+      <option name="closed" value="true" />
+      <created>1772649414638</created>
+      <option name="number" value="00953" />
+      <option name="presentableId" value="LOCAL-00953" />
+      <option name="project" value="LOCAL" />
+      <updated>1772649414638</updated>
+    </task>
+    <task id="LOCAL-00954" summary="gop theo tinh nang">
+      <option name="closed" value="true" />
+      <created>1772649542052</created>
+      <option name="number" value="00954" />
+      <option name="presentableId" value="LOCAL-00954" />
+      <option name="project" value="LOCAL" />
+      <updated>1772649542052</updated>
+    </task>
+    <task id="LOCAL-00955" summary="gop theo tinh nang">
+      <option name="closed" value="true" />
+      <created>1772649551903</created>
+      <option name="number" value="00955" />
+      <option name="presentableId" value="LOCAL-00955" />
+      <option name="project" value="LOCAL" />
+      <updated>1772649551903</updated>
+    </task>
+    <task id="LOCAL-00956" summary="gop theo tinh nang">
+      <option name="closed" value="true" />
+      <created>1772649645022</created>
+      <option name="number" value="00956" />
+      <option name="presentableId" value="LOCAL-00956" />
+      <option name="project" value="LOCAL" />
+      <updated>1772649645022</updated>
+    </task>
+    <task id="LOCAL-00957" summary="gop theo tinh nang">
+      <option name="closed" value="true" />
+      <created>1772649667054</created>
+      <option name="number" value="00957" />
+      <option name="presentableId" value="LOCAL-00957" />
+      <option name="project" value="LOCAL" />
+      <updated>1772649667054</updated>
+    </task>
+    <option name="localTasksCounter" value="958" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -693,7 +693,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="stitch ui" />
     <MESSAGE value="fix: enhance course live class logic" />
     <MESSAGE value="cômmit" />
     <MESSAGE value="feat: Add CourseRun and LiveSession enums, update related DTOs and services" />
@@ -718,7 +717,8 @@
     <MESSAGE value="feat: initialize new marketing web project with Tailwind CSS and Radix UI components" />
     <MESSAGE value="feat: add new UI components including Skeleton, AspectRatio, Spinner, and more" />
     <MESSAGE value="update create review submit flow for course and course master" />
-    <option name="LAST_COMMIT_MESSAGE" value="update create review submit flow for course and course master" />
+    <MESSAGE value="gop theo tinh nang" />
+    <option name="LAST_COMMIT_MESSAGE" value="gop theo tinh nang" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
