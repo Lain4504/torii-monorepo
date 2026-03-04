@@ -1,0 +1,37 @@
+export * from './i-course-master.service';
+export * from './i-course-run.service';
+export * from './i-live-session.service';
+export * from './i-module.service';
+export * from './i-lesson.service';
+export * from './i-lesson-material.service';
+export * from './i-review.service';
+export * from './i-wishlist.service';
+export * from './i-exam.service';
+export * from './i-enrollment.service';
+export * from './i-comment.service';
+export * from './i-blog.service';
+export * from './i-learning-progress.service';
+export * from './i-flashcard.service';
+export * from './i-flashcard-deck.service';
+export * from './i-coupon.service';
+export * from './i-certificate.service';
+export * from './i-attendance.service';
+
+// Injection tokens for services
+export const COURSE_MASTER_SERVICE_TOKEN = Symbol('COURSE_MASTER_SERVICE');
+export const COURSE_RUN_SERVICE_TOKEN = Symbol('COURSE_RUN_SERVICE');
+export const MODULE_SERVICE_TOKEN = Symbol('MODULE_SERVICE');
+export const LESSON_SERVICE_TOKEN = Symbol('LESSON_SERVICE');
+export const LESSON_MATERIAL_SERVICE_TOKEN = Symbol('LESSON_MATERIAL_SERVICE');
+export const REVIEW_SERVICE_TOKEN = Symbol('REVIEW_SERVICE');
+export const ENROLLMENT_SERVICE_TOKEN = Symbol('ENROLLMENT_SERVICE');
+export const LIVE_SESSION_SERVICE_TOKEN = Symbol('LIVE_SESSION_SERVICE');
+export const COUPON_SERVICE_TOKEN = Symbol('COUPON_SERVICE');
+export const CERTIFICATE_SERVICE_TOKEN = Symbol('CERTIFICATE_SERVICE');
+export const ATTENDANCE_SERVICE_TOKEN = Symbol('ATTENDANCE_SERVICE');
+export const EXAM_SERVICE_TOKEN = Symbol('EXAM_SERVICE');
+export const FLASHCARD_DECK_SERVICE_TOKEN = Symbol('FLASHCARD_DECK_SERVICE');
+export const LEARNING_PROGRESS_SERVICE_TOKEN = Symbol('LEARNING_PROGRESS_SERVICE');
+export const NOTEBOOK_SERVICE_TOKEN = Symbol('NOTEBOOK_SERVICE');
+export const QUESTION_POOL_SERVICE_TOKEN = Symbol('QUESTION_POOL_SERVICE');
+export const QUESTION_SERVICE_TOKEN = Symbol('QUESTION_SERVICE');
