@@ -5,55 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(billing): restructure billing service modules and interfaces">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/agents.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/analytics/progress-tracking.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/analytics/readiness-profile.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/analytics/report-generation.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/analytics/study-path-suggestion.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/assessment/jlpt-test-generation.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/assessment/placement-evaluation.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/assessment/placement-test.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/assessment/test-evaluation.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/chat.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/conversation-simulation.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/flashcard-creation.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/grammar-check.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/practice-drill.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/resource-recommendation.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/roleplay.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/prompts/sensei/translation.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/assets/resources/jlpt-syllabus.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/dtos/analytics.dto.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/dtos/assessment.dto.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/dtos/sensei.dto.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/fastmcp/fastmcp.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/fastmcp/fastmcp.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/handlers/analytics.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/handlers/assessment.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/handlers/sensei.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/main.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/.gitkeep" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/analytics/ai-usage-tracking.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/analytics/analytics.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/analytics/analytics.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/assessment/assessment.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/assessment/assessment.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/index.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/livekit/agent-entry.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/livekit/livekit-agent.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/sensei/sensei.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/sensei/sensei.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/src/modules/sensei/tts.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/test/analytics.service.spec.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/test/assessment.service.spec.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/test/sensei.service.spec.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/test/tts.service.spec.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/modules/agents/tsconfig.app.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/nest-cli.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/nest-cli.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/tsconfig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -112,7 +64,7 @@
     "RunOnceActivity.go.formatter.settings.were.checked": "true",
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "refactor-agent-service",
+    "git-widget-placeholder": "main",
     "go.import.settings.migrated": "true",
     "javascript.preferred.runtime.type.id": "node",
     "kotlin-language-version-configured": "true",

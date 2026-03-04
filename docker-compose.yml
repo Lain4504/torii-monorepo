@@ -51,7 +51,7 @@ services:
       - natsdata:/data/jetstream
 
   livekit:
-    image: livekit/livekit-server:latest
+    image: livekit/livekit-server:v1.9.11
     container_name: torii-livekit
     restart: always
     command: --config /livekit.yaml
@@ -70,7 +70,7 @@ services:
       - redis
 
   livekit-ingress:
-    image: livekit/ingress:latest
+    image: livekit/ingress:v1.4.3
     container_name: torii-livekit-ingress
     restart: always
     command: --config /ingress.yaml
