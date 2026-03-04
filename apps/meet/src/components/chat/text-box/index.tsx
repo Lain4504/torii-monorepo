@@ -194,10 +194,10 @@ const TextBoxArea = () => {
           chatFeatures={chatFeatures}
         />
       )}
-      <textarea
+      <Textarea
         name="message-textarea"
         id="message-textarea"
-        className="flex-1 outline-hidden text-xs 3xl:text-sm text-foreground bg-transparent font-normal h-10 mr-2 overflow-hidden"
+        className="flex-1 text-xs 3xl:text-sm h-10 mr-2 resize-none border-0 bg-transparent p-0 focus-visible:ring-0"
         value={message}
         onChange={handleChange}
         disabled={isMsgSendingLocked}
@@ -207,13 +207,20 @@ const TextBoxArea = () => {
         rows={1}
         onPaste={handleOnPaste}
       />
-      <button
+      <Button
         disabled={isMsgSendingLocked || isSendingMsg}
         onClick={sendMsg}
-        className={`w-7 3xl:w-9 h-7 3xl:h-9 flex items-center justify-center rounded-full transition-all duration-300 hover:bg-primary/90 ${isEmpty(message) ? 'bg-primary/30' : 'bg-primary'} ${!isMsgSendingLocked && !isEmpty(message) ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+        size="icon-sm"
+        className={`rounded-full ${
+          isEmpty(message) ? 'bg-primary/30' : 'bg-primary'
+        } ${
+          !isMsgSendingLocked && !isEmpty(message)
+            ? 'cursor-pointer'
+            : 'cursor-not-allowed'
+        }`}
       >
         <Send className="w-4 h-4 text-primary-foreground" />
-      </button>
+      </Button>
     </div>
   );
 };

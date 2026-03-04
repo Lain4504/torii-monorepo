@@ -1,5 +1,6 @@
 import React, { Fragment, useState } from 'react';
 import { toast } from 'react-toastify';
+import { Button } from '@workspace/ui/components/button';
 import {
   CommonResponseSchema,
   RemoveParticipantReqSchema,
@@ -75,19 +76,19 @@ const RemoveParticipantAlertModal = ({
   const renderButtons = () => {
     return (
       <Fragment>
-        <button
-          className="h-10 px-6 flex items-center justify-center rounded-lg text-sm font-semibold text-destructive-foreground bg-destructive hover:bg-destructive/90 transition-all duration-300 shadow-sm"
+        <Button
+          variant="destructive"
           onClick={() => onCloseRemoveParticipantAlert(true)}
         >
           Xóa
-        </button>
-        <button
-          type="button"
-          className="h-10 px-6 flex items-center justify-center rounded-lg text-sm font-semibold text-foreground bg-muted hover:bg-muted/80 border border-border transition-all duration-300 shadow-sm ml-4"
+        </Button>
+        <Button
+          variant="outline"
+          className="ml-4"
           onClick={() => onCloseRemoveParticipantAlert(false)}
         >
           Hủy
-        </button>
+        </Button>
       </Fragment>
     );
   };

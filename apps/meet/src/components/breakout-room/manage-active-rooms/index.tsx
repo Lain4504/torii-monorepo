@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Button } from '@workspace/ui/components/button';
 
 import BroadcastMessageForm from './broadcastMessageForm';
 import RoomLists from './roomLists';
@@ -40,13 +41,13 @@ const ManageActiveRooms = ({ setMessage }: IManageActiveRoomsProps) => {
       <BroadcastMessageForm setMessage={setMessage} />
       <RoomLists setMessage={setMessage} />
       <div className="btn pb-3 pt-4 flex items-end justify-end">
-        <button
-          className="h-9 ml-auto px-5 cursor-pointer text-sm font-semibold bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground transition-all duration-300 shadow-sm disabled:opacity-50"
+        <Button
           onClick={onEndAllRooms}
           disabled={isLoading}
+          className="ml-auto"
         >
           Kết thúc tất cả
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
-import clsx from 'clsx';
+import { Button } from '@workspace/ui/components/button';
 
 interface IActionButtonProps {
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
@@ -20,23 +20,18 @@ const ActionButton = ({
   custom,
 }: IActionButtonProps) => {
   return (
-    <button
+    <Button
       type={buttonType}
       onClick={onClick}
       disabled={isLoading || disabled}
-      className={clsx(
-        'h-9 px-4 flex items-center justify-center cursor-pointer text-sm font-semibold bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed',
-        custom,
-      )}
+      className={custom}
     >
       {isLoading ? (
-        <Loader2
-          className="inline h-5 w-5 animate-spin text-white"
-        />
+        <Loader2 className="h-5 w-5 animate-spin" />
       ) : (
         children
       )}
-    </button>
+    </Button>
   );
 };
 

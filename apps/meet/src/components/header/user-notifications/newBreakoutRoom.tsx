@@ -2,6 +2,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { create } from '@bufbuild/protobuf';
 import copy from 'copy-text-to-clipboard';
 import { JoinBreakoutRoomReqSchema } from '@workspace/protocol';
+import { Button } from '@workspace/ui/components/button';
+import { Input } from '@workspace/ui/components/input';
+import { Label } from '@workspace/ui/components/label';
 
 import { store, useAppDispatch } from '../../../store';
 import { useJoinRoomMutation } from '../../../store/services/breakoutRoomApi';
@@ -110,22 +113,22 @@ const NewBreakoutRoom = ({
         <p>Bạn được mời tham gia phòng theo nhóm.</p>
         {joinLink !== '' && (
           <div className="invite-link mt-2">
-            <label className="text-foreground text-sm block mb-1">
+            <Label className="block mb-1 text-sm">
               Liên kết tham gia
-            </label>
+            </Label>
             <div className="flex gap-2 items-center">
-              <input
+              <Input
                 type="text"
                 readOnly={true}
                 value={joinLink}
-                className="flex-1 outline-hidden border border-border rounded-lg p-1 h-8 text-xs bg-muted text-foreground"
+                className="flex-1 h-8 text-xs"
               />
-              <button
+              <Button
                 onClick={copyUrl}
-                className="text-center py-1 px-3 text-xs transition duration-300 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg shadow-sm"
+                size="xs"
               >
                 {copyText}
-              </button>
+              </Button>
             </div>
           </div>
         )}

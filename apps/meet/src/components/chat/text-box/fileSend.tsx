@@ -5,6 +5,7 @@ import { useAppDispatch } from '../../../store';
 import useResumableFilesUpload from '../../../helpers/hooks/useResumableFilesUpload';
 import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
 import { Loader2, Paperclip } from 'lucide-react';
+import { Button } from '@workspace/ui/components/button';
 
 interface IFileSendProps {
   lockSendFile: boolean;
@@ -68,10 +69,11 @@ const FileSend = ({ lockSendFile, chatFeatures }: IFileSendProps) => {
         style={{ display: 'none' }}
         onChange={(e) => onChange(e)}
       />
-      <button
+      <Button
         disabled={lockSendFile || isUploading || !canUpload}
         onClick={() => openFileBrowser()}
-        className=""
+        variant="ghost"
+        size="icon-sm"
       >
         {isUploading ? (
           <Loader2
@@ -80,7 +82,7 @@ const FileSend = ({ lockSendFile, chatFeatures }: IFileSendProps) => {
         ) : (
           <Paperclip className="h-auto w-4 3xl:w-[18px] cursor-pointer text-foreground hover:text-primary transition-colors" />
         )}
-      </button>
+      </Button>
     </div>
   );
 };

@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { isArray } from 'es-toolkit/compat';
 import ReactPlayer from 'react-player';
+import { PlusCircle, File, Trash2 } from 'lucide-react';
+import { Button } from '@workspace/ui/components/button';
 
 import FormattedInputField from '../../../helpers/ui/formattedInputField';
-import { PlusCircle, File, Trash2 } from 'lucide-react';
 import { DB_STORE_NAMES, idbGet, idbStore } from '../../../helpers/libs/idb';
 
 interface DirectLinkProps {
@@ -82,13 +83,15 @@ const DirectLink = ({ selectedUrl, setSelectedUrl }: DirectLinkProps) => {
             onChange={(e) => setPlayBackUrl(e.currentTarget.value)}
           />
         </div>
-        <button
-          className="h-10 w-10 3xl:h-11 3xl:w-11 bg-muted hover:bg-sidebar-border rounded-full flex justify-center items-center transition-all duration-300 shrink-0 cursor-pointer"
+        <Button
+          size="icon"
+          variant="ghost"
           type="button"
           onClick={addPlaybackUrl}
+          className="rounded-full shrink-0"
         >
           <PlusCircle className="w-5 h-5" />
-        </button>
+        </Button>
       </div>
       {errorMsg && (
         <div className="error-msg text-xs text-red-600 py-1">{errorMsg}</div>
@@ -116,15 +119,17 @@ const DirectLink = ({ selectedUrl, setSelectedUrl }: DirectLinkProps) => {
                 <div className="text flex-1 text-foreground text-sm overflow-hidden">
                   <p className="break-all truncate">{url}</p>
                 </div>
-                <button
-                  className="delete-btn shrink-0 h-9 w-9 rounded-full hover:bg-red-100 text-red-600 flex items-center justify-center transition-all duration-200 cursor-pointer"
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  className="shrink-0 rounded-full hover:bg-red-100 text-red-600"
                   onClick={(e) => {
                     e.stopPropagation();
                     deletePlaybackUrl(url).then();
                   }}
                 >
                   <Trash2 className="w-4 h-4" />
-                </button>
+                </Button>
               </div>
             );
           })}

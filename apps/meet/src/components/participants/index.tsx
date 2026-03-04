@@ -1,11 +1,12 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import useVirtual from 'react-cool-virtual';
+import { Search, X } from 'lucide-react';
+import { Input } from '@workspace/ui/components/input';
 
 import ParticipantComponent from './participant';
 import RemoveParticipantAlertModal, {
   IRemoveParticipantAlertModalData,
 } from './removeParticipantAlertModal';
-import { Search, X } from 'lucide-react';
 
 import { store, useAppDispatch, useAppSelector } from '../../store';
 import { selectVisibleParticipants } from '../../store/slices/participantSlice';
@@ -107,12 +108,12 @@ const ParticipantsComponent = () => {
             <div className="search-icon text-muted-foreground absolute top-1/2 -translate-y-1/2 left-3 3xl:left-4 pointer-events-none">
               <Search className="w-4 h-4" />
             </div>
-            <input
+            <Input
               type="text"
               name="search-participants"
               id="search-participants"
               placeholder="Tìm kiếm thành viên"
-              className="text-foreground placeholder:text-muted-foreground h-9 rounded-lg bg-secondary border border-border w-full ltr:pl-8 3xl:ltr:pl-10 rtl:pr-8 3xl:rtl:pr-10 outline-hidden text-xs 3xl:text-sm"
+              className="ltr:pl-8 3xl:ltr:pl-10 rtl:pr-8 3xl:rtl:pr-10"
               onChange={(e) => setSearchParticipant(e.target.value)}
             />
           </div>

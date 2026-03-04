@@ -8,8 +8,8 @@ import {
 } from '@workspace/protocol';
 import { debounce } from 'es-toolkit';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
-import { ChevronLeft, ChevronRight, Presentation, Eye } from 'lucide-react';
-
+import { ChevronLeft, ChevronRight, Presentation, Eye } from 'lucide-react';import { Button } from '@workspace/ui/components/button';
+import { NativeSelect, NativeSelectOption } from '@workspace/ui/components/native-select';
 import { store, useAppDispatch, useAppSelector } from '../../store';
 import { setWhiteboardCurrentPage } from '../../store/slices/whiteboard';
 import { broadcastCurrentPageNumber } from './helpers/handleRequests';
@@ -120,29 +120,37 @@ const FooterUI = ({
   const renderForAdmin = () => {
     return (
       <div className="flex wb-page-navigation ml-2 bg-muted rounded-lg overflow-hidden border border-border">
-        <button className="pre p-1 hover:bg-black/5 dark:hover:bg-white/5 transition-colors" onClick={handlePre} disabled={currentPage <= 1}>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={handlePre}
+          disabled={currentPage <= 1}
+          className="rounded-none"
+        >
           <ChevronLeft className="w-5 h-5 text-foreground rtl:rotate-180" />
-        </button>
-        <select
+        </Button>
+        <NativeSelect
           id="pages"
           name="pages"
-          className="pagesOpts appearance-none cursor-pointer block h-8 py-1 px-3 border-x border-border bg-transparent focus:outline-hidden text-sm text-foreground font-medium"
           onChange={(e) => setCurrentPage(Number(e.currentTarget.value))}
           value={currentPage}
+          className="min-w-[100px] border-x border-border rounded-none"
         >
           {Array.from({ length: totalPages }, (_, i) => (
-            <option key={i} value={i + 1} className="bg-card text-foreground">
+            <NativeSelectOption key={i} value={i + 1}>
               Trang {i + 1}
-            </option>
+            </NativeSelectOption>
           ))}
-        </select>
-        <button
-          className="next p-1 hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+        </NativeSelect>
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={handleNext}
           disabled={currentPage >= totalPages}
+          className="rounded-none"
         >
           <ChevronRight className="w-5 h-5 text-foreground rtl:rotate-180" />
-        </button>
+        </Button>
       </div>
     );
   };
@@ -156,12 +164,14 @@ const FooterUI = ({
           } `}
       >
         {isAdmin && !isRecorder && (
-          <button className="presenter" onClick={takeOverPresenter}>
+          <Button variant="ghost" size="icon-sm" onClick={takeOverPresenter}>
             <Presentation className="w-3.5 h-3.5" />
-          </button>
+          </Button>
         )}
-        <button
-          className={`px-2 flex items-center ${isFollowing ? 'following' : ''}`}
+        <Button
+          variant="ghost"
+          size="sm"
+          className={isFollowing ? 'following' : ''}
           onClick={handleFollowPresenter}
           title={
             isFollowing
@@ -174,7 +184,7 @@ const FooterUI = ({
               }`}
           />
           {isFollowing ? 'Ngừng theo dõi' : 'Theo dõi'}
-        </button>
+        </Button>
         Trang {currentPage}
       </div>
     );

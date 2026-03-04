@@ -1,5 +1,6 @@
 import React from 'react';
 import { MenuItem, MenuItems } from '@headlessui/react';
+import { Button } from '@workspace/ui/components/button';
 
 import { useAppDispatch } from '../../store';
 import {
@@ -27,33 +28,36 @@ const HeaderMenus = ({ onOpenAlert }: IHeaderMenusProps) => {
       </div>
       <div className="divider block md:hidden h-1 w-[110%] bg-muted -ml-3 my-0.5"></div> */}
       <MenuItem>
-        <button
-          className="h-9 md:h-10 w-full cursor-pointer flex items-center hover:bg-muted text-sm gap-2 leading-none font-medium text-foreground px-2 md:px-3 rounded-lg transition-all duration-300 relative"
+        <Button
+          variant="ghost"
+          className="h-9 md:h-10 w-full justify-start gap-2 text-sm leading-none font-medium px-2 md:px-3"
           onClick={() => dispatch(updateShowRoomSettingsModal(true))}
         >
-          <Settings className="text-primary w-4 h-4 ltr:mr-2 rtl:ml-2 transition ease-in" />
+          <Settings className="text-primary w-4 h-4 transition ease-in" />
           Cài đặt
-        </button>
+        </Button>
       </MenuItem>
 
       <MenuItem>
-        <button
-          className="h-9 md:h-10 w-full cursor-pointer flex items-center hover:bg-muted text-sm gap-2 leading-none font-medium text-foreground px-2 md:px-3 rounded-lg transition-all duration-300 relative"
+        <Button
+          variant="ghost"
+          className="h-9 md:h-10 w-full justify-start gap-2 text-sm leading-none font-medium px-2 md:px-3"
           onClick={() => dispatch(updateShowKeyboardShortcutsModal(true))}
         >
-          <Keyboard className="text-primary w-4 h-4 ltr:mr-2 rtl:ml-2 transition ease-in" />
+          <Keyboard className="text-primary w-4 h-4 transition ease-in" />
           Phím tắt
-        </button>
+        </Button>
       </MenuItem>
 
       <MenuItem>
-        <button
-          className="h-9 md:h-10 w-full cursor-pointer flex items-center hover:bg-muted text-sm gap-2 leading-none font-medium text-foreground px-2 md:px-3 rounded-lg transition-all duration-300 relative"
+        <Button
+          variant="ghost"
+          className="h-9 md:h-10 w-full justify-start gap-2 text-sm leading-none font-medium px-2 md:px-3"
           onClick={() => onOpenAlert('logout')}
         >
-          <LogOut className="text-primary w-4 h-4 ltr:mr-2 rtl:ml-2 transition ease-in" />
+          <LogOut className="text-primary w-4 h-4 transition ease-in" />
           Rời khỏi họp
-        </button>
+        </Button>
       </MenuItem>
     </MenuItems>
   );

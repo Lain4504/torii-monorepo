@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { BreakoutRoomUser, DataMsgBodyType } from '@workspace/protocol';
 import { chunk } from 'es-toolkit';
+import { Button } from '@workspace/ui/components/button';
 
 import { generateAvatarInitial } from '../../../../helpers/utils';
 import { getNatsConn } from '../../../../helpers/nats';
@@ -62,12 +63,13 @@ const BreakoutRoomUsers = ({
                 {user.name}
               </span>
               {!user.joined && (
-                <button
+                <Button
+                  size="xs"
                   onClick={() => pushUser(user.name, user.id)}
-                  className="ml-auto h-6 px-3 cursor-pointer text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-full transition-all duration-300 shadow-sm"
+                  className="ml-auto rounded-full"
                 >
                   Mời
-                </button>
+                </Button>
               )}
             </li>
           ))}

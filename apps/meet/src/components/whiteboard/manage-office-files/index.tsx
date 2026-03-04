@@ -1,9 +1,10 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Button, Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
+import { Button as HeadlessButton, Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
 import { debounce } from 'es-toolkit';
-
 import { X, Paperclip } from 'lucide-react';
+import { Button } from '@workspace/ui/components/button';
+
 import { updateCurrentWhiteboardOfficeFileId } from '../../../store/slices/whiteboard';
 import { store, useAppDispatch } from '../../../store';
 import FileUploadProgress from './fileUploadProgress';
@@ -105,9 +106,9 @@ const ManageOfficeFilesModal = ({
               className="flex items-center justify-between text-base font-semibold leading-7 text-foreground px-4 py-2 border-b border-border"
             >
               <span>Quản lý tệp</span>
-              <Button className="cursor-pointer" onClick={() => onClose()}>
+              <HeadlessButton className="cursor-pointer" onClick={() => onClose()}>
                 <X className="w-5 h-5" />
-              </Button>
+              </HeadlessButton>
             </DialogTitle>
             <div className="wrap p-4 bg-card">
               <div className="input-wrap relative rounded-xl border border-dashed border-border py-8 px-6 cursor-pointer hover:border-primary/50 transition-colors">
@@ -134,10 +135,10 @@ const ManageOfficeFilesModal = ({
                     </span>
                     <span className="line inline-block h-[1px] w-20 bg-border"></span>
                   </div>
-                  <button className="h-9 w-auto m-auto px-4 flex items-center justify-center rounded-lg text-sm font-semibold text-foreground bg-muted hover:bg-muted/80 border border-border transition-all duration-300 shadow-sm cursor-pointer">
-                    <Paperclip className="w-3.5 h-3.5 ltr:mr-1.5 rtl:ml-1.5" />
+                  <Button variant="outline" className="m-auto gap-1.5">
+                    <Paperclip className="w-3.5 h-3.5" />
                     Chọn tệp từ thiết bị
-                  </button>
+                  </Button>
                 </div>
               </div>
               <div className="file-preview-list grid gap-2 pt-4">

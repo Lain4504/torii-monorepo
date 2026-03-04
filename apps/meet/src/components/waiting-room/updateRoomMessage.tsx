@@ -4,6 +4,8 @@ import {
   UpdateWaitingRoomMessageReqSchema,
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
+import { Button } from '@workspace/ui/components/button';
+import { Textarea } from '@workspace/ui/components/textarea';
 
 import { useAppDispatch, useAppSelector } from '../../store';
 import sendAPIRequest from '../../helpers/api/api-client';
@@ -57,17 +59,17 @@ const UpdateRoomMessage = () => {
       <p className="block text-sm font-medium text-foreground text-left mb-2">
         Cập nhật tin nhắn phòng chờ
       </p>
-      <textarea
+      <Textarea
         value={message}
         onChange={(e) => setMessage(e.currentTarget.value)}
-        className="border border-border bg-card shadow-sm block px-3 py-2 w-full h-20 rounded-xl outline-hidden focus:border-primary text-foreground"
-      ></textarea>
-      <button
+        className="h-20"
+      />
+      <Button
         onClick={updateRoomMsg}
-        className="h-9 ml-auto cursor-pointer mt-2 px-5 text-sm font-semibold bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground transition-all duration-300 shadow-sm"
+        className="ml-auto mt-2"
       >
         Cập nhật
-      </button>
+      </Button>
     </div>
   );
 };

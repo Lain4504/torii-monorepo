@@ -27,6 +27,7 @@ import { toast } from 'react-toastify';
 import { ExcalidrawElement } from '@excalidraw/excalidraw/element/types';
 import { RemoteExcalidrawElement } from '@excalidraw/excalidraw/data/reconcile';
 import { Paperclip } from 'lucide-react';
+import { Button } from '@workspace/ui/components/button';
 
 import '@excalidraw/excalidraw/index.css';
 import './style.css';
@@ -554,13 +555,15 @@ const Whiteboard = ({ onReadyExcalidrawAPI }: WhiteboardProps) => {
       <>
         {isPresenter && excalidrawAPI && (
           <div className="menu relative z-10">
-            <button
+            <Button
               onClick={() => setIsOpenManageFilesUI(true)}
-              className="wb-manage-upload-file ml-1 flex items-center justify-center gap-1.5"
+              variant="ghost"
+              size="sm"
+              className="wb-manage-upload-file ml-1 gap-1.5"
             >
               <Paperclip className="w-3.5 h-3.5" />
               Quản lý tệp
-            </button>
+            </Button>
           </div>
         )}
       </>

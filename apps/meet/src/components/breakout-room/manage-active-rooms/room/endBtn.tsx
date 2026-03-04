@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { EndBreakoutRoomReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 import { toast } from 'react-toastify';
+import { Button } from '@workspace/ui/components/button';
 
 import { useEndSingleRoomMutation } from '../../../../store/services/breakoutRoomApi';
 import { BreakoutRoomMessage } from '../..';
@@ -40,13 +41,15 @@ const EndBtn = ({ breakoutRoomId, setMessage }: IEndBtnProps) => {
 
   return (
     <div className="end-room-btn">
-      <button
-        className="h-7 ml-auto px-3 flex items-center justify-center rounded-lg text-sm font-semibold text-destructive-foreground bg-destructive border border-destructive/20 transition-all duration-300 hover:bg-destructive/90 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+      <Button
+        variant="destructive"
+        size="sm"
         onClick={handleEndRoom}
         disabled={isLoading}
+        className="ml-auto"
       >
         Kết thúc phòng
-      </button>
+      </Button>
     </div>
   );
 };

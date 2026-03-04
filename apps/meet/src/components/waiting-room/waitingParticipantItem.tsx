@@ -12,6 +12,7 @@ import { store, useAppDispatch } from '../../store';
 import { addUserNotification } from '../../store/slices/roomSettingsSlice';
 import { generateAvatarInitial } from '../../helpers/utils';
 import { Loader2 } from 'lucide-react';
+import { Button } from '@workspace/ui/components/button';
 
 interface IWaitingParticipantItemProps {
   participant: IParticipant;
@@ -125,24 +126,26 @@ const WaitingParticipantItem = ({
           </div>
         ) : (
           <>
-            <button
+            <Button
               onClick={handleApprove}
-              className="py-1 px-3 flex cursor-pointer items-center justify-center rounded-lg text-xs font-semibold text-primary-foreground bg-primary hover:bg-primary/90 transition-all duration-300 shadow-sm"
+              size="xs"
             >
               Chấp thuận
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => handleReject(false)}
-              className="py-1 px-3 flex cursor-pointer items-center justify-center rounded-lg text-xs font-semibold text-destructive-foreground bg-destructive hover:bg-destructive/90 transition-all duration-300 shadow-sm"
+              variant="destructive"
+              size="xs"
             >
               Từ chối
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => handleReject(true)}
-              className="py-1 px-3 flex cursor-pointer items-center justify-center rounded-lg text-xs font-semibold text-destructive-foreground bg-destructive border border-destructive/20 hover:bg-destructive/90 transition-all duration-300 shadow-sm"
+              variant="destructive"
+              size="xs"
             >
               Từ chối và chặn
-            </button>
+            </Button>
           </>
         )}
       </div>
