@@ -5,7 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update core lms flow">
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -263,23 +263,7 @@
       <workItem from="1772602430606" duration="2000" />
       <workItem from="1772602449755" duration="8209000" />
       <workItem from="1772616293477" duration="1966000" />
-      <workItem from="1772633951974" duration="873000" />
-    </task>
-    <task id="LOCAL-00891" summary="feat: Implement attendance processing for live sessions and add course run status update functionality">
-      <option name="closed" value="true" />
-      <created>1772382406461</created>
-      <option name="number" value="00891" />
-      <option name="presentableId" value="LOCAL-00891" />
-      <option name="project" value="LOCAL" />
-      <updated>1772382406461</updated>
-    </task>
-    <task id="LOCAL-00892" summary="refactor: Rename course-related entities to use 'courseMaster' terminology and update related references">
-      <option name="closed" value="true" />
-      <created>1772386505816</created>
-      <option name="number" value="00892" />
-      <option name="presentableId" value="LOCAL-00892" />
-      <option name="project" value="LOCAL" />
-      <updated>1772386505816</updated>
+      <workItem from="1772633951974" duration="1482000" />
     </task>
     <task id="LOCAL-00893" summary="migation other code">
       <option name="closed" value="true" />
@@ -657,7 +641,23 @@
       <option name="project" value="LOCAL" />
       <updated>1772634824775</updated>
     </task>
-    <option name="localTasksCounter" value="940" />
+    <task id="LOCAL-00940" summary="update core lms flow">
+      <option name="closed" value="true" />
+      <created>1772635046399</created>
+      <option name="number" value="00940" />
+      <option name="presentableId" value="LOCAL-00940" />
+      <option name="project" value="LOCAL" />
+      <updated>1772635046399</updated>
+    </task>
+    <task id="LOCAL-00941" summary="update core lms flow">
+      <option name="closed" value="true" />
+      <created>1772635132884</created>
+      <option name="number" value="00941" />
+      <option name="presentableId" value="LOCAL-00941" />
+      <option name="project" value="LOCAL" />
+      <updated>1772635132884</updated>
+    </task>
+    <option name="localTasksCounter" value="942" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
