@@ -359,25 +359,6 @@ export class TeachingScheduleService implements ITeachingScheduleService {
             await this.prisma.liveSession.createMany({
                 data: finalSessions,
             });
-
-            // Update lessons to link back to the newly created live sessions
-            const createdSessions = await this.prisma.liveSession.findMany({
-                where: {
-                    courseRunId,
-                    status: 'scheduled',
-                    scheduledAt: { gt: now }
-                },
-                orderBy: { scheduledAt: 'asc' }
-            });
-
-            for (const session of createdSessions) {
-                if (session.lessonId) {
-                    await this.prisma.lesson.update({
-                        where: { id: session.lessonId },
-                        data: { liveSessionId: session.id }
-                    });
-                }
-            }
         }
     }
 

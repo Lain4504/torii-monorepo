@@ -57,6 +57,30 @@ export class CourseRunHandler {
         return this.courseRunService.updateStatus(requester, id, status);
     }
 
+    @MessagePattern({ cmd: 'learning.courserun.submitContentReview' })
+    async submitContentReview(@Payload() data: { id: string; requester: Requester }) {
+        const { id, requester } = data;
+        return this.courseRunService.submitForContentReview(requester, id);
+    }
+
+    @MessagePattern({ cmd: 'learning.courserun.reviewContent' })
+    async reviewContent(
+        @Payload()
+        data: {
+            id: string;
+            requester: Requester;
+            outcome: 'APPROVED' | 'REJECTED' | 'CHANGES_REQUIRED';
+            checklist?: Record<string, any>;
+            comments?: string;
+            rejectionReason?: string;
+            moveToPlanning?: boolean;
+            moveToEnrolling?: boolean;
+        },
+    ) {
+        const { id, requester, ...payload } = data;
+        return this.courseRunService.reviewRunContent(requester, id, payload);
+    }
+
     @MessagePattern({ cmd: 'learning.courserun.getStudents' })
     async getStudents(@Payload() data: { id: string, page?: number, limit?: number }) {
         const { id, page, limit } = data;
@@ -67,5 +91,29 @@ export class CourseRunHandler {
     async delete(@Payload() data: { id: string, requester: Requester }) {
         const { id, requester } = data;
         return this.courseRunService.delete(requester, id);
+    }
+
+    @MessagePattern({ cmd: 'learning.courserun.getRunLessons' })
+    async getRunLessons(@Payload() data: { id: string; requester: Requester }) {
+        const { id, requester } = data;
+        return this.courseRunService.getRunLessons(requester, id);
+    }
+
+    @MessagePattern({ cmd: 'learning.courserun.updateRunLesson' })
+    async updateRunLesson(
+        @Payload()
+        data: {
+            courseRunId: string;
+            lessonId: string;
+            requester: Requester;
+            videoUrl?: string | null;
+            videoDuration?: number | null;
+            articleContent?: string | null;
+            recordingUrl?: string | null;
+            isUnlocked?: boolean;
+        },
+    ) {
+        const { courseRunId, lessonId, requester, ...payload } = data;
+        return this.courseRunService.updateRunLesson(requester, courseRunId, lessonId, payload);
     }
 }

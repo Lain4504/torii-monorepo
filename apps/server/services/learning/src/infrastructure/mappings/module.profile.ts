@@ -38,10 +38,6 @@ export class ModuleProfile extends AutomapperProfile {
                     mapFrom((src) => src.description || undefined),
                 ),
                 forMember(
-                    (dest) => dest.aiMetadata,
-                    mapFrom((src) => (src.aiMetadata as any) || undefined),
-                ),
-                forMember(
                     (dest) => dest.orderIndex,
                     mapFrom((src) => src.orderIndex),
                 ),

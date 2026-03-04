@@ -59,6 +59,61 @@ export const courseRunsApi = {
         const response = await apiClient.delete<StandardApiResponse<boolean>>(`/api/course-runs/${id}`);
         return response.data.success;
     },
+
+    // POST /api/course-runs/:id/submit-review
+    async submitForReview(id: string): Promise<CourseRunResponseDTO> {
+        const response = await apiClient.post<StandardApiResponse<{ run: CourseRunResponseDTO }>>(
+            `/api/course-runs/${id}/submit-review`,
+            {},
+        );
+        return response.data.data!.run;
+    },
+
+    // POST /api/course-runs/:id/review
+    async reviewContent(
+        id: string,
+        payload: {
+            outcome: 'APPROVED' | 'REJECTED' | 'CHANGES_REQUIRED';
+            checklist?: Record<string, any>;
+            comments?: string;
+            rejectionReason?: string;
+            moveToPlanning?: boolean;
+            moveToEnrolling?: boolean;
+        },
+    ): Promise<CourseRunResponseDTO> {
+        const response = await apiClient.post<StandardApiResponse<{ run: CourseRunResponseDTO }>>(
+            `/api/course-runs/${id}/review`,
+            payload,
+        );
+        return response.data.data!.run;
+    },
+
+    // GET /api/course-runs/:id/run-lessons
+    async getRunLessons(id: string): Promise<any[]> {
+        const response = await apiClient.get<StandardApiResponse<{ lessons: any[] }>>(
+            `/api/course-runs/${id}/run-lessons`,
+        );
+        return response.data.data!.lessons;
+    },
+
+    // PATCH /api/course-runs/:id/run-lessons/:lessonId
+    async updateRunLesson(
+        courseRunId: string,
+        lessonId: string,
+        payload: {
+            videoUrl?: string | null;
+            videoDuration?: number | null;
+            articleContent?: string | null;
+            recordingUrl?: string | null;
+            isUnlocked?: boolean;
+        },
+    ): Promise<any> {
+        const response = await apiClient.patch<StandardApiResponse<{ lesson: any }>>(
+            `/api/course-runs/${courseRunId}/run-lessons/${lessonId}`,
+            payload,
+        );
+        return response.data.data!.lesson;
+    },
 };
 
 // ============================================================================
@@ -154,6 +209,88 @@ export function useDeleteCourseRun() {
         mutationFn: (id: string) => courseRunsApi.delete(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['course-runs'] });
+        },
+    });
+}
+
+/**
+ * Hook: Submit course run for content review
+ */
+export function useSubmitCourseRunForReview() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (id: string) => courseRunsApi.submitForReview(id),
+        onSuccess: (data) => {
+            queryClient.invalidateQueries({ queryKey: ['course-runs', data.id] });
+            queryClient.invalidateQueries({ queryKey: ['course-runs', { courseMasterId: data.courseMasterId }] });
+        },
+    });
+}
+
+/**
+ * Hook: Review course run content (Staff-LMS)
+ */
+export function useReviewCourseRunContent() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({
+            id,
+            payload,
+        }: {
+            id: string;
+            payload: {
+                outcome: 'APPROVED' | 'REJECTED' | 'CHANGES_REQUIRED';
+                checklist?: Record<string, any>;
+                comments?: string;
+                rejectionReason?: string;
+                moveToPlanning?: boolean;
+                moveToEnrolling?: boolean;
+            };
+        }) => courseRunsApi.reviewContent(id, payload),
+        onSuccess: (data) => {
+            queryClient.invalidateQueries({ queryKey: ['course-runs', data.id] });
+            queryClient.invalidateQueries({ queryKey: ['course-runs', { courseMasterId: data.courseMasterId }] });
+        },
+    });
+}
+
+/**
+ * Hook: Get CourseRunLesson list for a run
+ */
+export function useCourseRunLessons(id: string) {
+    return useQuery({
+        queryKey: ['course-runs', id, 'run-lessons'],
+        queryFn: () => courseRunsApi.getRunLessons(id),
+        enabled: !!id,
+    });
+}
+
+/**
+ * Hook: Update a single CourseRunLesson
+ */
+export function useUpdateRunLesson() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({
+            courseRunId,
+            lessonId,
+            payload,
+        }: {
+            courseRunId: string;
+            lessonId: string;
+            payload: {
+                videoUrl?: string | null;
+                videoDuration?: number | null;
+                articleContent?: string | null;
+                recordingUrl?: string | null;
+                isUnlocked?: boolean;
+            };
+        }) => courseRunsApi.updateRunLesson(courseRunId, lessonId, payload),
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['course-runs', variables.courseRunId, 'run-lessons'] });
         },
     });
 }

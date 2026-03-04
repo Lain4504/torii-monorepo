@@ -1,7 +1,7 @@
 import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { COURSE_MASTER_SERVICE_TOKEN, ICourseMasterService } from '@server/learning/interfaces/services';
-import { CourseMasterCreateDTO, CourseMasterUpdateDTO, Requester, UserRole } from '@workspace/schemas';
+import { CourseMasterCreateDTO, CourseMasterUpdateDTO, Requester } from '@workspace/schemas';
 
 @Controller()
 export class CourseHandler {
@@ -80,6 +80,12 @@ export class CourseHandler {
         return this.courseMasterService.submitForReview(requester, id);
     }
 
+    @MessagePattern({ cmd: 'learning.coursemaster.submitSyllabusReview' })
+    async submitSyllabusReview(@Payload() data: { id: string; requester: Requester }) {
+        const { id, requester } = data;
+        return this.courseMasterService.submitForSyllabusReview(requester, id);
+    }
+
     @MessagePattern({ cmd: 'learning.coursemaster.updateLiveConfig' })
     async updateLiveConfig(@Payload() data: { id: string, config: any, requester: Requester }) {
         return this.courseMasterService.updateLiveConfig(data.requester, data.id, data.config);
@@ -97,6 +103,22 @@ export class CourseHandler {
         return this.courseMasterService.reject(requester, id, reason);
     }
 
+    @MessagePattern({ cmd: 'learning.coursemaster.reviewSyllabus' })
+    async reviewSyllabus(
+        @Payload()
+        data: {
+            id: string;
+            requester: Requester;
+            outcome: 'APPROVED' | 'REJECTED' | 'CHANGES_REQUIRED';
+            checklist?: Record<string, any>;
+            comments?: string;
+            rejectionReason?: string;
+        },
+    ) {
+        const { id, requester, ...payload } = data;
+        return this.courseMasterService.reviewSyllabus(requester, id, payload);
+    }
+
 
 
     @MessagePattern({ cmd: 'learning.coursemaster.getVersionHistory' })
@@ -112,5 +134,13 @@ export class CourseHandler {
     @MessagePattern({ cmd: 'learning.coursemaster.getStudentCount' })
     async getStudentCount(@Payload() data: { id: string }) {
         return this.courseMasterService.getStudentCount(data.id);
+    }
+
+    @MessagePattern({ cmd: 'learning.coursemaster.recalculate_stats' })
+    @MessagePattern({ cmd: 'learning.courseMaster.recalculate_stats' })
+    async recalculate_stats(@Payload() data: { id?: string; courseMasterId?: string }) {
+        const id = data.id || data.courseMasterId;
+        if (!id) return;
+        return this.courseMasterService.recalculateStats(id);
     }
 }

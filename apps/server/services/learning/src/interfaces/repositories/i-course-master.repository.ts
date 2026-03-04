@@ -1,4 +1,4 @@
-import type { CourseMaster, CourseVersion, Prisma } from '@prisma/generated';
+import type { CourseMaster, CourseMasterReview, CourseVersion, Prisma } from '@prisma/generated';
 
 /**
  * Course Master Repository Interface
@@ -96,6 +96,16 @@ export interface ICourseMasterRepository {
 
 
     /**
+     * Count published modules for a course master
+     */
+    countModules(courseMasterId: string): Promise<number>;
+
+    /**
+     * Update course master statistics
+     */
+    updateStats(courseMasterId: string, stats: { totalLessons: number; totalModules: number; totalQuizzes?: number }): Promise<void>;
+
+    /**
      * Count published lessons for a course master
      */
     countLessons(courseMasterId: string): Promise<number>;
@@ -104,4 +114,29 @@ export interface ICourseMasterRepository {
      * Increment total students for a course master
      */
     incrementTotalStudents(courseMasterId: string): Promise<void>;
+
+    /**
+     * Create a new review record for a course master syllabus
+     */
+    createMasterReview(data: Prisma.CourseMasterReviewCreateInput): Promise<CourseMasterReview>;
+
+    /**
+     * Update an existing course master review
+     */
+    updateMasterReview(id: string, data: Prisma.CourseMasterReviewUpdateInput): Promise<CourseMasterReview>;
+
+    /**
+     * List course master reviews with optional filtering and pagination
+     */
+    findMasterReviews(options: {
+        where?: Prisma.CourseMasterReviewWhereInput;
+        orderBy?: Prisma.CourseMasterReviewOrderByWithRelationInput;
+        skip?: number;
+        take?: number;
+    }): Promise<CourseMasterReview[]>;
+
+    /**
+     * Get the latest review entry for a course master
+     */
+    getLatestMasterReview(courseMasterId: string): Promise<CourseMasterReview | null>;
 }

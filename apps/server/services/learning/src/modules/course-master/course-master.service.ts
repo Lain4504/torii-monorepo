@@ -4,7 +4,7 @@ import { lastValueFrom } from 'rxjs';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
 import { generateSlug, PrismaService } from '@server/shared';
-import { CourseMaster, CourseMasterStatus as PrismaCourseMasterStatus } from '@prisma/generated';
+import { CourseMaster, CourseMasterStatus as PrismaCourseMasterStatus, MasterReviewStatus, type CourseMasterReview } from '@prisma/generated';
 import { validate as uuidValidate } from 'uuid';
 
 import { CourseMasterStatus } from '@workspace/schemas';
@@ -47,11 +47,90 @@ export class CourseMasterService implements ICourseMasterService {
   ) { }
 
   /**
+   * Valid state transitions for CourseMaster status.
+   * Mirrors the business state machine in the functional specs.
+   */
+  private readonly VALID_MASTER_TRANSITIONS: Record<CourseMasterStatus, CourseMasterStatus[]> = {
+    [CourseMasterStatus.DRAFT]: [CourseMasterStatus.PENDING_REVIEW],
+    [CourseMasterStatus.PENDING_REVIEW]: [CourseMasterStatus.APPROVED, CourseMasterStatus.CHANGES_REQUIRED],
+    [CourseMasterStatus.CHANGES_REQUIRED]: [CourseMasterStatus.PENDING_REVIEW],
+    [CourseMasterStatus.APPROVED]: [CourseMasterStatus.ARCHIVED],
+    // REJECTED is modelled as CHANGES_REQUIRED in the new flow for simplicity.
+    [CourseMasterStatus.ARCHIVED]: [],
+  } as const;
+
+  /**
    * Helper to check if requester has a specific permission
    */
   private hasPermission(requester: Requester, permission: string): boolean {
     if (!requester.permissions) return false;
     return requester.permissions.includes('*') || requester.permissions.includes(permission);
+  }
+
+  /**
+   * Helper to assert a valid status transition on CourseMaster.
+   */
+  private assertMasterTransition(from: CourseMasterStatus, to: CourseMasterStatus) {
+    if (from === to) return;
+    const allowed = this.VALID_MASTER_TRANSITIONS[from] || [];
+    if (!allowed.includes(to)) {
+      throw new BadRequestException(`Invalid CourseMaster status transition from '${from}' to '${to}'`);
+    }
+  }
+
+  /**
+   * Helper to create a CourseVersion snapshot from current modules/lessons.
+   */
+  private async createCourseVersionSnapshot(courseMasterId: string): Promise<CourseVersion | null> {
+    try {
+      const modules = await this.moduleRepository.findByCourseId(courseMasterId);
+      const curriculumSnapshot = await Promise.all(
+        modules.map(async (module) => {
+          const lessons = await this.lessonRepository.findByModuleId(module.id);
+          return {
+            id: module.id,
+            title: module.title,
+            description: module.description,
+            orderIndex: module.orderIndex,
+            durationMinutes: module.durationMinutes,
+            lessons: lessons.map(lesson => ({
+              id: lesson.id,
+              title: lesson.title,
+              contentType: lesson.contentType,
+              videoUrl: lesson.videoUrl,
+              videoDuration: lesson.videoDuration,
+              articleContent: lesson.articleContent,
+              orderIndex: lesson.orderIndex,
+              isPreview: lesson.isPreview,
+              isUnlocked: lesson.isUnlocked,
+            })),
+          };
+        }),
+      );
+
+      const latestVersion = await this.courseRepository.getLatestVersion(courseMasterId);
+      let nextVersionNumber = 1;
+      if (latestVersion && latestVersion.versionTag.startsWith('v')) {
+        const currentVersion = parseFloat(latestVersion.versionTag.substring(1));
+        if (!isNaN(currentVersion)) {
+          nextVersionNumber = Math.floor(currentVersion) + 1;
+        }
+      }
+      const versionTag = `v${nextVersionNumber}.0`;
+
+      const newVersion = await this.courseRepository.createVersion({
+        courseMaster: { connect: { id: courseMasterId } },
+        versionTag,
+        curriculumSnapshot: curriculumSnapshot as any,
+        changelog: `Published version ${versionTag}`,
+      });
+
+      this.logger.log(`Created new CourseVersion ${versionTag} for course master ${courseMasterId}`);
+      return newVersion;
+    } catch (error: any) {
+      this.logger.error(`Failed to create course version snapshot for course master ${courseMasterId}: ${error?.message}`, error);
+      return null;
+    }
   }
 
   /**
@@ -124,9 +203,9 @@ export class CourseMasterService implements ICourseMasterService {
         deletedAt: null,
       };
 
-      // Filter by status column
+      // Filter by status column (enum in DB)
       if (status) {
-        where.status = status;
+        where.status = status as any;
       }
 
       // Filter by JLPT level
@@ -205,10 +284,10 @@ export class CourseMasterService implements ICourseMasterService {
       const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : limit;
       const skip = (pageNum - 1) * limitNum;
 
-      // Force published status for client search
+      // Force APPROVED status for client search
       const where: any = {
         deletedAt: null,
-        status: 'published',
+        status: PrismaCourseMasterStatus.APPROVED,
       };
 
       // Filter by JLPT levels
@@ -339,12 +418,10 @@ export class CourseMasterService implements ICourseMasterService {
         description: dto.description || null,
         shortDescription: dto.shortDescription || null,
         jlptLevel: dto.jlptLevel || null,
-        aiMetadata: dto.aiMetadata || {},
-        tags: dto.tags || [],
         learningOutcomes: dto.learningOutcomes || [],
         requirements: dto.requirements || [],
         createdBy: requester.sub,
-        status: 'draft',
+        status: PrismaCourseMasterStatus.DRAFT,
       };
 
       // Validation: Course expirationMonths must be at most 6
@@ -407,8 +484,6 @@ export class CourseMasterService implements ICourseMasterService {
       if (dto.description !== undefined) updateData.description = dto.description;
       if (dto.shortDescription !== undefined) updateData.shortDescription = dto.shortDescription;
       if (dto.jlptLevel !== undefined) updateData.jlptLevel = dto.jlptLevel;
-      if ((dto as any).aiMetadata !== undefined) updateData.aiMetadata = (dto as any).aiMetadata;
-      if (dto.tags !== undefined) updateData.tags = dto.tags;
       if (dto.learningOutcomes !== undefined) updateData.learningOutcomes = dto.learningOutcomes;
       if (dto.requirements !== undefined) updateData.requirements = dto.requirements;
 
@@ -430,28 +505,6 @@ export class CourseMasterService implements ICourseMasterService {
         }
       }
 
-      let isPublishing = false;
-      let isAutoReverting = false;
-
-      if (dto.approvedBy !== undefined) {
-        // Explicit approval
-        const validApprovedBy = dto.approvedBy && uuidValidate(dto.approvedBy)
-          ? dto.approvedBy
-          : requester.sub;
-        updateData.approvedBy = validApprovedBy;
-        updateData.approvedAt = new Date();
-        updateData.status = 'published';
-        isPublishing = true;
-      } else if (Object.keys(updateData).length > 0 && existing.status === 'published') {
-        // Auto-revert PUBLISHED course to PENDING_REVIEW when content changes
-        // This ensures staff review the changes before learners see them
-        this.logger.log(`Auto-reverting published course ${courseMasterId} to PENDING_REVIEW due to content updates`);
-        updateData.status = 'pending_review';
-        updateData.isSubmittedForReview = true;
-        updateData.rejectionReason = null; // Clear any previous rejection reason
-        isAutoReverting = true;
-      }
-
       if (Object.keys(updateData).length === 0) {
         return await this.toCourseMasterResponseDTO(existing);
       }
@@ -463,46 +516,11 @@ export class CourseMasterService implements ICourseMasterService {
         action: 'course-master.update',
         entity: 'course-master',
         entityId: courseMasterId,
-        description: `Updated course master: ${course.title}${isAutoReverting ? ' (auto-reverted to PENDING_REVIEW for review)' : ''}`,
+        description: `Updated course master: ${course.title}`,
         oldValues: existing,
         newValues: course,
-        metadata: { isAutoReverting }
+        metadata: {}
       });
-
-      // Emit event if publishing
-      if (isPublishing) {
-        try {
-          this.logger.log(`Course master ${course.id} published, emitting event`);
-          this.natsClient.emit(
-            { cmd: 'course-master.published' },
-            {
-              courseMasterId: course.id,
-              courseTitle: course.title,
-              courseJlptLevel: course.jlptLevel,
-            },
-          );
-        } catch (error: any) {
-          this.logger.error(`Failed to emit course-master.published event: ${error?.message}`, error);
-        }
-      }
-
-      // Emit event if auto-reverting
-      if (isAutoReverting) {
-        try {
-          this.logger.log(`Course master ${course.id} auto-reverted to PENDING_REVIEW, emitting event`);
-          this.natsClient.emit(
-            { cmd: 'course-master.submitted-for-review' },
-            {
-              courseMasterId: course.id,
-              courseTitle: course.title,
-              submittedBy: requester.sub,
-              reason: 'Auto-submitted due to content updates',
-            },
-          );
-        } catch (error: any) {
-          this.logger.error(`Failed to emit course-master.submitted-for-review event: ${error?.message}`, error);
-        }
-      }
 
       return await this.toCourseMasterResponseDTO(course);
     } catch (error: any) {
@@ -567,6 +585,14 @@ export class CourseMasterService implements ICourseMasterService {
    * Submit a course master for review
    */
   async submitForReview(requester: Requester, courseMasterId: string): Promise<CourseMasterResponseDTO> {
+    // Backwards-compatible alias for syllabus review flow
+    return this.submitForSyllabusReview(requester, courseMasterId);
+  }
+
+  /**
+   * Explicit syllabus review submission entrypoint (Layer 1).
+   */
+  async submitForSyllabusReview(requester: Requester, courseMasterId: string): Promise<CourseMasterResponseDTO> {
     if (!this.hasPermission(requester, 'course.update')) {
       throw new ForbiddenException('You do not have permission to submit course masters for review');
     }
@@ -576,14 +602,23 @@ export class CourseMasterService implements ICourseMasterService {
       throw new NotFoundException(`Course master with id ${courseMasterId} not found`);
     }
 
-    if (existing.status === 'published') {
-      throw new BadRequestException('Course master is already published');
+    if (existing.status === PrismaCourseMasterStatus.APPROVED) {
+      throw new BadRequestException('Course master is already approved');
     }
 
+    this.assertMasterTransition(existing.status as CourseMasterStatus, CourseMasterStatus.PENDING_REVIEW);
+
     const course = await this.courseRepository.update(courseMasterId, {
-      status: (PrismaCourseMasterStatus as any).pending_review,
-      rejectionReason: null
+      status: PrismaCourseMasterStatus.PENDING_REVIEW,
+      rejectionReason: null,
     });
+
+    await this.courseRepository.createMasterReview({
+      courseMaster: { connect: { id: courseMasterId } },
+      status: MasterReviewStatus.PENDING,
+      reviewer: undefined as any, // reviewer will be set when actually reviewed
+      checklist: {},
+    } as any);
 
     await this.createAuditLog({
       userId: requester.sub,
@@ -632,131 +667,11 @@ export class CourseMasterService implements ICourseMasterService {
   }
 
   /**
-   * Publish a course master (set approvedBy and approvedAt)
-   * Also creates a CourseVersion snapshot.
+   * Publish a course master (legacy alias).
+   * In the new flow, this is effectively an APPROVED syllabus review.
    */
   async publish(requester: Requester, courseMasterId: string): Promise<CourseMasterResponseDTO> {
-    if (!this.hasPermission(requester, 'course.publish')) {
-      throw new ForbiddenException('You do not have permission to publish course masters');
-    }
-
-    const existing = await this.courseRepository.findById(courseMasterId);
-    if (!existing || existing.deletedAt) {
-      throw new NotFoundException(`Course master with id ${courseMasterId} not found`);
-    }
-
-    const publishUpdateData: any = {
-      approvedBy: requester.sub,
-      approvedAt: new Date(),
-      status: CourseMasterStatus.PUBLISHED,
-      rejectionReason: null, // Clear any previous rejection
-    };
-
-    const course = await this.courseRepository.update(courseMasterId, publishUpdateData);
-
-    // Create a new CourseVersion snapshot
-    try {
-      // 1. Fetch modules and lessons
-      const modules = await this.moduleRepository.findByCourseId(courseMasterId);
-      const curriculumSnapshot = await Promise.all(
-        modules.map(async (module) => {
-          const lessons = await this.lessonRepository.findByModuleId(module.id);
-          return {
-            id: module.id,
-            title: module.title,
-            description: module.description,
-            orderIndex: module.orderIndex,
-            durationMinutes: module.durationMinutes,
-            lessons: lessons.map(lesson => ({
-              id: lesson.id,
-              title: lesson.title,
-              contentType: lesson.contentType,
-              videoUrl: lesson.videoUrl,
-              videoDuration: lesson.videoDuration,
-              articleContent: lesson.articleContent,
-              orderIndex: lesson.orderIndex,
-              isPreview: lesson.isPreview,
-              isUnlocked: lesson.isUnlocked,
-            })),
-          };
-        })
-      );
-
-      // 2. Determine version tag
-      const latestVersion = await this.courseRepository.getLatestVersion(courseMasterId);
-      let nextVersionNumber = 1;
-      if (latestVersion && latestVersion.versionTag.startsWith('v')) {
-        const currentVersion = parseFloat(latestVersion.versionTag.substring(1));
-        if (!isNaN(currentVersion)) {
-          nextVersionNumber = Math.floor(currentVersion) + 1;
-        }
-      }
-      const versionTag = `v${nextVersionNumber}.0`;
-
-      // Create a new CourseVersion snapshot
-      const newVersion = await this.courseRepository.createVersion({
-        courseMaster: { connect: { id: courseMasterId } },
-        versionTag,
-        curriculumSnapshot: curriculumSnapshot as any,
-        changelog: `Published version ${versionTag}`,
-      });
-      this.logger.log(`Created new CourseVersion ${versionTag} for course master ${courseMasterId}`);
-
-      if (course.type === 'vod') {
-        try {
-          // Check if any run already exists
-          const existingRunsResult = await lastValueFrom(
-            this.natsClient.send({ cmd: 'learning.courserun.findAll' }, { courseMasterId: course.id, limit: 1 })
-          );
-
-          const existingRuns = (existingRunsResult as any).data;
-
-          if (!existingRuns || existingRuns.length === 0) {
-            this.logger.log(`Automatically creating default VOD run for syllabus ${course.id}`);
-            await lastValueFrom(
-              this.natsClient.send({ cmd: 'learning.courserun.create' }, {
-                courseMasterId: course.id,
-                title: `${course.title} (VOD)`,
-                versionId: latestVersion ? latestVersion.id : undefined,
-                price: 0,
-                status: 'enrolling', // VOD is generally always enrolling once published
-              })
-            );
-          }
-        } catch (runError: any) {
-          this.logger.error(`Failed to create default VOD run: ${runError.message}`);
-        }
-      }
-    } catch (error: any) {
-      this.logger.error(`Failed to create course version snapshot: ${error?.message}`, error);
-    }
-
-    await this.createAuditLog({
-      userId: requester.sub,
-      action: 'course-master.publish',
-      entity: 'course-master',
-      entityId: courseMasterId,
-      description: `Published course master: ${existing.title}`,
-      oldValues: existing,
-      newValues: course,
-    });
-
-    // Emit event
-    try {
-      this.logger.log(`Course master ${course.id} published, emitting event`);
-      this.natsClient.emit(
-        { cmd: 'course-master.published' },
-        {
-          courseMasterId: course.id,
-          courseTitle: course.title,
-          courseJlptLevel: course.jlptLevel,
-        },
-      );
-    } catch (error: any) {
-      this.logger.error(`Failed to emit course-master.published event: ${error?.message}`, error);
-    }
-
-    return await this.toCourseMasterResponseDTO(course);
+    return this.reviewSyllabus(requester, courseMasterId, { outcome: 'APPROVED' });
   }
 
   /**
@@ -772,8 +687,10 @@ export class CourseMasterService implements ICourseMasterService {
       throw new NotFoundException(`Course master with id ${courseMasterId} not found`);
     }
 
+    this.assertMasterTransition(existing.status as CourseMasterStatus, CourseMasterStatus.ARCHIVED);
+
     const unpublishUpdateData: any = {
-      status: CourseMasterStatus.ARCHIVED,
+      status: PrismaCourseMasterStatus.ARCHIVED,
     };
 
     const course = await this.courseRepository.update(courseMasterId, unpublishUpdateData);
@@ -804,26 +721,11 @@ export class CourseMasterService implements ICourseMasterService {
       throw new NotFoundException(`Course master with id ${courseMasterId} not found`);
     }
 
-    const rejectUpdateData: any = {
-      approvedBy: requester.sub, // Track who rejected it
-      status: CourseMasterStatus.REJECTED,
+    return this.reviewSyllabus(requester, courseMasterId, {
+      outcome: 'CHANGES_REQUIRED',
       rejectionReason: reason,
-    };
-
-    const course = await this.courseRepository.update(courseMasterId, rejectUpdateData);
-
-    await this.createAuditLog({
-      userId: requester.sub,
-      action: 'course-master.reject',
-      entity: 'course-master',
-      entityId: courseMasterId,
-      description: `Rejected course master: ${existing.title}. Reason: ${reason}`,
-      oldValues: existing,
-      newValues: course,
-      metadata: { reason }
+      comments: reason,
     });
-
-    return await this.toCourseMasterResponseDTO(course);
   }
 
   /**
@@ -1041,8 +943,8 @@ export class CourseMasterService implements ICourseMasterService {
       }
 
       // 1. Check status
-      if (course.status !== 'published') {
-        return { isReady: false, message: 'Course master must be published before scheduling' };
+      if (course.status !== PrismaCourseMasterStatus.APPROVED) {
+        return { isReady: false, message: 'Course master must be approved before scheduling' };
       }
 
       // 2. Check type
@@ -1088,5 +990,165 @@ export class CourseMasterService implements ICourseMasterService {
    */
   async getVersionById(versionId: string): Promise<any | null> {
     return this.courseRepository.getVersionById(versionId);
+  }
+
+  /**
+   * Recalculate and update course master statistics
+   */
+  async recalculateStats(courseMasterId: string): Promise<void> {
+    try {
+      this.logger.log(`Recalculating stats for course master ${courseMasterId}`);
+
+      const [totalLessons, totalModules] = await Promise.all([
+        this.courseRepository.countLessons(courseMasterId),
+        this.courseRepository.countModules(courseMasterId),
+      ]);
+
+      await this.courseRepository.updateStats(courseMasterId, {
+        totalLessons,
+        totalModules,
+      });
+
+      this.logger.log(`Successfully recalculated stats for course master ${courseMasterId}: ${totalModules} modules, ${totalLessons} lessons`);
+    } catch (error) {
+      this.logger.error(`Failed to recalculate stats for course master ${courseMasterId}`, error);
+    }
+  }
+
+  /**
+   * Academic review of CourseMaster syllabus (Layer 1).
+   */
+  async reviewSyllabus(
+    requester: Requester,
+    courseMasterId: string,
+    payload: {
+      outcome: 'APPROVED' | 'REJECTED' | 'CHANGES_REQUIRED';
+      checklist?: Record<string, any>;
+      comments?: string;
+      rejectionReason?: string;
+    },
+  ): Promise<CourseMasterResponseDTO> {
+    if (!this.hasPermission(requester, 'course.publish')) {
+      throw new ForbiddenException('Only academic staff can review course masters');
+    }
+
+    const existing = await this.courseRepository.findById(courseMasterId);
+    if (!existing || existing.deletedAt) {
+      throw new NotFoundException(`Course master with id ${courseMasterId} not found`);
+    }
+
+    const currentStatus = existing.status as CourseMasterStatus;
+    let targetStatus: CourseMasterStatus;
+    let reviewStatus: MasterReviewStatus;
+
+    switch (payload.outcome) {
+      case 'APPROVED':
+        targetStatus = CourseMasterStatus.APPROVED;
+        reviewStatus = MasterReviewStatus.APPROVED;
+        break;
+      case 'REJECTED':
+        targetStatus = CourseMasterStatus.CHANGES_REQUIRED;
+        reviewStatus = MasterReviewStatus.REJECTED;
+        break;
+      case 'CHANGES_REQUIRED':
+      default:
+        targetStatus = CourseMasterStatus.CHANGES_REQUIRED;
+        reviewStatus = MasterReviewStatus.CHANGES_REQUIRED;
+        break;
+    }
+
+    this.assertMasterTransition(currentStatus, targetStatus);
+
+    const updateData: any = {
+      status: targetStatus as any,
+      approvedBy: payload.outcome === 'APPROVED' ? requester.sub : existing.approvedBy,
+      approvedAt: payload.outcome === 'APPROVED' ? new Date() : existing.approvedAt,
+      rejectionReason: payload.rejectionReason ?? null,
+    };
+
+    const course = await this.courseRepository.update(courseMasterId, updateData);
+
+    // Find latest review and append a new round if needed
+    let latestReview: CourseMasterReview | null = await this.courseRepository.getLatestMasterReview(courseMasterId);
+
+    if (!latestReview || latestReview.status === MasterReviewStatus.APPROVED) {
+      latestReview = await this.courseRepository.createMasterReview({
+        courseMaster: { connect: { id: courseMasterId } },
+        reviewer: { connect: { id: requester.sub } },
+        status: reviewStatus,
+        checklist: payload.checklist ?? {},
+        comments: payload.comments ?? null,
+        rejectionReason: payload.rejectionReason ?? null,
+        reviewedAt: new Date(),
+      } as any);
+    } else {
+      latestReview = await this.courseRepository.updateMasterReview(latestReview.id, {
+        status: reviewStatus,
+        checklist: payload.checklist ?? latestReview.checklist ?? {},
+        comments: payload.comments ?? latestReview.comments,
+        rejectionReason: payload.rejectionReason ?? latestReview.rejectionReason,
+        reviewedAt: new Date(),
+        reviewer: { connect: { id: requester.sub } },
+      } as any);
+    }
+
+    // Create CourseVersion snapshot on APPROVED
+    if (payload.outcome === 'APPROVED') {
+      const version = await this.createCourseVersionSnapshot(courseMasterId);
+
+      // Auto-create default VOD run in DRAFT if none exists yet
+      if (course.type === 'vod') {
+        try {
+          const existingRunsResult = await lastValueFrom(
+            this.natsClient.send({ cmd: 'learning.courserun.findAll' }, { courseMasterId: course.id, limit: 1 }),
+          );
+          const existingRuns = (existingRunsResult as any).data;
+
+          if (!existingRuns || existingRuns.length === 0) {
+            this.logger.log(`Automatically creating default VOD run (DRAFT) for syllabus ${course.id}`);
+            await lastValueFrom(
+              this.natsClient.send(
+                { cmd: 'learning.courserun.create' },
+                {
+                  courseMasterId: course.id,
+                  title: `${course.title} (VOD)`,
+                  versionId: version ? version.id : undefined,
+                  price: 0,
+                },
+              ),
+            );
+          }
+        } catch (runError: any) {
+          this.logger.error(`Failed to create default VOD run: ${runError.message}`);
+        }
+      }
+
+      try {
+        this.logger.log(`Course master ${course.id} approved, emitting course-master.published event`);
+        this.natsClient.emit(
+          { cmd: 'course-master.published' },
+          {
+            courseMasterId: course.id,
+            courseTitle: course.title,
+            courseJlptLevel: course.jlptLevel,
+          },
+        );
+      } catch (error: any) {
+        this.logger.error(`Failed to emit course-master.published event: ${error?.message}`, error);
+      }
+    }
+
+    await this.createAuditLog({
+      userId: requester.sub,
+      action: 'course-master.review_syllabus',
+      entity: 'course-master',
+      entityId: courseMasterId,
+      description: `Reviewed course master: ${existing.title} with outcome ${payload.outcome}`,
+      oldValues: existing,
+      newValues: course,
+      metadata: { outcome: payload.outcome, reviewId: latestReview?.id },
+    });
+
+    return this.toCourseMasterResponseDTO(course);
   }
 }

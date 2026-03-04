@@ -20,7 +20,7 @@ import {
 } from "@hugeicons/core-free-icons"
 import Link from "next/link"
 
-type IconWrapperProps = Omit<React.ComponentProps<typeof HugeiconsIcon>, "icon"> & { icon?: any };
+type IconWrapperProps = Omit<React.ComponentProps<typeof HugeiconsIcon>, "icon">;
 
 const PlayCircle = (props: IconWrapperProps) => <HugeiconsIcon icon={PlayCircleIcon} {...props} />
 const Video = (props: IconWrapperProps) => <HugeiconsIcon icon={VideoIcon} {...props} />
@@ -293,7 +293,7 @@ export default function Page() {
                                     <div className="flex text-amber-500 gap-1">
                                         {[1, 2, 3, 4, 5].map(s => <Star fill="currentColor" className="size-5" key={s} />)}
                                     </div>
-                                    <p className="text-zinc-700 italic leading-relaxed text-lg">"{h.q}"</p>
+                                    <p className="text-zinc-700 italic leading-relaxed text-lg">&quot;{h.q}&quot;</p>
                                     <div className="flex items-center gap-4 pt-4 border-t border-zinc-50">
                                         <Avatar className="size-12">
                                             <AvatarImage src={`https://i.pravatar.cc/100?img=${h.avt}`} />

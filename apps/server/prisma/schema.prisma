@@ -15,29 +15,36 @@ datasource db {
 }
 
 enum CourseMasterStatus {
-  draft
-  pending_review
-  published
-  rejected
-  archived
+  DRAFT
+  PENDING_REVIEW
+  CHANGES_REQUIRED
+  APPROVED
+  ARCHIVED
 }
 
 // Thêm các Enums mới cho mô hình Master/Run
 enum CourseRunStatus {
+  DRAFT
+  PENDING_REVIEW
+  CHANGES_REQUIRED
+  APPROVED
   PLANNING
   ENROLLING
   IN_PROGRESS
   POSTPONED
-  CANCELLED_BY_SYSTEM
   COMPLETED
+  CANCELLED_BY_SYSTEM
+  CANCELLED
+  ARCHIVED
 }
 
 enum EnrollmentStatus {
-  ACTIVE
-  SUSPENDED
-  REFUNDED
-  CANCELLED
-  COMPLETED
+  PENDING_PAYMENT // Order placed, awaiting payment
+  ACTIVE          // Paid and learning in progress
+  COMPLETED       // Finished all lessons/requirements
+  SUSPENDED       // Temporarily suspended by admin
+  REFUNDED        // Payment returned
+  CANCELLED       // Cancelled / dropped
 }
 
 enum LiveSessionStatus {
@@ -48,41 +55,45 @@ enum LiveSessionStatus {
   CANCELLED
 }
 
+enum ScheduleRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model CourseMaster {
-  id               String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title            String  @db.VarChar(255)
-  slug             String  @unique @db.VarChar(255)
-  type             String  @default("vod") @db.VarChar(20) // 'vod' | 'live'
-  // Content Blueprint (Syllabus)
-  description      String? @db.Text
-  shortDescription String? @map("short_description") @db.VarChar(500)
-  jlptLevel        String  @map("jlpt_level") @db.VarChar(5)
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title            String   @db.VarChar(255)
+  slug             String   @unique @db.VarChar(255)
+  type             String   @default("vod") @db.VarChar(20) // 'vod' | 'live'
+  description      String?  @db.Text
+  shortDescription String?  @map("short_description") @db.VarChar(500)
+  jlptLevel        String   @map("jlpt_level") @db.VarChar(5)
+  tags             String[] @default([]) @db.VarChar(50)
 
-  // Commercial fields moved to CourseRun
-  // All transactions happen at the Run level
-
-  status           CourseMasterStatus @default(draft)
-  rejectionReason  String?            @map("rejection_reason") @db.Text
+  status           CourseMasterStatus @default(DRAFT)
   learningOutcomes Json               @default("[]") @map("learning_outcomes")
   requirements     Json               @default("[]")
+  coverUrl         String?            @map("cover_url") @db.Text
   createdBy        String?            @map("created_by") @db.Uuid
-  approvedBy       String?            @map("approved_by") @db.Uuid
-  approvedAt       DateTime?          @map("approved_at")
   createdAt        DateTime           @default(now()) @map("created_at")
   updatedAt        DateTime           @default(now()) @updatedAt @map("updated_at")
   deletedAt        DateTime?          @map("deleted_at")
 
   totalLessons Int @default(0) @map("total_lessons")
   totalModules Int @default(0) @map("total_modules")
-  // Relations
-  modules          Module[]
+  totalQuizzes Int @default(0) @map("total_quizzes")
 
-  versions   CourseVersion[]
-  courseRuns CourseRun[]
+  // Relations
+  modules       Module[]
+  versions      CourseVersion[]
+  courseRuns    CourseRun[]
+  masterReviews CourseMasterReview[]
+  creator       User?               @relation("CourseMasterCreator", fields: [createdBy], references: [id], onDelete: SetNull)
 
   @@index([jlptLevel])
   @@index([createdBy])
-  @@index([approvedBy])
+  @@index([status])
   @@map("course_masters")
 }
 
@@ -95,9 +106,10 @@ model CourseVersion {
   changelog          String?  @db.Text
   publishedAt        DateTime @default(now()) @map("published_at")
 
-  courseMaster CourseMaster @relation(fields: [courseMasterId], references: [id])
-  enrollments  Enrollment[]
-  courseRuns   CourseRun[]
+  courseMaster  CourseMaster       @relation(fields: [courseMasterId], references: [id])
+  enrollments   Enrollment[]
+  courseRuns    CourseRun[]
+  masterReviews CourseMasterReview[]
 
   @@map("course_versions")
 }
@@ -111,6 +123,7 @@ model CourseRun {
   slug  String @unique @db.VarChar(255)
 
   lecturerId String? @map("lecturer_id") @db.Uuid
+  isLegacy   Boolean @default(false) @map("is_legacy")
 
   startDate DateTime? @map("start_date")
   endDate   DateTime? @map("end_date")
@@ -128,10 +141,14 @@ model CourseRun {
   coverUrl        String? @map("cover_url") @db.Text
   previewVideoUrl String? @map("preview_video_url") @db.Text
 
+  // Trial policy is per Run — each run can have its own trial duration
+  trialDays       Int? @map("trial_days")
+  maxTrialLessons Int? @map("max_trial_lessons")
+
   // Live class configuration (WebRTC, LiveKit, etc.) is per Run
   liveConfig Json? @map("live_config")
 
-  status CourseRunStatus @default(PLANNING)
+  status CourseRunStatus @default(DRAFT)
 
   averageRating Decimal? @default(0.00) @map("average_rating") @db.Decimal(3, 2)
   totalReviews  Int      @default(0) @map("total_reviews")
@@ -159,12 +176,71 @@ model CourseRun {
 
   teachingSchedules TeachingSchedule[]
   scheduleRequests  LiveSessionScheduleRequest[]
+  runReviews        CourseRunReview[]
+  runLessons        CourseRunLesson[]
 
   @@index([courseMasterId])
   @@index([versionId])
   @@index([lecturerId])
   @@index([status])
   @@map("course_runs")
+}
+
+enum MasterReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CHANGES_REQUIRED
+}
+
+model CourseMasterReview {
+  id             String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseMasterId String             @map("course_master_id") @db.Uuid
+  versionId      String?            @map("version_id") @db.Uuid
+  reviewerId     String             @map("reviewer_id") @db.Uuid
+  status         MasterReviewStatus @default(PENDING)
+  checklist      Json               @default("{}")
+  comments       String?            @db.Text
+  rejectionReason String?           @map("rejection_reason") @db.Text
+  reviewedAt     DateTime?          @map("reviewed_at")
+  createdAt      DateTime           @default(now()) @map("created_at")
+
+  courseMaster CourseMaster @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
+  version      CourseVersion? @relation(fields: [versionId], references: [id], onDelete: SetNull)
+  reviewer     User           @relation(fields: [reviewerId], references: [id])
+
+  @@index([courseMasterId])
+  @@index([status])
+  @@index([reviewerId])
+  @@map("course_master_reviews")
+}
+
+enum RunReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CHANGES_REQUIRED
+}
+
+model CourseRunReview {
+  id           String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseRunId  String          @map("course_run_id") @db.Uuid
+  reviewerId   String          @map("reviewer_id") @db.Uuid
+  status       RunReviewStatus @default(PENDING)
+  roundNumber  Int             @default(1) @map("round_number")
+  checklist    Json            @default("{}")
+  comments     String?         @db.Text
+  rejectionReason String?      @map("rejection_reason") @db.Text
+  reviewedAt   DateTime?       @map("reviewed_at")
+  createdAt    DateTime        @default(now()) @map("created_at")
+
+  courseRun CourseRun @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+  reviewer  User      @relation(fields: [reviewerId], references: [id])
+
+  @@index([courseRunId])
+  @@index([status])
+  @@index([reviewerId])
+  @@map("course_run_reviews")
 }
 
 // Modules: chapters/sections that belong to a Course
@@ -176,7 +252,6 @@ model Module {
   status          String    @default("published") @db.VarChar(20) // published, draft
   orderIndex      Int       @default(0) @map("order_index")
   durationMinutes Int?      @map("duration_minutes")
-  createdBy       String?   @map("created_by") @db.Uuid
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at")
   deletedAt       DateTime? @map("deleted_at")
@@ -195,15 +270,14 @@ model Lesson {
   title                String    @db.VarChar(255)
   contentType          String    @map("content_type") @db.VarChar(20)
   videoUrl             String?   @map("video_url") @db.Text
-  videoDuration        Int?      @map("video_duration")
   durationMinutes      Int?      @map("duration_minutes")
   articleContent       String?   @map("article_content") @db.Text
+  hasQuiz              Boolean   @default(false) @map("has_quiz")
+  hasAssignment        Boolean   @default(false) @map("has_assignment")
   requiresPassingGrade Boolean   @default(false) @map("requires_passing_grade")
   status               String    @default("published") @db.VarChar(20) // published, draft
   orderIndex           Int       @default(0) @map("order_index")
   isPreview            Boolean   @default(false) @map("is_preview")
-  isUnlocked           Boolean   @default(true) @map("is_unlocked")
-  createdBy            String?   @map("created_by") @db.Uuid
   createdAt            DateTime  @default(now()) @map("created_at")
   updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at")
   deletedAt            DateTime? @map("deleted_at")
@@ -213,9 +287,48 @@ model Lesson {
   materials      LessonMaterial[]
   lessonProgress LessonProgress[]
   assignments    Assignment[]
+  runLessons     CourseRunLesson[]
+  // Lessons that list THIS lesson as a prerequisite (back-reference)
+  isPrerequisiteFor CourseRunLesson[] @relation("RunLessonPrerequisite")
 
   @@index([moduleId])
   @@map("lessons")
+}
+
+model CourseRunLesson {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseRunId    String    @map("course_run_id") @db.Uuid
+  lessonId       String    @map("lesson_id") @db.Uuid
+
+  // Run-specific ordering (can differ from the Master blueprint)
+  orderIndex     Int       @default(0) @map("order_index")
+
+  // Run-specific content overrides
+  videoUrl       String?   @map("video_url") @db.Text
+  videoDuration  Int?      @map("video_duration")
+  articleContent String?   @map("article_content") @db.Text
+  recordingUrl   String?   @map("recording_url") @db.Text
+
+  // Drip content: access control per Run
+  // isUnlocked=false → locked by default; the scheduler flips it based on rules below
+  isUnlocked           Boolean @default(true) @map("is_unlocked")
+  // Unlock N calendar days after CourseRun.enrollmentStart (null = no time gate)
+  unlocksOnDay         Int?    @map("unlocks_on_day")
+  // Unlock only after a specific lesson is completed (null = no prerequisite)
+  prerequisiteLessonId String? @map("prerequisite_lesson_id") @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  courseRun          CourseRun @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+  lesson             Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  prerequisiteLesson Lesson?   @relation("RunLessonPrerequisite", fields: [prerequisiteLessonId], references: [id], onDelete: SetNull)
+
+  @@unique([courseRunId, lessonId])
+  @@index([courseRunId])
+  @@index([lessonId])
+  @@index([prerequisiteLessonId])
+  @@map("course_run_lessons")
 }
 
 // Lesson Progress - Tracks progress for each lesson within an enrollment
@@ -223,6 +336,7 @@ model LessonProgress {
   id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   enrollmentId    String    @map("enrollment_id") @db.Uuid
   lessonId        String    @map("lesson_id") @db.Uuid
+  courseRunId     String    @map("course_run_id") @db.Uuid
   status          String    @default("not_started") @db.VarChar(20) // not_started, in_progress, completed
   watchedDuration Int       @default(0) @map("watched_duration")
   totalDuration   Int       @map("total_duration")
@@ -236,6 +350,7 @@ model LessonProgress {
   @@unique([enrollmentId, lessonId])
   @@index([enrollmentId])
   @@index([lessonId])
+  @@index([courseRunId])
   @@map("lesson_progress")
 }
 
@@ -288,6 +403,7 @@ model Assignment {
   // Relations
   courseRun   CourseRun    @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
   lesson      Lesson?      @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  creator     User         @relation("AssignmentCreator", fields: [createdBy], references: [id], onDelete: Restrict)
   submissions Submission[]
 
   @@index([courseRunId])
@@ -337,8 +453,7 @@ model Submission {
   gradedAt DateTime? @map("graded_at")
 
   // History tracking
-  attemptNumber        Int     @default(1) @map("attempt_number")
-  previousSubmissionId String? @map("previous_submission_id") @db.Uuid
+  attemptNumber Int @default(1) @map("attempt_number")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
@@ -346,6 +461,8 @@ model Submission {
   // Relations
   assignment     Assignment     @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
   courseRun      CourseRun      @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+  user           User           @relation("SubmissionUser", fields: [userId], references: [id], onDelete: Cascade)
+  grader         User?          @relation("SubmissionGrader", fields: [gradedBy], references: [id], onDelete: SetNull)
   gradeHistories GradeHistory[]
 
   @@unique([assignmentId, userId, attemptNumber])
@@ -374,7 +491,8 @@ model GradeHistory {
   createdAt DateTime @default(now()) @map("created_at")
 
   // Relations
-  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  submission    Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  changedByUser User       @relation("GradeHistoryChanger", fields: [changedBy], references: [id], onDelete: Restrict)
 
   @@index([submissionId])
   @@index([changedBy])
@@ -393,9 +511,9 @@ model LiveSession {
   title       String   @db.VarChar(255)
   description String?  @db.Text
   scheduledAt DateTime @map("scheduled_at")
-  duration    Int      @default(90) // minutes
-  status      String   @default("scheduled") // scheduled, live, ended, cancelled
-  meetingId   String?  @map("meeting_id") @db.VarChar(100)
+  duration    Int               @default(90) // minutes
+  status      LiveSessionStatus @default(SCHEDULED)
+  meetingId   String?           @map("meeting_id") @db.VarChar(100)
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
   scheduleId  String?  @map("schedule_id") @db.Uuid
@@ -413,6 +531,7 @@ model LiveSession {
 
   courseRun   CourseRun         @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
   schedule    TeachingSchedule? @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
+  lecturer    User?             @relation("LiveSessionLecturer", fields: [lecturerId], references: [id], onDelete: SetNull)
   attendances Attendance[]
 
   @@index([courseRunId])
@@ -477,7 +596,7 @@ model LiveSessionScheduleRequest {
   startTime          String   @map("start_time")
   duration           Int      @default(90)
   reason             String?  @db.Text
-  status             String   @default("pending") // pending, approved, rejected
+  status             ScheduleRequestStatus @default(PENDING)
   createdAt          DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @default(now()) @updatedAt @map("updated_at")
 
@@ -705,6 +824,25 @@ model User {
   cart                  Cart?
   blogs                 Blog[]
   placementResults      PlacementResult[]
+
+  // Course Management
+  createdCourses CourseMaster[] @relation("CourseMasterCreator")
+
+  // Review Relations
+  masterReviewsGiven CourseMasterReview[]
+  runReviewsGiven    CourseRunReview[]
+
+  // Live Session Relations
+  liveSessions LiveSession[] @relation("LiveSessionLecturer")
+
+  // Assignment & Grading Relations
+  createdAssignments Assignment[]   @relation("AssignmentCreator")
+  submissions        Submission[]   @relation("SubmissionUser")
+  gradedSubmissions  Submission[]   @relation("SubmissionGrader")
+  gradeHistories     GradeHistory[] @relation("GradeHistoryChanger")
+
+  // Quiz Relations
+  quizAttempts QuizAttempt[] @relation("QuizAttemptUser")
 
   @@index([email])
   @@index([role])
@@ -955,15 +1093,6 @@ model Flashcard {
   generationMethod   FlashcardGenerationMethod @default(manual) @map("generation_method")
   generationMetadata Json?                     @default("{}") @map("generation_metadata")
 
-  // SRS fields (global - for compatibility)
-  nextReviewDate DateTime? @map("next_review_date") @db.Date
-  intervalDays   Int       @default(1) @map("interval_days")
-  easeFactor     Decimal   @default(2.50) @map("ease_factor") @db.Decimal(4, 2)
-  reviewCount    Int       @default(0) @map("review_count")
-  correctCount   Int       @default(0) @map("correct_count")
-  lastReviewDate DateTime? @map("last_review_date") @db.Date
-  timesStudied   Int       @default(0) @map("times_studied")
-
   // Metadata
   notes      String? @db.Text
   isArchived Boolean @default(false) @map("is_archived")
@@ -978,7 +1107,6 @@ model Flashcard {
   reviews        FlashcardReview[]
 
   @@index([deckId])
-  @@index([nextReviewDate])
   @@index([aiGenerated])
   @@index([wordJlptLevel])
   @@index([sourceDocumentId])
@@ -1430,6 +1558,7 @@ model QuizAttempt {
   // Relations
   quiz            Quiz                @relation(fields: [quizId], references: [id], onDelete: Cascade)
   courseRun       CourseRun?          @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+  user            User                @relation("QuizAttemptUser", fields: [userId], references: [id], onDelete: Cascade)
   placementResult PlacementResult?
   details         QuizAttemptDetail[]
 
@@ -1547,11 +1676,9 @@ model Enrollment {
   courseRunId          String    @map("course_run_id") @db.Uuid
   versionId            String?   @map("version_id") @db.Uuid // Reference to CourseVersion for snapshot tracking
   enrollmentDate       DateTime  @default(now()) @map("enrollment_date")
-  completionStatus     String    @default("in_progress") @map("completion_status") @db.VarChar(20) // pending_payment, in_progress, completed, dropped
   completionPercentage Decimal   @default(0.00) @map("completion_percentage") @db.Decimal(5, 2)
   lastAccessedAt       DateTime? @map("last_accessed_at")
   completedAt          DateTime? @map("completed_at")
-  paymentId            String?   @unique @map("payment_id") @db.Uuid
   orderId              String?   @unique @map("order_id") @db.Uuid
   couponAppliedId      String?   @map("coupon_applied_id") @db.Uuid
   finalPrice           Decimal   @map("final_price") @db.Decimal(10, 2)
@@ -1563,14 +1690,15 @@ model Enrollment {
   createdAt            DateTime  @default(now()) @map("created_at")
   updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at")
 
-  enrollmentStatus EnrollmentStatus @default(ACTIVE) @map("enrollment_status")
+  enrollmentStatus EnrollmentStatus @default(PENDING_PAYMENT) @map("enrollment_status")
 
   // Relations
-  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  courseRun      CourseRun        @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
-  version        CourseVersion?   @relation(fields: [versionId], references: [id], onDelete: SetNull)
-  order          Order?           @relation(fields: [orderId], references: [id], onDelete: SetNull)
-  sender         User?            @relation("GiftEnrollments", fields: [senderId], references: [id], onDelete: SetNull)
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseRun     CourseRun      @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+  version       CourseVersion? @relation(fields: [versionId], references: [id], onDelete: SetNull)
+  order         Order?         @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  couponApplied Coupon?        @relation("EnrollmentCoupon", fields: [couponAppliedId], references: [id], onDelete: SetNull)
+  sender        User?          @relation("GiftEnrollments", fields: [senderId], references: [id], onDelete: SetNull)
   lessonProgress LessonProgress[]
   certificate    Certificate?
 
@@ -1578,7 +1706,6 @@ model Enrollment {
   @@index([userId])
   @@index([courseRunId])
   @@index([versionId])
-  @@index([completionStatus])
   @@index([enrollmentDate])
   @@index([expiresAt])
   @@map("enrollments")
@@ -1943,9 +2070,10 @@ model Coupon {
   deletedAt DateTime? @map("deleted_at")
 
   // Relations
-  orders  Order[]
-  creator User?   @relation("CouponCreator", fields: [createdBy], references: [id])
-  user    User?   @relation("RedeemedCoupon", fields: [userId], references: [id])
+  orders             Order[]
+  appliedEnrollments Enrollment[] @relation("EnrollmentCoupon")
+  creator            User?        @relation("CouponCreator", fields: [createdBy], references: [id])
+  user               User?        @relation("RedeemedCoupon", fields: [userId], references: [id])
 
   @@index([code])
   @@index([status])

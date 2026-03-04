@@ -9,15 +9,20 @@ import { ICourseMasterRepository } from '../../interfaces/repositories/i-course-
 import { COURSE_MASTER_REPOSITORY_TOKEN, COURSE_RUN_REPOSITORY_TOKEN } from '../../interfaces/repositories';
 import { generateSlug, PrismaService } from '@server/shared';
 
-// Valid status transitions for Course Run
-const STATUS_TRANSITIONS: Record<CourseRunStatus, CourseRunStatus[]> = {
-    [CourseRunStatus.PLANNING]: [CourseRunStatus.ENROLLING],
+// Valid status transitions for Course Run (Layer 2 state machine)
+const VALID_RUN_TRANSITIONS: Record<CourseRunStatus, CourseRunStatus[]> = {
+    [CourseRunStatus.DRAFT]: [CourseRunStatus.PENDING_REVIEW],
+    [CourseRunStatus.PENDING_REVIEW]: [CourseRunStatus.APPROVED, CourseRunStatus.CANCELLED, CourseRunStatus.CHANGES_REQUIRED, CourseRunStatus.DRAFT],
+    [CourseRunStatus.CHANGES_REQUIRED]: [CourseRunStatus.PENDING_REVIEW, CourseRunStatus.DRAFT],
+    [CourseRunStatus.APPROVED]: [CourseRunStatus.PLANNING, CourseRunStatus.ENROLLING],
+    [CourseRunStatus.PLANNING]: [CourseRunStatus.ENROLLING, CourseRunStatus.CANCELLED_BY_SYSTEM],
     [CourseRunStatus.ENROLLING]: [CourseRunStatus.IN_PROGRESS, CourseRunStatus.POSTPONED, CourseRunStatus.CANCELLED_BY_SYSTEM],
-    [CourseRunStatus.IN_PROGRESS]: [CourseRunStatus.COMPLETED, CourseRunStatus.POSTPONED],
-    [CourseRunStatus.POSTPONED]: [CourseRunStatus.ENROLLING, CourseRunStatus.CANCELLED_BY_SYSTEM],
-    [CourseRunStatus.COMPLETED]: [],
+    [CourseRunStatus.IN_PROGRESS]: [CourseRunStatus.COMPLETED, CourseRunStatus.POSTPONED, CourseRunStatus.CANCELLED_BY_SYSTEM],
+    [CourseRunStatus.POSTPONED]: [CourseRunStatus.IN_PROGRESS, CourseRunStatus.CANCELLED_BY_SYSTEM],
+    [CourseRunStatus.COMPLETED]: [CourseRunStatus.ARCHIVED],
     [CourseRunStatus.CANCELLED_BY_SYSTEM]: [],
     [CourseRunStatus.CANCELLED]: [],
+    [CourseRunStatus.ARCHIVED]: [],
 };
 
 @Injectable()
@@ -35,6 +40,16 @@ export class CourseRunService {
         @InjectMapper()
         private readonly mapper: Mapper,
     ) { }
+
+    private assertRunTransition(from: CourseRunStatus, to: CourseRunStatus) {
+        if (from === to) return;
+        const allowed = VALID_RUN_TRANSITIONS[from] || [];
+        if (!allowed.includes(to)) {
+            throw new BadRequestException(
+                `Cannot transition course run from '${from}' to '${to}'. Allowed transitions: [${allowed.join(', ') || 'none'}]`,
+            );
+        }
+    }
 
     async create(requester: Requester, dto: CourseRunCreateDTO): Promise<CourseRunResponseDTO> {
         if (!this.hasPermission(requester, 'course.update')) {
@@ -71,8 +86,36 @@ export class CourseRunService {
             ...dto,
             slug,
             versionId: dto.versionId || latestVersion.id,
-            status: CourseRunStatus.PLANNING,
+            status: CourseRunStatus.DRAFT,
         } as any);
+
+        // Auto-generate CourseRunLesson entries based on current Lesson outline
+        try {
+            const modules = await this.prisma.module.findMany({
+                where: { courseMasterId: dto.courseMasterId },
+                select: { id: true },
+            });
+            const lessons = await this.prisma.lesson.findMany({
+                where: { moduleId: { in: modules.map(m => m.id) } },
+                select: { id: true },
+            });
+
+            if (lessons.length > 0) {
+                await this.courseRunRepository.createRunLessons(
+                    lessons.map(lesson => ({
+                        courseRunId: run.id,
+                        lessonId: lesson.id,
+                        videoUrl: null,
+                        videoDuration: null,
+                        articleContent: null,
+                        recordingUrl: null,
+                        isUnlocked: true,
+                    })),
+                );
+            }
+        } catch (error: any) {
+            this.logger.error(`Failed to auto-generate CourseRunLesson entries for run ${run.id}: ${error?.message}`, error);
+        }
 
         await this.emitAuditLog(requester.sub, 'courserun.create', run.id, `Created course run: ${run.title}`);
 
@@ -217,13 +260,7 @@ export class CourseRunService {
         const isVod = (courseMaster as any)?.type === 'vod';
 
         const currentStatus = existing.status as CourseRunStatus;
-        const allowedTransitions = STATUS_TRANSITIONS[currentStatus] || [];
-
-        if (!allowedTransitions.includes(status)) {
-            throw new BadRequestException(
-                `Cannot transition course run from '${currentStatus}' to '${status}'. Allowed transitions: [${allowedTransitions.join(', ') || 'none'}]`
-            );
-        }
+        this.assertRunTransition(currentStatus, status);
 
         // Guard: For LIVE classes, cannot move to ENROLLING if no start date is set.
         // For VOD courses, startDate is optional and learners can enroll anytime.
@@ -249,6 +286,138 @@ export class CourseRunService {
             `Updated course run status from '${currentStatus}' to '${status}'`,
             { status: currentStatus },
             { status }
+        );
+
+        return this.toResponseDTO(updated);
+    }
+
+    async submitForContentReview(requester: Requester, id: string): Promise<CourseRunResponseDTO> {
+        const existing = await this.courseRunRepository.findById(id);
+        if (!existing) {
+            throw new NotFoundException(`Course run with id ${id} not found`);
+        }
+
+        this.checkOwnership(requester, existing);
+
+        const currentStatus = existing.status as CourseRunStatus;
+        this.assertRunTransition(currentStatus, CourseRunStatus.PENDING_REVIEW);
+
+        const updated = await this.courseRunRepository.update(id, {
+            status: CourseRunStatus.PENDING_REVIEW as any,
+        });
+
+        await this.courseRunRepository.createRunReview({
+            courseRun: { connect: { id } },
+            reviewer: undefined as any,
+            status: 'PENDING' as any,
+            roundNumber: 1,
+            checklist: {},
+        } as any);
+
+        await this.emitAuditLog(
+            requester.sub,
+            'courserun.submit_for_content_review',
+            id,
+            `Submitted course run for content review: ${existing.title}`,
+            existing,
+            updated,
+        );
+
+        return this.toResponseDTO(updated);
+    }
+
+    async reviewRunContent(
+        requester: Requester,
+        id: string,
+        payload: {
+            outcome: 'APPROVED' | 'REJECTED' | 'CHANGES_REQUIRED';
+            checklist?: Record<string, any>;
+            comments?: string;
+            rejectionReason?: string;
+            moveToPlanning?: boolean;
+            moveToEnrolling?: boolean;
+        },
+    ): Promise<CourseRunResponseDTO> {
+        if (requester.role !== UserRole.ADMIN && requester.role !== UserRole.STAFF_LMS && requester.role !== UserRole.STAFF) {
+            throw new ForbiddenException('Only staff can review course runs');
+        }
+
+        const existing = await this.courseRunRepository.findById(id);
+        if (!existing) {
+            throw new NotFoundException(`Course run with id ${id} not found`);
+        }
+
+        let targetStatus: CourseRunStatus;
+        switch (payload.outcome) {
+            case 'APPROVED':
+                targetStatus = CourseRunStatus.APPROVED;
+                break;
+            case 'REJECTED':
+            case 'CHANGES_REQUIRED':
+            default:
+                targetStatus = CourseRunStatus.DRAFT;
+                break;
+        }
+
+        this.assertRunTransition(existing.status as CourseRunStatus, targetStatus);
+
+        let finalStatus = targetStatus;
+        if (payload.outcome === 'APPROVED') {
+            if (payload.moveToEnrolling) {
+                this.assertRunTransition(CourseRunStatus.APPROVED, CourseRunStatus.ENROLLING);
+                finalStatus = CourseRunStatus.ENROLLING;
+            } else if (payload.moveToPlanning) {
+                this.assertRunTransition(CourseRunStatus.APPROVED, CourseRunStatus.PLANNING);
+                finalStatus = CourseRunStatus.PLANNING;
+            }
+        }
+
+        const updated = await this.courseRunRepository.update(id, {
+            status: finalStatus as any,
+        });
+
+        const latestReviews = await this.courseRunRepository.findRunReviews(
+            { courseRunId: id },
+            { createdAt: 'desc' } as any,
+        );
+        const latest = latestReviews[0];
+
+        const reviewStatus =
+            payload.outcome === 'APPROVED'
+                ? 'APPROVED'
+                : payload.outcome === 'REJECTED'
+                ? 'REJECTED'
+                : 'CHANGES_REQUIRED';
+
+        if (latest) {
+            await this.courseRunRepository.updateRunReview(latest.id, {
+                status: reviewStatus as any,
+                checklist: payload.checklist ?? latest.checklist ?? {},
+                comments: payload.comments ?? latest.comments,
+                rejectionReason: payload.rejectionReason ?? latest.rejectionReason,
+                reviewer: { connect: { id: requester.sub } },
+                reviewedAt: new Date(),
+            } as any);
+        } else {
+            await this.courseRunRepository.createRunReview({
+                courseRun: { connect: { id } },
+                reviewer: { connect: { id: requester.sub } },
+                status: reviewStatus as any,
+                roundNumber: 1,
+                checklist: payload.checklist ?? {},
+                comments: payload.comments ?? null,
+                rejectionReason: payload.rejectionReason ?? null,
+                reviewedAt: new Date(),
+            } as any);
+        }
+
+        await this.emitAuditLog(
+            requester.sub,
+            'courserun.review_content',
+            id,
+            `Reviewed course run content: ${existing.title} with outcome ${payload.outcome}`,
+            existing,
+            updated,
         );
 
         return this.toResponseDTO(updated);
@@ -280,6 +449,61 @@ export class CourseRunService {
             limit,
             totalPages: Math.ceil(total / limit),
         };
+    }
+
+    async getRunLessons(requester: Requester, id: string): Promise<any> {
+        const existing = await this.courseRunRepository.findById(id);
+        if (!existing) {
+            throw new NotFoundException(`Course run with id ${id} not found`);
+        }
+
+        this.checkOwnership(requester, existing);
+
+        return this.courseRunRepository.findRunLessonsByRun(id);
+    }
+
+    async updateRunLesson(
+        requester: Requester,
+        courseRunId: string,
+        lessonId: string,
+        payload: {
+            videoUrl?: string | null;
+            videoDuration?: number | null;
+            articleContent?: string | null;
+            recordingUrl?: string | null;
+            isUnlocked?: boolean;
+        },
+    ): Promise<any> {
+        const run = await this.courseRunRepository.findById(courseRunId);
+        if (!run) {
+            throw new NotFoundException(`Course run with id ${courseRunId} not found`);
+        }
+
+        this.checkOwnership(requester, run);
+
+        const existingRunLesson = await this.courseRunRepository.findRunLesson(courseRunId, lessonId);
+        if (!existingRunLesson) {
+            throw new NotFoundException(`Run lesson not found for courseRunId=${courseRunId} and lessonId=${lessonId}`);
+        }
+
+        const updated = await this.courseRunRepository.updateRunLesson(courseRunId, lessonId, {
+            videoUrl: payload.videoUrl ?? existingRunLesson.videoUrl,
+            videoDuration: payload.videoDuration ?? existingRunLesson.videoDuration,
+            articleContent: payload.articleContent ?? existingRunLesson.articleContent,
+            recordingUrl: payload.recordingUrl ?? existingRunLesson.recordingUrl,
+            isUnlocked: payload.isUnlocked ?? existingRunLesson.isUnlocked,
+        } as any);
+
+        await this.emitAuditLog(
+            requester.sub,
+            'courserun.update_run_lesson',
+            courseRunId,
+            `Updated run lesson content for lesson ${lessonId} in run ${courseRunId}`,
+            existingRunLesson,
+            updated,
+        );
+
+        return updated;
     }
 
     async delete(requester: Requester, id: string): Promise<void> {

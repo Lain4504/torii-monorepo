@@ -14,6 +14,25 @@ export interface ICourseRunService {
      */
     updateStatus(requester: Requester, id: string, status: CourseRunStatus): Promise<CourseRunResponseDTO>;
     /**
+     * Submit a course run for content review (Lecturer action).
+     */
+    submitForContentReview(requester: Requester, id: string): Promise<CourseRunResponseDTO>;
+    /**
+     * Review course run content (Staff-LMS action).
+     */
+    reviewRunContent(
+        requester: Requester,
+        id: string,
+        payload: {
+            outcome: 'APPROVED' | 'REJECTED' | 'CHANGES_REQUIRED';
+            checklist?: Record<string, any>;
+            comments?: string;
+            rejectionReason?: string;
+            moveToPlanning?: boolean;
+            moveToEnrolling?: boolean;
+        },
+    ): Promise<CourseRunResponseDTO>;
+    /**
      * Find by id.
      */
     findById(id: string): Promise<CourseRunResponseDTO>;
@@ -33,6 +52,25 @@ export interface ICourseRunService {
      * Get students by course run.
      */
     getStudentsByCourseRun(id: string, page?: number, limit?: number): Promise<any>;
+    /**
+     * Get all run lessons (CourseRunLesson) for a course run.
+     */
+    getRunLessons(requester: Requester, id: string): Promise<any>;
+    /**
+     * Update content for a single run lesson.
+     */
+    updateRunLesson(
+        requester: Requester,
+        courseRunId: string,
+        lessonId: string,
+        payload: {
+            videoUrl?: string | null;
+            videoDuration?: number | null;
+            articleContent?: string | null;
+            recordingUrl?: string | null;
+            isUnlocked?: boolean;
+        },
+    ): Promise<any>;
     /**
      * Delete data.
      */

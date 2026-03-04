@@ -354,11 +354,6 @@ export class EnrollmentService implements IEnrollmentService {
         const course = courseRun.courseMaster;
         if (!course) throw new NotFoundException('Course not found');
 
-        // Check if course allows trial
-        if (!course.trialDays || course.trialDays <= 0) {
-            throw new BadRequestException('This course does not offer a trial period');
-        }
-
         // Check if already enrolled (any status)
         const existing = await this.enrollmentRepository.findByUserAndCourseRun(userId, courseRunId);
         if (existing) {
@@ -367,8 +362,9 @@ export class EnrollmentService implements IEnrollmentService {
 
         try {
             const now = new Date();
+            const TRIAL_DAYS = 7;
             const trialExpiresAt = new Date(now);
-            trialExpiresAt.setDate(now.getDate() + course.trialDays);
+            trialExpiresAt.setDate(now.getDate() + TRIAL_DAYS);
 
             const versionId = courseRun.versionId || (await this.courseRepository.getLatestVersion(course.id))?.id;
 
@@ -563,19 +559,9 @@ export class EnrollmentService implements IEnrollmentService {
                 return true;
             }
 
-            // If checking specific lesson
-            const course = await this.courseRepository.findById(courseMasterId);
-            if (!course) {
-                return false;
-            }
-
-            // If no limit defined, allow access (since time trial is valid)
-            if (!course.maxTrialLessons || course.maxTrialLessons <= 0) {
-                return true;
-            }
-
-            // Check if lesson is within the first N lessons
-            const allowedLessons = await this.lessonRepository.findTopLessonsByCourse(courseMasterId, course.maxTrialLessons);
+            // If checking specific lesson: limit access to the first N lessons (configurable constant)
+            const MAX_TRIAL_LESSONS = 3;
+            const allowedLessons = await this.lessonRepository.findTopLessonsByCourse(courseMasterId, MAX_TRIAL_LESSONS);
             return allowedLessons.some(l => l.id === lessonId);
         }
 
@@ -601,12 +587,8 @@ export class EnrollmentService implements IEnrollmentService {
                 return [];
             }
 
-            const course = await this.courseRepository.findById(courseMasterId);
-            if (!course || !course.maxTrialLessons) {
-                return 'ALL'; // No lesson limit defined for trial -> allow all (time-based only)
-            }
-
-            const lessons = await this.lessonRepository.findTopLessonsByCourse(courseMasterId, course.maxTrialLessons);
+            const MAX_TRIAL_LESSONS = 3;
+            const lessons = await this.lessonRepository.findTopLessonsByCourse(courseMasterId, MAX_TRIAL_LESSONS);
             return lessons.map(l => l.id);
         }
 

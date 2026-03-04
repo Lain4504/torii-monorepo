@@ -1,4 +1,4 @@
-import type { CourseRun, Prisma } from '@prisma/generated';
+import type { CourseRun, CourseRunLesson, CourseRunReview, Prisma } from '@prisma/generated';
 
 export interface ICourseRunRepository {
     /**
@@ -43,4 +43,39 @@ export interface ICourseRunRepository {
      * Find expired enrollment course runs.
      */
     findExpiredEnrollmentCourseRuns(): Promise<CourseRun[]>;
+
+    /**
+     * Create a new content review record for a course run.
+     */
+    createRunReview(data: Prisma.CourseRunReviewCreateInput): Promise<CourseRunReview>;
+
+    /**
+     * Update an existing content review record for a course run.
+     */
+    updateRunReview(id: string, data: Prisma.CourseRunReviewUpdateInput): Promise<CourseRunReview>;
+
+    /**
+     * Find course run reviews with optional filtering.
+     */
+    findRunReviews(where: Prisma.CourseRunReviewWhereInput, orderBy?: Prisma.CourseRunReviewOrderByWithRelationInput): Promise<CourseRunReview[]>;
+
+    /**
+     * Bulk-create CourseRunLesson records when initializing a new run.
+     */
+    createRunLessons(data: Prisma.CourseRunLessonCreateManyInput[]): Promise<void>;
+
+    /**
+     * Find all CourseRunLesson records for a given course run.
+     */
+    findRunLessonsByRun(courseRunId: string): Promise<CourseRunLesson[]>;
+
+    /**
+     * Find a specific CourseRunLesson by composite key (courseRunId, lessonId).
+     */
+    findRunLesson(courseRunId: string, lessonId: string): Promise<CourseRunLesson | null>;
+
+    /**
+     * Update a CourseRunLesson identified by (courseRunId, lessonId).
+     */
+    updateRunLesson(courseRunId: string, lessonId: string, data: Prisma.CourseRunLessonUpdateInput): Promise<CourseRunLesson>;
 }

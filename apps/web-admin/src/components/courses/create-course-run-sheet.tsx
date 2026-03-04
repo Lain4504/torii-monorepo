@@ -12,7 +12,6 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import {
     Field,
     FieldLabel,
@@ -20,7 +19,7 @@ import {
 } from '@workspace/ui/components/field';
 import { X, Save } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
-import { courseRunCreateDTOSchema, type CourseRunCreateDTO, CourseRunStatus, UserRole } from '@workspace/schemas';
+import { courseRunCreateDTOSchema, type CourseRunCreateDTO, UserRole } from '@workspace/schemas';
 import { useCreateCourseRun } from "@/lib/api/services/course-runs";
 import { useUsers } from "@/lib/api/services/users";
 import { Spinner } from "@workspace/ui/components/spinner";
@@ -48,7 +47,6 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
         defaultValues: {
             courseMasterId: courseId,
             title: '',
-            status: CourseRunStatus.PLANNING,
             maxStudents: 30,
             minStudents: 1,
             price: undefined,
@@ -141,24 +139,6 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
                                         )}
                                     />
                                     {errors.lecturerId && <FieldError>{errors.lecturerId.message}</FieldError>}
-                                </Field>
-                                <Field>
-                                    <FieldLabel htmlFor="status">Trạng Thái Khởi Tạo</FieldLabel>
-                                    <Controller
-                                        name={"status" as any}
-                                        control={control}
-                                        render={({ field }) => (
-                                            <Select value={field.value} onValueChange={field.onChange}>
-                                                <SelectTrigger id="status" className="mt-1">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value={CourseRunStatus.PLANNING}>Đang lập kế hoạch</SelectItem>
-                                                    <SelectItem value={CourseRunStatus.ENROLLING}>Đang tuyển sinh</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        )}
-                                    />
                                 </Field>
                             </div>
 

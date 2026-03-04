@@ -16,7 +16,6 @@ export const courseRunCreateDTOSchema = courseRunSchema.pick({
     discountPrice: true,
     coverUrl: true,
     previewVideoUrl: true,
-    status: true,
 }).extend({
     versionId: z.string().uuid().optional().nullable(),
 });

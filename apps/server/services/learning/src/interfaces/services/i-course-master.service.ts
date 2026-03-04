@@ -106,6 +106,12 @@ export interface ICourseMasterService {
     submitForReview(requester: Requester, courseMasterId: string): Promise<CourseMasterResponseDTO>;
 
     /**
+     * Submit course syllabus (CourseMaster) for academic review explicitly.
+     * This is the preferred entrypoint for the new Master review flow.
+     */
+    submitForSyllabusReview(requester: Requester, courseMasterId: string): Promise<CourseMasterResponseDTO>;
+
+    /**
      * Update livestream configuration. Caller must have course.publish or be an instructor assigned to the course.
      */
     updateLiveConfig(requester: Requester, courseMasterId: string, config: any): Promise<CourseMasterResponseDTO>;
@@ -140,6 +146,22 @@ export interface ICourseMasterService {
      * @throws NotFoundException if course not found
      */
     reject(requester: Requester, courseMasterId: string, reason: string): Promise<CourseMasterResponseDTO>;
+
+    /**
+     * Review course syllabus (CourseMasterReview) at the academic layer.
+     * Depending on the outcome, the underlying CourseMaster status will transition
+     * between DRAFT/PENDING_REVIEW/CHANGES_REQUIRED/APPROVED/ARCHIVED.
+     */
+    reviewSyllabus(
+        requester: Requester,
+        courseMasterId: string,
+        payload: {
+            outcome: 'APPROVED' | 'REJECTED' | 'CHANGES_REQUIRED';
+            checklist?: Record<string, any>;
+            comments?: string;
+            rejectionReason?: string;
+        },
+    ): Promise<CourseMasterResponseDTO>;
 
     /**
      * Get course curriculum (modules with lessons)
@@ -208,4 +230,9 @@ export interface ICourseMasterService {
      * Get a specific course version by ID
      */
     getVersionById(versionId: string): Promise<any | null>;
+
+    /**
+     * Recalculate course master statistics
+     */
+    recalculateStats(courseMasterId: string): Promise<void>;
 }

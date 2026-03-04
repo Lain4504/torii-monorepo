@@ -52,16 +52,20 @@ export class CourseProfile extends AutomapperProfile {
           mapFrom((src: CourseMaster) => src.jlptLevel as any),
         ),
         forMember(
-          (dest: CourseMasterResponseDTO) => dest.aiMetadata,
-          mapFrom((src: CourseMaster) => (src.aiMetadata as any) || undefined),
+          (dest: CourseMasterResponseDTO) => dest.tags,
+          mapFrom((src: CourseMaster) => (src as any).tags || []),
         ),
         forMember(
           (dest: CourseMasterResponseDTO) => dest.totalLessons,
-          mapFrom((src: CourseMaster) => src.totalLessons),
+          mapFrom((src: CourseMaster) => (src as any).totalLessons),
         ),
         forMember(
-          (dest: CourseMasterResponseDTO) => dest.totalQuizzes,
-          mapFrom((src: CourseMaster) => src.totalQuizzes),
+          (dest: CourseMasterResponseDTO) => (dest as any).totalModules,
+          mapFrom((src: CourseMaster) => (src as any).totalModules),
+        ),
+        forMember(
+          (dest: CourseMasterResponseDTO) => (dest as any).totalQuizzes,
+          mapFrom((src: CourseMaster) => (src as any).totalQuizzes ?? 0),
         ),
         forMember(
           (dest: CourseMasterResponseDTO) => dest.status,
@@ -69,16 +73,28 @@ export class CourseProfile extends AutomapperProfile {
         ),
 
         forMember(
-          (dest: CourseMasterResponseDTO) => dest.tags,
-          mapFrom((src: CourseMaster) => src.tags),
-        ),
-        forMember(
           (dest: CourseMasterResponseDTO) => dest.learningOutcomes,
           mapFrom((src: CourseMaster) => src.learningOutcomes || undefined),
         ),
         forMember(
           (dest: CourseMasterResponseDTO) => dest.requirements,
           mapFrom((src: CourseMaster) => src.requirements || undefined),
+        ),
+        forMember(
+          (dest: CourseMasterResponseDTO) => (dest as any).coverUrl,
+          mapFrom((src: CourseMaster) => (src as any).coverUrl || undefined),
+        ),
+        forMember(
+          (dest: CourseMasterResponseDTO) => (dest as any).trialDays,
+          mapFrom((src: CourseMaster) => (src as any).trialDays ?? undefined),
+        ),
+        forMember(
+          (dest: CourseMasterResponseDTO) => (dest as any).maxTrialLessons,
+          mapFrom((src: CourseMaster) => (src as any).maxTrialLessons ?? undefined),
+        ),
+        forMember(
+          (dest: CourseMasterResponseDTO) => (dest as any).aiMetadata,
+          mapFrom((src: CourseMaster) => (src as any).aiMetadata || undefined),
         ),
         forMember(
           (dest: CourseMasterResponseDTO) => dest.createdBy,

@@ -51,6 +51,14 @@ export function CourseRunsTable({ courseId, courseType }: CourseRunsTableProps) 
 
     const getStatusBadge = (status: string) => {
         switch (status) {
+            case CourseRunStatus.DRAFT:
+                return <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">Bản nháp</Badge>;
+            case CourseRunStatus.PENDING_REVIEW:
+                return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Chờ kiểm duyệt nội dung</Badge>;
+            case CourseRunStatus.CHANGES_REQUIRED:
+                return <Badge variant="outline" className="bg-rose-50 text-rose-700 border-rose-200">Cần chỉnh sửa</Badge>;
+            case CourseRunStatus.APPROVED:
+                return <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">Đã duyệt nội dung</Badge>;
             case CourseRunStatus.PLANNING:
                 return <Badge variant="outline">Đang lập kế hoạch</Badge>;
             case CourseRunStatus.ENROLLING:

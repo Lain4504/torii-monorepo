@@ -151,4 +151,82 @@ export class CourseRunController {
         );
         return successResponse(null, 'Course run deleted successfully');
     }
+
+  @Post(':id/submit-review')
+  @Permissions('course.update')
+  async submitForContentReview(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const result = await firstValueFrom(
+      this.natsClient.send(
+        { cmd: 'learning.courserun.submitContentReview' },
+        { id, requester: req.requester },
+      ),
+    );
+    return successResponse({ run: result }, 'Course run submitted for content review successfully');
+  }
+
+  @Post(':id/review')
+  @Permissions('course.publish')
+  async reviewRunContent(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body()
+    body: {
+      outcome: 'APPROVED' | 'REJECTED' | 'CHANGES_REQUIRED';
+      checklist?: Record<string, any>;
+      comments?: string;
+      rejectionReason?: string;
+      moveToPlanning?: boolean;
+      moveToEnrolling?: boolean;
+    },
+    @Req() req: ReqWithRequester,
+  ) {
+    const result = await firstValueFrom(
+      this.natsClient.send(
+        { cmd: 'learning.courserun.reviewContent' },
+        { id, requester: req.requester, ...body },
+      ),
+    );
+    return successResponse({ run: result }, 'Course run content reviewed successfully');
+  }
+
+  @Get(':id/run-lessons')
+  @Permissions('course.update')
+  async getRunLessons(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const result = await firstValueFrom(
+      this.natsClient.send(
+        { cmd: 'learning.courserun.getRunLessons' },
+        { id, requester: req.requester },
+      ),
+    );
+    return successResponse({ lessons: result });
+  }
+
+  @Patch(':id/run-lessons/:lessonId')
+  @Permissions('course.update')
+  async updateRunLesson(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Param('lessonId', new ParseUUIDPipe()) lessonId: string,
+    @Body()
+    body: {
+      videoUrl?: string | null;
+      videoDuration?: number | null;
+      articleContent?: string | null;
+      recordingUrl?: string | null;
+      isUnlocked?: boolean;
+    },
+    @Req() req: ReqWithRequester,
+  ) {
+    const result = await firstValueFrom(
+      this.natsClient.send(
+        { cmd: 'learning.courserun.updateRunLesson' },
+        { courseRunId: id, lessonId, requester: req.requester, ...body },
+      ),
+    );
+    return successResponse({ lesson: result }, 'Run lesson updated successfully');
+  }
 }

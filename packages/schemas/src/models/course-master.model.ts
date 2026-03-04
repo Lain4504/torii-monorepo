@@ -9,11 +9,11 @@ export enum JlptLevel {
 }
 
 export enum CourseMasterStatus {
-    DRAFT = 'draft',
-    PENDING_REVIEW = 'pending_review',
-    PUBLISHED = 'published',
-    REJECTED = 'rejected',
-    ARCHIVED = 'archived',
+    DRAFT = 'DRAFT',
+    PENDING_REVIEW = 'PENDING_REVIEW',
+    CHANGES_REQUIRED = 'CHANGES_REQUIRED',
+    APPROVED = 'APPROVED',
+    ARCHIVED = 'ARCHIVED',
 }
 
 export enum InstructorRole {
@@ -25,10 +25,16 @@ export enum InstructorRole {
 /**
  * Helper function to derive course status from approvedBy and approvedAt
  */
-export function deriveCourseMasterStatus(approvedBy: string | null | undefined, approvedAt: Date | null | undefined, isSubmittedForReview?: boolean, rejectionReason?: string | null, deletedAt?: Date | null): CourseMasterStatus {
+export function deriveCourseMasterStatus(
+    approvedBy: string | null | undefined,
+    approvedAt: Date | null | undefined,
+    isSubmittedForReview?: boolean,
+    rejectionReason?: string | null,
+    deletedAt?: Date | null,
+): CourseMasterStatus {
     if (deletedAt) return CourseMasterStatus.ARCHIVED;
-    if (approvedBy && approvedAt) return CourseMasterStatus.PUBLISHED;
-    if (rejectionReason) return CourseMasterStatus.REJECTED;
+    if (approvedBy && approvedAt) return CourseMasterStatus.APPROVED;
+    if (rejectionReason) return CourseMasterStatus.CHANGES_REQUIRED;
     if (isSubmittedForReview) return CourseMasterStatus.PENDING_REVIEW;
     return CourseMasterStatus.DRAFT;
 }
@@ -50,6 +56,9 @@ export const courseMasterSchema = z.object({
     tags: z.array(z.string()).optional(),
     learningOutcomes: z.any().optional(), // JSONB
     requirements: z.any().optional(), // JSONB
+    coverUrl: z.string().optional().nullable(),
+    trialDays: z.number().int().optional().nullable(),
+    maxTrialLessons: z.number().int().optional().nullable(),
     createdBy: z.string().uuid().optional(),
     lecturerId: z.string().uuid().optional().nullable(),
     approvedBy: z.string().uuid().optional(),
@@ -62,6 +71,7 @@ export const courseMasterSchema = z.object({
     thumbnailUrl: z.string().optional().nullable(),
     totalLessons: z.number().int().default(0),
     totalModules: z.number().int().default(0),
+    totalQuizzes: z.number().int().default(0),
 });
 
 export type CourseMaster = z.infer<typeof courseMasterSchema>;
