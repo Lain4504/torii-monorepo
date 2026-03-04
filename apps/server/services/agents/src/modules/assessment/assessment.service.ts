@@ -104,37 +104,42 @@ export class AssessmentService implements OnModuleInit {
             }
         );
 
-        // 2. Evaluate Test
+        // 2. Evaluate Test (Post-Quiz Analysis)
         this.fastMcpService.addTool(
-            'assessment_evaluate_test',
-            'Evaluate specific test answers',
+            'assessment_analyze_results',
+            'Analyze quiz/exam results and provide AI feedback and recommendations',
             z.object({
                 userId: z.string(),
-                testId: z.string(),
-                answers: z.array(z.object({
-                    questionId: z.string(),
-                    userAnswer: z.union([z.string(), z.number()]),
-                    correctAnswer: z.union([z.string(), z.number()]),
-                })),
+                attemptId: z.string(),
             }),
-            async ({ userId, testId, answers }) => {
-                // Determine scores in code (Deterministic)
-                const details = answers.map(ans => ({
-                    questionId: ans.questionId,
-                    isCorrect: String(ans.userAnswer) === String(ans.correctAnswer)
-                }));
-                const score = details.filter(d => d.isCorrect).length;
-                const maxScore = answers.length;
-                const percentage = Math.round((score / maxScore) * 100);
+            async ({ userId, attemptId }) => {
+                const attempt = await this.prisma.quizAttempt.findUnique({
+                    where: { id: attemptId },
+                    include: {
+                        quiz: true,
+                        details: {
+                            include: { question: true }
+                        }
+                    }
+                });
+
+                if (!attempt) throw new Error('Attempt not found');
 
                 const userContext = await this.fastMcpService.getUserContext(userId);
                 const template = this.fastMcpService.loadPromptTemplate('assessment/test-evaluation.md');
 
-                // Call AI for feedback and explanations only
                 const prompt = template({
-                    testId,
-                    userAnswers: answers,
-                    calculatedResult: { score, maxScore, percentage, details },
+                    quizTitle: attempt.quiz.title,
+                    score: attempt.score,
+                    maxScore: attempt.maxScore,
+                    percentage: attempt.percentage,
+                    details: attempt.details.map(d => ({
+                        question: d.question.questionText,
+                        userAnswer: d.userAnswer,
+                        correctAnswer: d.question.correctAnswer,
+                        isCorrect: d.isCorrect,
+                        category: d.question.category
+                    })),
                     userContext,
                     timestamp: new Date().toISOString()
                 });
@@ -145,139 +150,90 @@ export class AssessmentService implements OnModuleInit {
                     { maxRetries: 1 }
                 );
 
-                // Merge: Code scores + AI explanations
                 return {
-                    testId,
-                    score,
-                    maxScore,
-                    percentage,
+                    attemptId,
+                    score: attempt.score,
+                    maxScore: attempt.maxScore,
+                    percentage: attempt.percentage,
                     feedback: aiParsed.data.feedback || "",
-                    details: details.map(d => {
-                        const aiDetail = aiParsed.data.details?.find((ad: any) => ad.questionId === d.questionId);
-                        return {
-                            ...d,
-                            explanation: aiDetail?.explanation || ""
-                        };
-                    })
+                    details: aiParsed.data.details || []
                 };
             }
         );
 
-        // 5. Placement Test
+        // 5. Placement Test (Thin Wrapper)
         this.fastMcpService.addTool(
             'assessment_placement_test',
-            'Generate a placement test',
+            'Search for available placement tests',
             z.object({
                 userId: z.string(),
-                questionCount: z.number().default(15),
+                level: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']).optional(),
             }),
-            async ({ userId, questionCount }) => {
-                // Try to find questions in DB first, balanced across levels
-                const levels = ['N5', 'N4', 'N3', 'N2', 'N1'];
-                const questionsPerLevel = Math.ceil(questionCount / levels.length);
+            async ({ userId, level }) => {
+                const where: any = { quizType: 'placement', status: 'published' };
+                if (level) where.jlptLevel = level;
 
-                const dbQuestions: any[] = [];
-                for (const level of levels) {
-                    const questions = await this.prisma.question.findMany({
-                        where: { jlptLevel: level, status: 'active' },
-                        orderBy: { usageCount: 'asc' },
-                        take: questionsPerLevel
-                    });
-                    dbQuestions.push(...questions);
-                }
+                const placementTests = await this.prisma.quiz.findMany({
+                    where,
+                    orderBy: { createdAt: 'desc' },
+                    take: 5
+                });
 
-                if (dbQuestions.length >= questionCount * 0.8) { // At least 80% from DB
-                    this.logger.debug(`Generated placement test from DB`);
-
-                    // Increment usage count
-                    await this.prisma.question.updateMany({
-                        where: { id: { in: dbQuestions.map(q => q.id) } },
-                        data: { usageCount: { increment: 1 } }
-                    });
-
-                    return {
-                        testId: `db_placement_${Date.now()}`,
-                        questions: dbQuestions.map(q => ({
-                            id: q.id,
-                            level: q.jlptLevel,
-                            type: q.questionType,
-                            question: q.questionText,
-                            options: (() => {
-                                const o = q.options;
-                                if (!o) return [];
-                                if (Array.isArray(o)) return o;
-                                if (typeof o === 'string') {
-                                    try {
-                                        const p = JSON.parse(o);
-                                        return Array.isArray(p) ? p : Object.values(p);
-                                    } catch { return []; }
-                                }
-                                if (typeof o === 'object') return Object.values(o);
-                                return [];
-                            })(),
-                            correctAnswer: q.correctAnswer,
-                            explanation: q.explanation
-                        })),
-                        estimatedTimeMinutes: Math.ceil(questionCount * 1.5)
-                    };
-                }
-
-                // Fallback to AI
-                this.logger.debug(`Insufficient DB placement questions. Falling back to AI.`);
-                const userContext = await this.fastMcpService.getUserContext(userId);
-                const template = this.fastMcpService.loadPromptTemplate('assessment/placement-test.md');
-                const prompt = template({ questionCount, userContext, timestamp: new Date().toISOString() });
-
-                return this.fastMcpService.callGeminiWithSchema(
-                    prompt,
-                    AgentTestGenerationResponseSchema,
-                    { maxRetries: 1 }
-                );
+                return {
+                    availableTests: placementTests.map(t => ({
+                        id: t.id,
+                        title: t.title,
+                        jlptLevel: t.jlptLevel,
+                        questionCount: t.totalQuestions,
+                        estimatedTimeMinutes: t.totalTime || 30
+                    })),
+                    instructions: "Take one of these quizzes via the Exam API to get placed."
+                };
             }
         );
 
-        // 6. Evaluate Placement
+        // 6. Evaluate Placement (AI Recommendations)
         this.fastMcpService.addTool(
-            'assessment_evaluate_placement',
-            'Evaluate placement test results',
+            'assessment_recommend_courses',
+            'Get AI course recommendations based on placement results',
             z.object({
                 userId: z.string(),
-                testId: z.string(),
-                userAnswers: z.array(z.object({
-                    questionId: z.string(),
-                    level: z.string(),
-                    userAnswer: z.union([z.string(), z.number()]),
-                    correctAnswer: z.union([z.string(), z.number()]),
-                })),
+                placementResultId: z.string(),
             }),
-            async ({ userId, testId, userAnswers }) => {
-                // Deterministic scoring by level
-                const levels = ['N5', 'N4', 'N3', 'N2', 'N1'];
-                const scoreBreakdown: Record<string, string> = {};
-
-                let totalCorrect = 0;
-                let suggestedLevel = 'N5';
-
-                levels.forEach(level => {
-                    const levelQuestions = userAnswers.filter(q => q.level === level);
-                    if (levelQuestions.length > 0) {
-                        const correct = levelQuestions.filter(q => String(q.userAnswer) === String(q.correctAnswer)).length;
-                        const pct = Math.round((correct / levelQuestions.length) * 100);
-                        scoreBreakdown[level] = `${pct}%`;
-                        totalCorrect += correct;
-
-                        // Simple logic: if pass > 60%, potentially that level
-                        if (pct >= 60) suggestedLevel = level;
+            async ({ userId, placementResultId }) => {
+                const result = await this.prisma.placementResult.findUnique({
+                    where: { id: placementResultId },
+                    include: {
+                        quiz: true,
+                        attempt: {
+                            include: {
+                                details: { include: { question: true } }
+                            }
+                        }
                     }
                 });
 
-                const userContext = await this.fastMcpService.getUserContext(userId);
-                const template = this.fastMcpService.loadPromptTemplate('assessment/placement-evaluation.md');
+                if (!result) throw new Error('Placement result not found');
 
+                const userContext = await this.fastMcpService.getUserContext(userId);
+
+                // Fetch available enrolling course runs to provide real recommendations
+                const enrollingCourses = await this.prisma.courseRun.findMany({
+                    where: { status: 'ENROLLING' },
+                    include: { courseMaster: true },
+                    take: 10
+                });
+
+                const template = this.fastMcpService.loadPromptTemplate('assessment/placement-evaluation.md');
                 const prompt = template({
-                    testId,
-                    userAnswers,
-                    calculatedResult: { suggestedLevel, scoreBreakdown },
+                    assessedLevel: result.recommendedLevel,
+                    score: result.overallScore,
+                    availableCourses: enrollingCourses.map(c => ({
+                        id: c.id,
+                        title: c.courseMaster.title,
+                        level: c.courseMaster.jlptLevel,
+                        startDate: c.startDate
+                    })),
                     userContext,
                     timestamp: new Date().toISOString()
                 });
@@ -285,26 +241,30 @@ export class AssessmentService implements OnModuleInit {
                 const aiParsed = await this.fastMcpService.callGeminiWithSchema(
                     prompt,
                     z.object({
-                        userId: z.string().optional(),
-                        assessedLevel: z.string().optional(),
-                        targetLevel: z.string().optional(),
-                        studyPathRecommendation: z.any().optional()
+                        analysis: z.string(),
+                        detailedStudyPlan: z.string(),
+                        recommendedCourseIds: z.array(z.string()),
+                        strengths: z.array(z.string()),
+                        weaknesses: z.array(z.string())
                     }),
                     { maxRetries: 1 }
                 );
 
+                // Update the result with AI recommendations?
+                // For now, return to user.
                 return {
-                    userId,
-                    assessedLevel: suggestedLevel,
-                    targetLevel: aiParsed.data.targetLevel || levels[levels.indexOf(suggestedLevel) + 1] || 'N1',
-                    scoreBreakdown,
-                    score: totalCorrect,
-                    maxScore: userAnswers.length,
-                    studyPathRecommendation: aiParsed.data.studyPathRecommendation || {}
+                    assessedLevel: result.recommendedLevel,
+                    analysis: aiParsed.data.analysis || "",
+                    studyPlan: aiParsed.data.detailedStudyPlan || "",
+                    recommendedCourses: enrollingCourses.filter(c => aiParsed.data.recommendedCourseIds.includes(c.id)),
+                    strengths: aiParsed.data.strengths || [],
+                    weaknesses: aiParsed.data.weaknesses || []
                 };
             }
         );
     }
+
+    // --- Public Methods (Delegate to Tools) ---
 
     // --- Public Methods (Delegate to Tools) ---
 
@@ -317,19 +277,18 @@ export class AssessmentService implements OnModuleInit {
         return this.fastMcpService.callTool('assessment_generate_test', { userId: requester.sub, level, section, questionCount });
     }
 
-    async evaluateTest(
+    async analyzeResults(
         requester: Requester,
-        testId: string,
-        answers: Array<{ questionId: string; userAnswer: string; correctAnswer: string }>,
+        attemptId: string,
     ): Promise<any> {
-        return this.fastMcpService.callTool('assessment_evaluate_test', { userId: requester.sub, testId, answers });
+        return this.fastMcpService.callTool('assessment_analyze_results', { userId: requester.sub, attemptId });
     }
 
-    async generatePlacementTest(requester: Requester, questionCount: number = 15): Promise<any> {
-        return this.fastMcpService.callTool('assessment_placement_test', { userId: requester.sub, questionCount });
+    async getPlacementTests(requester: Requester, level?: string): Promise<any> {
+        return this.fastMcpService.callTool('assessment_placement_test', { userId: requester.sub, level });
     }
 
-    async evaluatePlacementTest(requester: Requester, testId: string, userAnswers: any): Promise<any> {
-        return this.fastMcpService.callTool('assessment_evaluate_placement', { userId: requester.sub, testId, userAnswers });
+    async recommendCourses(requester: Requester, placementResultId: string): Promise<any> {
+        return this.fastMcpService.callTool('assessment_recommend_courses', { userId: requester.sub, placementResultId });
     }
 }

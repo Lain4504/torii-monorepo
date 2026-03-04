@@ -44,6 +44,7 @@ export function CreateScheduleRequestSheet({ open, onOpenChange, session }: Crea
             newTime: '',
             lecturerId: session?.lecturerId || '00000000-0000-0000-0000-000000000000',
             courseRunId: session?.courseRunId || '00000000-0000-0000-0000-000000000000',
+            originalScheduleId: session?.scheduleId,
             dayOfWeek: session ? new Date(session.scheduledAt).getDay() : 0,
             startTime: session ? new Date(session.scheduledAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '',
             duration: session?.duration || 90,

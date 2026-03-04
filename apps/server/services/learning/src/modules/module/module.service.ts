@@ -147,6 +147,10 @@ export class ModuleService implements IModuleService {
    * Create a new module
    */
   async create(requester: Requester, dto: ModuleCreateDTO): Promise<ModuleResponseDTO> {
+    // Only Admin/Staff-LMS can create modules in Master Syllabus
+    if (!this.hasPermission(requester, 'course.publish')) {
+      throw new ForbiddenException('Only Academic Staff or Admin can create Master syllabus modules.');
+    }
     try {
       // Get next order index if not provided
       let orderIndex = dto.orderIndex;
@@ -202,12 +206,9 @@ export class ModuleService implements IModuleService {
       throw new NotFoundException(`Module with id ${moduleId} not found`);
     }
 
-    // If user cannot publish courses (staff/admin only), check if they are assigned to the course
+    // Business Rule: ONLY Admin or Staff-LMS (Academic) can update modules in the Master Syllabus.
     if (!this.hasPermission(requester, 'course.publish')) {
-      const isInstructor = await this.courseMasterService.isInstructor(requester.sub, existing.courseMasterId);
-      if (!isInstructor) {
-        throw new ForbiddenException('You are not assigned to this course');
-      }
+      throw new ForbiddenException('Only Academic Staff or Admin can update Master syllabus modules.');
     }
 
     try {
@@ -252,9 +253,9 @@ export class ModuleService implements IModuleService {
    * Delete module
    */
   async delete(requester: Requester, moduleId: string, hardDelete = false): Promise<{ message: string }> {
-    // Only authorized users can delete modules
-    if (!this.hasPermission(requester, 'module.delete')) {
-      throw new ForbiddenException('Only authorized staff can delete modules');
+    // Only Academic Staff can delete modules in Syllabus
+    if (!this.hasPermission(requester, 'course.publish')) {
+      throw new ForbiddenException('Only Academic Staff or Admin can delete Master syllabus modules.');
     }
 
     const existing = await this.moduleRepository.findById(moduleId);
@@ -299,8 +300,8 @@ export class ModuleService implements IModuleService {
     moduleOrders: { id: string; orderIndex: number }[]
   ): Promise<{ message: string }> {
     // Only authorized staff can reorder modules
-    if (!this.hasPermission(requester, 'module.update')) {
-      throw new ForbiddenException('Only authorized staff can reorder modules');
+    if (!this.hasPermission(requester, 'course.publish')) {
+      throw new ForbiddenException('Only Academic Staff or Admin can reorder Master syllabus modules.');
     }
 
     try {

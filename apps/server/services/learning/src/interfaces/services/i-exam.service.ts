@@ -56,7 +56,7 @@ export interface IExamService {
     /**
      * Start an exam session
      */
-    startExam(examId: string, userId: string, courseRunId: string): Promise<ExamSessionStartResponseDTO>;
+    startExam(examId: string, userId: string, courseRunId?: string): Promise<ExamSessionStartResponseDTO>;
 
     /**
      * Save exam session answers

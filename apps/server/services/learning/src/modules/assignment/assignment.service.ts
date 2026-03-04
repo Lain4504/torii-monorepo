@@ -63,7 +63,6 @@ export class AssignmentService {
         description: dto.description,
         type: dto.type,
         courseRunId: dto.courseRunId,
-        moduleId: dto.moduleId,
         lessonId: dto.lessonId,
         maxScore: dto.maxScore,
         passingScore: dto.passingScore,
@@ -76,7 +75,7 @@ export class AssignmentService {
         instructions: dto.instructions,
         attachmentUrls: dto.attachmentUrls || [],
         createdBy: requester.sub,
-        status: 'DRAFT', // Always start as draft
+        status: 'DRAFT',
       } as any);
 
 
@@ -158,7 +157,6 @@ export class AssignmentService {
       assignmentId: assignment.id,
       title: assignment.title,
       courseRunId: assignment.courseRunId,
-      moduleId: assignment.moduleId,
       lessonId: assignment.lessonId,
       dueDate: assignment.dueDate,
     });
@@ -178,16 +176,11 @@ export class AssignmentService {
 
     // Filter by association
     if (query.courseRunId) where.courseRunId = query.courseRunId;
-    if (moduleId) where.moduleId = moduleId;
     if (lessonId) where.lessonId = lessonId;
 
-    // Aggregate by course master if provided (via relations)
+    // Filter by course master (via courseRun relation)
     if (courseMasterId) {
-      where.OR = [
-        { courseRun: { courseMasterId } },
-        { module: { courseMasterId } },
-        { lesson: { module: { courseMasterId } } },
-      ];
+      where.courseRun = { courseMasterId };
     }
 
     // Status filter

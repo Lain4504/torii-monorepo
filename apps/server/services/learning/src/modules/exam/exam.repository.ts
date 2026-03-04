@@ -175,20 +175,38 @@ export class ExamRepository implements IExamRepository {
     }
 
     /**
-     * Find questions by pool ID with usage count ordering
+     * Find questions by pool ID with optional filters, then shuffle randomly
      */
-    async findQuestionsByPool(poolId: string, take: number): Promise<any[]> {
-        return this.prisma.question.findMany({
-            where: {
-                poolId,
-                status: 'active',
-            },
-            take,
+    async findQuestionsByPool(poolId: string, take: number, difficulty?: string, excludeIds?: string[]): Promise<any[]> {
+        const where: any = {
+            poolId,
+            status: 'active',
+        };
+
+        if (difficulty) {
+            where.difficulty = difficulty;
+        }
+
+        if (excludeIds && excludeIds.length > 0) {
+            where.id = { notIn: excludeIds };
+        }
+
+        // Fetch more than needed, then shuffle to randomize selection
+        const allQuestions = await this.prisma.question.findMany({
+            where,
             orderBy: [
                 { usageCount: 'asc' },
                 { createdAt: 'desc' },
             ],
         });
+
+        // Fisher-Yates shuffle for true randomness
+        for (let i = allQuestions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [allQuestions[i], allQuestions[j]] = [allQuestions[j], allQuestions[i]];
+        }
+
+        return allQuestions.slice(0, take);
     }
 
     /**

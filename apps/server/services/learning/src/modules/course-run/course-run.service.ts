@@ -46,6 +46,18 @@ export class CourseRunService {
             throw new NotFoundException(`Course master with id ${dto.courseMasterId} not found`);
         }
 
+        // --- P0 Business Rule: VOD courses can only have 1 CourseRun ---
+        // VOD = always-on, self-paced. Content changes go through CourseVersion, not new runs.
+        // Enforced at service layer (not DB) to keep flexibility for future enterprise scenarios.
+        if ((courseMaster as any).type === 'vod') {
+            const existingRunCount = await this.courseRunRepository.count({ courseMasterId: dto.courseMasterId });
+            if (existingRunCount >= 1) {
+                throw new BadRequestException(
+                    'VOD courses can only have one CourseRun. To update content, publish a new CourseVersion instead.'
+                );
+            }
+        }
+
         // Ensure syllabus is published (has a version)
         const latestVersion = await this.courseRepository.getLatestVersion(dto.courseMasterId);
         if (!latestVersion) {
@@ -67,15 +79,15 @@ export class CourseRunService {
         return this.toResponseDTO(run);
     }
 
-    async update(requester: Requester, id: string, dto: CourseRunUpdateDTO): Promise<CourseRunResponseDTO> {
-        if (!this.hasPermission(requester, 'course.update')) {
-            throw new ForbiddenException('You do not have permission to update course runs');
-        }
 
+    async update(requester: Requester, id: string, dto: CourseRunUpdateDTO): Promise<CourseRunResponseDTO> {
         const existing = await this.courseRunRepository.findById(id);
         if (!existing) {
             throw new NotFoundException(`Course run with id ${id} not found`);
         }
+
+        // Ownership Check: Staff/Admin or assigned Lecturer only
+        this.checkOwnership(requester, existing);
 
         const updateData: any = { ...dto };
 
@@ -192,14 +204,13 @@ export class CourseRunService {
     }
 
     async updateStatus(requester: Requester, id: string, status: CourseRunStatus): Promise<CourseRunResponseDTO> {
-        if (!this.hasPermission(requester, 'course.update')) {
-            throw new ForbiddenException('You do not have permission to update course run status');
-        }
-
         const existing = await this.courseRunRepository.findById(id);
         if (!existing) {
             throw new NotFoundException(`Course run with id ${id} not found`);
         }
+
+        // Ownership Check
+        this.checkOwnership(requester, existing);
 
         // Determine course type (vod/live) from course master
         const courseMaster = await this.courseRepository.findById(existing.courseMasterId);
@@ -272,14 +283,13 @@ export class CourseRunService {
     }
 
     async delete(requester: Requester, id: string): Promise<void> {
-        if (!this.hasPermission(requester, 'course.delete')) {
-            throw new ForbiddenException('You do not have permission to delete course runs');
-        }
-
         const existing = await this.courseRunRepository.findById(id);
         if (!existing) {
             throw new NotFoundException(`Course run with id ${id} not found`);
         }
+
+        // Ownership Check
+        this.checkOwnership(requester, existing);
 
         const run = existing as any;
         if (run.totalStudents && run.totalStudents > 0) {
@@ -301,7 +311,24 @@ export class CourseRunService {
 
     private hasPermission(requester: Requester, permission: string): boolean {
         const role = requester.role;
-        return role === UserRole.ADMIN || role === UserRole.STAFF || (requester.permissions?.includes(permission) ?? false);
+        return role === UserRole.ADMIN || role === UserRole.STAFF || role === UserRole.STAFF_LMS || (requester.permissions?.includes(permission) ?? false);
+    }
+
+    private checkOwnership(requester: Requester, run: any) {
+        // Admins and LMS Staff can manage EVERYTHING
+        if (requester.role === UserRole.ADMIN || requester.role === UserRole.STAFF_LMS) {
+            return;
+        }
+
+        // If Lecturer, they must be the assigned instructor for this run
+        if (requester.role === UserRole.LECTURER) {
+            if (run.lecturerId !== requester.sub) {
+                throw new ForbiddenException('You are not the assigned lecturer for this course run.');
+            }
+            return;
+        }
+
+        throw new ForbiddenException('You do not have permission to manage this course run.');
     }
 
     private toResponseDTO(run: any): CourseRunResponseDTO {

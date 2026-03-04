@@ -22,6 +22,7 @@ import type { QuizDTO } from '@/lib/api/services/quizzes';
 interface QuizzesTableProps {
     data: QuizDTO[];
     isLoading?: boolean;
+    onView?: (quiz: QuizDTO) => void;
     onEdit: (quiz: QuizDTO) => void;
     onDelete: (quiz: QuizDTO) => void;
     onPublish: (quiz: QuizDTO) => void;
@@ -31,6 +32,7 @@ interface QuizzesTableProps {
 export function QuizzesTable({
     data,
     isLoading,
+    onView,
     onEdit,
     onDelete,
     onPublish,
@@ -159,6 +161,12 @@ export function QuizzesTable({
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="rounded-xl border-border/40 shadow-xl min-w-[160px] p-1.5">
+                                    {onView && (
+                                        <DropdownMenuItem onClick={() => onView(quiz)} className="rounded-lg gap-2 py-2">
+                                            <HelpCircle className="size-3.5" />
+                                            <span className="font-bold text-xs uppercase">Xem chi tiết</span>
+                                        </DropdownMenuItem>
+                                    )}
                                     {quiz.status !== 'published' && (
                                         <DropdownMenuItem onClick={() => onPublish(quiz)} className="rounded-lg gap-2 py-2 text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50">
                                             <Globe className="size-3.5" />

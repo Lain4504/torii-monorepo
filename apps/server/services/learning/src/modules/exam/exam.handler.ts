@@ -36,7 +36,7 @@ export class ExamHandler {
     }
 
     @MessagePattern({ cmd: 'learning.exam.startExam' })
-    async startExam(@Payload() data: { examId: string, courseRunId: string, requester: Requester }) {
+    async startExam(@Payload() data: { examId: string, courseRunId?: string, requester: Requester }) {
         return this.examService.startExam(data.examId, data.requester.sub, data.courseRunId);
     }
 

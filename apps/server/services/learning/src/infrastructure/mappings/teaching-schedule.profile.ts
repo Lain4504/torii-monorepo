@@ -57,6 +57,14 @@ export class TeachingScheduleProfile extends AutomapperProfile {
                             : undefined,
                     ),
                 ),
+                forMember(
+                    (dest: TeachingScheduleResponseDTO) => dest.course,
+                    mapFrom((src: any) =>
+                        src.courseRun
+                            ? { id: src.courseRun.id, title: src.courseRun.title }
+                            : undefined,
+                    ),
+                ),
             );
 
             // LiveSessionScheduleRequest → ScheduleRequestResponseDTO
@@ -109,6 +117,14 @@ export class TeachingScheduleProfile extends AutomapperProfile {
                     mapFrom((src: any) =>
                         src.lecturer
                             ? { id: src.lecturer.id, displayName: src.lecturer.displayName }
+                            : undefined,
+                    ),
+                ),
+                forMember(
+                    (dest: ScheduleRequestResponseDTO) => dest.course,
+                    mapFrom((src: any) =>
+                        src.courseRun
+                            ? { id: src.courseRun.id, title: src.courseRun.title }
                             : undefined,
                     ),
                 ),

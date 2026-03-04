@@ -3,7 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
-import { generateSlug } from '@server/shared';
+import { generateSlug, PrismaService } from '@server/shared';
 import { CourseMaster, CourseMasterStatus as PrismaCourseMasterStatus } from '@prisma/generated';
 import { validate as uuidValidate } from 'uuid';
 
@@ -43,6 +43,7 @@ export class CourseMasterService implements ICourseMasterService {
     @InjectMapper() private readonly mapper: Mapper,
     @Inject(forwardRef(() => ENROLLMENT_SERVICE_TOKEN))
     private readonly enrollmentService: IEnrollmentService,
+    private readonly prisma: PrismaService,
   ) { }
 
   /**
@@ -78,7 +79,7 @@ export class CourseMasterService implements ICourseMasterService {
    */
   private async toCourseMasterResponseDTO(course: CourseMaster): Promise<CourseMasterResponseDTO> {
     const dto = this.mapper.map<CourseMaster, CourseMasterResponseDTO>(course, 'CourseMaster', 'CourseMasterResponseDTO');
-    
+
     // Enrich with latest version tag
     try {
       const latestVersion = await this.courseRepository.getLatestVersion(course.id);
@@ -88,7 +89,7 @@ export class CourseMasterService implements ICourseMasterService {
     } catch (error) {
       this.logger.warn(`Failed to fetch latest version for course ${course.id}`);
     }
-    
+
     return dto;
   }
 
@@ -393,12 +394,10 @@ export class CourseMasterService implements ICourseMasterService {
       throw new NotFoundException(`Course master with id ${courseMasterId} not found`);
     }
 
-    // If user cannot publish course masters (staff/admin only), check if they are assigned to the course
+    // Business Rule: ONLY Admin or Staff-LMS (Academic) can update the Master Syllabus template.
+    // Lecturers can only view and suggest changes, but not edit directly to prevent template drift.
     if (!this.hasPermission(requester, 'course.publish')) {
-      const isInstructor = await this.isInstructor(requester.sub, courseMasterId);
-      if (!isInstructor) {
-        throw new ForbiddenException('You are not assigned to this course master');
-      }
+      throw new ForbiddenException('Only Academic Staff or Admin can update the Course Master syllabus.');
     }
 
     try {
@@ -618,6 +617,12 @@ export class CourseMasterService implements ICourseMasterService {
 
     if (existing.type !== 'live') {
       throw new BadRequestException('Only live course masters can have livestream configuration');
+    }
+
+    // Business Rule: ONLY Admin or Staff-LMS (Academic) can update lessons in the Master Syllabus.
+    // Lecturers must not edit the blueprint as it impacts all class runs.
+    if (!this.hasPermission(requester, 'course.publish')) {
+      throw new ForbiddenException('Only Academic Staff or Admin can update Master syllabus lessons.');
     }
 
     const canPublishOrManage = this.hasPermission(requester, 'course.publish');
@@ -1029,17 +1034,18 @@ export class CourseMasterService implements ICourseMasterService {
   }
 
   /**
-   * Check if a user is the lecturer for a course master
+   * Check if a user is the lecturer for any course run belonging to this master
    */
   async isInstructor(userId: string, courseMasterId: string): Promise<boolean> {
     try {
-      const course = await this.courseRepository.findById(courseMasterId);
-      if (!course) return false;
-      
-      // Check if user teaches any courseRun for this courseMaster
-      // This requires fetching from courseRun with the courseMasterId
-      // For now, return false as placeholder until courseRun query is available
-      return false;
+      // Direct database check via CourseRun repository
+      const count = await this.prisma.courseRun.count({
+        where: {
+          courseMasterId,
+          lecturerId: userId,
+        }
+      });
+      return count > 0;
     } catch (error) {
       this.logger.error(`Failed to check if user ${userId} is lecturer for course master ${courseMasterId}`, error);
       return false;

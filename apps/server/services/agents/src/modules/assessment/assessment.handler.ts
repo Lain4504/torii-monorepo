@@ -30,49 +30,45 @@ export class AssessmentHandler {
     );
   }
 
-  @MessagePattern({ cmd: 'agents.assessment.evaluateTest' })
-  async evaluateTest(
+  @MessagePattern({ cmd: 'agents.assessment.analyzeResults' })
+  async analyzeResults(
     @Payload()
     data: {
-      testId: string;
-      answers: Array<{ questionId: string; userAnswer: string; correctAnswer: string }>;
+      attemptId: string;
       requester: Requester;
     },
   ) {
-    return this.assessmentService.evaluateTest(
+    return this.assessmentService.analyzeResults(
       data.requester,
-      data.testId,
-      data.answers,
+      data.attemptId,
     );
   }
 
-  @MessagePattern({ cmd: 'agents.assessment.placementTest' })
-  async generatePlacementTest(
+  @MessagePattern({ cmd: 'agents.assessment.getPlacementTests' })
+  async getPlacementTests(
     @Payload()
     data: {
-      questionCount?: number;
+      level?: string;
       requester: Requester;
     },
   ) {
-    return this.assessmentService.generatePlacementTest(
+    return this.assessmentService.getPlacementTests(
       data.requester,
-      data.questionCount || 15,
+      data.level,
     );
   }
 
-  @MessagePattern({ cmd: 'agents.assessment.evaluatePlacement' })
-  async evaluatePlacementTest(
+  @MessagePattern({ cmd: 'agents.assessment.recommendCourses' })
+  async recommendCourses(
     @Payload()
     data: {
+      placementResultId: string;
       requester: Requester;
-      testId: string;
-      userAnswers: any;
     },
   ) {
-    return this.assessmentService.evaluatePlacementTest(
+    return this.assessmentService.recommendCourses(
       data.requester,
-      data.testId,
-      data.userAnswers,
+      data.placementResultId,
     );
   }
 }

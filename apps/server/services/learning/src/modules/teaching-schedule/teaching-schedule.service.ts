@@ -148,7 +148,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
 
         const request = await this.prisma.liveSessionScheduleRequest.create({
             data: {
-                lecturerId: requester.sub,
+                lecturerId: dto.lecturerId || requester.sub,
                 originalScheduleId: dto.originalScheduleId,
                 courseRunId: (dto as any).courseRunId,
                 dayOfWeek: dto.dayOfWeek,

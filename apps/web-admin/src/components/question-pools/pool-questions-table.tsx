@@ -25,6 +25,10 @@ interface PoolQuestionsTableProps {
     onView: (question: QuestionResponseDTO) => void;
     onEdit: (question: QuestionResponseDTO) => void;
     onDelete: (question: QuestionResponseDTO) => void;
+    onApprove?: (question: QuestionResponseDTO) => void;
+    onReject?: (question: QuestionResponseDTO) => void;
+    onDeactivate?: (question: QuestionResponseDTO) => void;
+    onSendForReview?: (question: QuestionResponseDTO) => void;
     isLoading?: boolean;
 }
 
@@ -33,6 +37,10 @@ export function PoolQuestionsTable({
     onView,
     onEdit,
     onDelete,
+    onApprove,
+    onReject,
+    onDeactivate,
+    onSendForReview,
     isLoading
 }: PoolQuestionsTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -41,10 +49,15 @@ export function PoolQuestionsTable({
         onView,
         onEdit,
         onDelete,
+        onApprove,
+        onReject,
+        onDeactivate,
+        onSendForReview,
         // Các props này optional, không truyền sẽ không hiển thị nút tương ứng
         page: 1, // Mặc định 1 nếu không phân trang ở client side cho pool detail
         limit: data.length > 0 ? data.length : 10,
     });
+
 
     const table = useReactTable({
         data,

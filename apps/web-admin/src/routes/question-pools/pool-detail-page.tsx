@@ -7,18 +7,30 @@ import {
     ChevronLeft,
     AlertCircle,
     Search,
+    Pencil,
+    Layers,
+    CheckCircle2,
+    XCircle,
+    AlertTriangle,
 } from 'lucide-react';
 import { Input } from "@workspace/ui/components/input";
 import { useQuestionPool } from '@/lib/api/services/question-pools';
-import { useQuestionsByPool } from '@/lib/api/services/questions';
+import {
+    useQuestionsByPool,
+    useApproveQuestion,
+    useDeactivateQuestion,
+    useRejectQuestion,
+    useSendForReviewQuestion,
+} from '@/lib/api/services/questions';
 import type { QuestionResponseDTO } from '@workspace/schemas';
 import { PageLoading } from '@workspace/ui/components/page-loading';
-import { PageHeader } from '@/components/common/page-header';
 import { PoolQuestionsTable } from '@/components/question-pools/pool-questions-table';
 import { QuestionFormSheet } from '@/components/questions/question-form-sheet';
 import { QuestionDetailSheet } from '@/components/questions/question-detail-sheet';
-import { DeleteQuestionDialog } from '@/components/questions/delete-question-dialog.tsx';
-import { formatDate } from '@/lib/format-utils';
+import { DeleteQuestionDialog } from '@/components/questions/delete-question-dialog';
+import { EditQuestionPoolDialog } from '@/components/question-pools/edit-question-pool-sheet';
+import { Badge } from '@workspace/ui/components/badge';
+import { toast } from '@workspace/ui/components/sonner';
 
 export default function PoolDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -31,12 +43,55 @@ export default function PoolDetailPage() {
     const [editingQuestion, setEditingQuestion] = useState<QuestionResponseDTO | null>(null);
     const [deletingQuestion, setDeletingQuestion] = useState<QuestionResponseDTO | null>(null);
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+    const [isEditPoolDialogOpen, setIsEditPoolDialogOpen] = useState(false);
+
+    // Status workflow mutations
+    const approveMutation = useApproveQuestion();
+    const deactivateMutation = useDeactivateQuestion();
+    const rejectMutation = useRejectQuestion();
+    const sendForReviewMutation = useSendForReviewQuestion();
 
     const filteredQuestions = useMemo(() => {
         return questions.filter(q =>
             q.questionText.toLowerCase().includes(search.toLowerCase())
         );
     }, [questions, search]);
+
+    const handleApprove = async (question: QuestionResponseDTO) => {
+        try {
+            await approveMutation.mutateAsync(question.id);
+            toast.success('Câu hỏi đã được phê duyệt');
+        } catch (e: any) {
+            toast.error(e.response?.data?.message || 'Phê duyệt thất bại');
+        }
+    };
+
+    const handleReject = async (question: QuestionResponseDTO) => {
+        try {
+            await rejectMutation.mutateAsync(question.id);
+            toast.success('Đã từ chối câu hỏi');
+        } catch (e: any) {
+            toast.error(e.response?.data?.message || 'Từ chối thất bại');
+        }
+    };
+
+    const handleDeactivate = async (question: QuestionResponseDTO) => {
+        try {
+            await deactivateMutation.mutateAsync(question.id);
+            toast.success('Câu hỏi đã ngưng hoạt động');
+        } catch (e: any) {
+            toast.error(e.response?.data?.message || 'Ngưng hoạt động thất bại');
+        }
+    };
+
+    const handleSendForReview = async (question: QuestionResponseDTO) => {
+        try {
+            await sendForReviewMutation.mutateAsync(question.id);
+            toast.success('Đã gửi câu hỏi để xét duyệt');
+        } catch (e: any) {
+            toast.error(e.response?.data?.message || 'Gửi xét duyệt thất bại');
+        }
+    };
 
     if (isLoadingPool) {
         return <PageLoading text="Đang tải dữ liệu bộ câu hỏi..." className="min-h-[60vh]" />;
@@ -60,6 +115,11 @@ export default function PoolDetailPage() {
         );
     }
 
+    // Stats breakdown
+    const activeCount = questions.filter(q => q.status === 'active').length;
+    const reviewCount = questions.filter(q => q.status === 'review').length;
+    const inactiveCount = questions.filter(q => q.status === 'inactive').length;
+
     return (
         <div className="flex flex-col gap-8 pb-20">
             <div className="flex flex-col gap-4">
@@ -73,23 +133,74 @@ export default function PoolDetailPage() {
                     Quay lại danh sách
                 </Button>
 
-                <PageHeader
-                    title={pool.name}
-                    subtitle={pool.description || "Danh sách tổng hợp các câu hỏi tri thức thuộc bộ đề này."}
-                    stats={[
-                        { label: "Tổng số câu hỏi", value: questions.length },
-                        { label: "Cấp độ", value: pool.jlptLevel || 'GLOBAL' },
-                        { label: "Lần cuối cập nhật", value: formatDate(pool.updatedAt) },
-                    ]}
-                    actions={
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-card/50 backdrop-blur-xl border border-border/50 p-6 rounded-2xl shadow-sm">
+                    <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-3">
+                            <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shadow-inner">
+                                <Layers className="size-5" />
+                            </div>
+                            <h1 className="text-2xl font-black italic uppercase tracking-tight text-foreground">
+                                {pool.name}
+                            </h1>
+                            <Badge variant="outline" className="h-6 font-black italic text-[10px] uppercase tracking-widest bg-primary/5 text-primary border-primary/20">
+                                {pool.jlptLevel || 'GLOBAL'}
+                            </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground font-medium max-w-2xl leading-relaxed">
+                            {pool.description || "Danh sách tổng hợp các câu hỏi tri thức thuộc bộ đề này."}
+                        </p>
+                    </div>
+
+                    <div className="flex items-center gap-3 self-end md:self-center">
                         <Button
+                            variant="outline"
+                            className="h-10 px-4 text-[10px] font-black uppercase tracking-widest border-border/50 hover:bg-muted/50 transition-all rounded-xl"
+                            onClick={() => setIsEditPoolDialogOpen(true)}
+                        >
+                            <Pencil className="mr-2 size-3.5 opacity-50" />
+                            Sửa thông tin
+                        </Button>
+                        <Button
+                            className="h-10 px-6 text-[10px] font-black uppercase tracking-widest bg-primary hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 rounded-xl"
                             onClick={() => setIsCreateDialogOpen(true)}
                         >
                             <Plus className="mr-2 size-4" />
-                            Thêm Câu Hỏi Mới
+                            Thêm câu hỏi
                         </Button>
-                    }
-                />
+                    </div>
+                </div>
+
+                {/* Quick Stats Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="bg-card/30 backdrop-blur-md border border-border/40 p-4 rounded-xl flex flex-col gap-1 transition-all hover:border-primary/20 hover:bg-card/50">
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 flex items-center gap-2">
+                            <Layers className="size-3" />
+                            Tổng số câu
+                        </span>
+                        <span className="text-2xl font-black italic tracking-tight">{questions.length}</span>
+                    </div>
+                    <div className="bg-emerald-500/5 backdrop-blur-md border border-emerald-500/10 p-4 rounded-xl flex flex-col gap-1 transition-all hover:border-emerald-500/20 hover:bg-emerald-500/10">
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-500/50 flex items-center gap-2">
+                            <CheckCircle2 className="size-3" />
+                            Đang hoạt động
+                        </span>
+                        <span className="text-2xl font-black italic tracking-tight text-emerald-600">{activeCount}</span>
+                    </div>
+                    <div className="bg-amber-500/5 backdrop-blur-md border border-amber-500/10 p-4 rounded-xl flex flex-col gap-1 transition-all hover:border-amber-500/20 hover:bg-amber-500/10">
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-500/50 flex items-center gap-2">
+                            <AlertTriangle className="size-3" />
+                            Chờ xét duyệt
+                        </span>
+                        <span className="text-2xl font-black italic tracking-tight text-amber-600">{reviewCount}</span>
+                    </div>
+                    <div className="bg-rose-500/5 backdrop-blur-md border border-rose-500/10 p-4 rounded-xl flex flex-col gap-1 transition-all hover:border-rose-500/20 hover:bg-rose-500/10">
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-rose-500/50 flex items-center gap-2">
+                            <XCircle className="size-3" />
+                            Ngừng bán/Dừng
+                        </span>
+                        <span className="text-2xl font-black italic tracking-tight text-rose-600">{inactiveCount}</span>
+                    </div>
+                </div>
             </div>
 
             <div className="space-y-4">
@@ -112,6 +223,10 @@ export default function PoolDetailPage() {
                         onView={setViewingQuestion}
                         onEdit={setEditingQuestion}
                         onDelete={setDeletingQuestion}
+                        onApprove={handleApprove}
+                        onReject={handleReject}
+                        onDeactivate={handleDeactivate}
+                        onSendForReview={handleSendForReview}
                     />
                 </Card>
             </div>
@@ -121,6 +236,12 @@ export default function PoolDetailPage() {
                 open={isCreateDialogOpen}
                 onOpenChange={setIsCreateDialogOpen}
                 defaultPoolId={id || ''}
+            />
+
+            <EditQuestionPoolDialog
+                open={isEditPoolDialogOpen}
+                onOpenChange={setIsEditPoolDialogOpen}
+                pool={pool}
             />
 
             <QuestionDetailSheet

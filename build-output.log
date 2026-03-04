@@ -1,0 +1,56 @@
+
+> torii-nihongo@0.0.1 build /home/lain4504/SEP490/torii-monorepo
+> turbo build
+
+• turbo 2.8.1
+• Packages in scope: @workspace/eslint-config, @workspace/protocol, @workspace/schemas, @workspace/typescript-config, @workspace/ui, meet, server, web-admin, web-learner
+• Running build in 9 packages
+• Remote caching disabled
+@workspace/schemas:build: cache miss, executing de1a3db491037500
+@workspace/protocol:build: cache hit, replaying logs 03283d07a5e3d9f5
+@workspace/protocol:build: 
+@workspace/protocol:build: 
+@workspace/protocol:build: > @workspace/protocol@0.0.1 build /home/lain4504/SEP490/torii-monorepo/packages/protocol
+@workspace/protocol:build: > tsc && tsc -p tsconfig.esm.json && node -e "require('fs').writeFileSync('dist/esm/package.json', '{\"type\": \"module\"}')"
+@workspace/protocol:build: 
+meet:build: cache miss, executing 7684e1a59f99e499
+meet:build: 
+meet:build: > meet@0.0.1 build /home/lain4504/SEP490/torii-monorepo/apps/meet
+meet:build: > vite build
+meet:build: 
+@workspace/schemas:build: 
+@workspace/schemas:build: > @workspace/schemas@0.0.1 build /home/lain4504/SEP490/torii-monorepo/packages/schemas
+@workspace/schemas:build: > tsc && tsc -p tsconfig.esm.json && node -e "require('fs').writeFileSync('./dist/esm/package.json', '{\"type\": \"module\"}')"
+@workspace/schemas:build: 
+meet:build: rolldown-vite v7.3.1 building client environment for production...
+meet:build: [2Kmeet:build: transforming...✓ 6673 modules transformed.
+meet:build: ✗ Build failed in 1.43s
+meet:build: error during build:
+meet:build: Build failed with 1 error:
+meet:build: 
+meet:build: [31m[builtin:vite-transform] Error:[0m Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+meet:build:      [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m components/landing/index.tsx:297:24 [38;5;246m][0m
+meet:build:      [38;5;246m│[0m
+meet:build:  [38;5;246m297 │[0m [38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m [0m[38;5;249m)[0m[38;5;249m}[0m
+meet:build:  [38;5;240m    │[0m                        │ 
+meet:build:  [38;5;240m    │[0m                        ╰─ 
+meet:build: [38;5;246m─────╯[0m
+meet:build: 
+meet:build:     at aggregateBindingErrorsIntoJsError (file:///home/lain4504/SEP490/torii-monorepo/node_modules/.pnpm/rolldown@1.0.0-beta.53/node_modules/rolldown/dist/shared/bindingify-input-options-Bk0BBr2s.mjs:56:18)
+meet:build:     at unwrapBindingResult (file:///home/lain4504/SEP490/torii-monorepo/node_modules/.pnpm/rolldown@1.0.0-beta.53/node_modules/rolldown/dist/shared/bindingify-input-options-Bk0BBr2s.mjs:31:128)
+meet:build:     at #build (file:///home/lain4504/SEP490/torii-monorepo/node_modules/.pnpm/rolldown@1.0.0-beta.53/node_modules/rolldown/dist/shared/rolldown-build-BEU8N80I.mjs:2260:34)
+meet:build:     at async buildEnvironment (file:///home/lain4504/SEP490/torii-monorepo/node_modules/.pnpm/rolldown-vite@7.3.1_@types+node@24.10.9_jiti@2.6.1_terser@5.46.0_yaml@2.8.2/node_modules/rolldown-vite/dist/node/chunks/node.js:32805:64)
+meet:build:     at async Object.build (file:///home/lain4504/SEP490/torii-monorepo/node_modules/.pnpm/rolldown-vite@7.3.1_@types+node@24.10.9_jiti@2.6.1_terser@5.46.0_yaml@2.8.2/node_modules/rolldown-vite/dist/node/chunks/node.js:33208:19)
+meet:build:     at async Object.buildApp (file:///home/lain4504/SEP490/torii-monorepo/node_modules/.pnpm/rolldown-vite@7.3.1_@types+node@24.10.9_jiti@2.6.1_terser@5.46.0_yaml@2.8.2/node_modules/rolldown-vite/dist/node/chunks/node.js:33205:153)
+meet:build:     at async CAC.<anonymous> (file:///home/lain4504/SEP490/torii-monorepo/node_modules/.pnpm/rolldown-vite@7.3.1_@types+node@24.10.9_jiti@2.6.1_terser@5.46.0_yaml@2.8.2/node_modules/rolldown-vite/dist/node/cli.js:629:3)
+meet:build:  ELIFECYCLE  Command failed with exit code 1.
+meet:build: ERROR: command finished with error: command (/home/lain4504/SEP490/torii-monorepo/apps/meet) /home/lain4504/.local/share/pnpm/.tools/pnpm/10.4.1/bin/pnpm run build exited (1)
+meet#build: command (/home/lain4504/SEP490/torii-monorepo/apps/meet) /home/lain4504/.local/share/pnpm/.tools/pnpm/10.4.1/bin/pnpm run build exited (1)
+
+ Tasks:    1 successful, 3 total
+Cached:    1 cached, 3 total
+  Time:    2.79s 
+Failed:    meet#build
+
+ ERROR  run failed: command  exited (1)
+ ELIFECYCLE  Command failed with exit code 1.

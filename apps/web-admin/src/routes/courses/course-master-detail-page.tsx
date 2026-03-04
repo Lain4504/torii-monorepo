@@ -9,10 +9,8 @@ import {
     Edit,
     Trash,
     FileText,
-    PenTool,
     ArrowUp,
     ArrowDown,
-    HelpCircle,
     PlayCircle,
 } from 'lucide-react';
 
@@ -171,8 +169,8 @@ export default function CourseMasterPage() {
     const LessonRow = ({ lesson }: { lesson: any }) => {
         let lessonIcon = <FileText className="size-4" />;
         if (lesson.contentType === 'video') lessonIcon = <PlayCircle className="size-4 text-rose-500" />;
-        if (lesson.contentType === 'quiz') lessonIcon = <HelpCircle className="size-4 text-amber-500" />;
-        if (lesson.contentType === 'assignment') lessonIcon = <PenTool className="size-4 text-indigo-500" />;
+        if (lesson.contentType === 'article') lessonIcon = <FileText className="size-4 text-blue-500" />;
+        if (lesson.contentType === 'live') lessonIcon = <PlayCircle className="size-4 text-green-500" />;
 
         return (
             <div className="flex items-center justify-between gap-2 py-1.5 px-2 rounded-md border border-transparent hover:border-border/40 hover:bg-muted/30">

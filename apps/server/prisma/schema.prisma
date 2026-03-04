@@ -189,7 +189,6 @@ model Module {
 
   courseMaster CourseMaster @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
   lessons      Lesson[]
-  assignments  Assignment[]
 
   @@index([courseMasterId])
   @@map("modules")
@@ -205,6 +204,7 @@ model Lesson {
   videoDuration  Int?      @map("video_duration")
   durationMinutes Int?      @map("duration_minutes")
   articleContent String?   @map("article_content") @db.Text
+  requiresPassingGrade Boolean @default(false) @map("requires_passing_grade")
   aiMetadata     Json?     @default("{}") @map("ai_metadata")
   status         String    @default("published") @db.VarChar(20) // published, draft
   orderIndex     Int       @default(0) @map("order_index")
@@ -268,10 +268,9 @@ model Assignment {
   description String         @db.Text
   type        AssignmentType @default(TEXT)
 
-  // Associated with (at least one required)
-  courseRunId    String? @map("course_run_id") @db.Uuid
-  moduleId       String? @map("module_id") @db.Uuid
-  lessonId       String? @map("lesson_id") @db.Uuid
+  // Associated with
+  courseRunId String  @map("course_run_id") @db.Uuid
+  lessonId    String? @map("lesson_id") @db.Uuid
 
   // Grading config
   maxScore     Decimal  @default(100.00) @map("max_score") @db.Decimal(5, 2)
@@ -298,13 +297,11 @@ model Assignment {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  courseRun    CourseRun?    @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
-  module       Module?       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  lesson       Lesson?       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  submissions  Submission[]
+  courseRun   CourseRun   @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+  lesson      Lesson?     @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  submissions Submission[]
 
   @@index([courseRunId])
-  @@index([moduleId])
   @@index([lessonId])
   @@index([status])
   @@index([dueDate])
@@ -719,6 +716,7 @@ model User {
   notebooks             Notebook[]
   cart                  Cart?
   blogs                 Blog[]
+  placementResults      PlacementResult[]
 
   @@index([email])
   @@index([role])
@@ -1321,6 +1319,7 @@ model QuestionPool {
   createdBy   String?  @map("created_by") @db.Uuid
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  usageType   String?  @map("usage_type") @db.VarChar(20) // PLACEMENT, COURSE_ASSESS, JLPT_MOCK, PRACTICE
 
   // Relations
   questions Question[]
@@ -1390,9 +1389,10 @@ model Quiz {
 
   // Relations
   courseRun     CourseRun?     @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
-  lesson        Lesson?        @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lesson        Lesson?        @relation(fields: [lessonId], references: [id], onDelete: SetNull)
   quizQuestions QuizQuestion[]
   attempts      QuizAttempt[]
+  placementResults PlacementResult[]
 
   @@index([jlptLevel])
   @@index([status])
@@ -1424,7 +1424,7 @@ model QuizAttempt {
   id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   quizId           String    @map("quiz_id") @db.Uuid
   userId           String    @map("user_id") @db.Uuid
-  courseRunId      String    @map("course_run_id") @db.Uuid
+  courseRunId      String?   @map("course_run_id") @db.Uuid
   status           String    @default("in-progress") @db.VarChar(20) // in-progress, completed, submitted, abandoned
   startedAt        DateTime  @default(now()) @map("started_at")
   submittedAt      DateTime? @map("submitted_at")
@@ -1445,7 +1445,8 @@ model QuizAttempt {
 
   // Relations
   quiz      Quiz                @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  courseRun CourseRun           @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+  courseRun CourseRun?          @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
+  placementResult PlacementResult?
   details   QuizAttemptDetail[]
 
   @@index([quizId])
@@ -1474,6 +1475,30 @@ model QuizAttemptDetail {
   @@index([attemptId])
   @@index([questionId])
   @@map("quiz_attempt_details")
+}
+
+model PlacementResult {
+  id                     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId                 String   @map("user_id") @db.Uuid
+  quizId                 String   @map("quiz_id") @db.Uuid
+  attemptId              String   @unique @map("attempt_id") @db.Uuid
+  overallScore           Decimal  @map("overall_score") @db.Decimal(5, 2)
+  vocabScore             Decimal? @map("vocab_score") @db.Decimal(5, 2)
+  grammarScore           Decimal? @map("grammar_score") @db.Decimal(5, 2)
+  readingScore           Decimal? @map("reading_score") @db.Decimal(5, 2)
+  listeningScore         Decimal? @map("listening_score") @db.Decimal(5, 2)
+  recommendedLevel       String   @map("recommended_level") @db.VarChar(10)
+  recommendedCourseRunId String?  @map("recommended_course_run_id") @db.Uuid
+  createdAt              DateTime @default(now()) @map("created_at")
+
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz    Quiz        @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  attempt QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([quizId])
+  @@index([attemptId])
+  @@map("placement_results")
 }
 
 // Notification model - matches database.sql schema

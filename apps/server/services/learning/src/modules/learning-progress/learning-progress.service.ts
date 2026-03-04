@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, BadRequestException, ForbiddenException, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import {
     ILearningProgressRepository, LEARNING_PROGRESS_REPOSITORY_TOKEN,
@@ -9,6 +9,7 @@ import {
 } from '@server/learning/interfaces/repositories';
 import { ILearningProgressService, ICertificateService, CERTIFICATE_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import { EnrollmentStatus, UserActivityEvent } from '@workspace/schemas';
+import { PrismaService } from '@server/shared';
 
 
 @Injectable()
@@ -29,6 +30,7 @@ export class LearningProgressService implements ILearningProgressService {
         @Inject(CERTIFICATE_SERVICE_TOKEN)
         private readonly certificateService: ICertificateService,
         @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+        private readonly prisma: PrismaService,
     ) { }
 
     async getMyCourses(userId: string) {
@@ -152,8 +154,41 @@ export class LearningProgressService implements ILearningProgressService {
             throw new BadRequestException('Course access has expired');
         }
 
-        // 3. Determine completion
-        const isCompleted = (seconds / totalSeconds) > 0.90;
+        // 3. Determine watch completion
+        const watchCompleted = (seconds / totalSeconds) > 0.90;
+
+        // 4. Lesson Gatekeeping: if requiresPassingGrade, block completion until all quizzes passed
+        let isCompleted = watchCompleted;
+        if (watchCompleted && (lesson as any).requiresPassingGrade) {
+            // Get quizzes tied to this lesson in the learner's enrolled CourseRun
+            const runQuizzes = await this.prisma.quiz.findMany({
+                where: { lessonId, courseRunId: enrollment.courseRunId },
+                select: { id: true },
+            });
+
+            if (runQuizzes.length > 0) {
+                // Check that at least one passed attempt exists per quiz
+                const passedAttempts = await this.prisma.quizAttempt.findMany({
+                    where: {
+                        quizId: { in: runQuizzes.map(q => q.id) },
+                        courseRunId: enrollment.courseRunId,
+                        isPassed: true,
+                        quiz: { lessonId },
+                    },
+                    select: { quizId: true },
+                });
+
+                const passedQuizIds = new Set(passedAttempts.map(a => a.quizId));
+                const allPassed = runQuizzes.every(q => passedQuizIds.has(q.id));
+
+                if (!allPassed) {
+                    this.logger.warn(`User ${userId} tried to complete lesson ${lessonId} without passing all quizzes`);
+                    // Mark as in_progress but do NOT block the watch tracking — just block completion
+                    isCompleted = false;
+                }
+            }
+        }
+
         const status = isCompleted ? 'completed' : 'in_progress';
 
         // 4. Upsert Progress

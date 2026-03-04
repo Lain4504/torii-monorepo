@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
-import { createNatsServiceConfig } from '@server/shared';
+import { createNatsServiceConfig } from '@server/shared/nats/nats-service.config';
 import { StorageModule } from '@server/storage/storage.module';
 
 async function bootstrap() {

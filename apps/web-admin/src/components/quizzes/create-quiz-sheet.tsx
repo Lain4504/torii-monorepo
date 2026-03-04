@@ -23,20 +23,22 @@ import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { toast } from '@workspace/ui/components/sonner';
 import { useCreateQuiz, type CreateQuizDTO } from '@/lib/api/services/quizzes';
 import { useQuestionPools } from '@/lib/api/services/question-pools';
-import { HelpCircle, Plus, BookOpen, Clock, Trash2, Layers, List } from 'lucide-react';
-import { QuestionJlptLevel, LessonContentType } from '@workspace/schemas';
+import { HelpCircle, Plus, BookOpen, Clock, Trash2, Layers, List, BrainCircuit, MousePointer2, RefreshCcw } from 'lucide-react';
+
+import { QuestionJlptLevel } from '@workspace/schemas';
 import { Badge } from '@workspace/ui/components/badge';
 import { Card } from '@workspace/ui/components/card';
 import { useCourseRun } from '@/lib/api/services/course-runs';
 import { useCourseModules } from '@/lib/api/services/modules';
 import { useModulesLessons } from '@/lib/api/services/lesson';
+import { QuestionSelectionDialog } from './question-selection-dialog';
+
 
 interface CreateQuizSheetProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     courseRunId?: string;
     lessonId?: string;
-    moduleId?: string;
 }
 
 export function CreateQuizSheet({
@@ -44,7 +46,6 @@ export function CreateQuizSheet({
     onOpenChange,
     courseRunId,
     lessonId,
-    moduleId: _moduleId,
 }: CreateQuizSheetProps) {
     const createMutation = useCreateQuiz();
     const { data: courseRun } = useCourseRun(courseRunId || '');
@@ -52,15 +53,11 @@ export function CreateQuizSheet({
     const modulesLessonsQueries = useModulesLessons(modules);
     const [selectedLessonId, setSelectedLessonId] = useState<string>(lessonId || '');
 
-    // Filter lessons to only show Quiz type
-    const quizLessons = useMemo(() => {
-        const allLessons = modulesLessonsQueries
+    // Show all lessons — any lesson can have a quiz linked to it
+    const allLessons = useMemo(() => {
+        return modulesLessonsQueries
             .map(query => query.data?.data || [])
             .flat();
-        
-        return allLessons.filter(lesson => 
-            lesson.contentType === LessonContentType.QUIZ
-        );
     }, [modulesLessonsQueries]);
 
     useEffect(() => {
@@ -83,12 +80,18 @@ export function CreateQuizSheet({
             {
                 id: Math.random().toString(36).substr(2, 9),
                 type: 'vocab' as 'vocab' | 'grammar' | 'reading' | 'listening',
+                selectionMode: 'pool' as 'pool' | 'manual',
                 poolId: '',
+                questionIds: [] as string[],
                 questionCount: '10',
                 timeLimit: '10',
             }
         ],
     });
+
+    const [selectorOpen, setSelectorOpen] = useState(false);
+    const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
+
 
     const { data: poolsData } = useQuestionPools({
         page: 1,
@@ -105,13 +108,16 @@ export function CreateQuizSheet({
                 {
                     id: Math.random().toString(36).substr(2, 9),
                     type: 'vocab',
+                    selectionMode: 'pool',
                     poolId: '',
+                    questionIds: [],
                     questionCount: '10',
                     timeLimit: '10',
                 }
             ]
         }));
     };
+
 
     const removeSection = (id: string) => {
         if (form.sections.length <= 1) {
@@ -135,8 +141,13 @@ export function CreateQuizSheet({
         e.preventDefault();
         if (!form.title.trim()) { toast.error('Vui lòng nhập tiêu đề quiz'); return; }
 
-        if (form.sections.some(s => !s.poolId)) {
-            toast.error('Vui lòng chọn bộ đề cho tất cả các phần');
+        if (form.sections.some(s => s.selectionMode === 'pool' && !s.poolId)) {
+            toast.error('Vui lòng chọn bộ đề cho các phần dùng chế độ ngẫu nhiên');
+            return;
+        }
+
+        if (form.sections.some(s => s.selectionMode === 'manual' && (!s.questionIds || s.questionIds.length === 0))) {
+            toast.error('Vui lòng chọn ít nhất một câu hỏi cho các phần chọn thủ công');
             return;
         }
 
@@ -156,8 +167,9 @@ export function CreateQuizSheet({
             status: form.status,
             sections: form.sections.map(s => ({
                 type: s.type,
-                poolId: s.poolId,
-                questionCount: parseInt(s.questionCount, 10) || 10,
+                poolId: s.selectionMode === 'pool' ? s.poolId : undefined,
+                questionIds: s.selectionMode === 'manual' ? s.questionIds : undefined,
+                questionCount: s.selectionMode === 'manual' ? s.questionIds.length : (parseInt(s.questionCount, 10) || 10),
                 timeLimit: parseInt(s.timeLimit, 10) || 10,
             }))
         };
@@ -180,7 +192,9 @@ export function CreateQuizSheet({
                     {
                         id: Math.random().toString(36).substr(2, 9),
                         type: 'vocab',
+                        selectionMode: 'pool',
                         poolId: '',
+                        questionIds: [],
                         questionCount: '10',
                         timeLimit: '10',
                     }
@@ -259,21 +273,21 @@ export function CreateQuizSheet({
                                             </Label>
                                             <Select value={selectedLessonId} onValueChange={setSelectedLessonId}>
                                                 <SelectTrigger id="quiz-lesson">
-                                                    <SelectValue placeholder="Chọn lesson có type Quiz..." />
+                                                    <SelectValue placeholder="Chọn bài học để gắn quiz..." />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="none">Không gắn với lesson cụ thể</SelectItem>
-                                                    {quizLessons.length === 0 ? (
+                                                    {allLessons.length === 0 ? (
                                                         <SelectItem value="no-lessons" disabled>
-                                                            Không có lesson Quiz nào
+                                                            Không có lesson nào trong lớp này
                                                         </SelectItem>
                                                     ) : (
-                                                        quizLessons.map((lesson) => (
+                                                        allLessons.map((lesson) => (
                                                             <SelectItem key={lesson.id} value={lesson.id}>
                                                                 <div className="flex flex-col">
                                                                     <span className="font-medium">{lesson.title}</span>
                                                                     <span className="text-xs text-muted-foreground">
-                                                                        📝 Quiz · ID: {lesson.id.slice(0, 8)}
+                                                                        {lesson.contentType} · ID: {lesson.id.slice(0, 8)}
                                                                     </span>
                                                                 </div>
                                                             </SelectItem>
@@ -382,29 +396,30 @@ export function CreateQuizSheet({
                                                     <div className="grid grid-cols-2 gap-4">
                                                         <div className="space-y-2">
                                                             <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                                                Bộ đề (Question Pool)
+                                                                Chế độ chọn câu hỏi
                                                             </Label>
-                                                            <Select
-                                                                value={section.poolId}
-                                                                onValueChange={v => updateSection(section.id, { poolId: v })}
-                                                            >
-                                                                <SelectTrigger className="h-9">
-                                                                    <SelectValue placeholder="Chọn bộ đề..." />
-                                                                </SelectTrigger>
-                                                                <SelectContent>
-                                                                    {pools.length > 0 ? (
-                                                                        pools.map((p: any) => (
-                                                                            <SelectItem key={p.id} value={p.id}>
-                                                                                {p.name}
-                                                                            </SelectItem>
-                                                                        ))
-                                                                    ) : (
-                                                                        <SelectItem value="none" disabled>
-                                                                            Không có bộ đề nào
-                                                                        </SelectItem>
-                                                                    )}
-                                                                </SelectContent>
-                                                            </Select>
+                                                            <div className="flex bg-muted rounded-lg p-1">
+                                                                <Button
+                                                                    type="button"
+                                                                    variant={section.selectionMode === 'pool' ? 'secondary' : 'ghost'}
+                                                                    size="sm"
+                                                                    className="flex-1 h-7 text-[10px] font-bold uppercase tracking-wider rounded-md"
+                                                                    onClick={() => updateSection(section.id, { selectionMode: 'pool' })}
+                                                                >
+                                                                    <RefreshCcw className="size-3 mr-1.5" />
+                                                                    Ngẫu nhiên
+                                                                </Button>
+                                                                <Button
+                                                                    type="button"
+                                                                    variant={section.selectionMode === 'manual' ? 'secondary' : 'ghost'}
+                                                                    size="sm"
+                                                                    className="flex-1 h-7 text-[10px] font-bold uppercase tracking-wider rounded-md"
+                                                                    onClick={() => updateSection(section.id, { selectionMode: 'manual' })}
+                                                                >
+                                                                    <MousePointer2 className="size-3 mr-1.5" />
+                                                                    Thủ công
+                                                                </Button>
+                                                            </div>
                                                         </div>
 
                                                         <div className="space-y-2">
@@ -428,38 +443,107 @@ export function CreateQuizSheet({
                                                         </div>
                                                     </div>
 
-                                                    <div className="grid grid-cols-2 gap-4">
-                                                        <div className="space-y-2">
-                                                            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                                                Số câu hỏi
-                                                            </Label>
-                                                            <div className="relative">
-                                                                <BookOpen className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-                                                                <Input
-                                                                    type="number"
-                                                                    min={1}
-                                                                    className="pl-9 h-9"
-                                                                    value={section.questionCount}
-                                                                    onChange={e => updateSection(section.id, { questionCount: e.target.value })}
-                                                                />
+                                                    {section.selectionMode === 'pool' ? (
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <div className="space-y-2">
+                                                                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                                    Bộ đề (Question Pool)
+                                                                </Label>
+                                                                <Select
+                                                                    value={section.poolId}
+                                                                    onValueChange={v => updateSection(section.id, { poolId: v })}
+                                                                >
+                                                                    <SelectTrigger className="h-9">
+                                                                        <SelectValue placeholder="Chọn bộ đề..." />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        {pools.length > 0 ? (
+                                                                            pools.map((p: any) => (
+                                                                                <SelectItem key={p.id} value={p.id}>
+                                                                                    {p.name}
+                                                                                </SelectItem>
+                                                                            ))
+                                                                        ) : (
+                                                                            <SelectItem value="none" disabled>
+                                                                                Không có bộ đề nào
+                                                                            </SelectItem>
+                                                                        )}
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+
+                                                            <div className="grid grid-cols-2 gap-4">
+                                                                <div className="space-y-2">
+                                                                    <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                                        Số câu hỏi
+                                                                    </Label>
+                                                                    <div className="relative">
+                                                                        <BookOpen className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+                                                                        <Input
+                                                                            type="number"
+                                                                            min={1}
+                                                                            className="pl-9 h-9"
+                                                                            value={section.questionCount}
+                                                                            onChange={e => updateSection(section.id, { questionCount: e.target.value })}
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                                <div className="space-y-2">
+                                                                    <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                                        TG (phút)
+                                                                    </Label>
+                                                                    <div className="relative">
+                                                                        <Clock className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+                                                                        <Input
+                                                                            type="number"
+                                                                            min={1}
+                                                                            className="pl-9 h-9"
+                                                                            value={section.timeLimit}
+                                                                            onChange={e => updateSection(section.id, { timeLimit: e.target.value })}
+                                                                        />
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                        <div className="space-y-2">
-                                                            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                                                Thời gian (phút)
-                                                            </Label>
-                                                            <div className="relative">
-                                                                <Clock className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-                                                                <Input
-                                                                    type="number"
-                                                                    min={1}
-                                                                    className="pl-9 h-9"
-                                                                    value={section.timeLimit}
-                                                                    onChange={e => updateSection(section.id, { timeLimit: e.target.value })}
-                                                                />
+                                                    ) : (
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <div className="space-y-2">
+                                                                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                                    Chọn câu hỏi ({section.questionIds.length})
+                                                                </Label>
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="outline"
+                                                                    className="w-full h-9 justify-start text-xs font-medium"
+                                                                    onClick={() => {
+                                                                        setActiveSectionId(section.id);
+                                                                        setSelectorOpen(true);
+                                                                    }}
+                                                                >
+                                                                    <BrainCircuit className="size-4 mr-2 text-primary" />
+                                                                    {section.questionIds.length > 0
+                                                                        ? `Đã chọn ${section.questionIds.length} câu hỏi`
+                                                                        : "Bấm để chọn câu hỏi..."}
+                                                                </Button>
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                                    TG (phút)
+                                                                </Label>
+                                                                <div className="relative">
+                                                                    <Clock className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+                                                                    <Input
+                                                                        type="number"
+                                                                        min={1}
+                                                                        className="pl-9 h-9"
+                                                                        value={section.timeLimit}
+                                                                        onChange={e => updateSection(section.id, { timeLimit: e.target.value })}
+                                                                    />
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                    )}
+
                                                 </div>
                                             </Card>
                                         ))}
@@ -542,7 +626,21 @@ export function CreateQuizSheet({
                         </Button>
                     </SheetFooter>
                 </form>
+                <QuestionSelectionDialog
+                    open={selectorOpen}
+                    onOpenChange={setSelectorOpen}
+                    onSelect={(ids: string[]) => {
+                        if (activeSectionId) {
+                            updateSection(activeSectionId, { questionIds: ids });
+                        }
+                    }}
+
+                    initialSelectedIds={activeSectionId ? form.sections.find(s => s.id === activeSectionId)?.questionIds : []}
+                    jlptLevel={form.jlptLevel}
+                    type={activeSectionId ? form.sections.find(s => s.id === activeSectionId)?.type : undefined}
+                />
             </SheetContent>
         </Sheet>
     );
 }
+
