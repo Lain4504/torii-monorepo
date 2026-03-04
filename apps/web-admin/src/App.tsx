@@ -23,13 +23,12 @@ import CourseMasterPage from '@/routes/courses/course-master-page.tsx'
 import CourseMasterReviewsPage from '@/routes/courses/course-master-reviews-page.tsx'
 import CourseMasterDetailPage from '@/routes/courses/course-master-detail-page.tsx'
 import CourseRunDetailPage from '@/routes/courses/course-run-detail-page.tsx'
-import MyCourseMastersPage from '@/routes/courses/my-course-masters-page.tsx'
+import MyCourseRunsPage from '@/routes/courses/my-course-runs-page.tsx'
 import ScheduleRequestsPage from '@/routes/courses/schedule-requests-page.tsx'
 import CourseRunLiveSessionsPage from '@/routes/courses/course-run-live-sessions-page.tsx'
 import CourseRunEnrollmentsPage from '@/routes/courses/course-run-enrollments-page.tsx'
 import AssignmentSubmissionsPage from '@/routes/courses/assignment-submissions-page.tsx'
 import CourseMasterDiscussionsPage from '@/routes/courses/course-master-discussions-page.tsx'
-
 
 import RoomsPage from '@/routes/rooms/rooms-page.tsx'
 import OrdersPage from '@/routes/finance/orders-page.tsx'
@@ -88,7 +87,7 @@ function App() {
                   <Route index element={<DashboardPage />} />
 
                   <Route path="course-master" element={<CourseMasterPage />} />
-                  <Route path="course-master/my" element={<MyCourseMastersPage />} />
+                  <Route path="my-classes" element={<MyCourseRunsPage />} />
                   <Route path="course-master/reviews" element={<CourseMasterReviewsPage />} />
                   <Route path="course-master/requests" element={<ScheduleRequestsPage />} />
                   <Route path="course-master/:id" element={<CourseMasterDetailPage />} />

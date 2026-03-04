@@ -3,8 +3,14 @@ import { LessonProgress, Prisma } from '@prisma/generated';
 export const LEARNING_PROGRESS_REPOSITORY_TOKEN = Symbol('LEARNING_PROGRESS_REPOSITORY_TOKEN');
 
 export interface ILearningProgressRepository {
+    /**
+     * Find by enrollment and lesson.
+     */
     findByEnrollmentAndLesson(enrollmentId: string, lessonId: string): Promise<LessonProgress | null>;
 
+    /**
+     * Upsert data.
+     */
     upsert(
         enrollmentId: string,
         lessonId: string,
@@ -12,6 +18,9 @@ export interface ILearningProgressRepository {
         updateData: Prisma.LessonProgressUpdateInput
     ): Promise<LessonProgress>;
 
+    /**
+     * Count completed lessons.
+     */
     countCompletedLessons(enrollmentId: string): Promise<number>;
 
     /**
@@ -24,5 +33,8 @@ export interface ILearningProgressRepository {
      */
     getCompletedLessonIds(enrollmentId: string): Promise<string[]>;
 
+    /**
+     * Find recent progress.
+     */
     findRecentProgress(userId: string, limit: number): Promise<any[]>;
 }

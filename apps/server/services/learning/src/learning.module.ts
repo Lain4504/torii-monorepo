@@ -46,10 +46,10 @@ import { WishlistModule } from '@server/learning/modules/wishlist/wishlist.modul
       strategyInitializer: pojos(),
     }),
     ScheduleModule.forRoot(),
-    
+
     // Shared modules
     SharedModule,
-    
+
     // Feature modules
     AssignmentModule,
     AttendanceModule,

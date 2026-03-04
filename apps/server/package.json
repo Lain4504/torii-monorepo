@@ -23,7 +23,7 @@
     "dev:billing": "nest start billing --watch",
     "prod:gateway": "node dist/services/gateway/src/main",
     "prod:identity": "node dist/services/identity/src/main",
-    "prod:learning": "node dist/modules/learning/src/main",
+    "prod:learning": "node dist/services/learning/src/main",
     "prod:meet": "node dist/services/meet/src/main",
     "prod:agents": "node dist/services/agents/src/main",
     "prod:gamification": "node dist/services/gamification/src/main",

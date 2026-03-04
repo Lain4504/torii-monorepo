@@ -117,6 +117,51 @@ export class CourseRunService {
         const where: any = {};
         if (courseMasterId) where.courseMasterId = courseMasterId;
         if (status) where.status = status;
+        if (query.lecturerId) where.lecturerId = query.lecturerId;
+        if (query.type) {
+            where.courseMaster = {
+                type: query.type,
+            };
+        }
+
+        const [items, total] = await Promise.all([
+            this.courseRunRepository.findMany({
+                skip,
+                take: limitNum,
+                where,
+                include: {
+                    lecturer: true,
+                    courseMaster: true,
+                },
+            }),
+            this.courseRunRepository.count(where),
+        ]);
+
+        return {
+            success: true,
+            data: items.map(item => this.toResponseDTO(item)),
+            total,
+            page: pageNum,
+            limit: limitNum,
+            totalPages: Math.ceil(total / limitNum),
+        };
+    }
+
+    async findMyRuns(requester: Requester, query: CourseRunSearchRequestDTO): Promise<PaginatedApiResponse<CourseRunResponseDTO>> {
+        if (!requester || !requester.sub) {
+            throw new ForbiddenException('User is not authenticated properly to access my course runs');
+        }
+
+        const { page = 1, limit = 10, courseMasterId, status } = query;
+        const pageNum = Number(page);
+        const limitNum = Number(limit);
+        const skip = (pageNum - 1) * limitNum;
+
+        const where: any = {
+            lecturerId: requester.sub
+        };
+        if (courseMasterId) where.courseMasterId = courseMasterId;
+        if (status) where.status = status;
         if (query.type) {
             where.courseMaster = {
                 type: query.type,

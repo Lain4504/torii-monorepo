@@ -5,7 +5,74 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(billing): restructure billing service modules and interfaces">
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/my-course-runs-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/billing/src/interfaces/repositories/i-user-balance.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/billing/src/interfaces/repositories/i-user-balance.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/communication/src/communication.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/communication/src/communication.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/communication/src/interfaces/repositories/i-ticket.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/repositories/i-ticket.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/communication/src/interfaces/repositories/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/communication/src/interfaces/repositories/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/communication/src/interfaces/services/i-ticket.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-ticket.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/communication/src/interfaces/services/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/communication/src/interfaces/services/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/communication/src/modules/ticket/ticket.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/modules/ticket/ticket.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/communication/src/modules/ticket/ticket.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/modules/ticket/ticket.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/communication/src/modules/ticket/ticket.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/modules/ticket/ticket.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/communication/src/modules/ticket/ticket.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/modules/ticket/ticket.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/repositories/i-achievements.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/repositories/i-achievements.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/repositories/i-activities.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/repositories/i-activities.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/repositories/i-leaderboards.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/repositories/i-leaderboards.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/repositories/i-profiles.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/repositories/i-profiles.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/repositories/i-redemptions.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/repositories/i-redemptions.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/services/i-achievements.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/services/i-achievements.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/services/i-activities.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/services/i-activities.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/services/i-leaderboards.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/services/i-leaderboards.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/services/i-profiles.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/services/i-profiles.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/services/i-redemptions.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gamification/src/interfaces/services/i-redemptions.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/communication/communication.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/communication/communication.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/communication/controllers/ticket.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/course-run.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/course-run.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/learning.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/learning.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/identity/src/interfaces/services/i-authorization.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/identity/src/interfaces/services/i-authorization.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/infrastructure/mappings/teaching-schedule.profile.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/infrastructure/mappings/teaching-schedule.profile.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/repositories/i-course-run.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/repositories/i-course-run.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/repositories/i-flashcard-deck.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/repositories/i-flashcard-deck.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/repositories/i-flashcard-review.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/repositories/i-flashcard-review.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/repositories/i-flashcard.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/repositories/i-flashcard.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/repositories/i-learning-progress.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/repositories/i-learning-progress.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/repositories/i-notebook.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/repositories/i-notebook.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/repositories/i-review.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/repositories/i-review.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-attendance.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-attendance.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-certificate.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-certificate.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-course-run.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-course-run.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-flashcard-deck.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-flashcard-deck.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-flashcard-review-session.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-flashcard-review-session.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-flashcard-review.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-flashcard-review.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-flashcard.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-flashcard.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-learning-progress.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-learning-progress.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-notebook.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-notebook.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-teaching-schedule.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-teaching-schedule.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/learning.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/learning.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/modules/course-run/course-run.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/modules/course-run/course-run.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/modules/course-run/course-run.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/modules/course-run/course-run.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/modules/teaching-schedule/teaching-schedule.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/modules/teaching-schedule/teaching-schedule.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/modules/teaching-schedule/teaching-schedule.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/modules/teaching-schedule/teaching-schedule.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/create-schedule-request-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/create-schedule-request-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/schedule-request-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/schedule-request-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/tickets/tickets-columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/tickets/tickets-columns.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/config/navigation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/config/navigation.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/course-runs.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/course-runs.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/live-sessions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/live-sessions.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/tickets-hook.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/tickets.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/tickets.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/my-course-masters-page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/schedule-requests-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/schedule-requests-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/tickets/tickets-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/tickets/tickets-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/marketing/course-detail-client.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/marketing/course-detail-client.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/course-run.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/course-run.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/teaching-schedule.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/teaching-schedule.model.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/ticket.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/ticket.model.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,10 +128,13 @@
   "keyToString": {
     "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.go.formatter.settings.were.checked": "true",
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "tienhn-w7",
     "go.import.settings.migrated": "true",
     "javascript.preferred.runtime.type.id": "node",
     "kotlin-language-version-configured": "true",
@@ -79,8 +149,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-28b599e66164-intellij.indexing.shared.core-IU-242.26775.15" />
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-IU-242.26775.15" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.31033.133" />
       </set>
     </attachedChunks>
   </component>
@@ -254,6 +323,8 @@
       <workItem from="1772449707195" duration="399000" />
       <workItem from="1772474025610" duration="499000" />
       <workItem from="1772518585740" duration="733000" />
+      <workItem from="1772599189135" duration="53000" />
+      <workItem from="1772601369093" duration="739000" />
     </task>
     <task id="LOCAL-00860" summary="refactor: improve layout and styling across multiple components">
       <option name="closed" value="true" />

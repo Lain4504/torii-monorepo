@@ -37,6 +37,12 @@ export class CourseRunHandler {
         return this.courseRunService.findAll(query);
     }
 
+    @MessagePattern({ cmd: 'learning.courserun.findMyRuns' })
+    async findMyRuns(@Payload() data: CourseRunSearchRequestDTO & { requester: Requester }) {
+        const { requester, ...query } = data;
+        return this.courseRunService.findMyRuns(requester, query);
+    }
+
     @MessagePattern({ cmd: 'learning.courserun.updateStatus' })
     async updateStatus(@Payload() data: { id: string, status: any, requester: Requester }) {
         const { id, status, requester } = data;

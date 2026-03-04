@@ -68,6 +68,9 @@ export interface IAuthorizationService {
         context?: AuditContextDTO,
     ): Promise<void>;
 
+    /**
+     * Add permission to role.
+     */
     addPermissionToRole(roleCode: string, permissionCode: string, context?: AuditContextDTO): Promise<void>;
 
     /**

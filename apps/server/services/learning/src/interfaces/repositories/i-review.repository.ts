@@ -26,7 +26,13 @@ export interface IReviewRepository {
      * @returns The review if found, null otherwise
      */
     findById(reviewId: string, includeRelations?: false): Promise<Review | null>;
+    /**
+     * Find by id.
+     */
     findById(reviewId: string, includeRelations: true): Promise<ReviewWithRelations | null>;
+    /**
+     * Find by id.
+     */
     findById(reviewId: string, includeRelations?: boolean): Promise<Review | ReviewWithRelations | null>;
 
     /**
