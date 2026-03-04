@@ -23,6 +23,7 @@ import CourseMasterPage from '@/routes/courses/course-master-page.tsx'
 import CourseMasterReviewsPage from '@/routes/courses/course-master-reviews-page.tsx'
 import CourseMasterDetailPage from '@/routes/courses/course-master-detail-page.tsx'
 import CourseRunDetailPage from '@/routes/courses/course-run-detail-page.tsx'
+import QuizDetailPage from '@/routes/courses/quiz-detail-page.tsx'
 import MyCourseRunsPage from '@/routes/courses/my-course-runs-page.tsx'
 import ScheduleRequestsPage from '@/routes/courses/schedule-requests-page.tsx'
 import CourseRunLiveSessionsPage from '@/routes/courses/course-run-live-sessions-page.tsx'
@@ -93,6 +94,7 @@ function App() {
                   <Route path="course-master/requests" element={<ScheduleRequestsPage />} />
                   <Route path="course-master/:id" element={<CourseMasterDetailPage />} />
                   <Route path="course-master/runs/:runId" element={<CourseRunDetailPage />} />
+                  <Route path="course-master/runs/:runId/quizzes/:quizId" element={<QuizDetailPage />} />
                   <Route path="course-master/discussions" element={<CourseMasterDiscussionsPage />} />
                   <Route path="course-master/:id/assignments/:assignmentId/submissions" element={<AssignmentSubmissionsPage />} />
                   {/* Course Run Management Routes - New Structure */}

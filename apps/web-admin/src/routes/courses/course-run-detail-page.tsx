@@ -18,9 +18,8 @@ import { CreateAssignmentSheet } from '@/components/assignments/create-assignmen
 import { EditAssignmentSheet } from '@/components/assignments/edit-assignment-sheet';
 import { useQuizzes, useDeleteQuiz, usePublishQuiz, type QuizDTO } from '@/lib/api/services/quizzes';
 import { QuizzesTable } from '@/components/quizzes/quizzes-table';
-import { CreateQuizSheet } from '@/components/quizzes/create-quiz-sheet';
+import { CreateQuizDialog } from '@/components/quizzes/create-quiz-dialog';
 import { EditQuizSheet } from '@/components/quizzes/edit-quiz-sheet';
-import { QuizDetailSheet } from '@/components/quizzes/quiz-detail-sheet';
 
 
 export default function CourseRunDetailPage() {
@@ -46,9 +45,7 @@ export default function CourseRunDetailPage() {
     const [quizzesPage, setQuizzesPage] = useState(1);
     const [createQuizOpen, setCreateQuizOpen] = useState(false);
     const [editQuizOpen, setEditQuizOpen] = useState(false);
-    const [detailQuizOpen, setDetailQuizOpen] = useState(false);
     const [selectedQuiz, setSelectedQuiz] = useState<QuizDTO | null>(null);
-    const [viewingQuiz, setViewingQuiz] = useState<QuizDTO | null>(null);
 
 
     const { data: quizzesData, isLoading: isLoadingQuizzes } = useQuizzes({
@@ -144,8 +141,7 @@ export default function CourseRunDetailPage() {
     };
 
     const handleViewQuiz = (quiz: QuizDTO) => {
-        setViewingQuiz(quiz);
-        setDetailQuizOpen(true);
+        navigate(`/course-master/runs/${runId}/quizzes/${quiz.id}`);
     };
 
 
@@ -538,7 +534,7 @@ export default function CourseRunDetailPage() {
                 onOpenChange={setEditAssignmentOpen}
                 assignment={selectedAssignment}
             />
-            <CreateQuizSheet
+            <CreateQuizDialog
                 open={createQuizOpen}
                 onOpenChange={setCreateQuizOpen}
                 courseRunId={runId}
@@ -547,11 +543,6 @@ export default function CourseRunDetailPage() {
                 open={editQuizOpen}
                 onOpenChange={setEditQuizOpen}
                 quiz={selectedQuiz}
-            />
-            <QuizDetailSheet
-                open={detailQuizOpen}
-                onOpenChange={setDetailQuizOpen}
-                quiz={viewingQuiz}
             />
         </div>
 

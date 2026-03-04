@@ -1,6 +1,5 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { Inject } from '@nestjs/common';
 import { ENROLLMENT_SERVICE_TOKEN, IEnrollmentService } from '@server/learning/interfaces/services';
 import { EnrollmentCreateDTO, EnrollmentQueryDTO } from '@workspace/schemas';
 
@@ -9,6 +8,8 @@ export class EnrollmentHandler {
     constructor(
         @Inject(ENROLLMENT_SERVICE_TOKEN) private readonly enrollmentService: IEnrollmentService
     ) { }
+
+    // --- Public / learner & generic endpoints ---
 
     @MessagePattern({ cmd: 'learning.enrollment.findAll' })
     async findAll(@Payload() query: EnrollmentQueryDTO) {
@@ -74,6 +75,21 @@ export class EnrollmentHandler {
     @MessagePattern({ cmd: 'learning.enrollment.upgradeVersion' })
     async upgradeVersion(@Payload() data: { userId: string, courseMasterId: string }) {
         return this.enrollmentService.upgradeVersion(data.userId, data.courseMasterId);
+    }
+
+    // --- Admin-specific endpoints ---
+
+    @MessagePattern({ cmd: 'learning.enrollment-admin.findAll' })
+    async findAllAdmin(@Payload() query: EnrollmentQueryDTO) {
+        // Reuse the same service method but keep a dedicated admin command
+        return this.enrollmentService.findAll(query);
+    }
+
+    @MessagePattern({ cmd: 'learning.enrollment-admin.findByUser' })
+    async findByUserAdmin(@Payload() data: { userId: string; query?: EnrollmentQueryDTO }) {
+        const { userId, query } = data;
+        const baseQuery: EnrollmentQueryDTO = (query || {}) as EnrollmentQueryDTO;
+        return this.enrollmentService.findAll({ ...baseQuery, userId } as EnrollmentQueryDTO & { userId: string });
     }
 }
 

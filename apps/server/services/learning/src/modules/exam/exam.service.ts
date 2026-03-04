@@ -1104,13 +1104,8 @@ export class ExamService implements IExamService {
         this.checkPermission(requester, 'create');
 
         try {
-            // Validate sections
-            if (!dto.sections || dto.sections.length === 0) {
-                throw new BadRequestException('Exam must have at least one section');
-            }
-
-            // Calculate total questions
-            const totalQuestions = this.calculateTotalQuestions(dto.sections);
+            const sections = dto.sections ?? [];
+            const totalQuestions = sections.length > 0 ? this.calculateTotalQuestions(sections) : 0;
 
             // Create quiz
             const quiz = await this.examRepository.create({
@@ -1118,7 +1113,7 @@ export class ExamService implements IExamService {
                 description: dto.description || null,
                 quizType: dto.examType, // Map examType to quizType
                 jlptLevel: dto.jlptLevel || null,
-                sections: dto.sections as any,
+                sections: sections as any,
                 totalTime: dto.totalTime || null,
                 totalQuestions: totalQuestions,
                 passingScore: null, // Can be set later

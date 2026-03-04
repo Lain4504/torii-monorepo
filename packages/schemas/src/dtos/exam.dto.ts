@@ -10,6 +10,8 @@ import {
 } from '../models/exam.model';
 
 // Exam DTOs
+// For admin creation we allow creating a "blank" exam with only title and optional metadata.
+// Sections can be configured later via the update endpoint / detail UI.
 export const examCreateDTOSchema = examSchema
     .pick({
         title: true,
@@ -21,8 +23,16 @@ export const examCreateDTOSchema = examSchema
         createdBy: true,
         courseRunId: true,
     })
+    .partial({ // most fields are optional at creation time
+        description: true,
+        jlptLevel: true,
+        sections: true,
+        totalTime: true,
+        createdBy: true,
+        courseRunId: true,
+    })
     .extend({
-        sections: z.array(examSectionSchema),
+        sections: z.array(examSectionSchema).optional().default([]),
         examType: z.nativeEnum(ExamType).default(ExamType.PRACTICE),
     });
 

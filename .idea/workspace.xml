@@ -5,7 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update core lms flow">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,7 +83,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.31033.133" />
+        <option value="bundled-jdk-9823dce3aa75-28b599e66164-intellij.indexing.shared.core-IU-242.26775.15" />
+        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-IU-242.26775.15" />
       </set>
     </attachedChunks>
   </component>
@@ -262,30 +263,7 @@
       <workItem from="1772602430606" duration="2000" />
       <workItem from="1772602449755" duration="8209000" />
       <workItem from="1772616293477" duration="1966000" />
-    </task>
-    <task id="LOCAL-00888" summary="refactor: Rename courseId to courseMasterId and update related references across models and services">
-      <option name="closed" value="true" />
-      <created>1772376557471</created>
-      <option name="number" value="00888" />
-      <option name="presentableId" value="LOCAL-00888" />
-      <option name="project" value="LOCAL" />
-      <updated>1772376557471</updated>
-    </task>
-    <task id="LOCAL-00889" summary="feat: Implement attendance processing for live sessions and add course run status update functionality">
-      <option name="closed" value="true" />
-      <created>1772381154759</created>
-      <option name="number" value="00889" />
-      <option name="presentableId" value="LOCAL-00889" />
-      <option name="project" value="LOCAL" />
-      <updated>1772381154759</updated>
-    </task>
-    <task id="LOCAL-00890" summary="feat: Implement attendance processing for live sessions and add course run status update functionality">
-      <option name="closed" value="true" />
-      <created>1772381405376</created>
-      <option name="number" value="00890" />
-      <option name="presentableId" value="LOCAL-00890" />
-      <option name="project" value="LOCAL" />
-      <updated>1772381405376</updated>
+      <workItem from="1772633951974" duration="873000" />
     </task>
     <task id="LOCAL-00891" summary="feat: Implement attendance processing for live sessions and add course run status update functionality">
       <option name="closed" value="true" />
@@ -655,7 +633,31 @@
       <option name="project" value="LOCAL" />
       <updated>1772618249621</updated>
     </task>
-    <option name="localTasksCounter" value="937" />
+    <task id="LOCAL-00937" summary="update core lms flow">
+      <option name="closed" value="true" />
+      <created>1772634082921</created>
+      <option name="number" value="00937" />
+      <option name="presentableId" value="LOCAL-00937" />
+      <option name="project" value="LOCAL" />
+      <updated>1772634082921</updated>
+    </task>
+    <task id="LOCAL-00938" summary="update core lms flow">
+      <option name="closed" value="true" />
+      <created>1772634574038</created>
+      <option name="number" value="00938" />
+      <option name="presentableId" value="LOCAL-00938" />
+      <option name="project" value="LOCAL" />
+      <updated>1772634574039</updated>
+    </task>
+    <task id="LOCAL-00939" summary="update core lms flow">
+      <option name="closed" value="true" />
+      <created>1772634824775</created>
+      <option name="number" value="00939" />
+      <option name="presentableId" value="LOCAL-00939" />
+      <option name="project" value="LOCAL" />
+      <updated>1772634824775</updated>
+    </task>
+    <option name="localTasksCounter" value="940" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -711,6 +713,8 @@
     <MESSAGE value="feat(billing): restructure billing service modules and interfaces" />
     <MESSAGE value="add comment for interface" />
     <MESSAGE value="update meet to user shadcn ui component" />
+    <MESSAGE value="update ui flow course detail" />
+    <MESSAGE value="refactor: update course and course run handlers for admin-specific listings" />
     <MESSAGE value="update core lms flow" />
     <option name="LAST_COMMIT_MESSAGE" value="update core lms flow" />
   </component>
