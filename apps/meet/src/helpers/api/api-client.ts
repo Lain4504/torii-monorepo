@@ -6,10 +6,10 @@ import {
 } from '@workspace/protocol';
 import { create, toBinary } from '@bufbuild/protobuf';
 
-import { getAccessToken } from '../utils';
-import { SERVER_URL } from '../../config';
-import { store } from '../../store';
-import { getNatsConn } from '../nats';
+import { getAccessToken } from '@/helpers/utils';
+import { SERVER_URL } from '@/config';
+import { store } from '@/store';
+import { getNatsConn } from '@/helpers/nats';
 
 const API = axios.create({
   baseURL: SERVER_URL + '/api',

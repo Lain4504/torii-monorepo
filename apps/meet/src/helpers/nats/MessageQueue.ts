@@ -1,9 +1,9 @@
 import { JetStreamClient, JetStreamError } from '@nats-io/jetstream';
 import { errors } from '@nats-io/nats-core';
 
-import { formatNatsError } from '../utils';
-import { store } from '../../store';
-import { addUserNotification } from '../../store/slices/roomSettingsSlice';
+import { formatNatsError } from '@/helpers/utils';
+import { store } from '@/store';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
 
 const WAITING = 'WAITING',
   PROCESSING = 'PROCESSING';

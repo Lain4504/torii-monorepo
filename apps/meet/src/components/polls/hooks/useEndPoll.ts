@@ -2,9 +2,9 @@ import { useEffect } from 'react';
 import { create } from '@bufbuild/protobuf';
 import { ClosePollReqSchema } from '@workspace/protocol';
 
-import { useClosePollMutation } from '../../../store/services/pollsApi';
-import { useAppDispatch } from '../../../store';
-import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
+import { useClosePollMutation } from '@/store/services/pollsApi';
+import { useAppDispatch } from '@/store';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
 
 export const useEndPoll = () => {
   const dispatch = useAppDispatch();

@@ -21,6 +21,12 @@ export const courseRunsApi = {
         return response.data;
     },
 
+    // GET /api/course-runs/my
+    async findMy(params: CourseRunSearchRequestDTO): Promise<PaginatedApiResponse<CourseRunResponseDTO>> {
+        const response = await apiClient.get<PaginatedApiResponse<CourseRunResponseDTO>>('/api/course-runs/my', { params });
+        return response.data;
+    },
+
     // GET /api/course-runs/:id
     async findById(id: string): Promise<CourseRunResponseDTO> {
         const response = await apiClient.get<StandardApiResponse<{ run: CourseRunResponseDTO }>>(`/api/course-runs/${id}`);
@@ -67,6 +73,16 @@ export function useCourseRuns(params: CourseRunSearchRequestDTO) {
         queryKey: ['course-runs', params],
         queryFn: () => courseRunsApi.findAll(params),
         enabled: !!params.courseMasterId,
+    });
+}
+
+/**
+ * Hook: Get my course runs
+ */
+export function useMyCourseRuns(params: CourseRunSearchRequestDTO) {
+    return useQuery({
+        queryKey: ['my-course-runs', params],
+        queryFn: () => courseRunsApi.findMy(params),
     });
 }
 

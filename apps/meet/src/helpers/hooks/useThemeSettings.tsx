@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 
-import { useAppDispatch, useAppSelector } from '../../store';
-import { updateTheme } from '../../store/slices/roomSettingsSlice';
-import { DISABLE_DARK_MODE } from '../../config';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { updateTheme } from '@/store/slices/roomSettingsSlice';
+import { DISABLE_DARK_MODE } from '@/config';
 
 const useThemeSettings = () => {
   const theme = useAppSelector((state) => state.roomSettings.theme);

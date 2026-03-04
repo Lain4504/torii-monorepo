@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { PrismaModule, NatsClientModule } from '@server/shared';
 import { TicketService } from './ticket.service';
 import { TicketRepository } from './ticket.repository';
-import { TicketHandler } from '@server/communication/modules/ticket/ticket.handler';
+import { TicketHandler } from './ticket.handler';
 import { TICKET_SERVICE_TOKEN } from '@server/communication/interfaces/services';
 import { TICKET_REPOSITORY_TOKEN } from '@server/communication/interfaces/repositories';
 import { NotificationModule } from '@server/communication/modules/notification/notification.module';

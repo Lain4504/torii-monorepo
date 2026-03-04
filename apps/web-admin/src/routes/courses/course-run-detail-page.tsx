@@ -18,8 +18,9 @@ import { CreateAssignmentSheet } from '@/components/assignments/create-assignmen
 import { EditAssignmentSheet } from '@/components/assignments/edit-assignment-sheet';
 import { useQuizzes, useDeleteQuiz, usePublishQuiz, type QuizDTO } from '@/lib/api/services/quizzes';
 import { QuizzesTable } from '@/components/quizzes/quizzes-table';
-import { CreateQuizSheet } from '@/components/quizzes/create-quiz-sheet';
+import { CreateQuizDialog } from '@/components/quizzes/create-quiz-dialog';
 import { EditQuizSheet } from '@/components/quizzes/edit-quiz-sheet';
+
 
 export default function CourseRunDetailPage() {
     const { runId } = useParams<{ runId: string }>();
@@ -45,6 +46,7 @@ export default function CourseRunDetailPage() {
     const [createQuizOpen, setCreateQuizOpen] = useState(false);
     const [editQuizOpen, setEditQuizOpen] = useState(false);
     const [selectedQuiz, setSelectedQuiz] = useState<QuizDTO | null>(null);
+
 
     const { data: quizzesData, isLoading: isLoadingQuizzes } = useQuizzes({
         courseRunId: runId!,
@@ -137,6 +139,11 @@ export default function CourseRunDetailPage() {
         setSelectedQuiz(quiz);
         setEditQuizOpen(true);
     };
+
+    const handleViewQuiz = (quiz: QuizDTO) => {
+        navigate(`/course-master/runs/${runId}/quizzes/${quiz.id}`);
+    };
+
 
     const getStatusBadge = (status: string) => {
         switch (status) {
@@ -496,10 +503,12 @@ export default function CourseRunDetailPage() {
                             <QuizzesTable
                                 data={quizzesData?.data || []}
                                 isLoading={isLoadingQuizzes}
+                                onView={handleViewQuiz}
                                 onEdit={handleEditQuiz}
                                 onDelete={handleDeleteQuiz}
                                 onPublish={handlePublishQuiz}
                             />
+
                             {quizzesData && quizzesData.totalPages > 1 && (
                                 <div className="flex justify-end pt-2">
                                     <SmartPagination
@@ -525,7 +534,7 @@ export default function CourseRunDetailPage() {
                 onOpenChange={setEditAssignmentOpen}
                 assignment={selectedAssignment}
             />
-            <CreateQuizSheet
+            <CreateQuizDialog
                 open={createQuizOpen}
                 onOpenChange={setCreateQuizOpen}
                 courseRunId={runId}
@@ -536,5 +545,6 @@ export default function CourseRunDetailPage() {
                 quiz={selectedQuiz}
             />
         </div>
+
     );
 }

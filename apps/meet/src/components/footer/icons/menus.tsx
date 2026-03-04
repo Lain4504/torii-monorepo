@@ -1,18 +1,18 @@
 import React, { Fragment } from 'react';
 import { Menu, MenuButton, MenuItems, Transition } from '@headlessui/react';
 
-import { useAppSelector } from '../../../store';
-import LockSettingsModal from '../modals/lockSettingsModal';
-import RtmpModal from '../modals/rtmpModal';
-import ManageWaitingRoom from '../../waiting-room';
-import BreakoutRoom from '../../breakout-room';
+import { useAppSelector } from '@/store';
+import LockSettingsModal from '@/components/footer/modals/lockSettingsModal';
+import RtmpModal from '@/components/footer/modals/rtmpModal';
+import ManageWaitingRoom from '@/components/waiting-room';
+import BreakoutRoom from '@/components/breakout-room';
 import { MoreHorizontal } from 'lucide-react';
-import ExternalMediaPlayerModal from '../../external-media-player/modal';
-import DisplayExternalLinkModal from '../../display-external-link/modal';
-import AdminMenus from './menus/adminMenus';
-import IconsInMenu from './menus/iconsInMenu';
-import TranslationTranscriptionSettingModal from '../../translation-transcription/settingModal';
-import InsightsAiSettingsModal from '../../insights-ai';
+import ExternalMediaPlayerModal from '@/components/external-media-player/modal';
+import DisplayExternalLinkModal from '@/components/display-external-link/modal';
+import AdminMenus from '@/components/footer/icons/menus/adminMenus';
+import IconsInMenu from '@/components/footer/icons/menus/iconsInMenu';
+import TranslationTranscriptionSettingModal from '@/components/translation-transcription/settingModal';
+import InsightsAiSettingsModal from '@/components/insights-ai';
 
 interface MenusIconProps {
   isAdmin: boolean;

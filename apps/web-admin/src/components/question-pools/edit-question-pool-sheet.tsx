@@ -2,13 +2,13 @@ import { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetDescription,
-    SheetFooter,
-} from '@workspace/ui/components/sheet';
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from '@workspace/ui/components/dialog';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
@@ -93,16 +93,16 @@ export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestio
     if (!pool) return null;
 
     return (
-        <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
-                <SheetHeader>
-                    <SheetTitle>Chỉnh Sửa Kho Đề</SheetTitle>
-                    <SheetDescription>
-                        Cập nhật lại tiêu đề, mô tả hoặc thay đổi các liên kết của kho đề câu hỏi.
-                    </SheetDescription>
-                </SheetHeader>
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col max-h-[80vh]" noValidate>
+                    <DialogHeader className="px-6 pt-6">
+                        <DialogTitle>Chỉnh Sửa Kho Đề</DialogTitle>
+                        <DialogDescription>
+                            Cập nhật lại tiêu đề, mô tả hoặc thay đổi các liên kết của kho đề câu hỏi.
+                        </DialogDescription>
+                    </DialogHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full overflow-hidden" noValidate>
                     <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
                             <div className="space-y-6">
@@ -200,7 +200,7 @@ export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestio
                         </div>
                     </ScrollArea>
 
-                    <SheetFooter>
+                    <DialogFooter className="px-6 py-4 border-t">
                         <Button
                             type="button"
                             variant="outline"
@@ -222,9 +222,9 @@ export function EditQuestionPoolDialog({ open, onOpenChange, pool }: EditQuestio
                                 </>
                             )}
                         </Button>
-                    </SheetFooter>
+                    </DialogFooter>
                 </form>
-            </SheetContent>
-        </Sheet>
+            </DialogContent>
+        </Dialog>
     );
 }

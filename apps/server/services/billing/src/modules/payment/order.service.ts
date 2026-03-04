@@ -1009,6 +1009,19 @@ export class OrderService implements IOrderService {
             const whereClause: Prisma.OrderWhereInput = {};
             if (query.userId) whereClause.userId = query.userId;
             if (query.status) whereClause.status = query.status as any;
+            if (query.search) {
+                const searchFilters: Prisma.OrderWhereInput[] = [
+                    { user: { displayName: { contains: query.search, mode: 'insensitive' } } },
+                    { user: { email: { contains: query.search, mode: 'insensitive' } } },
+                ];
+
+                // If it looks like a UUID, search by ID
+                if (query.search.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+                    searchFilters.push({ id: query.search });
+                }
+
+                whereClause.OR = searchFilters;
+            }
 
             if (query.startDate || query.endDate) {
                 whereClause.createdAt = {};

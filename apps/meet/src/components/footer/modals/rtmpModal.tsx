@@ -6,16 +6,16 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { updateShowRtmpModal } from '../../../store/slices/bottomIconsActivitySlice';
-import sendAPIRequest from '../../../helpers/api/api-client';
-import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
-import Dropdown from '../../../helpers/ui/dropdown';
-import FormattedInputField from '../../../helpers/ui/formattedInputField';
-import ConfirmationModal from '../../../helpers/ui/confirmationModal';
-import ActionButton from '../../../helpers/ui/actionButton';
-import Modal from '../../../helpers/ui/modal';
-import { DESIGN_CUSTOMIZATION } from '../../../config';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import { updateShowRtmpModal } from '@/store/slices/bottomIconsActivitySlice';
+import sendAPIRequest from '@/helpers/api/api-client';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
+import Dropdown from '@/helpers/ui/dropdown';
+import FormattedInputField from '@/helpers/ui/formattedInputField';
+import ConfirmationModal from '@/helpers/ui/confirmationModal';
+import ActionButton from '@/helpers/ui/actionButton';
+import Modal from '@/helpers/ui/modal';
+import { DESIGN_CUSTOMIZATION } from '@/config';
 
 const RtmpModal = () => {
   const dispatch = useAppDispatch();

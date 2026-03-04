@@ -248,16 +248,30 @@ export class FastMcpService {
           courseRun: {
             include: {
               courseMaster: {
-                select: { id: true, title: true, aiMetadata: true, jlptLevel: true },
+                // Using `as any` here because the Prisma schema for CourseMaster
+                // may not yet declare all JSON metadata fields like `aiMetadata`,
+                // but they are present in the database and used elsewhere.
+                select: {
+                  id: true,
+                  title: true,
+                  aiMetadata: true,
+                  jlptLevel: true,
+                } as any,
               },
             },
           },
         },
       });
 
-      const courseMetadata = enrollments.map(e => e.courseRun?.courseMaster?.aiMetadata).filter(Boolean);
-      const courseTitles = enrollments.map(e => e.courseRun?.courseMaster?.title).filter(Boolean);
-      const jlptLevels = [...new Set(enrollments.map(e => e.courseRun?.courseMaster?.jlptLevel).filter(Boolean))];
+      const courseMetadata = (enrollments as any[]).map(e => e.courseRun?.courseMaster?.aiMetadata).filter(Boolean);
+      const courseTitles = (enrollments as any[]).map(e => e.courseRun?.courseMaster?.title).filter(Boolean);
+      const jlptLevels = [
+        ...new Set(
+          (enrollments as any[])
+            .map(e => e.courseRun?.courseMaster?.jlptLevel)
+            .filter(Boolean),
+        ),
+      ];
 
       // Fetch Recent Activity (Last 30 Days)
       const thirtyDaysAgo = new Date();

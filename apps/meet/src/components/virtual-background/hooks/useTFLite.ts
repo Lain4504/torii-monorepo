@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import { SegmentationConfig } from '../helpers/segmentationHelper';
-import { loadTFLite, TFLite } from '../helpers/utils';
+import { SegmentationConfig } from '@/components/virtual-background/helpers/segmentationHelper';
+import { loadTFLite, TFLite } from '@/components/virtual-background/helpers/utils';
 
 function useTFLite(segmentationConfig: SegmentationConfig) {
   const [selectedTFLite, setSelectedTFLite] = useState<TFLite>();

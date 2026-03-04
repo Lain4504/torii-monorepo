@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 
-import VerticalLayout from './verticalLayout';
+import VerticalLayout from '@/components/media-elements/videos/layouts/verticalLayout';
 
 interface IPinnedLayoutProps {
   participantsToRender: Array<ReactElement>;

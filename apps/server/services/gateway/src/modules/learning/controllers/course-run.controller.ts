@@ -66,6 +66,21 @@ export class CourseRunController {
         return successResponse({ run: result }, 'Course run updated successfully');
     }
 
+    @Get('my')
+    @Permissions('course.view_my')
+    async findMyRuns(
+        @Query(new ZodValidationPipe(courseRunSearchRequestDTOSchema)) query: CourseRunSearchRequestDTO,
+        @Req() req: ReqWithRequester
+    ) {
+        const result = await firstValueFrom(
+            this.natsClient.send(
+                { cmd: 'learning.courserun.findMyRuns' },
+                { ...query, requester: req.requester }
+            ),
+        );
+        return successPaginatedResponse(result);
+    }
+
     @Get()
     @Public()
     async findAll(@Query(new ZodValidationPipe(courseRunSearchRequestDTOSchema)) query: CourseRunSearchRequestDTO) {

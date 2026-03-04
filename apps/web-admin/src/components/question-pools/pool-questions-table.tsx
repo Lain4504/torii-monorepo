@@ -25,6 +25,10 @@ interface PoolQuestionsTableProps {
     onView: (question: QuestionResponseDTO) => void;
     onEdit: (question: QuestionResponseDTO) => void;
     onDelete: (question: QuestionResponseDTO) => void;
+    onApprove?: (question: QuestionResponseDTO) => void;
+    onReject?: (question: QuestionResponseDTO) => void;
+    onDeactivate?: (question: QuestionResponseDTO) => void;
+    onSendForReview?: (question: QuestionResponseDTO) => void;
     isLoading?: boolean;
 }
 
@@ -33,6 +37,10 @@ export function PoolQuestionsTable({
     onView,
     onEdit,
     onDelete,
+    onApprove,
+    onReject,
+    onDeactivate,
+    onSendForReview,
     isLoading
 }: PoolQuestionsTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -41,10 +49,15 @@ export function PoolQuestionsTable({
         onView,
         onEdit,
         onDelete,
+        onApprove,
+        onReject,
+        onDeactivate,
+        onSendForReview,
         // Các props này optional, không truyền sẽ không hiển thị nút tương ứng
         page: 1, // Mặc định 1 nếu không phân trang ở client side cho pool detail
         limit: data.length > 0 ? data.length : 10,
     });
+
 
     const table = useReactTable({
         data,
@@ -58,15 +71,15 @@ export function PoolQuestionsTable({
     });
 
     return (
-        <Table className="min-w-[1000px] border-collapse bg-transparent">
-            <TableHeader className="bg-muted/30 border-b border-border">
+        <Table className="w-full">
+            <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id} className="hover:bg-transparent border-none">
+                    <TableRow key={headerGroup.id}>
                         {headerGroup.headers.map((header) => {
                             return (
                                 <TableHead
                                     key={header.id}
-                                    className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0"
+                                    className="text-xs font-medium text-muted-foreground"
                                 >
                                     {header.isPlaceholder
                                         ? null
@@ -83,10 +96,10 @@ export function PoolQuestionsTable({
             <TableBody>
                 {isLoading ? (
                     Array.from({ length: 5 }).map((_, index) => (
-                        <TableRow key={index} className="border-b border-border/10">
+                        <TableRow key={index}>
                             {columns.map((_, colIndex) => (
-                                <TableCell key={colIndex} className="py-4 px-4">
-                                    <Skeleton className="h-5 w-full bg-muted/20 rounded-lg" />
+                                <TableCell key={colIndex}>
+                                    <Skeleton className="h-5 w-full" />
                                 </TableCell>
                             ))}
                         </TableRow>
@@ -96,10 +109,10 @@ export function PoolQuestionsTable({
                         <TableRow
                             key={row.id}
                             data-state={row.getIsSelected() && 'selected'}
-                            className="border-b border-border/50 hover:bg-muted/30 transition-colors"
+                            className="hover:bg-muted/30"
                         >
                             {row.getVisibleCells().map((cell) => (
-                                <TableCell key={cell.id} className="py-4 px-4 text-sm font-medium">
+                                <TableCell key={cell.id} className="text-sm">
                                     {flexRender(
                                         cell.column.columnDef.cell,
                                         cell.getContext()
@@ -109,10 +122,10 @@ export function PoolQuestionsTable({
                         </TableRow>
                     ))
                 ) : (
-                    <TableRow className="hover:bg-transparent">
+                    <TableRow>
                         <TableCell
                             colSpan={columns.length}
-                            className="h-[300px] text-center"
+                            className="py-10 text-center"
                         >
                             <Empty>
                                 <EmptyMedia>

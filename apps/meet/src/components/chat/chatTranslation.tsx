@@ -7,13 +7,13 @@ import {
 } from '@headlessui/react';
 
 import { Check } from 'lucide-react';
-import { useAppDispatch, useAppSelector } from '../../store';
+import { useAppDispatch, useAppSelector } from '@/store';
 import {
   supportedTranscriptionLangs,
   supportedTranslationLangs,
   translationLangsMap,
-} from '../translation-transcription/helpers/supportedLangs';
-import { updateSelectedChatTransLang } from '../../store/slices/roomSettingsSlice';
+} from '@/components/translation-transcription/helpers/supportedLangs';
+import { updateSelectedChatTransLang } from '@/store/slices/roomSettingsSlice';
 
 interface LanguageInfo {
   title: string;

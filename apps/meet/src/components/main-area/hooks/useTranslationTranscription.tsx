@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
-import { useAppSelector } from '../../../store';
-import TranslationTranscription from '../../translation-transcription';
+import { useAppSelector } from '@/store';
+import TranslationTranscription from '@/components/translation-transcription';
 
 export const useTranslationTranscription = () => {
   const isEnabled = useAppSelector(

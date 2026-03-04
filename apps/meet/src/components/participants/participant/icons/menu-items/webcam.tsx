@@ -3,9 +3,9 @@ import { MenuItem } from '@headlessui/react';
 import { toast } from 'react-toastify';
 import { DataMsgBodyType } from '@workspace/protocol';
 
-import { store, useAppSelector } from '../../../../../store';
-import { participantsSelector } from '../../../../../store/slices/participantSlice';
-import { getNatsConn } from '../../../../../helpers/nats';
+import { store, useAppSelector } from '@/store';
+import { participantsSelector } from '@/store/slices/participantSlice';
+import { getNatsConn } from '@/helpers/nats';
 
 interface IWebcamMenuItemProps {
   userId: string;

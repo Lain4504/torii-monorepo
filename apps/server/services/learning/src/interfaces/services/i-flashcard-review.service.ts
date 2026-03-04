@@ -11,8 +11,17 @@ import type {
  * Flashcard Review Service Interface
  */
 export interface IFlashcardReviewService {
+    /**
+     * Submit review.
+     */
     submitReview(userId: string, data: SubmitReviewDTO): Promise<FlashcardReviewResponseDTO>;
+    /**
+     * Get cards due.
+     */
     getCardsDue(userId: string, query: GetCardsDueDTO): Promise<CardDueResponseDTO[]>;
+    /**
+     * Get user progress.
+     */
     getUserProgress(userId: string, data: GetUserProgressDTO): Promise<UserProgressResponseDTO | null>;
 }
 

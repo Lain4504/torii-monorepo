@@ -10,6 +10,7 @@ import { StaffDashboardController } from './controllers/staff-dashboard.controll
 import { ExamController } from './controllers/exam.controller';
 import { ExamAdminController } from './controllers/exam-admin.controller';
 import { EnrollmentController } from './controllers/enrollment.controller';
+import { EnrollmentAdminController } from './controllers/enrollment-admin.controller';
 import { QuestionController } from './controllers/question.controller';
 import { QuestionPoolController } from './controllers/question-pool.controller';
 import { CourseMasterReviewController } from './controllers/review.controller';
@@ -50,6 +51,7 @@ import { NotebookController } from './controllers/notebook.controller';
         ExamController,
         ExamAdminController,
         EnrollmentController,
+        EnrollmentAdminController,
         QuestionController,
         QuestionPoolController,
 

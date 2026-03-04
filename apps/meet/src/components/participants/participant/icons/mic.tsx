@@ -1,15 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Menu, MenuButton, MenuItems, Transition } from '@headlessui/react';
 import { debounce } from 'es-toolkit';
+import { Mic, MicOff } from 'lucide-react';
+import { Button } from '@workspace/ui/components/button';
 
-import { useAppDispatch, useAppSelector } from '../../../../store';
+import { useAppDispatch, useAppSelector } from '@/store';
 import {
   participantsSelector,
   updateParticipant,
-} from '../../../../store/slices/participantSlice';
-import { Mic, MicOff } from 'lucide-react';
-import IconWrapper from './iconWrapper';
-import RangeSlider from '../../../../helpers/ui/rangeSlider';
+} from '@/store/slices/participantSlice';
+import IconWrapper from '@/components/participants/participant/icons/iconWrapper';
+import RangeSlider from '@/helpers/ui/rangeSlider';
 
 interface MicIconProps {
   userId: string;
@@ -94,13 +95,13 @@ const MicIcon = ({ userId, isRemoteParticipant }: MicIconProps) => {
                     <p className="w-10 text-center text-sm text-foreground">
                       {Math.round(volume * 100)}
                     </p>
-                    <button className="w-5 h-5">
+                    <Button variant="ghost" size="icon-xs">
                       {volume ? (
                         <Mic className="h-3 3xl:h-4 w-auto" />
                       ) : (
                         <MicOff className="h-3 3xl:h-4 w-auto" />
                       )}
-                    </button>
+                    </Button>
                   </section>
                 </MenuItems>
               </Transition>

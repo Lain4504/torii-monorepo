@@ -395,9 +395,16 @@ export class LessonService implements ILessonService {
 
       const course = await this.courseMasterService.findById(module.courseMasterId);
 
+      /*
       // Pure Split: LIVE courses cannot have video lessons (must be article/PDF)
       if (course.type === 'live' && dto.contentType === 'video') {
-        throw new BadRequestException('Live courses cannot have video-only lessons. Use articles for PDF materials.');
+         throw new BadRequestException('Live courses cannot have video-only lessons. Use articles for PDF materials.');
+      }
+      */
+
+      // Business Rule: ONLY Admin or Staff-LMS (Academic) can create lessons in the Master Syllabus.
+      if (!this.hasPermission(requester, 'course.publish')) {
+        throw new ForbiddenException('Only Academic Staff or Admin can create Master syllabus lessons.');
       }
 
       // Get next order index if not provided
@@ -461,15 +468,9 @@ export class LessonService implements ILessonService {
       throw new NotFoundException(`Lesson with id ${lessonId} not found`);
     }
 
-    // If user cannot publish courses (staff/admin only), check if they are assigned to the course
+    // Business Rule: ONLY Admin or Staff-LMS (Academic) can update lessons in the Master Syllabus.
     if (!this.hasPermission(requester, 'course.publish')) {
-      const module = await this.moduleRepository.findById(existing.moduleId);
-      if (module) {
-        const isInstructor = await this.courseMasterService.isInstructor(requester.sub, module.courseMasterId);
-        if (!isInstructor) {
-          throw new ForbiddenException('You are not assigned to this course');
-        }
-      }
+      throw new ForbiddenException('Only Academic Staff or Admin can update Master syllabus lessons.');
     }
 
     try {
@@ -519,8 +520,8 @@ export class LessonService implements ILessonService {
    */
   async delete(requester: Requester, lessonId: string, hardDelete = false): Promise<{ message: string }> {
     // Only authorized users can delete lessons
-    if (!this.hasPermission(requester, 'lesson.delete')) {
-      throw new ForbiddenException('Only authorized staff can delete lessons');
+    if (!this.hasPermission(requester, 'course.publish')) {
+      throw new ForbiddenException('Only Academic Staff or Admin can delete Master syllabus lessons.');
     }
 
     const existing = await this.lessonRepository.findById(lessonId);

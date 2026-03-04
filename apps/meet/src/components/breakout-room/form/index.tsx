@@ -7,14 +7,14 @@ import {
 } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
-import RoomNumberSelector from './roomNumberSelector';
-import RoomBox from './roomBox';
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { RoomType, UserType } from './types';
+import RoomNumberSelector from '@/components/breakout-room/form/roomNumberSelector';
+import RoomBox from '@/components/breakout-room/form/roomBox';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import { RoomType, UserType } from '@/components/breakout-room/form/types';
 import { BreakoutRoomMessage } from '..';
-import { selectBasicParticipants } from '../../../store/slices/participantSlice';
-import useStorePreviousInt from '../../../helpers/hooks/useStorePreviousInt';
-import { updateBreakoutRoomDroppedUser } from '../../../store/slices/breakoutRoomSlice';
+import { selectBasicParticipants } from '@/store/slices/participantSlice';
+import useStorePreviousInt from '@/helpers/hooks/useStorePreviousInt';
+import { updateBreakoutRoomDroppedUser } from '@/store/slices/breakoutRoomSlice';
 
 interface IFromElemsProps {
   createBreakoutRooms: (req: CreateBreakoutRoomsReq) => void;

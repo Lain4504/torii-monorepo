@@ -3,26 +3,18 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@workspace/ui/components/button';
 import {
     Plus,
-    ChevronLeft,
     Layers,
     CalendarCheck2,
-    Edit,
-    Trash,
     FileText,
-    PenTool,
-    ArrowUp,
-    ArrowDown,
-    HelpCircle,
     PlayCircle,
 } from 'lucide-react';
 
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
 import { useCourse } from '@/lib/api/services/courses';
-import { useCourseModules, useReorderModules } from '@/lib/api/services/modules';
+import { useCourseModules } from '@/lib/api/services/modules';
 import { useModulesLessons } from '@/lib/api/services/lesson';
-import { type ModuleResponseDTO, type LessonResponseDTO } from '@workspace/schemas';
-import { toast } from '@workspace/ui/components/sonner';
+import { type ModuleResponseDTO, type LessonResponseDTO, LessonContentType } from '@workspace/schemas';
 import { CreateModuleSheet } from '@/components/modules/create-module-sheet';
 import { EditModuleSheet } from '@/components/modules/edit-module-sheet';
 const CreateLessonSheet = lazy(() => import('@/components/lessons/create-lesson-sheet'));
@@ -35,6 +27,12 @@ import { ReorderModulesDialog } from '@/components/modules/reorder-modules-dialo
 import { ReorderLessonsDialog } from '@/components/lessons/reorder-lessons-dialog';
 import { CourseStatusHeader } from '@/components/courses/course-status-header';
 import { CourseVersionHistory } from '@/components/courses/course-version-history';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@workspace/ui/components/sheet';
+import { ScrollArea } from '@workspace/ui/components/scroll-area';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@workspace/ui/components/card';
+import { Input } from '@workspace/ui/components/input';
+import { Badge } from '@workspace/ui/components/badge';
+import { RichTextEditor } from '@/components/editor/rich-text-editor';
 
 export default function CourseMasterPage() {
     const { id } = useParams<{ id: string }>();
@@ -46,13 +44,13 @@ export default function CourseMasterPage() {
     const [createModuleOpen, setCreateModuleOpen] = useState(false);
     const [editModuleOpen, setEditModuleOpen] = useState(false);
     const [deleteModuleOpen, setDeleteModuleOpen] = useState(false);
-    const [selectedModule, setSelectedModule] = useState<ModuleResponseDTO | null>(null);
+    const [selectedModule] = useState<ModuleResponseDTO | null>(null);
 
     const [createLessonOpen, setCreateLessonOpen] = useState(false);
-    const [selectedModuleIdForLesson, setSelectedModuleIdForLesson] = useState<string | null>(null);
+    const [selectedModuleIdForLesson] = useState<string | null>(null);
     const [editLessonOpen, setEditLessonOpen] = useState(false);
     const [deleteLessonOpen, setDeleteLessonOpen] = useState(false);
-    const [selectedLesson, setSelectedLesson] = useState<LessonResponseDTO | null>(null);
+    const [selectedLesson] = useState<LessonResponseDTO | null>(null);
 
     // Reorder dialogs
     const [reorderModulesOpen, setReorderModulesOpen] = useState(false);
@@ -60,144 +58,89 @@ export default function CourseMasterPage() {
     const [reorderLessonsModuleId, setReorderLessonsModuleId] = useState<string | null>(null);
     const [reorderLessonsList, setReorderLessonsList] = useState<LessonResponseDTO[]>([]);
 
+    const [versionSheetOpen, setVersionSheetOpen] = useState(false);
+    const [selectedLessonForView, setSelectedLessonForView] = useState<LessonResponseDTO | null>(null);
+    const [activeLessonModuleId, setActiveLessonModuleId] = useState<string | null>(null);
+
     const modules = modulesData || [];
     const lessonQueries = useModulesLessons(modules);
-
-    const reorderModulesMutation = useReorderModules();
-
-    const handleMoveModule = async (index: number, direction: 'up' | 'down') => {
-        const newModules = [...modules];
-        const targetIndex = direction === 'up' ? index - 1 : index + 1;
-        if (targetIndex < 0 || targetIndex >= newModules.length) return;
-
-        const temp = newModules[index];
-        newModules[index] = newModules[targetIndex];
-        newModules[targetIndex] = temp;
-
-        const moduleOrders = newModules.map((m, i) => ({ id: m.id, orderIndex: i + 1 }));
-        try {
-            await reorderModulesMutation.mutateAsync({ courseId: id!, moduleOrders });
-            toast.success('Đã cập nhật thứ tự học phần');
-        } catch (error) {
-            toast.error('Không thể cập nhật thứ tự');
-        }
-    };
 
     // Drag & drop đã được thay thế bằng dialog xác nhận, nên không dùng DnD nữa.
 
     const ModuleCard = ({ module, lessons, moduleIdx }: { module: ModuleResponseDTO, lessons: LessonResponseDTO[], moduleIdx: number }) => {
         return (
-            <div className="border rounded-lg bg-card/40 p-3 space-y-2">
-                <div className="flex items-center justify-between gap-3">
+            <div className="rounded-lg border bg-background">
+                <div className="flex items-center justify-between px-3 py-2 border-b">
                     <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono text-muted-foreground">#{moduleIdx + 1}</span>
-                        <span className="text-sm font-semibold">{module.title}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            className="size-7"
-                            onClick={() => { setSelectedModuleIdForLesson(module.id); setCreateLessonOpen(true); }}
-                        >
-                            <Plus className="size-3.5" />
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-7"
-                            onClick={() => { setSelectedModule(module); setEditModuleOpen(true); }}
-                        >
-                            <Edit className="size-3.5" />
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-7 text-destructive"
-                            onClick={() => { setSelectedModule(module); setDeleteModuleOpen(true); }}
-                        >
-                            <Trash className="size-3.5" />
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-7 px-2 text-[11px]"
-                            onClick={() => {
-                                setReorderLessonsModuleId(module.id);
-                                setReorderLessonsList(lessons);
-                                setReorderLessonsOpen(true);
-                            }}
-                        >
-                            Lưu thứ tự bài học
-                        </Button>
-                        <div className="flex items-center gap-1 ml-2 border-l pl-2">
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-7 rounded-lg"
-                                onClick={(e) => { e.stopPropagation(); handleMoveModule(moduleIdx, 'up'); }}
-                                disabled={moduleIdx === 0}
-                            >
-                                <ArrowUp className="size-3.5" />
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-7 rounded-lg"
-                                onClick={(e) => { e.stopPropagation(); handleMoveModule(moduleIdx, 'down'); }}
-                                disabled={moduleIdx === modules.length - 1}
-                            >
-                                <ArrowDown className="size-3.5" />
-                            </Button>
-                        </div>
+                        <span className="text-xs text-muted-foreground">Chương {moduleIdx + 1}</span>
+                        <span className="text-sm font-semibold truncate">
+                            {module.title}
+                        </span>
                     </div>
                 </div>
 
-                {lessons.length === 0 ? (
-                    <div className="text-xs text-muted-foreground/70 italic pl-6 py-1">
-                        Chưa có bài học trong học phần này.
-                    </div>
-                ) : (
-                    <div className="space-y-1 pl-6">
-                        {lessons.map((lesson: any) => (
-                            <LessonRow key={lesson.id} lesson={lesson} />
-                        ))}
-                    </div>
-                )}
+                <div className="px-3 py-2 space-y-2">
+                    {lessons.length === 0 ? (
+                        <p className="text-xs text-muted-foreground italic">
+                            Chưa có bài học trong chương này.
+                        </p>
+                    ) : (
+                        <div className="space-y-2">
+                            {lessons.map((lesson) => (
+                                <LessonRow key={lesson.id} lesson={lesson} />
+                            ))}
+                        </div>
+                    )}
+
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full h-8 text-xs"
+                        onClick={() => {
+                            setSelectedLessonForView(null);
+                            setActiveLessonModuleId(module.id);
+                        }}
+                    >
+                        Thêm bài học
+                    </Button>
+
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full h-7 text-[11px] text-muted-foreground"
+                        onClick={() => {
+                            setReorderLessonsModuleId(module.id);
+                            setReorderLessonsList(lessons);
+                            setReorderLessonsOpen(true);
+                        }}
+                    >
+                        Lưu thứ tự bài học
+                    </Button>
+                </div>
             </div>
         );
     };
 
-    const LessonRow = ({ lesson }: { lesson: any }) => {
+    const LessonRow = ({ lesson }: { lesson: LessonResponseDTO }) => {
         let lessonIcon = <FileText className="size-4" />;
-        if (lesson.contentType === 'video') lessonIcon = <PlayCircle className="size-4 text-rose-500" />;
-        if (lesson.contentType === 'quiz') lessonIcon = <HelpCircle className="size-4 text-amber-500" />;
-        if (lesson.contentType === 'assignment') lessonIcon = <PenTool className="size-4 text-indigo-500" />;
+        if (lesson.contentType === LessonContentType.VIDEO) lessonIcon = <PlayCircle className="size-4 text-rose-500" />;
+        if (lesson.contentType === LessonContentType.ARTICLE) lessonIcon = <FileText className="size-4 text-blue-500" />;
+
+        const isSelected = selectedLessonForView?.id === lesson.id;
 
         return (
             <div className="flex items-center justify-between gap-2 py-1.5 px-2 rounded-md border border-transparent hover:border-border/40 hover:bg-muted/30">
-                <div className="flex items-center gap-2">
+                <button
+                    type="button"
+                    className="flex items-center gap-2 flex-1 text-left"
+                    onClick={() => {
+                        setSelectedLessonForView(lesson);
+                        setActiveLessonModuleId(null);
+                    }}
+                >
                     {lessonIcon}
-                    <span className="text-xs font-semibold">{lesson.title}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-7 rounded-md"
-                        onClick={() => { setSelectedLesson(lesson); setEditLessonOpen(true); }}
-                    >
-                        <Edit className="size-3.5" />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-7 rounded-md text-destructive"
-                        onClick={() => { setSelectedLesson(lesson); setDeleteLessonOpen(true); }}
-                    >
-                        <Trash className="size-3.5" />
-                    </Button>
-                </div>
+                    <span className={`text-xs font-semibold ${isSelected ? 'text-primary' : ''}`}>{lesson.title}</span>
+                </button>
             </div>
         );
     };
@@ -216,7 +159,6 @@ export default function CourseMasterPage() {
                     <p className="text-sm text-muted-foreground">Khung giáo trình bạn yêu cầu không tồn tại hoặc đã bị xóa.</p>
                 </div>
                 <Button variant="outline" onClick={() => navigate('/course-master')}>
-                    <ChevronLeft className="mr-2 size-4" />
                     Quay về danh sách
                 </Button>
             </div>
@@ -227,23 +169,14 @@ export default function CourseMasterPage() {
     return (
         <div className="flex flex-col gap-8">
             <div className="flex items-center justify-between">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 px-0 text-muted-foreground hover:text-foreground gap-2 transition-colors hover:bg-transparent -ml-2 w-fit group"
-                    onClick={() => navigate('/course-master')}
-                >
-                    <ChevronLeft className="size-4 group-hover:-translate-x-0.5 transition-transform" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Danh sách khung chương trình</span>
-                </Button>
-
-                <Button
-                    size="sm"
-                    onClick={() => setCreateModuleOpen(true)}
-                >
-                    <Plus className="mr-2 size-4" />
-                    Thiết kế Syllabus
-                </Button>
+                <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-widest">
+                        Khung chương trình
+                    </p>
+                    <p className="text-lg font-semibold">
+                        {course.title}
+                    </p>
+                </div>
             </div>
 
             {/* Course Status Header */}
@@ -255,8 +188,15 @@ export default function CourseMasterPage() {
                 return () => clearTimeout(timer);
             }} />
 
-            {/* Version History */}
-            <CourseVersionHistory courseId={id!} />
+            <div className="flex justify-end">
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setVersionSheetOpen(true)}
+                >
+                    Lịch sử phiên bản
+                </Button>
+            </div>
 
             <Tabs defaultValue="curriculum" className="space-y-6">
                 <TabsList className="bg-muted/40 p-1 h-auto gap-1">
@@ -288,27 +228,102 @@ export default function CourseMasterPage() {
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            <div className="flex items-center justify-between px-1">
-                                <p className="text-xs text-muted-foreground">
-                                    Thứ tự hiện tại của học phần và bài học. Dùng các nút lưu để cập nhật vào hệ thống.
-                                </p>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="h-7 px-3 text-[11px]"
-                                    onClick={() => setReorderModulesOpen(true)}
-                                >
-                                    Lưu thứ tự học phần
-                                </Button>
-                            </div>
+                            <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(260px,1fr)]">
+                                {/* Main lesson content */}
+                                <div className="space-y-4">
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle className="text-base">
+                                                {selectedLessonForView
+                                                    ? selectedLessonForView.title
+                                                    : activeLessonModuleId
+                                                        ? 'Tạo bài học mới'
+                                                        : 'Chọn một bài học'}
+                                            </CardTitle>
+                                            <CardDescription>
+                                                {selectedLessonForView && 'Form cấu hình bài học.'}
+                                                {!selectedLessonForView && activeLessonModuleId && 'Nhập thông tin cho bài học mới.'}
+                                                {!selectedLessonForView && !activeLessonModuleId && 'Chọn bài học ở panel bên phải hoặc tạo mới.'}
+                                            </CardDescription>
+                                        </CardHeader>
+                                        <CardContent>
+                                            {selectedLessonForView && (
+                                                <div className="space-y-4">
+                                                    <div className="space-y-1">
+                                                        <p className="text-xs font-medium text-muted-foreground">Tiêu đề</p>
+                                                        <Input value={selectedLessonForView.title} readOnly />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <p className="text-xs font-medium text-muted-foreground">Loại nội dung</p>
+                                                        <Badge variant="outline" className="text-xs">
+                                                            {selectedLessonForView.contentType}
+                                                        </Badge>
+                                                    </div>
+                                                    {selectedLessonForView.contentType === LessonContentType.ARTICLE ? (
+                                                        <div className="space-y-1">
+                                                            <p className="text-xs font-medium text-muted-foreground">Nội dung bài viết</p>
+                                                            <RichTextEditor
+                                                                initialContent={selectedLessonForView.articleContent || ''}
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        <p className="text-sm text-muted-foreground">
+                                                            Bài học này không phải dạng bài viết. Vui lòng chỉnh sửa bằng sheet riêng.
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            )}
 
-                            <div className="space-y-3">
-                                {modules.map((module, moduleIdx) => {
-                                    const lessons = (lessonQueries[moduleIdx]?.data?.data || []) as LessonResponseDTO[];
-                                    return (
-                                        <ModuleCard key={module.id} module={module} lessons={lessons} moduleIdx={moduleIdx} />
-                                    );
-                                })}
+                                            {!selectedLessonForView && activeLessonModuleId && (
+                                                <div className="space-y-4">
+                                                    <div className="space-y-1">
+                                                        <p className="text-xs font-medium text-muted-foreground">Tiêu đề</p>
+                                                        <Input placeholder="Nhập tiêu đề bài học..." />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <p className="text-xs font-medium text-muted-foreground">Loại nội dung</p>
+                                                        <Badge variant="outline" className="text-xs">
+                                                            article
+                                                        </Badge>
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <p className="text-xs font-medium text-muted-foreground">Nội dung bài viết</p>
+                                                        <RichTextEditor initialContent="" />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {!selectedLessonForView && !activeLessonModuleId && (
+                                                <p className="text-sm text-muted-foreground">
+                                                    Chưa có bài học nào được chọn.
+                                                </p>
+                                            )}
+                                        </CardContent>
+                                    </Card>
+                                </div>
+
+                                {/* Modules & lessons tree */}
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-xs text-muted-foreground">
+                                            Cấu trúc syllabus: học phần và bài học.
+                                        </p>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-7 px-3 text-[11px]"
+                                            onClick={() => setReorderModulesOpen(true)}
+                                        >
+                                            Lưu thứ tự học phần
+                                        </Button>
+                                    </div>
+                                    {modules.map((module, moduleIdx) => {
+                                        const lessons = (lessonQueries[moduleIdx]?.data?.data || []) as LessonResponseDTO[];
+                                        return (
+                                            <ModuleCard key={module.id} module={module} lessons={lessons} moduleIdx={moduleIdx} />
+                                        );
+                                    })}
+                                </div>
                             </div>
                         </div>
                     )}
@@ -350,6 +365,22 @@ export default function CourseMasterPage() {
                 moduleId={reorderLessonsModuleId || ''}
                 lessons={reorderLessonsList}
             />
+
+            <Sheet open={versionSheetOpen} onOpenChange={setVersionSheetOpen}>
+                <SheetContent className="w-full sm:max-w-[800px] flex flex-col">
+                    <SheetHeader>
+                        <SheetTitle>Lịch sử phiên bản</SheetTitle>
+                        <SheetDescription>
+                            Xem danh sách các phiên bản đã công bố của khung chương trình này.
+                        </SheetDescription>
+                    </SheetHeader>
+                    <ScrollArea className="flex-1 min-h-0">
+                        <div className="space-y-6 p-6">
+                            <CourseVersionHistory courseId={id!} />
+                        </div>
+                    </ScrollArea>
+                </SheetContent>
+            </Sheet>
         </div >
     );
 }

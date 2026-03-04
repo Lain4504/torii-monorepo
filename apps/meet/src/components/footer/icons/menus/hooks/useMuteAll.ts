@@ -5,9 +5,9 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import { store, useAppDispatch } from '../../../../../store';
-import sendAPIRequest from '../../../../../helpers/api/api-client';
-import { addUserNotification } from '../../../../../store/slices/roomSettingsSlice';
+import { store, useAppDispatch } from '@/store';
+import sendAPIRequest from '@/helpers/api/api-client';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
 
 const useMuteAll = () => {
   const dispatch = useAppDispatch();

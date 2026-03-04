@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 
-import { useAppDispatch, useAppSelector } from '../../store';
-import { updatePlayAudioNotification } from '../../store/slices/roomSettingsSlice';
-import { STATIC_ASSETS_PATH } from '../../config';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { updatePlayAudioNotification } from '@/store/slices/roomSettingsSlice';
+import { STATIC_ASSETS_PATH } from '@/config';
 
 const AudioNotification = () => {
   const dispatch = useAppDispatch();

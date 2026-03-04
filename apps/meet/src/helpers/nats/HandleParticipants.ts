@@ -12,33 +12,33 @@ import {
 } from '@workspace/protocol';
 import { create, fromJson, fromJsonString } from '@bufbuild/protobuf';
 
-import ConnectNats from './ConnectNats';
+import ConnectNats from '@/helpers/nats/ConnectNats';
 import {
   ICurrentUser,
   ICurrentUserMetadata,
-} from '../../store/slices/interfaces/session';
-import { store } from '../../store';
+} from '@/store/slices/interfaces/session';
+import { store } from '@/store';
 import {
   addCurrentUser,
   updateCurrentUserMetadata,
-} from '../../store/slices/sessionSlice';
+} from '@/store/slices/sessionSlice';
 import {
   addParticipant,
   participantsSelector,
   removeParticipant,
   updateParticipant,
-} from '../../store/slices/participantSlice';
+} from '@/store/slices/participantSlice';
 import {
   setActiveSidePanel,
   updateIsActiveRaisehand,
-} from '../../store/slices/bottomIconsActivitySlice';
+} from '@/store/slices/bottomIconsActivitySlice';
 import {
   addUserNotification,
   updatePlayAudioNotification,
-} from '../../store/slices/roomSettingsSlice';
-import { removeOneSpeaker } from '../../store/slices/activeSpeakersSlice';
-import { getMediaServerConn } from '../livekit/utils';
-import { isUserRecorder, toLiveKitUserId } from '../utils';
+} from '@/store/slices/roomSettingsSlice';
+import { removeOneSpeaker } from '@/store/slices/activeSpeakersSlice';
+import { getMediaServerConn } from '@/helpers/livekit/utils';
+import { isUserRecorder, toLiveKitUserId } from '@/helpers/utils';
 
 const EMPTY_ROOM_CHECK_INTERVAL = 3000;
 

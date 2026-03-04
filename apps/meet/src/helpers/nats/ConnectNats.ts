@@ -39,23 +39,23 @@ import {
 import { jetstream, JetStreamClient } from '@nats-io/jetstream';
 import { isE2EESupported } from 'livekit-client';
 
-import { IErrorPageProps } from '../../components/extra-pages/Error';
-import { IConnectLivekit } from '../livekit/types';
-import HandleRoomData from './HandleRoomData';
-import HandleParticipants from './HandleParticipants';
-import HandleDataMessage from './HandleDataMessage';
-import HandleWhiteboard from './HandleWhiteboard';
-import HandleChat from './HandleChat';
-import { store } from '../../store';
-import HandleSystemData from './HandleSystemData';
-import { addToken } from '../../store/slices/sessionSlice';
-import MessageQueue from './MessageQueue';
+import { IErrorPageProps } from '@/components/extra-pages/Error';
+import { IConnectLivekit } from '@/helpers/livekit/types';
+import HandleRoomData from '@/helpers/nats/HandleRoomData';
+import HandleParticipants from '@/helpers/nats/HandleParticipants';
+import HandleDataMessage from '@/helpers/nats/HandleDataMessage';
+import HandleWhiteboard from '@/helpers/nats/HandleWhiteboard';
+import HandleChat from '@/helpers/nats/HandleChat';
+import { store } from '@/store';
+import HandleSystemData from '@/helpers/nats/HandleSystemData';
+import { addToken } from '@/store/slices/sessionSlice';
+import MessageQueue from '@/helpers/nats/MessageQueue';
 import {
   decryptDataFromUint8Array,
   encryptDataToUint8Array,
   importSecretKeyFromPlainText,
-} from '../libs/cryptoMessages';
-import { ICurrentRoom } from '../../store/slices/interfaces/session';
+} from '@/helpers/libs/cryptoMessages';
+import { ICurrentRoom } from '@/store/slices/interfaces/session';
 import {
   formatNatsError,
   getChatDonors,
@@ -63,31 +63,31 @@ import {
   isUserRecorder,
   isValidHttpUrl,
   randomString,
-} from '../utils';
+} from '@/helpers/utils';
 import {
   addSelfInsertedE2EESecretKey,
   addUserNotification,
   setAllUserNotifications,
   updateIsNatsServerConnected,
-} from '../../store/slices/roomSettingsSlice';
-import { roomConnectionStatus } from '../../components/app/helper';
-import { destroyAudioManager } from '../libs/AudioActivityManager';
+} from '@/store/slices/roomSettingsSlice';
+import { roomConnectionStatus } from '@/components/app/helper';
+import { destroyAudioManager } from '@/helpers/libs/AudioActivityManager';
 import {
   DB_STORE_NAMES,
   deleteRoomDB,
   idbGet,
   idbGetAll,
   initIDB,
-} from '../libs/idb';
-import { addAllChatMessages } from '../../store/slices/chatMessagesSlice';
-import { UserNotification } from '../../store/slices/interfaces/roomSettings';
+} from '@/helpers/libs/idb';
+import { addAllChatMessages } from '@/store/slices/chatMessagesSlice';
+import { UserNotification } from '@/store/slices/interfaces/roomSettings';
 import {
   SELECTED_SUBTITLE_LANG_KEY,
   TextWithInfo,
-} from '../../store/slices/interfaces/speechServices';
-import { setSpeechToTextLastFinalTexts } from '../../store/slices/speechServicesSlice';
-import { createLivekitConnection } from '../livekit/utils';
-import { executeChatTranslation } from '../../components/translation-transcription/helpers/apiConnections';
+} from '@/store/slices/interfaces/speechServices';
+import { setSpeechToTextLastFinalTexts } from '@/store/slices/speechServicesSlice';
+import { createLivekitConnection } from '@/helpers/livekit/utils';
+import { executeChatTranslation } from '@/components/translation-transcription/helpers/apiConnections';
 
 const RENEW_TOKEN_FREQUENT = 3 * 60 * 1000;
 const PING_INTERVAL = 10 * 1000;

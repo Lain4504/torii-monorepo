@@ -23,26 +23,26 @@ import {
   AnalyticsStatusSchema,
 } from '@workspace/protocol';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
+import { store, useAppDispatch, useAppSelector } from '@/store';
 import {
   updateIsActiveMicrophone,
   updateIsMicMuted,
   updateShowMicrophoneModal,
-} from '../../../store/slices/bottomIconsActivitySlice';
-import MicMenu from './mic-menu';
-import MicrophoneModal from '../modals/microphoneModal';
-import { updateMuteOnStart } from '../../../store/slices/sessionSlice';
+} from '@/store/slices/bottomIconsActivitySlice';
+import MicMenu from '@/components/footer/icons/mic-menu';
+import MicrophoneModal from '@/components/footer/modals/microphoneModal';
+import { updateMuteOnStart } from '@/store/slices/sessionSlice';
 import {
   addAudioDevices,
   updateSelectedAudioDevice,
-} from '../../../store/slices/roomSettingsSlice';
+} from '@/store/slices/roomSettingsSlice';
 import {
   getAudioPreset,
   getInputMediaDevices,
   sleep,
-} from '../../../helpers/utils';
-import { getMediaServerConnRoom } from '../../../helpers/livekit/utils';
-import { getNatsConn } from '../../../helpers/nats';
+} from '@/helpers/utils';
+import { getMediaServerConnRoom } from '@/helpers/livekit/utils';
+import { getNatsConn } from '@/helpers/nats';
 import { Mic, MicOff, Plus, X, Lock as LockIcon } from 'lucide-react';
 
 const MicrophoneIcon = () => {

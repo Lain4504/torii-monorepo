@@ -10,8 +10,11 @@ import {
     Inject,
     Logger,
     BadRequestException,
+    Res,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { Response } from 'express';
+import * as ExcelJS from 'exceljs';
 import { firstValueFrom } from 'rxjs';
 import {
     successResponse,
@@ -60,7 +63,10 @@ export class OrderController {
 
     @Post('export')
     @Permissions('payment.view')
-    async exportOrders(@Body(new ZodValidationPipe(orderSearchRequestDTOSchema)) dto: OrderSearchRequestDTO) {
+    async exportOrders(
+        @Body(new ZodValidationPipe(orderSearchRequestDTOSchema)) dto: OrderSearchRequestDTO,
+        @Res() res: Response
+    ) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
@@ -68,9 +74,48 @@ export class OrderController {
                     dto
                 )
             );
-            return successResponse({ data: result });
+
+            // Generate CSV using exceljs
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Orders');
+
+            // Define columns
+            worksheet.columns = [
+                { header: 'ID đơn hàng', key: 'orderId', width: 25 },
+                { header: 'Khách hàng', key: 'userName', width: 20 },
+                { header: 'Email', key: 'userEmail', width: 25 },
+                { header: 'Số tiền', key: 'amount', width: 15 },
+                { header: 'Loại thanh toán', key: 'paymentMethod', width: 15 },
+                { header: 'Trạng thái', key: 'status', width: 15 },
+                { header: 'Loại đơn', key: 'orderType', width: 15 },
+                { header: 'Ngày tạo', key: 'createdAt', width: 20 },
+                { header: 'Ngày hoàn thành', key: 'completedAt', width: 20 },
+            ];
+
+            // Map data to worksheet
+            const rows = result.map((order: any) => ({
+                orderId: order.id,
+                userName: order.user?.displayName || 'N/A',
+                userEmail: order.user?.email || 'N/A',
+                amount: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: order.currency || 'VND' }).format(order.amount),
+                paymentMethod: order.paymentMethod || 'N/A',
+                status: order.status,
+                orderType: order.orderType,
+                createdAt: order.createdAt ? new Date(order.createdAt).toLocaleString('vi-VN') : 'N/A',
+                completedAt: order.completedAt ? new Date(order.completedAt).toLocaleString('vi-VN') : 'N/A',
+            }));
+
+            worksheet.addRows(rows);
+
+            // Set headers for file download
+            res.setHeader('Content-Type', 'text/csv');
+            res.setHeader('Content-Disposition', 'attachment; filename=orders-export.csv');
+
+            await workbook.csv.write(res);
+            res.end();
         } catch (error: any) {
-            return errorResponse(error.message || 'Failed to export orders');
+            this.logger.error(`Failed to export orders: ${error.message}`, error.stack);
+            res.status(500).json({ success: false, message: error.message || 'Failed to export orders' });
         }
     }
 

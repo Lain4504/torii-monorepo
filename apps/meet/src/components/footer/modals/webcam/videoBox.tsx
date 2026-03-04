@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, SyntheticEvent } from 'react';
-import { SourcePlayback } from '../../../virtual-background/helpers/sourceHelper';
+import { SourcePlayback } from '@/components/virtual-background/helpers/sourceHelper';
 
 interface IVideoBoxProps {
   deviceId: string;

@@ -5,20 +5,20 @@ import {
 } from '@workspace/protocol';
 import { toast } from 'react-toastify';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { updateDisplaySpeechSettingOptionsModal } from '../../../store/slices/bottomIconsActivitySlice';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import { updateDisplaySpeechSettingOptionsModal } from '@/store/slices/bottomIconsActivitySlice';
 
-import Modal from '../../../helpers/ui/modal';
-import SpeechInputSettings from './speechInputSettings';
-import SubtitleFontSizeSlider from './subtitleFontSizeSlider';
-import SubtitleLangSelector from './subtitleLangSelector';
+import Modal from '@/helpers/ui/modal';
+import SpeechInputSettings from '@/components/translation-transcription/speech-settings-modal/speechInputSettings';
+import SubtitleFontSizeSlider from '@/components/translation-transcription/speech-settings-modal/subtitleFontSizeSlider';
+import SubtitleLangSelector from '@/components/translation-transcription/speech-settings-modal/subtitleLangSelector';
 import {
   getUserTaskStatus,
   startOrStopUserSession,
-} from '../helpers/apiConnections';
-import { getMediaServerConnRoom } from '../../../helpers/livekit/utils';
-import { updateSelectedSubtitleLang } from '../../../store/slices/speechServicesSlice';
-import SettingsSwitch from '../../../helpers/ui/settingsSwitch';
+} from '@/components/translation-transcription/helpers/apiConnections';
+import { getMediaServerConnRoom } from '@/helpers/livekit/utils';
+import { updateSelectedSubtitleLang } from '@/store/slices/speechServicesSlice';
+import SettingsSwitch from '@/helpers/ui/settingsSwitch';
 
 interface SpeechSettingsModalProps {
   transcriptionFeatures: InsightsTranscriptionFeatures;

@@ -19,22 +19,46 @@ import {
     successPaginatedResponse,
     Public,
     GatewayAuthGuard,
+    PermissionsGuard,
+    Permissions,
     ReqWithRequester,
 } from '@server/shared';
 
 @Controller('api/blogs')
-@UseGuards(GatewayAuthGuard)
+@UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class BlogController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Public()
     @Get()
-    async findAllBlogs(@Query() query: any) {
+    async findAllBlogs(@Query() query: any, @Req() req: ReqWithRequester) {
+        const permissions = req.requester?.permissions || [];
+        const hasPrivilege = permissions.includes('*') || permissions.includes('blog.view_restricted') || permissions.includes('blog.manage');
+
+        // Only allow showScheduled if user has privilege
+        const showScheduled = query.showScheduled === 'true' && hasPrivilege;
+
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.blog.findAll' },
-                    query
+                    { ...query, showScheduled }
+                )
+            );
+            return successPaginatedResponse(result);
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to fetch blogs');
+        }
+    }
+
+    @Get('admin')
+    @Permissions('blog.view_restricted', 'blog.manage')
+    async findAllAdmin(@Query() query: any) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'learning.blog.findAll' },
+                    { ...query, showScheduled: true }
                 )
             );
             return successPaginatedResponse(result);
@@ -45,12 +69,15 @@ export class BlogController {
 
     @Public()
     @Get('slug/:slug')
-    async findBlogBySlug(@Param('slug') slug: string) {
+    async findBlogBySlug(@Param('slug') slug: string, @Req() req: ReqWithRequester) {
+        const permissions = req.requester?.permissions || [];
+        const hasPrivilege = permissions.includes('*') || permissions.includes('blog.view_restricted') || permissions.includes('blog.manage');
+
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.blog.findBySlug' },
-                    { slug }
+                    { slug, showScheduled: hasPrivilege }
                 )
             );
             return successResponse({ blog: result });
@@ -61,12 +88,15 @@ export class BlogController {
 
     @Public()
     @Get(':id')
-    async findBlogById(@Param('id') id: string) {
+    async findBlogById(@Param('id') id: string, @Req() req: ReqWithRequester) {
+        const permissions = req.requester?.permissions || [];
+        const hasPrivilege = permissions.includes('*') || permissions.includes('blog.view_restricted') || permissions.includes('blog.manage');
+
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.blog.findById' },
-                    { id }
+                    { id, showScheduled: hasPrivilege }
                 )
             );
             return successResponse({ blog: result });
@@ -93,12 +123,13 @@ export class BlogController {
     }
 
     @Post()
+    @Permissions('blog.create', 'blog.manage')
     async createPost(@Body() dto: any, @Req() req: ReqWithRequester) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.blog.create' },
-                    dto
+                    { ...dto, requester: req.requester }
                 )
             );
             return successResponse({ blog: result }, 'Blog created successfully');
@@ -108,12 +139,13 @@ export class BlogController {
     }
 
     @Patch(':id')
-    async updateBlog(@Param('id') id: string, @Body() dto: any) {
+    @Permissions('blog.update', 'blog.manage')
+    async updateBlog(@Param('id') id: string, @Body() dto: any, @Req() req: ReqWithRequester) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.blog.update' },
-                    { id, dto }
+                    { id, dto, requester: req.requester }
                 )
             );
             return successResponse({ blog: result }, 'Blog updated successfully');
@@ -123,12 +155,13 @@ export class BlogController {
     }
 
     @Delete(':id')
-    async deleteBlog(@Param('id') id: string) {
+    @Permissions('blog.delete', 'blog.manage')
+    async deleteBlog(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.blog.delete' },
-                    { id }
+                    { id, requester: req.requester }
                 )
             );
             return successResponse(null, 'Blog deleted successfully');
@@ -138,12 +171,13 @@ export class BlogController {
     }
 
     @Patch(':id/publish')
-    async publishBlog(@Param('id') id: string) {
+    @Permissions('blog.publish', 'blog.manage')
+    async publishBlog(@Param('id') id: string, @Req() req: ReqWithRequester) {
         try {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'learning.blog.publish' },
-                    { id }
+                    { id, requester: req.requester }
                 )
             );
             return successResponse({ blog: result }, 'Blog published successfully');

@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from 'react';
 
-import { useAppDispatch, useAppSelector } from '../../../../store';
-import { UserDeviceType } from '../../../../store/slices/interfaces/session';
-import { updateIsEnabledExtendedVerticalCamView } from '../../../../store/slices/bottomIconsActivitySlice';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { UserDeviceType } from '@/store/slices/interfaces/session';
+import { updateIsEnabledExtendedVerticalCamView } from '@/store/slices/bottomIconsActivitySlice';
 
 // breakpoints for responsive design
 const TABLET_BREAKPOINT = 768;

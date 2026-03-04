@@ -1,12 +1,12 @@
 import { BodyPix } from '@tensorflow-models/body-pix';
-import { BackgroundConfig } from '../../helpers/backgroundHelper';
-import { PostProcessingConfig } from '../../helpers/postProcessingHelper';
+import { BackgroundConfig } from '@/components/virtual-background/helpers/backgroundHelper';
+import { PostProcessingConfig } from '@/components/virtual-background/helpers/postProcessingHelper';
 import {
   inputResolutions,
   SegmentationConfig,
-} from '../../helpers/segmentationHelper';
-import { SourcePlayback } from '../../helpers/sourceHelper';
-import { TFLite } from '../../helpers/utils';
+} from '@/components/virtual-background/helpers/segmentationHelper';
+import { SourcePlayback } from '@/components/virtual-background/helpers/sourceHelper';
+import { TFLite } from '@/components/virtual-background/helpers/utils';
 
 export function buildCanvas2dPipeline(
   sourcePlayback: SourcePlayback,

@@ -1,12 +1,12 @@
 import React, { RefObject, useEffect } from 'react';
 import { BodyPix } from '@tensorflow-models/body-pix';
 
-import { BackgroundConfig } from './helpers/backgroundHelper';
-import { PostProcessingConfig } from './helpers/postProcessingHelper';
-import { SegmentationConfig } from './helpers/segmentationHelper';
-import { SourcePlayback } from './helpers/sourceHelper';
-import useRenderingPipeline from './hooks/useRenderingPipeline';
-import { TFLite } from './helpers/utils';
+import { BackgroundConfig } from '@/components/virtual-background/helpers/backgroundHelper';
+import { PostProcessingConfig } from '@/components/virtual-background/helpers/postProcessingHelper';
+import { SegmentationConfig } from '@/components/virtual-background/helpers/segmentationHelper';
+import { SourcePlayback } from '@/components/virtual-background/helpers/sourceHelper';
+import useRenderingPipeline from '@/components/virtual-background/hooks/useRenderingPipeline';
+import { TFLite } from '@/components/virtual-background/helpers/utils';
 
 type OutputViewerProps = {
   sourcePlayback: SourcePlayback;

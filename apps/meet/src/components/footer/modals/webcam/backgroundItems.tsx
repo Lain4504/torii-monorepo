@@ -1,14 +1,15 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { Ban, Droplets } from 'lucide-react';
 import { RoomUploadedFileType } from '@workspace/protocol';
+import { Button } from '@workspace/ui/components/button';
 
 import {
   BackgroundConfig,
   backgroundImageUrls,
-} from '../../../virtual-background/helpers/backgroundHelper';
-import useResumableFilesUpload from '../../../../helpers/hooks/useResumableFilesUpload';
-import { useAppSelector } from '../../../../store';
-import { SERVER_URL } from '../../../../config';
+} from '@/components/virtual-background/helpers/backgroundHelper';
+import useResumableFilesUpload from '@/helpers/hooks/useResumableFilesUpload';
+import { useAppSelector } from '@/store';
+import { SERVER_URL } from '@/config';
 
 interface IBackgroundItemsProps {
   onSelect: (bg: BackgroundConfig) => void;
@@ -111,7 +112,10 @@ const BackgroundItems = ({ onSelect }: IBackgroundItemsProps) => {
         );
       })}
       <div className="upload-btn-wrap relative border-4 border-transparent">
-        <button className="cursor-pointer h-[72px] w-full border border-dashed border-primary rounded-xl flex items-center justify-center bg-muted overflow-hidden">
+        <Button
+          variant="outline"
+          className="h-[72px] w-full border-dashed border-primary rounded-xl bg-muted"
+        >
           <svg
             width="16"
             height="16"
@@ -128,7 +132,7 @@ const BackgroundItems = ({ onSelect }: IBackgroundItemsProps) => {
               strokeLinejoin="round"
             />
           </svg>
-        </button>
+        </Button>
         <input
           className="absolute left-0 top-0 opacity-0 w-full h-full cursor-pointer"
           ref={customFileRef}

@@ -34,7 +34,7 @@ import { ScrollArea } from "@workspace/ui/components/scroll-area";
 import { TiptapEditor } from "@workspace/ui/components/tiptap-editor";
 import { MultiFileUpload } from "@/components/common/multi-file-upload";
 import type { CreateAssignmentDto } from "@workspace/schemas";
-import { AssignmentType, LessonContentType } from "@workspace/schemas";
+import { AssignmentType } from "@workspace/schemas";
 import { useCreateAssignment } from "@/lib/api/services/assignments";
 import { toast } from "@workspace/ui/components/sonner";
 import { Paperclip, Info, List } from "lucide-react";
@@ -47,7 +47,6 @@ import { useModulesLessons } from '@/lib/api/services/lesson';
 interface CreateAssignmentSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  moduleId?: string;
   lessonId?: string;
   courseRunId?: string;
 }
@@ -55,7 +54,6 @@ interface CreateAssignmentSheetProps {
 export function CreateAssignmentSheet({
   open,
   onOpenChange,
-  moduleId,
   lessonId,
   courseRunId,
 }: CreateAssignmentSheetProps) {
@@ -65,15 +63,11 @@ export function CreateAssignmentSheet({
   const modulesLessonsQueries = useModulesLessons(modules);
   const [selectedLessonId, setSelectedLessonId] = useState<string>(lessonId || '');
 
-  // Filter lessons to only show Assignment type
-  const assignmentLessons = useMemo(() => {
-    const allLessons = modulesLessonsQueries
+  // Show all lessons — any lesson can have an assignment linked to it
+  const allLessons = useMemo(() => {
+    return modulesLessonsQueries
       .map(query => query.data?.data || [])
       .flat();
-    
-    return allLessons.filter(lesson => 
-      lesson.contentType === LessonContentType.ASSIGNMENT
-    );
   }, [modulesLessonsQueries]);
 
   useEffect(() => {
@@ -86,7 +80,6 @@ export function CreateAssignmentSheet({
     title: z.string().min(1, "Vui lòng nhập tiêu đề"),
     description: z.string().min(1, "Vui lòng nhập mô tả"),
     type: z.nativeEnum(AssignmentType),
-    moduleId: z.string().optional(),
     lessonId: z.string().optional(),
     maxScore: z.number().min(0).max(1000),
     passingScore: z.number().min(0).max(1000).optional(),
@@ -104,7 +97,6 @@ export function CreateAssignmentSheet({
       title: "",
       description: "",
       type: AssignmentType.TEXT,
-      moduleId,
       lessonId,
       maxScore: 100,
       passingScore: 50,
@@ -123,7 +115,6 @@ export function CreateAssignmentSheet({
         title: "",
         description: "",
         type: AssignmentType.TEXT,
-        moduleId,
         lessonId,
         maxScore: 100,
         passingScore: 50,
@@ -134,7 +125,7 @@ export function CreateAssignmentSheet({
         attachmentUrls: [],
       });
     }
-  }, [open, moduleId, lessonId, form]);
+  }, [open, lessonId, form]);
 
   const onSubmit = async (values: CreateAssignmentDto) => {
     try {
@@ -230,25 +221,25 @@ export function CreateAssignmentSheet({
                   <Field>
                     <FieldLabel className="flex items-center gap-2">
                       <List className="size-4" />
-                      Gắn với Lesson (Assignment)
+                      Gắn với Lesson
                     </FieldLabel>
                     <Select value={selectedLessonId} onValueChange={setSelectedLessonId}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Chọn lesson có type Assignment..." />
+                        <SelectValue placeholder="Chọn bài học để gắn bài tập..." />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="none">Không gắn với lesson cụ thể</SelectItem>
-                        {assignmentLessons.length === 0 ? (
+                        {allLessons.length === 0 ? (
                           <SelectItem value="no-lessons" disabled>
-                            Không có lesson Assignment nào
+                            Không có lesson nào trong lớp này
                           </SelectItem>
                         ) : (
-                          assignmentLessons.map((lesson) => (
+                          allLessons.map((lesson) => (
                             <SelectItem key={lesson.id} value={lesson.id}>
                               <div className="flex flex-col">
                                 <span className="font-medium">{lesson.title}</span>
                                 <span className="text-xs text-muted-foreground">
-                                  ✏️ Assignment · ID: {lesson.id.slice(0, 8)}
+                                  {lesson.contentType} · ID: {lesson.id.slice(0, 8)}
                                 </span>
                               </div>
                             </SelectItem>
@@ -257,7 +248,7 @@ export function CreateAssignmentSheet({
                       </SelectContent>
                     </Select>
                     <FieldDescription>
-                      Chọn lesson để gắn bài tập này với nội dung bài học cụ thể
+                      Học viên cần hoàn thành bài tập này để pass bài học
                     </FieldDescription>
                   </Field>
                 )}
@@ -365,7 +356,7 @@ export function CreateAssignmentSheet({
                         name="latePenaltyPercent"
                         render={({ field, fieldState }) => (
                           <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel htmlFor={field.name}>Mức phạt gợi ý (%)</FieldLabel>
+                            <FieldLabel htmlFor={field.name}>Mức phạt gợi ý (%)</FieldLabel>
                             <div className="flex items-center gap-2">
                               <Input
                                 type="number"
@@ -373,14 +364,14 @@ export function CreateAssignmentSheet({
                                 {...field}
                                 onChange={(e) => field.onChange(Number(e.target.value))}
                                 className="w-24"
-                            />
-                            <span className="text-sm font-bold">%</span>
-                          </div>
-                          <FieldDescription>
-                            Chỉ hiển thị như gợi ý cho giảng viên khi chấm bài, ví dụ: 10 = trừ 10% tổng điểm.
-                          </FieldDescription>
-                          <FieldError errors={[fieldState.error]} />
-                        </Field>
+                              />
+                              <span className="text-sm font-bold">%</span>
+                            </div>
+                            <FieldDescription>
+                              Chỉ hiển thị như gợi ý cho giảng viên khi chấm bài, ví dụ: 10 = trừ 10% tổng điểm.
+                            </FieldDescription>
+                            <FieldError errors={[fieldState.error]} />
+                          </Field>
                         )}
                       />
                     )}

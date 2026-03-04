@@ -5,9 +5,11 @@ import React, {
   useCallback,
   useMemo,
 } from 'react';
-
 import { Trash2, PlusCircle } from 'lucide-react';
-import { CreatePollOptions } from './index';
+import { Button } from '@workspace/ui/components/button';
+import { Input } from '@workspace/ui/components/input';
+
+import { CreatePollOptions } from '@/components/polls/create/index';
 
 interface OptionsProps {
   options: CreatePollOptions[];
@@ -58,38 +60,40 @@ const OptionsView = ({ options, setOptions }: OptionsProps) => {
           {options.map((elm, index) => (
             <div className="form-inline" key={elm.id}>
               <div className="input-wrapper w-full flex items-center gap-2">
-                <input
+                <Input
                   type="text"
                   required={true}
                   name={`opt_${elm.id}`}
                   value={elm.text}
                   onChange={(e) => onChange(index, e)}
                   placeholder={`Lựa chọn ${index + 1}`}
-                  className="default-input flex-1"
+                  className="flex-1"
                   autoComplete="off"
                 />
                 {canRemove && (
-                  <button
+                  <Button
                     type="button"
-                    className="h-10 md:h-11 w-10 md:w-11 border border-destructive/20 bg-destructive/10 text-destructive rounded-lg flex items-center justify-center cursor-pointer hover:bg-destructive hover:text-destructive-foreground transition-all duration-300 shadow-sm"
+                    variant="destructive"
+                    size="icon"
                     onClick={() => removeOption(elm.id)}
                   >
                     <Trash2 className="w-4 h-4" />
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>
           ))}
         </div>
       </div>
-      <button
-        className="w-full cursor-pointer h-10 3xl:h-11 text-sm 3xl:text-base font-semibold bg-muted hover:bg-muted/80 rounded-lg flex justify-center items-center gap-2 transition-all duration-300 shadow-sm text-foreground"
+      <Button
+        variant="outline"
+        className="w-full gap-2"
         type="button"
         onClick={addOption}
       >
         Thêm lựa chọn
         <PlusCircle className="w-4 h-4" />
-      </button>
+      </Button>
     </div>
   );
 };

@@ -10,12 +10,12 @@ import {
 } from '@workspace/protocol';
 import Resumable from 'resumablejs';
 
-import { store } from '../store';
-import sendAPIRequest from './api/api-client';
-import { addUserNotification } from '../store/slices/roomSettingsSlice';
-import { ISession } from '../store/slices/interfaces/session';
-import { sleep } from './utils';
-import { SERVER_URL } from '../config';
+import { store } from '@/store';
+import sendAPIRequest from '@/helpers/api/api-client';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
+import { ISession } from '@/store/slices/interfaces/session';
+import { sleep } from '@/helpers/utils';
+import { SERVER_URL } from '@/config';
 import ResumableFile = Resumable.ResumableFile;
 
 export const uploadBase64EncodedFile = async (

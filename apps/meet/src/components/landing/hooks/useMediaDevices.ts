@@ -1,9 +1,9 @@
 import { useCallback, useState } from 'react';
-import { IMediaDevice } from '../../../store/slices/interfaces/roomSettings';
+import { IMediaDevice } from '@/store/slices/interfaces/roomSettings';
 import {
   getInputMediaDevices,
   inputMediaDeviceKind,
-} from '../../../helpers/utils';
+} from '@/helpers/utils';
 
 export const useMediaDevices = () => {
   const [audioDevices, setAudioDevices] = useState<IMediaDevice[]>([]);

@@ -2,12 +2,12 @@ import React, { useCallback } from 'react';
 import { MenuItem, MenuItems } from '@headlessui/react';
 import { Room, Track } from 'livekit-client';
 
-import { useAppDispatch, useAppSelector } from '../../../../../store';
-import { updateSelectedVideoDevice } from '../../../../../store/slices/roomSettingsSlice';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { updateSelectedVideoDevice } from '@/store/slices/roomSettingsSlice';
 import {
   updateIsActiveWebcam,
   updateVirtualBackground,
-} from '../../../../../store/slices/bottomIconsActivitySlice';
+} from '@/store/slices/bottomIconsActivitySlice';
 import { Check, VideoOff, LogOut } from 'lucide-react';
 
 interface IWebcamMenuItemsProps {

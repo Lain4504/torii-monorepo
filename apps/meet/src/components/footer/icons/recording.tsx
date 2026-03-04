@@ -1,17 +1,17 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { IRoomMetadata } from '../../../store/slices/interfaces/session';
-import RecordingModal from './recording/recordingModal';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import { IRoomMetadata } from '@/store/slices/interfaces/session';
+import RecordingModal from '@/components/footer/icons/recording/recordingModal';
 import {
   RecordingEvent,
   RecordingType,
   SelectedRecordingType,
-} from './recording/IRecording';
-import useLocalRecording from './recording/useLocalRecording';
-import useCloudRecording from './recording/useCloudRecording';
-import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
+} from '@/components/footer/icons/recording/IRecording';
+import useLocalRecording from '@/components/footer/icons/recording/useLocalRecording';
+import useCloudRecording from '@/components/footer/icons/recording/useCloudRecording';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
 import { CircleDot } from 'lucide-react';
 
 const RecordingIcon = () => {

@@ -5,9 +5,9 @@ import {
   SocketId,
 } from '@excalidraw/excalidraw/types';
 
-import { useAppSelector } from '../../../../store';
-import { addPreloadedLibraryItems } from '../utils';
-import { selectWhiteboardParticipants } from '../../../../store/slices/participantSlice';
+import { useAppSelector } from '@/store';
+import { addPreloadedLibraryItems } from '@/components/whiteboard/helpers/utils';
+import { selectWhiteboardParticipants } from '@/store/slices/participantSlice';
 
 interface IUseWhiteboardSetup {
   excalidrawAPI: ExcalidrawImperativeAPI | null;

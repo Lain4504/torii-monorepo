@@ -1,27 +1,30 @@
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { LocalAudioTrack, Track } from 'livekit-client';
 import {
-  Button,
+  Button as HeadlessButton,
   Dialog,
   DialogTitle,
   Transition,
   TransitionChild,
 } from '@headlessui/react';
+import { Button } from '@workspace/ui/components/button';
+import { Input } from '@workspace/ui/components/input';
+import { Label } from '@workspace/ui/components/label';
 import { toast } from 'react-toastify';
 import copy from 'copy-text-to-clipboard';
 import { JoinBreakoutRoomReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
-import { useAppDispatch, useAppSelector } from '../../store';
-import { updateReceivedInvitationFor } from '../../store/slices/breakoutRoomSlice';
-import { useJoinRoomMutation } from '../../store/services/breakoutRoomApi';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { updateReceivedInvitationFor } from '@/store/slices/breakoutRoomSlice';
+import { useJoinRoomMutation } from '@/store/services/breakoutRoomApi';
 import {
   updateIsActiveWebcam,
   updateIsMicMuted,
   updateVirtualBackground,
-} from '../../store/slices/bottomIconsActivitySlice';
-import { updateSelectedVideoDevice } from '../../store/slices/roomSettingsSlice';
-import { getMediaServerConnRoom } from '../../helpers/livekit/utils';
+} from '@/store/slices/bottomIconsActivitySlice';
+import { updateSelectedVideoDevice } from '@/store/slices/roomSettingsSlice';
+import { getMediaServerConnRoom } from '@/helpers/livekit/utils';
 import { X } from 'lucide-react';
 
 const BreakoutRoomInvitation = () => {
@@ -145,9 +148,9 @@ const BreakoutRoomInvitation = () => {
                 className="flex items-center justify-between text-base font-semibold leading-7 text-foreground mb-2 border-b border-border pb-2"
               >
                 <span>Mời tham gia phòng nhóm</span>
-                <Button className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors" onClick={closeModal}>
+                <HeadlessButton className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors" onClick={closeModal}>
                   <X className="w-5 h-5" />
-                </Button>
+                </HeadlessButton>
               </DialogTitle>
               <div className="mt-2">
                 <span className="text-foreground text-sm">
@@ -156,34 +159,33 @@ const BreakoutRoomInvitation = () => {
 
                 {joinLink !== '' && (
                   <div className="invite-link mt-2">
-                    <label className="text-foreground text-sm block mb-1">
+                    <Label className="block mb-1 text-sm">
                       Liên kết tham gia
-                    </label>
+                    </Label>
                     <div className="wrap flex items-center gap-1">
-                      <input
+                      <Input
                         type="text"
                         readOnly={true}
                         value={joinLink}
-                        className="border border-border bg-card shadow-sm block px-3 py-2 w-full h-7 rounded-lg outline-hidden text-foreground"
+                        className="w-full h-7"
                       />
-                      <button
+                      <Button
                         onClick={copyUrl}
-                        className="h-7 ml-auto px-4 cursor-pointer text-xs font-semibold bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground transition-all duration-300 shadow-sm"
+                        size="xs"
                       >
                         {copyText}
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 )}
 
                 <div className="button-section flex items-center justify-start mt-4">
-                  <button
-                    className="h-8 px-4 cursor-pointer text-sm font-semibold bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  <Button
                     onClick={join}
                     disabled={isLoading}
                   >
                     Tham gia
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

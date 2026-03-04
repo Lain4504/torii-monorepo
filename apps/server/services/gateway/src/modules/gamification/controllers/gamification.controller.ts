@@ -192,7 +192,7 @@ export class GamificationController {
     async findAllRewards() {
         try {
             const result = await firstValueFrom(
-                this.natsClient.send('gamification.reward.findAll', {})
+                this.natsClient.send({ cmd: 'gamification.reward.findAll' }, {})
             );
             return successResponse(result);
         } catch (error: any) {
@@ -206,7 +206,7 @@ export class GamificationController {
     async createReward(@Body() data: any) {
         try {
             const result = await firstValueFrom(
-                this.natsClient.send('gamification.reward.create', data)
+                this.natsClient.send({ cmd: 'gamification.reward.create' }, data)
             );
             return successResponse(result, 'Reward created successfully');
         } catch (error: any) {
@@ -220,7 +220,7 @@ export class GamificationController {
     async updateReward(@Param('id') id: string, @Body() data: any) {
         try {
             const result = await firstValueFrom(
-                this.natsClient.send('gamification.reward.update', { id, ...data })
+                this.natsClient.send({ cmd: 'gamification.reward.update' }, { id, ...data })
             );
             return successResponse(result, 'Reward updated successfully');
         } catch (error: any) {
@@ -234,7 +234,7 @@ export class GamificationController {
     async deleteReward(@Param('id') id: string) {
         try {
             const result = await firstValueFrom(
-                this.natsClient.send('gamification.reward.delete', { id })
+                this.natsClient.send({ cmd: 'gamification.reward.delete' }, { id })
             );
             return successResponse(result, 'Reward deleted successfully');
         } catch (error: any) {

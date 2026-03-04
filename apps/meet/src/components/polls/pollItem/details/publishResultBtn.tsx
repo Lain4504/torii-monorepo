@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-import { PollDataWithOption, publishPollResultByChat } from '../../utils';
-import ActionButton from '../../../../helpers/ui/actionButton';
+import { PollDataWithOption, publishPollResultByChat } from '@/components/polls/utils';
+import ActionButton from '@/helpers/ui/actionButton';
 
 interface PublishResultBtnProps {
   pollDataWithOption: PollDataWithOption;

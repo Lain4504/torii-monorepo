@@ -3,19 +3,19 @@ import { toast } from 'react-toastify';
 import { InsightsTranscriptionConfigReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
-import { updateDisplaySpeechSettingsModal } from '../../../store/slices/bottomIconsActivitySlice';
-import { store, useAppDispatch, useAppSelector } from '../../../store';
+import { updateDisplaySpeechSettingsModal } from '@/store/slices/bottomIconsActivitySlice';
+import { store, useAppDispatch, useAppSelector } from '@/store';
 import {
   enableOrUpdateTranscription,
   endTranscription,
-} from '../helpers/apiConnections';
-import { validateSettings } from '../helpers/modalUtils';
-import SpeechLangsSelector from './speechLangsSelector';
-import SpeechUsersSelector from './speechUsersSelector';
-import TransLangsSelector from './transLangsSelector';
-import DefaultSubtitleLangSelector from './defaultSubtitleLangSelector';
-import SettingsSwitch from '../../../helpers/ui/settingsSwitch';
-import { speechLangsMap } from '../helpers/supportedLangs';
+} from '@/components/translation-transcription/helpers/apiConnections';
+import { validateSettings } from '@/components/translation-transcription/helpers/modalUtils';
+import SpeechLangsSelector from '@/components/translation-transcription/transcription-settings/speechLangsSelector';
+import SpeechUsersSelector from '@/components/translation-transcription/transcription-settings/speechUsersSelector';
+import TransLangsSelector from '@/components/translation-transcription/transcription-settings/transLangsSelector';
+import DefaultSubtitleLangSelector from '@/components/translation-transcription/transcription-settings/defaultSubtitleLangSelector';
+import SettingsSwitch from '@/helpers/ui/settingsSwitch';
+import { speechLangsMap } from '@/components/translation-transcription/helpers/supportedLangs';
 
 interface TranscriptionSettingsProps {
   setErrorMsg: React.Dispatch<React.SetStateAction<string | undefined>>;

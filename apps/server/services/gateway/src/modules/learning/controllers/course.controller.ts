@@ -43,7 +43,7 @@ export class CourseMasterController {
         const requester = req.requester;
         const result = await firstValueFrom(
             this.natsClient.send(
-                { cmd: 'learning.coursemaster.findAll' },
+                { cmd: 'learning.coursemaster-admin.findAll' },
                 { query: dto, requester }
             )
         );

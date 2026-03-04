@@ -1,7 +1,7 @@
 import React, { Dispatch, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';
-import { supportedTranslationLangs } from '../helpers/supportedLangs';
+import Dropdown, { ISelectOption } from '@/helpers/ui/dropdown';
+import { supportedTranslationLangs } from '@/components/translation-transcription/helpers/supportedLangs';
 
 interface TransLangsSelectorProps {
   isServiceRunning: boolean;

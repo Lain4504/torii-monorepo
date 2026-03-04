@@ -6,10 +6,10 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { DndProvider } from 'react-dnd';
 
 import 'react-toastify/dist/ReactToastify.css';
-import './styles/index.css';
-import { store } from './store';
-import App from './components/app';
-import Loading from './components/extra-pages/Loading';
+import '@/styles/index.css';
+import { store } from '@/store';
+import App from '@/components/app';
+import Loading from '@/components/extra-pages/Loading';
 
 const container = document.getElementById('torii-meet-app');
 

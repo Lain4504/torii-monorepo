@@ -70,4 +70,15 @@ export class RedemptionsService implements IRedemptionsService {
             return history;
         });
     }
+    async createReward(data: any) {
+        return this.prisma.pointReward.create({ data });
+    }
+
+    async updateReward(id: string, data: any) {
+        return this.prisma.pointReward.update({ where: { id }, data });
+    }
+
+    async deleteReward(id: string) {
+        return this.prisma.pointReward.delete({ where: { id } });
+    }
 }

@@ -96,8 +96,8 @@ export class ExamController {
     @Post(':id/start')
     async startExam(
         @Param('id') examId: string,
-        @Body('courseRunId') courseRunId: string,
-        @Req() req: ReqWithRequester
+        @Req() req: ReqWithRequester,
+        @Body('courseRunId') courseRunId?: string,
     ) {
         try {
             const result = await firstValueFrom(

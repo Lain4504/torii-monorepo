@@ -1,9 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import { throttle } from 'es-toolkit/compat';
 
-import { useAppDispatch, useAppSelector } from '../../../store';
-import { updateSubtitleFontSize } from '../../../store/slices/speechServicesSlice';
-import RangeSlider from '../../../helpers/ui/rangeSlider';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { updateSubtitleFontSize } from '@/store/slices/speechServicesSlice';
+import RangeSlider from '@/helpers/ui/rangeSlider';
 
 const SubtitleFontSizeSlider = () => {
   const dispatch = useAppDispatch();

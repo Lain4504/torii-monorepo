@@ -95,7 +95,7 @@ export interface IExamRepository {
     /**
      * Find questions by pool ID with usage count ordering
      */
-    findQuestionsByPool(poolId: string, take: number): Promise<any[]>;
+    findQuestionsByPool(poolId: string, take: number, difficulty?: string, excludeIds?: string[]): Promise<any[]>;
 
     /**
      * Find attempt details with questions by attempt ID

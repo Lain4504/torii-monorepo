@@ -11,15 +11,17 @@ import {
   SubmitPollResponseReqSchema,
 } from '@workspace/protocol';
 
-import { store, useAppDispatch } from '../../../store';
+import { store, useAppDispatch } from '@/store';
 import {
   useAddResponseMutation,
   useGetUserSelectedOptionQuery,
-} from '../../../store/services/pollsApi';
-import { getNatsConn } from '../../../helpers/nats';
-import { PollDataWithOption } from '../utils';
-import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
+} from '@/store/services/pollsApi';
+import { getNatsConn } from '@/helpers/nats';
+import { PollDataWithOption } from '@/components/polls/utils';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
 import { Loader2 } from 'lucide-react';
+import {Button} from "@workspace/ui/components/button";
+import { Label } from "@workspace/ui/components/label";
 
 interface PollFormProps {
   pollDataWithOption: PollDataWithOption;
@@ -134,12 +136,12 @@ const PollForm = ({ pollDataWithOption, isRunning }: PollFormProps) => {
             readOnly
             className="polls-checkbox relative appearance-none w-[18px] h-[18px] border border-border rounded-md checked:bg-primary checked:border-primary transition-all shadow-xs"
           />
-          <label
+          <Label
             className="text-sm text-foreground w-full h-full pl-7 z-10 flex items-center cursor-pointer font-medium"
             htmlFor={`option-${pollDataWithOption.pollId}-${o.id}`}
           >
             {o.text}
-          </label>
+          </Label>
           {canViewPercentage() && (
             <>
               <div
@@ -176,12 +178,9 @@ const PollForm = ({ pollDataWithOption, isRunning }: PollFormProps) => {
       )}
       {!isRunning || voted || !selectedOption ? null : (
         <div className="button-section flex items-center justify-end mt-3">
-          <button
-            className="h-9 px-5 cursor-pointer flex items-center justify-center rounded-lg text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary/90 transition-all duration-300 shadow-sm"
-            type="submit"
-          >
+          <Button type="submit">
             Gửi
-          </button>
+          </Button>
         </div>
       )}
     </form>

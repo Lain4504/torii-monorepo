@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BlogPrimaryToolbar } from '@/components/blogs/blog-primary-toolbar.tsx';
 import { BlogTable } from '@/components/blogs/blog-table.tsx';
-import { CreateBlogSheet } from '@/components/blogs/create-blog-sheet.tsx';
-import { EditBlogSheet } from '@/components/blogs/edit-blog-sheet.tsx';
+import { CreateBlogDialog } from '@/components/blogs/create-blog-dialog.tsx';
 import { DeleteBlogDialog } from '@/components/blogs/delete-blog-dialog.tsx';
 import { ViewBlogSheet } from '@/components/blogs/view-blog-sheet.tsx';
+import { ScheduleBlogDialog } from '@/components/blogs/schedule-blog-dialog.tsx';
 import type { BlogResponseDTO, BlogQueryDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 
@@ -28,9 +29,11 @@ export function BlogPage() {
 
     // Dialog States
     const [showCreateDialog, setShowCreateDialog] = useState(false);
-    const [editingBlog, setEditingBlog] = useState<BlogResponseDTO | null>(null);
     const [deletingBlog, setDeletingBlog] = useState<BlogResponseDTO | null>(null);
     const [viewingBlog, setViewingBlog] = useState<BlogResponseDTO | null>(null);
+    const [schedulingBlog, setSchedulingBlog] = useState<BlogResponseDTO | null>(null);
+
+    const navigate = useNavigate();
 
     // Query params
     const queryParams: BlogQueryDTO = {
@@ -115,9 +118,10 @@ export function BlogPage() {
 
                         <BlogTable
                             data={blogs}
-                            onEdit={setEditingBlog}
+                            onEdit={(b) => navigate(`/blogs/${b.id}/edit`)}
                             onDelete={setDeletingBlog}
                             onView={setViewingBlog}
+                            onScheduleChange={setSchedulingBlog}
                             page={page}
                             limit={queryParams.limit || 10}
                             isLoading={isLoading}
@@ -136,15 +140,9 @@ export function BlogPage() {
             </div>
 
             {/* Dialogs */}
-            <CreateBlogSheet
+            <CreateBlogDialog
                 open={showCreateDialog}
                 onOpenChange={setShowCreateDialog}
-            />
-
-            <EditBlogSheet
-                open={!!editingBlog}
-                onOpenChange={(open) => !open && setEditingBlog(null)}
-                blog={editingBlog}
             />
 
             <DeleteBlogDialog
@@ -157,6 +155,12 @@ export function BlogPage() {
                 open={!!viewingBlog}
                 onOpenChange={(open) => !open && setViewingBlog(null)}
                 blog={viewingBlog}
+            />
+
+            <ScheduleBlogDialog
+                open={!!schedulingBlog}
+                onOpenChange={(open) => !open && setSchedulingBlog(null)}
+                blogId={schedulingBlog?.id || ''}
             />
         </div>
     );

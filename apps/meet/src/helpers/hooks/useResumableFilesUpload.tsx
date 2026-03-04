@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { uploadResumableFile } from '../fileUpload';
+import { uploadResumableFile } from '@/helpers/fileUpload';
 import { RoomUploadedFileType, UploadedFileRes } from '@workspace/protocol';
 
 export interface IUseResumableFilesUpload {

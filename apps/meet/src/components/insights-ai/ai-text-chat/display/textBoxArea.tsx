@@ -9,13 +9,15 @@ import {
 } from '@workspace/protocol';
 
 import { SendHorizontal } from 'lucide-react';
-import { useAutosizeTextArea } from '../../../chat/text-box/useAutosizeTextArea';
-import { useAppDispatch, useAppSelector } from '../../../../store';
+import { Textarea } from '@workspace/ui/components/textarea';
+import { Button } from '@workspace/ui/components/button';
+import { useAutosizeTextArea } from '@/components/chat/text-box/useAutosizeTextArea';
+import { useAppDispatch, useAppSelector } from '@/store';
 import {
   addAiTextChatUserMessage,
   clearIsAwaitingResponse,
-} from '../../../../store/slices/insightsAiTextChatSlice';
-import sendAPIRequest from '../../../../helpers/api/api-client';
+} from '@/store/slices/insightsAiTextChatSlice';
+import sendAPIRequest from '@/helpers/api/api-client';
 
 const TextBoxArea = () => {
   const dispatch = useAppDispatch();
@@ -82,7 +84,7 @@ const TextBoxArea = () => {
 
   return (
     <div className="flex items-center justify-between border border-border rounded-2xl 3xl:rounded-3xl p-1.5 w-full bg-muted/50">
-      <textarea
+      <Textarea
         name="message-textarea"
         id="message-textarea"
         className="flex-1 outline-hidden text-xs 3xl:text-sm text-foreground bg-transparent font-normal h-10 mr-2 overflow-hidden px-2 resize-none"
@@ -94,16 +96,17 @@ const TextBoxArea = () => {
         ref={textAreaRef}
         rows={1}
       />
-      <button
+      <Button
         disabled={isSendButtonDisabled}
         onClick={sendMsg}
+        size="icon-sm"
         className={`w-7 3xl:w-9 h-7 3xl:h-9 flex items-center justify-center rounded-full transition-all duration-300 shadow-sm ${isSendButtonDisabled
           ? 'bg-primary/30 text-primary-foreground/30 cursor-not-allowed'
           : 'bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer'
           }`}
       >
         <SendHorizontal className="w-4 h-4 md:w-5 md:h-5" />
-      </button>
+      </Button>
     </div>
   );
 };

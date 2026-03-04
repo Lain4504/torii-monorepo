@@ -7,10 +7,10 @@ import {
   UpdateUserLockSettingsReqSchema,
 } from '@workspace/protocol';
 
-import { store, useAppSelector } from '../../../../../store';
-import { participantsSelector } from '../../../../../store/slices/participantSlice';
-import { ICurrentUserMetadata } from '../../../../../store/slices/interfaces/session';
-import sendAPIRequest from '../../../../../helpers/api/api-client';
+import { store, useAppSelector } from '@/store';
+import { participantsSelector } from '@/store/slices/participantSlice';
+import { ICurrentUserMetadata } from '@/store/slices/interfaces/session';
+import sendAPIRequest from '@/helpers/api/api-client';
 
 interface ILockSettingMenuItemProps {
   userId: string;

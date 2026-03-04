@@ -27,27 +27,27 @@ import {
 import { toast } from 'react-toastify';
 import LkWorker from 'livekit-client/e2ee-worker?worker';
 
-import { store } from '../../store';
+import { store } from '@/store';
 import {
   participantsSelector,
   updateParticipant,
-} from '../../store/slices/participantSlice';
+} from '@/store/slices/participantSlice';
 import {
   updateScreenSharing,
   updateTotalAudioSubscribers,
   updateTotalVideoSubscribers,
-} from '../../store/slices/sessionSlice';
+} from '@/store/slices/sessionSlice';
 
-import HandleMediaTracks from './HandleMediaTracks';
-import { IErrorPageProps } from '../../components/extra-pages/Error';
-import { CurrentConnectionEvents, IConnectLivekit } from './types';
-import { IScreenSharing } from '../../store/slices/interfaces/session';
-import { getNatsConn } from '../nats';
-import { roomConnectionStatus } from '../../components/app/helper';
-import { addUserNotification } from '../../store/slices/roomSettingsSlice';
-import { activeSpeakersSelector } from '../../store/slices/activeSpeakersSlice';
-import { toWajlcUserId } from '../utils';
-import { ENABLE_DYNACAST, ENABLE_SIMULCAST, STOP_MIC_TRACK_ON_MUTE, VIDEO_CODEC } from "../../config";
+import HandleMediaTracks from '@/helpers/livekit/HandleMediaTracks';
+import { IErrorPageProps } from '@/components/extra-pages/Error';
+import { CurrentConnectionEvents, IConnectLivekit } from '@/helpers/livekit/types';
+import { IScreenSharing } from '@/store/slices/interfaces/session';
+import { getNatsConn } from '@/helpers/nats';
+import { roomConnectionStatus } from '@/components/app/helper';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
+import { activeSpeakersSelector } from '@/store/slices/activeSpeakersSlice';
+import { toWajlcUserId } from '@/helpers/utils';
+import { ENABLE_DYNACAST, ENABLE_SIMULCAST, STOP_MIC_TRACK_ON_MUTE, VIDEO_CODEC } from "@/config";
 
 export default class ConnectLivekit
   extends EventEmitter

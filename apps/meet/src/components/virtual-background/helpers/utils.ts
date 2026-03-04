@@ -5,8 +5,8 @@ import { once } from 'es-toolkit';
 import {
   getTFLiteModelFileName,
   SegmentationConfig,
-} from './segmentationHelper';
-import { STATIC_ASSETS_PATH } from '../../../config';
+} from '@/components/virtual-background/helpers/segmentationHelper';
+import { STATIC_ASSETS_PATH } from '@/config';
 
 declare const IS_PRODUCTION: boolean;
 declare function createTFLiteModule(): Promise<TFLite>;

@@ -1,5 +1,5 @@
 import { deleteDB, IDBPDatabase, openDB } from 'idb';
-import { DB_MAX_AGE_MS } from '../../config';
+import { DB_MAX_AGE_MS } from '@/config';
 
 // Define all exportable store names in a single object to act as the source of truth.
 export const DB_STORE_NAMES = {

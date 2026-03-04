@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import ScreenShareElements from '../../media-elements/screenshare';
+import ScreenShareElements from '@/components/media-elements/screenshare';
 
 export const useScreenShareElements = (isActiveScreenSharingView: boolean) => {
   return useMemo(() => {

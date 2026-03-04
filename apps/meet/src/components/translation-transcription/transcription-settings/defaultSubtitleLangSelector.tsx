@@ -1,7 +1,7 @@
 import React, { Dispatch, useMemo } from 'react';
 
-import { getSubtitleLangs } from '../helpers/supportedLangs';
-import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';
+import { getSubtitleLangs } from '@/components/translation-transcription/helpers/supportedLangs';
+import Dropdown, { ISelectOption } from '@/helpers/ui/dropdown';
 
 interface DefaultSubtitleLangSelectorProps {
   isServiceRunning: boolean;

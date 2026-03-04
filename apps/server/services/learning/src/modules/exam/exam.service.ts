@@ -274,7 +274,7 @@ export class ExamService implements IExamService {
      * Start an exam session
      * POST /api/exams/:id/start
      */
-    async startExam(examId: string, userId: string, courseRunId: string): Promise<ExamSessionStartResponseDTO> {
+    async startExam(examId: string, userId: string, courseRunId?: string): Promise<ExamSessionStartResponseDTO> {
         try {
             // Find quiz (using examId parameter for API compatibility)
             const quiz = await this.examRepository.findById(examId);
@@ -294,7 +294,7 @@ export class ExamService implements IExamService {
                 where: {
                     quizId: examId,
                     userId,
-                    courseRunId,
+                    courseRunId: courseRunId || null,
                     status: ExamSessionStatus.IN_PROGRESS,
                 },
             });
@@ -309,7 +309,7 @@ export class ExamService implements IExamService {
             const existingAttemptsCount = await this.examRepository.countAttempts({
                 quizId: examId,
                 userId,
-                courseRunId,
+                courseRunId: courseRunId || null,
                 status: { in: [ExamSessionStatus.SUBMITTED, ExamSessionStatus.COMPLETED] },
             });
 
@@ -332,7 +332,7 @@ export class ExamService implements IExamService {
             // Create new attempt
             const attempt = await this.examRepository.createAttempt({
                 quiz: { connect: { id: examId } },
-                courseRun: { connect: { id: courseRunId } },
+                ...(courseRunId ? { courseRun: { connect: { id: courseRunId } } } : {}),
                 userId,
                 status: ExamSessionStatus.IN_PROGRESS,
                 startedAt: new Date(),
@@ -342,7 +342,7 @@ export class ExamService implements IExamService {
                 currentSection: (quiz.sections as any[])?.[0]?.type || null,
                 currentQuestion: 1,
                 attemptNumber: attemptNumber,
-                courseRunId,
+                courseRunId: courseRunId || null,
             } as any);
 
             return this.buildSessionStartResponse(attempt, quiz, questions);
@@ -481,6 +481,14 @@ export class ExamService implements IExamService {
                 `Attempt ${sessionId} graded: ${gradingResult.score}/${gradingResult.maxScore} (${percentage.toFixed(2)}%)`
             );
 
+            // --- P0 Fix: Completion Gating ---
+            // Trigger lesson/enrollment completion if quiz passed (non-blocking)
+            if (isPassed && quiz) {
+                this.handleQuizCompletion(userId, quiz, sessionId, attempt.courseRunId).catch(e => {
+                    this.logger.error(`Failed to handle quiz completion for user ${userId}: ${e.message}`, e.stack);
+                });
+            }
+
             // Emit activity event for XP gain
             try {
                 const activityEvent: UserActivityEvent = {
@@ -506,6 +514,154 @@ export class ExamService implements IExamService {
         } catch (error: any) {
             this.logger.error(`Error submitting session ${sessionId}: ${error.message}`, error.stack);
             throw error;
+        }
+    }
+
+    /**
+     * Handle quiz completion gating:
+     * - quizType="lesson" → mark the linked lesson as completed in LessonProgress
+     * - quizType="course" → mark Enrollment as completed (final exam passed)
+     * - quizType="placement" → Generate recommended level and save to PlacementResult
+     * Called only when isPassed = true. Errors are swallowed by the caller.
+     */
+    private async handleQuizCompletion(userId: string, quiz: any, attemptId: string, courseRunId?: string): Promise<void> {
+        const quizType: string = quiz.quizType || 'practice';
+        const runId = courseRunId || quiz.courseRunId;
+
+        // --- Placement Result Logic ---
+        if (quizType === 'placement') {
+            const attempt = await this.examRepository.findAttemptById(attemptId);
+            if (!attempt) return;
+
+            // Simple mapping logic: based on overall percentage
+            // 0–30 → Pre-N5, 31–60 → N5, 61–80 → N4, 81+ → N3
+            const percentage = Number(attempt.percentage || 0);
+            let recommendedLevel = 'N5';
+            if (percentage <= 30) recommendedLevel = 'Pre-N5';
+            else if (percentage <= 60) recommendedLevel = 'N5';
+            else if (percentage <= 80) recommendedLevel = 'N4';
+            else recommendedLevel = 'N3';
+
+            // Find recommended CourseRun based on level
+            const recommendedRun = await this.prisma.courseRun.findFirst({
+                where: {
+                    courseMaster: { jlptLevel: recommendedLevel },
+                    status: 'ENROLLING',
+                },
+                orderBy: { startDate: 'asc' },
+            });
+
+            await this.prisma.placementResult.create({
+                data: {
+                    userId,
+                    quizId: quiz.id,
+                    attemptId,
+                    overallScore: attempt.score || 0,
+                    recommendedLevel,
+                    recommendedCourseRunId: recommendedRun?.id,
+                }
+            });
+            this.logger.log(`Placement result created for user ${userId}: ${recommendedLevel}`);
+            return;
+        }
+
+        if (!runId) {
+            this.logger.warn(`Quiz ${quiz.id} has no courseRunId, skipping completion gating`);
+            return;
+        }
+
+        // Find the enrollment for this user + courseRun
+        const enrollment = await this.prisma.enrollment.findFirst({
+            where: { userId, courseRunId: runId },
+        }) as any;
+
+        if (!enrollment) {
+            this.logger.warn(`No enrollment for user ${userId} in courseRun ${runId}, skipping completion gating`);
+            return;
+        }
+
+        if (quizType === 'lesson' && quiz.lessonId) {
+            // Mark linked lesson as completed
+            await this.prisma.lessonProgress.upsert({
+                where: {
+                    enrollmentId_lessonId: {
+                        enrollmentId: enrollment.id,
+                        lessonId: quiz.lessonId,
+                    },
+                },
+                update: { status: 'completed', completedAt: new Date() },
+                create: {
+                    enrollmentId: enrollment.id,
+                    lessonId: quiz.lessonId,
+                    status: 'completed',
+                    completedAt: new Date(),
+                    totalDuration: 0, // Duration not tracked at quiz level
+                    watchedDuration: 0,
+                },
+            });
+            this.logger.log(`LessonProgress updated: lesson ${quiz.lessonId} completed for enrollment ${enrollment.id}`);
+
+            // Re-check overall course completion
+            await this.updateEnrollmentProgress(enrollment.id, runId);
+
+        } else if (quizType === 'course') {
+            // Final exam passed → mark enrollment as completed
+            await this.prisma.enrollment.update({
+                where: { id: enrollment.id },
+                data: {
+                    completionStatus: 'completed',
+                    completedAt: new Date(),
+                    completionPercentage: 100,
+                },
+            });
+            this.logger.log(`Enrollment ${enrollment.id} marked completed via final course exam`);
+        }
+        // quizType="practice" | "jlpt_mock" → no gating
+    }
+
+    /**
+     * Recalculate and update enrollment progress percentage.
+     * If all lessons are done, mark enrollment as completed.
+     */
+    private async updateEnrollmentProgress(enrollmentId: string, courseRunId: string): Promise<void> {
+        // Count active lessons in this courseRun (through modules → courseVersion)
+        const courseRun = await this.prisma.courseRun.findUnique({
+            where: { id: courseRunId },
+            select: { courseMasterId: true },
+        });
+
+        if (!courseRun?.courseMasterId) return;
+
+        const totalLessons = await this.prisma.lesson.count({
+            where: {
+                module: { courseMasterId: courseRun.courseMasterId },
+                status: 'published',
+            },
+        });
+
+        if (totalLessons === 0) return;
+
+        const completedLessons = await this.prisma.lessonProgress.count({
+            where: { enrollmentId, status: 'completed' },
+        });
+
+        const progressPercentage = Math.round((completedLessons / totalLessons) * 100);
+
+        if (progressPercentage >= 100) {
+            await this.prisma.enrollment.update({
+                where: { id: enrollmentId },
+                data: {
+                    completionPercentage: 100,
+                    completionStatus: 'completed',
+                    completedAt: new Date(),
+                },
+            });
+            this.logger.log(`Enrollment ${enrollmentId} auto-completed: ${completedLessons}/${totalLessons} lessons done`);
+        } else {
+            await this.prisma.enrollment.update({
+                where: { id: enrollmentId },
+                data: { completionPercentage: progressPercentage },
+            });
         }
     }
 
@@ -637,48 +793,68 @@ export class ExamService implements IExamService {
     }
 
     /**
-     * Generate questions for quiz based on sections
-     * Each section must have either questionIds (specific questions) or poolId (select from pool)
+     * Generate questions for a quiz session.
+     * Published quizzes: use the frozen QuizQuestion records (consistent across all attempts).
+     * Draft quizzes: fall back to dynamic pool generation (for preview only).
      */
     private async generateExamQuestions(quiz: any): Promise<any[]> {
+        // --- Published: use frozen QuizQuestion set ---
+        const frozenQuestions = await this.examRepository.findQuizQuestions(quiz.id);
+
+        if (frozenQuestions.length > 0) {
+            const questionIds = frozenQuestions.map((qq: any) => qq.questionId);
+            const questionDetails = await this.examRepository.findQuestionsByIds(questionIds);
+            const questionMap = new Map(questionDetails.map(q => [q.id, q]));
+
+            let questions = frozenQuestions
+                .sort((a: any, b: any) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0))
+                .map((qq: any) => {
+                    const q = questionMap.get(qq.questionId);
+                    if (!q) return null;
+                    const options = q.options as Record<string, any> | null;
+                    return {
+                        id: q.id,
+                        questionText: q.questionText,
+                        questionType: q.questionType,
+                        options: q.options,
+                        audioUrl: qq.sectionType === ExamSectionType.LISTENING ? options?.audioUrl : undefined,
+                        section: qq.sectionType,
+                        order: (qq.orderIndex ?? 0) + 1,
+                        points: Number(qq.points || 1),
+                    };
+                })
+                .filter(Boolean);
+
+            if (quiz.shuffleQuestions) {
+                questions = this.shuffleWithinSections(questions);
+            }
+            return questions;
+        }
+
+        // --- Draft fallback: dynamic generation from sections/pool ---
+        this.logger.warn(`Quiz ${quiz.id} has no frozen QuizQuestions. Generating dynamically (draft mode preview).`);
         const sections = (quiz.sections as any[]) || [];
         let questions: any[] = [];
 
         for (const section of sections) {
             let sectionQuestions: any[] = [];
 
-            // Option 1: Use specific questionIds if provided
             if (section.questionIds && section.questionIds.length > 0) {
                 const allQuestions = await this.examRepository.findQuestionsByIds(section.questionIds);
                 sectionQuestions = allQuestions.slice(0, section.questionCount);
-
-                if (sectionQuestions.length < section.questionCount) {
-                    this.logger.warn(
-                        `Section ${section.type}: Requested ${section.questionCount} questions but only found ${sectionQuestions.length} from questionIds`
-                    );
-                }
-            }
-            // Option 2: Use poolId to select questions from pool
-            else if (section.poolId) {
-                sectionQuestions = await this.examRepository.findQuestionsByPool(section.poolId, section.questionCount);
-
-                if (sectionQuestions.length < section.questionCount) {
-                    this.logger.warn(
-                        `Section ${section.type}: Requested ${section.questionCount} questions but pool ${section.poolId} only has ${sectionQuestions.length} active questions`
-                    );
-                }
-            }
-            // Error: Section must have either questionIds or poolId
-            else {
+            } else if (section.poolId) {
+                sectionQuestions = await this.examRepository.findQuestionsByPool(
+                    section.poolId, section.questionCount, section.difficulty
+                );
+            } else {
                 throw new BadRequestException(
                     `Section "${section.type}" must have either questionIds or poolId to generate questions`
                 );
             }
 
-            // Map to exam question format (without correctAnswer for security)
-            const sectionQuestionList = sectionQuestions.map((q, idx) => {
+            sectionQuestions.forEach((q, idx) => {
                 const options = q.options as Record<string, any> | null;
-                return {
+                questions.push({
                     id: q.id,
                     questionText: q.questionText,
                     questionType: q.questionType,
@@ -686,39 +862,33 @@ export class ExamService implements IExamService {
                     audioUrl: section.type === ExamSectionType.LISTENING ? options?.audioUrl : undefined,
                     section: section.type,
                     order: idx + 1,
-                };
-            });
-
-            questions.push(...sectionQuestionList);
-        }
-
-        // Shuffle questions if enabled (maintain section order but shuffle within sections)
-        // Note: Shuffling is done after all sections are processed to maintain section grouping
-        if (quiz.shuffleQuestions) {
-            // Group questions by section
-            const questionsBySection = new Map<string, any[]>();
-            questions.forEach((q) => {
-                if (!questionsBySection.has(q.section)) {
-                    questionsBySection.set(q.section, []);
-                }
-                questionsBySection.get(q.section)!.push(q);
-            });
-
-            // Shuffle within each section and update order
-            questions = [];
-            let globalOrder = 1;
-            questionsBySection.forEach((sectionQuestions, sectionType) => {
-                // Shuffle the array
-                const shuffled = this.shuffleArray([...sectionQuestions]);
-                // Update order numbers
-                shuffled.forEach((q) => {
-                    q.order = globalOrder++;
                 });
-                questions.push(...shuffled);
             });
         }
 
+        if (quiz.shuffleQuestions) {
+            questions = this.shuffleWithinSections(questions);
+        }
         return questions;
+    }
+
+    /**
+     * Shuffle questions within each section independently, preserving section order.
+     */
+    private shuffleWithinSections(questions: any[]): any[] {
+        const questionsBySection = new Map<string, any[]>();
+        questions.forEach(q => {
+            if (!questionsBySection.has(q.section)) questionsBySection.set(q.section, []);
+            questionsBySection.get(q.section)!.push(q);
+        });
+        const result: any[] = [];
+        let globalOrder = 1;
+        questionsBySection.forEach(sectionQs => {
+            const shuffled = this.shuffleArray([...sectionQs]);
+            shuffled.forEach(q => { q.order = globalOrder++; });
+            result.push(...shuffled);
+        });
+        return result;
     }
 
     /**
@@ -934,13 +1104,8 @@ export class ExamService implements IExamService {
         this.checkPermission(requester, 'create');
 
         try {
-            // Validate sections
-            if (!dto.sections || dto.sections.length === 0) {
-                throw new BadRequestException('Exam must have at least one section');
-            }
-
-            // Calculate total questions
-            const totalQuestions = this.calculateTotalQuestions(dto.sections);
+            const sections = dto.sections ?? [];
+            const totalQuestions = sections.length > 0 ? this.calculateTotalQuestions(sections) : 0;
 
             // Create quiz
             const quiz = await this.examRepository.create({
@@ -948,7 +1113,7 @@ export class ExamService implements IExamService {
                 description: dto.description || null,
                 quizType: dto.examType, // Map examType to quizType
                 jlptLevel: dto.jlptLevel || null,
-                sections: dto.sections as any,
+                sections: sections as any,
                 totalTime: dto.totalTime || null,
                 totalQuestions: totalQuestions,
                 passingScore: null, // Can be set later
@@ -1080,6 +1245,11 @@ export class ExamService implements IExamService {
     /**
      * Publish an exam/quiz (Staff only)
      * POST /api/v1/admin/exams/:id/publish
+     *
+     * Production flow:
+     * 1. Validate quiz has sections with poolId or questionIds
+     * 2. Generate & freeze questions into QuizQuestion rows (idempotent)
+     * 3. Update totalQuestions + status = published
      */
     async publish(requester: Requester, examId: string): Promise<ExamResponseDTO> {
         this.checkPermission(requester, 'publish');
@@ -1101,11 +1271,83 @@ export class ExamService implements IExamService {
                 throw new BadRequestException('Cannot publish exam without sections');
             }
 
-            const updated = await this.examRepository.update(examId, {
-                status: ExamStatus.PUBLISHED,
+            // --- FREEZE: Generate & persist QuizQuestion rows ---
+            // Delete existing QuizQuestion rows first (idempotent re-publish from draft)
+            await this.prisma.quizQuestion.deleteMany({ where: { quizId: examId } });
+
+            let orderIndex = 0;
+            const quizQuestionRows: {
+                quizId: string;
+                questionId: string;
+                orderIndex: number;
+                points: number;
+                sectionType: string;
+            }[] = [];
+
+            for (const section of sections) {
+                let sectionQuestions: any[] = [];
+
+                if (section.questionIds && section.questionIds.length > 0) {
+                    // Manual selection: use specific questionIds
+                    sectionQuestions = await this.examRepository.findQuestionsByIds(section.questionIds);
+                    sectionQuestions = sectionQuestions.slice(0, section.questionCount || sectionQuestions.length);
+
+                    if (sectionQuestions.length < (section.questionCount || 0)) {
+                        this.logger.warn(
+                            `Section "${section.type}": only ${sectionQuestions.length} of ${section.questionCount} requested questions found`
+                        );
+                    }
+                } else if (section.poolId) {
+                    // Random from pool
+                    sectionQuestions = await this.examRepository.findQuestionsByPool(
+                        section.poolId,
+                        section.questionCount || 10,
+                        section.difficulty,
+                    );
+
+                    if (sectionQuestions.length < (section.questionCount || 0)) {
+                        this.logger.warn(
+                            `Section "${section.type}": pool ${section.poolId} only has ${sectionQuestions.length} active questions (requested ${section.questionCount})`
+                        );
+                    }
+                } else {
+                    throw new BadRequestException(
+                        `Section "${section.type}" must have either "questionIds" (manual) or "poolId" (random) to publish`
+                    );
+                }
+
+                for (const q of sectionQuestions) {
+                    quizQuestionRows.push({
+                        quizId: examId,
+                        questionId: q.id,
+                        orderIndex: orderIndex++,
+                        points: 1.0,
+                        sectionType: section.type,
+                    });
+                }
+            }
+
+            if (quizQuestionRows.length === 0) {
+                throw new BadRequestException('No questions could be selected for this exam. Check that pools have active questions.');
+            }
+
+            // Persist frozen question set
+            await this.prisma.quizQuestion.createMany({ data: quizQuestionRows });
+
+            // Increment usageCount for all selected questions (atomic)
+            const selectedQuestionIds = quizQuestionRows.map(r => r.questionId);
+            await this.prisma.question.updateMany({
+                where: { id: { in: selectedQuestionIds } },
+                data: { usageCount: { increment: 1 } },
             });
 
-            this.logger.log(`Exam ${examId} published by ${requester.sub}`);
+            // Update quiz: totalQuestions (actual count) + status
+            const updated = await this.examRepository.update(examId, {
+                status: ExamStatus.PUBLISHED,
+                totalQuestions: quizQuestionRows.length,
+            } as any);
+
+            this.logger.log(`Exam ${examId} published by ${requester.sub}: ${quizQuestionRows.length} questions frozen`);
             return this.buildExamResponseDTO(updated);
         } catch (error: any) {
             this.logger.error(`Error publishing exam ${examId}: ${error.message}`, error.stack);

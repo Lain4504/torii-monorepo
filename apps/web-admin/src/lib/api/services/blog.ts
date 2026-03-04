@@ -20,6 +20,12 @@ export const blogApi = {
         return response.data;
     },
 
+    // GET /api/blogs/admin
+    async findAllAdmin(params: BlogQueryDTO): Promise<PaginatedApiResponse<BlogResponseDTO>> {
+        const response = await apiClient.get<PaginatedApiResponse<BlogResponseDTO>>('/api/blogs/admin', { params });
+        return response.data;
+    },
+
     // GET /api/blogs/:id
     async findById(id: string): Promise<BlogResponseDTO> {
         const response = await apiClient.get<StandardApiResponse<{ blog: BlogResponseDTO }>>(`/api/blogs/${id}`);
@@ -51,10 +57,10 @@ export const blogApi = {
 /**
  * Hook: Get blog blogs list with pagination and filters
  */
-export function useBlogs(params: BlogQueryDTO) {
+export function useBlogs(params: BlogQueryDTO, isAdmin: boolean = true) {
     return useQuery({
-        queryKey: ['blogs', params],
-        queryFn: () => blogApi.findAll(params),
+        queryKey: ['blogs', params, isAdmin],
+        queryFn: () => isAdmin ? blogApi.findAllAdmin(params) : blogApi.findAll(params),
         staleTime: 30000,
     });
 }

@@ -1,13 +1,13 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { CloudRecordingVariants, RecordingFeatures } from '@workspace/protocol';
 
-import { RecordingType, SelectedRecordingType } from './IRecording';
-import { store } from '../../../../store';
-import Modal from '../../../../helpers/ui/modal';
-import ActionButton from '../../../../helpers/ui/actionButton';
+import { RecordingType, SelectedRecordingType } from '@/components/footer/icons/recording/IRecording';
+import { store } from '@/store';
+import Modal from '@/helpers/ui/modal';
+import ActionButton from '@/helpers/ui/actionButton';
 import RadioOptions, {
   IRadioOption,
-} from '../../../../helpers/ui/radioOptions';
+} from '@/helpers/ui/radioOptions';
 
 interface IRecordingModalProps {
   showModal: boolean;

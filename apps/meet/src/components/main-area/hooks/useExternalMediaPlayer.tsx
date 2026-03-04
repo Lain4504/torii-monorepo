@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import ExternalMediaPlayer from '../../external-media-player';
-import { useCloseSidePanelsOnShow } from './useCloseSidePanelsOnShow';
+import ExternalMediaPlayer from '@/components/external-media-player';
+import { useCloseSidePanelsOnShow } from '@/components/main-area/hooks/useCloseSidePanelsOnShow';
 
 export const useExternalMediaPlayer = (
   isActiveExternalMediaPlayer: boolean,

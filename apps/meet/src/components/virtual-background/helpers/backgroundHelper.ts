@@ -1,4 +1,4 @@
-import { STATIC_ASSETS_PATH, VIRTUAL_BACKGROUND_IMAGES } from '../../../config';
+import { STATIC_ASSETS_PATH, VIRTUAL_BACKGROUND_IMAGES } from '@/config';
 
 export type BackgroundConfig = {
   type: 'none' | 'blur-sm' | 'image';

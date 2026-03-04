@@ -2,10 +2,10 @@ import { Dispatch } from 'react';
 import { NatsSubjects } from '@workspace/protocol';
 import { once } from 'es-toolkit';
 
-import ConnectNats from './ConnectNats';
-import { IErrorPageProps } from '../../components/extra-pages/Error';
-import { IConnectLivekit } from '../livekit/types';
-import { roomConnectionStatus } from '../../components/app/helper';
+import ConnectNats from '@/helpers/nats/ConnectNats';
+import { IErrorPageProps } from '@/components/extra-pages/Error';
+import { IConnectLivekit } from '@/helpers/livekit/types';
+import { roomConnectionStatus } from '@/components/app/helper';
 
 let conn: ConnectNats | undefined = undefined;
 

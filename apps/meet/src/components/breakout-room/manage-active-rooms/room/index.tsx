@@ -7,12 +7,12 @@ import {
 } from '@headlessui/react';
 import { BreakoutRoom } from '@workspace/protocol';
 
-import EndBtn from './endBtn';
-import BreakoutRoomUsers from './users';
-import BreakoutRoomDuration from './duration';
-import JoinBtn from './joinBtn';
-import ExtendDuration from './extendDuration';
-import { BreakoutRoomMessage } from '../..';
+import EndBtn from '@/components/breakout-room/manage-active-rooms/room/endBtn';
+import BreakoutRoomUsers from '@/components/breakout-room/manage-active-rooms/room/users';
+import BreakoutRoomDuration from '@/components/breakout-room/manage-active-rooms/room/duration';
+import JoinBtn from '@/components/breakout-room/manage-active-rooms/room/joinBtn';
+import ExtendDuration from '@/components/breakout-room/manage-active-rooms/room/extendDuration';
+import { BreakoutRoomMessage } from '@/components/breakout-room';
 
 interface RoomItemProps {
   room: BreakoutRoom;

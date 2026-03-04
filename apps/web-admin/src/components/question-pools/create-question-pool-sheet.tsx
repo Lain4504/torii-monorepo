@@ -1,13 +1,14 @@
 import { useForm, Controller } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetDescription,
-    SheetFooter,
-} from '@workspace/ui/components/sheet';
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from '@workspace/ui/components/dialog';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
@@ -37,6 +38,7 @@ interface CreateQuestionPoolDialogProps {
 }
 
 export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionPoolDialogProps) {
+    const navigate = useNavigate();
     const createPool = useCreateQuestionPool();
     const { data: coursesData } = useCourses({ page: 1, limit: 100 });
 
@@ -61,12 +63,15 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
 
     const onSubmit = async (data: CreateQuestionPoolFormData) => {
         try {
-            await createPool.mutateAsync(data);
+            const createdPool = await createPool.mutateAsync(data);
             toast.success('Đã tạo kho đề', {
                 description: `Kho đề "${data.name}" đã được khởi tạo thành công.`
             });
             reset();
             onOpenChange(false);
+            if (createdPool?.id) {
+                navigate(`/question-bank/${createdPool.id}`);
+            }
         } catch (error: any) {
             toast.error('Tạo kho đề thất bại', {
                 description: error.response?.data?.message || 'Đã xảy ra lỗi khi tạo kho đề.'
@@ -75,16 +80,16 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
     };
 
     return (
-        <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
-                <SheetHeader>
-                    <SheetTitle>Tạo Kho Đề Mới</SheetTitle>
-                    <SheetDescription>
-                        Thiết lập các thông tin cơ bản để bắt đầu quản lý kho lưu trữ câu hỏi.
-                    </SheetDescription>
-                </SheetHeader>
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col max-h-[80vh]" noValidate>
+                    <DialogHeader className="px-6 pt-6">
+                        <DialogTitle>Tạo Kho Đề Mới</DialogTitle>
+                        <DialogDescription>
+                            Thiết lập các thông tin cơ bản để bắt đầu quản lý kho lưu trữ câu hỏi.
+                        </DialogDescription>
+                    </DialogHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full overflow-hidden" noValidate>
                     <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
                             <div className="space-y-6">
@@ -182,7 +187,7 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
                         </div>
                     </ScrollArea>
 
-                    <SheetFooter>
+                    <DialogFooter className="px-6 py-4 border-t">
                         <Button
                             type="button"
                             variant="outline"
@@ -207,9 +212,9 @@ export function CreateQuestionPoolDialog({ open, onOpenChange }: CreateQuestionP
                                 </>
                             )}
                         </Button>
-                    </SheetFooter>
+                    </DialogFooter>
                 </form>
-            </SheetContent>
-        </Sheet>
+            </DialogContent>
+        </Dialog>
     );
 }

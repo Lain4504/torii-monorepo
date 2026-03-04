@@ -134,6 +134,27 @@ export const getCourseMasterColumns = ({ onEdit, onDelete, onModules, onPublish,
         ),
         size: 90,
     }),
+    columnHelper.accessor('approvedAt', {
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                    className="-ml-4 h-9 px-4 text-xs font-semibold hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
+                >
+                    Ngày xuất bản
+                    <ArrowUpDown className="ml-2 h-3.5 w-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
+                </Button>
+            );
+        },
+        cell: (info) => (
+            <div className="flex items-center justify-center gap-1.5 text-muted-foreground text-xs tabular-nums font-medium">
+                <Clock className="size-3 opacity-50" />
+                {info.getValue() ? formatDateTime(info.getValue()) : '-'}
+            </div>
+        ),
+        size: 140,
+    }),
     columnHelper.accessor('updatedAt', {
         header: ({ column }) => {
             return (

@@ -1,9 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
 import clsx from 'clsx';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
+import { store, useAppDispatch, useAppSelector } from '@/store';
 import { MessageSquare } from 'lucide-react';
-import { setActiveSidePanel } from '../../../store/slices/bottomIconsActivitySlice';
+import { setActiveSidePanel } from '@/store/slices/bottomIconsActivitySlice';
 
 const ChatIcon = () => {
   const dispatch = useAppDispatch();

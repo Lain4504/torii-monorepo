@@ -4,13 +4,13 @@ import {
   createTexture,
   glsl,
   readPixelsAsync,
-} from '../helpers/webglHelper';
-import { TimerWorker } from '../../helpers/timerHelper';
+} from '@/components/virtual-background/pipelines/helpers/webglHelper';
+import { TimerWorker } from '@/components/virtual-background/helpers/timerHelper';
 import {
   inputResolutions,
   SegmentationConfig,
-} from '../../helpers/segmentationHelper';
-import { TFLite } from '../../helpers/utils';
+} from '@/components/virtual-background/helpers/segmentationHelper';
+import { TFLite } from '@/components/virtual-background/helpers/utils';
 
 export function buildResizingStage(
   timerWorker: TimerWorker,

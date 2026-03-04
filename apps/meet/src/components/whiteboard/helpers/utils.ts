@@ -6,12 +6,12 @@ import {
   OrderedExcalidrawElement,
 } from '@excalidraw/excalidraw/element/types';
 
-import { broadcastSceneOnChange } from './handleRequests';
-import { store } from '../../../store';
-import { sleep } from '../../../helpers/utils';
-import { WHITEBOARD_PRELOADED_LIBRARY_ITEMS } from '../../../config';
-import { ensureImageDataIsLoaded, ImageCustomData } from './handleFiles';
-import { DB_STORE_NAMES, idbGet, idbStore } from '../../../helpers/libs/idb';
+import { broadcastSceneOnChange } from '@/components/whiteboard/helpers/handleRequests';
+import { store } from '@/store';
+import { sleep } from '@/helpers/utils';
+import { WHITEBOARD_PRELOADED_LIBRARY_ITEMS } from '@/config';
+import { ensureImageDataIsLoaded, ImageCustomData } from '@/components/whiteboard/helpers/handleFiles';
+import { DB_STORE_NAMES, idbGet, idbStore } from '@/helpers/libs/idb';
 
 // A simple in-memory cache for preloaded library items.
 const libraryCache = new Map<string, Blob>();

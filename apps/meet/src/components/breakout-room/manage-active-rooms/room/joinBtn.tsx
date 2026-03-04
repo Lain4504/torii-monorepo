@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect } from 'react';
 import { create } from '@bufbuild/protobuf';
 import { JoinBreakoutRoomReqSchema } from '@workspace/protocol';
+import { Button } from '@workspace/ui/components/button';
 
-import { useJoinRoomMutation } from '../../../../store/services/breakoutRoomApi';
-import { BreakoutRoomMessage } from '../..';
-import { store } from '../../../../store';
+import { useJoinRoomMutation } from '@/store/services/breakoutRoomApi';
+import { BreakoutRoomMessage } from '@/components/breakout-room';
+import { store } from '@/store';
 
 interface IJoinBtnProps {
   breakoutRoomId: string;
@@ -49,13 +50,13 @@ const JoinBtn = ({ breakoutRoomId, setMessage }: IJoinBtnProps) => {
 
   return (
     <div className="join-btn mr-1">
-      <button
-        className="h-7 px-3 text-sm font-semibold bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+      <Button
+        size="sm"
         onClick={handleJoin}
         disabled={isLoading}
       >
         Tham gia
-      </button>
+      </Button>
     </div>
   );
 };

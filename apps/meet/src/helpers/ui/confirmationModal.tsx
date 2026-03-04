@@ -1,5 +1,6 @@
 import React from 'react';
-import Modal from './modal';
+import Modal from '@/helpers/ui/modal';
+import { Button } from '@workspace/ui/components/button';
 
 interface IConfirmationModalProps {
   show: boolean;
@@ -18,19 +19,12 @@ const ConfirmationModal = ({
 }: IConfirmationModalProps) => {
   const renderButtons = () => (
     <div className="flex items-center justify-end gap-2">
-      <button
-        className="h-10 px-5 flex items-center justify-center rounded-lg text-sm font-semibold text-destructive-foreground bg-destructive hover:bg-destructive/90 transition-all duration-300 shadow-sm cursor-pointer"
-        onClick={onConfirm}
-      >
+      <Button variant="destructive" onClick={onConfirm}>
         Đồng ý
-      </button>
-      <button
-        type="button"
-        className="h-10 px-5 flex items-center justify-center text-sm font-semibold bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground transition-all duration-300 shadow-sm cursor-pointer"
-        onClick={onClose}
-      >
+      </Button>
+      <Button onClick={onClose}>
         Đóng
-      </button>
+      </Button>
     </div>
   );
 

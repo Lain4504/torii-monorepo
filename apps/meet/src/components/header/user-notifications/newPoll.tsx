@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
-import { setActiveSidePanel } from '../../../store/slices/bottomIconsActivitySlice';
-import { useAppDispatch } from '../../../store';
+import { setActiveSidePanel } from '@/store/slices/bottomIconsActivitySlice';
+import { useAppDispatch } from '@/store';
 import { BarChart2 } from 'lucide-react';
-import ActionButton from '../../../helpers/ui/actionButton';
+import ActionButton from '@/helpers/ui/actionButton';
 
 interface INewPollProps {
   createdAt: number | undefined;

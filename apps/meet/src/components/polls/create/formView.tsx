@@ -8,12 +8,15 @@ import React, {
 import { create } from '@bufbuild/protobuf';
 import { CreatePollReqSchema } from '@workspace/protocol';
 
-import { useCreatePollMutation } from '../../../store/services/pollsApi';
-import { CreatePollOptions } from './index';
-import OptionsView from './optionsView';
-import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
-import { useAppDispatch } from '../../../store';
+import { useCreatePollMutation } from '@/store/services/pollsApi';
+import { CreatePollOptions } from '@/components/polls/create/index';
+import OptionsView from '@/components/polls/create/optionsView';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
+import { useAppDispatch } from '@/store';
 import { Loader2 } from 'lucide-react';
+import {Label} from "@workspace/ui/components/label";
+import {Button} from "@workspace/ui/components/button";
+import {Input} from "@workspace/ui/components/input";
 
 interface FormViewProps {
   setIsOpen: Dispatch<SetStateAction<boolean>>;
@@ -85,17 +88,16 @@ const FormView = ({ setIsOpen }: FormViewProps) => {
   return (
     <form onSubmit={onSubmit}>
       <div className="question-area border-b border-border pb-6 bg-card">
-        <label className="text-sm text-foreground font-medium mb-2 inline-block">
+        <Label className="mb-2 inline-block">
           Nhập câu hỏi
-        </label>
-        <input
+        </Label>
+        <Input
           type="text"
           name="question"
           value={question}
           required={true}
           onChange={(e) => setQuestion(e.currentTarget.value)}
           placeholder="Nhập câu hỏi tại đây"
-          className="default-input"
           autoComplete="off"
         />
       </div>
@@ -108,20 +110,21 @@ const FormView = ({ setIsOpen }: FormViewProps) => {
         </div>
       )}
       <div className="button-section flex items-center gap-2 md:gap-5 pt-4 border-t border-border">
-        <button
-          className="h-10 3xl:h-11 w-full cursor-pointer text-sm 3xl:text-base font-semibold bg-muted hover:bg-muted/80 border border-border rounded-lg flex justify-center items-center gap-2 transition-all duration-300 shadow-sm text-foreground"
+        <Button
+          variant="outline"
+          className="w-full"
           type="button"
           onClick={() => setIsOpen(false)}
         >
           Đóng
-        </button>
-        <button
-          className="h-10 3xl:h-11 w-full cursor-pointer text-sm 3xl:text-base font-semibold bg-primary hover:bg-primary/90 border border-transparent rounded-lg text-primary-foreground transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        </Button>
+        <Button
+          className="w-full"
           type="submit"
           disabled={isLoading}
         >
           Tạo bình chọn
-        </button>
+        </Button>
       </div>
     </form>
   );

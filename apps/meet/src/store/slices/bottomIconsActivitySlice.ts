@@ -4,11 +4,11 @@ import {
   DeviceOrientation,
   IBottomIconsSlice,
   SidePanelType,
-} from './interfaces/bottomIcons';
+} from '@/store/slices/interfaces/bottomIcons';
 import {
   BackgroundConfig,
   defaultBackgroundConfig,
-} from '../../components/virtual-background/helpers/backgroundHelper';
+} from '@/components/virtual-background/helpers/backgroundHelper';
 
 const initialState: IBottomIconsSlice = {
   isActiveMicrophone: false,

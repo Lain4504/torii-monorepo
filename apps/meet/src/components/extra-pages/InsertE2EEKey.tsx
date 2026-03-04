@@ -1,8 +1,11 @@
 import React, { Dispatch, FormEvent } from 'react';
 import { toast } from 'react-toastify';
+import { Button } from '@workspace/ui/components/button';
+import { Input } from '@workspace/ui/components/input';
+import { Label } from '@workspace/ui/components/label';
 
-import { addSelfInsertedE2EESecretKey } from '../../store/slices/roomSettingsSlice';
-import { useAppDispatch } from '../../store';
+import { addSelfInsertedE2EESecretKey } from '@/store/slices/roomSettingsSlice';
+import { useAppDispatch } from '@/store';
 
 export interface IInsertE2EEKeyProps {
   setOpenConn: Dispatch<boolean>;
@@ -44,27 +47,27 @@ const InsertE2EEKey = ({ setOpenConn }: IInsertE2EEKeyProps) => {
         <div className="inner w-full">
           <form className="px-8 pt-6 pb-8 mb-4 font-sans" onSubmit={handleSubmit}>
             <div className="mb-6">
-              <label
-                className="block text-foreground text-lg font-bold mb-4"
+              <Label
+                className="block text-lg font-bold mb-4"
                 htmlFor="secretKey"
               >
                 Nhập khóa bí mật
-              </label>
-              <input
-                className="bg-muted border border-border rounded-lg w-full py-3 px-4 text-foreground mb-3 leading-tight focus:outline-hidden focus:ring-2 focus:ring-primary/50 transition-all duration-300"
+              </Label>
+              <Input
                 id="secretKey"
                 type="password"
                 placeholder="••••••••••••••••"
                 name="secretKey"
+                className="mb-3"
               />
               <p className="text-destructive text-sm italic">
                 Vui lòng nhập khóa bí mật để tiếp tục
               </p>
             </div>
             <div className="flex justify-center">
-              <button className="text-center py-2 px-8 transition duration-300 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl cursor-pointer shadow-md">
+              <Button type="submit" className="px-8">
                 Lưu
-              </button>
+              </Button>
             </div>
           </form>
         </div>

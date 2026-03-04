@@ -7,11 +7,11 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import { IUseCloudRecordingReturn, RecordingType } from './IRecording';
-import sendAPIRequest from '../../../../helpers/api/api-client';
-import { store, useAppDispatch } from '../../../../store';
-import { addUserNotification } from '../../../../store/slices/roomSettingsSlice';
-import { DESIGN_CUSTOMIZATION } from '../../../../config';
+import { IUseCloudRecordingReturn, RecordingType } from '@/components/footer/icons/recording/IRecording';
+import sendAPIRequest from '@/helpers/api/api-client';
+import { store, useAppDispatch } from '@/store';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
+import { DESIGN_CUSTOMIZATION } from '@/config';
 
 const useCloudRecording = (): IUseCloudRecordingReturn => {
   const TYPE_OF_RECORDING = RecordingType.RECORDING_TYPE_CLOUD;

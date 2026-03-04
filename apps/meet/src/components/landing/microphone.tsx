@@ -1,8 +1,8 @@
 import React, { SetStateAction } from 'react';
 import { Menu, MenuButton, MenuItem, Transition } from '@headlessui/react';
 import { Check, Plus, ChevronUp, Mic } from 'lucide-react';
-import { IMediaDevice } from '../../store/slices/interfaces/roomSettings';
-import { inputMediaDeviceKind } from '../../helpers/utils';
+import { IMediaDevice } from '@/store/slices/interfaces/roomSettings';
+import { inputMediaDeviceKind } from '@/helpers/utils';
 
 interface MicrophoneIconProps {
   audioDevices: IMediaDevice[];

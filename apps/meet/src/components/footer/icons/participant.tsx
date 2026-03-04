@@ -1,10 +1,10 @@
 import React, { useCallback, useMemo } from 'react';
 import clsx from 'clsx';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { participantsSelector } from '../../../store/slices/participantSlice';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import { participantsSelector } from '@/store/slices/participantSlice';
 import { Users } from 'lucide-react';
-import { setActiveSidePanel } from '../../../store/slices/bottomIconsActivitySlice';
+import { setActiveSidePanel } from '@/store/slices/bottomIconsActivitySlice';
 
 const ParticipantIcon = () => {
   const dispatch = useAppDispatch();

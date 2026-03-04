@@ -15,8 +15,15 @@ export class CourseHandler {
         return this.courseMasterService.create(requester, dto);
     }
 
+    // --- Shared / legacy findAll (learner catalog, etc.) ---
     @MessagePattern({ cmd: 'learning.coursemaster.findAll' })
     async findAll(@Payload() data: { query: any, requester?: Requester }) {
+        return this.courseMasterService.findAll(data.query);
+    }
+
+    // --- Admin-specific listing (for web-admin) ---
+    @MessagePattern({ cmd: 'learning.coursemaster-admin.findAll' })
+    async findAllAdmin(@Payload() data: { query: any, requester: Requester }) {
         return this.courseMasterService.findAll(data.query);
     }
 

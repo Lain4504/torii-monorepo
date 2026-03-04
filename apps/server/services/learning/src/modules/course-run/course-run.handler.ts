@@ -32,9 +32,23 @@ export class CourseRunHandler {
         return this.courseRunService.findBySlug(data.slug);
     }
 
+    // --- Shared / learner catalog listing ---
     @MessagePattern({ cmd: 'learning.courserun.findAll' })
     async findAll(@Payload() query: CourseRunSearchRequestDTO) {
         return this.courseRunService.findAll(query);
+    }
+
+    // --- Admin-specific listing (for web-admin dashboards) ---
+    @MessagePattern({ cmd: 'learning.courserun-admin.findAll' })
+    async findAllAdmin(@Payload() query: CourseRunSearchRequestDTO & { requester: Requester }) {
+        const { requester, ...filters } = query;
+        return this.courseRunService.findAll(filters);
+    }
+
+    @MessagePattern({ cmd: 'learning.courserun.findMyRuns' })
+    async findMyRuns(@Payload() data: CourseRunSearchRequestDTO & { requester: Requester }) {
+        const { requester, ...query } = data;
+        return this.courseRunService.findMyRuns(requester, query);
     }
 
     @MessagePattern({ cmd: 'learning.courserun.updateStatus' })

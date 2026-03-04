@@ -2,7 +2,7 @@ import React from 'react';
 import { Menu, MenuButton, Transition } from '@headlessui/react';
 import { Room } from 'livekit-client';
 
-import WebcamMenuItems from './items';
+import WebcamMenuItems from '@/components/footer/icons/webcam/menu/items';
 import { ChevronUp } from 'lucide-react';
 
 interface IWebcamMenuProps {

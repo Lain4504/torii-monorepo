@@ -1,8 +1,8 @@
 import { AnalyticsEvents, AnalyticsEventType } from '@workspace/protocol';
 
-import { store } from '../../store';
-import { getNatsConn } from '../../helpers/nats';
-import { SERVER_URL } from '../../config';
+import { store } from '@/store';
+import { getNatsConn } from '@/helpers/nats';
+import { SERVER_URL } from '@/config';
 
 export const publishFileAttachmentToChat = async (
   filePath: string,

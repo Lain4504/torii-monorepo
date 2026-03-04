@@ -8,8 +8,8 @@ import React, {
 import { LocalTrackPublication, RemoteTrackPublication } from 'livekit-client';
 import clsx from 'clsx';
 
-import './style.css';
-import { useAppSelector } from '../../../store';
+import '@/components/media-elements/screenshare/style.css';
+import { useAppSelector } from '@/store';
 import { Loader2, Maximize } from 'lucide-react';
 
 interface IVideoElmProps {

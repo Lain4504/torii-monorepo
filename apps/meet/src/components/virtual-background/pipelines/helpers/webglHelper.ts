@@ -1,4 +1,4 @@
-import { TimerWorker } from '../../helpers/timerHelper';
+import { TimerWorker } from '@/components/virtual-background/helpers/timerHelper';
 
 /**
  * Use it along with boyswan.glsl-literal VSCode extension

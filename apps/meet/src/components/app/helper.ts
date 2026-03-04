@@ -7,11 +7,11 @@ import {
   VerifyTokenResSchema,
 } from '@workspace/protocol';
 
-import sendAPIRequest from '../../helpers/api/api-client';
-import { IErrorPageProps } from '../extra-pages/Error';
-import { getAccessToken } from '../../helpers/utils';
-import { store } from '../../store';
-import { updateIsCloud } from '../../store/slices/sessionSlice';
+import sendAPIRequest from '@/helpers/api/api-client';
+import { IErrorPageProps } from '@/components/extra-pages/Error';
+import { getAccessToken } from '@/helpers/utils';
+import { store } from '@/store';
+import { updateIsCloud } from '@/store/slices/sessionSlice';
 
 declare const IS_PRODUCTION: boolean;
 

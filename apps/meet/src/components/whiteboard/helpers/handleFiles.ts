@@ -10,18 +10,18 @@ import {
 import {
   randomInteger,
   randomString,
-} from '../../../helpers/utils';
-import { SERVER_URL } from '../../../config';
+} from '@/helpers/utils';
+import { SERVER_URL } from '@/config';
 import { RoomUploadedFileType } from '@workspace/protocol';
-import { store } from '../../../store';
-import { uploadBase64EncodedFile } from '../../../helpers/fileUpload';
+import { store } from '@/store';
+import { uploadBase64EncodedFile } from '@/helpers/fileUpload';
 import {
   IWhiteboardFile,
   IWhiteboardOfficeFile,
   WhiteboardFileConversionRes,
-} from '../../../store/slices/interfaces/whiteboard';
-import { DB_STORE_NAMES, idbGet, idbStore } from '../../../helpers/libs/idb';
-import { addWhiteboardUploadedOfficeFile } from '../../../store/slices/whiteboard';
+} from '@/store/slices/interfaces/whiteboard';
+import { DB_STORE_NAMES, idbGet, idbStore } from '@/helpers/libs/idb';
+import { addWhiteboardUploadedOfficeFile } from '@/store/slices/whiteboard';
 
 export interface FileReaderResult {
   image: BinaryFileData;

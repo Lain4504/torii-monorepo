@@ -39,7 +39,7 @@ const STATUS_CONFIG = {
     icon: CheckCircle2,
     color: 'bg-green-100 text-green-700 border-green-300',
     label: 'Đã công bố',
-    description: 'Khóa học đang được công bố và có thể được đăng ký bởi học viên.',
+    description: '',
   },
   [CourseMasterStatus.REJECTED]: {
     icon: XCircle,
@@ -127,42 +127,19 @@ export function CourseStatusHeader({
           </Button>
         )}
 
-        {isPublished && canPublish && (
-          <div className="text-xs text-muted-foreground">
-            Công bố vào: {new Date(course.approvedAt || '').toLocaleDateString('vi-VN')}
-          </div>
-        )}
+        {/* Ẩn thông tin ngày công bố theo yêu cầu */}
       </div>
 
-      {/* Status Description Alert */}
-      <Alert className={`border ${config.color}`}>
-        <AlertDescription className={config.color}>
-          {config.description}
-        </AlertDescription>
-      </Alert>
-
-      {/* Published Warning */}
-      {isPublished && !canPublish && canUpdate && (
-        <Alert className="border-blue-300 bg-blue-50">
-          <AlertTriangle className="h-4 w-4 text-blue-600" />
-          <AlertDescription className="text-blue-700 text-sm">
-            <strong>Để cập nhật nội dung khóa học đã xuất bản:</strong> Bạn có thể chỉnh sửa module/lesson. 
-            Sau khi hoàn tất các thay đổi, hãy nhấn nút "Gửi bản cập nhật để kiểm duyệt" ở trên. 
-            Học viên hiện tại sẽ tiếp tục học với phiên bản cũ cho đến khi admin phê duyệt bản cập nhật mới.
+      {/* Status Description Alert (bỏ qua nếu không có mô tả) */}
+      {config.description && (
+        <Alert className={`border ${config.color}`}>
+          <AlertDescription className={config.color}>
+            {config.description}
           </AlertDescription>
         </Alert>
       )}
 
-      {isPublished && canPublish && (
-        <Alert className="border-orange-300 bg-orange-50">
-          <AlertTriangle className="h-4 w-4 text-orange-600" />
-          <AlertDescription className="text-orange-700 text-sm">
-            <strong>Quản trị viên:</strong> Khi instructor cập nhật nội dung, họ sẽ gửi yêu cầu kiểm duyệt. 
-            Bạn có thể phê duyệt để tạo phiên bản mới. Học viên hiện tại sẽ tiếp tục xem phiên bản cũ 
-            cho đến khi phê duyệt.
-          </AlertDescription>
-        </Alert>
-      )}
+      {/* Bỏ các cảnh báo dài cho trạng thái đã công bố theo yêu cầu */}
 
       {/* Pending Review Notice */}
       {isPendingReview && (

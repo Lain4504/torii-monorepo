@@ -41,13 +41,13 @@ export const academicNavItems: NavItem[] = [
         icon: Home,
     },
     {
-        titleKey: "Khung chương trình",
-        url: "/course-master",
+        titleKey: "Giảng dạy",
+        url: "/teaching",
         icon: BookOpen,
         anyPermission: ["course.create", "course.update", "course.publish", "course.view_restricted", "course.view_my"],
         items: [
-            { titleKey: "Khung chương trình của tôi", url: "/course-master/my", permission: "course.view_my" },
-            { titleKey: "Quản lý Khung chương trình", url: "/course-master", permission: "course.view_restricted" },
+            { titleKey: "Lớp học của tôi", url: "/my-classes", permission: "course.view_my" },
+            { titleKey: "Khung chương trình", url: "/course-master", permission: "course.view_restricted" },
             { titleKey: "Phản hồi học viên", url: "/course-master/reviews", anyPermission: ["course.update", "course.view_restricted"] },
             { titleKey: "Yêu cầu đổi lịch", url: "/course-master/requests", anyPermission: ["course.update", "course.view_restricted", "schedule.view"] },
         ]

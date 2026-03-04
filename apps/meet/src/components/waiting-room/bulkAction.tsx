@@ -1,7 +1,8 @@
 import React from 'react';
+import { Button } from '@workspace/ui/components/button';
 
-import { IParticipant } from '../../store/slices/interfaces/participant';
-import sendAPIRequest from '../../helpers/api/api-client';
+import { IParticipant } from '@/store/slices/interfaces/participant';
+import sendAPIRequest from '@/helpers/api/api-client';
 import {
   ApproveWaitingUsersReqSchema,
   CommonResponseSchema,
@@ -9,8 +10,8 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import { store, useAppDispatch } from '../../store';
-import { addUserNotification } from '../../store/slices/roomSettingsSlice';
+import { store, useAppDispatch } from '@/store';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
 
 interface IBulkActionProps {
   waitingParticipants: IParticipant[];
@@ -78,18 +79,19 @@ const BulkAction = ({ waitingParticipants }: IBulkActionProps) => {
 
   return (
     <div className="bottom-area pt-4 mt-4 text-foreground border-t border-border flex justify-end gap-2 sm:gap-5 -mx-4 px-4">
-      <button
+      <Button
         onClick={approveEveryone}
-        className="h-9 w-full cursor-pointer flex items-center justify-center rounded-lg text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary/90 transition-all duration-300 shadow-sm disabled:opacity-50"
+        className="w-full"
       >
         Chấp nhận tất cả
-      </button>
-      <button
+      </Button>
+      <Button
         onClick={rejectEveryone}
-        className="h-9 w-full cursor-pointer flex items-center justify-center rounded-lg text-sm font-semibold text-destructive-foreground bg-destructive hover:bg-destructive/90 transition-all duration-300 shadow-sm disabled:opacity-50"
+        variant="destructive"
+        className="w-full"
       >
         Từ chối tất cả
-      </button>
+      </Button>
     </div>
   );
 };

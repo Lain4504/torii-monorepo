@@ -9,17 +9,17 @@ import {
     NatsSystemNotificationTypes,
 } from '@workspace/protocol';
 
-import { store } from '../../store';
+import { store } from '@/store';
 import {
     addUserNotification,
     updatePlayAudioNotification,
-} from '../../store/slices/roomSettingsSlice';
-import { pollsApi } from '../../store/services/pollsApi';
-import { updateReceivedInvitationFor } from '../../store/slices/breakoutRoomSlice';
-import { breakoutRoomApi } from '../../store/services/breakoutRoomApi';
-import { addChatMessage } from '../../store/slices/chatMessagesSlice';
-import { randomString } from '../utils';
-import { updateAiTextChat } from '../../store/slices/insightsAiTextChatSlice';
+} from '@/store/slices/roomSettingsSlice';
+import { pollsApi } from '@/store/services/pollsApi';
+import { updateReceivedInvitationFor } from '@/store/slices/breakoutRoomSlice';
+import { breakoutRoomApi } from '@/store/services/breakoutRoomApi';
+import { addChatMessage } from '@/store/slices/chatMessagesSlice';
+import { randomString } from '@/helpers/utils';
+import { updateAiTextChat } from '@/store/slices/insightsAiTextChatSlice';
 
 export default class HandleSystemData {
     private readonly userId: string;

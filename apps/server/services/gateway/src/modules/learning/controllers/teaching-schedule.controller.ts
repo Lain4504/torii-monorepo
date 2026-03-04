@@ -81,7 +81,7 @@ export class TeachingScheduleController {
     }
 
     @Post('requests')
-    @Permissions('live_class.schedule', 'schedule.view')
+    @Permissions('live_class.schedule', 'schedule.view', 'live_class.request_change')
     async createRequest(
         @Req() req: ReqWithRequester,
         @Body() dto: ScheduleRequestCreateDTO
@@ -97,7 +97,7 @@ export class TeachingScheduleController {
     }
 
     @Get('requests/pending')
-    @Permissions('live_class.schedule', 'schedule.view')
+    @Permissions('live_class.schedule', 'schedule.view', 'live_class.request_change')
     async getPendingRequests(@Req() req: ReqWithRequester) {
         const requester = req.requester;
         const data = await firstValueFrom(

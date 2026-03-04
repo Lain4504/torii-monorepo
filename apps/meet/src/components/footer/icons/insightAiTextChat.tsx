@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo } from 'react';
 import clsx from 'clsx';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { updateIsActiveInsightsAiTextChat } from '../../../store/slices/bottomIconsActivitySlice';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import { updateIsActiveInsightsAiTextChat } from '@/store/slices/bottomIconsActivitySlice';
 import { Bot } from 'lucide-react';
 
 const InsightsAiTextChatIcon = () => {

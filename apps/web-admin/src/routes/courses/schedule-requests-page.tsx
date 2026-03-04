@@ -39,7 +39,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@workspace/ui/components/textarea';
 import { useCreateScheduleRequest, useCheckAvailabilityQuery, useTeachingSchedules } from '@/lib/api/services/live-sessions';
 import { Spinner } from "@workspace/ui/components/spinner";
-import { useCourses } from '@/lib/api/services/courses';
+import { useMyCourseRuns } from '@/lib/api/services/course-runs';
 import { AlertCircle } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
 import {
@@ -249,12 +249,14 @@ export default function ScheduleRequestsPage() {
     );
 }
 
+import { CourseRunStatus } from '@workspace/schemas';
+
 // Internal component for creating a request from the list page
 function CreateGlobalScheduleRequestDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
     const user = useSelector(selectUser);
-    const { data: courses } = useCourses({ instructorId: user?.id, limit: 100, page: 1 });
-    const [selectedCourseId, setSelectedCourseId] = useState<string>('');
-    const { data: schedules } = useTeachingSchedules(selectedCourseId);
+    const { data: runsData } = useMyCourseRuns({ limit: 100, page: 1, status: CourseRunStatus.IN_PROGRESS });
+    const [selectedCourseRunId, setSelectedCourseRunId] = useState<string>('');
+    const { data: schedules } = useTeachingSchedules(selectedCourseRunId);
     const [selectedSchedule, setSelectedSchedule] = useState<TeachingScheduleResponseDTO | null>(null);
 
     const createMutation = useCreateScheduleRequest();
@@ -283,7 +285,7 @@ function CreateGlobalScheduleRequestDialog({ open, onOpenChange }: { open: boole
     const isAvailable = availabilityResult?.available ?? true;
 
     const onSubmit = async (values: any) => {
-        if (!selectedSchedule || !selectedCourseId) {
+        if (!selectedSchedule || !selectedCourseRunId) {
             toast.error('Vui lòng chọn khóa học và lịch dạy');
             return;
         }
@@ -292,13 +294,13 @@ function CreateGlobalScheduleRequestDialog({ open, onOpenChange }: { open: boole
             await createMutation.mutateAsync({
                 ...values,
                 lecturerId: user?.id,
-                courseId: selectedCourseId,
+                courseRunId: selectedCourseRunId,
                 originalScheduleId: selectedSchedule.id,
             });
             toast.success('Đã gửi yêu cầu thay đổi lịch dạy');
             onOpenChange(false);
             form.reset();
-            setSelectedCourseId('');
+            setSelectedCourseRunId('');
             setSelectedSchedule(null);
         } catch {
             toast.error('Có lỗi xảy ra khi gửi yêu cầu');
@@ -318,19 +320,19 @@ function CreateGlobalScheduleRequestDialog({ open, onOpenChange }: { open: boole
                 <div className="space-y-4 py-4">
                     <Field>
                         <FieldLabel>Khóa học</FieldLabel>
-                        <Select onValueChange={setSelectedCourseId} value={selectedCourseId}>
+                        <Select onValueChange={setSelectedCourseRunId} value={selectedCourseRunId}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Chọn khóa học" />
                             </SelectTrigger>
                             <SelectContent>
-                                {courses?.data?.map(c => (
+                                {runsData?.data?.map((c: any) => (
                                     <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
                     </Field>
 
-                    {selectedCourseId && (
+                    {selectedCourseRunId && (
                         <Field>
                             <FieldLabel>Lịch dạy hiện tại</FieldLabel>
                             <Select
