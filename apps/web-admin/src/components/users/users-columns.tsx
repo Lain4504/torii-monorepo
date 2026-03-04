@@ -183,6 +183,27 @@ export const getUsersColumns = ({ onEdit, onChangeStatus, page, limit }: UsersCo
         },
         size: 130,
     }),
+    columnHelper.accessor('createdAt', {
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                    className="-ml-3 h-8 px-3 text-xs font-semibold hover:bg-muted transition-all group rounded-md"
+                >
+                    Ngày đăng ký
+                    <ArrowUpDown className="ml-2 h-3 w-3 text-muted-foreground opacity-50 group-hover:opacity-100 transition-opacity" />
+                </Button>
+            );
+        },
+        cell: (info) => (
+            <div className="flex items-center gap-2 text-muted-foreground/60 tabular-nums text-[11px] font-medium">
+                <Clock className="size-3 text-muted-foreground/30" />
+                {formatDateTime(info.getValue())}
+            </div>
+        ),
+        size: 160,
+    }),
     columnHelper.accessor('lastSignInAt', {
         header: ({ column }) => {
             return (

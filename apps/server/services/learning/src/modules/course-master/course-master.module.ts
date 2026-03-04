@@ -9,11 +9,14 @@ import { EnrollmentModule } from '@server/learning/modules/enrollment/enrollment
 import { COURSE_MASTER_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 import { COURSE_MASTER_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 
+import { CourseHandler } from './course.handler';
+
 /**
  * Course Master Feature Module
  * Handles course master management operations
  */
 @Module({
+  controllers: [CourseHandler],
   imports: [
     NatsClientModule,
     forwardRef(() => ModuleModule),

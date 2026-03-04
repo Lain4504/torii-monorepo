@@ -5,6 +5,7 @@ import { BlogRepository } from '@server/learning/modules/blog/blog.repository';
 import { BlogProfile } from '@server/learning/infrastructure/mappings/blog.profile';
 import { BlogAnalyticsService } from '@server/learning/modules/blog/blog-analytics.service';
 import { BlogAnalyticsScheduler } from '@server/learning/modules/blog/blog-analytics.scheduler';
+import { BlogHandler } from '@server/learning/modules/blog/blog.handler';
 
 /**
  * Blog Feature Module
@@ -12,7 +13,7 @@ import { BlogAnalyticsScheduler } from '@server/learning/modules/blog/blog-analy
  */
 @Module({
     imports: [PrismaModule, NatsClientModule],
-    controllers: [],
+    controllers: [BlogHandler],
     providers: [BlogRepository, BlogService, BlogProfile, BlogAnalyticsService, BlogAnalyticsScheduler],
     exports: [BlogService, BlogAnalyticsService],
 })

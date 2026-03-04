@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { UsersPrimaryToolbar } from '@/components/users/users-primary-toolbar.tsx';
 import { UsersTable } from '@/components/users/users-table.tsx';
-import { CreateUserSheet } from '@/components/users/create-user-sheet.tsx';
+import { CreateUserDialog } from '@/components/users/create-user-dialog.tsx';
 import { ChangeUserRoleDialog } from '@/components/users/change-user-role-dialog.tsx';
 import { ChangeUserStatusDialog } from '@/components/users/change-user-status-dialog.tsx';
 import { ViewUserSheet } from '@/components/users/view-user-sheet.tsx';
@@ -26,7 +26,7 @@ export default function PersonnelPage() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const [debouncedSearch] = useDebounceValue(search, 500);
-    const [sortBy, setSortBy] = useState('updatedAt');
+    const [sortBy, setSortBy] = useState('createdAt');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
     // Dialog States
@@ -139,7 +139,7 @@ export default function PersonnelPage() {
             </div>
 
             {/* Sheets & Dialogs */}
-            <CreateUserSheet
+            <CreateUserDialog
                 open={createDialog.value}
                 onOpenChange={createDialog.setValue}
                 fixedRole={isLecturers ? UserRole.LECTURER : UserRole.STAFF}

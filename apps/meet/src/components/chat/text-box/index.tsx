@@ -17,6 +17,8 @@ import { useAutosizeTextArea } from './useAutosizeTextArea';
 import { uploadResumableFile } from '../../../helpers/fileUpload';
 import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
 import { Send } from 'lucide-react';
+import { Textarea } from '@workspace/ui/components/textarea';
+import { Button } from '@workspace/ui/components/button';
 
 const urlRegex =
   /(\b(https?):\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%?=~_|])/gi;

@@ -13,13 +13,13 @@ export class BlogHandler {
     }
 
     @MessagePattern({ cmd: 'learning.blog.findBySlug' })
-    async findBySlug(@Payload() data: { slug: string }) {
-        return this.blogService.findBlogBySlug(data.slug);
+    async findBySlug(@Payload() data: { slug: string, showScheduled?: boolean }) {
+        return this.blogService.findBlogBySlug(data.slug, data.showScheduled);
     }
 
     @MessagePattern({ cmd: 'learning.blog.findById' })
-    async findById(@Payload() data: { id: string }) {
-        return this.blogService.findBlogById(data.id);
+    async findById(@Payload() data: { id: string, showScheduled?: boolean }) {
+        return this.blogService.findBlogById(data.id, data.showScheduled);
     }
 
     @MessagePattern({ cmd: 'learning.blog.incrementView' })

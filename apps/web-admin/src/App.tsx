@@ -37,6 +37,7 @@ import NotificationsPage from '@/routes/notification/notifications-page.tsx'
 import SettingsPage from '@/routes/settings/settings-page.tsx'
 import ProfilePage from '@/routes/profile/profile-page.tsx'
 import { BlogPage } from '@/routes/blog/blog-page.tsx'
+import EditBlogPage from '@/routes/blog/edit-blog-page.tsx'
 import QuestionPoolsPage from '@/routes/question-pools/question-pools-page.tsx'
 import PoolDetailPage from '@/routes/question-pools/pool-detail-page.tsx'
 
@@ -111,6 +112,7 @@ function App() {
 
                   <Route element={<RoutePermissionGuard anyPermission={["blog.manage", "blog.write"]} />}>
                     <Route path="blogs" element={<BlogPage />} />
+                    <Route path="blogs/:id/edit" element={<EditBlogPage />} />
                   </Route>
 
                   {/* Question Bank */}

@@ -9,6 +9,8 @@ import {
 import { store, useAppSelector } from '../../../store';
 import SettingsSwitch from '../../../helpers/ui/settingsSwitch';
 import sendAPIRequest from '../../../helpers/api/api-client';
+import { Textarea } from '@workspace/ui/components/textarea';
+import { Button } from '@workspace/ui/components/button';
 
 interface MeetingSummarizationProps {
   setErrorMsg: React.Dispatch<React.SetStateAction<string | undefined>>;
@@ -141,7 +143,7 @@ const MeetingSummarization = ({
                 >
                   Lời nhắc tóm tắt
                 </label>
-                <textarea
+                <Textarea
                   name="summarizationPrompt"
                   id="summarizationPrompt"
                   className="w-full outline-none text-sm text-foreground p-3 border border-border rounded-lg resize-y bg-card transition-all focus:ring-1 focus:ring-primary focus:border-primary"
@@ -157,22 +159,22 @@ const MeetingSummarization = ({
 
       <div className="px-6 py-6 border-t border-border flex justify-end items-center gap-4 rounded-b-xl bg-card">
         {!meetingSummarizationFeatures?.isEnabled ? (
-          <button
+          <Button
             className="h-10 px-8 w-auto cursor-pointer text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-all duration-300 shadow-sm"
             onClick={() => enableOrUpdateService()}
           >
             Bắt đầu dịch vụ
-          </button>
+          </Button>
         ) : (
-          <button
+          <Button
             className="h-10 px-8 w-auto cursor-pointer text-sm font-semibold bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-lg transition-all duration-300 shadow-sm"
             onClick={() => stopService()}
           >
             Dừng dịch vụ
-          </button>
+          </Button>
         )}
       </div>
-      捉    </>
+    </>
   );
 };
 

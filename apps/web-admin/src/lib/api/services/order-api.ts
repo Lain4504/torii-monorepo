@@ -17,6 +17,21 @@ export const orderApi = {
         return response.data;
     },
 
+    async exportOrders(query?: OrderQueryDTO): Promise<void> {
+        const response = await apiClient.post('/api/orders/export', query, {
+            responseType: 'blob',
+        });
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `orders-export-${new Date().getTime()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+    },
+
     /**
      * Get order statistics
      */

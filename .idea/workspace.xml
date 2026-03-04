@@ -4,51 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update meet to user shadcn ui component">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update core lms flow">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/agents/src/assets/prompts/assessment/placement-evaluation.md" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/agents/src/assets/prompts/assessment/placement-evaluation.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/agents/src/assets/prompts/assessment/test-evaluation.md" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/agents/src/assets/prompts/assessment/test-evaluation.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/agents/src/modules/assessment/assessment.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/agents/src/modules/assessment/assessment.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/agents/src/modules/assessment/assessment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/agents/src/modules/assessment/assessment.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/exam.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/exam.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/teaching-schedule.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/teaching-schedule.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/ticket.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/infrastructure/mappings/assignment.profile.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/infrastructure/mappings/assignment.profile.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/infrastructure/mappings/teaching-schedule.profile.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/infrastructure/mappings/teaching-schedule.profile.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/repositories/i-exam.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/repositories/i-exam.repository.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/repositories/i-ticket.repository.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-exam.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-exam.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/interfaces/services/i-ticket.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/modules/assignment/assignment.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/modules/assignment/assignment.repository.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/modules/assignment/assignment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/modules/assignment/assignment.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/modules/course-master/course-master.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/modules/course-master/course-master.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/modules/course-run/course-run.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/modules/course-run/course-run.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/modules/exam/exam.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/modules/exam/exam.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/modules/exam/exam.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/modules/exam/exam.repository.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/modules/exam/exam.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/modules/exam/exam.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/modules/learning-progress/learning-progress.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/modules/learning-progress/learning-progress.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/modules/lesson/lesson.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/modules/lesson/lesson.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/modules/module/module.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/modules/module/module.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/modules/teaching-schedule/teaching-schedule.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/modules/teaching-schedule/teaching-schedule.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/modules/ticket/ticket.handler.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/modules/ticket/ticket.module.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/modules/ticket/ticket.repository.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/modules/ticket/ticket.service.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/storage/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/storage/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/assignments/create-assignment-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/assignments/create-assignment-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/courses/create-schedule-request-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/courses/create-schedule-request-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/question-pools/pool-questions-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/question-pools/pool-questions-table.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/quizzes/create-quiz-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/quizzes/create-quiz-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/quizzes/edit-quiz-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/quizzes/edit-quiz-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/quizzes/quizzes-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/quizzes/quizzes-table.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/live-sessions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/live-sessions.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/quizzes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/quizzes.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-master-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-master-detail-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-run-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/course-run-detail-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/schedule-requests-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/courses/schedule-requests-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/question-pools/pool-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/question-pools/pool-detail-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/live-session.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/live-session.dto.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -304,15 +261,7 @@
       <workItem from="1772601369093" duration="1047000" />
       <workItem from="1772602430606" duration="2000" />
       <workItem from="1772602449755" duration="8209000" />
-      <workItem from="1772616293477" duration="1636000" />
-    </task>
-    <task id="LOCAL-00887" summary="refactor: Rename courseId to courseMasterId and update related references across models and services">
-      <option name="closed" value="true" />
-      <created>1772373557646</created>
-      <option name="number" value="00887" />
-      <option name="presentableId" value="LOCAL-00887" />
-      <option name="project" value="LOCAL" />
-      <updated>1772373557646</updated>
+      <workItem from="1772616293477" duration="1966000" />
     </task>
     <task id="LOCAL-00888" summary="refactor: Rename courseId to courseMasterId and update related references across models and services">
       <option name="closed" value="true" />
@@ -698,7 +647,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772618223371</updated>
     </task>
-    <option name="localTasksCounter" value="936" />
+    <task id="LOCAL-00936" summary="update core lms flow">
+      <option name="closed" value="true" />
+      <created>1772618249621</created>
+      <option name="number" value="00936" />
+      <option name="presentableId" value="LOCAL-00936" />
+      <option name="project" value="LOCAL" />
+      <updated>1772618249621</updated>
+    </task>
+    <option name="localTasksCounter" value="937" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -754,7 +711,8 @@
     <MESSAGE value="feat(billing): restructure billing service modules and interfaces" />
     <MESSAGE value="add comment for interface" />
     <MESSAGE value="update meet to user shadcn ui component" />
-    <option name="LAST_COMMIT_MESSAGE" value="update meet to user shadcn ui component" />
+    <MESSAGE value="update core lms flow" />
+    <option name="LAST_COMMIT_MESSAGE" value="update core lms flow" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
