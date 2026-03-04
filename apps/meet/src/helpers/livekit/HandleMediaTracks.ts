@@ -9,27 +9,27 @@ import {
   TrackPublication,
 } from 'livekit-client';
 
-import { IConnectLivekit } from './types';
-import { store } from '../../store';
+import { IConnectLivekit } from '@/helpers/livekit/types';
+import { store } from '@/store';
 import {
   participantsSelector,
   updateParticipant,
-} from '../../store/slices/participantSlice';
-import { updateIsMicMuted } from '../../store/slices/bottomIconsActivitySlice';
+} from '@/store/slices/participantSlice';
+import { updateIsMicMuted } from '@/store/slices/bottomIconsActivitySlice';
 import {
   ICurrentUser,
   IRoomMetadata,
-} from '../../store/slices/interfaces/session';
-import { updatePinCamUserId } from '../../store/slices/roomSettingsSlice';
+} from '@/store/slices/interfaces/session';
+import { updatePinCamUserId } from '@/store/slices/roomSettingsSlice';
 import {
   addOrUpdateSpeaker,
   removeOneSpeaker,
-} from '../../store/slices/activeSpeakersSlice';
+} from '@/store/slices/activeSpeakersSlice';
 import {
   addAudioStream,
   removeAudioStream,
-} from '../libs/AudioActivityManager';
-import {toWajlcUserId} from '../utils';
+} from '@/helpers/libs/AudioActivityManager';
+import {toWajlcUserId} from '@/helpers/utils';
 
 export default class HandleMediaTracks {
   private connectLivekit: IConnectLivekit;

@@ -4,7 +4,7 @@ import { create } from '@bufbuild/protobuf';
 import { Button } from '@workspace/ui/components/button';
 import { Textarea } from '@workspace/ui/components/textarea';
 
-import { useBroadcastBreakoutRoomMsgMutation } from '../../../store/services/breakoutRoomApi';
+import { useBroadcastBreakoutRoomMsgMutation } from '@/store/services/breakoutRoomApi';
 import { BreakoutRoomMessage } from '..';
 
 interface IBroadcastMessageFormProps {

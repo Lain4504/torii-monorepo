@@ -1,4 +1,4 @@
-import { PostProcessingConfig } from './postProcessingHelper';
+import { PostProcessingConfig } from '@/components/virtual-background/helpers/postProcessingHelper';
 
 export type RenderingPipeline = {
   render(): Promise<void>;

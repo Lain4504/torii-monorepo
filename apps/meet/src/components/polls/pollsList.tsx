@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 
-import { useGetPollListsQuery } from '../../store/services/pollsApi';
-import PollItem from './pollItem';
+import { useGetPollListsQuery } from '@/store/services/pollsApi';
+import PollItem from '@/components/polls/pollItem';
 import { Loader2 } from 'lucide-react';
 
 const PollsList = () => {

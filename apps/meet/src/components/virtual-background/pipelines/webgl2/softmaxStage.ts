@@ -1,14 +1,14 @@
 import {
   inputResolutions,
   SegmentationConfig,
-} from '../../helpers/segmentationHelper';
+} from '@/components/virtual-background/helpers/segmentationHelper';
 import {
   compileShader,
   createPiplelineStageProgram,
   createTexture,
   glsl,
-} from '../helpers/webglHelper';
-import { TFLite } from '../../helpers/utils';
+} from '@/components/virtual-background/pipelines/helpers/webglHelper';
+import { TFLite } from '@/components/virtual-background/helpers/utils';
 
 export function buildSoftmaxStage(
   gl: WebGL2RenderingContext,

@@ -1,12 +1,12 @@
 import React, { useCallback, useMemo } from 'react';
 
-import { store, useAppDispatch, useAppSelector } from '../../../../store';
-import FooterMenuItem from './menuItem';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import FooterMenuItem from '@/components/footer/icons/menus/menuItem';
 import {
   setActiveSidePanel,
   updateDisplaySpeechSettingOptionsModal,
   updateIsActiveWhiteboard,
-} from '../../../../store/slices/bottomIconsActivitySlice';
+} from '@/store/slices/bottomIconsActivitySlice';
 import { BarChart2, PenTool, Captions } from 'lucide-react';
 
 const IconsInMenu = () => {

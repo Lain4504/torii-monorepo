@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ChatFeatures, RoomUploadedFileType } from '@workspace/protocol';
 
-import { useAppDispatch } from '../../../store';
-import useResumableFilesUpload from '../../../helpers/hooks/useResumableFilesUpload';
-import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
+import { useAppDispatch } from '@/store';
+import useResumableFilesUpload from '@/helpers/hooks/useResumableFilesUpload';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
 import { Loader2, Paperclip } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 

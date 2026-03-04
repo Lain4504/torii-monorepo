@@ -6,9 +6,9 @@ import {
   InsightsAIMeetingSummarizationConfigReqSchema,
 } from '@workspace/protocol';
 
-import { store, useAppSelector } from '../../../store';
-import SettingsSwitch from '../../../helpers/ui/settingsSwitch';
-import sendAPIRequest from '../../../helpers/api/api-client';
+import { store, useAppSelector } from '@/store';
+import SettingsSwitch from '@/helpers/ui/settingsSwitch';
+import sendAPIRequest from '@/helpers/api/api-client';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { Button } from '@workspace/ui/components/button';
 

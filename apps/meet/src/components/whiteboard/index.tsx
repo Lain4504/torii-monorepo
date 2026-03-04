@@ -30,36 +30,36 @@ import { Paperclip } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 
 import '@excalidraw/excalidraw/index.css';
-import './style.css';
+import '@/components/whiteboard/style.css';
 
-import ManageOfficeFilesModal from './manage-office-files';
-import FooterUI from './footerUI';
+import ManageOfficeFilesModal from '@/components/whiteboard/manage-office-files';
+import FooterUI from '@/components/whiteboard/footerUI';
 
-import { store, useAppDispatch, useAppSelector } from '../../store';
+import { store, useAppDispatch, useAppSelector } from '@/store';
 import {
   broadcastAppStateChanges,
   broadcastCurrentFileId,
   broadcastMousePointerUpdate,
   broadcastSceneOnChange,
   sendClearWhiteboardSignal,
-} from './helpers/handleRequests';
-import usePrevious from './helpers/hooks/usePrevious';
-import useWhiteboardSetup from './helpers/hooks/useWhiteboardSetup';
-import useWhiteboardDataSharer from './helpers/hooks/useWhiteboardDataSharer';
-import useWhiteboardAppStateSync from './helpers/hooks/useWhiteboardAppStateSync';
-import useOfficePageSyncer from './helpers/hooks/useOfficePageSyncer';
+} from '@/components/whiteboard/helpers/handleRequests';
+import usePrevious from '@/components/whiteboard/helpers/hooks/usePrevious';
+import useWhiteboardSetup from '@/components/whiteboard/helpers/hooks/useWhiteboardSetup';
+import useWhiteboardDataSharer from '@/components/whiteboard/helpers/hooks/useWhiteboardDataSharer';
+import useWhiteboardAppStateSync from '@/components/whiteboard/helpers/hooks/useWhiteboardAppStateSync';
+import useOfficePageSyncer from '@/components/whiteboard/helpers/hooks/useOfficePageSyncer';
 import {
   addAllExcalidrawElements,
   updateExcalidrawElements,
   updateMousePointerLocation,
-} from '../../store/slices/whiteboard';
+} from '@/store/slices/whiteboard';
 import {
   displaySavedPageData,
   ensureAllImagesDataIsLoaded,
   savePageData,
-} from './helpers/utils';
-import { sleep } from '../../helpers/utils';
-import { cleanProcessedImageElementsMap } from './helpers/handleFiles';
+} from '@/components/whiteboard/helpers/utils';
+import { sleep } from '@/helpers/utils';
+import { cleanProcessedImageElementsMap } from '@/components/whiteboard/helpers/handleFiles';
 
 interface WhiteboardProps {
   onReadyExcalidrawAPI: (excalidrawAPI: ExcalidrawImperativeAPI) => void;

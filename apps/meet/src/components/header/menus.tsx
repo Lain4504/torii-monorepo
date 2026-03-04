@@ -2,12 +2,12 @@ import React from 'react';
 import { MenuItem, MenuItems } from '@headlessui/react';
 import { Button } from '@workspace/ui/components/button';
 
-import { useAppDispatch } from '../../store';
+import { useAppDispatch } from '@/store';
 import {
   updateShowKeyboardShortcutsModal,
   updateShowRoomSettingsModal,
-} from '../../store/slices/roomSettingsSlice';
-// import DarkThemeSwitcher from './darkThemeSwitcher';
+} from '@/store/slices/roomSettingsSlice';
+// import DarkThemeSwitcher from '@/components/header/darkThemeSwitcher';
 
 import { Settings, Keyboard, LogOut } from 'lucide-react';
 

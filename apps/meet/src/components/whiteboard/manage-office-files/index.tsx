@@ -5,14 +5,14 @@ import { debounce } from 'es-toolkit';
 import { X, Paperclip } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 
-import { updateCurrentWhiteboardOfficeFileId } from '../../../store/slices/whiteboard';
-import { store, useAppDispatch } from '../../../store';
-import FileUploadProgress from './fileUploadProgress';
-import UploadedFilesList from './uploadedFilesList';
-import { IWhiteboardOfficeFile } from '../../../store/slices/interfaces/whiteboard';
-import { savePageData } from '../helpers/utils';
-import { broadcastCurrentFileId } from '../helpers/handleRequests';
-import { sleep } from '../../../helpers/utils';
+import { updateCurrentWhiteboardOfficeFileId } from '@/store/slices/whiteboard';
+import { store, useAppDispatch } from '@/store';
+import FileUploadProgress from '@/components/whiteboard/manage-office-files/fileUploadProgress';
+import UploadedFilesList from '@/components/whiteboard/manage-office-files/uploadedFilesList';
+import { IWhiteboardOfficeFile } from '@/store/slices/interfaces/whiteboard';
+import { savePageData } from '@/components/whiteboard/helpers/utils';
+import { broadcastCurrentFileId } from '@/components/whiteboard/helpers/handleRequests';
+import { sleep } from '@/helpers/utils';
 
 interface ManageOfficeFilesModalProps {
   roomId: string;

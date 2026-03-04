@@ -6,11 +6,11 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
 
-import { store, useAppDispatch } from '../../../store';
-import { useJoinRoomMutation } from '../../../store/services/breakoutRoomApi';
-import { updateReceivedInvitationFor } from '../../../store/slices/breakoutRoomSlice';
-import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
-import ActionButton from '../../../helpers/ui/actionButton';
+import { store, useAppDispatch } from '@/store';
+import { useJoinRoomMutation } from '@/store/services/breakoutRoomApi';
+import { updateReceivedInvitationFor } from '@/store/slices/breakoutRoomSlice';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
+import ActionButton from '@/helpers/ui/actionButton';
 import { LayoutGrid } from 'lucide-react';
 
 interface NewBreakoutRoomProps {

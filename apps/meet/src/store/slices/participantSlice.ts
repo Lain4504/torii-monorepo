@@ -9,7 +9,7 @@ import { RootState } from '..';
 import {
   IParticipant,
   IVisibleParticipantInfo,
-} from './interfaces/participant';
+} from '@/store/slices/interfaces/participant';
 
 const participantAdapter = createEntityAdapter({
   selectId: (participant: IParticipant) => participant.userId,

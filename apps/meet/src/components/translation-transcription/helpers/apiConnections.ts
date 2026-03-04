@@ -16,7 +16,7 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import sendAPIRequest from '../../../helpers/api/api-client';
+import sendAPIRequest from '@/helpers/api/api-client';
 
 export interface AzureTokenInfo {
   token: string;

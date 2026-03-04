@@ -1,7 +1,7 @@
 import React, { Dispatch, useMemo } from 'react';
-import { useAppSelector } from '../../../store';
-import { selectBasicParticipants } from '../../../store/slices/participantSlice';
-import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';
+import { useAppSelector } from '@/store';
+import { selectBasicParticipants } from '@/store/slices/participantSlice';
+import Dropdown, { ISelectOption } from '@/helpers/ui/dropdown';
 
 interface SpeechUsersSelectorProps {
   selectedSpeechUsers: Array<string>;

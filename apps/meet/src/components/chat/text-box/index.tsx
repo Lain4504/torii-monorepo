@@ -10,12 +10,12 @@ import sanitizeHtml from 'sanitize-html';
 import { isEmpty } from 'es-toolkit/compat';
 import { RoomUploadedFileType } from '@workspace/protocol';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import FileSend from './fileSend';
-import { getNatsConn } from '../../../helpers/nats';
-import { useAutosizeTextArea } from './useAutosizeTextArea';
-import { uploadResumableFile } from '../../../helpers/fileUpload';
-import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import FileSend from '@/components/chat/text-box/fileSend';
+import { getNatsConn } from '@/helpers/nats';
+import { useAutosizeTextArea } from '@/components/chat/text-box/useAutosizeTextArea';
+import { uploadResumableFile } from '@/helpers/fileUpload';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
 import { Send } from 'lucide-react';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { Button } from '@workspace/ui/components/button';

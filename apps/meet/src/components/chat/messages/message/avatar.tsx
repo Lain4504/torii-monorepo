@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { participantsSelector } from '../../../../store/slices/participantSlice';
-import { generateAvatarInitial } from '../../../../helpers/utils';
-import { store } from '../../../../store';
+import { participantsSelector } from '@/store/slices/participantSlice';
+import { generateAvatarInitial } from '@/helpers/utils';
+import { store } from '@/store';
 
 interface IAvatarProps {
   userId: string;

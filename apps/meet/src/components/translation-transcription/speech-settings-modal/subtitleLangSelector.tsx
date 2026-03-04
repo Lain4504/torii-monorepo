@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { InsightsTranscriptionFeatures } from '@workspace/protocol';
 
-import { getSubtitleLangs } from '../helpers/supportedLangs';
-import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';
+import { getSubtitleLangs } from '@/components/translation-transcription/helpers/supportedLangs';
+import Dropdown, { ISelectOption } from '@/helpers/ui/dropdown';
 
 interface ISubtitleLangSelectorProps {
   transcriptionFeatures: InsightsTranscriptionFeatures;

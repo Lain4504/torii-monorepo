@@ -9,7 +9,7 @@ import { Trash2, PlusCircle } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 
-import { CreatePollOptions } from './index';
+import { CreatePollOptions } from '@/components/polls/create/index';
 
 interface OptionsProps {
   options: CreatePollOptions[];

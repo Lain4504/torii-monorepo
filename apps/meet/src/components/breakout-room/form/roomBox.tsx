@@ -2,10 +2,10 @@ import React, { useRef } from 'react';
 import { useDrop } from 'react-dnd';
 import clsx from 'clsx';
 
-import UserBox from './userBox';
-import { ItemTypes, UserType } from './types';
-import { useAppDispatch } from '../../../store';
-import { updateBreakoutRoomDroppedUser } from '../../../store/slices/breakoutRoomSlice';
+import UserBox from '@/components/breakout-room/form/userBox';
+import { ItemTypes, UserType } from '@/components/breakout-room/form/types';
+import { useAppDispatch } from '@/store';
+import { updateBreakoutRoomDroppedUser } from '@/store/slices/breakoutRoomSlice';
 
 interface IRoomBoxProps {
   roomId: number;

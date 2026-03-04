@@ -1,5 +1,5 @@
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
-import { requestToRenewWajlcToken } from '../../helpers/api/api-client';
+import { requestToRenewWajlcToken } from '@/helpers/api/api-client';
 import { fromBinary, toJson } from '@bufbuild/protobuf';
 
 export function renewTokenOnError(response: FetchBaseQueryError) {

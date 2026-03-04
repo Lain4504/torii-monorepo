@@ -1,6 +1,6 @@
 import React from 'react';
-import { useAppSelector } from '../../../store';
-import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';
+import { useAppSelector } from '@/store';
+import Dropdown, { ISelectOption } from '@/helpers/ui/dropdown';
 
 interface RoomNumberSelectorProps {
   totalRooms: number;

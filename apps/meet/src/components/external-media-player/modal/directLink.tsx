@@ -4,8 +4,8 @@ import ReactPlayer from 'react-player';
 import { PlusCircle, File, Trash2 } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 
-import FormattedInputField from '../../../helpers/ui/formattedInputField';
-import { DB_STORE_NAMES, idbGet, idbStore } from '../../../helpers/libs/idb';
+import FormattedInputField from '@/helpers/ui/formattedInputField';
+import { DB_STORE_NAMES, idbGet, idbStore } from '@/helpers/libs/idb';
 
 interface DirectLinkProps {
   selectedUrl: string;

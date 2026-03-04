@@ -2,7 +2,7 @@ import React from 'react';
 import { Menu, MenuButton, Transition } from '@headlessui/react';
 import { Room } from 'livekit-client';
 
-import MicMenuItems from './items';
+import MicMenuItems from '@/components/footer/icons/mic-menu/items';
 import { ChevronUp } from 'lucide-react';
 
 interface IMicMenuProps {

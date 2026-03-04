@@ -1,17 +1,17 @@
 import React from 'react';
 
 
-import { useWhiteboard } from './hooks/useWhiteboard';
-import { useExternalMediaPlayer } from './hooks/useExternalMediaPlayer';
-import { useDisplayExternalLink } from './hooks/useDisplayExternalLink';
-import { useVideosComponent } from './hooks/useVideosComponent';
-import { useScreenShareElements } from './hooks/useScreenShareElements';
-import { useTranslationTranscription } from './hooks/useTranslationTranscription';
-import { useVideoLayout } from './hooks/useVideoLayout';
+import { useWhiteboard } from '@/components/main-area/hooks/useWhiteboard';
+import { useExternalMediaPlayer } from '@/components/main-area/hooks/useExternalMediaPlayer';
+import { useDisplayExternalLink } from '@/components/main-area/hooks/useDisplayExternalLink';
+import { useVideosComponent } from '@/components/main-area/hooks/useVideosComponent';
+import { useScreenShareElements } from '@/components/main-area/hooks/useScreenShareElements';
+import { useTranslationTranscription } from '@/components/main-area/hooks/useTranslationTranscription';
+import { useVideoLayout } from '@/components/main-area/hooks/useVideoLayout';
 
-import AudioElements from '../media-elements/audios';
-import LayoutWrapper from './layoutWrapper';
-import { useInsightsAiTextChat } from './hooks/useInsightsAiTextChat';
+import AudioElements from '@/components/media-elements/audios';
+import LayoutWrapper from '@/components/main-area/layoutWrapper';
+import { useInsightsAiTextChat } from '@/components/main-area/hooks/useInsightsAiTextChat';
 
 interface IMainViewProps {
   isRecorder: boolean;

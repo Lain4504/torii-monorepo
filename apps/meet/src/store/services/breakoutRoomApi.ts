@@ -16,8 +16,8 @@ import {
 } from '@workspace/protocol';
 
 import { RootState } from '..';
-import { handleProtobufResponse, renewTokenOnError } from './utils';
-import { SERVER_URL } from '../../config';
+import { handleProtobufResponse, renewTokenOnError } from '@/store/services/utils';
+import { SERVER_URL } from '@/config';
 
 export const breakoutRoomApi = createApi({
   reducerPath: 'breakoutRoomApi',

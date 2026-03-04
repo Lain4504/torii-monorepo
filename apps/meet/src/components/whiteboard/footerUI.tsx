@@ -10,12 +10,12 @@ import { debounce } from 'es-toolkit';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import { ChevronLeft, ChevronRight, Presentation, Eye } from 'lucide-react';import { Button } from '@workspace/ui/components/button';
 import { NativeSelect, NativeSelectOption } from '@workspace/ui/components/native-select';
-import { store, useAppDispatch, useAppSelector } from '../../store';
-import { setWhiteboardCurrentPage } from '../../store/slices/whiteboard';
-import { broadcastCurrentPageNumber } from './helpers/handleRequests';
-import sendAPIRequest from '../../helpers/api/api-client';
-import { savePageData } from './helpers/utils';
-import { sleep } from '../../helpers/utils';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import { setWhiteboardCurrentPage } from '@/store/slices/whiteboard';
+import { broadcastCurrentPageNumber } from '@/components/whiteboard/helpers/handleRequests';
+import sendAPIRequest from '@/helpers/api/api-client';
+import { savePageData } from '@/components/whiteboard/helpers/utils';
+import { sleep } from '@/helpers/utils';
 
 interface IFooterUIProps {
   excalidrawAPI: ExcalidrawImperativeAPI | null;

@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { SourcePlayback } from '../../../virtual-background/helpers/sourceHelper';
-import { BackgroundConfig } from '../../../virtual-background/helpers/backgroundHelper';
-import VideoBox from './videoBox';
-import { store, useAppDispatch, useAppSelector } from '../../../../store';
-import VirtualBackground from '../../../virtual-background/virtualBackground';
-import BackgroundItems from './backgroundItems';
-import { updateVirtualBackground } from '../../../../store/slices/bottomIconsActivitySlice';
+import { SourcePlayback } from '@/components/virtual-background/helpers/sourceHelper';
+import { BackgroundConfig } from '@/components/virtual-background/helpers/backgroundHelper';
+import VideoBox from '@/components/footer/modals/webcam/videoBox';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import VirtualBackground from '@/components/virtual-background/virtualBackground';
+import BackgroundItems from '@/components/footer/modals/webcam/backgroundItems';
+import { updateVirtualBackground } from '@/store/slices/bottomIconsActivitySlice';
 
 interface IPreviewWebcamProps {
   deviceId: string;

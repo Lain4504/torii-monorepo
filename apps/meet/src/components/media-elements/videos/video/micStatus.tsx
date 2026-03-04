@@ -1,6 +1,6 @@
 import React from 'react';
-import { useAppSelector } from '../../../../store';
-import { participantsSelector } from '../../../../store/slices/participantSlice';
+import { useAppSelector } from '@/store';
+import { participantsSelector } from '@/store/slices/participantSlice';
 import { Mic, MicOff } from 'lucide-react';
 
 interface IMicStatusProps {

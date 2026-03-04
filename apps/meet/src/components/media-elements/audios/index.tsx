@@ -5,10 +5,10 @@ import {
   RemoteParticipant,
 } from 'livekit-client';
 
-import AudioElm from './audio';
-import { CurrentConnectionEvents } from '../../../helpers/livekit/types';
-import { getMediaServerConn } from '../../../helpers/livekit/utils';
-import {toWajlcUserId} from '../../../helpers/utils';
+import AudioElm from '@/components/media-elements/audios/audio';
+import { CurrentConnectionEvents } from '@/helpers/livekit/types';
+import { getMediaServerConn } from '@/helpers/livekit/utils';
+import {toWajlcUserId} from '@/helpers/utils';
 
 const AudioElements = () => {
   const [audioSubscribers, setAudioSubscribers] =

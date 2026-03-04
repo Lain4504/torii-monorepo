@@ -1,15 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { store, useAppDispatch, useAppSelector } from '../../store';
+import { store, useAppDispatch, useAppSelector } from '@/store';
 
-import Tabs, { ITabItem } from '../../helpers/ui/tabs';
-import Modal from '../../helpers/ui/modal';
-import { updateDisplaySpeechSettingsModal } from '../../store/slices/bottomIconsActivitySlice';
-import TranscriptionSettings from './transcription-settings';
-import ChatTranslationSettings from './chat-translation-settings';
+import Tabs, { ITabItem } from '@/helpers/ui/tabs';
+import Modal from '@/helpers/ui/modal';
+import { updateDisplaySpeechSettingsModal } from '@/store/slices/bottomIconsActivitySlice';
+import TranscriptionSettings from '@/components/translation-transcription/transcription-settings';
+import ChatTranslationSettings from '@/components/translation-transcription/chat-translation-settings';
 import {
   supportedTranscriptionLangs,
   supportedTranslationLangs,
-} from './helpers/supportedLangs';
+} from '@/components/translation-transcription/helpers/supportedLangs';
 import { Loader2 } from 'lucide-react';
 
 const TranslationTranscriptionSettingModal = () => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import Modal from './modal';
+import Modal from '@/helpers/ui/modal';
 import { Button } from '@workspace/ui/components/button';
 
 interface IConfirmationModalProps {

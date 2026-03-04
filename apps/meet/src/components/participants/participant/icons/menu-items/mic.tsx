@@ -8,10 +8,10 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import { store, useAppSelector } from '../../../../../store';
-import { participantsSelector } from '../../../../../store/slices/participantSlice';
-import sendAPIRequest from '../../../../../helpers/api/api-client';
-import { getNatsConn } from '../../../../../helpers/nats';
+import { store, useAppSelector } from '@/store';
+import { participantsSelector } from '@/store/slices/participantSlice';
+import sendAPIRequest from '@/helpers/api/api-client';
+import { getNatsConn } from '@/helpers/nats';
 
 interface IMicMenuItemProps {
   userId: string;

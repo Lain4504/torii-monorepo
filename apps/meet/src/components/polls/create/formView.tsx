@@ -8,11 +8,11 @@ import React, {
 import { create } from '@bufbuild/protobuf';
 import { CreatePollReqSchema } from '@workspace/protocol';
 
-import { useCreatePollMutation } from '../../../store/services/pollsApi';
-import { CreatePollOptions } from './index';
-import OptionsView from './optionsView';
-import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
-import { useAppDispatch } from '../../../store';
+import { useCreatePollMutation } from '@/store/services/pollsApi';
+import { CreatePollOptions } from '@/components/polls/create/index';
+import OptionsView from '@/components/polls/create/optionsView';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
+import { useAppDispatch } from '@/store';
 import { Loader2 } from 'lucide-react';
 import {Label} from "@workspace/ui/components/label";
 import {Button} from "@workspace/ui/components/button";

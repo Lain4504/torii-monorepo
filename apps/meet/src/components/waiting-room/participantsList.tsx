@@ -1,5 +1,5 @@
-import { IParticipant } from '../../store/slices/interfaces/participant';
-import WaitingParticipantItem from './waitingParticipantItem';
+import { IParticipant } from '@/store/slices/interfaces/participant';
+import WaitingParticipantItem from '@/components/waiting-room/waitingParticipantItem';
 
 interface IParticipantsListProps {
   waitingParticipants: IParticipant[];

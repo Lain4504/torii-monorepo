@@ -1,9 +1,9 @@
 import React, { Dispatch, useEffect, useMemo, useState } from 'react';
 import { isEmpty } from 'es-toolkit/compat';
 
-import { getInputMediaDevices } from '../../../helpers/utils';
-import { IMediaDevice } from '../../../store/slices/interfaces/roomSettings';
-import Dropdown from '../../../helpers/ui/dropdown';
+import { getInputMediaDevices } from '@/helpers/utils';
+import { IMediaDevice } from '@/store/slices/interfaces/roomSettings';
+import Dropdown from '@/helpers/ui/dropdown';
 
 interface IMicSelectorProps {
   disabled: boolean;

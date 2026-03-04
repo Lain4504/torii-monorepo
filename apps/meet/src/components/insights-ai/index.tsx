@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { store, useAppDispatch, useAppSelector } from '../../store';
-import Modal from '../../helpers/ui/modal';
-import Tabs, { ITabItem } from '../../helpers/ui/tabs';
-import { updateDisplayInsightsAISettingsModal } from '../../store/slices/bottomIconsActivitySlice';
-import AiTextChatSettings from './ai-text-chat/settings';
-import MeetingSummarization from './meeting-summarization/settings';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import Modal from '@/helpers/ui/modal';
+import Tabs, { ITabItem } from '@/helpers/ui/tabs';
+import { updateDisplayInsightsAISettingsModal } from '@/store/slices/bottomIconsActivitySlice';
+import AiTextChatSettings from '@/components/insights-ai/ai-text-chat/settings';
+import MeetingSummarization from '@/components/insights-ai/meeting-summarization/settings';
 
 const InsightsAiSettingsModal = () => {
   const dispatch = useAppDispatch();

@@ -1,10 +1,10 @@
-import { BlendMode } from '../../helpers/postProcessingHelper';
+import { BlendMode } from '@/components/virtual-background/helpers/postProcessingHelper';
 import {
   compileShader,
   createPiplelineStageProgram,
   createTexture,
   glsl,
-} from '../helpers/webglHelper';
+} from '@/components/virtual-background/pipelines/helpers/webglHelper';
 
 export type BackgroundImageStage = {
   render(): void;

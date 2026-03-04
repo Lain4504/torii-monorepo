@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { IncreaseBreakoutRoomDurationReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
-import { useIncreaseDurationMutation } from '../../../../store/services/breakoutRoomApi';
-import { BreakoutRoomMessage } from '../..';
+import { useIncreaseDurationMutation } from '@/store/services/breakoutRoomApi';
+import { BreakoutRoomMessage } from '@/components/breakout-room';
 import {Input} from "@workspace/ui/components/input";
 import {Button} from "@workspace/ui/components/button";
 

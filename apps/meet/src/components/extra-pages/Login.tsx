@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { getDefaultRoomInfo } from '../../helpers/roomConfig';
-import { SERVER_URL } from '../../config';
+import { getDefaultRoomInfo } from '@/helpers/roomConfig';
+import { SERVER_URL } from '@/config';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';

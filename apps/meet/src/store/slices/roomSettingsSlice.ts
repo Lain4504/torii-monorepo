@@ -11,9 +11,9 @@ import {
   UnreadMsgFromPayload,
   UserNotification,
   VideoObjectFit,
-} from './interfaces/roomSettings';
-import { AzureTokenInfo } from '../../components/translation-transcription/helpers/apiConnections';
-import { DB_STORE_NAMES, idbStore } from '../../helpers/libs/idb';
+} from '@/store/slices/interfaces/roomSettings';
+import { AzureTokenInfo } from '@/components/translation-transcription/helpers/apiConnections';
+import { DB_STORE_NAMES, idbStore } from '@/helpers/libs/idb';
 
 const initialState: IRoomSettings = {
   isShowRoomSettingsModal: false,

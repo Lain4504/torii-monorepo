@@ -5,22 +5,22 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { store, useAppDispatch, useAppSelector } from '../../store';
-import { toggleStartup } from '../../store/slices/sessionSlice';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import { toggleStartup } from '@/store/slices/sessionSlice';
 import {
   addAudioDevices,
   addVideoDevices,
   updateSelectedAudioDevice,
   updateSelectedVideoDevice,
-} from '../../store/slices/roomSettingsSlice';
+} from '@/store/slices/roomSettingsSlice';
 import { Volume2, MicOff, VideoOff, Loader2, Lock as LockIcon } from 'lucide-react';
-import { roomConnectionStatus } from '../app/helper';
-import { getNatsConn } from '../../helpers/nats';
-import { useMediaDevices } from './hooks/useMediaDevices';
+import { roomConnectionStatus } from '@/components/app/helper';
+import { getNatsConn } from '@/helpers/nats';
+import { useMediaDevices } from '@/components/landing/hooks/useMediaDevices';
 
-import MicrophoneIcon from './microphone';
-import WebcamIcon from './webcam';
-import WebcamPreview from './webcamPreview';
+import MicrophoneIcon from '@/components/landing/microphone';
+import WebcamIcon from '@/components/landing/webcam';
+import WebcamPreview from '@/components/landing/webcamPreview';
 import { Button } from '@workspace/ui/components/button';
 
 interface StartupJoinModalProps {

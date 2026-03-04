@@ -3,13 +3,13 @@ import { useForm, Controller } from 'react-hook-form';
 import { FileUpload } from '@/components/common/file-upload';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetDescription,
-    SheetFooter,
-} from '@workspace/ui/components/sheet';
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from '@workspace/ui/components/dialog';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
@@ -171,20 +171,20 @@ export function QuestionFormSheet({
     const isLoading = createQuestion.isPending || updateQuestion.isPending;
 
     return (
-        <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
-                <SheetHeader>
-                    <SheetTitle>
-                        {isEdit ? 'Cập Nhật Câu Hỏi' : 'Tạo Câu Hỏi Mới'}
-                    </SheetTitle>
-                    <SheetDescription>
-                        {isEdit
-                            ? 'Thay đổi nội dung hoặc các thông số cấu trúc của câu hỏi này.'
-                            : 'Thiết lập các thuộc tính kỹ thuật và nội dung hiển thị cho câu hỏi mới.'}
-                    </SheetDescription>
-                </SheetHeader>
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col max-h-[80vh]" noValidate>
+                    <DialogHeader className="px-6 pt-6">
+                        <DialogTitle>
+                            {isEdit ? 'Cập Nhật Câu Hỏi' : 'Tạo Câu Hỏi Mới'}
+                        </DialogTitle>
+                        <DialogDescription>
+                            {isEdit
+                                ? 'Thay đổi nội dung hoặc các thông số cấu trúc của câu hỏi này.'
+                                : 'Thiết lập các thuộc tính kỹ thuật và nội dung hiển thị cho câu hỏi mới.'}
+                        </DialogDescription>
+                    </DialogHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full overflow-hidden" noValidate>
                     <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
                             {/* Question Text */}
@@ -442,7 +442,7 @@ export function QuestionFormSheet({
                         </div>
                     </ScrollArea>
 
-                    <SheetFooter>
+                    <DialogFooter className="px-6 py-4 border-t">
                         <Button
                             type="button"
                             variant="outline"
@@ -464,9 +464,9 @@ export function QuestionFormSheet({
                                 </>
                             )}
                         </Button>
-                    </SheetFooter>
+                    </DialogFooter>
                 </form>
-            </SheetContent>
-        </Sheet>
+            </DialogContent>
+        </Dialog>
     );
 }

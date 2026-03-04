@@ -1,7 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 
-import { UserNotification } from '../../../store/slices/interfaces/roomSettings';
+import { UserNotification } from '@/store/slices/interfaces/roomSettings';
 import { Bell } from 'lucide-react';
 
 interface IGenericNotificationProps {

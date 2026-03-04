@@ -20,6 +20,7 @@ export default defineConfig({
         './custom_tfjs/custom_tfjs_core.js',
       ),
       '~': resolve(__dirname, 'src'),
+      '@': resolve(__dirname, 'src'),
     },
     // Deduplicate React to avoid multiple instances
     dedupe: ['react', 'react-dom'],

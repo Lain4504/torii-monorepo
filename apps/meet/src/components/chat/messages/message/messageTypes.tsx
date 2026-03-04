@@ -1,10 +1,10 @@
 import React, { memo } from 'react';
 import { ChatMessage } from '@workspace/protocol';
 
-import { formatDate } from '../../utils';
-import { useAppSelector } from '../../../../store';
-import { participantsSelector } from '../../../../store/slices/participantSlice';
-import Avatar from './avatar';
+import { formatDate } from '@/components/chat/utils';
+import { useAppSelector } from '@/store';
+import { participantsSelector } from '@/store/slices/participantSlice';
+import Avatar from '@/components/chat/messages/message/avatar';
 import { Bot } from 'lucide-react';
 
 export const SystemMessage = memo(({ message }: { message: string }) => {

@@ -1,6 +1,6 @@
 import { DataChannelMessage, DataMsgBodyType } from '@workspace/protocol';
 
-import { store } from '../../store';
+import { store } from '@/store';
 import {
   setWhiteboardCurrentPage,
   triggerWhiteboardReset,
@@ -9,7 +9,7 @@ import {
   updateExcalidrawElements,
   updateMouseAppStateChanges,
   updateMousePointerLocation,
-} from '../../store/slices/whiteboard';
+} from '@/store/slices/whiteboard';
 
 export default class HandleWhiteboard {
   public handleWhiteboardMsg = async (payload: DataChannelMessage) => {

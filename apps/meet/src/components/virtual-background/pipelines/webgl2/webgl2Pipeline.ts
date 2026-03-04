@@ -1,25 +1,25 @@
-import { compileShader, createTexture, glsl } from '../helpers/webglHelper';
+import { compileShader, createTexture, glsl } from '@/components/virtual-background/pipelines/helpers/webglHelper';
 import {
   BackgroundBlurStage,
   buildBackgroundBlurStage,
-} from './backgroundBlurStage';
+} from '@/components/virtual-background/pipelines/webgl2/backgroundBlurStage';
 import {
   BackgroundImageStage,
   buildBackgroundImageStage,
-} from './backgroundImageStage';
-import { buildJointBilateralFilterStage } from './jointBilateralFilterStage';
-import { buildLoadSegmentationStage } from './loadSegmentationStage';
-import { buildResizingStage } from './resizingStage';
-import { buildSoftmaxStage } from './softmaxStage';
-import { SourcePlayback } from '../../helpers/sourceHelper';
-import { BackgroundConfig } from '../../helpers/backgroundHelper';
+} from '@/components/virtual-background/pipelines/webgl2/backgroundImageStage';
+import { buildJointBilateralFilterStage } from '@/components/virtual-background/pipelines/webgl2/jointBilateralFilterStage';
+import { buildLoadSegmentationStage } from '@/components/virtual-background/pipelines/webgl2/loadSegmentationStage';
+import { buildResizingStage } from '@/components/virtual-background/pipelines/webgl2/resizingStage';
+import { buildSoftmaxStage } from '@/components/virtual-background/pipelines/webgl2/softmaxStage';
+import { SourcePlayback } from '@/components/virtual-background/helpers/sourceHelper';
+import { BackgroundConfig } from '@/components/virtual-background/helpers/backgroundHelper';
 import {
   inputResolutions,
   SegmentationConfig,
-} from '../../helpers/segmentationHelper';
-import { TimerWorker } from '../../helpers/timerHelper';
-import { PostProcessingConfig } from '../../helpers/postProcessingHelper';
-import { TFLite } from '../../helpers/utils';
+} from '@/components/virtual-background/helpers/segmentationHelper';
+import { TimerWorker } from '@/components/virtual-background/helpers/timerHelper';
+import { PostProcessingConfig } from '@/components/virtual-background/helpers/postProcessingHelper';
+import { TFLite } from '@/components/virtual-background/helpers/utils';
 
 export function buildWebGL2Pipeline(
   sourcePlayback: SourcePlayback,

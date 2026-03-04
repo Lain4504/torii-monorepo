@@ -5,9 +5,9 @@ import {
   getFormatedRespondents,
   PollDataWithOption,
   Respondents,
-} from '../../utils';
-import { useAppSelector } from '../../../../store';
-import { selectBasicParticipants } from '../../../../store/slices/participantSlice';
+} from '@/components/polls/utils';
+import { useAppSelector } from '@/store';
+import { selectBasicParticipants } from '@/store/slices/participantSlice';
 
 interface NotRespondentsProps {
   pollDataWithOption: PollDataWithOption;

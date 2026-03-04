@@ -1,19 +1,19 @@
 import React, { RefObject, useEffect, useState } from 'react';
 import { BodyPix } from '@tensorflow-models/body-pix';
 
-import OutputViewer from './outputViewer';
-import { defaultPostProcessingConfig } from './helpers/postProcessingHelper';
-import { SourcePlayback } from './helpers/sourceHelper';
+import OutputViewer from '@/components/virtual-background/outputViewer';
+import { defaultPostProcessingConfig } from '@/components/virtual-background/helpers/postProcessingHelper';
+import { SourcePlayback } from '@/components/virtual-background/helpers/sourceHelper';
 import {
   BackgroundConfig,
   defaultBackgroundConfig,
-} from './helpers/backgroundHelper';
-import useTFLite from './hooks/useTFLite';
+} from '@/components/virtual-background/helpers/backgroundHelper';
+import useTFLite from '@/components/virtual-background/hooks/useTFLite';
 import {
   defaultSegmentationConfig,
   SegmentationConfig,
-} from './helpers/segmentationHelper';
-import { loadBodyPix } from './helpers/utils';
+} from '@/components/virtual-background/helpers/segmentationHelper';
+import { loadBodyPix } from '@/components/virtual-background/helpers/utils';
 
 interface IVirtualBackgroundProps {
   sourcePlayback: SourcePlayback;

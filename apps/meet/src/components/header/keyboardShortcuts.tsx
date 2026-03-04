@@ -1,7 +1,7 @@
 import React from 'react';
-import { useAppDispatch, useAppSelector } from '../../store';
-import { updateShowKeyboardShortcutsModal } from '../../store/slices/roomSettingsSlice';
-import Modal from '../../helpers/ui/modal';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { updateShowKeyboardShortcutsModal } from '@/store/slices/roomSettingsSlice';
+import Modal from '@/helpers/ui/modal';
 
 const KeyboardShortcuts = () => {
   const dispatch = useAppDispatch();

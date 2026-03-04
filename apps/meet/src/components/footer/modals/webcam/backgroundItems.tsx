@@ -6,10 +6,10 @@ import { Button } from '@workspace/ui/components/button';
 import {
   BackgroundConfig,
   backgroundImageUrls,
-} from '../../../virtual-background/helpers/backgroundHelper';
-import useResumableFilesUpload from '../../../../helpers/hooks/useResumableFilesUpload';
-import { useAppSelector } from '../../../../store';
-import { SERVER_URL } from '../../../../config';
+} from '@/components/virtual-background/helpers/backgroundHelper';
+import useResumableFilesUpload from '@/helpers/hooks/useResumableFilesUpload';
+import { useAppSelector } from '@/store';
+import { SERVER_URL } from '@/config';
 
 interface IBackgroundItemsProps {
   onSelect: (bg: BackgroundConfig) => void;

@@ -11,14 +11,14 @@ import {
   SubmitPollResponseReqSchema,
 } from '@workspace/protocol';
 
-import { store, useAppDispatch } from '../../../store';
+import { store, useAppDispatch } from '@/store';
 import {
   useAddResponseMutation,
   useGetUserSelectedOptionQuery,
-} from '../../../store/services/pollsApi';
-import { getNatsConn } from '../../../helpers/nats';
-import { PollDataWithOption } from '../utils';
-import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
+} from '@/store/services/pollsApi';
+import { getNatsConn } from '@/helpers/nats';
+import { PollDataWithOption } from '@/components/polls/utils';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
 import { Loader2 } from 'lucide-react';
 import {Button} from "@workspace/ui/components/button";
 import { Label } from "@workspace/ui/components/label";

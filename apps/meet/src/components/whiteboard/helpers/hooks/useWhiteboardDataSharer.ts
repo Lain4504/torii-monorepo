@@ -1,10 +1,10 @@
 import { useEffect, useEffectEvent, useState } from 'react';
 import { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
-import { useAppSelector } from '../../../../store';
+import { useAppSelector } from '@/store';
 import {
   sendRequestedForWhiteboardData,
   sendWhiteboardDataAsDonor,
-} from '../handleRequests';
+} from '@/components/whiteboard/helpers/handleRequests';
 
 interface IUseWhiteboardDataSharer {
   excalidrawAPI: ExcalidrawImperativeAPI | null;

@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../../../store';
+import { useAppDispatch, useAppSelector } from '@/store';
 import {
   updateIsActiveWebcam,
   updateShowVideoShareModal,
-} from '../../../../store/slices/bottomIconsActivitySlice';
-import { getInputMediaDevices } from '../../../../helpers/utils';
-import PreviewWebcam from './previewWebcam';
-import { addVideoDevices } from '../../../../store/slices/roomSettingsSlice';
-import Modal from '../../../../helpers/ui/modal';
-import Dropdown from '../../../../helpers/ui/dropdown';
-import ActionButton from '../../../../helpers/ui/actionButton';
+} from '@/store/slices/bottomIconsActivitySlice';
+import { getInputMediaDevices } from '@/helpers/utils';
+import PreviewWebcam from '@/components/footer/modals/webcam/previewWebcam';
+import { addVideoDevices } from '@/store/slices/roomSettingsSlice';
+import Modal from '@/helpers/ui/modal';
+import Dropdown from '@/helpers/ui/dropdown';
+import ActionButton from '@/helpers/ui/actionButton';
 import { Button } from '@workspace/ui/components/button';
-import { IMediaDevice } from '../../../../store/slices/interfaces/roomSettings';
+import { IMediaDevice } from '@/store/slices/interfaces/roomSettings';
 
 interface IShareWebcamModal {
   onSelectedDevice: (deviceId: string) => void;

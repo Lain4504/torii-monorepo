@@ -11,13 +11,13 @@ import {
 import { SendHorizontal } from 'lucide-react';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { Button } from '@workspace/ui/components/button';
-import { useAutosizeTextArea } from '../../../chat/text-box/useAutosizeTextArea';
-import { useAppDispatch, useAppSelector } from '../../../../store';
+import { useAutosizeTextArea } from '@/components/chat/text-box/useAutosizeTextArea';
+import { useAppDispatch, useAppSelector } from '@/store';
 import {
   addAiTextChatUserMessage,
   clearIsAwaitingResponse,
-} from '../../../../store/slices/insightsAiTextChatSlice';
-import sendAPIRequest from '../../../../helpers/api/api-client';
+} from '@/store/slices/insightsAiTextChatSlice';
+import sendAPIRequest from '@/helpers/api/api-client';
 
 const TextBoxArea = () => {
   const dispatch = useAppDispatch();

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import DisplayExternalLink from '../../display-external-link';
-import { useCloseSidePanelsOnShow } from './useCloseSidePanelsOnShow';
+import DisplayExternalLink from '@/components/display-external-link';
+import { useCloseSidePanelsOnShow } from '@/components/main-area/hooks/useCloseSidePanelsOnShow';
 
 export const useDisplayExternalLink = (
   isActiveDisplayExternalLink: boolean,

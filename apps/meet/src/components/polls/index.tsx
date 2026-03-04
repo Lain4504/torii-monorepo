@@ -1,11 +1,11 @@
 import React from 'react';
 
-import Create from './create/index';
-import PollsList from './pollsList';
+import Create from '@/components/polls/create/index';
+import PollsList from '@/components/polls/pollsList';
 
-import { store, useAppDispatch } from '../../store';
+import { store, useAppDispatch } from '@/store';
 import { X } from 'lucide-react';
-import { setActiveSidePanel } from '../../store/slices/bottomIconsActivitySlice';
+import { setActiveSidePanel } from '@/store/slices/bottomIconsActivitySlice';
 
 const PollsComponent = () => {
   const dispatch = useAppDispatch();

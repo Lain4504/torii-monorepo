@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
-import { store, useAppDispatch, useAppSelector } from '../../store';
-import { addUserNotification } from '../../store/slices/roomSettingsSlice';
-import { useRoomDurationCountdown } from '../../helpers/hooks/useRoomDurationCountdown';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
+import { useRoomDurationCountdown } from '@/helpers/hooks/useRoomDurationCountdown';
 
 const DurationView = () => {
   const dispatch = useAppDispatch();

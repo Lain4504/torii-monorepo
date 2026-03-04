@@ -7,8 +7,8 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import { useAppSelector } from '../../../store';
-import sendAPIRequest from '../../../helpers/api/api-client';
+import { useAppSelector } from '@/store';
+import sendAPIRequest from '@/helpers/api/api-client';
 import { Loader2, File } from 'lucide-react';
 
 interface IUploadedFileListProps {

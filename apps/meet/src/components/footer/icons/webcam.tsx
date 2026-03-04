@@ -2,21 +2,21 @@ import React, { useCallback, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
 import { LocalTrack, Track } from 'livekit-client';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
+import { store, useAppDispatch, useAppSelector } from '@/store';
 import {
   updateIsActiveWebcam,
   updateShowVideoShareModal,
   updateVirtualBackground,
-} from '../../../store/slices/bottomIconsActivitySlice';
-import ShareWebcamModal from '../modals/webcam';
-import WebcamMenu from './webcam/menu';
-import { updateSelectedVideoDevice } from '../../../store/slices/roomSettingsSlice';
-import VirtualBackground from '../../virtual-background/virtualBackground';
-import { createEmptyVideoStreamTrack } from '../../../helpers/utils';
-import { getMediaServerConnRoom } from '../../../helpers/livekit/utils';
+} from '@/store/slices/bottomIconsActivitySlice';
+import ShareWebcamModal from '@/components/footer/modals/webcam';
+import WebcamMenu from '@/components/footer/icons/webcam/menu';
+import { updateSelectedVideoDevice } from '@/store/slices/roomSettingsSlice';
+import VirtualBackground from '@/components/virtual-background/virtualBackground';
+import { createEmptyVideoStreamTrack } from '@/helpers/utils';
+import { getMediaServerConnRoom } from '@/helpers/livekit/utils';
 import { Video, VideoOff, Plus, Lock as LockIcon } from 'lucide-react';
-import useWebcamPublisher from './webcam/useWebcamPublisher';
-import useVirtualBackground from './webcam/useVirtualBackground';
+import useWebcamPublisher from '@/components/footer/icons/webcam/useWebcamPublisher';
+import useVirtualBackground from '@/components/footer/icons/webcam/useVirtualBackground';
 
 const WebcamIcon = () => {
   const dispatch = useAppDispatch();

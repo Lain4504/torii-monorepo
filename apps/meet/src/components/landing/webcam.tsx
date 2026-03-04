@@ -1,11 +1,11 @@
 import React, { SetStateAction } from 'react';
 import { Menu, MenuButton, MenuItem, Transition } from '@headlessui/react';
 import { Video, Check, Plus, ChevronUp } from 'lucide-react';
-import { updateShowVideoShareModal } from '../../store/slices/bottomIconsActivitySlice';
-import { useAppDispatch, useAppSelector } from '../../store';
-import { IMediaDevice } from '../../store/slices/interfaces/roomSettings';
-import ShareWebcamModal from '../footer/modals/webcam';
-import { inputMediaDeviceKind } from '../../helpers/utils';
+import { updateShowVideoShareModal } from '@/store/slices/bottomIconsActivitySlice';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { IMediaDevice } from '@/store/slices/interfaces/roomSettings';
+import ShareWebcamModal from '@/components/footer/modals/webcam';
+import { inputMediaDeviceKind } from '@/helpers/utils';
 
 interface WebcamIconProps {
   videoDevices: IMediaDevice[];

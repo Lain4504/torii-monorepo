@@ -2,8 +2,8 @@ import React, { useMemo } from 'react';
 import { Signal } from 'lucide-react';
 import { ConnectionQuality } from 'livekit-client';
 
-import { useAppSelector } from '../../../../store';
-import { participantsSelector } from '../../../../store/slices/participantSlice';
+import { useAppSelector } from '@/store';
+import { participantsSelector } from '@/store/slices/participantSlice';
 
 interface IConnectionStatusProps {
   userId: string;

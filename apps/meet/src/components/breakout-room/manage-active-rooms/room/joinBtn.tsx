@@ -3,9 +3,9 @@ import { create } from '@bufbuild/protobuf';
 import { JoinBreakoutRoomReqSchema } from '@workspace/protocol';
 import { Button } from '@workspace/ui/components/button';
 
-import { useJoinRoomMutation } from '../../../../store/services/breakoutRoomApi';
-import { BreakoutRoomMessage } from '../..';
-import { store } from '../../../../store';
+import { useJoinRoomMutation } from '@/store/services/breakoutRoomApi';
+import { BreakoutRoomMessage } from '@/components/breakout-room';
+import { store } from '@/store';
 
 interface IJoinBtnProps {
   breakoutRoomId: string;

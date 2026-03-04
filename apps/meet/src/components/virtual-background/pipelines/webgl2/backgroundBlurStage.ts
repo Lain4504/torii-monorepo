@@ -3,7 +3,7 @@ import {
   createPiplelineStageProgram,
   createTexture,
   glsl,
-} from '../helpers/webglHelper';
+} from '@/components/virtual-background/pipelines/helpers/webglHelper';
 
 export type BackgroundBlurStage = {
   render(): void;

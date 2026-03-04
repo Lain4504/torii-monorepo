@@ -4,8 +4,8 @@ import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Label } from '@workspace/ui/components/label';
 
-import { addSelfInsertedE2EESecretKey } from '../../store/slices/roomSettingsSlice';
-import { useAppDispatch } from '../../store';
+import { addSelfInsertedE2EESecretKey } from '@/store/slices/roomSettingsSlice';
+import { useAppDispatch } from '@/store';
 
 export interface IInsertE2EEKeyProps {
   setOpenConn: Dispatch<boolean>;

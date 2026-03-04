@@ -11,13 +11,13 @@ import {
   DataMsgBodyType,
 } from '@workspace/protocol';
 
-import { store } from '../../../store';
-import { updateRequestedWhiteboardData } from '../../../store/slices/whiteboard';
-import { getNatsConn } from '../../../helpers/nats';
-import ConnectNats from '../../../helpers/nats/ConnectNats';
-import { getWhiteboardDonors } from '../../../helpers/utils';
-import { uploadCanvasBinaryFile } from './handleFiles';
-import { WhiteboardDataAsDonorData } from '../../../store/slices/interfaces/whiteboard';
+import { store } from '@/store';
+import { updateRequestedWhiteboardData } from '@/store/slices/whiteboard';
+import { getNatsConn } from '@/helpers/nats';
+import ConnectNats from '@/helpers/nats/ConnectNats';
+import { getWhiteboardDonors } from '@/helpers/utils';
+import { uploadCanvasBinaryFile } from '@/components/whiteboard/helpers/handleFiles';
+import { WhiteboardDataAsDonorData } from '@/store/slices/interfaces/whiteboard';
 
 const broadcastedElementVersions: Map<string, number> = new Map(),
   DELETED_ELEMENT_TIMEOUT = 3 * 60 * 60 * 1000; // 3 hours

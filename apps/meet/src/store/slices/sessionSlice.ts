@@ -10,7 +10,7 @@ import {
   IScreenSharing,
   ISession,
   UserDeviceType,
-} from './interfaces/session';
+} from '@/store/slices/interfaces/session';
 
 const initialState: ISession = {
   token: '',

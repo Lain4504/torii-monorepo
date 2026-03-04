@@ -1,16 +1,16 @@
 import React, { ReactElement, useMemo } from 'react';
 import { Menu, MenuButton, MenuItems, Transition } from '@headlessui/react';
 
-import MicMenuItem from './menu-items/mic';
-import WebcamMenuItem from './menu-items/webcam';
-import SwitchPresenterMenuItem from './menu-items/switchPresenter';
-import LowerHandMenuItem from './menu-items/lowerHand';
-import LockSettingMenuItem from './menu-items/lock';
-import RemoveUserMenuItem from './menu-items/removeUser';
-import PrivateChatMenuItem from './menu-items/privateChat';
-import IconWrapper from './iconWrapper';
+import MicMenuItem from '@/components/participants/participant/icons/menu-items/mic';
+import WebcamMenuItem from '@/components/participants/participant/icons/menu-items/webcam';
+import SwitchPresenterMenuItem from '@/components/participants/participant/icons/menu-items/switchPresenter';
+import LowerHandMenuItem from '@/components/participants/participant/icons/menu-items/lowerHand';
+import LockSettingMenuItem from '@/components/participants/participant/icons/menu-items/lock';
+import RemoveUserMenuItem from '@/components/participants/participant/icons/menu-items/removeUser';
+import PrivateChatMenuItem from '@/components/participants/participant/icons/menu-items/privateChat';
+import IconWrapper from '@/components/participants/participant/icons/iconWrapper';
 
-import { useAppSelector } from '../../../../store';
+import { useAppSelector } from '@/store';
 import { MoreHorizontal } from 'lucide-react';
 
 interface IMenuIconProps {

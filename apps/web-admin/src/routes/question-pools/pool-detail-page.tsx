@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card } from '@workspace/ui/components/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import {
     Plus,
@@ -122,101 +122,118 @@ export default function PoolDetailPage() {
 
     return (
         <div className="flex flex-col gap-8 pb-20">
-            <div className="flex flex-col gap-4">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-fit -ml-2 text-muted-foreground"
-                    onClick={() => navigate('/question-bank')}
-                >
-                    <ChevronLeft className="mr-2 size-4" />
-                    Quay lại danh sách
-                </Button>
+            <Button
+                variant="ghost"
+                size="sm"
+                className="w-fit -ml-2 text-muted-foreground"
+                onClick={() => navigate('/question-bank')}
+            >
+                <ChevronLeft className="mr-2 size-4" />
+                Quay lại danh sách
+            </Button>
 
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-card/50 backdrop-blur-xl border border-border/50 p-6 rounded-2xl shadow-sm">
+            {/* Card chi tiết kho đề */}
+            <Card>
+                <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-3">
                             <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shadow-inner">
                                 <Layers className="size-5" />
                             </div>
-                            <h1 className="text-2xl font-black italic uppercase tracking-tight text-foreground">
-                                {pool.name}
-                            </h1>
-                            <Badge variant="outline" className="h-6 font-black italic text-[10px] uppercase tracking-widest bg-primary/5 text-primary border-primary/20">
+                            <div className="flex flex-col gap-1">
+                                <CardTitle className="text-2xl font-black uppercase tracking-tight">
+                                    {pool.name}
+                                </CardTitle>
+                                <CardDescription className="text-sm font-medium max-w-2xl leading-relaxed">
+                                    {pool.description || "Danh sách tổng hợp các câu hỏi tri thức thuộc bộ đề này."}
+                                </CardDescription>
+                            </div>
+                            <Badge variant="outline" className="h-6 font-black text-[10px] uppercase tracking-widest bg-primary/5 text-primary border-primary/20">
                                 {pool.jlptLevel || 'GLOBAL'}
                             </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground font-medium max-w-2xl leading-relaxed">
-                            {pool.description || "Danh sách tổng hợp các câu hỏi tri thức thuộc bộ đề này."}
-                        </p>
                     </div>
-
                     <div className="flex items-center gap-3 self-end md:self-center">
                         <Button
                             variant="outline"
-                            className="h-10 px-4 text-[10px] font-black uppercase tracking-widest border-border/50 hover:bg-muted/50 transition-all rounded-xl"
+                            className="h-9 px-4 text-[10px] font-black uppercase tracking-widest"
                             onClick={() => setIsEditPoolDialogOpen(true)}
                         >
-                            <Pencil className="mr-2 size-3.5 opacity-50" />
+                            <Pencil className="mr-2 size-3.5 opacity-60" />
                             Sửa thông tin
                         </Button>
                         <Button
-                            className="h-10 px-6 text-[10px] font-black uppercase tracking-widest bg-primary hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 rounded-xl"
+                            className="h-9 px-6 text-[10px] font-black uppercase tracking-widest"
                             onClick={() => setIsCreateDialogOpen(true)}
                         >
                             <Plus className="mr-2 size-4" />
                             Thêm câu hỏi
                         </Button>
                     </div>
-                </div>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="bg-muted/40 border border-border/40 p-4 rounded-xl flex flex-col gap-1">
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/70 flex items-center gap-2">
+                                <Layers className="size-3" />
+                                Tổng số câu
+                            </span>
+                            <span className="text-2xl font-black tracking-tight">{questions.length}</span>
+                        </div>
+                        <div className="bg-emerald-500/5 border border-emerald-500/20 p-4 rounded-xl flex flex-col gap-1">
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-500/80 flex items-center gap-2">
+                                <CheckCircle2 className="size-3" />
+                                Đang hoạt động
+                            </span>
+                            <span className="text-2xl font-black tracking-tight text-emerald-600">{activeCount}</span>
+                        </div>
+                        <div className="bg-amber-500/5 border border-amber-500/20 p-4 rounded-xl flex flex-col gap-1">
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-500/80 flex items-center gap-2">
+                                <AlertTriangle className="size-3" />
+                                Chờ xét duyệt
+                            </span>
+                            <span className="text-2xl font-black tracking-tight text-amber-600">{reviewCount}</span>
+                        </div>
+                        <div className="bg-rose-500/5 border border-rose-500/20 p-4 rounded-xl flex flex-col gap-1">
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-rose-500/80 flex items-center gap-2">
+                                <XCircle className="size-3" />
+                                Ngừng bán/Dừng
+                            </span>
+                            <span className="text-2xl font-black tracking-tight text-rose-600">{inactiveCount}</span>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
 
-                {/* Quick Stats Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="bg-card/30 backdrop-blur-md border border-border/40 p-4 rounded-xl flex flex-col gap-1 transition-all hover:border-primary/20 hover:bg-card/50">
-                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 flex items-center gap-2">
-                            <Layers className="size-3" />
-                            Tổng số câu
-                        </span>
-                        <span className="text-2xl font-black italic tracking-tight">{questions.length}</span>
+            {/* Card danh sách câu hỏi */}
+            <Card>
+                <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <CardTitle className="text-lg font-bold">Câu hỏi trong kho đề</CardTitle>
+                        <CardDescription>
+                            Quản lý các câu hỏi thuộc kho đề này. Bạn có thể thêm mới, chỉnh sửa hoặc thay đổi trạng thái câu hỏi.
+                        </CardDescription>
                     </div>
-                    <div className="bg-emerald-500/5 backdrop-blur-md border border-emerald-500/10 p-4 rounded-xl flex flex-col gap-1 transition-all hover:border-emerald-500/20 hover:bg-emerald-500/10">
-                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-500/50 flex items-center gap-2">
-                            <CheckCircle2 className="size-3" />
-                            Đang hoạt động
-                        </span>
-                        <span className="text-2xl font-black italic tracking-tight text-emerald-600">{activeCount}</span>
+                    <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40" />
+                            <Input
+                                placeholder="Tìm kiếm nội dung câu hỏi..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="pl-10"
+                            />
+                        </div>
+                        <Button
+                            className="md:w-auto w-full text-[11px] font-black uppercase tracking-[0.16em]"
+                            onClick={() => setIsCreateDialogOpen(true)}
+                        >
+                            <Plus className="mr-2 size-4" />
+                            Thêm câu hỏi
+                        </Button>
                     </div>
-                    <div className="bg-amber-500/5 backdrop-blur-md border border-amber-500/10 p-4 rounded-xl flex flex-col gap-1 transition-all hover:border-amber-500/20 hover:bg-amber-500/10">
-                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-500/50 flex items-center gap-2">
-                            <AlertTriangle className="size-3" />
-                            Chờ xét duyệt
-                        </span>
-                        <span className="text-2xl font-black italic tracking-tight text-amber-600">{reviewCount}</span>
-                    </div>
-                    <div className="bg-rose-500/5 backdrop-blur-md border border-rose-500/10 p-4 rounded-xl flex flex-col gap-1 transition-all hover:border-rose-500/20 hover:bg-rose-500/10">
-                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-rose-500/50 flex items-center gap-2">
-                            <XCircle className="size-3" />
-                            Ngừng bán/Dừng
-                        </span>
-                        <span className="text-2xl font-black italic tracking-tight text-rose-600">{inactiveCount}</span>
-                    </div>
-                </div>
-            </div>
-
-            <div className="space-y-4">
-                <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/40" />
-                        <Input
-                            placeholder="Tìm kiếm nội dung câu hỏi trong bộ đề..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="pl-10"
-                        />
-                    </div>
-                </div>
-
-                <Card>
+                </CardHeader>
+                <CardContent>
                     <PoolQuestionsTable
                         data={filteredQuestions}
                         isLoading={isLoadingQuestions}
@@ -228,8 +245,8 @@ export default function PoolDetailPage() {
                         onDeactivate={handleDeactivate}
                         onSendForReview={handleSendForReview}
                     />
-                </Card>
-            </div>
+                </CardContent>
+            </Card>
 
             {/* Sheets & Dialogs */}
             <QuestionFormSheet

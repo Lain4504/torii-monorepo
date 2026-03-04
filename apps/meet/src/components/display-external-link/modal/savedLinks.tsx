@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { isArray } from 'es-toolkit/compat';
 
-import FormattedInputField from '../../../helpers/ui/formattedInputField';
-import { DB_STORE_NAMES, idbGet, idbStore } from '../../../helpers/libs/idb';
+import FormattedInputField from '@/helpers/ui/formattedInputField';
+import { DB_STORE_NAMES, idbGet, idbStore } from '@/helpers/libs/idb';
 import { PlusCircle } from 'lucide-react';
-import SavedLinkItem from './savedLinkItem';
+import SavedLinkItem from '@/components/display-external-link/modal/savedLinkItem';
 
 const EXTERNAL_DISPLAY_LINK_URLS = 'externalDisplayLinkUrls';
 

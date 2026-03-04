@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { setActiveSidePanel } from '../../../store/slices/bottomIconsActivitySlice';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import { setActiveSidePanel } from '@/store/slices/bottomIconsActivitySlice';
 import { BarChart2 } from 'lucide-react';
 
 const PollsIcon = () => {

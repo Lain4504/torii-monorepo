@@ -2,12 +2,12 @@ import React, { useCallback } from 'react';
 import { MenuItem, MenuItems } from '@headlessui/react';
 import { Room, Track } from 'livekit-client';
 
-import { useAppDispatch, useAppSelector } from '../../../../store';
-import { updateSelectedAudioDevice } from '../../../../store/slices/roomSettingsSlice';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { updateSelectedAudioDevice } from '@/store/slices/roomSettingsSlice';
 import {
   updateIsActiveMicrophone,
   updateIsMicMuted,
-} from '../../../../store/slices/bottomIconsActivitySlice';
+} from '@/store/slices/bottomIconsActivitySlice';
 import { Check, Mic, MicOff, LogOut } from 'lucide-react';
 
 interface IMicMenuItemsProps {

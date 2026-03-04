@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { debounce } from 'es-toolkit';
 
-import { store, useAppSelector } from '../../../store';
-import { selectMessagesByKeyValue } from '../../../store/slices/chatMessagesSlice';
-import Message from './message';
+import { store, useAppSelector } from '@/store';
+import { selectMessagesByKeyValue } from '@/store/slices/chatMessagesSlice';
+import Message from '@/components/chat/messages/message';
 
 interface IMessagesProps {
   messageKey: string;

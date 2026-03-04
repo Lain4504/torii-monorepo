@@ -3,14 +3,14 @@ import { toast } from 'react-toastify';
 import { InsightsChatTranslationConfigReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
-import TransLangsSelector from '../transcription-settings/transLangsSelector';
-import { useAppDispatch, useAppSelector } from '../../../store';
-import DefaultSubtitleLangSelector from '../transcription-settings/defaultSubtitleLangSelector';
+import TransLangsSelector from '@/components/translation-transcription/transcription-settings/transLangsSelector';
+import { useAppDispatch, useAppSelector } from '@/store';
+import DefaultSubtitleLangSelector from '@/components/translation-transcription/transcription-settings/defaultSubtitleLangSelector';
 import {
   enableOrUpdateChatTranslation,
   endChatTranslation,
-} from '../helpers/apiConnections';
-import { updateDisplaySpeechSettingsModal } from '../../../store/slices/bottomIconsActivitySlice';
+} from '@/components/translation-transcription/helpers/apiConnections';
+import { updateDisplaySpeechSettingsModal } from '@/store/slices/bottomIconsActivitySlice';
 
 interface ChatTranslationSettingsProps {
   setErrorMsg: React.Dispatch<React.SetStateAction<string | undefined>>;

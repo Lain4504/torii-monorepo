@@ -7,12 +7,12 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import { store, useAppSelector } from '../../../store';
-import sendAPIRequest from '../../../helpers/api/api-client';
+import { store, useAppSelector } from '@/store';
+import sendAPIRequest from '@/helpers/api/api-client';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
-import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';
-import FormattedInputField from '../../../helpers/ui/formattedInputField';
+import Dropdown, { ISelectOption } from '@/helpers/ui/dropdown';
+import FormattedInputField from '@/helpers/ui/formattedInputField';
 
 const Ingress = () => {
   const [name, setName] = useState<string>('broadcaster');

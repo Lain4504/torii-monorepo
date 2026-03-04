@@ -2,8 +2,8 @@ import React, { useCallback, useMemo } from 'react';
 import clsx from 'clsx';
 
 import { MessageSquareQuote } from 'lucide-react';
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { updateDisplaySpeechSettingOptionsModal } from '../../../store/slices/bottomIconsActivitySlice';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import { updateDisplaySpeechSettingOptionsModal } from '@/store/slices/bottomIconsActivitySlice';
 
 const Translation = () => {
   const dispatch = useAppDispatch();

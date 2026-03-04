@@ -1,11 +1,11 @@
 import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetDescription,
-    SheetFooter,
-} from '@workspace/ui/components/sheet';
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from '@workspace/ui/components/dialog';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Badge } from '@workspace/ui/components/badge';
 import type { QuestionResponseDTO } from '@workspace/schemas';
@@ -58,31 +58,30 @@ export function QuestionDetailSheet({
     };
 
     return (
-        <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
-                <SheetHeader>
-                    <div className="flex items-center justify-between mb-2">
-                        <Badge variant="secondary">
-                            JLPT {question.jlptLevel || 'GLOBAL'}
-                        </Badge>
-                        <Badge
-                            variant={
-                                question.difficulty === QuestionDifficultyLevel.HARD ? 'destructive' :
-                                    question.difficulty === QuestionDifficultyLevel.MEDIUM ? 'secondary' : 'outline'
-                            }
-                        >
-                            {question.difficulty === QuestionDifficultyLevel.HARD ? 'Khó' :
-                                question.difficulty === QuestionDifficultyLevel.MEDIUM ? 'Trung bình' : 'Dễ'}
-                        </Badge>
-                    </div>
-                    <SheetTitle>Chi Tiết Câu Hỏi</SheetTitle>
-                    <SheetDescription>
-                        Mã số: {question.id.substring(0, 12)}... • {formatDate(question.createdAt)}
-                    </SheetDescription>
-                </SheetHeader>
-
-                <ScrollArea className="flex-1 min-h-0">
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden">
+                <ScrollArea className="flex-1 min-h-0 max-h-[80vh]">
                     <div className="space-y-10 p-6">
+                        <DialogHeader>
+                            <div className="flex items-center justify-between mb-2">
+                                <Badge variant="secondary">
+                                    JLPT {question.jlptLevel || 'GLOBAL'}
+                                </Badge>
+                                <Badge
+                                    variant={
+                                        question.difficulty === QuestionDifficultyLevel.HARD ? 'destructive' :
+                                            question.difficulty === QuestionDifficultyLevel.MEDIUM ? 'secondary' : 'outline'
+                                    }
+                                >
+                                    {question.difficulty === QuestionDifficultyLevel.HARD ? 'Khó' :
+                                        question.difficulty === QuestionDifficultyLevel.MEDIUM ? 'Trung bình' : 'Dễ'}
+                                </Badge>
+                            </div>
+                            <DialogTitle>Chi Tiết Câu Hỏi</DialogTitle>
+                            <DialogDescription>
+                                Mã số: {question.id.substring(0, 12)}... • {formatDate(question.createdAt)}
+                            </DialogDescription>
+                        </DialogHeader>
                         {/* Question Section */}
                         <section className="space-y-4">
                             <div className="flex items-center gap-2 text-primary">
@@ -120,7 +119,7 @@ export function QuestionDetailSheet({
                     </div>
                 </ScrollArea>
 
-                <SheetFooter className="border-t">
+                <DialogFooter className="px-6 py-4 border-t">
                     <div className="w-full flex items-center justify-between">
                         <div className="flex gap-4 items-center">
                             <div className="flex flex-col">
@@ -137,9 +136,9 @@ export function QuestionDetailSheet({
                             Sẵn sàng sử dụng
                         </Badge>
                     </div>
-                </SheetFooter>
-            </SheetContent>
-        </Sheet>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 }
 

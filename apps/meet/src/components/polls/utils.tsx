@@ -2,8 +2,8 @@ import React, { ReactElement } from 'react';
 import { chunk } from 'es-toolkit';
 import ReactDOMServer from 'react-dom/server';
 
-import { getNatsConn } from '../../helpers/nats';
-import { generateAvatarInitial } from '../../helpers/utils';
+import { getNatsConn } from '@/helpers/nats';
+import { generateAvatarInitial } from '@/helpers/utils';
 
 export interface PollDataWithOption {
   pollId: string;

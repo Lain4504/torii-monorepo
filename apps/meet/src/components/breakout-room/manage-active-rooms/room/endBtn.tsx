@@ -4,8 +4,8 @@ import { create } from '@bufbuild/protobuf';
 import { toast } from 'react-toastify';
 import { Button } from '@workspace/ui/components/button';
 
-import { useEndSingleRoomMutation } from '../../../../store/services/breakoutRoomApi';
-import { BreakoutRoomMessage } from '../..';
+import { useEndSingleRoomMutation } from '@/store/services/breakoutRoomApi';
+import { BreakoutRoomMessage } from '@/components/breakout-room';
 
 interface IEndBtnProps {
   breakoutRoomId: string;

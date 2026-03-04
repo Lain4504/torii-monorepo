@@ -1,18 +1,18 @@
 import React, { memo } from 'react';
 
-import Avatar from './avatar';
-import ParticipantName from './name';
-import RaiseHandIcon from './icons/raiseHand';
-import MicIcon from './icons/mic';
-import WebcamIcon from './icons/webcam';
-import ScreenShareIcon from './icons/screenShare';
-import MenuIcon from './icons/menu';
-import VisibilityIcon from './icons/visibility';
-import PresenterIcon from './icons/presenterIcon';
-import WaitingApproval from './waitingApproval';
+import Avatar from '@/components/participants/participant/avatar';
+import ParticipantName from '@/components/participants/participant/name';
+import RaiseHandIcon from '@/components/participants/participant/icons/raiseHand';
+import MicIcon from '@/components/participants/participant/icons/mic';
+import WebcamIcon from '@/components/participants/participant/icons/webcam';
+import ScreenShareIcon from '@/components/participants/participant/icons/screenShare';
+import MenuIcon from '@/components/participants/participant/icons/menu';
+import VisibilityIcon from '@/components/participants/participant/icons/visibility';
+import PresenterIcon from '@/components/participants/participant/icons/presenterIcon';
+import WaitingApproval from '@/components/participants/participant/waitingApproval';
 
-import { ICurrentUser } from '../../../store/slices/interfaces/session';
-import { IVisibleParticipantInfo } from '../../../store/slices/interfaces/participant';
+import { ICurrentUser } from '@/store/slices/interfaces/session';
+import { IVisibleParticipantInfo } from '@/store/slices/interfaces/participant';
 
 interface IParticipantComponentProps {
   participant: IVisibleParticipantInfo;

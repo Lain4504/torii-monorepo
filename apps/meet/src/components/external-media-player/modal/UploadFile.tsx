@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { RoomUploadedFileType } from '@workspace/protocol';
 
-import { uploadResumableFile } from '../../../helpers/fileUpload';
+import { uploadResumableFile } from '@/helpers/fileUpload';
 import { File, Trash2 } from 'lucide-react';
 
 interface IUploadFileProps {

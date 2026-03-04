@@ -5,11 +5,11 @@ import { debounce } from 'es-toolkit';
 import {
   updateRoomAudioVolume,
   updateRoomScreenShareAudioVolume,
-} from '../../store/slices/roomSettingsSlice';
-import { useAppDispatch, useAppSelector } from '../../store';
-import { updateParticipant } from '../../store/slices/participantSlice';
+} from '@/store/slices/roomSettingsSlice';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { updateParticipant } from '@/store/slices/participantSlice';
 import { Volume2, VolumeX } from 'lucide-react';
-import RangeSlider from '../../helpers/ui/rangeSlider';
+import RangeSlider from '@/helpers/ui/rangeSlider';
 
 const VolumeControl = () => {
   const dispatch = useAppDispatch();

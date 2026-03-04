@@ -6,10 +6,10 @@ import {
   Track,
 } from 'livekit-client';
 
-import VideoElm from './videoElm';
-import AudioElm from './audioElm';
-import { CurrentConnectionEvents } from '../../../helpers/livekit/types';
-import { getMediaServerConn } from '../../../helpers/livekit/utils';
+import VideoElm from '@/components/media-elements/screenshare/videoElm';
+import AudioElm from '@/components/media-elements/screenshare/audioElm';
+import { CurrentConnectionEvents } from '@/helpers/livekit/types';
+import { getMediaServerConn } from '@/helpers/livekit/utils';
 
 const ScreenShareElements = () => {
   const [screenShareTracks, setScreenShareTracks] =

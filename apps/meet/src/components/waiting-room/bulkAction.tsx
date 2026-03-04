@@ -1,8 +1,8 @@
 import React from 'react';
 import { Button } from '@workspace/ui/components/button';
 
-import { IParticipant } from '../../store/slices/interfaces/participant';
-import sendAPIRequest from '../../helpers/api/api-client';
+import { IParticipant } from '@/store/slices/interfaces/participant';
+import sendAPIRequest from '@/helpers/api/api-client';
 import {
   ApproveWaitingUsersReqSchema,
   CommonResponseSchema,
@@ -10,8 +10,8 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import { store, useAppDispatch } from '../../store';
-import { addUserNotification } from '../../store/slices/roomSettingsSlice';
+import { store, useAppDispatch } from '@/store';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
 
 interface IBulkActionProps {
   waitingParticipants: IParticipant[];

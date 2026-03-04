@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
-import { useAppSelector } from '../../../store';
-import speechQueue from './SpeechSynthesisQueue'; // Import the singleton
+import { useAppSelector } from '@/store';
+import speechQueue from '@/components/translation-transcription/helpers/SpeechSynthesisQueue'; // Import the singleton
 
 export const useSubtitleSpeechSynthesis = () => {
   const finalText = useAppSelector((state) => state.speechServices.finalText);

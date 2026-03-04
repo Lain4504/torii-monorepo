@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react';
 import { Button } from '@workspace/ui/components/button';
 
-import BroadcastMessageForm from './broadcastMessageForm';
-import RoomLists from './roomLists';
+import BroadcastMessageForm from '@/components/breakout-room/manage-active-rooms/broadcastMessageForm';
+import RoomLists from '@/components/breakout-room/manage-active-rooms/roomLists';
 
-import { useEndAllRoomsMutation } from '../../../store/services/breakoutRoomApi';
+import { useEndAllRoomsMutation } from '@/store/services/breakoutRoomApi';
 import { BreakoutRoomMessage } from '..';
-import { useAppDispatch } from '../../../store';
-import { updateShowManageBreakoutRoomModal } from '../../../store/slices/bottomIconsActivitySlice';
+import { useAppDispatch } from '@/store';
+import { updateShowManageBreakoutRoomModal } from '@/store/slices/bottomIconsActivitySlice';
 
 interface IManageActiveRoomsProps {
   setMessage: (message: BreakoutRoomMessage | null) => void;

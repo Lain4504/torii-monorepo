@@ -1,17 +1,17 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Menu, MenuButton, Transition } from '@headlessui/react';
-import { store, useAppSelector } from '../../store';
-import HeaderMenus from './menus';
-import RoomSettings from './room-settings';
-import KeyboardShortcuts from './keyboardShortcuts';
-import VolumeControl from './volumeControl';
-import DurationView from './durationView';
-import DarkThemeSwitcher from './darkThemeSwitcher';
-import HeaderLogo from './headerLogo';
-import { getNatsConn } from '../../helpers/nats';
+import { store, useAppSelector } from '@/store';
+import HeaderMenus from '@/components/header/menus';
+import RoomSettings from '@/components/header/room-settings';
+import KeyboardShortcuts from '@/components/header/keyboardShortcuts';
+import VolumeControl from '@/components/header/volumeControl';
+import DurationView from '@/components/header/durationView';
+import DarkThemeSwitcher from '@/components/header/darkThemeSwitcher';
+import HeaderLogo from '@/components/header/headerLogo';
+import { getNatsConn } from '@/helpers/nats';
 import { Menu as MenuIcon } from 'lucide-react';
-import UserNotifications from './user-notifications';
-import ConfirmationModal from '../../helpers/ui/confirmationModal';
+import UserNotifications from '@/components/header/user-notifications';
+import ConfirmationModal from '@/helpers/ui/confirmationModal';
 
 const Header = () => {
   const roomTitle = useAppSelector(

@@ -7,7 +7,7 @@ import {
   IWhiteboardOfficeFile,
   IWhiteboardSlice,
   WhiteboardDataAsDonorData,
-} from './interfaces/whiteboard';
+} from '@/store/slices/interfaces/whiteboard';
 
 const initialState: IWhiteboardSlice = {
   totalPages: 10,

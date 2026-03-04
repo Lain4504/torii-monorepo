@@ -6,7 +6,7 @@ import {
   DisclosurePanel,
 } from '@headlessui/react';
 
-import { getFormatedRespondents, PollDataWithOption } from '../../utils';
+import { getFormatedRespondents, PollDataWithOption } from '@/components/polls/utils';
 
 interface RespondentsProps {
   pollDataWithOption: PollDataWithOption;

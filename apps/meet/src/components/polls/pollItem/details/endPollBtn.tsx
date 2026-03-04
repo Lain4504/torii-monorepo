@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { useEndPoll } from '../../hooks/useEndPoll';
-import ActionButton from '../../../../helpers/ui/actionButton';
+import { useEndPoll } from '@/components/polls/hooks/useEndPoll';
+import ActionButton from '@/helpers/ui/actionButton';
 
 interface EndPollBtnProps {
   pollId: string;

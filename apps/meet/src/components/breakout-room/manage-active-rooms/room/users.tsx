@@ -3,9 +3,9 @@ import { BreakoutRoomUser, DataMsgBodyType } from '@workspace/protocol';
 import { chunk } from 'es-toolkit';
 import { Button } from '@workspace/ui/components/button';
 
-import { generateAvatarInitial } from '../../../../helpers/utils';
-import { getNatsConn } from '../../../../helpers/nats';
-import { BreakoutRoomMessage } from '../../index';
+import { generateAvatarInitial } from '@/helpers/utils';
+import { getNatsConn } from '@/helpers/nats';
+import { BreakoutRoomMessage } from '@/components/breakout-room/index';
 
 interface IBreakoutRoomUsersProps {
   users: Array<BreakoutRoomUser>;

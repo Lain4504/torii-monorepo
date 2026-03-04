@@ -1,6 +1,6 @@
 import React from 'react';
 
-import RaisedHand from './raisedHand';
+import RaisedHand from '@/components/media-elements/videos/video/raisedHand';
 
 export interface IParticipantProps {
   userId: string;

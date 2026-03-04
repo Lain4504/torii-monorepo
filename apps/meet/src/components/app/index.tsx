@@ -1,27 +1,27 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import ErrorPage, { IErrorPageProps } from '../extra-pages/Error';
-import Loading from '../extra-pages/Loading';
-import Footer from '../footer';
-import Header from '../header';
-import MainArea from '../main-area';
-import Landing from '../landing';
-import InsertE2EEKey from '../extra-pages/InsertE2EEKey';
-import DummyAudio from './dummyAudio';
-import Login from '../extra-pages/Login'
-import { store, useAppDispatch } from '../../store';
-import { addServerVersion, addToken } from '../../store/slices/sessionSlice';
-import AudioNotification from './audioNotification';
-import useKeyboardShortcuts from '../../helpers/hooks/useKeyboardShortcuts';
-import useClientCustomization from '../../helpers/hooks/useClientCustomization';
-import useWatchWindowSize from '../../helpers/hooks/useWatchWindowSize';
-import useWatchVisibilityChange from '../../helpers/hooks/useWatchVisibilityChange';
-import useThemeSettings from '../../helpers/hooks/useThemeSettings';
-import { IConnectLivekit } from '../../helpers/livekit/types';
-import { isUserRecorder } from '../../helpers/utils';
-import { startNatsConn } from '../../helpers/nats';
-import { InfoToOpenConn, roomConnectionStatus, verifyToken } from './helper';
-import { loadBodyPix } from '../virtual-background/helpers/utils';
-import { setActiveSidePanel } from '../../store/slices/bottomIconsActivitySlice';
+import ErrorPage, { IErrorPageProps } from '@/components/extra-pages/Error';
+import Loading from '@/components/extra-pages/Loading';
+import Footer from '@/components/footer';
+import Header from '@/components/header';
+import MainArea from '@/components/main-area';
+import Landing from '@/components/landing';
+import InsertE2EEKey from '@/components/extra-pages/InsertE2EEKey';
+import DummyAudio from '@/components/app/dummyAudio';
+import Login from '@/components/extra-pages/Login'
+import { store, useAppDispatch } from '@/store';
+import { addServerVersion, addToken } from '@/store/slices/sessionSlice';
+import AudioNotification from '@/components/app/audioNotification';
+import useKeyboardShortcuts from '@/helpers/hooks/useKeyboardShortcuts';
+import useClientCustomization from '@/helpers/hooks/useClientCustomization';
+import useWatchWindowSize from '@/helpers/hooks/useWatchWindowSize';
+import useWatchVisibilityChange from '@/helpers/hooks/useWatchVisibilityChange';
+import useThemeSettings from '@/helpers/hooks/useThemeSettings';
+import { IConnectLivekit } from '@/helpers/livekit/types';
+import { isUserRecorder } from '@/helpers/utils';
+import { startNatsConn } from '@/helpers/nats';
+import { InfoToOpenConn, roomConnectionStatus, verifyToken } from '@/components/app/helper';
+import { loadBodyPix } from '@/components/virtual-background/helpers/utils';
+import { setActiveSidePanel } from '@/store/slices/bottomIconsActivitySlice';
 
 const App = () => {
   const dispatch = useAppDispatch();

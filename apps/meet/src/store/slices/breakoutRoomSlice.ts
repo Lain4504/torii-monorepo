@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { DroppedUser, IBreakoutRoomSlice } from './interfaces/breakoutRoom';
+import { DroppedUser, IBreakoutRoomSlice } from '@/store/slices/interfaces/breakoutRoom';
 
 const initialState: IBreakoutRoomSlice = {
   droppedUser: {

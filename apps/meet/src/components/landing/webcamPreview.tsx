@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import VirtualBackground from '../virtual-background/virtualBackground';
-import { useAppSelector } from '../../store';
-import { SourcePlayback } from '../virtual-background/helpers/sourceHelper';
+import VirtualBackground from '@/components/virtual-background/virtualBackground';
+import { useAppSelector } from '@/store';
+import { SourcePlayback } from '@/components/virtual-background/helpers/sourceHelper';
 
 interface WebcamPreviewProps {
   selectedVideoDevice: string;

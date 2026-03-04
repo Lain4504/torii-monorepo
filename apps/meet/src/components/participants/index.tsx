@@ -3,14 +3,14 @@ import useVirtual from 'react-cool-virtual';
 import { Search, X } from 'lucide-react';
 import { Input } from '@workspace/ui/components/input';
 
-import ParticipantComponent from './participant';
+import ParticipantComponent from '@/components/participants/participant';
 import RemoveParticipantAlertModal, {
   IRemoveParticipantAlertModalData,
-} from './removeParticipantAlertModal';
+} from '@/components/participants/removeParticipantAlertModal';
 
-import { store, useAppDispatch, useAppSelector } from '../../store';
-import { selectVisibleParticipants } from '../../store/slices/participantSlice';
-import { setActiveSidePanel } from '../../store/slices/bottomIconsActivitySlice';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import { selectVisibleParticipants } from '@/store/slices/participantSlice';
+import { setActiveSidePanel } from '@/store/slices/bottomIconsActivitySlice';
 
 const ParticipantsComponent = () => {
   const dispatch = useAppDispatch();

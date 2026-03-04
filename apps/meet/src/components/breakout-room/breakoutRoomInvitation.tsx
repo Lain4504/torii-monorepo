@@ -15,16 +15,16 @@ import copy from 'copy-text-to-clipboard';
 import { JoinBreakoutRoomReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
-import { useAppDispatch, useAppSelector } from '../../store';
-import { updateReceivedInvitationFor } from '../../store/slices/breakoutRoomSlice';
-import { useJoinRoomMutation } from '../../store/services/breakoutRoomApi';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { updateReceivedInvitationFor } from '@/store/slices/breakoutRoomSlice';
+import { useJoinRoomMutation } from '@/store/services/breakoutRoomApi';
 import {
   updateIsActiveWebcam,
   updateIsMicMuted,
   updateVirtualBackground,
-} from '../../store/slices/bottomIconsActivitySlice';
-import { updateSelectedVideoDevice } from '../../store/slices/roomSettingsSlice';
-import { getMediaServerConnRoom } from '../../helpers/livekit/utils';
+} from '@/store/slices/bottomIconsActivitySlice';
+import { updateSelectedVideoDevice } from '@/store/slices/roomSettingsSlice';
+import { getMediaServerConnRoom } from '@/helpers/livekit/utils';
 import { X } from 'lucide-react';
 
 const BreakoutRoomInvitation = () => {

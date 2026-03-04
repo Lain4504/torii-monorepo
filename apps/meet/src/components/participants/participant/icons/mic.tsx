@@ -4,13 +4,13 @@ import { debounce } from 'es-toolkit';
 import { Mic, MicOff } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 
-import { useAppDispatch, useAppSelector } from '../../../../store';
+import { useAppDispatch, useAppSelector } from '@/store';
 import {
   participantsSelector,
   updateParticipant,
-} from '../../../../store/slices/participantSlice';
-import IconWrapper from './iconWrapper';
-import RangeSlider from '../../../../helpers/ui/rangeSlider';
+} from '@/store/slices/participantSlice';
+import IconWrapper from '@/components/participants/participant/icons/iconWrapper';
+import RangeSlider from '@/helpers/ui/rangeSlider';
 
 interface MicIconProps {
   userId: string;

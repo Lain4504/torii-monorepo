@@ -2,9 +2,9 @@ import React from 'react';
 import { Sun, Moon } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 
-import { useAppDispatch, useAppSelector } from '../../store';
-import { updateTheme } from '../../store/slices/roomSettingsSlice';
-import { DISABLE_DARK_MODE } from '../../config';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { updateTheme } from '@/store/slices/roomSettingsSlice';
+import { DISABLE_DARK_MODE } from '@/config';
 
 const DarkThemeSwitcher = () => {
   const dispatch = useAppDispatch();

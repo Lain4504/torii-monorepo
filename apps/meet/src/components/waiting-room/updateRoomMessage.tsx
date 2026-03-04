@@ -7,9 +7,9 @@ import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import { Button } from '@workspace/ui/components/button';
 import { Textarea } from '@workspace/ui/components/textarea';
 
-import { useAppDispatch, useAppSelector } from '../../store';
-import sendAPIRequest from '../../helpers/api/api-client';
-import { addUserNotification } from '../../store/slices/roomSettingsSlice';
+import { useAppDispatch, useAppSelector } from '@/store';
+import sendAPIRequest from '@/helpers/api/api-client';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
 
 const UpdateRoomMessage = () => {
   const dispatch = useAppDispatch();
