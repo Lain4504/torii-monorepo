@@ -157,7 +157,7 @@ export function CourseRunsTable({ courseId, courseType }: CourseRunsTableProps) 
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex justify-end items-center gap-2">
-                                            <Button variant="outline" size="sm" onClick={() => navigate(`/course-master/runs/${run.id}`)} className="h-8 text-xs font-bold gap-2">
+                                            <Button variant="outline" size="sm" onClick={() => navigate(`/course/${run.id}`)} className="h-8 text-xs font-bold gap-2">
                                                 <LayoutDashboard className="h-3.5 w-3.5" />
                                                 Quản lý
                                             </Button>
@@ -168,17 +168,17 @@ export function CourseRunsTable({ courseId, courseType }: CourseRunsTableProps) 
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="p-1.5 rounded-xl border-border/40 shadow-xl min-w-[160px]">
-                                                    <DropdownMenuItem onClick={() => navigate(`/course-master/runs/${run.id}`)} className="rounded-lg gap-2 py-2">
+                                                    <DropdownMenuItem onClick={() => navigate(`/course/${run.id}`)} className="rounded-lg gap-2 py-2">
                                                         <LayoutDashboard className="h-4 w-4 opacity-50" />
                                                         <span className="font-bold text-xs uppercase">Tổng quan</span>
                                                     </DropdownMenuItem>
                                                     {!isVod && (
-                                                        <DropdownMenuItem onClick={() => navigate(`/course-master/runs/${run.id}/live-sessions`)} className="rounded-lg gap-2 py-2">
+                                                        <DropdownMenuItem onClick={() => navigate(`/course/${run.id}/live-sessions`)} className="rounded-lg gap-2 py-2">
                                                             <Users className="h-4 w-4 opacity-50" />
                                                             <span className="font-bold text-xs uppercase">Buổi học</span>
                                                         </DropdownMenuItem>
                                                     )}
-                                                    <DropdownMenuItem onClick={() => navigate(`/course-master/runs/${run.id}/enrollments`)} className="rounded-lg gap-2 py-2">
+                                                    <DropdownMenuItem onClick={() => navigate(`/course/${run.id}/enrollments`)} className="rounded-lg gap-2 py-2">
                                                         <Users className="h-4 w-4 opacity-50" />
                                                         <span className="font-bold text-xs uppercase">Học viên</span>
                                                     </DropdownMenuItem>

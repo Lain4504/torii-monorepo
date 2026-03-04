@@ -47,6 +47,7 @@ export const academicNavItems: NavItem[] = [
         anyPermission: ["course.create", "course.update", "course.publish", "course.view_restricted", "course.view_my"],
         items: [
             { titleKey: "Lớp học của tôi", url: "/my-classes", permission: "course.view_my" },
+            { titleKey: "Danh sách Lớp học", url: "/courses", anyPermission: ["course.view_restricted", "course.update"] },
             { titleKey: "Khung chương trình", url: "/course-master", permission: "course.view_restricted" },
             { titleKey: "Phản hồi học viên", url: "/course-master/reviews", anyPermission: ["course.update", "course.view_restricted"] },
             { titleKey: "Yêu cầu đổi lịch", url: "/course-master/requests", anyPermission: ["course.update", "course.view_restricted", "schedule.view"] },

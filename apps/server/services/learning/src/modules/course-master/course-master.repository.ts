@@ -133,25 +133,7 @@ export class CourseMasterRepository implements ICourseMasterRepository {
         return [];
     }
 
-    /**
-     * Update course master statistics
-     */
-    async updateStats(courseMasterId: string, stats: {
-        totalLessons?: number;
-        totalQuizzes?: number;
-    }): Promise<CourseMaster> {
-        const updateData: Prisma.CourseMasterUpdateInput = {
-            updatedAt: new Date(),
-        };
 
-        if (stats.totalLessons !== undefined) updateData.totalLessons = stats.totalLessons;
-        if (stats.totalQuizzes !== undefined) updateData.totalQuizzes = stats.totalQuizzes;
-
-        return this.prisma.courseMaster.update({
-            where: { id: courseMasterId },
-            data: updateData,
-        });
-    }
 
     /**
      * Get lecturer for a course master
@@ -178,20 +160,7 @@ export class CourseMasterRepository implements ICourseMasterRepository {
         });
     }
 
-    /**
-     * Count published quizzes for a course master
-     */
-    async countQuizzes(courseMasterId: string): Promise<number> {
-        return this.prisma.quiz.count({
-            where: {
-                OR: [
-                    { id: courseMasterId },
-                    { lesson: { module: { id: courseMasterId } } }
-                ],
-                status: 'published',
-            },
-        });
-    }
+
 
     /**
      * Get a specific course version by ID
@@ -225,6 +194,33 @@ export class CourseMasterRepository implements ICourseMasterRepository {
                 },
                 status: 'published',
                 deletedAt: null,
+            },
+        });
+    }
+
+    /**
+     * Count published modules for a course master
+     */
+    async countModules(courseMasterId: string): Promise<number> {
+        return this.prisma.module.count({
+            where: {
+                courseMasterId,
+                status: 'published',
+                deletedAt: null,
+            },
+        });
+    }
+
+    /**
+     * Update course master statistics
+     */
+    async updateStats(courseMasterId: string, stats: { totalLessons: number; totalModules: number }): Promise<void> {
+        await this.prisma.courseMaster.update({
+            where: { id: courseMasterId },
+            data: {
+                totalLessons: stats.totalLessons,
+                totalModules: stats.totalModules,
+                updatedAt: new Date(),
             },
         });
     }

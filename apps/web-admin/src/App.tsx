@@ -22,6 +22,7 @@ import CouponsPage from '@/routes/coupons/coupons-page.tsx'
 import CourseMasterPage from '@/routes/courses/course-master-page.tsx'
 import CourseMasterReviewsPage from '@/routes/courses/course-master-reviews-page.tsx'
 import CourseMasterDetailPage from '@/routes/courses/course-master-detail-page.tsx'
+import CourseRunsPage from '@/routes/courses/course-runs-page.tsx'
 import CourseRunDetailPage from '@/routes/courses/course-run-detail-page.tsx'
 import QuizDetailPage from '@/routes/courses/quiz-detail-page.tsx'
 import MyCourseRunsPage from '@/routes/courses/my-course-runs-page.tsx'
@@ -93,13 +94,15 @@ function App() {
                   <Route path="course-master/reviews" element={<CourseMasterReviewsPage />} />
                   <Route path="course-master/requests" element={<ScheduleRequestsPage />} />
                   <Route path="course-master/:id" element={<CourseMasterDetailPage />} />
-                  <Route path="course-master/runs/:runId" element={<CourseRunDetailPage />} />
-                  <Route path="course-master/runs/:runId/quizzes/:quizId" element={<QuizDetailPage />} />
                   <Route path="course-master/discussions" element={<CourseMasterDiscussionsPage />} />
                   <Route path="course-master/:id/assignments/:assignmentId/submissions" element={<AssignmentSubmissionsPage />} />
+
                   {/* Course Run Management Routes - New Structure */}
-                  <Route path="course-master/runs/:runId/live-sessions" element={<CourseRunLiveSessionsPage />} />
-                  <Route path="course-master/runs/:runId/enrollments" element={<CourseRunEnrollmentsPage />} />
+                  <Route path="courses" element={<CourseRunsPage />} />
+                  <Route path="course/:runId" element={<CourseRunDetailPage />} />
+                  <Route path="course/:runId/quizzes/:quizId" element={<QuizDetailPage />} />
+                  <Route path="course/:runId/live-sessions" element={<CourseRunLiveSessionsPage />} />
+                  <Route path="course/:runId/enrollments" element={<CourseRunEnrollmentsPage />} />
 
                   <Route path="rooms" element={<RoomsPage />} />
 

@@ -69,7 +69,7 @@ export default function CourseRunEnrollmentsPage() {
                     variant="ghost"
                     size="sm"
                     className="h-8 px-0 text-muted-foreground hover:text-foreground gap-2 transition-colors hover:bg-transparent -ml-2 w-fit"
-                    onClick={() => navigate(`/course-master/runs/${runId}`)}
+                    onClick={() => navigate(`/course/${runId}`)}
                 >
                     <ChevronLeft className="size-4" />
                     <span className="text-xs font-sans font-bold italic uppercase tracking-wider">Quay lại chi tiết lớp học</span>

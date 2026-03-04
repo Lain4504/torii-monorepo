@@ -72,7 +72,7 @@ export function useCourseRuns(params: CourseRunSearchRequestDTO) {
     return useQuery({
         queryKey: ['course-runs', params],
         queryFn: () => courseRunsApi.findAll(params),
-        enabled: !!params.courseMasterId,
+        enabled: true,
     });
 }
 

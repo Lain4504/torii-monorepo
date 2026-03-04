@@ -280,15 +280,7 @@ export class CourseMasterService implements ICourseMasterService {
 
     const dto = await this.toCourseMasterResponseDTO(course);
 
-    // Force recalculate stats to ensure accuracy for Admin/Staff
-    await this.recalculateStats(courseMasterId);
 
-    // Refresh DTO values from database after recalculation
-    const updated = await this.courseRepository.findById(courseMasterId);
-    if (updated) {
-      dto.totalLessons = updated.totalLessons;
-      dto.totalQuizzes = updated.totalQuizzes;
-    }
 
     // Fetch lecturer
     try {
@@ -988,21 +980,7 @@ export class CourseMasterService implements ICourseMasterService {
     };
   }
 
-  /**
-   * Recalculate course master statistics (totalLessons, totalQuizzes)
-   * Only counts published items
-   */
-  async recalculateStats(courseMasterId: string): Promise<void> {
-    try {
-      const totalLessons = await this.courseRepository.countLessons(courseMasterId);
-      const totalQuizzes = await this.courseRepository.countQuizzes(courseMasterId);
 
-      await this.courseRepository.updateStats(courseMasterId, { totalLessons, totalQuizzes });
-      this.logger.log(`Recalculated stats for course master ${courseMasterId}: totalLessons=${totalLessons}, totalQuizzes=${totalQuizzes}`);
-    } catch (error: any) {
-      this.logger.error(`Failed to recalculate stats for course master ${courseMasterId}`, error);
-    }
-  }
 
   /**
    * Get course version history

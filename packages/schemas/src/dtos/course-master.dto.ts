@@ -59,16 +59,14 @@ export const courseMasterSearchResponseDTOSchema = courseMasterSchema.pick({
     title: true,
     slug: true,
     jlptLevel: true,
-    totalStudents: true,
-    totalLessons: true,
     durationWeeks: true,
-    averageRating: true,
-    totalReviews: true,
     shortDescription: true,
     description: true,
     aiMetadata: true,
     type: true,
     thumbnailUrl: true,
+    totalLessons: true,
+    totalModules: true,
 }).extend({
     lecturer: courseMasterInstructorDTOSchema.optional().nullable(),
 });

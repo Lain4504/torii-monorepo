@@ -66,16 +66,7 @@ export interface ICourseMasterRepository {
      */
     findFeatured(): Promise<CourseMaster[]>;
 
-    /**
-     * Update course master statistics
-     */
-    updateStats(courseMasterId: string, stats: {
-        totalStudents?: number;
-        totalLessons?: number;
-        totalQuizzes?: number;
-        averageRating?: number;
-        totalReviews?: number;
-    }): Promise<CourseMaster>;
+
 
     /**
      * Get lecturer for a course master
@@ -102,10 +93,7 @@ export interface ICourseMasterRepository {
      */
     getVersionById(versionId: string): Promise<CourseVersion | null>;
 
-    /**
-     * Count published quizzes for a course master
-     */
-    countQuizzes(courseMasterId: string): Promise<number>;
+
 
     /**
      * Count published lessons for a course master

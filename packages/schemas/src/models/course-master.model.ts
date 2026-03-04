@@ -45,11 +45,7 @@ export const courseMasterSchema = z.object({
     // Live config moved to CourseRun (per-cohort configuration)
     durationWeeks: z.number().min(0).optional(),         // Thời lượng nội dung khóa học (hiển thị)
     expirationMonths: z.number().int().min(1).max(6).optional(), // 1-6 tháng: thời hạn truy cập
-    totalLessons: z.number().default(0),
-    totalQuizzes: z.number().default(0),
-    totalStudents: z.number().default(0),
-    averageRating: z.number().default(0),
-    totalReviews: z.number().default(0),
+
     status: z.nativeEnum(CourseMasterStatus), // Computed field derived from approvedBy/approvedAt
     tags: z.array(z.string()).optional(),
     learningOutcomes: z.any().optional(), // JSONB
@@ -64,6 +60,8 @@ export const courseMasterSchema = z.object({
     updatedAt: z.date(),
     deletedAt: z.date().optional(),
     thumbnailUrl: z.string().optional().nullable(),
+    totalLessons: z.number().int().default(0),
+    totalModules: z.number().int().default(0),
 });
 
 export type CourseMaster = z.infer<typeof courseMasterSchema>;

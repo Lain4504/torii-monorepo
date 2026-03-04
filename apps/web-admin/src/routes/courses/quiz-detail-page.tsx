@@ -216,7 +216,7 @@ export default function QuizDetailPage() {
             <p className="text-sm text-muted-foreground mt-1">
               Thuộc lớp{' '}
               <Link
-                to={`/course-master/runs/${run.id}`}
+                to={`/course/${run.id}`}
                 className="font-medium text-primary hover:underline"
               >
                 {run.title}
@@ -642,7 +642,7 @@ export default function QuizDetailPage() {
               <Button
                 className="w-full"
                 variant="outline"
-                onClick={() => navigate(`/course-master/runs/${runId}`)}
+                onClick={() => navigate(`/course/${runId}`)}
               >
                 Quay lại Course Run Detail
               </Button>

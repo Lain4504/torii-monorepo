@@ -97,10 +97,7 @@ export class CourseHandler {
         return this.courseMasterService.reject(requester, id, reason);
     }
 
-    @MessagePattern({ cmd: 'learning.coursemaster.recalculate_stats' })
-    async recalculateStats(@Payload() data: { courseMasterId: string }) {
-        return this.courseMasterService.recalculateStats(data.courseMasterId);
-    }
+
 
     @MessagePattern({ cmd: 'learning.coursemaster.getVersionHistory' })
     async getVersionHistory(@Payload() data: { id: string }) {

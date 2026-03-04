@@ -141,7 +141,7 @@ export default function CourseRunDetailPage() {
     };
 
     const handleViewQuiz = (quiz: QuizDTO) => {
-        navigate(`/course-master/runs/${runId}/quizzes/${quiz.id}`);
+        navigate(`/course/${runId}/quizzes/${quiz.id}`);
     };
 
 
@@ -169,7 +169,7 @@ export default function CourseRunDetailPage() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <Button variant="ghost" size="icon" asChild>
-                        <Link to={course ? `/course-master/${course.id}` : '/course-master'}>
+                        <Link to="/courses">
                             <ArrowLeft className="h-5 w-5" />
                         </Link>
                     </Button>
@@ -385,7 +385,7 @@ export default function CourseRunDetailPage() {
                                     <CardDescription>Quản lý tất cả các buổi học live của lớp này</CardDescription>
                                 </div>
                                 <Button
-                                    onClick={() => navigate(`/course-master/runs/${runId}/live-sessions`)}
+                                    onClick={() => navigate(`/course/${runId}/live-sessions`)}
                                     className="font-bold uppercase tracking-widest text-xs"
                                 >
                                     Xem chi tiết
@@ -397,7 +397,7 @@ export default function CourseRunDetailPage() {
                                     <p className="text-sm text-muted-foreground font-medium mb-4">Nhấn nút "Xem chi tiết" để quản lý buổi học</p>
                                     <Button
                                         variant="outline"
-                                        onClick={() => navigate(`/course-master/runs/${runId}/live-sessions`)}
+                                        onClick={() => navigate(`/course/${runId}/live-sessions`)}
                                     >
                                         <Video className="mr-2 h-4 w-4" />
                                         Quản lý buổi học
@@ -420,7 +420,7 @@ export default function CourseRunDetailPage() {
                                     <CardDescription>Quản lý học viên đã đăng ký vào lớp này</CardDescription>
                                 </div>
                                 <Button
-                                    onClick={() => navigate(`/course-master/runs/${runId}/enrollments`)}
+                                    onClick={() => navigate(`/course/${runId}/enrollments`)}
                                     className="font-bold uppercase tracking-widest text-xs"
                                 >
                                     Xem chi tiết
@@ -432,7 +432,7 @@ export default function CourseRunDetailPage() {
                                     <p className="text-sm text-muted-foreground font-medium mb-4">Tổng cộng: {enrollments.length} học viên</p>
                                     <Button
                                         variant="outline"
-                                        onClick={() => navigate(`/course-master/runs/${runId}/enrollments`)}
+                                        onClick={() => navigate(`/course/${runId}/enrollments`)}
                                     >
                                         <Users className="mr-2 h-4 w-4" />
                                         Xem danh sách chi tiết

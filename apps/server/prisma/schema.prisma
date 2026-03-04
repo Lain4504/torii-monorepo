@@ -71,6 +71,9 @@ model CourseMaster {
   createdAt        DateTime           @default(now()) @map("created_at")
   updatedAt        DateTime           @default(now()) @updatedAt @map("updated_at")
   deletedAt        DateTime?          @map("deleted_at")
+
+  totalLessons Int @default(0) @map("total_lessons")
+  totalModules Int @default(0) @map("total_modules")
   // Relations
   modules          Module[]
 

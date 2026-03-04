@@ -167,11 +167,7 @@ export interface ICourseMasterService {
         }>;
     }>;
 
-    /**
-     * Recalculate course statistics (totalLessons, totalQuizzes, etc.)
-     * @param courseMasterId - The course's unique identifier
-     */
-    recalculateStats(courseMasterId: string): Promise<void>;
+
 
     /**
      * Validate if a course is ready for scheduling

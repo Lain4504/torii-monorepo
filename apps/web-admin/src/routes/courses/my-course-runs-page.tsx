@@ -139,7 +139,7 @@ export default function MyCourseRunsPage() {
                                                         variant="default"
                                                         size="sm"
                                                         className="h-8 gap-2 font-semibold"
-                                                        onClick={() => navigate(`/course-master/runs/${run.id}`)}
+                                                        onClick={() => navigate(`/course/${run.id}`)}
                                                     >
                                                         <LayoutDashboard className="size-3.5" />
                                                         Tổng quan
@@ -149,7 +149,7 @@ export default function MyCourseRunsPage() {
                                                             variant="outline"
                                                             size="sm"
                                                             className="h-8 gap-2"
-                                                            onClick={() => navigate(`/course-master/runs/${run.id}/live-sessions`)}
+                                                            onClick={() => navigate(`/course/${run.id}/live-sessions`)}
                                                         >
                                                             <Video className="size-3.5" />
                                                             Buổi học

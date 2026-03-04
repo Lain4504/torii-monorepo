@@ -53,7 +53,7 @@ export const getSubmissionsColumns = ({
         if (!runId) return <span className="text-muted-foreground/50 text-xs">—</span>;
         return (
           <Button variant="link" className="h-auto p-0 text-xs font-mono" asChild>
-            <Link to={`/course-master/runs/${runId}`}>{runId.slice(0, 8)}…</Link>
+            <Link to={`/course/${runId}`}>{runId.slice(0, 8)}…</Link>
           </Button>
         );
       },
