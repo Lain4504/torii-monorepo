@@ -59,40 +59,41 @@ export function QuestionDetailSheet({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden">
-                <ScrollArea className="flex-1 min-h-0 max-h-[80vh]">
-                    <div className="space-y-10 p-6">
-                        <DialogHeader>
-                            <div className="flex items-center justify-between mb-2">
-                                <Badge variant="secondary">
-                                    JLPT {question.jlptLevel || 'GLOBAL'}
-                                </Badge>
-                                <Badge
-                                    variant={
-                                        question.difficulty === QuestionDifficultyLevel.HARD ? 'destructive' :
-                                            question.difficulty === QuestionDifficultyLevel.MEDIUM ? 'secondary' : 'outline'
-                                    }
-                                >
-                                    {question.difficulty === QuestionDifficultyLevel.HARD ? 'Khó' :
-                                        question.difficulty === QuestionDifficultyLevel.MEDIUM ? 'Trung bình' : 'Dễ'}
-                                </Badge>
-                            </div>
-                            <DialogTitle>Chi Tiết Câu Hỏi</DialogTitle>
-                            <DialogDescription>
-                                Mã số: {question.id.substring(0, 12)}... • {formatDate(question.createdAt)}
-                            </DialogDescription>
-                        </DialogHeader>
-                        {/* Question Section */}
-                        <section className="space-y-4">
+            <DialogContent className="sm:max-w-[720px]">
+                <DialogHeader>
+                    <DialogTitle>Chi tiết câu hỏi</DialogTitle>
+                    <DialogDescription>
+                        Mã số: {question.id.substring(0, 12)}... • {formatDate(question.createdAt)}
+                    </DialogDescription>
+                </DialogHeader>
+
+                <ScrollArea className="max-h-[70vh]">
+                    <div className="space-y-6 pr-2">
+                        <div className="flex items-center gap-2">
+                            <Badge variant="secondary">
+                                JLPT {question.jlptLevel || 'GLOBAL'}
+                            </Badge>
+                            <Badge
+                                variant={
+                                    question.difficulty === QuestionDifficultyLevel.HARD ? 'destructive' :
+                                        question.difficulty === QuestionDifficultyLevel.MEDIUM ? 'secondary' : 'outline'
+                                }
+                            >
+                                {question.difficulty === QuestionDifficultyLevel.HARD ? 'Khó' :
+                                    question.difficulty === QuestionDifficultyLevel.MEDIUM ? 'Trung bình' : 'Dễ'}
+                            </Badge>
+                        </div>
+
+                        {/* Question text */}
+                        <section className="space-y-2">
                             <div className="flex items-center gap-2 text-primary">
                                 <FileText className="size-4" />
-                                <h3 className="text-sm font-bold uppercase tracking-wider">Nội dung câu hỏi</h3>
+                                <h3 className="text-sm font-medium">Nội dung câu hỏi</h3>
                             </div>
-                            <Item variant="outline">
+                            <Item>
                                 <ItemContent>
-                                    <ItemTitle className="text-muted-foreground">Nội dung câu hỏi</ItemTitle>
-                                    <ItemDescription className="text-base font-medium text-foreground leading-relaxed italic">
-                                        "{question.questionText}"
+                                    <ItemDescription className="text-sm leading-relaxed">
+                                        {question.questionText}
                                     </ItemDescription>
                                 </ItemContent>
                             </Item>
@@ -103,14 +104,13 @@ export function QuestionDetailSheet({
 
                         {/* Explanation */}
                         {question.explanation && (
-                            <section className="space-y-4">
+                            <section className="space-y-2">
                                 <div className="flex items-center gap-2 text-amber-600">
                                     <BrainCircuit className="size-4" />
-                                    <h3 className="text-sm font-bold uppercase tracking-wider">Giải thích học thuật</h3>
+                                    <h3 className="text-sm font-medium">Giải thích</h3>
                                 </div>
                                 <Alert>
-                                    <BrainCircuit className="size-4" />
-                                    <AlertDescription className="leading-relaxed italic">
+                                    <AlertDescription className="text-sm leading-relaxed">
                                         {question.explanation}
                                     </AlertDescription>
                                 </Alert>
@@ -119,18 +119,11 @@ export function QuestionDetailSheet({
                     </div>
                 </ScrollArea>
 
-                <DialogFooter className="px-6 py-4 border-t">
-                    <div className="w-full flex items-center justify-between">
-                        <div className="flex gap-4 items-center">
-                            <div className="flex flex-col">
-                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Loại</span>
-                                <span className="text-xs font-bold text-foreground">{question.questionType}</span>
-                            </div>
-                            <div className="w-px h-6 bg-border" />
-                            <div className="flex flex-col">
-                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Chuyên môn</span>
-                                <span className="text-xs font-bold text-foreground">{question.category || 'Chung'}</span>
-                            </div>
+                <DialogFooter>
+                    <div className="w-full flex items-center justify-between text-xs text-muted-foreground">
+                        <div className="flex gap-4">
+                            <span>Loại: {question.questionType}</span>
+                            <span>Chuyên môn: {question.category || 'Chung'}</span>
                         </div>
                         <Badge variant="secondary">
                             Sẵn sàng sử dụng
@@ -148,18 +141,16 @@ import { QuizOption } from '@workspace/ui/components/custom/quiz';
 
 function MultipleChoiceContent({ question }: { question: QuestionResponseDTO }) {
     return (
-        <section className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <section className="space-y-3">
             <div className="flex items-center gap-2 text-primary">
                 <AlignLeft className="size-4" />
-                <h3 className="text-sm font-bold uppercase tracking-wider">Các phương án lựa chọn</h3>
+                <h3 className="text-sm font-medium">Các phương án lựa chọn</h3>
             </div>
 
             {question.questionType === QuestionType.LISTENING && question.metadata?.audioUrl && (
-                <div className="mb-6 p-4 rounded-xl bg-primary/5 border border-primary/10 flex items-center gap-4">
-                    <div className="size-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                        <Headphones className="size-5 text-primary" />
-                    </div>
-                    <audio controls className="w-full h-8 outline-none">
+                <div className="flex items-center gap-3">
+                    <Headphones className="size-4 text-primary" />
+                    <audio controls className="w-full">
                         <source src={question.metadata.audioUrl} type="audio/mpeg" />
                     </audio>
                 </div>
@@ -187,15 +178,15 @@ function MultipleChoiceContent({ question }: { question: QuestionResponseDTO }) 
 
 function FillBlankContent({ question }: { question: QuestionResponseDTO }) {
     return (
-        <section className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <section className="space-y-3">
             <div className="flex items-center gap-2 text-primary">
                 <MessageSquareQuote className="size-4" />
-                <h3 className="text-sm font-bold uppercase tracking-wider">Đáp án điền khuyết</h3>
+                <h3 className="text-sm font-medium">Đáp án điền khuyết</h3>
             </div>
-            <Item variant="outline">
+            <Item>
                 <ItemContent>
-                    <ItemTitle className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Đáp án chính xác</ItemTitle>
-                    <ItemDescription className="text-2xl font-bold font-mono">{question.correctAnswer}</ItemDescription>
+                    <ItemTitle>Đáp án chính xác</ItemTitle>
+                    <ItemDescription className="font-mono">{question.correctAnswer}</ItemDescription>
                 </ItemContent>
             </Item>
         </section>
@@ -205,22 +196,22 @@ function FillBlankContent({ question }: { question: QuestionResponseDTO }) {
 function TrueFalseContent({ question }: { question: QuestionResponseDTO }) {
     const isTrue = question.correctAnswer?.toLowerCase() === 'true' || question.correctAnswer === '1';
     return (
-        <section className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <section className="space-y-3">
             <div className="flex items-center gap-2 text-primary">
                 <CheckCircle2 className="size-4" />
-                <h3 className="text-sm font-bold uppercase tracking-wider">Xác nhận đúng sai</h3>
+                <h3 className="text-sm font-medium">Xác nhận đúng sai</h3>
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div className={cn(
-                    "p-6 rounded-lg border flex flex-col items-center gap-2 transition-all",
-                    isTrue ? "border-primary/30" : "opacity-40"
+                    "p-4 rounded-md border flex flex-col items-center gap-2",
+                    isTrue ? "border-primary/40" : "opacity-60"
                 )}>
                     <CheckCircle2 className={cn("size-8", isTrue ? "text-primary" : "text-muted-foreground")} />
                     <span className="font-bold text-sm uppercase">Đúng (True)</span>
                 </div>
                 <div className={cn(
-                    "p-6 rounded-lg border flex flex-col items-center gap-2 transition-all",
-                    !isTrue ? "border-destructive/30" : "opacity-40"
+                    "p-4 rounded-md border flex flex-col items-center gap-2",
+                    !isTrue ? "border-destructive/40" : "opacity-60"
                 )}>
                     <XCircleIcon className={cn("size-8", !isTrue ? "text-destructive" : "text-muted-foreground")} />
                     <span className="font-bold text-sm uppercase">Sai (False)</span>
@@ -232,14 +223,14 @@ function TrueFalseContent({ question }: { question: QuestionResponseDTO }) {
 
 function EssayContent({ question }: { question: QuestionResponseDTO }) {
     return (
-        <section className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <section className="space-y-3">
             <div className="flex items-center gap-2 text-primary">
                 <AlignLeft className="size-4" />
-                <h3 className="text-sm font-bold uppercase tracking-wider">Đáp án mẫu / Gợi ý</h3>
+                <h3 className="text-sm font-medium">Đáp án mẫu / Gợi ý</h3>
             </div>
-            <Item variant="outline">
+            <Item>
                 <ItemContent>
-                    <ItemDescription className="leading-relaxed text-sm text-foreground">
+                    <ItemDescription className="leading-relaxed text-sm">
                         {question.correctAnswer || "Chưa thiết lập đáp án mẫu cho câu hỏi tự luận này."}
                     </ItemDescription>
                 </ItemContent>
@@ -250,14 +241,14 @@ function EssayContent({ question }: { question: QuestionResponseDTO }) {
 
 function DefaultQuestionContent({ question }: { question: QuestionResponseDTO }) {
     return (
-        <section className="space-y-4">
+        <section className="space-y-3">
             <div className="flex items-center gap-2 text-primary">
                 <CheckCircle2 className="size-4" />
-                <h3 className="text-sm font-bold uppercase tracking-wider">Đáp án hệ thống</h3>
+                <h3 className="text-sm font-medium">Đáp án hệ thống</h3>
             </div>
-            <Item variant="outline">
+            <Item>
                 <ItemContent>
-                    <ItemDescription className="text-xl font-bold font-mono">
+                    <ItemDescription className="font-mono">
                         {question.correctAnswer || 'N/A'}
                     </ItemDescription>
                 </ItemContent>

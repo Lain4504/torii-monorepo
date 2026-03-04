@@ -228,7 +228,16 @@ export function CreateQuizSheet({
                 >
                     <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
-                            <div className="space-y-5">
+                            {/* DETAILS */}
+                            <div className="space-y-4">
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground mb-1">
+                                        Thông tin quiz
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                        Cấu hình tiêu đề, thời lượng và điều kiện đạt cho bài quiz này.
+                                    </p>
+                                </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2 md:col-span-2">
                                         <Label
@@ -334,223 +343,19 @@ export function CreateQuizSheet({
                                         />
                                     </div>
                                 </div>
+                            </div>
 
-                                <div className="space-y-4 pt-4 border-t border-border">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <Layers className="size-4 text-violet-500" />
-                                            <h4 className="text-sm font-bold">Cấu hình các phần (Sections)</h4>
-                                        </div>
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={addSection}
-                                            className="h-8 text-xs bg-violet-500/5 border-violet-500/20 text-violet-600 hover:bg-violet-500/10 hover:text-violet-700"
-                                        >
-                                            <Plus className="size-3 mr-1" /> Thêm phần
-                                        </Button>
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <div className="grid grid-cols-1 gap-2">
-                                            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mr-auto">
-                                                Lọc bộ đề theo cấp độ JLPT
-                                            </Label>
-                                            <Select
-                                                value={form.jlptLevel}
-                                                onValueChange={v => setForm(f => ({ ...f, jlptLevel: v }))}
-                                            >
-                                                <SelectTrigger className="w-[120px] h-8 text-xs">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="N1">N1</SelectItem>
-                                                    <SelectItem value="N2">N2</SelectItem>
-                                                    <SelectItem value="N3">N3</SelectItem>
-                                                    <SelectItem value="N4">N4</SelectItem>
-                                                    <SelectItem value="N5">N5</SelectItem>
-                                                    <SelectItem value="GLOBAL">Tất cả</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-
-                                        {form.sections.map((section, index) => (
-                                            <Card key={section.id} className="p-4 border-dashed bg-muted/30">
-                                                <div className="flex flex-col gap-4">
-                                                    <div className="flex items-center justify-between">
-                                                        <Badge variant="outline" className="bg-background text-[10px] font-bold">
-                                                            Phần {index + 1}
-                                                        </Badge>
-                                                        <Button
-                                                            type="button"
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="size-7 text-muted-foreground hover:text-destructive"
-                                                            onClick={() => removeSection(section.id)}
-                                                        >
-                                                            <Trash2 className="size-4" />
-                                                        </Button>
-                                                    </div>
-
-                                                    <div className="grid grid-cols-2 gap-4">
-                                                        <div className="space-y-2">
-                                                            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                                                Chế độ chọn câu hỏi
-                                                            </Label>
-                                                            <div className="flex bg-muted rounded-lg p-1">
-                                                                <Button
-                                                                    type="button"
-                                                                    variant={section.selectionMode === 'pool' ? 'secondary' : 'ghost'}
-                                                                    size="sm"
-                                                                    className="flex-1 h-7 text-[10px] font-bold uppercase tracking-wider rounded-md"
-                                                                    onClick={() => updateSection(section.id, { selectionMode: 'pool' })}
-                                                                >
-                                                                    <RefreshCcw className="size-3 mr-1.5" />
-                                                                    Ngẫu nhiên
-                                                                </Button>
-                                                                <Button
-                                                                    type="button"
-                                                                    variant={section.selectionMode === 'manual' ? 'secondary' : 'ghost'}
-                                                                    size="sm"
-                                                                    className="flex-1 h-7 text-[10px] font-bold uppercase tracking-wider rounded-md"
-                                                                    onClick={() => updateSection(section.id, { selectionMode: 'manual' })}
-                                                                >
-                                                                    <MousePointer2 className="size-3 mr-1.5" />
-                                                                    Thủ công
-                                                                </Button>
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="space-y-2">
-                                                            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                                                Loại phần
-                                                            </Label>
-                                                            <Select
-                                                                value={section.type}
-                                                                onValueChange={(v: any) => updateSection(section.id, { type: v })}
-                                                            >
-                                                                <SelectTrigger className="h-9">
-                                                                    <SelectValue />
-                                                                </SelectTrigger>
-                                                                <SelectContent>
-                                                                    <SelectItem value="vocab">Từ vựng</SelectItem>
-                                                                    <SelectItem value="grammar">Ngữ pháp</SelectItem>
-                                                                    <SelectItem value="reading">Đọc hiểu</SelectItem>
-                                                                    <SelectItem value="listening">Nghe hiểu</SelectItem>
-                                                                </SelectContent>
-                                                            </Select>
-                                                        </div>
-                                                    </div>
-
-                                                    {section.selectionMode === 'pool' ? (
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                            <div className="space-y-2">
-                                                                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                                                    Bộ đề (Question Pool)
-                                                                </Label>
-                                                                <Select
-                                                                    value={section.poolId}
-                                                                    onValueChange={v => updateSection(section.id, { poolId: v })}
-                                                                >
-                                                                    <SelectTrigger className="h-9">
-                                                                        <SelectValue placeholder="Chọn bộ đề..." />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        {pools.length > 0 ? (
-                                                                            pools.map((p: any) => (
-                                                                                <SelectItem key={p.id} value={p.id}>
-                                                                                    {p.name}
-                                                                                </SelectItem>
-                                                                            ))
-                                                                        ) : (
-                                                                            <SelectItem value="none" disabled>
-                                                                                Không có bộ đề nào
-                                                                            </SelectItem>
-                                                                        )}
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </div>
-
-                                                            <div className="grid grid-cols-2 gap-4">
-                                                                <div className="space-y-2">
-                                                                    <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                                                        Số câu hỏi
-                                                                    </Label>
-                                                                    <div className="relative">
-                                                                        <BookOpen className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-                                                                        <Input
-                                                                            type="number"
-                                                                            min={1}
-                                                                            className="pl-9 h-9"
-                                                                            value={section.questionCount}
-                                                                            onChange={e => updateSection(section.id, { questionCount: e.target.value })}
-                                                                        />
-                                                                    </div>
-                                                                </div>
-                                                                <div className="space-y-2">
-                                                                    <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                                                        TG (phút)
-                                                                    </Label>
-                                                                    <div className="relative">
-                                                                        <Clock className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-                                                                        <Input
-                                                                            type="number"
-                                                                            min={1}
-                                                                            className="pl-9 h-9"
-                                                                            value={section.timeLimit}
-                                                                            onChange={e => updateSection(section.id, { timeLimit: e.target.value })}
-                                                                        />
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                            <div className="space-y-2">
-                                                                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                                                    Chọn câu hỏi ({section.questionIds.length})
-                                                                </Label>
-                                                                <Button
-                                                                    type="button"
-                                                                    variant="outline"
-                                                                    className="w-full h-9 justify-start text-xs font-medium"
-                                                                    onClick={() => {
-                                                                        setActiveSectionId(section.id);
-                                                                        setSelectorOpen(true);
-                                                                    }}
-                                                                >
-                                                                    <BrainCircuit className="size-4 mr-2 text-primary" />
-                                                                    {section.questionIds.length > 0
-                                                                        ? `Đã chọn ${section.questionIds.length} câu hỏi`
-                                                                        : "Bấm để chọn câu hỏi..."}
-                                                                </Button>
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                                                    TG (phút)
-                                                                </Label>
-                                                                <div className="relative">
-                                                                    <Clock className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-                                                                    <Input
-                                                                        type="number"
-                                                                        min={1}
-                                                                        className="pl-9 h-9"
-                                                                        value={section.timeLimit}
-                                                                        onChange={e => updateSection(section.id, { timeLimit: e.target.value })}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    )}
-
-                                                </div>
-                                            </Card>
-                                        ))}
-                                    </div>
+                            {/* SETTINGS */}
+                            <div className="space-y-4 pt-4 border-t border-border">
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground mb-1">
+                                        Cài đặt hiển thị & lượt làm
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                        Quy định số lần làm bài và cách hệ thống hiển thị đáp án cho học viên.
+                                    </p>
                                 </div>
-
-                                <div className="grid grid-cols-2 gap-6 pt-2 border-t border-border">
+                                <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <Label className="text-xs font-bold uppercase tracking-widest">
                                             Số lần làm tối đa
@@ -580,13 +385,235 @@ export function CreateQuizSheet({
                                         </Select>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div className="space-y-4 pt-2 border-t border-border">
+                            {/* QUESTIONS */}
+                            <div className="space-y-4 pt-4 border-t border-border">
+                                <div className="flex items-center justify-between gap-2">
+                                    <div>
+                                        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground mb-1">
+                                            Câu hỏi & ngân hàng câu hỏi
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                            Thêm câu hỏi mới hoặc chọn nhanh từ Question Pool giống như màn hình mẫu.
+                                        </p>
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={addSection}
+                                        className="h-8 text-xs bg-violet-500/5 border-violet-500/20 text-violet-600 hover:bg-violet-500/10 hover:text-violet-700"
+                                    >
+                                        <Plus className="size-3 mr-1" /> Thêm nhóm câu hỏi
+                                    </Button>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-1 gap-2">
+                                        <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mr-auto">
+                                            Lọc Question Pool theo cấp độ JLPT
+                                        </Label>
+                                        <Select
+                                            value={form.jlptLevel}
+                                            onValueChange={v => setForm(f => ({ ...f, jlptLevel: v }))}
+                                        >
+                                            <SelectTrigger className="w-[140px] h-8 text-xs">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="N1">N1</SelectItem>
+                                                <SelectItem value="N2">N2</SelectItem>
+                                                <SelectItem value="N3">N3</SelectItem>
+                                                <SelectItem value="N4">N4</SelectItem>
+                                                <SelectItem value="N5">N5</SelectItem>
+                                                <SelectItem value="GLOBAL">Tất cả</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    {form.sections.map((section, index) => (
+                                        <Card key={section.id} className="p-4 border-dashed bg-muted/30">
+                                            <div className="flex flex-col gap-4">
+                                                <div className="flex items-center justify-between">
+                                                    <Badge variant="outline" className="bg-background text-[10px] font-bold">
+                                                        Nhóm câu hỏi {index + 1}
+                                                    </Badge>
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="size-7 text-muted-foreground hover:text-destructive"
+                                                        onClick={() => removeSection(section.id)}
+                                                    >
+                                                        <Trash2 className="size-4" />
+                                                    </Button>
+                                                </div>
+
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <div className="space-y-2">
+                                        <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                            Cách lấy câu hỏi
+                                                        </Label>
+                                                        <div className="flex bg-muted rounded-lg p-1">
+                                                            <Button
+                                                                type="button"
+                                                                variant={section.selectionMode === 'pool' ? 'secondary' : 'ghost'}
+                                                                size="sm"
+                                                                className="flex-1 h-7 text-[10px] font-bold uppercase tracking-wider rounded-md"
+                                                                onClick={() => updateSection(section.id, { selectionMode: 'pool' })}
+                                                            >
+                                                                <RefreshCcw className="size-3 mr-1.5" />
+                                                                Ngẫu nhiên từ Pool
+                                                            </Button>
+                                                            <Button
+                                                                type="button"
+                                                                variant={section.selectionMode === 'manual' ? 'secondary' : 'ghost'}
+                                                                size="sm"
+                                                                className="flex-1 h-7 text-[10px] font-bold uppercase tracking-wider rounded-md"
+                                                                onClick={() => updateSection(section.id, { selectionMode: 'manual' })}
+                                                            >
+                                                                <MousePointer2 className="size-3 mr-1.5" />
+                                                                Chọn thủ công
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="space-y-2">
+                                                        <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                            Loại nhóm
+                                                        </Label>
+                                                        <Select
+                                                            value={section.type}
+                                                            onValueChange={(v: any) => updateSection(section.id, { type: v })}
+                                                        >
+                                                            <SelectTrigger className="h-9">
+                                                                <SelectValue />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="vocab">Từ vựng</SelectItem>
+                                                                <SelectItem value="grammar">Ngữ pháp</SelectItem>
+                                                                <SelectItem value="reading">Đọc hiểu</SelectItem>
+                                                                <SelectItem value="listening">Nghe hiểu</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                </div>
+
+                                                {section.selectionMode === 'pool' ? (
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div className="space-y-2">
+                                                            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                                Question Pool
+                                                            </Label>
+                                                            <Select
+                                                                value={section.poolId}
+                                                                onValueChange={v => updateSection(section.id, { poolId: v })}
+                                                            >
+                                                                <SelectTrigger className="h-9">
+                                                                    <SelectValue placeholder="Chọn Question Pool để rút câu hỏi..." />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    {pools.length > 0 ? (
+                                                                        pools.map((p: any) => (
+                                                                            <SelectItem key={p.id} value={p.id}>
+                                                                                {p.name}
+                                                                            </SelectItem>
+                                                                        ))
+                                                                    ) : (
+                                                                        <SelectItem value="none" disabled>
+                                                                            Không có Question Pool nào
+                                                                        </SelectItem>
+                                                                    )}
+                                                                </SelectContent>
+                                                            </Select>
+                                                        </div>
+
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <div className="space-y-2">
+                                                                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                                    Số câu hỏi
+                                                                </Label>
+                                                                <div className="relative">
+                                                                    <BookOpen className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+                                                                    <Input
+                                                                        type="number"
+                                                                        min={1}
+                                                                        className="pl-9 h-9"
+                                                                        value={section.questionCount}
+                                                                        onChange={e => updateSection(section.id, { questionCount: e.target.value })}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                                    Thời gian (phút)
+                                                                </Label>
+                                                                <div className="relative">
+                                                                    <Clock className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+                                                                    <Input
+                                                                        type="number"
+                                                                        min={1}
+                                                                        className="pl-9 h-9"
+                                                                        value={section.timeLimit}
+                                                                        onChange={e => updateSection(section.id, { timeLimit: e.target.value })}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div className="space-y-2">
+                                                            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                                Tìm kiếm & chọn câu hỏi ({section.questionIds.length})
+                                                            </Label>
+                                                            <Button
+                                                                type="button"
+                                                                variant="outline"
+                                                                className="w-full h-9 justify-start text-xs font-medium"
+                                                                onClick={() => {
+                                                                    setActiveSectionId(section.id);
+                                                                    setSelectorOpen(true);
+                                                                }}
+                                                            >
+                                                                <BrainCircuit className="size-4 mr-2 text-primary" />
+                                                                {section.questionIds.length > 0
+                                                                    ? `Đã chọn ${section.questionIds.length} câu hỏi từ Question Pool`
+                                                                    : 'Search Question Pool để chọn câu hỏi...'}
+                                                            </Button>
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                                Thời gian (phút)
+                                                            </Label>
+                                                            <div className="relative">
+                                                                <Clock className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+                                                                <Input
+                                                                    type="number"
+                                                                    min={1}
+                                                                    className="pl-9 h-9"
+                                                                    value={section.timeLimit}
+                                                                    onChange={e => updateSection(section.id, { timeLimit: e.target.value })}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                            </div>
+                                        </Card>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* BEHAVIOR FLAGS */}
+                            <div className="space-y-4 pt-4 border-t border-border">
                                     <div className="flex items-center justify-between">
                                         <div>
                                             <p className="text-sm font-semibold">Xáo trộn câu hỏi</p>
                                             <p className="text-xs text-muted-foreground">
-                                                Thứ tự câu hỏi ngẫu nhiên
+                                                Khi bật, thứ tự câu hỏi trong quiz sẽ được xáo trộn cho mỗi học viên.
                                             </p>
                                         </div>
                                         <Switch
@@ -598,8 +625,10 @@ export function CreateQuizSheet({
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="text-sm font-semibold">Hiển thị giải thích</p>
-                                            <p className="text-xs text-muted-foreground">Sau khi nộp bài</p>
+                                            <p className="text-sm font-semibold">Hiển thị đáp án & giải thích</p>
+                                            <p className="text-xs text-muted-foreground">
+                                                Sau khi nộp bài, hiển thị đáp án đúng và phần giải thích cho học viên.
+                                            </p>
                                         </div>
                                         <Switch
                                             checked={form.showExplanation}
