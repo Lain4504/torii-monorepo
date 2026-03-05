@@ -7,6 +7,7 @@ import { ContentModule } from '@server/academy/modules/content/content.module';
 import { ClassroomModule } from '@server/academy/modules/classroom/classroom.module';
 import { AssessmentModule } from '@server/academy/modules/assessment/assessment.module';
 import { CommerceModule } from '@server/academy/modules/commerce/commerce.module';
+import { TicketModule } from '@server/academy/modules/ticket/ticket.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CommerceModule } from '@server/academy/modules/commerce/commerce.module
     ClassroomModule,
     AssessmentModule,
     CommerceModule,
+    TicketModule,
   ],
   providers: [
     {
@@ -26,4 +28,4 @@ import { CommerceModule } from '@server/academy/modules/commerce/commerce.module
     },
   ],
 })
-export class AcademyModule {}
+export class AcademyModule { }

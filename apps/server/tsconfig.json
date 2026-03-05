@@ -62,9 +62,6 @@
       "@server/learning/*": [
         "./services/learning/src/*"
       ],
-      "@server/communication/*": [
-        "./services/communication/src/*"
-      ],
       "@server/storage/*": [
         "./services/storage/src/*"
       ],

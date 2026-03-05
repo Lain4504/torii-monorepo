@@ -12,7 +12,6 @@ import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
 // Meet Module - Meet service routes via NATS
 import { MeetModule } from './modules/meet/meet.module';
 import { IdentityModule } from './modules/identity/identity.module';
-import { CommunicationModule } from './modules/communication/communication.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { AcademyModule } from './modules/academy/academy.module';
@@ -50,8 +49,6 @@ import { AcademyModule } from './modules/academy/academy.module';
     IdentityModule,
     // Academy Module - New core LMS via NATS
     AcademyModule,
-    // Communication Module
-    CommunicationModule,
     // Storage Module
     StorageModule,
   ],
@@ -59,4 +56,4 @@ import { AcademyModule } from './modules/academy/academy.module';
   providers: [ApiKeyGuard],
   exports: [],
 })
-export class GatewayModule {}
+export class GatewayModule { }

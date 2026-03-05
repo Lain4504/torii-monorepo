@@ -29,7 +29,14 @@
       "sourceRoot": "services/identity/src",
       "compilerOptions": {
         "tsConfigPath": "services/identity/tsconfig.app.json",
-        "webpack": false
+        "webpack": false,
+        "assets": [
+          {
+            "include": "**/*.pug",
+            "outDir": "dist/services/identity/src",
+            "watchAssets": true
+          }
+        ]
       }
     },
     "meet": {
@@ -77,23 +84,6 @@
       "compilerOptions": {
         "tsConfigPath": "services/gamification/tsconfig.app.json",
         "webpack": false
-      }
-    },
-    "communication": {
-      "type": "application",
-      "root": "services/communication",
-      "entryFile": "main",
-      "sourceRoot": "services/communication/src",
-      "compilerOptions": {
-        "tsConfigPath": "services/communication/tsconfig.app.json",
-        "webpack": false,
-        "assets": [
-          {
-            "include": "**/*.pug",
-            "outDir": "dist/services/communication/src",
-            "watchAssets": true
-          }
-        ]
       }
     },
     "storage": {

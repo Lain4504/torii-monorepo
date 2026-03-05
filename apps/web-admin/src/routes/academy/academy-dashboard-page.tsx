@@ -23,6 +23,12 @@ export default function AcademyDashboardPage() {
             <Button asChild variant="outline" className="w-full">
               <Link to="/academy/course-editions">Course Editions</Link>
             </Button>
+            <Button asChild variant="outline" className="w-full">
+              <Link to="/academy/chapters">Chapters</Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full">
+              <Link to="/academy/chapter-items">Chapter Items</Link>
+            </Button>
           </CardContent>
         </Card>
 
