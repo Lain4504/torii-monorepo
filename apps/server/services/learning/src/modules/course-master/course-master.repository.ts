@@ -184,16 +184,18 @@ export class CourseMasterRepository implements ICourseMasterRepository {
     /**
      * Count published lessons for a course master
      */
+    /**
+     * Count published curriculum items (lessons, quizzes, assignments) for a course master
+     */
     async countLessons(courseMasterId: string): Promise<number> {
-        return this.prisma.lesson.count({
+        return this.prisma.moduleItem.count({
             where: {
                 module: {
+                    id: { not: undefined }, // basically ensure module exists
                     courseMasterId,
                     status: 'published',
                     deletedAt: null,
                 },
-                status: 'published',
-                deletedAt: null,
             },
         });
     }

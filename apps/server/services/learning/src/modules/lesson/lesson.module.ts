@@ -3,7 +3,8 @@ import { LessonHandler } from '@server/learning/modules/lesson/lesson.handler';
 import { NatsClientModule } from '@server/shared';
 import { LessonService } from '@server/learning/modules/lesson/lesson.service';
 import { LessonRepository } from '@server/learning/modules/lesson/lesson.repository';
-import { LESSON_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import { LESSON_REPOSITORY_TOKEN, MODULE_ITEM_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import { ModuleItemRepository } from '@server/learning/modules/module/module-item.repository';
 import { LESSON_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import { CourseMasterModule } from '@server/learning/modules/course-master/course-master.module';
 import { ModuleModule } from '@server/learning/modules/module/module.module';
@@ -30,6 +31,10 @@ import { LessonProfile } from '@server/learning/infrastructure/mappings/lesson.p
     {
       provide: LESSON_SERVICE_TOKEN,
       useClass: LessonService,
+    },
+    {
+      provide: MODULE_ITEM_REPOSITORY_TOKEN,
+      useClass: ModuleItemRepository,
     },
     LessonProfile,
   ],

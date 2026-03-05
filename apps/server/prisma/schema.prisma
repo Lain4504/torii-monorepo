@@ -386,8 +386,6 @@ model Lesson {
   videoUrl             String?   @map("video_url") @db.Text
   durationMinutes      Int?      @map("duration_minutes")
   articleContent       String?   @map("article_content") @db.Text
-  hasQuiz              Boolean   @default(false) @map("has_quiz")
-  hasAssignment        Boolean   @default(false) @map("has_assignment")
   requiresPassingGrade Boolean   @default(false) @map("requires_passing_grade")
   status               String    @default("published") @db.VarChar(20) // published, draft
   orderIndex           Int       @default(0) @map("order_index")

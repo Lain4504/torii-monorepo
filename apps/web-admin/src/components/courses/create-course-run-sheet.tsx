@@ -21,10 +21,11 @@ import { X, Save } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
 import { courseRunCreateDTOSchema, type CourseRunCreateDTO, UserRole } from '@workspace/schemas';
 import { useCreateCourseRun } from "@/lib/api/services/course-runs";
+import { useCourses } from "@/lib/api/services/courses";
 import { useUsers } from "@/lib/api/services/users";
 import { Spinner } from "@workspace/ui/components/spinner";
 import { FileUpload } from '@/components/common/file-upload';
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@workspace/ui/components/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select";
 
 interface CreateCourseRunSheetProps {
     open: boolean;
@@ -36,6 +37,7 @@ interface CreateCourseRunSheetProps {
 export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType }: CreateCourseRunSheetProps) {
     const createMutation = useCreateCourseRun();
     const { data: lecturersData, isLoading: isLoadingLecturers } = useUsers({ role: UserRole.LECTURER, limit: 100 });
+    const { data: coursesData, isLoading: isLoadingCourses } = useCourses({ page: 1, limit: 100, status: 'APPROVED' as any });
 
     const {
         register,
@@ -43,10 +45,12 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
         control,
         formState: { errors, isDirty },
         reset,
+        watch,
+        setValue,
     } = useForm<CourseRunCreateDTO>({
         resolver: zodResolver(courseRunCreateDTOSchema) as any,
         defaultValues: {
-            courseMasterId: courseId,
+            courseMasterId: courseId || '',
             title: '',
             maxStudents: 30,
             minStudents: 1,
@@ -56,6 +60,16 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
             previewVideoUrl: undefined,
         },
     });
+
+    const selectedCourseMasterId = watch('courseMasterId');
+    const selectedCourseMaster = coursesData?.data?.find(cm => cm.id === selectedCourseMasterId);
+    const effectiveCourseType = courseType || selectedCourseMaster?.type;
+
+    useEffect(() => {
+        if (courseId) {
+            setValue('courseMasterId', courseId);
+        }
+    }, [courseId, setValue]);
 
     const handleClose = () => {
         onOpenChange(false);
@@ -99,7 +113,7 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
                 </SheetHeader>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden min-h-0"
-                      noValidate>
+                    noValidate>
                     <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
 
@@ -122,7 +136,7 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
                                     <Controller
                                         name="lecturerId"
                                         control={control}
-                                        render={({field}) => (
+                                        render={({ field }) => (
                                             <Select
                                                 value={field.value || ''}
                                                 onValueChange={field.onChange}
@@ -130,7 +144,7 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
                                             >
                                                 <SelectTrigger id="lecturerId" className="mt-1">
                                                     <SelectValue
-                                                        placeholder={isLoadingLecturers ? "Đang tải..." : "Chọn giảng viên"}/>
+                                                        placeholder={isLoadingLecturers ? "Đang tải..." : "Chọn giảng viên"} />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     {lecturersData?.data?.map((lecturer) => (
@@ -154,7 +168,7 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
                                             <Controller
                                                 name="startDate"
                                                 control={control}
-                                                render={({field}) => (
+                                                render={({ field }) => (
                                                     <Input
                                                         id="startDate"
                                                         type="datetime-local"
@@ -171,7 +185,7 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
                                             <Controller
                                                 name="endDate"
                                                 control={control}
-                                                render={({field}) => (
+                                                render={({ field }) => (
                                                     <Input
                                                         id="endDate"
                                                         type="datetime-local"
@@ -191,7 +205,7 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
                                             <Controller
                                                 name="enrollmentStart"
                                                 control={control}
-                                                render={({field}) => (
+                                                render={({ field }) => (
                                                     <Input
                                                         id="enrollmentStart"
                                                         type="datetime-local"
@@ -207,7 +221,7 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
                                             <Controller
                                                 name="enrollmentEnd"
                                                 control={control}
-                                                render={({field}) => (
+                                                render={({ field }) => (
                                                     <Input
                                                         id="enrollmentEnd"
                                                         type="datetime-local"
@@ -230,7 +244,7 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
                                         type="number"
                                         min="0"
                                         step="0.01"
-                                        {...register('price', {valueAsNumber: true})}
+                                        {...register('price', { valueAsNumber: true })}
                                         placeholder="0 = Miễn phí"
                                         className="mt-1 font-mono"
                                     />
@@ -246,7 +260,7 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
                                         <Input
                                             id="maxStudents"
                                             type="number"
-                                            {...register('maxStudents', {valueAsNumber: true})}
+                                            {...register('maxStudents', { valueAsNumber: true })}
                                             className="mt-1"
                                         />
                                     </Field>
@@ -260,7 +274,7 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
                                         id="minStudents"
                                         type="number"
                                         min="1"
-                                        {...register('minStudents', {valueAsNumber: true})}
+                                        {...register('minStudents', { valueAsNumber: true })}
                                         className="mt-1"
                                     />
                                     <p className="text-[10px] text-muted-foreground mt-1 ml-1">
@@ -274,7 +288,7 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
                                         type="number"
                                         min="0"
                                         step="0.01"
-                                        {...register('discountPrice', {valueAsNumber: true})}
+                                        {...register('discountPrice', { valueAsNumber: true })}
                                         placeholder="Để trống nếu không giảm giá"
                                         className="mt-1 font-mono"
                                     />
@@ -289,7 +303,7 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
                                     <Controller
                                         name="coverUrl"
                                         control={control}
-                                        render={({field}) => (
+                                        render={({ field }) => (
                                             <FileUpload
                                                 accept="image/*"
                                                 label="Tải lên ảnh bìa (JPEG/PNG)"
@@ -307,7 +321,7 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
                                     <Controller
                                         name="previewVideoUrl"
                                         control={control}
-                                        render={({field}) => (
+                                        render={({ field }) => (
                                             <FileUpload
                                                 accept="video/*"
                                                 label="Tải lên video giới thiệu"
@@ -328,7 +342,7 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
                             onClick={handleClose}
                             disabled={createMutation.isPending}
                         >
-                            <X className="mr-2 h-4 w-4"/>
+                            <X className="mr-2 h-4 w-4" />
                             Hủy
                         </Button>
                         <Button
@@ -337,12 +351,12 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
                         >
                             {createMutation.isPending ? (
                                 <>
-                                    <Spinner className="mr-2"/>
+                                    <Spinner className="mr-2" />
                                     Đang tạo...
                                 </>
                             ) : (
                                 <>
-                                    <Save className="mr-2 h-4 w-4"/>
+                                    <Save className="mr-2 h-4 w-4" />
                                     Tạo Lớp Học
                                 </>
                             )}

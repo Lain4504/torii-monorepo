@@ -10,6 +10,8 @@ import { ThemeProvider } from "@/lib/providers/theme-provider.tsx"
 import { TooltipProvider } from '@workspace/ui/components/tooltip';
 // Component imports
 import DashboardLayout from "@/components/layout/dashboard-layout.tsx";
+import SyllabusReviewPage from '@/routes/courses/syllabus-review-page.tsx'
+import MyCourseMastersPage from '@/routes/courses/my-course-masters-page.tsx'
 // Feature imports
 import DashboardPage from '@/routes/dashboard/dashboard-page.tsx'
 import RevenueAnalytics from '@/routes/analytics/revenue-analytics.tsx'
@@ -90,8 +92,10 @@ function App() {
                   <Route index element={<DashboardPage />} />
 
                   <Route path="course-master" element={<CourseMasterPage />} />
+                  <Route path="course-master/my" element={<MyCourseMastersPage />} />
                   <Route path="my-classes" element={<MyCourseRunsPage />} />
-                  <Route path="course-master/reviews" element={<CourseMasterReviewsPage />} />
+                  <Route path="course-master/review-queue" element={<SyllabusReviewPage />} />
+                  <Route path="course-master/feedbacks" element={<CourseMasterReviewsPage />} />
                   <Route path="course-master/requests" element={<ScheduleRequestsPage />} />
                   <Route path="course-master/:id" element={<CourseMasterDetailPage />} />
                   <Route path="course-master/discussions" element={<CourseMasterDiscussionsPage />} />

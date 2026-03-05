@@ -46,8 +46,10 @@ describe('CourseRunService', () => {
         };
 
         mockMapper = {
-            map: jest.fn(),
-            mapArray: jest.fn(),
+            map: jest.fn().mockReturnValue({}),
+            mapArray: jest.fn().mockReturnValue([]),
+            mapAsync: jest.fn().mockResolvedValue({}),
+            mapArrayAsync: jest.fn().mockResolvedValue([]),
         };
 
         const module: TestingModule = await Test.createTestingModule({
@@ -144,10 +146,120 @@ describe('CourseRunService', () => {
             mockCourseRunRepo.findById.mockResolvedValue(run);
             mockCourseMasterRepo.findById.mockResolvedValue({ id: 'cm-1', type: 'live' });
             mockCourseRunRepo.update.mockResolvedValue({ ...run, status: CourseRunStatus.IN_PROGRESS });
+            mockMapper.mapAsync = jest.fn().mockResolvedValue({ ...run, status: CourseRunStatus.IN_PROGRESS });
 
-            await service.updateStatus(adminRequester, 'run-1', CourseRunStatus.IN_PROGRESS);
+            const result = await service.updateStatus(adminRequester, 'run-1', CourseRunStatus.IN_PROGRESS);
 
             expect(mockCourseRunRepo.update).toHaveBeenCalledWith('run-1', { status: CourseRunStatus.IN_PROGRESS });
+        });
+    });
+
+    describe('Core Mechanics', () => {
+        const adminRequester = { sub: 'admin-1', role: 'admin' as any, permissions: ['course.run.update', 'course.run.delete', 'course.run.publish'] };
+        const studentRequester = { sub: 'student-1', role: 'student' as any, permissions: [] };
+
+        it('should findAll course runs with default DTO mapping', async () => {
+            mockCourseRunRepo.count.mockResolvedValue(1);
+            mockCourseRunRepo.findMany.mockResolvedValue([{ id: 'run-1', title: 'Test Run' }]);
+            mockMapper.mapAsync = jest.fn().mockResolvedValue({ id: 'run-1' });
+
+            const result = await service.findAll({ page: 1, limit: 10 });
+
+            expect(mockCourseRunRepo.count).toHaveBeenCalled();
+            expect(mockCourseRunRepo.findMany).toHaveBeenCalled();
+            expect(result.data).toBeDefined();
+            expect(result.data!.length).toEqual(1);
+        });
+
+        it('should findMyRuns for instructor with correct filter', async () => {
+            mockCourseRunRepo.count.mockResolvedValue(1);
+            mockCourseRunRepo.findMany.mockResolvedValue([{ id: 'run-1', createdBy: 'admin-1' }]);
+            mockMapper.mapAsync = jest.fn().mockResolvedValue({ id: 'run-1' });
+
+            const result = await service.findMyRuns(adminRequester, { page: 1, limit: 10 });
+
+            expect(mockCourseRunRepo.findMany).toHaveBeenCalledWith(expect.objectContaining({
+                where: expect.objectContaining({ lecturerId: 'admin-1' })
+            }));
+            expect(result.total).toEqual(1);
+        });
+
+        it('should findById and findBySlug', async () => {
+            mockCourseRunRepo.findById.mockResolvedValue({ id: 'run-1' });
+            mockCourseRunRepo.findBySlug.mockResolvedValue({ id: 'run-1' });
+            mockMapper.mapAsync = jest.fn().mockResolvedValue({ id: 'run-1' });
+
+            const result1 = await service.findById('run-1');
+            const result2 = await service.findBySlug('slug-1');
+
+            expect(mockCourseRunRepo.findById).toHaveBeenCalledWith('run-1');
+            expect(mockCourseRunRepo.findBySlug).toHaveBeenCalledWith('slug-1');
+            expect(result1.id).toEqual('run-1');
+            expect(result2.id).toEqual('run-1');
+        });
+
+        it('should update course run properties and generate new slug if title changes', async () => {
+            mockCourseRunRepo.findById.mockResolvedValue({ id: 'run-1', title: 'Old Title', createdBy: 'admin-1' });
+            mockCourseRunRepo.slugExists.mockResolvedValue(false);
+            mockCourseRunRepo.update.mockResolvedValue({ id: 'run-1', title: 'New Title', slug: 'new-title-hash' });
+            mockMapper.mapAsync = jest.fn().mockResolvedValue({ id: 'run-1', title: 'New Title' });
+
+            const result = await service.update(adminRequester, 'run-1', { title: 'New Title' } as any);
+
+            expect(mockCourseRunRepo.update).toHaveBeenCalledWith('run-1', expect.objectContaining({ title: 'New Title', slug: expect.any(String) }));
+            expect(result.title).toEqual('New Title');
+        });
+
+        it('should throw Forbidden on update if user is not owner and not system-wide admin', async () => {
+            mockCourseRunRepo.findById.mockResolvedValue({ id: 'run-1', createdBy: 'someone-else' });
+            // Mock permissions to drop `course.run.update_all` implicitly. Assuming admin-1 doesn't have it based on setup.
+
+            // Provide strict non-admin instructor token
+            const strictInstructor = { sub: 'inst-1', role: 'lecturer' as any, permissions: ['course.run.update'] };
+            await expect(service.update(strictInstructor, 'run-1', { title: 'Hacked' } as any)).rejects.toThrow('You are not the assigned lecturer for this course run.');
+        });
+
+        it('should perform submitForContentReview cleanly', async () => {
+            const run = { id: 'run-1', status: CourseRunStatus.DRAFT, createdBy: 'admin-1' };
+            mockCourseRunRepo.findById.mockResolvedValue(run);
+            mockCourseRunRepo.update.mockResolvedValue({ ...run, status: CourseRunStatus.PENDING_REVIEW });
+            mockMapper.mapAsync = jest.fn().mockResolvedValue({ id: 'run-1', status: CourseRunStatus.PENDING_REVIEW });
+
+            const result = await service.submitForContentReview(adminRequester, 'run-1');
+
+            expect(mockCourseRunRepo.createRunReview).toHaveBeenCalled();
+            expect(mockCourseRunRepo.update).toHaveBeenCalledWith('run-1', { status: CourseRunStatus.PENDING_REVIEW });
+            expect(result.status).toEqual(CourseRunStatus.PENDING_REVIEW);
+        });
+
+        it('should perform reviewRunContent to APPROVED state if accepted', async () => {
+            const run = { id: 'run-1', status: CourseRunStatus.PENDING_REVIEW };
+            const reviewId = 'rev-1';
+            mockCourseRunRepo.findById.mockResolvedValue(run);
+            mockCourseRunRepo.findRunReviews.mockResolvedValue([{ id: reviewId }]);
+            mockCourseRunRepo.update.mockResolvedValue({ ...run, status: CourseRunStatus.APPROVED });
+            mockCourseRunRepo.updateRunReview = jest.fn();
+            mockMapper.mapAsync = jest.fn().mockResolvedValue({ id: 'run-1', status: CourseRunStatus.APPROVED });
+
+            const result = await service.reviewRunContent(adminRequester, 'run-1', { outcome: 'APPROVED', notes: 'Looks good' } as any);
+
+            expect(mockCourseRunRepo.updateRunReview).toHaveBeenCalledWith(reviewId, expect.objectContaining({ status: 'APPROVED' }));
+            expect(mockCourseRunRepo.update).toHaveBeenCalledWith('run-1', { status: CourseRunStatus.APPROVED });
+            expect(result.status).toEqual(CourseRunStatus.APPROVED);
+        });
+
+        it('should restrict delete if students are actively enrolled', async () => {
+            mockCourseRunRepo.findById.mockResolvedValue({ id: 'run-1', totalStudents: 10, createdBy: 'admin-1' });
+
+            await expect(service.delete(adminRequester, 'run-1')).rejects.toThrow('Cannot delete a course run with enrolled students');
+        });
+
+        it('should soft delete successfully if no students are enrolled', async () => {
+            mockCourseRunRepo.findById.mockResolvedValue({ id: 'run-1', totalStudents: 0, createdBy: 'admin-1' });
+
+            await service.delete(adminRequester, 'run-1');
+
+            expect(mockCourseRunRepo.delete).toHaveBeenCalledWith('run-1');
         });
     });
 });

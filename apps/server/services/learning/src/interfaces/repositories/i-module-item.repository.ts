@@ -44,4 +44,14 @@ export interface IModuleItemRepository {
      * Get max order index for module items
      */
     getMaxOrderIndex(moduleId: string): Promise<number>;
+
+    /**
+     * Find item by reference ID
+     */
+    findByReferenceId(referenceId: string): Promise<ModuleItem | null>;
+
+    /**
+     * Delete item by reference ID
+     */
+    deleteByReferenceId(referenceId: string): Promise<void>;
 }

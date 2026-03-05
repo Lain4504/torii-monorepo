@@ -92,4 +92,22 @@ export class ModuleItemRepository implements IModuleItemRepository {
         });
         return result._max.orderIndex || 0;
     }
+
+    /**
+     * Find item by reference ID
+     */
+    async findByReferenceId(referenceId: string): Promise<ModuleItem | null> {
+        return this.prisma.moduleItem.findFirst({
+            where: { referenceId },
+        });
+    }
+
+    /**
+     * Delete item by reference ID
+     */
+    async deleteByReferenceId(referenceId: string): Promise<void> {
+        await this.prisma.moduleItem.deleteMany({
+            where: { referenceId },
+        });
+    }
 }

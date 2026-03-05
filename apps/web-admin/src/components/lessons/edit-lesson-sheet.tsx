@@ -183,8 +183,6 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
                                                     <SelectContent>
                                                         <SelectItem value={LessonContentType.VIDEO}>Video</SelectItem>
                                                         <SelectItem value={LessonContentType.ARTICLE}>Bài viết</SelectItem>
-                                                        <SelectItem value={LessonContentType.QUIZ}>Trắc nghiệm</SelectItem>
-                                                        <SelectItem value={LessonContentType.ASSIGNMENT}>Bài tập</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                             </Field>

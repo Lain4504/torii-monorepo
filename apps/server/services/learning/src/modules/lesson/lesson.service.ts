@@ -15,8 +15,8 @@ import type {
 } from '@workspace/schemas';
 
 import type { ILessonService, ICourseMasterService, IEnrollmentService } from '@server/learning/interfaces/services';
-import type { ILessonRepository, IModuleRepository } from '@server/learning/interfaces/repositories';
-import { LESSON_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import type { ILessonRepository, IModuleRepository, IModuleItemRepository } from '@server/learning/interfaces/repositories';
+import { LESSON_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN, MODULE_ITEM_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 import { COURSE_MASTER_SERVICE_TOKEN, ENROLLMENT_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 
 /**
@@ -36,6 +36,8 @@ export class LessonService implements ILessonService {
     private readonly courseMasterService: ICourseMasterService,
     @Inject(forwardRef(() => ENROLLMENT_SERVICE_TOKEN))
     private readonly enrollmentService: IEnrollmentService,
+    @Inject(MODULE_ITEM_REPOSITORY_TOKEN)
+    private readonly moduleItemRepository: IModuleItemRepository,
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
     @InjectMapper() private readonly mapper: Mapper,
@@ -353,7 +355,7 @@ export class LessonService implements ILessonService {
 
       // If authorized and snapshot available, find lesson in snapshot
       if (isUserAuthorized && curriculumSnapshot) {
-        const moduleSnapshot = curriculumSnapshot.find((m: any) => m.id === moduleId || (module && (module as any).title === m.title));
+        const moduleSnapshot = curriculumSnapshot.find((m: any) => m.id === moduleId);
         if (moduleSnapshot?.lessons) {
           const lessonSnapshot = moduleSnapshot.lessons.find((l: any) => l.id === lesson.id || l.title === lesson.title);
           if (lessonSnapshot) {
@@ -392,15 +394,6 @@ export class LessonService implements ILessonService {
       const module = await this.moduleRepository.findById(dto.moduleId);
       if (!module) throw new NotFoundException('Module not found');
 
-      const course = await this.courseMasterService.findById(module.courseMasterId);
-
-      /*
-      // Pure Split: LIVE courses cannot have video lessons (must be article/PDF)
-      if (course.type === 'live' && dto.contentType === 'video') {
-         throw new BadRequestException('Live courses cannot have video-only lessons. Use articles for PDF materials.');
-      }
-      */
-
       // Business Rule: ONLY Admin or Staff-LMS (Academic) can create lessons in the Master Syllabus.
       if (!this.hasPermission(requester, 'course.publish')) {
         throw new ForbiddenException('Only Academic Staff or Admin can create Master syllabus lessons.');
@@ -428,6 +421,16 @@ export class LessonService implements ILessonService {
       };
 
       const lesson = await this.lessonRepository.create(data);
+
+      // Create ModuleItem automatically for any new lesson
+      const maxItemOrder = await this.moduleItemRepository.getMaxOrderIndex(dto.moduleId);
+      await this.moduleItemRepository.create({
+        module: { connect: { id: dto.moduleId } },
+        title: dto.title,
+        type: 'lesson',
+        referenceId: lesson.id,
+        orderIndex: maxItemOrder + 1,
+      });
 
       await this.createAuditLog({
         userId: requester.sub,
@@ -461,7 +464,6 @@ export class LessonService implements ILessonService {
     }
 
     const existing = await this.lessonRepository.findById(lessonId);
-
     if (!existing || existing.deletedAt) {
       throw new NotFoundException(`Lesson with id ${lessonId} not found`);
     }
@@ -473,7 +475,6 @@ export class LessonService implements ILessonService {
 
     try {
       const updateData: any = {};
-
       if (dto.title !== undefined) updateData.title = dto.title;
       if (dto.contentType !== undefined) updateData.contentType = dto.contentType;
       if (dto.videoUrl !== undefined) updateData.videoUrl = dto.videoUrl;
@@ -522,16 +523,16 @@ export class LessonService implements ILessonService {
     }
 
     const existing = await this.lessonRepository.findById(lessonId);
-
     if (!existing || existing.deletedAt) {
       throw new NotFoundException(`Lesson with id ${lessonId} not found`);
     }
 
     try {
       if (hardDelete) {
+        // Also delete associated module item
+        await this.moduleItemRepository.deleteByReferenceId(lessonId);
         await this.lessonRepository.delete(lessonId);
-      }
-      else {
+      } else {
         await this.lessonRepository.softDelete(lessonId);
       }
 
@@ -548,8 +549,7 @@ export class LessonService implements ILessonService {
       await this.triggerStatsUpdate(existing.moduleId);
 
       return { message: 'Lesson deleted successfully' };
-    }
-    catch (error: any) {
+    } catch (error: any) {
       throw new BadRequestException(`Failed to delete lesson: ${error?.message || 'Unknown error'}`);
     }
   }
@@ -557,11 +557,7 @@ export class LessonService implements ILessonService {
   /**
    * Reorder lessons within a module
    */
-  async reorder(
-    requester: Requester,
-    moduleId: string,
-    lessonOrders: { id: string; orderIndex: number }[]
-  ): Promise<{ message: string }> {
+  async reorder(requester: Requester, moduleId: string, lessonOrders: { id: string; orderIndex: number }[]): Promise<{ message: string }> {
     // Only authorized users can reorder lessons
     if (!this.hasPermission(requester, 'lesson.update')) {
       throw new ForbiddenException('Only authorized staff can reorder lessons');
@@ -580,11 +576,9 @@ export class LessonService implements ILessonService {
       });
 
       return { message: 'Lessons reordered successfully' };
-    }
-    catch (error: any) {
+    } catch (error: any) {
       this.logger.error('Error reordering lessons', error);
       throw new BadRequestException(`Failed to reorder lessons: ${error?.message || 'Unknown error'}`);
     }
   }
 }
-

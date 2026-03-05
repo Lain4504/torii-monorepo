@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Sheet,
     SheetContent,
@@ -24,14 +24,11 @@ import { toast } from '@workspace/ui/components/sonner';
 import { useUpdateQuiz, type UpdateQuizDTO, type QuizDTO } from '@/lib/api/services/quizzes';
 import { useQuestionPools } from '@/lib/api/services/question-pools';
 import { QuestionSelectionDialog } from './question-selection-dialog';
-import { HelpCircle, Save, Plus, BookOpen, Clock, Trash2, Layers, List, BrainCircuit, MousePointer2, RefreshCcw } from 'lucide-react';
+import { HelpCircle, Save, Plus, BookOpen, Clock, Trash2, Layers, BrainCircuit, MousePointer2, RefreshCcw } from 'lucide-react';
 
-import { QuestionJlptLevel, LessonContentType } from '@workspace/schemas';
+import { QuestionJlptLevel } from '@workspace/schemas';
 import { Badge } from '@workspace/ui/components/badge';
 import { Card } from '@workspace/ui/components/card';
-import { useCourseRun } from '@/lib/api/services/course-runs';
-import { useCourseModules } from '@/lib/api/services/modules';
-import { useModulesLessons } from '@/lib/api/services/lesson';
 
 interface EditQuizSheetProps {
     open: boolean;
@@ -45,21 +42,7 @@ export function EditQuizSheet({
     quiz,
 }: EditQuizSheetProps) {
     const updateMutation = useUpdateQuiz();
-    const { data: courseRun } = useCourseRun(quiz?.courseRunId || '');
-    const { data: modules = [] } = useCourseModules(courseRun?.courseMasterId || '');
-    const modulesLessonsQueries = useModulesLessons(modules);
-    const [selectedLessonId, setSelectedLessonId] = useState<string>('');
 
-    // Filter lessons to only show Quiz type
-    const quizLessons = useMemo(() => {
-        const allLessons = modulesLessonsQueries
-            .map(query => query.data?.data || [])
-            .flat();
-
-        return allLessons.filter(lesson =>
-            lesson.contentType === LessonContentType.QUIZ
-        );
-    }, [modulesLessonsQueries]);
 
     const [form, setForm] = useState({
         title: '',
@@ -95,7 +78,6 @@ export function EditQuizSheet({
 
     useEffect(() => {
         if (quiz) {
-            setSelectedLessonId(quiz.lessonId || '');
             setForm({
                 title: quiz.title || '',
                 description: quiz.description || '',
@@ -184,7 +166,6 @@ export function EditQuizSheet({
             title: form.title.trim(),
             description: form.description.trim() || undefined,
             jlptLevel: form.jlptLevel,
-            lessonId: (selectedLessonId && selectedLessonId !== 'none') ? selectedLessonId : undefined,
             totalTime: form.totalTime ? parseInt(form.totalTime, 10) : undefined,
             passingScore: form.passingScore ? parseFloat(form.passingScore) : 60,
             maxAttempts: form.maxAttempts ? parseInt(form.maxAttempts, 10) : 1,
@@ -266,231 +247,231 @@ export function EditQuizSheet({
                                         />
                                     </div>
 
-                                    {quiz?.courseRunId && (
-                                        <div className="space-y-2 md:col-span-2">
+                                    <div className="grid grid-cols-2 gap-6">
+                                        <div className="space-y-2">
                                             <Label
-                                                htmlFor="edit-quiz-lesson"
-                                                className="text-xs font-bold uppercase tracking-widest flex items-center gap-2"
+                                                htmlFor="edit-quiz-time"
+                                                className="text-xs font-bold uppercase tracking-widest"
                                             >
-                                                <List className="size-4 text-violet-500" />
-                                                Gắn với Lesson (Quiz)
+                                                Thời gian (phút)
                                             </Label>
-                                            <Select value={selectedLessonId} onValueChange={setSelectedLessonId}>
-                                                <SelectTrigger id="edit-quiz-lesson">
-                                                    <SelectValue placeholder="Chọn lesson có type Quiz..." />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="none">Không gắn với lesson cụ thể</SelectItem>
-                                                    {quizLessons.length === 0 ? (
-                                                        <SelectItem value="no-lessons" disabled>
-                                                            Không có lesson Quiz nào
-                                                        </SelectItem>
-                                                    ) : (
-                                                        quizLessons.map((lesson) => (
-                                                            <SelectItem key={lesson.id} value={lesson.id}>
-                                                                <div className="flex flex-col">
-                                                                    <span className="font-medium">{lesson.title}</span>
-                                                                    <span className="text-xs text-muted-foreground">
-                                                                        📝 Quiz · ID: {lesson.id.slice(0, 8)}
-                                                                    </span>
-                                                                </div>
-                                                            </SelectItem>
-                                                        ))
-                                                    )}
-                                                </SelectContent>
-                                            </Select>
-                                            <p className="text-xs text-muted-foreground">
-                                                Chọn lesson để gắn quiz này với nội dung bài học cụ thể
-                                            </p>
+                                            <Input
+                                                id="edit-quiz-time"
+                                                type="number"
+                                                min={1}
+                                                value={form.totalTime}
+                                                onChange={e => setForm(f => ({ ...f, totalTime: e.target.value }))}
+                                                placeholder="Không giới hạn"
+                                            />
                                         </div>
-                                    )}
-
-                                    <div className="space-y-2">
-                                        <Label
-                                            htmlFor="edit-quiz-time"
-                                            className="text-xs font-bold uppercase tracking-widest"
-                                        >
-                                            Thời gian (phút)
-                                        </Label>
-                                        <Input
-                                            id="edit-quiz-time"
-                                            type="number"
-                                            min={1}
-                                            value={form.totalTime}
-                                            onChange={e => setForm(f => ({ ...f, totalTime: e.target.value }))}
-                                            placeholder="Không giới hạn"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label
-                                            htmlFor="edit-quiz-passing"
-                                            className="text-xs font-bold uppercase tracking-widest"
-                                        >
-                                            Điểm đạt (%)
-                                        </Label>
-                                        <Input
-                                            id="edit-quiz-passing"
-                                            type="number"
-                                            min={0}
-                                            max={100}
-                                            value={form.passingScore}
-                                            onChange={e => setForm(f => ({ ...f, passingScore: e.target.value }))}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-4 pt-4 border-t border-border">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <Layers className="size-4 text-violet-500" />
-                                            <h4 className="text-sm font-bold">Cấu hình các phần (Sections)</h4>
-                                        </div>
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={addSection}
-                                            className="h-8 text-xs bg-violet-500/5 border-violet-500/20 text-violet-600 hover:bg-violet-500/10 hover:text-violet-700"
-                                        >
-                                            <Plus className="size-3 mr-1" /> Thêm phần
-                                        </Button>
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <div className="grid grid-cols-1 gap-2">
-                                            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mr-auto">
-                                                Lọc bộ đề theo cấp độ JLPT
-                                            </Label>
-                                            <Select
-                                                value={form.jlptLevel}
-                                                onValueChange={v => setForm(f => ({ ...f, jlptLevel: v }))}
+                                        <div className="space-y-2">
+                                            <Label
+                                                htmlFor="edit-quiz-passing"
+                                                className="text-xs font-bold uppercase tracking-widest"
                                             >
-                                                <SelectTrigger className="w-[120px] h-8 text-xs">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="N1">N1</SelectItem>
-                                                    <SelectItem value="N2">N2</SelectItem>
-                                                    <SelectItem value="N3">N3</SelectItem>
-                                                    <SelectItem value="N4">N4</SelectItem>
-                                                    <SelectItem value="N5">N5</SelectItem>
-                                                    <SelectItem value="GLOBAL">Tất cả</SelectItem>
-                                                </SelectContent>
-                                            </Select>
+                                                Điểm đạt (%)
+                                            </Label>
+                                            <Input
+                                                id="edit-quiz-passing"
+                                                type="number"
+                                                min={0}
+                                                max={100}
+                                                value={form.passingScore}
+                                                onChange={e => setForm(f => ({ ...f, passingScore: e.target.value }))}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4 pt-4 border-t border-border">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <Layers className="size-4 text-violet-500" />
+                                                <h4 className="text-sm font-bold">Cấu hình các phần (Sections)</h4>
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={addSection}
+                                                className="h-8 text-xs bg-violet-500/5 border-violet-500/20 text-violet-600 hover:bg-violet-500/10 hover:text-violet-700"
+                                            >
+                                                <Plus className="size-3 mr-1" /> Thêm phần
+                                            </Button>
                                         </div>
 
-                                        {form.sections.map((section, index) => (
-                                            <Card key={section.id} className="p-4 border-dashed bg-muted/30">
-                                                <div className="flex flex-col gap-4">
-                                                    <div className="flex items-center justify-between">
-                                                        <Badge variant="outline" className="bg-background text-[10px] font-bold">
-                                                            Phần {index + 1}
-                                                        </Badge>
-                                                        <Button
-                                                            type="button"
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="size-7 text-muted-foreground hover:text-destructive"
-                                                            onClick={() => removeSection(section.id)}
-                                                        >
-                                                            <Trash2 className="size-4" />
-                                                        </Button>
-                                                    </div>
+                                        <div className="space-y-4">
+                                            <div className="grid grid-cols-1 gap-2">
+                                                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mr-auto">
+                                                    Lọc bộ đề theo cấp độ JLPT
+                                                </Label>
+                                                <Select
+                                                    value={form.jlptLevel}
+                                                    onValueChange={v => setForm(f => ({ ...f, jlptLevel: v }))}
+                                                >
+                                                    <SelectTrigger className="w-[120px] h-8 text-xs">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="N1">N1</SelectItem>
+                                                        <SelectItem value="N2">N2</SelectItem>
+                                                        <SelectItem value="N3">N3</SelectItem>
+                                                        <SelectItem value="N4">N4</SelectItem>
+                                                        <SelectItem value="N5">N5</SelectItem>
+                                                        <SelectItem value="GLOBAL">Tất cả</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
 
-                                                    <div className="grid grid-cols-2 gap-4">
-                                                        <div className="space-y-2">
-                                                            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                                                Chế độ chọn câu hỏi
-                                                            </Label>
-                                                            <div className="flex bg-muted rounded-lg p-1">
-                                                                <Button
-                                                                    type="button"
-                                                                    variant={section.selectionMode === 'pool' ? 'secondary' : 'ghost'}
-                                                                    size="sm"
-                                                                    className="flex-1 h-7 text-[10px] font-bold uppercase tracking-wider rounded-md"
-                                                                    onClick={() => updateSection(section.id, { selectionMode: 'pool' })}
-                                                                >
-                                                                    <RefreshCcw className="size-3 mr-1.5" />
-                                                                    Ngẫu nhiên
-                                                                </Button>
-                                                                <Button
-                                                                    type="button"
-                                                                    variant={section.selectionMode === 'manual' ? 'secondary' : 'ghost'}
-                                                                    size="sm"
-                                                                    className="flex-1 h-7 text-[10px] font-bold uppercase tracking-wider rounded-md"
-                                                                    onClick={() => updateSection(section.id, { selectionMode: 'manual' })}
-                                                                >
-                                                                    <MousePointer2 className="size-3 mr-1.5" />
-                                                                    Thủ công
-                                                                </Button>
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="space-y-2">
-                                                            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                                                Loại phần
-                                                            </Label>
-                                                            <Select
-                                                                value={section.type}
-                                                                onValueChange={(v: any) => updateSection(section.id, { type: v })}
+                                            {form.sections.map((section, index) => (
+                                                <Card key={section.id} className="p-4 border-dashed bg-muted/30">
+                                                    <div className="flex flex-col gap-4">
+                                                        <div className="flex items-center justify-between">
+                                                            <Badge variant="outline" className="bg-background text-[10px] font-bold">
+                                                                Phần {index + 1}
+                                                            </Badge>
+                                                            <Button
+                                                                type="button"
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="size-7 text-muted-foreground hover:text-destructive"
+                                                                onClick={() => removeSection(section.id)}
                                                             >
-                                                                <SelectTrigger className="h-9">
-                                                                    <SelectValue />
-                                                                </SelectTrigger>
-                                                                <SelectContent>
-                                                                    <SelectItem value="vocab">Từ vựng</SelectItem>
-                                                                    <SelectItem value="grammar">Ngữ pháp</SelectItem>
-                                                                    <SelectItem value="reading">Đọc hiểu</SelectItem>
-                                                                    <SelectItem value="listening">Nghe hiểu</SelectItem>
-                                                                </SelectContent>
-                                                            </Select>
+                                                                <Trash2 className="size-4" />
+                                                            </Button>
                                                         </div>
-                                                    </div>
 
-                                                    {section.selectionMode === 'pool' ? (
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div className="grid grid-cols-2 gap-4">
                                                             <div className="space-y-2">
                                                                 <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                                                    Bộ đề (Question Pool)
+                                                                    Chế độ chọn câu hỏi
+                                                                </Label>
+                                                                <div className="flex bg-muted rounded-lg p-1">
+                                                                    <Button
+                                                                        type="button"
+                                                                        variant={section.selectionMode === 'pool' ? 'secondary' : 'ghost'}
+                                                                        size="sm"
+                                                                        className="flex-1 h-7 text-[10px] font-bold uppercase tracking-wider rounded-md"
+                                                                        onClick={() => updateSection(section.id, { selectionMode: 'pool' })}
+                                                                    >
+                                                                        <RefreshCcw className="size-3 mr-1.5" />
+                                                                        Ngẫu nhiên
+                                                                    </Button>
+                                                                    <Button
+                                                                        type="button"
+                                                                        variant={section.selectionMode === 'manual' ? 'secondary' : 'ghost'}
+                                                                        size="sm"
+                                                                        className="flex-1 h-7 text-[10px] font-bold uppercase tracking-wider rounded-md"
+                                                                        onClick={() => updateSection(section.id, { selectionMode: 'manual' })}
+                                                                    >
+                                                                        <MousePointer2 className="size-3 mr-1.5" />
+                                                                        Thủ công
+                                                                    </Button>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="space-y-2">
+                                                                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                                    Loại phần
                                                                 </Label>
                                                                 <Select
-                                                                    value={section.poolId}
-                                                                    onValueChange={v => updateSection(section.id, { poolId: v })}
+                                                                    value={section.type}
+                                                                    onValueChange={(v: any) => updateSection(section.id, { type: v })}
                                                                 >
                                                                     <SelectTrigger className="h-9">
-                                                                        <SelectValue placeholder="Chọn bộ đề..." />
+                                                                        <SelectValue />
                                                                     </SelectTrigger>
                                                                     <SelectContent>
-                                                                        {pools.length > 0 ? (
-                                                                            pools.map((p: any) => (
-                                                                                <SelectItem key={p.id} value={p.id}>
-                                                                                    {p.name}
-                                                                                </SelectItem>
-                                                                            ))
-                                                                        ) : (
-                                                                            <SelectItem value="none" disabled>
-                                                                                Không có bộ đề nào
-                                                                            </SelectItem>
-                                                                        )}
+                                                                        <SelectItem value="vocab">Từ vựng</SelectItem>
+                                                                        <SelectItem value="grammar">Ngữ pháp</SelectItem>
+                                                                        <SelectItem value="reading">Đọc hiểu</SelectItem>
+                                                                        <SelectItem value="listening">Nghe hiểu</SelectItem>
                                                                     </SelectContent>
                                                                 </Select>
                                                             </div>
+                                                        </div>
 
-                                                            <div className="grid grid-cols-2 gap-4">
+                                                        {section.selectionMode === 'pool' ? (
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                 <div className="space-y-2">
                                                                     <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                                                        Số câu hỏi
+                                                                        Bộ đề (Question Pool)
                                                                     </Label>
-                                                                    <div className="relative">
-                                                                        <BookOpen className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-                                                                        <Input
-                                                                            type="number"
-                                                                            min={1}
-                                                                            className="pl-9 h-9"
-                                                                            value={section.questionCount}
-                                                                            onChange={e => updateSection(section.id, { questionCount: e.target.value })}
-                                                                        />
+                                                                    <Select
+                                                                        value={section.poolId}
+                                                                        onValueChange={v => updateSection(section.id, { poolId: v })}
+                                                                    >
+                                                                        <SelectTrigger className="h-9">
+                                                                            <SelectValue placeholder="Chọn bộ đề..." />
+                                                                        </SelectTrigger>
+                                                                        <SelectContent>
+                                                                            {pools.length > 0 ? (
+                                                                                pools.map((p: any) => (
+                                                                                    <SelectItem key={p.id} value={p.id}>
+                                                                                        {p.name}
+                                                                                    </SelectItem>
+                                                                                ))
+                                                                            ) : (
+                                                                                <SelectItem value="none" disabled>
+                                                                                    Không có bộ đề nào
+                                                                                </SelectItem>
+                                                                            )}
+                                                                        </SelectContent>
+                                                                    </Select>
+                                                                </div>
+
+                                                                <div className="grid grid-cols-2 gap-4">
+                                                                    <div className="space-y-2">
+                                                                        <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                                            Số câu hỏi
+                                                                        </Label>
+                                                                        <div className="relative">
+                                                                            <BookOpen className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+                                                                            <Input
+                                                                                type="number"
+                                                                                min={1}
+                                                                                className="pl-9 h-9"
+                                                                                value={section.questionCount}
+                                                                                onChange={e => updateSection(section.id, { questionCount: e.target.value })}
+                                                                            />
+                                                                        </div>
                                                                     </div>
+                                                                    <div className="space-y-2">
+                                                                        <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                                            TG (phút)
+                                                                        </Label>
+                                                                        <div className="relative">
+                                                                            <Clock className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+                                                                            <Input
+                                                                                type="number"
+                                                                                min={1}
+                                                                                className="pl-9 h-9"
+                                                                                value={section.timeLimit}
+                                                                                onChange={e => updateSection(section.id, { timeLimit: e.target.value })}
+                                                                            />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                <div className="space-y-2">
+                                                                    <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                                        Chọn câu hỏi ({section.questionIds.length})
+                                                                    </Label>
+                                                                    <Button
+                                                                        type="button"
+                                                                        variant="outline"
+                                                                        className="w-full h-9 justify-start text-xs font-medium"
+                                                                        onClick={() => {
+                                                                            setActiveSectionId(section.id);
+                                                                            setSelectorOpen(true);
+                                                                        }}
+                                                                    >
+                                                                        <BrainCircuit className="size-4 mr-2 text-primary" />
+                                                                        {section.questionIds.length > 0
+                                                                            ? `Đã chọn ${section.questionIds.length} câu hỏi`
+                                                                            : "Bấm để chọn câu hỏi..."}
+                                                                    </Button>
                                                                 </div>
                                                                 <div className="space-y-2">
                                                                     <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
@@ -508,113 +489,75 @@ export function EditQuizSheet({
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                            <div className="space-y-2">
-                                                                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                                                    Chọn câu hỏi ({section.questionIds.length})
-                                                                </Label>
-                                                                <Button
-                                                                    type="button"
-                                                                    variant="outline"
-                                                                    className="w-full h-9 justify-start text-xs font-medium"
-                                                                    onClick={() => {
-                                                                        setActiveSectionId(section.id);
-                                                                        setSelectorOpen(true);
-                                                                    }}
-                                                                >
-                                                                    <BrainCircuit className="size-4 mr-2 text-primary" />
-                                                                    {section.questionIds.length > 0
-                                                                        ? `Đã chọn ${section.questionIds.length} câu hỏi`
-                                                                        : "Bấm để chọn câu hỏi..."}
-                                                                </Button>
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                                                    TG (phút)
-                                                                </Label>
-                                                                <div className="relative">
-                                                                    <Clock className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-                                                                    <Input
-                                                                        type="number"
-                                                                        min={1}
-                                                                        className="pl-9 h-9"
-                                                                        value={section.timeLimit}
-                                                                        onChange={e => updateSection(section.id, { timeLimit: e.target.value })}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    )}
+                                                        )}
 
-                                                </div>
-                                            </Card>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-6 pt-4 border-t border-border">
-                                    <div className="space-y-2">
-                                        <Label className="text-xs font-bold uppercase tracking-widest">
-                                            Số lần làm tối đa
-                                        </Label>
-                                        <Input
-                                            type="number"
-                                            min={1}
-                                            value={form.maxAttempts}
-                                            onChange={e => setForm(f => ({ ...f, maxAttempts: e.target.value }))}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="text-xs font-bold uppercase tracking-widest">
-                                            Trạng thái Quiz
-                                        </Label>
-                                        <Select
-                                            value={form.status}
-                                            onValueChange={v => setForm(f => ({ ...f, status: v }))}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="draft">Nháp</SelectItem>
-                                                <SelectItem value="published">Công bố ngay</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-4 pt-2 border-t border-border">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <p className="text-sm font-semibold">Xáo trộn câu hỏi</p>
-                                            <p className="text-xs text-muted-foreground">
-                                                Thứ tự câu hỏi ngẫu nhiên
-                                            </p>
+                                                    </div>
+                                                </Card>
+                                            ))}
                                         </div>
-                                        <Switch
-                                            checked={form.shuffleQuestions}
-                                            onCheckedChange={v =>
-                                                setForm(f => ({ ...f, shuffleQuestions: v }))
-                                            }
-                                        />
                                     </div>
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <p className="text-sm font-semibold">Hiển thị giải thích</p>
-                                            <p className="text-xs text-muted-foreground">Sau khi nộp bài</p>
+
+                                    <div className="grid grid-cols-2 gap-6 pt-4 border-t border-border">
+                                        <div className="space-y-2">
+                                            <Label className="text-xs font-bold uppercase tracking-widest">
+                                                Số lần làm tối đa
+                                            </Label>
+                                            <Input
+                                                type="number"
+                                                min={1}
+                                                value={form.maxAttempts}
+                                                onChange={e => setForm(f => ({ ...f, maxAttempts: e.target.value }))}
+                                            />
                                         </div>
-                                        <Switch
-                                            checked={form.showExplanation}
-                                            onCheckedChange={v =>
-                                                setForm(f => ({ ...f, showExplanation: v }))
-                                            }
-                                        />
+                                        <div className="space-y-2">
+                                            <Label className="text-xs font-bold uppercase tracking-widest">
+                                                Trạng thái Quiz
+                                            </Label>
+                                            <Select
+                                                value={form.status}
+                                                onValueChange={v => setForm(f => ({ ...f, status: v }))}
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="draft">Nháp</SelectItem>
+                                                    <SelectItem value="published">Công bố ngay</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4 pt-2 border-t border-border">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm font-semibold">Xáo trộn câu hỏi</p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    Thứ tự câu hỏi ngẫu nhiên
+                                                </p>
+                                            </div>
+                                            <Switch
+                                                checked={form.shuffleQuestions}
+                                                onCheckedChange={v =>
+                                                    setForm(f => ({ ...f, shuffleQuestions: v }))
+                                                }
+                                            />
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm font-semibold">Hiển thị giải thích</p>
+                                                <p className="text-xs text-muted-foreground">Sau khi nộp bài</p>
+                                            </div>
+                                            <Switch
+                                                checked={form.showExplanation}
+                                                onCheckedChange={v =>
+                                                    setForm(f => ({ ...f, showExplanation: v }))
+                                                }
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
                     </ScrollArea>
                     <SheetFooter>
                         <Button
@@ -642,8 +585,8 @@ export function EditQuizSheet({
                     jlptLevel={form.jlptLevel}
                     type={activeSectionId ? form.sections.find(s => s.id === activeSectionId)?.type : undefined}
                 />
-            </SheetContent>
-        </Sheet>
+            </SheetContent >
+        </Sheet >
     );
 }
 

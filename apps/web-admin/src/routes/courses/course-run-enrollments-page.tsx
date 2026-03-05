@@ -104,9 +104,10 @@ export default function CourseRunEnrollmentsPage() {
                                     <TableHead className="font-semibold text-xs uppercase tracking-widest">#</TableHead>
                                     <TableHead className="font-semibold text-xs uppercase tracking-widest">Họ và tên</TableHead>
                                     <TableHead className="font-semibold text-xs uppercase tracking-widest">Email</TableHead>
-                                    <TableHead className="font-semibold text-xs uppercase tracking-widest">Ngày tham gia</TableHead>
-                                    <TableHead className="font-semibold text-xs uppercase tracking-widest">Trạng thái</TableHead>
-                                    <TableHead className="font-semibold text-xs uppercase tracking-widest">Giá thanh toán</TableHead>
+                                    <TableHead className="font-semibold text-xs uppercase tracking-widest text-center">Tiến độ</TableHead>
+                                    <TableHead className="font-semibold text-xs uppercase tracking-widest text-center">Ngày tham gia</TableHead>
+                                    <TableHead className="font-semibold text-xs uppercase tracking-widest text-center">Trạng thái</TableHead>
+                                    <TableHead className="font-semibold text-xs uppercase tracking-widest text-right">Giá thanh toán</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -115,9 +116,22 @@ export default function CourseRunEnrollmentsPage() {
                                         <TableCell className="font-mono text-xs text-muted-foreground">{idx + 1}</TableCell>
                                         <TableCell className="font-medium">{enrollment.user?.displayName || '-'}</TableCell>
                                         <TableCell className="text-sm text-muted-foreground">{enrollment.user?.email}</TableCell>
-                                        <TableCell className="text-sm">{formatDateTime(enrollment.enrollmentDate, 'dd/MM/yyyy HH:mm')}</TableCell>
-                                        <TableCell>{getEnrollmentBadge(enrollment.completionStatus)}</TableCell>
-                                        <TableCell className="font-medium text-sm">
+                                        <TableCell>
+                                            <div className="flex flex-col gap-1 w-[120px] mx-auto">
+                                                <div className="flex justify-between text-[10px] font-medium">
+                                                    <span>{enrollment.completionPercentage}%</span>
+                                                </div>
+                                                <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-primary transition-all duration-500"
+                                                        style={{ width: `${enrollment.completionPercentage}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="text-sm text-center tabular-nums">{formatDateTime(enrollment.enrollmentDate, 'dd/MM/yyyy HH:mm')}</TableCell>
+                                        <TableCell className="text-center">{getEnrollmentBadge(enrollment.completionStatus)}</TableCell>
+                                        <TableCell className="font-medium text-sm text-right tabular-nums">
                                             {enrollment.finalPrice ? formatCurrency(enrollment.finalPrice) : '-'}
                                         </TableCell>
                                     </TableRow>

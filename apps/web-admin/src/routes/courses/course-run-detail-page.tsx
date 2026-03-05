@@ -8,8 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@work
 import { Badge } from '@workspace/ui/components/badge';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
-import { ArrowLeft, Users, Calendar, Clock, BookOpen, Settings, LayoutDashboard, Video, Banknote, FileText, HelpCircle } from 'lucide-react';
-import { CourseRunStatus, type AssignmentResponseDTO } from '@workspace/schemas';
+import { ArrowLeft, Users, Calendar, Clock, BookOpen, Settings, LayoutDashboard, Video, Banknote, FileText, HelpCircle, Sparkles } from 'lucide-react';
+import { CourseRunStatus, type AssignmentResponseDTO, EnrollmentStatus } from '@workspace/schemas';
 import { formatCurrency, formatDateTime } from '@/lib/format-utils';
 import { useAssignments, useDeleteAssignment, usePublishAssignment } from '@/lib/api/services/assignments';
 import { AssignmentsTable } from '@/components/assignments/assignments-table';
@@ -297,6 +297,56 @@ export default function CourseRunDetailPage() {
                                                         : 'Miễn phí'}
                                                 </p>
                                             </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card className="border-primary/20 bg-primary/5">
+                                <CardHeader>
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="text-sm font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                                            <Sparkles className="size-4" />
+                                            Tiến độ học tập tổng thể
+                                        </CardTitle>
+                                        <Badge variant="outline" className="bg-background text-[10px] font-bold">
+                                            {enrollments.length} Học viên
+                                        </Badge>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="space-y-6">
+                                    <div className="flex items-end gap-2">
+                                        <span className="text-4xl font-black text-primary leading-none tabular-nums">
+                                            {enrollments.length > 0
+                                                ? Math.round(enrollments.reduce((acc, e) => acc + (e.completionPercentage || 0), 0) / enrollments.length)
+                                                : 0}%
+                                        </span>
+                                        <span className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Hoàn thành trung bình</span>
+                                    </div>
+
+                                    <div className="h-3 w-full bg-primary/10 rounded-full overflow-hidden border border-primary/20">
+                                        <div
+                                            className="h-full bg-primary transition-all duration-1000 ease-in-out"
+                                            style={{
+                                                width: `${enrollments.length > 0
+                                                    ? Math.round(enrollments.reduce((acc, e) => acc + (e.completionPercentage || 0), 0) / enrollments.length)
+                                                    : 0}%`
+                                            }}
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-3 gap-4">
+                                        <div className="space-y-1">
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase">Đã hoàn thành</p>
+                                            <p className="text-lg font-black text-emerald-600">{enrollments.filter(e => e.completionStatus === EnrollmentStatus.COMPLETED).length}</p>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase">Đang học</p>
+                                            <p className="text-lg font-black text-blue-600">{enrollments.filter(e => e.completionStatus === EnrollmentStatus.IN_PROGRESS).length}</p>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase">Chưa bắt đầu</p>
+                                            <p className="text-lg font-black text-muted-foreground">{enrollments.filter(e => (e.completionPercentage || 0) === 0).length}</p>
                                         </div>
                                     </div>
                                 </CardContent>

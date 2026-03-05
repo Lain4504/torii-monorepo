@@ -3,8 +3,6 @@ import { z } from 'zod';
 export enum LessonContentType {
     VIDEO = 'video',
     ARTICLE = 'article',
-    QUIZ = 'quiz',
-    ASSIGNMENT = 'assignment',
 }
 
 export const lessonSchema = z.object({
