@@ -111,10 +111,8 @@ services:
       - postgres
       - redis
       - identity
-      - learning
       - meet
-      - agents
-      - billing
+      - academy
 
   identity:
     image: ${DOCKER_USERNAME}/torii-backend:latest
@@ -136,9 +134,9 @@ services:
       - postgres
       - redis
 
-  learning:
+  academy:
     image: ${DOCKER_USERNAME}/torii-backend:latest
-    command: npm run prod:learning
+    command: npm run prod:academy
     restart: always
     env_file:
       - .env
@@ -178,44 +176,6 @@ services:
       - postgres
       - redis
 
-  agents:
-    image: ${DOCKER_USERNAME}/torii-backend:latest
-    command: npm run prod:agents
-    restart: always
-    env_file:
-      - .env
-    environment:
-      - NODE_ENV=production
-      - NATS_URL=${NATS_URL}
-      - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - REDIS_HOST=${REDIS_HOST}
-    volumes:
-      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
-    depends_on:
-      - nats
-      - postgres
-      - redis
-
-  gamification:
-    image: ${DOCKER_USERNAME}/torii-backend:latest
-    command: npm run prod:gamification
-    restart: always
-    env_file:
-      - .env
-    environment:
-      - NODE_ENV=production
-      - NATS_URL=${NATS_URL}
-      - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - REDIS_HOST=${REDIS_HOST}
-    volumes:
-      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
-    depends_on:
-      - nats
-      - postgres
-      - redis
-
   communication:
     image: ${DOCKER_USERNAME}/torii-backend:latest
     command: npm run prod:communication
@@ -238,25 +198,6 @@ services:
   storage:
     image: ${DOCKER_USERNAME}/torii-backend:latest
     command: npm run prod:storage
-    restart: always
-    env_file:
-      - .env
-    environment:
-      - NODE_ENV=production
-      - NATS_URL=${NATS_URL}
-      - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
-      - REDIS_HOST=${REDIS_HOST}
-    volumes:
-      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
-    depends_on:
-      - nats
-      - postgres
-      - redis
-
-  billing:
-    image: ${DOCKER_USERNAME}/torii-backend:latest
-    command: npm run prod:billing
     restart: always
     env_file:
       - .env

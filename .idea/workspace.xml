@@ -4,10 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="Update schema.prisma">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: clean up module exports and formatting across various files">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/nest-cli.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/nest-cli.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/tsconfig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -309,15 +311,7 @@
       <workItem from="1772683090719" duration="3757000" />
       <workItem from="1772688992568" duration="19000" />
       <workItem from="1772694513606" duration="56000" />
-      <workItem from="1772699001161" duration="1355000" />
-    </task>
-    <task id="LOCAL-00919" summary="update meet to user shadcn ui component">
-      <option name="closed" value="true" />
-      <created>1772616919577</created>
-      <option name="number" value="00919" />
-      <option name="presentableId" value="LOCAL-00919" />
-      <option name="project" value="LOCAL" />
-      <updated>1772616919577</updated>
+      <workItem from="1772699001161" duration="2803000" />
     </task>
     <task id="LOCAL-00920" summary="update meet to user shadcn ui component">
       <option name="closed" value="true" />
@@ -703,7 +697,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772700114040</updated>
     </task>
-    <option name="localTasksCounter" value="968" />
+    <task id="LOCAL-00968" summary="refactor: clean up module exports and formatting across various files">
+      <option name="closed" value="true" />
+      <created>1772700797518</created>
+      <option name="number" value="00968" />
+      <option name="presentableId" value="LOCAL-00968" />
+      <option name="project" value="LOCAL" />
+      <updated>1772700797518</updated>
+    </task>
+    <option name="localTasksCounter" value="969" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -720,7 +722,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="main" />
+                        <option value="new-markteting-web" />
                       </list>
                     </value>
                   </entry>
@@ -738,7 +740,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: Add CourseRunDetailPage and update course-related components for better course run management" />
     <MESSAGE value="refactor: Remove unused course fields and simplify course management logic" />
     <MESSAGE value="feat: Add updateStatus and getStudents methods to CourseRun service and controller, and extend CourseRunStatus enum" />
     <MESSAGE value="refactor: Rename courseId to courseMasterId and update related references across models and services" />
@@ -763,7 +764,8 @@
     <MESSAGE value="update marketing page" />
     <MESSAGE value="feat: implement header and footer components for improved layout structure" />
     <MESSAGE value="Update schema.prisma" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update schema.prisma" />
+    <MESSAGE value="refactor: clean up module exports and formatting across various files" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor: clean up module exports and formatting across various files" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

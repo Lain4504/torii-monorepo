@@ -19,7 +19,7 @@ export class TicketRepository implements ITicketRepository {
         type: data.type as any,
         subject: data.subject,
         description: data.description,
-        courseRunId: data.courseRunId,
+        classId: (data as any).classId ?? (data as any).courseRunId ?? null,
         metadata: data.metadata || {},
         status: TicketStatus.PENDING as any,
       },
@@ -53,14 +53,16 @@ export class TicketRepository implements ITicketRepository {
   ): Promise<{ data: any[]; total: number }> {
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 10;
-    const { type, status, userId, courseRunId, search } = query;
+    const { type, status, userId, courseRunId, search } = query as any;
+    const classId = (query as any).classId as string | undefined;
     const skip = (page - 1) * limit;
 
     const where: any = {};
     if (type) where.type = type;
     if (status) where.status = status;
     if (userId) where.userId = userId;
-    if (courseRunId) where.courseRunId = courseRunId;
+    if (classId) where.classId = classId;
+    else if (courseRunId) where.classId = courseRunId;
     if (search) {
       where.OR = [
         { subject: { contains: search, mode: 'insensitive' } },

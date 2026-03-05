@@ -32,16 +32,6 @@
         "webpack": false
       }
     },
-    "learning": {
-      "type": "application",
-      "root": "services/learning",
-      "entryFile": "main",
-      "sourceRoot": "services/learning/src",
-      "compilerOptions": {
-        "tsConfigPath": "services/learning/tsconfig.app.json",
-        "webpack": false
-      }
-    },
     "meet": {
       "type": "application",
       "root": "services/meet",
