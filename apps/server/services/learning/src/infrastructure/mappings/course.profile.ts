@@ -101,12 +101,12 @@ export class CourseProfile extends AutomapperProfile {
           mapFrom((src: CourseMaster) => src.createdBy || undefined),
         ),
         forMember(
-          (dest: CourseMasterResponseDTO) => dest.approvedBy,
-          mapFrom((src: CourseMaster) => src.approvedBy || undefined),
+          (dest: CourseMasterResponseDTO) => (dest as any).approvedBy,
+          mapFrom((src: CourseMaster) => (src as any).approvedBy || undefined),
         ),
         forMember(
-          (dest: CourseMasterResponseDTO) => dest.approvedAt,
-          mapFrom((src: CourseMaster) => src.approvedAt || undefined),
+          (dest: CourseMasterResponseDTO) => (dest as any).approvedAt,
+          mapFrom((src: CourseMaster) => (src as any).approvedAt || undefined),
         ),
         forMember(
           (dest: CourseMasterResponseDTO) => dest.createdAt,

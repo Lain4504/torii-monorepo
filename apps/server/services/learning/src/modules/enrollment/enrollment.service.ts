@@ -414,7 +414,7 @@ export class EnrollmentService implements IEnrollmentService {
         if (!course) throw new NotFoundException('Associated course not found');
 
         // Check if course is published
-        if (course.status !== CourseMasterStatus.PUBLISHED) {
+        if (course.status !== CourseMasterStatus.APPROVED) {
             throw new BadRequestException('Course is not available for enrollment');
         }
 

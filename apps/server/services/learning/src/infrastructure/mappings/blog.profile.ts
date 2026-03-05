@@ -34,10 +34,6 @@ export class BlogProfile extends AutomapperProfile {
           mapFrom((src: Blog) => src.slug),
         ),
         forMember(
-          (dest: BlogResponseDTO) => dest.excerpt,
-          mapFrom((src: Blog) => src.excerpt || undefined),
-        ),
-        forMember(
           (dest: BlogResponseDTO) => dest.content,
           mapFrom((src: Blog) => src.content),
         ),
@@ -64,10 +60,6 @@ export class BlogProfile extends AutomapperProfile {
         forMember(
           (dest: BlogResponseDTO) => dest.commentCount,
           mapFrom((src: Blog) => src.commentCount),
-        ),
-        forMember(
-          (dest: BlogResponseDTO) => dest.tags,
-          mapFrom((src: Blog) => src.tags || []),
         ),
 
         forMember(

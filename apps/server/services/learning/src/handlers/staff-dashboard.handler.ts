@@ -30,7 +30,7 @@ export class StaffDashboardHandler {
             // Active/Published courses
             this.prisma.courseMaster.count({
                 where: {
-                    status: 'published',
+                    status: 'APPROVED',
                     deletedAt: null,
                 },
             }),

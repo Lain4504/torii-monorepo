@@ -4,11 +4,25 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="gop theo tinh nang">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: implement header and footer components for improved layout structure">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/marketing/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/marketing/app/layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/marketing/app/lich-hoc/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/marketing/app/lich-hoc/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/marketing/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/marketing/app/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/handlers/analytics.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/handlers/analytics.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/handlers/staff-dashboard.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/handlers/staff-dashboard.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/blog/[slug]/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/blog/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/blog/preview/[slug]/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/courses/[courseId]/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/courses/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/home1/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/lecturers/[id]/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/live-classes/[slug]/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/live-classes/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/placement-test/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/support/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/footer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/footer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/header.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -269,15 +283,7 @@
       <workItem from="1772633951974" duration="1482000" />
       <workItem from="1772642951151" duration="2417000" />
       <workItem from="1772648293401" duration="1652000" />
-      <workItem from="1772677029648" duration="459000" />
-    </task>
-    <task id="LOCAL-00910" summary="add comment for interface">
-      <option name="closed" value="true" />
-      <created>1772602153645</created>
-      <option name="number" value="00910" />
-      <option name="presentableId" value="LOCAL-00910" />
-      <option name="project" value="LOCAL" />
-      <updated>1772602153645</updated>
+      <workItem from="1772677029648" duration="1592000" />
     </task>
     <task id="LOCAL-00911" summary="update meet to user shadcn ui component">
       <option name="closed" value="true" />
@@ -663,7 +669,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772649847262</updated>
     </task>
-    <option name="localTasksCounter" value="959" />
+    <task id="LOCAL-00959" summary="feat: implement header and footer components for improved layout structure">
+      <option name="closed" value="true" />
+      <created>1772678128312</created>
+      <option name="number" value="00959" />
+      <option name="presentableId" value="LOCAL-00959" />
+      <option name="project" value="LOCAL" />
+      <updated>1772678128313</updated>
+    </task>
+    <option name="localTasksCounter" value="960" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -698,7 +712,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fix: enhance course live class logic" />
     <MESSAGE value="cômmit" />
     <MESSAGE value="feat: Add CourseRun and LiveSession enums, update related DTOs and services" />
     <MESSAGE value="feat: Add CourseRunDetailPage and update course-related components for better course run management" />
@@ -723,7 +736,8 @@
     <MESSAGE value="feat: add new UI components including Skeleton, AspectRatio, Spinner, and more" />
     <MESSAGE value="update create review submit flow for course and course master" />
     <MESSAGE value="gop theo tinh nang" />
-    <option name="LAST_COMMIT_MESSAGE" value="gop theo tinh nang" />
+    <MESSAGE value="feat: implement header and footer components for improved layout structure" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: implement header and footer components for improved layout structure" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

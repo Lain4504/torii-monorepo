@@ -231,7 +231,7 @@ export class SenseiService implements OnModuleInit {
                             { title: { contains: topic, mode: 'insensitive' } },
                             { description: { contains: topic, mode: 'insensitive' } }
                         ],
-                        status: 'published'
+                        status: 'APPROVED'
                     },
                     take: 5,
                     select: { id: true, title: true, description: true, jlptLevel: true }

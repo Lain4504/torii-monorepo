@@ -95,12 +95,10 @@ export class BlogService implements IBlogService {
     const blog = await this.blogRepository.create({
       title: finalDto.title,
       slug: finalDto.slug,
-      excerpt: finalDto.excerpt,
       content: finalDto.content,
       coverImageUrl: finalDto.coverImageUrl,
       status: finalDto.status || BlogStatus.DRAFT,
       publishedAt: finalDto.publishedAt || null,
-      tags: finalDto.tags || [],
       seoTitle: finalDto.seoTitle,
       seoDescription: finalDto.seoDescription,
       author: {
@@ -145,16 +143,9 @@ export class BlogService implements IBlogService {
     if (query.search) {
       where.OR = [
         { title: { contains: query.search, mode: 'insensitive' } },
-        { excerpt: { contains: query.search, mode: 'insensitive' } },
         { content: { contains: query.search, mode: 'insensitive' } },
         { slug: { contains: query.search, mode: 'insensitive' } },
       ];
-    }
-
-    if (query.tagId) {
-      where.tags = {
-        has: query.tagId,
-      };
     }
 
     const orderBy: Prisma.BlogOrderByWithRelationInput = {};
@@ -291,10 +282,6 @@ export class BlogService implements IBlogService {
       } else if (dto.publishedAt && new Date(dto.publishedAt) > new Date()) {
         updateData.status = BlogStatus.SCHEDULED;
       }
-    }
-
-    if (dto.tags !== undefined) {
-      updateData.tags = dto.tags;
     }
 
     const blog = await this.blogRepository.update(id, updateData);

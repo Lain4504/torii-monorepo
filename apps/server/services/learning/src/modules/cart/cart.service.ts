@@ -1,4 +1,5 @@
 import { Injectable, Inject, BadRequestException, NotFoundException } from '@nestjs/common';
+import { CourseMasterStatus } from '@prisma/generated';
 import { CartRepository } from './cart.repository';
 import { CourseMasterRepository } from '../course-master/course-master.repository'; // Assuming this exists from Course module
 import { PrismaService } from '@server/shared';
@@ -61,7 +62,7 @@ export class CartService {
         }
 
         const master = courseRun.courseMaster;
-        if (master?.status !== 'published') {
+        if (master?.status !== CourseMasterStatus.APPROVED) {
             throw new BadRequestException('Cannot add run of unpublished course to cart');
         }
 

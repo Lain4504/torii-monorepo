@@ -70,10 +70,6 @@ export class QuestionProfile extends AutomapperProfile {
                     mapFrom((src) => src.metadata as any),
                 ),
                 forMember(
-                    (dest) => dest.tags,
-                    mapFrom((src) => (src.tags as string[]) || []),
-                ),
-                forMember(
                     (dest) => dest.createdBy,
                     mapFrom((src) => src.createdBy || undefined),
                 ),

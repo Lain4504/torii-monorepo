@@ -336,6 +336,7 @@ model Module {
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at")
   deletedAt       DateTime? @map("deleted_at")
+  createdBy       String?   @map("created_by") @db.Uuid
 
   courseMaster CourseMaster @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
   lessons      Lesson[]
@@ -361,6 +362,9 @@ model Lesson {
   createdAt            DateTime  @default(now()) @map("created_at")
   updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at")
   deletedAt            DateTime? @map("deleted_at")
+  videoDuration        Int?      @map("video_duration")
+  isUnlocked           Boolean   @default(true) @map("is_unlocked")
+  createdBy            String?   @map("created_by") @db.Uuid
 
   module            Module            @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   quizzes           Quiz[]
@@ -529,6 +533,8 @@ model Enrollment {
   trialExpiresAt       DateTime? @map("trial_expires_at") // Hết hạn học thử
   createdAt            DateTime  @default(now()) @map("created_at")
   updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at")
+  completionStatus     String?   @map("completion_status") @db.VarChar(20) // For backwards compatibility or custom tracking
+  paymentId            String?   @map("payment_id") @db.Uuid
 
   enrollmentStatus EnrollmentStatus @default(PENDING_PAYMENT) @map("enrollment_status")
 
@@ -558,7 +564,7 @@ model LessonProgress {
   courseRunId     String    @map("course_run_id") @db.Uuid
   status          String    @default("not_started") @db.VarChar(20) // not_started, in_progress, completed
   watchedDuration Int       @default(0) @map("watched_duration")
-  totalDuration   Int       @map("total_duration")
+  totalDuration   Int?      @map("total_duration")
   lastWatchedAt   DateTime  @default(now()) @map("last_watched_at")
   completedAt     DateTime? @map("completed_at")
   notes           String?   @db.Text
@@ -885,6 +891,7 @@ model Submission {
   submittedAt DateTime?        @map("submitted_at")
   isLate      Boolean          @default(false) @map("is_late")
   daysLate    Int?             @default(0) @map("days_late") // For BR-04: penalty calculation
+  previousSubmissionId String? @map("previous_submission_id") @db.Uuid
 
   // Grading
   score    Decimal?  @db.Decimal(5, 2)
@@ -1197,6 +1204,14 @@ model Flashcard {
   // Metadata
   notes      String? @db.Text
   isArchived Boolean @default(false) @map("is_archived")
+  nextReviewDate DateTime? @map("next_review_date")
+  lastReviewDate DateTime? @map("last_review_date")
+  easeFactor     Decimal?  @map("ease_factor") @db.Decimal(4, 2)
+  reviewCount    Int       @default(0) @map("review_count")
+  correctCount   Int       @default(0) @map("correct_count")
+  incorrectCount Int       @default(0) @map("incorrect_count")
+  timesStudied   Int       @default(0) @map("times_studied")
+  intervalDays   Int       @default(0) @map("interval_days")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
@@ -1966,13 +1981,16 @@ model Blog {
   id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title         String    @db.VarChar(255)
   slug          String    @unique @db.VarChar(255)
-  description   String    @db.VarChar(255)
+  description   String?   @db.VarChar(255)
   content       String    @db.Text
   coverImageUrl String?   @map("cover_image_url") @db.Text
   authorId      String    @map("author_id") @db.Uuid
   status        String    @default("draft") @db.VarChar(20) // draft, published, archived
   publishedAt   DateTime? @map("published_at")
   viewCount     Int       @default(0) @map("view_count")
+  commentCount  Int       @default(0) @map("comment_count")
+  seoTitle      String?   @map("seo_title") @db.VarChar(255)
+  seoDescription String?  @map("seo_description") @db.Text
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at")
 
@@ -2000,11 +2018,26 @@ model Comment {
   parent  Comment?      @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
   replies Comment[]     @relation("CommentReplies")
   likes   CommentLike[]
+  targets CommentTarget[]
 
   @@index([userId])
   @@index([parentCommentId])
   @@index([createdAt(sort: Desc)])
   @@map("comments")
+}
+
+model CommentTarget {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  commentId String   @map("comment_id") @db.Uuid
+  targetId  String   @map("target_id") @db.Uuid
+  targetType String  @map("target_type") @db.VarChar(20) // BLOG, COURSE_RUN, etc.
+  createdAt DateTime @default(now()) @map("created_at")
+
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, targetId, targetType])
+  @@index([targetId, targetType])
+  @@map("comment_targets")
 }
 
 model CommentLike {

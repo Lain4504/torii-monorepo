@@ -148,10 +148,6 @@ export class QuestionService implements IQuestionService {
                 ];
             }
 
-            if (tags && tags.length > 0) {
-                whereClause.tags = { hasSome: tags };
-            }
-
             const [total, questions] = await Promise.all([
                 this.questionRepository.count(whereClause),
                 this.questionRepository.findMany({
@@ -212,7 +208,6 @@ export class QuestionService implements IQuestionService {
                 correctAnswer: dto.correctAnswer || null,
                 explanation: dto.explanation || null,
                 metadata: dto.metadata,
-                tags: dto.tags || [],
                 createdBy: requester.sub,
                 status: QuestionStatus.ACTIVE,
                 usageCount: 0,
@@ -262,7 +257,6 @@ export class QuestionService implements IQuestionService {
                 correctAnswer: dto.correctAnswer || null,
                 explanation: dto.explanation || null,
                 metadata: dto.metadata,
-                tags: dto.tags || [],
                 createdBy: requester.sub,
                 status: QuestionStatus.ACTIVE,
                 usageCount: 0,

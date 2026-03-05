@@ -198,6 +198,7 @@ export class LearningProgressService implements ILearningProgressService {
             {
                 enrollment: { connect: { id: enrollment.id } },
                 lesson: { connect: { id: lessonId } },
+                courseRunId: enrollment.courseRunId,
                 watchedDuration: Math.floor(seconds),
                 totalDuration: Math.floor(totalSeconds),
                 status: status,

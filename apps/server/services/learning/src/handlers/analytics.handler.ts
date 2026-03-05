@@ -12,7 +12,7 @@ export class AnalyticsHandler {
             this.prisma.courseMaster.count({ where: { deletedAt: null } }),
             this.prisma.enrollment.count(),
             this.prisma.courseMaster.findMany({
-                where: { deletedAt: null, status: 'published' },
+                where: { deletedAt: null, status: 'APPROVED' },
                 take: 5,
                 select: {
                     id: true,
@@ -22,7 +22,7 @@ export class AnalyticsHandler {
             }),
             this.prisma.courseMaster.count({
                 where: {
-                    status: 'pending_review',
+                    status: 'PENDING_REVIEW',
                     deletedAt: null
                 }
             }),
@@ -43,19 +43,19 @@ export class AnalyticsHandler {
                 where: { deletedAt: null }
             }),
             this.prisma.enrollment.groupBy({
-                by: ['completionStatus'],
+                by: ['enrollmentStatus'],
                 _count: { _all: true }
             }),
             this.prisma.enrollment.aggregate({
                 _avg: { completionPercentage: true },
-                where: { completionStatus: 'in_progress' }
+                where: { enrollmentStatus: 'ACTIVE' }
             })
         ]);
 
         return {
             statsByLevel: statsByLevel.map(s => ({ level: s.jlptLevel, count: s._count._all })),
-            enrollmentByStatus: enrollmentByStatus.map(e => ({ status: e.completionStatus, count: e._count._all })),
-            averageCompletion: Number(completionStats._avg.completionPercentage || 0)
+            enrollmentByStatus: enrollmentByStatus.map(e => ({ status: e.enrollmentStatus, count: e._count._all })),
+            averageCompletion: Number(completionStats._avg?.completionPercentage || 0)
         };
     }
 

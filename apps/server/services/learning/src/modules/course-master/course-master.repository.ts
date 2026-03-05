@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
-import type { CourseMaster, CourseVersion, Prisma } from '@prisma/generated';
+import type { CourseMaster, CourseMasterReview, CourseVersion, Prisma } from '@prisma/generated';
 import type { ICourseMasterRepository } from '@server/learning/interfaces/repositories';
 
 /**
@@ -231,5 +231,49 @@ export class CourseMasterRepository implements ICourseMasterRepository {
      */
     async incrementTotalStudents(courseMasterId: string): Promise<void> {
         // No-op: this method is kept for backward compatibility
+    }
+
+    /**
+     * Create a new review record for a course master syllabus
+     */
+    async createMasterReview(data: Prisma.CourseMasterReviewCreateInput): Promise<CourseMasterReview> {
+        return this.prisma.courseMasterReview.create({ data });
+    }
+
+    /**
+     * Update an existing course master review
+     */
+    async updateMasterReview(id: string, data: Prisma.CourseMasterReviewUpdateInput): Promise<CourseMasterReview> {
+        return this.prisma.courseMasterReview.update({
+            where: { id },
+            data,
+        });
+    }
+
+    /**
+     * List course master reviews with optional filtering and pagination
+     */
+    async findMasterReviews(options: {
+        where?: Prisma.CourseMasterReviewWhereInput;
+        orderBy?: Prisma.CourseMasterReviewOrderByWithRelationInput;
+        skip?: number;
+        take?: number;
+    }): Promise<CourseMasterReview[]> {
+        return this.prisma.courseMasterReview.findMany({
+            where: options.where,
+            orderBy: options.orderBy,
+            skip: options.skip,
+            take: options.take,
+        });
+    }
+
+    /**
+     * Get the latest review entry for a course master
+     */
+    async getLatestMasterReview(courseMasterId: string): Promise<CourseMasterReview | null> {
+        return this.prisma.courseMasterReview.findFirst({
+            where: { courseMasterId },
+            orderBy: { createdAt: 'desc' },
+        });
     }
 }

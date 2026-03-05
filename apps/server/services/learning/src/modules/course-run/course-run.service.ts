@@ -348,7 +348,7 @@ export class CourseRunService {
         }
 
         let targetStatus: CourseRunStatus;
-        switch (payload.outcome) {
+        switch (payload.outcome as any) {
             case 'APPROVED':
                 targetStatus = CourseRunStatus.APPROVED;
                 break;
@@ -361,7 +361,7 @@ export class CourseRunService {
 
         this.assertRunTransition(existing.status as CourseRunStatus, targetStatus);
 
-        let finalStatus = targetStatus;
+        let finalStatus: CourseRunStatus = targetStatus;
         if (payload.outcome === 'APPROVED') {
             if (payload.moveToEnrolling) {
                 this.assertRunTransition(CourseRunStatus.APPROVED, CourseRunStatus.ENROLLING);

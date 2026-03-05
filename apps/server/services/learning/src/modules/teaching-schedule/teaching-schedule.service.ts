@@ -155,7 +155,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
                 startTime: dto.startTime,
                 duration: dto.duration,
                 reason: dto.reason,
-                status: 'pending',
+                status: 'PENDING',
             },
             include: {
                 lecturer: true,
@@ -167,7 +167,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
     }
 
     async getPendingRequests(requester: Requester): Promise<ScheduleRequestResponseDTO[]> {
-        const where: any = { status: 'pending' };
+        const where: any = { status: 'PENDING' };
 
         const canManageSchedules = this.hasPermission(requester, 'live_class.schedule');
 
@@ -237,12 +237,12 @@ export class TeachingScheduleService implements ITeachingScheduleService {
 
             await this.prisma.liveSessionScheduleRequest.update({
                 where: { id: requestId },
-                data: { status: 'approved' },
+                data: { status: 'APPROVED' },
             });
         } else {
             await this.prisma.liveSessionScheduleRequest.update({
                 where: { id: requestId },
-                data: { status: 'rejected' },
+                data: { status: 'REJECTED' },
             });
         }
     }
@@ -267,7 +267,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
             await this.prisma.liveSession.deleteMany({
                 where: {
                     courseRunId,
-                    status: 'scheduled',
+                    status: 'SCHEDULED',
                     scheduledAt: { gt: new Date() },
                 },
             });
@@ -290,7 +290,7 @@ export class TeachingScheduleService implements ITeachingScheduleService {
         await this.prisma.liveSession.deleteMany({
             where: {
                 courseRunId,
-                status: 'scheduled',
+                status: 'SCHEDULED',
                 scheduledAt: { gt: new Date() },
             },
         });

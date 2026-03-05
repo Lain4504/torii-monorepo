@@ -4,7 +4,7 @@ import { lastValueFrom } from 'rxjs';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
 import { generateSlug, PrismaService } from '@server/shared';
-import { CourseMaster, CourseMasterStatus as PrismaCourseMasterStatus, MasterReviewStatus, type CourseMasterReview } from '@prisma/generated';
+import { CourseMaster, CourseMasterStatus as PrismaCourseMasterStatus, MasterReviewStatus, type CourseMasterReview, type CourseVersion } from '@prisma/generated';
 import { validate as uuidValidate } from 'uuid';
 
 import { CourseMasterStatus } from '@workspace/schemas';
@@ -610,7 +610,6 @@ export class CourseMasterService implements ICourseMasterService {
 
     const course = await this.courseRepository.update(courseMasterId, {
       status: PrismaCourseMasterStatus.PENDING_REVIEW,
-      rejectionReason: null,
     });
 
     await this.courseRepository.createMasterReview({
@@ -1061,9 +1060,6 @@ export class CourseMasterService implements ICourseMasterService {
 
     const updateData: any = {
       status: targetStatus as any,
-      approvedBy: payload.outcome === 'APPROVED' ? requester.sub : existing.approvedBy,
-      approvedAt: payload.outcome === 'APPROVED' ? new Date() : existing.approvedAt,
-      rejectionReason: payload.rejectionReason ?? null,
     };
 
     const course = await this.courseRepository.update(courseMasterId, updateData);

@@ -593,6 +593,7 @@ export class ExamService implements IExamService {
                 create: {
                     enrollmentId: enrollment.id,
                     lessonId: quiz.lessonId,
+                    courseRunId: enrollment.courseRunId,
                     status: 'completed',
                     completedAt: new Date(),
                     totalDuration: 0, // Duration not tracked at quiz level
