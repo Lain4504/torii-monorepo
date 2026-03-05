@@ -135,43 +135,7 @@ const liveCourses = [
 
 export default function CourseList() {
     return (
-        <div className="min-h-screen bg-zinc-50 font-sans text-zinc-900 selection:bg-[#E63946]/20 selection:text-[#E63946]">
-
-            {/* HEADER (Shared) */}
-            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-zinc-100 shadow-sm transition-all duration-300">
-                <div className="container mx-auto px-4 lg:px-8 h-20 flex items-center justify-between">
-                    <div className="flex justify-between items-center w-full">
-                        <Link href="/" className="flex items-center gap-2 group cursor-pointer">
-                            <div className="size-10 bg-gradient-to-br from-[#E63946] to-[#D62828] rounded-xl flex items-center justify-center transform group-hover:rotate-12 transition-transform shadow-lg shadow-[#E63946]/20">
-                                <Layout className="text-white size-5" strokeWidth={2.5} />
-                            </div>
-                            <span className="text-2xl font-bold tracking-tight text-zinc-900">
-                                Torii<span className={TORII_RED}>Nihongo</span>
-                            </span>
-                        </Link>
-                        <nav className="hidden lg:flex items-center gap-8">
-                            {["Trang chủ", "Khóa học", "Lịch học", "Về chúng tôi", "Tin tức"].map((item) => (
-                                <Link
-                                    key={item}
-                                    href={item === "Khóa học" ? "/khoa-hoc" : (item === "Tin tức" ? "/tin-tuc" : "#")}
-                                    className={`text - sm font - semibold transition - colors ${item === "Khóa học" ? `${TORII_RED}` : "text-zinc-600 hover:text-zinc-900"} `}
-                                >
-                                    {item}
-                                </Link>
-                            ))}
-                        </nav>
-                        <div className="flex items-center gap-4 hidden lg:flex">
-                            <Button variant="ghost" className="font-semibold text-zinc-600 hover:text-zinc-900">
-                                Đăng nhập
-                            </Button>
-                            <Button className={`${BG_TORII_RED} text - white hover: bg - [#D62828] font - bold px - 6 shadow - md shadow - [#E63946] / 20 transition - all hover: -translate - y - 0.5`}>
-                                Đăng ký
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
+        <>
             {/* BREADCRUMB */}
             <div className="bg-white border-b border-zinc-100 py-4">
                 <div className="container mx-auto px-4 lg:px-8">
@@ -280,7 +244,7 @@ export default function CourseList() {
                                             )}
                                         </div>
                                         <div>
-                                            <span className={`text - xs font - bold uppercase tracking - wider ${course.status === 'Đã đủ học viên' ? 'text-zinc-500' : 'text-[#E63946]'} `}>
+                                            <span className={`text-xs font-bold uppercase tracking-wider ${course.status === 'Đã đủ học viên' ? 'text-zinc-500' : 'text-[#E63946]'}`}>
                                                 {course.status}
                                             </span>
                                         </div>
@@ -333,59 +297,6 @@ export default function CourseList() {
                     </TabsContent>
                 </Tabs>
             </main>
-
-            {/* FOOTER (Shared) */}
-            <footer className="bg-zinc-950 text-white pt-20 pb-10">
-                <div className="container mx-auto px-4 lg:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-                        <div className="space-y-6">
-                            <div className="flex items-center gap-2">
-                                <div className="size-10 bg-[#E63946] rounded-xl flex items-center justify-center">
-                                    <Layout className="text-white size-5" strokeWidth={2.5} />
-                                </div>
-                                <span className="text-2xl font-bold tracking-tight text-white">
-                                    Torii<span className={TORII_RED}>Nihongo</span>
-                                </span>
-                            </div>
-                            <p className="text-zinc-400 text-sm leading-relaxed">
-                                Hành trình chinh phục tiếng Nhật bắt đầu từ đây. Chúng tôi cung cấp các khóa học chất lượng cao, từ cơ bản đến nâng cao.
-                            </p>
-                        </div>
-                        <div>
-                            <h4 className="text-lg font-bold mb-6 text-white">Khóa học</h4>
-                            <ul className="space-y-4 text-zinc-400 text-sm">
-                                <li><Link href="#" className="hover:text-white transition-colors">Tiếng Nhật Sơ cấp (N5, N4)</Link></li>
-                                <li><Link href="#" className="hover:text-white transition-colors">Tiếng Nhật Trung cấp (N3, N2)</Link></li>
-                                <li><Link href="#" className="hover:text-white transition-colors">Luyện thi JLPT Cấp tốc</Link></li>
-                                <li><Link href="#" className="hover:text-white transition-colors">Tiếng Nhật Giao tiếp (Kaiwa)</Link></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="text-lg font-bold mb-6 text-white">Về Torii Nihongo</h4>
-                            <ul className="space-y-4 text-zinc-400 text-sm">
-                                <li><Link href="#" className="hover:text-white transition-colors">Giới thiệu chung</Link></li>
-                                <li><Link href="#" className="hover:text-white transition-colors">Đội ngũ giáo viên</Link></li>
-                                <li><Link href="#" className="hover:text-white transition-colors">Tin tức & Sự kiện</Link></li>
-                                <li><Link href="#" className="hover:text-white transition-colors">Cơ hội nghề nghiệp</Link></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="text-lg font-bold mb-6 text-white">Liên hệ</h4>
-                            <ul className="space-y-4 text-zinc-400 text-sm">
-                                <li className="flex items-center gap-2"><div className="size-8 rounded-full bg-zinc-900 flex items-center justify-center"><HugeiconsIcon icon={Message01Icon} className="size-4" /></div> <span>info@toriinihongo.edu.vn</span></li>
-                                <li className="flex items-center gap-2"><div className="size-8 rounded-full bg-zinc-900 flex items-center justify-center"><HugeiconsIcon icon={Message01Icon} className="size-4" /></div> <span>0123 456 789</span></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div className="border-t border-zinc-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-zinc-500 text-sm">
-                        <p>© 2026 Torii Nihongo. All rights reserved.</p>
-                        <div className="flex gap-6">
-                            <Link href="#" className="hover:text-white transition-colors">Chính sách bảo mật</Link>
-                            <Link href="#" className="hover:text-white transition-colors">Điều khoản dịch vụ</Link>
-                        </div>
-                    </div>
-                </div>
-            </footer>
-        </div>
-    )
+        </>
+    );
 }

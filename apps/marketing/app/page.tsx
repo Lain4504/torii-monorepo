@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
     PlayCircleIcon,
@@ -14,11 +13,9 @@ import {
     Calendar01Icon,
     StarIcon,
     QuoteDownIcon,
-    Layout01Icon,
     BookOpen01Icon,
     PlayIcon
 } from "@hugeicons/core-free-icons"
-import Link from "next/link"
 
 type IconWrapperProps = Omit<React.ComponentProps<typeof HugeiconsIcon>, "icon">;
 
@@ -31,7 +28,6 @@ const CheckCircle2 = (props: IconWrapperProps) => <HugeiconsIcon icon={Checkmark
 const Calendar = (props: IconWrapperProps) => <HugeiconsIcon icon={Calendar01Icon} {...props} />
 const Star = (props: IconWrapperProps) => <HugeiconsIcon icon={StarIcon} {...props} />
 const Quote = (props: IconWrapperProps) => <HugeiconsIcon icon={QuoteDownIcon} {...props} />
-const Layout = (props: IconWrapperProps) => <HugeiconsIcon icon={Layout01Icon} {...props} />
 const BookOpen = (props: IconWrapperProps) => <HugeiconsIcon icon={BookOpen01Icon} {...props} />
 const Play = (props: IconWrapperProps) => <HugeiconsIcon icon={PlayIcon} {...props} />
 
@@ -40,31 +36,7 @@ const BG_TORII_RED = "bg-[#E63946] hover:bg-[#D62828]"
 
 export default function Page() {
     return (
-        <div className="min-h-screen bg-white text-zinc-900 font-sans selection:bg-[#E63946]/20">
-            {/* 1. Header (Sticky) */}
-            <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
-                <div className="container mx-auto px-4 lg:px-8 h-20 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <Layout className={`size - 8 ${TORII_RED} fill - current`} />
-                        <span className="text-xl font-bold tracking-tight">Torii Nihongo</span>
-                    </div>
-
-                    <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-600">
-                        <Link href="#ve-torii" className="hover:text-[#E63946] transition-colors">Về Torii</Link>
-                        <Link href="#lo-trinh" className="hover:text-[#E63946] transition-colors">Lộ trình JLPT</Link>
-                        <Link href="#sensei" className="hover:text-[#E63946] transition-colors">Đội ngũ Sensei</Link>
-                        <Link href="#cam-nhan" className="hover:text-[#E63946] transition-colors">Cảm nhận học viên</Link>
-                    </nav>
-
-                    <div className="flex items-center gap-4">
-                        <Button variant="ghost" className="hidden sm:flex font-semibold">Đăng nhập</Button>
-                        <Button className={`${BG_TORII_RED} text - white font - semibold rounded - full px - 6`}>
-                            Đăng ký
-                        </Button>
-                    </div>
-                </div>
-            </header>
-
+        <>
             {/* 2. Hero Section */}
             <section className="relative overflow-hidden pt-24 pb-32 lg:pt-36 lg:pb-40">
                 <div className="absolute inset-0 bg-gradient-to-br from-zinc-50 to-white -z-10" />
@@ -79,10 +51,10 @@ export default function Page() {
                             Mô hình <strong className="text-zinc-900">Blended Learning</strong> thông minh, kết hợp tuyệt vời giữa khóa học quay sẵn (VOD) bài bản và lớp học trực tuyến (Live) tương tác cao. Đỗ JLPT thật dễ dàng!
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
-                            <Button size="lg" className={`${BG_TORII_RED} text - white rounded - full px - 8 h - 14 text - base font - semibold shadow - lg shadow - red - 500 / 20`}>
+                            <Button size="lg" className={`${BG_TORII_RED} text-white rounded-full px-8 h-14 text-base font-semibold shadow-lg shadow-red-500/20`}>
                                 Tư vấn lộ trình miễn phí
                             </Button>
-                            <Button size="lg" variant="outline" className={`rounded - full px - 8 h - 14 text - base font - semibold border - zinc - 200 hover: border - [#E63946] hover: text - [#E63946] hover: bg - zinc - 50`}>
+                            <Button size="lg" variant="outline" className={`rounded-full px-8 h-14 text-base font-semibold border-zinc-200 hover:border-[#E63946] hover:text-[#E63946] hover:bg-zinc-50`}>
                                 <PlayCircle className="mr-2 size-5" /> Tìm hiểu phương pháp
                             </Button>
                         </div>
@@ -309,59 +281,6 @@ export default function Page() {
                     </div>
                 </div>
             </section >
-
-            {/* 7. Footer */}
-            < footer className="bg-zinc-900 text-zinc-300 py-16" >
-                <div className="container mx-auto px-4 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-2">
-                            <Layout className={`size-8 text-[#E63946] fill-current`} />
-                            <span className="text-2xl font-bold text-white tracking-tight">Torii Nihongo</span>
-                        </div>
-                        <p className="text-zinc-400 text-sm leading-relaxed">
-                            Hệ thống nhật ngữ cao cấp, tiên phong trong công tác chuyển đổi số E-learning. Giúp bạn chinh phục tiếng Nhật một cách bài bản nhất!
-                        </p>
-                    </div>
-
-                    <div className="space-y-6 lg:ml-auto">
-                        <h4 className="text-white font-bold text-lg">Liên kết nhanh</h4>
-                        <ul className="space-y-3 text-sm">
-                            <li><Link href="#" className="hover:text-white transition-colors">Về chúng tôi</Link></li>
-                            <li><Link href="#" className="hover:text-white transition-colors">Thư viện VOD JLPT</Link></li>
-                            <li><Link href="#" className="hover:text-white transition-colors">Lịch khai giảng Live</Link></li>
-                            <li><Link href="#" className="hover:text-white transition-colors">Tuyển dụng</Link></li>
-                        </ul>
-                    </div>
-
-                    <div className="space-y-6">
-                        <h4 className="text-white font-bold text-lg">Liên hệ</h4>
-                        <ul className="space-y-3 text-sm">
-                            <li>Hotline: 1900 1234</li>
-                            <li>Email: contact@toriinihongo.edu.vn</li>
-                            <li>Địa chỉ: 123 Đường Trần Phú, Quận Hải Châu, TP. Đà Nẵng, Việt Nam</li>
-                        </ul>
-                    </div>
-
-                    <div className="space-y-6">
-                        <h4 className="text-white font-bold text-lg">Đăng ký nhận bảng tin</h4>
-                        <p className="text-sm text-zinc-400">Nhận lịch khai giảng ưu đãi, tài liệu JLPT miễn phí hàng tuần.</p>
-                        <div className="flex gap-2">
-                            <Input placeholder="Email của bạn..." className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus-visible:ring-[#E63946]" />
-                            <Button className={`${BG_TORII_RED} text-white`}>Gửi</Button>
-                        </div>
-                    </div>
-
-                </div>
-                <div className="container mx-auto px-4 lg:px-8 mt-16 pt-8 border-t border-zinc-800 text-sm text-zinc-500 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p>© 2026 Torii Nihongo Platform. All rights reserved.</p>
-                    <div className="flex gap-6">
-                        <Link href="#" className="hover:text-white">Facebook</Link>
-                        <Link href="#" className="hover:text-white">YouTube</Link>
-                        <Link href="#" className="hover:text-white">TikTok</Link>
-                    </div>
-                </div>
-            </footer >
-        </div >
+        </>
     )
 }

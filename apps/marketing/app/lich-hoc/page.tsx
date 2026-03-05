@@ -165,43 +165,8 @@ export default function TimetableSchedulePage() {
     };
 
     return (
-        <div className="min-h-screen bg-zinc-50 font-sans text-zinc-900 selection:bg-[#E63946]/20 selection:text-[#E63946]">
-
-            {/* HEADER (Shared) */}
-            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-zinc-100 shadow-sm">
-                <div className="container mx-auto px-4 lg:px-8 h-20 flex items-center justify-between">
-                    <Link href="/" className="flex items-center gap-2 group">
-                        <div className="size-10 bg-[#E63946] rounded-xl flex items-center justify-center transform group-hover:scale-105 transition-transform">
-                            <Layout className="text-white size-5" strokeWidth={2.5} />
-                        </div>
-                        <span className="text-2xl font-bold tracking-tight">
-                            Torii<span className={TORII_RED}>Nihongo</span>
-                        </span>
-                    </Link>
-                    <nav className="hidden lg:flex items-center gap-8">
-                        {["Khóa học", "Lịch học", "Thanh toán"].map((item) => (
-                            <Link
-                                key={item}
-                                href={item === "Khóa học" ? "/khoa-hoc" : (item === "Thanh toán" ? "/thanh-toan" : "/lich-hoc")}
-                                className={`text-sm font-semibold transition-colors ${item === "Lịch học" ? TORII_RED : "text-zinc-600 hover:text-zinc-900"}`}
-                            >
-                                {item}
-                            </Link>
-                        ))}
-                    </nav>
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-3 bg-zinc-100 p-1 pr-3 rounded-full border border-zinc-200">
-                            <Avatar className="size-8">
-                                <AvatarImage src="https://i.pravatar.cc/150?img=32" />
-                                <AvatarFallback>L</AvatarFallback>
-                            </Avatar>
-                            <span className="text-xs font-bold text-zinc-700 hidden sm:inline">Lain4504</span>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <main className="container mx-auto px-4 lg:px-8 py-8 max-w-[1600px]">
+        <div className="bg-zinc-50">
+            <main className="container mx-auto px-4 lg:px-8 py-12 max-w-[1600px]">
 
                 {/* TOP BAR: NAVIGATION & CONTROLS */}
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
@@ -486,54 +451,6 @@ export default function TimetableSchedulePage() {
                 </div>
             </main>
 
-            {/* FOOTER (Shared) */}
-            <footer className="bg-zinc-950 text-white pt-20 pb-10 mt-20">
-                <div className="container mx-auto px-4 lg:px-8 max-w-[1600px]">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-                        <div className="col-span-1 md:col-span-1 space-y-6">
-                            <div className="flex items-center gap-2">
-                                <div className="size-10 bg-[#E63946] rounded-xl flex items-center justify-center">
-                                    <Layout className="text-white size-5" />
-                                </div>
-                                <span className="text-2xl font-bold tracking-tight">Torii<span className="text-[#E63946]">Nihongo</span></span>
-                            </div>
-                            <p className="text-zinc-500 text-sm leading-relaxed">Học viện tiếng Nhật trực tuyến hàng đầu, mang đến lộ trình học tập tối ưu và tương tác cao.</p>
-                        </div>
-                        <div>
-                            <h4 className="text-lg font-bold mb-6 italic tracking-tight uppercase">Liên hệ</h4>
-                            <p className="text-zinc-500 text-sm">Email: info@toriinihongo.edu.vn</p>
-                            <p className="text-zinc-500 text-sm">Hotline: 0123 456 789</p>
-                        </div>
-                        <div>
-                            <h4 className="text-lg font-bold mb-6 italic tracking-tight uppercase">Công cụ</h4>
-                            <ul className="text-zinc-500 text-sm space-y-3">
-                                <li>Thi thử JLPT</li>
-                                <li>Tra từ điển Torii</li>
-                                <li>Blog học tiếng Nhật</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="text-lg font-bold mb-6 italic tracking-tight uppercase">Theo dõi</h4>
-                            <div className="flex gap-4">
-                                <div className="size-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#E63946] transition-colors cursor-pointer">
-                                    <UserGroup className="size-5" />
-                                </div>
-                                <div className="size-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#E63946] transition-colors cursor-pointer">
-                                    <Layout className="size-5" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="border-t border-zinc-900 pt-8 flex flex-col md:flex-row justify-between items-center text-zinc-600 text-[10px] font-bold uppercase tracking-widest">
-                        <span>© 2026 Torii Nihongo. All rights reserved.</span>
-                        <div className="flex gap-8 mt-4 md:mt-0">
-                            <Link href="#" className="hover:text-white transition-colors">Chính sách bảo mật</Link>
-                            <Link href="#" className="hover:text-white transition-colors">Điều khoản sử dụng</Link>
-                        </div>
-                    </div>
-                </div>
-            </footer>
-
             {/* CLASS DETAIL SHEET */}
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetContent className="w-full sm:max-w-[800px] p-0 border-l-0 rounded-l-[40px] overflow-hidden" side="right">
@@ -650,3 +567,4 @@ export default function TimetableSchedulePage() {
         </div>
     );
 }
+

@@ -67,33 +67,7 @@ export default function CheckoutPage() {
     const total = subtotal - discount;
 
     return (
-        <div className="min-h-screen bg-zinc-50 font-sans text-zinc-900 selection:bg-[#E63946]/20 selection:text-[#E63946]">
-
-            {/* HEADER (Shared) */}
-            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-zinc-100 h-20 flex items-center shadow-sm">
-                <div className="container mx-auto px-4 lg:px-8 flex items-center justify-between">
-                    <Link href="/" className="flex items-center gap-2 group cursor-pointer">
-                        <div className="size-10 bg-gradient-to-br from-[#E63946] to-[#D62828] rounded-xl flex items-center justify-center transform group-hover:rotate-12 transition-transform shadow-lg shadow-[#E63946]/20">
-                            <Layout className="text-white size-5" strokeWidth={2.5} />
-                        </div>
-                        <span className="text-2xl font-bold tracking-tight text-zinc-900">
-                            Torii<span className="text-[#E63946]">Nihongo</span>
-                        </span>
-                    </Link>
-                    <nav className="hidden md:flex items-center gap-6">
-                        <span className="text-sm font-medium text-zinc-400">Bước 1: Giỏ hàng</span>
-                        <ArrowRight className="size-4 text-zinc-300" />
-                        <span className="text-sm font-bold text-[#E63946]">Bước 2: Thanh toán</span>
-                        <ArrowRight className="size-4 text-zinc-300" />
-                        <span className="text-sm font-medium text-zinc-400">Bước 3: Hoàn tất</span>
-                    </nav>
-                    <div className="flex items-center gap-2 text-zinc-500">
-                        <Security className="size-5" />
-                        <span className="text-xs font-semibold uppercase tracking-wider hidden sm:inline">Secure Checkout</span>
-                    </div>
-                </div>
-            </header>
-
+        <div className="bg-zinc-50">
             <main className="container mx-auto px-4 lg:px-8 py-10 max-w-7xl">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
 
@@ -312,67 +286,6 @@ export default function CheckoutPage() {
 
                 </div>
             </main>
-
-            {/* FOOTER (Shared) */}
-            <footer className="bg-zinc-950 text-white pt-20 pb-10">
-                <div className="container mx-auto px-4 lg:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-                        <div className="space-y-6">
-                            <div className="flex items-center gap-2">
-                                <div className="size-10 bg-[#E63946] rounded-xl flex items-center justify-center">
-                                    <Layout className="text-white size-5" strokeWidth={2.5} />
-                                </div>
-                                <span className="text-2xl font-bold tracking-tight text-white">
-                                    Torii<span className="text-[#E63946]">Nihongo</span>
-                                </span>
-                            </div>
-                            <p className="text-zinc-400 text-sm leading-relaxed">
-                                Hành trình chinh phục tiếng Nhật bắt đầu từ đây. Chúng tôi cung cấp các khóa học chất lượng cao, từ cơ bản đến nâng cao.
-                            </p>
-                        </div>
-                        <div>
-                            <h4 className="text-lg font-bold mb-6 text-white">Khóa học</h4>
-                            <ul className="space-y-4 text-zinc-400 text-sm">
-                                <li><Link href="#" className="hover:text-white transition-colors">Tiếng Nhật Sơ cấp (N5, N4)</Link></li>
-                                <li><Link href="#" className="hover:text-white transition-colors">Tiếng Nhật Trung cấp (N3, N2)</Link></li>
-                                <li><Link href="#" className="hover:text-white transition-colors">Luyện thi JLPT Cấp tốc</Link></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="text-lg font-bold mb-6 text-white">Hỗ trợ</h4>
-                            <ul className="space-y-4 text-zinc-400 text-sm">
-                                <li><Link href="#" className="hover:text-white transition-colors">Hướng dẫn thanh toán</Link></li>
-                                <li><Link href="#" className="hover:text-white transition-colors">Chính sách hoàn học phí</Link></li>
-                                <li><Link href="#" className="hover:text-white transition-colors">Câu hỏi thường gặp</Link></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="text-lg font-bold mb-6 text-white">Liên hệ</h4>
-                            <ul className="space-y-4 text-zinc-400 text-sm">
-                                <li className="flex items-center gap-2">
-                                    <div className="size-8 rounded-full bg-zinc-900 flex items-center justify-center">
-                                        <Message className="size-4" />
-                                    </div>
-                                    <span>info@toriinihongo.edu.vn</span>
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <div className="size-8 rounded-full bg-zinc-900 flex items-center justify-center">
-                                        <Message className="size-4" />
-                                    </div>
-                                    <span>0123 456 789</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div className="border-t border-zinc-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-zinc-500 text-sm text-center sm:text-left">
-                        <p>© 2026 Torii Nihongo. All rights reserved.</p>
-                        <div className="flex gap-6">
-                            <Link href="#" className="hover:text-white transition-colors">Chính sách bảo mật</Link>
-                            <Link href="#" className="hover:text-white transition-colors">Điều khoản dịch vụ</Link>
-                        </div>
-                    </div>
-                </div>
-            </footer>
         </div>
-    )
+    );
 }
