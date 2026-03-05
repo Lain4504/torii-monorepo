@@ -30,11 +30,11 @@ export class LearningProgressController {
       const requester = req.requester;
       const result = await firstValueFrom(
         this.natsClient.send(
-          { cmd: 'learning.progress.myCourses' },
+          { cmd: 'academy.enrollment.findAll' },
           { userId: requester.sub },
         ),
       );
-      return successResponse({ courses: result });
+      return successResponse(result);
     } catch (error: any) {
       return errorResponse(error.message || 'Failed to fetch my courses');
     }
@@ -43,22 +43,24 @@ export class LearningProgressController {
   @Post('track')
   async trackProgress(
     @Req() req: ReqWithRequester,
-    @Body() body: { lessonId: string; seconds: number; totalSeconds: number },
+    @Body() body: { lessonId: string; classId: string; status: string; progressPercent: number },
   ) {
     try {
       const requester = req.requester;
       const result = await firstValueFrom(
         this.natsClient.send(
-          { cmd: 'learning.progress.track' },
+          { cmd: 'academy.learningProgress.upsert' },
           {
             userId: requester.sub,
+            classId: body.classId,
             lessonId: body.lessonId,
-            seconds: body.seconds,
-            totalSeconds: body.totalSeconds,
+            status: body.status,
+            progressPercent: body.progressPercent,
+            lastAccessedAt: new Date(),
           },
         ),
       );
-      return successResponse({ success: result });
+      return successResponse(result);
     } catch (error: any) {
       return errorResponse(error.message || 'Failed to track progress');
     }
@@ -70,30 +72,30 @@ export class LearningProgressController {
       const requester = req.requester;
       const result = await firstValueFrom(
         this.natsClient.send(
-          { cmd: 'learning.progress.stats' },
+          { cmd: 'academy.learningProgress.getStats' },
           { userId: requester.sub },
         ),
       );
-      return successResponse({ stats: result });
+      return successResponse(result);
     } catch (error: any) {
       return errorResponse(error.message || 'Failed to fetch stats');
     }
   }
 
-  @Get('completed-lessons/:courseMasterId')
+  @Get('completed-lessons/:classId')
   async getCompletedLessons(
     @Req() req: ReqWithRequester,
-    @Param('courseMasterId') courseMasterId: string,
+    @Param('classId') classId: string,
   ) {
     try {
       const requester = req.requester;
       const result = await firstValueFrom(
         this.natsClient.send(
-          { cmd: 'learning.progress.completedLessons' },
-          { userId: requester.sub, courseMasterId },
+          { cmd: 'academy.learningProgress.findAll' },
+          { userId: requester.sub, classId },
         ),
       );
-      return successResponse({ lessonIds: result });
+      return successResponse(result);
     } catch (error: any) {
       return errorResponse(
         error.message || 'Failed to fetch completed lessons',
@@ -107,11 +109,11 @@ export class LearningProgressController {
       const requester = req.requester;
       const result = await firstValueFrom(
         this.natsClient.send(
-          { cmd: 'learning.progress.history' },
+          { cmd: 'academy.learningProgress.getHistory' },
           { userId: requester.sub },
         ),
       );
-      return successResponse({ history: result });
+      return successResponse(result);
     } catch (error: any) {
       return errorResponse(error.message || 'Failed to fetch history');
     }

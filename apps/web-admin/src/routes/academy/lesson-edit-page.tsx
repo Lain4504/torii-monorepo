@@ -3,7 +3,7 @@ import { toast } from "sonner"
 import { PageHeader } from "@/components/common/page-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { useAcademyLesson, useUpdateAcademyLesson } from "@/lib/api/services/academy-lessons"
-import type { AcademyLessonUpdateDto } from "@workspace/schemas"
+import type { AcademyLessonCreateDTO } from "@workspace/schemas"
 import { LessonForm } from "@/components/academy/lesson-form"
 
 export default function AcademyLessonEditPage() {
@@ -12,7 +12,7 @@ export default function AcademyLessonEditPage() {
   const { data: lesson, isLoading } = useAcademyLesson(id)
   const update = useUpdateAcademyLesson()
 
-  async function onSubmit(data: AcademyLessonUpdateDto) {
+  async function onSubmit(data: AcademyLessonCreateDTO) {
     if (!id) return
     try {
       await update.mutateAsync({ id, input: data })

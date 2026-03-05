@@ -60,6 +60,14 @@ export const academyCourseOfferingsApi = {
     )
     return res.data
   },
+
+  async linkClasses(id: string, classIds: string[]) {
+    const res = await apiClient.post<StandardApiResponse<{ ok: boolean }>>(
+      `/api/academy/course-offerings/${id}/link-classes`,
+      { classIds },
+    )
+    return res.data
+  },
 }
 
 export function useAcademyCourseOfferings(params: AcademyCourseOfferingQueryDTO) {
@@ -99,6 +107,16 @@ export function useDeleteAcademyCourseOffering() {
   return useMutation({
     mutationFn: (id: string) => academyCourseOfferingsApi.delete(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-course-offerings"] }),
+  })
+}
+
+export function useLinkAcademyCourseOfferingClasses() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, classIds }: { id: string; classIds: string[] }) =>
+      academyCourseOfferingsApi.linkClasses(id, classIds),
+    onSuccess: (_, { id }) =>
+      qc.invalidateQueries({ queryKey: ["academy-course-offering", id] }),
   })
 }
 

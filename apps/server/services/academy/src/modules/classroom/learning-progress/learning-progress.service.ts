@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import {
   LearningProgressQueryDto,
+  LearningProgressStatsDto,
   LearningProgressUpsertDto,
 } from './dto/learning-progress.dto';
 
@@ -15,8 +16,95 @@ export class LearningProgressService {
         classId: query.classId ?? undefined,
         userId: query.userId ?? undefined,
       },
+      include: {
+        lesson: {
+          select: {
+            title: true,
+            slug: true,
+          },
+        },
+        class: {
+          select: {
+            courseProfile: {
+              select: {
+                title: true,
+                slug: true,
+              },
+            },
+          },
+        },
+      },
       orderBy: [{ lastAccessedAt: 'desc' }, { id: 'desc' }],
     });
+  }
+
+  async getHistory(userId: string) {
+    const history = await this.prisma.learningProgress.findMany({
+      where: { userId },
+      include: {
+        lesson: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+          },
+        },
+        class: {
+          select: {
+            id: true,
+            courseProfile: {
+              select: {
+                id: true,
+                title: true,
+                slug: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { lastAccessedAt: 'desc' },
+      take: 50,
+    });
+
+    return history.map((item) => ({
+      id: item.id,
+      courseTitle: item.class.courseProfile.title,
+      lessonTitle: item.lesson.title,
+      timestamp: item.lastAccessedAt,
+      slug: item.class.courseProfile.slug,
+      lessonId: item.lessonId,
+      courseProfileId: item.class.courseProfile.id,
+      classId: item.classId,
+      progressPercent: item.progressPercent,
+    }));
+  }
+
+  async getStats(userId: string) {
+    const enrollments = await this.prisma.enrollment.findMany({
+      where: { userId },
+    });
+
+    const totalCourses = enrollments.length;
+    // Note: status in enrollment might be different, but we check if they have any progress
+    const progress = await this.prisma.learningProgress.findMany({
+      where: { userId },
+    });
+
+    const completedLessons = progress.filter((p) => p.status === 'COMPLETED').length;
+    const inProgressCourses = enrollments.length; // Simplified for now
+
+    // Mocking some values as they might need more complex aggregation or aren't in schema yet
+    return {
+      totalCourses,
+      completedCourses: 0, // Need enrollment completion logic if available
+      inProgressCourses,
+      totalLearningHours: 0, // Need duration tracking logic
+      averageProgress: progress.length > 0 
+        ? Math.round(progress.reduce((acc, curr) => acc + (curr.progressPercent || 0), 0) / progress.length)
+        : 0,
+      currentStreak: 0,
+      totalCertificates: 0,
+    };
   }
 
   async upsert(input: LearningProgressUpsertDto) {

@@ -79,6 +79,16 @@ import AcademyAssignmentSubmissionDetailPage from '@/routes/academy/assignment-s
 import AcademyLessonsPage from '@/routes/academy/lessons-page.tsx'
 import AcademyLessonCreatePage from '@/routes/academy/lesson-create-page.tsx'
 import AcademyLessonEditPage from '@/routes/academy/lesson-edit-page.tsx'
+import AcademyEnrollmentsPage from '@/routes/academy/enrollments-page.tsx'
+import AcademyEnrollmentCreatePage from '@/routes/academy/enrollment-create-page.tsx'
+import AcademyEnrollmentEditPage from '@/routes/academy/enrollment-edit-page.tsx'
+import AcademyQuizTemplatesPage from '@/routes/academy/quiz-templates-page.tsx'
+import AcademyQuizTemplateCreatePage from '@/routes/academy/quiz-template-create-page.tsx'
+import AcademyQuizTemplateEditPage from '@/routes/academy/quiz-template-edit-page.tsx'
+import AcademyAssignmentTemplatesPage from '@/routes/academy/assignment-templates-page.tsx'
+import AcademyAssignmentTemplateCreatePage from '@/routes/academy/assignment-template-create-page.tsx'
+import AcademyAssignmentTemplateEditPage from '@/routes/academy/assignment-template-edit-page.tsx'
+import AcademyReportsPage from '@/routes/academy/reports-page.tsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -168,6 +178,16 @@ function App() {
                     <Route path="academy/exam-attempts/:id" element={<AcademyExamAttemptDetailPage />} />
                     <Route path="academy/assignment-submissions" element={<AcademyAssignmentSubmissionsPage />} />
                     <Route path="academy/assignment-submissions/:id" element={<AcademyAssignmentSubmissionDetailPage />} />
+                    <Route path="academy/quiz-templates" element={<AcademyQuizTemplatesPage />} />
+                    <Route path="academy/quiz-templates/new" element={<AcademyQuizTemplateCreatePage />} />
+                    <Route path="academy/quiz-templates/:id/edit" element={<AcademyQuizTemplateEditPage />} />
+                    <Route path="academy/assignment-templates" element={<AcademyAssignmentTemplatesPage />} />
+                    <Route path="academy/assignment-templates/new" element={<AcademyAssignmentTemplateCreatePage />} />
+                    <Route path="academy/assignment-templates/:id/edit" element={<AcademyAssignmentTemplateEditPage />} />
+                    <Route path="academy/enrollments" element={<AcademyEnrollmentsPage />} />
+                    <Route path="academy/enrollments/new" element={<AcademyEnrollmentCreatePage />} />
+                    <Route path="academy/enrollments/:id/edit" element={<AcademyEnrollmentEditPage />} />
+                    <Route path="academy/reports" element={<AcademyReportsPage />} />
                   </Route>
 
                   <Route element={<RoutePermissionGuard permission="coupon.manage" />}>

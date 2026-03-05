@@ -32,6 +32,9 @@ import {
   type AcademyClassAssessmentUpdateDTO,
 } from "@workspace/schemas"
 import type { AcademyClassAssessment } from "@/lib/api/services/academy-class-assessments"
+import { useAcademyClass } from "@/lib/api/services/academy-classes"
+import { useAcademyQuizTemplates } from "@/lib/api/services/academy-quiz-templates"
+import { useAcademyAssignmentTemplates } from "@/lib/api/services/academy-assignment-templates"
 
 export function ClassAssessmentForm({
   mode,
@@ -51,6 +54,17 @@ export function ClassAssessmentForm({
   defaultClassId?: string
 }) {
   const isEdit = mode === "edit"
+  const classId = isEdit ? initial?.classId : defaultClassId
+
+  const { data: academyClass } = useAcademyClass(classId)
+  const cpId = academyClass?.courseProfileId
+
+  const { data: quizTemplates = [] } = useAcademyQuizTemplates(
+    cpId ? { courseProfileId: cpId } : {}
+  )
+  const { data: assignmentTemplates = [] } = useAcademyAssignmentTemplates(
+    cpId ? { courseProfileId: cpId } : {}
+  )
 
   const { handleSubmit, control, watch } = useForm<
     AcademyClassAssessmentCreateDTO | AcademyClassAssessmentUpdateDTO
@@ -143,7 +157,18 @@ export function ClassAssessmentForm({
                       render={({ field, fieldState }) => (
                         <Field>
                           <FieldLabel>Quiz Template</FieldLabel>
-                          <Input placeholder="Nhập UUID Quiz Template" {...field} />
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Chọn template..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {quizTemplates.map((t) => (
+                                <SelectItem key={t.id} value={t.id}>
+                                  {t.title}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           <FieldError>{fieldState.error?.message}</FieldError>
                         </Field>
                       )}
@@ -155,7 +180,18 @@ export function ClassAssessmentForm({
                       render={({ field, fieldState }) => (
                         <Field>
                           <FieldLabel>Assignment Template</FieldLabel>
-                          <Input placeholder="Nhập UUID Assignment Template" {...field} />
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Chọn template..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {assignmentTemplates.map((t) => (
+                                <SelectItem key={t.id} value={t.id}>
+                                  {t.title}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           <FieldError>{fieldState.error?.message}</FieldError>
                         </Field>
                       )}

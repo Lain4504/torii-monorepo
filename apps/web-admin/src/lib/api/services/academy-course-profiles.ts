@@ -12,6 +12,7 @@ export type AcademyCourseProfile = {
   code: string
   title: string
   shortTitle?: string | null
+  description?: string | null
   subject?: string | null
   level?: string | null
   defaultLanguage?: string | null

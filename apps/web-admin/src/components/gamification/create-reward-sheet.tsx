@@ -2,7 +2,8 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import {
-    createPointRewardDtoSchema,
+    createPointRewardDTOSchema,
+    type CreatePointRewardDTO,
 } from "@workspace/schemas"
 import {
     Sheet,
@@ -49,13 +50,13 @@ export function CreateRewardSheet({ open, onOpenChange }: CreateRewardSheetProps
         setValue,
         reset,
         formState: { errors },
-    } = useForm({
-        resolver: zodResolver(createPointRewardDtoSchema),
+    } = useForm<CreatePointRewardDTO>({
+        resolver: zodResolver(createPointRewardDTOSchema),
         defaultValues: {
             name: "",
             description: "",
             points: 100,
-            discountType: "percentage",
+            discountType: "percentage" as "percentage" | "fixed_amount",
             discountValue: 10,
             maxDiscountAmount: null as number | null,
             minOrderAmount: null as number | null,
@@ -72,7 +73,7 @@ export function CreateRewardSheet({ open, onOpenChange }: CreateRewardSheetProps
         }
     }
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: CreatePointRewardDTO) => {
         try {
             await createMutation.mutateAsync(data)
             toast.success("Đã tạo mẫu phần thưởng mới")

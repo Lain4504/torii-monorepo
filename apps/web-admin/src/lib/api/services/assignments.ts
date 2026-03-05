@@ -1,12 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api/api-client.ts';
-import type { 
-  PaginatedApiResponse, 
-  AssignmentResponseDTO, 
-  CreateAssignmentDto, 
-  UpdateAssignmentDto, 
-  QueryAssignmentsDto, 
-  StandardApiResponse 
+import type {
+    PaginatedApiResponse,
+    AssignmentResponseDTO,
+    CreateAssignmentDTO,
+    UpdateAssignmentDTO,
+    QueryAssignmentsDTO,
+    StandardApiResponse
 } from '@workspace/schemas';
 
 // ============================================================================
@@ -15,7 +15,7 @@ import type {
 
 export const assignmentsApi = {
     // GET /api/assignments
-    async findAll(params: QueryAssignmentsDto): Promise<PaginatedApiResponse<AssignmentResponseDTO>> {
+    async findAll(params: QueryAssignmentsDTO): Promise<PaginatedApiResponse<AssignmentResponseDTO>> {
         const response = await apiClient.get<PaginatedApiResponse<AssignmentResponseDTO>>('/api/assignments', { params });
         return response.data;
     },
@@ -27,13 +27,13 @@ export const assignmentsApi = {
     },
 
     // POST /api/assignments
-    async create(assignment: CreateAssignmentDto): Promise<AssignmentResponseDTO> {
+    async create(assignment: CreateAssignmentDTO): Promise<AssignmentResponseDTO> {
         const response = await apiClient.post<StandardApiResponse<{ assignment: AssignmentResponseDTO }>>('/api/assignments', assignment);
         return response.data.data!.assignment;
     },
 
     // PUT /api/assignments/:id
-    async update(id: string, assignment: UpdateAssignmentDto): Promise<AssignmentResponseDTO> {
+    async update(id: string, assignment: UpdateAssignmentDTO): Promise<AssignmentResponseDTO> {
         const response = await apiClient.put<StandardApiResponse<{ assignment: AssignmentResponseDTO }>>(`/api/assignments/${id}`, assignment);
         return response.data.data!.assignment;
     },
@@ -58,7 +58,7 @@ export const assignmentsApi = {
 /**
  * Hook: Get assignments list with pagination and filters
  */
-export function useAssignments(params: QueryAssignmentsDto) {
+export function useAssignments(params: QueryAssignmentsDTO) {
     return useQuery({
         queryKey: ['assignments', params],
         queryFn: () => assignmentsApi.findAll(params),
@@ -84,7 +84,7 @@ export function useCreateAssignment() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (assignment: CreateAssignmentDto) => assignmentsApi.create(assignment),
+        mutationFn: (assignment: CreateAssignmentDTO) => assignmentsApi.create(assignment),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['assignments'] });
         },
@@ -98,7 +98,7 @@ export function useUpdateAssignment() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ id, assignment }: { id: string; assignment: UpdateAssignmentDto }) =>
+        mutationFn: ({ id, assignment }: { id: string; assignment: UpdateAssignmentDTO }) =>
             assignmentsApi.update(id, assignment),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['assignments', variables.id] });

@@ -40,7 +40,7 @@ export const commentApi = {
         if (dto.blogId) {
             backendDto.entityId = dto.blogId;
             backendDto.targetType = 'BLOG';
-            delete backendDto.blogDto;
+            delete backendDto.blogId;
         } else if (dto.feedId) {
             backendDto.entityId = dto.feedId;
             backendDto.targetType = 'FEED';

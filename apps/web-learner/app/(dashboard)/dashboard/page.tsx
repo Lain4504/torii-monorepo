@@ -41,7 +41,7 @@ export default function DashboardClientPage() {
     const mainCourse = courses?.[0];
     const otherCourses = courses?.slice(1, 3) || [];
 
-    // Stats pills
+    // Stats mapping for Academy
     const totalCourses = statsData?.totalCourses ?? courses?.length ?? 0;
     const totalHours = statsData?.totalLearningHours ?? 0;
     const currentStreak = streak?.currentStreak ?? 0;
@@ -267,24 +267,23 @@ export default function DashboardClientPage() {
                                 <div className="grid grid-cols-1 gap-4">
                                     {otherCourses.map((course) => {
                                         const circumference = 2 * Math.PI * 16;
-                                        const offset = circumference - (circumference * course.progress) / 100;
                                         return (
                                             <Link
                                                 key={course.id}
-                                                href={`/dashboard/courses/${course.courseRunId}`}
+                                                href={`/dashboard/courses/${course.classId}`}
                                                 className="bg-card p-4 rounded-2xl border border-border flex items-center justify-between hover-lift block"
                                             >
                                                 <div className="flex items-center gap-4">
                                                     <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-bold shrink-0 overflow-hidden">
-                                                        {course.thumbnailUrl ? (
-                                                            <img src={course.thumbnailUrl} alt="" className="w-full h-full object-cover" />
+                                                        {course.class?.courseProfile?.thumbnailUrl ? (
+                                                            <img src={course.class?.courseProfile?.thumbnailUrl} alt="" className="w-full h-full object-cover" />
                                                         ) : (
                                                             <BookOpen className="size-5" />
                                                         )}
                                                     </div>
                                                     <div>
-                                                        <h4 className="font-bold text-sm line-clamp-1">{course.title}</h4>
-                                                        <p className="text-xs text-muted-foreground">Đã hoàn thành {course.progress}%</p>
+                                                        <h4 className="font-bold text-sm line-clamp-1">{course.class?.courseProfile?.title}</h4>
+                                                        <p className="text-xs text-muted-foreground">Level: {course.class?.courseProfile?.jlptLevel || 'N/A'}</p>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-4 shrink-0">
@@ -297,8 +296,8 @@ export default function DashboardClientPage() {
                                                                 fill="transparent"
                                                                 r="16"
                                                                 stroke="currentColor"
-                                                                strokeDasharray={circumference.toFixed(2)}
-                                                                strokeDashoffset={offset.toFixed(2)}
+                                                                strokeDasharray={ringCircumference.toFixed(2)}
+                                                                strokeDashoffset={ringCircumference.toFixed(2)} // Reset progress for now
                                                                 strokeLinecap="round"
                                                                 strokeWidth="3"
                                                                 style={{ transform: 'rotate(-90deg)', transformOrigin: '50% 50%' }}
@@ -484,15 +483,15 @@ export default function DashboardClientPage() {
                                     </tr>
                                 </thead>
                                 <tbody className="text-sm">
-                                    {recentHistory.map((item) => (
+                                    {recentHistory.map((item: any) => (
                                         <tr key={item.id} className="border-b border-border hover:bg-muted/50 transition-colors">
                                             <td className="py-4 font-bold">
-                                                <Link href={`/dashboard/courses/${item.courseMasterId}/learn?lesson=${item.lessonId}`} className="hover:text-primary transition-colors line-clamp-1 max-w-[220px] block">
+                                                <Link href={`/dashboard/courses/${item.classId}/learn?lesson=${item.lessonId}`} className="hover:text-primary transition-colors line-clamp-1 max-w-[220px] block">
                                                     {item.lessonTitle}
                                                 </Link>
                                             </td>
                                             <td className="py-4 text-muted-foreground line-clamp-1 max-w-[160px]">{item.courseTitle}</td>
-                                            <td className="py-4 text-muted-foreground">{formatDuration(item.duration)}</td>
+                                            <td className="py-4 text-muted-foreground">{item.progressPercent}%</td>
                                             <td className="py-4 text-muted-foreground text-right whitespace-nowrap">
                                                 {formatDistanceToNow(new Date(item.timestamp), { addSuffix: true, locale: vi })}
                                             </td>

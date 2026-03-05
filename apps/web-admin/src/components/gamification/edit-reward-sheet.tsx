@@ -3,9 +3,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import { useEffect } from "react"
 import {
-    updatePointRewardDtoSchema,
-    type PointRewardDto,
-    type UpdatePointRewardDto,
+    updatePointRewardDTOSchema,
+    type PointRewardDTO,
+    type UpdatePointRewardDTO,
 } from "@workspace/schemas"
 import {
     Sheet,
@@ -41,7 +41,7 @@ import { Star, Gift } from "lucide-react"
 interface EditRewardSheetProps {
     open: boolean
     onOpenChange: (open: boolean) => void
-    reward: PointRewardDto
+    reward: PointRewardDTO
 }
 
 export function EditRewardSheet({ open, onOpenChange, reward }: EditRewardSheetProps) {
@@ -53,8 +53,8 @@ export function EditRewardSheet({ open, onOpenChange, reward }: EditRewardSheetP
         setValue,
         reset,
         formState: { errors },
-    } = useForm<UpdatePointRewardDto>({
-        resolver: zodResolver(updatePointRewardDtoSchema),
+    } = useForm<UpdatePointRewardDTO>({
+        resolver: zodResolver(updatePointRewardDTOSchema),
         defaultValues: {
             name: reward.name,
             description: reward.description || "",
@@ -90,7 +90,7 @@ export function EditRewardSheet({ open, onOpenChange, reward }: EditRewardSheetP
         }
     }
 
-    const onSubmit = async (data: UpdatePointRewardDto) => {
+    const onSubmit = async (data: UpdatePointRewardDTO) => {
         try {
             await updateMutation.mutateAsync({ id: reward.id, data })
             toast.success("Đã cập nhật phần thưởng")

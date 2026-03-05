@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { apiClient } from "@/lib/api/api-client"
 import type {
-  AcademyLessonCreateDto,
-  AcademyLessonQueryDto,
-  AcademyLessonUpdateDto,
+  AcademyLessonCreateDTO,
+  AcademyLessonQueryDTO,
+  AcademyLessonUpdateDTO,
   StandardApiResponse,
 } from "@workspace/schemas"
 
@@ -21,7 +21,7 @@ export type AcademyLesson = {
 }
 
 export const academyLessonsApi = {
-  async findAll(params: AcademyLessonQueryDto) {
+  async findAll(params: AcademyLessonQueryDTO) {
     const res = await apiClient.get<StandardApiResponse<{ items: AcademyLesson[] }>>(
       "/api/academy/lessons",
       { params },
@@ -36,7 +36,7 @@ export const academyLessonsApi = {
     return res.data.data!.item
   },
 
-  async create(input: AcademyLessonCreateDto) {
+  async create(input: AcademyLessonCreateDTO) {
     const res = await apiClient.post<StandardApiResponse<{ item: AcademyLesson }>>(
       "/api/academy/lessons",
       input,
@@ -44,7 +44,7 @@ export const academyLessonsApi = {
     return res.data.data!.item
   },
 
-  async update(id: string, input: AcademyLessonUpdateDto) {
+  async update(id: string, input: AcademyLessonUpdateDTO) {
     const res = await apiClient.put<StandardApiResponse<{ item: AcademyLesson }>>(
       `/api/academy/lessons/${id}`,
       input,
@@ -60,7 +60,7 @@ export const academyLessonsApi = {
   },
 }
 
-export function useAcademyLessons(params: AcademyLessonQueryDto) {
+export function useAcademyLessons(params: AcademyLessonQueryDTO) {
   return useQuery({
     queryKey: ["academy-lessons", params],
     queryFn: () => academyLessonsApi.findAll(params),
@@ -86,7 +86,7 @@ export function useCreateAcademyLesson() {
 export function useUpdateAcademyLesson() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, input }: { id: string; input: AcademyLessonUpdateDto }) =>
+    mutationFn: ({ id, input }: { id: string; input: AcademyLessonUpdateDTO }) =>
       academyLessonsApi.update(id, input),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-lessons"] }),
   })

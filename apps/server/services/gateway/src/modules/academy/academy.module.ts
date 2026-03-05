@@ -15,6 +15,7 @@ import { ExamAttemptController } from './controllers/exam-attempt.controller';
 import { AssignmentSubmissionController } from './controllers/assignment-submission.controller';
 import { LessonController } from './controllers/lesson.controller';
 import { BlogController } from './controllers/blog.controller';
+import { LearningProgressController } from './controllers/learning-progress.controller';
 
 @Module({
   imports: [NatsClientModule],
@@ -34,6 +35,7 @@ import { BlogController } from './controllers/blog.controller';
     AssignmentSubmissionController,
     LessonController,
     BlogController,
+    LearningProgressController,
   ],
 })
 export class AcademyModule { }

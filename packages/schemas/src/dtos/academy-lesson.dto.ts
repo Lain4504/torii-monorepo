@@ -15,7 +15,7 @@ export const academyLessonSchema = z.object({
 
 export type AcademyLesson = z.infer<typeof academyLessonSchema>;
 
-export const academyLessonCreateSchema = z.object({
+export const academyLessonCreateDTOSchema = z.object({
   courseProfileId: z.string().uuid(),
   title: z.string().max(255),
   contentType: z.string().max(50),
@@ -25,9 +25,9 @@ export const academyLessonCreateSchema = z.object({
   metadata: z.any().optional(),
 });
 
-export type AcademyLessonCreateDto = z.infer<typeof academyLessonCreateSchema>;
+export type AcademyLessonCreateDTO = z.infer<typeof academyLessonCreateDTOSchema>;
 
-export const academyLessonUpdateSchema = z.object({
+export const academyLessonUpdateDTOSchema = z.object({
   title: z.string().max(255).optional(),
   contentType: z.string().max(50).optional(),
   contentUrl: z.string().optional(),
@@ -36,11 +36,11 @@ export const academyLessonUpdateSchema = z.object({
   metadata: z.any().optional(),
 });
 
-export type AcademyLessonUpdateDto = z.infer<typeof academyLessonUpdateSchema>;
+export type AcademyLessonUpdateDTO = z.infer<typeof academyLessonUpdateDTOSchema>;
 
-export const academyLessonQuerySchema = z.object({
+export const academyLessonQueryDTOSchema = z.object({
   courseProfileId: z.string().uuid().optional(),
   q: z.string().optional(),
 });
 
-export type AcademyLessonQueryDto = z.infer<typeof academyLessonQuerySchema>;
+export type AcademyLessonQueryDTO = z.infer<typeof academyLessonQueryDTOSchema>;

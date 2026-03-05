@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@workspace/ui/components/table"
 import { Input } from "@workspace/ui/components/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { PageHeader } from "@/components/common/page-header"
 import {
   useAcademyCourseProfiles,
@@ -27,6 +27,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@workspace/ui/components/alert-dialog"
+import { Badge } from "@workspace/ui/components/badge"
+import { Search, Plus, Edit2, Trash2, FolderKey, Flag, BookOpen, Layers } from "lucide-react"
 
 export default function AcademyCourseProfilesPage() {
   const [q, setQ] = useState("")
@@ -40,30 +42,57 @@ export default function AcademyCourseProfilesPage() {
     <div className="space-y-6">
       <PageHeader
         title="Academy · Course Profiles"
-        subtitle="Định nghĩa khóa học trừu tượng (ví dụ: JLPT N5)."
+        subtitle="Định nghĩa các khung khóa học tổng quát (ví dụ: Tiếng Nhật N5, Luyện thi SAT)."
         actions={
-          <Button asChild>
-            <Link to="/academy/course-profiles/new">Tạo mới</Link>
+          <Button asChild className="gap-2">
+            <Link to="/academy/course-profiles/new">
+              <Plus className="h-4 w-4" /> Tạo mới Profile
+            </Link>
           </Button>
         }
       />
 
       <Card>
-        <CardHeader className="space-y-2">
-          <CardTitle>Danh sách</CardTitle>
-          <div className="flex gap-2">
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Tìm theo code/title..." />
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+          <div className="space-y-1">
+            <CardTitle>Danh sách Profiles</CardTitle>
+            <CardDescription>Quản lý các danh mục và cấp độ khóa học cơ bản.</CardDescription>
+          </div>
+          <div className="relative w-full max-w-sm">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Tìm theo mã hoặc tiêu đề..."
+              className="pl-9"
+            />
           </div>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Code</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>Subject</TableHead>
-                <TableHead>Level</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="w-[150px]">
+                  <div className="flex items-center gap-2">
+                    <FolderKey className="h-3.5 w-3.5" /> Mã (Code)
+                  </div>
+                </TableHead>
+                <TableHead>
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-3.5 w-3.5" /> Tiêu đề
+                  </div>
+                </TableHead>
+                <TableHead>
+                  <div className="flex items-center gap-2">
+                    <Layers className="h-3.5 w-3.5" /> Chủ đề
+                  </div>
+                </TableHead>
+                <TableHead>
+                  <div className="flex items-center gap-2">
+                    <Flag className="h-3.5 w-3.5" /> Cấp độ
+                  </div>
+                </TableHead>
+                <TableHead className="text-right">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -74,26 +103,43 @@ export default function AcademyCourseProfilesPage() {
               ) : data.length ? (
                 data.map((it) => (
                   <TableRow key={it.id}>
-                    <TableCell className="font-medium">{it.code}</TableCell>
-                    <TableCell>{it.title}</TableCell>
-                    <TableCell>{it.subject ?? "-"}</TableCell>
-                    <TableCell>{it.level ?? "-"}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="font-mono bg-muted/50">
+                        {it.code}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-medium">{it.title}</TableCell>
+                    <TableCell>{it.subject || <span className="text-muted-foreground text-xs italic">N/A</span>}</TableCell>
+                    <TableCell>
+                      {it.level ? (
+                        <Badge variant="secondary" className="font-normal">
+                          {it.level}
+                        </Badge>
+                      ) : (
+                        "-"
+                      )}
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button
-                          variant="outline"
-                          size="sm"
+                          variant="ghost"
+                          size="icon"
                           asChild
+                          title="Chỉnh sửa"
                         >
-                          <Link to={`/academy/course-profiles/${it.id}/edit`}>Sửa</Link>
+                          <Link to={`/academy/course-profiles/${it.id}/edit`}>
+                            <Edit2 className="h-4 w-4" />
+                          </Link>
                         </Button>
                         <Button
-                          variant="destructive"
-                          size="sm"
+                          variant="ghost"
+                          size="icon"
                           disabled={del.isPending}
                           onClick={() => setDeleteId(it.id)}
+                          title="Xoá"
+                          className="text-destructive hover:bg-destructive/10"
                         >
-                          Xoá
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>

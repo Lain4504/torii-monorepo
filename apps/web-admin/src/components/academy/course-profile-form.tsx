@@ -25,6 +25,13 @@ import {
 } from "@workspace/schemas"
 import type { AcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
 import { LessonMediaUploader } from "./lesson-media-uploader"
+import { RichTextEditor } from "@/components/editor/rich-text-editor"
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@workspace/ui/components/tabs"
 
 export function CourseProfileForm({
   mode,
@@ -54,6 +61,7 @@ export function CourseProfileForm({
       ? {
         title: initial?.title ?? "",
         shortTitle: initial?.shortTitle ?? undefined,
+        description: initial?.description ?? undefined,
         subject: initial?.subject ?? undefined,
         level: initial?.level ?? undefined,
         defaultLanguage: initial?.defaultLanguage ?? undefined,
@@ -121,6 +129,37 @@ export function CourseProfileForm({
                 <Field>
                   <FieldLabel>Tên ngắn</FieldLabel>
                   <Input placeholder="N5" {...field} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
+              name={"description" as any}
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Mô tả chi tiết</FieldLabel>
+                  <Tabs defaultValue="edit">
+                    <TabsList className="mb-4">
+                      <TabsTrigger value="edit">Chỉnh sửa</TabsTrigger>
+                      <TabsTrigger value="preview">Xem trước</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="edit">
+                      <RichTextEditor
+                        initialContent={field.value || ""}
+                        onUpdate={(html) => field.onChange(html)}
+                      />
+                    </TabsContent>
+                    <TabsContent value="preview">
+                      <div
+                        className="border rounded-md p-4 min-h-[150px] prose prose-sm dark:prose-invert max-w-none"
+                        dangerouslySetInnerHTML={{
+                          __html: field.value || "<em>Chưa có mô tả.</em>",
+                        }}
+                      />
+                    </TabsContent>
+                  </Tabs>
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}

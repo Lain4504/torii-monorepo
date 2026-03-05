@@ -34,3 +34,8 @@ export class LearningProgressQueryDto {
   userId?: string;
 }
 
+export class LearningProgressStatsDto {
+  @IsUUID()
+  userId!: string;
+}
+

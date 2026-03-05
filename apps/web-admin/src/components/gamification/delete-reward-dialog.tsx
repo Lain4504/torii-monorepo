@@ -10,12 +10,12 @@ import {
 } from "@workspace/ui/components/alert-dialog"
 import { useDeleteReward } from "@/lib/api/services/gamification"
 import { toast } from "sonner"
-import type { PointRewardDto } from "@workspace/schemas"
+import type { PointRewardDTO } from "@workspace/schemas"
 
 interface DeleteRewardDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
-    reward: PointRewardDto
+    reward: PointRewardDTO
 }
 
 export function DeleteRewardDialog({ open, onOpenChange, reward }: DeleteRewardDialogProps) {

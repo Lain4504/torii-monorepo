@@ -32,13 +32,13 @@ import {
 } from "@workspace/ui/components/tabs"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
 import { LessonMediaUploader } from "@/components/academy/lesson-media-uploader"
-import type { AcademyLessonCreateDto } from "@workspace/schemas"
-import { academyLessonCreateSchema } from "@workspace/schemas"
+import type { AcademyLessonCreateDTO } from "@workspace/schemas"
+import { academyLessonCreateDTOSchema } from "@workspace/schemas"
 import { RichTextEditor } from "@/components/editor/rich-text-editor"
 
 interface LessonFormProps {
-  defaultValues?: Partial<AcademyLessonCreateDto>
-  onSubmit: (data: AcademyLessonCreateDto) => Promise<void>
+  defaultValues?: Partial<AcademyLessonCreateDTO>
+  onSubmit: (data: AcademyLessonCreateDTO) => Promise<void>
   onCancel: () => void
   submitting?: boolean
   mode?: "create" | "edit"
@@ -55,8 +55,8 @@ export function LessonForm({
     handleSubmit,
     control,
     watch,
-  } = useForm<AcademyLessonCreateDto>({
-    resolver: zodResolver(academyLessonCreateSchema),
+  } = useForm<AcademyLessonCreateDTO>({
+    resolver: zodResolver(academyLessonCreateDTOSchema),
     defaultValues: {
       title: "",
       contentType: "VIDEO",

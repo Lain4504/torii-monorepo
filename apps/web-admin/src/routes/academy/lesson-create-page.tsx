@@ -3,14 +3,14 @@ import { toast } from "sonner"
 import { PageHeader } from "@/components/common/page-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { useCreateAcademyLesson } from "@/lib/api/services/academy-lessons"
-import type { AcademyLessonCreateDto } from "@workspace/schemas"
+import type { AcademyLessonCreateDTO } from "@workspace/schemas"
 import { LessonForm } from "@/components/academy/lesson-form"
 
 export default function AcademyLessonCreatePage() {
   const nav = useNavigate()
   const create = useCreateAcademyLesson()
 
-  async function onSubmit(data: AcademyLessonCreateDto) {
+  async function onSubmit(data: AcademyLessonCreateDTO) {
     try {
       await create.mutateAsync(data)
       toast.success("Đã tạo Lesson")
