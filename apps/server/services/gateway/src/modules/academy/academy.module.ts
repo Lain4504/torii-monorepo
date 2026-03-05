@@ -6,6 +6,13 @@ import { CourseOfferingController } from './controllers/course-offering.controll
 import { ChapterController } from './controllers/chapter.controller';
 import { ChapterItemController } from './controllers/chapter-item.controller';
 import { TicketController } from './controllers/ticket.controller';
+import { ClassController } from './controllers/class.controller';
+import { ClassScheduleController } from './controllers/class-schedule.controller';
+import { ClassAssessmentController } from './controllers/class-assessment.controller';
+import { QuestionController } from './controllers/question.controller';
+import { ExamController } from './controllers/exam.controller';
+import { ExamAttemptController } from './controllers/exam-attempt.controller';
+import { AssignmentSubmissionController } from './controllers/assignment-submission.controller';
 
 @Module({
   imports: [NatsClientModule],
@@ -16,6 +23,13 @@ import { TicketController } from './controllers/ticket.controller';
     ChapterController,
     ChapterItemController,
     TicketController,
+    ClassController,
+    ClassScheduleController,
+    ClassAssessmentController,
+    QuestionController,
+    ExamController,
+    ExamAttemptController,
+    AssignmentSubmissionController,
   ],
 })
 export class AcademyModule { }

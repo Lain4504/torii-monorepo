@@ -34,12 +34,30 @@ export default function AcademyDashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Tiếp theo</CardTitle>
+            <CardTitle>Delivery & Assessment</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <div className="text-sm text-muted-foreground">
-              Mình sẽ tiếp tục mở các page: Chapters, Classes, Offerings, Exams/Questions.
-            </div>
+            <Button asChild variant="outline" className="w-full">
+              <Link to="/academy/classes">Classes</Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full">
+              <Link to="/academy/class-schedules">Class Schedules</Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full">
+              <Link to="/academy/class-assessments">Class Assessments</Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full">
+              <Link to="/academy/questions">Question bank</Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full">
+              <Link to="/academy/exams">Exams</Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full">
+              <Link to="/academy/exam-attempts">Exam Attempts</Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full">
+              <Link to="/academy/assignment-submissions">Assignment Submissions</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>

@@ -58,6 +58,25 @@ import AcademyChapterEditPage from '@/routes/academy/chapter-edit-page.tsx'
 import AcademyChapterItemsPage from '@/routes/academy/chapter-items-page.tsx'
 import AcademyChapterItemCreatePage from '@/routes/academy/chapter-item-create-page.tsx'
 import AcademyChapterItemEditPage from '@/routes/academy/chapter-item-edit-page.tsx'
+import AcademyClassesPage from '@/routes/academy/classes-page.tsx'
+import AcademyClassCreatePage from '@/routes/academy/class-create-page.tsx'
+import AcademyClassEditPage from '@/routes/academy/class-edit-page.tsx'
+import AcademyClassSchedulesPage from '@/routes/academy/class-schedules-page.tsx'
+import AcademyClassScheduleCreatePage from '@/routes/academy/class-schedule-create-page.tsx'
+import AcademyClassScheduleEditPage from '@/routes/academy/class-schedule-edit-page.tsx'
+import AcademyClassAssessmentsPage from '@/routes/academy/class-assessments-page.tsx'
+import AcademyClassAssessmentCreatePage from '@/routes/academy/class-assessment-create-page.tsx'
+import AcademyClassAssessmentEditPage from '@/routes/academy/class-assessment-edit-page.tsx'
+import AcademyQuestionsPage from '@/routes/academy/questions-page.tsx'
+import AcademyQuestionCreatePage from '@/routes/academy/question-create-page.tsx'
+import AcademyQuestionEditPage from '@/routes/academy/question-edit-page.tsx'
+import AcademyExamsPage from '@/routes/academy/exams-page.tsx'
+import AcademyExamCreatePage from '@/routes/academy/exam-create-page.tsx'
+import AcademyExamEditPage from '@/routes/academy/exam-edit-page.tsx'
+import AcademyExamAttemptsPage from '@/routes/academy/exam-attempts-page.tsx'
+import AcademyExamAttemptDetailPage from '@/routes/academy/exam-attempt-detail-page.tsx'
+import AcademyAssignmentSubmissionsPage from '@/routes/academy/assignment-submissions-page.tsx'
+import AcademyAssignmentSubmissionDetailPage from '@/routes/academy/assignment-submission-detail-page.tsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -109,7 +128,7 @@ function App() {
                   {/* Question Bank (legacy) removed; will be replaced by Academy exams/questions */}
 
                   {/* Academy (new core LMS) */}
-                  <Route element={<RoutePermissionGuard anyPermission={["academy.content.read", "academy.content.write", "academy.commerce.read", "academy.commerce.write"]} />}>
+                  <Route element={<RoutePermissionGuard anyPermission={["academy.content.read", "academy.content.write", "academy.commerce.read", "academy.commerce.write", "academy.delivery.read", "academy.delivery.write", "exam.manage"]} />}>
                     <Route path="academy" element={<AcademyDashboardPage />} />
                     <Route path="academy/course-profiles" element={<AcademyCourseProfilesPage />} />
                     <Route path="academy/course-profiles/new" element={<AcademyCourseProfileCreatePage />} />
@@ -126,6 +145,25 @@ function App() {
                     <Route path="academy/chapter-items" element={<AcademyChapterItemsPage />} />
                     <Route path="academy/chapter-items/new" element={<AcademyChapterItemCreatePage />} />
                     <Route path="academy/chapter-items/:id/edit" element={<AcademyChapterItemEditPage />} />
+                    <Route path="academy/classes" element={<AcademyClassesPage />} />
+                    <Route path="academy/classes/new" element={<AcademyClassCreatePage />} />
+                    <Route path="academy/classes/:id/edit" element={<AcademyClassEditPage />} />
+                    <Route path="academy/class-schedules" element={<AcademyClassSchedulesPage />} />
+                    <Route path="academy/class-schedules/new" element={<AcademyClassScheduleCreatePage />} />
+                    <Route path="academy/class-schedules/:id/edit" element={<AcademyClassScheduleEditPage />} />
+                    <Route path="academy/class-assessments" element={<AcademyClassAssessmentsPage />} />
+                    <Route path="academy/class-assessments/new" element={<AcademyClassAssessmentCreatePage />} />
+                    <Route path="academy/class-assessments/:id/edit" element={<AcademyClassAssessmentEditPage />} />
+                    <Route path="academy/questions" element={<AcademyQuestionsPage />} />
+                    <Route path="academy/questions/new" element={<AcademyQuestionCreatePage />} />
+                    <Route path="academy/questions/:id/edit" element={<AcademyQuestionEditPage />} />
+                    <Route path="academy/exams" element={<AcademyExamsPage />} />
+                    <Route path="academy/exams/new" element={<AcademyExamCreatePage />} />
+                    <Route path="academy/exams/:id/edit" element={<AcademyExamEditPage />} />
+                    <Route path="academy/exam-attempts" element={<AcademyExamAttemptsPage />} />
+                    <Route path="academy/exam-attempts/:id" element={<AcademyExamAttemptDetailPage />} />
+                    <Route path="academy/assignment-submissions" element={<AcademyAssignmentSubmissionsPage />} />
+                    <Route path="academy/assignment-submissions/:id" element={<AcademyAssignmentSubmissionDetailPage />} />
                   </Route>
 
                   <Route element={<RoutePermissionGuard permission="coupon.manage" />}>
