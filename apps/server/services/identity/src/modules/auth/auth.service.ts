@@ -78,7 +78,7 @@ export class AuthService implements IAuthService {
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     private readonly blacklistService: BlacklistService,
-  ) {}
+  ) { }
 
   /**
    * Logout user - Revoke tokens
@@ -901,7 +901,7 @@ export class AuthService implements IAuthService {
   ): Promise<UserResponseDTO & { permissions: string[] }> {
     // 1. Verify file exists in storage microservice
     const fileAsset = await firstValueFrom(
-      this.natsClient.send({ cmd: 'storage.findById' }, { fileId }),
+      this.natsClient.send({ cmd: 'academy.storage.findById' }, { fileId }),
     );
 
     if (!fileAsset || fileAsset.status !== 'uploaded') {
@@ -936,7 +936,7 @@ export class AuthService implements IAuthService {
 
         await firstValueFrom(
           this.natsClient.send(
-            { cmd: 'storage.deleteFile' },
+            { cmd: 'academy.storage.deleteFile' },
             { fileId: fileIdToDelete },
           ),
         );

@@ -82,6 +82,7 @@ export * from './dtos/academy-question.dto';
 export * from './dtos/academy-exam.dto';
 export * from './dtos/academy-exam-attempt.dto';
 export * from './dtos/academy-assignment-submission.dto';
+export * from './dtos/academy-lesson.dto';
 
 // Enums
 export * from './enums/enrollment.enum';

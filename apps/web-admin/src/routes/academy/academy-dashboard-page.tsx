@@ -21,6 +21,9 @@ export default function AcademyDashboardPage() {
               <Link to="/academy/course-profiles">Course Profiles</Link>
             </Button>
             <Button asChild variant="outline" className="w-full">
+              <Link to="/academy/lessons">Lessons</Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full">
               <Link to="/academy/course-editions">Course Editions</Link>
             </Button>
             <Button asChild variant="outline" className="w-full">

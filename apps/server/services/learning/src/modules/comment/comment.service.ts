@@ -21,7 +21,7 @@ import type {
 import type { Comment, Prisma } from '@prisma/generated';
 import type { ICommentService } from '@server/learning/interfaces/services';
 import { CommentRepository } from '@server/learning/modules/comment/comment.repository';
-import { BlogRepository } from '@server/learning/modules/blog/blog.repository';
+// Removed BlogRepository import as it moved to academy service
 
 /**
  * Comment Service
@@ -33,12 +33,11 @@ export class CommentService implements ICommentService {
 
   constructor(
     private readonly commentRepository: CommentRepository,
-    private readonly blogRepository: BlogRepository,
     private readonly prisma: PrismaService,
     @InjectMapper() private readonly mapper: Mapper,
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
-  ) {}
+  ) { }
 
   /**
    * Map Comment entity to CommentResponseDTO using AutoMapper
@@ -172,8 +171,9 @@ export class CommentService implements ICommentService {
     // So current DTO has target info even for replies.
 
     if (dto.targetType === 'BLOG' && dto.entityId) {
-      await this.blogRepository.update(dto.entityId, {
-        commentCount: { increment: 1 },
+      await this.prisma.blog.update({
+        where: { id: dto.entityId },
+        data: { commentCount: { increment: 1 } },
       });
     } else if (dto.targetType === ('DISCUSSION' as any)) {
       try {
@@ -369,8 +369,9 @@ export class CommentService implements ICommentService {
     const entityId = (comment as any).entityId;
 
     if (targetType === 'BLOG' && entityId) {
-      await this.blogRepository.update(entityId, {
-        commentCount: { decrement: 1 },
+      await this.prisma.blog.update({
+        where: { id: entityId },
+        data: { commentCount: { decrement: 1 } },
       });
     } else if (targetType === ('DISCUSSION' as any)) {
       try {

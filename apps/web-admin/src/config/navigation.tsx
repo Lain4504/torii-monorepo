@@ -53,6 +53,7 @@ export const academicNavItems: NavItem[] = [
         items: [
             { titleKey: "Dashboard", url: "/academy", permission: "academy.content.read" },
             { titleKey: "Course Profiles", url: "/academy/course-profiles", permission: "academy.content.read" },
+            { titleKey: "Lessons", url: "/academy/lessons", permission: "academy.content.read" },
             { titleKey: "Course Editions", url: "/academy/course-editions", permission: "academy.content.read" },
             { titleKey: "Chapters", url: "/academy/chapters", permission: "academy.content.read" },
             { titleKey: "Chapter Items", url: "/academy/chapter-items", permission: "academy.content.read" },

@@ -52,7 +52,7 @@ export class LessonMaterialService implements ILessonMaterialService {
     @Inject(MODULE_REPOSITORY_TOKEN)
     private readonly moduleRepository: IModuleRepository,
     @InjectMapper() private readonly mapper: Mapper,
-  ) {}
+  ) { }
 
   /**
    * Helper to check if requester has a specific permission
@@ -194,7 +194,7 @@ export class LessonMaterialService implements ILessonMaterialService {
 
       // Verify file asset exists in Storage Microservice via NATS
       const fileAsset = await firstValueFrom(
-        this.natsClient.send({ cmd: 'storage.findById' }, { fileId }),
+        this.natsClient.send({ cmd: 'academy.storage.findById' }, { fileId }),
       );
 
       if (!fileAsset || fileAsset.status !== 'uploaded') {
@@ -332,7 +332,7 @@ export class LessonMaterialService implements ILessonMaterialService {
       // Trigger file deletion in Storage Microservice via NATS
       await firstValueFrom(
         this.natsClient.send(
-          { cmd: 'storage.deleteFile' },
+          { cmd: 'academy.storage.deleteFile' },
           { fileId: existing.fileAssetId },
         ),
       );

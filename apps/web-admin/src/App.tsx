@@ -20,7 +20,6 @@ import LearnersPage from '@/routes/users/learners-page.tsx'
 import PersonnelPage from '@/routes/users/personnel-page.tsx'
 import CouponsPage from '@/routes/coupons/coupons-page.tsx'
 
-import RoomsPage from '@/routes/rooms/rooms-page.tsx'
 import OrdersPage from '@/routes/finance/orders-page.tsx'
 
 import NotificationsPage from '@/routes/notification/notifications-page.tsx'
@@ -77,6 +76,9 @@ import AcademyExamAttemptsPage from '@/routes/academy/exam-attempts-page.tsx'
 import AcademyExamAttemptDetailPage from '@/routes/academy/exam-attempt-detail-page.tsx'
 import AcademyAssignmentSubmissionsPage from '@/routes/academy/assignment-submissions-page.tsx'
 import AcademyAssignmentSubmissionDetailPage from '@/routes/academy/assignment-submission-detail-page.tsx'
+import AcademyLessonsPage from '@/routes/academy/lessons-page.tsx'
+import AcademyLessonCreatePage from '@/routes/academy/lesson-create-page.tsx'
+import AcademyLessonEditPage from '@/routes/academy/lesson-edit-page.tsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -109,7 +111,6 @@ function App() {
                 }>
                   <Route index element={<DashboardPage />} />
 
-                  <Route path="rooms" element={<RoomsPage />} />
 
                   <Route element={<RoutePermissionGuard anyPermission={["user.manage", "user.view"]} />}>
                     <Route path="learners" element={<LearnersPage />} />
@@ -133,6 +134,9 @@ function App() {
                     <Route path="academy/course-profiles" element={<AcademyCourseProfilesPage />} />
                     <Route path="academy/course-profiles/new" element={<AcademyCourseProfileCreatePage />} />
                     <Route path="academy/course-profiles/:id/edit" element={<AcademyCourseProfileEditPage />} />
+                    <Route path="academy/lessons" element={<AcademyLessonsPage />} />
+                    <Route path="academy/lessons/new" element={<AcademyLessonCreatePage />} />
+                    <Route path="academy/lessons/:id/edit" element={<AcademyLessonEditPage />} />
                     <Route path="academy/course-editions" element={<AcademyCourseEditionsPage />} />
                     <Route path="academy/course-editions/new" element={<AcademyCourseEditionCreatePage />} />
                     <Route path="academy/course-editions/:id/edit" element={<AcademyCourseEditionEditPage />} />

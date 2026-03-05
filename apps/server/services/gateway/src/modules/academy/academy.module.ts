@@ -13,6 +13,8 @@ import { QuestionController } from './controllers/question.controller';
 import { ExamController } from './controllers/exam.controller';
 import { ExamAttemptController } from './controllers/exam-attempt.controller';
 import { AssignmentSubmissionController } from './controllers/assignment-submission.controller';
+import { LessonController } from './controllers/lesson.controller';
+import { BlogController } from './controllers/blog.controller';
 
 @Module({
   imports: [NatsClientModule],
@@ -30,6 +32,8 @@ import { AssignmentSubmissionController } from './controllers/assignment-submiss
     ExamController,
     ExamAttemptController,
     AssignmentSubmissionController,
+    LessonController,
+    BlogController,
   ],
 })
 export class AcademyModule { }

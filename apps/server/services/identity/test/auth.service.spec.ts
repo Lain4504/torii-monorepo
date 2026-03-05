@@ -450,13 +450,13 @@ describe('AuthService', () => {
 
       // Mock NATS send using RxJS of()
       natsClient.send.mockImplementation((pattern) => {
-        if (pattern.cmd === 'storage.findById') {
+        if (pattern.cmd === 'academy.storage.findById') {
           return of({
             status: 'uploaded',
             fileUrl: 'http://storage.test/new-avatar.png',
           });
         }
-        if (pattern.cmd === 'storage.deleteFile') {
+        if (pattern.cmd === 'academy.storage.deleteFile') {
           return of({ success: true });
         }
         return of(null);
@@ -474,7 +474,7 @@ describe('AuthService', () => {
 
       expect(result.avatarUrl).toBe('http://storage.test/new-avatar.png');
       expect(natsClient.send).toHaveBeenCalledWith(
-        { cmd: 'storage.deleteFile' },
+        { cmd: 'academy.storage.deleteFile' },
         expect.any(Object),
       );
     });

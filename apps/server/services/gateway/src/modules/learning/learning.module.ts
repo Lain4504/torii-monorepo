@@ -19,7 +19,6 @@ import { TeachingScheduleController } from './controllers/teaching-schedule.cont
 import { DiscussionController } from './controllers/discussion.controller';
 
 import { WishlistController } from './controllers/wishlist.controller';
-import { BlogController } from './controllers/blog.controller';
 import { CommentController } from './controllers/comment.controller';
 import { FeedController } from './controllers/feed.controller';
 import { FlashcardDeckController } from './controllers/flashcard-deck.controller';
@@ -55,7 +54,6 @@ import { NotebookController } from './controllers/notebook.controller';
     QuestionPoolController,
 
     WishlistController,
-    BlogController,
     CommentController,
 
     FeedController,
@@ -73,4 +71,4 @@ import { NotebookController } from './controllers/notebook.controller';
     NotebookController,
   ],
 })
-export class LearningModule {}
+export class LearningModule { }

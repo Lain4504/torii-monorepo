@@ -9,6 +9,7 @@ import { AssessmentModule } from '@server/academy/modules/assessment/assessment.
 import { CommerceModule } from '@server/academy/modules/commerce/commerce.module';
 import { TicketModule } from '@server/academy/modules/ticket/ticket.module';
 import { StorageModule } from '@server/academy/modules/storage/storage.module';
+import { BlogModule } from '@server/academy/modules/blog/blog.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { StorageModule } from '@server/academy/modules/storage/storage.module';
     CommerceModule,
     TicketModule,
     StorageModule,
+    BlogModule,
   ],
   providers: [
     {
