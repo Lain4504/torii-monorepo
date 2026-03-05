@@ -9,14 +9,14 @@ import * as crypto from 'crypto';
  * ClaimGrants interface for webhook verification
  */
 interface ClaimGrants {
-    sha256?: string;
+  sha256?: string;
 }
 
 /**
  * VerifyRequest verifies webhook request both for LiveKit & Wajlc
  * In Wajlc we're following the same token system as LiveKit is using
  * In this method we'll verify the provided body request
- * 
+ *
  *
  * @param body - Request body as Buffer
  * @param apiKey - API key (expected issuer)
@@ -26,39 +26,39 @@ interface ClaimGrants {
  * @throws Error if verification fails
  */
 export function verifyWebhookRequest(
-    body: Buffer,
-    apiKey: string,
-    secret: string,
-    token: string
+  body: Buffer,
+  apiKey: string,
+  secret: string,
+  token: string,
 ): boolean {
-    try {
-        // Parse and verify JWT token
-        const decoded = jwt.verify(token, secret, {
-            algorithms: ['HS256'],
-            issuer: apiKey,
-        }) as jwt.JwtPayload & ClaimGrants;
+  try {
+    // Parse and verify JWT token
+    const decoded = jwt.verify(token, secret, {
+      algorithms: ['HS256'],
+      issuer: apiKey,
+    });
 
-        // Validate issuer
-        if (decoded.iss !== apiKey) {
-            throw new Error('Invalid issuer');
-        }
-
-        // Calculate SHA256 hash of body
-        const sha = crypto.createHash('sha256').update(body).digest();
-        const hash = sha.toString('base64');
-
-        // Compare hashes using constant-time comparison
-        if (!constantTimeCompare(decoded.sha256 || '', hash)) {
-            throw new Error("authorization token didn't match");
-        }
-
-        return true;
-    } catch (error) {
-        if (error instanceof Error) {
-            throw error;
-        }
-        throw new Error(`Verification failed: ${error}`);
+    // Validate issuer
+    if (decoded.iss !== apiKey) {
+      throw new Error('Invalid issuer');
     }
+
+    // Calculate SHA256 hash of body
+    const sha = crypto.createHash('sha256').update(body).digest();
+    const hash = sha.toString('base64');
+
+    // Compare hashes using constant-time comparison
+    if (!constantTimeCompare(decoded.sha256 || '', hash)) {
+      throw new Error("authorization token didn't match");
+    }
+
+    return true;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error(`Verification failed: ${error}`);
+  }
 }
 
 /**
@@ -69,17 +69,17 @@ export function verifyWebhookRequest(
  * @returns True if strings are equal
  */
 function constantTimeCompare(a: string, b: string): boolean {
-    if (a.length !== b.length) {
-        return false;
-    }
+  if (a.length !== b.length) {
+    return false;
+  }
 
-    const bufA = Buffer.from(a);
-    const bufB = Buffer.from(b);
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
 
-    // Use crypto.timingSafeEqual for constant-time comparison
-    try {
-        return crypto.timingSafeEqual(bufA, bufB);
-    } catch {
-        return false;
-    }
+  // Use crypto.timingSafeEqual for constant-time comparison
+  try {
+    return crypto.timingSafeEqual(bufA, bufB);
+  } catch {
+    return false;
+  }
 }

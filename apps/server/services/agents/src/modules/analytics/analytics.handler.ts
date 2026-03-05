@@ -10,7 +10,7 @@ import { AnalyticsService } from './analytics.service';
  */
 @Controller()
 export class AnalyticsHandler {
-  constructor(private readonly analyticsService: AnalyticsService) { }
+  constructor(private readonly analyticsService: AnalyticsService) {}
 
   // ── Redis Snapshot Handlers (Solution A) ─────────────────────────────────
 
@@ -18,14 +18,20 @@ export class AnalyticsHandler {
   async getSnapshot(
     @Payload() data: { requester: Requester; targetLevel?: string },
   ) {
-    return this.analyticsService.getSnapshot(data.requester, data.targetLevel || 'N5');
+    return this.analyticsService.getSnapshot(
+      data.requester,
+      data.targetLevel || 'N5',
+    );
   }
 
   @MessagePattern({ cmd: 'agents.analytics.generateSnapshot' })
   async generateSnapshot(
     @Payload() data: { requester: Requester; targetLevel?: string },
   ) {
-    return this.analyticsService.generateAndSaveSnapshot(data.requester, data.targetLevel || 'N5');
+    return this.analyticsService.generateAndSaveSnapshot(
+      data.requester,
+      data.targetLevel || 'N5',
+    );
   }
 
   // ── Legacy Direct AI Handlers ─────────────────────────────────────────────
@@ -38,7 +44,10 @@ export class AnalyticsHandler {
       timeframe?: 'week' | 'month' | 'quarter' | 'year';
     },
   ) {
-    return this.analyticsService.trackProgress(data.requester, data.timeframe || 'month');
+    return this.analyticsService.trackProgress(
+      data.requester,
+      data.timeframe || 'month',
+    );
   }
 
   @MessagePattern({ cmd: 'agents.analytics.suggestStudyPath' })

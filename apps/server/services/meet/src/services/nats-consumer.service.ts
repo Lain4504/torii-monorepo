@@ -11,65 +11,68 @@ import { AppConfigService } from '@server/shared';
 
 @Injectable()
 export class NatsConsumerService {
-    private readonly logger = new Logger(NatsConsumerService.name);
+  private readonly logger = new Logger(NatsConsumerService.name);
 
-    constructor(
-        private readonly appConfig: AppConfigService,
-        private readonly streamService: NatsStreamService,
-        private readonly natsService: NatsService,
-    ) { }
+  constructor(
+    private readonly appConfig: AppConfigService,
+    private readonly streamService: NatsStreamService,
+    private readonly natsService: NatsService,
+  ) {}
 
-    /**
-     * CreateUserConsumer creates a single consumer per user for public and private system messages.
-     */
-    async createUserConsumer(roomId: string, userId: string): Promise<string[]> {
-        const streamName = this.natsService.getRoomStreamName();
-        const durableName = `${roomId}_${userId}`;
+  /**
+   * CreateUserConsumer creates a single consumer per user for public and private system messages.
+   */
+  async createUserConsumer(roomId: string, userId: string): Promise<string[]> {
+    const streamName = this.natsService.getRoomStreamName();
+    const durableName = `${roomId}_${userId}`;
 
-        const sysPublic = this.appConfig.nats.subjects.systemPublic;
-        const sysPrivate = this.appConfig.nats.subjects.systemPrivate;
+    const sysPublic = this.appConfig.nats.subjects.systemPublic;
+    const sysPrivate = this.appConfig.nats.subjects.systemPrivate;
 
-        try {
-            // Create or update consumer
-            await this.streamService.createConsumer(streamName, {
-                durable_name: durableName,
-                deliver_policy: 'new', // DeliverNew
-                filter_subjects: [
-                    `${sysPublic}.${roomId}.>`,
-                    `${sysPrivate}.${roomId}.${userId}.>`,
-                ],
-            });
+    try {
+      // Create or update consumer
+      await this.streamService.createConsumer(streamName, {
+        durable_name: durableName,
+        deliver_policy: 'new', // DeliverNew
+        filter_subjects: [
+          `${sysPublic}.${roomId}.>`,
+          `${sysPrivate}.${roomId}.${userId}.>`,
+        ],
+      });
 
-            // Return permission strings that will be added to user's NATS permissions
-            return [
-                `$JS.API.CONSUMER.INFO.${streamName}.${durableName}`,
-                `$JS.API.CONSUMER.MSG.NEXT.${streamName}.${durableName}`,
-                `$JS.ACK.${streamName}.${durableName}.>`,
-            ];
-        } catch (error) {
-            this.logger.error(`Error creating user consumer for ${userId} in ${roomId}:`, error);
-            return [
-                `$JS.API.CONSUMER.INFO.${streamName}.${durableName}`,
-                `$JS.API.CONSUMER.MSG.NEXT.${streamName}.${durableName}`,
-                `$JS.ACK.${streamName}.${durableName}.>`,
-            ];
-        }
+      // Return permission strings that will be added to user's NATS permissions
+      return [
+        `$JS.API.CONSUMER.INFO.${streamName}.${durableName}`,
+        `$JS.API.CONSUMER.MSG.NEXT.${streamName}.${durableName}`,
+        `$JS.ACK.${streamName}.${durableName}.>`,
+      ];
+    } catch (error) {
+      this.logger.error(
+        `Error creating user consumer for ${userId} in ${roomId}:`,
+        error,
+      );
+      return [
+        `$JS.API.CONSUMER.INFO.${streamName}.${durableName}`,
+        `$JS.API.CONSUMER.MSG.NEXT.${streamName}.${durableName}`,
+        `$JS.ACK.${streamName}.${durableName}.>`,
+      ];
     }
+  }
 
+  /**
+   * Delete consumer for a user
+   */
+  async deleteConsumer(roomId: string, userId: string): Promise<void> {
+    const streamName = this.natsService.getRoomStreamName();
+    const durableName = `${roomId}_${userId}`;
 
-
-    /**
-     * Delete consumer for a user
-     */
-    async deleteConsumer(roomId: string, userId: string): Promise<void> {
-        const streamName = this.natsService.getRoomStreamName();
-        const durableName = `${roomId}_${userId}`;
-
-        try {
-            await this.streamService.deleteConsumer(streamName, durableName);
-            this.logger.log(`Deleted consumer ${durableName} from stream ${streamName}`);
-        } catch (error) {
-            // Ignore errors during deletion
-        }
+    try {
+      await this.streamService.deleteConsumer(streamName, durableName);
+      this.logger.log(
+        `Deleted consumer ${durableName} from stream ${streamName}`,
+      );
+    } catch (error) {
+      // Ignore errors during deletion
     }
+  }
 }

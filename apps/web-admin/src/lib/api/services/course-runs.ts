@@ -59,6 +59,36 @@ export const courseRunsApi = {
         const response = await apiClient.delete<StandardApiResponse<boolean>>(`/api/course-runs/${id}`);
         return response.data.success;
     },
+
+    // POST /api/course-runs/:id/submit-review
+    async submitForReview(id: string): Promise<CourseRunResponseDTO> {
+        const response = await apiClient.post<StandardApiResponse<{ run: CourseRunResponseDTO }>>(
+            `/api/course-runs/${id}/submit-review`,
+            {},
+        );
+        return response.data.data!.run;
+    },
+
+    // POST /api/course-runs/:id/review
+    async reviewContent(
+        id: string,
+        payload: {
+            outcome: 'APPROVED' | 'REJECTED' | 'CHANGES_REQUIRED';
+            checklist?: Record<string, any>;
+            comments?: string;
+            rejectionReason?: string;
+            moveToPlanning?: boolean;
+            moveToEnrolling?: boolean;
+        },
+    ): Promise<CourseRunResponseDTO> {
+        const response = await apiClient.post<StandardApiResponse<{ run: CourseRunResponseDTO }>>(
+            `/api/course-runs/${id}/review`,
+            payload,
+        );
+        return response.data.data!.run;
+    },
+
+
 };
 
 // ============================================================================
@@ -72,7 +102,7 @@ export function useCourseRuns(params: CourseRunSearchRequestDTO) {
     return useQuery({
         queryKey: ['course-runs', params],
         queryFn: () => courseRunsApi.findAll(params),
-        enabled: !!params.courseMasterId,
+        enabled: true,
     });
 }
 
@@ -157,3 +187,48 @@ export function useDeleteCourseRun() {
         },
     });
 }
+
+/**
+ * Hook: Submit course run for content review
+ */
+export function useSubmitCourseRunForReview() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (id: string) => courseRunsApi.submitForReview(id),
+        onSuccess: (data) => {
+            queryClient.invalidateQueries({ queryKey: ['course-runs', data.id] });
+            queryClient.invalidateQueries({ queryKey: ['course-runs', { courseMasterId: data.courseMasterId }] });
+        },
+    });
+}
+
+/**
+ * Hook: Review course run content (Staff-LMS)
+ */
+export function useReviewCourseRunContent() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({
+            id,
+            payload,
+        }: {
+            id: string;
+            payload: {
+                outcome: 'APPROVED' | 'REJECTED' | 'CHANGES_REQUIRED';
+                checklist?: Record<string, any>;
+                comments?: string;
+                rejectionReason?: string;
+                moveToPlanning?: boolean;
+                moveToEnrolling?: boolean;
+            };
+        }) => courseRunsApi.reviewContent(id, payload),
+        onSuccess: (data) => {
+            queryClient.invalidateQueries({ queryKey: ['course-runs', data.id] });
+            queryClient.invalidateQueries({ queryKey: ['course-runs', { courseMasterId: data.courseMasterId }] });
+        },
+    });
+}
+
+

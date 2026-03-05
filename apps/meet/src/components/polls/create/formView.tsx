@@ -112,14 +112,14 @@ const FormView = ({ setIsOpen }: FormViewProps) => {
       <div className="button-section flex items-center gap-2 md:gap-5 pt-4 border-t border-border">
         <Button
           variant="outline"
-          className="w-full"
+          className="flex-1"
           type="button"
           onClick={() => setIsOpen(false)}
         >
           Đóng
         </Button>
         <Button
-          className="w-full"
+          className="flex-1"
           type="submit"
           disabled={isLoading}
         >

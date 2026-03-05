@@ -4,13 +4,12 @@ import React, { useState } from 'react';
 import { useCourseRunBySlug } from '@/lib/api/services/course-run-api';
 import { useCheckEnrollment } from '@/lib/api/services/enrollment-api';
 import { useCheckWishlist, useToggleWishlist } from '@/lib/api/services/wishlist-api';
-import { useCart, useAddToCart } from '@/lib/api/services/cart-api';
 import { useLiveSessions, liveSessionsApi } from '@/lib/api/services/live-sessions';
 import { useCourseReviews, useRatingDistribution } from '@/lib/api/services/review-api';
 import { useRouter } from 'next/navigation';
 import { toast } from '@workspace/ui/components/sonner';
 import { Skeleton } from '@workspace/ui/components/skeleton';
-import { Heart, ShoppingCart } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { LiveSessionStatus } from '@workspace/schemas';
 
 interface LiveClassDetailClientProps {
@@ -36,19 +35,16 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
     const course = run?.courseMaster;
 
     const { data: wishlistData } = useCheckWishlist(run?.id || '');
-    const { data: cartData } = useCart();
     const { data: sessions = [] } = useLiveSessions(run?.id || '');
 
     // Fetch Reviews & Distribution
     const { data: reviewsData } = useCourseReviews(course?.id);
     const { data: distributionData } = useRatingDistribution(course?.id);
 
-    const addToCart = useAddToCart();
     const toggleWishlist = useToggleWishlist();
 
     const isEnrolled = false; // TODO: wire per-run enrollment if needed
     const isInWishlist = wishlistData?.isInWishlist;
-    const isInCart = cartData?.items?.some(item => item.courseRun?.id === run?.id);
 
     const now = new Date();
     const isSoldOut = run ? ((run as any).totalStudents || 0) >= ((run as any).maxStudents || 999999) : false;
@@ -487,24 +483,6 @@ export function LiveClassDetailClient({ slug }: LiveClassDetailClientProps) {
 
                                         {!isEnrolled && !isFinished && !isSoldOut && (
                                             <>
-                                                <button
-                                                    onClick={() => {
-                                                        if (!run?.id) return;
-                                                        if (isInCart) {
-                                                            router.push('/dashboard/cart');
-                                                        } else {
-                                                            addToCart.mutate(run.id, {
-                                                                onSuccess: () => toast.success('Đã thêm vào giỏ hàng!'),
-                                                                onError: () => toast.error('Không thể thêm vào giỏ hàng'),
-                                                            });
-                                                        }
-                                                    }}
-                                                    disabled={addToCart.isPending || !run?.id}
-                                                    className="w-full border border-border text-foreground font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-muted/50 transition disabled:opacity-60"
-                                                >
-                                                    <ShoppingCart className="w-4 h-4" />
-                                                    {isInCart ? 'Xem giỏ hàng' : addToCart.isPending ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
-                                                </button>
                                                 <button
                                                     onClick={() => {
                                                         if (!run?.id) return;

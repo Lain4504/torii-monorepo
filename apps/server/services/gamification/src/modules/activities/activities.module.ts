@@ -10,18 +10,18 @@ import { ProfilesModule } from '../profiles/profiles.module';
 import { AchievementsModule } from '../achievements/achievements.module';
 
 @Module({
-    imports: [PrismaModule, NatsClientModule, ProfilesModule, AchievementsModule],
-    controllers: [ActivitiesHandler, ActivityListener],
-    providers: [
-        {
-            provide: ACTIVITIES_SERVICE_TOKEN,
-            useClass: ActivitiesService,
-        },
-        {
-            provide: ACTIVITIES_REPOSITORY_TOKEN,
-            useClass: ActivitiesRepository,
-        },
-    ],
-    exports: [ACTIVITIES_SERVICE_TOKEN],
+  imports: [PrismaModule, NatsClientModule, ProfilesModule, AchievementsModule],
+  controllers: [ActivitiesHandler, ActivityListener],
+  providers: [
+    {
+      provide: ACTIVITIES_SERVICE_TOKEN,
+      useClass: ActivitiesService,
+    },
+    {
+      provide: ACTIVITIES_REPOSITORY_TOKEN,
+      useClass: ActivitiesRepository,
+    },
+  ],
+  exports: [ACTIVITIES_SERVICE_TOKEN],
 })
-export class ActivitiesModule { }
+export class ActivitiesModule {}

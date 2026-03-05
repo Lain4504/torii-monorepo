@@ -22,22 +22,28 @@ async function bootstrap() {
     next();
   });
 
-  app.use(bodyParser.json({
-    type: ['application/json', 'application/webhook+json']
-  }));
+  app.use(
+    bodyParser.json({
+      type: ['application/json', 'application/webhook+json'],
+    }),
+  );
   // Configure body parser to accept urlencoded (for typical RTMP webhooks)
   app.use(bodyParser.urlencoded({ extended: true }));
   // Accept binary protobuf
-  app.use(bodyParser.raw({
-    type: (req) => {
-      // Always parse body for breakoutRoom requests to ensure we capture the data
-      if (req.url && req.url.includes('breakoutRoom')) return true;
+  app.use(
+    bodyParser.raw({
+      type: (req) => {
+        // Always parse body for breakoutRoom requests to ensure we capture the data
+        if (req.url && req.url.includes('breakoutRoom')) return true;
 
-      const type = req.headers['content-type'];
-      return type === 'application/protobuf' || type === 'application/octet-stream';
-    },
-    limit: '10mb'
-  }));
+        const type = req.headers['content-type'];
+        return (
+          type === 'application/protobuf' || type === 'application/octet-stream'
+        );
+      },
+      limit: '10mb',
+    }),
+  );
 
   // Enable CORS
   app.enableCors({

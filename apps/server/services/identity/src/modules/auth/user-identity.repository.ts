@@ -9,96 +9,98 @@ import type { IUserIdentityRepository } from '@server/identity/interfaces/reposi
  */
 @Injectable()
 export class UserIdentityRepository implements IUserIdentityRepository {
-    private readonly logger = new Logger(UserIdentityRepository.name);
+  private readonly logger = new Logger(UserIdentityRepository.name);
 
-    constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-    /**
-     * Find all identities for a user
-     */
-    async findByUserId(userId: string): Promise<UserIdentity[]> {
-        return this.prisma.userIdentity.findMany({
-            where: { userId },
-            orderBy: { createdAt: 'asc' },
-        });
-    }
+  /**
+   * Find all identities for a user
+   */
+  async findByUserId(userId: string): Promise<UserIdentity[]> {
+    return this.prisma.userIdentity.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
 
-    /**
-     * Find identity by provider and provider ID
-     */
-    async findByProvider(provider: string, providerId: string): Promise<UserIdentity | null> {
-        return this.prisma.userIdentity.findUnique({
-            where: {
-                provider_providerId: {
-                    provider,
-                    providerId,
-                },
-            },
-        });
-    }
+  /**
+   * Find identity by provider and provider ID
+   */
+  async findByProvider(
+    provider: string,
+    providerId: string,
+  ): Promise<UserIdentity | null> {
+    return this.prisma.userIdentity.findUnique({
+      where: {
+        provider_providerId: {
+          provider,
+          providerId,
+        },
+      },
+    });
+  }
 
-    /**
-     * Find identity by ID
-     */
-    async findById(id: string): Promise<UserIdentity | null> {
-        return this.prisma.userIdentity.findUnique({
-            where: { id },
-        });
-    }
+  /**
+   * Find identity by ID
+   */
+  async findById(id: string): Promise<UserIdentity | null> {
+    return this.prisma.userIdentity.findUnique({
+      where: { id },
+    });
+  }
 
-    /**
-     * Create new identity
-     */
-    async create(data: Prisma.UserIdentityCreateInput): Promise<UserIdentity> {
-        return this.prisma.userIdentity.create({
-            data,
-        });
-    }
+  /**
+   * Create new identity
+   */
+  async create(data: Prisma.UserIdentityCreateInput): Promise<UserIdentity> {
+    return this.prisma.userIdentity.create({
+      data,
+    });
+  }
 
-    /**
-     * Update last sign in timestamp
-     */
-    async updateLastSignIn(id: string): Promise<void> {
-        await this.prisma.userIdentity.update({
-            where: { id },
-            data: { lastSignInAt: new Date() },
-        });
-    }
+  /**
+   * Update last sign in timestamp
+   */
+  async updateLastSignIn(id: string): Promise<void> {
+    await this.prisma.userIdentity.update({
+      where: { id },
+      data: { lastSignInAt: new Date() },
+    });
+  }
 
-    /**
-     * Delete identity
-     */
-    async delete(id: string): Promise<void> {
-        await this.prisma.userIdentity.delete({
-            where: { id },
-        });
-    }
+  /**
+   * Delete identity
+   */
+  async delete(id: string): Promise<void> {
+    await this.prisma.userIdentity.delete({
+      where: { id },
+    });
+  }
 
-    /**
-     * Get list of providers for a user
-     */
-    async getProviders(userId: string): Promise<string[]> {
-        const identities = await this.findByUserId(userId);
-        return identities.map(identity => identity.provider);
-    }
+  /**
+   * Get list of providers for a user
+   */
+  async getProviders(userId: string): Promise<string[]> {
+    const identities = await this.findByUserId(userId);
+    return identities.map((identity) => identity.provider);
+  }
 
-    /**
-     * Check if user has a specific provider
-     */
-    async hasProvider(userId: string, provider: string): Promise<boolean> {
-        const identity = await this.prisma.userIdentity.findFirst({
-            where: { userId, provider },
-        });
-        return !!identity;
-    }
+  /**
+   * Check if user has a specific provider
+   */
+  async hasProvider(userId: string, provider: string): Promise<boolean> {
+    const identity = await this.prisma.userIdentity.findFirst({
+      where: { userId, provider },
+    });
+    return !!identity;
+  }
 
-    /**
-     * Count identities for a user
-     */
-    async countByUserId(userId: string): Promise<number> {
-        return this.prisma.userIdentity.count({
-            where: { userId },
-        });
-    }
+  /**
+   * Count identities for a user
+   */
+  async countByUserId(userId: string): Promise<number> {
+    return this.prisma.userIdentity.count({
+      where: { userId },
+    });
+  }
 }
-

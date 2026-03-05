@@ -5,128 +5,135 @@ import { BalanceTransactionType } from '@prisma/generated';
 
 @Injectable()
 export class UserBalanceService {
-    private readonly logger = new Logger(UserBalanceService.name);
+  private readonly logger = new Logger(UserBalanceService.name);
 
-    constructor(
-        private readonly userBalanceRepository: UserBalanceRepository,
-        private readonly prisma: PrismaService,
-    ) { }
+  constructor(
+    private readonly userBalanceRepository: UserBalanceRepository,
+    private readonly prisma: PrismaService,
+  ) {}
 
-    async getBalance(userId: string) {
-        let userBalance = await this.userBalanceRepository.findByUserId(userId);
+  async getBalance(userId: string) {
+    let userBalance = await this.userBalanceRepository.findByUserId(userId);
 
-        if (!userBalance) {
-            userBalance = await this.userBalanceRepository.create(userId);
-        }
-
-        return userBalance.balance;
+    if (!userBalance) {
+      userBalance = await this.userBalanceRepository.create(userId);
     }
 
-    async addBalance(
-        userId: string,
-        amount: number,
-        reason: string,
-        type: BalanceTransactionType = BalanceTransactionType.OTHER,
-        metadata: any = {}
-    ) {
-        const roundedAmount = Math.round(amount);
-        this.logger.log(`Adding ${roundedAmount} balance to user ${userId} for reason: ${reason} (Type: ${type})`);
+    return userBalance.balance;
+  }
 
-        let userBalance = await this.userBalanceRepository.findByUserId(userId);
+  async addBalance(
+    userId: string,
+    amount: number,
+    reason: string,
+    type: BalanceTransactionType = BalanceTransactionType.OTHER,
+    metadata: any = {},
+  ) {
+    const roundedAmount = Math.round(amount);
+    this.logger.log(
+      `Adding ${roundedAmount} balance to user ${userId} for reason: ${reason} (Type: ${type})`,
+    );
 
-        if (!userBalance) {
-            await this.userBalanceRepository.create(userId, roundedAmount);
-        } else {
-            await this.userBalanceRepository.updateBalance(userId, roundedAmount);
-        }
+    const userBalance = await this.userBalanceRepository.findByUserId(userId);
 
-        // Log transaction history
-        await this.prisma.balanceTransaction.create({
-            data: {
-                userId,
-                amount: roundedAmount,
-                type,
-                description: reason,
-                metadata,
-            }
-        });
-
-        return true;
+    if (!userBalance) {
+      await this.userBalanceRepository.create(userId, roundedAmount);
+    } else {
+      await this.userBalanceRepository.updateBalance(userId, roundedAmount);
     }
 
-    async deductBalance(
-        userId: string,
-        amount: number,
-        reason: string,
-        type: BalanceTransactionType = BalanceTransactionType.PURCHASE,
-        metadata: any = {}
-    ) {
-        const roundedAmount = Math.round(amount);
-        this.logger.log(`Deducting ${roundedAmount} balance from user ${userId} for reason: ${reason} (Type: ${type})`);
+    // Log transaction history
+    await this.prisma.balanceTransaction.create({
+      data: {
+        userId,
+        amount: roundedAmount,
+        type,
+        description: reason,
+        metadata,
+      },
+    });
 
-        const balance = await this.getBalance(userId);
+    return true;
+  }
 
-        if (balance < roundedAmount) {
-            throw new BadRequestException('Insufficient balance');
-        }
+  async deductBalance(
+    userId: string,
+    amount: number,
+    reason: string,
+    type: BalanceTransactionType = BalanceTransactionType.PURCHASE,
+    metadata: any = {},
+  ) {
+    const roundedAmount = Math.round(amount);
+    this.logger.log(
+      `Deducting ${roundedAmount} balance from user ${userId} for reason: ${reason} (Type: ${type})`,
+    );
 
-        await this.userBalanceRepository.updateBalance(userId, -roundedAmount);
+    const balance = await this.getBalance(userId);
 
-        // Log transaction history
-        await this.prisma.balanceTransaction.create({
-            data: {
-                userId,
-                amount: -roundedAmount,
-                type,
-                description: reason,
-                metadata,
-            }
-        });
-
-        return true;
+    if (balance < roundedAmount) {
+      throw new BadRequestException('Insufficient balance');
     }
 
-    /**
-     * Get balance transaction history with pagination
-     */
-    async getHistory(userId: string, query: { page?: any, limit?: any, type?: any, aiOnly?: any }) {
-        const page = parseInt(query.page as string || '1', 10) || 1;
-        const limit = parseInt(query.limit as string || '10', 10) || 10;
-        const { type, aiOnly } = query;
-        const skip = (page - 1) * limit;
+    await this.userBalanceRepository.updateBalance(userId, -roundedAmount);
 
-        const where: any = {
-            userId,
-        };
+    // Log transaction history
+    await this.prisma.balanceTransaction.create({
+      data: {
+        userId,
+        amount: -roundedAmount,
+        type,
+        description: reason,
+        metadata,
+      },
+    });
 
-        if (type) {
-            where.type = type;
-        }
+    return true;
+  }
 
-        // Filter only AI-related transactions (those with metadata.taskType set)
-        if (aiOnly === true || aiOnly === 'true') {
-            where.metadata = {
-                path: ['taskType'],
-                not: 'null',
-            };
-        }
+  /**
+   * Get balance transaction history with pagination
+   */
+  async getHistory(
+    userId: string,
+    query: { page?: any; limit?: any; type?: any; aiOnly?: any },
+  ) {
+    const page = parseInt((query.page as string) || '1', 10) || 1;
+    const limit = parseInt((query.limit as string) || '10', 10) || 10;
+    const { type, aiOnly } = query;
+    const skip = (page - 1) * limit;
 
-        const [data, total] = await Promise.all([
-            this.prisma.balanceTransaction.findMany({
-                where,
-                orderBy: { createdAt: 'desc' },
-                skip,
-                take: limit,
-            }),
-            this.prisma.balanceTransaction.count({ where }),
-        ]);
+    const where: any = {
+      userId,
+    };
 
-        return {
-            data,
-            total,
-            page,
-            limit,
-            totalPages: Math.ceil(total / limit),
-        };
+    if (type) {
+      where.type = type;
     }
+
+    // Filter only AI-related transactions (those with metadata.taskType set)
+    if (aiOnly === true || aiOnly === 'true') {
+      where.metadata = {
+        path: ['taskType'],
+        not: 'null',
+      };
+    }
+
+    const [data, total] = await Promise.all([
+      this.prisma.balanceTransaction.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.balanceTransaction.count({ where }),
+    ]);
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
 }

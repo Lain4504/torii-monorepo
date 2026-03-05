@@ -1,10 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api/api-client.ts';
-import type { 
-  SubmissionResponseDTO, 
-  GradeSubmissionDto, 
-  ReturnSubmissionDto,
-  StandardApiResponse 
+import type {
+    SubmissionResponseDTO,
+    GradeSubmissionDTO,
+    ReturnSubmissionDTO,
+    StandardApiResponse
 } from '@workspace/schemas';
 
 // ============================================================================
@@ -25,13 +25,13 @@ export const submissionsApi = {
     },
 
     // PUT /api/submissions/:id/grade
-    async grade(id: string, data: GradeSubmissionDto): Promise<SubmissionResponseDTO> {
+    async grade(id: string, data: GradeSubmissionDTO): Promise<SubmissionResponseDTO> {
         const response = await apiClient.put<StandardApiResponse<{ submission: SubmissionResponseDTO }>>(`/api/submissions/${id}/grade`, data);
         return response.data.data!.submission;
     },
 
     // PUT /api/submissions/:id/return
-    async return(id: string, data: ReturnSubmissionDto): Promise<SubmissionResponseDTO> {
+    async return(id: string, data: ReturnSubmissionDTO): Promise<SubmissionResponseDTO> {
         const response = await apiClient.put<StandardApiResponse<{ submission: SubmissionResponseDTO }>>(`/api/submissions/${id}/return`, data);
         return response.data.data!.submission;
     },
@@ -71,7 +71,7 @@ export function useGradeSubmission() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ id, data }: { id: string; data: GradeSubmissionDto }) =>
+        mutationFn: ({ id, data }: { id: string; data: GradeSubmissionDTO }) =>
             submissionsApi.grade(id, data),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['submissions', variables.id] });
@@ -87,7 +87,7 @@ export function useReturnSubmission() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ id, data }: { id: string; data: ReturnSubmissionDto }) =>
+        mutationFn: ({ id, data }: { id: string; data: ReturnSubmissionDTO }) =>
             submissionsApi.return(id, data),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['submissions', variables.id] });

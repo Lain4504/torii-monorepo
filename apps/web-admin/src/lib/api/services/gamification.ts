@@ -2,27 +2,27 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../api-client.ts';
 import type {
     StandardApiResponse,
-    PointRewardDto,
-    CreatePointRewardDto,
-    UpdatePointRewardDto
+    PointRewardDTO,
+    CreatePointRewardDTO,
+    UpdatePointRewardDTO
 } from '@workspace/schemas';
 
 export const gamificationApi = {
     // GET /api/gamification/admin/rewards
-    async findAllRewards(): Promise<PointRewardDto[]> {
-        const response = await apiClient.get<StandardApiResponse<PointRewardDto[]>>('/api/gamification/admin/rewards');
+    async findAllRewards(): Promise<PointRewardDTO[]> {
+        const response = await apiClient.get<StandardApiResponse<PointRewardDTO[]>>('/api/gamification/admin/rewards');
         return response.data.data || [];
     },
 
     // POST /api/gamification/admin/rewards
-    async createReward(data: CreatePointRewardDto): Promise<PointRewardDto> {
-        const response = await apiClient.post<StandardApiResponse<PointRewardDto>>('/api/gamification/admin/rewards', data);
+    async createReward(data: CreatePointRewardDTO): Promise<PointRewardDTO> {
+        const response = await apiClient.post<StandardApiResponse<PointRewardDTO>>('/api/gamification/admin/rewards', data);
         return response.data.data!;
     },
 
     // PUT /api/gamification/admin/rewards/:id
-    async updateReward(id: string, data: UpdatePointRewardDto): Promise<PointRewardDto> {
-        const response = await apiClient.put<StandardApiResponse<PointRewardDto>>(`/api/gamification/admin/rewards/${id}`, data);
+    async updateReward(id: string, data: UpdatePointRewardDTO): Promise<PointRewardDTO> {
+        const response = await apiClient.put<StandardApiResponse<PointRewardDTO>>(`/api/gamification/admin/rewards/${id}`, data);
         return response.data.data!;
     },
 
@@ -48,7 +48,7 @@ export function useCreateReward() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (data: CreatePointRewardDto) => gamificationApi.createReward(data),
+        mutationFn: (data: CreatePointRewardDTO) => gamificationApi.createReward(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-rewards'] });
         },
@@ -59,7 +59,7 @@ export function useUpdateReward() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ id, data }: { id: string; data: UpdatePointRewardDto }) =>
+        mutationFn: ({ id, data }: { id: string; data: UpdatePointRewardDTO }) =>
             gamificationApi.updateReward(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-rewards'] });

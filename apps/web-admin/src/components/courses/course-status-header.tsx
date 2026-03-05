@@ -22,7 +22,12 @@ interface CourseStatusHeaderProps {
   onStatusChange?: () => void;
 }
 
-const STATUS_CONFIG = {
+const STATUS_CONFIG: Record<CourseMasterStatus, {
+  icon: React.ComponentType<any>;
+  color: string;
+  label: string;
+  description: string;
+}> = {
   [CourseMasterStatus.DRAFT]: {
     icon: AlertCircle,
     color: 'bg-gray-100 text-gray-700 border-gray-300',
@@ -35,13 +40,13 @@ const STATUS_CONFIG = {
     label: 'Chờ kiểm duyệt',
     description: 'Khóa học đang chờ được kiểm duyệt bởi nhân viên. Vui lòng chờ phản hồi.',
   },
-  [CourseMasterStatus.PUBLISHED]: {
+  [CourseMasterStatus.APPROVED]: {
     icon: CheckCircle2,
     color: 'bg-green-100 text-green-700 border-green-300',
     label: 'Đã công bố',
     description: '',
   },
-  [CourseMasterStatus.REJECTED]: {
+  [CourseMasterStatus.CHANGES_REQUIRED]: {
     icon: XCircle,
     color: 'bg-red-100 text-red-700 border-red-300',
     label: 'Bị từ chối',
@@ -78,11 +83,12 @@ export function CourseStatusHeader({
     }
   };
 
-  const isPublished = status === CourseMasterStatus.PUBLISHED;
+  const isApproved = status === CourseMasterStatus.APPROVED;
   const isDraft = status === CourseMasterStatus.DRAFT;
-  const isRejected = status === CourseMasterStatus.REJECTED;
+  const isChangesRequired = status === CourseMasterStatus.CHANGES_REQUIRED;
   const isPendingReview = status === CourseMasterStatus.PENDING_REVIEW;
-  
+  const isRejected = isChangesRequired;
+
   const canPublish = can('course.publish');
   const canUpdate = can('course.update');
 
@@ -104,18 +110,18 @@ export function CourseStatusHeader({
           </div>
         </div>
 
-        {(isDraft || isRejected) && canUpdate && (
+        {(isDraft || isChangesRequired) && canUpdate && (
           <Button
             onClick={() => setSubmitDialogOpen(true)}
             disabled={submitMutation.isPending}
             className="gap-2"
           >
             <Send className="h-4 w-4" />
-            {isRejected ? 'Gửi lại để kiểm duyệt' : 'Gửi để kiểm duyệt'}
+            {isChangesRequired ? 'Gửi lại để kiểm duyệt' : 'Gửi để kiểm duyệt'}
           </Button>
         )}
 
-        {isPublished && !canPublish && canUpdate && (
+        {isApproved && !canPublish && canUpdate && (
           <Button
             onClick={() => setSubmitDialogOpen(true)}
             disabled={submitMutation.isPending}
@@ -146,7 +152,7 @@ export function CourseStatusHeader({
         <Alert className="border-blue-300 bg-blue-50">
           <Clock className="h-4 w-4 text-blue-600" />
           <AlertDescription className="text-blue-700 text-sm">
-            Khóa học của bạn đang chờ kiểm duyệt. Nhân viên sẽ xem xét trong thời gian sớm nhất. 
+            Khóa học của bạn đang chờ kiểm duyệt. Nhân viên sẽ xem xét trong thời gian sớm nhất.
             Vui lòng không thực hiện các thay đổi lớn trong lúc chờ đợi.
           </AlertDescription>
         </Alert>

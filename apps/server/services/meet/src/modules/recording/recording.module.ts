@@ -9,19 +9,15 @@ import { AnalyticsModule } from '@server/meet/modules/analytics/analytics.module
 import { WebhookModule } from '@server/meet/infrastructure/webhook/webhook.module';
 
 @Module({
-    imports: [
-        SharedModule,
-        forwardRef(() => RoomModule),
-        forwardRef(() => ArtifactsModule),
-        forwardRef(() => AnalyticsModule),
-        forwardRef(() => WebhookModule),
-    ],
-    providers: [
-        RecordingService,
-        RecordingNatsController,
-        RecordingInfoService,
-    ],
-    controllers: [RecordingNatsController],
-    exports: [RecordingService, RecordingInfoService],
+  imports: [
+    SharedModule,
+    forwardRef(() => RoomModule),
+    forwardRef(() => ArtifactsModule),
+    forwardRef(() => AnalyticsModule),
+    forwardRef(() => WebhookModule),
+  ],
+  providers: [RecordingService, RecordingNatsController, RecordingInfoService],
+  controllers: [RecordingNatsController],
+  exports: [RecordingService, RecordingInfoService],
 })
-export class RecordingModule { }
+export class RecordingModule {}

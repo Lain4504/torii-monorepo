@@ -14,26 +14,26 @@ import { AnalyticsModule } from '@server/meet/modules/analytics/analytics.module
 import { AppConfigService } from '@server/shared';
 
 @Module({
-    imports: [
-        NatsModule,
-        forwardRef(() => ArtifactsModule),
-        forwardRef(() => AnalyticsModule),
-        ClientsModule.registerAsync([
-            {
-                name: 'NATS_CLIENT',
-                imports: [],
-                useFactory: (appConfig: AppConfigService) => ({
-                    transport: Transport.NATS,
-                    options: {
-                        servers: [appConfig.nats.url],
-                    },
-                }),
-                inject: [AppConfigService],
-            },
-        ]),
-    ],
-    controllers: [InsightsHandler],
-    providers: [InsightsService, RedisInsightsService, InsightsProviderService],
-    exports: [InsightsService, RedisInsightsService],
+  imports: [
+    NatsModule,
+    forwardRef(() => ArtifactsModule),
+    forwardRef(() => AnalyticsModule),
+    ClientsModule.registerAsync([
+      {
+        name: 'NATS_CLIENT',
+        imports: [],
+        useFactory: (appConfig: AppConfigService) => ({
+          transport: Transport.NATS,
+          options: {
+            servers: [appConfig.nats.url],
+          },
+        }),
+        inject: [AppConfigService],
+      },
+    ]),
+  ],
+  controllers: [InsightsHandler],
+  providers: [InsightsService, RedisInsightsService, InsightsProviderService],
+  exports: [InsightsService, RedisInsightsService],
 })
-export class InsightsModule { }
+export class InsightsModule {}

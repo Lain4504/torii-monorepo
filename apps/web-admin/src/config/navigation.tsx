@@ -1,9 +1,7 @@
 import {
     Home,
     Users,
-    BookOpen,
     Video,
-    FileQuestion,
     Newspaper,
     CreditCard,
     BarChart3,
@@ -13,6 +11,7 @@ import {
     UserCheck,
     UsersRound,
     Gift,
+    GraduationCap,
 } from "lucide-react";
 
 export interface NavItem {
@@ -41,28 +40,32 @@ export const academicNavItems: NavItem[] = [
         icon: Home,
     },
     {
-        titleKey: "Giảng dạy",
-        url: "/teaching",
-        icon: BookOpen,
-        anyPermission: ["course.create", "course.update", "course.publish", "course.view_restricted", "course.view_my"],
-        items: [
-            { titleKey: "Lớp học của tôi", url: "/my-classes", permission: "course.view_my" },
-            { titleKey: "Khung chương trình", url: "/course-master", permission: "course.view_restricted" },
-            { titleKey: "Phản hồi học viên", url: "/course-master/reviews", anyPermission: ["course.update", "course.view_restricted"] },
-            { titleKey: "Yêu cầu đổi lịch", url: "/course-master/requests", anyPermission: ["course.update", "course.view_restricted", "schedule.view"] },
-        ]
-    },
-    {
         titleKey: "Lớp học trực tuyến",
         url: "/rooms",
         icon: Video,
         anyPermission: ["live_class.schedule", "live_class.manage"],
     },
     {
-        titleKey: "Ngân hàng Câu hỏi",
-        url: "/question-bank",
-        icon: FileQuestion,
-        permission: "exam.manage",
+        titleKey: "Academy (Mới)",
+        url: "/academy",
+        icon: GraduationCap,
+        anyPermission: ["academy.content.read", "academy.content.write", "academy.delivery.read", "academy.delivery.write"],
+        items: [
+            { titleKey: "Dashboard", url: "/academy", permission: "academy.content.read" },
+            { titleKey: "Course Profiles", url: "/academy/course-profiles", permission: "academy.content.read" },
+            { titleKey: "Lessons", url: "/academy/lessons", permission: "academy.content.read" },
+            { titleKey: "Course Editions", url: "/academy/course-editions", permission: "academy.content.read" },
+            { titleKey: "Chapters", url: "/academy/chapters", permission: "academy.content.read" },
+            { titleKey: "Chapter Items", url: "/academy/chapter-items", permission: "academy.content.read" },
+            { titleKey: "Course Offerings", url: "/academy/course-offerings", permission: "academy.commerce.read" },
+          { titleKey: "Classes", url: "/academy/classes", permission: "academy.delivery.read" },
+          { titleKey: "Class Schedules", url: "/academy/class-schedules", permission: "academy.delivery.read" },
+          { titleKey: "Class Assessments", url: "/academy/class-assessments", permission: "academy.delivery.read" },
+          { titleKey: "Question bank (Academy)", url: "/academy/questions", permission: "exam.manage" },
+          { titleKey: "Exams", url: "/academy/exams", permission: "exam.manage" },
+          { titleKey: "Exam Attempts", url: "/academy/exam-attempts", permission: "exam.manage" },
+          { titleKey: "Assignment Submissions", url: "/academy/assignment-submissions", permission: "exam.manage" },
+        ]
     },
 ];
 

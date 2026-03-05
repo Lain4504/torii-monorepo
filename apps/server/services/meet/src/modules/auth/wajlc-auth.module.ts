@@ -7,8 +7,8 @@ import { ConfigModule } from '@nestjs/config';
 import { WajlcAuthService } from './wajlc-auth.service';
 
 @Module({
-    imports: [ConfigModule],
-    providers: [WajlcAuthService],
-    exports: [WajlcAuthService],
+  imports: [ConfigModule],
+  providers: [WajlcAuthService],
+  exports: [WajlcAuthService],
 })
-export class WajlcAuthModule { }
+export class WajlcAuthModule {}

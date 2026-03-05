@@ -10,19 +10,15 @@ import { WajlcAuthModule } from '@server/meet/modules/auth/wajlc-auth.module';
 import { WebhookModule } from '@server/meet/infrastructure/webhook/webhook.module';
 
 @Module({
-    imports: [
-        SharedModule,
-        forwardRef(() => ArtifactsModule),
-        forwardRef(() => NatsModule),
-        forwardRef(() => WebhookModule),
-        LiveKitModule,
-        WajlcAuthModule,
-    ],
-    providers: [
-        AnalyticsService,
-        RedisAnalyticsService,
-        RedisLockService,
-    ],
-    exports: [AnalyticsService],
+  imports: [
+    SharedModule,
+    forwardRef(() => ArtifactsModule),
+    forwardRef(() => NatsModule),
+    forwardRef(() => WebhookModule),
+    LiveKitModule,
+    WajlcAuthModule,
+  ],
+  providers: [AnalyticsService, RedisAnalyticsService, RedisLockService],
+  exports: [AnalyticsService],
 })
-export class AnalyticsModule { }
+export class AnalyticsModule {}

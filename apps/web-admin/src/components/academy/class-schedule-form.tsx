@@ -1,0 +1,216 @@
+import { Controller, useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Button } from "@workspace/ui/components/button"
+import { Input } from "@workspace/ui/components/input"
+import { Textarea } from "@workspace/ui/components/textarea"
+import {
+  Field,
+  FieldError,
+  FieldLabel,
+  FieldDescription,
+  FieldGroup,
+} from "@workspace/ui/components/field"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@workspace/ui/components/card"
+import { Spinner } from "@workspace/ui/components/spinner"
+import {
+  academyClassScheduleCreateDTOSchema,
+  academyClassScheduleUpdateDTOSchema,
+  type AcademyClassScheduleCreateDTO,
+  type AcademyClassScheduleUpdateDTO,
+} from "@workspace/schemas"
+import type { AcademyClassSchedule } from "@/lib/api/services/academy-class-schedules"
+
+export function ClassScheduleForm({
+  mode,
+  initial,
+  onSubmit,
+  onCancel,
+  submitting,
+  defaultClassId,
+}: {
+  mode: "create" | "edit"
+  initial?: AcademyClassSchedule
+  onSubmit: (
+    data: AcademyClassScheduleCreateDTO | AcademyClassScheduleUpdateDTO,
+  ) => Promise<void>
+  onCancel: () => void
+  submitting?: boolean
+  defaultClassId?: string
+}) {
+  const isEdit = mode === "edit"
+
+  const { handleSubmit, control } = useForm<
+    AcademyClassScheduleCreateDTO | AcademyClassScheduleUpdateDTO
+  >({
+    resolver: zodResolver(
+      (isEdit
+        ? academyClassScheduleUpdateDTOSchema
+        : academyClassScheduleCreateDTOSchema) as any,
+    ) as any,
+    defaultValues: isEdit
+      ? {
+        weekday: initial?.weekday ?? 1,
+        startTime: initial?.startTime ?? "",
+        endTime: initial?.endTime ?? "",
+        location: initial?.location ?? undefined,
+        note: initial?.note ?? undefined,
+      }
+      : {
+        classId: defaultClassId ?? "",
+        weekday: 1,
+        startTime: "19:00",
+        endTime: "21:00",
+        location: undefined,
+        note: undefined,
+      },
+  })
+
+  return (
+    <form
+      className="space-y-6"
+      onSubmit={handleSubmit(async (data) => onSubmit(data))}
+      noValidate
+    >
+      <Card>
+        <CardHeader>
+          <CardTitle>Thời gian học</CardTitle>
+          <CardDescription>Thiết lập thứ trong tuần và khung giờ học.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <FieldGroup>
+            {!isEdit && (
+              <Controller
+                name={"classId" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Class ID</FieldLabel>
+                    <Input placeholder="UUID của Class" disabled {...field} />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+            )}
+
+            <div className="grid gap-4 md:grid-cols-3">
+              <Controller
+                name={"weekday" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Thứ trong tuần</FieldLabel>
+                    <Select
+                      value={String(field.value)}
+                      onValueChange={(val) => field.onChange(Number(val))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn thứ..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">Thứ 2</SelectItem>
+                        <SelectItem value="2">Thứ 3</SelectItem>
+                        <SelectItem value="3">Thứ 4</SelectItem>
+                        <SelectItem value="4">Thứ 5</SelectItem>
+                        <SelectItem value="5">Thứ 6</SelectItem>
+                        <SelectItem value="6">Thứ 7</SelectItem>
+                        <SelectItem value="0">Chủ Nhật</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+              <Controller
+                name={"startTime" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Giờ bắt đầu</FieldLabel>
+                    <Input type="time" {...field} />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+              <Controller
+                name={"endTime" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Giờ kết thúc</FieldLabel>
+                    <Input type="time" {...field} />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+            </div>
+          </FieldGroup>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Địa điểm & Ghi chú</CardTitle>
+          <CardDescription>Xác định nơi học và các lưu ý khác.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <FieldGroup>
+            <Controller
+              name={"location" as any}
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Địa điểm / Room</FieldLabel>
+                  <Input placeholder="Zoom, Google Meet, phòng 301..." {...field} />
+                  <FieldDescription>
+                    Link học online hoặc số phòng học offline.
+                  </FieldDescription>
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
+              name={"note" as any}
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Ghi chú</FieldLabel>
+                  <Textarea
+                    placeholder="Ghi chú thêm cho lịch học..."
+                    className="min-h-[100px]"
+                    {...field}
+                  />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+          </FieldGroup>
+        </CardContent>
+      </Card>
+
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="outline" onClick={onCancel} disabled={submitting}>
+          Hủy
+        </Button>
+        <Button type="submit" disabled={submitting}>
+          {submitting ? <Spinner className="mr-2" /> : null}
+          {isEdit ? "Lưu thay đổi" : "Tạo Lịch học"}
+        </Button>
+      </div>
+    </form>
+  )
+}
+

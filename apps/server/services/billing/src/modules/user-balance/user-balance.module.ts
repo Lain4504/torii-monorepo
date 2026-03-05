@@ -6,9 +6,9 @@ import { UserBalanceHandler } from './user-balance.handler';
 import { PrismaModule } from '@server/shared';
 
 @Module({
-    imports: [PrismaModule],
-    controllers: [UserBalanceHandler],
-    providers: [UserBalanceService, UserBalanceRepository, FeatureQuotaService],
-    exports: [UserBalanceService, FeatureQuotaService],
+  imports: [PrismaModule],
+  controllers: [UserBalanceHandler],
+  providers: [UserBalanceService, UserBalanceRepository, FeatureQuotaService],
+  exports: [UserBalanceService, FeatureQuotaService],
 })
-export class UserBalanceModule { }
+export class UserBalanceModule {}

@@ -6,32 +6,37 @@ import type { IActivitiesService } from '@server/gamification/interfaces/service
 
 @Controller()
 export class ActivityListener {
-    private readonly logger = new Logger(ActivityListener.name);
+  private readonly logger = new Logger(ActivityListener.name);
 
-    constructor(
-        @Inject(ACTIVITIES_SERVICE_TOKEN) private readonly activityService: IActivitiesService
-    ) { }
+  constructor(
+    @Inject(ACTIVITIES_SERVICE_TOKEN)
+    private readonly activityService: IActivitiesService,
+  ) {}
 
-    /**
-     * Handle user activity events from other services
-     */
-    @EventPattern('user.activity')
-    async handleUserActivity(@Payload() event: UserActivityEvent) {
-        try {
-            this.logger.log(`Received activity event: ${event.activityType} for user ${event.userId}`);
+  /**
+   * Handle user activity events from other services
+   */
+  @EventPattern('user.activity')
+  async handleUserActivity(@Payload() event: UserActivityEvent) {
+    try {
+      this.logger.log(
+        `Received activity event: ${event.activityType} for user ${event.userId}`,
+      );
 
-            await this.activityService.recordActivity(
-                event.userId,
-                event.activityType,
-                event.meta,
-            );
+      await this.activityService.recordActivity(
+        event.userId,
+        event.activityType,
+        event.meta,
+      );
 
-            this.logger.log(`Successfully processed activity for user ${event.userId}`);
-        } catch (error) {
-            this.logger.error(
-                `Failed to process activity for user ${event.userId}`,
-                error.stack,
-            );
-        }
+      this.logger.log(
+        `Successfully processed activity for user ${event.userId}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to process activity for user ${event.userId}`,
+        error.stack,
+      );
     }
+  }
 }

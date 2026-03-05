@@ -3,8 +3,6 @@ import {
     Settings,
     User,
     LayoutDashboard,
-    BookOpen, // courses
-    Database, // question bank
     FileQuestion, // questions
     Video, // rooms
     FileEdit, // blogs
@@ -86,10 +84,6 @@ export function CommandMenu() {
                             <User className="mr-2 h-4 w-4" />
                             <span>Danh sách học viên</span>
                         </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/course-master"))}>
-                            <BookOpen className="mr-2 h-4 w-4" />
-                            <span>Quản lý khóa học</span>
-                        </CommandItem>
                         <CommandItem onSelect={() => runCommand(() => navigate("/personnel/lecturers"))}>
                             <User className="mr-2 h-4 w-4" />
                             <span>Đội ngũ giảng viên</span>
@@ -99,13 +93,9 @@ export function CommandMenu() {
                     <CommandSeparator />
 
                     <CommandGroup heading="Kho tài nguyên">
-                        <CommandItem onSelect={() => runCommand(() => navigate("/question-bank/questions"))}>
+                        <CommandItem onSelect={() => runCommand(() => navigate("/academy/questions"))}>
                             <FileQuestion className="mr-2 h-4 w-4" />
-                            <span>Ngân hàng câu hỏi</span>
-                        </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate("/question-bank/pools"))}>
-                            <Database className="mr-2 h-4 w-4" />
-                            <span>Bộ câu hỏi</span>
+                            <span>Question bank (Academy)</span>
                         </CommandItem>
                     </CommandGroup>
 

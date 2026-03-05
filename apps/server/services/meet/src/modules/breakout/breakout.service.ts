@@ -20,10 +20,7 @@ import {
 import { RoomCreateService } from '@server/meet/modules/room/room-create.service';
 import { RoomEndService } from '@server/meet/modules/room/room-end.service';
 import { RoomUserService } from '@server/meet/modules/room/room-user.service';
-import {
-  create,
-  fromJsonString,
-} from '@bufbuild/protobuf';
+import { create, fromJsonString } from '@bufbuild/protobuf';
 import { RoomDurationService } from '@server/meet/modules/room/room-duration.service';
 import { NatsService } from '@server/meet/services/nats.service';
 import { NatsRoomEventsService } from '@server/meet/services/nats-room-events.service';
@@ -71,7 +68,7 @@ export class BreakoutService {
     @Inject(forwardRef(() => RoomUserService))
     private readonly roomUserService: RoomUserService,
     private readonly redisBreakoutService: RedisBreakoutService,
-  ) { }
+  ) {}
 
   /**
    * CreateBreakoutRooms creates multiple breakout rooms under a parent room
@@ -112,7 +109,10 @@ export class BreakoutService {
 
     // disable few features
     if (!bMeta.roomFeatures.breakoutRoomFeatures) {
-      bMeta.roomFeatures.breakoutRoomFeatures = create(BreakoutRoomFeaturesSchema, {});
+      bMeta.roomFeatures.breakoutRoomFeatures = create(
+        BreakoutRoomFeaturesSchema,
+        {},
+      );
     }
     bMeta.roomFeatures.breakoutRoomFeatures.isAllow = false;
 
@@ -148,9 +148,16 @@ export class BreakoutService {
         room.duration = req.duration.toString();
         room.created = Math.floor(Date.now() / 1000).toString();
 
-        const roomJson = this.natsService.marshalToProtoJson(room, BreakoutRoomSchema);
+        const roomJson = this.natsService.marshalToProtoJson(
+          room,
+          BreakoutRoomSchema,
+        );
         // [MIGRATED] Use Redis instead of NATS for breakout room storage
-        await this.redisBreakoutService.insertOrUpdateBreakoutRoom(req.roomId, bRoomId, Buffer.from(roomJson));
+        await this.redisBreakoutService.insertOrUpdateBreakoutRoom(
+          req.roomId,
+          bRoomId,
+          Buffer.from(roomJson),
+        );
 
         // send invitation notification
         for (const u of room.users) {
@@ -158,12 +165,13 @@ export class BreakoutService {
             NatsMsgServerToClientEvents.JOIN_BREAKOUT_ROOM,
             req.roomId,
             bRoomId, // payload
-            u.id
+            u.id,
           );
         }
-
       } catch (error) {
-        this.logger.error(`Failed to create breakout room ${bRoomId}: ${error.message}`);
+        this.logger.error(
+          `Failed to create breakout room ${bRoomId}: ${error.message}`,
+        );
         e[bRoomId] = true;
         continue;
       }
@@ -175,18 +183,29 @@ export class BreakoutService {
 
     // Update parent room metadata
     try {
-      const origMeta = await this.natsRoomService.getRoomMetadataStruct(req.roomId);
+      const origMeta = await this.natsRoomService.getRoomMetadataStruct(
+        req.roomId,
+      );
       if (origMeta) {
-        if (!origMeta.roomFeatures) origMeta.roomFeatures = create(RoomCreateFeaturesSchema, {});
+        if (!origMeta.roomFeatures)
+          origMeta.roomFeatures = create(RoomCreateFeaturesSchema, {});
         if (!origMeta.roomFeatures.breakoutRoomFeatures) {
-          origMeta.roomFeatures.breakoutRoomFeatures = create(BreakoutRoomFeaturesSchema, {});
+          origMeta.roomFeatures.breakoutRoomFeatures = create(
+            BreakoutRoomFeaturesSchema,
+            {},
+          );
         }
         origMeta.roomFeatures.breakoutRoomFeatures.isActive = true;
 
-        await this.natsRoomEventsService.updateAndBroadcastRoomMetadata(req.roomId, origMeta);
+        await this.natsRoomEventsService.updateAndBroadcastRoomMetadata(
+          req.roomId,
+          origMeta,
+        );
       }
     } catch (error) {
-      this.logger.error(`Failed to update parent room metadata: ${error.message}`);
+      this.logger.error(
+        `Failed to update parent room metadata: ${error.message}`,
+      );
     }
 
     // Send analytics
@@ -226,10 +245,7 @@ export class BreakoutService {
       throw new Error('Failed to fetch breakout room info');
     }
 
-    const room = fromJsonString(
-      BreakoutRoomSchema,
-      roomStr,
-    );
+    const room = fromJsonString(BreakoutRoomSchema, roomStr);
 
     // 3. Authorization Check (Unless Admin)
     if (!req.isAdmin) {
@@ -240,7 +256,10 @@ export class BreakoutService {
     }
 
     // 4. Get User Info from Parent Room
-    const pInfo = await this.natsUserService.getUserInfo(req.roomId, req.userId);
+    const pInfo = await this.natsUserService.getUserInfo(
+      req.roomId,
+      req.userId,
+    );
     const pMeta = await this.natsUserService.getUserMetadataStruct(
       req.roomId,
       req.userId,
@@ -303,7 +322,9 @@ export class BreakoutService {
 
     // [MIGRATED] Use Redis
     const ids =
-      await this.redisBreakoutService.getBreakoutRoomIdsByParentRoomId(parentRoomId);
+      await this.redisBreakoutService.getBreakoutRoomIdsByParentRoomId(
+        parentRoomId,
+      );
     if (!ids || ids.length === 0) {
       await this.updateParentRoomMetadataOnEnd(parentRoomId);
       return;
@@ -330,10 +351,7 @@ export class BreakoutService {
 
     for (const [key, val] of Object.entries(roomsData)) {
       try {
-        const room = fromJsonString(
-          BreakoutRoomSchema,
-          val,
-        );
+        const room = fromJsonString(BreakoutRoomSchema, val);
         room.id = key; // Ensure ID matches map key
 
         // Check online status of users
@@ -368,7 +386,9 @@ export class BreakoutService {
     roomId: string,
     userId: string,
   ): Promise<BreakoutRoom | undefined> {
-    const breakoutRooms = await this.getBreakoutRoomsInfo(roomId).catch(() => []);
+    const breakoutRooms = await this.getBreakoutRoomsInfo(roomId).catch(
+      () => [],
+    );
     if (!breakoutRooms || breakoutRooms.length === 0) {
       throw new Error('no breakout rooms found');
     }
@@ -405,10 +425,7 @@ export class BreakoutService {
       throw new Error('Breakout room not found');
     }
 
-    const room = fromJsonString(
-      BreakoutRoomSchema,
-      roomStr,
-    );
+    const room = fromJsonString(BreakoutRoomSchema, roomStr);
 
     // Update active duration checker
     log.log('increasing duration in room duration checker');
@@ -426,7 +443,10 @@ export class BreakoutService {
     // Update KV
     log.log('updating breakout room info in redis');
     room.duration = newDuration.toString();
-    const jsonStr = this.natsService.marshalToProtoJson(room, BreakoutRoomSchema);
+    const jsonStr = this.natsService.marshalToProtoJson(
+      room,
+      BreakoutRoomSchema,
+    );
 
     try {
       // [MIGRATED] Use Redis
@@ -466,7 +486,9 @@ export class BreakoutService {
           req.msg,
         );
       } catch (e) {
-        log.error(`failed to broadcast message to breakout room ${r.id}: ${e.message}`);
+        log.error(
+          `failed to broadcast message to breakout room ${r.id}: ${e.message}`,
+        );
       }
     }
 
@@ -493,19 +515,21 @@ export class BreakoutService {
       roomId,
     );
     if (!roomStr) {
-      this.logger.warn(`Breakout room ${roomId} not found in Redis for parent ${metadata.parentRoomId}, skipping postPR-start tasks`);
+      this.logger.warn(
+        `Breakout room ${roomId} not found in Redis for parent ${metadata.parentRoomId}, skipping postPR-start tasks`,
+      );
       return;
     }
 
-    const room = fromJsonString(
-      BreakoutRoomSchema,
-      roomStr,
-    );
+    const room = fromJsonString(BreakoutRoomSchema, roomStr);
     this.logger.log(`Updating breakout room ${roomId} status to started: true`);
     room.created = metadata.startedAt.toString();
     room.started = true;
 
-    const jsonStr = this.natsService.marshalToProtoJson(room, BreakoutRoomSchema);
+    const jsonStr = this.natsService.marshalToProtoJson(
+      room,
+      BreakoutRoomSchema,
+    );
     // [MIGRATED] Use Redis
     await this.redisBreakoutService.insertOrUpdateBreakoutRoom(
       metadata.parentRoomId,
@@ -528,7 +552,10 @@ export class BreakoutService {
     if (meta.isBreakoutRoom && meta.parentRoomId) {
       // A single breakout room ended
       // [MIGRATED] Use Redis
-      await this.redisBreakoutService.deleteBreakoutRoom(meta.parentRoomId, roomId);
+      await this.redisBreakoutService.deleteBreakoutRoom(
+        meta.parentRoomId,
+        roomId,
+      );
       await this.onAfterBkRoomEnded(meta.parentRoomId, roomId);
     } else {
       // Parent room ended, kill all sub-rooms
@@ -540,7 +567,8 @@ export class BreakoutService {
 
   private async onAfterBkRoomEnded(parentRoomId: string, bkRoomId: string) {
     // [MIGRATED] Use Redis
-    const count = await this.redisBreakoutService.countBreakoutRooms(parentRoomId);
+    const count =
+      await this.redisBreakoutService.countBreakoutRooms(parentRoomId);
 
     if (count === 0) {
       // No rooms left, cleanup parent metadata
@@ -566,7 +594,10 @@ export class BreakoutService {
     if (meta.roomFeatures?.breakoutRoomFeatures?.isActive) {
       meta.roomFeatures.breakoutRoomFeatures.isActive = false;
 
-      await this.natsRoomEventsService.updateAndBroadcastRoomMetadata(parentRoomId, meta);
+      await this.natsRoomEventsService.updateAndBroadcastRoomMetadata(
+        parentRoomId,
+        meta,
+      );
     }
   }
 }

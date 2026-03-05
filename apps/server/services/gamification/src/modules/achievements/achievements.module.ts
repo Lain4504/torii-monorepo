@@ -8,18 +8,18 @@ import { PrismaModule, NatsClientModule } from '@server/shared';
 import { ProfilesModule } from '../profiles/profiles.module';
 
 @Module({
-    imports: [PrismaModule, NatsClientModule, ProfilesModule],
-    controllers: [AchievementsHandler],
-    providers: [
-        {
-            provide: ACHIEVEMENTS_SERVICE_TOKEN,
-            useClass: AchievementsService,
-        },
-        {
-            provide: ACHIEVEMENTS_REPOSITORY_TOKEN,
-            useClass: AchievementsRepository,
-        },
-    ],
-    exports: [ACHIEVEMENTS_SERVICE_TOKEN],
+  imports: [PrismaModule, NatsClientModule, ProfilesModule],
+  controllers: [AchievementsHandler],
+  providers: [
+    {
+      provide: ACHIEVEMENTS_SERVICE_TOKEN,
+      useClass: AchievementsService,
+    },
+    {
+      provide: ACHIEVEMENTS_REPOSITORY_TOKEN,
+      useClass: AchievementsRepository,
+    },
+  ],
+  exports: [ACHIEVEMENTS_SERVICE_TOKEN],
 })
-export class AchievementsModule { }
+export class AchievementsModule {}

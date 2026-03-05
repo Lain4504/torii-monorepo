@@ -33,24 +33,24 @@ export type AchievementCategory = z.infer<typeof AchievementCategorySchema>;
 // Request DTOs
 // ========================================
 
-export const RecordActivityDtoSchema = z.object({
+export const RecordActivityDTOSchema = z.object({
     activityType: ActivityTypeSchema,
     meta: z.record(z.any()).optional(),
 });
 
-export type RecordActivityDto = z.infer<typeof RecordActivityDtoSchema>;
+export type RecordActivityDTO = z.infer<typeof RecordActivityDTOSchema>;
 
-export const GrantFreezeDtoSchema = z.object({
+export const GrantFreezeDTOSchema = z.object({
     amount: z.number().int().positive(),
 });
 
-export type GrantFreezeDto = z.infer<typeof GrantFreezeDtoSchema>;
+export type GrantFreezeDTO = z.infer<typeof GrantFreezeDTOSchema>;
 
 // ========================================
 // Response DTOs
 // ========================================
 
-export const StreakStatusDtoSchema = z.object({
+export const StreakStatusDTOSchema = z.object({
     currentStreak: z.number().int(),
     longestStreak: z.number().int(),
     freezeCount: z.number().int(),
@@ -64,9 +64,9 @@ export const StreakStatusDtoSchema = z.object({
     shouldShowToast: z.boolean().optional(),
 });
 
-export type StreakStatusDto = z.infer<typeof StreakStatusDtoSchema>;
+export type StreakStatusDTO = z.infer<typeof StreakStatusDTOSchema>;
 
-export const UserGamificationDtoSchema = z.object({
+export const UserGamificationDTOSchema = z.object({
     id: z.string().uuid(),
     userId: z.string().uuid(),
     level: z.number().int(),
@@ -85,9 +85,9 @@ export const UserGamificationDtoSchema = z.object({
     updatedAt: z.string().datetime(),
 });
 
-export type UserGamificationDto = z.infer<typeof UserGamificationDtoSchema>;
+export type UserGamificationDTO = z.infer<typeof UserGamificationDTOSchema>;
 
-export const AchievementDtoSchema = z.object({
+export const AchievementDTOSchema = z.object({
     id: z.string().uuid(),
     code: z.string(),
     category: AchievementCategorySchema,
@@ -100,20 +100,20 @@ export const AchievementDtoSchema = z.object({
     orderIndex: z.number().int(),
 });
 
-export type AchievementDto = z.infer<typeof AchievementDtoSchema>;
+export type AchievementDTO = z.infer<typeof AchievementDTOSchema>;
 
-export const UserAchievementDtoSchema = z.object({
+export const UserAchievementDTOSchema = z.object({
     id: z.string().uuid(),
     achievementId: z.string().uuid(),
     isUnlocked: z.boolean(),
     progress: z.record(z.any()).nullable(),
     unlockedAt: z.string().datetime().nullable(),
-    achievement: AchievementDtoSchema,
+    achievement: AchievementDTOSchema,
 });
 
-export type UserAchievementDto = z.infer<typeof UserAchievementDtoSchema>;
+export type UserAchievementDTO = z.infer<typeof UserAchievementDTOSchema>;
 
-export const LeaderboardUserDtoSchema = z.object({
+export const LeaderboardUserDTOSchema = z.object({
     id: z.string().uuid(),
     displayName: z.string(),
     avatarUrl: z.string().nullable(),
@@ -123,16 +123,16 @@ export const LeaderboardUserDtoSchema = z.object({
     currentStreak: z.number().int().optional(),
 });
 
-export type LeaderboardUserDto = z.infer<typeof LeaderboardUserDtoSchema>;
+export type LeaderboardUserDTO = z.infer<typeof LeaderboardUserDTOSchema>;
 
-export const LeaderboardDtoSchema = z.object({
-    users: z.array(LeaderboardUserDtoSchema),
-    currentUser: LeaderboardUserDtoSchema.optional(),
+export const LeaderboardDTOSchema = z.object({
+    users: z.array(LeaderboardUserDTOSchema),
+    currentUser: LeaderboardUserDTOSchema.optional(),
     totalUsers: z.number().int(),
     type: z.enum(['global', 'streak']),
 });
 
-export type LeaderboardDto = z.infer<typeof LeaderboardDtoSchema>;
+export type LeaderboardDTO = z.infer<typeof LeaderboardDTOSchema>;
 
 // ========================================
 // Event Payloads (for NATS)
@@ -180,7 +180,7 @@ export enum GamificationTransactionType {
     OTHER = 'OTHER',
 }
 
-export const gamificationHistorySchema = z.object({
+export const gamificationHistoryDTOSchema = z.object({
     id: z.string().uuid(),
     userId: z.string().uuid(),
     amount: z.number().int(),
@@ -191,18 +191,18 @@ export const gamificationHistorySchema = z.object({
     createdAt: z.date(),
 });
 
-export type GamificationHistoryDto = z.infer<typeof gamificationHistorySchema>;
+export type GamificationHistoryDTO = z.infer<typeof gamificationHistoryDTOSchema>;
 
-export const gamificationHistoryQuerySchema = z.object({
+export const gamificationHistoryQueryDTOSchema = z.object({
     page: z.coerce.number().min(1).default(1),
     limit: z.coerce.number().min(1).default(10),
     type: z.nativeEnum(GamificationTransactionType).optional(),
 });
 
-export type GamificationHistoryQuery = z.infer<typeof gamificationHistoryQuerySchema>;
+export type GamificationHistoryQueryDTO = z.infer<typeof gamificationHistoryQueryDTOSchema>;
 
-export const gamificationHistoryPaginatedResponseSchema = z.object({
-    data: z.array(gamificationHistorySchema),
+export const gamificationHistoryPaginatedResponseDTOSchema = z.object({
+    data: z.array(gamificationHistoryDTOSchema),
     total: z.number(),
     page: z.number(),
     limit: z.number(),
@@ -210,13 +210,13 @@ export const gamificationHistoryPaginatedResponseSchema = z.object({
 });
 
 
-export type GamificationHistoryPaginatedResponse = z.infer<typeof gamificationHistoryPaginatedResponseSchema>;
+export type GamificationHistoryPaginatedResponseDTO = z.infer<typeof gamificationHistoryPaginatedResponseDTOSchema>;
 
 // ========================================
 // Reward DTOs
 // ========================================
 
-export const PointRewardDtoSchema = z.object({
+export const PointRewardDTOSchema = z.object({
     id: z.string().uuid(),
     name: z.string().min(1),
     description: z.string().optional().nullable(),
@@ -231,16 +231,16 @@ export const PointRewardDtoSchema = z.object({
     updatedAt: z.string().datetime().optional(),
 });
 
-export type PointRewardDto = z.infer<typeof PointRewardDtoSchema>;
+export type PointRewardDTO = z.infer<typeof PointRewardDTOSchema>;
 
-export const createPointRewardDtoSchema = PointRewardDtoSchema.omit({
+export const createPointRewardDTOSchema = PointRewardDTOSchema.omit({
     id: true,
     createdAt: true,
     updatedAt: true,
 });
 
-export type CreatePointRewardDto = z.infer<typeof createPointRewardDtoSchema>;
+export type CreatePointRewardDTO = z.infer<typeof createPointRewardDTOSchema>;
 
-export const updatePointRewardDtoSchema = createPointRewardDtoSchema.partial();
+export const updatePointRewardDTOSchema = createPointRewardDTOSchema.partial();
 
-export type UpdatePointRewardDto = z.infer<typeof updatePointRewardDtoSchema>;
+export type UpdatePointRewardDTO = z.infer<typeof updatePointRewardDTOSchema>;

@@ -8,18 +8,18 @@ import { PrismaModule } from '@server/shared';
 import { ProfilesModule } from '../profiles/profiles.module';
 
 @Module({
-    imports: [PrismaModule, ProfilesModule],
-    controllers: [LeaderboardsHandler],
-    providers: [
-        {
-            provide: LEADERBOARDS_SERVICE_TOKEN,
-            useClass: LeaderboardsService,
-        },
-        {
-            provide: LEADERBOARDS_REPOSITORY_TOKEN,
-            useClass: LeaderboardsRepository,
-        },
-    ],
-    exports: [LEADERBOARDS_SERVICE_TOKEN],
+  imports: [PrismaModule, ProfilesModule],
+  controllers: [LeaderboardsHandler],
+  providers: [
+    {
+      provide: LEADERBOARDS_SERVICE_TOKEN,
+      useClass: LeaderboardsService,
+    },
+    {
+      provide: LEADERBOARDS_REPOSITORY_TOKEN,
+      useClass: LeaderboardsRepository,
+    },
+  ],
+  exports: [LEADERBOARDS_SERVICE_TOKEN],
 })
-export class LeaderboardsModule { }
+export class LeaderboardsModule {}

@@ -5,7 +5,7 @@ import { SharedEmailService } from './shared-email.service';
 /**
  * Shared Email Module
  * Provides email functionality for all modules
- * 
+ *
  * Environment Variables:
  * - EMAIL_PROVIDER: 'smtp' | 'mock' (default: 'mock')
  * - EMAIL_FROM: Default sender email
@@ -17,8 +17,8 @@ import { SharedEmailService } from './shared-email.service';
  */
 @Global()
 @Module({
-    imports: [ConfigModule],
-    providers: [SharedEmailService],
-    exports: [SharedEmailService],
+  imports: [ConfigModule],
+  providers: [SharedEmailService],
+  exports: [SharedEmailService],
 })
-export class SharedEmailModule { }
+export class SharedEmailModule {}

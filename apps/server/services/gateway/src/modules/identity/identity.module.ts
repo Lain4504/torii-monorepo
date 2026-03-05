@@ -9,22 +9,22 @@ import { TwoFactorAuthController } from './controllers/two-factor-auth.controlle
 import { AuthController } from './controllers/auth.controller';
 
 import { ProfilesController } from './controllers/profiles.controller';
-
+import { NotificationController } from './controllers/notification.controller';
 
 /**
  * Identity Module for Gateway
  * Handles all Identity service HTTP routes via NATS
  */
 @Module({
-    imports: [NatsClientModule],
-    controllers: [
-        UsersController,
-        AuthorizationController,
-        AuditLogController,
-        TwoFactorAuthController,
-        AuthController,
-        ProfilesController,
-
-    ],
+  imports: [NatsClientModule],
+  controllers: [
+    UsersController,
+    AuthorizationController,
+    AuditLogController,
+    TwoFactorAuthController,
+    AuthController,
+    ProfilesController,
+    NotificationController,
+  ],
 })
 export class IdentityModule { }

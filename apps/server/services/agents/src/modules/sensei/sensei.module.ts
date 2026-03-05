@@ -9,9 +9,9 @@ import { LivekitAgentService } from '../livekit/livekit-agent.service';
 import { AnalyticsModule } from '../analytics/analytics.module';
 
 @Module({
-    imports: [FastMcpModule, SharedModule, NatsClientModule, AnalyticsModule],
-    controllers: [SenseiHandler],
-    providers: [SenseiService, TTSService, LivekitAgentService],
-    exports: [SenseiService, TTSService],
+  imports: [FastMcpModule, SharedModule, NatsClientModule, AnalyticsModule],
+  controllers: [SenseiHandler],
+  providers: [SenseiService, TTSService, LivekitAgentService],
+  exports: [SenseiService, TTSService],
 })
-export class SenseiModule { }
+export class SenseiModule {}

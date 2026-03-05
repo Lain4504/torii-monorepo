@@ -15,21 +15,21 @@ import { AnalyticsModule } from '@server/meet/modules/analytics/analytics.module
 import { WajlcAuthService } from '@server/meet/modules/auth/wajlc-auth.service';
 
 @Module({
-    imports: [SharedModule, forwardRef(() => AnalyticsModule)],
-    providers: [
-        FileService,
-        NatsService,
-        NatsCacheService,
-        NatsStreamService,
-        NatsUserInfoService,
-        LiveKitService,
-        WajlcAuthService,
-        NatsSystemEventsService,
-        NatsUserService,
-        NatsRoomService,
-        NatsRoomEventsService,
-    ],
-    controllers: [FileNatsController],
-    exports: [FileService],
+  imports: [SharedModule, forwardRef(() => AnalyticsModule)],
+  providers: [
+    FileService,
+    NatsService,
+    NatsCacheService,
+    NatsStreamService,
+    NatsUserInfoService,
+    LiveKitService,
+    WajlcAuthService,
+    NatsSystemEventsService,
+    NatsUserService,
+    NatsRoomService,
+    NatsRoomEventsService,
+  ],
+  controllers: [FileNatsController],
+  exports: [FileService],
 })
-export class FileModule { }
+export class FileModule {}

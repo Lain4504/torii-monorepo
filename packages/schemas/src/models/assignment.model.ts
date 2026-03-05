@@ -29,10 +29,8 @@ export const assignmentSchema = z.object({
   description: z.string(),
   type: z.nativeEnum(AssignmentType),
 
-  // Associated with (at least one required)
-  courseRunId: z.string().uuid().optional(),
-  moduleId: z.string().uuid().optional(),
-  lessonId: z.string().uuid().optional(),
+  // Associated with CourseRun (required)
+  courseRunId: z.string().uuid(),
 
   // Grading config
   maxScore: z.number(),

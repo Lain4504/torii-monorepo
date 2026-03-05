@@ -11,6 +11,7 @@ export * from './i-google-auth.service';
 export * from './i-audit-log.service';
 export * from './i-authorization.service';
 export * from './i-two-factor-auth.service';
+export * from './i-notification.service';
 
 // Injection tokens for dependency injection
 export const USERS_SERVICE_TOKEN = Symbol('USERS_SERVICE');
@@ -21,4 +22,4 @@ export const AUDIT_LOG_SERVICE_TOKEN = Symbol('AUDIT_LOG_SERVICE');
 export const AUTHORIZATION_SERVICE_TOKEN = Symbol('AUTHORIZATION_SERVICE');
 export const TWO_FACTOR_AUTH_SERVICE_TOKEN = Symbol('TWO_FACTOR_AUTH_SERVICE');
 export const SMS_SERVICE_TOKEN = Symbol('SMS_SERVICE');
-
+export const NOTIFICATION_SERVICE_TOKEN = Symbol('NOTIFICATION_SERVICE');

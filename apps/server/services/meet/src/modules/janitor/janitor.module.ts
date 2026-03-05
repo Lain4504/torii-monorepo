@@ -10,19 +10,19 @@ import { LiveKitModule } from '@server/meet/infrastructure/livekit/livekit.modul
 import { PrismaModule } from '@server/shared';
 
 @Module({
-    imports: [
-        PrismaModule,
-        RedisModule,
-        forwardRef(() => NatsModule),
-        forwardRef(() => RoomModule),
-        LiveKitModule,
-    ],
-    providers: [
-        JanitorService,
-        JanitorRoomService,
-        JanitorUserService,
-        JanitorFilesystemService,
-    ],
-    exports: [JanitorService],
+  imports: [
+    PrismaModule,
+    RedisModule,
+    forwardRef(() => NatsModule),
+    forwardRef(() => RoomModule),
+    LiveKitModule,
+  ],
+  providers: [
+    JanitorService,
+    JanitorRoomService,
+    JanitorUserService,
+    JanitorFilesystemService,
+  ],
+  exports: [JanitorService],
 })
-export class JanitorModule { }
+export class JanitorModule {}

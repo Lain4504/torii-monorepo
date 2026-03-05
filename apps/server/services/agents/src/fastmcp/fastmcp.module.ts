@@ -8,4 +8,4 @@ import { FastMcpService } from './fastmcp.service';
   exports: [FastMcpService],
   controllers: [],
 })
-export class FastMcpModule { }
+export class FastMcpModule {}

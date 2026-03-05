@@ -11,14 +11,14 @@ import { RewardsTable } from '@/components/gamification/rewards-table';
 import { CreateRewardSheet } from '@/components/gamification/create-reward-sheet';
 import { EditRewardSheet } from '@/components/gamification/edit-reward-sheet';
 import { DeleteRewardDialog } from '@/components/gamification/delete-reward-dialog';
-import type { PointRewardDto } from '@workspace/schemas';
+import type { PointRewardDTO } from '@workspace/schemas';
 
 export default function RewardsPage() {
     // Dialog State
     const [createOpen, setCreateOpen] = useState(false);
     const [editOpen, setEditOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
-    const [selectedReward, setSelectedReward] = useState<PointRewardDto | null>(null);
+    const [selectedReward, setSelectedReward] = useState<PointRewardDTO | null>(null);
 
     // Data Fetching
     const { data: rewards = [], isLoading } = useAdminRewards();
@@ -28,12 +28,12 @@ export default function RewardsPage() {
         setCreateOpen(true);
     };
 
-    const handleEdit = (reward: PointRewardDto) => {
+    const handleEdit = (reward: PointRewardDTO) => {
         setSelectedReward(reward);
         setEditOpen(true);
     };
 
-    const handleDelete = (reward: PointRewardDto) => {
+    const handleDelete = (reward: PointRewardDTO) => {
         setSelectedReward(reward);
         setDeleteOpen(true);
     };

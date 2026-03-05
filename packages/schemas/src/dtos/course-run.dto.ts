@@ -16,7 +16,6 @@ export const courseRunCreateDTOSchema = courseRunSchema.pick({
     discountPrice: true,
     coverUrl: true,
     previewVideoUrl: true,
-    status: true,
 }).extend({
     versionId: z.string().uuid().optional().nullable(),
 });
@@ -28,6 +27,7 @@ export const courseRunUpdateDTOSchema = courseRunCreateDTOSchema.extend({
 }).partial();
 
 export type CourseRunUpdateDTO = z.infer<typeof courseRunUpdateDTOSchema>;
+
 
 export const courseRunResponseDTOSchema = courseRunSchema.extend({
     courseMaster: z.object({

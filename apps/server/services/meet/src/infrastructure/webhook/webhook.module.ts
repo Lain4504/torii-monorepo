@@ -18,25 +18,25 @@ import { WajlcAuthModule } from '@server/meet/modules/auth/wajlc-auth.module';
 import { BreakoutModule } from '@server/meet/modules/breakout/breakout.module';
 
 @Module({
-    imports: [
-        SharedModule,
-        forwardRef(() => AnalyticsModule),
-        forwardRef(() => RoomModule),
-        forwardRef(() => SpeechToTextModule),
-        forwardRef(() => NatsModule),
-        forwardRef(() => BreakoutModule),
-        LiveKitModule,
-        WajlcAuthModule,
-    ],
-    controllers: [WebhookController, WebhookHandler],
-    providers: [
-        // Redis
-        RedisRoomService,
+  imports: [
+    SharedModule,
+    forwardRef(() => AnalyticsModule),
+    forwardRef(() => RoomModule),
+    forwardRef(() => SpeechToTextModule),
+    forwardRef(() => NatsModule),
+    forwardRef(() => BreakoutModule),
+    LiveKitModule,
+    WajlcAuthModule,
+  ],
+  controllers: [WebhookController, WebhookHandler],
+  providers: [
+    // Redis
+    RedisRoomService,
 
-        // Webhook services
-        WebhookNotifierService,
-        WebhookService,
-    ],
-    exports: [WebhookNotifierService, WebhookService],
+    // Webhook services
+    WebhookNotifierService,
+    WebhookService,
+  ],
+  exports: [WebhookNotifierService, WebhookService],
 })
-export class WebhookModule { }
+export class WebhookModule {}

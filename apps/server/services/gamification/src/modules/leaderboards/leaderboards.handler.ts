@@ -5,25 +5,26 @@ import type { ILeaderboardsService } from '@server/gamification/interfaces/servi
 
 @Controller()
 export class LeaderboardsHandler {
-    constructor(
-        @Inject(LEADERBOARDS_SERVICE_TOKEN) private readonly leaderboardsService: ILeaderboardsService
-    ) { }
+  constructor(
+    @Inject(LEADERBOARDS_SERVICE_TOKEN)
+    private readonly leaderboardsService: ILeaderboardsService,
+  ) {}
 
-    @MessagePattern({ cmd: 'gamification.getLeaderboard' })
-    async getLeaderboard(@Payload() data: { userId?: string, type?: string }) {
-        if (data.type === 'streak' || data.type === 'weekly') {
-            return this.leaderboardsService.getWeeklyLeaderboard(data.userId);
-        }
-        return this.leaderboardsService.getGlobalLeaderboard(data.userId);
+  @MessagePattern({ cmd: 'gamification.getLeaderboard' })
+  async getLeaderboard(@Payload() data: { userId?: string; type?: string }) {
+    if (data.type === 'streak' || data.type === 'weekly') {
+      return this.leaderboardsService.getWeeklyLeaderboard(data.userId);
     }
+    return this.leaderboardsService.getGlobalLeaderboard(data.userId);
+  }
 
-    @MessagePattern({ cmd: 'gamification.leaderboard.global' })
-    async getGlobalLeaderboard(@Payload() data: { userId?: string }) {
-        return this.leaderboardsService.getGlobalLeaderboard(data.userId);
-    }
+  @MessagePattern({ cmd: 'gamification.leaderboard.global' })
+  async getGlobalLeaderboard(@Payload() data: { userId?: string }) {
+    return this.leaderboardsService.getGlobalLeaderboard(data.userId);
+  }
 
-    @MessagePattern({ cmd: 'gamification.leaderboard.weekly' })
-    async getWeeklyLeaderboard(@Payload() data: { userId?: string }) {
-        return this.leaderboardsService.getWeeklyLeaderboard(data.userId);
-    }
+  @MessagePattern({ cmd: 'gamification.leaderboard.weekly' })
+  async getWeeklyLeaderboard(@Payload() data: { userId?: string }) {
+    return this.leaderboardsService.getWeeklyLeaderboard(data.userId);
+  }
 }

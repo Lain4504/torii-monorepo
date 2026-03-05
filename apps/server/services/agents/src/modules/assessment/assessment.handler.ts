@@ -10,7 +10,7 @@ import { AssessmentService } from './assessment.service';
  */
 @Controller()
 export class AssessmentHandler {
-  constructor(private readonly assessmentService: AssessmentService) { }
+  constructor(private readonly assessmentService: AssessmentService) {}
 
   @MessagePattern({ cmd: 'agents.assessment.generateTest' })
   async generateTest(
@@ -52,10 +52,7 @@ export class AssessmentHandler {
       requester: Requester;
     },
   ) {
-    return this.assessmentService.getPlacementTests(
-      data.requester,
-      data.level,
-    );
+    return this.assessmentService.getPlacementTests(data.requester, data.level);
   }
 
   @MessagePattern({ cmd: 'agents.assessment.recommendCourses' })

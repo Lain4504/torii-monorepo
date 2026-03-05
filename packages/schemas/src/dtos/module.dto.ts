@@ -43,6 +43,10 @@ export type ModuleQueryDTO = z.infer<typeof moduleQueryDTOSchema>;
 export const moduleSearchRequestDTOSchema = moduleQueryDTOSchema;
 export type ModuleSearchRequestDTO = z.infer<typeof moduleSearchRequestDTOSchema>;
 
-export const moduleResponseDTOSchema = moduleSchema;
+import { moduleItemSchema } from '../models/module-item.model';
+
+export const moduleResponseDTOSchema = moduleSchema.extend({
+    items: z.array(moduleItemSchema).optional(),
+});
 
 export type ModuleResponseDTO = z.infer<typeof moduleResponseDTOSchema>;

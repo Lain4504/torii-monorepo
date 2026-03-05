@@ -10,62 +10,65 @@ import { AppConfigService } from '@server/shared';
  */
 @Injectable()
 export class GoogleAuthService implements IGoogleAuthService {
-    private readonly logger = new Logger(GoogleAuthService.name);
-    private readonly client: OAuth2Client;
+  private readonly logger = new Logger(GoogleAuthService.name);
+  private readonly client: OAuth2Client;
 
-    constructor(private readonly appConfig: AppConfigService) {
-        const clientId = this.appConfig.thirdParty.google.clientId;
+  constructor(private readonly appConfig: AppConfigService) {
+    const clientId = this.appConfig.thirdParty.google.clientId;
 
-        if (!clientId) {
-            this.logger.warn('Google Client ID not configured. Google OAuth will not work.');
-        }
-
-        this.client = new OAuth2Client(clientId);
+    if (!clientId) {
+      this.logger.warn(
+        'Google Client ID not configured. Google OAuth will not work.',
+      );
     }
 
-    /**
-     * Verify Google ID token and extract user information
-     */
-    async verifyIdToken(idToken: string): Promise<GoogleUserInfo> {
-        try {
-            const ticket = await this.client.verifyIdToken({
-                idToken,
-                audience: this.appConfig.thirdParty.google.clientId,
-            });
+    this.client = new OAuth2Client(clientId);
+  }
 
-            const payload = ticket.getPayload();
+  /**
+   * Verify Google ID token and extract user information
+   */
+  async verifyIdToken(idToken: string): Promise<GoogleUserInfo> {
+    try {
+      const ticket = await this.client.verifyIdToken({
+        idToken,
+        audience: this.appConfig.thirdParty.google.clientId,
+      });
 
-            if (!payload) {
-                throw new UnauthorizedException('Invalid Google ID token');
-            }
+      const payload = ticket.getPayload();
 
-            // Validate required fields
-            if (!payload.sub || !payload.email) {
-                throw new UnauthorizedException('Missing required fields in Google token');
-            }
+      if (!payload) {
+        throw new UnauthorizedException('Invalid Google ID token');
+      }
 
-            this.logger.log(`Verified Google token for user: ${payload.email}`);
+      // Validate required fields
+      if (!payload.sub || !payload.email) {
+        throw new UnauthorizedException(
+          'Missing required fields in Google token',
+        );
+      }
 
-            return {
-                sub: payload.sub,
-                name: payload.name || payload.email,
-                email: payload.email,
-                picture: payload.picture || '',
-                email_verified: payload.email_verified || false,
-                given_name: payload.given_name,
-                family_name: payload.family_name,
-            };
-        } catch (error) {
-            this.logger.error('Failed to verify Google ID token', error);
-            throw new UnauthorizedException('Invalid Google ID token');
-        }
+      this.logger.log(`Verified Google token for user: ${payload.email}`);
+
+      return {
+        sub: payload.sub,
+        name: payload.name || payload.email,
+        email: payload.email,
+        picture: payload.picture || '',
+        email_verified: payload.email_verified || false,
+        given_name: payload.given_name,
+        family_name: payload.family_name,
+      };
+    } catch (error) {
+      this.logger.error('Failed to verify Google ID token', error);
+      throw new UnauthorizedException('Invalid Google ID token');
     }
+  }
 
-    /**
-     * Check if Google OAuth is configured
-     */
-    isConfigured(): boolean {
-        return !!this.appConfig.thirdParty.google.clientId;
-    }
+  /**
+   * Check if Google OAuth is configured
+   */
+  isConfigured(): boolean {
+    return !!this.appConfig.thirdParty.google.clientId;
+  }
 }
-

@@ -5,34 +5,34 @@ import { nkeyAuthenticator } from 'nats';
 import { AppConfigService } from '../config/app-config.service';
 
 @Module({
-    imports: [
-        ClientsModule.registerAsync([
-            {
-                name: 'NATS_SERVICE',
-                imports: [ConfigModule],
-                useFactory: (appConfig: AppConfigService) => {
-                    const { url, nkeySeed } = appConfig.nats;
+  imports: [
+    ClientsModule.registerAsync([
+      {
+        name: 'NATS_SERVICE',
+        imports: [ConfigModule],
+        useFactory: (appConfig: AppConfigService) => {
+          const { url, nkeySeed } = appConfig.nats;
 
-                    const options: any = {
-                        servers: [url],
-                        queue: 'torii_queue',
-                    };
+          const options: any = {
+            servers: [url],
+            queue: 'torii_queue',
+          };
 
-                    if (nkeySeed) {
-                        options.authenticator = nkeyAuthenticator(
-                            new TextEncoder().encode(nkeySeed)
-                        );
-                    }
+          if (nkeySeed) {
+            options.authenticator = nkeyAuthenticator(
+              new TextEncoder().encode(nkeySeed),
+            );
+          }
 
-                    return {
-                        transport: Transport.NATS,
-                        options,
-                    };
-                },
-                inject: [AppConfigService],
-            },
-        ]),
-    ],
-    exports: [ClientsModule],
+          return {
+            transport: Transport.NATS,
+            options,
+          };
+        },
+        inject: [AppConfigService],
+      },
+    ]),
+  ],
+  exports: [ClientsModule],
 })
-export class NatsClientModule { }
+export class NatsClientModule {}

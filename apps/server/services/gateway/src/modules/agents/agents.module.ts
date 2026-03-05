@@ -11,11 +11,7 @@ import { AnalyticsHandler } from './controllers/analytics.controller';
  * Handles all Agents service HTTP routes via NATS
  */
 @Module({
-    imports: [NatsClientModule],
-    controllers: [
-        SenseiHandler,
-        AssessmentHandler,
-        AnalyticsHandler,
-    ],
+  imports: [NatsClientModule],
+  controllers: [SenseiHandler, AssessmentHandler, AnalyticsHandler],
 })
-export class AgentsModule { }
+export class AgentsModule {}

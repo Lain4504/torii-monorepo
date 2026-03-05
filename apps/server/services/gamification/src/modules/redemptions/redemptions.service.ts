@@ -1,4 +1,10 @@
-import { Injectable, Logger, Inject, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  Inject,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { IRedemptionsService } from '@server/gamification/interfaces/services';
 import type { IRedemptionsRepository } from '@server/gamification/interfaces/repositories';
@@ -9,76 +15,78 @@ import { GamificationTransactionType } from '@prisma/generated';
 
 @Injectable()
 export class RedemptionsService implements IRedemptionsService {
-    private readonly logger = new Logger(RedemptionsService.name);
+  private readonly logger = new Logger(RedemptionsService.name);
 
-    constructor(
-        @Inject(REDEMPTIONS_REPOSITORY_TOKEN) private readonly redemptionsRepository: IRedemptionsRepository,
-        @Inject(PROFILES_SERVICE_TOKEN) private readonly profilesService: IProfilesService,
-        private readonly prisma: PrismaService,
-    ) { }
+  constructor(
+    @Inject(REDEMPTIONS_REPOSITORY_TOKEN)
+    private readonly redemptionsRepository: IRedemptionsRepository,
+    @Inject(PROFILES_SERVICE_TOKEN)
+    private readonly profilesService: IProfilesService,
+    private readonly prisma: PrismaService,
+  ) {}
 
-    async getAvailableRewards() {
-        return this.redemptionsRepository.findAllRewards();
+  async getAvailableRewards() {
+    return this.redemptionsRepository.findAllRewards();
+  }
+
+  async getUserRedemptionHistory(userId: string) {
+    return this.redemptionsRepository.findUserHistory(userId);
+  }
+
+  async redeemReward(userId: string, rewardId: string) {
+    const reward = await this.redemptionsRepository.findRewardById(rewardId);
+    if (!reward || !reward.isActive) {
+      throw new NotFoundException('Reward not found or inactive');
     }
 
-    async getUserRedemptionHistory(userId: string) {
-        return this.redemptionsRepository.findUserHistory(userId);
+    const profile = await this.profilesService.getGamificationProfile(userId);
+    if (profile.points < reward.points) {
+      throw new BadRequestException('Not enough points');
     }
 
-    async redeemReward(userId: string, rewardId: string) {
-        const reward = await this.redemptionsRepository.findRewardById(rewardId);
-        if (!reward || !reward.isActive) {
-            throw new NotFoundException('Reward not found or inactive');
-        }
+    return this.prisma.$transaction(async (tx) => {
+      // Deduct points
+      await tx.userGamification.update({
+        where: { userId },
+        data: {
+          points: { decrement: reward.points },
+        },
+      });
 
-        const profile = await this.profilesService.getGamificationProfile(userId);
-        if (profile.points < reward.points) {
-            throw new BadRequestException('Not enough points');
-        }
+      // Create history
+      const history = await tx.gamificationHistory.create({
+        data: {
+          userId,
+          amount: -reward.points,
+          type: GamificationTransactionType.REDEEM as any,
+          description: `Đổi phần thưởng: ${reward.name}`,
+          metadata: { rewardId, rewardCode: reward.code },
+        },
+      });
 
-        return this.prisma.$transaction(async (tx) => {
-            // Deduct points
-            await tx.userGamification.update({
-                where: { userId },
-                data: {
-                    points: { decrement: reward.points }
-                }
-            });
-
-            // Create history
-            const history = await tx.gamificationHistory.create({
-                data: {
-                    userId,
-                    amount: -reward.points,
-                    type: GamificationTransactionType.REDEEM as any,
-                    description: `Đổi phần thưởng: ${reward.name}`,
-                    metadata: { rewardId, rewardCode: (reward as any).code }
-                }
-            });
-
-            // Apply reward specific logic (e.g., grant freeze, grant gems, etc.)
-            const rewardMeta = reward.metadata as any;
-            if (rewardMeta?.type === 'STREAK_FREEZE') {
-                await tx.userGamification.update({
-                    where: { userId },
-                    data: {
-                        freezeCount: { increment: rewardMeta.amount || 1 }
-                    }
-                });
-            }
-
-            return history;
+      // Apply reward specific logic (e.g., grant freeze, grant gems, etc.)
+      const rewardMeta = reward.metadata;
+      if (rewardMeta?.type === 'STREAK_FREEZE') {
+        await tx.userGamification.update({
+          where: { userId },
+          data: {
+            freezeCount: { increment: rewardMeta.amount || 1 },
+          },
         });
-    }
-    async createReward(data: any) {
-        return this.prisma.pointReward.create({ data });
-    }
+      }
 
-    async updateReward(id: string, data: any) {
-        return this.prisma.pointReward.update({ where: { id }, data });
-    }
+      return history;
+    });
+  }
+  async createReward(data: any) {
+    return this.prisma.pointReward.create({ data });
+  }
 
-    async deleteReward(id: string) {
-        return this.prisma.pointReward.delete({ where: { id } });
-    }
+  async updateReward(id: string, data: any) {
+    return this.prisma.pointReward.update({ where: { id }, data });
+  }
+
+  async deleteReward(id: string) {
+    return this.prisma.pointReward.delete({ where: { id } });
+  }
 }

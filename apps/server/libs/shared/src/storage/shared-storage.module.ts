@@ -5,7 +5,7 @@ import { SharedStorageService } from './shared-storage.service';
 /**
  * Shared Storage Module
  * Provides S3/R2 storage functionality for all modules
- * 
+ *
  * Environment Variables:
  * - STORAGE_PROVIDER: 's3' | 'r2' | 'mock' (default: 'mock')
  * - STORAGE_BUCKET_NAME: Default bucket name
@@ -17,8 +17,8 @@ import { SharedStorageService } from './shared-storage.service';
  */
 @Global()
 @Module({
-    imports: [ConfigModule],
-    providers: [SharedStorageService],
-    exports: [SharedStorageService],
+  imports: [ConfigModule],
+  providers: [SharedStorageService],
+  exports: [SharedStorageService],
 })
-export class SharedStorageModule { }
+export class SharedStorageModule {}
