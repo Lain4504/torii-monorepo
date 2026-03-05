@@ -58,6 +58,8 @@ export * from './dtos/course-instructor.dto';
 export * from './dtos/staff-dashboard.dto';
 export * from './dtos/course-master.dto';
 export * from './dtos/course-run.dto';
+export * from './dtos/academy-course-profile.dto';
+export * from './dtos/academy-course-edition.dto';
 export * from './dtos/enrollment.dto';
 export * from './dtos/order.dto';
 export * from './dtos/coupon.dto';

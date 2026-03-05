@@ -5,6 +5,8 @@ import { pojos } from '@automapper/pojos';
 import { GlobalRpcExceptionFilter, SharedModule } from '@server/shared';
 import { ContentModule } from '@server/academy/modules/content/content.module';
 import { ClassroomModule } from '@server/academy/modules/classroom/classroom.module';
+import { AssessmentModule } from '@server/academy/modules/assessment/assessment.module';
+import { CommerceModule } from '@server/academy/modules/commerce/commerce.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { ClassroomModule } from '@server/academy/modules/classroom/classroom.mod
     SharedModule,
     ContentModule,
     ClassroomModule,
+    AssessmentModule,
+    CommerceModule,
   ],
   providers: [
     {
