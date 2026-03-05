@@ -78,4 +78,24 @@ export interface IModuleService {
         courseMasterId: string,
         moduleOrders: { id: string; orderIndex: number }[]
     ): Promise<{ message: string }>;
+
+    /**
+     * Add an item to a module
+     */
+    addModuleItem(requester: Requester, moduleId: string, dto: { title: string; type: string; referenceId: string; orderIndex?: number }): Promise<any>;
+
+    /**
+     * Remove an item from a module
+     */
+    removeModuleItem(requester: Requester, itemId: string): Promise<void>;
+
+    /**
+     * Update an item in a module
+     */
+    updateModuleItem(requester: Requester, itemId: string, dto: { title?: string; orderIndex?: number }): Promise<any>;
+
+    /**
+     * Reorder items within a module
+     */
+    reorderModuleItems(requester: Requester, moduleId: string, itemOrders: { id: string; orderIndex: number }[]): Promise<void>;
 }

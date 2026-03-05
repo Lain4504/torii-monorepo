@@ -1,4 +1,12 @@
-import type { CourseRunResponseDTO, CourseRunCreateDTO, CourseRunUpdateDTO, CourseRunSearchRequestDTO, PaginatedApiResponse, Requester, CourseRunStatus } from '@workspace/schemas';
+import type {
+    CourseRunResponseDTO,
+    CourseRunCreateDTO,
+    CourseRunUpdateDTO,
+    CourseRunSearchRequestDTO,
+    PaginatedApiResponse,
+    Requester,
+    CourseRunStatus,
+} from '@workspace/schemas';
 
 export interface ICourseRunService {
     /**
@@ -52,25 +60,6 @@ export interface ICourseRunService {
      * Get students by course run.
      */
     getStudentsByCourseRun(id: string, page?: number, limit?: number): Promise<any>;
-    /**
-     * Get all run lessons (CourseRunLesson) for a course run.
-     */
-    getRunLessons(requester: Requester, id: string): Promise<any>;
-    /**
-     * Update content for a single run lesson.
-     */
-    updateRunLesson(
-        requester: Requester,
-        courseRunId: string,
-        lessonId: string,
-        payload: {
-            videoUrl?: string | null;
-            videoDuration?: number | null;
-            articleContent?: string | null;
-            recordingUrl?: string | null;
-            isUnlocked?: boolean;
-        },
-    ): Promise<any>;
     /**
      * Delete data.
      */

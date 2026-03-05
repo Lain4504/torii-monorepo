@@ -19,8 +19,8 @@ import type {
 } from '@workspace/schemas';
 
 import type { ICourseMasterService, IEnrollmentService } from '@server/learning/interfaces/services';
-import type { ICourseMasterRepository, IModuleRepository, ILessonRepository } from '@server/learning/interfaces/repositories';
-import { COURSE_MASTER_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN, LESSON_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import type { ICourseMasterRepository, IModuleRepository, ILessonRepository, IModuleItemRepository } from '@server/learning/interfaces/repositories';
+import { COURSE_MASTER_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN, MODULE_ITEM_REPOSITORY_TOKEN, LESSON_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 import { ENROLLMENT_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 
 /**
@@ -36,6 +36,8 @@ export class CourseMasterService implements ICourseMasterService {
     private readonly courseRepository: ICourseMasterRepository,
     @Inject(MODULE_REPOSITORY_TOKEN)
     private readonly moduleRepository: IModuleRepository,
+    @Inject(MODULE_ITEM_REPOSITORY_TOKEN)
+    private readonly moduleItemRepository: IModuleItemRepository,
     @Inject(LESSON_REPOSITORY_TOKEN)
     private readonly lessonRepository: ILessonRepository,
     @Inject('NATS_SERVICE')
@@ -79,36 +81,86 @@ export class CourseMasterService implements ICourseMasterService {
   }
 
   /**
-   * Helper to create a CourseVersion snapshot from current modules/lessons.
+   * Deep clone a version's curriculum structure into another version.
+   * Recursively copies Modules -> ModuleItems.
+   */
+  private async deepCloneVersion(sourceVersionId: string, targetVersionId: string, courseMasterId: string) {
+    const sourceModules = await this.moduleRepository.findByVersionId(sourceVersionId);
+
+    for (const sourceModule of sourceModules) {
+      // 1. Clone Module
+      const newModule = await this.moduleRepository.create({
+        courseMaster: { connect: { id: courseMasterId } },
+        version: { connect: { id: targetVersionId } },
+        title: sourceModule.title,
+        description: sourceModule.description,
+        orderIndex: sourceModule.orderIndex,
+        durationMinutes: sourceModule.durationMinutes,
+        status: sourceModule.status,
+      } as any);
+
+      // 2. Clone ModuleItems
+      const sourceItems = await this.moduleItemRepository.findByModuleId(sourceModule.id);
+      if (sourceItems.length > 0) {
+        await this.moduleItemRepository.createMany(
+          sourceItems.map(item => ({
+            moduleId: newModule.id,
+            title: item.title,
+            type: item.type,
+            referenceId: item.referenceId,
+            orderIndex: item.orderIndex,
+          }))
+        );
+      }
+    }
+  }
+
+  /**
+   * Helper to create a CourseVersion snapshot and clone the structure.
    */
   private async createCourseVersionSnapshot(courseMasterId: string): Promise<CourseVersion | null> {
     try {
-      const modules = await this.moduleRepository.findByCourseId(courseMasterId);
+      // 1. Identify source version (latest published or latest overall if none published)
+      const latestVersion = await this.courseRepository.getLatestVersion(courseMasterId);
+
+      // 2. Fetch current structure to build JSON snapshot (backwards compatibility + cache)
+      // If we have a latest version, we fetch modules/items linked to it.
+      // If not, we fetch modules/lessons traditionally linked to courseMaster (old data).
+      let modules: any[] = [];
+      if (latestVersion) {
+        modules = await this.prisma.module.findMany({
+          where: { versionId: latestVersion.id, deletedAt: null },
+          include: { items: true },
+          orderBy: { orderIndex: 'asc' },
+        });
+      } else {
+        modules = await this.moduleRepository.findByCourseId(courseMasterId);
+      }
+
       const curriculumSnapshot = await Promise.all(
         modules.map(async (module) => {
-          const lessons = await this.lessonRepository.findByModuleId(module.id);
+          const items = module.items || [];
+          // For old data compatibility, if no items, fetch lessons directly
+          const lessons = items.length === 0 ? await this.lessonRepository.findByModuleId(module.id) : [];
+
           return {
             id: module.id,
             title: module.title,
             description: module.description,
             orderIndex: module.orderIndex,
             durationMinutes: module.durationMinutes,
-            lessons: lessons.map(lesson => ({
+            items: items.length > 0 ? items : lessons.map(lesson => ({
               id: lesson.id,
               title: lesson.title,
-              contentType: lesson.contentType,
-              videoUrl: lesson.videoUrl,
-              videoDuration: lesson.videoDuration,
-              articleContent: lesson.articleContent,
+              type: 'lesson',
+              referenceId: lesson.id,
               orderIndex: lesson.orderIndex,
-              isPreview: lesson.isPreview,
-              isUnlocked: lesson.isUnlocked,
             })),
           };
         }),
       );
 
-      const latestVersion = await this.courseRepository.getLatestVersion(courseMasterId);
+      // 3. Determine next version tag
       let nextVersionNumber = 1;
       if (latestVersion && latestVersion.versionTag.startsWith('v')) {
         const currentVersion = parseFloat(latestVersion.versionTag.substring(1));
@@ -118,19 +170,103 @@ export class CourseMasterService implements ICourseMasterService {
       }
       const versionTag = `v${nextVersionNumber}.0`;
 
+      // 4. Create new version record
       const newVersion = await this.courseRepository.createVersion({
         courseMaster: { connect: { id: courseMasterId } },
         versionTag,
         curriculumSnapshot: curriculumSnapshot as any,
-        changelog: `Published version ${versionTag}`,
+        status: 'DRAFT' as any,
+        changelog: `Auto-generated draft for version ${versionTag}`,
       });
 
-      this.logger.log(`Created new CourseVersion ${versionTag} for course master ${courseMasterId}`);
+      // 5. Deep clone records for the new version
+      if (latestVersion) {
+        await this.deepCloneVersion(latestVersion.id, newVersion.id, courseMasterId);
+      } else {
+        // Handle first-time migration from CourseMaster-linked modules to Version-linked modules
+        for (const module of modules) {
+          const newModule = await this.moduleRepository.create({
+            courseMaster: { connect: { id: courseMasterId } },
+            version: { connect: { id: newVersion.id } },
+            title: module.title,
+            description: module.description,
+            orderIndex: module.orderIndex,
+            durationMinutes: module.durationMinutes,
+            status: module.status,
+          } as any);
+
+          const lessons = await this.lessonRepository.findByModuleId(module.id);
+          if (lessons.length > 0) {
+            await this.moduleItemRepository.createMany(
+              lessons.map(lesson => ({
+                moduleId: newModule.id,
+                title: lesson.title,
+                type: 'lesson',
+                referenceId: lesson.id,
+                orderIndex: lesson.orderIndex,
+              }))
+            );
+          }
+        }
+      }
+
+      this.logger.log(`Created new CourseVersion ${versionTag} and cloned curriculum for course master ${courseMasterId}`);
       return newVersion;
     } catch (error: any) {
       this.logger.error(`Failed to create course version snapshot for course master ${courseMasterId}: ${error?.message}`, error);
       return null;
     }
+  }
+
+  /**
+   * Finalize and publish a course version.
+   * Updates VOD course runs to point to this version.
+   */
+  async publishVersion(versionId: string) {
+    const version = await this.courseRepository.getVersionById(versionId);
+    if (!version) throw new NotFoundException(`Version ${versionId} not found`);
+
+    const courseMasterId = (version as any).courseMasterId;
+
+    // 1. Transaction to update version statuses
+    await this.prisma.$transaction([
+      // Unset current status for all other versions
+      this.prisma.courseVersion.updateMany({
+        where: { courseMasterId, id: { not: versionId } },
+        data: { isCurrent: false },
+      }),
+      // Set this version as current and published
+      this.prisma.courseVersion.update({
+        where: { id: versionId },
+        data: { status: 'PUBLISHED' as any, isCurrent: true, publishedAt: new Date() },
+      }),
+    ]);
+
+    // 2. VOD Sync: Update all runs of this course master that are type 'vod'
+    const courseMaster = await this.courseRepository.findById(courseMasterId);
+    if (courseMaster && courseMaster.type === 'vod') {
+      await this.prisma.courseRun.updateMany({
+        where: { courseMasterId },
+        data: { versionId: versionId },
+      });
+      this.logger.log(`Synced VOD course runs for master ${courseMasterId} to version ${version.versionTag}`);
+    }
+  }
+
+  /**
+   * Create a new draft version from the latest published version.
+   */
+  async createDraftFromLatest(requester: Requester, courseMasterId: string): Promise<any> {
+    if (!this.hasPermission(requester, 'course.update')) {
+      throw new ForbiddenException('You do not have permission to create drafts');
+    }
+
+    const latest = await this.courseRepository.getLatestVersion(courseMasterId);
+    if (latest && latest.status === 'DRAFT') {
+      return latest;
+    }
+
+    return this.createCourseVersionSnapshot(courseMasterId);
   }
 
   /**
@@ -900,7 +1036,7 @@ export class CourseMasterService implements ICourseMasterService {
       return versions.map(v => ({
         id: v.id,
         versionTag: v.versionTag,
-        createdAt: v.publishedAt, // Use publishedAt as createdAt
+        createdAt: v.publishedAt || v.createdAt, // Fallback to createdAt if not published yet
         createdBy: (v as any).createdBy,
         changelog: v.changelog || undefined,
         totalModules: (v.curriculumSnapshot as any[])?.length || 0,
@@ -1091,6 +1227,9 @@ export class CourseMasterService implements ICourseMasterService {
     // Create CourseVersion snapshot on APPROVED
     if (payload.outcome === 'APPROVED') {
       const version = await this.createCourseVersionSnapshot(courseMasterId);
+      if (version) {
+        await this.publishVersion(version.id);
+      }
 
       // Auto-create default VOD run in DRAFT if none exists yet
       if (course.type === 'vod') {

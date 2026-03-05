@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
-import type { CourseRun, CourseRunLesson, CourseRunReview, Prisma } from '@prisma/generated';
+import type { CourseRun, CourseRunReview, Prisma } from '@prisma/generated';
 import type { ICourseRunRepository } from '../../interfaces/repositories/i-course-run.repository';
 
 @Injectable()
@@ -107,27 +107,4 @@ export class CourseRunRepository implements ICourseRunRepository {
         });
     }
 
-    async createRunLessons(data: Prisma.CourseRunLessonCreateManyInput[]): Promise<void> {
-        await this.prisma.courseRunLesson.createMany({ data });
-    }
-
-    async findRunLessonsByRun(courseRunId: string): Promise<CourseRunLesson[]> {
-        return this.prisma.courseRunLesson.findMany({
-            where: { courseRunId },
-            include: { lesson: true },
-        });
-    }
-
-    async findRunLesson(courseRunId: string, lessonId: string): Promise<CourseRunLesson | null> {
-        return this.prisma.courseRunLesson.findUnique({
-            where: { courseRunId_lessonId: { courseRunId, lessonId } },
-        });
-    }
-
-    async updateRunLesson(courseRunId: string, lessonId: string, data: Prisma.CourseRunLessonUpdateInput): Promise<CourseRunLesson> {
-        return this.prisma.courseRunLesson.update({
-            where: { courseRunId_lessonId: { courseRunId, lessonId } },
-            data,
-        });
-    }
 }

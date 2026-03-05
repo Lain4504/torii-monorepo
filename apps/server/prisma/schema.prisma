@@ -28,6 +28,15 @@ enum CourseMasterStatus {
   ARCHIVED
 }
 
+enum VersionStatus {
+  DRAFT
+  PENDING
+  PUBLISHED
+  CHANGES_REQUIRED
+  REJECTED
+  ARCHIVED
+}
+
 enum CourseRunStatus {
   DRAFT
   PENDING_REVIEW
@@ -313,11 +322,16 @@ model CourseVersion {
   id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   courseMasterId     String   @map("course_master_id") @db.Uuid
   versionTag         String   @map("version_tag") @db.VarChar(20) // v1.0, v1.1
-  curriculumSnapshot Json     @map("curriculum_snapshot") @db.JsonB // Lưu mảng Module + Lesson
+  status             VersionStatus @default(DRAFT)
+  isCurrent          Boolean  @default(false) @map("is_current")
+  curriculumSnapshot Json     @map("curriculum_snapshot") @db.JsonB // Snapshot for quick retrieval
   changelog          String?  @db.Text
-  publishedAt        DateTime @default(now()) @map("published_at")
+  publishedAt        DateTime? @map("published_at")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @default(now()) @updatedAt @map("updated_at")
 
   courseMaster  CourseMaster         @relation(fields: [courseMasterId], references: [id])
+  modules       Module[]
   enrollments   Enrollment[]
   courseRuns    CourseRun[]
   masterReviews CourseMasterReview[]
@@ -328,6 +342,7 @@ model CourseVersion {
 model Module {
   id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   courseMasterId  String    @map("course_master_id") @db.Uuid
+  versionId       String?   @map("version_id") @db.Uuid
   title           String    @db.VarChar(255)
   description     String?   @db.Text
   status          String    @default("published") @db.VarChar(20) // published, draft
@@ -338,11 +353,29 @@ model Module {
   deletedAt       DateTime? @map("deleted_at")
   createdBy       String?   @map("created_by") @db.Uuid
 
-  courseMaster CourseMaster @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
+  courseMaster CourseMaster   @relation(fields: [courseMasterId], references: [id], onDelete: Cascade)
+  version      CourseVersion? @relation(fields: [versionId], references: [id], onDelete: Cascade)
   lessons      Lesson[]
+  items        ModuleItem[]
 
   @@index([courseMasterId])
+  @@index([versionId])
   @@map("modules")
+}
+
+model ModuleItem {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  moduleId    String   @map("module_id") @db.Uuid
+  title       String   @db.VarChar(255)
+  type        String   @db.VarChar(20) // 'lesson' | 'quiz' | 'assignment'
+  referenceId String   @map("reference_id") @db.Uuid
+  orderIndex  Int      @default(0) @map("order_index")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@map("module_items")
 }
 
 model Lesson {
@@ -371,9 +404,6 @@ model Lesson {
   materials         LessonMaterial[]
   lessonProgress    LessonProgress[]
   assignments       Assignment[]
-  runLessons        CourseRunLesson[]
-  // Lessons that list THIS lesson as a prerequisite (back-reference)
-  isPrerequisiteFor CourseRunLesson[] @relation("RunLessonPrerequisite")
 
   @@index([moduleId])
   @@map("lessons")
@@ -400,41 +430,6 @@ model LessonMaterial {
   @@map("lesson_materials")
 }
 
-model CourseRunLesson {
-  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseRunId String @map("course_run_id") @db.Uuid
-  lessonId    String @map("lesson_id") @db.Uuid
-
-  // Run-specific ordering (can differ from the Master blueprint)
-  orderIndex Int @default(0) @map("order_index")
-
-  // Run-specific content overrides
-  videoUrl       String? @map("video_url") @db.Text
-  videoDuration  Int?    @map("video_duration")
-  articleContent String? @map("article_content") @db.Text
-  recordingUrl   String? @map("recording_url") @db.Text
-
-  // Drip content: access control per Run
-  // isUnlocked=false → locked by default; the scheduler flips it based on rules below
-  isUnlocked           Boolean @default(true) @map("is_unlocked")
-  // Unlock N calendar days after CourseRun.enrollmentStart (null = no time gate)
-  unlocksOnDay         Int?    @map("unlocks_on_day")
-  // Unlock only after a specific lesson is completed (null = no prerequisite)
-  prerequisiteLessonId String? @map("prerequisite_lesson_id") @db.Uuid
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  courseRun          CourseRun @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
-  lesson             Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  prerequisiteLesson Lesson?   @relation("RunLessonPrerequisite", fields: [prerequisiteLessonId], references: [id], onDelete: SetNull)
-
-  @@unique([courseRunId, lessonId])
-  @@index([courseRunId])
-  @@index([lessonId])
-  @@index([prerequisiteLessonId])
-  @@map("course_run_lessons")
-}
 
 // ==================================================
 // 2. COURSE DELIVERY  (CourseRun → Enrollment → Progress)
@@ -505,7 +500,6 @@ model CourseRun {
   teachingSchedules TeachingSchedule[]
   scheduleRequests  LiveSessionScheduleRequest[]
   runReviews        CourseRunReview[]
-  runLessons        CourseRunLesson[]
 
   @@index([courseMasterId])
   @@index([versionId])

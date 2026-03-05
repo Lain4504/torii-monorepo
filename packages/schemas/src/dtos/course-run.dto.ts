@@ -28,6 +28,7 @@ export const courseRunUpdateDTOSchema = courseRunCreateDTOSchema.extend({
 
 export type CourseRunUpdateDTO = z.infer<typeof courseRunUpdateDTOSchema>;
 
+
 export const courseRunResponseDTOSchema = courseRunSchema.extend({
     courseMaster: z.object({
         id: z.string().uuid(),

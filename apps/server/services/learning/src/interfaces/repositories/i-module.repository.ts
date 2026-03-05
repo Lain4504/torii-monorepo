@@ -16,6 +16,11 @@ export interface IModuleRepository {
     findByCourseId(courseMasterId: string, includeDrafts?: boolean): Promise<CourseMasterModule[]>;
 
     /**
+     * Find all modules for a specific version
+     */
+    findByVersionId(versionId: string): Promise<CourseMasterModule[]>;
+
+    /**
      * Find all modules with pagination and filtering
      */
     findMany(options: {

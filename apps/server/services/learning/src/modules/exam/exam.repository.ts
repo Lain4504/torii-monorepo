@@ -220,6 +220,24 @@ export class ExamRepository implements IExamRepository {
             },
         });
     }
+
+    /**
+     * Create quiz questions in batch
+     */
+    async createQuizQuestions(data: Prisma.QuizQuestionCreateManyInput[]): Promise<{ count: number }> {
+        return this.prisma.quizQuestion.createMany({ data });
+    }
+
+    /**
+     * Get max order index for quiz questions
+     */
+    async getMaxQuizQuestionOrder(quizId: string): Promise<number> {
+        const result = await this.prisma.quizQuestion.aggregate({
+            where: { quizId },
+            _max: { orderIndex: true },
+        });
+        return result._max.orderIndex || 0;
+    }
 }
 
 

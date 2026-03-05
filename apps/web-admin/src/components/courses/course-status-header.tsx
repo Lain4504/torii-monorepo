@@ -87,7 +87,8 @@ export function CourseStatusHeader({
   const isDraft = status === CourseMasterStatus.DRAFT;
   const isChangesRequired = status === CourseMasterStatus.CHANGES_REQUIRED;
   const isPendingReview = status === CourseMasterStatus.PENDING_REVIEW;
-  
+  const isRejected = isChangesRequired;
+
   const canPublish = can('course.publish');
   const canUpdate = can('course.update');
 
@@ -151,7 +152,7 @@ export function CourseStatusHeader({
         <Alert className="border-blue-300 bg-blue-50">
           <Clock className="h-4 w-4 text-blue-600" />
           <AlertDescription className="text-blue-700 text-sm">
-            Khóa học của bạn đang chờ kiểm duyệt. Nhân viên sẽ xem xét trong thời gian sớm nhất. 
+            Khóa học của bạn đang chờ kiểm duyệt. Nhân viên sẽ xem xét trong thời gian sớm nhất.
             Vui lòng không thực hiện các thay đổi lớn trong lúc chờ đợi.
           </AlertDescription>
         </Alert>

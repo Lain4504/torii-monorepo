@@ -4,26 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: implement header and footer components for improved layout structure">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/handlers/analytics.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/handlers/analytics.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/learning/src/handlers/staff-dashboard.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/learning/src/handlers/staff-dashboard.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/blog/[slug]/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/blog/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/blog/preview/[slug]/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/courses/[courseId]/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/courses/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/home1/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/lecturers/[id]/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/live-classes/[slug]/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/live-classes/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/placement-test/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(marketing)/support/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/footer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/footer.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/header.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: implement header and footer components for improved layout structure" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -37,6 +18,13 @@
   <component name="EmbeddingIndexingInfo">
     <option name="cachedIndexableFilesCount" value="1976" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="TypeScript File" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
@@ -74,29 +62,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "#267 on new-markteting-web",
-    "go.import.settings.migrated": "true",
-    "javascript.preferred.runtime.type.id": "node",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "pnpm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "ts.external.directory.path": "/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#267 on new-markteting-web&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -284,38 +272,10 @@
       <workItem from="1772642951151" duration="2417000" />
       <workItem from="1772648293401" duration="1652000" />
       <workItem from="1772677029648" duration="1592000" />
-    </task>
-    <task id="LOCAL-00911" summary="update meet to user shadcn ui component">
-      <option name="closed" value="true" />
-      <created>1772616505915</created>
-      <option name="number" value="00911" />
-      <option name="presentableId" value="LOCAL-00911" />
-      <option name="project" value="LOCAL" />
-      <updated>1772616505916</updated>
-    </task>
-    <task id="LOCAL-00912" summary="update meet to user shadcn ui component">
-      <option name="closed" value="true" />
-      <created>1772616777479</created>
-      <option name="number" value="00912" />
-      <option name="presentableId" value="LOCAL-00912" />
-      <option name="project" value="LOCAL" />
-      <updated>1772616777479</updated>
-    </task>
-    <task id="LOCAL-00913" summary="update meet to user shadcn ui component">
-      <option name="closed" value="true" />
-      <created>1772616788259</created>
-      <option name="number" value="00913" />
-      <option name="presentableId" value="LOCAL-00913" />
-      <option name="project" value="LOCAL" />
-      <updated>1772616788259</updated>
-    </task>
-    <task id="LOCAL-00914" summary="update meet to user shadcn ui component">
-      <option name="closed" value="true" />
-      <created>1772616794606</created>
-      <option name="number" value="00914" />
-      <option name="presentableId" value="LOCAL-00914" />
-      <option name="project" value="LOCAL" />
-      <updated>1772616794607</updated>
+      <workItem from="1772680408009" duration="2567000" />
+      <workItem from="1772682985888" duration="81000" />
+      <workItem from="1772683072394" duration="1000" />
+      <workItem from="1772683090719" duration="1763000" />
     </task>
     <task id="LOCAL-00915" summary="update meet to user shadcn ui component">
       <option name="closed" value="true" />
@@ -677,7 +637,39 @@
       <option name="project" value="LOCAL" />
       <updated>1772678128313</updated>
     </task>
-    <option name="localTasksCounter" value="960" />
+    <task id="LOCAL-00960" summary="feat: implement header and footer components for improved layout structure">
+      <option name="closed" value="true" />
+      <created>1772681868858</created>
+      <option name="number" value="00960" />
+      <option name="presentableId" value="LOCAL-00960" />
+      <option name="project" value="LOCAL" />
+      <updated>1772681868858</updated>
+    </task>
+    <task id="LOCAL-00961" summary="feat: implement header and footer components for improved layout structure">
+      <option name="closed" value="true" />
+      <created>1772683959144</created>
+      <option name="number" value="00961" />
+      <option name="presentableId" value="LOCAL-00961" />
+      <option name="project" value="LOCAL" />
+      <updated>1772683959144</updated>
+    </task>
+    <task id="LOCAL-00962" summary="feat: implement header and footer components for improved layout structure">
+      <option name="closed" value="true" />
+      <created>1772684516572</created>
+      <option name="number" value="00962" />
+      <option name="presentableId" value="LOCAL-00962" />
+      <option name="project" value="LOCAL" />
+      <updated>1772684516572</updated>
+    </task>
+    <task id="LOCAL-00963" summary="feat: implement header and footer components for improved layout structure">
+      <option name="closed" value="true" />
+      <created>1772684852462</created>
+      <option name="number" value="00963" />
+      <option name="presentableId" value="LOCAL-00963" />
+      <option name="project" value="LOCAL" />
+      <updated>1772684852463</updated>
+    </task>
+    <option name="localTasksCounter" value="964" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -712,7 +704,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="cômmit" />
     <MESSAGE value="feat: Add CourseRun and LiveSession enums, update related DTOs and services" />
     <MESSAGE value="feat: Add CourseRunDetailPage and update course-related components for better course run management" />
     <MESSAGE value="refactor: Remove unused course fields and simplify course management logic" />
@@ -736,6 +727,7 @@
     <MESSAGE value="feat: add new UI components including Skeleton, AspectRatio, Spinner, and more" />
     <MESSAGE value="update create review submit flow for course and course master" />
     <MESSAGE value="gop theo tinh nang" />
+    <MESSAGE value="update marketing page" />
     <MESSAGE value="feat: implement header and footer components for improved layout structure" />
     <option name="LAST_COMMIT_MESSAGE" value="feat: implement header and footer components for improved layout structure" />
   </component>

@@ -97,6 +97,16 @@ export interface IExamService {
      * Get all sessions for a specific exam (for learners)
      */
     getExamSessions(examId: string, userId: string, query?: ExamSessionQueryDTO): Promise<PaginatedResponseDTO<ExamSessionWithExamResponseDTO>>;
+
+    /**
+     * Add questions from a pool to a quiz (bulk)
+     */
+    addQuestionsFromPool(requester: Requester, quizId: string, poolId: string, limit: number): Promise<void>;
+
+    /**
+     * Add specific questions to a quiz (bulk)
+     */
+    addBulkQuestions(requester: Requester, quizId: string, questionIds: string[]): Promise<void>;
 }
 
 export const EXAM_SERVICE_TOKEN = Symbol('EXAM_SERVICE');

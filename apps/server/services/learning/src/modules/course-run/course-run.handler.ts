@@ -93,27 +93,5 @@ export class CourseRunHandler {
         return this.courseRunService.delete(requester, id);
     }
 
-    @MessagePattern({ cmd: 'learning.courserun.getRunLessons' })
-    async getRunLessons(@Payload() data: { id: string; requester: Requester }) {
-        const { id, requester } = data;
-        return this.courseRunService.getRunLessons(requester, id);
-    }
 
-    @MessagePattern({ cmd: 'learning.courserun.updateRunLesson' })
-    async updateRunLesson(
-        @Payload()
-        data: {
-            courseRunId: string;
-            lessonId: string;
-            requester: Requester;
-            videoUrl?: string | null;
-            videoDuration?: number | null;
-            articleContent?: string | null;
-            recordingUrl?: string | null;
-            isUnlocked?: boolean;
-        },
-    ) {
-        const { courseRunId, lessonId, requester, ...payload } = data;
-        return this.courseRunService.updateRunLesson(requester, courseRunId, lessonId, payload);
-    }
 }

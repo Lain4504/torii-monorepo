@@ -1690,6 +1690,79 @@ export class ExamService implements IExamService {
             throw error;
         }
     }
+
+    /**
+     * Add questions from a pool to a quiz (bulk)
+     */
+    async addQuestionsFromPool(requester: Requester, quizId: string, poolId: string, limit: number): Promise<void> {
+        this.checkPermission(requester, 'update');
+
+        const quiz = await this.examRepository.findById(quizId);
+        if (!quiz) throw new NotFoundException('Quiz not found');
+
+        // Fetch questions from pool that are not already in the quiz
+        const existingQuizQuestions = await this.examRepository.findQuizQuestions(quizId);
+        const existingQuestionIds = existingQuizQuestions.map(qq => qq.questionId);
+
+        const poolQuestions = await this.examRepository.findQuestionsByPool(poolId, limit, undefined, existingQuestionIds);
+
+        if (poolQuestions.length === 0) {
+            throw new BadRequestException('No new questions found in the specified pool');
+        }
+
+        let orderIndex = await this.examRepository.getMaxQuizQuestionOrder(quizId) + 1;
+
+        await this.examRepository.createQuizQuestions(
+            poolQuestions.map(q => ({
+                quizId,
+                questionId: q.id,
+                points: 1.0,
+                orderIndex: orderIndex++,
+            }))
+        );
+
+        // Update totalQuestions in Quiz
+        await this.examRepository.update(quizId, {
+            totalQuestions: { increment: poolQuestions.length }
+        });
+
+        this.logger.log(`Added ${poolQuestions.length} questions from pool ${poolId} to quiz ${quizId}`);
+    }
+
+    /**
+     * Add specific questions to a quiz (bulk)
+     */
+    async addBulkQuestions(requester: Requester, quizId: string, questionIds: string[]): Promise<void> {
+        this.checkPermission(requester, 'update');
+
+        const quiz = await this.examRepository.findById(quizId);
+        if (!quiz) throw new NotFoundException('Quiz not found');
+
+        // Filter out those already in quiz
+        const existingQuizQuestions = await this.examRepository.findQuizQuestions(quizId);
+        const existingIds = new Set(existingQuizQuestions.map(qq => qq.questionId));
+        const newQuestionIds = questionIds.filter(id => !existingIds.has(id));
+
+        if (newQuestionIds.length === 0) return;
+
+        let orderIndex = await this.examRepository.getMaxQuizQuestionOrder(quizId) + 1;
+
+        await this.examRepository.createQuizQuestions(
+            newQuestionIds.map(id => ({
+                quizId,
+                questionId: id,
+                points: 1.0,
+                orderIndex: orderIndex++,
+            }))
+        );
+
+        // Update totalQuestions in Quiz
+        await this.examRepository.update(quizId, {
+            totalQuestions: { increment: newQuestionIds.length }
+        });
+
+        this.logger.log(`Added ${newQuestionIds.length} questions to quiz ${quizId}`);
+    }
 }
 
 

@@ -15,7 +15,7 @@ import type {
 
 import type { IModuleService, ICourseMasterService } from '@server/learning/interfaces/services';
 import type { IModuleRepository } from '@server/learning/interfaces/repositories';
-import { MODULE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import { MODULE_REPOSITORY_TOKEN, IModuleItemRepository, MODULE_ITEM_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 import { COURSE_MASTER_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 
 /**
@@ -29,6 +29,8 @@ export class ModuleService implements IModuleService {
   constructor(
     @Inject(MODULE_REPOSITORY_TOKEN)
     private readonly moduleRepository: IModuleRepository,
+    @Inject(MODULE_ITEM_REPOSITORY_TOKEN)
+    private readonly moduleItemRepository: IModuleItemRepository,
     @Inject(forwardRef(() => COURSE_MASTER_SERVICE_TOKEN))
     private readonly courseMasterService: ICourseMasterService,
     @Inject('NATS_SERVICE')
@@ -319,6 +321,121 @@ export class ModuleService implements IModuleService {
     catch (error: any) {
       this.logger.error('Error reordering modules', error);
       throw new BadRequestException(`Failed to reorder modules: ${error?.message || 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Add an item to a module
+   */
+  async addModuleItem(requester: Requester, moduleId: string, dto: { title: string; type: string; referenceId: string; orderIndex?: number }): Promise<any> {
+    if (!this.hasPermission(requester, 'course.publish')) {
+      throw new ForbiddenException('Only Academic Staff or Admin can add module items.');
+    }
+
+    const module = await this.moduleRepository.findById(moduleId);
+    if (!module) throw new NotFoundException(`Module ${moduleId} not found`);
+
+    let orderIndex = dto.orderIndex;
+    if (orderIndex === undefined) {
+      const maxOrder = await this.moduleItemRepository.getMaxOrderIndex(moduleId);
+      orderIndex = maxOrder + 1;
+    }
+
+    const item = await this.moduleItemRepository.create({
+      module: { connect: { id: moduleId } },
+      title: dto.title,
+      type: dto.type,
+      referenceId: dto.referenceId,
+      orderIndex,
+    });
+
+    await this.createAuditLog({
+      userId: requester.sub,
+      action: 'module_item.add',
+      entity: 'module_item',
+      entityId: item.id,
+      description: `Added ${dto.type} to module ${module.title}`,
+      newValues: item,
+    });
+
+    return item;
+  }
+
+  /**
+   * Remove an item from a module
+   */
+  async removeModuleItem(requester: Requester, itemId: string): Promise<void> {
+    if (!this.hasPermission(requester, 'course.publish')) {
+      throw new ForbiddenException('Only Academic Staff or Admin can remove module items.');
+    }
+
+    const item = await this.moduleItemRepository.findById(itemId);
+    if (!item) throw new NotFoundException(`Module item ${itemId} not found`);
+
+    await this.moduleItemRepository.delete(itemId);
+
+    await this.createAuditLog({
+      userId: requester.sub,
+      action: 'module_item.remove',
+      entity: 'module_item',
+      entityId: itemId,
+      description: `Removed item ${item.title} from module ${item.moduleId}`,
+      oldValues: item,
+    });
+  }
+
+  /**
+   * Update an item in a module
+   */
+  async updateModuleItem(requester: Requester, itemId: string, dto: { title?: string; orderIndex?: number }): Promise<any> {
+    if (!this.hasPermission(requester, 'module.update')) {
+      throw new ForbiddenException('Only authorized users can update module items');
+    }
+
+    const existing = await this.moduleItemRepository.findById(itemId);
+    if (!existing) throw new NotFoundException(`Module item ${itemId} not found`);
+
+    const updateData: any = {};
+    if (dto.title !== undefined) updateData.title = dto.title;
+    if (dto.orderIndex !== undefined) updateData.orderIndex = dto.orderIndex;
+
+    const updated = await this.moduleItemRepository.update(itemId, updateData);
+
+    await this.createAuditLog({
+      userId: requester.sub,
+      action: 'module_item.update',
+      entity: 'module_item',
+      entityId: itemId,
+      description: `Updated module item: ${updated.title}`,
+      oldValues: existing,
+      newValues: updated,
+    });
+
+    return updated;
+  }
+
+  /**
+   * Reorder items within a module
+   */
+  async reorderModuleItems(requester: Requester, moduleId: string, itemOrders: { id: string; orderIndex: number }[]): Promise<void> {
+    if (!this.hasPermission(requester, 'course.publish')) {
+      throw new ForbiddenException('Only Academic Staff or Admin can reorder module items.');
+    }
+
+    try {
+      await this.moduleItemRepository.reorder(moduleId, itemOrders);
+
+      await this.createAuditLog({
+        userId: requester.sub,
+        action: 'module_item.reorder',
+        entity: 'module_item',
+        entityId: moduleId,
+        description: `Reordered items in module ${moduleId}`,
+        metadata: { itemOrders },
+      });
+    } catch (error: any) {
+      this.logger.error('Error reordering module items', error);
+      throw new BadRequestException(`Failed to reorder module items: ${error?.message || 'Unknown error'}`);
     }
   }
 }

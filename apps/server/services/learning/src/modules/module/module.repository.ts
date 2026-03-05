@@ -19,6 +19,11 @@ export class ModuleRepository implements IModuleRepository {
     async findById(moduleId: string): Promise<CourseMasterModule | null> {
         return this.prisma.module.findUnique({
             where: { id: moduleId },
+            include: {
+                items: {
+                    orderBy: { orderIndex: 'asc' },
+                },
+            },
         });
     }
 
@@ -31,6 +36,29 @@ export class ModuleRepository implements IModuleRepository {
                 courseMasterId,
                 deletedAt: null,
                 ...(includeDrafts ? {} : { status: 'published' }),
+            },
+            include: {
+                items: {
+                    orderBy: { orderIndex: 'asc' },
+                },
+            },
+            orderBy: { orderIndex: 'asc' },
+        });
+    }
+
+    /**
+     * Find all modules for a specific version
+     */
+    async findByVersionId(versionId: string): Promise<CourseMasterModule[]> {
+        return this.prisma.module.findMany({
+            where: {
+                versionId,
+                deletedAt: null,
+            },
+            include: {
+                items: {
+                    orderBy: { orderIndex: 'asc' },
+                },
             },
             orderBy: { orderIndex: 'asc' },
         });

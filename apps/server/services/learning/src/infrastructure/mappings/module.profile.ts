@@ -65,6 +65,10 @@ export class ModuleProfile extends AutomapperProfile {
                     (dest) => dest.deletedAt,
                     mapFrom((src) => src.deletedAt || undefined),
                 ),
+                forMember(
+                    (dest) => dest.items,
+                    mapFrom((src) => (src as any).items || []),
+                ),
             );
         };
     }

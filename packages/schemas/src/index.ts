@@ -4,6 +4,8 @@ export * from './models/course-master.model';
 export * from './models/course-version.model';
 export * from './models/course-run.model';
 export * from './models/module.model';
+export * from './models/module-item.model';
+export type { ModuleItem } from './models/module-item.model';
 export * from './models/lesson.model';
 export * from './models/question.model';
 export * from './models/question-pool.model';

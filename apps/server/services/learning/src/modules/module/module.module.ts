@@ -3,10 +3,12 @@ import { ModuleHandler } from '@server/learning/modules/module/module.handler';
 import { NatsClientModule } from '@server/shared';
 import { ModuleService } from '@server/learning/modules/module/module.service';
 import { ModuleRepository } from '@server/learning/modules/module/module.repository';
-import { MODULE_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import { ModuleItemRepository } from '@server/learning/modules/module/module-item.repository';
+import { MODULE_REPOSITORY_TOKEN, MODULE_ITEM_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
 import { MODULE_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import { CourseMasterModule } from '@server/learning/modules/course-master/course-master.module';
 import { ModuleProfile } from '@server/learning/infrastructure/mappings/module.profile';
+import { ModuleItemProfile } from '@server/learning/infrastructure/mappings/module-item.profile';
 
 /**
  * Module Feature Module
@@ -27,9 +29,14 @@ import { ModuleProfile } from '@server/learning/infrastructure/mappings/module.p
       provide: MODULE_SERVICE_TOKEN,
       useClass: ModuleService,
     },
+    {
+      provide: MODULE_ITEM_REPOSITORY_TOKEN,
+      useClass: ModuleItemRepository,
+    },
     ModuleProfile,
+    ModuleItemProfile,
   ],
-  exports: [MODULE_SERVICE_TOKEN, MODULE_REPOSITORY_TOKEN],
+  exports: [MODULE_SERVICE_TOKEN, MODULE_REPOSITORY_TOKEN, MODULE_ITEM_REPOSITORY_TOKEN],
 })
 export class ModuleModule { }
 

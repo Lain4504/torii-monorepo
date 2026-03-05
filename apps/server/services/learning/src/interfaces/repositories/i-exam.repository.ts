@@ -101,6 +101,16 @@ export interface IExamRepository {
      * Find attempt details with questions by attempt ID
      */
     findAttemptDetails(attemptId: string): Promise<any[]>;
+
+    /**
+     * Create quiz questions in batch
+     */
+    createQuizQuestions(data: Prisma.QuizQuestionCreateManyInput[]): Promise<{ count: number }>;
+
+    /**
+     * Get max order index for quiz questions
+     */
+    getMaxQuizQuestionOrder(quizId: string): Promise<number>;
 }
 
 export const EXAM_REPOSITORY_TOKEN = Symbol('EXAM_REPOSITORY_TOKEN');

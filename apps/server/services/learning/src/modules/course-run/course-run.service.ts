@@ -3,7 +3,15 @@ import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
 import { ClientProxy } from '@nestjs/microservices';
 import type { Requester } from '@workspace/schemas';
-import { CourseRunStatus, CourseRunCreateDTO, CourseRunUpdateDTO, CourseRunResponseDTO, CourseRunSearchRequestDTO, PaginatedApiResponse, UserRole } from '@workspace/schemas';
+import {
+    CourseRunStatus,
+    CourseRunCreateDTO,
+    CourseRunUpdateDTO,
+    CourseRunResponseDTO,
+    CourseRunSearchRequestDTO,
+    PaginatedApiResponse,
+    UserRole
+} from '@workspace/schemas';
 import { ICourseRunRepository } from '../../interfaces/repositories/i-course-run.repository';
 import { ICourseMasterRepository } from '../../interfaces/repositories/i-course-master.repository';
 import { COURSE_MASTER_REPOSITORY_TOKEN, COURSE_RUN_REPOSITORY_TOKEN } from '../../interfaces/repositories';
@@ -89,33 +97,7 @@ export class CourseRunService {
             status: CourseRunStatus.DRAFT,
         } as any);
 
-        // Auto-generate CourseRunLesson entries based on current Lesson outline
-        try {
-            const modules = await this.prisma.module.findMany({
-                where: { courseMasterId: dto.courseMasterId },
-                select: { id: true },
-            });
-            const lessons = await this.prisma.lesson.findMany({
-                where: { moduleId: { in: modules.map(m => m.id) } },
-                select: { id: true },
-            });
 
-            if (lessons.length > 0) {
-                await this.courseRunRepository.createRunLessons(
-                    lessons.map(lesson => ({
-                        courseRunId: run.id,
-                        lessonId: lesson.id,
-                        videoUrl: null,
-                        videoDuration: null,
-                        articleContent: null,
-                        recordingUrl: null,
-                        isUnlocked: true,
-                    })),
-                );
-            }
-        } catch (error: any) {
-            this.logger.error(`Failed to auto-generate CourseRunLesson entries for run ${run.id}: ${error?.message}`, error);
-        }
 
         await this.emitAuditLog(requester.sub, 'courserun.create', run.id, `Created course run: ${run.title}`);
 
@@ -386,8 +368,8 @@ export class CourseRunService {
             payload.outcome === 'APPROVED'
                 ? 'APPROVED'
                 : payload.outcome === 'REJECTED'
-                ? 'REJECTED'
-                : 'CHANGES_REQUIRED';
+                    ? 'REJECTED'
+                    : 'CHANGES_REQUIRED';
 
         if (latest) {
             await this.courseRunRepository.updateRunReview(latest.id, {
@@ -451,60 +433,7 @@ export class CourseRunService {
         };
     }
 
-    async getRunLessons(requester: Requester, id: string): Promise<any> {
-        const existing = await this.courseRunRepository.findById(id);
-        if (!existing) {
-            throw new NotFoundException(`Course run with id ${id} not found`);
-        }
 
-        this.checkOwnership(requester, existing);
-
-        return this.courseRunRepository.findRunLessonsByRun(id);
-    }
-
-    async updateRunLesson(
-        requester: Requester,
-        courseRunId: string,
-        lessonId: string,
-        payload: {
-            videoUrl?: string | null;
-            videoDuration?: number | null;
-            articleContent?: string | null;
-            recordingUrl?: string | null;
-            isUnlocked?: boolean;
-        },
-    ): Promise<any> {
-        const run = await this.courseRunRepository.findById(courseRunId);
-        if (!run) {
-            throw new NotFoundException(`Course run with id ${courseRunId} not found`);
-        }
-
-        this.checkOwnership(requester, run);
-
-        const existingRunLesson = await this.courseRunRepository.findRunLesson(courseRunId, lessonId);
-        if (!existingRunLesson) {
-            throw new NotFoundException(`Run lesson not found for courseRunId=${courseRunId} and lessonId=${lessonId}`);
-        }
-
-        const updated = await this.courseRunRepository.updateRunLesson(courseRunId, lessonId, {
-            videoUrl: payload.videoUrl ?? existingRunLesson.videoUrl,
-            videoDuration: payload.videoDuration ?? existingRunLesson.videoDuration,
-            articleContent: payload.articleContent ?? existingRunLesson.articleContent,
-            recordingUrl: payload.recordingUrl ?? existingRunLesson.recordingUrl,
-            isUnlocked: payload.isUnlocked ?? existingRunLesson.isUnlocked,
-        } as any);
-
-        await this.emitAuditLog(
-            requester.sub,
-            'courserun.update_run_lesson',
-            courseRunId,
-            `Updated run lesson content for lesson ${lessonId} in run ${courseRunId}`,
-            existingRunLesson,
-            updated,
-        );
-
-        return updated;
-    }
 
     async delete(requester: Requester, id: string): Promise<void> {
         const existing = await this.courseRunRepository.findById(id);
@@ -556,7 +485,12 @@ export class CourseRunService {
     }
 
     private toResponseDTO(run: any): CourseRunResponseDTO {
-        return run as CourseRunResponseDTO; // Placeholder for actual mapper if needed
+        // Manual mapping as placeholder for AutoMapper profile
+        return {
+            ...run,
+            courseMaster: run.courseMaster || undefined,
+            lecturer: run.lecturer || undefined,
+        } as CourseRunResponseDTO;
     }
 
     private async emitAuditLog(userId: string, action: string, entityId: string, description: string, oldValues?: any, newValues?: any) {

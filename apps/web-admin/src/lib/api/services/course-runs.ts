@@ -88,32 +88,7 @@ export const courseRunsApi = {
         return response.data.data!.run;
     },
 
-    // GET /api/course-runs/:id/run-lessons
-    async getRunLessons(id: string): Promise<any[]> {
-        const response = await apiClient.get<StandardApiResponse<{ lessons: any[] }>>(
-            `/api/course-runs/${id}/run-lessons`,
-        );
-        return response.data.data!.lessons;
-    },
 
-    // PATCH /api/course-runs/:id/run-lessons/:lessonId
-    async updateRunLesson(
-        courseRunId: string,
-        lessonId: string,
-        payload: {
-            videoUrl?: string | null;
-            videoDuration?: number | null;
-            articleContent?: string | null;
-            recordingUrl?: string | null;
-            isUnlocked?: boolean;
-        },
-    ): Promise<any> {
-        const response = await apiClient.patch<StandardApiResponse<{ lesson: any }>>(
-            `/api/course-runs/${courseRunId}/run-lessons/${lessonId}`,
-            payload,
-        );
-        return response.data.data!.lesson;
-    },
 };
 
 // ============================================================================
@@ -256,41 +231,4 @@ export function useReviewCourseRunContent() {
     });
 }
 
-/**
- * Hook: Get CourseRunLesson list for a run
- */
-export function useCourseRunLessons(id: string) {
-    return useQuery({
-        queryKey: ['course-runs', id, 'run-lessons'],
-        queryFn: () => courseRunsApi.getRunLessons(id),
-        enabled: !!id,
-    });
-}
 
-/**
- * Hook: Update a single CourseRunLesson
- */
-export function useUpdateRunLesson() {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: ({
-            courseRunId,
-            lessonId,
-            payload,
-        }: {
-            courseRunId: string;
-            lessonId: string;
-            payload: {
-                videoUrl?: string | null;
-                videoDuration?: number | null;
-                articleContent?: string | null;
-                recordingUrl?: string | null;
-                isUnlocked?: boolean;
-            };
-        }) => courseRunsApi.updateRunLesson(courseRunId, lessonId, payload),
-        onSuccess: (_, variables) => {
-            queryClient.invalidateQueries({ queryKey: ['course-runs', variables.courseRunId, 'run-lessons'] });
-        },
-    });
-}
