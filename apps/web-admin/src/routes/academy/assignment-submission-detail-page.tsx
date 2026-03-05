@@ -1,9 +1,27 @@
 import { useNavigate, useParams } from "react-router-dom"
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@workspace/ui/components/card"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
-import { Textarea } from "@workspace/ui/components/textarea"
-import { Field, FieldError, FieldLabel } from "@workspace/ui/components/field"
+import {
+  Field,
+  FieldError,
+  FieldLabel,
+  FieldDescription,
+  FieldGroup,
+} from "@workspace/ui/components/field"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { PageHeader } from "@/components/common/page-header"
 import {
@@ -12,6 +30,7 @@ import {
 } from "@/lib/api/services/academy-assignment-submissions"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "@workspace/ui/components/sonner"
+import { RichTextEditor } from "@/components/editor/rich-text-editor"
 
 type FormValues = {
   status?: string
@@ -36,13 +55,13 @@ export default function AcademyAssignmentSubmissionDetailPage() {
     },
     values: item
       ? {
-          status: item.status ?? undefined,
-          score: item.score ?? undefined,
-          feedback:
-            item.content && typeof item.content === "object" && "feedback" in item.content
-              ? String((item.content as any).feedback ?? "")
-              : "",
-        }
+        status: item.status ?? undefined,
+        score: item.score ?? undefined,
+        feedback:
+          item.content && typeof item.content === "object" && "feedback" in item.content
+            ? String((item.content as any).feedback ?? "")
+            : "",
+      }
       : undefined,
   })
 
@@ -93,10 +112,11 @@ export default function AcademyAssignmentSubmissionDetailPage() {
         <Card>
           <CardHeader>
             <CardTitle>Chấm điểm / cập nhật trạng thái</CardTitle>
+            <CardDescription>Cập nhật điểm số, trạng thái và phản hồi cho học viên.</CardDescription>
           </CardHeader>
           <CardContent>
             <form
-              className="space-y-4"
+              className="space-y-6"
               onSubmit={handleSubmit(async (values) => {
                 try {
                   await update.mutateAsync({
@@ -110,11 +130,11 @@ export default function AcademyAssignmentSubmissionDetailPage() {
                       content:
                         values.feedback !== undefined
                           ? {
-                              ...(item.content && typeof item.content === "object"
-                                ? item.content
-                                : {}),
-                              feedback: values.feedback,
-                            }
+                            ...(item.content && typeof item.content === "object"
+                              ? item.content
+                              : {}),
+                            feedback: values.feedback,
+                          }
                           : item.content,
                     },
                   })
@@ -125,56 +145,68 @@ export default function AcademyAssignmentSubmissionDetailPage() {
                 }
               })}
             >
-              <div className="grid gap-4 md:grid-cols-3">
+              <FieldGroup>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Controller
+                    name="status"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel>Trạng thái</FieldLabel>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Chọn trạng thái..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="DRAFT">Draft (Nháp)</SelectItem>
+                            <SelectItem value="SUBMITTED">Submitted (Đã nộp)</SelectItem>
+                            <SelectItem value="GRADED">Graded (Đã chấm điểm)</SelectItem>
+                            <SelectItem value="RETURNED">Returned (Đã trả bài)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FieldError>{fieldState.error?.message}</FieldError>
+                      </Field>
+                    )}
+                  />
+                  <Controller
+                    name="score"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldLabel>Điểm số</FieldLabel>
+                        <Input
+                          type="number"
+                          min={0}
+                          step={0.5}
+                          value={field.value ?? ""}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value === "" ? undefined : Number(e.target.value),
+                            )
+                          }
+                        />
+                        <FieldDescription>Điểm số cho bài tập này.</FieldDescription>
+                        <FieldError>{fieldState.error?.message}</FieldError>
+                      </Field>
+                    )}
+                  />
+                </div>
+
                 <Controller
-                  name="status"
+                  name="feedback"
                   control={control}
                   render={({ field, fieldState }) => (
                     <Field>
-                      <FieldLabel>Trạng thái</FieldLabel>
-                      <Input placeholder="DRAFT / SUBMITTED / GRADED / RETURNED" {...field} />
-                      <FieldError>{fieldState.error?.message}</FieldError>
-                    </Field>
-                  )}
-                />
-                <Controller
-                  name="score"
-                  control={control}
-                  render={({ field, fieldState }) => (
-                    <Field>
-                      <FieldLabel>Điểm</FieldLabel>
-                      <Input
-                        type="number"
-                        min={0}
-                        step={0.5}
-                        value={field.value ?? ""}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value === "" ? undefined : Number(e.target.value),
-                          )
-                        }
+                      <FieldLabel>Feedback cho học viên</FieldLabel>
+                      <RichTextEditor
+                        initialContent={field.value || ""}
+                        onUpdate={field.onChange}
                       />
                       <FieldError>{fieldState.error?.message}</FieldError>
                     </Field>
                   )}
                 />
-              </div>
-
-              <Controller
-                name="feedback"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Feedback cho học viên</FieldLabel>
-                    <Textarea
-                      rows={4}
-                      placeholder="Nhận xét / hướng dẫn sửa bài..."
-                      {...field}
-                    />
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
+              </FieldGroup>
 
               <div className="flex justify-end gap-2">
                 <Button
@@ -187,7 +219,7 @@ export default function AcademyAssignmentSubmissionDetailPage() {
                 </Button>
                 <Button type="submit" disabled={update.isPending}>
                   {update.isPending ? <Spinner className="mr-2" /> : null}
-                  Lưu
+                  Lưu thay đổi
                 </Button>
               </div>
             </form>

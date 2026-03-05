@@ -386,7 +386,7 @@ export function RichTextEditor({ initialContent = '', onUpdate }: RichTextEditor
     const editor = useEditor({
         // shouldRerenderOnTransaction:  false,
         textDirection: 'auto', // global text direction
-        content: initialContent || DEFAULT,
+        content: initialContent ?? '',
         extensions: extensions as any[],
         // content
         // immediatelyRender: false, // error duplicate plugin key

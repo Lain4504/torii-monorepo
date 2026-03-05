@@ -3,7 +3,28 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { Textarea } from "@workspace/ui/components/textarea"
-import { Field, FieldError, FieldLabel } from "@workspace/ui/components/field"
+import {
+  Field,
+  FieldError,
+  FieldLabel,
+  FieldDescription,
+  FieldGroup,
+} from "@workspace/ui/components/field"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@workspace/ui/components/card"
+import { RichTextEditor } from "@/components/editor/rich-text-editor"
 import { Spinner } from "@workspace/ui/components/spinner"
 import {
   academyQuestionCreateDTOSchema,
@@ -40,24 +61,24 @@ export function QuestionForm({
     ) as any,
     defaultValues: isEdit
       ? {
-          content: initial?.content ?? "",
-          mediaUrl: initial?.mediaUrl ?? undefined,
-          questionType: initial?.questionType ?? undefined,
-          options: initial?.options ?? undefined,
-          correctAnswer: initial?.correctAnswer ?? undefined,
-          explanation: initial?.explanation ?? undefined,
-          metadata: initial?.metadata ?? undefined,
-        }
+        content: initial?.content ?? "",
+        mediaUrl: initial?.mediaUrl ?? undefined,
+        questionType: initial?.questionType ?? undefined,
+        options: initial?.options ?? undefined,
+        correctAnswer: initial?.correctAnswer ?? undefined,
+        explanation: initial?.explanation ?? undefined,
+        metadata: initial?.metadata ?? undefined,
+      }
       : {
-          parentId: defaultParentId ?? undefined,
-          content: "",
-          mediaUrl: undefined,
-          questionType: "SINGLE_CHOICE",
-          options: undefined,
-          correctAnswer: undefined,
-          explanation: undefined,
-          metadata: undefined,
-        },
+        parentId: defaultParentId ?? undefined,
+        content: "",
+        mediaUrl: undefined,
+        questionType: "SINGLE_CHOICE",
+        options: undefined,
+        correctAnswer: undefined,
+        explanation: undefined,
+        metadata: undefined,
+      },
   })
 
   return (
@@ -66,171 +87,207 @@ export function QuestionForm({
       onSubmit={handleSubmit(async (data) => onSubmit(data))}
       noValidate
     >
-      {!isEdit && (
-        <Controller
-          name={"parentId" as any}
-          control={control}
-          render={({ field, fieldState }) => (
-            <Field>
-              <FieldLabel>Parent QuestionId (nếu là sub-question)</FieldLabel>
-              <Input placeholder="UUID câu hỏi cha (tuỳ chọn)" {...field} />
-              <FieldError>{fieldState.error?.message}</FieldError>
-            </Field>
-          )}
-        />
-      )}
+      <Card>
+        <CardHeader>
+          <CardTitle>Nội dung câu hỏi</CardTitle>
+          <CardDescription>Xác định loại câu hỏi, nội dung chính và phương tiện đi kèm.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <FieldGroup>
+            {!isEdit && (
+              <Controller
+                name={"parentId" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Câu hỏi cha (Parent ID)</FieldLabel>
+                    <Input placeholder="UUID câu hỏi cha (nếu là câu hỏi phụ)" {...field} />
+                    <FieldDescription>Sử dụng nếu câu hỏi này thuộc một nhóm câu hỏi.</FieldDescription>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+            )}
 
-      <Controller
-        name={"questionType" as any}
-        control={control}
-        render={({ field, fieldState }) => (
-          <Field>
-            <FieldLabel>Question type</FieldLabel>
-            <Input
-              placeholder="SINGLE_CHOICE / MULTIPLE_CHOICE / SHORT_ANSWER / GROUP_PARENT..."
-              {...field}
+            <div className="grid gap-4 md:grid-cols-2">
+              <Controller
+                name={"questionType" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Loại câu hỏi</FieldLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn loại..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SINGLE_CHOICE">Single Choice (Một đáp án)</SelectItem>
+                        <SelectItem value="MULTIPLE_CHOICE">Multiple Choice (Nhiều đáp án)</SelectItem>
+                        <SelectItem value="SHORT_ANSWER">Short Answer (Trả lời ngắn)</SelectItem>
+                        <SelectItem value="TRUE_FALSE">True/False (Đúng/Sai)</SelectItem>
+                        <SelectItem value="GROUP_PARENT">Group Parent (Câu hỏi nhóm)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+              <Controller
+                name={"mediaUrl" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Media URL</FieldLabel>
+                    <Input placeholder="https://..." {...field} />
+                    <FieldDescription>Link hình ảnh, âm thanh hoặc video cho câu hỏi.</FieldDescription>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+            </div>
+
+            <Controller
+              name={"content" as any}
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Nội dung câu hỏi</FieldLabel>
+                  <RichTextEditor
+                    initialContent={field.value || ""}
+                    onUpdate={field.onChange}
+                  />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
             />
-            <FieldError>{fieldState.error?.message}</FieldError>
-          </Field>
-        )}
-      />
+          </FieldGroup>
+        </CardContent>
+      </Card>
 
-      <Controller
-        name={"content" as any}
-        control={control}
-        render={({ field, fieldState }) => (
-          <Field>
-            <FieldLabel>Nội dung câu hỏi</FieldLabel>
-            <Textarea
-              placeholder="Ví dụ: Chữ cái nào dưới đây là 'あ'?"
-              rows={4}
-              {...field}
+      <Card>
+        <CardHeader>
+          <CardTitle>Đáp án & Giải thích</CardTitle>
+          <CardDescription>Cung cấp các lựa chọn, đáp án đúng và lời giải chi tiết.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <FieldGroup>
+            <div className="grid gap-6 md:grid-cols-2">
+              <Controller
+                name={"options" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Các lựa chọn (Options JSON)</FieldLabel>
+                    <Textarea
+                      placeholder='Ví dụ: [{"value":"A","label":"あ"}, {"value":"B","label":"い"}]'
+                      className="font-mono text-xs"
+                      rows={8}
+                      value={
+                        field.value
+                          ? typeof field.value === "string"
+                            ? field.value
+                            : JSON.stringify(field.value, null, 2)
+                          : ""
+                      }
+                      onChange={(e) => {
+                        const raw = e.target.value
+                        if (!raw) return field.onChange(undefined)
+                        try {
+                          field.onChange(JSON.parse(raw))
+                        } catch {
+                          field.onChange(raw)
+                        }
+                      }}
+                    />
+                    <FieldDescription>Danh sách các lựa chọn cho câu hỏi trắc nghiệm.</FieldDescription>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+
+              <Controller
+                name={"correctAnswer" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Đáp án đúng (Correct Answer JSON)</FieldLabel>
+                    <Textarea
+                      placeholder='Ví dụ: {"value":"A"} hoặc ["A","B"]'
+                      className="font-mono text-xs"
+                      rows={8}
+                      value={
+                        field.value
+                          ? typeof field.value === "string"
+                            ? field.value
+                            : JSON.stringify(field.value, null, 2)
+                          : ""
+                      }
+                      onChange={(e) => {
+                        const raw = e.target.value
+                        if (!raw) return field.onChange(undefined)
+                        try {
+                          field.onChange(JSON.parse(raw))
+                        } catch {
+                          field.onChange(raw)
+                        }
+                      }}
+                    />
+                    <FieldDescription>Giá trị đáp án đúng (JSON).</FieldDescription>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+            </div>
+
+            <Controller
+              name={"explanation" as any}
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Giải thích đáp án</FieldLabel>
+                  <RichTextEditor
+                    initialContent={field.value || ""}
+                    onUpdate={field.onChange}
+                  />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
             />
-            <FieldError>{fieldState.error?.message}</FieldError>
-          </Field>
-        )}
-      />
 
-      <Controller
-        name={"mediaUrl" as any}
-        control={control}
-        render={({ field, fieldState }) => (
-          <Field>
-            <FieldLabel>Media URL (tùy chọn)</FieldLabel>
-            <Input placeholder="https://..." {...field} />
-            <FieldError>{fieldState.error?.message}</FieldError>
-          </Field>
-        )}
-      />
-
-      <Controller
-        name={"options" as any}
-        control={control}
-        render={({ field, fieldState }) => (
-          <Field>
-            <FieldLabel>Options (JSON)</FieldLabel>
-            <Textarea
-              placeholder='Ví dụ: [{"value":"A","label":"あ"}, {"value":"B","label":"い"}]'
-              value={
-                typeof field.value === "string"
-                  ? field.value
-                  : field.value
-                    ? JSON.stringify(field.value, null, 2)
-                    : ""
-              }
-              onChange={(e) => {
-                const raw = e.target.value
-                if (!raw) return field.onChange(undefined)
-                try {
-                  field.onChange(JSON.parse(raw))
-                } catch {
-                  field.onChange(raw)
-                }
-              }}
-              rows={5}
+            <Controller
+              name={"metadata" as any}
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Metadata (JSON)</FieldLabel>
+                  <Textarea
+                    placeholder='Ví dụ: {"tags":["JLPT N5","kana"],"difficulty":"easy"}'
+                    className="font-mono text-xs shadow-none"
+                    rows={3}
+                    value={
+                      field.value
+                        ? typeof field.value === "string"
+                          ? field.value
+                          : JSON.stringify(field.value, null, 2)
+                        : ""
+                    }
+                    onChange={(e) => {
+                      const raw = e.target.value
+                      if (!raw) return field.onChange(undefined)
+                      try {
+                        field.onChange(JSON.parse(raw))
+                      } catch {
+                        field.onChange(raw)
+                      }
+                    }}
+                  />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
             />
-            <FieldError>{fieldState.error?.message}</FieldError>
-          </Field>
-        )}
-      />
-
-      <Controller
-        name={"correctAnswer" as any}
-        control={control}
-        render={({ field, fieldState }) => (
-          <Field>
-            <FieldLabel>Đáp án đúng (JSON)</FieldLabel>
-            <Textarea
-              placeholder='Ví dụ: {"value":"A"} hoặc ["A","B"]'
-              value={
-                typeof field.value === "string"
-                  ? field.value
-                  : field.value
-                    ? JSON.stringify(field.value, null, 2)
-                    : ""
-              }
-              onChange={(e) => {
-                const raw = e.target.value
-                if (!raw) return field.onChange(undefined)
-                try {
-                  field.onChange(JSON.parse(raw))
-                } catch {
-                  field.onChange(raw)
-                }
-              }}
-              rows={4}
-            />
-            <FieldError>{fieldState.error?.message}</FieldError>
-          </Field>
-        )}
-      />
-
-      <Controller
-        name={"explanation" as any}
-        control={control}
-        render={({ field, fieldState }) => (
-          <Field>
-            <FieldLabel>Giải thích</FieldLabel>
-            <Textarea
-              placeholder="Giải thích vì sao đáp án đúng."
-              rows={3}
-              {...field}
-            />
-            <FieldError>{fieldState.error?.message}</FieldError>
-          </Field>
-        )}
-      />
-
-      <Controller
-        name={"metadata" as any}
-        control={control}
-        render={({ field, fieldState }) => (
-          <Field>
-            <FieldLabel>Metadata (JSON)</FieldLabel>
-            <Textarea
-              placeholder='Ví dụ: {"tags":["JLPT N5","kana"],"difficulty":"easy"}'
-              value={
-                typeof field.value === "string"
-                  ? field.value
-                  : field.value
-                    ? JSON.stringify(field.value, null, 2)
-                    : ""
-              }
-              onChange={(e) => {
-                const raw = e.target.value
-                if (!raw) return field.onChange(undefined)
-                try {
-                  field.onChange(JSON.parse(raw))
-                } catch {
-                  field.onChange(raw)
-                }
-              }}
-              rows={3}
-            />
-            <FieldError>{fieldState.error?.message}</FieldError>
-          </Field>
-        )}
-      />
+          </FieldGroup>
+        </CardContent>
+      </Card>
 
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onCancel} disabled={submitting}>
@@ -238,10 +295,9 @@ export function QuestionForm({
         </Button>
         <Button type="submit" disabled={submitting}>
           {submitting ? <Spinner className="mr-2" /> : null}
-          {isEdit ? "Lưu" : "Tạo"}
+          {isEdit ? "Lưu thay đổi" : "Tạo Câu hỏi"}
         </Button>
       </div>
     </form>
   )
 }
-
