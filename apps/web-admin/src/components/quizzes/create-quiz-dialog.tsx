@@ -19,7 +19,6 @@ interface CreateQuizDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     courseRunId?: string;
-    lessonId?: string;
 }
 
 // Dialog tạo quiz đơn giản – chỉ cần tiêu đề.
@@ -28,7 +27,6 @@ export function CreateQuizDialog({
     open,
     onOpenChange,
     courseRunId,
-    lessonId,
 }: CreateQuizDialogProps) {
     const createMutation = useCreateQuiz();
     const [title, setTitle] = useState('');
@@ -40,10 +38,9 @@ export function CreateQuizDialog({
         const dto: CreateQuizDTO = {
             title: title.trim(),
             description: undefined,
-            quizType: lessonId ? 'lesson' : 'course',
+            quizType: 'practice',
             examType: 'practice',
             courseRunId,
-            lessonId,
         };
 
         try {

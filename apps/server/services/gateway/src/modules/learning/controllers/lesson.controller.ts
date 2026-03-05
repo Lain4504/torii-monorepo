@@ -141,26 +141,6 @@ export class LessonController {
         }
     }
 
-    @Post('reorder/:moduleId')
-    @Permissions('lesson.update')
-    async reorder(
-        @Param('moduleId') moduleId: string,
-        @Body() lessonOrders: { id: string; orderIndex: number }[],
-        @Req() req: ReqWithRequester
-    ) {
-        try {
-            const requester = req.requester;
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'learning.lesson.reorder' },
-                    { moduleId, lessonOrders, requester: req.requester }
-                )
-            );
-            return successResponse({ lessons: result }, 'Lessons reordered successfully');
-        } catch (error: any) {
-            return errorResponse(error.message || 'Failed to reorder lessons');
-        }
-    }
 
     @Patch(':id')
     @Permissions('lesson.update')

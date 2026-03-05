@@ -52,16 +52,6 @@ export interface ILessonRepository {
     softDelete(lessonId: string): Promise<Lesson>;
 
     /**
-     * Reorder lessons in a module
-     */
-    reorder(moduleId: string, lessonOrders: { id: string; orderIndex: number }[]): Promise<void>;
-
-    /**
-     * Get max order index for a module
-     */
-    getMaxOrderIndex(moduleId: string): Promise<number>;
-
-    /**
      * Find preview lessons for a course (through modules)
      */
     findPreviewLessonsByCourseId(courseMasterId: string): Promise<Lesson[]>;

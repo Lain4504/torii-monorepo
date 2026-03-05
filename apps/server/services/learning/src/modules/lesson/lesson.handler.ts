@@ -2,7 +2,7 @@ import { Controller, Inject } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { LESSON_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import type { ILessonService } from '@server/learning/interfaces/services/i-lesson.service';
-import { LessonCreateDTO, LessonUpdateDTO, Requester, UserRole, LessonQueryDTO } from '@workspace/schemas';
+import { LessonCreateDTO, LessonUpdateDTO, Requester, LessonQueryDTO } from '@workspace/schemas';
 
 @Controller()
 export class LessonHandler {
@@ -52,11 +52,4 @@ export class LessonHandler {
         const { id, requester, hardDelete } = data;
         return this.lessonService.delete(requester, id, hardDelete);
     }
-
-    @MessagePattern({ cmd: 'learning.lesson.reorder' })
-    async reorder(@Payload() data: { moduleId: string, lessonOrders: { id: string; orderIndex: number }[], requester: Requester }) {
-        const { moduleId, lessonOrders, requester } = data;
-        return this.lessonService.reorder(requester, moduleId, lessonOrders);
-    }
 }
-

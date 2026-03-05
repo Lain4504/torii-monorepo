@@ -107,10 +107,8 @@ export function EditLessonSheet({ lesson, open, onOpenChange }: EditLessonDialog
                 videoUrl = await handleFileUpload(videoFile, 'lesson-videos');
             }
 
-            // Không cho user chỉnh orderIndex: loại bỏ khỏi payload nếu tồn tại
-            const { orderIndex, ...rest } = data as any;
             const updateData = {
-                ...rest,
+                ...data,
                 videoUrl,
             };
 

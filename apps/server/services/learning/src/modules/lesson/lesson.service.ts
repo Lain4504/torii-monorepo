@@ -21,7 +21,8 @@ import { COURSE_MASTER_SERVICE_TOKEN, ENROLLMENT_SERVICE_TOKEN } from '@server/l
 
 /**
  * Lesson Service
- * Handles lesson business logic operations
+ * Handles lesson business logic operations.
+ * Note: Ordering within a module is managed exclusively by ModuleItem.
  */
 @Injectable()
 export class LessonService implements ILessonService {
@@ -94,11 +95,9 @@ export class LessonService implements ILessonService {
 
   /**
    * Build a protected DTO: mask sensitive content if the user is not authorized.
-   * Centralizes content-protection logic to avoid duplication across methods.
    */
   private buildProtectedDTO(lesson: Lesson, isAuthorized: boolean): LessonResponseDTO {
     const dto = this.toLessonResponseDTO(lesson);
-    // Override isUnlocked to reflect actual access status (may differ from DB value)
     dto.isUnlocked = isAuthorized;
     if (!isAuthorized) {
       dto.videoUrl = undefined;
@@ -132,7 +131,7 @@ export class LessonService implements ILessonService {
           skip,
           take: limit,
           where,
-          orderBy: { orderIndex: 'asc' },
+          orderBy: { createdAt: 'asc' },
         }),
       ]);
 
@@ -188,7 +187,7 @@ export class LessonService implements ILessonService {
           skip,
           take: limit,
           where,
-          orderBy: { orderIndex: 'asc' },
+          orderBy: { createdAt: 'asc' },
         }),
       ]);
 
@@ -220,14 +219,11 @@ export class LessonService implements ILessonService {
       this.hasPermission(requester, 'lesson.update')
     );
 
-    // Staff/Admin: return full content from Master
     if (isStaff) {
       return this.toLessonResponseDTO(lesson);
     }
 
-    // Check enrollment and versioning
     let isAuthorized = false;
-    let lessonData: any = lesson;
 
     if (lesson.isPreview) {
       isAuthorized = true;
@@ -235,59 +231,23 @@ export class LessonService implements ILessonService {
       try {
         const module = await this.moduleRepository.findById(lesson.moduleId);
         if (module) {
-          const courseMasterId = module.courseMasterId;
-
-          // Check enrollment at CourseMaster level and fetch enrollment for versioning
-          const [hasAccess, enrollment] = await Promise.all([
-            this.enrollmentService.isEnrolled(requester.sub, courseMasterId),
-            this.enrollmentService.findByUserAndCourseMaster(requester.sub, courseMasterId),
-          ]);
-
-          if (hasAccess && enrollment) {
+          const hasAccess = await this.enrollmentService.isEnrolled(requester.sub, module.courseMasterId);
+          if (hasAccess) {
             isAuthorized = true;
-
-            // If enrollment is tied to a specific version, fetch content from snapshot
-            if (enrollment.versionId) {
-              const version = await this.courseMasterService.getVersionById(enrollment.versionId);
-              if (version && version.curriculumSnapshot) {
-                const snapshot = version.curriculumSnapshot as any;
-                // Find module in snapshot
-                const moduleSnapshot = snapshot.find((m: any) => m.id === module.id || m.title === module.title);
-                if (moduleSnapshot && moduleSnapshot.lessons) {
-                  // Find lesson in module snapshot
-                  const lessonSnapshot = moduleSnapshot.lessons.find((l: any) => l.id === lessonId || l.title === lesson.title);
-                  if (lessonSnapshot) {
-                    this.logger.log(`Serving lesson ${lessonId} from version snapshot ${version.versionTag}`);
-                    // Merge snapshot content into current lesson object
-                    lessonData = {
-                      ...lesson,
-                      title: lessonSnapshot.title || lesson.title,
-                      contentType: lessonSnapshot.contentType || lesson.contentType,
-                      videoUrl: lessonSnapshot.videoUrl || lesson.videoUrl,
-                      videoDuration: lessonSnapshot.videoDuration || lesson.videoDuration,
-                      articleContent: lessonSnapshot.articleContent || lesson.articleContent,
-                    };
-                  }
-                }
-              }
-            }
           }
         }
       } catch (error) {
-        this.logger.warn(`Failed to check access/version for user ${requester.sub} on lesson ${lessonId}`, error);
+        this.logger.warn(`Failed to check access for user ${requester.sub} on lesson ${lessonId}`, error);
       }
     }
 
-    // Only block if lesson is not published or explicitly locked
     const isLessonAvailable = (lesson as any).status === 'published' || (lesson as any).status === undefined;
     isAuthorized = isAuthorized && isLessonAvailable;
-    return this.buildProtectedDTO(lessonData, isAuthorized);
+    return this.buildProtectedDTO(lesson, isAuthorized);
   }
 
   /**
    * Find all lessons for a specific module.
-   * Content protection: staff sees full content; learners only see content
-   * they are enrolled in (or preview lessons).
    */
   async findByModuleId(moduleId: string, requester?: Requester): Promise<LessonResponseDTO[]> {
     const isStaff = requester && (
@@ -297,84 +257,27 @@ export class LessonService implements ILessonService {
 
     const lessons = await this.lessonRepository.findByModuleId(moduleId, !!isStaff);
 
-    // Staff/Admin: return full content, no further checks needed
     if (isStaff) {
       return lessons.map(lesson => this.toLessonResponseDTO(lesson));
     }
 
-    // Learner: perform a check for accessible lessons and check for versioning
-    let accessibleLessonIds: string[] | 'ALL' = [];
-    let enrollment: any = null;
+    let isEnrolled = false;
 
     if (requester?.sub) {
       try {
         const module = await this.moduleRepository.findById(moduleId);
         if (module) {
-          const courseMasterId = module.courseMasterId;
-
-          // Use CourseMaster-based helpers for access + enrollment info
-          const [hasAccess, enrollmentRecord] = await Promise.all([
-            this.enrollmentService.isEnrolled(requester.sub, courseMasterId),
-            this.enrollmentService.findByUserAndCourseMaster(requester.sub, courseMasterId),
-          ]);
-
-          if (hasAccess) {
-            accessibleLessonIds = 'ALL';
-            enrollment = enrollmentRecord;
-          }
+          isEnrolled = await this.enrollmentService.isEnrolled(requester.sub, module.courseMasterId);
         }
       } catch (error) {
-        this.logger.warn(`Accessible lessons check failed for module ${moduleId}`, error);
-      }
-    }
-
-    // Fetch version snapshot if needed
-    let curriculumSnapshot: any[] | null = null;
-    if (enrollment?.versionId) {
-      try {
-        const version = await this.courseMasterService.getVersionById(enrollment.versionId);
-        if (version?.curriculumSnapshot) {
-          curriculumSnapshot = version.curriculumSnapshot as any[];
-        }
-      } catch (error) {
-        this.logger.warn(`Failed to fetch version snapshot for version ${enrollment.versionId}`, error);
+        this.logger.warn(`Enrollment check failed for module ${moduleId}`, error);
       }
     }
 
     return lessons.map(lesson => {
-      let isUserAuthorized = false;
-      let lessonData: any = lesson;
-
-      if (lesson.isPreview) {
-        isUserAuthorized = true;
-      } else if (accessibleLessonIds === 'ALL') {
-        isUserAuthorized = true;
-      } else if (Array.isArray(accessibleLessonIds) && accessibleLessonIds.includes(lesson.id)) {
-        isUserAuthorized = true;
-      }
-
-      // If authorized and snapshot available, find lesson in snapshot
-      if (isUserAuthorized && curriculumSnapshot) {
-        const moduleSnapshot = curriculumSnapshot.find((m: any) => m.id === moduleId);
-        if (moduleSnapshot?.lessons) {
-          const lessonSnapshot = moduleSnapshot.lessons.find((l: any) => l.id === lesson.id || l.title === lesson.title);
-          if (lessonSnapshot) {
-            lessonData = {
-              ...lesson,
-              title: lessonSnapshot.title || lesson.title,
-              contentType: lessonSnapshot.contentType || lesson.contentType,
-              videoUrl: lessonSnapshot.videoUrl || lesson.videoUrl,
-              videoDuration: lessonSnapshot.videoDuration || lesson.videoDuration,
-              articleContent: lessonSnapshot.articleContent || lesson.articleContent,
-            };
-          }
-        }
-      }
-
-      // Only block if lesson is not published
+      const isAuthorized = lesson.isPreview || isEnrolled;
       const isLessonAvailable = (lesson as any).status === 'published' || (lesson as any).status === undefined;
-      const isAuthorized = isUserAuthorized && isLessonAvailable;
-      return this.buildProtectedDTO(lessonData, isAuthorized);
+      return this.buildProtectedDTO(lesson, isAuthorized && isLessonAvailable);
     });
   }
 
@@ -387,23 +290,17 @@ export class LessonService implements ILessonService {
   }
 
   /**
-   * Create a new lesson
+   * Create a new lesson.
+   * A corresponding ModuleItem is automatically created to register this lesson
+   * into the module's ordered item list.
    */
   async create(requester: Requester, dto: LessonCreateDTO): Promise<LessonResponseDTO> {
     try {
       const module = await this.moduleRepository.findById(dto.moduleId);
       if (!module) throw new NotFoundException('Module not found');
 
-      // Business Rule: ONLY Admin or Staff-LMS (Academic) can create lessons in the Master Syllabus.
       if (!this.hasPermission(requester, 'course.publish')) {
         throw new ForbiddenException('Only Academic Staff or Admin can create Master syllabus lessons.');
-      }
-
-      // Get next order index if not provided
-      let orderIndex = dto.orderIndex;
-      if (orderIndex === undefined) {
-        const maxOrder = await this.lessonRepository.getMaxOrderIndex(dto.moduleId);
-        orderIndex = maxOrder + 1;
       }
 
       const data: any = {
@@ -413,7 +310,6 @@ export class LessonService implements ILessonService {
         videoUrl: dto.videoUrl || null,
         videoDuration: dto.videoDuration || null,
         articleContent: dto.articleContent || null,
-        orderIndex,
         isPreview: dto.isPreview ?? false,
         isUnlocked: dto.isUnlocked ?? true,
         status: (dto as any).status || 'published',
@@ -422,7 +318,7 @@ export class LessonService implements ILessonService {
 
       const lesson = await this.lessonRepository.create(data);
 
-      // Create ModuleItem automatically for any new lesson
+      // Create the corresponding ModuleItem so the lesson appears in the ordered item list
       const maxItemOrder = await this.moduleItemRepository.getMaxOrderIndex(dto.moduleId);
       await this.moduleItemRepository.create({
         module: { connect: { id: dto.moduleId } },
@@ -441,7 +337,6 @@ export class LessonService implements ILessonService {
         newValues: lesson,
       });
 
-      // Update course stats
       await this.triggerStatsUpdate(dto.moduleId);
 
       return this.toLessonResponseDTO(lesson);
@@ -458,7 +353,6 @@ export class LessonService implements ILessonService {
    * Update lesson
    */
   async update(requester: Requester, lessonId: string, dto: LessonUpdateDTO): Promise<LessonResponseDTO> {
-    // Check permissions
     if (!this.hasPermission(requester, 'lesson.update')) {
       throw new ForbiddenException('Only authorized users can update lessons');
     }
@@ -468,7 +362,6 @@ export class LessonService implements ILessonService {
       throw new NotFoundException(`Lesson with id ${lessonId} not found`);
     }
 
-    // Business Rule: ONLY Admin or Staff-LMS (Academic) can update lessons in the Master Syllabus.
     if (!this.hasPermission(requester, 'course.publish')) {
       throw new ForbiddenException('Only Academic Staff or Admin can update Master syllabus lessons.');
     }
@@ -480,7 +373,6 @@ export class LessonService implements ILessonService {
       if (dto.videoUrl !== undefined) updateData.videoUrl = dto.videoUrl;
       if (dto.videoDuration !== undefined) updateData.videoDuration = dto.videoDuration;
       if (dto.articleContent !== undefined) updateData.articleContent = dto.articleContent;
-      if (dto.orderIndex !== undefined) updateData.orderIndex = dto.orderIndex;
       if (dto.isPreview !== undefined) updateData.isPreview = dto.isPreview;
       if (dto.isUnlocked !== undefined) updateData.isUnlocked = dto.isUnlocked;
       if ((dto as any).status !== undefined) updateData.status = (dto as any).status;
@@ -501,7 +393,6 @@ export class LessonService implements ILessonService {
         newValues: lesson,
       });
 
-      // Update course stats if status changed
       if ((dto as any).status !== undefined && (dto as any).status !== (existing as any).status) {
         await this.triggerStatsUpdate(existing.moduleId);
       }
@@ -517,7 +408,6 @@ export class LessonService implements ILessonService {
    * Delete lesson
    */
   async delete(requester: Requester, lessonId: string, hardDelete = false): Promise<{ message: string }> {
-    // Only authorized users can delete lessons
     if (!this.hasPermission(requester, 'course.publish')) {
       throw new ForbiddenException('Only Academic Staff or Admin can delete Master syllabus lessons.');
     }
@@ -529,7 +419,7 @@ export class LessonService implements ILessonService {
 
     try {
       if (hardDelete) {
-        // Also delete associated module item
+        // Also delete the associated ModuleItem
         await this.moduleItemRepository.deleteByReferenceId(lessonId);
         await this.lessonRepository.delete(lessonId);
       } else {
@@ -545,40 +435,11 @@ export class LessonService implements ILessonService {
         oldValues: existing,
       });
 
-      // Update course stats
       await this.triggerStatsUpdate(existing.moduleId);
 
       return { message: 'Lesson deleted successfully' };
     } catch (error: any) {
       throw new BadRequestException(`Failed to delete lesson: ${error?.message || 'Unknown error'}`);
-    }
-  }
-
-  /**
-   * Reorder lessons within a module
-   */
-  async reorder(requester: Requester, moduleId: string, lessonOrders: { id: string; orderIndex: number }[]): Promise<{ message: string }> {
-    // Only authorized users can reorder lessons
-    if (!this.hasPermission(requester, 'lesson.update')) {
-      throw new ForbiddenException('Only authorized staff can reorder lessons');
-    }
-
-    try {
-      await this.lessonRepository.reorder(moduleId, lessonOrders);
-
-      await this.createAuditLog({
-        userId: requester.sub,
-        action: 'course_lesson.reorder',
-        entity: 'course_lesson',
-        entityId: moduleId,
-        description: `Reordered lessons in module ${moduleId}`,
-        metadata: { lessonOrders },
-      });
-
-      return { message: 'Lessons reordered successfully' };
-    } catch (error: any) {
-      this.logger.error('Error reordering lessons', error);
-      throw new BadRequestException(`Failed to reorder lessons: ${error?.message || 'Unknown error'}`);
     }
   }
 }

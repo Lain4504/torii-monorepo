@@ -50,10 +50,6 @@ export class LessonProfile extends AutomapperProfile {
                     mapFrom((src) => src.articleContent || undefined),
                 ),
                 forMember(
-                    (dest) => dest.orderIndex,
-                    mapFrom((src) => src.orderIndex),
-                ),
-                forMember(
                     (dest) => dest.isPreview,
                     mapFrom((src) => src.isPreview),
                 ),

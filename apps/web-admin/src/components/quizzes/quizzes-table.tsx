@@ -16,7 +16,7 @@ import {
 } from '@workspace/ui/components/table';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty';
-import { HelpCircle, MoreVertical, Edit, Trash, Globe, FileText, BarChart2 } from 'lucide-react';
+import { HelpCircle, MoreVertical, Edit, Trash, Globe, BarChart2 } from 'lucide-react';
 import type { QuizDTO } from '@/lib/api/services/quizzes';
 
 interface QuizzesTableProps {
@@ -47,14 +47,13 @@ export function QuizzesTable({
                         <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-24">Câu hỏi</TableHead>
                         <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-24">Thời gian</TableHead>
                         <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-24">Trạng thái</TableHead>
-                        <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-24">Bài học</TableHead>
                         <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-32 text-right">Thao tác</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {Array.from({ length: 4 }).map((_, i) => (
                         <TableRow key={i}>
-                            {Array.from({ length: 6 }).map((_, ci) => (
+                            {Array.from({ length: 5 }).map((_, ci) => (
                                 <TableCell key={ci}><Skeleton className="h-4 w-full" /></TableCell>
                             ))}
                         </TableRow>
@@ -107,7 +106,6 @@ export function QuizzesTable({
                     <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-28">Thời gian</TableHead>
                     <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-28">Điểm đạt</TableHead>
                     <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-32">Trạng thái</TableHead>
-                    <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-28">Gắn bài học</TableHead>
                     <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 w-32 text-right">Thao tác</TableHead>
                 </TableRow>
             </TableHeader>
@@ -144,15 +142,7 @@ export function QuizzesTable({
                                 {statusLabel(quiz.status)}
                             </Badge>
                         </TableCell>
-                        <TableCell className="px-4">
-                            {quiz.lessonId ? (
-                                <Badge variant="secondary" className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-lg">
-                                    <FileText className="size-3 mr-1" /> Có bài học
-                                </Badge>
-                            ) : (
-                                <span className="text-xs text-muted-foreground">Chưa gắn</span>
-                            )}
-                        </TableCell>
+
                         <TableCell className="px-4 text-right">
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>

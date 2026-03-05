@@ -9,7 +9,6 @@ import { SharedModule, GlobalRpcExceptionFilter } from '@server/shared';
 import { AssignmentModule } from '@server/learning/modules/assignment/assignment.module';
 import { AttendanceModule } from '@server/learning/modules/attendance/attendance.module';
 import { BlogModule } from '@server/learning/modules/blog/blog.module';
-import { CartModule } from '@server/learning/modules/cart/cart.module';
 import { CertificateModule } from '@server/learning/modules/certificate/certificate.module';
 import { CommentModule } from '@server/learning/modules/comment/comment.module';
 import { CouponModule } from '@server/learning/modules/coupon/coupon.module';
@@ -54,7 +53,6 @@ import { WishlistModule } from '@server/learning/modules/wishlist/wishlist.modul
     AssignmentModule,
     AttendanceModule,
     BlogModule,
-    CartModule,
     CertificateModule,
     CommentModule,
     CouponModule,

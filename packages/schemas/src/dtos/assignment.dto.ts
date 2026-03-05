@@ -11,10 +11,8 @@ export const createAssignmentDto = z.object({
   description: z.string().min(1),
   type: z.nativeEnum(AssignmentType).default(AssignmentType.TEXT),
 
-  // At least one must be provided
-  courseRunId: z.preprocess((val) => (val === '' ? undefined : val), z.string().uuid().optional()),
-  moduleId: z.preprocess((val) => (val === '' ? undefined : val), z.string().uuid().optional()),
-  lessonId: z.preprocess((val) => (val === '' ? undefined : val), z.string().uuid().optional()),
+  // Required: must be linked to a CourseRun
+  courseRunId: z.string().uuid('courseRunId must be a valid UUID'),
 
   // Grading config
   maxScore: z.number().min(0).max(1000).default(100),
@@ -37,11 +35,6 @@ export const createAssignmentDto = z.object({
   instructions: z.string().optional(),
   attachmentUrls: z.array(z.string().url()).default([]),
 }).refine(
-  (data) => data.courseRunId || data.moduleId || data.lessonId,
-  {
-    message: 'At least one of courseRunId, moduleId, or lessonId must be provided',
-  }
-).refine(
   (data) => !data.passingScore || data.passingScore <= data.maxScore,
   {
     message: 'Passing score must be less than or equal to max score',
@@ -57,8 +50,6 @@ export const updateAssignmentDto = z.object({
   type: z.nativeEnum(AssignmentType).optional(),
 
   courseRunId: z.preprocess((val) => (val === '' || val === null ? undefined : val), z.string().uuid().optional()),
-  moduleId: z.preprocess((val) => (val === '' || val === null ? undefined : val), z.string().uuid().optional()),
-  lessonId: z.preprocess((val) => (val === '' || val === null ? undefined : val), z.string().uuid().optional()),
 
   maxScore: z.number().min(0).max(1000).optional(),
   passingScore: z.number().min(0).max(1000).optional(),
@@ -84,8 +75,6 @@ export type UpdateAssignmentDto = z.infer<typeof updateAssignmentDto>;
 export const queryAssignmentsDto = z.object({
   courseMasterId: z.string().uuid().optional(),
   courseRunId: z.string().uuid().optional(),
-  moduleId: z.string().uuid().optional(),
-  lessonId: z.string().uuid().optional(),
   status: z.nativeEnum(AssignmentStatus).optional(),
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(20),

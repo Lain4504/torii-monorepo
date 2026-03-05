@@ -38,7 +38,7 @@ export interface ILessonService {
     /**
      * Find all lessons for a specific module
      * @param moduleId - The module's unique identifier
-     * @returns Array of lessons ordered by orderIndex
+     * @returns Array of lessons
      */
     findByModuleId(moduleId: string, requester?: Requester): Promise<LessonResponseDTO[]>;
 
@@ -79,18 +79,4 @@ export interface ILessonService {
      * @throws NotFoundException if lesson not found
      */
     delete(requester: Requester, lessonId: string, hardDelete?: boolean): Promise<{ message: string }>;
-
-    /**
-     * Reorder lessons within a module
-     * @param requester - The user making the request
-     * @param moduleId - The module's unique identifier
-     * @param lessonOrders - Array of lesson IDs with their new order indices
-     * @returns Success message
-     * @throws ForbiddenException if requester doesn't have permission
-     */
-    reorder(
-        requester: Requester,
-        moduleId: string,
-        lessonOrders: { id: string; orderIndex: number }[]
-    ): Promise<{ message: string }>;
 }

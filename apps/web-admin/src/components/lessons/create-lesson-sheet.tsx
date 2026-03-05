@@ -25,7 +25,7 @@ import {
 import { storageApi } from '@/lib/api/services/storage-api';
 import { LessonContentType, lessonCreateDTOSchema } from '@workspace/schemas';
 import { toast } from '@workspace/ui/components/sonner';
-import { useCreateLesson, lessonsApi } from "@/lib/api/services/lesson";
+import { useCreateLesson } from "@/lib/api/services/lesson";
 import { Plus } from 'lucide-react';
 import { Spinner } from "@workspace/ui/components/spinner";
 
@@ -57,7 +57,6 @@ export default function CreateLessonSheet({ open, onOpenChange, moduleId }: Crea
             title: '',
             contentType: LessonContentType.VIDEO,
             status: 'published',
-            orderIndex: 0,
             isPreview: false,
             isUnlocked: false,
             durationMinutes: 0,
@@ -74,7 +73,6 @@ export default function CreateLessonSheet({ open, onOpenChange, moduleId }: Crea
                 title: '',
                 contentType: LessonContentType.VIDEO,
                 status: 'published',
-                orderIndex: 0,
                 isPreview: false,
                 isUnlocked: false,
                 durationMinutes: 0,
@@ -95,18 +93,9 @@ export default function CreateLessonSheet({ open, onOpenChange, moduleId }: Crea
                 videoUrl = uploadedVideo.fileUrl;
             }
 
-            // Tự động tính orderIndex tiếp theo dựa trên số bài hiện có trong module
-            const existingLessons = await lessonsApi.findByModuleId(moduleId);
-            const nextOrderIndex =
-                existingLessons.length === 0
-                    ? 1
-                    : Math.max(...existingLessons.map((l: any) => l.orderIndex ?? 0)) + 1;
-
             const payload = {
                 ...data,
                 status: (data as any).status ?? 'published',
-                orderIndex: nextOrderIndex,
-                aiMetadata: (data as any).aiMetadata ?? {},
                 isPreview: data.isPreview ?? false,
                 isUnlocked: data.isUnlocked ?? false,
                 videoUrl,

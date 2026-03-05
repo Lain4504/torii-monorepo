@@ -379,29 +379,25 @@ model ModuleItem {
 }
 
 model Lesson {
-  id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  moduleId             String    @map("module_id") @db.Uuid
-  title                String    @db.VarChar(255)
-  contentType          String    @map("content_type") @db.VarChar(20)
-  videoUrl             String?   @map("video_url") @db.Text
-  durationMinutes      Int?      @map("duration_minutes")
-  articleContent       String?   @map("article_content") @db.Text
-  requiresPassingGrade Boolean   @default(false) @map("requires_passing_grade")
-  status               String    @default("published") @db.VarChar(20) // published, draft
-  orderIndex           Int       @default(0) @map("order_index")
-  isPreview            Boolean   @default(false) @map("is_preview")
-  createdAt            DateTime  @default(now()) @map("created_at")
-  updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at")
-  deletedAt            DateTime? @map("deleted_at")
-  videoDuration        Int?      @map("video_duration")
-  isUnlocked           Boolean   @default(true) @map("is_unlocked")
-  createdBy            String?   @map("created_by") @db.Uuid
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  moduleId        String    @map("module_id") @db.Uuid
+  title           String    @db.VarChar(255)
+  contentType     String    @map("content_type") @db.VarChar(20)
+  videoUrl        String?   @map("video_url") @db.Text
+  durationMinutes Int?      @map("duration_minutes")
+  articleContent  String?   @map("article_content") @db.Text
+  status          String    @default("published") @db.VarChar(20) // published, draft
+  isPreview       Boolean   @default(false) @map("is_preview")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+  videoDuration   Int?      @map("video_duration")
+  isUnlocked      Boolean   @default(true) @map("is_unlocked")
+  createdBy       String?   @map("created_by") @db.Uuid
 
-  module            Module            @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  quizzes           Quiz[]
-  materials         LessonMaterial[]
-  lessonProgress    LessonProgress[]
-  assignments       Assignment[]
+  module         Module          @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  materials      LessonMaterial[]
+  lessonProgress LessonProgress[]
 
   @@index([moduleId])
   @@map("lessons")
@@ -488,7 +484,6 @@ model CourseRun {
   liveSessions LiveSession[]
   wishlists    Wishlist[]
   reviews      Review[]
-  cartItems    CartItem[]
   assignments  Assignment[]
   submissions  Submission[]
   quizzes      Quiz[]
@@ -664,9 +659,8 @@ model LiveSession {
   originalStartTime DateTime? @map("original_start_time")
   rescheduleReason  String?   @map("reschedule_reason") @db.Text
 
-  // Curriculum Link
+  // Curriculum Link — link to Module only (lesson/item link is via ModuleItem)
   moduleId String? @map("module_id") @db.Uuid
-  lessonId String? @map("lesson_id") @db.Uuid
 
   // Recording
   recordingUrl      String? @map("recording_url") @db.Text
@@ -681,7 +675,6 @@ model LiveSession {
   @@index([lecturerId])
   @@index([scheduleId])
   @@index([moduleId])
-  @@index([lessonId])
   @@map("live_sessions")
 }
 
@@ -826,9 +819,8 @@ model Assignment {
   description String         @db.Text
   type        AssignmentType @default(TEXT)
 
-  // Associated with
-  courseRunId String  @map("course_run_id") @db.Uuid
-  lessonId    String? @map("lesson_id") @db.Uuid
+  // Associated with CourseRun only — link to specific lesson/content via ModuleItem
+  courseRunId String @map("course_run_id") @db.Uuid
 
   // Grading config
   maxScore     Decimal  @default(100.00) @map("max_score") @db.Decimal(5, 2)
@@ -856,12 +848,10 @@ model Assignment {
 
   // Relations
   courseRun   CourseRun    @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
-  lesson      Lesson?      @relation(fields: [lessonId], references: [id], onDelete: SetNull)
   creator     User         @relation("AssignmentCreator", fields: [createdBy], references: [id], onDelete: Restrict)
   submissions Submission[]
 
   @@index([courseRunId])
-  @@index([lessonId])
   @@index([status])
   @@index([dueDate])
   @@index([createdBy])
@@ -944,7 +934,6 @@ model QuestionPool {
   name           String   @db.VarChar(255)
   description    String?  @db.Text
   courseMasterId String?  @map("course_master_id") @db.Uuid
-  lessonId       String?  @map("lesson_id") @db.Uuid
   jlptLevel      String?  @map("jlpt_level") @db.VarChar(5)
   createdBy      String?  @map("created_by") @db.Uuid
   createdAt      DateTime @default(now()) @map("created_at")
@@ -955,7 +944,6 @@ model QuestionPool {
   questions Question[]
 
   @@index([courseMasterId])
-  @@index([lessonId])
   @@index([jlptLevel])
   @@map("question_pools")
 }
@@ -998,10 +986,9 @@ model Quiz {
   id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title            String   @db.VarChar(255)
   description      String?  @db.Text
-  quizType         String   @default("practice") @map("quiz_type") @db.VarChar(30) // lesson, module, course, practice, jlpt_mock
+  quizType         String   @default("practice") @map("quiz_type") @db.VarChar(30) // module, course, practice, jlpt_mock
   jlptLevel        String?  @map("jlpt_level") @db.VarChar(5)
   courseRunId      String?  @map("course_run_id") @db.Uuid
-  lessonId         String?  @map("lesson_id") @db.Uuid
   sections         Json?    @db.JsonB // Array of section configs: [{ type: "vocab", timeLimit: 30, questionCount: 15 }, ...]
   totalTime        Int?     @map("time_limit_minutes") // Total time in minutes
   totalQuestions   Int      @default(0) @map("total_questions")
@@ -1016,7 +1003,6 @@ model Quiz {
 
   // Relations
   courseRun        CourseRun?        @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
-  lesson           Lesson?           @relation(fields: [lessonId], references: [id], onDelete: SetNull)
   quizQuestions    QuizQuestion[]
   attempts         QuizAttempt[]
   placementResults PlacementResult[]
@@ -1024,7 +1010,6 @@ model Quiz {
   @@index([jlptLevel])
   @@index([status])
   @@index([courseRunId])
-  @@index([lessonId])
   @@map("quizzes")
 }
 
@@ -1431,7 +1416,6 @@ model User {
   balanceTransactions   BalanceTransaction[]
   gamificationHistories GamificationHistory[]
   notebooks             Notebook[]
-  cart                  Cart?
   blogs                 Blog[]
   placementResults      PlacementResult[]
 
@@ -1578,39 +1562,6 @@ model AuditLog {
   @@map("audit_logs")
 }
 
-// ==================================================
-// 8. COMMERCE  (Order / Payment / Coupon / Cart)
-// ==================================================
-
-// --- Cart ---
-
-model Cart {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId    String   @unique @map("user_id") @db.Uuid
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  items CartItem[]
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("carts")
-}
-
-model CartItem {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  cartId      String   @map("cart_id") @db.Uuid
-  courseRunId String   @map("course_run_id") @db.Uuid
-  addedAt     DateTime @default(now()) @map("added_at")
-
-  // Relations
-  cart      Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  courseRun CourseRun @relation(fields: [courseRunId], references: [id], onDelete: Cascade)
-
-  @@unique([cartId, courseRunId])
-  @@index([cartId])
-  @@index([courseRunId])
-  @@map("cart_items")
-}
 
 // --- Orders & Payments ---
 

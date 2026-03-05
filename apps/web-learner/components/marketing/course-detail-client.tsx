@@ -4,14 +4,13 @@ import React, { useState, useEffect } from 'react';
 import { useCourseBySlug, useCurriculum } from '@/lib/api/services/course-api';
 import { useCheckEnrollment } from '@/lib/api/services/enrollment-api';
 import { useCheckWishlist, useToggleWishlist } from '@/lib/api/services/wishlist-api';
-import { useCart, useAddToCart } from '@/lib/api/services/cart-api';
 import { useCourseReviews, useRatingDistribution } from '@/lib/api/services/review-api';
 import { useAvailableCourseRuns } from '@/lib/api/services/course-run-api';
 import { toast } from '@workspace/ui/components/sonner';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { Badge } from '@workspace/ui/components/badge';
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from '@workspace/ui/components/dialog';
-import { PlayCircle, FileText, HelpCircle, ChevronDown, Star, Users, Clock, Calendar, CheckCircle2, Heart, ShoppingCart, BookOpen } from 'lucide-react';
+import { PlayCircle, FileText, HelpCircle, ChevronDown, Star, Users, Clock, Calendar, CheckCircle2, Heart, BookOpen } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export function CourseDetailClient({ slug }: { slug: string }) {
@@ -22,7 +21,7 @@ export function CourseDetailClient({ slug }: { slug: string }) {
 
     const { data: course, isLoading: isCourseLoading } = useCourseBySlug(slug);
     const { data: curriculum, isLoading: isCurriculumLoading } = useCurriculum(course?.id);
-    const { data: cartData } = useCart();
+
     const { data: availableRuns, isLoading: isRunsLoading } = useAvailableCourseRuns(course?.id);
     const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
 
@@ -30,7 +29,6 @@ export function CourseDetailClient({ slug }: { slug: string }) {
     const { data: reviewsData } = useCourseReviews(course?.id);
     const { data: distributionData } = useRatingDistribution(course?.id);
 
-    const addToCart = useAddToCart();
     const toggleWishlist = useToggleWishlist();
 
     // Get pricing and enrollment from selected run or first available run
@@ -40,14 +38,6 @@ export function CourseDetailClient({ slug }: { slug: string }) {
     const { data: enrollmentData } = useCheckEnrollment(primaryRunId || '');
     const isEnrolled = enrollmentData?.isEnrolled;
     const isInWishlist = wishlistData?.isInWishlist;
-    const isInCart = primaryRunId
-        ? cartData?.items?.some(item => item.courseRunId === primaryRunId)
-        : false;
-    const coursePrice = selectedRun?.price ?? 0;
-    const discountPrice = selectedRun?.discountPrice ?? null;
-
-    // Get pricing from selected run or first available run
-    const selectedRun = selectedRunId ? availableRuns?.find(r => r.id === selectedRunId) : availableRuns?.[0];
     const coursePrice = selectedRun?.price ?? 0;
     const discountPrice = selectedRun?.discountPrice ?? null;
 
@@ -564,37 +554,6 @@ export function CourseDetailClient({ slug }: { slug: string }) {
                                                     }}
                                                     className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-4 rounded-xl font-bold text-lg shadow-lg transition-colors">
                                                     Đăng ký ngay
-                                                </button>
-                                                <button
-                                                    onClick={() => {
-                                                        if (!primaryRunId) {
-                                                            toast.error('Không tìm thấy lớp học phù hợp để thêm vào giỏ hàng');
-                                                            return;
-                                                        }
-                                                        if (isInCart) {
-                                                            router.push('/dashboard/cart');
-                                                        } else {
-                                                            addToCart.mutate(primaryRunId, {
-                                                                onSuccess: () => toast.success('Đã thêm vào giỏ hàng!'),
-                                                                onError: () => toast.error('Không thể thêm vào giỏ hàng'),
-                                                            });
-                                                        }
-                                                    }}
-                                                    disabled={addToCart.isPending}
-                                                    className="w-full border border-border text-foreground py-3 rounded-xl font-bold hover:bg-muted/30 transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
-                                                    {isInCart ? (
-                                                        <>
-                                                            <ShoppingCart className="size-4 fill-primary text-primary" />
-                                                            Đã trong giỏ hàng
-                                                        </>
-                                                    ) : addToCart.isPending ? (
-                                                        'Đang thêm...'
-                                                    ) : (
-                                                        <>
-                                                            <ShoppingCart className="size-4" />
-                                                            Thêm vào giỏ hàng
-                                                        </>
-                                                    )}
                                                 </button>
                                             </>
                                         )}

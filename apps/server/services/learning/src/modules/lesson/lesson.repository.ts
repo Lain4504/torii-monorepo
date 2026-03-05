@@ -5,7 +5,8 @@ import type { ILessonRepository } from '@server/learning/interfaces/repositories
 
 /**
  * Lesson Repository
- * Handles all database operations for Lesson entity
+ * Handles all database operations for Lesson entity.
+ * Note: Ordering of lessons within a module is managed by ModuleItem, not here.
  */
 @Injectable()
 export class LessonRepository implements ILessonRepository {
@@ -32,7 +33,7 @@ export class LessonRepository implements ILessonRepository {
                 deletedAt: null,
                 ...(includeDrafts ? {} : { status: 'published' }),
             },
-            orderBy: { orderIndex: 'asc' },
+            orderBy: { createdAt: 'asc' },
         });
     }
 
@@ -50,7 +51,7 @@ export class LessonRepository implements ILessonRepository {
             where: options.where,
             skip: Number(options.skip) || 0,
             take: Number(options.take) || 10,
-            orderBy: options.orderBy || { orderIndex: 'asc' },
+            orderBy: options.orderBy || { createdAt: 'asc' },
             include: options.include,
         });
     }
@@ -105,32 +106,6 @@ export class LessonRepository implements ILessonRepository {
     }
 
     /**
-     * Reorder lessons in a module
-     */
-    async reorder(moduleId: string, lessonOrders: { id: string; orderIndex: number }[]): Promise<void> {
-        // Use transaction to ensure atomicity
-        await this.prisma.$transaction(
-            lessonOrders.map(({ id, orderIndex }) =>
-                this.prisma.lesson.update({
-                    where: { id },
-                    data: { orderIndex, updatedAt: new Date() },
-                })
-            )
-        );
-    }
-
-    /**
-     * Get max order index for a module
-     */
-    async getMaxOrderIndex(moduleId: string): Promise<number> {
-        const result = await this.prisma.lesson.aggregate({
-            where: { moduleId, deletedAt: null },
-            _max: { orderIndex: true },
-        });
-        return result._max.orderIndex ?? 0;
-    }
-
-    /**
      * Find preview lessons for a course (through modules)
      */
     async findPreviewLessonsByCourseId(courseMasterId: string): Promise<Lesson[]> {
@@ -148,19 +123,15 @@ export class LessonRepository implements ILessonRepository {
                     select: {
                         id: true,
                         title: true,
-                        orderIndex: true,
                     },
                 },
             },
-            orderBy: [
-                { module: { orderIndex: 'asc' } },
-                { orderIndex: 'asc' },
-            ],
+            orderBy: { createdAt: 'asc' },
         });
     }
 
     /**
-     * Find top N lessons for a course (ordered by module and lesson index)
+     * Find top N lessons for a course (ordered by module createdAt then lesson createdAt)
      */
     async findTopLessonsByCourse(courseMasterId: string, limit: number): Promise<Lesson[]> {
         return this.prisma.lesson.findMany({
@@ -175,10 +146,9 @@ export class LessonRepository implements ILessonRepository {
             },
             take: limit,
             orderBy: [
-                { module: { orderIndex: 'asc' } },
-                { orderIndex: 'asc' },
+                { module: { createdAt: 'asc' } },
+                { createdAt: 'asc' },
             ],
         });
     }
 }
-

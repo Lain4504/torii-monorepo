@@ -7,7 +7,6 @@ export const questionPoolCreateDTOSchema = questionPoolSchema
         name: true,
         description: true,
         courseMasterId: true,
-        lessonId: true,
         jlptLevel: true,
         createdBy: true,
     })
@@ -22,7 +21,6 @@ export const questionPoolUpdateDTOSchema = questionPoolSchema
         name: true,
         description: true,
         courseMasterId: true,
-        lessonId: true,
         jlptLevel: true,
     })
     .partial();
@@ -33,7 +31,6 @@ export const questionPoolQueryDTOSchema = z.object({
     page: z.coerce.number().min(1).default(1),
     limit: z.coerce.number().min(1).default(10),
     courseMasterId: z.string().uuid().optional(),
-    lessonId: z.string().uuid().optional(),
     jlptLevel: z.nativeEnum(QuestionJlptLevel).optional(),
     search: z.string().optional(),
 });
