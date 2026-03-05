@@ -10,13 +10,9 @@ import { NatsModule } from '@server/meet/services/nats.module';
 import { IngressHandler } from '@server/meet/modules/ingress/ingress.handler';
 
 @Module({
-    imports: [
-        LiveKitModule,
-        forwardRef(() => AnalyticsModule),
-        NatsModule,
-    ],
-    controllers: [IngressHandler],
-    providers: [IngressService],
-    exports: [IngressService],
+  imports: [LiveKitModule, forwardRef(() => AnalyticsModule), NatsModule],
+  controllers: [IngressHandler],
+  providers: [IngressService],
+  exports: [IngressService],
 })
-export class IngressModule { }
+export class IngressModule {}

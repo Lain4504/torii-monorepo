@@ -38,12 +38,17 @@ export interface INotificationRepository {
   /**
    * Create multiple notifications (bulk insert)
    */
-  createMany(data: Prisma.NotificationCreateManyInput[]): Promise<{ count: number }>;
+  createMany(
+    data: Prisma.NotificationCreateManyInput[],
+  ): Promise<{ count: number }>;
 
   /**
    * Update notification by ID
    */
-  update(id: string, data: Prisma.NotificationUpdateInput): Promise<Notification>;
+  update(
+    id: string,
+    data: Prisma.NotificationUpdateInput,
+  ): Promise<Notification>;
 
   /**
    * Update multiple notifications (bulk update)

@@ -1,4 +1,10 @@
-import { Injectable, Logger, BadRequestException, NotFoundException, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  BadRequestException,
+  NotFoundException,
+  Inject,
+} from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import { Notification } from '@prisma/generated';
 import {
@@ -20,7 +26,7 @@ export class NotificationService implements INotificationService {
     @Inject(NOTIFICATION_REPOSITORY_TOKEN)
     private readonly notificationRepository: INotificationRepository,
     private readonly prisma: PrismaService, // Still needed for cross-service queries (blog, user, wishlist)
-  ) { }
+  ) {}
 
   /**
    * Map Notification entity to NotificationResponseDto
@@ -51,8 +57,10 @@ export class NotificationService implements INotificationService {
   ): Promise<PaginatedResponseDTO<NotificationResponseDTO>> {
     try {
       const { page = 1, limit = 10, isRead } = query;
-      const pageNum = typeof page === 'string' ? parseInt(page, 10) : Number(page) || 1;
-      const limitNum = typeof limit === 'string' ? parseInt(limit, 10) : Number(limit) || 10;
+      const pageNum =
+        typeof page === 'string' ? parseInt(page, 10) : Number(page) || 1;
+      const limitNum =
+        typeof limit === 'string' ? parseInt(limit, 10) : Number(limit) || 10;
       const validPage = pageNum > 0 ? pageNum : 1;
       const validLimit = limitNum > 0 ? limitNum : 10;
       const skip = (validPage - 1) * validLimit;
@@ -93,27 +101,40 @@ export class NotificationService implements INotificationService {
       };
     } catch (error: any) {
       this.logger.error('Failed to retrieve notifications', error);
-      throw new BadRequestException(`Failed to retrieve notifications: ${error?.message || 'Unknown error'}`);
+      throw new BadRequestException(
+        `Failed to retrieve notifications: ${error?.message || 'Unknown error'}`,
+      );
     }
   }
 
   /**
    * Mark a notification as read
    */
-  async markAsRead(notificationId: string, userId: string): Promise<NotificationResponseDTO> {
+  async markAsRead(
+    notificationId: string,
+    userId: string,
+  ): Promise<NotificationResponseDTO> {
     try {
       // Verify notification exists and belongs to user
-      const existing = await this.notificationRepository.findByIdAndUserId(notificationId, userId);
+      const existing = await this.notificationRepository.findByIdAndUserId(
+        notificationId,
+        userId,
+      );
 
       if (!existing) {
-        throw new NotFoundException(`Notification with id ${notificationId} not found`);
+        throw new NotFoundException(
+          `Notification with id ${notificationId} not found`,
+        );
       }
 
       // Update notification
-      const notification = await this.notificationRepository.update(notificationId, {
-        isRead: true,
-        readAt: new Date(),
-      });
+      const notification = await this.notificationRepository.update(
+        notificationId,
+        {
+          isRead: true,
+          readAt: new Date(),
+        },
+      );
 
       return this.toNotificationResponseDto(notification);
     } catch (error: any) {
@@ -121,14 +142,18 @@ export class NotificationService implements INotificationService {
         throw error;
       }
       this.logger.error('Error marking notification as read', error);
-      throw new BadRequestException(`Failed to mark notification as read: ${error?.message || 'Unknown error'}`);
+      throw new BadRequestException(
+        `Failed to mark notification as read: ${error?.message || 'Unknown error'}`,
+      );
     }
   }
 
   /**
    * Mark all notifications as read for a user
    */
-  async markAllAsRead(userId: string): Promise<{ success: boolean; message: string; count: number }> {
+  async markAllAsRead(
+    userId: string,
+  ): Promise<{ success: boolean; message: string; count: number }> {
     try {
       const result = await this.notificationRepository.updateMany(
         {
@@ -148,14 +173,18 @@ export class NotificationService implements INotificationService {
       };
     } catch (error: any) {
       this.logger.error('Error marking all notifications as read', error);
-      throw new BadRequestException(`Failed to mark all notifications as read: ${error?.message || 'Unknown error'}`);
+      throw new BadRequestException(
+        `Failed to mark all notifications as read: ${error?.message || 'Unknown error'}`,
+      );
     }
   }
 
   /**
    * Get unread count for a user
    */
-  async getUnreadCount(userId: string): Promise<NotificationUnreadCountResponseDTO> {
+  async getUnreadCount(
+    userId: string,
+  ): Promise<NotificationUnreadCountResponseDTO> {
     try {
       const count = await this.notificationRepository.count({
         userId,
@@ -167,20 +196,30 @@ export class NotificationService implements INotificationService {
       };
     } catch (error: any) {
       this.logger.error('Error getting unread count', error);
-      throw new BadRequestException(`Failed to get unread count: ${error?.message || 'Unknown error'}`);
+      throw new BadRequestException(
+        `Failed to get unread count: ${error?.message || 'Unknown error'}`,
+      );
     }
   }
 
   /**
    * Delete a notification
    */
-  async delete(notificationId: string, userId: string): Promise<{ success: boolean; message: string }> {
+  async delete(
+    notificationId: string,
+    userId: string,
+  ): Promise<{ success: boolean; message: string }> {
     try {
       // Verify notification exists and belongs to user
-      const existing = await this.notificationRepository.findByIdAndUserId(notificationId, userId);
+      const existing = await this.notificationRepository.findByIdAndUserId(
+        notificationId,
+        userId,
+      );
 
       if (!existing) {
-        throw new NotFoundException(`Notification with id ${notificationId} not found`);
+        throw new NotFoundException(
+          `Notification with id ${notificationId} not found`,
+        );
       }
 
       // Hard delete the notification
@@ -195,7 +234,9 @@ export class NotificationService implements INotificationService {
         throw error;
       }
       this.logger.error('Error deleting notification', error);
-      throw new BadRequestException(`Failed to delete notification: ${error?.message || 'Unknown error'}`);
+      throw new BadRequestException(
+        `Failed to delete notification: ${error?.message || 'Unknown error'}`,
+      );
     }
   }
 
@@ -217,7 +258,9 @@ export class NotificationService implements INotificationService {
       return this.toNotificationResponseDto(notification);
     } catch (error: any) {
       this.logger.error('Error creating notification', error);
-      throw new BadRequestException(`Failed to create notification: ${error?.message || 'Unknown error'}`);
+      throw new BadRequestException(
+        `Failed to create notification: ${error?.message || 'Unknown error'}`,
+      );
     }
   }
 
@@ -231,24 +274,32 @@ export class NotificationService implements INotificationService {
     userIds?: string[]; // Optional: specific user IDs to notify
   }): Promise<void> {
     try {
-      this.logger.log(`Handling course published event for course: ${payload.courseMasterId}`);
+      this.logger.log(
+        `Handling course published event for course: ${payload.courseMasterId}`,
+      );
 
       let userIdsToNotify: string[] = [];
 
       // If specific user IDs provided, use them (preferred method)
       if (payload.userIds && payload.userIds.length > 0) {
         userIdsToNotify = payload.userIds;
-        this.logger.log(`Using provided user IDs: ${userIdsToNotify.length} users`);
+        this.logger.log(
+          `Using provided user IDs: ${userIdsToNotify.length} users`,
+        );
       } else {
         // Fallback: Query from wishlist
         try {
-          const wishlistUsers = await this.prisma.$queryRaw<Array<{ user_id: string }>>`
+          const wishlistUsers = await this.prisma.$queryRaw<
+            Array<{ user_id: string }>
+          >`
             SELECT DISTINCT user_id 
             FROM wishlist 
             WHERE course_master_id = ${payload.courseMasterId}::uuid
           `;
           userIdsToNotify = wishlistUsers.map((w) => w.user_id);
-          this.logger.log(`Found ${userIdsToNotify.length} users from wishlist`);
+          this.logger.log(
+            `Found ${userIdsToNotify.length} users from wishlist`,
+          );
         } catch (error: any) {
           this.logger.warn(`Failed to query wishlist: ${error?.message}`);
           // If wishlist query fails, skip notification creation
@@ -303,10 +354,13 @@ export class NotificationService implements INotificationService {
     };
   }): Promise<void> {
     try {
-      this.logger.log(`Handling send_notification event: type=${payload.type}, recipientId=${payload.recipientId}`);
+      this.logger.log(
+        `Handling send_notification event: type=${payload.type}, recipientId=${payload.recipientId}`,
+      );
 
       // Map notification type to database type
-      const notificationType = payload.type === 'COMMENT_REPLY' ? 'comment' : 'blog_analytics';
+      const notificationType =
+        payload.type === 'COMMENT_REPLY' ? 'comment' : 'blog_analytics';
 
       // Create notification
       await this.notificationRepository.create({
@@ -331,7 +385,7 @@ export class NotificationService implements INotificationService {
   /**
    * Handle comment reply event - create notification for the person being replied to
    * @deprecated Use handleSendNotification instead
-   * 
+   *
    * Business Rules: Send notification if recipient ≠ reply author and recipient ≠ blog author
    * Skip if: replying to self or replying to staff
    */
@@ -344,12 +398,16 @@ export class NotificationService implements INotificationService {
     content: string;
   }): Promise<void> {
     try {
-      this.logger.log(`Handling comment reply event for comment: ${payload.commentId}`);
+      this.logger.log(
+        `Handling comment reply event for comment: ${payload.commentId}`,
+      );
 
       // Double-check business rules (defense in depth)
       const isReplyingSelf = payload.repliedToUserId === payload.replyAuthorId;
       if (isReplyingSelf) {
-        this.logger.log(`Skipping notification: User ${payload.replyAuthorId} is replying to their own comment`);
+        this.logger.log(
+          `Skipping notification: User ${payload.replyAuthorId} is replying to their own comment`,
+        );
         return;
       }
 
@@ -363,14 +421,18 @@ export class NotificationService implements INotificationService {
       });
 
       if (!blog) {
-        this.logger.warn(`Blog ${payload.blogId} not found, skipping notification`);
+        this.logger.warn(
+          `Blog ${payload.blogId} not found, skipping notification`,
+        );
         return;
       }
 
       // Check if replied user is the blog owner (staff)
       const isReplyingStaff = payload.repliedToUserId === blog.authorId;
       if (isReplyingStaff) {
-        this.logger.log(`Skipping notification: User ${payload.repliedToUserId} is the blog owner (staff) - will receive summary notification instead`);
+        this.logger.log(
+          `Skipping notification: User ${payload.repliedToUserId} is the blog owner (staff) - will receive summary notification instead`,
+        );
         return;
       }
 
@@ -383,7 +445,8 @@ export class NotificationService implements INotificationService {
         },
       });
 
-      const authorName = replyAuthor?.displayName || replyAuthor?.email || 'Someone';
+      const authorName =
+        replyAuthor?.displayName || replyAuthor?.email || 'Someone';
       const blogTitle = blog.title || 'bài viết';
 
       // Create notification for the person being replied to (user, not staff)
@@ -424,12 +487,16 @@ export class NotificationService implements INotificationService {
     date: string;
   }): Promise<void> {
     try {
-      this.logger.log(`Handling blog interaction stats event for blog: ${payload.blogId}`);
+      this.logger.log(
+        `Handling blog interaction stats event for blog: ${payload.blogId}`,
+      );
 
       const totalInteractions = payload.commentCount + payload.likeCount;
 
       if (totalInteractions === 0) {
-        this.logger.log(`No interactions for blog ${payload.blogId}, skipping notification`);
+        this.logger.log(
+          `No interactions for blog ${payload.blogId}, skipping notification`,
+        );
         return;
       }
 

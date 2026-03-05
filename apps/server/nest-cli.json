@@ -52,6 +52,16 @@
         "webpack": false
       }
     },
+    "academy": {
+      "type": "application",
+      "root": "services/academy",
+      "entryFile": "main",
+      "sourceRoot": "services/academy/src",
+      "compilerOptions": {
+        "tsConfigPath": "services/academy/tsconfig.app.json",
+        "webpack": false
+      }
+    },
     "agents": {
       "type": "application",
       "root": "services/agents",

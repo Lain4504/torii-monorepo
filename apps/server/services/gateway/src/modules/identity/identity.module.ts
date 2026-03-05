@@ -10,21 +10,19 @@ import { AuthController } from './controllers/auth.controller';
 
 import { ProfilesController } from './controllers/profiles.controller';
 
-
 /**
  * Identity Module for Gateway
  * Handles all Identity service HTTP routes via NATS
  */
 @Module({
-    imports: [NatsClientModule],
-    controllers: [
-        UsersController,
-        AuthorizationController,
-        AuditLogController,
-        TwoFactorAuthController,
-        AuthController,
-        ProfilesController,
-
-    ],
+  imports: [NatsClientModule],
+  controllers: [
+    UsersController,
+    AuthorizationController,
+    AuditLogController,
+    TwoFactorAuthController,
+    AuthController,
+    ProfilesController,
+  ],
 })
-export class IdentityModule { }
+export class IdentityModule {}

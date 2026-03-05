@@ -7,5 +7,5 @@ import { Requester } from '@workspace/schemas';
  * and the 'requester' object.
  */
 export type ReqWithRequester = Request & {
-    requester: Requester;
+  requester: Requester;
 };

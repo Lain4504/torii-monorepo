@@ -11,6 +11,10 @@ export * from './i-two-factor-auth.repository';
 
 // Injection tokens for dependency injection
 export const USERS_REPOSITORY_TOKEN = Symbol('USERS_REPOSITORY');
-export const USER_IDENTITY_REPOSITORY_TOKEN = Symbol('USER_IDENTITY_REPOSITORY');
+export const USER_IDENTITY_REPOSITORY_TOKEN = Symbol(
+  'USER_IDENTITY_REPOSITORY',
+);
 export const AUDIT_LOG_REPOSITORY_TOKEN = Symbol('AUDIT_LOG_REPOSITORY');
-export const TWO_FACTOR_AUTH_REPOSITORY_TOKEN = Symbol('TWO_FACTOR_AUTH_REPOSITORY');
+export const TWO_FACTOR_AUTH_REPOSITORY_TOKEN = Symbol(
+  'TWO_FACTOR_AUTH_REPOSITORY',
+);

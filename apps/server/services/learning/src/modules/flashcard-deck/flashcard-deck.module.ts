@@ -25,5 +25,4 @@ import { FlashcardModule } from '@server/learning/modules/flashcard/flashcard.mo
   ],
   exports: [FLASHCARD_DECK_SERVICE_TOKEN, FLASHCARD_DECK_REPOSITORY_TOKEN],
 })
-export class FlashcardDeckModule { }
-
+export class FlashcardDeckModule {}

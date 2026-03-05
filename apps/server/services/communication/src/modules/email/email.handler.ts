@@ -9,24 +9,24 @@ import type { SendEmailEvent } from '@server/communication/infrastructure/events
  */
 @Controller()
 export class EmailHandler {
-    private readonly logger = new Logger(EmailHandler.name);
+  private readonly logger = new Logger(EmailHandler.name);
 
-    constructor(private readonly emailService: EmailService) { }
+  constructor(private readonly emailService: EmailService) {}
 
-    /**
-     * Handle send_email event from NATS
-     * @EventPattern - Listens to events (fire-and-forget)
-     */
-    @EventPattern({ cmd: 'send_email' })
-    async handleSendEmail(@Payload() event: SendEmailEvent): Promise<void> {
-        this.logger.log(`Received send_email event for type: ${event.type}`);
+  /**
+   * Handle send_email event from NATS
+   * @EventPattern - Listens to events (fire-and-forget)
+   */
+  @EventPattern({ cmd: 'send_email' })
+  async handleSendEmail(@Payload() event: SendEmailEvent): Promise<void> {
+    this.logger.log(`Received send_email event for type: ${event.type}`);
 
-        try {
-            await this.emailService.sendEmail(event);
-            this.logger.log(`Email sent successfully for type: ${event.type}`);
-        } catch (error: any) {
-            this.logger.error(`Failed to send email: ${error.message}`, error.stack);
-            // Don't throw - this is an event handler, failures should be logged only
-        }
+    try {
+      await this.emailService.sendEmail(event);
+      this.logger.log(`Email sent successfully for type: ${event.type}`);
+    } catch (error: any) {
+      this.logger.error(`Failed to send email: ${error.message}`, error.stack);
+      // Don't throw - this is an event handler, failures should be logged only
     }
+  }
 }

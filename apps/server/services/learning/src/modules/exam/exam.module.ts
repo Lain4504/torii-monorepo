@@ -11,30 +11,19 @@ import { ExamProfile } from '@server/learning/infrastructure/mappings/exam.profi
  * Handles exam/quiz management operations
  */
 @Module({
-    imports: [SharedModule, NatsClientModule],
-    controllers: [],
-    providers: [
-        {
-            provide: EXAM_REPOSITORY_TOKEN,
-            useClass: ExamRepository,
-        },
-        {
-            provide: EXAM_SERVICE_TOKEN,
-            useClass: ExamService,
-        },
-        ExamProfile,
-    ],
-    exports: [EXAM_SERVICE_TOKEN, EXAM_REPOSITORY_TOKEN],
+  imports: [SharedModule, NatsClientModule],
+  controllers: [],
+  providers: [
+    {
+      provide: EXAM_REPOSITORY_TOKEN,
+      useClass: ExamRepository,
+    },
+    {
+      provide: EXAM_SERVICE_TOKEN,
+      useClass: ExamService,
+    },
+    ExamProfile,
+  ],
+  exports: [EXAM_SERVICE_TOKEN, EXAM_REPOSITORY_TOKEN],
 })
-export class ExamModule { }
-
-
-
-
-
-
-
-
-
-
-
+export class ExamModule {}

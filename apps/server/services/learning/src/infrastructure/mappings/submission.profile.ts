@@ -63,7 +63,9 @@ export class SubmissionProfile extends AutomapperProfile {
         ),
         forMember(
           (dest: SubmissionResponseDTO) => dest.score,
-          mapFrom((src: Submission) => src.score ? Number(src.score) : undefined),
+          mapFrom((src: Submission) =>
+            src.score ? Number(src.score) : undefined,
+          ),
         ),
         forMember(
           (dest: SubmissionResponseDTO) => dest.feedback,
@@ -95,11 +97,13 @@ export class SubmissionProfile extends AutomapperProfile {
         ),
         forMember(
           (dest: SubmissionResponseDTO) => dest.gradeHistories,
-          mapFrom((src: any) => src.gradeHistories?.map(h => ({
-            ...h,
-            oldScore: h.oldScore ? Number(h.oldScore) : undefined,
-            newScore: h.newScore ? Number(h.newScore) : undefined,
-          }))),
+          mapFrom((src: any) =>
+            src.gradeHistories?.map((h) => ({
+              ...h,
+              oldScore: h.oldScore ? Number(h.oldScore) : undefined,
+              newScore: h.newScore ? Number(h.newScore) : undefined,
+            })),
+          ),
         ),
       );
     };

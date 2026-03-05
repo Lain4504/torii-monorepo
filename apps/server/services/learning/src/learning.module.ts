@@ -84,4 +84,4 @@ import { WishlistModule } from '@server/learning/modules/wishlist/wishlist.modul
     },
   ],
 })
-export class LearningModule { }
+export class LearningModule {}

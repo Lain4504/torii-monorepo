@@ -50,6 +50,12 @@
       "@server/meet/*": [
         "./services/meet/src/*"
       ],
+      "@server/academy": [
+        "./services/academy/src"
+      ],
+      "@server/academy/*": [
+        "./services/academy/src/*"
+      ],
       "@server/learning": [
         "./services/learning/src"
       ],

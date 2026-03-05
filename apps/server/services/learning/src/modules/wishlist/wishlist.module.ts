@@ -14,4 +14,4 @@ import { WishlistProfile } from '@server/learning/infrastructure/mappings/wishli
   providers: [WishlistRepository, WishlistService, WishlistProfile],
   exports: [WishlistService],
 })
-export class WishlistModule { }
+export class WishlistModule {}

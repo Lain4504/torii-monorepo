@@ -14,29 +14,34 @@ import { AppConfigService } from './config/app-config.service';
 
 @Global()
 @Module({
-    imports: [
-        ConfigModule.forRoot({
-            isGlobal: true,
-            load: [loadConfig],
-        }),
-        PrismaModule,
-        RedisModule,
-        EncryptionModule,
-        SharedStorageModule,
-        SharedEmailModule
-    ],
-    providers: [PrismaService, JwtTokenProvider, BlacklistService, AppConfigService],
-    exports: [
-        PrismaService,
-        PrismaModule,
-        ConfigModule,
-        JwtTokenProvider,
-        BlacklistService,
-        RedisModule,
-        EncryptionModule,
-        SharedStorageModule,
-        SharedEmailModule,
-        AppConfigService
-    ],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [loadConfig],
+    }),
+    PrismaModule,
+    RedisModule,
+    EncryptionModule,
+    SharedStorageModule,
+    SharedEmailModule,
+  ],
+  providers: [
+    PrismaService,
+    JwtTokenProvider,
+    BlacklistService,
+    AppConfigService,
+  ],
+  exports: [
+    PrismaService,
+    PrismaModule,
+    ConfigModule,
+    JwtTokenProvider,
+    BlacklistService,
+    RedisModule,
+    EncryptionModule,
+    SharedStorageModule,
+    SharedEmailModule,
+    AppConfigService,
+  ],
 })
-export class SharedModule { }
+export class SharedModule {}

@@ -24,7 +24,7 @@ import { AppConfigService } from '../config/app-config.service';
  */
 @Injectable()
 export class ApiKeyGuard implements CanActivate {
-  constructor(private readonly appConfig: AppConfigService) { }
+  constructor(private readonly appConfig: AppConfigService) {}
 
   canActivate(context: ExecutionContext): boolean {
     const ctx = context.switchToHttp();
@@ -34,11 +34,16 @@ export class ApiKeyGuard implements CanActivate {
     const signature = request.headers['hash-signature'] as string;
 
     // Get configured API key and secret
-    const { apiKey: configApiKey, apiSecret: configSecret } = this.appConfig.security.wajlc;
+    const { apiKey: configApiKey, apiSecret: configSecret } =
+      this.appConfig.security.wajlc;
 
     if (!configApiKey || !configSecret) {
       response.status(HttpStatus.INTERNAL_SERVER_ERROR);
-      sendCommonProtoJsonResponse(response, false, 'Server configuration error');
+      sendCommonProtoJsonResponse(
+        response,
+        false,
+        'Server configuration error',
+      );
       return false;
     }
 
@@ -52,25 +57,37 @@ export class ApiKeyGuard implements CanActivate {
     // Validate signature presence
     if (!signature) {
       response.status(HttpStatus.UNAUTHORIZED);
-      sendCommonProtoJsonResponse(response, false, 'Hash signature value required');
+      sendCommonProtoJsonResponse(
+        response,
+        false,
+        'Hash signature value required',
+      );
       return false;
     }
 
     // Verify HMAC signature
     const body = (request as any).rawBody || request.body;
-    const bodyBuffer = Buffer.isBuffer(body) ? body : Buffer.from(JSON.stringify(body));
+    const bodyBuffer = Buffer.isBuffer(body)
+      ? body
+      : Buffer.from(JSON.stringify(body));
 
     const mac = crypto.createHmac('sha256', configSecret);
     mac.update(bodyBuffer);
     const expectedSignature = mac.digest('hex');
 
     // Constant-time comparison
-    if (!crypto.timingSafeEqual(
-      Buffer.from(expectedSignature),
-      Buffer.from(signature)
-    )) {
+    if (
+      !crypto.timingSafeEqual(
+        Buffer.from(expectedSignature),
+        Buffer.from(signature),
+      )
+    ) {
       response.status(HttpStatus.UNAUTHORIZED);
-      sendCommonProtoJsonResponse(response, false, "Can't verify provided information");
+      sendCommonProtoJsonResponse(
+        response,
+        false,
+        "Can't verify provided information",
+      );
       return false;
     }
 

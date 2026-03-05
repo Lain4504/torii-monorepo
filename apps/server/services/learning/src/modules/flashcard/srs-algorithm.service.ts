@@ -66,7 +66,10 @@ export class SrsAlgorithmService {
     // Quality 1: Hard
     else if (quality === ReviewQuality.ONE) {
       // Decrease interval by 15%
-      newInterval = Math.max(1, Math.floor(currentInterval * 0.85 * finalConfig.intervalModifier));
+      newInterval = Math.max(
+        1,
+        Math.floor(currentInterval * 0.85 * finalConfig.intervalModifier),
+      );
       newState = this.determineState(newInterval, currentState, false);
     }
     // Quality 2: Good (most common)
@@ -79,7 +82,9 @@ export class SrsAlgorithmService {
         newInterval = 6 * finalConfig.intervalModifier;
       } else {
         // Subsequent reviews: multiply by ease factor
-        newInterval = Math.floor(currentInterval * newEaseFactor * finalConfig.intervalModifier);
+        newInterval = Math.floor(
+          currentInterval * newEaseFactor * finalConfig.intervalModifier,
+        );
       }
       newState = this.determineState(newInterval, currentState, true);
     }
@@ -90,7 +95,10 @@ export class SrsAlgorithmService {
         newInterval = 4 * finalConfig.intervalModifier;
       } else {
         newInterval = Math.floor(
-          currentInterval * newEaseFactor * finalConfig.easyBonus * finalConfig.intervalModifier,
+          currentInterval *
+            newEaseFactor *
+            finalConfig.easyBonus *
+            finalConfig.intervalModifier,
         );
       }
       newState = FlashcardState.REVIEW;
@@ -116,7 +124,10 @@ export class SrsAlgorithmService {
    * Formula: EF' = EF + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02))
    * Where q is quality (0-4)
    */
-  private updateEaseFactor(currentEase: number, quality: ReviewQuality): number {
+  private updateEaseFactor(
+    currentEase: number,
+    quality: ReviewQuality,
+  ): number {
     // Map enum to number: ZERO=0, ONE=1, TWO=2, THREE=3, FOUR=4
     const qualityMap: Record<ReviewQuality, number> = {
       [ReviewQuality.ZERO]: 0,
@@ -126,10 +137,10 @@ export class SrsAlgorithmService {
       [ReviewQuality.FOUR]: 4,
     };
     const q = qualityMap[quality];
-    
+
     // Formula from SM-2 algorithm
     const newEase = currentEase + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
-    
+
     // Minimum ease factor is 1.3
     return Math.max(1.3, newEase);
   }
@@ -194,7 +205,10 @@ export class SrsAlgorithmService {
   /**
    * Calculate mastery percentage based on review history
    */
-  calculateMasteryPercentage(timesCorrect: number, timesIncorrect: number): number {
+  calculateMasteryPercentage(
+    timesCorrect: number,
+    timesIncorrect: number,
+  ): number {
     const total = timesCorrect + timesIncorrect;
     if (total === 0) return 0;
 
@@ -219,4 +233,3 @@ export class SrsAlgorithmService {
     return reviewDate < today;
   }
 }
-

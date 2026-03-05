@@ -9,62 +9,64 @@ import type { ILiveSessionRepository } from '@server/learning/interfaces/reposit
  */
 @Injectable()
 export class LiveSessionRepository implements ILiveSessionRepository {
-    private readonly logger = new Logger(LiveSessionRepository.name);
+  private readonly logger = new Logger(LiveSessionRepository.name);
 
-    constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-    async findById(id: string): Promise<LiveSession | null> {
-        return this.prisma.liveSession.findUnique({
-            where: { id },
-            include: { courseRun: true },
-        }) as any;
-    }
+  async findById(id: string): Promise<LiveSession | null> {
+    return this.prisma.liveSession.findUnique({
+      where: { id },
+      include: { courseRun: true },
+    }) as any;
+  }
 
-    async findByRunId(courseRunId: string): Promise<LiveSession[]> {
-        return this.prisma.liveSession.findMany({
-            where: { courseRunId },
-            include: { courseRun: true },
-            orderBy: { scheduledAt: 'asc' },
-        }) as any;
-    }
+  async findByRunId(courseRunId: string): Promise<LiveSession[]> {
+    return this.prisma.liveSession.findMany({
+      where: { courseRunId },
+      include: { courseRun: true },
+      orderBy: { scheduledAt: 'asc' },
+    }) as any;
+  }
 
-    async findByLecturerId(lecturerId: string): Promise<LiveSession[]> {
-        return this.prisma.liveSession.findMany({
-            where: { lecturerId },
-            include: { courseRun: true },
-            orderBy: { scheduledAt: 'asc' },
-        }) as any;
-    }
+  async findByLecturerId(lecturerId: string): Promise<LiveSession[]> {
+    return this.prisma.liveSession.findMany({
+      where: { lecturerId },
+      include: { courseRun: true },
+      orderBy: { scheduledAt: 'asc' },
+    }) as any;
+  }
 
-    async create(data: Prisma.LiveSessionCreateInput): Promise<LiveSession> {
-        return this.prisma.liveSession.create({
-            data,
-        });
-    }
+  async create(data: Prisma.LiveSessionCreateInput): Promise<LiveSession> {
+    return this.prisma.liveSession.create({
+      data,
+    });
+  }
 
-    async update(id: string, data: Prisma.LiveSessionUpdateInput): Promise<LiveSession> {
-        return this.prisma.liveSession.update({
-            where: { id },
-            data,
-        });
-    }
+  async update(
+    id: string,
+    data: Prisma.LiveSessionUpdateInput,
+  ): Promise<LiveSession> {
+    return this.prisma.liveSession.update({
+      where: { id },
+      data,
+    });
+  }
 
-    async delete(id: string): Promise<void> {
-        await this.prisma.liveSession.delete({
-            where: { id },
-        });
-    }
+  async delete(id: string): Promise<void> {
+    await this.prisma.liveSession.delete({
+      where: { id },
+    });
+  }
 
-    async findInRange(start: Date, end: Date): Promise<LiveSession[]> {
-        return this.prisma.liveSession.findMany({
-            where: {
-                scheduledAt: {
-                    gte: start,
-                    lte: end,
-                },
-            },
-            orderBy: { scheduledAt: 'asc' },
-        });
-    }
+  async findInRange(start: Date, end: Date): Promise<LiveSession[]> {
+    return this.prisma.liveSession.findMany({
+      where: {
+        scheduledAt: {
+          gte: start,
+          lte: end,
+        },
+      },
+      orderBy: { scheduledAt: 'asc' },
+    });
+  }
 }
-

@@ -16,17 +16,26 @@ export class SenseiHandler {
     private readonly senseiService: SenseiService,
     private readonly ttsService: TTSService,
     private readonly livekitAgentService: LivekitAgentService,
-  ) { }
+  ) {}
 
   @MessagePattern({ cmd: 'agents.livekit.joinRoom' })
-  async handleJoinRoom(@Payload() data: { roomName: string; participantIdentity?: string }) {
-    console.log(`[SenseiHandler] Received agents.livekit.joinRoom for room: ${data.roomName}`);
-    return this.livekitAgentService.joinRoom(data.roomName, data.participantIdentity);
+  async handleJoinRoom(
+    @Payload() data: { roomName: string; participantIdentity?: string },
+  ) {
+    console.log(
+      `[SenseiHandler] Received agents.livekit.joinRoom for room: ${data.roomName}`,
+    );
+    return this.livekitAgentService.joinRoom(
+      data.roomName,
+      data.participantIdentity,
+    );
   }
 
   @MessagePattern({ cmd: 'agents.livekit.clearJoinLock' })
   async clearJoinLock(@Payload() data: { roomName: string; userId?: string }) {
-    console.log(`[SenseiHandler] Received agents.livekit.clearJoinLock for room: ${data.roomName}, user: ${data.userId}`);
+    console.log(
+      `[SenseiHandler] Received agents.livekit.clearJoinLock for room: ${data.roomName}, user: ${data.userId}`,
+    );
     this.livekitAgentService.clearJoinLock(data.roomName, data.userId);
     return { success: true };
   }
@@ -39,15 +48,29 @@ export class SenseiHandler {
   @MessagePattern({ cmd: 'agents.sensei.translate' })
   async translate(
     @Payload()
-    data: { text: string; sourceLanguage: string; targetLanguage: string; requester: Requester },
+    data: {
+      text: string;
+      sourceLanguage: string;
+      targetLanguage: string;
+      requester: Requester;
+    },
   ) {
-    return this.senseiService.translate(data.requester, data.text, data.sourceLanguage, data.targetLanguage);
+    return this.senseiService.translate(
+      data.requester,
+      data.text,
+      data.sourceLanguage,
+      data.targetLanguage,
+    );
   }
 
   @MessagePattern({ cmd: 'agents.sensei.createFlashcard' })
   async createFlashcard(
     @Payload()
-    data: { topic: string; level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1'; requester: Requester },
+    data: {
+      topic: string;
+      level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
+      requester: Requester;
+    },
   ) {
     return this.senseiService.createFlashcard(
       data.requester,
@@ -80,7 +103,13 @@ export class SenseiHandler {
   async simulateConversation(
     @Payload()
     data: {
-      scenario: 'restaurant' | 'shopping' | 'station' | 'office' | 'casual' | 'formal';
+      scenario:
+        | 'restaurant'
+        | 'shopping'
+        | 'station'
+        | 'office'
+        | 'casual'
+        | 'formal';
       level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
       turns?: number;
       requester: Requester;
@@ -150,13 +179,17 @@ export class SenseiHandler {
 
   @MessagePattern({ cmd: 'agents.sensei.tts' })
   async tts(@Payload() data: { text: string; voice?: string }) {
-    console.log(`[SenseiHandler] Received TTS request for: ${data.text.substring(0, 20)}... (Voice: ${data.voice || 'Default'})`);
+    console.log(
+      `[SenseiHandler] Received TTS request for: ${data.text.substring(0, 20)}... (Voice: ${data.voice || 'Default'})`,
+    );
     try {
       // google-tts-api might throw if text is too long (200 chars).
       // For roleplay responses, they can be long.
       // We should handle that, but for now let's just try getAudioBase64.
       const url = await this.ttsService.getAudioBase64(data.text, data.voice);
-      console.log(`[SenseiHandler] Generated audio base64 (length: ${url.length})`);
+      console.log(
+        `[SenseiHandler] Generated audio base64 (length: ${url.length})`,
+      );
       return { url };
     } catch (e) {
       console.error(`[SenseiHandler] TTS failed:`, e);

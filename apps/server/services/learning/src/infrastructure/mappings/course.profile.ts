@@ -69,7 +69,9 @@ export class CourseProfile extends AutomapperProfile {
         ),
         forMember(
           (dest: CourseMasterResponseDTO) => dest.status,
-          mapFrom((src: CourseMaster) => (src as any).status as CourseMasterStatus),
+          mapFrom(
+            (src: CourseMaster) => (src as any).status as CourseMasterStatus,
+          ),
         ),
 
         forMember(
@@ -90,7 +92,9 @@ export class CourseProfile extends AutomapperProfile {
         ),
         forMember(
           (dest: CourseMasterResponseDTO) => (dest as any).maxTrialLessons,
-          mapFrom((src: CourseMaster) => (src as any).maxTrialLessons ?? undefined),
+          mapFrom(
+            (src: CourseMaster) => (src as any).maxTrialLessons ?? undefined,
+          ),
         ),
         forMember(
           (dest: CourseMasterResponseDTO) => (dest as any).aiMetadata,
@@ -124,4 +128,3 @@ export class CourseProfile extends AutomapperProfile {
     };
   }
 }
-

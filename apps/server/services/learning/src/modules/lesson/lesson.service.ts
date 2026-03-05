@@ -1,4 +1,12 @@
-import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException, forwardRef } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  Inject,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+  forwardRef,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
@@ -14,10 +22,25 @@ import type {
   LessonQueryDTO,
 } from '@workspace/schemas';
 
-import type { ILessonService, ICourseMasterService, IEnrollmentService } from '@server/learning/interfaces/services';
-import type { ILessonRepository, IModuleRepository, IModuleItemRepository } from '@server/learning/interfaces/repositories';
-import { LESSON_REPOSITORY_TOKEN, MODULE_REPOSITORY_TOKEN, MODULE_ITEM_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
-import { COURSE_MASTER_SERVICE_TOKEN, ENROLLMENT_SERVICE_TOKEN } from '@server/learning/interfaces/services';
+import type {
+  ILessonService,
+  ICourseMasterService,
+  IEnrollmentService,
+} from '@server/learning/interfaces/services';
+import type {
+  ILessonRepository,
+  IModuleRepository,
+  IModuleItemRepository,
+} from '@server/learning/interfaces/repositories';
+import {
+  LESSON_REPOSITORY_TOKEN,
+  MODULE_REPOSITORY_TOKEN,
+  MODULE_ITEM_REPOSITORY_TOKEN,
+} from '@server/learning/interfaces/repositories';
+import {
+  COURSE_MASTER_SERVICE_TOKEN,
+  ENROLLMENT_SERVICE_TOKEN,
+} from '@server/learning/interfaces/services';
 
 /**
  * Lesson Service
@@ -42,7 +65,7 @@ export class LessonService implements ILessonService {
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
     @InjectMapper() private readonly mapper: Mapper,
-  ) { }
+  ) {}
 
   /**
    * Helper to emit audit log event
@@ -69,7 +92,10 @@ export class LessonService implements ILessonService {
    */
   private hasPermission(requester: Requester, permission: string): boolean {
     if (!requester.permissions) return false;
-    return requester.permissions.includes('*') || requester.permissions.includes(permission);
+    return (
+      requester.permissions.includes('*') ||
+      requester.permissions.includes(permission)
+    );
   }
 
   /**
@@ -79,10 +105,16 @@ export class LessonService implements ILessonService {
     try {
       const module = await this.moduleRepository.findById(moduleId);
       if (module) {
-        this.natsClient.emit({ cmd: 'learning.courseMaster.recalculate_stats' }, { courseMasterId: module.courseMasterId });
+        this.natsClient.emit(
+          { cmd: 'learning.courseMaster.recalculate_stats' },
+          { courseMasterId: module.courseMasterId },
+        );
       }
     } catch (error) {
-      this.logger.error('Failed to trigger stats update from LessonService', error);
+      this.logger.error(
+        'Failed to trigger stats update from LessonService',
+        error,
+      );
     }
   }
 
@@ -90,13 +122,20 @@ export class LessonService implements ILessonService {
    * Map Lesson entity to LessonResponseDTO
    */
   private toLessonResponseDTO(lesson: Lesson): LessonResponseDTO {
-    return this.mapper.map<Lesson, LessonResponseDTO>(lesson, 'Lesson', 'LessonResponseDTO');
+    return this.mapper.map<Lesson, LessonResponseDTO>(
+      lesson,
+      'Lesson',
+      'LessonResponseDTO',
+    );
   }
 
   /**
    * Build a protected DTO: mask sensitive content if the user is not authorized.
    */
-  private buildProtectedDTO(lesson: Lesson, isAuthorized: boolean): LessonResponseDTO {
+  private buildProtectedDTO(
+    lesson: Lesson,
+    isAuthorized: boolean,
+  ): LessonResponseDTO {
     const dto = this.toLessonResponseDTO(lesson);
     dto.isUnlocked = isAuthorized;
     if (!isAuthorized) {
@@ -109,7 +148,9 @@ export class LessonService implements ILessonService {
   /**
    * Find all lessons with pagination and search
    */
-  async findAll(options: PaginationOptionsDTO): Promise<PaginatedResponseDTO<LessonResponseDTO>> {
+  async findAll(
+    options: PaginationOptionsDTO,
+  ): Promise<PaginatedResponseDTO<LessonResponseDTO>> {
     try {
       const { page = 1, limit = 10, search } = options;
       const skip = (page - 1) * limit;
@@ -138,7 +179,7 @@ export class LessonService implements ILessonService {
       const totalPages = Math.ceil(total / limit);
 
       return {
-        data: lessons.map(lesson => this.toLessonResponseDTO(lesson)),
+        data: lessons.map((lesson) => this.toLessonResponseDTO(lesson)),
         total,
         page,
         limit,
@@ -153,9 +194,18 @@ export class LessonService implements ILessonService {
   /**
    * Search lessons with complex filters
    */
-  async search(options: LessonQueryDTO): Promise<PaginatedResponseDTO<LessonResponseDTO>> {
+  async search(
+    options: LessonQueryDTO,
+  ): Promise<PaginatedResponseDTO<LessonResponseDTO>> {
     try {
-      const { page = 1, limit = 10, search, moduleId, contentType, status } = options;
+      const {
+        page = 1,
+        limit = 10,
+        search,
+        moduleId,
+        contentType,
+        status,
+      } = options;
       const skip = (page - 1) * limit;
 
       const where: any = {
@@ -192,7 +242,7 @@ export class LessonService implements ILessonService {
       ]);
 
       return {
-        data: lessons.map(lesson => this.toLessonResponseDTO(lesson)),
+        data: lessons.map((lesson) => this.toLessonResponseDTO(lesson)),
         total,
         page,
         limit,
@@ -207,17 +257,20 @@ export class LessonService implements ILessonService {
   /**
    * Find one lesson by ID
    */
-  async findById(lessonId: string, requester?: Requester): Promise<LessonResponseDTO> {
+  async findById(
+    lessonId: string,
+    requester?: Requester,
+  ): Promise<LessonResponseDTO> {
     const lesson = await this.lessonRepository.findById(lessonId);
 
     if (!lesson || lesson.deletedAt) {
       throw new NotFoundException(`Lesson with id ${lessonId} not found`);
     }
 
-    const isStaff = requester && (
-      this.hasPermission(requester, 'lesson.create') ||
-      this.hasPermission(requester, 'lesson.update')
-    );
+    const isStaff =
+      requester &&
+      (this.hasPermission(requester, 'lesson.create') ||
+        this.hasPermission(requester, 'lesson.update'));
 
     if (isStaff) {
       return this.toLessonResponseDTO(lesson);
@@ -231,17 +284,25 @@ export class LessonService implements ILessonService {
       try {
         const module = await this.moduleRepository.findById(lesson.moduleId);
         if (module) {
-          const hasAccess = await this.enrollmentService.isEnrolled(requester.sub, module.courseMasterId);
+          const hasAccess = await this.enrollmentService.isEnrolled(
+            requester.sub,
+            module.courseMasterId,
+          );
           if (hasAccess) {
             isAuthorized = true;
           }
         }
       } catch (error) {
-        this.logger.warn(`Failed to check access for user ${requester.sub} on lesson ${lessonId}`, error);
+        this.logger.warn(
+          `Failed to check access for user ${requester.sub} on lesson ${lessonId}`,
+          error,
+        );
       }
     }
 
-    const isLessonAvailable = (lesson as any).status === 'published' || (lesson as any).status === undefined;
+    const isLessonAvailable =
+      (lesson as any).status === 'published' ||
+      (lesson as any).status === undefined;
     isAuthorized = isAuthorized && isLessonAvailable;
     return this.buildProtectedDTO(lesson, isAuthorized);
   }
@@ -249,16 +310,22 @@ export class LessonService implements ILessonService {
   /**
    * Find all lessons for a specific module.
    */
-  async findByModuleId(moduleId: string, requester?: Requester): Promise<LessonResponseDTO[]> {
-    const isStaff = requester && (
-      this.hasPermission(requester, 'lesson.create') ||
-      this.hasPermission(requester, 'lesson.update')
+  async findByModuleId(
+    moduleId: string,
+    requester?: Requester,
+  ): Promise<LessonResponseDTO[]> {
+    const isStaff =
+      requester &&
+      (this.hasPermission(requester, 'lesson.create') ||
+        this.hasPermission(requester, 'lesson.update'));
+
+    const lessons = await this.lessonRepository.findByModuleId(
+      moduleId,
+      !!isStaff,
     );
 
-    const lessons = await this.lessonRepository.findByModuleId(moduleId, !!isStaff);
-
     if (isStaff) {
-      return lessons.map(lesson => this.toLessonResponseDTO(lesson));
+      return lessons.map((lesson) => this.toLessonResponseDTO(lesson));
     }
 
     let isEnrolled = false;
@@ -267,16 +334,24 @@ export class LessonService implements ILessonService {
       try {
         const module = await this.moduleRepository.findById(moduleId);
         if (module) {
-          isEnrolled = await this.enrollmentService.isEnrolled(requester.sub, module.courseMasterId);
+          isEnrolled = await this.enrollmentService.isEnrolled(
+            requester.sub,
+            module.courseMasterId,
+          );
         }
       } catch (error) {
-        this.logger.warn(`Enrollment check failed for module ${moduleId}`, error);
+        this.logger.warn(
+          `Enrollment check failed for module ${moduleId}`,
+          error,
+        );
       }
     }
 
-    return lessons.map(lesson => {
+    return lessons.map((lesson) => {
       const isAuthorized = lesson.isPreview || isEnrolled;
-      const isLessonAvailable = (lesson as any).status === 'published' || (lesson as any).status === undefined;
+      const isLessonAvailable =
+        (lesson as any).status === 'published' ||
+        (lesson as any).status === undefined;
       return this.buildProtectedDTO(lesson, isAuthorized && isLessonAvailable);
     });
   }
@@ -284,9 +359,12 @@ export class LessonService implements ILessonService {
   /**
    * Find preview lessons for a course
    */
-  async findPreviewLessonsByCourseId(courseMasterId: string): Promise<LessonResponseDTO[]> {
-    const lessons = await this.lessonRepository.findPreviewLessonsByCourseId(courseMasterId);
-    return lessons.map(lesson => this.toLessonResponseDTO(lesson));
+  async findPreviewLessonsByCourseId(
+    courseMasterId: string,
+  ): Promise<LessonResponseDTO[]> {
+    const lessons =
+      await this.lessonRepository.findPreviewLessonsByCourseId(courseMasterId);
+    return lessons.map((lesson) => this.toLessonResponseDTO(lesson));
   }
 
   /**
@@ -294,13 +372,18 @@ export class LessonService implements ILessonService {
    * A corresponding ModuleItem is automatically created to register this lesson
    * into the module's ordered item list.
    */
-  async create(requester: Requester, dto: LessonCreateDTO): Promise<LessonResponseDTO> {
+  async create(
+    requester: Requester,
+    dto: LessonCreateDTO,
+  ): Promise<LessonResponseDTO> {
     try {
       const module = await this.moduleRepository.findById(dto.moduleId);
       if (!module) throw new NotFoundException('Module not found');
 
       if (!this.hasPermission(requester, 'course.publish')) {
-        throw new ForbiddenException('Only Academic Staff or Admin can create Master syllabus lessons.');
+        throw new ForbiddenException(
+          'Only Academic Staff or Admin can create Master syllabus lessons.',
+        );
       }
 
       const data: any = {
@@ -319,7 +402,9 @@ export class LessonService implements ILessonService {
       const lesson = await this.lessonRepository.create(data);
 
       // Create the corresponding ModuleItem so the lesson appears in the ordered item list
-      const maxItemOrder = await this.moduleItemRepository.getMaxOrderIndex(dto.moduleId);
+      const maxItemOrder = await this.moduleItemRepository.getMaxOrderIndex(
+        dto.moduleId,
+      );
       await this.moduleItemRepository.create({
         module: { connect: { id: dto.moduleId } },
         title: dto.title,
@@ -341,18 +426,28 @@ export class LessonService implements ILessonService {
 
       return this.toLessonResponseDTO(lesson);
     } catch (error: any) {
-      if (error instanceof NotFoundException || error instanceof BadRequestException || error instanceof ForbiddenException) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException ||
+        error instanceof ForbiddenException
+      ) {
         throw error;
       }
       this.logger.error('Error creating lesson', error);
-      throw new BadRequestException(`Failed to create lesson: ${error?.message || 'Unknown error'}`);
+      throw new BadRequestException(
+        `Failed to create lesson: ${error?.message || 'Unknown error'}`,
+      );
     }
   }
 
   /**
    * Update lesson
    */
-  async update(requester: Requester, lessonId: string, dto: LessonUpdateDTO): Promise<LessonResponseDTO> {
+  async update(
+    requester: Requester,
+    lessonId: string,
+    dto: LessonUpdateDTO,
+  ): Promise<LessonResponseDTO> {
     if (!this.hasPermission(requester, 'lesson.update')) {
       throw new ForbiddenException('Only authorized users can update lessons');
     }
@@ -363,19 +458,25 @@ export class LessonService implements ILessonService {
     }
 
     if (!this.hasPermission(requester, 'course.publish')) {
-      throw new ForbiddenException('Only Academic Staff or Admin can update Master syllabus lessons.');
+      throw new ForbiddenException(
+        'Only Academic Staff or Admin can update Master syllabus lessons.',
+      );
     }
 
     try {
       const updateData: any = {};
       if (dto.title !== undefined) updateData.title = dto.title;
-      if (dto.contentType !== undefined) updateData.contentType = dto.contentType;
+      if (dto.contentType !== undefined)
+        updateData.contentType = dto.contentType;
       if (dto.videoUrl !== undefined) updateData.videoUrl = dto.videoUrl;
-      if (dto.videoDuration !== undefined) updateData.videoDuration = dto.videoDuration;
-      if (dto.articleContent !== undefined) updateData.articleContent = dto.articleContent;
+      if (dto.videoDuration !== undefined)
+        updateData.videoDuration = dto.videoDuration;
+      if (dto.articleContent !== undefined)
+        updateData.articleContent = dto.articleContent;
       if (dto.isPreview !== undefined) updateData.isPreview = dto.isPreview;
       if (dto.isUnlocked !== undefined) updateData.isUnlocked = dto.isUnlocked;
-      if ((dto as any).status !== undefined) updateData.status = (dto as any).status;
+      if ((dto as any).status !== undefined)
+        updateData.status = (dto as any).status;
 
       if (Object.keys(updateData).length === 0) {
         return this.toLessonResponseDTO(existing);
@@ -393,23 +494,34 @@ export class LessonService implements ILessonService {
         newValues: lesson,
       });
 
-      if ((dto as any).status !== undefined && (dto as any).status !== (existing as any).status) {
+      if (
+        (dto as any).status !== undefined &&
+        (dto as any).status !== (existing as any).status
+      ) {
         await this.triggerStatsUpdate(existing.moduleId);
       }
 
       return this.toLessonResponseDTO(lesson);
     } catch (error: any) {
       this.logger.error('Error updating lesson', error);
-      throw new BadRequestException(`Failed to update lesson: ${error?.message || 'Unknown error'}`);
+      throw new BadRequestException(
+        `Failed to update lesson: ${error?.message || 'Unknown error'}`,
+      );
     }
   }
 
   /**
    * Delete lesson
    */
-  async delete(requester: Requester, lessonId: string, hardDelete = false): Promise<{ message: string }> {
+  async delete(
+    requester: Requester,
+    lessonId: string,
+    hardDelete = false,
+  ): Promise<{ message: string }> {
     if (!this.hasPermission(requester, 'course.publish')) {
-      throw new ForbiddenException('Only Academic Staff or Admin can delete Master syllabus lessons.');
+      throw new ForbiddenException(
+        'Only Academic Staff or Admin can delete Master syllabus lessons.',
+      );
     }
 
     const existing = await this.lessonRepository.findById(lessonId);
@@ -428,7 +540,9 @@ export class LessonService implements ILessonService {
 
       await this.createAuditLog({
         userId: requester.sub,
-        action: hardDelete ? 'course_lesson.hard_delete' : 'course_lesson.delete',
+        action: hardDelete
+          ? 'course_lesson.hard_delete'
+          : 'course_lesson.delete',
         entity: 'course_lesson',
         entityId: lessonId,
         description: `${hardDelete ? 'Hard deleted' : 'Soft deleted'} lesson: ${existing.title}`,
@@ -439,7 +553,9 @@ export class LessonService implements ILessonService {
 
       return { message: 'Lesson deleted successfully' };
     } catch (error: any) {
-      throw new BadRequestException(`Failed to delete lesson: ${error?.message || 'Unknown error'}`);
+      throw new BadRequestException(
+        `Failed to delete lesson: ${error?.message || 'Unknown error'}`,
+      );
     }
   }
 }

@@ -56,7 +56,11 @@ export class UserProfile extends AutomapperProfile {
           (dest: UserResponseDTO) => dest.appMetadata,
           mapFrom((src: User) => {
             if (!src.appMetadata) return undefined;
-            if (typeof src.appMetadata === 'object' && src.appMetadata !== null && !Array.isArray(src.appMetadata)) {
+            if (
+              typeof src.appMetadata === 'object' &&
+              src.appMetadata !== null &&
+              !Array.isArray(src.appMetadata)
+            ) {
               return src.appMetadata as Record<string, unknown>;
             }
             return undefined;
@@ -66,7 +70,11 @@ export class UserProfile extends AutomapperProfile {
           (dest: UserResponseDTO) => dest.userMetadata,
           mapFrom((src: User) => {
             if (!src.userMetadata) return undefined;
-            if (typeof src.userMetadata === 'object' && src.userMetadata !== null && !Array.isArray(src.userMetadata)) {
+            if (
+              typeof src.userMetadata === 'object' &&
+              src.userMetadata !== null &&
+              !Array.isArray(src.userMetadata)
+            ) {
               return src.userMetadata as Record<string, unknown>;
             }
             return undefined;
@@ -108,7 +116,7 @@ export class UserProfile extends AutomapperProfile {
 
             // Check for linked identities
             if (src.identities && Array.isArray(src.identities)) {
-              src.identities.forEach(identity => {
+              src.identities.forEach((identity) => {
                 methods.push(identity.provider);
               });
             }
@@ -120,4 +128,3 @@ export class UserProfile extends AutomapperProfile {
     };
   }
 }
-

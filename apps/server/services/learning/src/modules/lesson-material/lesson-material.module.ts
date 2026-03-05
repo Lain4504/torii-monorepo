@@ -14,25 +14,24 @@ import { ModuleModule } from '@server/learning/modules/module/module.module';
  * Handles lesson material upload and management
  */
 @Module({
-    imports: [
-        SharedStorageModule,
-        NatsClientModule,
-        forwardRef(() => EnrollmentModule),
-        forwardRef(() => ModuleModule),
-    ],
+  imports: [
+    SharedStorageModule,
+    NatsClientModule,
+    forwardRef(() => EnrollmentModule),
+    forwardRef(() => ModuleModule),
+  ],
   controllers: [LessonMaterialHandler],
-    providers: [
-        {
-            provide: LESSON_MATERIAL_REPOSITORY_TOKEN,
-            useClass: LessonMaterialRepository,
-        },
-        {
-            provide: LESSON_MATERIAL_SERVICE_TOKEN,
-            useClass: LessonMaterialService,
-        },
-        LessonMaterialProfile,
-    ],
-    exports: [LESSON_MATERIAL_SERVICE_TOKEN, LESSON_MATERIAL_REPOSITORY_TOKEN],
+  providers: [
+    {
+      provide: LESSON_MATERIAL_REPOSITORY_TOKEN,
+      useClass: LessonMaterialRepository,
+    },
+    {
+      provide: LESSON_MATERIAL_SERVICE_TOKEN,
+      useClass: LessonMaterialService,
+    },
+    LessonMaterialProfile,
+  ],
+  exports: [LESSON_MATERIAL_SERVICE_TOKEN, LESSON_MATERIAL_REPOSITORY_TOKEN],
 })
-export class LessonMaterialModule { }
-
+export class LessonMaterialModule {}

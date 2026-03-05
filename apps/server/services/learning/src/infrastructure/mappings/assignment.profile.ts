@@ -22,88 +22,94 @@ export class AssignmentProfile extends AutomapperProfile {
         'AssignmentResponseDTO',
         forMember(
           (dest) => dest.id,
-          mapFrom((src) => src.id)
+          mapFrom((src) => src.id),
         ),
         forMember(
           (dest) => dest.title,
-          mapFrom((src) => src.title)
+          mapFrom((src) => src.title),
         ),
         forMember(
           (dest) => dest.description,
-          mapFrom((src) => src.description)
+          mapFrom((src) => src.description),
         ),
         forMember(
           (dest) => dest.type,
-          mapFrom((src) => src.type as any)
+          mapFrom((src) => src.type as any),
         ),
         forMember(
           (dest) => dest.courseRunId,
-          mapFrom((src) => src.courseRunId)
+          mapFrom((src) => src.courseRunId),
         ),
         forMember(
           (dest) => dest.lessonId,
-          mapFrom((src) => src.lessonId || undefined)
+          mapFrom((src) => src.lessonId || undefined),
         ),
         forMember(
           (dest) => dest.maxScore,
-          mapFrom((src) => Number(src.maxScore))
+          mapFrom((src) => Number(src.maxScore)),
         ),
         forMember(
           (dest) => dest.passingScore,
-          mapFrom((src) => src.passingScore ? Number(src.passingScore) : undefined)
+          mapFrom((src) =>
+            src.passingScore ? Number(src.passingScore) : undefined,
+          ),
         ),
         forMember(
           (dest) => dest.dueDate,
-          mapFrom((src) => src.dueDate || undefined)
+          mapFrom((src) => src.dueDate || undefined),
         ),
         forMember(
           (dest) => dest.allowLateSubmission,
-          mapFrom((src) => src.allowLateSubmission)
+          mapFrom((src) => src.allowLateSubmission),
         ),
         forMember(
           (dest) => dest.latePenaltyPercent,
-          mapFrom((src) => src.latePenaltyPercent ? Number(src.latePenaltyPercent) : undefined)
+          mapFrom((src) =>
+            src.latePenaltyPercent ? Number(src.latePenaltyPercent) : undefined,
+          ),
         ),
         forMember(
           (dest) => dest.allowedFileTypes,
-          mapFrom((src) => src.allowedFileTypes as string[])
+          mapFrom((src) => src.allowedFileTypes),
         ),
         forMember(
           (dest) => dest.maxFileSize,
-          mapFrom((src) => src.maxFileSize ? Number(src.maxFileSize) : undefined)
+          mapFrom((src) =>
+            src.maxFileSize ? Number(src.maxFileSize) : undefined,
+          ),
         ),
         forMember(
           (dest) => dest.maxFiles,
-          mapFrom((src) => src.maxFiles || undefined)
+          mapFrom((src) => src.maxFiles || undefined),
         ),
         forMember(
           (dest) => dest.instructions,
-          mapFrom((src) => src.instructions || undefined)
+          mapFrom((src) => src.instructions || undefined),
         ),
         forMember(
           (dest) => dest.attachmentUrls,
-          mapFrom((src) => src.attachmentUrls as string[])
+          mapFrom((src) => src.attachmentUrls),
         ),
         forMember(
           (dest) => dest.createdBy,
-          mapFrom((src) => src.createdBy)
+          mapFrom((src) => src.createdBy),
         ),
         forMember(
           (dest) => dest.status,
-          mapFrom((src) => src.status as any)
+          mapFrom((src) => src.status as any),
         ),
         forMember(
           (dest) => dest.publishedAt,
-          mapFrom((src) => src.publishedAt || undefined)
+          mapFrom((src) => src.publishedAt || undefined),
         ),
         forMember(
           (dest) => dest.createdAt,
-          mapFrom((src) => src.createdAt)
+          mapFrom((src) => src.createdAt),
         ),
         forMember(
           (dest) => dest.updatedAt,
-          mapFrom((src) => src.updatedAt)
-        )
+          mapFrom((src) => src.updatedAt),
+        ),
       );
     };
   }

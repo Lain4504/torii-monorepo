@@ -1,4 +1,12 @@
-import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException, forwardRef } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  Inject,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+  forwardRef,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
@@ -13,9 +21,16 @@ import type {
   Requester,
 } from '@workspace/schemas';
 
-import type { IModuleService, ICourseMasterService } from '@server/learning/interfaces/services';
+import type {
+  IModuleService,
+  ICourseMasterService,
+} from '@server/learning/interfaces/services';
 import type { IModuleRepository } from '@server/learning/interfaces/repositories';
-import { MODULE_REPOSITORY_TOKEN, IModuleItemRepository, MODULE_ITEM_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import {
+  MODULE_REPOSITORY_TOKEN,
+  IModuleItemRepository,
+  MODULE_ITEM_REPOSITORY_TOKEN,
+} from '@server/learning/interfaces/repositories';
 import { COURSE_MASTER_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 
 /**
@@ -36,7 +51,7 @@ export class ModuleService implements IModuleService {
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
     @InjectMapper() private readonly mapper: Mapper,
-  ) { }
+  ) {}
 
   /**
    * Helper to emit audit log event
@@ -63,7 +78,10 @@ export class ModuleService implements IModuleService {
    */
   private hasPermission(requester: Requester, permission: string): boolean {
     if (!requester.permissions) return false;
-    return requester.permissions.includes('*') || requester.permissions.includes(permission);
+    return (
+      requester.permissions.includes('*') ||
+      requester.permissions.includes(permission)
+    );
   }
 
   /**
@@ -73,13 +91,19 @@ export class ModuleService implements IModuleService {
    * Map Module entity to ModuleResponseDTO
    */
   private toModuleResponseDTO(module: CourseMasterModule): ModuleResponseDTO {
-    return this.mapper.map<CourseMasterModule, ModuleResponseDTO>(module, 'Module', 'ModuleResponseDTO');
+    return this.mapper.map<CourseMasterModule, ModuleResponseDTO>(
+      module,
+      'Module',
+      'ModuleResponseDTO',
+    );
   }
 
   /**
    * Find all modules with pagination and search
    */
-  async findAll(options: PaginationOptionsDTO): Promise<PaginatedResponseDTO<ModuleResponseDTO>> {
+  async findAll(
+    options: PaginationOptionsDTO,
+  ): Promise<PaginatedResponseDTO<ModuleResponseDTO>> {
     try {
       const { page = 1, limit = 10, search } = options;
       const skip = (page - 1) * limit;
@@ -108,7 +132,7 @@ export class ModuleService implements IModuleService {
       const totalPages = Math.ceil(total / limit);
 
       return {
-        data: modules.map(module => this.toModuleResponseDTO(module)),
+        data: modules.map((module) => this.toModuleResponseDTO(module)),
         total,
         page,
         limit,
@@ -136,28 +160,45 @@ export class ModuleService implements IModuleService {
   /**
    * Find all modules for a specific course
    */
-  async findByCourseId(courseMasterId: string, requester?: Requester): Promise<ModuleResponseDTO[]> {
+  async findByCourseId(
+    courseMasterId: string,
+    requester?: Requester,
+  ): Promise<ModuleResponseDTO[]> {
     let includeDrafts = false;
-    if (requester && (this.hasPermission(requester, 'module.create') || this.hasPermission(requester, 'module.update'))) {
+    if (
+      requester &&
+      (this.hasPermission(requester, 'module.create') ||
+        this.hasPermission(requester, 'module.update'))
+    ) {
       includeDrafts = true;
     }
-    const modules = await this.moduleRepository.findByCourseId(courseMasterId, includeDrafts);
-    return modules.map(module => this.toModuleResponseDTO(module));
+    const modules = await this.moduleRepository.findByCourseId(
+      courseMasterId,
+      includeDrafts,
+    );
+    return modules.map((module) => this.toModuleResponseDTO(module));
   }
 
   /**
    * Create a new module
    */
-  async create(requester: Requester, dto: ModuleCreateDTO): Promise<ModuleResponseDTO> {
+  async create(
+    requester: Requester,
+    dto: ModuleCreateDTO,
+  ): Promise<ModuleResponseDTO> {
     // Only Admin/Staff-LMS can create modules in Master Syllabus
     if (!this.hasPermission(requester, 'course.publish')) {
-      throw new ForbiddenException('Only Academic Staff or Admin can create Master syllabus modules.');
+      throw new ForbiddenException(
+        'Only Academic Staff or Admin can create Master syllabus modules.',
+      );
     }
     try {
       // Get next order index if not provided
       let orderIndex = dto.orderIndex;
       if (orderIndex === undefined) {
-        const maxOrder = await this.moduleRepository.getMaxOrderIndex(dto.courseMasterId);
+        const maxOrder = await this.moduleRepository.getMaxOrderIndex(
+          dto.courseMasterId,
+        );
         orderIndex = maxOrder + 1;
       }
 
@@ -188,14 +229,20 @@ export class ModuleService implements IModuleService {
       return this.toModuleResponseDTO(module);
     } catch (error: any) {
       this.logger.error('Error creating module', error);
-      throw new BadRequestException(`Failed to create module: ${error?.message || 'Unknown error'}`);
+      throw new BadRequestException(
+        `Failed to create module: ${error?.message || 'Unknown error'}`,
+      );
     }
   }
 
   /**
    * Update module
    */
-  async update(requester: Requester, moduleId: string, dto: ModuleUpdateDTO): Promise<ModuleResponseDTO> {
+  async update(
+    requester: Requester,
+    moduleId: string,
+    dto: ModuleUpdateDTO,
+  ): Promise<ModuleResponseDTO> {
     // Check permissions
     if (!this.hasPermission(requester, 'module.update')) {
       throw new ForbiddenException('Only authorized users can update modules');
@@ -209,17 +256,22 @@ export class ModuleService implements IModuleService {
 
     // Business Rule: ONLY Admin or Staff-LMS (Academic) can update modules in the Master Syllabus.
     if (!this.hasPermission(requester, 'course.publish')) {
-      throw new ForbiddenException('Only Academic Staff or Admin can update Master syllabus modules.');
+      throw new ForbiddenException(
+        'Only Academic Staff or Admin can update Master syllabus modules.',
+      );
     }
 
     try {
       const updateData: any = {};
 
       if (dto.title !== undefined) updateData.title = dto.title;
-      if (dto.description !== undefined) updateData.description = dto.description;
+      if (dto.description !== undefined)
+        updateData.description = dto.description;
       if (dto.orderIndex !== undefined) updateData.orderIndex = dto.orderIndex;
-      if (dto.durationMinutes !== undefined) updateData.durationMinutes = dto.durationMinutes;
-      if ((dto as any).status !== undefined) updateData.status = (dto as any).status;
+      if (dto.durationMinutes !== undefined)
+        updateData.durationMinutes = dto.durationMinutes;
+      if ((dto as any).status !== undefined)
+        updateData.status = (dto as any).status;
 
       if (Object.keys(updateData).length === 0) {
         return this.toModuleResponseDTO(existing);
@@ -238,24 +290,37 @@ export class ModuleService implements IModuleService {
       });
 
       // Update course stats if status changed
-      if ((dto as any).status !== undefined && (dto as any).status !== (existing as any).status) {
-        await this.courseMasterService.recalculateStats(existing.courseMasterId);
+      if (
+        (dto as any).status !== undefined &&
+        (dto as any).status !== (existing as any).status
+      ) {
+        await this.courseMasterService.recalculateStats(
+          existing.courseMasterId,
+        );
       }
 
       return this.toModuleResponseDTO(module);
     } catch (error: any) {
       this.logger.error('Error updating module', error);
-      throw new BadRequestException(`Failed to update module: ${error?.message || 'Unknown error'}`);
+      throw new BadRequestException(
+        `Failed to update module: ${error?.message || 'Unknown error'}`,
+      );
     }
   }
 
   /**
    * Delete module
    */
-  async delete(requester: Requester, moduleId: string, hardDelete = false): Promise<{ message: string }> {
+  async delete(
+    requester: Requester,
+    moduleId: string,
+    hardDelete = false,
+  ): Promise<{ message: string }> {
     // Only Academic Staff can delete modules in Syllabus
     if (!this.hasPermission(requester, 'course.publish')) {
-      throw new ForbiddenException('Only Academic Staff or Admin can delete Master syllabus modules.');
+      throw new ForbiddenException(
+        'Only Academic Staff or Admin can delete Master syllabus modules.',
+      );
     }
 
     const existing = await this.moduleRepository.findById(moduleId);
@@ -267,14 +332,15 @@ export class ModuleService implements IModuleService {
     try {
       if (hardDelete) {
         await this.moduleRepository.delete(moduleId);
-      }
-      else {
+      } else {
         await this.moduleRepository.softDelete(moduleId);
       }
 
       await this.createAuditLog({
         userId: requester.sub,
-        action: hardDelete ? 'course_module.hard_delete' : 'course_module.delete',
+        action: hardDelete
+          ? 'course_module.hard_delete'
+          : 'course_module.delete',
         entity: 'course_module',
         entityId: moduleId,
         description: `${hardDelete ? 'Hard deleted' : 'Soft deleted'} module: ${existing.title}`,
@@ -285,9 +351,10 @@ export class ModuleService implements IModuleService {
       await this.courseMasterService.recalculateStats(existing.courseMasterId);
 
       return { message: 'Module deleted successfully' };
-    }
-    catch (error: any) {
-      throw new BadRequestException(`Failed to delete module: ${error?.message || 'Unknown error'}`);
+    } catch (error: any) {
+      throw new BadRequestException(
+        `Failed to delete module: ${error?.message || 'Unknown error'}`,
+      );
     }
   }
 
@@ -297,11 +364,13 @@ export class ModuleService implements IModuleService {
   async reorder(
     requester: Requester,
     courseMasterId: string,
-    moduleOrders: { id: string; orderIndex: number }[]
+    moduleOrders: { id: string; orderIndex: number }[],
   ): Promise<{ message: string }> {
     // Only authorized staff can reorder modules
     if (!this.hasPermission(requester, 'course.publish')) {
-      throw new ForbiddenException('Only Academic Staff or Admin can reorder Master syllabus modules.');
+      throw new ForbiddenException(
+        'Only Academic Staff or Admin can reorder Master syllabus modules.',
+      );
     }
 
     try {
@@ -317,19 +386,31 @@ export class ModuleService implements IModuleService {
       });
 
       return { message: 'Modules reordered successfully' };
-    }
-    catch (error: any) {
+    } catch (error: any) {
       this.logger.error('Error reordering modules', error);
-      throw new BadRequestException(`Failed to reorder modules: ${error?.message || 'Unknown error'}`);
+      throw new BadRequestException(
+        `Failed to reorder modules: ${error?.message || 'Unknown error'}`,
+      );
     }
   }
 
   /**
    * Add an item to a module
    */
-  async addModuleItem(requester: Requester, moduleId: string, dto: { title: string; type: string; referenceId: string; orderIndex?: number }): Promise<any> {
+  async addModuleItem(
+    requester: Requester,
+    moduleId: string,
+    dto: {
+      title: string;
+      type: string;
+      referenceId: string;
+      orderIndex?: number;
+    },
+  ): Promise<any> {
     if (!this.hasPermission(requester, 'course.publish')) {
-      throw new ForbiddenException('Only Academic Staff or Admin can add module items.');
+      throw new ForbiddenException(
+        'Only Academic Staff or Admin can add module items.',
+      );
     }
 
     const module = await this.moduleRepository.findById(moduleId);
@@ -337,7 +418,8 @@ export class ModuleService implements IModuleService {
 
     let orderIndex = dto.orderIndex;
     if (orderIndex === undefined) {
-      const maxOrder = await this.moduleItemRepository.getMaxOrderIndex(moduleId);
+      const maxOrder =
+        await this.moduleItemRepository.getMaxOrderIndex(moduleId);
       orderIndex = maxOrder + 1;
     }
 
@@ -366,7 +448,9 @@ export class ModuleService implements IModuleService {
    */
   async removeModuleItem(requester: Requester, itemId: string): Promise<void> {
     if (!this.hasPermission(requester, 'course.publish')) {
-      throw new ForbiddenException('Only Academic Staff or Admin can remove module items.');
+      throw new ForbiddenException(
+        'Only Academic Staff or Admin can remove module items.',
+      );
     }
 
     const item = await this.moduleItemRepository.findById(itemId);
@@ -387,13 +471,20 @@ export class ModuleService implements IModuleService {
   /**
    * Update an item in a module
    */
-  async updateModuleItem(requester: Requester, itemId: string, dto: { title?: string; orderIndex?: number }): Promise<any> {
+  async updateModuleItem(
+    requester: Requester,
+    itemId: string,
+    dto: { title?: string; orderIndex?: number },
+  ): Promise<any> {
     if (!this.hasPermission(requester, 'module.update')) {
-      throw new ForbiddenException('Only authorized users can update module items');
+      throw new ForbiddenException(
+        'Only authorized users can update module items',
+      );
     }
 
     const existing = await this.moduleItemRepository.findById(itemId);
-    if (!existing) throw new NotFoundException(`Module item ${itemId} not found`);
+    if (!existing)
+      throw new NotFoundException(`Module item ${itemId} not found`);
 
     const updateData: any = {};
     if (dto.title !== undefined) updateData.title = dto.title;
@@ -417,9 +508,15 @@ export class ModuleService implements IModuleService {
   /**
    * Reorder items within a module
    */
-  async reorderModuleItems(requester: Requester, moduleId: string, itemOrders: { id: string; orderIndex: number }[]): Promise<void> {
+  async reorderModuleItems(
+    requester: Requester,
+    moduleId: string,
+    itemOrders: { id: string; orderIndex: number }[],
+  ): Promise<void> {
     if (!this.hasPermission(requester, 'course.publish')) {
-      throw new ForbiddenException('Only Academic Staff or Admin can reorder module items.');
+      throw new ForbiddenException(
+        'Only Academic Staff or Admin can reorder module items.',
+      );
     }
 
     try {
@@ -435,8 +532,9 @@ export class ModuleService implements IModuleService {
       });
     } catch (error: any) {
       this.logger.error('Error reordering module items', error);
-      throw new BadRequestException(`Failed to reorder module items: ${error?.message || 'Unknown error'}`);
+      throw new BadRequestException(
+        `Failed to reorder module items: ${error?.message || 'Unknown error'}`,
+      );
     }
   }
 }
-

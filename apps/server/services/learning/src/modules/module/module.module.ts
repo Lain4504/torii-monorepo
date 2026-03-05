@@ -4,7 +4,10 @@ import { NatsClientModule } from '@server/shared';
 import { ModuleService } from '@server/learning/modules/module/module.service';
 import { ModuleRepository } from '@server/learning/modules/module/module.repository';
 import { ModuleItemRepository } from '@server/learning/modules/module/module-item.repository';
-import { MODULE_REPOSITORY_TOKEN, MODULE_ITEM_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories';
+import {
+  MODULE_REPOSITORY_TOKEN,
+  MODULE_ITEM_REPOSITORY_TOKEN,
+} from '@server/learning/interfaces/repositories';
 import { MODULE_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import { CourseMasterModule } from '@server/learning/modules/course-master/course-master.module';
 import { ModuleProfile } from '@server/learning/infrastructure/mappings/module.profile';
@@ -15,10 +18,7 @@ import { ModuleItemProfile } from '@server/learning/infrastructure/mappings/modu
  * Handles course module management operations
  */
 @Module({
-  imports: [
-    NatsClientModule,
-    forwardRef(() => CourseMasterModule),
-  ],
+  imports: [NatsClientModule, forwardRef(() => CourseMasterModule)],
   controllers: [ModuleHandler],
   providers: [
     {
@@ -36,7 +36,10 @@ import { ModuleItemProfile } from '@server/learning/infrastructure/mappings/modu
     ModuleProfile,
     ModuleItemProfile,
   ],
-  exports: [MODULE_SERVICE_TOKEN, MODULE_REPOSITORY_TOKEN, MODULE_ITEM_REPOSITORY_TOKEN],
+  exports: [
+    MODULE_SERVICE_TOKEN,
+    MODULE_REPOSITORY_TOKEN,
+    MODULE_ITEM_REPOSITORY_TOKEN,
+  ],
 })
-export class ModuleModule { }
-
+export class ModuleModule {}

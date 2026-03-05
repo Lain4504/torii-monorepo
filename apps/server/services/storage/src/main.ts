@@ -5,23 +5,23 @@ import { createNatsServiceConfig } from '@server/shared/nats/nats-service.config
 import { StorageModule } from '@server/storage/storage.module';
 
 async function bootstrap() {
-    console.log('🚀 Storage Service starting...');
+  console.log('🚀 Storage Service starting...');
 
-    const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-        StorageModule,
-        createNatsServiceConfig(),
-    );
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
+    StorageModule,
+    createNatsServiceConfig(),
+  );
 
-    app.useGlobalPipes(
-        new ValidationPipe({
-            whitelist: true,
-            transform: true,
-            forbidNonWhitelisted: false,
-        }),
-    );
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: false,
+    }),
+  );
 
-    await app.listen();
-    console.log('📡 Storage Service NATS microservice listening');
+  await app.listen();
+  console.log('📡 Storage Service NATS microservice listening');
 }
 
 bootstrap();

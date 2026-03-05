@@ -13,9 +13,7 @@ import { COUPON_SERVICE_TOKEN } from '@server/learning/interfaces/services';
  * Handles coupon management operations
  */
 @Module({
-  imports: [
-    NatsClientModule,
-  ],
+  imports: [NatsClientModule],
   controllers: [CouponHandler],
   providers: [
     {
@@ -31,5 +29,4 @@ import { COUPON_SERVICE_TOKEN } from '@server/learning/interfaces/services';
   ],
   exports: [COUPON_SERVICE_TOKEN, COUPON_REPOSITORY_TOKEN],
 })
-export class CouponModule { }
-
+export class CouponModule {}

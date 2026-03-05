@@ -11,17 +11,9 @@ import { AssignmentProfile } from '@server/learning/infrastructure/mappings/assi
  * Handles assignment management operations (BR-01, BR-02)
  */
 @Module({
-  imports: [
-    NatsClientModule,
-    forwardRef(() => SubmissionModule),
-  ],
+  imports: [NatsClientModule, forwardRef(() => SubmissionModule)],
   controllers: [AssignmentHandler],
-  providers: [
-    AssignmentRepository,
-    AssignmentService,
-    AssignmentProfile,
-  ],
+  providers: [AssignmentRepository, AssignmentService, AssignmentProfile],
   exports: [AssignmentService, AssignmentRepository],
 })
-export class AssignmentModule { }
-
+export class AssignmentModule {}

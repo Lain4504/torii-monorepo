@@ -6,9 +6,13 @@ import { SharedModule } from '@server/shared';
 import { RoomModule } from '@server/meet/modules/room/room.module';
 
 @Module({
-    imports: [forwardRef(() => AnalyticsModule), SharedModule, forwardRef(() => RoomModule)],
-    controllers: [ExternalDisplayNatsController],
-    providers: [ExternalDisplayService],
-    exports: [ExternalDisplayService],
+  imports: [
+    forwardRef(() => AnalyticsModule),
+    SharedModule,
+    forwardRef(() => RoomModule),
+  ],
+  controllers: [ExternalDisplayNatsController],
+  providers: [ExternalDisplayService],
+  exports: [ExternalDisplayService],
 })
-export class ExternalDisplayModule { }
+export class ExternalDisplayModule {}

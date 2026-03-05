@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException, BadRequestException, Logger, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Logger,
+  Inject,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
@@ -32,13 +38,20 @@ export class CommentService implements ICommentService {
     @InjectMapper() private readonly mapper: Mapper,
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
-  ) { }
+  ) {}
 
   /**
    * Map Comment entity to CommentResponseDTO using AutoMapper
    */
-  private toCommentResponseDTO(comment: any, currentUserId?: string): CommentResponseDTO {
-    const dto = this.mapper.map<any, CommentResponseDTO>(comment, 'Comment', 'CommentResponseDTO');
+  private toCommentResponseDTO(
+    comment: any,
+    currentUserId?: string,
+  ): CommentResponseDTO {
+    const dto = this.mapper.map<any, CommentResponseDTO>(
+      comment,
+      'Comment',
+      'CommentResponseDTO',
+    );
 
     // Manually map author if user relation is loaded and author not already mapped by automapper
     if (comment.user && !dto.author) {
@@ -64,7 +77,10 @@ export class CommentService implements ICommentService {
         // Ensure reply count/likes are mapped for nested items if they came from includeReplies
         replyCount: reply._count?.replies || 0,
         likeCount: reply._count?.likes || 0,
-        isLiked: currentUserId && reply.likes ? (Array.isArray(reply.likes) && reply.likes.length > 0) : false
+        isLiked:
+          currentUserId && reply.likes
+            ? Array.isArray(reply.likes) && reply.likes.length > 0
+            : false,
       }));
     }
 
@@ -87,13 +103,15 @@ export class CommentService implements ICommentService {
       if (!blog) {
         throw new NotFoundException(`Blog with id "${dto.entityId}" not found`);
       }
-    } else if (dto.targetType === 'DISCUSSION' as any && !dto.parentId) {
+    } else if (dto.targetType === ('DISCUSSION' as any) && !dto.parentId) {
       const discussion = await this.prisma.discussionTopic.findUnique({
         where: { id: dto.entityId },
       });
 
       if (!discussion) {
-        throw new NotFoundException(`Discussion with id "${dto.entityId}" not found`);
+        throw new NotFoundException(
+          `Discussion with id "${dto.entityId}" not found`,
+        );
       }
     }
 
@@ -111,7 +129,9 @@ export class CommentService implements ICommentService {
       parentComment = await this.commentRepository.findById(dto.parentId);
 
       if (!parentComment) {
-        throw new NotFoundException(`Parent comment with id "${dto.parentId}" not found`);
+        throw new NotFoundException(
+          `Parent comment with id "${dto.parentId}" not found`,
+        );
       }
       // Note: We don't strictly enforce parent target match here as finding parent Target requires extra query.
       // Assuming parentId is valid is enough for now.
@@ -139,27 +159,27 @@ export class CommentService implements ICommentService {
         {
           targetType: dto.targetType as any,
           targetId: dto.entityId!,
-        }
+        },
       );
     }
 
-    // Increment comment count logic 
+    // Increment comment count logic
     // Only increment if we can identify the target.
-    // For root comments, we have dto.entityId. 
+    // For root comments, we have dto.entityId.
     // For replies, we might want to increment parent's target too, but that requires finding it.
     // User requirement: "tradeoff xíu đi". Let's increment if we have the info from DTO (user passes type/id even for replies?)
-    // User said: "create comment hay create reply là truyền xuống 1 field type nữa". 
+    // User said: "create comment hay create reply là truyền xuống 1 field type nữa".
     // So current DTO has target info even for replies.
 
     if (dto.targetType === 'BLOG' && dto.entityId) {
       await this.blogRepository.update(dto.entityId, {
         commentCount: { increment: 1 },
       });
-    } else if (dto.targetType === 'DISCUSSION' as any) {
+    } else if (dto.targetType === ('DISCUSSION' as any)) {
       try {
         await this.prisma.discussionTopic.update({
           where: { id: dto.entityId },
-          data: { commentCount: { increment: 1 } }
+          data: { commentCount: { increment: 1 } },
         });
       } catch (e) {
         // Ignore
@@ -203,10 +223,19 @@ export class CommentService implements ICommentService {
   /**
    * Find all comments with pagination and filters
    */
-  async findAllComments(query: CommentQueryDTO, currentUserId?: string): Promise<CommentPaginatedResponse> {
+  async findAllComments(
+    query: CommentQueryDTO,
+    currentUserId?: string,
+  ): Promise<CommentPaginatedResponse> {
     try {
-      const page = typeof query.page === 'string' ? parseInt(query.page, 10) : (query.page || 1);
-      const limit = typeof query.limit === 'string' ? parseInt(query.limit, 10) : (query.limit || 20);
+      const page =
+        typeof query.page === 'string'
+          ? parseInt(query.page, 10)
+          : query.page || 1;
+      const limit =
+        typeof query.limit === 'string'
+          ? parseInt(query.limit, 10)
+          : query.limit || 20;
       const skip = (page - 1) * limit;
 
       // Base filtered by status
@@ -215,7 +244,7 @@ export class CommentService implements ICommentService {
       };
 
       // Filter by Target (Polymorphic)
-      // Only root comments usually have targets directly attached in this schema design 
+      // Only root comments usually have targets directly attached in this schema design
       // (replies are linked to parent).
       // However, if we want all comments for a blog, we generally fetch Roots + include Replies.
       if (query.entityId && query.targetType) {
@@ -223,7 +252,7 @@ export class CommentService implements ICommentService {
           some: {
             targetId: query.entityId,
             targetType: query.targetType as any,
-          }
+          },
         };
       }
 
@@ -257,7 +286,9 @@ export class CommentService implements ICommentService {
         }),
       );
 
-      const validComments = formattedComments.filter((c): c is CommentResponseDTO => c !== null);
+      const validComments = formattedComments.filter(
+        (c): c is CommentResponseDTO => c !== null,
+      );
 
       return {
         data: validComments,
@@ -267,7 +298,10 @@ export class CommentService implements ICommentService {
         totalPages: Math.ceil(total / limit),
       };
     } catch (error: any) {
-      this.logger.error(`Error in findAllComments: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error in findAllComments: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -288,7 +322,11 @@ export class CommentService implements ICommentService {
   /**
    * Update comment
    */
-  async updateComment(id: string, authorId: string, dto: CommentUpdateDTO): Promise<CommentResponseDTO> {
+  async updateComment(
+    id: string,
+    authorId: string,
+    dto: CommentUpdateDTO,
+  ): Promise<CommentResponseDTO> {
     const comment = await this.commentRepository.findById(id);
 
     if (!comment) {
@@ -334,11 +372,11 @@ export class CommentService implements ICommentService {
       await this.blogRepository.update(entityId, {
         commentCount: { decrement: 1 },
       });
-    } else if (targetType === 'DISCUSSION' as any) {
+    } else if (targetType === ('DISCUSSION' as any)) {
       try {
         await this.prisma.discussionTopic.update({
           where: { id: entityId },
-          data: { commentCount: { decrement: 1 } }
+          data: { commentCount: { decrement: 1 } },
         });
       } catch (e) {
         // Ignore
@@ -351,7 +389,10 @@ export class CommentService implements ICommentService {
   /**
    * Get comment with nested replies
    */
-  async getCommentWithReplies(commentId: string, depth: number = 2): Promise<CommentResponseDTO | null> {
+  async getCommentWithReplies(
+    commentId: string,
+    depth: number = 2,
+  ): Promise<CommentResponseDTO | null> {
     if (depth <= 0) {
       return null;
     }
@@ -372,21 +413,24 @@ export class CommentService implements ICommentService {
         }
         return this.toCommentResponseDTO({
           ...reply,
-          _count: reply._count || { replies: 0, likes: 0 }
-        } as any);
+          _count: reply._count || { replies: 0, likes: 0 },
+        });
       }),
     );
 
     return {
       ...formatted,
-      replies: repliesWithNested.filter((r) => r !== null) as CommentResponseDTO[],
+      replies: repliesWithNested.filter((r) => r !== null),
     };
   }
 
   /**
    * Toggle Like Comment
    */
-  async toggleLike(commentId: string, userId: string): Promise<{ isLiked: boolean; likeCount: number }> {
+  async toggleLike(
+    commentId: string,
+    userId: string,
+  ): Promise<{ isLiked: boolean; likeCount: number }> {
     const existingLike = await this.prisma.commentLike.findUnique({
       where: {
         commentId_userId: {
@@ -421,4 +465,3 @@ export class CommentService implements ICommentService {
     return { isLiked: !existingLike, likeCount };
   }
 }
-

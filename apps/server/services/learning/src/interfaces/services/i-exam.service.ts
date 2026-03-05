@@ -1,16 +1,16 @@
 import type {
-    ExamCreateDTO,
-    ExamUpdateDTO,
-    ExamQueryDTO,
-    ExamResponseDTO,
-    ExamSessionStartResponseDTO,
-    ExamSessionAnswersDTO,
-    ExamSessionResponseDTO,
-    ExamWithStatusResponseDTO,
-    ExamSessionQueryDTO,
-    ExamSessionWithExamResponseDTO,
-    PaginatedResponseDTO,
-    Requester,
+  ExamCreateDTO,
+  ExamUpdateDTO,
+  ExamQueryDTO,
+  ExamResponseDTO,
+  ExamSessionStartResponseDTO,
+  ExamSessionAnswersDTO,
+  ExamSessionResponseDTO,
+  ExamWithStatusResponseDTO,
+  ExamSessionQueryDTO,
+  ExamSessionWithExamResponseDTO,
+  PaginatedResponseDTO,
+  Requester,
 } from '@workspace/schemas';
 
 /**
@@ -18,96 +18,135 @@ import type {
  * Defines the contract for exam/quiz business logic operations
  */
 export interface IExamService {
-    /**
-     * Find all exams with status information for learners
-     */
-    findAllWithStatus(userId: string, query: ExamQueryDTO): Promise<PaginatedResponseDTO<ExamWithStatusResponseDTO>>;
+  /**
+   * Find all exams with status information for learners
+   */
+  findAllWithStatus(
+    userId: string,
+    query: ExamQueryDTO,
+  ): Promise<PaginatedResponseDTO<ExamWithStatusResponseDTO>>;
 
-    /**
-     * Find all exams (admin/staff view)
-     */
-    findAll(query: ExamQueryDTO): Promise<PaginatedResponseDTO<ExamResponseDTO>>;
+  /**
+   * Find all exams (admin/staff view)
+   */
+  findAll(query: ExamQueryDTO): Promise<PaginatedResponseDTO<ExamResponseDTO>>;
 
-    /**
-     * Find one exam by ID
-     */
-    findById(examId: string): Promise<ExamResponseDTO>;
+  /**
+   * Find one exam by ID
+   */
+  findById(examId: string): Promise<ExamResponseDTO>;
 
-    /**
-     * Create a new exam/quiz
-     */
-    create(requester: Requester, dto: ExamCreateDTO): Promise<ExamResponseDTO>;
+  /**
+   * Create a new exam/quiz
+   */
+  create(requester: Requester, dto: ExamCreateDTO): Promise<ExamResponseDTO>;
 
-    /**
-     * Update an exam/quiz
-     */
-    update(requester: Requester, examId: string, dto: ExamUpdateDTO): Promise<ExamResponseDTO>;
+  /**
+   * Update an exam/quiz
+   */
+  update(
+    requester: Requester,
+    examId: string,
+    dto: ExamUpdateDTO,
+  ): Promise<ExamResponseDTO>;
 
-    /**
-     * Delete an exam/quiz
-     */
-    delete(requester: Requester, examId: string): Promise<void>;
+  /**
+   * Delete an exam/quiz
+   */
+  delete(requester: Requester, examId: string): Promise<void>;
 
-    /**
-     * Publish an exam/quiz
-     */
-    publish(requester: Requester, examId: string): Promise<ExamResponseDTO>;
+  /**
+   * Publish an exam/quiz
+   */
+  publish(requester: Requester, examId: string): Promise<ExamResponseDTO>;
 
-    /**
-     * Start an exam session
-     */
-    startExam(examId: string, userId: string, courseRunId?: string): Promise<ExamSessionStartResponseDTO>;
+  /**
+   * Start an exam session
+   */
+  startExam(
+    examId: string,
+    userId: string,
+    courseRunId?: string,
+  ): Promise<ExamSessionStartResponseDTO>;
 
-    /**
-     * Save exam session answers
-     */
-    saveAnswers(sessionId: string, userId: string, data: ExamSessionAnswersDTO): Promise<ExamSessionResponseDTO>;
+  /**
+   * Save exam session answers
+   */
+  saveAnswers(
+    sessionId: string,
+    userId: string,
+    data: ExamSessionAnswersDTO,
+  ): Promise<ExamSessionResponseDTO>;
 
-    /**
-     * Submit exam session
-     */
-    submitSession(sessionId: string, userId: string): Promise<ExamSessionResponseDTO>;
+  /**
+   * Submit exam session
+   */
+  submitSession(
+    sessionId: string,
+    userId: string,
+  ): Promise<ExamSessionResponseDTO>;
 
-    /**
-     * Get user's exam sessions (history)
-     */
-    getUserSessions(userId: string, query: ExamSessionQueryDTO): Promise<PaginatedResponseDTO<ExamSessionWithExamResponseDTO>>;
+  /**
+   * Get user's exam sessions (history)
+   */
+  getUserSessions(
+    userId: string,
+    query: ExamSessionQueryDTO,
+  ): Promise<PaginatedResponseDTO<ExamSessionWithExamResponseDTO>>;
 
-    /**
-     * Get quiz statistics
-     */
-    getQuizStatistics(examId: string): Promise<any>;
+  /**
+   * Get quiz statistics
+   */
+  getQuizStatistics(examId: string): Promise<any>;
 
-    /**
-     * Get all attempts for a quiz (admin/staff view)
-     */
-    getQuizAttempts(examId: string, query: ExamSessionQueryDTO): Promise<PaginatedResponseDTO<ExamSessionWithExamResponseDTO>>;
+  /**
+   * Get all attempts for a quiz (admin/staff view)
+   */
+  getQuizAttempts(
+    examId: string,
+    query: ExamSessionQueryDTO,
+  ): Promise<PaginatedResponseDTO<ExamSessionWithExamResponseDTO>>;
 
-    /**
-     * Get attempt details with explanations (if allowed)
-     */
-    getAttemptDetails(sessionId: string, userId: string): Promise<any>;
+  /**
+   * Get attempt details with explanations (if allowed)
+   */
+  getAttemptDetails(sessionId: string, userId: string): Promise<any>;
 
-    /**
-     * Get exam by ID with user session status (for learners)
-     */
-    getExamById(examId: string, userId?: string): Promise<ExamWithStatusResponseDTO>;
+  /**
+   * Get exam by ID with user session status (for learners)
+   */
+  getExamById(
+    examId: string,
+    userId?: string,
+  ): Promise<ExamWithStatusResponseDTO>;
 
-    /**
-     * Get all sessions for a specific exam (for learners)
-     */
-    getExamSessions(examId: string, userId: string, query?: ExamSessionQueryDTO): Promise<PaginatedResponseDTO<ExamSessionWithExamResponseDTO>>;
+  /**
+   * Get all sessions for a specific exam (for learners)
+   */
+  getExamSessions(
+    examId: string,
+    userId: string,
+    query?: ExamSessionQueryDTO,
+  ): Promise<PaginatedResponseDTO<ExamSessionWithExamResponseDTO>>;
 
-    /**
-     * Add questions from a pool to a quiz (bulk)
-     */
-    addQuestionsFromPool(requester: Requester, quizId: string, poolId: string, limit: number): Promise<void>;
+  /**
+   * Add questions from a pool to a quiz (bulk)
+   */
+  addQuestionsFromPool(
+    requester: Requester,
+    quizId: string,
+    poolId: string,
+    limit: number,
+  ): Promise<void>;
 
-    /**
-     * Add specific questions to a quiz (bulk)
-     */
-    addBulkQuestions(requester: Requester, quizId: string, questionIds: string[]): Promise<void>;
+  /**
+   * Add specific questions to a quiz (bulk)
+   */
+  addBulkQuestions(
+    requester: Requester,
+    quizId: string,
+    questionIds: string[],
+  ): Promise<void>;
 }
 
 export const EXAM_SERVICE_TOKEN = Symbol('EXAM_SERVICE');
-

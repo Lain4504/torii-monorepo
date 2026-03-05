@@ -11,4 +11,4 @@ import { ReviewProfile } from '@server/learning/infrastructure/mappings/review.p
   providers: [ReviewRepository, ReviewService, ReviewProfile],
   exports: [ReviewRepository, ReviewService],
 })
-export class ReviewModule { }
+export class ReviewModule {}

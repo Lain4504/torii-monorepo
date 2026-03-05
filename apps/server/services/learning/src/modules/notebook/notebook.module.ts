@@ -8,19 +8,19 @@ import { NOTEBOOK_SERVICE_TOKEN } from '@server/learning/interfaces/services/i-n
 import { NotebookProfile } from '@server/learning/infrastructure/mappings/notebook.profile';
 
 @Module({
-    imports: [SharedModule],
+  imports: [SharedModule],
   controllers: [NotebookHandler],
-    providers: [
-        {
-            provide: NOTEBOOK_REPOSITORY_TOKEN,
-            useClass: NotebookRepository,
-        },
-        {
-            provide: NOTEBOOK_SERVICE_TOKEN,
-            useClass: NotebookService,
-        },
-        NotebookProfile,
-    ],
-    exports: [NOTEBOOK_SERVICE_TOKEN, NOTEBOOK_REPOSITORY_TOKEN],
+  providers: [
+    {
+      provide: NOTEBOOK_REPOSITORY_TOKEN,
+      useClass: NotebookRepository,
+    },
+    {
+      provide: NOTEBOOK_SERVICE_TOKEN,
+      useClass: NotebookService,
+    },
+    NotebookProfile,
+  ],
+  exports: [NOTEBOOK_SERVICE_TOKEN, NOTEBOOK_REPOSITORY_TOKEN],
 })
-export class NotebookModule { }
+export class NotebookModule {}

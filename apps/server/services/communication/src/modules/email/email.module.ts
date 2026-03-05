@@ -8,9 +8,9 @@ import { EmailHandler } from '@server/communication/modules/email/email.handler'
  * Handles email operations
  */
 @Module({
-    imports: [SharedEmailModule],
-    controllers: [EmailHandler],
-    providers: [EmailService],
-    exports: [EmailService],
+  imports: [SharedEmailModule],
+  controllers: [EmailHandler],
+  providers: [EmailService],
+  exports: [EmailService],
 })
-export class EmailModule { }
+export class EmailModule {}

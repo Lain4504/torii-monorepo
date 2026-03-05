@@ -9,22 +9,22 @@ import { STORAGE_REPOSITORY_TOKEN } from '@server/storage/interfaces/repositorie
 import { STORAGE_SERVICE_TOKEN } from '@server/storage/interfaces/services/i-storage.service';
 
 @Module({
-    imports: [SharedStorageModule, SharedModule],
-    controllers: [StorageHandler],
-    providers: [
-        {
-            provide: STORAGE_REPOSITORY_TOKEN,
-            useClass: StorageRepository,
-        },
-        {
-            provide: STORAGE_SERVICE_TOKEN,
-            useClass: StorageService,
-        },
-        {
-            provide: APP_FILTER,
-            useClass: GlobalRpcExceptionFilter,
-        },
-    ],
-    exports: [STORAGE_SERVICE_TOKEN, STORAGE_REPOSITORY_TOKEN],
+  imports: [SharedStorageModule, SharedModule],
+  controllers: [StorageHandler],
+  providers: [
+    {
+      provide: STORAGE_REPOSITORY_TOKEN,
+      useClass: StorageRepository,
+    },
+    {
+      provide: STORAGE_SERVICE_TOKEN,
+      useClass: StorageService,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: GlobalRpcExceptionFilter,
+    },
+  ],
+  exports: [STORAGE_SERVICE_TOKEN, STORAGE_REPOSITORY_TOKEN],
 })
-export class StorageModule { }
+export class StorageModule {}

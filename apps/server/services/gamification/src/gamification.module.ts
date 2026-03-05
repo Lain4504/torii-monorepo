@@ -10,18 +10,16 @@ import { StreakCheckJob } from './jobs/streak-check.job';
 import { PROFILES_SERVICE_TOKEN } from './interfaces/services';
 
 @Module({
-    imports: [
-        ScheduleModule.forRoot(),
-        SharedModule,
-        NatsClientModule,
-        ProfilesModule,
-        ActivitiesModule,
-        AchievementsModule,
-        LeaderboardsModule,
-        RedemptionsModule,
-    ],
-    providers: [
-        StreakCheckJob,
-    ],
+  imports: [
+    ScheduleModule.forRoot(),
+    SharedModule,
+    NatsClientModule,
+    ProfilesModule,
+    ActivitiesModule,
+    AchievementsModule,
+    LeaderboardsModule,
+    RedemptionsModule,
+  ],
+  providers: [StreakCheckJob],
 })
-export class GamificationModule { }
+export class GamificationModule {}

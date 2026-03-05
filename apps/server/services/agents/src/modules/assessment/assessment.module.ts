@@ -5,9 +5,9 @@ import { AssessmentService } from './assessment.service';
 import { AssessmentHandler } from './assessment.handler';
 
 @Module({
-    imports: [FastMcpModule],
-    controllers: [AssessmentHandler],
-    providers: [AssessmentService],
-    exports: [AssessmentService],
+  imports: [FastMcpModule],
+  controllers: [AssessmentHandler],
+  providers: [AssessmentService],
+  exports: [AssessmentService],
 })
-export class AssessmentModule { }
+export class AssessmentModule {}

@@ -12,9 +12,14 @@ import { NatsModule } from '@server/meet/services/nats.module';
 import { RedisModule } from '@server/meet/infrastructure/redis/redis.module';
 
 @Module({
-    imports: [SharedModule, forwardRef(() => WebhookModule), NatsModule, RedisModule],
-    controllers: [ArtifactsHandler],
-    providers: [ArtifactsService],
-    exports: [ArtifactsService],
+  imports: [
+    SharedModule,
+    forwardRef(() => WebhookModule),
+    NatsModule,
+    RedisModule,
+  ],
+  controllers: [ArtifactsHandler],
+  providers: [ArtifactsService],
+  exports: [ArtifactsService],
 })
-export class ArtifactsModule { }
+export class ArtifactsModule {}

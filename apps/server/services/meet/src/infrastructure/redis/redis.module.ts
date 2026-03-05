@@ -11,26 +11,26 @@ import { RedisWebhookService } from './redis-webhook.service';
 
 @Global()
 @Module({
-    imports: [ConfigModule],
-    providers: [
-        RedisLockService,
-        RedisRoomService,
-        RedisAnalyticsService,
-        RedisInsightsService,
-        RedisPollService,
-        RedisSpeechToTextService,
-        RedisBreakoutService,
-        RedisWebhookService,
-    ],
-    exports: [
-        RedisLockService,
-        RedisRoomService,
-        RedisAnalyticsService,
-        RedisInsightsService,
-        RedisPollService,
-        RedisSpeechToTextService,
-        RedisBreakoutService,
-        RedisWebhookService,
-    ],
+  imports: [ConfigModule],
+  providers: [
+    RedisLockService,
+    RedisRoomService,
+    RedisAnalyticsService,
+    RedisInsightsService,
+    RedisPollService,
+    RedisSpeechToTextService,
+    RedisBreakoutService,
+    RedisWebhookService,
+  ],
+  exports: [
+    RedisLockService,
+    RedisRoomService,
+    RedisAnalyticsService,
+    RedisInsightsService,
+    RedisPollService,
+    RedisSpeechToTextService,
+    RedisBreakoutService,
+    RedisWebhookService,
+  ],
 })
-export class RedisModule { }
+export class RedisModule {}

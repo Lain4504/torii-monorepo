@@ -5,7 +5,10 @@ import {
   ReviewSessionResponseDTO,
   StartReviewSessionDTO,
 } from '@workspace/schemas';
-import { IFlashcardReviewRepository, FLASHCARD_REVIEW_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-flashcard-review.repository';
+import {
+  IFlashcardReviewRepository,
+  FLASHCARD_REVIEW_REPOSITORY_TOKEN,
+} from '@server/learning/interfaces/repositories/i-flashcard-review.repository';
 import type { IFlashcardReviewSessionService } from '@server/learning/interfaces/services/i-flashcard-review-session.service';
 
 @Injectable()
@@ -16,12 +19,15 @@ export class FlashcardReviewSessionService implements IFlashcardReviewSessionSer
     @Inject(FLASHCARD_REVIEW_REPOSITORY_TOKEN)
     private readonly reviewRepository: IFlashcardReviewRepository,
     private readonly prisma: PrismaService,
-  ) { }
+  ) {}
 
   /**
    * Start a review session
    */
-  async startSession(userId: string, data: StartReviewSessionDTO): Promise<ReviewSessionResponseDTO> {
+  async startSession(
+    userId: string,
+    data: StartReviewSessionDTO,
+  ): Promise<ReviewSessionResponseDTO> {
     try {
       const { deckId, studyMode = 'normal', deviceType } = data;
 
@@ -57,7 +63,10 @@ export class FlashcardReviewSessionService implements IFlashcardReviewSessionSer
 
       return this.mapToDTO(session);
     } catch (error: any) {
-      this.logger.error(`Error starting session: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error starting session: ${error.message}`,
+        error.stack,
+      );
       throw new RpcException({
         status: 500,
         message: `Failed to start session: ${error?.message || 'Unknown error'}`,
@@ -68,7 +77,11 @@ export class FlashcardReviewSessionService implements IFlashcardReviewSessionSer
   /**
    * Complete a review session
    */
-  async completeSession(sessionId: string, userId: string, data: { durationSeconds?: number }): Promise<ReviewSessionResponseDTO> {
+  async completeSession(
+    sessionId: string,
+    userId: string,
+    data: { durationSeconds?: number },
+  ): Promise<ReviewSessionResponseDTO> {
     try {
       const session = await this.reviewRepository.findSessionById(sessionId);
 
@@ -90,32 +103,43 @@ export class FlashcardReviewSessionService implements IFlashcardReviewSessionSer
       const reviews = await this.reviewRepository.findReviews({ sessionId });
 
       const totalCards = reviews.length;
-      const correctCount = reviews.filter(r => r.quality !== 'ZERO').length;
-      const incorrectCount = reviews.filter(r => r.quality === 'ZERO').length;
-      const hardCount = reviews.filter(r => r.quality === 'ONE').length;
-      const easyCount = reviews.filter(r => r.quality === 'FOUR').length;
+      const correctCount = reviews.filter((r) => r.quality !== 'ZERO').length;
+      const incorrectCount = reviews.filter((r) => r.quality === 'ZERO').length;
+      const hardCount = reviews.filter((r) => r.quality === 'ONE').length;
+      const easyCount = reviews.filter((r) => r.quality === 'FOUR').length;
 
-      const totalResponseTime = reviews.reduce((sum, r) => sum + r.timeSpent, 0);
-      const averageResponseTime = totalCards > 0 ? Math.round(totalResponseTime / totalCards) : 0;
+      const totalResponseTime = reviews.reduce(
+        (sum, r) => sum + r.timeSpent,
+        0,
+      );
+      const averageResponseTime =
+        totalCards > 0 ? Math.round(totalResponseTime / totalCards) : 0;
 
       // Updated count by state
-      const newCards = reviews.filter(r => r.previousState === 'new').length;
-      const learningCards = reviews.filter(r => r.previousState === 'learning').length;
-      const reviewCards = reviews.filter(r => r.previousState === 'review').length;
+      const newCards = reviews.filter((r) => r.previousState === 'new').length;
+      const learningCards = reviews.filter(
+        (r) => r.previousState === 'learning',
+      ).length;
+      const reviewCards = reviews.filter(
+        (r) => r.previousState === 'review',
+      ).length;
 
-      const updatedSession = await this.reviewRepository.updateSession(sessionId, {
-        completedAt: new Date(),
-        durationSeconds: data.durationSeconds || 0,
-        totalCards,
-        correctCount,
-        incorrectCount,
-        hardCount,
-        easyCount,
-        averageResponseTime,
-        newCards,
-        learningCards,
-        reviewCards,
-      });
+      const updatedSession = await this.reviewRepository.updateSession(
+        sessionId,
+        {
+          completedAt: new Date(),
+          durationSeconds: data.durationSeconds || 0,
+          totalCards,
+          correctCount,
+          incorrectCount,
+          hardCount,
+          easyCount,
+          averageResponseTime,
+          newCards,
+          learningCards,
+          reviewCards,
+        },
+      );
 
       // Update deck last studied at
       await this.prisma.flashcardDeck.update({
@@ -124,13 +148,16 @@ export class FlashcardReviewSessionService implements IFlashcardReviewSessionSer
           lastStudiedAt: new Date(),
           totalStudyTime: { increment: data.durationSeconds || 0 },
           studiedCount: { increment: 1 },
-        }
+        },
       });
 
       return this.mapToDTO(updatedSession);
     } catch (error: any) {
       if (error instanceof RpcException) throw error;
-      this.logger.error(`Error completing session: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error completing session: ${error.message}`,
+        error.stack,
+      );
       throw new RpcException({
         status: 500,
         message: `Failed to complete session: ${error?.message || 'Unknown error'}`,
@@ -141,7 +168,10 @@ export class FlashcardReviewSessionService implements IFlashcardReviewSessionSer
   /**
    * Get session by ID
    */
-  async getSessionById(sessionId: string, userId: string): Promise<ReviewSessionResponseDTO> {
+  async getSessionById(
+    sessionId: string,
+    userId: string,
+  ): Promise<ReviewSessionResponseDTO> {
     try {
       const session = await this.reviewRepository.findSessionById(sessionId);
 
@@ -173,7 +203,11 @@ export class FlashcardReviewSessionService implements IFlashcardReviewSessionSer
   /**
    * Get recent sessions for a user/deck
    */
-  async getRecentSessions(userId: string, deckId?: string, limit?: number): Promise<ReviewSessionResponseDTO[]> {
+  async getRecentSessions(
+    userId: string,
+    deckId?: string,
+    limit?: number,
+  ): Promise<ReviewSessionResponseDTO[]> {
     try {
       const takeLimit = Number(limit || 10);
       const whereClause: any = { userId };
@@ -186,9 +220,12 @@ export class FlashcardReviewSessionService implements IFlashcardReviewSessionSer
         orderBy: { startedAt: 'desc' },
       });
 
-      return sessions.map(s => this.mapToDTO(s));
+      return sessions.map((s) => this.mapToDTO(s));
     } catch (error: any) {
-      this.logger.error(`Error getting recent sessions: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error getting recent sessions: ${error.message}`,
+        error.stack,
+      );
       throw new RpcException({
         status: 500,
         message: `Failed to get recent sessions: ${error?.message || 'Unknown error'}`,
@@ -221,4 +258,3 @@ export class FlashcardReviewSessionService implements IFlashcardReviewSessionSer
     };
   }
 }
-

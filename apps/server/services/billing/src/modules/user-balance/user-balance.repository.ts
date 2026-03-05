@@ -5,33 +5,36 @@ import { IUserBalanceRepository } from '@server/billing/interfaces/repositories/
 
 @Injectable()
 export class UserBalanceRepository implements IUserBalanceRepository {
-    private readonly logger = new Logger(UserBalanceRepository.name);
+  private readonly logger = new Logger(UserBalanceRepository.name);
 
-    constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-    async findByUserId(userId: string): Promise<UserBalance | null> {
-        return this.prisma.userBalance.findUnique({
-            where: { userId },
-        });
-    }
+  async findByUserId(userId: string): Promise<UserBalance | null> {
+    return this.prisma.userBalance.findUnique({
+      where: { userId },
+    });
+  }
 
-    async updateBalance(userId: string, amount: number): Promise<UserBalance> {
-        return this.prisma.userBalance.update({
-            where: { userId },
-            data: {
-                balance: {
-                    increment: amount,
-                },
-            },
-        });
-    }
+  async updateBalance(userId: string, amount: number): Promise<UserBalance> {
+    return this.prisma.userBalance.update({
+      where: { userId },
+      data: {
+        balance: {
+          increment: amount,
+        },
+      },
+    });
+  }
 
-    async create(userId: string, initialBalance: number = 0): Promise<UserBalance> {
-        return this.prisma.userBalance.create({
-            data: {
-                userId,
-                balance: initialBalance,
-            },
-        });
-    }
+  async create(
+    userId: string,
+    initialBalance: number = 0,
+  ): Promise<UserBalance> {
+    return this.prisma.userBalance.create({
+      data: {
+        userId,
+        balance: initialBalance,
+      },
+    });
+  }
 }

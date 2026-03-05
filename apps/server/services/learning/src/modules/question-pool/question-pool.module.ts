@@ -12,21 +12,19 @@ import { QuestionPoolProfile } from '@server/learning/infrastructure/mappings/qu
  * Handles question pool management operations
  */
 @Module({
-    imports: [SharedModule],
+  imports: [SharedModule],
   controllers: [QuestionPoolHandler],
-    providers: [
-        {
-            provide: QUESTION_POOL_REPOSITORY_TOKEN,
-            useClass: QuestionPoolRepository,
-        },
-        {
-            provide: QUESTION_POOL_SERVICE_TOKEN,
-            useClass: QuestionPoolService,
-        },
-        QuestionPoolProfile,
-    ],
-    exports: [QUESTION_POOL_SERVICE_TOKEN, QUESTION_POOL_REPOSITORY_TOKEN],
+  providers: [
+    {
+      provide: QUESTION_POOL_REPOSITORY_TOKEN,
+      useClass: QuestionPoolRepository,
+    },
+    {
+      provide: QUESTION_POOL_SERVICE_TOKEN,
+      useClass: QuestionPoolService,
+    },
+    QuestionPoolProfile,
+  ],
+  exports: [QUESTION_POOL_SERVICE_TOKEN, QUESTION_POOL_REPOSITORY_TOKEN],
 })
-export class QuestionPoolModule { }
-
-
+export class QuestionPoolModule {}

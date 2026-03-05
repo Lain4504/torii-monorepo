@@ -36,5 +36,4 @@ import { CourseHandler } from './course.handler';
   ],
   exports: [COURSE_MASTER_SERVICE_TOKEN, COURSE_MASTER_REPOSITORY_TOKEN],
 })
-export class CourseMasterModule { }
-
+export class CourseMasterModule {}

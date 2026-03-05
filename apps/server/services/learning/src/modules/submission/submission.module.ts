@@ -11,17 +11,9 @@ import { SubmissionHandler } from '@server/learning/modules/submission/submissio
  * Handles submission operations (BR-03 to BR-07)
  */
 @Module({
-  imports: [
-    NatsClientModule,
-    forwardRef(() => AssignmentModule),
-  ],
+  imports: [NatsClientModule, forwardRef(() => AssignmentModule)],
   controllers: [SubmissionHandler],
-  providers: [
-    SubmissionRepository,
-    SubmissionService,
-    SubmissionProfile,
-  ],
+  providers: [SubmissionRepository, SubmissionService, SubmissionProfile],
   exports: [SubmissionService, SubmissionRepository],
 })
-export class SubmissionModule { }
-
+export class SubmissionModule {}

@@ -26,4 +26,4 @@ import { TicketModule } from '@server/communication/modules/ticket/ticket.module
     // NotificationController,
   ],
 })
-export class CommunicationModule { }
+export class CommunicationModule {}

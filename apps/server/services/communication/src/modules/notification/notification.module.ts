@@ -26,4 +26,4 @@ import { NOTIFICATION_REPOSITORY_TOKEN } from '@server/communication/interfaces/
   ],
   exports: [NOTIFICATION_SERVICE_TOKEN],
 })
-export class NotificationModule { }
+export class NotificationModule {}

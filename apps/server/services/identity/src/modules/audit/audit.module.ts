@@ -8,23 +8,22 @@ import { AuditLogHandler } from '@server/identity/modules/audit/audit-log.handle
 import { AuditLogScheduler } from '@server/identity/modules/audit/audit-log.scheduler';
 
 /**
- * Audit Logging Feature Module  
+ * Audit Logging Feature Module
  * Handles activity tracking and audit trails
  */
 @Module({
-    controllers: [AuditLogHandler],
-    providers: [
-        {
-            provide: AUDIT_LOG_SERVICE_TOKEN,
-            useClass: AuditLogService,
-        },
-        {
-            provide: AUDIT_LOG_REPOSITORY_TOKEN,
-            useClass: AuditLogRepository,
-        },
-        AuditLogScheduler,
-    ],
-    exports: [AUDIT_LOG_SERVICE_TOKEN],
+  controllers: [AuditLogHandler],
+  providers: [
+    {
+      provide: AUDIT_LOG_SERVICE_TOKEN,
+      useClass: AuditLogService,
+    },
+    {
+      provide: AUDIT_LOG_REPOSITORY_TOKEN,
+      useClass: AuditLogRepository,
+    },
+    AuditLogScheduler,
+  ],
+  exports: [AUDIT_LOG_SERVICE_TOKEN],
 })
-export class AuditModule { }
-
+export class AuditModule {}

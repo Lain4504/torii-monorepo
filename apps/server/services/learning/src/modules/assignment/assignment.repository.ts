@@ -22,7 +22,7 @@ export interface IAssignmentRepository {
 
 @Injectable()
 export class AssignmentRepository implements IAssignmentRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async findById(id: string): Promise<Assignment | null> {
     return this.prisma.assignment.findUnique({
@@ -55,7 +55,10 @@ export class AssignmentRepository implements IAssignmentRepository {
     return this.prisma.assignment.create({ data });
   }
 
-  async update(id: string, data: Prisma.AssignmentUpdateInput): Promise<Assignment> {
+  async update(
+    id: string,
+    data: Prisma.AssignmentUpdateInput,
+  ): Promise<Assignment> {
     return this.prisma.assignment.update({ where: { id }, data });
   }
 
@@ -82,7 +85,7 @@ export class AssignmentRepository implements IAssignmentRepository {
     return this.prisma.assignment.findMany({
       where: {
         status: 'PUBLISHED',
-        lesson: { moduleId }
+        lesson: { moduleId },
       },
       orderBy: { createdAt: 'desc' },
     });

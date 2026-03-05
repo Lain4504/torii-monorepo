@@ -1,7 +1,10 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { RpcException, ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared';
-import { SrsAlgorithmService, type SrsCalculationResult } from '@server/learning/modules/flashcard/srs-algorithm.service';
+import {
+  SrsAlgorithmService,
+  type SrsCalculationResult,
+} from '@server/learning/modules/flashcard/srs-algorithm.service';
 import {
   SubmitReviewDTO,
   FlashcardReviewResponseDTO,
@@ -13,9 +16,18 @@ import {
   FlashcardState,
   UserActivityEvent,
 } from '@workspace/schemas';
-import { IFlashcardReviewRepository, FLASHCARD_REVIEW_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-flashcard-review.repository';
-import { IFlashcardRepository, FLASHCARD_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-flashcard.repository';
-import { IFlashcardDeckRepository, FLASHCARD_DECK_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-flashcard-deck.repository';
+import {
+  IFlashcardReviewRepository,
+  FLASHCARD_REVIEW_REPOSITORY_TOKEN,
+} from '@server/learning/interfaces/repositories/i-flashcard-review.repository';
+import {
+  IFlashcardRepository,
+  FLASHCARD_REPOSITORY_TOKEN,
+} from '@server/learning/interfaces/repositories/i-flashcard.repository';
+import {
+  IFlashcardDeckRepository,
+  FLASHCARD_DECK_REPOSITORY_TOKEN,
+} from '@server/learning/interfaces/repositories/i-flashcard-deck.repository';
 import type { IFlashcardReviewService } from '@server/learning/interfaces/services/i-flashcard-review.service';
 
 @Injectable()
@@ -32,14 +44,23 @@ export class FlashcardReviewService implements IFlashcardReviewService {
     private readonly prisma: PrismaService,
     private readonly srsAlgorithm: SrsAlgorithmService,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) { }
+  ) {}
 
   /**
    * Submit a review for a flashcard
    */
-  async submitReview(userId: string, data: SubmitReviewDTO): Promise<FlashcardReviewResponseDTO> {
+  async submitReview(
+    userId: string,
+    data: SubmitReviewDTO,
+  ): Promise<FlashcardReviewResponseDTO> {
     try {
-      const { flashcardId, quality, timeSpent = 0, userAnswer, sessionId } = data;
+      const {
+        flashcardId,
+        quality,
+        timeSpent = 0,
+        userAnswer,
+        sessionId,
+      } = data;
 
       // Get flashcard with deck info
       const flashcard = await this.flashcardRepository.findById(flashcardId);
@@ -61,7 +82,10 @@ export class FlashcardReviewService implements IFlashcardReviewService {
       }
 
       // Get or create user progress
-      let userProgress = await this.reviewRepository.findProgress(userId, flashcardId);
+      let userProgress = await this.reviewRepository.findProgress(
+        userId,
+        flashcardId,
+      );
 
       // Create user progress if it doesn't exist
       if (!userProgress) {
@@ -83,13 +107,14 @@ export class FlashcardReviewService implements IFlashcardReviewService {
 
       // Calculate new values using SRS algorithm
       const srsConfig = (deck.srsSettings as any) || {};
-      const srsResult: SrsCalculationResult = this.srsAlgorithm.calculateNextReview(
-        userProgress.currentInterval,
-        previousEaseFactor,
-        quality,
-        previousState,
-        srsConfig,
-      );
+      const srsResult: SrsCalculationResult =
+        this.srsAlgorithm.calculateNextReview(
+          userProgress.currentInterval,
+          previousEaseFactor,
+          quality,
+          previousState,
+          srsConfig,
+        );
 
       // Update daily review count
       const today = new Date();
@@ -99,13 +124,16 @@ export class FlashcardReviewService implements IFlashcardReviewService {
         : null;
       lastReviewDate?.setHours(0, 0, 0, 0);
 
-      const isSameDay = lastReviewDate && lastReviewDate.getTime() === today.getTime();
+      const isSameDay =
+        lastReviewDate && lastReviewDate.getTime() === today.getTime();
       const newReviewedToday = isSameDay ? userProgress.reviewedToday + 1 : 1;
 
       // Update statistics
       const wasCorrect = quality !== ReviewQuality.ZERO;
       const newTimesReviewed = userProgress.timesReviewed + 1;
-      const newTimesCorrect = wasCorrect ? userProgress.timesCorrect + 1 : userProgress.timesCorrect;
+      const newTimesCorrect = wasCorrect
+        ? userProgress.timesCorrect + 1
+        : userProgress.timesCorrect;
       const newTimesIncorrect = wasCorrect
         ? userProgress.timesIncorrect
         : userProgress.timesIncorrect + 1;
@@ -114,25 +142,30 @@ export class FlashcardReviewService implements IFlashcardReviewService {
         : 0;
 
       // Calculate average response time
-      const totalTime = userProgress.averageResponseTime * (newTimesReviewed - 1) + timeSpent;
+      const totalTime =
+        userProgress.averageResponseTime * (newTimesReviewed - 1) + timeSpent;
       const newAverageResponseTime = Math.round(totalTime / newTimesReviewed);
 
       // Update user progress
-      const updatedProgress = await this.reviewRepository.updateProgress(userId, flashcardId, {
-        state: srsResult.newState,
-        currentInterval: srsResult.newInterval,
-        easeFactor: srsResult.newEaseFactor,
-        nextReviewDate: srsResult.newNextReviewDate,
-        lastReviewedAt: new Date(),
-        lastReviewDate: today,
-        reviewedToday: newReviewedToday,
-        timesReviewed: newTimesReviewed,
-        timesCorrect: newTimesCorrect,
-        timesIncorrect: newTimesIncorrect,
-        consecutiveCorrect: newConsecutiveCorrect,
-        averageResponseTime: newAverageResponseTime,
-        lastResponseTime: timeSpent,
-      });
+      const updatedProgress = await this.reviewRepository.updateProgress(
+        userId,
+        flashcardId,
+        {
+          state: srsResult.newState,
+          currentInterval: srsResult.newInterval,
+          easeFactor: srsResult.newEaseFactor,
+          nextReviewDate: srsResult.newNextReviewDate,
+          lastReviewedAt: new Date(),
+          lastReviewDate: today,
+          reviewedToday: newReviewedToday,
+          timesReviewed: newTimesReviewed,
+          timesCorrect: newTimesCorrect,
+          timesIncorrect: newTimesIncorrect,
+          consecutiveCorrect: newConsecutiveCorrect,
+          averageResponseTime: newAverageResponseTime,
+          lastResponseTime: timeSpent,
+        },
+      );
 
       // Create review record
       const review = await this.reviewRepository.createReview({
@@ -204,7 +237,10 @@ export class FlashcardReviewService implements IFlashcardReviewService {
       if (error instanceof RpcException) {
         throw error;
       }
-      this.logger.error(`Error submitting review: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error submitting review: ${error.message}`,
+        error.stack,
+      );
       throw new RpcException({
         status: 500,
         message: `Failed to submit review: ${error?.message || 'Unknown error'}`,
@@ -215,7 +251,10 @@ export class FlashcardReviewService implements IFlashcardReviewService {
   /**
    * Get cards due for review
    */
-  async getCardsDue(userId: string, query: GetCardsDueDTO): Promise<CardDueResponseDTO[]> {
+  async getCardsDue(
+    userId: string,
+    query: GetCardsDueDTO,
+  ): Promise<CardDueResponseDTO[]> {
     try {
       const limit = Number(query.limit || 20);
       const { deckId, state, includeNew = true } = query;
@@ -271,21 +310,24 @@ export class FlashcardReviewService implements IFlashcardReviewService {
       }
 
       // Get user progress with flashcard
-      const userProgressList = await this.reviewRepository.findManyProgress(whereClause, {
-        take: limit,
-        include: {
-          flashcard: {
-            include: {
-              deck: {
-                select: {
-                  id: true,
-                  name: true,
+      const userProgressList = await this.reviewRepository.findManyProgress(
+        whereClause,
+        {
+          take: limit,
+          include: {
+            flashcard: {
+              include: {
+                deck: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
                 },
               },
             },
           },
         },
-      });
+      );
 
       return userProgressList.map((up: any) => ({
         flashcard: {
@@ -319,7 +361,10 @@ export class FlashcardReviewService implements IFlashcardReviewService {
       if (error instanceof RpcException) {
         throw error;
       }
-      this.logger.error(`Error getting cards due: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error getting cards due: ${error.message}`,
+        error.stack,
+      );
       throw new RpcException({
         status: 500,
         message: `Failed to get cards due: ${error?.message || 'Unknown error'}`,
@@ -330,7 +375,10 @@ export class FlashcardReviewService implements IFlashcardReviewService {
   /**
    * Get user progress for a specific flashcard
    */
-  async getUserProgress(userId: string, data: GetUserProgressDTO): Promise<UserProgressResponseDTO | null> {
+  async getUserProgress(
+    userId: string,
+    data: GetUserProgressDTO,
+  ): Promise<UserProgressResponseDTO | null> {
     try {
       const { flashcardId } = data;
 
@@ -353,7 +401,10 @@ export class FlashcardReviewService implements IFlashcardReviewService {
       }
 
       // Get user progress
-      const userProgress = await this.reviewRepository.findProgress(userId, flashcardId);
+      const userProgress = await this.reviewRepository.findProgress(
+        userId,
+        flashcardId,
+      );
 
       if (!userProgress) {
         return null;
@@ -381,7 +432,10 @@ export class FlashcardReviewService implements IFlashcardReviewService {
       if (error instanceof RpcException) {
         throw error;
       }
-      this.logger.error(`Error getting user progress: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error getting user progress: ${error.message}`,
+        error.stack,
+      );
       throw new RpcException({
         status: 500,
         message: `Failed to get user progress: ${error?.message || 'Unknown error'}`,
@@ -389,4 +443,3 @@ export class FlashcardReviewService implements IFlashcardReviewService {
     }
   }
 }
-

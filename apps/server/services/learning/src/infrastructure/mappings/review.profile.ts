@@ -11,58 +11,58 @@ import type { ReviewResponseDTO } from '@workspace/schemas';
  */
 @Injectable()
 export class ReviewProfile extends AutomapperProfile {
-    constructor(@InjectMapper() mapper: Mapper) {
-        super(mapper);
-    }
+  constructor(@InjectMapper() mapper: Mapper) {
+    super(mapper);
+  }
 
-    override get profile() {
-        return (mapper) => {
-            createMap(
-                mapper,
-                'Review',
-                'ReviewResponseDTO',
-                forMember(
-                    (dest: ReviewResponseDTO) => dest.id,
-                    mapFrom((src: Review) => src.id),
-                ),
-                forMember(
-                    (dest: ReviewResponseDTO) => dest.userId,
-                    mapFrom((src: Review) => src.userId),
-                ),
-                forMember(
-                    (dest: ReviewResponseDTO) => dest.courseRunId,
-                    mapFrom((src: Review) => src.courseRunId),
-                ),
-                forMember(
-                    (dest: ReviewResponseDTO) => dest.rating,
-                    mapFrom((src: Review) => src.rating),
-                ),
-                forMember(
-                    (dest: ReviewResponseDTO) => dest.comment,
-                    mapFrom((src: Review) => (src as any).comment || undefined),
-                ),
-                forMember(
-                    (dest: ReviewResponseDTO) => dest.createdAt,
-                    mapFrom((src: Review) => src.createdAt),
-                ),
-                forMember(
-                    (dest: ReviewResponseDTO) => dest.updatedAt,
-                    mapFrom((src: Review) => src.updatedAt),
-                ),
-                // Note: user field is populated separately in service
-                forMember(
-                    (dest: ReviewResponseDTO) => dest.user,
-                    mapFrom((src: any) =>
-                        src.user
-                            ? {
-                                id: src.user.id,
-                                displayName: src.user.displayName,
-                                avatarUrl: src.user.avatarUrl || undefined,
-                            }
-                            : undefined,
-                    ),
-                ),
-            );
-        };
-    }
+  override get profile() {
+    return (mapper) => {
+      createMap(
+        mapper,
+        'Review',
+        'ReviewResponseDTO',
+        forMember(
+          (dest: ReviewResponseDTO) => dest.id,
+          mapFrom((src: Review) => src.id),
+        ),
+        forMember(
+          (dest: ReviewResponseDTO) => dest.userId,
+          mapFrom((src: Review) => src.userId),
+        ),
+        forMember(
+          (dest: ReviewResponseDTO) => dest.courseRunId,
+          mapFrom((src: Review) => src.courseRunId),
+        ),
+        forMember(
+          (dest: ReviewResponseDTO) => dest.rating,
+          mapFrom((src: Review) => src.rating),
+        ),
+        forMember(
+          (dest: ReviewResponseDTO) => dest.comment,
+          mapFrom((src: Review) => (src as any).comment || undefined),
+        ),
+        forMember(
+          (dest: ReviewResponseDTO) => dest.createdAt,
+          mapFrom((src: Review) => src.createdAt),
+        ),
+        forMember(
+          (dest: ReviewResponseDTO) => dest.updatedAt,
+          mapFrom((src: Review) => src.updatedAt),
+        ),
+        // Note: user field is populated separately in service
+        forMember(
+          (dest: ReviewResponseDTO) => dest.user,
+          mapFrom((src: any) =>
+            src.user
+              ? {
+                  id: src.user.id,
+                  displayName: src.user.displayName,
+                  avatarUrl: src.user.avatarUrl || undefined,
+                }
+              : undefined,
+          ),
+        ),
+      );
+    };
+  }
 }

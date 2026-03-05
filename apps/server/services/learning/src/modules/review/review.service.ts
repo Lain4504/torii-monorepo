@@ -23,14 +23,21 @@ export class ReviewService implements IReviewService {
     @Inject(ENROLLMENT_REPOSITORY_TOKEN)
     private readonly enrollmentRepository: IEnrollmentRepository,
     @InjectMapper() private readonly mapper: Mapper,
-  ) { }
+  ) {}
 
   /**
    * Get all reviews with pagination
    */
   async findAll(query: any): Promise<PaginatedReviewResponseDTO> {
     try {
-      const { page = 1, limit = 10, search, rating, courseMasterId, courseRunId } = query;
+      const {
+        page = 1,
+        limit = 10,
+        search,
+        rating,
+        courseMasterId,
+        courseRunId,
+      } = query;
       const pageNum = parseInt(String(page || 1), 10);
       const limitNum = parseInt(String(limit || 10), 10);
       const skip = (pageNum - 1) * limitNum;
@@ -53,7 +60,13 @@ export class ReviewService implements IReviewService {
         where.OR = [
           { comment: { contains: search, mode: 'insensitive' } },
           { user: { displayName: { contains: search, mode: 'insensitive' } } },
-          { courseRun: { courseMaster: { title: { contains: search, mode: 'insensitive' } } } }
+          {
+            courseRun: {
+              courseMaster: {
+                title: { contains: search, mode: 'insensitive' },
+              },
+            },
+          },
         ];
       }
 
@@ -66,9 +79,9 @@ export class ReviewService implements IReviewService {
           include: {
             user: true,
             courseRun: {
-              include: { courseMaster: true }
+              include: { courseMaster: true },
             },
-          }
+          },
         }),
       ]);
 
@@ -76,7 +89,11 @@ export class ReviewService implements IReviewService {
 
       return {
         data: reviews.map((review) => ({
-          ...this.mapper.map<any, ReviewResponseDTO>(review, 'Review', 'ReviewResponseDTO'),
+          ...this.mapper.map<any, ReviewResponseDTO>(
+            review,
+            'Review',
+            'ReviewResponseDTO',
+          ),
           courseTitle: (review as any).courseRun?.courseMaster?.title,
           courseSlug: (review as any).courseRun?.courseMaster?.slug,
         })),
@@ -124,7 +141,11 @@ export class ReviewService implements IReviewService {
 
       return {
         data: reviews.map((review) =>
-          this.mapper.map<any, ReviewResponseDTO>(review, 'Review', 'ReviewResponseDTO'),
+          this.mapper.map<any, ReviewResponseDTO>(
+            review,
+            'Review',
+            'ReviewResponseDTO',
+          ),
         ),
         total,
         page: pageNum,
@@ -150,7 +171,8 @@ export class ReviewService implements IReviewService {
     courseMasterId: string,
   ): Promise<RatingDistributionDTO> {
     try {
-      const reviews = await this.reviewRepository.findAllByCourseId(courseMasterId);
+      const reviews =
+        await this.reviewRepository.findAllByCourseId(courseMasterId);
 
       const totalReviews = reviews.length;
       const distribution = [1, 2, 3, 4, 5].map((stars) => {
@@ -242,7 +264,11 @@ export class ReviewService implements IReviewService {
       await this.updateCourseRatingStats(courseMasterId);
       await this.updateCourseRunRatingStats(courseRunId);
 
-      return this.mapper.map<any, ReviewResponseDTO>(review, 'Review', 'ReviewResponseDTO');
+      return this.mapper.map<any, ReviewResponseDTO>(
+        review,
+        'Review',
+        'ReviewResponseDTO',
+      );
     } catch (error: any) {
       this.logger.error('Error creating review', error);
       if (error instanceof RpcException) {
@@ -260,7 +286,8 @@ export class ReviewService implements IReviewService {
    */
   private async updateCourseRatingStats(courseMasterId: string): Promise<void> {
     try {
-      const reviews = await this.reviewRepository.findAllByCourseId(courseMasterId);
+      const reviews =
+        await this.reviewRepository.findAllByCourseId(courseMasterId);
 
       const totalReviews = reviews.length;
       const averageRating =
@@ -283,7 +310,8 @@ export class ReviewService implements IReviewService {
    */
   private async updateCourseRunRatingStats(courseRunId: string): Promise<void> {
     try {
-      const reviews = await this.reviewRepository.findAllByCourseRunId(courseRunId);
+      const reviews =
+        await this.reviewRepository.findAllByCourseRunId(courseRunId);
 
       const totalReviews = reviews.length;
       const averageRating =
@@ -304,7 +332,9 @@ export class ReviewService implements IReviewService {
   /**
    * Find a single review by ID
    */
-  async findById(id: string): Promise<ReviewResponseDTO & { courseTitle?: string }> {
+  async findById(
+    id: string,
+  ): Promise<ReviewResponseDTO & { courseTitle?: string }> {
     try {
       const review = await this.reviewRepository.findById(id, true);
 
@@ -316,7 +346,11 @@ export class ReviewService implements IReviewService {
       }
 
       return {
-        ...this.mapper.map<any, ReviewResponseDTO>(review, 'Review', 'ReviewResponseDTO'),
+        ...this.mapper.map<any, ReviewResponseDTO>(
+          review,
+          'Review',
+          'ReviewResponseDTO',
+        ),
         courseTitle: (review as any).courseRun?.courseMaster?.title,
       };
     } catch (error: any) {
@@ -352,7 +386,9 @@ export class ReviewService implements IReviewService {
         });
       }
 
-      const courseRun = await this.reviewRepository.findCourseRun(review.courseRunId);
+      const courseRun = await this.reviewRepository.findCourseRun(
+        review.courseRunId,
+      );
       const courseMasterId = courseRun?.courseMasterId;
 
       await this.reviewRepository.delete(reviewId);

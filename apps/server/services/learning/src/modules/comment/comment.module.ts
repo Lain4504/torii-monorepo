@@ -11,10 +11,15 @@ import { BlogProfile } from '@server/learning/infrastructure/mappings/blog.profi
  * Handles comment operations
  */
 @Module({
-    imports: [PrismaModule, NatsClientModule],
-    controllers: [],
-    providers: [CommentRepository, CommentService, CommentProfile, BlogRepository, BlogProfile],
-    exports: [CommentService],
+  imports: [PrismaModule, NatsClientModule],
+  controllers: [],
+  providers: [
+    CommentRepository,
+    CommentService,
+    CommentProfile,
+    BlogRepository,
+    BlogProfile,
+  ],
+  exports: [CommentService],
 })
-export class CommentModule { }
-
+export class CommentModule {}

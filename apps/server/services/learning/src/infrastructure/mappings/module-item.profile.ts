@@ -11,41 +11,41 @@ import type { ModuleItem as ModuleItemDTO } from '@workspace/schemas';
  */
 @Injectable()
 export class ModuleItemProfile extends AutomapperProfile {
-    constructor(@InjectMapper() mapper: Mapper) {
-        super(mapper);
-    }
+  constructor(@InjectMapper() mapper: Mapper) {
+    super(mapper);
+  }
 
-    override get profile() {
-        return (mapper: Mapper) => {
-            createMap<ModuleItem, ModuleItemDTO>(
-                mapper,
-                'ModuleItem',
-                'ModuleItem',
-                forMember(
-                    (dest) => dest.id,
-                    mapFrom((src) => src.id),
-                ),
-                forMember(
-                    (dest) => dest.moduleId,
-                    mapFrom((src) => src.moduleId),
-                ),
-                forMember(
-                    (dest) => dest.title,
-                    mapFrom((src) => src.title),
-                ),
-                forMember(
-                    (dest) => dest.type,
-                    mapFrom((src) => src.type as any),
-                ),
-                forMember(
-                    (dest) => dest.referenceId,
-                    mapFrom((src) => src.referenceId),
-                ),
-                forMember(
-                    (dest) => dest.orderIndex,
-                    mapFrom((src) => src.orderIndex),
-                ),
-            );
-        };
-    }
+  override get profile() {
+    return (mapper: Mapper) => {
+      createMap<ModuleItem, ModuleItemDTO>(
+        mapper,
+        'ModuleItem',
+        'ModuleItem',
+        forMember(
+          (dest) => dest.id,
+          mapFrom((src) => src.id),
+        ),
+        forMember(
+          (dest) => dest.moduleId,
+          mapFrom((src) => src.moduleId),
+        ),
+        forMember(
+          (dest) => dest.title,
+          mapFrom((src) => src.title),
+        ),
+        forMember(
+          (dest) => dest.type,
+          mapFrom((src) => src.type as any),
+        ),
+        forMember(
+          (dest) => dest.referenceId,
+          mapFrom((src) => src.referenceId),
+        ),
+        forMember(
+          (dest) => dest.orderIndex,
+          mapFrom((src) => src.orderIndex),
+        ),
+      );
+    };
+  }
 }

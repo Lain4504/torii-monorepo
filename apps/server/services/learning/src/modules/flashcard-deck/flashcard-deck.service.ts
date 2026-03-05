@@ -10,7 +10,10 @@ import type {
   FlashcardDeckResponseDTO,
   PaginatedResponseDTO,
 } from '@workspace/schemas';
-import { IFlashcardDeckRepository, FLASHCARD_DECK_REPOSITORY_TOKEN } from '@server/learning/interfaces/repositories/i-flashcard-deck.repository';
+import {
+  IFlashcardDeckRepository,
+  FLASHCARD_DECK_REPOSITORY_TOKEN,
+} from '@server/learning/interfaces/repositories/i-flashcard-deck.repository';
 import type { IFlashcardDeckService } from '@server/learning/interfaces/services/i-flashcard-deck.service';
 import { PrismaService } from '@server/shared';
 
@@ -23,14 +26,16 @@ export class FlashcardDeckService implements IFlashcardDeckService {
     private readonly deckRepository: IFlashcardDeckRepository,
     private readonly prisma: PrismaService, // Keep for some direct operations if needed
     @InjectMapper() private readonly mapper: Mapper,
-  ) { }
-
+  ) {}
 
   /**
    * Verify that a deck belongs to a specific user
    * Throws RpcException if not owned
    */
-  private async verifyDeckOwnership(userId: string, deckId: string): Promise<any> {
+  private async verifyDeckOwnership(
+    userId: string,
+    deckId: string,
+  ): Promise<any> {
     const deck = await this.deckRepository.findById(deckId);
 
     if (!deck) {
@@ -81,9 +86,15 @@ export class FlashcardDeckService implements IFlashcardDeckService {
         studiedCount: 0,
       });
 
-      console.log('DEBUG [DeckService]: Flashcard deck created in DB:', JSON.stringify(deck, null, 2));
+      console.log(
+        'DEBUG [DeckService]: Flashcard deck created in DB:',
+        JSON.stringify(deck, null, 2),
+      );
       const verify = await this.deckRepository.findById(deck.id);
-      console.log('DEBUG [DeckService]: Verification findById result:', verify ? 'Found' : 'NOT FOUND');
+      console.log(
+        'DEBUG [DeckService]: Verification findById result:',
+        verify ? 'Found' : 'NOT FOUND',
+      );
 
       this.logger.log(`Flashcard deck created: ${deck.id} by user ${userId}`);
 
@@ -138,7 +149,11 @@ export class FlashcardDeckService implements IFlashcardDeckService {
       const totalPages = Math.ceil(total / limit);
 
       return {
-        data: this.mapper.mapArray(decks, 'FlashcardDeck', 'FlashcardDeckResponseDTO'),
+        data: this.mapper.mapArray(
+          decks,
+          'FlashcardDeck',
+          'FlashcardDeckResponseDTO',
+        ),
         total,
         page,
         limit,
@@ -153,7 +168,10 @@ export class FlashcardDeckService implements IFlashcardDeckService {
     }
   }
 
-  async findOneDeck(id: string, userId: string): Promise<FlashcardDeckResponseDTO> {
+  async findOneDeck(
+    id: string,
+    userId: string,
+  ): Promise<FlashcardDeckResponseDTO> {
     const deck = await this.verifyDeckOwnership(userId, id);
     return this.mapper.map(deck, 'FlashcardDeck', 'FlashcardDeckResponseDTO');
   }
@@ -174,8 +192,10 @@ export class FlashcardDeckService implements IFlashcardDeckService {
       const updateData: any = {};
 
       if (data.name !== undefined) updateData.name = data.name;
-      if (data.description !== undefined) updateData.description = data.description || null;
-      if (data.jlptLevel !== undefined) updateData.jlptLevel = data.jlptLevel || null;
+      if (data.description !== undefined)
+        updateData.description = data.description || null;
+      if (data.jlptLevel !== undefined)
+        updateData.jlptLevel = data.jlptLevel || null;
       if (data.isPublic !== undefined) updateData.isPublic = data.isPublic;
       if (data.tags !== undefined) updateData.tags = data.tags;
 
@@ -197,10 +217,7 @@ export class FlashcardDeckService implements IFlashcardDeckService {
   /**
    * Delete a flashcard deck
    */
-  async deleteDeck(
-    id: string,
-    userId: string,
-  ): Promise<void> {
+  async deleteDeck(id: string, userId: string): Promise<void> {
     try {
       // Verify ownership
       await this.verifyDeckOwnership(userId, id);
@@ -219,4 +236,3 @@ export class FlashcardDeckService implements IFlashcardDeckService {
     }
   }
 }
-

@@ -1,11 +1,11 @@
 import type {
-    OrderCreateDTO,
-    OrderQueryDTO,
-    OrderResponseDTO,
-    OrderConfirmDTO,
-    PaginatedResponseDTO,
-    PaymentQueryDTO,
-    PaymentResponseDTO,
+  OrderCreateDTO,
+  OrderQueryDTO,
+  OrderResponseDTO,
+  OrderConfirmDTO,
+  PaginatedResponseDTO,
+  PaymentQueryDTO,
+  PaymentResponseDTO,
 } from '@workspace/schemas';
 
 /**
@@ -13,53 +13,63 @@ import type {
  * Defines the contract for order business logic operations
  */
 export interface IOrderService {
-    /**
-     * Find all orders with pagination and filters
-     */
-    findAll(query: OrderQueryDTO): Promise<PaginatedResponseDTO<OrderResponseDTO>>;
+  /**
+   * Find all orders with pagination and filters
+   */
+  findAll(
+    query: OrderQueryDTO,
+  ): Promise<PaginatedResponseDTO<OrderResponseDTO>>;
 
-    /**
-     * Get order statistics
-     */
-    getStats(query: OrderQueryDTO): Promise<{ totalRevenue: number; orderCount: number }>;
+  /**
+   * Get order statistics
+   */
+  getStats(
+    query: OrderQueryDTO,
+  ): Promise<{ totalRevenue: number; orderCount: number }>;
 
-    /**
-     * Find all payments with pagination and filters
-     */
-    findAllPayments(query: PaymentQueryDTO): Promise<PaginatedResponseDTO<PaymentResponseDTO>>;
+  /**
+   * Find all payments with pagination and filters
+   */
+  findAllPayments(
+    query: PaymentQueryDTO,
+  ): Promise<PaginatedResponseDTO<PaymentResponseDTO>>;
 
-    /**
-     * Find order by ID
-     */
-    findById(id: string): Promise<OrderResponseDTO | null>;
+  /**
+   * Find order by ID
+   */
+  findById(id: string): Promise<OrderResponseDTO | null>;
 
-    /**
-     * Create a new order
-     */
-    create(userId: string, input: OrderCreateDTO): Promise<OrderResponseDTO>;
+  /**
+   * Create a new order
+   */
+  create(userId: string, input: OrderCreateDTO): Promise<OrderResponseDTO>;
 
-    /**
-     * Confirm/complete order
-     */
-    confirm(orderId: string, input: OrderConfirmDTO): Promise<OrderResponseDTO>;
+  /**
+   * Confirm/complete order
+   */
+  confirm(orderId: string, input: OrderConfirmDTO): Promise<OrderResponseDTO>;
 
-    /**
-     * Handle Payment Webhook (e.g. PayOS)
-     */
-    handleWebhook(webhookData: any, authHeader?: string): Promise<any>;
+  /**
+   * Handle Payment Webhook (e.g. PayOS)
+   */
+  handleWebhook(webhookData: any, authHeader?: string): Promise<any>;
 
-    /**
-     * Cancel an order
-     */
-    cancel(id: string, userId: string, userRole: string): Promise<OrderResponseDTO>;
+  /**
+   * Cancel an order
+   */
+  cancel(
+    id: string,
+    userId: string,
+    userRole: string,
+  ): Promise<OrderResponseDTO>;
 
-    /**
-     * Refund an order
-     */
-    refund(id: string, reason?: string): Promise<OrderResponseDTO>;
+  /**
+   * Refund an order
+   */
+  refund(id: string, reason?: string): Promise<OrderResponseDTO>;
 
-    /**
-     * Export orders with filters
-     */
-    exportOrders(query: OrderQueryDTO): Promise<any[]>;
+  /**
+   * Export orders with filters
+   */
+  exportOrders(query: OrderQueryDTO): Promise<any[]>;
 }

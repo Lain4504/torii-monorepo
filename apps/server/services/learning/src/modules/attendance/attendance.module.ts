@@ -9,18 +9,18 @@ import { ATTENDANCE_REPOSITORY_TOKEN } from '@server/learning/interfaces/reposit
 
 @Module({
   controllers: [AttendanceHandler],
-    providers: [
-        {
-            provide: ATTENDANCE_SERVICE_TOKEN,
-            useClass: AttendanceService,
-        },
-        {
-            provide: ATTENDANCE_REPOSITORY_TOKEN,
-            useClass: AttendanceRepository,
-        },
-        AttendanceProfile,
-        PrismaService,
-    ],
-    exports: [ATTENDANCE_SERVICE_TOKEN],
+  providers: [
+    {
+      provide: ATTENDANCE_SERVICE_TOKEN,
+      useClass: AttendanceService,
+    },
+    {
+      provide: ATTENDANCE_REPOSITORY_TOKEN,
+      useClass: AttendanceRepository,
+    },
+    AttendanceProfile,
+    PrismaService,
+  ],
+  exports: [ATTENDANCE_SERVICE_TOKEN],
 })
-export class AttendanceModule { }
+export class AttendanceModule {}

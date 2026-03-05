@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException, BadRequestException, Logger, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Logger,
+  Inject,
+} from '@nestjs/common';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
 import { PrismaService, generateSlug, REDIS_CLIENT } from '@server/shared';
@@ -27,22 +33,29 @@ export class BlogService implements IBlogService {
     private readonly prisma: PrismaService,
     @InjectMapper() private readonly mapper: Mapper,
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
-  ) { }
+  ) {}
 
   /**
    * Map Blog entity to BlogResponseDTO using AutoMapper
    */
   private toBlogResponseDTO(blog: Blog): BlogResponseDTO {
-    return this.mapper.map<Blog, BlogResponseDTO>(blog, 'Blog', 'BlogResponseDTO');
+    return this.mapper.map<Blog, BlogResponseDTO>(
+      blog,
+      'Blog',
+      'BlogResponseDTO',
+    );
   }
 
   /**
    * Ensure unique slug by appending date and timestamp if needed
    */
-  private async ensureUniqueSlug(baseSlug: string, checkExists: (slug: string) => Promise<boolean>): Promise<string> {
+  private async ensureUniqueSlug(
+    baseSlug: string,
+    checkExists: (slug: string) => Promise<boolean>,
+  ): Promise<string> {
     const today = new Date();
     const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    let slug = `${baseSlug}-${dateStr}`;
+    const slug = `${baseSlug}-${dateStr}`;
 
     const existing = await checkExists(slug);
 
@@ -63,9 +76,8 @@ export class BlogService implements IBlogService {
     const baseSlug = dto.slug || generateSlug(dto.title);
 
     // Auto-generate unique slug if slug already exists
-    const slug = await this.ensureUniqueSlug(
-      baseSlug,
-      async (slugToCheck) => this.blogRepository.slugExists(slugToCheck),
+    const slug = await this.ensureUniqueSlug(baseSlug, async (slugToCheck) =>
+      this.blogRepository.slugExists(slugToCheck),
     );
 
     const finalDto = { ...dto, slug };
@@ -87,7 +99,10 @@ export class BlogService implements IBlogService {
     // Create blog
     if (finalDto.status === BlogStatus.PUBLISHED && !finalDto.publishedAt) {
       finalDto.publishedAt = new Date();
-    } else if (finalDto.publishedAt && new Date(finalDto.publishedAt) > new Date()) {
+    } else if (
+      finalDto.publishedAt &&
+      new Date(finalDto.publishedAt) > new Date()
+    ) {
       finalDto.status = BlogStatus.SCHEDULED;
     }
 
@@ -114,7 +129,9 @@ export class BlogService implements IBlogService {
   /**
    * Find all blogs with pagination and filters
    */
-  async findAllBlogs(query: BlogQueryDTO): Promise<PaginatedResponseDTO<BlogResponseDTO>> {
+  async findAllBlogs(
+    query: BlogQueryDTO,
+  ): Promise<PaginatedResponseDTO<BlogResponseDTO>> {
     const pageNum = parseInt(String(query.page || 1), 10);
     const limitNum = parseInt(String(query.limit || 10), 10);
     const skip = (pageNum - 1) * limitNum;
@@ -128,7 +145,10 @@ export class BlogService implements IBlogService {
         where.publishedAt = {
           lte: new Date(),
         };
-      } else if (query.status === BlogStatus.SCHEDULED && !query.showScheduled) {
+      } else if (
+        query.status === BlogStatus.SCHEDULED &&
+        !query.showScheduled
+      ) {
         // Exclude scheduled posts from public view unless requested
         where.status = {
           not: BlogStatus.SCHEDULED,
@@ -177,7 +197,10 @@ export class BlogService implements IBlogService {
   /**
    * Find blog by ID
    */
-  async findBlogById(id: string, showScheduled = false): Promise<BlogResponseDTO> {
+  async findBlogById(
+    id: string,
+    showScheduled = false,
+  ): Promise<BlogResponseDTO> {
     const blog = await this.blogRepository.findById(id);
 
     if (!blog) {
@@ -222,7 +245,10 @@ export class BlogService implements IBlogService {
   /**
    * Find blog by slug
    */
-  async findBlogBySlug(slug: string, showScheduled = false): Promise<BlogResponseDTO> {
+  async findBlogBySlug(
+    slug: string,
+    showScheduled = false,
+  ): Promise<BlogResponseDTO> {
     const blog = await this.blogRepository.findBySlug(slug);
 
     if (!blog) {
@@ -252,18 +278,17 @@ export class BlogService implements IBlogService {
     let slug = existing.slug;
     if (dto.title && dto.title !== existing.title) {
       const baseSlug = dto.slug || generateSlug(dto.title);
-      slug = await this.ensureUniqueSlug(
-        baseSlug,
-        async (slugToCheck) => {
-          const slugExists = await this.blogRepository.findBySlug(slugToCheck);
-          return !!slugExists && slugExists.id !== id;
-        },
-      );
+      slug = await this.ensureUniqueSlug(baseSlug, async (slugToCheck) => {
+        const slugExists = await this.blogRepository.findBySlug(slugToCheck);
+        return !!slugExists && slugExists.id !== id;
+      });
     } else if (dto.slug && dto.slug !== existing.slug) {
       const slugExists = await this.blogRepository.findBySlug(dto.slug);
 
       if (slugExists) {
-        throw new BadRequestException(`Blog with slug "${dto.slug}" already exists`);
+        throw new BadRequestException(
+          `Blog with slug "${dto.slug}" already exists`,
+        );
       }
       slug = dto.slug;
     }
@@ -326,4 +351,3 @@ export class BlogService implements IBlogService {
     return { success: true };
   }
 }
-

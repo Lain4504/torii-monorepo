@@ -11,33 +11,33 @@ import type { WishlistResponseDTO } from '@workspace/schemas';
  */
 @Injectable()
 export class WishlistProfile extends AutomapperProfile {
-    constructor(@InjectMapper() mapper: Mapper) {
-        super(mapper);
-    }
+  constructor(@InjectMapper() mapper: Mapper) {
+    super(mapper);
+  }
 
-    override get profile() {
-        return (mapper: Mapper) => {
-            createMap<Wishlist, WishlistResponseDTO>(
-                mapper,
-                'Wishlist',
-                'WishlistResponseDTO',
-                forMember(
-                    (dest) => dest.id,
-                    mapFrom((src) => src.id),
-                ),
-                forMember(
-                    (dest) => dest.userId,
-                    mapFrom((src) => src.userId),
-                ),
-                forMember(
-                    (dest) => dest.courseRunId,
-                    mapFrom((src) => src.courseRunId),
-                ),
-                forMember(
-                    (dest) => dest.addedAt,
-                    mapFrom((src) => src.addedAt),
-                ),
-            );
-        };
-    }
+  override get profile() {
+    return (mapper: Mapper) => {
+      createMap<Wishlist, WishlistResponseDTO>(
+        mapper,
+        'Wishlist',
+        'WishlistResponseDTO',
+        forMember(
+          (dest) => dest.id,
+          mapFrom((src) => src.id),
+        ),
+        forMember(
+          (dest) => dest.userId,
+          mapFrom((src) => src.userId),
+        ),
+        forMember(
+          (dest) => dest.courseRunId,
+          mapFrom((src) => src.courseRunId),
+        ),
+        forMember(
+          (dest) => dest.addedAt,
+          mapFrom((src) => src.addedAt),
+        ),
+      );
+    };
+  }
 }

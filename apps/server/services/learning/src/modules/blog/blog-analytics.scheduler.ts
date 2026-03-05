@@ -10,13 +10,13 @@ import { BlogAnalyticsService } from './blog-analytics.service';
 export class BlogAnalyticsScheduler {
   private readonly logger = new Logger(BlogAnalyticsScheduler.name);
 
-  constructor(private readonly blogAnalyticsService: BlogAnalyticsService) { }
+  constructor(private readonly blogAnalyticsService: BlogAnalyticsService) {}
 
   /**
    * Generate daily blog interaction statistics
    * Runs every day at 00:00 (midnight) to send daily summary to staff
    * Cron expression: '0 0 * * *' (at 00:00 every day)
-   * 
+   *
    * Logic:
    * - Check comments from previous day (00:00-23:59:59 Asia/Ho_Chi_Minh)
    * - Send notification if interactions exist, skip otherwise
@@ -27,7 +27,9 @@ export class BlogAnalyticsScheduler {
     timeZone: 'Asia/Ho_Chi_Minh',
   })
   async handleDailyBlogAnalytics() {
-    this.logger.log('🕐 Daily blog analytics cronjob triggered (00:00 daily summary)');
+    this.logger.log(
+      '🕐 Daily blog analytics cronjob triggered (00:00 daily summary)',
+    );
     try {
       await this.blogAnalyticsService.generateDailyBlogInteractionStats();
       this.logger.log('✅ Daily blog analytics completed successfully');

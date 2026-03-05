@@ -12,21 +12,19 @@ import { QuestionProfile } from '@server/learning/infrastructure/mappings/questi
  * Handles question management operations
  */
 @Module({
-    imports: [SharedModule],
+  imports: [SharedModule],
   controllers: [QuestionHandler],
-    providers: [
-        {
-            provide: QUESTION_REPOSITORY_TOKEN,
-            useClass: QuestionRepository,
-        },
-        {
-            provide: QUESTION_SERVICE_TOKEN,
-            useClass: QuestionService,
-        },
-        QuestionProfile,
-    ],
-    exports: [QUESTION_SERVICE_TOKEN, QUESTION_REPOSITORY_TOKEN],
+  providers: [
+    {
+      provide: QUESTION_REPOSITORY_TOKEN,
+      useClass: QuestionRepository,
+    },
+    {
+      provide: QUESTION_SERVICE_TOKEN,
+      useClass: QuestionService,
+    },
+    QuestionProfile,
+  ],
+  exports: [QUESTION_SERVICE_TOKEN, QUESTION_REPOSITORY_TOKEN],
 })
-export class QuestionModule { }
-
-
+export class QuestionModule {}

@@ -22,4 +22,3 @@ describe('AuthController (e2e)', () => {
       .expect('Hello World!');
   });
 });
-

@@ -5,9 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="Update schema.prisma">
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/migrations/20260108082531_add_course_instructors_and_lesson_materials/migration.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/migrations/20260124000000_add_coupon_table/migration.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/migrations/migration_lock.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/nest-cli.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/nest-cli.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/tsconfig.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,6 +90,11 @@
     "settings.editor.selected.configurable": "preferences.pluginManager",
     "ts.external.directory.path": "/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
+    ]
   }
 }]]></component>
   <component name="RunManager">
@@ -304,15 +309,7 @@
       <workItem from="1772683090719" duration="3757000" />
       <workItem from="1772688992568" duration="19000" />
       <workItem from="1772694513606" duration="56000" />
-      <workItem from="1772699001161" duration="1024000" />
-    </task>
-    <task id="LOCAL-00918" summary="update meet to user shadcn ui component">
-      <option name="closed" value="true" />
-      <created>1772616881994</created>
-      <option name="number" value="00918" />
-      <option name="presentableId" value="LOCAL-00918" />
-      <option name="project" value="LOCAL" />
-      <updated>1772616881994</updated>
+      <workItem from="1772699001161" duration="1355000" />
     </task>
     <task id="LOCAL-00919" summary="update meet to user shadcn ui component">
       <option name="closed" value="true" />
@@ -698,7 +695,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772699850459</updated>
     </task>
-    <option name="localTasksCounter" value="967" />
+    <task id="LOCAL-00967" summary="Update schema.prisma">
+      <option name="closed" value="true" />
+      <created>1772700114040</created>
+      <option name="number" value="00967" />
+      <option name="presentableId" value="LOCAL-00967" />
+      <option name="project" value="LOCAL" />
+      <updated>1772700114040</updated>
+    </task>
+    <option name="localTasksCounter" value="968" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

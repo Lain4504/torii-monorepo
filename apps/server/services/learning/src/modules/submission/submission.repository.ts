@@ -13,20 +13,31 @@ export interface ISubmissionRepository {
   count(where?: Prisma.SubmissionWhereInput): Promise<number>;
   create(data: Prisma.SubmissionCreateInput): Promise<Submission>;
   update(id: string, data: Prisma.SubmissionUpdateInput): Promise<Submission>;
-  upsert(where: Prisma.SubmissionWhereUniqueInput, create: Prisma.SubmissionCreateInput, update: Prisma.SubmissionUpdateInput): Promise<Submission>;
-  findByAssignmentAndUser(assignmentId: string, userId: string, courseRunId?: string): Promise<Submission | null>;
-  findByAssignmentId(assignmentId: string, courseRunId?: string): Promise<Submission[]>;
+  upsert(
+    where: Prisma.SubmissionWhereUniqueInput,
+    create: Prisma.SubmissionCreateInput,
+    update: Prisma.SubmissionUpdateInput,
+  ): Promise<Submission>;
+  findByAssignmentAndUser(
+    assignmentId: string,
+    userId: string,
+    courseRunId?: string,
+  ): Promise<Submission | null>;
+  findByAssignmentId(
+    assignmentId: string,
+    courseRunId?: string,
+  ): Promise<Submission[]>;
   createGradeHistory(data: any): Promise<any>;
 }
 
 @Injectable()
 export class SubmissionRepository implements ISubmissionRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async findById(id: string): Promise<Submission | null> {
     return this.prisma.submission.findUnique({
       where: { id },
-      include: { gradeHistories: true }
+      include: { gradeHistories: true },
     }) as any;
   }
 
@@ -48,34 +59,44 @@ export class SubmissionRepository implements ISubmissionRepository {
     return this.prisma.submission.create({ data });
   }
 
-  async update(id: string, data: Prisma.SubmissionUpdateInput): Promise<Submission> {
+  async update(
+    id: string,
+    data: Prisma.SubmissionUpdateInput,
+  ): Promise<Submission> {
     return this.prisma.submission.update({ where: { id }, data });
   }
 
   async upsert(
     where: Prisma.SubmissionWhereUniqueInput,
     create: Prisma.SubmissionCreateInput,
-    update: Prisma.SubmissionUpdateInput
+    update: Prisma.SubmissionUpdateInput,
   ): Promise<Submission> {
     return this.prisma.submission.upsert({ where, create, update });
   }
 
-  async findByAssignmentAndUser(assignmentId: string, userId: string, courseRunId?: string): Promise<Submission | null> {
+  async findByAssignmentAndUser(
+    assignmentId: string,
+    userId: string,
+    courseRunId?: string,
+  ): Promise<Submission | null> {
     return this.prisma.submission.findFirst({
       where: {
         assignmentId,
         userId,
-        ...(courseRunId ? { courseRunId } : {})
+        ...(courseRunId ? { courseRunId } : {}),
       },
       orderBy: { attemptNumber: 'desc' }, // Get latest attempt
     });
   }
 
-  async findByAssignmentId(assignmentId: string, courseRunId?: string): Promise<Submission[]> {
+  async findByAssignmentId(
+    assignmentId: string,
+    courseRunId?: string,
+  ): Promise<Submission[]> {
     return this.prisma.submission.findMany({
       where: {
         assignmentId,
-        ...(courseRunId ? { courseRunId } : {})
+        ...(courseRunId ? { courseRunId } : {}),
       },
       orderBy: { submittedAt: 'desc' },
     });

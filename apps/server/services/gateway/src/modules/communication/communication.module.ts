@@ -4,7 +4,7 @@ import { NotificationController } from './controllers/notification.controller';
 import { TicketController } from './controllers/ticket.controller';
 
 @Module({
-    imports: [NatsClientModule],
-    controllers: [NotificationController, TicketController],
+  imports: [NatsClientModule],
+  controllers: [NotificationController, TicketController],
 })
-export class CommunicationModule { }
+export class CommunicationModule {}

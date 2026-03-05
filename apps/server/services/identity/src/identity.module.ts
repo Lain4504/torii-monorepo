@@ -52,4 +52,4 @@ import { DefaultAdminService } from '@server/identity/services/default-admin.ser
     AnalyticsModule,
   ],
 })
-export class IdentityModule { }
+export class IdentityModule {}

@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { Review, Prisma } from '@prisma/generated';
-import type { IReviewRepository, ReviewWithRelations } from '@server/learning/interfaces/repositories';
+import type {
+  IReviewRepository,
+  ReviewWithRelations,
+} from '@server/learning/interfaces/repositories';
 
 /**
  * Review Repository
@@ -11,29 +14,40 @@ import type { IReviewRepository, ReviewWithRelations } from '@server/learning/in
 export class ReviewRepository implements IReviewRepository {
   private readonly logger = new Logger(ReviewRepository.name);
 
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Find review by ID
    */
-  async findById(reviewId: string, includeRelations?: false): Promise<Review | null>;
-  async findById(reviewId: string, includeRelations: true): Promise<ReviewWithRelations | null>;
-  async findById(reviewId: string, includeRelations = false): Promise<Review | ReviewWithRelations | null> {
+  async findById(
+    reviewId: string,
+    includeRelations?: false,
+  ): Promise<Review | null>;
+  async findById(
+    reviewId: string,
+    includeRelations: true,
+  ): Promise<ReviewWithRelations | null>;
+  async findById(
+    reviewId: string,
+    includeRelations = false,
+  ): Promise<Review | ReviewWithRelations | null> {
     return this.prisma.review.findUnique({
       where: { id: reviewId },
-      include: includeRelations ? {
-        user: {
-          select: { id: true, displayName: true, avatarUrl: true }
-        },
-        courseRun: {
-          select: {
-            id: true,
-            courseMaster: {
-              select: { id: true, title: true }
-            }
+      include: includeRelations
+        ? {
+            user: {
+              select: { id: true, displayName: true, avatarUrl: true },
+            },
+            courseRun: {
+              select: {
+                id: true,
+                courseMaster: {
+                  select: { id: true, title: true },
+                },
+              },
+            },
           }
-        }
-      } : undefined
+        : undefined,
     });
   }
 
@@ -73,14 +87,14 @@ export class ReviewRepository implements IReviewRepository {
       where: { courseRun: { courseMasterId } },
       include: includeUser
         ? {
-          user: {
-            select: {
-              id: true,
-              displayName: true,
-              avatarUrl: true,
+            user: {
+              select: {
+                id: true,
+                displayName: true,
+                avatarUrl: true,
+              },
             },
-          },
-        }
+          }
         : undefined,
       orderBy: { createdAt: 'desc' },
       take,
@@ -95,7 +109,9 @@ export class ReviewRepository implements IReviewRepository {
   /**
    * Find all reviews by course ID
    */
-  async findAllByCourseId(courseMasterId: string): Promise<Pick<Review, 'rating'>[]> {
+  async findAllByCourseId(
+    courseMasterId: string,
+  ): Promise<Pick<Review, 'rating'>[]> {
     return this.prisma.review.findMany({
       where: { courseRun: { courseMasterId } },
       select: { rating: true },
@@ -104,7 +120,9 @@ export class ReviewRepository implements IReviewRepository {
   /**
    * Find all reviews by course run ID
    */
-  async findAllByCourseRunId(courseRunId: string): Promise<Pick<Review, 'rating'>[]> {
+  async findAllByCourseRunId(
+    courseRunId: string,
+  ): Promise<Pick<Review, 'rating'>[]> {
     return this.prisma.review.findMany({
       where: { courseRunId },
       select: { rating: true },
@@ -135,7 +153,11 @@ export class ReviewRepository implements IReviewRepository {
     courseRunId: string;
     rating: number;
     comment?: string | null;
-  }): Promise<Review & { user: { id: string; displayName: string; avatarUrl: string | null } }> {
+  }): Promise<
+    Review & {
+      user: { id: string; displayName: string; avatarUrl: string | null };
+    }
+  > {
     return this.prisma.review.create({
       data: {
         userId: data.userId,
@@ -177,10 +199,12 @@ export class ReviewRepository implements IReviewRepository {
   /**
    * Find many reviews with generic filtering
    */
-  async findMany(args: Prisma.ReviewFindManyArgs): Promise<(Review & {
-    user?: { id: string; displayName: string; avatarUrl: string | null };
-    course?: { id: string; title: string };
-  })[]> {
+  async findMany(args: Prisma.ReviewFindManyArgs): Promise<
+    (Review & {
+      user?: { id: string; displayName: string; avatarUrl: string | null };
+      course?: { id: string; title: string };
+    })[]
+  > {
     return this.prisma.review.findMany(args) as any;
   }
 
@@ -219,7 +243,7 @@ export class ReviewRepository implements IReviewRepository {
   async findCourseRun(courseRunId: string): Promise<any | null> {
     return this.prisma.courseRun.findUnique({
       where: { id: courseRunId },
-      include: { courseMaster: true }
+      include: { courseMaster: true },
     });
   }
 }

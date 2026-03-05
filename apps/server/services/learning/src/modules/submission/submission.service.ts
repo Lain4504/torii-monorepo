@@ -1,4 +1,11 @@
-import { Injectable, Logger, Inject, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  Inject,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { InjectMapper } from '@automapper/nestjs';
 import type { Mapper } from '@automapper/core';
@@ -8,14 +15,14 @@ import type {
   SubmitAssignmentDto,
   GradeSubmissionDto,
   ReturnSubmissionDto,
-  SubmissionResponseDTO
+  SubmissionResponseDTO,
 } from '@workspace/schemas';
 
 import { SubmissionRepository } from '@server/learning/modules/submission/submission.repository';
 import { AssignmentRepository } from '@server/learning/modules/assignment/assignment.repository';
 
 /**
- * Submission Service  
+ * Submission Service
  * Handles submission business logic (BR-03 to BR-07)
  */
 @Injectable()
@@ -29,28 +36,40 @@ export class SubmissionService {
     private readonly natsClient: ClientProxy,
     @InjectMapper()
     private readonly mapper: Mapper,
-  ) { }
+  ) {}
 
   /**
    * Helper to check permissions
    */
   private hasPermission(requester: Requester, permission: string): boolean {
     if (!requester.permissions) return false;
-    return requester.permissions.includes('*') || requester.permissions.includes(permission);
+    return (
+      requester.permissions.includes('*') ||
+      requester.permissions.includes(permission)
+    );
   }
 
   /**
    * Map Submission entity to SubmissionResponseDTO
    */
-  private toSubmissionResponseDTO(submission: Submission): SubmissionResponseDTO {
-    return this.mapper.map<Submission, SubmissionResponseDTO>(submission, 'Submission', 'SubmissionResponseDTO');
+  private toSubmissionResponseDTO(
+    submission: Submission,
+  ): SubmissionResponseDTO {
+    return this.mapper.map<Submission, SubmissionResponseDTO>(
+      submission,
+      'Submission',
+      'SubmissionResponseDTO',
+    );
   }
-
 
   /**
    * BR-03: Submit Assignment (Draft auto-save)
    */
-  async saveDraft(requester: Requester, assignmentId: string, dto: SubmitAssignmentDto) {
+  async saveDraft(
+    requester: Requester,
+    assignmentId: string,
+    dto: SubmitAssignmentDto,
+  ) {
     const assignment = await this.assignmentRepository.findById(assignmentId);
     if (!assignment) {
       throw new NotFoundException('Assignment not found');
@@ -61,7 +80,11 @@ export class SubmissionService {
     }
 
     // Find existing draft
-    const existing = await this.submissionRepository.findByAssignmentAndUser(assignmentId, requester.sub, dto.courseRunId);
+    const existing = await this.submissionRepository.findByAssignmentAndUser(
+      assignmentId,
+      requester.sub,
+      dto.courseRunId,
+    );
 
     const data: any = {
       textAnswer: dto.textAnswer,
@@ -72,7 +95,10 @@ export class SubmissionService {
 
     if (existing && existing.status === 'DRAFT') {
       // Update existing draft
-      const submission = await this.submissionRepository.update(existing.id, data);
+      const submission = await this.submissionRepository.update(
+        existing.id,
+        data,
+      );
       return this.toSubmissionResponseDTO(submission);
     } else {
       // Create new draft
@@ -82,7 +108,7 @@ export class SubmissionService {
         userId: requester.sub,
         ...data,
         attemptNumber: existing ? existing.attemptNumber + 1 : 1,
-      } as any);
+      });
       return this.toSubmissionResponseDTO(submission);
     }
   }
@@ -90,7 +116,11 @@ export class SubmissionService {
   /**
    * BR-03, BR-04: Submit Assignment officially
    */
-  async submit(requester: Requester, assignmentId: string, dto: SubmitAssignmentDto) {
+  async submit(
+    requester: Requester,
+    assignmentId: string,
+    dto: SubmitAssignmentDto,
+  ) {
     const assignment = await this.assignmentRepository.findById(assignmentId);
     if (!assignment) {
       throw new NotFoundException('Assignment not found');
@@ -114,7 +144,9 @@ export class SubmissionService {
 
       // Validate file count
       if (assignment.maxFiles && dto.fileUrls.length > assignment.maxFiles) {
-        throw new BadRequestException(`Maximum ${assignment.maxFiles} files allowed`);
+        throw new BadRequestException(
+          `Maximum ${assignment.maxFiles} files allowed`,
+        );
       }
     }
 
@@ -131,13 +163,19 @@ export class SubmissionService {
         daysLate = Math.ceil(diffMs / (1000 * 60 * 60 * 24)); // milliseconds to days
 
         if (!assignment.allowLateSubmission) {
-          throw new BadRequestException('This assignment does not allow late submissions');
+          throw new BadRequestException(
+            'This assignment does not allow late submissions',
+          );
         }
       }
     }
 
     // Find existing submission
-    const existing = await this.submissionRepository.findByAssignmentAndUser(assignmentId, requester.sub, dto.courseRunId);
+    const existing = await this.submissionRepository.findByAssignmentAndUser(
+      assignmentId,
+      requester.sub,
+      dto.courseRunId,
+    );
 
     const data: any = {
       textAnswer: dto.textAnswer,
@@ -163,7 +201,7 @@ export class SubmissionService {
         ...data,
         attemptNumber: existing.attemptNumber + 1,
         previousSubmissionId: existing.id,
-      } as any);
+      });
     } else {
       // New submission
       submission = await this.submissionRepository.create({
@@ -172,7 +210,7 @@ export class SubmissionService {
         userId: requester.sub,
         ...data,
         attemptNumber: 1,
-      } as any);
+      });
     }
 
     // Emit notification to instructor
@@ -184,20 +222,25 @@ export class SubmissionService {
       daysLate,
     });
 
-
     return this.toSubmissionResponseDTO(submission);
   }
 
   /**
    * BR-05, BR-07: Grade Submission
    */
-  async grade(requester: Requester, submissionId: string, dto: GradeSubmissionDto) {
+  async grade(
+    requester: Requester,
+    submissionId: string,
+    dto: GradeSubmissionDto,
+  ) {
     const submission = await this.submissionRepository.findById(submissionId);
     if (!submission) {
       throw new NotFoundException('Submission not found');
     }
 
-    const assignment = await this.assignmentRepository.findById(submission.assignmentId);
+    const assignment = await this.assignmentRepository.findById(
+      submission.assignmentId,
+    );
     if (!assignment) {
       throw new NotFoundException('Assignment not found');
     }
@@ -208,8 +251,13 @@ export class SubmissionService {
     }
 
     // Ownership check: Only assignment owner or admin can grade
-    if (assignment.createdBy !== requester.sub && !this.hasPermission(requester, '*')) {
-      throw new ForbiddenException('You can only grade submissions for your own assignments');
+    if (
+      assignment.createdBy !== requester.sub &&
+      !this.hasPermission(requester, '*')
+    ) {
+      throw new ForbiddenException(
+        'You can only grade submissions for your own assignments',
+      );
     }
 
     // Validate score
@@ -250,7 +298,10 @@ export class SubmissionService {
     });
 
     // BR-07: Gamification integration (if passed)
-    if (assignment.passingScore && dto.score >= Number(assignment.passingScore)) {
+    if (
+      assignment.passingScore &&
+      dto.score >= Number(assignment.passingScore)
+    ) {
       this.natsClient.emit('assignment.completed', {
         userId: submission.userId,
         assignmentId: submission.assignmentId,
@@ -262,20 +313,25 @@ export class SubmissionService {
       });
     }
 
-
     return this.toSubmissionResponseDTO(graded);
   }
 
   /**
    * Return Submission for revision
    */
-  async returnSubmission(requester: Requester, submissionId: string, dto: ReturnSubmissionDto) {
+  async returnSubmission(
+    requester: Requester,
+    submissionId: string,
+    dto: ReturnSubmissionDto,
+  ) {
     const submission = await this.submissionRepository.findById(submissionId);
     if (!submission) {
       throw new NotFoundException('Submission not found');
     }
 
-    const assignment = await this.assignmentRepository.findById(submission.assignmentId);
+    const assignment = await this.assignmentRepository.findById(
+      submission.assignmentId,
+    );
     if (!assignment) {
       throw new NotFoundException('Assignment not found');
     }
@@ -286,12 +342,19 @@ export class SubmissionService {
     }
 
     // Ownership check
-    if (assignment.createdBy !== requester.sub && !this.hasPermission(requester, '*')) {
-      throw new ForbiddenException('You can only return submissions for your own assignments');
+    if (
+      assignment.createdBy !== requester.sub &&
+      !this.hasPermission(requester, '*')
+    ) {
+      throw new ForbiddenException(
+        'You can only return submissions for your own assignments',
+      );
     }
 
     if (submission.status !== 'SUBMITTED' && submission.status !== 'GRADED') {
-      throw new BadRequestException('Can only return submitted or graded submissions');
+      throw new BadRequestException(
+        'Can only return submitted or graded submissions',
+      );
     }
 
     const returned = await this.submissionRepository.update(submissionId, {
@@ -313,8 +376,16 @@ export class SubmissionService {
   /**
    * Get student's submission for an assignment
    */
-  async getMySubmission(userId: string, assignmentId: string, courseRunId?: string) {
-    const submission = await this.submissionRepository.findByAssignmentAndUser(assignmentId, userId, courseRunId);
+  async getMySubmission(
+    userId: string,
+    assignmentId: string,
+    courseRunId?: string,
+  ) {
+    const submission = await this.submissionRepository.findByAssignmentAndUser(
+      assignmentId,
+      userId,
+      courseRunId,
+    );
     return submission ? this.toSubmissionResponseDTO(submission) : null;
   }
 
@@ -323,7 +394,10 @@ export class SubmissionService {
    * BR-05: Only returns the latest attempt for each user
    */
   async getSubmissions(assignmentId: string, courseRunId?: string) {
-    const allSubmissions = await this.submissionRepository.findByAssignmentId(assignmentId, courseRunId);
+    const allSubmissions = await this.submissionRepository.findByAssignmentId(
+      assignmentId,
+      courseRunId,
+    );
 
     // Group by userId and pick the highest attemptNumber
     const latestSubmissionsMap = new Map<string, Submission>();
@@ -336,6 +410,6 @@ export class SubmissionService {
     }
 
     const latestSubmissions = Array.from(latestSubmissionsMap.values());
-    return latestSubmissions.map(s => this.toSubmissionResponseDTO(s));
+    return latestSubmissions.map((s) => this.toSubmissionResponseDTO(s));
   }
 }

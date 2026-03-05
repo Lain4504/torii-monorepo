@@ -27,18 +27,28 @@ import {
   ReqWithRequester,
   ZodValidationPipe,
 } from '@server/shared';
-import { CourseRunCreateDTO, courseRunCreateDTOSchema, CourseRunUpdateDTO, courseRunUpdateDTOSchema, CourseRunSearchRequestDTO, courseRunSearchRequestDTOSchema } from '@workspace/schemas';
+import {
+  CourseRunCreateDTO,
+  courseRunCreateDTOSchema,
+  CourseRunUpdateDTO,
+  courseRunUpdateDTOSchema,
+  CourseRunSearchRequestDTO,
+  courseRunSearchRequestDTOSchema,
+} from '@workspace/schemas';
 
 @Controller('api/course-runs')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class CourseRunController {
-  constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
+  constructor(
+    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+  ) {}
 
   @Post()
   @Permissions('course.update')
   @HttpCode(HttpStatus.CREATED)
   async create(
-    @Body(new ZodValidationPipe(courseRunCreateDTOSchema)) dto: CourseRunCreateDTO,
+    @Body(new ZodValidationPipe(courseRunCreateDTOSchema))
+    dto: CourseRunCreateDTO,
     @Req() req: ReqWithRequester,
   ) {
     const result = await firstValueFrom(
@@ -54,7 +64,8 @@ export class CourseRunController {
   @Permissions('course.update')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Body(new ZodValidationPipe(courseRunUpdateDTOSchema)) dto: CourseRunUpdateDTO,
+    @Body(new ZodValidationPipe(courseRunUpdateDTOSchema))
+    dto: CourseRunUpdateDTO,
     @Req() req: ReqWithRequester,
   ) {
     const result = await firstValueFrom(
@@ -69,13 +80,14 @@ export class CourseRunController {
   @Get('my')
   @Permissions('course.view_my')
   async findMyRuns(
-    @Query(new ZodValidationPipe(courseRunSearchRequestDTOSchema)) query: CourseRunSearchRequestDTO,
-    @Req() req: ReqWithRequester
+    @Query(new ZodValidationPipe(courseRunSearchRequestDTOSchema))
+    query: CourseRunSearchRequestDTO,
+    @Req() req: ReqWithRequester,
   ) {
     const result = await firstValueFrom(
       this.natsClient.send(
         { cmd: 'learning.courserun.findMyRuns' },
-        { ...query, requester: req.requester }
+        { ...query, requester: req.requester },
       ),
     );
     return successPaginatedResponse(result);
@@ -83,7 +95,10 @@ export class CourseRunController {
 
   @Get()
   @Public()
-  async findAll(@Query(new ZodValidationPipe(courseRunSearchRequestDTOSchema)) query: CourseRunSearchRequestDTO) {
+  async findAll(
+    @Query(new ZodValidationPipe(courseRunSearchRequestDTOSchema))
+    query: CourseRunSearchRequestDTO,
+  ) {
     const result = await firstValueFrom(
       this.natsClient.send({ cmd: 'learning.courserun.findAll' }, query),
     );
@@ -121,7 +136,10 @@ export class CourseRunController {
         { id, status, requester: req.requester },
       ),
     );
-    return successResponse({ run: result }, 'Course run status updated successfully');
+    return successResponse(
+      { run: result },
+      'Course run status updated successfully',
+    );
   }
 
   @Get(':id/students')
@@ -142,7 +160,10 @@ export class CourseRunController {
 
   @Delete(':id')
   @Permissions('course.delete')
-  async delete(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+  async delete(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
     await firstValueFrom(
       this.natsClient.send(
         { cmd: 'learning.courserun.delete' },
@@ -164,7 +185,10 @@ export class CourseRunController {
         { id, requester: req.requester },
       ),
     );
-    return successResponse({ run: result }, 'Course run submitted for content review successfully');
+    return successResponse(
+      { run: result },
+      'Course run submitted for content review successfully',
+    );
   }
 
   @Post(':id/review')
@@ -188,8 +212,9 @@ export class CourseRunController {
         { id, requester: req.requester, ...body },
       ),
     );
-    return successResponse({ run: result }, 'Course run content reviewed successfully');
+    return successResponse(
+      { run: result },
+      'Course run content reviewed successfully',
+    );
   }
-
-
 }

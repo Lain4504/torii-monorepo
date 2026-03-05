@@ -1,9 +1,9 @@
 import type {
-    CommentCreateDTO,
-    CommentUpdateDTO,
-    CommentQueryDTO,
-    CommentResponseDTO,
-    CommentPaginatedResponse,
+  CommentCreateDTO,
+  CommentUpdateDTO,
+  CommentQueryDTO,
+  CommentResponseDTO,
+  CommentPaginatedResponse,
 } from '@workspace/schemas';
 
 /**
@@ -11,34 +11,43 @@ import type {
  * Defines the contract for comment business logic operations
  */
 export interface ICommentService {
-    /**
-     * Create new comment
-     */
-    createComment(dto: CommentCreateDTO): Promise<CommentResponseDTO>;
+  /**
+   * Create new comment
+   */
+  createComment(dto: CommentCreateDTO): Promise<CommentResponseDTO>;
 
-    /**
-     * Find all comments with pagination and filters
-     */
-    findAllComments(query: CommentQueryDTO): Promise<CommentPaginatedResponse>;
+  /**
+   * Find all comments with pagination and filters
+   */
+  findAllComments(query: CommentQueryDTO): Promise<CommentPaginatedResponse>;
 
-    /**
-     * Find comment by ID
-     */
-    findCommentById(id: string): Promise<CommentResponseDTO>;
+  /**
+   * Find comment by ID
+   */
+  findCommentById(id: string): Promise<CommentResponseDTO>;
 
-    /**
-     * Update comment
-     */
-    updateComment(id: string, authorId: string, dto: CommentUpdateDTO): Promise<CommentResponseDTO>;
+  /**
+   * Update comment
+   */
+  updateComment(
+    id: string,
+    authorId: string,
+    dto: CommentUpdateDTO,
+  ): Promise<CommentResponseDTO>;
 
-    /**
-     * Delete comment (soft delete)
-     */
-    deleteComment(id: string, authorId: string): Promise<{ success: boolean; message: string }>;
+  /**
+   * Delete comment (soft delete)
+   */
+  deleteComment(
+    id: string,
+    authorId: string,
+  ): Promise<{ success: boolean; message: string }>;
 
-    /**
-     * Get comment with nested replies
-     */
-    getCommentWithReplies(commentId: string, depth?: number): Promise<CommentResponseDTO | null>;
+  /**
+   * Get comment with nested replies
+   */
+  getCommentWithReplies(
+    commentId: string,
+    depth?: number,
+  ): Promise<CommentResponseDTO | null>;
 }
-

@@ -11,65 +11,65 @@ import type { ModuleResponseDTO } from '@workspace/schemas';
  */
 @Injectable()
 export class ModuleProfile extends AutomapperProfile {
-    constructor(@InjectMapper() mapper: Mapper) {
-        super(mapper);
-    }
+  constructor(@InjectMapper() mapper: Mapper) {
+    super(mapper);
+  }
 
-    override get profile() {
-        return (mapper: Mapper) => {
-            createMap<Module, ModuleResponseDTO>(
-                mapper,
-                'Module',
-                'ModuleResponseDTO',
-                forMember(
-                    (dest) => dest.id,
-                    mapFrom((src) => src.id),
-                ),
-                forMember(
-                    (dest) => dest.courseMasterId,
-                    mapFrom((src) => src.courseMasterId),
-                ),
-                forMember(
-                    (dest) => dest.title,
-                    mapFrom((src) => src.title),
-                ),
-                forMember(
-                    (dest) => dest.description,
-                    mapFrom((src) => src.description || undefined),
-                ),
-                forMember(
-                    (dest) => dest.orderIndex,
-                    mapFrom((src) => src.orderIndex),
-                ),
-                forMember(
-                    (dest) => dest.status,
-                    mapFrom((src) => (src as any).status || 'published'),
-                ),
-                forMember(
-                    (dest) => dest.durationMinutes,
-                    mapFrom((src) => src.durationMinutes || undefined),
-                ),
-                forMember(
-                    (dest) => dest.createdBy,
-                    mapFrom((src) => src.createdBy || undefined),
-                ),
-                forMember(
-                    (dest) => dest.createdAt,
-                    mapFrom((src) => src.createdAt),
-                ),
-                forMember(
-                    (dest) => dest.updatedAt,
-                    mapFrom((src) => src.updatedAt),
-                ),
-                forMember(
-                    (dest) => dest.deletedAt,
-                    mapFrom((src) => src.deletedAt || undefined),
-                ),
-                forMember(
-                    (dest) => dest.items,
-                    mapFrom((src) => (src as any).items || []),
-                ),
-            );
-        };
-    }
+  override get profile() {
+    return (mapper: Mapper) => {
+      createMap<Module, ModuleResponseDTO>(
+        mapper,
+        'Module',
+        'ModuleResponseDTO',
+        forMember(
+          (dest) => dest.id,
+          mapFrom((src) => src.id),
+        ),
+        forMember(
+          (dest) => dest.courseMasterId,
+          mapFrom((src) => src.courseMasterId),
+        ),
+        forMember(
+          (dest) => dest.title,
+          mapFrom((src) => src.title),
+        ),
+        forMember(
+          (dest) => dest.description,
+          mapFrom((src) => src.description || undefined),
+        ),
+        forMember(
+          (dest) => dest.orderIndex,
+          mapFrom((src) => src.orderIndex),
+        ),
+        forMember(
+          (dest) => dest.status,
+          mapFrom((src) => (src as any).status || 'published'),
+        ),
+        forMember(
+          (dest) => dest.durationMinutes,
+          mapFrom((src) => src.durationMinutes || undefined),
+        ),
+        forMember(
+          (dest) => dest.createdBy,
+          mapFrom((src) => src.createdBy || undefined),
+        ),
+        forMember(
+          (dest) => dest.createdAt,
+          mapFrom((src) => src.createdAt),
+        ),
+        forMember(
+          (dest) => dest.updatedAt,
+          mapFrom((src) => src.updatedAt),
+        ),
+        forMember(
+          (dest) => dest.deletedAt,
+          mapFrom((src) => src.deletedAt || undefined),
+        ),
+        forMember(
+          (dest) => dest.items,
+          mapFrom((src) => (src as any).items || []),
+        ),
+      );
+    };
+  }
 }

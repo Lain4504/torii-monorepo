@@ -9,18 +9,18 @@ import { NotificationModule } from '@server/communication/modules/notification/n
 import { EmailModule } from '@server/communication/modules/email/email.module';
 
 @Module({
-    imports: [PrismaModule, NatsClientModule, NotificationModule, EmailModule],
-    controllers: [TicketHandler],
-    providers: [
-        {
-            provide: TICKET_REPOSITORY_TOKEN,
-            useClass: TicketRepository,
-        },
-        {
-            provide: TICKET_SERVICE_TOKEN,
-            useClass: TicketService,
-        },
-    ],
-    exports: [TICKET_SERVICE_TOKEN],
+  imports: [PrismaModule, NatsClientModule, NotificationModule, EmailModule],
+  controllers: [TicketHandler],
+  providers: [
+    {
+      provide: TICKET_REPOSITORY_TOKEN,
+      useClass: TicketRepository,
+    },
+    {
+      provide: TICKET_SERVICE_TOKEN,
+      useClass: TicketService,
+    },
+  ],
+  exports: [TICKET_SERVICE_TOKEN],
 })
-export class TicketModule { }
+export class TicketModule {}

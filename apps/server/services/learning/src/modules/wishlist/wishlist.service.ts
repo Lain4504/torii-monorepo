@@ -22,10 +22,14 @@ export class WishlistService implements IWishlistService {
   constructor(
     private readonly wishlistRepository: WishlistRepository,
     @InjectMapper() private readonly mapper: Mapper,
-  ) { }
+  ) {}
 
   private toWishlistDto(w: any): WishlistResponseDTO {
-    return this.mapper.map<any, WishlistResponseDTO>(w, 'Wishlist', 'WishlistResponseDTO');
+    return this.mapper.map<any, WishlistResponseDTO>(
+      w,
+      'Wishlist',
+      'WishlistResponseDTO',
+    );
   }
 
   /**
@@ -102,7 +106,10 @@ export class WishlistService implements IWishlistService {
   /**
    * Create a new wishlist
    */
-  async create(userId: string, input: WishlistCreateDTO): Promise<WishlistResponseDTO> {
+  async create(
+    userId: string,
+    input: WishlistCreateDTO,
+  ): Promise<WishlistResponseDTO> {
     const { courseRunId } = input;
     if (!userId) throw new Error('UserId is required');
     if (!courseRunId) throw new Error('CourseRunId is required');
@@ -151,9 +158,15 @@ export class WishlistService implements IWishlistService {
   /**
    * Toggle wishlist (add if not exists, remove if exists)
    */
-  async toggle(userId: string, courseRunId: string): Promise<{ isInWishlist: boolean; wishlist?: WishlistResponseDTO }> {
+  async toggle(
+    userId: string,
+    courseRunId: string,
+  ): Promise<{ isInWishlist: boolean; wishlist?: WishlistResponseDTO }> {
     try {
-      const existing = await this.wishlistRepository.findByUserAndCourseRun(userId, courseRunId);
+      const existing = await this.wishlistRepository.findByUserAndCourseRun(
+        userId,
+        courseRunId,
+      );
 
       if (existing) {
         // Remove from wishlist
@@ -181,7 +194,10 @@ export class WishlistService implements IWishlistService {
    */
   async isInWishlist(userId: string, courseRunId: string): Promise<boolean> {
     try {
-      const existing = await this.wishlistRepository.findByUserAndCourseRun(userId, courseRunId);
+      const existing = await this.wishlistRepository.findByUserAndCourseRun(
+        userId,
+        courseRunId,
+      );
       return existing !== null;
     } catch (error: any) {
       this.logger.error(
@@ -192,4 +208,3 @@ export class WishlistService implements IWishlistService {
     }
   }
 }
-

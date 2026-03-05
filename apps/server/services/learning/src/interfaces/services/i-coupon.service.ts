@@ -1,15 +1,15 @@
 import type {
-    CouponResponseDTO,
-    CouponCreateDTO,
-    CouponUpdateDTO,
-    CouponValidateRequestDTO,
-    CouponValidateResponseDTO,
-    CouponCalculateDiscountRequestDTO,
-    CouponCalculateDiscountResponseDTO,
-    CouponStatisticsDTO,
-    PaginationOptionsDTO,
-    PaginatedResponseDTO,
-    Requester,
+  CouponResponseDTO,
+  CouponCreateDTO,
+  CouponUpdateDTO,
+  CouponValidateRequestDTO,
+  CouponValidateResponseDTO,
+  CouponCalculateDiscountRequestDTO,
+  CouponCalculateDiscountResponseDTO,
+  CouponStatisticsDTO,
+  PaginationOptionsDTO,
+  PaginatedResponseDTO,
+  Requester,
 } from '@workspace/schemas';
 
 /**
@@ -17,53 +17,66 @@ import type {
  * Defines the contract for coupon business logic operations
  */
 export interface ICouponService {
-    /**
-     * Find all coupons with pagination and filtering
-     */
-    findAll(options: PaginationOptionsDTO & { status?: string; search?: string }): Promise<PaginatedResponseDTO<CouponResponseDTO>>;
+  /**
+   * Find all coupons with pagination and filtering
+   */
+  findAll(
+    options: PaginationOptionsDTO & { status?: string; search?: string },
+  ): Promise<PaginatedResponseDTO<CouponResponseDTO>>;
 
-    /**
-     * Find one coupon by ID
-     */
-    findById(couponId: string): Promise<CouponResponseDTO>;
+  /**
+   * Find one coupon by ID
+   */
+  findById(couponId: string): Promise<CouponResponseDTO>;
 
-    /**
-     * Find coupon by code
-     */
-    findByCode(code: string): Promise<CouponResponseDTO>;
+  /**
+   * Find coupon by code
+   */
+  findByCode(code: string): Promise<CouponResponseDTO>;
 
-    /**
-     * Create a new coupon
-     */
-    create(requester: Requester, dto: CouponCreateDTO): Promise<CouponResponseDTO>;
+  /**
+   * Create a new coupon
+   */
+  create(
+    requester: Requester,
+    dto: CouponCreateDTO,
+  ): Promise<CouponResponseDTO>;
 
-    /**
-     * Update coupon
-     */
-    update(requester: Requester, couponId: string, dto: CouponUpdateDTO): Promise<CouponResponseDTO>;
+  /**
+   * Update coupon
+   */
+  update(
+    requester: Requester,
+    couponId: string,
+    dto: CouponUpdateDTO,
+  ): Promise<CouponResponseDTO>;
 
-    /**
-     * Delete coupon
-     */
-    delete(requester: Requester, couponId: string): Promise<{ message: string }>;
+  /**
+   * Delete coupon
+   */
+  delete(requester: Requester, couponId: string): Promise<{ message: string }>;
 
-    /**
-     * Validate coupon for a course
-     */
-    validateCoupon(request: CouponValidateRequestDTO): Promise<CouponValidateResponseDTO>;
+  /**
+   * Validate coupon for a course
+   */
+  validateCoupon(
+    request: CouponValidateRequestDTO,
+  ): Promise<CouponValidateResponseDTO>;
 
-    /**
-     * Calculate discount amount for a coupon
-     */
-    calculateDiscount(request: CouponCalculateDiscountRequestDTO): Promise<CouponCalculateDiscountResponseDTO>;
+  /**
+   * Calculate discount amount for a coupon
+   */
+  calculateDiscount(
+    request: CouponCalculateDiscountRequestDTO,
+  ): Promise<CouponCalculateDiscountResponseDTO>;
 
-    /**
-     * Get coupon statistics
-     */
-    getStatistics(): Promise<CouponStatisticsDTO>;
+  /**
+   * Get coupon statistics
+   */
+  getStatistics(): Promise<CouponStatisticsDTO>;
 
-    /**
-     * Get available coupons for a course run
-     */
-    getAvailableCoupons(courseRunId: string): Promise<CouponResponseDTO[]>;
+  /**
+   * Get available coupons for a course run
+   */
+  getAvailableCoupons(courseRunId: string): Promise<CouponResponseDTO[]>;
 }

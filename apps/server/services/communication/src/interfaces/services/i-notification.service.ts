@@ -14,17 +14,25 @@ export interface INotificationService {
   /**
    * Get all notifications for a user with pagination and filtering
    */
-  findAll(userId: string, query: NotificationQueryDTO): Promise<PaginatedResponseDTO<NotificationResponseDTO>>;
+  findAll(
+    userId: string,
+    query: NotificationQueryDTO,
+  ): Promise<PaginatedResponseDTO<NotificationResponseDTO>>;
 
   /**
    * Mark a notification as read
    */
-  markAsRead(notificationId: string, userId: string): Promise<NotificationResponseDTO>;
+  markAsRead(
+    notificationId: string,
+    userId: string,
+  ): Promise<NotificationResponseDTO>;
 
   /**
    * Mark all notifications as read for a user
    */
-  markAllAsRead(userId: string): Promise<{ success: boolean; message: string; count: number }>;
+  markAllAsRead(
+    userId: string,
+  ): Promise<{ success: boolean; message: string; count: number }>;
 
   /**
    * Get unread count for a user
@@ -34,7 +42,10 @@ export interface INotificationService {
   /**
    * Delete a notification
    */
-  delete(notificationId: string, userId: string): Promise<{ success: boolean; message: string }>;
+  delete(
+    notificationId: string,
+    userId: string,
+  ): Promise<{ success: boolean; message: string }>;
 
   /**
    * Create a notification (for event-driven use cases)

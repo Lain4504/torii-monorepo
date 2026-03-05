@@ -3,16 +3,16 @@
  * Emitted when an order payment is successfully completed
  */
 export interface OrderPaymentSuccessEvent {
-    userId: string;
-    userEmail: string;
-    userName: string;
-    orderId: string;
-    courseId: string;
-    courseName: string;
-    amount: number;
-    currency: string;
-    isGift?: boolean;
-    recipientName?: string;
+  userId: string;
+  userEmail: string;
+  userName: string;
+  orderId: string;
+  courseId: string;
+  courseName: string;
+  amount: number;
+  currency: string;
+  isGift?: boolean;
+  recipientName?: string;
 }
 
 /**
@@ -20,8 +20,8 @@ export interface OrderPaymentSuccessEvent {
  * Emitted when order status changes
  */
 export interface OrderStatusChangedEvent {
-    userId: string;
-    orderId: string;
-    oldStatus: string;
-    newStatus: string;
+  userId: string;
+  orderId: string;
+  oldStatus: string;
+  newStatus: string;
 }

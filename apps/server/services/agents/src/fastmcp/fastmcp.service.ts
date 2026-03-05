@@ -19,7 +19,7 @@ export interface ToolContext {
 
 /**
  * FastMCP Service - Generic AI Client & Prompt Engine
- * 
+ *
  * Responsibilities:
  * - Managed Gemini API connection
  * - Prompt Template loading & rendering
@@ -39,7 +39,8 @@ export class FastMcpService {
     this.registerHandlebarsHelpers();
 
     // Priority: 1. Config (YAML), 2. Environment Variable
-    const apiKey = this.appConfig.thirdParty.gemini.apiKey || process.env.GEMINI_API_KEY;
+    const apiKey =
+      this.appConfig.thirdParty.gemini.apiKey || process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
       this.logger.error('GEMINI_API_KEY is not set in config.yaml or .env!');
@@ -50,7 +51,12 @@ export class FastMcpService {
 
   // ==================== TOOL REGISTRY ====================
 
-  public addTool(name: string, description: string, schema: any, handler: Function) {
+  public addTool(
+    name: string,
+    description: string,
+    schema: any,
+    handler: Function,
+  ) {
     this.logger.debug(`🛠️ Registering Tool: ${name}`);
 
     // Register internally (for NATS execution)
@@ -85,10 +91,18 @@ export class FastMcpService {
           // 2. Src/Assets under currentDir (common in development)
           join(currentDir, 'src/assets/prompts', templatePath),
           // 3. Monorepo structure inside dist
-          join(currentDir, 'dist/services/agents/src/assets/prompts', templatePath),
+          join(
+            currentDir,
+            'dist/services/agents/src/assets/prompts',
+            templatePath,
+          ),
           join(currentDir, 'services/agents/src/assets/prompts', templatePath),
           // 4. Nested monorepo path
-          join(currentDir, 'apps/server/services/agents/src/assets/prompts', templatePath),
+          join(
+            currentDir,
+            'apps/server/services/agents/src/assets/prompts',
+            templatePath,
+          ),
         ];
 
         for (const p of pathsToTry) {
@@ -104,7 +118,9 @@ export class FastMcpService {
       }
     }
 
-    this.logger.error(`Failed to load prompt template: ${templatePath}. Search reached root starting from ${__dirname} and ${process.cwd()}`);
+    this.logger.error(
+      `Failed to load prompt template: ${templatePath}. Search reached root starting from ${__dirname} and ${process.cwd()}`,
+    );
     throw new Error(`Template not found: ${templatePath}`);
   }
 
@@ -118,9 +134,21 @@ export class FastMcpService {
         const pathsToTry = [
           join(currentDir, 'assets/resources', resourcePath),
           join(currentDir, 'src/assets/resources', resourcePath),
-          join(currentDir, 'dist/services/agents/src/assets/resources', resourcePath),
-          join(currentDir, 'services/agents/src/assets/resources', resourcePath),
-          join(currentDir, 'apps/server/services/agents/src/assets/resources', resourcePath),
+          join(
+            currentDir,
+            'dist/services/agents/src/assets/resources',
+            resourcePath,
+          ),
+          join(
+            currentDir,
+            'services/agents/src/assets/resources',
+            resourcePath,
+          ),
+          join(
+            currentDir,
+            'apps/server/services/agents/src/assets/resources',
+            resourcePath,
+          ),
         ];
 
         for (const p of pathsToTry) {
@@ -136,11 +164,15 @@ export class FastMcpService {
       }
     }
 
-    this.logger.error(`Failed to load resource: ${resourcePath}. Search reached root starting from ${__dirname} and ${process.cwd()}`);
+    this.logger.error(
+      `Failed to load resource: ${resourcePath}. Search reached root starting from ${__dirname} and ${process.cwd()}`,
+    );
     return null;
   }
 
-  public async callGemini(prompt: string): Promise<{ text: string; usage: any }> {
+  public async callGemini(
+    prompt: string,
+  ): Promise<{ text: string; usage: any }> {
     if (!this.genAI) {
       throw new Error('Gemini API Key is missing');
     }
@@ -164,7 +196,7 @@ export class FastMcpService {
 
       return {
         text: result.response.text(),
-        usage: usage
+        usage: usage,
       };
     } catch (error: any) {
       this.logger.error('Gemini API Error:', error);
@@ -263,12 +295,16 @@ export class FastMcpService {
         },
       });
 
-      const courseMetadata = (enrollments as any[]).map(e => e.courseRun?.courseMaster?.aiMetadata).filter(Boolean);
-      const courseTitles = (enrollments as any[]).map(e => e.courseRun?.courseMaster?.title).filter(Boolean);
+      const courseMetadata = (enrollments as any[])
+        .map((e) => e.courseRun?.courseMaster?.aiMetadata)
+        .filter(Boolean);
+      const courseTitles = (enrollments as any[])
+        .map((e) => e.courseRun?.courseMaster?.title)
+        .filter(Boolean);
       const jlptLevels = [
         ...new Set(
           (enrollments as any[])
-            .map(e => e.courseRun?.courseMaster?.jlptLevel)
+            .map((e) => e.courseRun?.courseMaster?.jlptLevel)
             .filter(Boolean),
         ),
       ];
@@ -282,9 +318,9 @@ export class FastMcpService {
         where: {
           enrollment: { userId },
           completedAt: { gte: thirtyDaysAgo },
-          status: 'completed'
+          status: 'completed',
         },
-        select: { completedAt: true }
+        select: { completedAt: true },
       });
 
       // 2. Quiz/Test Scores
@@ -292,18 +328,21 @@ export class FastMcpService {
         where: {
           userId,
           completedAt: { gte: thirtyDaysAgo },
-          status: 'completed' // or 'submitted'
+          status: 'completed', // or 'submitted'
         },
-        select: { completedAt: true, percentage: true }
+        select: { completedAt: true, percentage: true },
       });
 
       // 3. Aggregate by Date
-      const activityMap = new Map<string, { lessons: number, scores: number[], date: string }>();
+      const activityMap = new Map<
+        string,
+        { lessons: number; scores: number[]; date: string }
+      >();
 
       // Init helper
       const getDateKey = (date: Date) => date.toISOString().split('T')[0]; // YYYY-MM-DD
 
-      completedLessons.forEach(l => {
+      completedLessons.forEach((l) => {
         if (!l.completedAt) return;
         const dateKey = getDateKey(l.completedAt);
         if (!activityMap.has(dateKey)) {
@@ -312,7 +351,7 @@ export class FastMcpService {
         activityMap.get(dateKey)!.lessons += 1;
       });
 
-      completedQuizzes.forEach(q => {
+      completedQuizzes.forEach((q) => {
         if (!q.completedAt) return;
         const dateKey = getDateKey(q.completedAt);
         if (!activityMap.has(dateKey)) {
@@ -324,13 +363,20 @@ export class FastMcpService {
       });
 
       // Convert to Array and Calculate Averages
-      const recentActivity = Array.from(activityMap.values()).map(item => ({
-        date: item.date,
-        lessons: item.lessons,
-        averageScore: item.scores.length > 0
-          ? Math.round(item.scores.reduce((a, b) => a + b, 0) / item.scores.length)
-          : 0
-      })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      const recentActivity = Array.from(activityMap.values())
+        .map((item) => ({
+          date: item.date,
+          lessons: item.lessons,
+          averageScore:
+            item.scores.length > 0
+              ? Math.round(
+                  item.scores.reduce((a, b) => a + b, 0) / item.scores.length,
+                )
+              : 0,
+        }))
+        .sort(
+          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+        );
 
       // Limit to last 14 days
       const conciseActivity = recentActivity.slice(-14);
@@ -341,41 +387,50 @@ export class FastMcpService {
       const recentWrongDetails = await this.prisma.quizAttemptDetail.findMany({
         where: {
           attempt: { userId },
-          isCorrect: false
+          isCorrect: false,
         },
         include: {
-          question: { select: { questionText: true, category: true, subcategory: true } }
+          question: {
+            select: { questionText: true, category: true, subcategory: true },
+          },
         },
         orderBy: { createdAt: 'desc' },
-        take: 20
+        take: 20,
       });
 
-      const commonErrors = recentWrongDetails.map(d => ({
+      const commonErrors = recentWrongDetails.map((d) => ({
         question: d.question.questionText,
         category: d.question.category,
-        subcategory: d.question.subcategory
+        subcategory: d.question.subcategory,
       }));
 
       // 2. Recent Vocabulary (Flashcards reviewed/added)
       const recentFlashcards = await this.prisma.flashcardReview.findMany({
         where: { userId },
         include: {
-          flashcard: { select: { frontText: true, backText: true, kanji: true, furigana: true } }
+          flashcard: {
+            select: {
+              frontText: true,
+              backText: true,
+              kanji: true,
+              furigana: true,
+            },
+          },
         },
         orderBy: { reviewDate: 'desc' },
-        take: 10
+        take: 10,
       });
 
-      const recentVocabulary = recentFlashcards.map(r => ({
+      const recentVocabulary = recentFlashcards.map((r) => ({
         word: r.flashcard.kanji || r.flashcard.frontText,
         reading: r.flashcard.furigana,
         meaning: r.flashcard.backText,
-        quality: r.quality // Review quality (0-4)
+        quality: r.quality, // Review quality (0-4)
       }));
 
       // 3. User Gamification (Streak, Level, XP)
       const gamification = await this.prisma.userGamification.findUnique({
-        where: { userId }
+        where: { userId },
       });
 
       return {
@@ -386,11 +441,13 @@ export class FastMcpService {
         recentActivity: conciseActivity,
         commonErrors,
         recentVocabulary,
-        stats: gamification ? {
-          level: gamification.level,
-          streak: gamification.currentStreak,
-          totalXp: gamification.totalXp
-        } : null
+        stats: gamification
+          ? {
+              level: gamification.level,
+              streak: gamification.currentStreak,
+              totalXp: gamification.totalXp,
+            }
+          : null,
       };
     } catch (error) {
       this.logger.warn(`Failed to fetch user context: ${error.message}`);

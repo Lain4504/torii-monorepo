@@ -73,5 +73,4 @@ import { WaitingRoomHandler } from '@server/meet/modules/waiting-room/waiting-ro
     WaitingRoomService,
   ],
 })
-export class RoomModule { }
-
+export class RoomModule {}

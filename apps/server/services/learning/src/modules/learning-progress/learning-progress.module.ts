@@ -11,47 +11,46 @@ import { CertificateModule } from '@server/learning/modules/certificate/certific
 
 import { LEARNING_PROGRESS_SERVICE_TOKEN } from '@server/learning/interfaces/services';
 import {
-    LEARNING_PROGRESS_REPOSITORY_TOKEN,
-    ENROLLMENT_REPOSITORY_TOKEN,
-    COURSE_MASTER_REPOSITORY_TOKEN,
-    LESSON_REPOSITORY_TOKEN,
-    MODULE_REPOSITORY_TOKEN
+  LEARNING_PROGRESS_REPOSITORY_TOKEN,
+  ENROLLMENT_REPOSITORY_TOKEN,
+  COURSE_MASTER_REPOSITORY_TOKEN,
+  LESSON_REPOSITORY_TOKEN,
+  MODULE_REPOSITORY_TOKEN,
 } from '@server/learning/interfaces/repositories';
 
 @Module({
-    imports: [
-        PrismaModule,
-        NatsClientModule,
-        forwardRef(() => CertificateModule)
-    ],
-    controllers: [LearningProgressController],
-    providers: [
-        {
-            provide: LEARNING_PROGRESS_SERVICE_TOKEN,
-            useClass: LearningProgressService,
-        },
-        {
-            provide: LEARNING_PROGRESS_REPOSITORY_TOKEN,
-            useClass: LearningProgressRepository,
-        },
-        {
-            provide: ENROLLMENT_REPOSITORY_TOKEN,
-            useClass: EnrollmentRepository,
-        },
-        {
-            provide: COURSE_MASTER_REPOSITORY_TOKEN,
-            useClass: CourseMasterRepository,
-        },
-        {
-            provide: LESSON_REPOSITORY_TOKEN,
-            useClass: LessonRepository,
-        },
-        {
-            provide: MODULE_REPOSITORY_TOKEN,
-            useClass: ModuleRepository,
-        }
-    ],
-    exports: [LEARNING_PROGRESS_SERVICE_TOKEN]
+  imports: [
+    PrismaModule,
+    NatsClientModule,
+    forwardRef(() => CertificateModule),
+  ],
+  controllers: [LearningProgressController],
+  providers: [
+    {
+      provide: LEARNING_PROGRESS_SERVICE_TOKEN,
+      useClass: LearningProgressService,
+    },
+    {
+      provide: LEARNING_PROGRESS_REPOSITORY_TOKEN,
+      useClass: LearningProgressRepository,
+    },
+    {
+      provide: ENROLLMENT_REPOSITORY_TOKEN,
+      useClass: EnrollmentRepository,
+    },
+    {
+      provide: COURSE_MASTER_REPOSITORY_TOKEN,
+      useClass: CourseMasterRepository,
+    },
+    {
+      provide: LESSON_REPOSITORY_TOKEN,
+      useClass: LessonRepository,
+    },
+    {
+      provide: MODULE_REPOSITORY_TOKEN,
+      useClass: ModuleRepository,
+    },
+  ],
+  exports: [LEARNING_PROGRESS_SERVICE_TOKEN],
 })
-export class LearningProgressModule { }
-
+export class LearningProgressModule {}

@@ -11,7 +11,7 @@ import type { INotificationRepository } from '@server/communication/interfaces/r
 export class NotificationRepository implements INotificationRepository {
   private readonly logger = new Logger(NotificationRepository.name);
 
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Find notification by ID
@@ -25,7 +25,10 @@ export class NotificationRepository implements INotificationRepository {
   /**
    * Find notification by ID and user ID
    */
-  async findByIdAndUserId(id: string, userId: string): Promise<Notification | null> {
+  async findByIdAndUserId(
+    id: string,
+    userId: string,
+  ): Promise<Notification | null> {
     return this.prisma.notification.findFirst({
       where: {
         id,
@@ -70,7 +73,9 @@ export class NotificationRepository implements INotificationRepository {
   /**
    * Create multiple notifications (bulk insert)
    */
-  async createMany(data: Prisma.NotificationCreateManyInput[]): Promise<{ count: number }> {
+  async createMany(
+    data: Prisma.NotificationCreateManyInput[],
+  ): Promise<{ count: number }> {
     return this.prisma.notification.createMany({
       data,
     });
@@ -79,7 +84,10 @@ export class NotificationRepository implements INotificationRepository {
   /**
    * Update notification by ID
    */
-  async update(id: string, data: Prisma.NotificationUpdateInput): Promise<Notification> {
+  async update(
+    id: string,
+    data: Prisma.NotificationUpdateInput,
+  ): Promise<Notification> {
     return this.prisma.notification.update({
       where: { id },
       data,

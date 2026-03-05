@@ -5,27 +5,29 @@ import { ExternalDisplayLinkReq } from '@workspace/protocol';
 
 @Controller()
 export class ExternalDisplayNatsController {
-    private readonly logger = new Logger(ExternalDisplayNatsController.name);
+  private readonly logger = new Logger(ExternalDisplayNatsController.name);
 
-    constructor(
-        private readonly externalDisplayService: ExternalDisplayService,
-    ) { }
+  constructor(
+    private readonly externalDisplayService: ExternalDisplayService,
+  ) {}
 
-    @MessagePattern({ cmd: 'externalMedia.display' })
-    async handleAction(@Payload() data: ExternalDisplayLinkReq) {
-        try {
-            await this.externalDisplayService.handleRequest(data);
+  @MessagePattern({ cmd: 'externalMedia.display' })
+  async handleAction(@Payload() data: ExternalDisplayLinkReq) {
+    try {
+      await this.externalDisplayService.handleRequest(data);
 
-            return {
-                status: true,
-                msg: 'Success'
-            };
-        } catch (error) {
-            this.logger.error(`Error handling external display action: ${error.message}`);
-            return {
-                status: false,
-                msg: error.message
-            };
-        }
+      return {
+        status: true,
+        msg: 'Success',
+      };
+    } catch (error) {
+      this.logger.error(
+        `Error handling external display action: ${error.message}`,
+      );
+      return {
+        status: false,
+        msg: error.message,
+      };
     }
+  }
 }

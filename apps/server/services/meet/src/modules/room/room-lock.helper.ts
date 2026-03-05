@@ -22,7 +22,7 @@ const BACKOFF_JITTER = 0.2;
  * Sleep helper
  */
 function sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -35,57 +35,70 @@ function sleep(ms: number): Promise<void> {
  * @throws Error on timeout or Redis error
  */
 export async function acquireRoomCreationLockWithRetry(
-    redisLock: RedisLockService,
-    roomId: string,
-    logger: Logger,
+  redisLock: RedisLockService,
+  roomId: string,
+  logger: Logger,
 ): Promise<string> {
-    const maxWaitTime = DEFAULT_ROOM_CREATION_MAX_WAIT_TIME;
-    const lockTTL = DEFAULT_ROOM_CREATION_LOCK_TTL;
-    let currentInterval = BACKOFF_INITIAL_INTERVAL;
+  const maxWaitTime = DEFAULT_ROOM_CREATION_MAX_WAIT_TIME;
+  const lockTTL = DEFAULT_ROOM_CREATION_LOCK_TTL;
+  let currentInterval = BACKOFF_INITIAL_INTERVAL;
 
-    const loopStartTime = Date.now();
-    logger.log(`Attempting to acquire room creation lock: ${roomId}`);
+  const loopStartTime = Date.now();
+  logger.log(`Attempting to acquire room creation lock: ${roomId}`);
 
-    while (true) {
-        // Try to acquire lock
-        try {
-            const { acquired, lockValue } = await redisLock.lockRoomCreation(roomId, lockTTL);
+  while (true) {
+    // Try to acquire lock
+    try {
+      const { acquired, lockValue } = await redisLock.lockRoomCreation(
+        roomId,
+        lockTTL,
+      );
 
-            if (acquired) {
-                const duration = Date.now() - loopStartTime;
-                logger.log(`Successfully acquired room creation lock: ${roomId}, lockValue: ${lockValue}, duration: ${duration}ms`);
-                return lockValue;
-            }
-        } catch (error) {
-            const errorMsg = error instanceof Error ? error.message : String(error);
-            logger.error(`Redis error while attempting to acquire room creation lock: ${roomId}, error: ${errorMsg}`);
-            throw new Error(`Redis communication error for room '${roomId}' lock: ${errorMsg}`);
-        }
-
-        // Check if timeout reached
-        const elapsed = Date.now() - loopStartTime;
-        if (elapsed >= maxWaitTime) {
-            logger.warn(`Timeout while waiting for room creation lock: ${roomId}, maxWaitTime: ${maxWaitTime}ms`);
-            throw new Error(`Timeout waiting to acquire lock for room ${roomId}, operation is currently locked`);
-        }
-
-        // Calculate next interval with jitter
-        const jitter = Math.random() * BACKOFF_JITTER * currentInterval;
-        const waitDuration = currentInterval + jitter;
-
-        logger.debug(
-            `Room creation lock not acquired for ${roomId}. Waiting ${waitDuration}ms. Elapsed: ${elapsed}ms`,
+      if (acquired) {
+        const duration = Date.now() - loopStartTime;
+        logger.log(
+          `Successfully acquired room creation lock: ${roomId}, lockValue: ${lockValue}, duration: ${duration}ms`,
         );
-
-        // Wait before retry
-        await sleep(waitDuration);
-
-        // Update interval for next iteration (exponential backoff)
-        currentInterval = currentInterval * BACKOFF_MULTIPLIER;
-        if (currentInterval > BACKOFF_MAX_INTERVAL) {
-            currentInterval = BACKOFF_MAX_INTERVAL;
-        }
+        return lockValue;
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      logger.error(
+        `Redis error while attempting to acquire room creation lock: ${roomId}, error: ${errorMsg}`,
+      );
+      throw new Error(
+        `Redis communication error for room '${roomId}' lock: ${errorMsg}`,
+      );
     }
+
+    // Check if timeout reached
+    const elapsed = Date.now() - loopStartTime;
+    if (elapsed >= maxWaitTime) {
+      logger.warn(
+        `Timeout while waiting for room creation lock: ${roomId}, maxWaitTime: ${maxWaitTime}ms`,
+      );
+      throw new Error(
+        `Timeout waiting to acquire lock for room ${roomId}, operation is currently locked`,
+      );
+    }
+
+    // Calculate next interval with jitter
+    const jitter = Math.random() * BACKOFF_JITTER * currentInterval;
+    const waitDuration = currentInterval + jitter;
+
+    logger.debug(
+      `Room creation lock not acquired for ${roomId}. Waiting ${waitDuration}ms. Elapsed: ${elapsed}ms`,
+    );
+
+    // Wait before retry
+    await sleep(waitDuration);
+
+    // Update interval for next iteration (exponential backoff)
+    currentInterval = currentInterval * BACKOFF_MULTIPLIER;
+    if (currentInterval > BACKOFF_MAX_INTERVAL) {
+      currentInterval = BACKOFF_MAX_INTERVAL;
+    }
+  }
 }
 
 /**
@@ -97,53 +110,61 @@ export async function acquireRoomCreationLockWithRetry(
  * @throws Error on timeout or Redis error
  */
 export async function waitUntilRoomCreationCompletes(
-    redisLock: RedisLockService,
-    roomId: string,
-    logger: Logger,
+  redisLock: RedisLockService,
+  roomId: string,
+  logger: Logger,
 ): Promise<void> {
-    const maxWaitTime = DEFAULT_WAIT_FOR_ROOM_CREATION_MAX_WAIT_TIME;
-    let currentInterval = BACKOFF_INITIAL_INTERVAL;
-    const loopStartTime = Date.now();
+  const maxWaitTime = DEFAULT_WAIT_FOR_ROOM_CREATION_MAX_WAIT_TIME;
+  let currentInterval = BACKOFF_INITIAL_INTERVAL;
+  const loopStartTime = Date.now();
 
-    logger.log(`Waiting for room creation to complete: ${roomId}`);
+  logger.log(`Waiting for room creation to complete: ${roomId}`);
 
-    while (true) {
-        // Check if lock still exists
-        try {
-            const isLocked = await redisLock.isRoomCreationLock(roomId);
+  while (true) {
+    // Check if lock still exists
+    try {
+      const isLocked = await redisLock.isRoomCreationLock(roomId);
 
-            if (!isLocked) {
-                logger.log(`Room creation completed for: ${roomId}`);
-                return; // Lock released, creation complete
-            }
-        } catch (error) {
-            const errorMsg = error instanceof Error ? error.message : String(error);
-            logger.error(`Redis error while checking room creation lock: ${roomId}, error: ${errorMsg}`);
-            throw new Error(`Redis communication error while checking room '${roomId}' creation lock: ${errorMsg}`);
-        }
-
-        // Check if timeout reached
-        const elapsed = Date.now() - loopStartTime;
-        if (elapsed >= maxWaitTime) {
-            logger.warn(`Timeout while waiting for room creation to complete: ${roomId}, maxWaitTime: ${maxWaitTime}ms`);
-            throw new Error(`Timeout waiting for room creation of room '${roomId}' to complete`);
-        }
-
-        // Calculate next interval with jitter
-        const jitter = Math.random() * BACKOFF_JITTER * currentInterval;
-        const waitDuration = currentInterval + jitter;
-
-        logger.debug(
-            `Room creation is still in progress for ${roomId}. Waiting ${waitDuration}ms. Elapsed: ${elapsed}ms`,
-        );
-
-        // Wait before retry
-        await sleep(waitDuration);
-
-        // Update interval for next iteration (exponential backoff)
-        currentInterval = currentInterval * BACKOFF_MULTIPLIER;
-        if (currentInterval > BACKOFF_MAX_INTERVAL) {
-            currentInterval = BACKOFF_MAX_INTERVAL;
-        }
+      if (!isLocked) {
+        logger.log(`Room creation completed for: ${roomId}`);
+        return; // Lock released, creation complete
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      logger.error(
+        `Redis error while checking room creation lock: ${roomId}, error: ${errorMsg}`,
+      );
+      throw new Error(
+        `Redis communication error while checking room '${roomId}' creation lock: ${errorMsg}`,
+      );
     }
+
+    // Check if timeout reached
+    const elapsed = Date.now() - loopStartTime;
+    if (elapsed >= maxWaitTime) {
+      logger.warn(
+        `Timeout while waiting for room creation to complete: ${roomId}, maxWaitTime: ${maxWaitTime}ms`,
+      );
+      throw new Error(
+        `Timeout waiting for room creation of room '${roomId}' to complete`,
+      );
+    }
+
+    // Calculate next interval with jitter
+    const jitter = Math.random() * BACKOFF_JITTER * currentInterval;
+    const waitDuration = currentInterval + jitter;
+
+    logger.debug(
+      `Room creation is still in progress for ${roomId}. Waiting ${waitDuration}ms. Elapsed: ${elapsed}ms`,
+    );
+
+    // Wait before retry
+    await sleep(waitDuration);
+
+    // Update interval for next iteration (exponential backoff)
+    currentInterval = currentInterval * BACKOFF_MULTIPLIER;
+    if (currentInterval > BACKOFF_MAX_INTERVAL) {
+      currentInterval = BACKOFF_MAX_INTERVAL;
+    }
+  }
 }

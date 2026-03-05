@@ -4,64 +4,72 @@ import { PrismaService } from '@server/shared';
 
 @Controller()
 export class AnalyticsHandler {
-    constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-    @MessagePattern({ cmd: 'identity.analytics.overview' })
-    async getOverview() {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+  @MessagePattern({ cmd: 'identity.analytics.overview' })
+  async getOverview() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-        const [totalUsers, activeToday] = await Promise.all([
-            this.prisma.user.count({ where: { deletedAt: null } }),
-            this.prisma.user.count({
-                where: {
-                    lastSignInAt: { gte: today },
-                    deletedAt: null
-                }
-            })
-        ]);
+    const [totalUsers, activeToday] = await Promise.all([
+      this.prisma.user.count({ where: { deletedAt: null } }),
+      this.prisma.user.count({
+        where: {
+          lastSignInAt: { gte: today },
+          deletedAt: null,
+        },
+      }),
+    ]);
 
-        return { totalUsers, activeToday };
-    }
+    return { totalUsers, activeToday };
+  }
 
-    @MessagePattern({ cmd: 'identity.analytics.users' })
-    async getUserStats() {
-        const roles = await this.prisma.user.groupBy({
-            by: ['role'],
-            _count: { _all: true },
-            where: { deletedAt: null }
-        });
+  @MessagePattern({ cmd: 'identity.analytics.users' })
+  async getUserStats() {
+    const roles = await this.prisma.user.groupBy({
+      by: ['role'],
+      _count: { _all: true },
+      where: { deletedAt: null },
+    });
 
-        // Get registrations by month for the last 6 months
-        const sixMonthsAgo = new Date();
-        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    // Get registrations by month for the last 6 months
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
-        const registrations = await this.prisma.user.findMany({
-            where: { createdAt: { gte: sixMonthsAgo }, deletedAt: null },
-            select: { createdAt: true }
-        });
+    const registrations = await this.prisma.user.findMany({
+      where: { createdAt: { gte: sixMonthsAgo }, deletedAt: null },
+      select: { createdAt: true },
+    });
 
-        const monthlyGrowth = registrations.reduce((acc: any, user) => {
-            const month = user.createdAt.toLocaleString('default', { month: 'short' });
-            acc[month] = (acc[month] || 0) + 1;
-            return acc;
-        }, {});
+    const monthlyGrowth = registrations.reduce((acc: any, user) => {
+      const month = user.createdAt.toLocaleString('default', {
+        month: 'short',
+      });
+      acc[month] = (acc[month] || 0) + 1;
+      return acc;
+    }, {});
 
-        // Get daily activity for the last 14 days
-        const fourteenDaysAgo = new Date();
-        fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+    // Get daily activity for the last 14 days
+    const fourteenDaysAgo = new Date();
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
 
-        const activities = await this.prisma.dailyActivity.groupBy({
-            by: ['date'],
-            _count: { _all: true },
-            where: { createdAt: { gte: fourteenDaysAgo } },
-            orderBy: { date: 'asc' }
-        });
+    const activities = await this.prisma.dailyActivity.groupBy({
+      by: ['date'],
+      _count: { _all: true },
+      where: { createdAt: { gte: fourteenDaysAgo } },
+      orderBy: { date: 'asc' },
+    });
 
-        return {
-            roles: roles.map(r => ({ role: r.role, count: r._count._all })),
-            monthlyGrowth: Object.entries(monthlyGrowth).map(([name, count]) => ({ name, count })),
-            activityTrends: activities.map(a => ({ date: a.date, count: a._count._all }))
-        };
-    }
+    return {
+      roles: roles.map((r) => ({ role: r.role, count: r._count._all })),
+      monthlyGrowth: Object.entries(monthlyGrowth).map(([name, count]) => ({
+        name,
+        count,
+      })),
+      activityTrends: activities.map((a) => ({
+        date: a.date,
+        count: a._count._all,
+      })),
+    };
+  }
 }

@@ -1,7 +1,12 @@
 import { Module } from '@nestjs/common';
 import { CacheModule } from '@nestjs/cache-manager';
 import KeyvRedis from '@keyv/redis';
-import { SharedModule, NatsAuthModule, NatsClientModule, AppConfigService } from '@server/shared';
+import {
+  SharedModule,
+  NatsAuthModule,
+  NatsClientModule,
+  AppConfigService,
+} from '@server/shared';
 import { ApiKeyGuard } from '@server/shared/guards/api-key.guard';
 
 // Meet Module - Meet service routes via NATS
@@ -14,7 +19,6 @@ import { GamificationModule } from './modules/gamification/gamification.module';
 import { AgentsModule } from './modules/agents/agents.module';
 import { BillingModule } from './modules/billing/billing.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
-
 
 /**
  * API Gateway Module
@@ -64,4 +68,4 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
   providers: [ApiKeyGuard],
   exports: [],
 })
-export class GatewayModule { }
+export class GatewayModule {}
