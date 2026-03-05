@@ -1,13 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
 import type { FileAsset, Prisma } from '@prisma/generated';
-import type { IStorageRepository } from '@server/storage/interfaces/repositories/i-storage.repository';
+import type { IStorageRepository } from '@server/academy/interfaces/repositories/i-storage.repository';
 
 @Injectable()
 export class StorageRepository implements IStorageRepository {
   private readonly logger = new Logger(StorageRepository.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findById(fileId: string): Promise<FileAsset | null> {
     return this.prisma.fileAsset.findUnique({

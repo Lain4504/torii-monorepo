@@ -86,16 +86,6 @@
         "webpack": false
       }
     },
-    "storage": {
-      "type": "application",
-      "root": "services/storage",
-      "entryFile": "main",
-      "sourceRoot": "services/storage/src",
-      "compilerOptions": {
-        "tsConfigPath": "services/storage/tsconfig.app.json",
-        "webpack": false
-      }
-    },
     "billing": {
       "type": "application",
       "root": "services/billing",

@@ -8,6 +8,7 @@ import { ClassroomModule } from '@server/academy/modules/classroom/classroom.mod
 import { AssessmentModule } from '@server/academy/modules/assessment/assessment.module';
 import { CommerceModule } from '@server/academy/modules/commerce/commerce.module';
 import { TicketModule } from '@server/academy/modules/ticket/ticket.module';
+import { StorageModule } from '@server/academy/modules/storage/storage.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { TicketModule } from '@server/academy/modules/ticket/ticket.module';
     AssessmentModule,
     CommerceModule,
     TicketModule,
+    StorageModule,
   ],
   providers: [
     {

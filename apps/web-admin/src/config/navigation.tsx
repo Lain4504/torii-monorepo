@@ -1,9 +1,7 @@
 import {
     Home,
     Users,
-    BookOpen,
     Video,
-    FileQuestion,
     Newspaper,
     CreditCard,
     BarChart3,
@@ -42,31 +40,10 @@ export const academicNavItems: NavItem[] = [
         icon: Home,
     },
     {
-        titleKey: "Giảng dạy",
-        url: "/teaching",
-        icon: BookOpen,
-        anyPermission: ["course.create", "course.update", "course.publish", "course.view_restricted", "course.view_my"],
-        items: [
-            { titleKey: "Lớp học của tôi", url: "/my-classes", permission: "course.view_my" },
-            { titleKey: "Khung chương trình của tôi", url: "/course-master/my", permission: "course.view_my" },
-            { titleKey: "Danh sách Lớp học", url: "/courses", anyPermission: ["course.view_restricted", "course.update"] },
-            { titleKey: "Khung chương trình", url: "/course-master", permission: "course.view_restricted" },
-            { titleKey: "Phê duyệt Syllabus", url: "/course-master/review-queue", permission: "course.publish" },
-            { titleKey: "Phản hồi học viên", url: "/course-master/feedbacks", anyPermission: ["course.update", "course.view_restricted"] },
-            { titleKey: "Yêu cầu đổi lịch", url: "/course-master/requests", anyPermission: ["course.update", "course.view_restricted", "schedule.view"] },
-        ]
-    },
-    {
         titleKey: "Lớp học trực tuyến",
         url: "/rooms",
         icon: Video,
         anyPermission: ["live_class.schedule", "live_class.manage"],
-    },
-    {
-        titleKey: "Ngân hàng Câu hỏi",
-        url: "/question-bank",
-        icon: FileQuestion,
-        permission: "exam.manage",
     },
     {
         titleKey: "Academy (Mới)",

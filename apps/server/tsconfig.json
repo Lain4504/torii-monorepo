@@ -62,9 +62,6 @@
       "@server/learning/*": [
         "./services/learning/src/*"
       ],
-      "@server/storage/*": [
-        "./services/storage/src/*"
-      ],
       "@prisma/generated": [
         "./generated/prisma/client"
       ],

@@ -24,7 +24,7 @@ import {
 export class StorageController {
   constructor(
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) {}
+  ) { }
 
   @Post('upload-url')
   async generatePresignedUploadUrl(
@@ -35,7 +35,7 @@ export class StorageController {
       const requester = req.requester;
       const result = await firstValueFrom(
         this.natsClient.send(
-          { cmd: 'storage.generatePresignedUploadUrl' },
+          { cmd: 'academy.storage.generatePresignedUploadUrl' },
           { ...data, ownerId: requester.sub },
         ),
       );
@@ -50,7 +50,7 @@ export class StorageController {
   async confirmUpload(@Body() data: any) {
     try {
       const result = await firstValueFrom(
-        this.natsClient.send({ cmd: 'storage.confirmUpload' }, data),
+        this.natsClient.send({ cmd: 'academy.storage.confirmUpload' }, data),
       );
       // Result from NATS is plain DTO, wrap it in StandardApiResponse
       return successResponse(result);
@@ -63,7 +63,7 @@ export class StorageController {
   async deleteFile(@Param('id') id: string) {
     try {
       const result = await firstValueFrom(
-        this.natsClient.send({ cmd: 'storage.deleteFile' }, { fileId: id }),
+        this.natsClient.send({ cmd: 'academy.storage.deleteFile' }, { fileId: id }),
       );
       // Result from NATS is plain DTO, wrap it in StandardApiResponse
       return successResponse(result);
@@ -76,7 +76,7 @@ export class StorageController {
   async getSignedUrl(@Query() data: any) {
     try {
       const result = await firstValueFrom(
-        this.natsClient.send({ cmd: 'storage.getSignedUrl' }, data),
+        this.natsClient.send({ cmd: 'academy.storage.getSignedUrl' }, data),
       );
       // Result from NATS is plain DTO, wrap it in StandardApiResponse
       return successResponse(result);
@@ -89,7 +89,7 @@ export class StorageController {
   async findById(@Param('id') id: string) {
     try {
       const result = await firstValueFrom(
-        this.natsClient.send({ cmd: 'storage.findById' }, { fileId: id }),
+        this.natsClient.send({ cmd: 'academy.storage.findById' }, { fileId: id }),
       );
       return successResponse(result);
     } catch (error: any) {
