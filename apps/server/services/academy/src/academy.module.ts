@@ -4,6 +4,7 @@ import { AutomapperModule } from '@automapper/nestjs';
 import { pojos } from '@automapper/pojos';
 import { GlobalRpcExceptionFilter, SharedModule } from '@server/shared';
 import { ContentModule } from '@server/academy/modules/content/content.module';
+import { ClassroomModule } from '@server/academy/modules/classroom/classroom.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { ContentModule } from '@server/academy/modules/content/content.module';
     }),
     SharedModule,
     ContentModule,
+    ClassroomModule,
   ],
   providers: [
     {
