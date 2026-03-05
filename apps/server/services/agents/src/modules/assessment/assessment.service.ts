@@ -49,11 +49,9 @@ export class AssessmentService implements OnModuleInit {
         // Fetch from Question Bank first
         const dbQuestions = await this.prisma.question.findMany({
           where: {
-            jlptLevel: level,
-            category: { in: categories },
-            status: 'active',
+            metadata: { path: ['jlptLevel'], equals: level },
+            questionType: { not: 'GROUP_PARENT' },
           },
-          orderBy: { usageCount: 'asc' }, // Prioritize less used questions
           take: questionCount,
         });
 
@@ -61,11 +59,13 @@ export class AssessmentService implements OnModuleInit {
         if (dbQuestions.length >= questionCount) {
           this.logger.debug(`Generated test from DB for ${level} ${section}`);
 
-          // Increment usage count for these questions
+          // Increment usage count for these questions (usageCount moved to metadata if still needed, or skip for now)
+          /*
           await this.prisma.question.updateMany({
             where: { id: { in: dbQuestions.map((q) => q.id) } },
             data: { usageCount: { increment: 1 } },
           });
+          */
 
           return {
             testId: `db_${Date.now()}`,
@@ -74,8 +74,8 @@ export class AssessmentService implements OnModuleInit {
             questions: dbQuestions.map((q) => ({
               id: q.id,
               type: q.questionType,
-              level: q.jlptLevel,
-              question: q.questionText,
+              level: (q.metadata as any)?.jlptLevel || level,
+              question: q.content,
               options: (() => {
                 const o = q.options;
                 if (!o) return [];
@@ -131,10 +131,10 @@ export class AssessmentService implements OnModuleInit {
         attemptId: z.string(),
       }),
       async ({ userId, attemptId }) => {
-        const attempt = await this.prisma.quizAttempt.findUnique({
+        const attempt = await this.prisma.examAttempt.findUnique({
           where: { id: attemptId },
           include: {
-            quiz: true,
+            exam: true,
             details: {
               include: { question: true },
             },
@@ -149,16 +149,16 @@ export class AssessmentService implements OnModuleInit {
         );
 
         const prompt = template({
-          quizTitle: attempt.quiz.title,
-          score: attempt.score,
-          maxScore: attempt.maxScore,
-          percentage: attempt.percentage,
+          quizTitle: attempt.exam.title,
+          score: attempt.rawScore?.toNumber() || 0,
+          maxScore: attempt.maxScore?.toNumber() || 0,
+          percentage: attempt.percentage?.toNumber() || 0,
           details: attempt.details.map((d) => ({
-            question: d.question.questionText,
+            question: d.question.content,
             userAnswer: d.userAnswer,
             correctAnswer: d.question.correctAnswer,
             isCorrect: d.isCorrect,
-            category: d.question.category,
+            category: (d.question.metadata as any)?.category || 'N/A',
           })),
           userContext,
           timestamp: new Date().toISOString(),
@@ -172,7 +172,7 @@ export class AssessmentService implements OnModuleInit {
 
         return {
           attemptId,
-          score: attempt.score,
+          score: attempt.rawScore,
           maxScore: attempt.maxScore,
           percentage: attempt.percentage,
           feedback: aiParsed.data.feedback || '',
@@ -190,10 +190,10 @@ export class AssessmentService implements OnModuleInit {
         level: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']).optional(),
       }),
       async ({ userId, level }) => {
-        const where: any = { quizType: 'placement', status: 'published' };
-        if (level) where.jlptLevel = level;
+        const where: any = { examType: 'PLACEMENT', status: 'PUBLISHED' };
+        if (level) where.level = level;
 
-        const placementTests = await this.prisma.quiz.findMany({
+        const placementTests = await this.prisma.exam.findMany({
           where,
           orderBy: { createdAt: 'desc' },
           take: 5,
@@ -203,9 +203,9 @@ export class AssessmentService implements OnModuleInit {
           availableTests: placementTests.map((t) => ({
             id: t.id,
             title: t.title,
-            jlptLevel: t.jlptLevel,
-            questionCount: t.totalQuestions,
-            estimatedTimeMinutes: t.totalTime || 30,
+            jlptLevel: t.level,
+            questionCount: 0, // In new schema we need to count examQuestions
+            estimatedTimeMinutes: t.totalTimeLimitMinutes || 30,
           })),
           instructions:
             'Take one of these quizzes via the Exam API to get placed.',
@@ -222,15 +222,11 @@ export class AssessmentService implements OnModuleInit {
         placementResultId: z.string(),
       }),
       async ({ userId, placementResultId }) => {
-        const result = await this.prisma.placementResult.findUnique({
+        const result = await this.prisma.examAttempt.findUnique({
           where: { id: placementResultId },
           include: {
-            quiz: true,
-            attempt: {
-              include: {
-                details: { include: { question: true } },
-              },
-            },
+            exam: true,
+            details: { include: { question: true } },
           },
         });
 
@@ -239,9 +235,9 @@ export class AssessmentService implements OnModuleInit {
         const userContext = await this.fastMcpService.getUserContext(userId);
 
         // Fetch available enrolling course runs to provide real recommendations
-        const enrollingCourses = await this.prisma.courseRun.findMany({
+        const enrollingCourses = await this.prisma.class.findMany({
           where: { status: 'ENROLLING' },
-          include: { courseMaster: true },
+          include: { courseProfile: true },
           take: 10,
         });
 
@@ -249,12 +245,12 @@ export class AssessmentService implements OnModuleInit {
           'assessment/placement-evaluation.md',
         );
         const prompt = template({
-          assessedLevel: result.recommendedLevel,
-          score: result.overallScore,
+          assessedLevel: result.exam.level,
+          score: result.rawScore,
           availableCourses: enrollingCourses.map((c) => ({
             id: c.id,
-            title: c.courseMaster.title,
-            level: c.courseMaster.jlptLevel,
+            title: c.courseProfile.title,
+            level: c.courseProfile.level,
             startDate: c.startDate,
           })),
           userContext,
@@ -276,7 +272,7 @@ export class AssessmentService implements OnModuleInit {
         // Update the result with AI recommendations?
         // For now, return to user.
         return {
-          assessedLevel: result.recommendedLevel,
+          assessedLevel: result.exam.level,
           analysis: aiParsed.data.analysis || '',
           studyPlan: aiParsed.data.detailedStudyPlan || '',
           recommendedCourses: enrollingCourses.filter((c) =>

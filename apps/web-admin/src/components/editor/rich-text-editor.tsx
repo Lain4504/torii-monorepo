@@ -318,11 +318,6 @@ const extensions = [
     // }),
 ];
 
-const DEFAULT = `<div class="callout" dir="auto" type="note" title="1" body="1"></div><div class="callout" dir="auto" type="tip" title="2" body="2"></div><div class="callout" dir="auto" type="important" title="3" body="3"></div><div class="callout" dir="auto" type="warning" title="4" body="4"></div><div class="callout" dir="auto" type="caution" title="5" body="5"></div><p dir="auto"><span dir="auto" data-name="smiley" data-type="emoji">😃</span> </p>`;
-
-
-
-
 
 const RichTextToolbar = () => {
     return (

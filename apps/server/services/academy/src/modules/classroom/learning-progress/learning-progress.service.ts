@@ -20,7 +20,7 @@ export class LearningProgressService {
         lesson: {
           select: {
             title: true,
-            slug: true,
+            // slug: true, // Removed: Field does not exist in schema
           },
         },
         class: {
@@ -28,7 +28,7 @@ export class LearningProgressService {
             courseProfile: {
               select: {
                 title: true,
-                slug: true,
+                code: true, // Used code instead of slug
               },
             },
           },
@@ -46,7 +46,6 @@ export class LearningProgressService {
           select: {
             id: true,
             title: true,
-            slug: true,
           },
         },
         class: {
@@ -56,7 +55,7 @@ export class LearningProgressService {
               select: {
                 id: true,
                 title: true,
-                slug: true,
+                code: true, // Used code instead of slug
               },
             },
           },
@@ -66,12 +65,12 @@ export class LearningProgressService {
       take: 50,
     });
 
-    return history.map((item) => ({
+    return history.map((item: any) => ({
       id: item.id,
       courseTitle: item.class.courseProfile.title,
       lessonTitle: item.lesson.title,
       timestamp: item.lastAccessedAt,
-      slug: item.class.courseProfile.slug,
+      slug: item.class.courseProfile.code, // Mapped code to slug for compatibility
       lessonId: item.lessonId,
       courseProfileId: item.class.courseProfile.id,
       classId: item.classId,

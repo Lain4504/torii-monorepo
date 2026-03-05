@@ -15,6 +15,7 @@ import { IdentityModule } from './modules/identity/identity.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { AcademyModule } from './modules/academy/academy.module';
+import { AgentsModule } from './modules/agents/agents.module';
 
 /**
  * API Gateway Module
@@ -39,7 +40,7 @@ import { AcademyModule } from './modules/academy/academy.module';
     NatsAuthModule, // Auth callout handler - only in Gateway
 
     // AI Module - AI Agents Service
-    // AiModule,
+    AgentsModule,
 
     // Analytics Module
     AnalyticsModule,

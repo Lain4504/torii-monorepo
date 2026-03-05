@@ -277,18 +277,15 @@ export class FastMcpService {
       const enrollments = await this.prisma.enrollment.findMany({
         where: { userId },
         include: {
-          courseRun: {
+          class: {
             include: {
-              courseMaster: {
-                // Using `as any` here because the Prisma schema for CourseMaster
-                // may not yet declare all JSON metadata fields like `aiMetadata`,
-                // but they are present in the database and used elsewhere.
+              courseProfile: {
                 select: {
                   id: true,
                   title: true,
-                  aiMetadata: true,
-                  jlptLevel: true,
-                } as any,
+                  metadata: true,
+                  level: true,
+                },
               },
             },
           },
@@ -296,15 +293,15 @@ export class FastMcpService {
       });
 
       const courseMetadata = (enrollments as any[])
-        .map((e) => e.courseRun?.courseMaster?.aiMetadata)
+        .map((e) => e.class?.courseProfile?.metadata)
         .filter(Boolean);
       const courseTitles = (enrollments as any[])
-        .map((e) => e.courseRun?.courseMaster?.title)
+        .map((e) => e.class?.courseProfile?.title)
         .filter(Boolean);
       const jlptLevels = [
         ...new Set(
           (enrollments as any[])
-            .map((e) => e.courseRun?.courseMaster?.jlptLevel)
+            .map((e) => e.class?.courseProfile?.level)
             .filter(Boolean),
         ),
       ];
@@ -314,21 +311,21 @@ export class FastMcpService {
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
       // 1. Lessons Completed
-      const completedLessons = await this.prisma.lessonProgress.findMany({
+      const completedLessons = await this.prisma.learningProgress.findMany({
         where: {
-          enrollment: { userId },
-          completedAt: { gte: thirtyDaysAgo },
-          status: 'completed',
+          userId,
+          lastAccessedAt: { gte: thirtyDaysAgo },
+          status: 'COMPLETED',
         },
-        select: { completedAt: true },
+        select: { lastAccessedAt: true },
       });
 
-      // 2. Quiz/Test Scores
-      const completedQuizzes = await this.prisma.quizAttempt.findMany({
+      // 2. Quiz/Test Scores (Mapped to ExamAttempts in new schema)
+      const completedQuizzes = await this.prisma.examAttempt.findMany({
         where: {
           userId,
           completedAt: { gte: thirtyDaysAgo },
-          status: 'completed', // or 'submitted'
+          status: 'COMPLETED',
         },
         select: { completedAt: true, percentage: true },
       });
@@ -343,8 +340,8 @@ export class FastMcpService {
       const getDateKey = (date: Date) => date.toISOString().split('T')[0]; // YYYY-MM-DD
 
       completedLessons.forEach((l) => {
-        if (!l.completedAt) return;
-        const dateKey = getDateKey(l.completedAt);
+        if (!l.lastAccessedAt) return;
+        const dateKey = getDateKey(l.lastAccessedAt);
         if (!activityMap.has(dateKey)) {
           activityMap.set(dateKey, { lessons: 0, scores: [], date: dateKey });
         }
@@ -384,14 +381,14 @@ export class FastMcpService {
       // --- NEW DATA FETCHING ---
 
       // 1. Common Errors (Top 10 recently missed questions)
-      const recentWrongDetails = await this.prisma.quizAttemptDetail.findMany({
+      const recentWrongDetails = await this.prisma.examAttemptDetail.findMany({
         where: {
           attempt: { userId },
           isCorrect: false,
         },
         include: {
           question: {
-            select: { questionText: true, category: true, subcategory: true },
+            select: { content: true, metadata: true },
           },
         },
         orderBy: { createdAt: 'desc' },
@@ -399,9 +396,9 @@ export class FastMcpService {
       });
 
       const commonErrors = recentWrongDetails.map((d) => ({
-        question: d.question.questionText,
-        category: d.question.category,
-        subcategory: d.question.subcategory,
+        question: d.question.content,
+        category: (d.question.metadata as any)?.category,
+        subcategory: (d.question.metadata as any)?.subcategory,
       }));
 
       // 2. Recent Vocabulary (Flashcards reviewed/added)

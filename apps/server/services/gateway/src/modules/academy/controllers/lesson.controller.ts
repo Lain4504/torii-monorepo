@@ -23,12 +23,12 @@ import {
   successResponse,
 } from '@server/shared';
 import {
-  AcademyLessonCreateDto,
-  academyLessonCreateSchema,
-  AcademyLessonQueryDto,
-  academyLessonQuerySchema,
-  AcademyLessonUpdateDto,
-  academyLessonUpdateSchema,
+  AcademyLessonCreateDTO,
+  academyLessonCreateDTOSchema,
+  AcademyLessonQueryDTO,
+  academyLessonQueryDTOSchema,
+  AcademyLessonUpdateDTO,
+  academyLessonUpdateDTOSchema,
 } from '@workspace/schemas';
 
 @Controller('api/academy/lessons')
@@ -39,8 +39,8 @@ export class LessonController {
   @Get()
   @Permissions('academy.content.read')
   async findAll(
-    @Query(new ZodValidationPipe(academyLessonQuerySchema))
-    query: AcademyLessonQueryDto,
+    @Query(new ZodValidationPipe(academyLessonQueryDTOSchema))
+    query: AcademyLessonQueryDTO,
   ) {
     const items = await firstValueFrom(
       this.nats.send({ cmd: 'academy.lesson.findAll' }, query),
@@ -61,8 +61,8 @@ export class LessonController {
   @Permissions('academy.content.write')
   @HttpCode(HttpStatus.CREATED)
   async create(
-    @Body(new ZodValidationPipe(academyLessonCreateSchema))
-    dto: AcademyLessonCreateDto,
+    @Body(new ZodValidationPipe(academyLessonCreateDTOSchema))
+    dto: AcademyLessonCreateDTO,
   ) {
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.lesson.create' }, dto),
@@ -74,8 +74,8 @@ export class LessonController {
   @Permissions('academy.content.write')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Body(new ZodValidationPipe(academyLessonUpdateSchema))
-    dto: AcademyLessonUpdateDto,
+    @Body(new ZodValidationPipe(academyLessonUpdateDTOSchema))
+    dto: AcademyLessonUpdateDTO,
   ) {
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.lesson.update' }, { id, input: dto }),

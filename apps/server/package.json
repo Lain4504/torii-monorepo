@@ -11,7 +11,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "dev": "concurrently -c \"cyan.bold,magenta.bold,green.bold,yellow.bold,blue.bold,red.bold,white.bold,gray.bold,cyan,green,yellow,purple.bold\" \"npm:dev:gateway\" \"npm:dev:identity\" \"npm:dev:meet\" \"npm:dev:academy\"",
+    "dev": "concurrently -c \"cyan.bold,magenta.bold,green.bold,yellow.bold,blue.bold,red.bold,white.bold,gray.bold,cyan,green,yellow,purple.bold\" \"npm:dev:gateway\" \"npm:dev:identity\" \"npm:dev:meet\" \"npm:dev:academy\" \"npm:dev:agents\"",
     "dev:gateway": "nest start gateway --watch",
     "dev:identity": "nest start identity --watch",
     "dev:meet": "nest start meet --watch",

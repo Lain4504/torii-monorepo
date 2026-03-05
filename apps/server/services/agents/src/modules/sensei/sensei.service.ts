@@ -304,35 +304,31 @@ export class SenseiService implements OnModuleInit {
         const userContext = await this.fastMcpService.getUserContext(userId);
 
         // Hybrid Search: Fetch candidates from DB (Courses & Lessons)
-        const courses = await this.prisma.courseMaster.findMany({
+        const courses = await this.prisma.courseProfile.findMany({
           where: {
-            ...(level ? { jlptLevel: level } : {}),
+            ...(level ? { level } : {}),
             OR: [
               { title: { contains: topic, mode: 'insensitive' } },
               { description: { contains: topic, mode: 'insensitive' } },
             ],
-            status: 'APPROVED',
           },
           take: 5,
-          select: { id: true, title: true, description: true, jlptLevel: true },
+          select: { id: true, title: true, description: true, level: true },
         });
 
         const lessons = await this.prisma.lesson.findMany({
           where: {
             title: { contains: topic, mode: 'insensitive' },
-            status: 'published',
-            module: {
-              courseMaster: {
-                ...(level ? { jlptLevel: level } : {}),
-              },
+            courseProfile: {
+              ...(level ? { level } : {}),
             },
           },
           take: 5,
           select: {
             id: true,
             title: true,
-            module: {
-              select: { courseMaster: { select: { id: true, title: true } } },
+            courseProfile: {
+              select: { id: true, title: true },
             },
           },
         });
@@ -341,7 +337,7 @@ export class SenseiService implements OnModuleInit {
           ...courses.map((c) => ({
             title: c.title,
             type: 'Course',
-            level: c.jlptLevel,
+            level: c.level,
             url: `/courses/${c.id}`,
             description: c.description || 'Comprehensive course',
           })),
@@ -349,8 +345,8 @@ export class SenseiService implements OnModuleInit {
             title: l.title,
             type: 'Lesson',
             level: level || 'N/A',
-            url: `/learning/${l.module.courseMaster.id}/lesson/${l.id}`,
-            description: `Lesson in course: ${l.module.courseMaster.title}`,
+            url: `/learning/${l.courseProfile.id}/lesson/${l.id}`,
+            description: `Lesson in course: ${l.courseProfile.title}`,
           })),
         ];
 
