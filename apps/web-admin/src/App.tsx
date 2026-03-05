@@ -10,8 +10,6 @@ import { ThemeProvider } from "@/lib/providers/theme-provider.tsx"
 import { TooltipProvider } from '@workspace/ui/components/tooltip';
 // Component imports
 import DashboardLayout from "@/components/layout/dashboard-layout.tsx";
-import SyllabusReviewPage from '@/routes/courses/syllabus-review-page.tsx'
-import MyCourseMastersPage from '@/routes/courses/my-course-masters-page.tsx'
 // Feature imports
 import DashboardPage from '@/routes/dashboard/dashboard-page.tsx'
 import RevenueAnalytics from '@/routes/analytics/revenue-analytics.tsx'
@@ -21,18 +19,6 @@ import UserAnalytics from '@/routes/analytics/user-analytics.tsx'
 import LearnersPage from '@/routes/users/learners-page.tsx'
 import PersonnelPage from '@/routes/users/personnel-page.tsx'
 import CouponsPage from '@/routes/coupons/coupons-page.tsx'
-import CourseMasterPage from '@/routes/courses/course-master-page.tsx'
-import CourseMasterReviewsPage from '@/routes/courses/course-master-reviews-page.tsx'
-import CourseMasterDetailPage from '@/routes/courses/course-master-detail-page.tsx'
-import CourseRunsPage from '@/routes/courses/course-runs-page.tsx'
-import CourseRunDetailPage from '@/routes/courses/course-run-detail-page.tsx'
-import QuizDetailPage from '@/routes/courses/quiz-detail-page.tsx'
-import MyCourseRunsPage from '@/routes/courses/my-course-runs-page.tsx'
-import ScheduleRequestsPage from '@/routes/courses/schedule-requests-page.tsx'
-import CourseRunLiveSessionsPage from '@/routes/courses/course-run-live-sessions-page.tsx'
-import CourseRunEnrollmentsPage from '@/routes/courses/course-run-enrollments-page.tsx'
-import AssignmentSubmissionsPage from '@/routes/courses/assignment-submissions-page.tsx'
-import CourseMasterDiscussionsPage from '@/routes/courses/course-master-discussions-page.tsx'
 
 import RoomsPage from '@/routes/rooms/rooms-page.tsx'
 import OrdersPage from '@/routes/finance/orders-page.tsx'
@@ -42,8 +28,6 @@ import SettingsPage from '@/routes/settings/settings-page.tsx'
 import ProfilePage from '@/routes/profile/profile-page.tsx'
 import { BlogPage } from '@/routes/blog/blog-page.tsx'
 import EditBlogPage from '@/routes/blog/edit-blog-page.tsx'
-import QuestionPoolsPage from '@/routes/question-pools/question-pools-page.tsx'
-import PoolDetailPage from '@/routes/question-pools/pool-detail-page.tsx'
 
 import LoginPage from '@/routes/auth/login-page.tsx'
 import ForgotPasswordPage from '@/routes/auth/forgot-password-page.tsx'
@@ -53,12 +37,18 @@ import TwoFactorVerifyPage from '@/routes/auth/two-factor-verify-page.tsx'
 import { AuditLogsPage } from "@/routes/audit/audit-logs-page.tsx";
 import { PermissionsPage } from "@/routes/permissions/permissions-page.tsx";
 import TicketsPage from '@/routes/tickets/tickets-page.tsx'
-import RewardsPage from '@/routes/gamification/rewards-page.tsx'
 import NotFoundPage from '@/routes/error/not-found-page.tsx'
 import AccessDeniedPage from '@/routes/error/access-denied-page.tsx'
 import ServiceUnavailablePage from '@/routes/error/service-unavailable-page.tsx'
 import NotImplementedPage from '@/routes/error/not-implemented-page.tsx'
 import UnauthorizedPage from '@/routes/error/unauthorized-page.tsx'
+import AcademyCourseProfilesPage from '@/routes/academy/course-profiles-page.tsx'
+import AcademyDashboardPage from '@/routes/academy/academy-dashboard-page.tsx'
+import AcademyCourseProfileCreatePage from '@/routes/academy/course-profile-create-page.tsx'
+import AcademyCourseProfileEditPage from '@/routes/academy/course-profile-edit-page.tsx'
+import AcademyCourseEditionsPage from '@/routes/academy/course-editions-page.tsx'
+import AcademyCourseEditionCreatePage from '@/routes/academy/course-edition-create-page.tsx'
+import AcademyCourseEditionEditPage from '@/routes/academy/course-edition-edit-page.tsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -91,23 +81,6 @@ function App() {
                 }>
                   <Route index element={<DashboardPage />} />
 
-                  <Route path="course-master" element={<CourseMasterPage />} />
-                  <Route path="course-master/my" element={<MyCourseMastersPage />} />
-                  <Route path="my-classes" element={<MyCourseRunsPage />} />
-                  <Route path="course-master/review-queue" element={<SyllabusReviewPage />} />
-                  <Route path="course-master/feedbacks" element={<CourseMasterReviewsPage />} />
-                  <Route path="course-master/requests" element={<ScheduleRequestsPage />} />
-                  <Route path="course-master/:id" element={<CourseMasterDetailPage />} />
-                  <Route path="course-master/discussions" element={<CourseMasterDiscussionsPage />} />
-                  <Route path="course-master/:id/assignments/:assignmentId/submissions" element={<AssignmentSubmissionsPage />} />
-
-                  {/* Course Run Management Routes - New Structure */}
-                  <Route path="courses" element={<CourseRunsPage />} />
-                  <Route path="course/:runId" element={<CourseRunDetailPage />} />
-                  <Route path="course/:runId/quizzes/:quizId" element={<QuizDetailPage />} />
-                  <Route path="course/:runId/live-sessions" element={<CourseRunLiveSessionsPage />} />
-                  <Route path="course/:runId/enrollments" element={<CourseRunEnrollmentsPage />} />
-
                   <Route path="rooms" element={<RoomsPage />} />
 
                   <Route element={<RoutePermissionGuard anyPermission={["user.manage", "user.view"]} />}>
@@ -124,9 +97,18 @@ function App() {
                     <Route path="blogs/:id/edit" element={<EditBlogPage />} />
                   </Route>
 
-                  {/* Question Bank */}
-                  <Route path="question-bank" element={<QuestionPoolsPage />} />
-                  <Route path="question-bank/:id" element={<PoolDetailPage />} />
+                  {/* Question Bank (legacy) removed; will be replaced by Academy exams/questions */}
+
+                  {/* Academy (new core LMS) */}
+                  <Route element={<RoutePermissionGuard anyPermission={["academy.content.read", "academy.content.write"]} />}>
+                    <Route path="academy" element={<AcademyDashboardPage />} />
+                    <Route path="academy/course-profiles" element={<AcademyCourseProfilesPage />} />
+                    <Route path="academy/course-profiles/new" element={<AcademyCourseProfileCreatePage />} />
+                    <Route path="academy/course-profiles/:id/edit" element={<AcademyCourseProfileEditPage />} />
+                    <Route path="academy/course-editions" element={<AcademyCourseEditionsPage />} />
+                    <Route path="academy/course-editions/new" element={<AcademyCourseEditionCreatePage />} />
+                    <Route path="academy/course-editions/:id/edit" element={<AcademyCourseEditionEditPage />} />
+                  </Route>
 
                   <Route element={<RoutePermissionGuard permission="coupon.manage" />}>
                     <Route path="coupons" element={<CouponsPage />} />
@@ -157,10 +139,6 @@ function App() {
 
                   <Route element={<RoutePermissionGuard permission="support.handle" />}>
                     <Route path="tickets" element={<TicketsPage />} />
-                  </Route>
-
-                  <Route element={<RoutePermissionGuard permission="gamification.manage" />}>
-                    <Route path="rewards" element={<RewardsPage />} />
                   </Route>
 
                   <Route path="access-denied" element={<AccessDeniedPage />} />

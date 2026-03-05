@@ -558,6 +558,7 @@ export function EditQuizSheet({
                                     </div>
                                 </div>
                             </div>
+                        </div>
                     </ScrollArea>
                     <SheetFooter>
                         <Button

@@ -13,6 +13,7 @@ import {
     UserCheck,
     UsersRound,
     Gift,
+    GraduationCap,
 } from "lucide-react";
 
 export interface NavItem {
@@ -66,6 +67,17 @@ export const academicNavItems: NavItem[] = [
         url: "/question-bank",
         icon: FileQuestion,
         permission: "exam.manage",
+    },
+    {
+        titleKey: "Academy (Mới)",
+        url: "/academy",
+        icon: GraduationCap,
+        anyPermission: ["academy.content.read", "academy.content.write", "academy.delivery.read", "academy.delivery.write"],
+        items: [
+            { titleKey: "Dashboard", url: "/academy", permission: "academy.content.read" },
+            { titleKey: "Course Profiles", url: "/academy/course-profiles", permission: "academy.content.read" },
+            { titleKey: "Course Editions", url: "/academy/course-editions", permission: "academy.content.read" },
+        ]
     },
 ];
 
