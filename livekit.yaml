@@ -34,7 +34,7 @@ ingress:
   rtmp_base_url: rtmp://livekit-ingress:1935/live
   whip_base_url: http://livekit-ingress:8089/whip
 turn:
-  enabled: false # Set to true and configure cert files when you have SSL
+  enabled: true # Set to true and configure cert files when you have SSL
   domain: api.torii.sbs
   tls_port: 5349
   udp_port: 443

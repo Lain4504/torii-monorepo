@@ -173,7 +173,6 @@
       "^@server/shared(|/.*)$": "<rootDir>/libs/shared/src/$1",
       "^@server/identity(|/.*)$": "<rootDir>/services/identity/src/$1",
       "^@server/meet(|/.*)$": "<rootDir>/services/meet/src/$1",
-      "^@server/learning(|/.*)$": "<rootDir>/services/learning/src/$1",
       "^@server/gamification(|/.*)$": "<rootDir>/services/gamification/src/$1",
       "^@server/agents(|/.*)$": "<rootDir>/services/agents/src/$1",
       "^@server/billing(|/.*)$": "<rootDir>/services/billing/src/$1",
