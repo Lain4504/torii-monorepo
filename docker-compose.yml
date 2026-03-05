@@ -59,13 +59,13 @@ services:
       - '7880:7880'
       - '7881:7881'
       - '7882:7882/udp'
-      # - '5349:5349' # TURN TLS
-      # - '443:443/udp' # TURN UDP (Fix for 4G)
-      # - '50000-50100:50000-50100/udp' # Media range (100 ports)
+      - '5349:5349' # TURN TLS
+      - '443:443/udp' # TURN UDP (Fix for 4G)
+      - '50000-50100:50000-50100/udp' # Media range (100 ports)
     volumes:
       - ./livekit.yaml:/livekit.yaml
       - livekitdata:/data
-      # - ./certs:/certs:ro
+      - ./certs:/certs:ro
     depends_on:
       - redis
 
