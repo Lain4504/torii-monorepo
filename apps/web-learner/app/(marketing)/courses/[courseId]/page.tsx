@@ -20,6 +20,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import React from "react"
+import { StudentReviewsSection } from "@/components/class-reviews/student-reviews-section"
 
 const UserGroup = Users
 const Tick = Check
@@ -233,6 +234,8 @@ export default function CourseDetail() {
                                 </div>
                             </div>
                         </section>
+
+                        <StudentReviewsSection classId="mock-class" />
 
                     </div>
 

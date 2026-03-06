@@ -95,6 +95,7 @@ export function Quiz({ quizData, onComplete, className }: QuizProps) {
     const [result, setResult] = useState<QuizResult | null>(null);
 
     const question = questions[currentIndex];
+    if (!question) return null;
     const isMultiple = question.type === "multiple";
     const progress =
         ((currentIndex + (submitted ? 1 : 0)) / questions.length) * 100;

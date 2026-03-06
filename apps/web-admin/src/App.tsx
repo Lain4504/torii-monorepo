@@ -85,6 +85,7 @@ import AcademyCourseProfileDetailPage from '@/routes/academy/course-profile-deta
 import AcademyCourseEditionDetailPage from '@/routes/academy/course-edition-detail-page.tsx'
 import AcademyLessonCreatePage from '@/routes/academy/lesson-create-page.tsx'
 import AcademyLessonEditPage from '@/routes/academy/lesson-edit-page.tsx'
+import AcademyClassReviewsPage from '@/routes/academy/class-reviews-page.tsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -145,14 +146,14 @@ function App() {
                     <Route path="academy/course-profiles/new" element={<AcademyCourseProfileCreatePage />} />
                     <Route path="academy/course-profiles/:id" element={<AcademyCourseProfileDetailPage />} />
                     <Route path="academy/course-profiles/:id/edit" element={<AcademyCourseProfileEditPage />} />
-                    
+
                     <Route path="academy/lessons/new" element={<AcademyLessonCreatePage />} />
                     <Route path="academy/lessons/:id/edit" element={<AcademyLessonEditPage />} />
-                    
+
                     <Route path="academy/quiz-templates" element={<AcademyQuizTemplatesPage />} />
                     <Route path="academy/quiz-templates/new" element={<AcademyQuizTemplateCreatePage />} />
                     <Route path="academy/quiz-templates/:id/edit" element={<AcademyQuizTemplateEditPage />} />
-                    
+
                     <Route path="academy/assignment-templates" element={<AcademyAssignmentTemplatesPage />} />
                     <Route path="academy/assignment-templates/new" element={<AcademyAssignmentTemplateCreatePage />} />
                     <Route path="academy/assignment-templates/:id/edit" element={<AcademyAssignmentTemplateEditPage />} />
@@ -184,19 +185,20 @@ function App() {
                     <Route path="academy/classes/new" element={<AcademyClassCreatePage />} />
                     <Route path="academy/classes/:id" element={<AcademyClassDetailPage />} />
                     <Route path="academy/classes/:id/edit" element={<AcademyClassEditPage />} />
-                    
+
                     <Route path="academy/class-schedule/new" element={<AcademyClassScheduleCreatePage />} />
                     <Route path="academy/class-schedule/:id/edit" element={<AcademyClassScheduleEditPage />} />
                     <Route path="academy/class-assessments/new" element={<AcademyClassAssessmentCreatePage />} />
                     <Route path="academy/class-assessments/:id/edit" element={<AcademyClassAssessmentEditPage />} />
-                    
+
                     <Route path="academy/enrollments/new" element={<AcademyEnrollmentCreatePage />} />
                     <Route path="academy/enrollments/:id/edit" element={<AcademyEnrollmentEditPage />} />
-                    
+
                     <Route path="academy/exam-attempts/:id" element={<AcademyExamAttemptDetailPage />} />
                     <Route path="academy/assignment-submissions/:id" element={<AcademyAssignmentSubmissionDetailPage />} />
-                    
+
                     <Route path="academy/reports" element={<AcademyReportsPage />} />
+                    <Route path="academy/class-reviews" element={<AcademyClassReviewsPage />} />
                   </Route>
 
                   <Route element={<RoutePermissionGuard permission="coupon.manage" />}>

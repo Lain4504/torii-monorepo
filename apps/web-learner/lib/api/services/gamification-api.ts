@@ -6,7 +6,7 @@ import type {
     StreakStatusDTO,
     LeaderboardDTO,
     UserGamificationDTO,
-    GamificationHistoryPaginatedResponse
+    GamificationHistoryPaginatedResponseDTO
 } from '@workspace/schemas';
 import { toast } from 'sonner';
 import { useEffect, useRef } from 'react';
@@ -67,8 +67,8 @@ export const gamificationApi = {
     /**
      * Get leaderboard
      */
-    async getLeaderboard(type: 'global' | 'streak' = 'global'): Promise<LeaderboardDto> {
-        const response = await apiClient.get<StandardApiResponse<LeaderboardDto>>(`/api/gamification/leaderboard?type=${type}`);
+    async getLeaderboard(type: 'global' | 'streak' = 'global'): Promise<LeaderboardDTO> {
+        const response = await apiClient.get<StandardApiResponse<LeaderboardDTO>>(`/api/gamification/leaderboard?type=${type}`);
         if (response.data.success && response.data.data) {
             return response.data.data;
         }
@@ -81,7 +81,7 @@ export const gamificationApi = {
      */
     async getHistory(
         params: { page?: number; limit?: number; type?: string } = {}
-    ): Promise<GamificationHistoryPaginatedResponse> {
+    ): Promise<GamificationHistoryPaginatedResponseDTO> {
         const queryParams = new URLSearchParams();
 
         if (params.page) queryParams.append('page', params.page.toString());
@@ -90,7 +90,7 @@ export const gamificationApi = {
 
         const response =
             await apiClient.get<
-                StandardApiResponse<GamificationHistoryPaginatedResponse>
+                StandardApiResponse<GamificationHistoryPaginatedResponseDTO>
             >(`/api/gamification/history?${queryParams.toString()}`);
 
         if (response.data.success && response.data.data) {
