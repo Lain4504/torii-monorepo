@@ -31,6 +31,7 @@ import {
 } from "@workspace/schemas"
 import type { AcademyEnrollment } from "@/lib/api/services/academy-enrollments"
 import { useAcademyClasses } from "@/lib/api/services/academy-classes"
+import { useUsers } from "@/lib/api/services/users"
 
 export function EnrollmentForm({
     mode,
@@ -38,6 +39,7 @@ export function EnrollmentForm({
     onSubmit,
     onCancel,
     submitting,
+    defaultClassId,
 }: {
     mode: "create" | "edit"
     initial?: AcademyEnrollment
@@ -46,9 +48,14 @@ export function EnrollmentForm({
     ) => Promise<void>
     onCancel: () => void
     submitting?: boolean
+    defaultClassId?: string
 }) {
     const isEdit = mode === "edit"
-    const { data: classes = [] } = useAcademyClasses({})
+    const { data: classesData = [] } = useAcademyClasses({})
+    const classes = Array.isArray(classesData) ? classesData : (classesData as any)?.items || []
+
+    const { data: learnersData } = useUsers({ role: "LEARNER", limit: 1000 })
+    const learners = learnersData?.data || []
 
     const { handleSubmit, control } = useForm<
         AcademyEnrollmentCreateDTO | AcademyEnrollmentUpdateDTO
@@ -65,7 +72,7 @@ export function EnrollmentForm({
                 metadata: initial?.metadata ?? undefined,
             }
             : {
-                classId: "",
+                classId: defaultClassId ?? "",
                 userId: "",
                 status: "ACTIVE",
             },
@@ -95,7 +102,7 @@ export function EnrollmentForm({
                                                     <SelectValue placeholder="Chọn lớp..." />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {classes.map((cls) => (
+                                                    {classes.map((cls: any) => (
                                                         <SelectItem key={cls.id} value={cls.id}>
                                                             {cls.name} ({cls.code})
                                                         </SelectItem>
@@ -112,8 +119,19 @@ export function EnrollmentForm({
                                     control={control}
                                     render={({ field, fieldState }) => (
                                         <Field>
-                                            <FieldLabel>User ID (Học viên)</FieldLabel>
-                                            <Input placeholder="uuid..." {...field} />
+                                            <FieldLabel>Học viên</FieldLabel>
+                                            <Select value={field.value} onValueChange={field.onChange}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Chọn học viên..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {learners.map((u: any) => (
+                                                        <SelectItem key={u.id} value={u.id}>
+                                                            {u.name} ({u.email})
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
                                             <FieldError>{fieldState.error?.message}</FieldError>
                                         </Field>
                                     )}

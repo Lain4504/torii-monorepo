@@ -1,5 +1,4 @@
 import { useNavigate, useParams } from "react-router-dom"
-import { Card, CardContent } from "@workspace/ui/components/card"
 import { toast } from "@workspace/ui/components/sonner"
 import { PageHeader } from "@/components/common/page-header"
 import { CourseProfileForm } from "@/components/academy/course-profile-form"
@@ -23,9 +22,7 @@ export default function AcademyCourseProfileEditPage() {
       />
 
       {isLoading || !item ? (
-        <Card>
-          <CardContent className="p-8 text-center text-muted-foreground">Đang tải...</CardContent>
-        </Card>
+        <div className="p-8 text-center text-muted-foreground">Đang tải...</div>
       ) : (
         <CourseProfileForm
           mode="edit"

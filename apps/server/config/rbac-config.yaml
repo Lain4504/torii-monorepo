@@ -1,294 +1,202 @@
 # ============================================
 # RBAC Configuration
 # ============================================
-# Version: 2.0.0 - Editable RBAC with Role Inheritance
+# Version: 3.0.0 - Academy Centric RBAC
 # 
 # Design Philosophy:
+# - Updated to match Academy microservice structure
+# - Standardized academic content, commerce, and delivery permissions
+# - Full compatibility with latest gateway backend controllers
 # - 4 Main Actors: Admin, Staff, Lecturer, Learner
-# - Staff has 3 variants (LMS, Support, Sales) via inheritance
-# - Permissions are editable via admin UI
-# - This YAML is the source of truth for role & permission definitions
 
 system:
-  version: "2.0.0"
-  description: "Role-Based Access Control with inheritance support"
+  version: "3.0.0"
+  description: "Role-Based Access Control updated for Academy Module"
 
 # ============================================
 # Roles Definition
 # ============================================
-# Main actors + Staff variants (4 actors total)
 roles:
-  # Main Actor 1: System Administrator
   - code: admin
     name: System Administrator
     description: Full access to all system resources
     
-  # Staff Variant 1: LMS/Academic Staff
   - code: staff-lms
     name: LMS Staff
-    description: Learning Management & Academic Operations staff
+    description: Academic operations, content and delivery management
     
-  # Staff Variant 2: Support Staff
   - code: staff-support
     name: Support Staff
-    description: Customer support and general inquiries
+    description: Customer support, ticketing and basic user viewing
     
-  # Staff Variant 3: Sales/Marketing Staff
   - code: staff-sales
     name: Sales Staff
-    description: Sales, marketing, and business development
+    description: Sales, marketing, and coupon management
     
-  # Staff Variant 4: Finance Staff
   - code: staff-finance
     name: Finance Staff
-    description: Financial operations, payments, and coupons
+    description: Financial operations, orders, and point rewards
     
-  # Main Actor 3: Lecturer
   - code: lecturer
     name: Instructor
-    description: Teaching staff managing classes and students
+    description: Teaching staff managing assigned classes and students
     
-  # Main Actor 4: Learner
   - code: learner
     name: Student
-    description: Students enrolled in courses (no admin access)
+    description: Standard student access (no admin permissions)
 
 # ============================================
 # Permissions Definition
 # ============================================
-# All available permissions grouped by category
 permissions:
-  # Course Management
-  - code: course.view_restricted
-    description: View course list (non-public courses)
-    category: Course Management
-  - code: course.create
-    description: Create new courses
-    category: Course Management
-  - code: course.update
-    description: Edit course details
-    category: Course Management
-  - code: course.publish
-    description: Publish/unpublish courses
-    category: Course Management
-  - code: course.view_my
-    description: View own courses
-    category: Course Management
-  - code: module.create
-    description: Create course modules
-    category: Course Management
-  - code: module.update
-    description: Edit course modules
-    category: Course Management
-  - code: module.delete
-    description: Delete course modules
-    category: Course Management
-  - code: lesson.create
-    description: Create course lessons
-    category: Course Management
-  - code: lesson.update
-    description: Edit course lessons
-    category: Course Management
-  - code: lesson.delete
-    description: Delete course lessons
-    category: Course Management
-    
-  # Class Management
-  - code: live_class.schedule
-    description: Schedule live classes
-    category: Class Management
-  - code: live_class.manage
-    description: Manage live class sessions
-    category: Class Management
-  - code: class_member.view
-    description: View class member lists
-    category: Class Management
-  - code: attendance.view
-    description: View attendance records
-    category: Class Management
-  - code: attendance.mark
-    description: Mark student attendance
-    category: Class Management
-  - code: schedule.view
-    description: View class schedules
-    category: Class Management
+  # Academy Content (Courses, Profiles, Lessons, Chapters)
+  - code: academy.content.read
+    description: View academic content details
+    category: Academy Content
+  - code: academy.content.write
+    description: Create and manage academic content
+    category: Academy Content
 
-  # Assessment
+  # Academy Delivery (Classes, Schedules, Attendance)
+  - code: academy.delivery.read
+    description: View class information and schedules
+    category: Academy Delivery
+  - code: academy.delivery.write
+    description: Manage classes, schedules and marking attendance
+    category: Academy Delivery
+
+  # Academy Commerce (Offerings, Orders, Coupons)
+  - code: academy.commerce.read
+    description: View course offerings and financial data
+    category: Academy Commerce
+  - code: academy.commerce.write
+    description: Manage course offerings and pricing
+    category: Academy Commerce
+  - code: academy:order:admin
+    description: Full access to order management and billing
+    category: Academy Commerce
+  - code: academy:coupon:admin
+    description: Full access to coupon creation and validation
+    category: Academy Commerce
+
+  # Assessment & Exams
   - code: exam.manage
-    description: Create and manage exams
-    category: Assessment
-  - code: assignment.create
-    description: Create assignments
-    category: Assessment
-  - code: assignment.manage
-    description: Manage assignments
-    category: Assessment
-  - code: assignment.update
-    description: Update assignments
-    category: Assessment
-  - code: assignment.publish
-    description: Publish assignments
-    category: Assessment
-  - code: assignment.delete
-    description: Delete assignments
-    category: Assessment
+    description: Create and manage exams and questions
+    category: Academy Assessment
   - code: submission.grade
-    description: Grade student submissions
-    category: Assessment
-    
-  # Content Management
-  - code: material.upload
-    description: Upload learning materials
-    category: Content Management
-  - code: material.view
-    description: View learning materials
-    category: Content Management
-  - code: blog.write
-    description: Write blog posts
-    category: Content Management
+    description: Grade student submissions and exams
+    category: Academy Assessment
+
+  # Gamification
+  - code: gamification:admin
+    description: Manage reward shop and point point configurations
+    category: Gamification
+
+  # Blog Management
+  - code: blog.view_restricted
+    description: View private/draft blog posts
+    category: Blog
   - code: blog.manage
-    description: Manage all blog posts
-    category: Content Management
-  - code: tag.manage
-    description: Manage content tags
-    category: Content Management
-    
+    description: Full access to blog management (Super Mod)
+    category: Blog
+  - code: blog.create
+    description: Create new blog posts
+    category: Blog
+  - code: blog.update
+    description: Update existing blog posts
+    category: Blog
+  - code: blog.delete
+    description: Delete blog posts
+    category: Blog
+  - code: blog.publish
+    description: Publish blog posts
+    category: Blog
+
+  # Customer Support
+  - code: support.view
+    description: View support tickets and inquiries
+    category: Support
+  - code: support.handle
+    description: Resolve support tickets and respond to users
+    category: Support
+
   # User Management
   - code: user.view
-    description: View user profiles
+    description: View user profiles and basic data
     category: User Management
   - code: user.manage
-    description: Create, edit, delete users
+    description: Create, edit, and deactivate users
     category: User Management
-    
-  # Payment & Finance
-  - code: payment.view
-    description: View payment records
-    category: Payment & Finance
-  - code: payment.refund
-    description: Process refunds
-    category: Payment & Finance
-  - code: coupon.manage
-    description: Create and manage coupons
-    category: Payment & Finance
-  - code: gamification.manage
-    description: Create and manage point-based rewards
-    category: Payment & Finance
-    
-  # Customer Support
-  - code: support.handle
-    description: Handle support tickets and refunds
-    category: Customer Support
-    
-  # Analytics
+
+  # System & Analytics
   - code: report.view
-    description: View analytics and reports
+    description: View system analytics and revenue reports
     category: Analytics
-    
-  # System
-  - code: system.config
-    description: Configure system settings
-    category: System
-  - code: ai.config
-    description: Configure AI features
-    category: System
   - code: audit.view
     description: View system audit logs
+    category: System
+  - code: system.config
+    description: Global system configuration
     category: System
 
 # ============================================
 # Default Role Permissions
 # ============================================
-# Permissions seeded on first startup
-# Can be edited via admin UI afterward
 default_role_permissions:
   # Admin: Full access
   admin:
-    - "*"  # Wildcard - all permissions
+    - "*"
     
-  # Staff-LMS: Academic operations
+  # Staff-LMS: Academic operations & Content
   staff-lms:
     - user.view
-    - blog.write
-    - report.view
-    - audit.view
-    - course.create
-    - course.update
-    - course.publish
-    - module.create
-    - module.update
-    - module.delete
-    - lesson.create
-    - lesson.update
-    - lesson.delete
+    - academy.content.read
+    - academy.content.write
+    - academy.delivery.read
+    - academy.delivery.write
     - exam.manage
-    - live_class.schedule
-    - class_member.view
-    - attendance.view
-    - assignment.manage
-    - assignment.update
-    - assignment.publish
-    - assignment.delete
-    - material.upload
-    - material.view
+    - report.view
     - blog.manage
-    - tag.manage
-    - course.view_restricted
+    - blog.create
+    - blog.update
+    - blog.publish
     
-  # Staff-Support: Customer support
+  # Staff-Support: Support and basic viewing
   staff-support:
     - user.view
-    - blog.write
-    - report.view
     - audit.view
-    - user.manage
-    - payment.view
-    - course.view_restricted
+    - academy.content.read
+    - academy.delivery.read
+    - support.view
     - support.handle
     
-  # Staff-Finance: Financial operations
+  # Staff-Finance: Financing, Orders, and Rewards
   staff-finance:
     - user.view
-    - blog.write
     - report.view
-    - audit.view
-    - payment.view
-    - payment.refund
-    - coupon.manage
-    - gamification.manage
-
-  # Staff-Sales: Sales & Marketing (inherits staff + adds more)
+    - academy.commerce.read
+    - academy.commerce.write
+    - academy:order:admin
+    - academy:coupon:admin
+    - gamification:admin
+    
+  # Staff-Sales: Sales, Marketing and Coupons
   staff-sales:
     - user.view
-    - blog.write
     - report.view
-    - audit.view
-    - payment.view
-    - coupon.manage
-    - blog.manage
-    - tag.manage
+    - academy.commerce.read
+    - academy:coupon:admin
+    - blog.create
+    - blog.update
+    - blog.publish
     
-  # Lecturer: Teaching permissions (can update but NOT create courses)
+  # Lecturer: Managing their own classes and students
   lecturer:
-    - live_class.manage
-    - class_member.view
-    - attendance.view
-    - attendance.mark
-    - assignment.create
-    - assignment.manage
-    - assignment.update
-    - assignment.publish
-    - assignment.delete
+    - academy.content.read
+    - academy.delivery.read
+    - academy.delivery.write
+    - exam.manage
     - submission.grade
-    - material.upload
-    - material.view
-    - schedule.view
-    - course.update        # Can edit assigned courses
-    - course.view_my       # Can view own courses
-    - module.update
-    - lesson.create
-    - lesson.update
-    - lesson.delete
     
-  # Learner: No admin permissions
+  # Learner: No initial admin permissions
   learner: []

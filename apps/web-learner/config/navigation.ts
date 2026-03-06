@@ -38,7 +38,8 @@ export interface NavItem {
 
 export const learningNav: NavItem[] = [
     { name: 'Trang chủ', href: '/dashboard', icon: Home },
-    { name: 'Khóa học của tôi', href: '/dashboard/my-courses', icon: BookOpen },
+    { name: 'Khám phá khóa học', href: '/dashboard/courses', icon: BookOpen },
+    { name: 'Khóa học của tôi', href: '/dashboard/my-courses', icon: Clock },
     { name: 'Thời khóa biểu', href: '/dashboard/schedule', icon: CalendarDays },
     { name: 'Kho Thẻ Nhớ', href: '/dashboard/flashcards', icon: BrainCircuit },
     { name: 'Sổ tay từ vựng', href: '/dashboard/notes', icon: FileText },

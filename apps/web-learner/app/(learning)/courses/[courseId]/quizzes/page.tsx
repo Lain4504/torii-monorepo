@@ -8,12 +8,12 @@ import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import { ArrowLeft, Clock, CheckCircle2, Circle, Play } from 'lucide-react'
 import { courseApi } from '@/lib/api/services/course-api'
-import { courseRunApi } from '@/lib/api/services/course-run-api'
+import { academyClassesApi } from '@/lib/api/services/academy-classes'
 
 export default function CourseQuizzesPage() {
     const params = useParams()
     const router = useRouter()
-    const courseRunId = params.courseId as string
+    const classId = params.courseId as string
     const [course, setCourse] = useState<any>(null)
     const [quizzes, setQuizzes] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
@@ -22,12 +22,12 @@ export default function CourseQuizzesPage() {
         const fetchData = async () => {
             try {
                 setLoading(true)
-                // 1. Get CourseRun
-                const runResult = await courseRunApi.getCourseRunById(courseRunId)
-                if (runResult) {
-                    const courseId = runResult.courseMasterId
-                    // 2. Get CourseMaster details
-                    const courseData = await courseApi.getCourseById(courseId)
+                // 1. Get Class
+                const classResult = await academyClassesApi.findById(classId)
+                if (classResult) {
+                    const profileId = classResult.courseProfileId
+                    // 2. Get CourseProfile details
+                    const courseData = await courseApi.getCourseById(profileId)
                     if (courseData) {
                         setCourse(courseData)
                         // Mock data for quizzes
@@ -78,7 +78,7 @@ export default function CourseQuizzesPage() {
             <div className="border-b border-border bg-background">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center gap-4">
-                        <Link href={`/courses/${courseRunId}/learn`}>
+                        <Link href={`/courses/${classId}/learn`}>
                             <Button variant="ghost" size="icon" className="rounded-full">
                                 <ArrowLeft className="w-4 h-4" />
                             </Button>
@@ -135,7 +135,7 @@ export default function CourseQuizzesPage() {
                                             )}
                                         </div>
                                         <Button
-                                            onClick={() => router.push(`/courses/${courseRunId}/quizzes/${quiz.id}`)}
+                                            onClick={() => router.push(`/courses/${classId}/quizzes/${quiz.id}`)}
                                         >
                                             {quiz.completed ? 'Xem lại' : 'Làm bài'}
                                             <Play className="ml-2 w-4 h-4" />

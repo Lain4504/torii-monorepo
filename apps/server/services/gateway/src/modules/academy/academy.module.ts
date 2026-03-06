@@ -18,7 +18,11 @@ import { BlogController } from './controllers/blog.controller';
 import { LearningProgressController } from './controllers/learning-progress.controller';
 import { EnrollmentController } from './controllers/enrollment.controller';
 import { OrderController } from './controllers/order.controller';
+import { CouponController } from './controllers/coupon.controller';
 import { WebhookController } from './controllers/webhook.controller';
+
+import { QuizTemplateController } from './controllers/quiz-template.controller';
+import { AssignmentTemplateController } from './controllers/assignment-template.controller';
 
 @Module({
   imports: [NatsClientModule],
@@ -28,6 +32,8 @@ import { WebhookController } from './controllers/webhook.controller';
     CourseOfferingController,
     ChapterController,
     ChapterItemController,
+    QuizTemplateController,
+    AssignmentTemplateController,
     TicketController,
     ClassController,
     ClassScheduleController,
@@ -41,6 +47,7 @@ import { WebhookController } from './controllers/webhook.controller';
     LearningProgressController,
     EnrollmentController,
     OrderController,
+    CouponController,
     WebhookController,
   ],
 })

@@ -9,8 +9,8 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { wishlistApi } from '@/lib/api/services/wishlist-api'
 import { courseApi } from '@/lib/api/services/course-api'
-import { courseRunApi } from '@/lib/api/services/course-run-api'
-import type { CourseMasterResponseDTO, CourseRunResponseDTO } from '@workspace/schemas'
+import { academyClassesApi } from '@/lib/api/services/academy-classes'
+import type { CourseMasterResponseDTO } from '@workspace/schemas'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { formatCurrency } from '@/utils/format-utils'
@@ -41,18 +41,18 @@ export default function WishlistPage() {
             const courseDetails = await Promise.all(
                 wishlistItems.map(async (item) => {
                     try {
-                        // Fetch both course master and course run details
-                        const [courseRun, courseMaster] = await Promise.all([
-                            courseRunApi.getCourseRunById(item.courseRunId),
+                        // Fetch both course profile and class details
+                        const [classData, courseProfile] = await Promise.all([
+                            academyClassesApi.findById(item.courseRunId),
                             courseApi.getCourseById(item.courseRunId)
                         ]);
 
-                        if (courseMaster) {
+                        if (courseProfile) {
                             return {
-                                ...courseMaster,
+                                ...courseProfile,
                                 wishlistId: item.id,
-                                price: courseRun?.price,
-                                discountPrice: courseRun?.discountPrice
+                                price: (classData as any)?.price,
+                                discountPrice: (classData as any)?.discountPrice
                             } as WishlistCourse
                         }
                         return null

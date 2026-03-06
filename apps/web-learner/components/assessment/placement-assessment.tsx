@@ -13,25 +13,21 @@ import { usePathname, useRouter } from "next/navigation"
 
 
 import {
-    QuizContainer,
-    QuizHeader,
-    QuizProgress,
-    QuizQuestion,
-    QuizOption,
-    QuizNavigation,
-    QuizResultSummary,
-    QuizReviewItem,
-    QuizResultView
+    Quiz,
+    type QuizData,
+    type QuizResult,
+    type QuizOption as QuizOptionType
 } from "@workspace/ui/components/custom/quiz"
 import { ClipboardList, CheckCircle2, XCircle } from "lucide-react"
+import { nanoid } from 'nanoid'
 
-export function PlacementTest() {
+export function PlacementAssessment() {
     const [step, setStep] = React.useState<"intro" | "test" | "result">("intro")
     const [isLoading, setIsLoading] = React.useState(false)
     const [testData, setTestData] = React.useState<PlacementTestResponse | null>(null)
-    const [answers, setAnswers] = React.useState<Record<string, string>>({})
+    const [quizData, setQuizData] = React.useState<QuizData | null>(null)
     const [result, setResult] = React.useState<PlacementEvaluationResponse | null>(null)
-    const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0)
+    const [optionMap, setOptionMap] = React.useState<Record<string, Record<string, string>>>({}) // qId -> { optId -> label }
 
     const pathname = usePathname()
     const router = useRouter()
@@ -42,9 +38,49 @@ export function PlacementTest() {
         try {
             const data = await agentApi.assessment.generatePlacementTest(15)
             setTestData(data)
+
+            // Map to QuizData
+            const newOptionMap: Record<string, Record<string, string>> = {}
+            
+            const mappedQuizData: QuizData = {
+                title: "Bài Thi Xác Định Trình Độ",
+                description: "Bài thi gồm các câu từ N5 đến N1. AI sẽ điều chỉnh độ khó theo từng câu trả lời.",
+                questions: data.questions.map((q) => {
+                    const optionObjects = (q.options || []).map(opt => ({
+                        id: nanoid(),
+                        label: opt
+                    }))
+                    
+                    // Store mapping to retrieve original labels later
+                    newOptionMap[q.id] = {}
+                    optionObjects.forEach(opt => {
+                        newOptionMap[q.id][opt.id] = opt.label
+                    })
+
+                    // Find correct ID (assuming correctAnswer is index or value - check backend schema)
+                    // If correctAnswer is index
+                    let correctIds: string[] = []
+                    if (typeof q.correctAnswer === 'number' && optionObjects[q.correctAnswer]) {
+                        correctIds = [optionObjects[q.correctAnswer].id]
+                    } else if (typeof q.correctAnswer === 'string') {
+                         const correctOpt = optionObjects.find(o => o.label === q.correctAnswer)
+                         if (correctOpt) correctIds = [correctOpt.id]
+                    }
+
+                    return {
+                        id: q.id,
+                        type: 'single',
+                        question: q.question,
+                        options: optionObjects,
+                        correctIds: correctIds,
+                        hint: undefined
+                    }
+                })
+            }
+            
+            setOptionMap(newOptionMap)
+            setQuizData(mappedQuizData)
             setStep("test")
-            setAnswers({})
-            setCurrentQuestionIndex(0)
         } catch (error) {
             console.error(error)
         } finally {
@@ -52,17 +88,20 @@ export function PlacementTest() {
         }
     }
 
-    const handleSubmit = async () => {
+    const handleQuizComplete = async (quizResult: QuizResult) => {
         if (!testData) return
         setIsLoading(true)
         try {
-            // Map answers to the format expected by the backend
-            const formattedAnswers = Object.entries(answers).map(([questionId, userAnswer]) => {
+            // Map answers back to the format expected by the backend
+            const formattedAnswers = Object.entries(quizResult.answers).map(([questionId, selectedIds]) => {
                 const question = testData.questions.find(q => q.id === questionId)
+                const selectedId = selectedIds[0] // Single choice
+                const userAnswerLabel = optionMap[questionId]?.[selectedId] || ""
+
                 return {
                     questionId,
                     level: question?.level || "N5",
-                    userAnswer,
+                    userAnswer: userAnswerLabel,
                     correctAnswer: question?.correctAnswer || 0
                 }
             })
@@ -75,13 +114,6 @@ export function PlacementTest() {
         } finally {
             setIsLoading(false)
         }
-    }
-
-    const handleAnswer = (questionId: string, answer: string) => {
-        setAnswers(prev => ({
-            ...prev,
-            [questionId]: answer
-        }))
     }
 
     const handleSelectLevel = (level: string) => {
@@ -145,98 +177,69 @@ export function PlacementTest() {
     }
 
 
-    if (step === "test" && testData) {
-        const totalQuestions = testData.questions.length
-        const currentQuestion = testData.questions[currentQuestionIndex]
-
-        const handleNext = () => {
-            if (currentQuestionIndex < totalQuestions - 1) {
-                setCurrentQuestionIndex(prev => prev + 1)
-            }
-        }
-
-        const handlePrevious = () => {
-            if (currentQuestionIndex > 0) {
-                setCurrentQuestionIndex(prev => prev - 1)
-            }
-        }
-
-        if (!currentQuestion) return null
-
+    if (step === "test" && quizData) {
         return (
-            <QuizContainer className="text-center">
-                <QuizProgress current={currentQuestionIndex + 1} total={totalQuestions} label="Placement Progress" />
-
-                <div className="space-y-12">
-                    <QuizQuestion
-                        question={currentQuestion.question}
-                        level={currentQuestion.level}
-                    />
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
-                        {currentQuestion.options?.map((opt: string, idx: number) => (
-                            <QuizOption
-                                key={idx}
-                                index={idx}
-                                value={opt}
-                                label={opt}
-                                isSelected={answers[currentQuestion.id] === opt}
-                                onSelect={(val) => handleAnswer(currentQuestion.id, val)}
-                            />
-                        ))}
-                    </div>
-
-                    <QuizNavigation
-                        onBack={handlePrevious}
-                        onNext={currentQuestionIndex < totalQuestions - 1 ? handleNext : handleSubmit}
-                        backDisabled={currentQuestionIndex === 0 || isLoading}
-                        nextDisabled={!currentQuestion.id || !answers[currentQuestion.id] || isLoading}
-                        isLast={currentQuestionIndex === totalQuestions - 1}
-                        nextLabel={currentQuestionIndex < totalQuestions - 1 ? "Next" : "Submit Answers"}
-                    />
-                </div>
-            </QuizContainer>
+            <div className="max-w-2xl mx-auto">
+                <Quiz 
+                    quizData={quizData} 
+                    onComplete={handleQuizComplete}
+                />
+            </div>
         )
     }
 
     if (step === "result" && result) {
         return (
-            <QuizContainer>
-                <QuizResultView
-                    badge="Assessment Complete"
-                    title="Hoàn Thành Đánh Giá!"
-                    percentage={result.score && result.maxScore ? (result.score / result.maxScore) * 100 : 0}
-                    stats={[
-                        { label: "Assessed Level", value: result.assessedLevel || "N5", icon: ClipboardList },
-                        { label: "Score", value: `${result.score} / ${result.maxScore}`, icon: CheckCircle2 },
-                        { label: "Target Level", value: result.targetLevel || "N4", icon: Sparkles }
-                    ]}
-                    questions={[]} // Placement test result from backend doesn't include detailed review by default
-                    onSecondaryAction={{
-                        label: isMarketing ? "Đăng Ký & Lưu Kết Quả" : "Xác Nhận & Bắt Đầu Học",
-                        onClick: () => {
-                            if (isMarketing) {
-                                router.push(`/register?level=${result.assessedLevel}`)
-                            } else {
-                                handleSelectLevel(result.assessedLevel ?? 'N5')
-                            }
-                        }
-                    }}
-                />
+            <div className="max-w-6xl mx-auto space-y-8">
+                <Card className="border-border shadow-sm rounded-xl overflow-hidden">
+                    <CardHeader className="text-center pb-2">
+                        <CardTitle className="text-2xl font-bold">Hoàn Thành Đánh Giá!</CardTitle>
+                         <CardDescription>
+                            Assessment Complete
+                         </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="flex justify-center gap-8">
+                            <div className="text-center">
+                                <div className="text-sm text-muted-foreground uppercase tracking-wider">Assessed Level</div>
+                                <div className="text-2xl font-bold flex items-center justify-center gap-2">
+                                    <ClipboardList className="size-5" />
+                                    {result.assessedLevel || "N5"}
+                                </div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-sm text-muted-foreground uppercase tracking-wider">Score</div>
+                                <div className="text-2xl font-bold flex items-center justify-center gap-2">
+                                    <CheckCircle2 className="size-5" />
+                                    {result.score} / {result.maxScore}
+                                </div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-sm text-muted-foreground uppercase tracking-wider">Target Level</div>
+                                <div className="text-2xl font-bold flex items-center justify-center gap-2">
+                                    <Sparkles className="size-5" />
+                                    {result.targetLevel || "N4"}
+                                </div>
+                            </div>
+                        </div>
+
+                         <div className="flex justify-center">
+                            <Button 
+                                onClick={() => {
+                                    if (isMarketing) {
+                                        router.push(`/register?level=${result.assessedLevel}`)
+                                    } else {
+                                        handleSelectLevel(result.assessedLevel ?? 'N5')
+                                    }
+                                }}
+                            >
+                                {isMarketing ? "Đăng Ký & Lưu Kết Quả" : "Xác Nhận & Bắt Đầu Học"}
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
 
                 <div className="grid gap-6 md:grid-cols-2 text-left pt-12 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
-                    <Card className="border-border shadow-sm col-span-1 md:col-span-2 rounded-xl overflow-hidden">
-                        <CardHeader className="text-center pb-2">
-                            <CardDescription className="uppercase tracking-widest text-[10px] font-bold text-primary">Cấp Độ Đề Xuất</CardDescription>
-                            <CardTitle className="text-5xl font-black text-primary py-1">{result.assessedLevel}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="text-center pb-6">
-                            <p className="text-sm text-muted-foreground max-w-lg mx-auto font-medium">
-                                Dựa trên kết quả bài tập, chúng tôi đề xuất bạn bắt đầu từ trình độ <strong>{result.assessedLevel}</strong>.
-                            </p>
-                        </CardContent>
-                    </Card>
-
                     {result.scoreBreakdown && Object.keys(result.scoreBreakdown).length > 0 && (
                         <Card className="shadow-sm rounded-xl border-border">
                             <CardHeader className="pb-3">
@@ -292,7 +295,7 @@ export function PlacementTest() {
                         </Button>
                     )}
                 </div>
-            </QuizContainer>
+            </div>
         )
     }
 

@@ -17,6 +17,12 @@ export type AcademyCourseEdition = {
   changelog?: string | null
   createdAt: string
   updatedAt: string
+  title?: string
+  version?: string
+  courseProfile?: {
+    title: string
+    code: string
+  }
 }
 
 export const academyCourseEditionsApi = {
@@ -24,6 +30,13 @@ export const academyCourseEditionsApi = {
     const res = await apiClient.get<StandardApiResponse<{ items: AcademyCourseEdition[] }>>(
       "/api/academy/course-editions",
       { params },
+    )
+    return res.data.data!.items
+  },
+
+  async findByCourseProfileId(courseProfileId: string) {
+    const res = await apiClient.get<StandardApiResponse<{ items: AcademyCourseEdition[] }>>(
+      `/api/academy/course-editions/by-course-profile/${courseProfileId}`,
     )
     return res.data.data!.items
   },
@@ -70,7 +83,12 @@ export const academyCourseEditionsApi = {
 export function useAcademyCourseEditions(params: AcademyCourseEditionQueryDTO) {
   return useQuery({
     queryKey: ["academy-course-editions", params],
-    queryFn: () => academyCourseEditionsApi.findAll(params),
+    queryFn: () => {
+      if (params.courseProfileId && Object.keys(params).length === 1) {
+        return academyCourseEditionsApi.findByCourseProfileId(params.courseProfileId)
+      }
+      return academyCourseEditionsApi.findAll(params)
+    },
   })
 }
 

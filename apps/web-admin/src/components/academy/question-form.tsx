@@ -24,7 +24,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
-import { RichTextEditor } from "@/components/editor/rich-text-editor"
+import { RichTextEditor, type EditorJsData } from "@/components/editor/rich-text-editor"
 import { Spinner } from "@workspace/ui/components/spinner"
 import {
   academyQuestionCreateDTOSchema,
@@ -154,7 +154,9 @@ export function QuestionForm({
                   <FieldLabel>Nội dung câu hỏi</FieldLabel>
                   <RichTextEditor
                     initialContent={field.value || ""}
-                    onUpdate={field.onChange}
+                    onUpdate={(data: EditorJsData) =>
+                      field.onChange(JSON.stringify(data))
+                    }
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
@@ -247,7 +249,9 @@ export function QuestionForm({
                   <FieldLabel>Giải thích đáp án</FieldLabel>
                   <RichTextEditor
                     initialContent={field.value || ""}
-                    onUpdate={field.onChange}
+                    onUpdate={(data: EditorJsData) =>
+                      field.onChange(JSON.stringify(data))
+                    }
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>

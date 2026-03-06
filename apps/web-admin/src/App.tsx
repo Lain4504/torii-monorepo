@@ -45,41 +45,28 @@ import AcademyCourseProfilesPage from '@/routes/academy/course-profiles-page.tsx
 import AcademyDashboardPage from '@/routes/academy/academy-dashboard-page.tsx'
 import AcademyCourseProfileCreatePage from '@/routes/academy/course-profile-create-page.tsx'
 import AcademyCourseProfileEditPage from '@/routes/academy/course-profile-edit-page.tsx'
-import AcademyCourseEditionsPage from '@/routes/academy/course-editions-page.tsx'
 import AcademyCourseEditionCreatePage from '@/routes/academy/course-edition-create-page.tsx'
 import AcademyCourseEditionEditPage from '@/routes/academy/course-edition-edit-page.tsx'
 import AcademyCourseOfferingsPage from '@/routes/academy/course-offerings-page.tsx'
 import AcademyCourseOfferingCreatePage from '@/routes/academy/course-offering-create-page.tsx'
 import AcademyCourseOfferingEditPage from '@/routes/academy/course-offering-edit-page.tsx'
-import AcademyChaptersPage from '@/routes/academy/chapters-page.tsx'
 import AcademyChapterCreatePage from '@/routes/academy/chapter-create-page.tsx'
 import AcademyChapterEditPage from '@/routes/academy/chapter-edit-page.tsx'
-import AcademyChapterItemsPage from '@/routes/academy/chapter-items-page.tsx'
 import AcademyChapterItemCreatePage from '@/routes/academy/chapter-item-create-page.tsx'
 import AcademyChapterItemEditPage from '@/routes/academy/chapter-item-edit-page.tsx'
 import AcademyClassesPage from '@/routes/academy/classes-page.tsx'
 import AcademyClassCreatePage from '@/routes/academy/class-create-page.tsx'
 import AcademyClassEditPage from '@/routes/academy/class-edit-page.tsx'
-import AcademyClassSchedulesPage from '@/routes/academy/class-schedules-page.tsx'
 import AcademyClassScheduleCreatePage from '@/routes/academy/class-schedule-create-page.tsx'
 import AcademyClassScheduleEditPage from '@/routes/academy/class-schedule-edit-page.tsx'
-import AcademyClassAssessmentsPage from '@/routes/academy/class-assessments-page.tsx'
 import AcademyClassAssessmentCreatePage from '@/routes/academy/class-assessment-create-page.tsx'
 import AcademyClassAssessmentEditPage from '@/routes/academy/class-assessment-edit-page.tsx'
-import AcademyQuestionsPage from '@/routes/academy/questions-page.tsx'
 import AcademyQuestionCreatePage from '@/routes/academy/question-create-page.tsx'
 import AcademyQuestionEditPage from '@/routes/academy/question-edit-page.tsx'
-import AcademyExamsPage from '@/routes/academy/exams-page.tsx'
 import AcademyExamCreatePage from '@/routes/academy/exam-create-page.tsx'
 import AcademyExamEditPage from '@/routes/academy/exam-edit-page.tsx'
-import AcademyExamAttemptsPage from '@/routes/academy/exam-attempts-page.tsx'
 import AcademyExamAttemptDetailPage from '@/routes/academy/exam-attempt-detail-page.tsx'
-import AcademyAssignmentSubmissionsPage from '@/routes/academy/assignment-submissions-page.tsx'
 import AcademyAssignmentSubmissionDetailPage from '@/routes/academy/assignment-submission-detail-page.tsx'
-import AcademyLessonsPage from '@/routes/academy/lessons-page.tsx'
-import AcademyLessonCreatePage from '@/routes/academy/lesson-create-page.tsx'
-import AcademyLessonEditPage from '@/routes/academy/lesson-edit-page.tsx'
-import AcademyEnrollmentsPage from '@/routes/academy/enrollments-page.tsx'
 import AcademyEnrollmentCreatePage from '@/routes/academy/enrollment-create-page.tsx'
 import AcademyEnrollmentEditPage from '@/routes/academy/enrollment-edit-page.tsx'
 import AcademyClassDetailPage from "@/routes/academy/class-detail-page.tsx"
@@ -91,9 +78,13 @@ import AcademyQuizTemplateEditPage from '@/routes/academy/quiz-template-edit-pag
 import AcademyAssignmentTemplatesPage from '@/routes/academy/assignment-templates-page.tsx'
 import AcademyAssignmentTemplateCreatePage from '@/routes/academy/assignment-template-create-page.tsx'
 import AcademyAssignmentTemplateEditPage from '@/routes/academy/assignment-template-edit-page.tsx'
+import AcademyQuestionsPage from '@/routes/academy/questions-page.tsx'
+import AcademyExamsPage from '@/routes/academy/exams-page.tsx'
 import AcademyReportsPage from '@/routes/academy/reports-page.tsx'
 import AcademyCourseProfileDetailPage from '@/routes/academy/course-profile-detail-page.tsx'
 import AcademyCourseEditionDetailPage from '@/routes/academy/course-edition-detail-page.tsx'
+import AcademyLessonCreatePage from '@/routes/academy/lesson-create-page.tsx'
+import AcademyLessonEditPage from '@/routes/academy/lesson-edit-page.tsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -106,6 +97,8 @@ const queryClient = new QueryClient({
   },
 })
 
+import EditorTestPage from '@/routes/test/editor-test-page.tsx'
+
 function App() {
   return (
     <ReduxProvider store={store}>
@@ -114,6 +107,7 @@ function App() {
           <TooltipProvider>
             <BrowserRouter>
               <Routes>
+                <Route path="/test-editor" element={<EditorTestPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -141,62 +135,67 @@ function App() {
                     <Route path="blogs/:id/edit" element={<EditBlogPage />} />
                   </Route>
 
-                  {/* Question Bank (legacy) removed; will be replaced by Academy exams/questions */}
-
-                  {/* Academy (new core LMS) */}
+                  {/* Academy - Core Grouping */}
                   <Route element={<RoutePermissionGuard anyPermission={["academy.content.read", "academy.content.write", "academy.commerce.read", "academy.commerce.write", "academy.delivery.read", "academy.delivery.write", "exam.manage"]} />}>
                     <Route path="academy" element={<AcademyDashboardPage />} />
                     <Route path="academy/lecturer" element={<AcademyLecturerDashboardPage />} />
+
+                    {/* 1. CONTENT LAYER: Profiles, Lessons, Quizzes, Assignments, Question Bank */}
                     <Route path="academy/course-profiles" element={<AcademyCourseProfilesPage />} />
                     <Route path="academy/course-profiles/new" element={<AcademyCourseProfileCreatePage />} />
                     <Route path="academy/course-profiles/:id" element={<AcademyCourseProfileDetailPage />} />
                     <Route path="academy/course-profiles/:id/edit" element={<AcademyCourseProfileEditPage />} />
-                    <Route path="academy/lessons" element={<AcademyLessonsPage />} />
+                    
                     <Route path="academy/lessons/new" element={<AcademyLessonCreatePage />} />
                     <Route path="academy/lessons/:id/edit" element={<AcademyLessonEditPage />} />
-                    <Route path="academy/course-editions" element={<AcademyCourseEditionsPage />} />
-                    <Route path="academy/course-editions/new" element={<AcademyCourseEditionCreatePage />} />
-                    <Route path="academy/course-editions/:id" element={<AcademyCourseEditionDetailPage />} />
-                    <Route path="academy/course-editions/:id/edit" element={<AcademyCourseEditionEditPage />} />
-                    <Route path="academy/course-offerings" element={<AcademyCourseOfferingsPage />} />
-                    <Route path="academy/course-offerings/new" element={<AcademyCourseOfferingCreatePage />} />
-                    <Route path="academy/course-offerings/:id/edit" element={<AcademyCourseOfferingEditPage />} />
-                    <Route path="academy/course-offerings/:id" element={<AcademyCourseOfferingDetailPage />} />
-                    <Route path="academy/chapters" element={<AcademyChaptersPage />} />
-                    <Route path="academy/chapters/new" element={<AcademyChapterCreatePage />} />
-                    <Route path="academy/chapters/:id/edit" element={<AcademyChapterEditPage />} />
-                    <Route path="academy/chapter-items" element={<AcademyChapterItemsPage />} />
-                    <Route path="academy/chapter-items/new" element={<AcademyChapterItemCreatePage />} />
-                    <Route path="academy/chapter-items/:id/edit" element={<AcademyChapterItemEditPage />} />
-                    <Route path="academy/classes" element={<AcademyClassesPage />} />
-                    <Route path="academy/classes/new" element={<AcademyClassCreatePage />} />
-                    <Route path="academy/classes/:id/edit" element={<AcademyClassEditPage />} />
-                    <Route path="academy/classes/:id" element={<AcademyClassDetailPage />} />
-                    <Route path="academy/class-schedules" element={<AcademyClassSchedulesPage />} />
-                    <Route path="academy/class-schedules/new" element={<AcademyClassScheduleCreatePage />} />
-                    <Route path="academy/class-schedules/:id/edit" element={<AcademyClassScheduleEditPage />} />
-                    <Route path="academy/class-assessments" element={<AcademyClassAssessmentsPage />} />
-                    <Route path="academy/class-assessments/new" element={<AcademyClassAssessmentCreatePage />} />
-                    <Route path="academy/class-assessments/:id/edit" element={<AcademyClassAssessmentEditPage />} />
+                    
+                    <Route path="academy/quiz-templates" element={<AcademyQuizTemplatesPage />} />
+                    <Route path="academy/quiz-templates/new" element={<AcademyQuizTemplateCreatePage />} />
+                    <Route path="academy/quiz-templates/:id/edit" element={<AcademyQuizTemplateEditPage />} />
+                    
+                    <Route path="academy/assignment-templates" element={<AcademyAssignmentTemplatesPage />} />
+                    <Route path="academy/assignment-templates/new" element={<AcademyAssignmentTemplateCreatePage />} />
+                    <Route path="academy/assignment-templates/:id/edit" element={<AcademyAssignmentTemplateEditPage />} />
+
                     <Route path="academy/questions" element={<AcademyQuestionsPage />} />
                     <Route path="academy/questions/new" element={<AcademyQuestionCreatePage />} />
                     <Route path="academy/questions/:id/edit" element={<AcademyQuestionEditPage />} />
                     <Route path="academy/exams" element={<AcademyExamsPage />} />
                     <Route path="academy/exams/new" element={<AcademyExamCreatePage />} />
                     <Route path="academy/exams/:id/edit" element={<AcademyExamEditPage />} />
-                    <Route path="academy/exam-attempts" element={<AcademyExamAttemptsPage />} />
-                    <Route path="academy/exam-attempts/:id" element={<AcademyExamAttemptDetailPage />} />
-                    <Route path="academy/assignment-submissions" element={<AcademyAssignmentSubmissionsPage />} />
-                    <Route path="academy/assignment-submissions/:id" element={<AcademyAssignmentSubmissionDetailPage />} />
-                    <Route path="academy/quiz-templates" element={<AcademyQuizTemplatesPage />} />
-                    <Route path="academy/quiz-templates/new" element={<AcademyQuizTemplateCreatePage />} />
-                    <Route path="academy/quiz-templates/:id/edit" element={<AcademyQuizTemplateEditPage />} />
-                    <Route path="academy/assignment-templates" element={<AcademyAssignmentTemplatesPage />} />
-                    <Route path="academy/assignment-templates/new" element={<AcademyAssignmentTemplateCreatePage />} />
-                    <Route path="academy/assignment-templates/:id/edit" element={<AcademyAssignmentTemplateEditPage />} />
-                    <Route path="academy/enrollments" element={<AcademyEnrollmentsPage />} />
+
+                    {/* 2. DELIVERY LAYER: Editions & Syllabus */}
+                    <Route path="academy/course-editions/new" element={<AcademyCourseEditionCreatePage />} />
+                    <Route path="academy/course-editions/:id" element={<AcademyCourseEditionDetailPage />} />
+                    <Route path="academy/course-editions/:id/edit" element={<AcademyCourseEditionEditPage />} />
+                    <Route path="academy/chapters/new" element={<AcademyChapterCreatePage />} />
+                    <Route path="academy/chapters/:id/edit" element={<AcademyChapterEditPage />} />
+                    <Route path="academy/chapter-items/new" element={<AcademyChapterItemCreatePage />} />
+                    <Route path="academy/chapter-items/:id/edit" element={<AcademyChapterItemEditPage />} />
+
+                    {/* 3. COMMERCE LAYER: Offerings & Sales */}
+                    <Route path="academy/course-offerings" element={<AcademyCourseOfferingsPage />} />
+                    <Route path="academy/course-offerings/new" element={<AcademyCourseOfferingCreatePage />} />
+                    <Route path="academy/course-offerings/:id" element={<AcademyCourseOfferingDetailPage />} />
+                    <Route path="academy/course-offerings/:id/edit" element={<AcademyCourseOfferingEditPage />} />
+
+                    {/* 4. OPERATION LAYER: Classes, Enrollments, Attendance, Grading */}
+                    <Route path="academy/classes" element={<AcademyClassesPage />} />
+                    <Route path="academy/classes/new" element={<AcademyClassCreatePage />} />
+                    <Route path="academy/classes/:id" element={<AcademyClassDetailPage />} />
+                    <Route path="academy/classes/:id/edit" element={<AcademyClassEditPage />} />
+                    
+                    <Route path="academy/class-schedule/new" element={<AcademyClassScheduleCreatePage />} />
+                    <Route path="academy/class-schedule/:id/edit" element={<AcademyClassScheduleEditPage />} />
+                    <Route path="academy/class-assessments/new" element={<AcademyClassAssessmentCreatePage />} />
+                    <Route path="academy/class-assessments/:id/edit" element={<AcademyClassAssessmentEditPage />} />
+                    
                     <Route path="academy/enrollments/new" element={<AcademyEnrollmentCreatePage />} />
                     <Route path="academy/enrollments/:id/edit" element={<AcademyEnrollmentEditPage />} />
+                    
+                    <Route path="academy/exam-attempts/:id" element={<AcademyExamAttemptDetailPage />} />
+                    <Route path="academy/assignment-submissions/:id" element={<AcademyAssignmentSubmissionDetailPage />} />
+                    
                     <Route path="academy/reports" element={<AcademyReportsPage />} />
                   </Route>
 
@@ -244,7 +243,7 @@ function App() {
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </ThemeProvider>
-    </ReduxProvider >
+    </ReduxProvider>
   )
 }
 

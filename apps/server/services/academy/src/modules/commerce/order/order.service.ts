@@ -214,4 +214,54 @@ export class OrderService {
         this.logger.log(`Order ${order.code} fulfilled successfully`);
         return { ok: true };
     }
+
+    // --- Admin CRUD ---
+
+    async admin_findAll(query: { userId?: string, status?: OrderStatus, limit?: number, offset?: number }) {
+        const where: any = {};
+        if (query.userId) where.userId = query.userId;
+        if (query.status) where.status = query.status;
+
+        return this.prisma.order.findMany({
+            where,
+            include: {
+                user: { select: { email: true, displayName: true } },
+                items: { include: { offering: true } },
+            },
+            orderBy: { createdAt: 'desc' },
+            take: query.limit || 20,
+            skip: query.offset || 0,
+        });
+    }
+
+    async admin_findOne(id: string) {
+        const order = await this.prisma.order.findUnique({
+            where: { id },
+            include: {
+                user: { select: { email: true, displayName: true } },
+                items: { include: { offering: true } },
+                transactions: true,
+            },
+        });
+        if (!order) throw new NotFoundException('Order not found');
+        return order;
+    }
+
+    async admin_updateStatus(id: string, status: OrderStatus) {
+        const order = await this.prisma.order.findUnique({
+            where: { id },
+            include: { items: true },
+        });
+
+        if (!order) throw new NotFoundException('Order not found');
+
+        if (status === OrderStatus.PAID && order.status !== OrderStatus.PAID) {
+            return this.processPayment(order, 'MANUAL');
+        }
+
+        return this.prisma.order.update({
+            where: { id },
+            data: { status },
+        });
+    }
 }

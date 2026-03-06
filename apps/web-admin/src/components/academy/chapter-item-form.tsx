@@ -101,7 +101,7 @@ export function ChapterItemForm({
                         <SelectValue placeholder="Chọn chương..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {chapters.map((c) => (
+                        {chapters.map((c: any) => (
                           <SelectItem key={c.id} value={c.id}>
                             {c.title}
                           </SelectItem>
@@ -256,5 +256,3 @@ export function ChapterItemForm({
     </form>
   )
 }
-
-

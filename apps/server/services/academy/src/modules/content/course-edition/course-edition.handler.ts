@@ -21,6 +21,11 @@ export class CourseEditionHandler {
     return this.editions.findById(data.id);
   }
 
+  @MessagePattern({ cmd: 'academy.courseEdition.findByCourseProfileId' })
+  findByCourseProfileId(@Payload() data: { courseProfileId: string }) {
+    return this.editions.findByCourseProfileId(data.courseProfileId);
+  }
+
   @MessagePattern({ cmd: 'academy.courseEdition.create' })
   create(@Payload() input: CourseEditionCreateDto) {
     return this.editions.create(input);

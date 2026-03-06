@@ -7,7 +7,7 @@ import { Card, CardContent } from '@workspace/ui/components/card';
 import { BlogStatus } from '@workspace/schemas';
 import { Spinner } from '@workspace/ui/components/spinner';
 import { toast } from '@workspace/ui/components/sonner';
-import { RichTextEditor } from '@/components/editor/rich-text-editor';
+import { RichTextEditor, type EditorJsData } from '@/components/editor/rich-text-editor';
 import { ArrowLeft, Save, Send, ChevronDown, CalendarClock } from 'lucide-react';
 import {
     DropdownMenu,
@@ -24,7 +24,7 @@ export default function EditBlogPage() {
     const { data: blog, isLoading, error } = useBlog(id!);
     const updateBlog = useUpdateBlog();
 
-    const [content, setContent] = useState('');
+    const [content, setContent] = useState<string>('');
     const [isSaving, setIsSaving] = useState(false);
     const [isScheduleOpen, setIsScheduleOpen] = useState(false);
 
@@ -124,7 +124,7 @@ export default function EditBlogPage() {
                 <CardContent className="p-0">
                     <RichTextEditor
                         initialContent={blog.content}
-                        onUpdate={(html) => setContent(html)}
+                        onUpdate={(data: EditorJsData) => setContent(JSON.stringify(data))}
                     />
                 </CardContent>
             </Card>

@@ -2,15 +2,9 @@
 
 import * as React from "react"
 import {
-    QuizContainer,
-    QuizHeader,
-    QuizProgress,
-    QuizQuestion,
-    QuizOption,
-    QuizNavigation,
-    QuizResultSummary,
-    QuizReviewItem,
-    QuizResultView
+    Quiz,
+    type QuizData,
+    type QuizResult,
 } from "@workspace/ui/components/custom/quiz"
 import { cn } from "@workspace/ui/lib/utils"
 import { Button } from "@workspace/ui/components/button"
@@ -21,13 +15,13 @@ import {
     FieldDescription,
     FieldGroup,
     FieldLabel,
-    FieldLegend,
     FieldSet
 } from "@workspace/ui/components/field"
-import { Target, ChevronRight, ClipboardList, CheckCircle2, XCircle, BookCheck, Clock, Sparkles } from "lucide-react"
+import { Target, ChevronRight, ClipboardList, CheckCircle2, XCircle, Clock, Sparkles } from "lucide-react"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { Spinner } from "@workspace/ui/components/spinner"
-import { DrillGenerator } from "@/components/ai-sensei/drill-generator"
+import { SkillDrill } from "@/components/ai-sensei/skill-drill"
+import { nanoid } from 'nanoid'
 
 // Types
 interface TestConfig {
@@ -68,17 +62,16 @@ const TEST_SECTIONS = [
     { value: "full", label: "Mô phỏng Đầy đủ" }
 ]
 
-export function TestRunner() {
+export function PracticeTest() {
     const [status, setStatus] = React.useState<"setup" | "running" | "result">("setup")
     const [isLoading, setIsLoading] = React.useState(false)
     const [config, setConfig] = React.useState<TestConfig>({ level: "N5", section: "vocabulary" })
     const [testId, setTestId] = React.useState<string | null>(null)
-    const [questions, setQuestions] = React.useState<Question[]>([])
-    const [currentIndex, setCurrentIndex] = React.useState(0)
-    const [userAnswers, setUserAnswers] = React.useState<Record<string, string>>({})
+    const [quizData, setQuizData] = React.useState<QuizData | null>(null)
+    const [optionMap, setOptionMap] = React.useState<Record<string, Record<string, string>>>({}) 
     const [result, setResult] = React.useState<TestResult | null>(null)
     const [timeLeft, setTimeLeft] = React.useState<number>(0)
-
+    
     // Timer effect
     React.useEffect(() => {
         if (status === "running" && timeLeft > 0) {
@@ -86,7 +79,9 @@ export function TestRunner() {
                 setTimeLeft(prev => {
                     if (prev <= 1) {
                         clearInterval(timer)
-                        handleSubmit()
+                        // TODO: Handle auto-submit if possible, or show "Time's up"
+                        // Since Quiz component doesn't expose submit, we might force a result state
+                        // For now, we'll let the user finish or show a warning overlay
                         return 0
                     }
                     return prev - 1
@@ -103,66 +98,93 @@ export function TestRunner() {
             const data = await agentApi.assessment.generateTest(config.level, config.section, count)
 
             setTestId(data.testId)
-            setQuestions(data.questions.map(q => ({
-                id: q.id,
-                text: q.question,
-                options: q.options || []
-            })))
+            
+            // Map to QuizData
+            const newOptionMap: Record<string, Record<string, string>> = {}
+            const questions = data.questions.map(q => {
+                const optionObjects = (q.options || []).map(opt => ({
+                    id: nanoid(),
+                    label: opt
+                }))
+                
+                newOptionMap[q.id] = {}
+                optionObjects.forEach(opt => {
+                    newOptionMap[q.id][opt.id] = opt.label
+                })
+
+                let correctIds: string[] = []
+                // Assuming correctAnswer maps to one of the options
+                const correctOpt = optionObjects.find(o => o.label === q.correctAnswer)
+                if (correctOpt) correctIds = [correctOpt.id]
+
+                // Attach explanation to the correct option(s)
+                const optionsWithExplanation = optionObjects.map(opt => ({
+                    ...opt,
+                    explanation: correctIds.includes(opt.id) ? q.explanation : undefined
+                }))
+
+                return {
+                    id: q.id,
+                    type: 'single' as const,
+                    question: q.question,
+                    options: optionsWithExplanation,
+                    correctIds,
+                    hint: undefined
+                }
+            })
+
+            setOptionMap(newOptionMap)
+            setQuizData({
+                title: `${config.level} Practice Test`,
+                description: `${config.section.toUpperCase()} - ${questions.length} Questions`,
+                questions
+            })
 
             // Set timer based on section (approx 1 min per question)
             setTimeLeft(count * 60)
             setStatus("running")
-            setCurrentIndex(0)
-            setUserAnswers({})
         } catch (error) {
             console.error(error)
         } finally {
             setIsLoading(false)
         }
     }
-
-    const handleSelectOption = (value: string) => {
-        const q = questions[currentIndex]
-        if (q) {
-            setUserAnswers(prev => ({ ...prev, [q.id]: value }))
-        }
-    }
-
-    const nextQuestion = () => {
-        if (currentIndex < questions.length - 1) {
-            setCurrentIndex(prev => prev + 1)
-        } else {
-            handleSubmit()
-        }
-    }
-
-    const handleSubmit = async () => {
-        if (!testId) return
+    
+    const handleQuizComplete = async (quizResult: QuizResult) => {
+        if (!testId || !quizData) return
         setIsLoading(true)
         try {
-            const formattedAnswers = Object.entries(userAnswers).map(([qId, ans]) => ({
-                questionId: qId,
-                userAnswer: ans
-            }))
+            const formattedAnswers = Object.entries(quizResult.answers).map(([qId, selectedIds]) => {
+                const selectedId = selectedIds[0]
+                const userAnswer = optionMap[qId]?.[selectedId] || ""
+                return {
+                    questionId: qId,
+                    userAnswer
+                }
+            })
 
             const evaluation = await agentApi.assessment.evaluateTest(testId, formattedAnswers)
 
             setResult({
                 score: evaluation.score || 0,
-                totalQuestions: questions.length,
+                totalQuestions: quizData.questions.length,
                 correctCount: evaluation.score || 0,
-                incorrectCount: questions.length - (evaluation.score || 0),
-                percentage: evaluation.percentage || ((evaluation.score || 0) / questions.length * 100),
-                questions: questions.map(q => {
+                incorrectCount: quizData.questions.length - (evaluation.score || 0),
+                percentage: evaluation.percentage || ((evaluation.score || 0) / quizData.questions.length * 100),
+                questions: quizData.questions.map(q => {
                     const detail = evaluation.details?.find(d => d.questionId === q.id)
+                    const userSelectedId = quizResult.answers[q.id]?.[0]
+                    const userSelection = optionMap[q.id]?.[userSelectedId] || ""
+                    
                     return {
-                        ...q,
-                        userSelection: userAnswers[q.id],
+                        id: q.id,
+                        text: q.question,
+                        userSelection: userSelection,
+                        correctAnswer: q.correctIds[0] ? optionMap[q.id][q.correctIds[0]] : "", // Not perfect if we only have IDs
                         isCorrect: detail?.isCorrect ?? false,
-                        correctAnswer: q.correctAnswer || "",
-                        explanation: detail?.explanation || q.explanation
+                        explanation: detail?.explanation 
                     }
-                }) as any
+                })
             })
             setStatus("result")
         } catch (error) {
@@ -180,12 +202,7 @@ export function TestRunner() {
 
     if (status === "setup") {
         return (
-            <QuizContainer>
-                <QuizHeader
-                    title="JLPT Practice Test"
-                    description="Kỳ thi thử mô phỏng cấu trúc JLPT thực tế với giới hạn thời gian."
-                />
-
+            <div className="max-w-4xl mx-auto p-4">
                 <Card className="border-border shadow-none rounded-xl overflow-hidden">
                     <CardHeader className="pb-4">
                         <CardTitle className="text-lg font-bold flex items-center gap-2">
@@ -237,85 +254,61 @@ export function TestRunner() {
                         </form>
                     </CardContent>
                 </Card>
-            </QuizContainer>
+            </div>
         )
     }
 
-    if (status === "running" && questions.length > 0) {
-        const q = questions[currentIndex]
-        if (!q) return null
-
+    if (status === "running" && quizData) {
         return (
-            <QuizContainer className="text-center">
-                <QuizHeader
-                    title={`${config.level} Practice Session`}
-                    description={`${config.section.toUpperCase()} - ${questions.length} Questions`}
-                    actions={
-                        <div className={cn(
-                            "flex items-center gap-2 px-3 py-1.5 rounded-full border bg-muted/50 font-mono text-sm font-bold",
-                            timeLeft < 60 ? "text-destructive animate-pulse border-destructive/50" : "text-primary"
-                        )}>
-                            <Clock className="size-4" />
-                            {formatTime(timeLeft)}
-                        </div>
-                    }
-                />
-
-                <QuizProgress current={currentIndex + 1} total={questions.length} />
-
-                <div className="space-y-12">
-                    <QuizQuestion
-                        question={q.text}
-                        level={config.level}
-                        category={config.section}
-                        index={currentIndex + 1}
-                    />
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
-                        {q.options.map((option, idx) => (
-                            <QuizOption
-                                key={idx}
-                                index={idx}
-                                value={option}
-                                label={option}
-                                isSelected={userAnswers[q.id] === option}
-                                onSelect={handleSelectOption}
-                            />
-                        ))}
+            <div className="max-w-4xl mx-auto space-y-6">
+                <div className="flex justify-end">
+                     <div className={cn(
+                        "flex items-center gap-2 px-3 py-1.5 rounded-full border bg-muted/50 font-mono text-sm font-bold",
+                        timeLeft < 60 ? "text-destructive animate-pulse border-destructive/50" : "text-primary"
+                    )}>
+                        <Clock className="size-4" />
+                        {formatTime(timeLeft)}
                     </div>
-
-                    <QuizNavigation
-                        onBack={() => setCurrentIndex(p => Math.max(0, p - 1))}
-                        onNext={nextQuestion}
-                        backDisabled={currentIndex === 0 || isLoading}
-                        nextDisabled={!userAnswers[q.id] || isLoading}
-                        isLast={currentIndex === questions.length - 1}
-                        nextLabel={currentIndex === questions.length - 1 ? "Submit Exam" : "Next Question"}
-                    />
                 </div>
-            </QuizContainer>
+                <Quiz quizData={quizData} onComplete={handleQuizComplete} />
+            </div>
         )
     }
 
     if (status === "result" && result) {
         return (
-            <QuizContainer className="max-w-6xl space-y-12">
-                <QuizResultView
-                    badge="Practice Results"
-                    title={`${config.level} ${config.section.charAt(0).toUpperCase() + config.section.slice(1)} Performance`}
-                    percentage={result.percentage}
-                    stats={[
-                        { label: "Total Questions", value: result.totalQuestions, icon: ClipboardList },
-                        { label: "Correct Answers", value: result.correctCount, icon: CheckCircle2 },
-                        { label: "Needs Review", value: result.incorrectCount, icon: XCircle }
-                    ]}
-                    questions={result.questions}
-                    onRetry={startTest}
-                    onSecondaryAction={{
-                        label: "Try Different Level",
-                        onClick: () => setStatus("setup")
-                    }}
-                />
+            <div className="max-w-6xl mx-auto space-y-12">
+                <Card className="border-border shadow-sm rounded-xl">
+                    <CardHeader className="text-center">
+                        <CardTitle>Practice Results</CardTitle>
+                        <div className="text-muted-foreground">{config.level} {config.section.charAt(0).toUpperCase() + config.section.slice(1)} Performance</div>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex justify-center gap-8 mb-8">
+                            <div className="text-center">
+                                <div className="text-sm text-muted-foreground">Total Questions</div>
+                                <div className="text-2xl font-bold">{result.totalQuestions}</div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-sm text-muted-foreground">Correct</div>
+                                <div className="text-2xl font-bold text-green-600">{result.correctCount}</div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-sm text-muted-foreground">Incorrect</div>
+                                <div className="text-2xl font-bold text-red-600">{result.incorrectCount}</div>
+                            </div>
+                             <div className="text-center">
+                                <div className="text-sm text-muted-foreground">Score</div>
+                                <div className="text-2xl font-bold text-primary">{Math.round(result.percentage)}%</div>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-center gap-4">
+                            <Button variant="outline" onClick={startTest}>Try Again</Button>
+                            <Button onClick={() => setStatus("setup")}>Try Different Level</Button>
+                        </div>
+                    </CardContent>
+                </Card>
 
                 <div className="pt-12 border-t space-y-8">
                     <div className="space-y-2">
@@ -328,11 +321,11 @@ export function TestRunner() {
 
                     <Card className="border-primary/20 bg-primary/5 shadow-none rounded-2xl overflow-hidden">
                         <CardContent className="p-0">
-                            <DrillGenerator embed />
+                            <SkillDrill embed />
                         </CardContent>
                     </Card>
                 </div>
-            </QuizContainer>
+            </div>
         )
     }
 

@@ -1,154 +1,127 @@
-import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { useAcademyCourseEdition } from "@/lib/api/services/academy-course-editions"
-import { useAcademyChapters } from "@/lib/api/services/academy-chapters"
-import { PageHeader } from "@/components/common/page-header"
 import { Button } from "@workspace/ui/components/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 import {
   Plus,
   ArrowLeft,
   LayoutList,
   BookOpen,
-  Clock,
-  Settings,
-  CheckCircle2,
+  FileText,
+  HelpCircle,
 } from "lucide-react"
-import { Link } from "react-router-dom"
 import { SyllabusBuilder } from "@/components/academy/syllabus-builder"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 
 export default function CourseEditionDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { data: edition, isLoading: isLoadingEdition } = useAcademyCourseEdition(id!)
-  const { data: chapters = [], isLoading: isLoadingChapters } = useAcademyChapters({ courseEditionId: id })
+  const [searchParams, setSearchParams] = useSearchParams()
+  const activeTab = searchParams.get("tab") || "syllabus"
 
-  if (isLoadingEdition) return <div className="p-8 text-center">Đang tải edition...</div>
-  if (!edition) return <div className="p-8 text-center text-destructive">Không tìm thấy edition</div>
+  const { data: edition, isLoading } = useAcademyCourseEdition(id!)
 
-  // Tính tổng số chapter/lesson cơ bản
-  const totalChapters = chapters.length
-  const totalEstimatedMinutes = chapters.reduce((acc, ch) => acc + (ch.estimatedMinutes || 0), 0)
+  if (isLoading) return <div>Loading...</div>
+  if (!edition) return <div>Edition not found</div>
+
+  const handleTabChange = (val: string) => {
+    setSearchParams({ tab: val })
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 mb-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate(`/academy/course-profiles/${edition.courseProfileId}`)}
-          className="gap-2"
-        >
-          <ArrowLeft className="h-4 w-4" /> Quay lại Course Profile
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <ArrowLeft className="h-4 w-4" />
         </Button>
-      </div>
-
-      <PageHeader
-        title={`Syllabus: Edition ${edition.editionTag}`}
-        subtitle={`Phiên bản dành cho Course Profile ID: ${edition.courseProfileId}`}
-        actions={
-          <div className="flex gap-2">
-            <Button asChild variant="outline" size="sm" className="gap-2">
-              <Link to={`/academy/course-editions/${id}/edit`}>
-                <Settings className="h-4 w-4" /> Chỉnh sửa Edition
-              </Link>
-            </Button>
-            <Button asChild size="sm" className="gap-2">
-              <Link to={`/academy/chapters/new?courseEditionId=${id}`}>
-                <Plus className="h-4 w-4" /> Thêm Chapter
-              </Link>
-            </Button>
+        <div className="flex flex-col">
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold">{edition.title}</h1>
+            <Badge variant={edition.isCurrent ? "default" : "secondary"}>
+              {edition.isCurrent ? "Current" : "Draft"}
+            </Badge>
           </div>
-        }
-      />
-
-      <div className="grid grid-cols-4 gap-6">
-        <div className="col-span-1 space-y-6">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Trạng thái Edition</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center justify-between">
-                  <Badge
-                    variant={edition.status === "PUBLISHED" ? "default" : edition.status === "ARCHIVED" ? "secondary" : "outline"}
-                    className="w-fit"
-                  >
-                    {edition.status}
-                  </Badge>
-                  {edition.isCurrent && (
-                    <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-200 gap-1 text-[10px] h-5">
-                      <CheckCircle2 className="h-2 w-2" /> Current
-                    </Badge>
-                  )}
-                </div>
-                <div className="space-y-1 mt-2">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <LayoutList className="h-3 w-3" /> {totalChapters} Chapters
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Clock className="h-3 w-3" /> {totalEstimatedMinutes} Phút dự tính
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Phím tắt Chapter</CardTitle>
-              <CardDescription className="text-[10px]">Nhấn để cuộn nhanh</CardDescription>
-            </CardHeader>
-            <CardContent className="max-h-[300px] overflow-y-auto">
-              <div className="flex flex-col gap-1">
-                {chapters.map((ch, idx) => (
-                  <button
-                    key={ch.id}
-                    className="text-left text-xs p-2 hover:bg-muted rounded-md border border-transparent hover:border-border truncate"
-                    onClick={() => {
-                      const el = document.getElementById(`chapter-${ch.id}`)
-                      el?.scrollIntoView({ behavior: 'smooth' })
-                    }}
-                  >
-                    {idx + 1}. {ch.title}
-                  </button>
-                ))}
-                {!chapters.length && <p className="text-xs text-muted-foreground italic">Chưa có chapter</p>}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="col-span-3">
-          {isLoadingChapters ? (
-            <div className="p-8 text-center text-muted-foreground">Đang tải chapters...</div>
-          ) : (
-            <div className="space-y-6">
-              {chapters.length > 0 ? (
-                chapters.map((chapter) => (
-                  <SyllabusBuilder key={chapter.id} chapter={chapter} />
-                ))
-              ) : (
-                <Card className="border-dashed py-12">
-                  <CardContent className="flex flex-col items-center justify-center text-center space-y-4">
-                    <BookOpen className="h-12 w-12 text-muted-foreground opacity-20" />
-                    <div className="space-y-1">
-                      <p className="font-medium text-muted-foreground">Chưa có nội dung chương trình</p>
-                      <p className="text-sm text-muted-foreground">Bắt đầu bằng cách thêm một Chapter đầu tiên.</p>
-                    </div>
-                    <Button asChild size="sm">
-                      <Link to={`/academy/chapters/new?courseEditionId=${id}`}>
-                        <Plus className="h-4 w-4 mr-2" /> Thêm Chapter đầu tiên
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          )}
+          <p className="text-sm text-muted-foreground">
+            Version: {edition.version}
+          </p>
         </div>
       </div>
+
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+        <TabsList className="grid w-full max-w-2xl grid-cols-4">
+          <TabsTrigger value="syllabus" className="gap-2">
+            <LayoutList className="h-4 w-4" />
+            Syllabus
+          </TabsTrigger>
+          <TabsTrigger value="lessons" className="gap-2">
+            <BookOpen className="h-4 w-4" />
+            Lessons
+          </TabsTrigger>
+          <TabsTrigger value="quizzes" className="gap-2">
+            <HelpCircle className="h-4 w-4" />
+            Quizzes
+          </TabsTrigger>
+          <TabsTrigger value="assignments" className="gap-2">
+            <FileText className="h-4 w-4" />
+            Assignments
+          </TabsTrigger>
+        </TabsList>
+
+        <div className="mt-6">
+          <TabsContent value="syllabus">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-xl font-bold tracking-tight">Cấu trúc khóa học (Syllabus)</h2>
+                <p className="text-sm text-muted-foreground">Quản lý các chương học và nội dung đào tạo.</p>
+              </div>
+              <Button onClick={() => navigate(`/academy/chapters/new?editionId=${id}`)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Thêm chương học
+              </Button>
+            </div>
+            <SyllabusBuilder editionId={id!} />
+          </TabsContent>
+
+          <TabsContent value="lessons">
+             <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Danh sách bài học (Lessons)</h2>
+              <Button onClick={() => navigate(`/academy/lessons/new?profileId=${edition.courseProfileId}`)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Tạo Lesson mới
+              </Button>
+            </div>
+            <div className="text-center py-10 bg-muted/20 rounded-lg border-2 border-dashed">
+               <p className="text-muted-foreground">Danh sách lesson của profile này sẽ hiển thị ở đây (Filter theo profileId)</p>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="quizzes">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Ngân hàng câu hỏi & Quiz</h2>
+              <Button onClick={() => navigate(`/academy/quiz-templates/new?profileId=${edition.courseProfileId}`)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Tạo Quiz mới
+              </Button>
+            </div>
+             <div className="text-center py-10 bg-muted/20 rounded-lg border-2 border-dashed">
+               <p className="text-muted-foreground">Danh sách quiz template của profile này sẽ hiển thị ở đây</p>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="assignments">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Bài tập về nhà (Assignments)</h2>
+              <Button onClick={() => navigate(`/academy/assignment-templates/new?profileId=${edition.courseProfileId}`)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Tạo Assignment mới
+              </Button>
+            </div>
+             <div className="text-center py-10 bg-muted/20 rounded-lg border-2 border-dashed">
+               <p className="text-muted-foreground">Danh sách bài tập của profile này sẽ hiển thị ở đây</p>
+            </div>
+          </TabsContent>
+        </div>
+      </Tabs>
     </div>
   )
 }

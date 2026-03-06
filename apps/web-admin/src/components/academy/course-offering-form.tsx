@@ -1,5 +1,6 @@
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useMemo } from "react"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import {
@@ -16,6 +17,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select"
+import {
+  Combobox,
+  ComboboxInput,
+  ComboboxContent,
+  ComboboxList,
+  ComboboxItem,
+  ComboboxEmpty,
+} from "@workspace/ui/components/combobox"
 import {
   Card,
   CardContent,
@@ -37,7 +46,9 @@ import {
   type AcademyCourseOfferingUpdateDTO,
 } from "@workspace/schemas"
 import type { AcademyCourseOffering } from "@/lib/api/services/academy-course-offerings"
-import { RichTextEditor } from "@/components/editor/rich-text-editor"
+import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
+import { useAcademyCourseEditions } from "@/lib/api/services/academy-course-editions"
+import { RichTextEditor, type EditorJsData } from "@/components/editor/rich-text-editor"
 
 export function CourseOfferingForm({
   mode,
@@ -55,8 +66,13 @@ export function CourseOfferingForm({
   submitting?: boolean
 }) {
   const isEdit = mode === "edit"
+  const { data: profilesData = [] } = useAcademyCourseProfiles({})
+  const profiles = Array.isArray(profilesData) ? profilesData : (profilesData as any)?.items || []
 
-  const { handleSubmit, control } = useForm<
+  const { data: editionsData = [] } = useAcademyCourseEditions({})
+  const editions = Array.isArray(editionsData) ? editionsData : (editionsData as any)?.items || []
+
+  const { handleSubmit, control, watch } = useForm<
     AcademyCourseOfferingCreateDTO | AcademyCourseOfferingUpdateDTO
   >({
     resolver: zodResolver(
@@ -64,28 +80,43 @@ export function CourseOfferingForm({
         ? academyCourseOfferingUpdateDTOSchema
         : academyCourseOfferingCreateDTOSchema) as any
     ) as any,
-    defaultValues: isEdit
+    defaultValues: (isEdit
       ? {
         title: initial?.title ?? "",
+        courseProfileId: (initial as any)?.courseProfileId ?? undefined,
+        courseEditionId: (initial as any)?.courseEditionId ?? undefined,
         description: initial?.description ?? undefined,
-        price: initial?.price ?? undefined,
-        currency: initial?.currency ?? undefined,
-        status: initial?.status ?? undefined,
+        originalPrice: (initial as any)?.originalPrice ?? (initial as any)?.price ?? 0,
+        currency: initial?.currency ?? "VND",
+        status: initial?.status ?? "DRAFT",
+        type: (initial as any)?.type ?? "COURSE",
       }
       : {
         code: "",
         title: "",
+        courseProfileId: undefined,
+        courseEditionId: undefined,
         description: undefined,
-        price: 0,
+        originalPrice: 0,
         currency: "VND",
         status: "DRAFT",
-      },
+        type: "COURSE",
+      }) as any,
   })
+
+  const selectedProfileId = watch("courseProfileId" as any)
+  const filteredEditions = useMemo(() => {
+    if (!selectedProfileId) return editions
+    return editions.filter((e: any) => e.courseProfileId === selectedProfileId)
+  }, [selectedProfileId, editions])
 
   return (
     <form
       className="space-y-6"
-      onSubmit={handleSubmit(async (data) => onSubmit(data))}
+      onSubmit={handleSubmit(async (data) => {
+        console.log("Submitting Offering Data:", data)
+        await onSubmit(data)
+      })}
       noValidate
     >
       <Card>
@@ -126,6 +157,67 @@ export function CourseOfferingForm({
                 </Field>
               )}
             />
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <Controller
+                name={"courseProfileId" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Course Profile (Link)</FieldLabel>
+                    <Combobox
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <ComboboxInput placeholder="Tìm Profile..." />
+                      <ComboboxContent>
+                        <ComboboxList>
+                          {profiles.map((p: any) => (
+                            <ComboboxItem key={p.id} value={p.id}>
+                              {p.title} ({p.code})
+                            </ComboboxItem>
+                          ))}
+                        </ComboboxList>
+                        <ComboboxEmpty>Không tìm thấy Profile nào.</ComboboxEmpty>
+                      </ComboboxContent>
+                    </Combobox>
+                    <FieldDescription>Liên kết gói bán với một Course Profile.</FieldDescription>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+
+              <Controller
+                name={"courseEditionId" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Course Edition (Link)</FieldLabel>
+                    <Combobox
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      disabled={!selectedProfileId}
+                    >
+                      <ComboboxInput
+                        placeholder={selectedProfileId ? "Tìm Edition..." : "Chọn Profile trước..."}
+                      />
+                      <ComboboxContent>
+                        <ComboboxList>
+                          {filteredEditions.map((e: any) => (
+                            <ComboboxItem key={e.id} value={e.id}>
+                              {e.editionTag} ({e.status})
+                            </ComboboxItem>
+                          ))}
+                        </ComboboxList>
+                        <ComboboxEmpty>Không tìm thấy Edition nào.</ComboboxEmpty>
+                      </ComboboxContent>
+                    </Combobox>
+                    <FieldDescription>Gói này sẽ cấp quyền truy cập vào Edition này.</FieldDescription>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+            </div>
           </FieldGroup>
         </CardContent>
       </Card>
@@ -151,7 +243,7 @@ export function CourseOfferingForm({
                   <TabsContent value="edit">
                     <RichTextEditor
                       initialContent={field.value || ""}
-                      onUpdate={(html) => field.onChange(html)}
+                      onUpdate={(data: EditorJsData) => field.onChange(JSON.stringify(data))}
                     />
                   </TabsContent>
                   <TabsContent value="preview">
@@ -176,13 +268,13 @@ export function CourseOfferingForm({
           <CardDescription>Cấu hình chi phí và quyền truy cập gói.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Controller
-              name={"price" as any}
+              name={"originalPrice" as any}
               control={control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel>Giá</FieldLabel>
+                  <FieldLabel>Giá gốc</FieldLabel>
                   <Input
                     type="number"
                     min={0}
@@ -209,6 +301,27 @@ export function CourseOfferingForm({
                     <SelectContent>
                       <SelectItem value="VND">VND</SelectItem>
                       <SelectItem value="USD">USD</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
+              name={"type" as any}
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Loại gói</FieldLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn loại" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="COURSE">Khóa học đơn lẻ</SelectItem>
+                      <SelectItem value="BUNDLE">Combo (Bundle)</SelectItem>
+                      <SelectItem value="SUBSCRIPTION">Thuê bao (Sub)</SelectItem>
                     </SelectContent>
                   </Select>
                   <FieldError>{fieldState.error?.message}</FieldError>

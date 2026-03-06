@@ -88,4 +88,45 @@ export class CouponService {
             },
         });
     }
+
+    // --- Admin CRUD ---
+
+    async admin_findAll() {
+        return this.prisma.coupon.findMany({
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    async admin_findOne(id: string) {
+        const coupon = await this.prisma.coupon.findUnique({
+            where: { id },
+        });
+        if (!coupon) throw new NotFoundException('Coupon not found');
+        return coupon;
+    }
+
+    async admin_create(data: any) {
+        return this.prisma.coupon.create({
+            data: {
+                ...data,
+                code: data.code.toUpperCase(),
+            },
+        });
+    }
+
+    async admin_update(id: string, data: any) {
+        return this.prisma.coupon.update({
+            where: { id },
+            data: {
+                ...data,
+                code: data.code?.toUpperCase(),
+            },
+        });
+    }
+
+    async admin_delete(id: string) {
+        return this.prisma.coupon.delete({
+            where: { id },
+        });
+    }
 }

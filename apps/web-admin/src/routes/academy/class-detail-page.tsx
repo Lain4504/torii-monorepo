@@ -5,6 +5,8 @@ import { useAcademyClassAssessments } from "@/lib/api/services/academy-class-ass
 import { useAcademyEnrollments } from "@/lib/api/services/academy-enrollments"
 import { useAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
 import { useAcademyCourseEdition } from "@/lib/api/services/academy-course-editions"
+import { useAcademyExamAttempts } from "@/lib/api/services/academy-exam-attempts"
+import { useAcademyAssignmentSubmissions } from "@/lib/api/services/academy-assignment-submissions"
 import { PageHeader } from "@/components/common/page-header"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
@@ -40,6 +42,8 @@ export default function ClassDetailPage() {
    const { data: schedules = [], isLoading: isLoadingSchedules } = useAcademyClassSchedules({ classId: id })
    const { data: assessments = [], isLoading: isLoadingAssessments } = useAcademyClassAssessments({ classId: id })
    const { data: enrollmentsData, isLoading: isLoadingEnrollments } = useAcademyEnrollments({ classId: id })
+   const { data: attempts = [], isLoading: isLoadingAttempts } = useAcademyExamAttempts({ classId: id })
+   const { data: submissions = [], isLoading: isLoadingSubmissions } = useAcademyAssignmentSubmissions({ classId: id })
 
    // Giả sử API trả về structure { items, total } cho enrollments
    const enrollments = Array.isArray(enrollmentsData) ? enrollmentsData : (enrollmentsData as any)?.items || []
@@ -118,10 +122,12 @@ export default function ClassDetailPage() {
 
             <div className="md:col-span-3">
                <Tabs defaultValue="overview" className="w-full">
-                  <TabsList className="grid w-full grid-cols-4 mb-6">
+                  <TabsList className="grid w-full grid-cols-6 mb-6">
                      <TabsTrigger value="overview">Tổng quan</TabsTrigger>
-                     <TabsTrigger value="schedule">Lịch học ({schedules.length})</TabsTrigger>
+                     {cls.mode !== "VOD" && <TabsTrigger value="schedule">Lịch học ({schedules.length})</TabsTrigger>}
                      <TabsTrigger value="assessments">Bài kiểm tra ({assessments.length})</TabsTrigger>
+                     <TabsTrigger value="attempts">Kết quả thi ({attempts.length})</TabsTrigger>
+                     <TabsTrigger value="submissions">Bài nộp ({submissions.length})</TabsTrigger>
                      <TabsTrigger value="learners">Học viên ({enrollments.length})</TabsTrigger>
                   </TabsList>
 
@@ -166,7 +172,7 @@ export default function ClassDetailPage() {
                               <CardDescription>Các ca học cố định trong tuần cho lớp này</CardDescription>
                            </div>
                            <Button size="sm" asChild className="gap-2">
-                              <Link to={`/academy/class-schedules/new?classId=${id}`}><Plus className="h-4 w-4" /> Thêm lịch</Link>
+                              <Link to={`/academy/class-schedule/new?classId=${id}`}><Plus className="h-4 w-4" /> Thêm lịch</Link>
                            </Button>
                         </CardHeader>
                         <CardContent>
@@ -197,7 +203,7 @@ export default function ClassDetailPage() {
                                           </TableCell>
                                           <TableCell className="text-right">
                                              <Button variant="ghost" size="sm" asChild>
-                                                <Link to={`/academy/class-schedules/${s.id}/edit`}><Edit className="h-3.5 w-3.5" /></Link>
+                                                <Link to={`/academy/class-schedule/${s.id}/edit`}><Edit className="h-3.5 w-3.5" /></Link>
                                              </Button>
                                           </TableCell>
                                        </TableRow>
@@ -261,6 +267,102 @@ export default function ClassDetailPage() {
                                  ) : (
                                     <TableRow>
                                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground italic">Chưa có Assessment nào</TableCell>
+                                    </TableRow>
+                                 )}
+                              </TableBody>
+                           </Table>
+                        </CardContent>
+                     </Card>
+                  </TabsContent>
+
+                  <TabsContent value="attempts">
+                     <Card>
+                        <CardHeader>
+                           <CardTitle className="text-lg">Kết quả thi & Kiểm tra</CardTitle>
+                           <CardDescription>Chi tiết các lượt làm bài của học viên trong lớp</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                           <Table>
+                              <TableHeader>
+                                 <TableRow className="bg-muted/50">
+                                    <TableHead>Học viên</TableHead>
+                                    <TableHead>Trạng thái</TableHead>
+                                    <TableHead>Điểm</TableHead>
+                                    <TableHead>Tỷ lệ</TableHead>
+                                    <TableHead>Kết quả</TableHead>
+                                    <TableHead className="text-right">Hành động</TableHead>
+                                 </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                 {isLoadingAttempts ? (
+                                    <TableRow><TableCell colSpan={6} className="text-center">Đang tải...</TableCell></TableRow>
+                                 ) : attempts.length ? (
+                                    attempts.map((att) => (
+                                       <TableRow key={att.id}>
+                                          <TableCell className="font-medium">User ID: {att.userId}</TableCell>
+                                          <TableCell><Badge variant="outline">{att.status}</Badge></TableCell>
+                                          <TableCell>{att.rawScore ?? "-"} / {att.maxScore ?? "-"}</TableCell>
+                                          <TableCell>{att.percentage ? `${att.percentage}%` : "-"}</TableCell>
+                                          <TableCell>
+                                             {att.isPassed !== null ? (
+                                                <Badge variant={att.isPassed ? "default" : "destructive"}>{att.isPassed ? "Đạt" : "Trượt"}</Badge>
+                                             ) : "-"}
+                                          </TableCell>
+                                          <TableCell className="text-right">
+                                             <Button variant="ghost" size="sm" asChild>
+                                                <Link to={`/academy/exam-attempts/${att.id}`}><Info className="h-3.5 w-3.5" /></Link>
+                                             </Button>
+                                          </TableCell>
+                                       </TableRow>
+                                    ))
+                                 ) : (
+                                    <TableRow>
+                                       <TableCell colSpan={6} className="text-center py-8 text-muted-foreground italic">Chưa có dữ liệu thi</TableCell>
+                                    </TableRow>
+                                 )}
+                              </TableBody>
+                           </Table>
+                        </CardContent>
+                     </Card>
+                  </TabsContent>
+
+                  <TabsContent value="submissions">
+                     <Card>
+                        <CardHeader>
+                           <CardTitle className="text-lg">Bài nộp từ học viên</CardTitle>
+                           <CardDescription>Quản lý và chấm điểm các bài tập đã nộp</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                           <Table>
+                              <TableHeader>
+                                 <TableRow className="bg-muted/50">
+                                    <TableHead>Học viên</TableHead>
+                                    <TableHead>Trạng thái</TableHead>
+                                    <TableHead>Ngày nộp</TableHead>
+                                    <TableHead>Điểm</TableHead>
+                                    <TableHead className="text-right">Hành động</TableHead>
+                                 </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                 {isLoadingSubmissions ? (
+                                    <TableRow><TableCell colSpan={5} className="text-center">Đang tải...</TableCell></TableRow>
+                                 ) : submissions.length ? (
+                                    submissions.map((sub) => (
+                                       <TableRow key={sub.id}>
+                                          <TableCell className="font-medium">User ID: {sub.userId}</TableCell>
+                                          <TableCell><Badge variant="outline">{sub.status}</Badge></TableCell>
+                                          <TableCell>{sub.submittedAt ? new Date(sub.submittedAt).toLocaleString("vi-VN") : "-"}</TableCell>
+                                          <TableCell className="font-bold">{sub.score ?? "-"}</TableCell>
+                                          <TableCell className="text-right">
+                                             <Button variant="ghost" size="sm" asChild>
+                                                <Link to={`/academy/assignment-submissions/${sub.id}`}><Info className="h-3.5 w-3.5" /></Link>
+                                             </Button>
+                                          </TableCell>
+                                       </TableRow>
+                                    ))
+                                 ) : (
+                                    <TableRow>
+                                       <TableCell colSpan={5} className="text-center py-8 text-muted-foreground italic">Chưa có bài nộp nào</TableCell>
                                     </TableRow>
                                  )}
                               </TableBody>

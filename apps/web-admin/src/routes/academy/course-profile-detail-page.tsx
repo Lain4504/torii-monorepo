@@ -20,9 +20,17 @@ import {
   Settings,
   Layers,
   CheckCircle2,
-  ArrowLeft
+  ArrowLeft,
+  MoreVertical,
 } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu"
 import { Link } from "react-router-dom"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 
 export default function CourseProfileDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -42,111 +50,150 @@ export default function CourseProfileDetailPage() {
       </div>
 
       <PageHeader
-        title={`Course Profile: ${profile.title}`}
+        title={`${profile.title}`}
         subtitle={`Mã: ${profile.code} | Chủ đề: ${profile.subject || "N/A"} | Cấp độ: ${profile.level || "N/A"}`}
         actions={
-          <Button asChild variant="outline" className="gap-2">
-            <Link to={`/academy/course-profiles/${id}/edit`}>
-              <Edit className="h-4 w-4" /> Chỉnh sửa Profile
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild variant="outline" className="gap-2">
+              <Link to={`/academy/course-profiles/${id}/edit`}>
+                <Edit className="h-4 w-4" /> Chỉnh sửa Profile
+              </Link>
+            </Button>
+          </div>
         }
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="md:col-span-1">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Settings className="h-5 w-5 text-muted-foreground" /> Thông tin cơ bản
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">Mô tả</label>
-              <p className="text-sm mt-1">{profile.description || "Chưa có mô tả"}</p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">Ngôn ngữ mặc định</label>
-              <p className="text-sm mt-1">{profile.defaultLanguage || "N/A"}</p>
-            </div>
-          </CardContent>
-        </Card>
+      <Tabs defaultValue="editions" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
+          <TabsTrigger value="editions">Course Editions</TabsTrigger>
+          <TabsTrigger value="info">Thông tin chung</TabsTrigger>
+        </TabsList>
 
-        <Card className="md:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <div className="space-y-1">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Layers className="h-5 w-5 text-muted-foreground" /> Danh sách Editions (Versions)
-              </CardTitle>
-              <CardDescription>Các phiên bản chương trình học cho Profile này.</CardDescription>
-            </div>
-            <Button asChild size="sm" className="gap-2">
-              <Link to={`/academy/course-editions/new?courseProfileId=${id}`}>
-                <Plus className="h-4 w-4" /> Thêm Edition
-              </Link>
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Edition Tag</TableHead>
-                  <TableHead>Trạng thái</TableHead>
-                  <TableHead>Hiện tại</TableHead>
-                  <TableHead className="text-right">Thao tác</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoadingEditions ? (
+        <TabsContent value="editions" className="mt-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+              <div className="space-y-1">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Layers className="h-5 w-5 text-muted-foreground" /> Các phiên bản chương trình (Editions)
+                </CardTitle>
+                <CardDescription>Quản lý các version nội dung của profile này.</CardDescription>
+              </div>
+              <Button asChild size="sm" className="gap-2">
+                <Link to={`/academy/course-editions/new?courseProfileId=${id}`}>
+                  <Plus className="h-4 w-4" /> Thêm Edition mới
+                </Link>
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-4">Đang tải editions...</TableCell>
+                    <TableHead>Edition Tag</TableHead>
+                    <TableHead>Trạng thái</TableHead>
+                    <TableHead>Hiện tại</TableHead>
+                    <TableHead className="text-right">Thao tác</TableHead>
                   </TableRow>
-                ) : editions.length ? (
-                  editions.map((ed) => (
-                    <TableRow key={ed.id}>
-                      <TableCell className="font-medium">{ed.editionTag}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={ed.status === "PUBLISHED" ? "default" : ed.status === "ARCHIVED" ? "secondary" : "outline"}
-                        >
-                          {ed.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {ed.isCurrent ? (
-                          <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-200 gap-1">
-                            <CheckCircle2 className="h-3 w-3" /> Hiện tại
+                </TableHeader>
+                <TableBody>
+                  {isLoadingEditions ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-4">Đang tải editions...</TableCell>
+                    </TableRow>
+                  ) : editions.length ? (
+                    editions.map((ed) => (
+                      <TableRow key={ed.id}>
+                        <TableCell className="font-semibold text-primary">
+                          <Link to={`/academy/course-editions/${ed.id}`} className="hover:underline">
+                             {ed.editionTag}
+                          </Link>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={ed.status === "PUBLISHED" ? "default" : ed.status === "ARCHIVED" ? "secondary" : "outline"}
+                          >
+                            {ed.status}
                           </Badge>
-                        ) : (
-                          <span className="text-muted-foreground text-xs italic">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button asChild variant="ghost" size="sm" title="Quản lý Syllabus">
-                          <Link to={`/academy/course-editions/${ed.id}`}>
-                            <Eye className="h-4 w-4 mr-1" /> Syllabus
-                          </Link>
-                        </Button>
-                        <Button asChild variant="ghost" size="sm" title="Sửa Edition">
-                          <Link to={`/academy/course-editions/${ed.id}/edit`}>
-                            <Edit className="h-4 w-4" />
-                          </Link>
-                        </Button>
+                        </TableCell>
+                        <TableCell>
+                          {ed.isCurrent ? (
+                            <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-200 gap-1">
+                              <CheckCircle2 className="h-3 w-3" /> Đang sử dụng
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground text-xs italic">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                className="h-8 w-8 p-0"
+                                size="icon"
+                              >
+                                <span className="sr-only">Mở menu thao tác</span>
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-44">
+                              <DropdownMenuItem asChild>
+                                <Link to={`/academy/course-editions/${ed.id}`}>
+                                  <Eye className="h-4 w-4 mr-2" />
+                                  <span>Xem Syllabus</span>
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem asChild>
+                                <Link to={`/academy/course-editions/${ed.id}/edit`}>
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  <span>Sửa Edition</span>
+                                </Link>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center py-12 text-muted-foreground italic">
+                        Chưa có phiên bản nào được tạo cho profile này.
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={4} className="text-center py-8 text-muted-foreground italic">
-                      Chưa có version nào được tạo.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </div>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="info" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Settings className="h-5 w-5 text-muted-foreground" /> Thông tin chi tiết Profile
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Mô tả</label>
+                  <p className="text-sm leading-relaxed">{profile.description || "Chưa có mô tả chi tiết."}</p>
+                </div>
+                <div className="space-y-4">
+                   <div>
+                      <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Ngôn ngữ mặc định</label>
+                      <p className="text-sm">{profile.defaultLanguage || "N/A"}</p>
+                   </div>
+                   <div>
+                      <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Mã định danh</label>
+                      <p className="text-sm font-mono">{profile.code}</p>
+                   </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

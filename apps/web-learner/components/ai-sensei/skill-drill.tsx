@@ -27,19 +27,13 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { cn } from "@workspace/ui/lib/utils"
 import { Spinner } from '@workspace/ui/components/spinner'
-import { Separator } from "@workspace/ui/components/separator"
-
 import {
-    QuizContainer,
-    QuizHeader,
-    QuizProgress,
-    QuizQuestion,
-    QuizOption,
-    QuizNavigation,
-    QuizResultSummary,
-    QuizReviewItem,
-    QuizResultView
+    Quiz,
+    type QuizData,
+    type QuizResult
 } from "@workspace/ui/components/custom/quiz"
+import { Separator } from "@workspace/ui/components/separator"
+import { nanoid } from 'nanoid'
 
 const drillFormSchema = z.object({
     type: z.enum(['grammar', 'vocabulary', 'kanji', 'listening', 'reading']),
@@ -49,11 +43,12 @@ const drillFormSchema = z.object({
 
 type DrillFormData = z.infer<typeof drillFormSchema>
 
-export function DrillGenerator({ embed = false }: { embed?: boolean }) {
+export function SkillDrill({ embed = false }: { embed?: boolean }) {
     const [isLoading, setIsLoading] = React.useState(false)
     const [result, setResult] = React.useState<DrillResponse | null>(null)
     const [userAnswers, setUserAnswers] = React.useState<Record<number, string>>({})
     const [showResults, setShowResults] = React.useState(false)
+    const [quizData, setQuizData] = React.useState<QuizData | null>(null)
 
     const form = useForm<DrillFormData>({
         resolver: zodResolver(drillFormSchema),
@@ -69,6 +64,33 @@ export function DrillGenerator({ embed = false }: { embed?: boolean }) {
         try {
             const res = await agentApi.sensei.generateDrill(data.type, data.topic, data.difficulty)
             setResult(res)
+            
+            // Map to QuizData
+            const mappedQuizData: QuizData = {
+                title: res.topic,
+                description: `Bài tập ${data.type} - ${data.difficulty}`,
+                questions: res.drills.map((drill, index) => {
+                    // Create stable IDs for options
+                    const optionObjects = drill.options.map(opt => ({
+                        id: nanoid(),
+                        label: opt,
+                        explanation: drill.correctAnswer === opt ? drill.explanation : undefined
+                    }))
+
+                    // Find correct ID
+                    const correctOption = optionObjects.find(opt => opt.label === drill.correctAnswer)
+                    
+                    return {
+                        id: `q-${index}`,
+                        type: 'single',
+                        question: drill.question,
+                        options: optionObjects,
+                        correctIds: correctOption ? [correctOption.id] : [],
+                        points: 1
+                    }
+                })
+            }
+            setQuizData(mappedQuizData)
             setUserAnswers({})
             setShowResults(false)
         } catch (error) {
@@ -78,16 +100,10 @@ export function DrillGenerator({ embed = false }: { embed?: boolean }) {
         }
     }
 
-    const handleAnswer = (index: number, answer: string) => {
-        if (showResults) return
-        setUserAnswers(prev => ({ ...prev, [index]: answer }))
+    const handleQuizComplete = (result: QuizResult) => {
+        // You can handle additional logic here if needed
+        console.log("Quiz completed", result);
     }
-
-    const checkAnswers = () => {
-        setShowResults(true)
-    }
-
-    const correctCount = result ? result.drills.filter((d, i) => userAnswers[i] === d.correctAnswer).length : 0
 
     const Content = (
         <div className={cn("space-y-8", embed ? "" : "py-6 md:py-8")}>
@@ -178,75 +194,12 @@ export function DrillGenerator({ embed = false }: { embed?: boolean }) {
                 </CardFooter>
             </Card>
 
-            {result && !showResults && (
-                <div className="space-y-10 pt-10 animate-in fade-in duration-500">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b pb-6">
-                        <h3 className="text-xl font-bold flex items-center gap-2">
-                            <CheckCircle2 className="size-5 text-primary" />
-                            {result.topic}
-                            <Badge variant="secondary" className="ml-2 font-bold text-[10px] uppercase">{result.drills.length} Questions</Badge>
-                        </h3>
-                        {Object.keys(userAnswers).length === result.drills.length && (
-                            <Button onClick={checkAnswers} className="font-bold uppercase tracking-widest text-[10px]">
-                                Nộp bài & Xem kết quả
-                            </Button>
-                        )}
-                    </div>
-
-                    <div className="space-y-8">
-                        {result.drills.map((drill, i) => (
-                            <div key={i} className="space-y-6">
-                                <QuizQuestion
-                                    index={i + 1}
-                                    question={drill.question}
-                                />
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl mx-auto">
-                                    {drill.options.map((option, optIdx) => (
-                                        <QuizOption
-                                            key={optIdx}
-                                            index={optIdx}
-                                            value={option}
-                                            label={option}
-                                            isSelected={userAnswers[i] === option}
-                                            onSelect={(val) => handleAnswer(i, val)}
-                                            disabled={showResults}
-                                        />
-                                    ))}
-                                </div>
-                                {i < result.drills.length - 1 && <Separator className="max-w-md mx-auto" />}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {result && showResults && (
-                <div className="pt-12">
-                    <QuizResultView
-                        badge="Drill Results"
-                        title={result.topic}
-                        percentage={(correctCount / result.drills.length) * 100}
-                        stats={[
-                            { label: "Questions", value: result.drills.length, icon: ClipboardList },
-                            { label: "Correct", value: correctCount, icon: CheckCircle2 },
-                            { label: "Accuracy", value: `${Math.round((correctCount / result.drills.length) * 100)}%`, icon: Target }
-                        ]}
-                        questions={result.drills.map((d, i) => ({
-                            id: i.toString(),
-                            text: d.question,
-                            userSelection: userAnswers[i],
-                            correctAnswer: d.correctAnswer,
-                            isCorrect: userAnswers[i] === d.correctAnswer,
-                            explanation: d.explanation
-                        }))}
-                        onRetry={() => {
-                            setUserAnswers({})
-                            setShowResults(false)
-                        }}
-                        onSecondaryAction={{
-                            label: "Tạo Bài Mới",
-                            onClick: () => setResult(null)
-                        }}
+            {quizData && (
+                <div className="pt-8 animate-in fade-in duration-500">
+                    <Quiz 
+                        quizData={quizData} 
+                        onComplete={handleQuizComplete}
+                        className="border rounded-xl shadow-sm"
                     />
                 </div>
             )}
@@ -257,9 +210,9 @@ export function DrillGenerator({ embed = false }: { embed?: boolean }) {
 
     return (
         <div className="h-full overflow-y-auto w-full">
-            <QuizContainer className="max-w-6xl">
+             <div className="max-w-6xl mx-auto p-4">
                 {Content}
-            </QuizContainer>
+            </div>
         </div>
     )
 }

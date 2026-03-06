@@ -24,17 +24,12 @@ import {
   SelectValue,
 } from "@workspace/ui/components/select"
 import { Textarea } from "@workspace/ui/components/textarea"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@workspace/ui/components/tabs"
+
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
 import { LessonMediaUploader } from "@/components/academy/lesson-media-uploader"
 import type { AcademyLessonCreateDTO } from "@workspace/schemas"
 import { academyLessonCreateDTOSchema } from "@workspace/schemas"
-import { RichTextEditor } from "@/components/editor/rich-text-editor"
+import { RichTextEditor, type EditorJsData } from "@/components/editor/rich-text-editor"
 
 interface LessonFormProps {
   defaultValues?: Partial<AcademyLessonCreateDTO>
@@ -69,7 +64,7 @@ export function LessonForm({
   })
 
   const contentType = watch("contentType")
-  const isRichTextType = contentType === "HTML" || contentType === "MARKDOWN"
+  const isRichTextType = contentType === "HTML" || contentType === "MARKDOWN" || contentType === "RICH_TEXT"
   const isMediaUrlType =
     contentType === "VIDEO" ||
     contentType === "PDF" ||
@@ -173,27 +168,13 @@ export function LessonForm({
               control={control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel>Nội dung (HTML/Markdown)</FieldLabel>
-                  <Tabs defaultValue="edit">
-                    <TabsList className="mb-4">
-                      <TabsTrigger value="edit">Chỉnh sửa</TabsTrigger>
-                      <TabsTrigger value="preview">Xem trước</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="edit">
-                      <RichTextEditor
-                        initialContent={field.value || ""}
-                        onUpdate={(html) => field.onChange(html)}
-                      />
-                    </TabsContent>
-                    <TabsContent value="preview">
-                      <div
-                        className="border rounded-md p-4 space-y-4"
-                        dangerouslySetInnerHTML={{
-                          __html: field.value || "",
-                        }}
-                      />
-                    </TabsContent>
-                  </Tabs>
+                  <FieldLabel>Nội dung</FieldLabel>
+                  <RichTextEditor
+                    initialContent={field.value || ""}
+                    onUpdate={(data: EditorJsData) =>
+                      field.onChange(JSON.stringify(data))
+                    }
+                  />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}

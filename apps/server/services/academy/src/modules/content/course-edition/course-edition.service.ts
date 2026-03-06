@@ -30,6 +30,13 @@ export class CourseEditionService {
     return item;
   }
 
+  async findByCourseProfileId(courseProfileId: string) {
+    return this.prisma.courseEdition.findMany({
+      where: { courseProfileId },
+      orderBy: [{ createdAt: 'desc' }],
+    });
+  }
+
   async create(input: CourseEditionCreateDto) {
     const profile = await this.prisma.courseProfile.findUnique({
       where: { id: input.courseProfileId },

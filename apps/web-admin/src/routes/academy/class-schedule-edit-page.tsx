@@ -34,14 +34,18 @@ export default function AcademyClassScheduleEditPage() {
               mode="edit"
               initial={item}
               submitting={update.isPending}
-              onCancel={() => nav("/academy/class-schedules")}
+              onCancel={() => item.classId ? nav(`/academy/classes/${item.classId}`) : nav("/academy/classes")}
               onSubmit={async (data) => {
                 await update.mutateAsync({
                   id: item.id,
                   input: data as AcademyClassScheduleUpdateDTO,
                 })
                 toast.success("Đã cập nhật")
-                nav("/academy/class-schedules")
+                if (item.classId) {
+                  nav(`/academy/classes/${item.classId}`)
+                } else {
+                  nav("/academy/classes")
+                }
               }}
             />
           )}

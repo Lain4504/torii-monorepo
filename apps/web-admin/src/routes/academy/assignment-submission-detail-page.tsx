@@ -30,7 +30,7 @@ import {
 } from "@/lib/api/services/academy-assignment-submissions"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "@workspace/ui/components/sonner"
-import { RichTextEditor } from "@/components/editor/rich-text-editor"
+import { RichTextEditor, type EditorJsData } from "@/components/editor/rich-text-editor"
 
 type FormValues = {
   status?: string
@@ -200,7 +200,9 @@ export default function AcademyAssignmentSubmissionDetailPage() {
                       <FieldLabel>Feedback cho học viên</FieldLabel>
                       <RichTextEditor
                         initialContent={field.value || ""}
-                        onUpdate={field.onChange}
+                        onUpdate={(data: EditorJsData) =>
+                          field.onChange(JSON.stringify(data))
+                        }
                       />
                       <FieldError>{fieldState.error?.message}</FieldError>
                     </Field>

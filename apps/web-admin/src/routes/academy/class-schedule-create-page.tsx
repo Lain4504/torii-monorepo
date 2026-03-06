@@ -29,11 +29,15 @@ export default function AcademyClassScheduleCreatePage() {
             mode="create"
             submitting={create.isPending}
             defaultClassId={classId}
-            onCancel={() => nav("/academy/class-schedules")}
+            onCancel={() => classId ? nav(`/academy/classes/${classId}`) : nav("/academy/classes")}
             onSubmit={async (data) => {
               await create.mutateAsync(data as AcademyClassScheduleCreateDTO)
               toast.success("Đã tạo Class Schedule")
-              nav("/academy/class-schedules")
+              if (classId) {
+                nav(`/academy/classes/${classId}`)
+              } else {
+                nav("/academy/classes")
+              }
             }}
           />
         </CardContent>

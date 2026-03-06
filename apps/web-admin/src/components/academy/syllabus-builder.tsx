@@ -1,18 +1,53 @@
 import { useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Button } from "@workspace/ui/components/button"
-import { Plus, Trash2, Edit2, BookOpen, Video, FileQuestion, FileText, GripVertical } from "lucide-react"
+import { Plus, Trash2, Edit2, BookOpen, Video, FileQuestion, FileText, GripVertical, Layers } from "lucide-react"
 import { useAcademyChapterItems, useDeleteAcademyChapterItem } from "@/lib/api/services/academy-chapter-items"
-import { useDeleteAcademyChapter } from "@/lib/api/services/academy-chapters"
+import { useAcademyChapters, useDeleteAcademyChapter } from "@/lib/api/services/academy-chapters"
 import { Link } from "react-router-dom"
 import { toast } from "@workspace/ui/components/sonner"
 import { Badge } from "@workspace/ui/components/badge"
+import { Spinner } from "@workspace/ui/components/spinner"
 
 interface SyllabusBuilderProps {
-  chapter: any
+  chapter?: any
+  editionId?: string
 }
 
-export function SyllabusBuilder({ chapter }: SyllabusBuilderProps) {
+export function SyllabusBuilder({ chapter: initialChapter, editionId }: SyllabusBuilderProps) {
+  // If editionId is provided, we fetch all chapters for this edition
+  const { data: chapters = [], isLoading: isLoadingChapters } = useAcademyChapters(
+    { courseEditionId: editionId },
+    { enabled: !!editionId }
+  )
+
+  if (editionId) {
+    if (isLoadingChapters) return <div className="flex justify-center p-8"><Spinner /></div>
+    if (chapters.length === 0) {
+      return (
+        <div className="text-center py-12 bg-muted/20 rounded-lg border-2 border-dashed">
+          <Layers className="h-10 w-10 text-muted-foreground mx-auto mb-4 opacity-50" />
+          <h3 className="font-medium text-muted-foreground">Chưa có chương học nào</h3>
+          <p className="text-sm text-muted-foreground">Hãy bắt đầu bằng cách thêm chương học đầu tiên.</p>
+        </div>
+      )
+    }
+
+    return (
+      <div className="space-y-6">
+        {chapters
+          .sort((a: any, b: any) => a.orderIndex - b.orderIndex)
+          .map((ch: any) => (
+            <SyllabusBuilder key={ch.id} chapter={ch} />
+          ))}
+      </div>
+    )
+  }
+
+  // Single chapter logic (the original SyllabusBuilder)
+  const chapter = initialChapter
+  if (!chapter) return null
+
   const { data: items = [], isLoading: isLoadingItems } = useAcademyChapterItems({
     chapterId: chapter.id,
   })

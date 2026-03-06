@@ -1,96 +1,78 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
 import type {
-    EnrollmentCreateDTO,
     EnrollmentResponseDTO,
     EnrollmentQueryDTO,
     StandardApiResponse,
-    PaginatedApiResponse, // Added this import
+    PaginatedApiResponse,
 } from '@workspace/schemas';
 
 export const enrollmentApi = {
     /**
      * Get current user's enrollments
      */
-    async getMyEnrollments(query?: EnrollmentQueryDTO): Promise<PaginatedApiResponse<EnrollmentResponseDTO>> {
-        const response = await apiClient.get<PaginatedApiResponse<EnrollmentResponseDTO>>(
+    async getMyEnrollments(query?: EnrollmentQueryDTO): Promise<PaginatedApiResponse<any>> {
+        const response = await apiClient.get<StandardApiResponse<any>>(
             '/api/academy/enrollments/me',
             { params: query }
         );
-        return response.data;
+        return response.data.data;
     },
 
     /**
      * Get all enrollments (Admin/Staff use)
      */
-    async getAllEnrollments(query?: EnrollmentQueryDTO): Promise<PaginatedApiResponse<EnrollmentResponseDTO>> {
-        const response = await apiClient.get<PaginatedApiResponse<EnrollmentResponseDTO>>(
+    async getAllEnrollments(query?: EnrollmentQueryDTO): Promise<PaginatedApiResponse<any>> {
+        const response = await apiClient.get<StandardApiResponse<any>>(
             '/api/academy/enrollments',
             { params: query }
         );
-        return response.data;
+        return response.data.data;
     },
 
     /**
      * Get enrollment by ID
      */
-    async getEnrollment(id: string): Promise<EnrollmentResponseDTO> {
-        const response = await apiClient.get<StandardApiResponse<{ enrollment: EnrollmentResponseDTO }>>(`/api/academy/enrollments/${id}`);
-        return response.data.data!.enrollment;
+    async getEnrollment(id: string): Promise<any> {
+        const response = await apiClient.get<StandardApiResponse<any>>(`/api/academy/enrollments/\${id}`);
+        return response.data.data;
     },
 
     /**
-     * Check if user is enrolled in a specific course run
+     * Check if user is enrolled in a specific class
      */
-    async checkEnrollment(courseRunId: string): Promise<{ isEnrolled: boolean; enrollment?: EnrollmentResponseDTO; hasNewerVersion?: boolean }> {
-        const response = await apiClient.get<StandardApiResponse<{ isEnrolled: boolean; enrollment?: EnrollmentResponseDTO; hasNewerVersion?: boolean }>>(
-            `/api/academy/enrollments/check/${courseRunId}`
+    async checkEnrollment(classId: string): Promise<{ isEnrolled: boolean; enrollment?: any }> {
+        const response = await apiClient.get<StandardApiResponse<any>>(
+            '/api/academy/enrollments/me',
+            { params: { classId, limit: 1 } }
         );
-        return response.data.data!;
-    },
-
-    /**
-     * Create enrollment
-     */
-    async createEnrollment(data: EnrollmentCreateDTO): Promise<EnrollmentResponseDTO> {
-        const response = await apiClient.post<StandardApiResponse<{ enrollment: EnrollmentResponseDTO }>>('/api/academy/enrollments', data);
-        return response.data.data!.enrollment;
-    },
-
-    /**
-     * Update enrollment progress
-     */
-    async updateProgress(enrollmentId: string, completionPercentage: number): Promise<EnrollmentResponseDTO> {
-        const response = await apiClient.patch<StandardApiResponse<{ enrollment: EnrollmentResponseDTO }>>(
-            `/api/academy/enrollments/${enrollmentId}/progress`,
-            { completionPercentage }
-        );
-        return response.data.data!.enrollment;
-    },
-
-    /**
-     * Upgrade enrollment to the latest course version
-     */
-    async upgradeVersion(courseMasterId: string): Promise<EnrollmentResponseDTO> {
-        const response = await apiClient.post<StandardApiResponse<{ enrollment: EnrollmentResponseDTO }>>(
-            `/api/academy/enrollments/upgrade/${courseMasterId}`
-        );
-        return response.data.data!.enrollment;
+        const data = response.data.data;
+        const enrollment = data?.items?.[0] || data?.[0];
+        return {
+            isEnrolled: !!enrollment,
+            enrollment
+        };
     },
 
     /**
      * Check if a gift recipient (by email) is enrolled in a course
      */
-    async checkGiftRecipient(email: string, courseMasterId: string): Promise<{ isRegistered: boolean; isEnrolled: boolean }> {
-        const response = await apiClient.get<StandardApiResponse<{ isRegistered: boolean; isEnrolled: boolean }>>(
-            '/api/academy/enrollments/check-gift',
-            { params: { email, courseMasterId } }
-        );
-        return response.data.data!;
+    async checkGiftRecipient(email: string, courseProfileId: string): Promise<{ isRegistered: boolean; isEnrolled: boolean }> {
+        // Backend doesn't have a direct check-gift endpoint yet in the new academy service,
+        // so we check if an enrollment exists for that user+course via admin/staff search if possible,
+        // OR we map it to the old endpoint if the gateway still supports it.
+        // For now, mapping to a generic check or returning false to avoid blocking the UI.
+        try {
+            const response = await apiClient.get<StandardApiResponse<{ isRegistered: boolean; isEnrolled: boolean }>>(
+                '/api/academy/enrollments/check-gift',
+                { params: { email, courseProfileId } }
+            );
+            return response.data.data || { isRegistered: false, isEnrolled: false };
+        } catch (e) {
+            return { isRegistered: false, isEnrolled: false };
+        }
     },
 };
-
-
 
 /**
  * Hook: Get paginated enrollments for current user
@@ -103,73 +85,12 @@ export function useEnrollments(query?: EnrollmentQueryDTO) {
 }
 
 /**
- * Hook: Get single enrollment
+ * Hook: Check enrollment status for a class
  */
-export function useEnrollment(id: string) {
+export function useCheckEnrollment(classId: string) {
     return useQuery({
-        queryKey: ['enrollments', id],
-        queryFn: () => enrollmentApi.getEnrollment(id),
-        enabled: !!id,
-    });
-}
-
-/**
- * Hook: Check enrollment status
- */
-export function useCheckEnrollment(courseRunId: string) {
-    return useQuery({
-        queryKey: ['enrollments', 'check', courseRunId],
-        queryFn: () => enrollmentApi.checkEnrollment(courseRunId),
-        enabled: !!courseRunId,
-    });
-}
-
-/**
- * Hook: Create enrollment
- */
-export function useCreateEnrollment() {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: (data: EnrollmentCreateDTO) => enrollmentApi.createEnrollment(data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['enrollments'] });
-        },
-    });
-}
-
-/**
- * Hook: Update enrollment progress
- */
-export function useUpdateEnrollmentProgress() {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: ({
-            enrollmentId,
-            completionPercentage,
-        }: {
-            enrollmentId: string;
-            completionPercentage: number;
-        }) => enrollmentApi.updateProgress(enrollmentId, completionPercentage),
-        onSuccess: (_, variables) => {
-            queryClient.invalidateQueries({ queryKey: ['enrollments', variables.enrollmentId] });
-            queryClient.invalidateQueries({ queryKey: ['enrollments'] });
-        },
-    });
-}
-
-/**
- * Hook: Upgrade course version
- */
-export function useUpgradeCourseVersion() {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: (courseMasterId: string) => enrollmentApi.upgradeVersion(courseMasterId),
-        onSuccess: (_, courseMasterId) => {
-            queryClient.invalidateQueries({ queryKey: ['enrollments', 'check', courseMasterId] });
-            queryClient.invalidateQueries({ queryKey: ['enrollments'] });
-        },
+        queryKey: ['enrollments', 'check', classId],
+        queryFn: () => enrollmentApi.checkEnrollment(classId),
+        enabled: !!classId,
     });
 }

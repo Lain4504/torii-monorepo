@@ -20,13 +20,6 @@ import {
   SelectValue,
 } from "@workspace/ui/components/select"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@workspace/ui/components/dropdown-menu"
-import {
   Empty,
   EmptyContent,
   EmptyMedia,
@@ -59,10 +52,20 @@ import {
   Flag,
   BookOpen,
   Layers,
+  List,
+  Eye,
   SlidersHorizontal,
   Sparkles,
-  BookMarked
+  BookMarked,
+  MoreVertical,
 } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu"
 
 export default function AcademyCourseProfilesPage() {
   const [q, setQ] = useState("")
@@ -195,26 +198,48 @@ export default function AcademyCourseProfilesPage() {
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          asChild
-                          className="h-8 w-8 p-0"
-                        >
-                          <Link to={`/academy/course-profiles/${it.id}/edit`}>
-                            <Edit2 className="h-4 w-4 text-muted-foreground" />
-                          </Link>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          disabled={del.isPending}
-                          onClick={() => setDeleteId(it.id)}
-                          className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                      <div className="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="h-8 w-8 p-0"
+                              size="icon"
+                            >
+                              <span className="sr-only">Mở menu thao tác</span>
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-44">
+                            <DropdownMenuGroup>
+                              <DropdownMenuItem asChild>
+                                <Link to={`/academy/course-profiles/${it.id}`}>
+                                  <Eye className="h-4 w-4 mr-2" />
+                                  <span>Chi tiết</span>
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem asChild>
+                                <Link to={`/academy/course-profiles/${it.id}/editions`}>
+                                  <List className="h-4 w-4 mr-2" />
+                                  <span>Xem Editions</span>
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem asChild>
+                                <Link to={`/academy/course-profiles/${it.id}/edit`}>
+                                  <Edit2 className="h-4 w-4 mr-2" />
+                                  <span>Chỉnh sửa</span>
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onClick={() => setDeleteId(it.id)}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                <span>Xoá</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuGroup>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </TableCell>
                   </TableRow>

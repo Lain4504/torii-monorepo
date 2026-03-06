@@ -1,5 +1,5 @@
-import { PlacementTest } from "@/components/assessment/placement-test"
+import { PlacementAssessment } from "@/components/assessment/placement-assessment"
 
 export default function PlacementPage() {
-    return <PlacementTest />
+    return <PlacementAssessment />
 }

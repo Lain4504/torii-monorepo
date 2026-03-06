@@ -2,8 +2,6 @@ import { apiClient } from '../api-client.ts';
 import type {
     OrderResponseDTO,
     OrderQueryDTO,
-    PaymentResponseDTO,
-    PaymentQueryDTO,
     PaginatedApiResponse,
     StandardApiResponse,
 } from '@workspace/schemas';
@@ -13,32 +11,7 @@ export const orderApi = {
      * Get all orders
      */
     async getAllOrders(query?: OrderQueryDTO): Promise<PaginatedApiResponse<OrderResponseDTO>> {
-        const response = await apiClient.post<PaginatedApiResponse<OrderResponseDTO>>('/api/orders/search', query);
-        return response.data;
-    },
-
-    async exportOrders(query?: OrderQueryDTO): Promise<void> {
-        const response = await apiClient.post('/api/orders/export', query, {
-            responseType: 'blob',
-        });
-
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `orders-export-${new Date().getTime()}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-    },
-
-    /**
-     * Get order statistics
-     */
-    async getOrderStats(query?: OrderQueryDTO): Promise<StandardApiResponse<{ totalRevenue: number, orderCount: number }>> {
-        const response = await apiClient.get<StandardApiResponse<{ totalRevenue: number, orderCount: number }>>('/api/orders/stats', {
-            params: query,
-        });
+        const response = await apiClient.get<PaginatedApiResponse<OrderResponseDTO>>('/api/academy/orders/admin', { params: query });
         return response.data;
     },
 
@@ -46,23 +19,34 @@ export const orderApi = {
      * Get order by ID
      */
     async getOrder(id: string): Promise<OrderResponseDTO> {
-        const response = await apiClient.get<StandardApiResponse<{ order: OrderResponseDTO }>>(`/api/orders/${id}`);
-        return response.data.data!.order;
+        const response = await apiClient.get<StandardApiResponse<OrderResponseDTO>>(`/api/academy/orders/admin/${id}`);
+        return response.data.data!;
     },
 
     /**
-     * Get all raw transactions (payments)
+     * Update order status
      */
-    async getAllTransactions(query?: PaymentQueryDTO): Promise<PaginatedApiResponse<PaymentResponseDTO>> {
-        const response = await apiClient.post<PaginatedApiResponse<PaymentResponseDTO>>('/api/orders/transactions/search', query);
-        return response.data;
+    async updateOrderStatus(id: string, status: string): Promise<OrderResponseDTO> {
+        const response = await apiClient.patch<StandardApiResponse<OrderResponseDTO>>(`/api/academy/orders/admin/${id}/status`, { status });
+        return response.data.data!;
     },
 
-    /**
-     * Cancel an order
-     */
-    async cancelOrder(id: string): Promise<OrderResponseDTO> {
-        const response = await apiClient.post<StandardApiResponse<{ order: OrderResponseDTO }>>(`/api/orders/${id}/cancel`);
-        return response.data.data!.order;
+    async getOrderStats(params?: any): Promise<any> {
+        const response = await apiClient.get<StandardApiResponse<any>>('/api/academy/orders/stats', { params });
+        return response.data.data;
     },
+
+    async getAllTransactions(params?: any): Promise<any> {
+        const response = await apiClient.get<StandardApiResponse<any>>('/api/academy/orders/transactions', { params });
+        return response.data.data;
+    },
+
+    async cancelOrder(id: string): Promise<void> {
+        await apiClient.post(`/api/academy/orders/${id}/cancel`);
+    },
+
+    async exportOrders(params?: any): Promise<void> {
+         // Assuming this triggers a download or returns a blob
+        await apiClient.get('/api/academy/orders/export', { params, responseType: 'blob' });
+    }
 };

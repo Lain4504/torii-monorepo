@@ -3,6 +3,10 @@ import {
     Controller,
     Inject,
     Post,
+    Get,
+    Patch,
+    Param,
+    Query,
     UseGuards,
     Req,
 } from '@nestjs/common';
@@ -12,6 +16,8 @@ import {
     GatewayAuthGuard,
     ZodValidationPipe,
     successResponse,
+    Permissions,
+    PermissionsGuard,
 } from '@server/shared';
 import {
     orderCheckoutSchema,
@@ -19,7 +25,7 @@ import {
 } from './order.schema';
 
 @Controller('api/academy/orders')
-@UseGuards(GatewayAuthGuard)
+@UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class OrderController {
     constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
@@ -43,6 +49,35 @@ export class OrderController {
     ) {
         const result = await firstValueFrom(
             this.nats.send({ cmd: 'academy.order.checkout' }, { userId: req.user.id, input: dto }),
+        );
+        return successResponse(result);
+    }
+
+    // --- Admin CRUD ---
+
+    @Get('admin')
+    @Permissions('academy:order:admin')
+    async admin_findAll(@Query() query: any) {
+        const result = await firstValueFrom(
+            this.nats.send({ cmd: 'academy.order.admin.findAll' }, query),
+        );
+        return successResponse(result);
+    }
+
+    @Get('admin/:id')
+    @Permissions('academy:order:admin')
+    async admin_findOne(@Param('id') id: string) {
+        const result = await firstValueFrom(
+            this.nats.send({ cmd: 'academy.order.admin.findOne' }, { id }),
+        );
+        return successResponse(result);
+    }
+
+    @Patch('admin/:id/status')
+    @Permissions('academy:order:admin')
+    async admin_updateStatus(@Param('id') id: string, @Body() body: { status: string }) {
+        const result = await firstValueFrom(
+            this.nats.send({ cmd: 'academy.order.admin.updateStatus' }, { id, status: body.status }),
         );
         return successResponse(result);
     }
