@@ -1,10 +1,10 @@
 import { createLocalVideoTrack, Track } from 'livekit-client';
 import { useCallback } from 'react';
 
-import { useAppDispatch } from '../../../../store';
-import { getMediaServerConnRoom } from '../../../../helpers/livekit/utils';
-import { getWebcamResolution } from '../../../../helpers/utils';
-import { updateIsActiveWebcam } from '../../../../store/slices/bottomIconsActivitySlice';
+import { useAppDispatch } from '@/store';
+import { getMediaServerConnRoom } from '@/helpers/livekit/utils';
+import { getWebcamResolution } from '@/helpers/utils';
+import { updateIsActiveWebcam } from '@/store/slices/bottomIconsActivitySlice';
 
 const useWebcamPublisher = () => {
   const dispatch = useAppDispatch();

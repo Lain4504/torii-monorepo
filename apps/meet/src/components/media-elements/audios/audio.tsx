@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { RemoteAudioTrack } from 'livekit-client';
 import { throttle } from 'es-toolkit';
 
-import { useAppSelector } from '../../../store';
-import { participantsSelector } from '../../../store/slices/participantSlice';
+import { useAppSelector } from '@/store';
+import { participantsSelector } from '@/store/slices/participantSlice';
 
 interface IAudioElmProps {
   audioTrack: RemoteAudioTrack;

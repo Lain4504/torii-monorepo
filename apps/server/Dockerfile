@@ -46,13 +46,10 @@ ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 RUN npx prisma generate
 RUN npx nest build gateway
 RUN npx nest build identity
-RUN npx nest build learning
 RUN npx nest build meet
-RUN npx nest build agents
-RUN npx nest build gamification
+RUN npx nest build academy
 RUN npx nest build communication
 RUN npx nest build storage
-RUN npx nest build billing
 
 # --- Runner Stage ---
 FROM node:20-slim AS runner

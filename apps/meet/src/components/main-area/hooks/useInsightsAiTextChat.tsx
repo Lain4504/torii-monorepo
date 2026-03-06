@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
-import { useAppSelector } from '../../../store';
-import InsightsAiTextChat from '../../insights-ai/ai-text-chat/display';
+import { useAppSelector } from '@/store';
+import InsightsAiTextChat from '@/components/insights-ai/ai-text-chat/display';
 
 export const useInsightsAiTextChat = () => {
   const isEnabled = useAppSelector(

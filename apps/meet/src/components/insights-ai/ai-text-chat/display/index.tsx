@@ -8,13 +8,13 @@ import React, {
 import { marked } from 'marked';
 import Draggable from 'react-draggable';
 
-import { updateIsActiveInsightsAiTextChat } from '../../../../store/slices/bottomIconsActivitySlice';
-import { useAppDispatch, useAppSelector } from '../../../../store';
+import { updateIsActiveInsightsAiTextChat } from '@/store/slices/bottomIconsActivitySlice';
+import { useAppDispatch, useAppSelector } from '@/store';
 import {
   AIMessage,
   MyMessage,
-} from '../../../chat/messages/message/messageTypes';
-import TextBoxArea from './textBoxArea';
+} from '@/components/chat/messages/message/messageTypes';
+import TextBoxArea from '@/components/insights-ai/ai-text-chat/display/textBoxArea';
 import { ArrowDown, X } from 'lucide-react';
 
 const InsightsAiTextChat = () => {

@@ -19,4 +19,4 @@ import { NatsModule } from '@server/meet/services/nats.module';
   providers: [BreakoutService],
   exports: [BreakoutService],
 })
-export class BreakoutModule { }
+export class BreakoutModule {}

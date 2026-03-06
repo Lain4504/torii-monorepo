@@ -6,8 +6,8 @@ import {
 import { create } from '@bufbuild/protobuf';
 import clsx from 'clsx';
 
-import { store, useAppSelector } from '../../../store';
-import { getNatsConn } from '../../../helpers/nats';
+import { store, useAppSelector } from '@/store';
+import { getNatsConn } from '@/helpers/nats';
 import { Hand } from 'lucide-react';
 
 const RaiseHandIcon = () => {

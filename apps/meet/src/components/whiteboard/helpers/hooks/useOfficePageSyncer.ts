@@ -5,11 +5,11 @@ import {
 } from '@excalidraw/excalidraw/types';
 import { ExcalidrawElement } from '@excalidraw/excalidraw/element/types';
 
-import { useAppSelector } from '../../../../store';
-import { IWhiteboardFile } from '../../../../store/slices/interfaces/whiteboard';
-import { fetchFileWithElm, preloadOfficeFilePages } from '../handleFiles';
-import { broadcastCurrentOfficeFilePages } from '../handleRequests';
-import { SERVER_URL } from '../../../../config';
+import { useAppSelector } from '@/store';
+import { IWhiteboardFile } from '@/store/slices/interfaces/whiteboard';
+import { fetchFileWithElm, preloadOfficeFilePages } from '@/components/whiteboard/helpers/handleFiles';
+import { broadcastCurrentOfficeFilePages } from '@/components/whiteboard/helpers/handleRequests';
+import { SERVER_URL } from '@/config';
 
 interface IUseOfficePageSyncer {
   excalidrawAPI: ExcalidrawImperativeAPI | null;

@@ -9,7 +9,7 @@ import {
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
 import { Edit2, Trash2, Star, Ticket, Percent, Banknote } from "lucide-react"
-import type { PointRewardDto } from "@workspace/schemas"
+import type { PointRewardDTO } from "@workspace/schemas"
 import { formatCurrency, formatNumber } from "@/lib/format-utils"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import {
@@ -21,10 +21,10 @@ import {
 } from "@workspace/ui/components/empty"
 
 interface RewardsTableProps {
-    data: PointRewardDto[]
+    data: PointRewardDTO[]
     isLoading: boolean
-    onEdit: (reward: PointRewardDto) => void
-    onDelete: (reward: PointRewardDto) => void
+    onEdit: (reward: PointRewardDTO) => void
+    onDelete: (reward: PointRewardDTO) => void
 }
 
 export function RewardsTable({ data, isLoading, onEdit, onDelete }: RewardsTableProps) {

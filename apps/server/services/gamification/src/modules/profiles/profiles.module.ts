@@ -7,18 +7,18 @@ import { PROFILES_REPOSITORY_TOKEN } from '@server/gamification/interfaces/repos
 import { PrismaModule, NatsClientModule } from '@server/shared';
 
 @Module({
-    imports: [PrismaModule, NatsClientModule],
-    controllers: [ProfilesHandler],
-    providers: [
-        {
-            provide: PROFILES_SERVICE_TOKEN,
-            useClass: ProfilesService,
-        },
-        {
-            provide: PROFILES_REPOSITORY_TOKEN,
-            useClass: ProfilesRepository,
-        },
-    ],
-    exports: [PROFILES_SERVICE_TOKEN],
+  imports: [PrismaModule, NatsClientModule],
+  controllers: [ProfilesHandler],
+  providers: [
+    {
+      provide: PROFILES_SERVICE_TOKEN,
+      useClass: ProfilesService,
+    },
+    {
+      provide: PROFILES_REPOSITORY_TOKEN,
+      useClass: ProfilesRepository,
+    },
+  ],
+  exports: [PROFILES_SERVICE_TOKEN],
 })
-export class ProfilesModule { }
+export class ProfilesModule {}

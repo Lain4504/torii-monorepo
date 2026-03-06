@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { BroadcastBreakoutRoomMsgReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
+import { Button } from '@workspace/ui/components/button';
+import { Textarea } from '@workspace/ui/components/textarea';
 
-import { useBroadcastBreakoutRoomMsgMutation } from '../../../store/services/breakoutRoomApi';
+import { useBroadcastBreakoutRoomMsgMutation } from '@/store/services/breakoutRoomApi';
 import { BreakoutRoomMessage } from '..';
 
 interface IBroadcastMessageFormProps {
@@ -47,18 +49,18 @@ const BroadcastMessageForm = ({ setMessage }: IBroadcastMessageFormProps) => {
 
   return (
     <div className="broadcasting-message pb-4 mb-4 border-b border-border grid gap-2">
-      <textarea
+      <Textarea
         value={msg}
         onChange={(e) => setMsg(e.currentTarget.value)}
-        className="border border-border bg-card shadow-sm block px-3 py-2 w-full h-20 rounded-xl outline-hidden focus:border-primary text-foreground"
-      ></textarea>
-      <button
+        className="h-20"
+      />
+      <Button
         onClick={send}
         disabled={isLoading || msg.trim() === ''}
-        className="h-9 ml-auto px-5 cursor-pointer text-sm font-semibold bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        className="ml-auto"
       >
         Gửi tin nhắn
-      </button>
+      </Button>
     </div>
   );
 };

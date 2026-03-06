@@ -6,11 +6,11 @@ import {
   IUseLocalRecordingReturn,
   RecordingEvent,
   RecordingType,
-} from './IRecording';
-import { store, useAppDispatch } from '../../../../store';
-import { getMediaServerConnRoom } from '../../../../helpers/livekit/utils';
-import { getNatsConn } from '../../../../helpers/nats';
-import { addUserNotification } from '../../../../store/slices/roomSettingsSlice';
+} from '@/components/footer/icons/recording/IRecording';
+import { store, useAppDispatch } from '@/store';
+import { getMediaServerConnRoom } from '@/helpers/livekit/utils';
+import { getNatsConn } from '@/helpers/nats';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
 
 const useLocalRecording = (): IUseLocalRecordingReturn => {
   const currentRoom = getMediaServerConnRoom();

@@ -6,9 +6,9 @@ import {
 } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
-import UploadFile from './UploadFile';
-import UploadedFileList from './UploadedFileList';
-import { SERVER_URL } from '../../../config';
+import UploadFile from '@/components/external-media-player/modal/UploadFile';
+import UploadedFileList from '@/components/external-media-player/modal/UploadedFileList';
+import { SERVER_URL } from '@/config';
 
 interface UploadProps {
   isPlayBtnLoading: boolean;

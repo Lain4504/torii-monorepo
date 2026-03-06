@@ -265,7 +265,7 @@ export function useCreateScheduleRequest() {
     return useMutation({
         mutationFn: (dto: ScheduleRequestCreateDTO) => liveSessionsApi.createScheduleRequest(dto),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['teaching-schedules', 'requests', 'pending'] });
+            queryClient.invalidateQueries({ queryKey: ['schedule-requests', 'pending'] });
         },
     });
 }

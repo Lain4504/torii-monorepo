@@ -26,10 +26,3 @@ export function generateSlug(title: string): string {
   // Ensure max length of 255 characters (database constraint)
   return slug.substring(0, 255);
 }
-
-
-
-
-
-
-

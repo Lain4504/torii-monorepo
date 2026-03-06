@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { useDrag } from 'react-dnd';
 import clsx from 'clsx';
 
-import { ItemTypes } from './types';
+import { ItemTypes } from '@/components/breakout-room/form/types';
 
 export interface IUserBoxProps {
   name: string;

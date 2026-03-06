@@ -118,10 +118,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 ...group,
                 items: group.items.map(item => ({
                     ...item,
-                    // Hide "My Courses" sub-item if the user is not a Lecturer
+                    // Hide "My Courses" and "My Classes" sub-items if the user is not a Lecturer
                     items: userRole === UserRole.LECTURER
                         ? item.items
-                        : item.items?.filter(subItem => subItem.url !== '/course-master/my')
+                        : item.items?.filter(subItem => subItem.url !== '/course-master/my' && subItem.url !== '/my-classes')
                 }))
             }))
         }));

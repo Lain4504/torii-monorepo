@@ -12,9 +12,14 @@ import { AnalyticsModule } from '@server/meet/modules/analytics/analytics.module
 import { SharedModule } from '@server/shared';
 
 @Module({
-    imports: [SharedModule, NatsModule, forwardRef(() => WebhookModule), forwardRef(() => AnalyticsModule)],
-    controllers: [SpeechToTextHandler],
-    providers: [SpeechToTextService, RedisSpeechToTextService],
-    exports: [SpeechToTextService, RedisSpeechToTextService],
+  imports: [
+    SharedModule,
+    NatsModule,
+    forwardRef(() => WebhookModule),
+    forwardRef(() => AnalyticsModule),
+  ],
+  controllers: [SpeechToTextHandler],
+  providers: [SpeechToTextService, RedisSpeechToTextService],
+  exports: [SpeechToTextService, RedisSpeechToTextService],
 })
-export class SpeechToTextModule { }
+export class SpeechToTextModule {}

@@ -6,25 +6,25 @@ import {
 } from '@workspace/protocol';
 import { ConnectionQuality } from 'livekit-client';
 
-import ConnectNats from './ConnectNats';
-import { store } from '../../store';
+import ConnectNats from '@/helpers/nats/ConnectNats';
+import { store } from '@/store';
 import {
   addWhiteboardDataSentFromDonor,
   updateRequestedWhiteboardData,
-} from '../../store/slices/whiteboard';
-import { pollsApi } from '../../store/services/pollsApi';
-import { updateParticipant } from '../../store/slices/participantSlice';
-import { addExternalMediaPlayerEvent } from '../../store/slices/externalMediaPlayer';
-import { addUserNotification } from '../../store/slices/roomSettingsSlice';
-import { updateReceivedInvitationFor } from '../../store/slices/breakoutRoomSlice';
-import { WhiteboardDataAsDonorData } from '../../store/slices/interfaces/whiteboard';
+} from '@/store/slices/whiteboard';
+import { pollsApi } from '@/store/services/pollsApi';
+import { updateParticipant } from '@/store/slices/participantSlice';
+import { addExternalMediaPlayerEvent } from '@/store/slices/externalMediaPlayer';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
+import { updateReceivedInvitationFor } from '@/store/slices/breakoutRoomSlice';
+import { WhiteboardDataAsDonorData } from '@/store/slices/interfaces/whiteboard';
 import { fromJsonString } from '@bufbuild/protobuf';
-import { TextWithInfo } from '../../store/slices/interfaces/speechServices';
-import { addSpeechSubtitleText } from '../../store/slices/speechServicesSlice';
+import { TextWithInfo } from '@/store/slices/interfaces/speechServices';
+import { addSpeechSubtitleText } from '@/store/slices/speechServicesSlice';
 import {
   addAllChatMessages,
   selectPublicChatMessages,
-} from '../../store/slices/chatMessagesSlice';
+} from '@/store/slices/chatMessagesSlice';
 
 export default class HandleDataMessage {
   private connectNats: ConnectNats;

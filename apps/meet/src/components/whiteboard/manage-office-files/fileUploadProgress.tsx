@@ -16,16 +16,16 @@ import {
 } from '@workspace/protocol';
 
 import { File, Trash2 } from 'lucide-react';
-import { sleep } from '../../../helpers/utils';
-import { store } from '../../../store';
-import { getNatsConn } from '../../../helpers/nats';
-import sendAPIRequest from '../../../helpers/api/api-client';
+import { sleep } from '@/helpers/utils';
+import { store } from '@/store';
+import { getNatsConn } from '@/helpers/nats';
+import sendAPIRequest from '@/helpers/api/api-client';
 import {
   WhiteboardFileConversionReq,
   WhiteboardFileConversionRes,
-} from '../../../store/slices/interfaces/whiteboard';
-import { createAndRegisterOfficeFile } from '../helpers/handleFiles';
-import { uploadResumableFile } from '../../../helpers/fileUpload';
+} from '@/store/slices/interfaces/whiteboard';
+import { createAndRegisterOfficeFile } from '@/components/whiteboard/helpers/handleFiles';
+import { uploadResumableFile } from '@/helpers/fileUpload';
 
 interface FileUploadProgressProps {
   excalidrawAPI: ExcalidrawImperativeAPI;

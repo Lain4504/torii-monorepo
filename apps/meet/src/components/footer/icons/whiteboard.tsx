@@ -6,11 +6,11 @@ import {
 import { create, toBinary } from '@bufbuild/protobuf';
 import { debounce } from 'es-toolkit';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { updateIsActiveWhiteboard } from '../../../store/slices/bottomIconsActivitySlice';
-import sendAPIRequest from '../../../helpers/api/api-client';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import { updateIsActiveWhiteboard } from '@/store/slices/bottomIconsActivitySlice';
+import sendAPIRequest from '@/helpers/api/api-client';
 import { Presentation } from 'lucide-react';
-import { participantsSelector } from '../../../store/slices/participantSlice';
+import { participantsSelector } from '@/store/slices/participantSlice';
 
 const WhiteboardIcon = () => {
   const dispatch = useAppDispatch();

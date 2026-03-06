@@ -8,12 +8,12 @@ import {
   updateDeviceOrientation,
   updateScreenHeight,
   updateScreenWidth,
-} from '../../store/slices/bottomIconsActivitySlice';
-import { store, useAppDispatch } from '../../store';
-import { updateUserDeviceType } from '../../store/slices/sessionSlice';
-import { UserDeviceType } from '../../store/slices/interfaces/session';
-import useStorePreviousInt from './useStorePreviousInt';
-import { triggerRefreshWhiteboard } from '../../store/slices/whiteboard';
+} from '@/store/slices/bottomIconsActivitySlice';
+import { store, useAppDispatch } from '@/store';
+import { updateUserDeviceType } from '@/store/slices/sessionSlice';
+import { UserDeviceType } from '@/store/slices/interfaces/session';
+import useStorePreviousInt from '@/helpers/hooks/useStorePreviousInt';
+import { triggerRefreshWhiteboard } from '@/store/slices/whiteboard';
 
 const useWatchWindowSize = (currentRoom: Room | undefined) => {
   const dispatch = useAppDispatch();

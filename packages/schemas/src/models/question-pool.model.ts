@@ -6,7 +6,6 @@ export const questionPoolSchema = z.object({
     name: z.string().min(1),
     description: z.string().optional(),
     courseMasterId: z.string().uuid().optional(),
-    lessonId: z.string().uuid().optional(),
     jlptLevel: z.nativeEnum(QuestionJlptLevel).optional(),
     createdBy: z.string().uuid().optional(),
     createdAt: z.date(),

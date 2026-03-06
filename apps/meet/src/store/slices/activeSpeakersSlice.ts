@@ -4,7 +4,7 @@ import {
   createSlice,
 } from '@reduxjs/toolkit';
 import { RootState } from '..';
-import { IActiveSpeaker } from './interfaces/activeSpeakers';
+import { IActiveSpeaker } from '@/store/slices/interfaces/activeSpeakers';
 
 const activeSpeakerAdapter = createEntityAdapter({
   selectId: (speaker: IActiveSpeaker) => speaker.userId,

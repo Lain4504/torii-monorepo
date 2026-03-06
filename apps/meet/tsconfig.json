@@ -24,6 +24,12 @@
     "isolatedModules": true,
     "noEmit": true,
     "downlevelIteration": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    },
     "types": [
       "vite/client"
     ]

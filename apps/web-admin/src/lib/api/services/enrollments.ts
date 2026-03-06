@@ -7,10 +7,10 @@ import type { EnrollmentResponseDTO, StandardApiResponse } from '@workspace/sche
 // ============================================================================
 
 export const enrollmentsApi = {
-    // GET /api/enrollments?courseMasterId=...
+    // GET /api/admin/enrollments?courseMasterId=...
     async findByCourse(courseMasterId: string): Promise<EnrollmentResponseDTO[]> {
         const response = await apiClient.get<StandardApiResponse<{ data: EnrollmentResponseDTO[] }>>(
-            '/api/enrollments',
+            '/api/admin/enrollments',
             { params: { courseMasterId } }
         );
         // Gateway returns a paginated structure via successPaginatedResponse, but

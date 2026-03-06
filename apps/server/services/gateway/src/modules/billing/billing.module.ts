@@ -9,11 +9,7 @@ import { CouponController } from './controllers/coupon.controller';
  * Handles all Billing service HTTP routes via NATS
  */
 @Module({
-    imports: [NatsClientModule],
-    controllers: [
-        OrderController,
-        PayOSController,
-        CouponController,
-    ],
+  imports: [NatsClientModule],
+  controllers: [OrderController, PayOSController, CouponController],
 })
-export class BillingModule { }
+export class BillingModule {}

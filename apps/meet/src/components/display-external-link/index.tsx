@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { useAppSelector } from '../../store';
+import { useAppSelector } from '@/store';
 import { Loader2 } from 'lucide-react';
 
 const DisplayExternalLink = () => {

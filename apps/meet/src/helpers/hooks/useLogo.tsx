@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { useAppSelector } from '../../store';
-import { isValidHttpUrl } from '../utils';
-import { STATIC_ASSETS_PATH, CUSTOM_LOGO } from '../../config';
+import { useAppSelector } from '@/store';
+import { isValidHttpUrl } from '@/helpers/utils';
+import { STATIC_ASSETS_PATH, CUSTOM_LOGO } from '@/config';
 
 interface CustomLogo {
   main_logo_light?: string;

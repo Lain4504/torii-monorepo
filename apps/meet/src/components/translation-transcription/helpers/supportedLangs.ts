@@ -4,8 +4,8 @@ import {
   InsightsSupportedLangInfo,
 } from '@workspace/protocol';
 
-import { getSupportedLanguages } from './apiConnections';
-import { store } from '../../../store';
+import { getSupportedLanguages } from '@/components/translation-transcription/helpers/apiConnections';
+import { store } from '@/store';
 
 export type SupportedLangs = {
   name: string;

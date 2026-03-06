@@ -3,8 +3,6 @@ import { z } from 'zod';
 export enum LessonContentType {
     VIDEO = 'video',
     ARTICLE = 'article',
-    QUIZ = 'quiz',
-    ASSIGNMENT = 'assignment',
 }
 
 export const lessonSchema = z.object({
@@ -16,8 +14,6 @@ export const lessonSchema = z.object({
     videoDuration: z.number().optional(),
     durationMinutes: z.number().optional(),
     articleContent: z.string().optional(),
-    aiMetadata: z.record(z.any()).optional(), // JSONB
-    orderIndex: z.number().default(0),
     isPreview: z.boolean().default(false),
     isUnlocked: z.boolean().default(false),
     status: z.enum(['published', 'draft']).default('published'),

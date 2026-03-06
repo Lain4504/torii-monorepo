@@ -4,7 +4,10 @@ import { NatsClientModule } from '@server/shared';
 // Controllers
 import { AuthRoomController } from './controllers/auth-room.controller';
 import { PollsController } from './controllers/polls.controller';
-import { RoomController, RoomApiController } from './controllers/room.controller';
+import {
+  RoomController,
+  RoomApiController,
+} from './controllers/room.controller';
 import { RoomAdminController } from './controllers/room-admin.controller';
 import { UserRoomSettingController } from './controllers/user-room-setting.controller';
 import { WaitingRoomController } from './controllers/waiting-room.controller';
@@ -28,29 +31,29 @@ import { SpeechToTextController } from './controllers/speech-to-text.controller'
  * Handles all Meet service HTTP endpoints and routes to NATS
  */
 @Module({
-    imports: [NatsClientModule],
-    controllers: [
-        AuthRoomController,
-        PollsController,
-        RoomController,
-        RoomApiController,
-        RoomAdminController,
-        UserRoomSettingController,
-        WaitingRoomController,
-        WebhookController,
-        FileController,
-        ArtifactController,
-        ArtifactsAdminController,
-        BreakoutController,
-        EtherpadController,
-        ExternalMediaController,
-        RecordingController,
-        RecordingApiController,
-        RtmpController,
-        DownloadController,
-        IngressController,
-        InsightsController,
-        SpeechToTextController,
-    ],
+  imports: [NatsClientModule],
+  controllers: [
+    AuthRoomController,
+    PollsController,
+    RoomController,
+    RoomApiController,
+    RoomAdminController,
+    UserRoomSettingController,
+    WaitingRoomController,
+    WebhookController,
+    FileController,
+    ArtifactController,
+    ArtifactsAdminController,
+    BreakoutController,
+    EtherpadController,
+    ExternalMediaController,
+    RecordingController,
+    RecordingApiController,
+    RtmpController,
+    DownloadController,
+    IngressController,
+    InsightsController,
+    SpeechToTextController,
+  ],
 })
-export class MeetModule { }
+export class MeetModule {}

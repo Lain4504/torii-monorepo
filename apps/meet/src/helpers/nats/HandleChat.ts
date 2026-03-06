@@ -1,14 +1,14 @@
 import { ChatMessage } from '@workspace/protocol';
 
-import ConnectNats from './ConnectNats';
-import { store } from '../../store';
-import { addChatMessage } from '../../store/slices/chatMessagesSlice';
+import ConnectNats from '@/helpers/nats/ConnectNats';
+import { store } from '@/store';
+import { addChatMessage } from '@/store/slices/chatMessagesSlice';
 import {
   setActiveSidePanel,
   updateTotalUnreadChatMsgs,
-} from '../../store/slices/bottomIconsActivitySlice';
-import { updateUnreadMsgFrom } from '../../store/slices/roomSettingsSlice';
-import { DB_STORE_NAMES, idbStore } from '../libs/idb';
+} from '@/store/slices/bottomIconsActivitySlice';
+import { updateUnreadMsgFrom } from '@/store/slices/roomSettingsSlice';
+import { DB_STORE_NAMES, idbStore } from '@/helpers/libs/idb';
 
 export default class HandleChat {
   private connectNats: ConnectNats;

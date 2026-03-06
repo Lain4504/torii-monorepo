@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 
-import { useGetBreakoutRoomsQuery } from '../../../store/services/breakoutRoomApi';
+import { useGetBreakoutRoomsQuery } from '@/store/services/breakoutRoomApi';
 import { Loader2 } from 'lucide-react';
 import { BreakoutRoomMessage } from '..';
-import RoomItem from './room';
+import RoomItem from '@/components/breakout-room/manage-active-rooms/room';
 
 interface IRoomListsProps {
   setMessage: (message: BreakoutRoomMessage | null) => void;

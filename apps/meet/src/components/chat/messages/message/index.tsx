@@ -1,8 +1,8 @@
 import React, { memo, ReactElement } from 'react';
 import { ChatMessage } from '@workspace/protocol';
 
-import { ICurrentUser } from '../../../../store/slices/interfaces/session';
-import { MyMessage, OtherUserMessage, SystemMessage } from './messageTypes';
+import { ICurrentUser } from '@/store/slices/interfaces/session';
+import { MyMessage, OtherUserMessage, SystemMessage } from '@/components/chat/messages/message/messageTypes';
 
 interface IMessageProps {
   body: ChatMessage;

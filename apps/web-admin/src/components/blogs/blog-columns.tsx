@@ -21,6 +21,7 @@ export type BlogColumnsProps = {
     onView: (blog: BlogResponseDTO) => void;
     onEdit: (blog: BlogResponseDTO) => void;
     onDelete: (blog: BlogResponseDTO) => void;
+    onScheduleChange: (blog: BlogResponseDTO) => void;
     page: number;
     limit: number;
 };
@@ -35,7 +36,7 @@ const getStatusLabel = (status: string) => {
     return labels[status] || status;
 };
 
-export const getBlogColumns = ({ onView, onEdit, onDelete, page, limit }: BlogColumnsProps) => [
+export const getBlogColumns = ({ onView, onEdit, onDelete, onScheduleChange, page, limit }: BlogColumnsProps) => [
     // STT Column
     columnHelper.display({
         id: 'stt',
@@ -239,6 +240,15 @@ export const getBlogColumns = ({ onView, onEdit, onDelete, page, limit }: BlogCo
                                     <Pencil className="h-4 w-4 mr-2" />
                                     <span>Chỉnh sửa Nội dung</span>
                                 </DropdownMenuItem>
+
+                                {blog.status === 'scheduled' && (
+                                    <DropdownMenuItem
+                                        onClick={() => onScheduleChange(blog)}
+                                    >
+                                        <ArrowUpDown className="h-4 w-4 mr-2" />
+                                        <span>Thay đổi lịch đăng</span>
+                                    </DropdownMenuItem>
+                                )}
 
                                 <DropdownMenuSeparator />
 

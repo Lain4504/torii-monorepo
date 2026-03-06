@@ -6,22 +6,22 @@ import React, {
   useState,
 } from 'react';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { setWebcamPaginating } from '../../../store/slices/sessionSlice';
-import { VideoParticipantProps } from './videoParticipant';
-import PinnedLayout from './layouts/pinnedLayout';
-import VerticalLayout from './layouts/verticalLayout';
-import DefaultLayout from './layouts/defaultLayout';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import { setWebcamPaginating } from '@/store/slices/sessionSlice';
+import { VideoParticipantProps } from '@/components/media-elements/videos/videoParticipant';
+import PinnedLayout from '@/components/media-elements/videos/layouts/pinnedLayout';
+import VerticalLayout from '@/components/media-elements/videos/layouts/verticalLayout';
+import DefaultLayout from '@/components/media-elements/videos/layouts/defaultLayout';
 import {
   formatNextPreButton,
   getElmsForMobile,
   getElmsForPc,
   getElmsForPCExtendedVerticalView,
   getElmsForTablet,
-} from './helpers/utils';
-import { useDeviceInfo } from './helpers/useDeviceInfo';
+} from '@/components/media-elements/videos/helpers/utils';
+import { useDeviceInfo } from '@/components/media-elements/videos/helpers/useDeviceInfo';
 import { ChevronDown } from 'lucide-react';
-import { updateHasWebcamPages } from '../../../store/slices/roomSettingsSlice';
+import { updateHasWebcamPages } from '@/store/slices/roomSettingsSlice';
 
 interface IVideoLayoutProps {
   allParticipants: ReactElement<VideoParticipantProps>[];

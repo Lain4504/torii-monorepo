@@ -1,145 +1,97 @@
 import { z } from 'zod';
-import { AssignmentType, AssignmentStatus, assignmentSchema, submissionSchema, SubmissionStatus } from '../models/assignment.model';
+import { AssignmentStatus, assignmentSchema, submissionSchema, SubmissionStatus } from '../models/assignment.model';
 
 // ============================================
 // ASSIGNMENT DTOs
 // ============================================
 
 // Create Assignment DTO
-export const createAssignmentDto = z.object({
+export const createAssignmentDTOSchema = z.object({
+  courseEditionId: z.string().uuid().optional(),
+  courseRunId: z.string().uuid().optional(), // For live courses
   title: z.string().min(1).max(255),
-  description: z.string().min(1),
-  type: z.nativeEnum(AssignmentType).default(AssignmentType.TEXT),
-
-  // At least one must be provided
-  courseRunId: z.preprocess((val) => (val === '' ? undefined : val), z.string().uuid().optional()),
-  moduleId: z.preprocess((val) => (val === '' ? undefined : val), z.string().uuid().optional()),
-  lessonId: z.preprocess((val) => (val === '' ? undefined : val), z.string().uuid().optional()),
-
-  // Grading config
-  maxScore: z.number().min(0).max(1000).default(100),
-  passingScore: z.number().min(0).max(1000).optional(),
-
-  // Deadlines
-  dueDate: z.preprocess(
-    (val) => (val === '' ? undefined : val),
-    z.string().datetime().optional()
-  ),
-  allowLateSubmission: z.boolean().default(true),
-  latePenaltyPercent: z.number().min(0).max(100).optional(),
-
-  // File upload config
-  allowedFileTypes: z.array(z.string()).default([]),
-  maxFileSize: z.number().min(1048576).max(104857600).optional(), // 1MB - 100MB
-  maxFiles: z.number().min(1).max(20).optional(),
-
-  // Metadata
-  instructions: z.string().optional(),
-  attachmentUrls: z.array(z.string().url()).default([]),
-}).refine(
-  (data) => data.courseRunId || data.moduleId || data.lessonId,
-  {
-    message: 'At least one of courseRunId, moduleId, or lessonId must be provided',
-  }
-).refine(
-  (data) => !data.passingScore || data.passingScore <= data.maxScore,
-  {
-    message: 'Passing score must be less than or equal to max score',
-  }
-);
-
-export type CreateAssignmentDto = z.infer<typeof createAssignmentDto>;
-
-// Update Assignment DTO (all fields optional, no validation rules)
-export const updateAssignmentDto = z.object({
-  title: z.string().min(1).max(255).optional(),
-  description: z.string().min(1).optional(),
-  type: z.nativeEnum(AssignmentType).optional(),
-
-  courseRunId: z.preprocess((val) => (val === '' || val === null ? undefined : val), z.string().uuid().optional()),
-  moduleId: z.preprocess((val) => (val === '' || val === null ? undefined : val), z.string().uuid().optional()),
-  lessonId: z.preprocess((val) => (val === '' || val === null ? undefined : val), z.string().uuid().optional()),
-
-  maxScore: z.number().min(0).max(1000).optional(),
-  passingScore: z.number().min(0).max(1000).optional(),
-
-  dueDate: z.preprocess(
-    (val) => (val === '' || val === null ? undefined : val),
-    z.string().datetime().optional()
-  ),
-  allowLateSubmission: z.boolean().optional(),
-  latePenaltyPercent: z.number().min(0).max(100).optional(),
-
-  allowedFileTypes: z.array(z.string()).optional(),
-  maxFileSize: z.number().min(1048576).max(104857600).optional(),
-  maxFiles: z.number().min(1).max(20).optional(),
-
-  instructions: z.string().optional(),
-  attachmentUrls: z.array(z.string().url()).optional(),
+  description: z.string().optional(),
+  maxScore: z.number().min(0).default(100),
+  passingScore: z.number().min(0).optional(),
+  dueDate: z.coerce.date().optional(),
+  type: z.enum(['TEXT', 'FILE', 'BOTH']).default('TEXT'),
+  rubric: z.unknown().optional(), // JSON rubric
+  submissionSettings: z.unknown().optional(),
+  orderIndex: z.number().int().min(0).optional(),
 });
 
-export type UpdateAssignmentDto = z.infer<typeof updateAssignmentDto>;
+export type CreateAssignmentDTO = z.infer<typeof createAssignmentDTOSchema>;
+
+// Update Assignment DTO
+export const updateAssignmentDTOSchema = z.object({
+  title: z.string().max(255).optional(),
+  description: z.string().optional(),
+  maxScore: z.number().min(0).optional(),
+  passingScore: z.number().min(0).optional(),
+  dueDate: z.coerce.date().optional(),
+  type: z.enum(['TEXT', 'FILE', 'BOTH']).optional(),
+  rubric: z.unknown().optional(),
+  submissionSettings: z.unknown().optional(),
+  orderIndex: z.number().int().min(0).optional(),
+});
+
+export type UpdateAssignmentDTO = z.infer<typeof updateAssignmentDTOSchema>;
 
 // Query Assignments DTO
-export const queryAssignmentsDto = z.object({
-  courseMasterId: z.string().uuid().optional(),
+export const queryAssignmentsDTOSchema = z.object({
+  courseEditionId: z.string().uuid().optional(),
   courseRunId: z.string().uuid().optional(),
-  moduleId: z.string().uuid().optional(),
-  lessonId: z.string().uuid().optional(),
   status: z.nativeEnum(AssignmentStatus).optional(),
-  page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(100).default(20),
+  q: z.string().optional(),
 });
 
-export type QueryAssignmentsDto = z.infer<typeof queryAssignmentsDto>;
+export type QueryAssignmentsDTO = z.infer<typeof queryAssignmentsDTOSchema>;
 
 // ============================================
 // SUBMISSION DTOs
 // ============================================
 
-// Submit Assignment DTO (create/update draft)
-export const submitAssignmentDto = z.object({
-  courseRunId: z.string().uuid(), // Required for submission
-  textAnswer: z.string().optional(),
-  fileUrls: z.array(z.string()).default([]), // Accept any string, not just URLs
+// Submit Assignment DTO
+export const submitAssignmentDTOSchema = z.object({
+  assignmentId: z.string().uuid(),
+  content: z.string().optional(),
+  attachments: z.array(z.string().url()).optional(),
 });
 
-export type SubmitAssignmentDto = z.infer<typeof submitAssignmentDto>;
+export type SubmitAssignmentDTO = z.infer<typeof submitAssignmentDTOSchema>;
 
 // Grade Submission DTO
-export const gradeSubmissionDto = z.object({
-  score: z.number().min(0).max(1000),
-  feedback: z.string().max(5000).optional().or(z.literal('')),
-  reason: z.string().max(1000).optional(), // Reason for grading or re-grading
+export const gradeSubmissionDTOSchema = z.object({
+  score: z.number().min(0),
+  feedback: z.string().optional(),
+  rubricGrades: z.unknown().optional(),
 });
 
-export type GradeSubmissionDto = z.infer<typeof gradeSubmissionDto>;
+export type GradeSubmissionDTO = z.infer<typeof gradeSubmissionDTOSchema>;
 
 // Return Submission DTO
-export const returnSubmissionDto = z.object({
-  feedback: z.string().min(1).max(5000), // Required when returning
+export const returnSubmissionDTOSchema = z.object({
+  feedback: z.string().optional(),
 });
 
-export type ReturnSubmissionDto = z.infer<typeof returnSubmissionDto>;
+export type ReturnSubmissionDTO = z.infer<typeof returnSubmissionDTOSchema>;
 
 // Query Submissions DTO
-export const querySubmissionsDto = z.object({
+export const querySubmissionsDTOSchema = z.object({
   assignmentId: z.string().uuid().optional(),
-  courseRunId: z.string().uuid().optional(),
   userId: z.string().uuid().optional(),
   status: z.nativeEnum(SubmissionStatus).optional(),
-  page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(100).default(20),
 });
 
-export type QuerySubmissionsDto = z.infer<typeof querySubmissionsDto>;
+export type QuerySubmissionsDTO = z.infer<typeof querySubmissionsDTOSchema>;
 
 // Response DTOs
-export const assignmentResponseDto = assignmentSchema.extend({
+export const assignmentResponseDTOSchema = assignmentSchema.extend({
   // Optional: User's submission status for this assignment (populated when fetching for authenticated user)
   userSubmissionStatus: z.nativeEnum(SubmissionStatus).optional(),
 });
-export type AssignmentResponseDTO = z.infer<typeof assignmentResponseDto>;
 
-export const submissionResponseDto = submissionSchema;
-export type SubmissionResponseDTO = z.infer<typeof submissionResponseDto>;
+export type AssignmentResponseDTO = z.infer<typeof assignmentResponseDTOSchema>;
+
+export const submissionResponseDTOSchema = submissionSchema;
+export type SubmissionResponseDTO = z.infer<typeof submissionResponseDTOSchema>;

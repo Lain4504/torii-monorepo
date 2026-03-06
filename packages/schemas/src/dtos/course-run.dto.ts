@@ -16,7 +16,6 @@ export const courseRunCreateDTOSchema = courseRunSchema.pick({
     discountPrice: true,
     coverUrl: true,
     previewVideoUrl: true,
-    status: true,
 }).extend({
     versionId: z.string().uuid().optional().nullable(),
 });
@@ -29,11 +28,13 @@ export const courseRunUpdateDTOSchema = courseRunCreateDTOSchema.extend({
 
 export type CourseRunUpdateDTO = z.infer<typeof courseRunUpdateDTOSchema>;
 
+
 export const courseRunResponseDTOSchema = courseRunSchema.extend({
     courseMaster: z.object({
         id: z.string().uuid(),
         title: z.string(),
         slug: z.string(),
+        type: z.enum(['vod', 'live']).optional(),
         jlptLevel: z.string().optional().nullable(),
         shortDescription: z.string().optional().nullable(),
         description: z.string().optional().nullable(),
@@ -57,6 +58,7 @@ export type CourseRunResponseDTO = z.infer<typeof courseRunResponseDTOSchema>;
 
 export const courseRunSearchRequestDTOSchema = paginationOptionsDTOSchema.extend({
     courseMasterId: z.string().uuid().optional(),
+    lecturerId: z.string().uuid().optional(),
     status: courseRunSchema.shape.status.optional(),
     type: z.enum(['vod', 'live']).optional(),
 });

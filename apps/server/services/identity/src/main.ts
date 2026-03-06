@@ -4,7 +4,6 @@ import { ValidationPipe } from '@nestjs/common';
 import { createNatsServiceConfig } from '@server/shared';
 import { IdentityModule } from '@server/identity/identity.module';
 
-
 async function bootstrap() {
   console.log('🚀 Identity Service starting...');
 
@@ -15,10 +14,12 @@ async function bootstrap() {
   );
 
   // Enable validation pipe for DTOs in NATS messages
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    transform: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }),
+  );
 
   await app.listen();
   console.log('📡 Identity Service NATS microservice listening');

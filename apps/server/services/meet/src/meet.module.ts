@@ -44,4 +44,4 @@ import { JanitorModule } from '@server/meet/modules/janitor/janitor.module';
     },
   ],
 })
-export class MeetModule { }
+export class MeetModule {}

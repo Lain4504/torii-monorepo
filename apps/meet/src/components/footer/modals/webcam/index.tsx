@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../../../store';
+import { useAppDispatch, useAppSelector } from '@/store';
 import {
   updateIsActiveWebcam,
   updateShowVideoShareModal,
-} from '../../../../store/slices/bottomIconsActivitySlice';
-import { getInputMediaDevices } from '../../../../helpers/utils';
-import PreviewWebcam from './previewWebcam';
-import { addVideoDevices } from '../../../../store/slices/roomSettingsSlice';
-import Modal from '../../../../helpers/ui/modal';
-import Dropdown from '../../../../helpers/ui/dropdown';
-import ActionButton from '../../../../helpers/ui/actionButton';
-import { IMediaDevice } from '../../../../store/slices/interfaces/roomSettings';
+} from '@/store/slices/bottomIconsActivitySlice';
+import { getInputMediaDevices } from '@/helpers/utils';
+import PreviewWebcam from '@/components/footer/modals/webcam/previewWebcam';
+import { addVideoDevices } from '@/store/slices/roomSettingsSlice';
+import Modal from '@/helpers/ui/modal';
+import Dropdown from '@/helpers/ui/dropdown';
+import ActionButton from '@/helpers/ui/actionButton';
+import { Button } from '@workspace/ui/components/button';
+import { IMediaDevice } from '@/store/slices/interfaces/roomSettings';
 
 interface IShareWebcamModal {
   onSelectedDevice: (deviceId: string) => void;
@@ -71,13 +72,14 @@ const ShareWebcamModal = ({
         customClass="ChooseBackgroud"
         renderButtons={() => (
           <div className="grid grid-cols-2 gap-5">
-            <button
+            <Button
               className="h-9 px-4 flex items-center justify-center cursor-pointer text-sm font-semibold bg-muted hover:bg-muted/80 rounded-lg text-muted-foreground transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               type="button"
+              variant="outline"
               onClick={onClose}
             >
               Hủy
-            </button>
+            </Button>
             <ActionButton onClick={shareWebcam}>Chia sẻ</ActionButton>
           </div>
         )}

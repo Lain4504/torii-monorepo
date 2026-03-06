@@ -8,18 +8,18 @@ import { PrismaModule } from '@server/shared';
 import { ProfilesModule } from '../profiles/profiles.module';
 
 @Module({
-    imports: [PrismaModule, ProfilesModule],
-    controllers: [RedemptionsHandler],
-    providers: [
-        {
-            provide: REDEMPTIONS_SERVICE_TOKEN,
-            useClass: RedemptionsService,
-        },
-        {
-            provide: REDEMPTIONS_REPOSITORY_TOKEN,
-            useClass: RedemptionsRepository,
-        },
-    ],
-    exports: [REDEMPTIONS_SERVICE_TOKEN],
+  imports: [PrismaModule, ProfilesModule],
+  controllers: [RedemptionsHandler],
+  providers: [
+    {
+      provide: REDEMPTIONS_SERVICE_TOKEN,
+      useClass: RedemptionsService,
+    },
+    {
+      provide: REDEMPTIONS_REPOSITORY_TOKEN,
+      useClass: RedemptionsRepository,
+    },
+  ],
+  exports: [REDEMPTIONS_SERVICE_TOKEN],
 })
-export class RedemptionsModule { }
+export class RedemptionsModule {}

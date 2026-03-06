@@ -25,15 +25,16 @@ interface BlogTableProps {
     onView: (blog: BlogResponseDTO) => void;
     onEdit: (blog: BlogResponseDTO) => void;
     onDelete: (blog: BlogResponseDTO) => void;
+    onScheduleChange: (blog: BlogResponseDTO) => void;
     page: number;
     limit: number;
     isLoading?: boolean;
 }
 
-export function BlogTable({ data, onView, onEdit, onDelete, page, limit, isLoading }: BlogTableProps) {
+export function BlogTable({ data, onView, onEdit, onDelete, onScheduleChange, page, limit, isLoading }: BlogTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
-    const columns = getBlogColumns({ onView, onEdit, onDelete, page, limit });
+    const columns = getBlogColumns({ onView, onEdit, onDelete, onScheduleChange, page, limit });
 
     const table = useReactTable({
         data,

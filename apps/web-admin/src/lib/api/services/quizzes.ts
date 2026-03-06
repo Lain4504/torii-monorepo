@@ -110,6 +110,12 @@ export const quizApi = {
         const response = await apiClient.patch<StandardApiResponse<{ exam: QuizDTO }>>(`${ADMIN_EXAMS_BASE}/${id}/publish`, {});
         return response.data.data!.exam;
     },
+
+    async getQuizQuestions(quizId: string): Promise<any[]> {
+        const response = await apiClient.get<StandardApiResponse<{ questions: any[] }>>(`${ADMIN_EXAMS_BASE}/${quizId}/questions`);
+        return response.data.data?.questions || [];
+    },
+
 };
 
 // ============================================================================
@@ -173,3 +179,12 @@ export function usePublishQuiz() {
         },
     });
 }
+
+export function useQuizQuestions(quizId: string) {
+    return useQuery({
+        queryKey: ['quizzes', quizId, 'questions'],
+        queryFn: () => quizApi.getQuizQuestions(quizId),
+        enabled: !!quizId,
+    });
+}
+

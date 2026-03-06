@@ -1,20 +1,20 @@
 import React, { useMemo } from 'react';
 
-import { store } from '../../store';
-import WebcamIcon from './icons/webcam';
-import MicrophoneIcon from './icons/microphone';
-import ChatIcon from './icons/chat';
-import ParticipantIcon from './icons/participant';
-import RaiseHandIcon from './icons/raisehand';
-import ScreenshareIcon from './icons/screenshare';
-import MenusIcon from './icons/menus';
-import WhiteboardIcon from './icons/whiteboard';
-import BreakoutRoomInvitation from '../breakout-room/breakoutRoomInvitation';
-import EndMeetingButton from './icons/endMeeting';
-import RecordingIcon from './icons/recording';
-import PollsIcon from './icons/polls';
-import Translation from './icons/translation';
-import InsightsAiTextChatIcon from './icons/insightAiTextChat';
+import { store } from '@/store';
+import WebcamIcon from '@/components/footer/icons/webcam';
+import MicrophoneIcon from '@/components/footer/icons/microphone';
+import ChatIcon from '@/components/footer/icons/chat';
+import ParticipantIcon from '@/components/footer/icons/participant';
+import RaiseHandIcon from '@/components/footer/icons/raisehand';
+import ScreenshareIcon from '@/components/footer/icons/screenshare';
+import MenusIcon from '@/components/footer/icons/menus';
+import WhiteboardIcon from '@/components/footer/icons/whiteboard';
+import BreakoutRoomInvitation from '@/components/breakout-room/breakoutRoomInvitation';
+import EndMeetingButton from '@/components/footer/icons/endMeeting';
+import RecordingIcon from '@/components/footer/icons/recording';
+import PollsIcon from '@/components/footer/icons/polls';
+import Translation from '@/components/footer/icons/translation';
+import InsightsAiTextChatIcon from '@/components/footer/icons/insightAiTextChat';
 
 const Footer = () => {
   const { isAdmin, isRecorder, allowChat } = useMemo(() => {

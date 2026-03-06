@@ -12,7 +12,6 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import {
     Field,
     FieldLabel,
@@ -20,11 +19,13 @@ import {
 } from '@workspace/ui/components/field';
 import { X, Save } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
-import { courseRunCreateDTOSchema, type CourseRunCreateDTO, CourseRunStatus, UserRole } from '@workspace/schemas';
+import { courseRunCreateDTOSchema, type CourseRunCreateDTO, UserRole } from '@workspace/schemas';
 import { useCreateCourseRun } from "@/lib/api/services/course-runs";
+import { useCourses } from "@/lib/api/services/courses";
 import { useUsers } from "@/lib/api/services/users";
 import { Spinner } from "@workspace/ui/components/spinner";
 import { FileUpload } from '@/components/common/file-upload';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select";
 
 interface CreateCourseRunSheetProps {
     open: boolean;
@@ -36,6 +37,7 @@ interface CreateCourseRunSheetProps {
 export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType }: CreateCourseRunSheetProps) {
     const createMutation = useCreateCourseRun();
     const { data: lecturersData, isLoading: isLoadingLecturers } = useUsers({ role: UserRole.LECTURER, limit: 100 });
+    const { data: coursesData, isLoading: isLoadingCourses } = useCourses({ page: 1, limit: 100, status: 'APPROVED' as any });
 
     const {
         register,
@@ -43,12 +45,13 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
         control,
         formState: { errors, isDirty },
         reset,
+        watch,
+        setValue,
     } = useForm<CourseRunCreateDTO>({
         resolver: zodResolver(courseRunCreateDTOSchema) as any,
         defaultValues: {
-            courseMasterId: courseId,
+            courseMasterId: courseId || '',
             title: '',
-            status: CourseRunStatus.PLANNING,
             maxStudents: 30,
             minStudents: 1,
             price: undefined,
@@ -57,6 +60,16 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
             previewVideoUrl: undefined,
         },
     });
+
+    const selectedCourseMasterId = watch('courseMasterId');
+    const selectedCourseMaster = coursesData?.data?.find(cm => cm.id === selectedCourseMasterId);
+    const effectiveCourseType = courseType || selectedCourseMaster?.type;
+
+    useEffect(() => {
+        if (courseId) {
+            setValue('courseMasterId', courseId);
+        }
+    }, [courseId, setValue]);
 
     const handleClose = () => {
         onOpenChange(false);
@@ -87,7 +100,8 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
                     <SheetDescription>
                         {courseType === 'vod' ? (
                             <>
-                                Thiết lập lớp cho khóa học dạng video theo yêu cầu (VOD): chọn giảng viên, giá bán và nội dung hiển thị.
+                                Thiết lập lớp cho khóa học dạng video theo yêu cầu (VOD): chọn giảng viên, giá bán và
+                                nội dung hiển thị.
                                 Khóa VOD không giới hạn sĩ số; thời hạn truy cập được cấu hình tại Course Master.
                             </>
                         ) : (
@@ -98,7 +112,8 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
                     </SheetDescription>
                 </SheetHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden min-h-0" noValidate>
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden min-h-0"
+                    noValidate>
                     <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
 
@@ -128,7 +143,8 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
                                                 disabled={isLoadingLecturers}
                                             >
                                                 <SelectTrigger id="lecturerId" className="mt-1">
-                                                    <SelectValue placeholder={isLoadingLecturers ? "Đang tải..." : "Chọn giảng viên"} />
+                                                    <SelectValue
+                                                        placeholder={isLoadingLecturers ? "Đang tải..." : "Chọn giảng viên"} />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     {lecturersData?.data?.map((lecturer) => (
@@ -141,24 +157,6 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
                                         )}
                                     />
                                     {errors.lecturerId && <FieldError>{errors.lecturerId.message}</FieldError>}
-                                </Field>
-                                <Field>
-                                    <FieldLabel htmlFor="status">Trạng Thái Khởi Tạo</FieldLabel>
-                                    <Controller
-                                        name={"status" as any}
-                                        control={control}
-                                        render={({ field }) => (
-                                            <Select value={field.value} onValueChange={field.onChange}>
-                                                <SelectTrigger id="status" className="mt-1">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value={CourseRunStatus.PLANNING}>Đang lập kế hoạch</SelectItem>
-                                                    <SelectItem value={CourseRunStatus.ENROLLING}>Đang tuyển sinh</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        )}
-                                    />
                                 </Field>
                             </div>
 
@@ -366,6 +364,6 @@ export function CreateCourseRunSheet({ open, onOpenChange, courseId, courseType 
                     </SheetFooter>
                 </form>
             </SheetContent>
-        </Sheet >
+        </Sheet>
     );
 }

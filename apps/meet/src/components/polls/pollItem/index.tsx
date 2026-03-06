@@ -7,15 +7,15 @@ import {
   DisclosurePanel,
 } from '@headlessui/react';
 
-import { store } from '../../../store';
-import PollActionsMenu from './pollActionsMenu';
-import PollForm from './voteForm';
+import { store } from '@/store';
+import PollActionsMenu from '@/components/polls/pollItem/pollActionsMenu';
+import PollForm from '@/components/polls/pollItem/voteForm';
 import {
   useGetPollResponsesDetailsQuery,
   useGetPollResponsesResultQuery,
-} from '../../../store/services/pollsApi';
-import { PollDataWithOption } from '../utils';
-import DetailsModal from './details';
+} from '@/store/services/pollsApi';
+import { PollDataWithOption } from '@/components/polls/utils';
+import DetailsModal from '@/components/polls/pollItem/details';
 
 interface PollItemProps {
   item: PollInfo;

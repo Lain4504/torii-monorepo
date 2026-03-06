@@ -6,53 +6,66 @@ import { SpeechToTextService } from '@server/meet/modules/speech-to-text/speech-
 
 @Controller()
 export class SpeechToTextHandler {
-    private readonly logger = new Logger(SpeechToTextHandler.name);
+  private readonly logger = new Logger(SpeechToTextHandler.name);
 
-    constructor(
-        private readonly sttService: SpeechToTextService,
-    ) { }
+  constructor(private readonly sttService: SpeechToTextService) {}
 
-    @MessagePattern({ cmd: 'speech.serviceStatus' })
-    async handleServiceStatus(@Payload() data: any) {
-        try {
-            return await this.sttService.speechToTextTranslationServiceStart(data.roomId, data);
-        } catch (error) {
-            return this.errorRes(error);
-        }
+  @MessagePattern({ cmd: 'speech.serviceStatus' })
+  async handleServiceStatus(@Payload() data: any) {
+    try {
+      return await this.sttService.speechToTextTranslationServiceStart(
+        data.roomId,
+        data,
+      );
+    } catch (error) {
+      return this.errorRes(error);
     }
+  }
 
-    @MessagePattern({ cmd: 'speech.generateAzureToken' })
-    async handleGenerateToken(@Payload() data: any) {
-        try {
-            return await this.sttService.generateAzureToken(data.roomId, data.userId, data);
-        } catch (error) {
-            return this.errorRes(error);
-        }
+  @MessagePattern({ cmd: 'speech.generateAzureToken' })
+  async handleGenerateToken(@Payload() data: any) {
+    try {
+      return await this.sttService.generateAzureToken(
+        data.roomId,
+        data.userId,
+        data,
+      );
+    } catch (error) {
+      return this.errorRes(error);
     }
+  }
 
-    @MessagePattern({ cmd: 'speech.userStatus' })
-    async handleUserStatus(@Payload() data: any) {
-        try {
-            return await this.sttService.speechServiceUserStatus(data.roomId, data.userId, data);
-        } catch (error) {
-            return this.errorRes(error);
-        }
+  @MessagePattern({ cmd: 'speech.userStatus' })
+  async handleUserStatus(@Payload() data: any) {
+    try {
+      return await this.sttService.speechServiceUserStatus(
+        data.roomId,
+        data.userId,
+        data,
+      );
+    } catch (error) {
+      return this.errorRes(error);
     }
+  }
 
-    @MessagePattern({ cmd: 'speech.renewToken' })
-    async handleRenewToken(@Payload() data: any) {
-        try {
-            return await this.sttService.renewAzureToken(data.roomId, data.userId, data);
-        } catch (error) {
-            return this.errorRes(error);
-        }
+  @MessagePattern({ cmd: 'speech.renewToken' })
+  async handleRenewToken(@Payload() data: any) {
+    try {
+      return await this.sttService.renewAzureToken(
+        data.roomId,
+        data.userId,
+        data,
+      );
+    } catch (error) {
+      return this.errorRes(error);
     }
+  }
 
-    private errorRes(error: any) {
-        this.logger.error(`Error in STT handler: ${error.message}`);
-        return create(CommonResponseSchema, {
-            status: false,
-            msg: error.message,
-        });
-    }
+  private errorRes(error: any) {
+    this.logger.error(`Error in STT handler: ${error.message}`);
+    return create(CommonResponseSchema, {
+      status: false,
+      msg: error.message,
+    });
+  }
 }

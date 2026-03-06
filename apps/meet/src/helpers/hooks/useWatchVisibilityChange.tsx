@@ -5,9 +5,9 @@ import {
   DataMsgBodyType,
 } from '@workspace/protocol';
 
-import { getNatsConn } from '../nats';
-import { updateIsWAJLCWindowTabVisible } from '../../store/slices/roomSettingsSlice';
-import { useAppDispatch } from '../../store';
+import { getNatsConn } from '@/helpers/nats';
+import { updateIsWAJLCWindowTabVisible } from '@/store/slices/roomSettingsSlice';
+import { useAppDispatch } from '@/store';
 
 const useWatchVisibilityChange = () => {
   const [hidden, setHidden] = useState<boolean>(false);

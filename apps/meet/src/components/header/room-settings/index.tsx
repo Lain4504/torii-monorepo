@@ -1,13 +1,13 @@
 import React, { useMemo } from 'react';
 import sanitizeHtml from 'sanitize-html';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { updateShowRoomSettingsModal } from '../../../store/slices/roomSettingsSlice';
-import Modal from '../../../helpers/ui/modal';
-import Tabs from '../../../helpers/ui/tabs';
-import ApplicationSettings from './application';
-import DataSavings from './dataSavings';
-import Ingress from './ingress';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import { updateShowRoomSettingsModal } from '@/store/slices/roomSettingsSlice';
+import Modal from '@/helpers/ui/modal';
+import Tabs from '@/helpers/ui/tabs';
+import ApplicationSettings from '@/components/header/room-settings/application';
+import DataSavings from '@/components/header/room-settings/dataSavings';
+import Ingress from '@/components/header/room-settings/ingress';
 
 declare const WAJLC_VERSION: string;
 

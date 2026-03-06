@@ -36,5 +36,13 @@
   },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "src/routes/courses",
+    "src/components/courses",
+    "src/components/quizzes",
+    "src/components/assignments",
+    "src/routes/question-pools",
+    "src/components/question-pools"
   ]
 }

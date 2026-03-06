@@ -1,11 +1,11 @@
 import React from 'react';
 import { MenuItem } from '@headlessui/react';
-import { useAppDispatch } from '../../../../../store';
+import { useAppDispatch } from '@/store';
 import {
   updateInitiatePrivateChat,
   updateSelectedChatOption,
-} from '../../../../../store/slices/roomSettingsSlice';
-import { setActiveSidePanel } from '../../../../../store/slices/bottomIconsActivitySlice';
+} from '@/store/slices/roomSettingsSlice';
+import { setActiveSidePanel } from '@/store/slices/bottomIconsActivitySlice';
 
 interface IChatMenuItemProps {
   userId: string;

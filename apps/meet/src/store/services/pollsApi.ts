@@ -11,9 +11,9 @@ import {
   SubmitPollResponseReqSchema,
 } from '@workspace/protocol';
 
-import { handleProtobufResponse, renewTokenOnError } from './utils';
-import { RootState } from '../index';
-import { SERVER_URL } from '../../config';
+import { handleProtobufResponse, renewTokenOnError } from '@/store/services/utils';
+import { RootState } from '@/store/index';
+import { SERVER_URL } from '@/config';
 
 export const pollsApi = createApi({
   reducerPath: 'pollsApi',

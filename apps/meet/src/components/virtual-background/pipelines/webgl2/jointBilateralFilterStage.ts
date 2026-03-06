@@ -1,12 +1,12 @@
 import {
   inputResolutions,
   SegmentationConfig,
-} from '../../helpers/segmentationHelper';
+} from '@/components/virtual-background/helpers/segmentationHelper';
 import {
   compileShader,
   createPiplelineStageProgram,
   glsl,
-} from '../helpers/webglHelper';
+} from '@/components/virtual-background/pipelines/helpers/webglHelper';
 
 export function buildJointBilateralFilterStage(
   gl: WebGL2RenderingContext,

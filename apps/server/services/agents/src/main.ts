@@ -4,7 +4,6 @@ import { ValidationPipe } from '@nestjs/common';
 import { createNatsServiceConfig } from '@server/shared';
 import { AgentsModule } from '@server/agents/agents.module';
 
-
 async function bootstrap() {
   console.log('🚀 Agents Service starting...');
 
@@ -15,10 +14,12 @@ async function bootstrap() {
   );
 
   // Enable validation for NATS incoming messages
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    transform: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }),
+  );
 
   // Start Microservice
   await app.listen();

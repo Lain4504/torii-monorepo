@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { SourcePlayback } from '../../../virtual-background/helpers/sourceHelper';
-import { useAppSelector } from '../../../../store';
+import { SourcePlayback } from '@/components/virtual-background/helpers/sourceHelper';
+import { useAppSelector } from '@/store';
 
 const useVirtualBackground = (deviceId: string | undefined) => {
   const [sourcePlayback, setSourcePlayback] = useState<SourcePlayback>();

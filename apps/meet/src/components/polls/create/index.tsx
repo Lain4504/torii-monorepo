@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-import FormView from './formView';
-import Modal from '../../../helpers/ui/modal';
+import FormView from '@/components/polls/create/formView';
+import Modal from '@/helpers/ui/modal';
 
 export interface CreatePollOptions {
   id: number;

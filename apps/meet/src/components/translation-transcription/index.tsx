@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { isEmpty } from 'es-toolkit/compat';
 
-import { store, useAppDispatch, useAppSelector } from '../../store';
-import SpeechSettingsModal from './speech-settings-modal';
-import { updateSelectedSubtitleLang } from '../../store/slices/speechServicesSlice';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import SpeechSettingsModal from '@/components/translation-transcription/speech-settings-modal';
+import { updateSelectedSubtitleLang } from '@/store/slices/speechServicesSlice';
 
-import SubtitleTextsHistory from './displays/history';
-import LiveSubtitle from './displays/liveSubtitle';
-import { useSubtitleSpeechSynthesis } from './helpers/useSubtitleSpeechSynthesis';
+import SubtitleTextsHistory from '@/components/translation-transcription/displays/history';
+import LiveSubtitle from '@/components/translation-transcription/displays/liveSubtitle';
+import { useSubtitleSpeechSynthesis } from '@/components/translation-transcription/helpers/useSubtitleSpeechSynthesis';
 import {
   supportedTranscriptionLangs,
   supportedTranslationLangs,
-} from './helpers/supportedLangs';
+} from '@/components/translation-transcription/helpers/supportedLangs';
 
 const TranslationTranscription = () => {
   const dispatch = useAppDispatch();

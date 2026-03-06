@@ -1,23 +1,23 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { debounce } from 'es-toolkit';
 
-import { store, useAppDispatch } from '../../store';
+import { store, useAppDispatch } from '@/store';
 import {
   setActiveSidePanel,
   updateIsEnabledExtendedVerticalCamView,
-} from '../../store/slices/bottomIconsActivitySlice';
+} from '@/store/slices/bottomIconsActivitySlice';
 
-import { useMainAreaState } from './hooks/useMainAreaState';
-import { useMainAreaCustomCSS } from './hooks/useMainAreaCustomCSS';
-import { triggerRefreshWhiteboard } from '../../store/slices/whiteboard';
-import { updateIsSidePanelOpened } from '../../store/slices/roomSettingsSlice';
+import { useMainAreaState } from '@/components/main-area/hooks/useMainAreaState';
+import { useMainAreaCustomCSS } from '@/components/main-area/hooks/useMainAreaCustomCSS';
+import { triggerRefreshWhiteboard } from '@/store/slices/whiteboard';
+import { updateIsSidePanelOpened } from '@/store/slices/roomSettingsSlice';
 
-import ActiveSpeakers from '../active-speakers';
-import MainView from './mainView';
-import PollsComponent from '../polls';
-import ChatComponent from '../chat';
-import ParticipantsComponent from '../participants';
-import SidePanel from './sidePanel';
+import ActiveSpeakers from '@/components/active-speakers';
+import MainView from '@/components/main-area/mainView';
+import PollsComponent from '@/components/polls';
+import ChatComponent from '@/components/chat';
+import ParticipantsComponent from '@/components/participants';
+import SidePanel from '@/components/main-area/sidePanel';
 
 const MainArea = () => {
   const dispatch = useAppDispatch();

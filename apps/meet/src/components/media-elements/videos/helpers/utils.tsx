@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { chunk } from 'es-toolkit';
-import { VideoParticipantProps } from '../videoParticipant';
+import { VideoParticipantProps } from '@/components/media-elements/videos/videoParticipant';
 
 /*
  * For Tablet devices, for both normal & vertical view.

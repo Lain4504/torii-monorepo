@@ -1,12 +1,12 @@
 import React, { useCallback, useMemo } from 'react';
 
-import FooterMenuItem from './menuItem';
-import { store, useAppDispatch, useAppSelector } from '../../../../store';
+import FooterMenuItem from '@/components/footer/icons/menus/menuItem';
+import { store, useAppDispatch, useAppSelector } from '@/store';
 
-import usePolls from './hooks/usePolls';
-import useMuteAll from './hooks/useMuteAll';
-import useExternalMediaPlayer from './hooks/useExternalMediaPlayer';
-import useDisplayExternalLink from './hooks/useDisplayExternalLink';
+import usePolls from '@/components/footer/icons/menus/hooks/usePolls';
+import useMuteAll from '@/components/footer/icons/menus/hooks/useMuteAll';
+import useExternalMediaPlayer from '@/components/footer/icons/menus/hooks/useExternalMediaPlayer';
+import useDisplayExternalLink from '@/components/footer/icons/menus/hooks/useDisplayExternalLink';
 import {
   updateDisplayInsightsAISettingsModal,
   updateDisplaySpeechSettingsModal,
@@ -14,7 +14,7 @@ import {
   updateShowManageBreakoutRoomModal,
   updateShowManageWaitingRoomModal,
   updateShowRtmpModal,
-} from '../../../../store/slices/bottomIconsActivitySlice';
+} from '@/store/slices/bottomIconsActivitySlice';
 import { BarChart2, LayoutGrid, Bot, Radio, Play, MonitorPlay, Captions, Lock as LockIcon, MicOff, UserPlus } from 'lucide-react';
 
 const AdminMenus = () => {

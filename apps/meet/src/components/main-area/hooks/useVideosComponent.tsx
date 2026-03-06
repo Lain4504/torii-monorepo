@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import VideosComponent from '../../media-elements/videos';
+import VideosComponent from '@/components/media-elements/videos';
 
 export const useVideosComponent = (
   isActiveWebcamsView: boolean,

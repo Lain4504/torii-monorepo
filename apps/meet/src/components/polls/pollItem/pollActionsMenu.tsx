@@ -8,8 +8,8 @@ import {
 } from '@headlessui/react';
 
 import { MoreHorizontal } from 'lucide-react';
-import { PollDataWithOption, publishPollResultByChat } from '../utils';
-import { useEndPoll } from '../hooks/useEndPoll';
+import { PollDataWithOption, publishPollResultByChat } from '@/components/polls/utils';
+import { useEndPoll } from '@/components/polls/hooks/useEndPoll';
 
 interface PollActionsMenuProps {
   isRunning: boolean;

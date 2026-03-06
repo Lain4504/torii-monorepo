@@ -22,26 +22,27 @@ export default defineAgent({
         const roomName = ctx.job.room?.name || 'unknown';
 
         // Find the real user ID from the room (exclude the agent themselves)
-        // Fallback to a special UUID if no user is found to prevent Prisma crashes
-        const SYSTEM_DEFAULT_USER = '00000000-0000-0000-0000-000000000000';
-        let userId = ctx.job.participant?.identity || SYSTEM_DEFAULT_USER;
-
-        const participants = Array.from(ctx.room.remoteParticipants.values()).filter(p => !p.identity.startsWith('agent-'));
+        let userId = 'voice-user';
+        const participants = Array.from(ctx.room.remoteParticipants.values());
         if (participants.length > 0) {
+            // Pick the first remote participant as the user
             userId = participants[0].identity;
             console.log(`[entry] Detected user identity from room: ${userId}`);
-        } else if (userId === SYSTEM_DEFAULT_USER || userId.startsWith('agent-')) {
-            console.warn(`[entry] No human participants found in room ${roomName}.`);
-            // Try to parse from room name if it follows roleplay-<graph>-<user>-<session>
-            const parts = roomName.split('-');
-            if (parts.length >= 4 && parts[0] === 'roleplay') {
-                userId = parts[2]; // Potential user UUID
-                console.log(`[entry] Extracted potential user identity from room name: ${userId}`);
+        } else {
+            console.warn(
+                `[entry] No remote participants found in room ${roomName} yet.`,
+            );
+            // Fallback to job participant if available and not 'agent-'
+            const jobIdentity = ctx.job.participant?.identity;
+            if (jobIdentity && !jobIdentity.startsWith('agent-')) {
+                userId = jobIdentity;
             }
         }
 
         const startTime = Date.now();
-        console.log(`LiveKit Agent connected to room: ${roomName} (resolved user: ${userId})`);
+        console.log(
+            `LiveKit Agent connected to room: ${roomName} (resolved user: ${userId})`,
+        );
 
         // Session-based billing accumulators
         let accumulatedInputTokens = 0;
@@ -56,12 +57,16 @@ export default defineAgent({
         try {
             const natsOptions: any = { servers: natsUrl };
             if (nkeySeed) {
-                natsOptions.authenticator = nkeyAuthenticator(new TextEncoder().encode(nkeySeed));
+                natsOptions.authenticator = nkeyAuthenticator(
+                    new TextEncoder().encode(nkeySeed),
+                );
             }
             nc = await connect(natsOptions);
             console.log(`[billing] NATS connected for room ${roomName}`);
         } catch (natsErr) {
-            console.warn(`[billing] NATS unavailable — per-turn billing disabled: ${natsErr}`);
+            console.warn(
+                `[billing] NATS unavailable — per-turn billing disabled: ${natsErr}`,
+            );
         }
 
         try {
@@ -69,8 +74,8 @@ export default defineAgent({
             console.log(`Connected to room: ${roomName}`);
 
             const llm = new google.beta.realtime.RealtimeModel({
-                model: "gemini-2.5-flash-native-audio-latest",
-                voice: "Puck",
+                model: 'gemini-2.5-flash-native-audio-latest',
+                voice: 'Puck',
                 temperature: 0.8,
                 instructions: `You are Sensei, a friendly Japanese language tutor having a live voice conversation.
 
@@ -94,24 +99,39 @@ STYLE:
                 llm,
                 voiceOptions: {
                     userAwayTimeout: 300, // 5 minutes
-                }
+                },
             });
             (session as any).options.userAwayTimeout = 300; // Explicit override
-            console.log(`[entry] Session options: ${JSON.stringify((session as any).options)}`);
+            console.log(
+                `[entry] Session options: ${JSON.stringify((session as any).options)}`,
+            );
 
-            const agent = new voice.Agent({ instructions: "" });
+            const agent = new voice.Agent({ instructions: '' });
 
             await session.start({ agent, room: ctx.room });
             console.log(`[entry] AgentSession started for room: ${roomName}`);
 
             // Per-turn billing: publish data to room after each agent response
             const handleMetrics = async (eventOrMetrics: any) => {
-                console.log(`[billing] Received metrics event: ${JSON.stringify(eventOrMetrics)}`);
+                console.log(
+                    `[billing] Received metrics event: ${JSON.stringify(eventOrMetrics)}`,
+                );
                 const metrics = eventOrMetrics?.metrics || eventOrMetrics;
                 if (metrics && !metrics.cancelled) {
-                    const inputTokens = metrics.inputTokens || metrics.promptTokens || metrics.promptTokenCount || 0;
-                    const outputTokens = metrics.outputTokens || metrics.completionTokens || metrics.responseTokenCount || 0;
-                    const totalTokens = metrics.totalTokens || metrics.totalTokenCount || (inputTokens + outputTokens);
+                    const inputTokens =
+                        metrics.inputTokens ||
+                        metrics.promptTokens ||
+                        metrics.promptTokenCount ||
+                        0;
+                    const outputTokens =
+                        metrics.outputTokens ||
+                        metrics.completionTokens ||
+                        metrics.responseTokenCount ||
+                        0;
+                    const totalTokens =
+                        metrics.totalTokens ||
+                        metrics.totalTokenCount ||
+                        inputTokens + outputTokens;
 
                     console.log(`[billing] Raw metrics: ${JSON.stringify(metrics)}`);
 
@@ -120,13 +140,17 @@ STYLE:
                         return;
                     }
 
-                    console.log(`[billing] Turn tokens for user=${userId} — in:${inputTokens} out:${outputTokens} total:${totalTokens}`);
+                    console.log(
+                        `[billing] Turn tokens for user=${userId} — in:${inputTokens} out:${outputTokens} total:${totalTokens}`,
+                    );
 
                     // Accumulate tokens for session-based billing
                     accumulatedInputTokens += inputTokens;
                     accumulatedOutputTokens += outputTokens;
                     accumulatedTotalTokens += totalTokens;
-                    console.log(`[billing] Session accumulated: ${accumulatedTotalTokens} tokens`);
+                    console.log(
+                        `[billing] Session accumulated: ${accumulatedTotalTokens} tokens`,
+                    );
 
                     // 2. Notify frontend to refresh balance display
                     const localParticipant = ctx.room.localParticipant;
@@ -137,15 +161,19 @@ STYLE:
                                 inputTokens,
                                 outputTokens,
                                 totalTokens,
-                                timestamp: Date.now()
+                                timestamp: Date.now(),
                             });
                             await localParticipant.publishData(
                                 new TextEncoder().encode(payload),
-                                { reliable: true, topic: 'billing_update' }
+                                { reliable: true, topic: 'billing_update' },
                             );
-                            console.log(`[billing] Published DataPacket to room (topic: billing_update)`);
+                            console.log(
+                                `[billing] Published DataPacket to room (topic: billing_update)`,
+                            );
                         } catch (e) {
-                            console.warn(`[billing] Failed to publish billing_update to room: ${e}`);
+                            console.warn(
+                                `[billing] Failed to publish billing_update to room: ${e}`,
+                            );
                         }
                     }
                 }
@@ -154,30 +182,37 @@ STYLE:
             // Listen on various objects to ensure we catch the metrics per-turn
             console.log(`[billing] Setting up metrics listeners...`);
 
-            // Listen for metrics on the AgentSession. 
-            // AgentActivity already aggregates all metrics (LLM, STT, TTS, Realtime) 
+            // Listen for metrics on the AgentSession.
+            // AgentActivity already aggregates all metrics (LLM, STT, TTS, Realtime)
             // and re-emits them as 'metrics_collected' on the session.
-            console.log(`[billing] Attaching metrics_collected listener to AgentSession...`);
+            console.log(
+                `[billing] Attaching metrics_collected listener to AgentSession...`,
+            );
             (session as any).on('metrics_collected', (event: any) => {
                 console.log(`[billing] AgentSession metrics_collected received`);
                 handleMetrics(event);
             });
 
             // diagnostic logs
-            (session as any).on('user_speech_started', () => console.log(`[session] User started speaking`));
-            (session as any).on('user_speech_finished', () => console.log(`[session] User finished speaking`));
+            (session as any).on('user_speech_started', () =>
+                console.log(`[session] User started speaking`),
+            );
+            (session as any).on('user_speech_finished', () =>
+                console.log(`[session] User finished speaking`),
+            );
 
             // Wait for the room to be disconnected or session to end
             await new Promise((resolve) => {
                 ctx.room.on('disconnected', resolve);
             });
-
         } catch (e: any) {
             console.error(`Error in agentEntry for room ${roomName}: ${e}`);
         } finally {
             const duration = Math.floor((Date.now() - startTime) / 1000);
             if (duration > 0) {
-                console.log(`Recording usage for room ${roomName}: ${duration}s | Tokens: ${accumulatedTotalTokens}`);
+                console.log(
+                    `Recording usage for room ${roomName}: ${duration}s | Tokens: ${accumulatedTotalTokens}`,
+                );
 
                 // Final Session-Based Billing Deduction
                 if (accumulatedTotalTokens > 0) {
@@ -189,18 +224,24 @@ STYLE:
                                 promptTokenCount: accumulatedInputTokens,
                                 candidatesTokenCount: accumulatedOutputTokens,
                                 totalTokenCount: accumulatedTotalTokens,
-                                model: "gemini-2.5-flash-native-audio-latest"
-                            }
+                                model: 'gemini-2.5-flash-native-audio-latest',
+                            },
                         };
-                        const eventSubject = JSON.stringify({ cmd: 'billing.quota.recordTokenUsage' });
+                        const eventSubject = JSON.stringify({
+                            cmd: 'billing.quota.recordTokenUsage',
+                        });
                         const natsPayload = jc.encode(payloadData);
 
-                        const natsConn = nc || await connect({ servers: natsUrl }); // Fallback reconnect if needed
+                        const natsConn = nc || (await connect({ servers: natsUrl })); // Fallback reconnect if needed
                         natsConn.publish(eventSubject, natsPayload);
                         await natsConn.flush();
-                        console.log(`[billing] Final session deduction published to NATS subject='${eventSubject}' (${accumulatedTotalTokens} tokens)`);
+                        console.log(
+                            `[billing] Final session deduction published to NATS subject='${eventSubject}' (${accumulatedTotalTokens} tokens)`,
+                        );
                     } catch (e) {
-                        console.error(`[billing] Failed to publish final session deduction: ${e}`);
+                        console.error(
+                            `[billing] Failed to publish final session deduction: ${e}`,
+                        );
                     }
                 }
 
@@ -209,51 +250,71 @@ STYLE:
                     await redis.hincrby(key, 'total_duration', duration);
                     await redis.expire(key, 86400); // 24h
                 } catch (redisErr) {
-                    console.warn(`Redis unavailable — skipping usage record for room ${roomName}: ${redisErr}`);
+                    console.warn(
+                        `Redis unavailable — skipping usage record for room ${roomName}: ${redisErr}`,
+                    );
                 }
 
                 // Notify artifact generation via NATS
                 try {
                     if (nc) {
-                        nc.publish('agents.analytics.createUsageArtifacts', jc.encode({
-                            roomId: roomName,
-                            userId,
-                            type: 'voice'
-                        }));
+                        nc.publish(
+                            'agents.analytics.createUsageArtifacts',
+                            jc.encode({
+                                roomId: roomName,
+                                userId,
+                                type: 'voice',
+                            }),
+                        );
                         await nc.flush();
                     } else {
                         const natsOptions: any = { servers: natsUrl };
                         if (nkeySeed) {
-                            natsOptions.authenticator = nkeyAuthenticator(new TextEncoder().encode(nkeySeed));
+                            natsOptions.authenticator = nkeyAuthenticator(
+                                new TextEncoder().encode(nkeySeed),
+                            );
                         }
                         const tempNc = await connect(natsOptions);
-                        tempNc.publish('agents.analytics.createUsageArtifacts', jc.encode({
-                            roomId: roomName,
-                            userId,
-                            type: 'voice'
-                        }));
+                        tempNc.publish(
+                            'agents.analytics.createUsageArtifacts',
+                            jc.encode({
+                                roomId: roomName,
+                                userId,
+                                type: 'voice',
+                            }),
+                        );
                         await tempNc.flush();
                         await tempNc.close();
                     }
                     console.log(`NATS notification sent for room ${roomName}`);
                 } catch (natsErr) {
-                    console.error(`Failed to notify artifact generation via NATS: ${natsErr}`);
+                    console.error(
+                        `Failed to notify artifact generation via NATS: ${natsErr}`,
+                    );
                 }
             }
             // 3. Clear join lock in LivekitAgentService
             try {
-                const unlockSubject = JSON.stringify({ cmd: 'agents.livekit.clearJoinLock' });
+                const unlockSubject = JSON.stringify({
+                    cmd: 'agents.livekit.clearJoinLock',
+                });
                 const unlockPayload = jc.encode({ roomName, userId });
-                const natsConn = nc || await connect({ servers: natsUrl });
+                const natsConn = nc || (await connect({ servers: natsUrl }));
                 natsConn.publish(unlockSubject, unlockPayload);
                 await natsConn.flush();
-                console.log(`[entry] Published unlock signal to NATS for user: ${userId}`);
+                console.log(
+                    `[entry] Published unlock signal to NATS for user: ${userId}`,
+                );
             } catch (e) {
                 console.error(`[entry] Failed to publish unlock signal: ${e}`);
             }
 
             // Close persistent NATS connection
-            try { await nc?.drain(); } catch { /* ignore */ }
+            try {
+                await nc?.drain();
+            } catch {
+                /* ignore */
+            }
             redis.disconnect();
 
             console.log(`[entry] Session finished for room ${roomName}.`);

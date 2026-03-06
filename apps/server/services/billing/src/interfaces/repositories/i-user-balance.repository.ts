@@ -1,7 +1,16 @@
 import { UserBalance } from '@prisma/generated';
 
 export interface IUserBalanceRepository {
-    findByUserId(userId: string): Promise<UserBalance | null>;
-    updateBalance(userId: string, amount: number): Promise<UserBalance>;
-    create(userId: string, initialBalance?: number): Promise<UserBalance>;
+  /**
+   * Find by user id.
+   */
+  findByUserId(userId: string): Promise<UserBalance | null>;
+  /**
+   * Update balance.
+   */
+  updateBalance(userId: string, amount: number): Promise<UserBalance>;
+  /**
+   * Create data.
+   */
+  create(userId: string, initialBalance?: number): Promise<UserBalance>;
 }

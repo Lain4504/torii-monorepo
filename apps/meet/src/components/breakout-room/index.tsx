@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { CreateBreakoutRoomsReq } from '@workspace/protocol';
 
-import FormElems from './form';
-import ManageActiveRooms from './manage-active-rooms';
-import Modal from '../../helpers/ui/modal';
+import FormElems from '@/components/breakout-room/form';
+import ManageActiveRooms from '@/components/breakout-room/manage-active-rooms';
+import Modal from '@/helpers/ui/modal';
 
-import { useAppDispatch, useAppSelector } from '../../store';
-import { updateShowManageBreakoutRoomModal } from '../../store/slices/bottomIconsActivitySlice';
-import { useCreateBreakoutRoomsMutation } from '../../store/services/breakoutRoomApi';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { updateShowManageBreakoutRoomModal } from '@/store/slices/bottomIconsActivitySlice';
+import { useCreateBreakoutRoomsMutation } from '@/store/services/breakoutRoomApi';
 
 export interface BreakoutRoomMessage {
   text: string;

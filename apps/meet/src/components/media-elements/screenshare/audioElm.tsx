@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { RemoteAudioTrack } from 'livekit-client';
 import { throttle } from 'es-toolkit';
 
-import { useAppSelector } from '../../../store';
+import { useAppSelector } from '@/store';
 
 interface IAudioElmProps {
   audioTrack: RemoteAudioTrack;

@@ -1,11 +1,11 @@
 import React from 'react';
-import { useAppDispatch, useAppSelector } from '../../../store';
+import { useAppDispatch, useAppSelector } from '@/store';
 import {
     updateAllowPlayAudioNotification,
     updateFocusActiveSpeakerWebcam,
     updateTheme,
-} from '../../../store/slices/roomSettingsSlice';
-import SettingsSwitch from '../../../helpers/ui/settingsSwitch';
+} from '@/store/slices/roomSettingsSlice';
+import SettingsSwitch from '@/helpers/ui/settingsSwitch';
 
 const ApplicationSettings = () => {
     const dispatch = useAppDispatch();

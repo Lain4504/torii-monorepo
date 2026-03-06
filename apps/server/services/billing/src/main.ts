@@ -5,23 +5,23 @@ import { createNatsServiceConfig } from '@server/shared';
 import { BillingModule } from './billing.module';
 
 async function bootstrap() {
-    console.log('🚀 Billing Service starting...');
+  console.log('🚀 Billing Service starting...');
 
-    const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-        BillingModule,
-        createNatsServiceConfig(),
-    );
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
+    BillingModule,
+    createNatsServiceConfig(),
+  );
 
-    app.useGlobalPipes(
-        new ValidationPipe({
-            whitelist: true,
-            transform: true,
-            forbidNonWhitelisted: false,
-        }),
-    );
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: false,
+    }),
+  );
 
-    await app.listen();
-    console.log('📡 Billing Service NATS microservice listening');
+  await app.listen();
+  console.log('📡 Billing Service NATS microservice listening');
 }
 
 bootstrap();

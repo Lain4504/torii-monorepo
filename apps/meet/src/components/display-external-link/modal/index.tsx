@@ -7,16 +7,16 @@ import {
 } from '@workspace/protocol';
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
+import { store, useAppDispatch, useAppSelector } from '@/store';
 import {
   updateDisplayExternalLinkRoomModal,
   updateIsActiveWhiteboard,
-} from '../../../store/slices/bottomIconsActivitySlice';
-import sendAPIRequest from '../../../helpers/api/api-client';
-import Modal from '../../../helpers/ui/modal';
-import ActionButton from '../../../helpers/ui/actionButton';
-import Checkbox from '../../../helpers/ui/checkbox';
-import SavedLinks from './savedLinks';
+} from '@/store/slices/bottomIconsActivitySlice';
+import sendAPIRequest from '@/helpers/api/api-client';
+import Modal from '@/helpers/ui/modal';
+import ActionButton from '@/helpers/ui/actionButton';
+import Checkbox from '@/helpers/ui/checkbox';
+import SavedLinks from '@/components/display-external-link/modal/savedLinks';
 
 const DisplayExternalLinkModal = () => {
   const dispatch = useAppDispatch();

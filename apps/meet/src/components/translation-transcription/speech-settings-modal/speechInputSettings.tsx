@@ -2,8 +2,8 @@ import React, { useEffect, useMemo } from 'react';
 import { Field, Label, Switch } from '@headlessui/react';
 import { InsightsTranscriptionFeatures } from '@workspace/protocol';
 
-import { speechLangsMap } from '../helpers/supportedLangs';
-import Dropdown from '../../../helpers/ui/dropdown';
+import { speechLangsMap } from '@/components/translation-transcription/helpers/supportedLangs';
+import Dropdown from '@/helpers/ui/dropdown';
 
 interface ISpeechInputSettingsProps {
   transcriptionFeatures: InsightsTranscriptionFeatures;

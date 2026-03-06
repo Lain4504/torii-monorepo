@@ -1,5 +1,5 @@
 import { ConnectionQuality } from 'livekit-client';
-import { ICurrentUserMetadata } from './session';
+import { ICurrentUserMetadata } from '@/store/slices/interfaces/session';
 
 export interface IParticipant {
   sid: string;

@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { getDefaultRoomInfo } from '../../helpers/roomConfig';
-import { SERVER_URL } from '../../config';
+import { getDefaultRoomInfo } from '@/helpers/roomConfig';
+import { SERVER_URL } from '@/config';
+import { Button } from '@workspace/ui/components/button';
+import { Input } from '@workspace/ui/components/input';
+import { Label } from '@workspace/ui/components/label';
+import { NativeSelect, NativeSelectOption } from '@workspace/ui/components/native-select';
 
 const Login = () => {
     const [apiKey, setApiKey] = useState('');
@@ -124,74 +128,66 @@ const Login = () => {
                 <form onSubmit={handleLogin} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <label className="text-sm font-semibold text-[#233240] dark:text-gray-200">API Key</label>
-                            <input
+                            <Label>API Key</Label>
+                            <Input
                                 type="text"
                                 value={apiKey}
                                 onChange={(e) => setApiKey(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl border border-[#c2daf2] dark:border-[#4d6680] bg-white dark:bg-transparent text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/20 outline-none transition-all"
                                 required
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-semibold text-[#233240] dark:text-gray-200">API Secret</label>
-                            <input
+                            <Label>API Secret</Label>
+                            <Input
                                 type="password"
                                 value={apiSecret}
                                 onChange={(e) => setApiSecret(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl border border-[#c2daf2] dark:border-[#4d6680] bg-white dark:bg-transparent text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/20 outline-none transition-all"
                                 required
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-semibold text-[#233240] dark:text-gray-200">Room</label>
-                            <select
+                            <Label>Room</Label>
+                            <NativeSelect
                                 value={roomId}
                                 onChange={(e) => setRoomId(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl border border-[#c2daf2] dark:border-[#4d6680] bg-white dark:bg-transparent text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/20 outline-none transition-all appearance-none"
-                                style={{ backgroundImage: `url("data:image/svg+xml;utf8,<svg fill='currentColor' height='20' viewBox='0 0 20 20' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M5.516 7.548l4.484 4.487 4.484-4.487L15.484 8.5 10 14l-5.484-5.5z'/></svg>")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
                             >
                                 {[...Array(15)].map((_, i) => (
-                                    <option key={i} value={`room${(i + 1).toString().padStart(2, '0')}`}>Room {i + 1}</option>
+                                    <NativeSelectOption key={i} value={`room${(i + 1).toString().padStart(2, '0')}`}>Room {i + 1}</NativeSelectOption>
                                 ))}
-                            </select>
+                            </NativeSelect>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-semibold text-[#233240] dark:text-gray-200">User Type</label>
-                            <select
+                            <Label>User Type</Label>
+                            <NativeSelect
                                 value={userType}
                                 onChange={(e) => setUserType(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl border border-[#c2daf2] dark:border-[#4d6680] bg-white dark:bg-transparent text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/20 outline-none transition-all appearance-none"
-                                style={{ backgroundImage: `url("data:image/svg+xml;utf8,<svg fill='currentColor' height='20' viewBox='0 0 20 20' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M5.516 7.548l4.484 4.487 4.484-4.487L15.484 8.5 10 14l-5.484-5.5z'/></svg>")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
                             >
-                                <option value="admin">Admin</option>
-                                <option value="participant">Participant</option>
-                            </select>
+                                <NativeSelectOption value="admin">Admin</NativeSelectOption>
+                                <NativeSelectOption value="participant">Participant</NativeSelectOption>
+                            </NativeSelect>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-semibold text-[#233240] dark:text-gray-200">Name</label>
-                            <input
+                            <Label>Name</Label>
+                            <Input
                                 type="text"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl border border-[#c2daf2] dark:border-[#4d6680] bg-white dark:bg-transparent text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/20 outline-none transition-all"
                                 required
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-semibold text-[#233240] dark:text-gray-200">User ID</label>
-                            <input
+                            <Label>User ID</Label>
+                            <Input
                                 type="text"
                                 value={userId}
                                 onChange={(e) => setUserId(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl border border-[#c2daf2] dark:border-[#4d6680] bg-white dark:bg-transparent text-gray-900 dark:text-white focus:ring-4 focus:ring-blue-500/20 outline-none transition-all"
                                 required
                             />
                         </div>
                     </div>
 
                     <div className="flex justify-end gap-4 mt-8">
-                        <button
+                        <Button
                             type="reset"
                             onClick={() => {
                                 setApiKey('');
@@ -199,17 +195,16 @@ const Login = () => {
                                 setUserId(Date.now().toString());
                                 setName('user-' + Math.floor(Math.random() * 100));
                             }}
-                            className="px-8 py-3 rounded-xl font-semibold text-white bg-red-500 hover:bg-red-600 border border-red-600 shadow-sm transition-all"
+                            variant="destructive"
                         >
                             Reset
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="submit"
                             disabled={isLoading}
-                            className="px-8 py-3 rounded-xl font-semibold text-white bg-blue-500 hover:bg-blue-600 border border-blue-600 shadow-sm transition-all disabled:opacity-50"
                         >
                             {isLoading ? 'Processing...' : 'Submit'}
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </div>

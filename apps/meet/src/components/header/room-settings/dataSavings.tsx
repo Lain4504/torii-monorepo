@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { VideoQuality } from 'livekit-client';
 
-import { useAppDispatch, useAppSelector } from '../../../store';
+import { useAppDispatch, useAppSelector } from '@/store';
 import {
     updateActivateWebcamsView,
     updateActiveScreenSharingView,
     updateMaxNumDisplayWebcams,
     updateRoomVideoQuality,
-} from '../../../store/slices/roomSettingsSlice';
-import SettingsSwitch from '../../../helpers/ui/settingsSwitch';
-import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';
-import { UserDeviceType } from '../../../store/slices/interfaces/session';
+} from '@/store/slices/roomSettingsSlice';
+import SettingsSwitch from '@/helpers/ui/settingsSwitch';
+import Dropdown, { ISelectOption } from '@/helpers/ui/dropdown';
+import { UserDeviceType } from '@/store/slices/interfaces/session';
 
 const DataSavings = () => {
     const dispatch = useAppDispatch();

@@ -2,12 +2,12 @@ import React, { useRef } from 'react';
 import { Maximize, PictureInPicture } from 'lucide-react';
 import { LocalTrackPublication, RemoteTrackPublication } from 'livekit-client';
 
-import VideoElm from './videoElm';
-import PinWebcam from './pinWebcam';
-import MicStatus from './micStatus';
-import ConnectionStatus from './connectionStatus';
-import { sleep } from '../../../../helpers/utils';
-import Participant from './participant';
+import VideoElm from '@/components/media-elements/videos/video/videoElm';
+import PinWebcam from '@/components/media-elements/videos/video/pinWebcam';
+import MicStatus from '@/components/media-elements/videos/video/micStatus';
+import ConnectionStatus from '@/components/media-elements/videos/video/connectionStatus';
+import { sleep } from '@/helpers/utils';
+import Participant from '@/components/media-elements/videos/video/participant';
 
 export interface IVideoComponentProps {
   userId: string;

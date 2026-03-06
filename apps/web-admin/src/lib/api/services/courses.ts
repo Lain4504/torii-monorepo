@@ -66,6 +66,17 @@ export const coursesApi = {
         return response.data.data!.course;
     },
 
+    // POST /api/course-masters/:id/review
+    async reviewSyllabus(id: string, payload: {
+        outcome: 'APPROVED' | 'REJECTED' | 'CHANGES_REQUIRED';
+        checklist?: Record<string, any>;
+        comments?: string;
+        rejectionReason?: string;
+    }): Promise<CourseMasterResponseDTO> {
+        const response = await apiClient.post<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/course-masters/${id}/review`, payload);
+        return response.data.data!.course;
+    },
+
     // POST /api/course-masters/:id/reject
     async reject(id: string, reason: string): Promise<CourseMasterResponseDTO> {
         const response = await apiClient.post<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/course-masters/${id}/reject`, { reason });
@@ -194,6 +205,21 @@ export function useRejectCourse() {
 
     return useMutation({
         mutationFn: ({ id, reason }: { id: string; reason: string }) => coursesApi.reject(id, reason),
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['courses', variables.id] });
+            queryClient.invalidateQueries({ queryKey: ['courses'] });
+        },
+    });
+}
+
+/**
+ * Hook: Review syllabus (Staff-LMS)
+ */
+export function useReviewSyllabus() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, payload }: { id: string; payload: any }) => coursesApi.reviewSyllabus(id, payload),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['courses', variables.id] });
             queryClient.invalidateQueries({ queryKey: ['courses'] });

@@ -50,17 +50,17 @@
       "@server/meet/*": [
         "./services/meet/src/*"
       ],
+      "@server/academy": [
+        "./services/academy/src"
+      ],
+      "@server/academy/*": [
+        "./services/academy/src/*"
+      ],
       "@server/learning": [
         "./services/learning/src"
       ],
       "@server/learning/*": [
         "./services/learning/src/*"
-      ],
-      "@server/communication/*": [
-        "./services/communication/src/*"
-      ],
-      "@server/storage/*": [
-        "./services/storage/src/*"
       ],
       "@prisma/generated": [
         "./generated/prisma/client"

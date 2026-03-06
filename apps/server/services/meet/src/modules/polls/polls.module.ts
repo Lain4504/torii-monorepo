@@ -11,19 +11,15 @@ import { LiveKitModule } from '@server/meet/infrastructure/livekit/livekit.modul
 import { WajlcAuthModule } from '@server/meet/modules/auth/wajlc-auth.module';
 
 @Module({
-    imports: [
-        SharedModule,
-        forwardRef(() => AnalyticsModule),
-        forwardRef(() => NatsModule),
-        LiveKitModule,
-        WajlcAuthModule,
-    ],
-    controllers: [PollsHandler],
-    providers: [
-        PollsService,
-        RedisPollService,
-        RedisLockService,
-    ],
-    exports: [PollsService],
+  imports: [
+    SharedModule,
+    forwardRef(() => AnalyticsModule),
+    forwardRef(() => NatsModule),
+    LiveKitModule,
+    WajlcAuthModule,
+  ],
+  controllers: [PollsHandler],
+  providers: [PollsService, RedisPollService, RedisLockService],
+  exports: [PollsService],
 })
-export class PollsModule { }
+export class PollsModule {}

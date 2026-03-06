@@ -13,21 +13,20 @@ import { AuthorizationHandler } from '@server/identity/modules/authorization/aut
  * Handles permissions, roles, and access control
  */
 @Module({
-    imports: [PrismaModule, NatsClientModule, AuditModule],
-    controllers: [AuthorizationHandler],
-    providers: [
-        {
-            provide: AUTHORIZATION_SERVICE_TOKEN,
-            useClass: AuthorizationService,
-        },
-        AuthorizationConfigService,
-        AuthorizationSeederService,
-    ],
-    exports: [
-        AUTHORIZATION_SERVICE_TOKEN,
-        AuthorizationConfigService,
-        AuthorizationSeederService,
-    ],
+  imports: [PrismaModule, NatsClientModule, AuditModule],
+  controllers: [AuthorizationHandler],
+  providers: [
+    {
+      provide: AUTHORIZATION_SERVICE_TOKEN,
+      useClass: AuthorizationService,
+    },
+    AuthorizationConfigService,
+    AuthorizationSeederService,
+  ],
+  exports: [
+    AUTHORIZATION_SERVICE_TOKEN,
+    AuthorizationConfigService,
+    AuthorizationSeederService,
+  ],
 })
-export class AuthorizationModule { }
-
+export class AuthorizationModule {}

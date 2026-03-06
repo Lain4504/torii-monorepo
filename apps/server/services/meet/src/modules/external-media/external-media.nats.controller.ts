@@ -5,27 +5,27 @@ import { ExternalMediaPlayerReq } from '@workspace/protocol';
 
 @Controller()
 export class ExternalMediaNatsController {
-    private readonly logger = new Logger(ExternalMediaNatsController.name);
+  private readonly logger = new Logger(ExternalMediaNatsController.name);
 
-    constructor(
-        private readonly externalMediaService: ExternalMediaService,
-    ) { }
+  constructor(private readonly externalMediaService: ExternalMediaService) {}
 
-    @MessagePattern({ cmd: 'externalMedia.player' })
-    async handleRequest(@Payload() data: ExternalMediaPlayerReq) {
-        try {
-            await this.externalMediaService.handleRequest(data);
+  @MessagePattern({ cmd: 'externalMedia.player' })
+  async handleRequest(@Payload() data: ExternalMediaPlayerReq) {
+    try {
+      await this.externalMediaService.handleRequest(data);
 
-            return {
-                status: true,
-                msg: 'Success'
-            };
-        } catch (error) {
-            this.logger.error(`Error handling external media action: ${error.message}`);
-            return {
-                status: false,
-                msg: error.message
-            };
-        }
+      return {
+        status: true,
+        msg: 'Success',
+      };
+    } catch (error) {
+      this.logger.error(
+        `Error handling external media action: ${error.message}`,
+      );
+      return {
+        status: false,
+        msg: error.message,
+      };
     }
+  }
 }

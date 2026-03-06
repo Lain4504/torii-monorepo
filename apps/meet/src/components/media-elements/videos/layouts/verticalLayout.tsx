@@ -1,7 +1,7 @@
 import React, { ReactElement, useCallback } from 'react';
 
-import { useAppDispatch } from '../../../../store';
-import { updateIsEnabledExtendedVerticalCamView } from '../../../../store/slices/bottomIconsActivitySlice';
+import { useAppDispatch } from '@/store';
+import { updateIsEnabledExtendedVerticalCamView } from '@/store/slices/bottomIconsActivitySlice';
 import { ArrowRight } from 'lucide-react';
 
 interface IVerticalLayoutProps {

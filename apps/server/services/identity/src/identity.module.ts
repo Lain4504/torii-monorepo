@@ -12,6 +12,8 @@ import { AuthorizationModule } from '@server/identity/modules/authorization/auth
 import { AuditModule } from '@server/identity/modules/audit/audit.module';
 import { TwoFactorAuthModule } from '@server/identity/modules/two-factor-auth/two-factor-auth.module';
 import { AnalyticsModule } from '@server/identity/modules/analytics/analytics.module';
+import { EmailModule } from '@server/identity/modules/email/email.module';
+import { NotificationModule } from '@server/identity/modules/notification/notification.module';
 
 // Filters
 import { GlobalRpcExceptionFilter } from '@server/shared';
@@ -32,6 +34,8 @@ import { DefaultAdminService } from '@server/identity/services/default-admin.ser
     AuditModule,
     TwoFactorAuthModule,
     AnalyticsModule,
+    EmailModule,
+    NotificationModule,
   ],
   controllers: [],
   providers: [
@@ -50,6 +54,8 @@ import { DefaultAdminService } from '@server/identity/services/default-admin.ser
     AuditModule,
     TwoFactorAuthModule,
     AnalyticsModule,
+    EmailModule,
+    NotificationModule,
   ],
 })
 export class IdentityModule { }

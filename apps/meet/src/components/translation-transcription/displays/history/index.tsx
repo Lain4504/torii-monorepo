@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Popover } from '@headlessui/react';
 
-import { store } from '../../../../store';
+import { store } from '@/store';
 import { History } from 'lucide-react';
 
-import SubtitleHistoryPanel from './subtitleHistoryPanel';
+import SubtitleHistoryPanel from '@/components/translation-transcription/displays/history/subtitleHistoryPanel';
 
 interface SubtitleTextsHistoryProps {
   isOpenPopover: (open: boolean) => void;

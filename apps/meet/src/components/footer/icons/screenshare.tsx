@@ -6,13 +6,13 @@ import {
 } from 'livekit-client';
 import clsx from 'clsx';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { updateIsActiveScreenshare } from '../../../store/slices/bottomIconsActivitySlice';
-import { updateScreenSharing } from '../../../store/slices/sessionSlice';
-import { getScreenShareResolution } from '../../../helpers/utils';
-import { getMediaServerConnRoom } from '../../../helpers/livekit/utils';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import { updateIsActiveScreenshare } from '@/store/slices/bottomIconsActivitySlice';
+import { updateScreenSharing } from '@/store/slices/sessionSlice';
+import { getScreenShareResolution } from '@/helpers/utils';
+import { getMediaServerConnRoom } from '@/helpers/livekit/utils';
 import { MonitorUp, Lock as LockIcon } from 'lucide-react';
-import { addUserNotification } from '../../../store/slices/roomSettingsSlice';
+import { addUserNotification } from '@/store/slices/roomSettingsSlice';
 
 const ScrenshareIcon = () => {
   const dispatch = useAppDispatch();

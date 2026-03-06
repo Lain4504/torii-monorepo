@@ -4,8 +4,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(billing): restructure billing service modules and interfaces">
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="add learning progress statistics and enrollment management features">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/academy.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/academy.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/course-run.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/course.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/enrollment-admin.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/enrollment.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/learning-progress.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/lesson-material.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/lesson.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/module.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/learning.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/learning.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/gamification/create-reward-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/gamification/create-reward-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/gamification/edit-reward-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/gamification/edit-reward-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-course-profiles.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-course-profiles.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/assignments.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/assignments.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/gamification.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/gamification.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/submissions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/submissions.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/gamification/rewards-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/gamification/rewards-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/assignment.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/assignment.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/gamification.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/gamification.dto.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,10 +40,17 @@
     <option name="cachedIndexableFilesCount" value="1976" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="TypeScript File" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="refactor-billing-service" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -57,25 +83,56 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
-    "go.import.settings.migrated": "true",
-    "javascript.preferred.runtime.type.id": "node",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "pnpm",
-    "ts.external.directory.path": "/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Jest.CourseRunService.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#267 on new-markteting-web&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/apps/server/services/meet&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs.jest.jest_package&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/apps/server/node_modules/jest&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
+    ]
   }
-}]]></component>
+}</component>
+  <component name="RunManager">
+    <configuration name="CourseRunService" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <jest-package value="$PROJECT_DIR$/apps/server/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$/apps/server" />
+      <envs />
+      <scope-kind value="SUITE" />
+      <test-file value="$PROJECT_DIR$/apps/server/services/learning/src/modules/course-run/course-run.service.spec.ts" />
+      <test-names>
+        <test-name value="CourseRunService" />
+      </test-names>
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Jest.CourseRunService" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -254,400 +311,418 @@
       <workItem from="1772449707195" duration="399000" />
       <workItem from="1772474025610" duration="499000" />
       <workItem from="1772518585740" duration="733000" />
+      <workItem from="1772599189135" duration="53000" />
+      <workItem from="1772601369093" duration="1047000" />
+      <workItem from="1772602430606" duration="2000" />
+      <workItem from="1772602449755" duration="8209000" />
+      <workItem from="1772616293477" duration="1966000" />
+      <workItem from="1772633951974" duration="1482000" />
+      <workItem from="1772642951151" duration="2417000" />
+      <workItem from="1772648293401" duration="1652000" />
+      <workItem from="1772677029648" duration="1592000" />
+      <workItem from="1772680408009" duration="2567000" />
+      <workItem from="1772682985888" duration="81000" />
+      <workItem from="1772683072394" duration="1000" />
+      <workItem from="1772683090719" duration="3757000" />
+      <workItem from="1772688992568" duration="19000" />
+      <workItem from="1772694513606" duration="56000" />
+      <workItem from="1772699001161" duration="4211000" />
+      <workItem from="1772722974385" duration="2264000" />
+      <workItem from="1772726265375" duration="1097000" />
     </task>
-    <task id="LOCAL-00860" summary="refactor: improve layout and styling across multiple components">
+    <task id="LOCAL-00926" summary="update meet to user shadcn ui component">
       <option name="closed" value="true" />
-      <created>1771843343459</created>
-      <option name="number" value="00860" />
-      <option name="presentableId" value="LOCAL-00860" />
+      <created>1772617005061</created>
+      <option name="number" value="00926" />
+      <option name="presentableId" value="LOCAL-00926" />
       <option name="project" value="LOCAL" />
-      <updated>1771843343459</updated>
+      <updated>1772617005061</updated>
     </task>
-    <task id="LOCAL-00861" summary="refactor: reorganize dashboard components and update import paths">
+    <task id="LOCAL-00927" summary="update meet to user shadcn ui component">
       <option name="closed" value="true" />
-      <created>1771845443231</created>
-      <option name="number" value="00861" />
-      <option name="presentableId" value="LOCAL-00861" />
+      <created>1772617008611</created>
+      <option name="number" value="00927" />
+      <option name="presentableId" value="LOCAL-00927" />
       <option name="project" value="LOCAL" />
-      <updated>1771845443231</updated>
+      <updated>1772617008611</updated>
     </task>
-    <task id="LOCAL-00862" summary="feat: replace SVG logo with Image component for improved performance and consistency">
+    <task id="LOCAL-00928" summary="update meet to user shadcn ui component">
       <option name="closed" value="true" />
-      <created>1771851088973</created>
-      <option name="number" value="00862" />
-      <option name="presentableId" value="LOCAL-00862" />
+      <created>1772617056138</created>
+      <option name="number" value="00928" />
+      <option name="presentableId" value="LOCAL-00928" />
       <option name="project" value="LOCAL" />
-      <updated>1771851088973</updated>
+      <updated>1772617056138</updated>
     </task>
-    <task id="LOCAL-00863" summary="feat: add Trust, Journey, FAQ, Courses sections and refactor layout in the main page">
+    <task id="LOCAL-00929" summary="update meet to user shadcn ui component">
       <option name="closed" value="true" />
-      <created>1771852043726</created>
-      <option name="number" value="00863" />
-      <option name="presentableId" value="LOCAL-00863" />
+      <created>1772617062058</created>
+      <option name="number" value="00929" />
+      <option name="presentableId" value="LOCAL-00929" />
       <option name="project" value="LOCAL" />
-      <updated>1771852043726</updated>
+      <updated>1772617062059</updated>
     </task>
-    <task id="LOCAL-00864" summary="feat: add Trust, Journey, FAQ, Courses sections and refactor layout in the main page">
+    <task id="LOCAL-00930" summary="update meet to user shadcn ui component">
       <option name="closed" value="true" />
-      <created>1771853106093</created>
-      <option name="number" value="00864" />
-      <option name="presentableId" value="LOCAL-00864" />
+      <created>1772617074123</created>
+      <option name="number" value="00930" />
+      <option name="presentableId" value="LOCAL-00930" />
       <option name="project" value="LOCAL" />
-      <updated>1771853106094</updated>
+      <updated>1772617074123</updated>
     </task>
-    <task id="LOCAL-00865" summary="refactor: enhance layout and styling across multiple components">
+    <task id="LOCAL-00931" summary="update meet to user shadcn ui component">
       <option name="closed" value="true" />
-      <created>1771854114422</created>
-      <option name="number" value="00865" />
-      <option name="presentableId" value="LOCAL-00865" />
+      <created>1772617088566</created>
+      <option name="number" value="00931" />
+      <option name="presentableId" value="LOCAL-00931" />
       <option name="project" value="LOCAL" />
-      <updated>1771854114423</updated>
+      <updated>1772617088566</updated>
     </task>
-    <task id="LOCAL-00866" summary="refactor: enhance layout and styling in Translator, Resource Recommender, and Roleplay Studio components">
+    <task id="LOCAL-00932" summary="update meet to user shadcn ui component">
       <option name="closed" value="true" />
-      <created>1771856774713</created>
-      <option name="number" value="00866" />
-      <option name="presentableId" value="LOCAL-00866" />
+      <created>1772617095847</created>
+      <option name="number" value="00932" />
+      <option name="presentableId" value="LOCAL-00932" />
       <option name="project" value="LOCAL" />
-      <updated>1771856774714</updated>
+      <updated>1772617095847</updated>
     </task>
-    <task id="LOCAL-00867" summary="refactor: enhance layout and styling in Translator, Resource Recommender, and Roleplay Studio components">
+    <task id="LOCAL-00933" summary="update meet to user shadcn ui component">
       <option name="closed" value="true" />
-      <created>1771858589006</created>
-      <option name="number" value="00867" />
-      <option name="presentableId" value="LOCAL-00867" />
+      <created>1772617142317</created>
+      <option name="number" value="00933" />
+      <option name="presentableId" value="LOCAL-00933" />
       <option name="project" value="LOCAL" />
-      <updated>1771858589006</updated>
+      <updated>1772617142317</updated>
     </task>
-    <task id="LOCAL-00868" summary="refactor: simplify layout and styling in dashboard and feed components">
+    <task id="LOCAL-00934" summary="update meet to user shadcn ui component">
       <option name="closed" value="true" />
-      <created>1771859638489</created>
-      <option name="number" value="00868" />
-      <option name="presentableId" value="LOCAL-00868" />
+      <created>1772617205907</created>
+      <option name="number" value="00934" />
+      <option name="presentableId" value="LOCAL-00934" />
       <option name="project" value="LOCAL" />
-      <updated>1771859638489</updated>
+      <updated>1772617205907</updated>
     </task>
-    <task id="LOCAL-00869" summary="refactor: update notebook API and enhance flashcard component functionality">
+    <task id="LOCAL-00935" summary="update meet to user shadcn ui component">
       <option name="closed" value="true" />
-      <created>1771860695712</created>
-      <option name="number" value="00869" />
-      <option name="presentableId" value="LOCAL-00869" />
+      <created>1772618223371</created>
+      <option name="number" value="00935" />
+      <option name="presentableId" value="LOCAL-00935" />
       <option name="project" value="LOCAL" />
-      <updated>1771860695712</updated>
+      <updated>1772618223371</updated>
     </task>
-    <task id="LOCAL-00870" summary="fix: update external media player text for clarity">
+    <task id="LOCAL-00936" summary="update core lms flow">
       <option name="closed" value="true" />
-      <created>1771994879512</created>
-      <option name="number" value="00870" />
-      <option name="presentableId" value="LOCAL-00870" />
+      <created>1772618249621</created>
+      <option name="number" value="00936" />
+      <option name="presentableId" value="LOCAL-00936" />
       <option name="project" value="LOCAL" />
-      <updated>1771994879513</updated>
+      <updated>1772618249621</updated>
     </task>
-    <task id="LOCAL-00871" summary="fix: update external media player text for clarity">
+    <task id="LOCAL-00937" summary="update core lms flow">
       <option name="closed" value="true" />
-      <created>1771996995367</created>
-      <option name="number" value="00871" />
-      <option name="presentableId" value="LOCAL-00871" />
+      <created>1772634082921</created>
+      <option name="number" value="00937" />
+      <option name="presentableId" value="LOCAL-00937" />
       <option name="project" value="LOCAL" />
-      <updated>1771996995370</updated>
+      <updated>1772634082921</updated>
     </task>
-    <task id="LOCAL-00872" summary="fix: enhance course live class logic">
+    <task id="LOCAL-00938" summary="update core lms flow">
       <option name="closed" value="true" />
-      <created>1772302526060</created>
-      <option name="number" value="00872" />
-      <option name="presentableId" value="LOCAL-00872" />
+      <created>1772634574038</created>
+      <option name="number" value="00938" />
+      <option name="presentableId" value="LOCAL-00938" />
       <option name="project" value="LOCAL" />
-      <updated>1772302526060</updated>
+      <updated>1772634574039</updated>
     </task>
-    <task id="LOCAL-00873" summary="cômmit">
+    <task id="LOCAL-00939" summary="update core lms flow">
       <option name="closed" value="true" />
-      <created>1772344265347</created>
-      <option name="number" value="00873" />
-      <option name="presentableId" value="LOCAL-00873" />
+      <created>1772634824775</created>
+      <option name="number" value="00939" />
+      <option name="presentableId" value="LOCAL-00939" />
       <option name="project" value="LOCAL" />
-      <updated>1772344265347</updated>
+      <updated>1772634824775</updated>
     </task>
-    <task id="LOCAL-00874" summary="cômmit">
+    <task id="LOCAL-00940" summary="update core lms flow">
       <option name="closed" value="true" />
-      <created>1772344917986</created>
-      <option name="number" value="00874" />
-      <option name="presentableId" value="LOCAL-00874" />
+      <created>1772635046399</created>
+      <option name="number" value="00940" />
+      <option name="presentableId" value="LOCAL-00940" />
       <option name="project" value="LOCAL" />
-      <updated>1772344917986</updated>
+      <updated>1772635046399</updated>
     </task>
-    <task id="LOCAL-00875" summary="cômmit">
+    <task id="LOCAL-00941" summary="update core lms flow">
       <option name="closed" value="true" />
-      <created>1772345308843</created>
-      <option name="number" value="00875" />
-      <option name="presentableId" value="LOCAL-00875" />
+      <created>1772635132884</created>
+      <option name="number" value="00941" />
+      <option name="presentableId" value="LOCAL-00941" />
       <option name="project" value="LOCAL" />
-      <updated>1772345308843</updated>
+      <updated>1772635132884</updated>
     </task>
-    <task id="LOCAL-00876" summary="cômmit">
+    <task id="LOCAL-00942" summary="feat: initialize new marketing web project with Tailwind CSS and Radix UI components">
       <option name="closed" value="true" />
-      <created>1772345472277</created>
-      <option name="number" value="00876" />
-      <option name="presentableId" value="LOCAL-00876" />
+      <created>1772636235031</created>
+      <option name="number" value="00942" />
+      <option name="presentableId" value="LOCAL-00942" />
       <option name="project" value="LOCAL" />
-      <updated>1772345472278</updated>
+      <updated>1772636235031</updated>
     </task>
-    <task id="LOCAL-00877" summary="cômmit">
+    <task id="LOCAL-00943" summary="feat: add new UI components including Skeleton, AspectRatio, Spinner, and more">
       <option name="closed" value="true" />
-      <created>1772345718278</created>
-      <option name="number" value="00877" />
-      <option name="presentableId" value="LOCAL-00877" />
+      <created>1772636342269</created>
+      <option name="number" value="00943" />
+      <option name="presentableId" value="LOCAL-00943" />
       <option name="project" value="LOCAL" />
-      <updated>1772345718278</updated>
+      <updated>1772636342269</updated>
     </task>
-    <task id="LOCAL-00878" summary="cômmit">
+    <task id="LOCAL-00944" summary="feat: add new UI components including Skeleton, AspectRatio, Spinner, and more">
       <option name="closed" value="true" />
-      <created>1772345960253</created>
-      <option name="number" value="00878" />
-      <option name="presentableId" value="LOCAL-00878" />
+      <created>1772636488220</created>
+      <option name="number" value="00944" />
+      <option name="presentableId" value="LOCAL-00944" />
       <option name="project" value="LOCAL" />
-      <updated>1772345960253</updated>
+      <updated>1772636488220</updated>
     </task>
-    <task id="LOCAL-00879" summary="cômmit">
+    <task id="LOCAL-00945" summary="feat: add new UI components including Skeleton, AspectRatio, Spinner, and more">
       <option name="closed" value="true" />
-      <created>1772347173575</created>
-      <option name="number" value="00879" />
-      <option name="presentableId" value="LOCAL-00879" />
+      <created>1772636645449</created>
+      <option name="number" value="00945" />
+      <option name="presentableId" value="LOCAL-00945" />
       <option name="project" value="LOCAL" />
-      <updated>1772347173576</updated>
+      <updated>1772636645449</updated>
     </task>
-    <task id="LOCAL-00880" summary="cômmit">
+    <task id="LOCAL-00946" summary="update create review submit flow for course and course master">
       <option name="closed" value="true" />
-      <created>1772347386206</created>
-      <option name="number" value="00880" />
-      <option name="presentableId" value="LOCAL-00880" />
+      <created>1772643004038</created>
+      <option name="number" value="00946" />
+      <option name="presentableId" value="LOCAL-00946" />
       <option name="project" value="LOCAL" />
-      <updated>1772347386206</updated>
+      <updated>1772643004038</updated>
     </task>
-    <task id="LOCAL-00881" summary="cômmit">
+    <task id="LOCAL-00947" summary="update create review submit flow for course and course master">
       <option name="closed" value="true" />
-      <created>1772347399091</created>
-      <option name="number" value="00881" />
-      <option name="presentableId" value="LOCAL-00881" />
+      <created>1772643359298</created>
+      <option name="number" value="00947" />
+      <option name="presentableId" value="LOCAL-00947" />
       <option name="project" value="LOCAL" />
-      <updated>1772347399091</updated>
+      <updated>1772643359298</updated>
     </task>
-    <task id="LOCAL-00882" summary="cômmit">
+    <task id="LOCAL-00948" summary="update create review submit flow for course and course master">
       <option name="closed" value="true" />
-      <created>1772347722941</created>
-      <option name="number" value="00882" />
-      <option name="presentableId" value="LOCAL-00882" />
+      <created>1772648347320</created>
+      <option name="number" value="00948" />
+      <option name="presentableId" value="LOCAL-00948" />
       <option name="project" value="LOCAL" />
-      <updated>1772347722941</updated>
+      <updated>1772648347321</updated>
     </task>
-    <task id="LOCAL-00883" summary="cômmit">
+    <task id="LOCAL-00949" summary="update create review submit flow for course and course master">
       <option name="closed" value="true" />
-      <created>1772347817546</created>
-      <option name="number" value="00883" />
-      <option name="presentableId" value="LOCAL-00883" />
+      <created>1772648357610</created>
+      <option name="number" value="00949" />
+      <option name="presentableId" value="LOCAL-00949" />
       <option name="project" value="LOCAL" />
-      <updated>1772347817546</updated>
+      <updated>1772648357611</updated>
     </task>
-    <task id="LOCAL-00884" summary="feat: Add CourseRun and LiveSession enums, update related DTOs and services">
+    <task id="LOCAL-00950" summary="update create review submit flow for course and course master">
       <option name="closed" value="true" />
-      <created>1772370494498</created>
-      <option name="number" value="00884" />
-      <option name="presentableId" value="LOCAL-00884" />
+      <created>1772648496810</created>
+      <option name="number" value="00950" />
+      <option name="presentableId" value="LOCAL-00950" />
       <option name="project" value="LOCAL" />
-      <updated>1772370494498</updated>
+      <updated>1772648496810</updated>
     </task>
-    <task id="LOCAL-00885" summary="feat: Add CourseRunDetailPage and update course-related components for better course run management">
+    <task id="LOCAL-00951" summary="update create review submit flow for course and course master">
       <option name="closed" value="true" />
-      <created>1772370815099</created>
-      <option name="number" value="00885" />
-      <option name="presentableId" value="LOCAL-00885" />
+      <created>1772648780637</created>
+      <option name="number" value="00951" />
+      <option name="presentableId" value="LOCAL-00951" />
       <option name="project" value="LOCAL" />
-      <updated>1772370815099</updated>
+      <updated>1772648780637</updated>
     </task>
-    <task id="LOCAL-00886" summary="refactor: Remove unused course fields and simplify course management logic">
+    <task id="LOCAL-00952" summary="update create review submit flow for course and course master">
       <option name="closed" value="true" />
-      <created>1772371689546</created>
-      <option name="number" value="00886" />
-      <option name="presentableId" value="LOCAL-00886" />
+      <created>1772649198872</created>
+      <option name="number" value="00952" />
+      <option name="presentableId" value="LOCAL-00952" />
       <option name="project" value="LOCAL" />
-      <updated>1772371689546</updated>
+      <updated>1772649198872</updated>
     </task>
-    <task id="LOCAL-00887" summary="refactor: Rename courseId to courseMasterId and update related references across models and services">
+    <task id="LOCAL-00953" summary="gop theo tinh nang">
       <option name="closed" value="true" />
-      <created>1772373557646</created>
-      <option name="number" value="00887" />
-      <option name="presentableId" value="LOCAL-00887" />
+      <created>1772649414638</created>
+      <option name="number" value="00953" />
+      <option name="presentableId" value="LOCAL-00953" />
       <option name="project" value="LOCAL" />
-      <updated>1772373557646</updated>
+      <updated>1772649414638</updated>
     </task>
-    <task id="LOCAL-00888" summary="refactor: Rename courseId to courseMasterId and update related references across models and services">
+    <task id="LOCAL-00954" summary="gop theo tinh nang">
       <option name="closed" value="true" />
-      <created>1772376557471</created>
-      <option name="number" value="00888" />
-      <option name="presentableId" value="LOCAL-00888" />
+      <created>1772649542052</created>
+      <option name="number" value="00954" />
+      <option name="presentableId" value="LOCAL-00954" />
       <option name="project" value="LOCAL" />
-      <updated>1772376557471</updated>
+      <updated>1772649542052</updated>
     </task>
-    <task id="LOCAL-00889" summary="feat: Implement attendance processing for live sessions and add course run status update functionality">
+    <task id="LOCAL-00955" summary="gop theo tinh nang">
       <option name="closed" value="true" />
-      <created>1772381154759</created>
-      <option name="number" value="00889" />
-      <option name="presentableId" value="LOCAL-00889" />
+      <created>1772649551903</created>
+      <option name="number" value="00955" />
+      <option name="presentableId" value="LOCAL-00955" />
       <option name="project" value="LOCAL" />
-      <updated>1772381154759</updated>
+      <updated>1772649551903</updated>
     </task>
-    <task id="LOCAL-00890" summary="feat: Implement attendance processing for live sessions and add course run status update functionality">
+    <task id="LOCAL-00956" summary="gop theo tinh nang">
       <option name="closed" value="true" />
-      <created>1772381405376</created>
-      <option name="number" value="00890" />
-      <option name="presentableId" value="LOCAL-00890" />
+      <created>1772649645022</created>
+      <option name="number" value="00956" />
+      <option name="presentableId" value="LOCAL-00956" />
       <option name="project" value="LOCAL" />
-      <updated>1772381405376</updated>
+      <updated>1772649645022</updated>
     </task>
-    <task id="LOCAL-00891" summary="feat: Implement attendance processing for live sessions and add course run status update functionality">
+    <task id="LOCAL-00957" summary="gop theo tinh nang">
       <option name="closed" value="true" />
-      <created>1772382406461</created>
-      <option name="number" value="00891" />
-      <option name="presentableId" value="LOCAL-00891" />
+      <created>1772649667054</created>
+      <option name="number" value="00957" />
+      <option name="presentableId" value="LOCAL-00957" />
       <option name="project" value="LOCAL" />
-      <updated>1772382406461</updated>
+      <updated>1772649667054</updated>
     </task>
-    <task id="LOCAL-00892" summary="refactor: Rename course-related entities to use 'courseMaster' terminology and update related references">
+    <task id="LOCAL-00958" summary="gop theo tinh nang">
       <option name="closed" value="true" />
-      <created>1772386505816</created>
-      <option name="number" value="00892" />
-      <option name="presentableId" value="LOCAL-00892" />
+      <created>1772649847261</created>
+      <option name="number" value="00958" />
+      <option name="presentableId" value="LOCAL-00958" />
       <option name="project" value="LOCAL" />
-      <updated>1772386505816</updated>
+      <updated>1772649847262</updated>
     </task>
-    <task id="LOCAL-00893" summary="migation other code">
+    <task id="LOCAL-00959" summary="feat: implement header and footer components for improved layout structure">
       <option name="closed" value="true" />
-      <created>1772411322189</created>
-      <option name="number" value="00893" />
-      <option name="presentableId" value="LOCAL-00893" />
+      <created>1772678128312</created>
+      <option name="number" value="00959" />
+      <option name="presentableId" value="LOCAL-00959" />
       <option name="project" value="LOCAL" />
-      <updated>1772411322189</updated>
+      <updated>1772678128313</updated>
     </task>
-    <task id="LOCAL-00894" summary="migation other code">
+    <task id="LOCAL-00960" summary="feat: implement header and footer components for improved layout structure">
       <option name="closed" value="true" />
-      <created>1772412067326</created>
-      <option name="number" value="00894" />
-      <option name="presentableId" value="LOCAL-00894" />
+      <created>1772681868858</created>
+      <option name="number" value="00960" />
+      <option name="presentableId" value="LOCAL-00960" />
       <option name="project" value="LOCAL" />
-      <updated>1772412067326</updated>
+      <updated>1772681868858</updated>
     </task>
-    <task id="LOCAL-00895" summary="migation other code">
+    <task id="LOCAL-00961" summary="feat: implement header and footer components for improved layout structure">
       <option name="closed" value="true" />
-      <created>1772412835150</created>
-      <option name="number" value="00895" />
-      <option name="presentableId" value="LOCAL-00895" />
+      <created>1772683959144</created>
+      <option name="number" value="00961" />
+      <option name="presentableId" value="LOCAL-00961" />
       <option name="project" value="LOCAL" />
-      <updated>1772412835150</updated>
+      <updated>1772683959144</updated>
     </task>
-    <task id="LOCAL-00896" summary="migation other code">
+    <task id="LOCAL-00962" summary="feat: implement header and footer components for improved layout structure">
       <option name="closed" value="true" />
-      <created>1772415334643</created>
-      <option name="number" value="00896" />
-      <option name="presentableId" value="LOCAL-00896" />
+      <created>1772684516572</created>
+      <option name="number" value="00962" />
+      <option name="presentableId" value="LOCAL-00962" />
       <option name="project" value="LOCAL" />
-      <updated>1772415334643</updated>
+      <updated>1772684516572</updated>
     </task>
-    <task id="LOCAL-00897" summary="migation other code">
+    <task id="LOCAL-00963" summary="feat: implement header and footer components for improved layout structure">
       <option name="closed" value="true" />
-      <created>1772416644103</created>
-      <option name="number" value="00897" />
-      <option name="presentableId" value="LOCAL-00897" />
+      <created>1772684852462</created>
+      <option name="number" value="00963" />
+      <option name="presentableId" value="LOCAL-00963" />
       <option name="project" value="LOCAL" />
-      <updated>1772416644103</updated>
+      <updated>1772684852463</updated>
     </task>
-    <task id="LOCAL-00898" summary="fix to lauch success">
+    <task id="LOCAL-00964" summary="feat: implement header and footer components for improved layout structure">
       <option name="closed" value="true" />
-      <created>1772421927338</created>
-      <option name="number" value="00898" />
-      <option name="presentableId" value="LOCAL-00898" />
+      <created>1772684933059</created>
+      <option name="number" value="00964" />
+      <option name="presentableId" value="LOCAL-00964" />
       <option name="project" value="LOCAL" />
-      <updated>1772421927338</updated>
+      <updated>1772684933059</updated>
     </task>
-    <task id="LOCAL-00899" summary="fix">
+    <task id="LOCAL-00965" summary="Update schema.prisma">
       <option name="closed" value="true" />
-      <created>1772448550410</created>
-      <option name="number" value="00899" />
-      <option name="presentableId" value="LOCAL-00899" />
+      <created>1772699325414</created>
+      <option name="number" value="00965" />
+      <option name="presentableId" value="LOCAL-00965" />
       <option name="project" value="LOCAL" />
-      <updated>1772448550411</updated>
+      <updated>1772699325427</updated>
     </task>
-    <task id="LOCAL-00900" summary="fix">
+    <task id="LOCAL-00966" summary="Update schema.prisma">
       <option name="closed" value="true" />
-      <created>1772449184472</created>
-      <option name="number" value="00900" />
-      <option name="presentableId" value="LOCAL-00900" />
+      <created>1772699850459</created>
+      <option name="number" value="00966" />
+      <option name="presentableId" value="LOCAL-00966" />
       <option name="project" value="LOCAL" />
-      <updated>1772449184472</updated>
+      <updated>1772699850459</updated>
     </task>
-    <task id="LOCAL-00901" summary="fix">
+    <task id="LOCAL-00967" summary="Update schema.prisma">
       <option name="closed" value="true" />
-      <created>1772449518598</created>
-      <option name="number" value="00901" />
-      <option name="presentableId" value="LOCAL-00901" />
+      <created>1772700114040</created>
+      <option name="number" value="00967" />
+      <option name="presentableId" value="LOCAL-00967" />
       <option name="project" value="LOCAL" />
-      <updated>1772449518598</updated>
+      <updated>1772700114040</updated>
     </task>
-    <task id="LOCAL-00902" summary="fix">
+    <task id="LOCAL-00968" summary="refactor: clean up module exports and formatting across various files">
       <option name="closed" value="true" />
-      <created>1772449712869</created>
-      <option name="number" value="00902" />
-      <option name="presentableId" value="LOCAL-00902" />
+      <created>1772700797518</created>
+      <option name="number" value="00968" />
+      <option name="presentableId" value="LOCAL-00968" />
       <option name="project" value="LOCAL" />
-      <updated>1772449712869</updated>
+      <updated>1772700797518</updated>
     </task>
-    <task id="LOCAL-00903" summary="remomve uiuxpromax">
+    <task id="LOCAL-00969" summary="refactor: clean up module exports and formatting across various files">
       <option name="closed" value="true" />
-      <created>1772473629488</created>
-      <option name="number" value="00903" />
-      <option name="presentableId" value="LOCAL-00903" />
+      <created>1772701988312</created>
+      <option name="number" value="00969" />
+      <option name="presentableId" value="LOCAL-00969" />
       <option name="project" value="LOCAL" />
-      <updated>1772473629488</updated>
+      <updated>1772701988312</updated>
     </task>
-    <task id="LOCAL-00904" summary="remomve uiuxpromax">
+    <task id="LOCAL-00970" summary="add lesson form and media uploader components with rich text support">
       <option name="closed" value="true" />
-      <created>1772473885875</created>
-      <option name="number" value="00904" />
-      <option name="presentableId" value="LOCAL-00904" />
+      <created>1772723447800</created>
+      <option name="number" value="00970" />
+      <option name="presentableId" value="LOCAL-00970" />
       <option name="project" value="LOCAL" />
-      <updated>1772473885875</updated>
+      <updated>1772723447800</updated>
     </task>
-    <task id="LOCAL-00905" summary="remomve uiuxpromax">
+    <task id="LOCAL-00971" summary="add lesson form and media uploader components with rich text support">
       <option name="closed" value="true" />
-      <created>1772474509110</created>
-      <option name="number" value="00905" />
-      <option name="presentableId" value="LOCAL-00905" />
+      <created>1772724221577</created>
+      <option name="number" value="00971" />
+      <option name="presentableId" value="LOCAL-00971" />
       <option name="project" value="LOCAL" />
-      <updated>1772474509110</updated>
+      <updated>1772724221577</updated>
     </task>
-    <task id="LOCAL-00906" summary="add gamification services and repositories; update tsconfig and module configurations">
+    <task id="LOCAL-00972" summary="add lesson form and media uploader components with rich text support">
       <option name="closed" value="true" />
-      <created>1772518956868</created>
-      <option name="number" value="00906" />
-      <option name="presentableId" value="LOCAL-00906" />
+      <created>1772724666919</created>
+      <option name="number" value="00972" />
+      <option name="presentableId" value="LOCAL-00972" />
       <option name="project" value="LOCAL" />
-      <updated>1772518956868</updated>
+      <updated>1772724666919</updated>
     </task>
-    <task id="LOCAL-00907" summary="add gamification services and repositories; update tsconfig and module configurations">
+    <task id="LOCAL-00973" summary="remove unused academy form components from workspace configuration">
       <option name="closed" value="true" />
-      <created>1772518960984</created>
-      <option name="number" value="00907" />
-      <option name="presentableId" value="LOCAL-00907" />
+      <created>1772726366239</created>
+      <option name="number" value="00973" />
+      <option name="presentableId" value="LOCAL-00973" />
       <option name="project" value="LOCAL" />
-      <updated>1772518960984</updated>
+      <updated>1772726366239</updated>
     </task>
-    <task id="LOCAL-00908" summary="feat(billing): restructure billing service modules and interfaces">
+    <task id="LOCAL-00974" summary="add learning progress statistics and enrollment management features">
       <option name="closed" value="true" />
-      <created>1772531383503</created>
-      <option name="number" value="00908" />
-      <option name="presentableId" value="LOCAL-00908" />
+      <created>1772726939267</created>
+      <option name="number" value="00974" />
+      <option name="presentableId" value="LOCAL-00974" />
       <option name="project" value="LOCAL" />
-      <updated>1772531383503</updated>
+      <updated>1772726939267</updated>
     </task>
-    <option name="localTasksCounter" value="909" />
+    <option name="localTasksCounter" value="975" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -664,7 +739,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="main" />
+                        <option value="new-markteting-web" />
                       </list>
                     </value>
                   </entry>
@@ -682,16 +757,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: implement animated text and redesign home layout" />
-    <MESSAGE value="mapping api" />
-    <MESSAGE value="stitch ui" />
-    <MESSAGE value="fix: enhance course live class logic" />
-    <MESSAGE value="cômmit" />
-    <MESSAGE value="feat: Add CourseRun and LiveSession enums, update related DTOs and services" />
-    <MESSAGE value="feat: Add CourseRunDetailPage and update course-related components for better course run management" />
-    <MESSAGE value="refactor: Remove unused course fields and simplify course management logic" />
-    <MESSAGE value="feat: Add updateStatus and getStudents methods to CourseRun service and controller, and extend CourseRunStatus enum" />
-    <MESSAGE value="refactor: Rename courseId to courseMasterId and update related references across models and services" />
     <MESSAGE value="feat: Add updateStatus and getStudents methods to CourseRun service and controller" />
     <MESSAGE value="feat: Implement attendance processing for live sessions and add course run status update functionality" />
     <MESSAGE value="refactor: Rename course-related entities to use 'courseMaster' terminology and update related references" />
@@ -701,7 +766,23 @@
     <MESSAGE value="remomve uiuxpromax" />
     <MESSAGE value="add gamification services and repositories; update tsconfig and module configurations" />
     <MESSAGE value="feat(billing): restructure billing service modules and interfaces" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(billing): restructure billing service modules and interfaces" />
+    <MESSAGE value="add comment for interface" />
+    <MESSAGE value="update meet to user shadcn ui component" />
+    <MESSAGE value="update ui flow course detail" />
+    <MESSAGE value="refactor: update course and course run handlers for admin-specific listings" />
+    <MESSAGE value="update core lms flow" />
+    <MESSAGE value="feat: initialize new marketing web project with Tailwind CSS and Radix UI components" />
+    <MESSAGE value="feat: add new UI components including Skeleton, AspectRatio, Spinner, and more" />
+    <MESSAGE value="update create review submit flow for course and course master" />
+    <MESSAGE value="gop theo tinh nang" />
+    <MESSAGE value="update marketing page" />
+    <MESSAGE value="feat: implement header and footer components for improved layout structure" />
+    <MESSAGE value="Update schema.prisma" />
+    <MESSAGE value="refactor: clean up module exports and formatting across various files" />
+    <MESSAGE value="add lesson form and media uploader components with rich text support" />
+    <MESSAGE value="remove unused academy form components from workspace configuration" />
+    <MESSAGE value="add learning progress statistics and enrollment management features" />
+    <option name="LAST_COMMIT_MESSAGE" value="add learning progress statistics and enrollment management features" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

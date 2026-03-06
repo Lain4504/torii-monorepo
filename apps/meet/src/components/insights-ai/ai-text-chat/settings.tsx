@@ -6,10 +6,10 @@ import {
   InsightsAITextChatConfigReqSchema,
 } from '@workspace/protocol';
 
-import { useAppSelector } from '../../../store';
-import SettingsSwitch from '../../../helpers/ui/settingsSwitch';
-import UsersSelector from './usersSelector';
-import sendAPIRequest from '../../../helpers/api/api-client';
+import { useAppSelector } from '@/store';
+import SettingsSwitch from '@/helpers/ui/settingsSwitch';
+import UsersSelector from '@/components/insights-ai/ai-text-chat/usersSelector';
+import sendAPIRequest from '@/helpers/api/api-client';
 
 interface AiTextChatSettingsProps {
   setErrorMsg: React.Dispatch<React.SetStateAction<string | undefined>>;

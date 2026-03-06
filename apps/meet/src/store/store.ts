@@ -1,19 +1,19 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
 
-import activeSpeakersSlice from './slices/activeSpeakersSlice';
-import participantSlice from './slices/participantSlice';
-import sessionSlice from './slices/sessionSlice';
-import bottomIconsSlice from './slices/bottomIconsActivitySlice';
-import chatMessagesSlice from './slices/chatMessagesSlice';
-import roomSettingsSlice from './slices/roomSettingsSlice';
-import whiteboardSlice from './slices/whiteboard';
-import externalMediaPlayerSlice from './slices/externalMediaPlayer';
-import { pollsApi } from './services/pollsApi';
-import breakoutRoomSlice from './slices/breakoutRoomSlice';
-import { breakoutRoomApi } from './services/breakoutRoomApi';
-import speechServicesSlice from './slices/speechServicesSlice';
-import insightsAiTextChatSlice from './slices/insightsAiTextChatSlice';
+import activeSpeakersSlice from '@/store/slices/activeSpeakersSlice';
+import participantSlice from '@/store/slices/participantSlice';
+import sessionSlice from '@/store/slices/sessionSlice';
+import bottomIconsSlice from '@/store/slices/bottomIconsActivitySlice';
+import chatMessagesSlice from '@/store/slices/chatMessagesSlice';
+import roomSettingsSlice from '@/store/slices/roomSettingsSlice';
+import whiteboardSlice from '@/store/slices/whiteboard';
+import externalMediaPlayerSlice from '@/store/slices/externalMediaPlayer';
+import { pollsApi } from '@/store/services/pollsApi';
+import breakoutRoomSlice from '@/store/slices/breakoutRoomSlice';
+import { breakoutRoomApi } from '@/store/services/breakoutRoomApi';
+import speechServicesSlice from '@/store/slices/speechServicesSlice';
+import insightsAiTextChatSlice from '@/store/slices/insightsAiTextChatSlice';
 
 declare const IS_PRODUCTION: boolean;
 

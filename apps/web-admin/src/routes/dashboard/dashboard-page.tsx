@@ -30,6 +30,7 @@ import {
 } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 import { usePlatformOverview } from "@/lib/api/services/analytics"
+import { useCourses } from "@/lib/api/services/courses"
 import { formatNumber, formatCurrency } from "@/lib/format-utils"
 import { PageLoading } from "@workspace/ui/components/page-loading"
 import { Badge } from "@workspace/ui/components/badge"
@@ -293,11 +294,18 @@ function LogItem({ time, user, action }: any) {
 function StaffDashboard() {
   const { data } = usePlatformOverview()
   const overview = data?.overview
+  const { data: pendingCourses } = useCourses({ page: 1, limit: 1, status: 'PENDING_REVIEW' as any });
 
   return (
     <div className="space-y-6">
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        <StatsCard title="Chờ Phê duyệt" value={overview?.pendingApprovals || 0} sub="Khóa học đang chờ rà soát" icon={Zap} highlight={Number(overview?.pendingApprovals) > 0} />
+        <StatsCard
+          title="Chờ Phê duyệt"
+          value={pendingCourses?.total || 0}
+          sub="Syllabus đang chờ kiểm duyệt"
+          icon={Zap}
+          highlight={Number(pendingCourses?.total) > 0}
+        />
         <StatsCard title="Lịch Live" value={overview?.activeRooms || 0} sub="Buổi dạy trực tiếp hôm nay" icon={Calendar} />
         <StatsCard title="Ticket Mới" value={overview?.pendingTickets || 0} sub="Cần phản hồi hỗ trợ" icon={MessageSquare} highlight={Number(overview?.pendingTickets) > 0} />
         <StatsCard title="Người dùng" value={overview?.totalUsers || 0} sub="Học viên đã tham gia" icon={Users} />
@@ -334,33 +342,56 @@ function StaffDashboard() {
 }
 
 function LecturerDashboard() {
+  const user = useAppSelector(selectUser);
+  const { data: myCourses } = useCourses({ page: 1, limit: 1, instructorId: user?.id });
+
   return (
     <div className="space-y-6">
-      <div className="relative group rounded-xl border border-primary/10 bg-card p-8 overflow-hidden shadow-lg animate-in fade-in zoom-in-95 duration-700">
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/5 blur-[100px] -z-10 rounded-full" />
+      <div className="relative group rounded-3xl border border-primary/20 bg-card p-10 overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-700">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 blur-[120px] -z-10 rounded-full translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-indigo-500/10 blur-[100px] -z-10 rounded-full -translate-x-1/2 translate-y-1/2" />
+
         <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
-          <div className="space-y-4">
-            <Badge variant="secondary" className="text-xs font-semibold">PHỔ BIẾN</Badge>
-            <h2 className="text-4xl font-bold tracking-tight">Masterclass <span className="text-primary">Kaiwa N4</span></h2>
-            <p className="text-sm font-semibold text-muted-foreground/70">Bắt đầu sau: <span className="text-primary animate-pulse">24 phút 32 giây</span></p>
-            <div className="flex gap-4 pt-2">
-              <Button className="rounded-xl font-bold text-xs px-8 py-5 h-auto transition-all shadow-md">Vào Lớp Ngay</Button>
-              <Button variant="outline" className="rounded-xl font-bold text-xs px-8 py-5 h-auto border-border/50">Chuẩn bị tài liệu</Button>
+          <div className="space-y-6 max-w-xl">
+            <div className="flex items-center gap-3">
+              <Badge variant="secondary" className="text-[10px] font-black uppercase tracking-widest px-3 bg-primary/10 text-primary border-none">Trực tiếp</Badge>
+              <div className="size-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+              <span className="text-[10px] font-bold text-muted-foreground uppercase">Phòng học đang mở</span>
+            </div>
+
+            <div className="space-y-2">
+              <h2 className="text-5xl font-black tracking-tighter leading-[0.9]">Masterclass <br /><span className="text-primary">Kaiwa N4</span></h2>
+              <p className="text-muted-foreground font-medium">Bắt đầu sau: <span className="text-primary font-black tabular-nums">24:32</span></p>
+            </div>
+
+            <div className="flex gap-4 pt-4">
+              <Button size="lg" className="rounded-2xl font-black text-[11px] uppercase tracking-widest px-10 shadow-xl shadow-primary/20 hover:scale-105 transition-all">Vào Lớp Ngay</Button>
+              <Button variant="outline" size="lg" className="rounded-2xl font-black text-[11px] uppercase tracking-widest px-10 border-border/50 hover:bg-muted/50 transition-all">Chuẩn bị tài liệu</Button>
             </div>
           </div>
-          <div className="hidden lg:grid grid-cols-2 gap-4 translate-x-10 opacity-30">
-            <div className="size-20 rounded-2xl bg-muted rotate-3 border border-border/50" />
-            <div className="size-20 rounded-2xl bg-muted -rotate-12 border border-border/50 translate-y-4" />
-            <div className="size-20 rounded-2xl bg-muted rotate-12 border border-border/50" />
-            <div className="size-20 rounded-2xl bg-muted -rotate-3 border border-border/50 translate-y-2" />
+
+          <div className="hidden lg:flex items-center justify-center relative scale-110">
+            <div className="size-48 rounded-[40px] bg-gradient-to-br from-primary to-indigo-600 shadow-2xl rotate-6 flex items-center justify-center">
+              <Video className="size-20 text-white/20" />
+            </div>
+            <div className="absolute -top-4 -right-4 size-24 rounded-3xl bg-background border-4 border-card shadow-xl flex flex-col items-center justify-center -rotate-12">
+              <span className="text-2xl font-black text-primary">24</span>
+              <span className="text-[8px] font-bold uppercase text-muted-foreground">Học viên</span>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
-        <StatsCard title="Bài tập cần chấm" value="12" sub="Học viên đang chờ kết quả" icon={Target} highlight />
-        <StatsCard title="Câu hỏi chưa trả lời" value="05" sub="Tương tác mới từ bài giảng" icon={MessageSquare} highlight />
-        <StatsCard title="Lượt xem mới" value="1.2k" sub="Hiệu suất video trong 24h" icon={Activity} />
+        <StatsCard
+          title="Syllabus của tôi"
+          value={myCourses?.total || 0}
+          sub="Khung chương trình đang biên soạn"
+          icon={BookOpen}
+          highlight
+        />
+        <StatsCard title="Bài tập cần chấm" value="12" sub="Học viên đang chờ kết quả" icon={Target} />
+        <StatsCard title="Câu hỏi chưa trả lời" value="05" sub="Tương tác mới từ bài giảng" icon={MessageSquare} />
       </div>
     </div>
   )

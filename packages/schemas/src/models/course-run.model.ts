@@ -19,8 +19,9 @@ export const courseRunSchema = z.object({
     coverUrl: z.string().optional().nullable(),
     previewVideoUrl: z.string().optional().nullable(),
     totalStudents: z.number().int().default(0),
+    isLegacy: z.boolean().default(false),
     liveConfig: z.record(z.any()).optional().nullable(),
-    status: z.nativeEnum(CourseRunStatus).default(CourseRunStatus.PLANNING),
+    status: z.nativeEnum(CourseRunStatus).default(CourseRunStatus.DRAFT),
     createdAt: z.date(),
     updatedAt: z.date(),
 });

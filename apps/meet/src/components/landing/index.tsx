@@ -5,22 +5,23 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { store, useAppDispatch, useAppSelector } from '../../store';
-import { toggleStartup } from '../../store/slices/sessionSlice';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import { toggleStartup } from '@/store/slices/sessionSlice';
 import {
   addAudioDevices,
   addVideoDevices,
   updateSelectedAudioDevice,
   updateSelectedVideoDevice,
-} from '../../store/slices/roomSettingsSlice';
+} from '@/store/slices/roomSettingsSlice';
 import { Volume2, MicOff, VideoOff, Loader2, Lock as LockIcon } from 'lucide-react';
-import { roomConnectionStatus } from '../app/helper';
-import { getNatsConn } from '../../helpers/nats';
-import { useMediaDevices } from './hooks/useMediaDevices';
+import { roomConnectionStatus } from '@/components/app/helper';
+import { getNatsConn } from '@/helpers/nats';
+import { useMediaDevices } from '@/components/landing/hooks/useMediaDevices';
 
-import MicrophoneIcon from './microphone';
-import WebcamIcon from './webcam';
-import WebcamPreview from './webcamPreview';
+import MicrophoneIcon from '@/components/landing/microphone';
+import WebcamIcon from '@/components/landing/webcam';
+import WebcamPreview from '@/components/landing/webcamPreview';
+import { Button } from '@workspace/ui/components/button';
 
 interface StartupJoinModalProps {
   setIsAppReady: Dispatch<boolean>;
@@ -251,50 +252,48 @@ const Landing = ({
                   <div className="buttons grid gap-3 w-full pt-10">
                     {lockMicrophone && (lockWebcam || !isWebcamAllowed) ? (
                       // Case 1: Both devices are locked, only show the listener button.
-                      <button
+                      <Button
                         id="listenOnlyJoin"
-                        type="button"
                         disabled={isReadyToConn === true}
-                        className="secondary-button w-full h-10 3xl:h-11 cursor-pointer text-sm 3xl:text-base font-semibold bg-secondary hover:bg-muted border border-border rounded-lg flex justify-center items-center gap-2 transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        variant="outline"
+                        className="w-full gap-2"
                         onClick={() => openConn()}
                       >
                         Tham gia chỉ nghe
                         <Volume2 />
-                      </button>
+                      </Button>
                     ) : // Case 2: At least one device is available.
                       selectedAudioDevice !== '' || selectedVideoDevice !== '' ? (
                         // Sub-case 2a: A device has been selected, show the "Join" button.
-                        <button
-                          type="button"
+                        <Button
                           disabled={isReadyToConn === true}
-                          className="primary-button w-full h-10 3xl:h-11 cursor-pointer text-sm 3xl:text-base font-semibold bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground transition-all duration-300 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full"
                           onClick={() => openConn()}
                         >
                           Tham gia ngay
-                        </button>
+                        </Button>
                       ) : (
                         // Sub-case 2b: No device selected yet, show the "Enable..." and "Listener" buttons.
                         <>
-                          <button
-                            type="button"
-                            className="primary-button w-full h-10 3xl:h-11 cursor-pointer text-sm 3xl:text-base font-semibold bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground transition-all duration-300 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                          <Button
+                            className="w-full"
                             disabled={isReadyToConn === true}
                             onClick={getEnableDeviceButton().action}
                           >
                             <span className="relative flex items-center justify-center gap-2">
                               {getEnableDeviceButton().text}
                             </span>
-                          </button>
-                          <button
+                          </Button>
+                          <Button
                             id="listenOnlyJoin"
-                            type="button"
                             disabled={isReadyToConn === true}
-                            className="secondary-button w-full h-10 3xl:h-11 cursor-pointer text-sm 3xl:text-base font-semibold bg-secondary hover:bg-muted border border-border rounded-lg flex justify-center items-center gap-2 transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            variant="outline"
+                            className="w-full gap-2"
                             onClick={() => openConn()}
                           >
                             Tham gia chỉ nghe
                             <Volume2 />
-                          </button>
+                          </Button>
                         </>
                       )}
                   </div>

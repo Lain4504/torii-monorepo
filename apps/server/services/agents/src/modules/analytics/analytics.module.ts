@@ -7,9 +7,9 @@ import { AIUsageTrackingService } from './ai-usage-tracking.service';
 import { AnalyticsHandler } from './analytics.handler';
 
 @Module({
-    imports: [FastMcpModule, NatsClientModule],
-    controllers: [AnalyticsHandler],
-    providers: [AnalyticsService, AIUsageTrackingService],
-    exports: [AnalyticsService, AIUsageTrackingService],
+  imports: [FastMcpModule, NatsClientModule],
+  controllers: [AnalyticsHandler],
+  providers: [AnalyticsService, AIUsageTrackingService],
+  exports: [AnalyticsService, AIUsageTrackingService],
 })
-export class AnalyticsModule { }
+export class AnalyticsModule {}

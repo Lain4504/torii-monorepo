@@ -1,6 +1,6 @@
 import React, { Dispatch, useEffect, useState } from 'react';
-import Dropdown, { ISelectOption } from '../../../helpers/ui/dropdown';
-import { supportedTranscriptionLangs } from '../helpers/supportedLangs';
+import Dropdown, { ISelectOption } from '@/helpers/ui/dropdown';
+import { supportedTranscriptionLangs } from '@/components/translation-transcription/helpers/supportedLangs';
 
 interface SpeechLangsSelectorProps {
   isServiceRunning: boolean;

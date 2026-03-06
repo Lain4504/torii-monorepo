@@ -7,9 +7,9 @@ import React, {
 } from 'react';
 import { PopoverPanel } from '@headlessui/react';
 
-import { store, useAppSelector } from '../../../../store';
+import { store, useAppSelector } from '@/store';
 import { X, Download, ArrowDown } from 'lucide-react';
-import InterimTextDisplay from './interimTextDisplay';
+import InterimTextDisplay from '@/components/translation-transcription/displays/history/interimTextDisplay';
 
 interface SubtitleHistoryPanelProps {
   showPopover: boolean;

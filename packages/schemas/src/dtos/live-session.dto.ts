@@ -46,6 +46,7 @@ export interface LiveSessionResponseDTO {
     duration: number;
     status: string;
     meetingId: string | null;
+    scheduleId: string | null;
     createdAt: Date;
     updatedAt: Date;
 

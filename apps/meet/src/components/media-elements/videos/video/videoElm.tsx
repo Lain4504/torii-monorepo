@@ -9,9 +9,9 @@ import React, {
 } from 'react';
 import { LocalTrackPublication, RemoteTrackPublication } from 'livekit-client';
 
-import { useAppSelector } from '../../../../store';
+import { useAppSelector } from '@/store';
 import { Loader2 } from 'lucide-react';
-import './style.css';
+import '@/components/media-elements/videos/video/style.css';
 
 interface IVideoElmProps {
   track: RemoteTrackPublication | LocalTrackPublication;

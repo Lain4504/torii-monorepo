@@ -8,17 +8,17 @@ import {
 } from '@headlessui/react';
 import { createSelector } from '@reduxjs/toolkit';
 
-import { RootState, useAppDispatch, useAppSelector } from '../../store';
-import { selectChatKeys } from '../../store/slices/chatMessagesSlice';
-import Messages from './messages';
-import { participantsSelector } from '../../store/slices/participantSlice';
+import { RootState, useAppDispatch, useAppSelector } from '@/store';
+import { selectChatKeys } from '@/store/slices/chatMessagesSlice';
+import Messages from '@/components/chat/messages';
+import { participantsSelector } from '@/store/slices/participantSlice';
 import {
   updateSelectedChatOption,
   updateUnreadMsgFrom,
-} from '../../store/slices/roomSettingsSlice';
+} from '@/store/slices/roomSettingsSlice';
 import { X, Check, MessageSquareDot } from 'lucide-react';
-import { setActiveSidePanel } from '../../store/slices/bottomIconsActivitySlice';
-import ChatTranslation from './chatTranslation';
+import { setActiveSidePanel } from '@/store/slices/bottomIconsActivitySlice';
+import ChatTranslation from '@/components/chat/chatTranslation';
 
 interface IChatOption {
   id: string;

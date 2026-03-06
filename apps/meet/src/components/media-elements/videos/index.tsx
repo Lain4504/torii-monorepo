@@ -2,13 +2,13 @@ import React, { ReactElement, useEffect, useMemo, useState } from 'react';
 import { LocalParticipant, RemoteParticipant, Track } from 'livekit-client';
 import { concat } from 'es-toolkit/compat';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import VideoLayout from './videoLayout';
-import VideoParticipant, { VideoParticipantProps } from './videoParticipant';
-import { CurrentConnectionEvents } from '../../../helpers/livekit/types';
-import { getMediaServerConn } from '../../../helpers/livekit/utils';
-import { updatePinCamUserId } from '../../../store/slices/roomSettingsSlice';
-import { participantsSelector } from '../../../store/slices/participantSlice';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import VideoLayout from '@/components/media-elements/videos/videoLayout';
+import VideoParticipant, { VideoParticipantProps } from '@/components/media-elements/videos/videoParticipant';
+import { CurrentConnectionEvents } from '@/helpers/livekit/types';
+import { getMediaServerConn } from '@/helpers/livekit/utils';
+import { updatePinCamUserId } from '@/store/slices/roomSettingsSlice';
+import { participantsSelector } from '@/store/slices/participantSlice';
 
 interface IVideosComponentProps {
   isVertical?: boolean;

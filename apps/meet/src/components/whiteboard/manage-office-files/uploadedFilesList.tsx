@@ -7,14 +7,14 @@ import {
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf';
 import { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
 
-import { useAppSelector } from '../../../store';
+import { useAppSelector } from '@/store';
 import { File, CheckCircle } from 'lucide-react';
 import {
   IWhiteboardOfficeFile,
   WhiteboardFileConversionRes,
-} from '../../../store/slices/interfaces/whiteboard';
-import sendAPIRequest from '../../../helpers/api/api-client';
-import { createAndRegisterOfficeFile } from '../helpers/handleFiles';
+} from '@/store/slices/interfaces/whiteboard';
+import sendAPIRequest from '@/helpers/api/api-client';
+import { createAndRegisterOfficeFile } from '@/components/whiteboard/helpers/handleFiles';
 
 interface UploadedFilesListProps {
   roomId: string;

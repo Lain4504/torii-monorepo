@@ -6,18 +6,18 @@ import {
   ExternalMediaPlayerTask,
 } from '@workspace/protocol';
 
-import { useAppDispatch, useAppSelector } from '../../../store';
+import { useAppDispatch, useAppSelector } from '@/store';
 import {
   updateIsActiveWhiteboard,
   updateShowExternalMediaPlayerModal,
-} from '../../../store/slices/bottomIconsActivitySlice';
+} from '@/store/slices/bottomIconsActivitySlice';
 
-import DirectLink from './directLink';
-import Upload from './upload';
-import Modal from '../../../helpers/ui/modal';
-import Tabs from '../../../helpers/ui/tabs';
-import ActionButton from '../../../helpers/ui/actionButton';
-import sendAPIRequest from '../../../helpers/api/api-client';
+import DirectLink from '@/components/external-media-player/modal/directLink';
+import Upload from '@/components/external-media-player/modal/upload';
+import Modal from '@/helpers/ui/modal';
+import Tabs from '@/helpers/ui/tabs';
+import ActionButton from '@/helpers/ui/actionButton';
+import sendAPIRequest from '@/helpers/api/api-client';
 
 const ExternalMediaPlayerModal = () => {
   const dispatch = useAppDispatch();

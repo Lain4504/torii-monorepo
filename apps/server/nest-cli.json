@@ -29,17 +29,14 @@
       "sourceRoot": "services/identity/src",
       "compilerOptions": {
         "tsConfigPath": "services/identity/tsconfig.app.json",
-        "webpack": false
-      }
-    },
-    "learning": {
-      "type": "application",
-      "root": "services/learning",
-      "entryFile": "main",
-      "sourceRoot": "services/learning/src",
-      "compilerOptions": {
-        "tsConfigPath": "services/learning/tsconfig.app.json",
-        "webpack": false
+        "webpack": false,
+        "assets": [
+          {
+            "include": "**/*.pug",
+            "outDir": "dist/services/identity/src",
+            "watchAssets": true
+          }
+        ]
       }
     },
     "meet": {
@@ -49,6 +46,16 @@
       "sourceRoot": "services/meet/src",
       "compilerOptions": {
         "tsConfigPath": "services/meet/tsconfig.app.json",
+        "webpack": false
+      }
+    },
+    "academy": {
+      "type": "application",
+      "root": "services/academy",
+      "entryFile": "main",
+      "sourceRoot": "services/academy/src",
+      "compilerOptions": {
+        "tsConfigPath": "services/academy/tsconfig.app.json",
         "webpack": false
       }
     },
@@ -76,33 +83,6 @@
       "sourceRoot": "services/gamification/src",
       "compilerOptions": {
         "tsConfigPath": "services/gamification/tsconfig.app.json",
-        "webpack": false
-      }
-    },
-    "communication": {
-      "type": "application",
-      "root": "services/communication",
-      "entryFile": "main",
-      "sourceRoot": "services/communication/src",
-      "compilerOptions": {
-        "tsConfigPath": "services/communication/tsconfig.app.json",
-        "webpack": false,
-        "assets": [
-          {
-            "include": "**/*.pug",
-            "outDir": "dist/services/communication/src",
-            "watchAssets": true
-          }
-        ]
-      }
-    },
-    "storage": {
-      "type": "application",
-      "root": "services/storage",
-      "entryFile": "main",
-      "sourceRoot": "services/storage/src",
-      "compilerOptions": {
-        "tsConfigPath": "services/storage/tsconfig.app.json",
         "webpack": false
       }
     },

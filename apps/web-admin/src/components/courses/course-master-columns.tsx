@@ -103,19 +103,20 @@ export const getCourseMasterColumns = ({ onEdit, onDelete, onModules, onPublish,
         header: () => <div className="px-1 text-center">Trạng thái</div>,
         cell: (info) => {
             const status = info.getValue() as string;
-            const config = {
-                published: { label: 'Đã xuất bản', class: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' },
-                pending_review: { label: 'Chờ duyệt', class: 'bg-blue-500/10 text-blue-600 border-blue-500/20' },
-                draft: { label: 'Bản nháp', class: 'bg-amber-500/10 text-amber-600 border-amber-500/20' },
-                rejected: { label: 'Bị từ chối', class: 'bg-rose-500/10 text-rose-600 border-rose-500/20' },
-                archived: { label: 'Đã lưu trữ', class: 'bg-slate-500/10 text-slate-600 border-slate-500/20' }
+            const config: Record<string, { label: string; class: string }> = {
+                DRAFT: { label: 'Bản nháp', class: 'bg-amber-500/10 text-amber-600 border-amber-500/20' },
+                PENDING_REVIEW: { label: 'Chờ duyệt', class: 'bg-blue-500/10 text-blue-600 border-blue-500/20' },
+                CHANGES_REQUIRED: { label: 'Cần chỉnh sửa', class: 'bg-rose-500/10 text-rose-600 border-rose-500/20' },
+                APPROVED: { label: 'Đã phê duyệt', class: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' },
+                ARCHIVED: { label: 'Đã lưu trữ', class: 'bg-slate-500/10 text-slate-600 border-slate-500/20' },
             };
-            const current = config[status as keyof typeof config] || { label: status, class: 'bg-muted/30 text-muted-foreground border-border/40' };
+            const upper = status?.toString().toUpperCase();
+            const current = config[upper] || { label: status, class: 'bg-muted/30 text-muted-foreground border-border/40' };
 
             return (
                 <div className="flex justify-center">
                     <div className={cn("inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border shadow-sm", current.class)}>
-                        <div className={cn("size-1.5 rounded-full mr-2", status === 'published' ? 'bg-emerald-500 animate-pulse' : 'bg-current opacity-50')} />
+                        <div className={cn("size-1.5 rounded-full mr-2", upper === 'APPROVED' ? 'bg-emerald-500 animate-pulse' : 'bg-current opacity-50')} />
                         {current.label}
                     </div>
                 </div>
@@ -133,6 +134,27 @@ export const getCourseMasterColumns = ({ onEdit, onDelete, onModules, onPublish,
             </div>
         ),
         size: 90,
+    }),
+    columnHelper.accessor('approvedAt', {
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                    className="-ml-4 h-9 px-4 text-xs font-semibold hover:bg-primary/5 hover:text-primary transition-all group w-full justify-center"
+                >
+                    Ngày xuất bản
+                    <ArrowUpDown className="ml-2 h-3.5 w-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
+                </Button>
+            );
+        },
+        cell: (info) => (
+            <div className="flex items-center justify-center gap-1.5 text-muted-foreground text-xs tabular-nums font-medium">
+                <Clock className="size-3 opacity-50" />
+                {info.getValue() ? formatDateTime(info.getValue()) : '-'}
+            </div>
+        ),
+        size: 140,
     }),
     columnHelper.accessor('updatedAt', {
         header: ({ column }) => {
@@ -208,7 +230,7 @@ export const getCourseMasterColumns = ({ onEdit, onDelete, onModules, onPublish,
 
                             <DropdownMenuSeparator className="bg-border/40 m-1" />
 
-                            {(course.status === 'draft' || course.status === 'rejected') && (can('course.update') || can('module.update')) ? (
+                            {(['DRAFT', 'CHANGES_REQUIRED'] as string[]).includes((course.status as any)?.toString()) && (can('course.update') || can('module.update')) ? (
                                 <DropdownMenuItem
                                     onClick={() => onSubmitForReview(course)}
                                     className="rounded-lg px-3 py-2.5 text-xs font-medium text-blue-600 focus:text-blue-700 focus:bg-blue-500/10 cursor-pointer flex gap-2.5"
@@ -216,7 +238,7 @@ export const getCourseMasterColumns = ({ onEdit, onDelete, onModules, onPublish,
                                     <Layers className="h-4 w-4 opacity-60" />
                                     <span>Gửi yêu cầu kiểm duyệt</span>
                                 </DropdownMenuItem>
-                            ) : (course.status as any) === 'pending_review' && can('course.publish') ? (
+                            ) : (course.status as any) === 'PENDING_REVIEW' && can('course.publish') ? (
                                 <>
                                     <DropdownMenuItem
                                         onClick={() => onPublish(course)}
@@ -233,7 +255,7 @@ export const getCourseMasterColumns = ({ onEdit, onDelete, onModules, onPublish,
                                         <span>Từ chối & Phản hồi</span>
                                     </DropdownMenuItem>
                                 </>
-                            ) : course.status === 'published' ? (
+                            ) : (course.status as any) === 'APPROVED' ? (
                                 <>
                                     {can('course.publish') ? (
                                         <>

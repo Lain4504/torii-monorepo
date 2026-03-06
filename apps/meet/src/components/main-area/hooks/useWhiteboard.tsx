@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types';
 import { debounce } from 'es-toolkit';
 
-import { store, useAppDispatch, useAppSelector } from '../../../store';
-import { savePageData } from '../../whiteboard/helpers/utils';
-import Whiteboard from '../../whiteboard';
-import { triggerRefreshWhiteboard } from '../../../store/slices/whiteboard';
+import { store, useAppDispatch, useAppSelector } from '@/store';
+import { savePageData } from '@/components/whiteboard/helpers/utils';
+import Whiteboard from '@/components/whiteboard';
+import { triggerRefreshWhiteboard } from '@/store/slices/whiteboard';
 
 export const useWhiteboard = (
   isActiveWhiteboard: boolean,

@@ -2,8 +2,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { IncreaseBreakoutRoomDurationReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
 
-import { useIncreaseDurationMutation } from '../../../../store/services/breakoutRoomApi';
-import { BreakoutRoomMessage } from '../..';
+import { useIncreaseDurationMutation } from '@/store/services/breakoutRoomApi';
+import { BreakoutRoomMessage } from '@/components/breakout-room';
+import {Input} from "@workspace/ui/components/input";
+import {Button} from "@workspace/ui/components/button";
 
 interface IExtendTimeProps {
   breakoutRoomId: string;
@@ -46,21 +48,21 @@ const ExtendDuration = ({ breakoutRoomId, setMessage }: IExtendTimeProps) => {
 
   return (
     <div className="extend-time-wrapper flex items-center gap-1">
-      <input
+      <Input
         type="number"
         min="1"
         value={duration}
         onChange={(e) => setDuration(Number(e.currentTarget.value))}
         placeholder="Gia hạn thời gian"
-        className="max-w-[100px] text-foreground border border-border bg-card shadow-sm block px-3 py-2 w-full h-9 rounded-lg outline-hidden focus:border-primary"
+        className="max-w-[100px] h-9"
       />
-      <button
+      <Button
         onClick={handleExtendDuration}
         disabled={isLoading || duration <= 0}
-        className="h-8 px-3 text-sm font-semibold bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        size="sm"
       >
         Gia hạn
-      </button>
+      </Button>
     </div>
   );
 };
