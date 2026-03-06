@@ -10,6 +10,6 @@ import { EnrollmentModule } from '../classroom/enrollment/enrollment.module';
   imports: [CourseOfferingModule, EnrollmentModule],
   controllers: [OrderHandler],
   providers: [OrderService, CouponService, PayOSService],
-  exports: [OrderService, CourseOfferingModule],
+  exports: [OrderService, CourseOfferingModule, CouponService],
 })
 export class CommerceModule { }

@@ -35,12 +35,6 @@
       "@server/identity/*": [
         "./services/identity/src/*"
       ],
-      "@server/gamification": [
-        "./services/gamification/src"
-      ],
-      "@server/gamification/*": [
-        "./services/gamification/src/*"
-      ],
       "@server/agents/*": [
         "./services/agents/src/*"
       ],

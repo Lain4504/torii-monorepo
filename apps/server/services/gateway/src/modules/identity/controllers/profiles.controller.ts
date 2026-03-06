@@ -14,7 +14,7 @@ import { Public, successResponse, errorResponse } from '@server/shared';
 export class ProfilesController {
   constructor(
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) {}
+  ) { }
 
   @Get(':id')
   @Public()
@@ -47,25 +47,14 @@ export class ProfilesController {
         averageProgress: 0,
         totalLearningHours: 0,
       };
-      let achievements: any[] = [];
-
       try {
-        // Fetch stats and achievements in parallel if possible, or sequentially for simplicity
-        const [learnerStats, userAchievements] = await Promise.all([
-          firstValueFrom(
-            this.natsClient
-              .send({ cmd: 'learning.learner.getStats' }, { userId: user.id })
-              .pipe(timeout(3000)),
-          ).catch(() => null),
-          firstValueFrom(
-            this.natsClient
-              .send('gamification.getAchievements', { userId: user.id })
-              .pipe(timeout(3000)),
-          ).catch(() => null),
-        ]);
+        const learnerStats = await firstValueFrom(
+          this.natsClient
+            .send({ cmd: 'learning.learner.getStats' }, { userId: user.id })
+            .pipe(timeout(3000)),
+        ).catch(() => null);
 
         if (learnerStats) stats = learnerStats;
-        if (userAchievements) achievements = userAchievements as any[];
       } catch (error) {
         console.warn(
           `Failed to fetch supplementary data for ${user.id}. Error: ${error instanceof Error ? error.message : String(error)}`,
@@ -76,7 +65,6 @@ export class ProfilesController {
         user: {
           ...publicProfile,
           stats,
-          achievements,
         },
       });
     } catch (error: unknown) {

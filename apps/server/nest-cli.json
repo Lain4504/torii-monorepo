@@ -75,16 +75,6 @@
           }
         ]
       }
-    },
-    "gamification": {
-      "type": "application",
-      "root": "services/gamification",
-      "entryFile": "main",
-      "sourceRoot": "services/gamification/src",
-      "compilerOptions": {
-        "tsConfigPath": "services/gamification/tsconfig.app.json",
-        "webpack": false
-      }
     }
   }
 }

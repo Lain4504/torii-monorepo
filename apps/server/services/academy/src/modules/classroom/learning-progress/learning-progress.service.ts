@@ -1,6 +1,7 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
+import { GamificationService } from '@server/academy/modules/gamification/gamification.service';
 import {
   LearningProgressQueryDto,
   LearningProgressStatsDto,
@@ -11,6 +12,7 @@ import {
 export class LearningProgressService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly gamificationService: GamificationService,
     @Inject('NATS_SERVICE') private readonly nats: ClientProxy,
   ) { }
 
@@ -151,6 +153,13 @@ export class LearningProgressService {
 
     if (input.status === 'COMPLETED') {
       await this.checkClassCompletion(input.classId, input.userId);
+      await this.gamificationService.trackActivity(input.userId, 'LESSON_COMPLETE', {
+        lessonId: input.lessonId,
+        classId: input.classId,
+      }).catch(err => {
+        // Just log the error, don't fail the progress update
+        console.error('Failed to track gamification activity:', err);
+      });
     }
 
     return result;
