@@ -122,23 +122,7 @@ enum ActivityType {
   LOGIN
 }
 
-enum AchievementCategory {
-  STREAK
-  CONSISTENCY
-  LEARNING_PROGRESS
-  RECOVERY
-  SOCIAL
-  MASTERY
-}
 
-enum BalanceTransactionType {
-  TOP_UP // Nạp tiền vào tài khoản
-  REFUND // Hoàn tiền từ ticket/order
-  PURCHASE // Dùng coin mua khóa học/dịch vụ
-  REWARD // Thưởng từ hệ thống
-  BONUS // Bonus từ sự kiện
-  OTHER // Khác
-}
 
 enum GamificationTransactionType {
   EARN // Nhận điểm từ hoạt động học tập
@@ -168,10 +152,6 @@ enum GamificationCurrency {
 // 4. LIVE SESSIONS & SCHEDULING
 // ==================================================
 
-// --- Scheduling ---
-
-// (legacy live-class scheduling removed; will be reintroduced in `academy` as ClassSchedule/ClassSession if needed)
-
 // --- Room Artifacts ---
 
 model RoomInfo {
@@ -197,7 +177,6 @@ model RoomInfo {
   modified       DateTime  @default(now()) @updatedAt @map("modified")
 
   // Relations
-
   artifacts RoomArtifact[]
 
   @@index([roomId, isRunning], map: "idx_room_id")
@@ -251,13 +230,14 @@ model RoomArtifact {
 model Note {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String   @map("user_id") @db.Uuid
-  content   String   @db.Text
-  lessonId  String?  @map("lesson_id") @db.Uuid
+  content   String   @db.Text // Markdown content
+  lessonId  String?  @map("lesson_id") @db.Uuid // Link to Academy Lesson
   tags      String[] @default([]) @db.VarChar(50)
-  metadata  Json?    @default("{}") @db.JsonB
+  metadata  Json?    @default("{}") @db.JsonB // Timestamp, highlight color, etc.
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
+  // Relations
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   lesson     Lesson?     @relation(fields: [lessonId], references: [id], onDelete: SetNull)
   flashcards Flashcard[]
@@ -268,20 +248,34 @@ model Note {
 }
 
 model FlashcardDeck {
-  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId      String  @map("user_id") @db.Uuid
-  title       String  @db.VarChar(255)
-  description String? @db.Text
-  subject     String? @db.VarChar(50)
-  isPublic    Boolean @default(false) @map("is_public")
-  settings    Json?   @default("{}") @db.JsonB
-  stats       Json?   @default("{}") @db.JsonB
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  name         String   @db.VarChar(255)
+  description  String?  @db.Text
+  subject      String?  @db.VarChar(50) // e.g., "JAPANESE", "ENGLISH", "CODING"
+  isPublic     Boolean  @default(false) @map("is_public")
+  tags         String[] @default([]) @db.VarChar(50)
+  cardCount    Int      @default(0) @map("card_count")
+  studiedCount Int      @default(0) @map("studied_count")
+
+  // SRS Settings (Anki-like / Quizlet-like)
+  srsSettings Json? @default("{\"newCardsPerDay\":20,\"maxReviewsPerDay\":200,\"easyBonus\":1.3,\"intervalModifier\":1.0,\"maximumInterval\":36500}") @map("srs_settings")
+
+  // AI Integration Settings
+  aiSettings Json?   @default("{\"autoGenerate\":false,\"requireApproval\":true,\"minConfidence\":0.8,\"filters\":[]}") @map("ai_settings")
+  sourceType String? @default("manual") @map("source_type") @db.VarChar(20)
+
+  // Activity Tracking
+  lastStudiedAt     DateTime? @map("last_studied_at")
+  totalStudyTime    Int       @default(0) @map("total_study_time") // seconds
+  masteryPercentage Decimal?  @map("mastery_percentage") @db.Decimal(5, 2)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  flashcards Flashcard[]
+  // Relations
+  user           User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  flashcards     Flashcard[]
 
   @@index([userId])
   @@map("flashcard_decks")
@@ -290,29 +284,54 @@ model FlashcardDeck {
 model Flashcard {
   id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   deckId          String   @map("deck_id") @db.Uuid
-  noteId          String?  @map("note_id") @db.Uuid
-  term            String   @db.Text
-  definition      String   @db.Text
-  hint            String?  @db.Text
-  mediaUrl        String?  @map("media_url") @db.Text
-  languageDetails Json?    @map("language_details") @db.JsonB
+  noteId          String?  @map("note_id") @db.Uuid // Source note
+  term            String   @map("term") @db.Text // Renamed from frontText
+  definition      String   @map("definition") @db.Text // Renamed from backText
+  hint            String?  @map("hint") @db.Text // Example or hint
+  imageUrl        String?  @map("image_url") @db.Text
+  audioUrl        String?  @map("audio_url") @db.Text
   tags            String[] @default([]) @db.VarChar(50)
+  
+  // Generic language details (JSONB)
+  // Japanese: { "kanji": "...", "furigana": "...", "romaji": "..." }
+  // English: { "ipa": "...", "type": "noun" }
+  languageDetails Json?    @map("language_details") @db.JsonB
 
+  // AI Integration fields
+  aiGenerated        Boolean     @default(false) @map("ai_generated")
+  sourceDocumentId   String?     @map("source_document_id") @db.Uuid
+  generationMetadata Json?       @default("{}") @map("generation_metadata")
+
+  // Metadata
+  isArchived Boolean @default(false) @map("is_archived")
+
+  // SRS (Directly on card)
   srsState     SrsState  @default(NEW) @map("srs_state")
-  nextReviewAt DateTime? @map("next_review_at")
-  interval     Int       @default(0)
-  easeFactor   Decimal   @default(2.50) @map("ease_factor") @db.Decimal(4, 2)
+  nextReviewAt DateTime  @default(now()) @map("next_review_at")
+  lastReviewAt DateTime? @map("last_review_at")
+  easeFactor   Decimal   @default(2.5) @map("ease_factor") @db.Decimal(4, 2)
+  interval     Int       @default(0) @map("interval")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  deck FlashcardDeck @relation(fields: [deckId], references: [id], onDelete: Cascade)
-  note Note?         @relation(fields: [noteId], references: [id], onDelete: SetNull)
+  // Relations
+  deck           FlashcardDeck @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  note           Note?         @relation(fields: [noteId], references: [id], onDelete: SetNull)
+  sourceDocument FileAsset?    @relation("FlashcardSourceDocument", fields: [sourceDocumentId], references: [id], onDelete: SetNull)
 
   @@index([deckId])
   @@index([noteId])
+  @@index([aiGenerated])
+  @@index([sourceDocumentId])
   @@map("flashcards")
 }
+
+
+
+// ==================================================
+// 7. USER & AUTH
+// ==================================================
 
 // --- Identity ---
 
@@ -343,22 +362,20 @@ model User {
   deletedAt    DateTime? @map("deleted_at") @db.Timestamp() // null = not deleted, value = soft deleted
 
   // Relations
-  identities     UserIdentity[] // OAuth providers (email, google, etc.)
-  sessions       Session[]
-  twoFactorAuth  TwoFactorAuth?
-  flashcardDecks FlashcardDeck[]
-  comments       Comment[]
-  auditLogs      AuditLog[]      @relation("UserAuditLogs")
-  orders         Order[]
-  tickets        Ticket[]        @relation("UserTickets")
-  handledTickets Ticket[]        @relation("HandlerTickets")
-  certificates   Certificate[]
-  balance        UserBalance?
+  identities              UserIdentity[] // OAuth providers (email, google, etc.)
+  sessions                Session[]
+  twoFactorAuth           TwoFactorAuth?
+  flashcardDecks          FlashcardDeck[]
+  comments                Comment[]
+  auditLogs               AuditLog[]               @relation("UserAuditLogs")
+  orders                  Order[]
+  tickets                 Ticket[]                 @relation("UserTickets")
+  handledTickets          Ticket[]                 @relation("HandlerTickets")
+  certificates            Certificate[]
 
   // Gamification Relations
   gamification    UserGamification?
   dailyActivities DailyActivity[]
-  achievements    UserAchievement[]
 
   // Commerce (New)
   couponUsages CouponUsage[]
@@ -366,9 +383,7 @@ model User {
   commentLikes CommentLike[]
 
   // History Relations
-  balanceTransactions          BalanceTransaction[]
   gamificationHistories        GamificationHistory[]
-  notebooks                    Notebook[]
   notes                        Note[] // New Study Notes
   blogs                        Blog[]
   // Academy (new core LMS) relations
@@ -660,20 +675,7 @@ model UserGamification {
   @@map("user_gamification")
 }
 
-model UserBalance {
-  id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId  String @unique @map("user_id") @db.Uuid
-  balance Int    @default(0)
 
-  aiRoleplayTrialLimit  Int @default(3) @map("ai_roleplay_trial_limit")
-  liveMeetingTrialLimit Int @default(3) @map("live_meeting_trial_limit")
-
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("user_balances")
-}
 
 model DailyActivity {
   id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -696,61 +698,7 @@ model DailyActivity {
   @@map("daily_activities")
 }
 
-model Achievement {
-  id       String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  code     String              @unique @db.VarChar(50) // e.g., "STREAK_7"
-  category AchievementCategory
 
-  // Display
-  title       String  @db.VarChar(100)
-  description String  @db.Text
-  icon        String? @db.VarChar(100) // emoji or icon name
-
-  // Requirements (JSON for flexibility)
-  requirements Json @default("{}")
-
-  // Rewards (JSON for flexibility)
-  rewards Json @default("{}") // e.g., {"freezeCount": 1, "xp": 100}
-
-  // Metadata
-  isActive   Boolean @default(true) @map("is_active")
-  orderIndex Int     @default(0) @map("order_index")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  userAchievements UserAchievement[]
-
-  @@index([category])
-  @@index([isActive])
-  @@map("achievements")
-}
-
-model UserAchievement {
-  id            String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId        String @map("user_id") @db.Uuid
-  achievementId String @map("achievement_id") @db.Uuid
-
-  // Progress tracking
-  isUnlocked Boolean @default(false) @map("is_unlocked")
-  progress   Json?   @default("{}") // For multi-step achievements
-
-  unlockedAt DateTime? @map("unlocked_at")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, achievementId])
-  @@index([userId])
-  @@index([achievementId])
-  @@index([isUnlocked])
-  @@map("user_achievements")
-}
 
 model PointReward {
   id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -769,22 +717,7 @@ model PointReward {
 
 // --- Finance Ledger ---
 
-model BalanceTransaction {
-  id          String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId      String                 @map("user_id") @db.Uuid
-  amount      Int // Số tiền biến động (dùng Int vì UserBalance dùng Int)
-  type        BalanceTransactionType
-  description String?                @db.Text
-  metadata    Json?                  @default("{}") // Lưu trữ orderId, ticketId, v.v.
-  createdAt   DateTime               @default(now()) @map("created_at")
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([type])
-  @@index([createdAt])
-  @@map("balance_transactions")
-}
 
 model GamificationHistory {
   id           String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -835,6 +768,7 @@ model FileAsset {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Relations
+  flashcardSourceDocs Flashcard[] @relation("FlashcardSourceDocument")
 
   @@index([ownerId])
   @@index([fileUrl])
@@ -998,44 +932,7 @@ model Certificate {
 
 // --- Notes ---
 
-model Notebook {
-  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId      String  @map("user_id") @db.Uuid
-  name        String  @db.VarChar(255)
-  description String? @db.Text
-  isPublic    Boolean @default(false) @map("is_public")
-  entryCount  Int     @default(0) @map("entry_count")
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  entries NoteEntry[]
-
-  @@unique([userId, name])
-  @@index([userId])
-  @@map("notebooks")
-}
-
-model NoteEntry {
-  id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  notebookId   String  @map("notebook_id") @db.Uuid
-  word         String  @db.VarChar(255)
-  phonetic     String? @db.VarChar(255)
-  meaning      String  @db.Text
-  note         String? @db.Text
-  partOfSpeech String  @default("other") @map("part_of_speech") @db.VarChar(50)
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  notebook Notebook @relation(fields: [notebookId], references: [id], onDelete: Cascade)
-
-  @@index([notebookId])
-  @@map("note_entries")
-}
 
 // ==================================================
 // 12. ACADEMY CORE LMS (NEW)
@@ -1335,25 +1232,25 @@ model LearningProgress {
 }
 
 model ClassReview {
-  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  classId      String @map("class_id") @db.Uuid
-  enrollmentId String @map("enrollment_id") @db.Uuid
-  userId       String @map("user_id") @db.Uuid
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  classId      String   @map("class_id") @db.Uuid
+  enrollmentId String   @map("enrollment_id") @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
 
-  rating      Int // 1-5
-  title       String?   @db.VarChar(255)
-  content     String?   @db.Text
-  status      String    @default("PUBLISHED") @db.VarChar(20) // PENDING, PUBLISHED, HIDDEN, REJECTED
-  isAnonymous Boolean   @default(false) @map("is_anonymous")
-  metadata    Json?     @default("{}") @db.JsonB
-  publishedAt DateTime? @map("published_at")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
+  rating       Int      // 1-5
+  title        String?  @db.VarChar(255)
+  content      String?  @db.Text
+  status       String   @default("PUBLISHED") @db.VarChar(20) // PENDING, PUBLISHED, HIDDEN, REJECTED
+  isAnonymous  Boolean  @default(false) @map("is_anonymous")
+  metadata     Json?    @default("{}") @db.JsonB
+  publishedAt  DateTime? @map("published_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  class      Class      @relation(fields: [classId], references: [id], onDelete: Cascade)
-  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  class      Class       @relation(fields: [classId], references: [id], onDelete: Cascade)
+  enrollment Enrollment  @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([enrollmentId])
   @@index([classId])

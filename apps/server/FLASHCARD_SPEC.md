@@ -145,7 +145,29 @@ Chúng ta không dùng Anki thuần (quá phức tạp cho user phổ thông), m
 
 ---
 
-## 7. Migration Strategy (from Old Schema)
+## 7. Gap Analysis vs Quizlet & Future Roadmap (Pending)
+
+> **Lưu ý**: Các tính năng dưới đây được liệt kê để đảm bảo hệ thống có khả năng mở rộng tương đương Quizlet trong tương lai. **Hiện tại CHƯA TRIỂN KHAI** (Out of scope MVP), chỉ làm khi flow chính đã ổn định và có yêu cầu từ User.
+
+### 7.1. Study Modes (Ngoài SRS)
+Quizlet có nhiều chế độ học, hệ thống hiện tại tập trung vào SRS (tương đương "Learn Mode").
+-   **[PENDING] Test Mode**: Tự động sinh bài kiểm tra (Trắc nghiệm, Điền từ, Đúng/Sai) từ nội dung bộ thẻ.
+    -   *Tech*: Frontend-only logic hoặc API `/decks/:id/generate-test`.
+-   **[PENDING] Match Game (Nối thẻ)**: Game nối từ vựng với nghĩa trong thời gian ngắn nhất.
+    -   *Tech*: Cần thêm bảng `GameLeaderboard` để lưu kỷ lục thời gian của user.
+
+### 7.2. Organization & Social
+-   **[PENDING] Folders**: Cho phép gom nhiều Decks vào một thư mục (VD: "Semester 1" chứa "Tuần 1", "Tuần 2").
+    -   *Schema*: Cần thêm model `FlashcardFolder`.
+-   **[PENDING] Class Integration**: Share bộ thẻ vào `Class` (Academy) để tất cả học viên đều thấy.
+    -   *Schema*: Cần bảng liên kết `ClassFlashcardDeck`.
+
+### 7.3. Content Creation Tools
+-   **[PENDING] Import from CSV/Text**: Copy-paste danh sách từ Excel/Word để tạo nhanh.
+-   **[PENDING] Text-to-Speech (TTS)**: Tự động sinh audio cho từ vựng nếu user không upload file.
+    -   *Tech*: Tích hợp Google TTS hoặc OpenAI TTS API.
+
+## 8. Migration Strategy (from Old Schema)
 
 Nếu data cũ ít:
 -   Convert column `frontText` -> `term`.

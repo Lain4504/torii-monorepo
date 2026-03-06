@@ -2,7 +2,7 @@ import { IsString, IsOptional, IsArray, IsObject, IsBoolean, IsNumber } from 'cl
 
 export class CreateDeckDto {
     @IsString()
-    title: string;
+    name: string;
 
     @IsString()
     @IsOptional()
@@ -30,7 +30,11 @@ export class CreateFlashcardDto {
 
     @IsString()
     @IsOptional()
-    mediaUrl?: string;
+    imageUrl?: string;
+
+    @IsString()
+    @IsOptional()
+    audioUrl?: string;
 
     @IsObject()
     @IsOptional()
