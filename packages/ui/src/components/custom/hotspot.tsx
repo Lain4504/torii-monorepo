@@ -2,16 +2,16 @@
 
 import * as React from "react"
 import { useState, useCallback } from "react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Progress } from "@/components/ui/progress"
-import {
+import { cn } from "@workspace/ui/lib/utils"
+import { Button } from "@workspace/ui/components/button"
+import { Badge } from "@workspace/ui/components/badge"
+import { Progress } from "@workspace/ui/components/progress"
+import { Card, CardContent } from "@workspace/ui/components/card"
+    import {
     Popover,
     PopoverContent,
     PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@workspace/ui/components/popover"
 import { CheckCircle2, XCircle, ChevronRight } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────

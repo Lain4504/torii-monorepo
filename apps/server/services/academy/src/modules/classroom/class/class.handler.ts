@@ -47,6 +47,11 @@ export class ClassHandler {
     return this.classes.cancelClass(data.id);
   }
 
+  @MessagePattern({ cmd: 'academy.class.getCurriculum' })
+  getCurriculum(@Payload() data: { id: string }) {
+    return this.classes.getCurriculum(data.id);
+  }
+
   @MessagePattern({ cmd: 'academy.class.delete' })
   delete(@Payload() data: { id: string }) {
     return this.classes.delete(data.id);

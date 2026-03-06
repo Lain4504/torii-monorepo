@@ -8,7 +8,7 @@ import {
 
 @Controller()
 export class LearningProgressHandler {
-  constructor(private readonly progress: LearningProgressService) {}
+  constructor(private readonly progress: LearningProgressService) { }
 
   @MessagePattern({ cmd: 'academy.learningProgress.findAll' })
   findAll(@Payload() query: LearningProgressQueryDto) {
@@ -28,6 +28,11 @@ export class LearningProgressHandler {
   @MessagePattern({ cmd: 'academy.learningProgress.upsert' })
   upsert(@Payload() input: LearningProgressUpsertDto) {
     return this.progress.upsert(input);
+  }
+
+  @MessagePattern({ cmd: 'academy.learningProgress.getCompletedIds' })
+  getCompletedIds(@Payload() data: { classId: string; userId: string }) {
+    return this.progress.getCompletedLessonIds(data.classId, data.userId);
   }
 }
 

@@ -1,8 +1,10 @@
-import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate, useParams, Link } from "react-router-dom"
 import { useAcademyClass } from "@/lib/api/services/academy-classes"
 import { useAcademyClassSchedules } from "@/lib/api/services/academy-class-schedules"
 import { useAcademyClassAssessments } from "@/lib/api/services/academy-class-assessments"
 import { useAcademyEnrollments } from "@/lib/api/services/academy-enrollments"
+import { useAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
+import { useAcademyCourseEdition } from "@/lib/api/services/academy-course-editions"
 import { PageHeader } from "@/components/common/page-header"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
@@ -16,6 +18,7 @@ import {
   TableHeader, 
   TableRow 
 } from "@workspace/ui/components/table"
+import { LearnerList } from "@/components/academy/learner-list"
 import { 
   Edit, 
   Plus, 
@@ -27,7 +30,8 @@ import {
   Clock,
   MapPin,
   Trophy,
-  History
+  History,
+  Link as LinkIcon
 } from "lucide-react"
 import { Link } from "react-router-dom"
 
@@ -35,6 +39,8 @@ export default function ClassDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { data: cls, isLoading: isLoadingClass } = useAcademyClass(id!)
+  const { data: profile } = useAcademyCourseProfile(cls?.courseProfileId)
+  const { data: edition } = useAcademyCourseEdition(cls?.courseEditionId)
   const { data: schedules = [], isLoading: isLoadingSchedules } = useAcademyClassSchedules({ classId: id })
   const { data: assessments = [], isLoading: isLoadingAssessments } = useAcademyClassAssessments({ classId: id })
   const { data: enrollmentsData, isLoading: isLoadingEnrollments } = useAcademyEnrollments({ classId: id })
@@ -79,14 +85,16 @@ export default function ClassDetailPage() {
           <CardContent className="space-y-6">
             <div className="space-y-1">
                <p className="text-xs text-muted-foreground">Course Profile</p>
-               <Link to={`/academy/course-profiles/${cls.courseProfileId}`} className="text-sm font-medium hover:underline text-primary break-all">
-                  {cls.courseProfileId}
+               <Link to={`/academy/course-profiles/${cls.courseProfileId}`} className="text-sm font-medium hover:underline text-primary break-all flex items-center gap-1">
+                  {profile?.title || cls.courseProfileId}
+                  <LinkIcon className="h-3 w-3" />
                </Link>
             </div>
             <div className="space-y-1">
                <p className="text-xs text-muted-foreground">Course Edition (Syllabus)</p>
-               <Link to={`/academy/course-editions/${cls.courseEditionId}`} className="text-sm font-medium hover:underline text-primary break-all">
-                  {cls.courseEditionId}
+               <Link to={`/academy/course-editions/${cls.courseEditionId}`} className="text-sm font-medium hover:underline text-primary break-all flex items-center gap-1">
+                  {edition?.editionTag || cls.courseEditionId}
+                  <LinkIcon className="h-3 w-3" />
                </Link>
             </div>
             <div className="grid grid-cols-2 gap-4 pt-4 border-t">
@@ -277,40 +285,7 @@ export default function ClassDetailPage() {
                      </Button>
                   </CardHeader>
                   <CardContent>
-                     <Table>
-                        <TableHeader>
-                           <TableRow className="bg-muted/50">
-                              <TableHead>User ID</TableHead>
-                              <TableHead>Ngày Enroll</TableHead>
-                              <TableHead>Trạng thái</TableHead>
-                              <TableHead className="text-right">Thao tác</TableHead>
-                           </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                           {isLoadingEnrollments ? (
-                              <TableRow><TableCell colSpan={4} className="text-center">Đang tải...</TableCell></TableRow>
-                           ) : enrollments.length ? (
-                              enrollments.map((en: any) => (
-                                 <TableRow key={en.id}>
-                                    <TableCell className="font-mono text-xs">{en.userId}</TableCell>
-                                    <TableCell>{new Date(en.enrolledAt).toLocaleDateString("vi-VN")}</TableCell>
-                                    <TableCell>
-                                       <Badge variant={en.status === "ACTIVE" ? "default" : "secondary"}>{en.status}</Badge>
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                       <Button variant="ghost" size="sm" asChild>
-                                          <Link to={`/academy/enrollments/${en.id}/edit`}><Edit className="h-3.5 w-3.5" /></Link>
-                                       </Button>
-                                    </TableCell>
-                                 </TableRow>
-                              ))
-                           ) : (
-                              <TableRow>
-                                 <TableCell colSpan={4} className="text-center py-8 text-muted-foreground italic">Lớp học hiện tại chưa có học viên</TableCell>
-                              </TableRow>
-                           )}
-                        </TableBody>
-                     </Table>
+                     <LearnerList enrollments={enrollments} isLoading={isLoadingEnrollments} />
                   </CardContent>
                </Card>
             </TabsContent>

@@ -51,7 +51,8 @@ export const academicNavItems: NavItem[] = [
         icon: GraduationCap,
         anyPermission: ["academy.content.read", "academy.content.write", "academy.delivery.read", "academy.delivery.write"],
         items: [
-            { titleKey: "Dashboard", url: "/academy", permission: "academy.content.read" },
+            { titleKey: "Dashboard (Staff)", url: "/academy", permission: "academy.content.read" },
+            { titleKey: "My Teaching", url: "/academy/lecturer", role: "lecturer" },
             { titleKey: "Course Profiles", url: "/academy/course-profiles", permission: "academy.content.read" },
             { titleKey: "Lessons", url: "/academy/lessons", permission: "academy.content.read" },
             { titleKey: "Course Editions", url: "/academy/course-editions", permission: "academy.content.read" },
@@ -65,6 +66,7 @@ export const academicNavItems: NavItem[] = [
           { titleKey: "Exams", url: "/academy/exams", permission: "exam.manage" },
           { titleKey: "Exam Attempts", url: "/academy/exam-attempts", permission: "exam.manage" },
           { titleKey: "Assignment Submissions", url: "/academy/assignment-submissions", permission: "exam.manage" },
+          { titleKey: "Enrollments", url: "/academy/enrollments", permission: "academy.delivery.read" },
         ]
     },
 ];

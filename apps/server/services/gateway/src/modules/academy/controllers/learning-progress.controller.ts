@@ -22,7 +22,7 @@ import {
 export class LearningProgressController {
   constructor(
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) {}
+  ) { }
 
   @Get('my-courses')
   async getMyCourses(@Req() req: ReqWithRequester) {
@@ -91,7 +91,7 @@ export class LearningProgressController {
       const requester = req.requester;
       const result = await firstValueFrom(
         this.natsClient.send(
-          { cmd: 'academy.learningProgress.findAll' },
+          { cmd: 'academy.learningProgress.getCompletedIds' },
           { userId: requester.sub, classId },
         ),
       );

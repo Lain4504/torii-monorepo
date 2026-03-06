@@ -160,15 +160,17 @@ export default function AcademyEnrollmentsPage() {
                                                 </div>
                                                 <div className="flex flex-col">
                                                     <span className="font-semibold text-sm">{it.user?.displayName || 'Unknown'}</span>
-                                                    <span className="text-xs text-muted-foreground">{it.user?.email}</span>
+                                                    <span className="text-xs text-muted-foreground">{it.user?.email || it.userId}</span>
                                                 </div>
                                             </div>
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex flex-col">
-                                                <span className="font-medium text-sm">{it.class?.name || 'Unknown'}</span>
+                                                <Link to={`/academy/classes/${it.classId}`} className="font-medium text-sm hover:underline hover:text-primary transition-colors">
+                                                    {it.class?.name || 'Unknown Class'}
+                                                </Link>
                                                 <Badge variant="outline" className="w-fit text-[10px] py-0 font-mono mt-1">
-                                                    {it.class?.code}
+                                                    {it.class?.code || 'NO_CODE'}
                                                 </Badge>
                                             </div>
                                         </TableCell>

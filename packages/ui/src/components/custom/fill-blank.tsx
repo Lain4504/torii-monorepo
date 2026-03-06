@@ -2,11 +2,11 @@
 
 import * as React from "react"
 import { useState, useCallback, useRef } from "react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
+import { cn } from "@workspace/ui/lib/utils"
+import { Button } from "@workspace/ui/components/button"
+import { Badge } from "@workspace/ui/components/badge"
+import { Progress } from "@workspace/ui/components/progress"
+import { Card, CardContent } from "@workspace/ui/components/card"
 import { CheckCircle2, XCircle, ChevronRight } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────

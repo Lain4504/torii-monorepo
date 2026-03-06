@@ -2,8 +2,8 @@
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useCourseById, useCurriculum } from '@/lib/api/services/course-api';
-import { useCourseRun } from '@/lib/api/services/course-run-api';
+import { useCourseById } from '@/lib/api/services/course-api';
+import { useCourseRun, useCurriculum } from '@/lib/api/services/course-run-api';
 import { useCheckEnrollment } from '@/lib/api/services/enrollment-api';
 import { useCompletedLessons, learningProgressApi } from '@/lib/api/services/learning-progress-api';
 import { useLesson, type LessonResponse } from '@/lib/api/services/lesson-api';
@@ -808,7 +808,7 @@ export default function CourseLearnPage() {
     useEffect(() => {
         if (!curriculum) return;
         // Expand all modules
-        setExpandedModules(new Set(curriculum.modules.map(m => m.id)));
+        setExpandedModules(new Set(curriculum.modules.map((m: any) => m.id)));
 
         // Pick first unlocked uncompleted lesson
         if (currentLesson) return; // already selected
@@ -844,7 +844,7 @@ export default function CourseLearnPage() {
     }, [currentLesson, completedIds, courseMasterId, queryClient]);
 
     // ── Nav ────────────────────────────────────────────────────────────────
-    const allLessons: CurriculumLesson[] = curriculum?.modules.flatMap(m => m.lessons) ?? [];
+    const allLessons: CurriculumLesson[] = curriculum?.modules.flatMap((m: any) => m.lessons) ?? [];
     const currentIndex = currentLesson ? allLessons.findIndex(l => l.id === currentLesson.id) : -1;
     const prevLesson = currentIndex > 0 ? (allLessons[currentIndex - 1] ?? null) : null;
     const nextLesson = currentIndex < allLessons.length - 1 ? (allLessons[currentIndex + 1] ?? null) : null;
@@ -1165,7 +1165,7 @@ export default function CourseLearnPage() {
 
                     {/* Module list — fix: pass per-module isExpanded so each module controls independently */}
                     <div className="flex-1 overflow-y-auto no-scrollbar">
-                        {curriculum?.modules.map(mod => (
+                        {curriculum?.modules.map((mod: any) => (
                             <ModuleItem
                                 key={mod.id}
                                 mod={mod}

@@ -27,6 +27,25 @@ export class ClassService {
           }
           : {}),
       },
+      include: {
+        _count: {
+          select: { enrollments: true },
+        },
+        primaryTeacher: {
+          select: {
+            id: true,
+            displayName: true,
+            avatarUrl: true,
+          },
+        },
+        courseProfile: {
+          select: {
+            id: true,
+            title: true,
+            code: true,
+          },
+        },
+      },
       orderBy: [{ createdAt: 'desc' }],
     });
   }
@@ -192,6 +211,47 @@ export class ClassService {
     });
 
     return result;
+  }
+
+  async getCurriculum(id: string) {
+    const classItem = await this.prisma.class.findUnique({
+      where: { id },
+      include: {
+        courseEdition: {
+          include: {
+            chapters: {
+              include: {
+                items: true,
+              },
+              orderBy: { orderIndex: 'asc' },
+            },
+          },
+        },
+      },
+    });
+
+    if (!classItem) throw new NotFoundException('Class not found');
+
+    return {
+      classId: classItem.id,
+      courseProfileId: classItem.courseProfileId,
+      courseEditionId: classItem.courseEditionId,
+      chapters: classItem.courseEdition.chapters.map((chapter) => ({
+        id: chapter.id,
+        title: chapter.title,
+        description: chapter.description,
+        orderIndex: chapter.orderIndex,
+        estimatedMinutes: chapter.estimatedMinutes,
+        items: chapter.items.map((item) => ({
+          id: item.id,
+          title: item.title,
+          kind: item.kind,
+          referenceId: item.referenceId,
+          orderIndex: item.orderIndex,
+          metadata: item.metadata,
+        })),
+      })),
+    };
   }
 
   async delete(id: string) {

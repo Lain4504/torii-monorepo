@@ -27,7 +27,29 @@ export class CourseOfferingService {
           : {}),
       },
       orderBy: [{ createdAt: 'desc' }],
-      include: { classes: true },
+      include: {
+        classes: {
+          include: {
+            class: {
+              include: {
+                courseProfile: {
+                  select: {
+                    level: true,
+                    subject: true,
+                    thumbnailUrl: true,
+                  },
+                },
+                primaryTeacher: {
+                  select: {
+                    displayName: true,
+                    avatarUrl: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
   }
 

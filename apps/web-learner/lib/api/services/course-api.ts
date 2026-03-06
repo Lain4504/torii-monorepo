@@ -1,8 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
 import type {
-  CourseMasterResponseDTO,
-  CourseMasterSearchResponseDTO,
   StandardApiResponse,
   PaginatedApiResponse
 } from '@workspace/schemas';
@@ -37,137 +35,51 @@ export const courseApi = {
   findAll: async (params: {
     page?: number;
     limit?: number;
-    jlptLevel?: string;
-    status?: string;
-    search?: string;
-  } = {}): Promise<PaginatedApiResponse<CourseMasterResponseDTO>> => {
-    const response = await apiClient.get<PaginatedApiResponse<CourseMasterResponseDTO>>('/api/course-masters', {
+    level?: string;
+    subject?: string;
+    q?: string;
+    type?: 'VOD' | 'LIVE';
+  } = {}): Promise<PaginatedApiResponse<any>> => {
+    const response = await apiClient.get<StandardApiResponse<{ items: any[] }>>('/api/academy/course-profiles', {
       params,
     });
-    return response.data;
-  },
-
-  /**
-   * Advanced search for courses
-   */
-  advancedSearch: async (params: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    levels?: string; // comma separated
-    priceMin?: number;
-    priceMax?: number;
-    rating?: number;
-    sort?: string;
-  } = {}): Promise<PaginatedApiResponse<CourseMasterSearchResponseDTO>> => {
-    const response = await apiClient.get<PaginatedApiResponse<CourseMasterSearchResponseDTO>>('/api/course-masters/advanced-search', {
-      params,
-    });
-    return response.data;
-  },
-
-  /**
-   * Validate if a course is ready for scheduling
-   */
-  validateForScheduling: async (courseId: string): Promise<{ isReady: boolean; message?: string }> => {
-    const response = await apiClient.get<StandardApiResponse<{ isReady: boolean; message?: string }>>(`/api/course-masters/${courseId}/validate-scheduling`);
-    return response.data.data!;
-  },
-
-  /**
-   * Get course by slug
-   */
-  getCourseBySlug: async (slug: string): Promise<CourseMasterResponseDTO | null> => {
-    const response = await apiClient.get<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/course-masters/slug/${slug}`);
-    return response.data.data!.course;
+    // Adapt to PaginatedApiResponse structure
+    return {
+      success: response.data.success,
+      data: (response.data.data as any)?.items ?? [],
+      total: (response.data.data as any)?.total ?? ((response.data.data as any)?.items?.length ?? 0),
+      page: (response.data.data as any)?.page ?? 1,
+      limit: (response.data.data as any)?.limit ?? 10,
+      totalPages: (response.data.data as any)?.totalPages ?? 1,
+    } as any;
   },
 
   /**
    * Get course by id
    */
-  getCourseById: async (id: string): Promise<CourseMasterResponseDTO | null> => {
-    const response = await apiClient.get<StandardApiResponse<{ course: CourseMasterResponseDTO }>>(`/api/course-masters/${id}`);
-    return response.data.data!.course;
+  getCourseById: async (id: string): Promise<any | null> => {
+    const response = await apiClient.get<StandardApiResponse<{ item: any }>>(`/api/academy/course-profiles/${id}`);
+    return response.data.data!.item;
   },
 
   /**
-   * Get course curriculum (modules with lessons)
+   * Get courses by type (VOD | LIVE)
    */
-  getCurriculum: async (courseId: string): Promise<CurriculumResponse> => {
-    const response = await apiClient.get<StandardApiResponse<CurriculumResponse>>(`/api/course-masters/${courseId}/curriculum`);
-    return response.data.data!;
-  },
-
-  /**
-   * Get courses by type (vod | live)
-   */
-  getByType: async (type: 'vod' | 'live'): Promise<CourseMasterResponseDTO[]> => {
-    const response = await apiClient.get<StandardApiResponse<{ courses: CourseMasterResponseDTO[] }>>(`/api/course-masters/by-type/${type}`);
-    return response.data.data?.courses ?? [];
-  },
-
-  /**
-   * Get student count for a course
-   */
-  getStudentCount: async (courseId: string): Promise<{ count: number }> => {
-    const response = await apiClient.get<StandardApiResponse<{ count: number }>>(`/api/course-masters/${courseId}/students/count`);
-    return response.data.data!;
+  getByType: async (type: 'VOD' | 'LIVE'): Promise<any[]> => {
+    const response = await apiClient.get<StandardApiResponse<{ items: any[] }>>('/api/academy/course-profiles', {
+      params: { type },
+    });
+    return response.data.data?.items ?? [];
   },
 };
 
 /**
- * Hook: Search courses for public catalog
+ * Hook: Get all courses with filters
  */
-export function useCourses(params: {
-  page?: number;
-  limit?: number;
-  levels?: string[];
-  q?: string;
-  priceFilter?: 'all' | 'free' | 'paid';
-  sortBy?: string;
-  instructorId?: string;
-  topics?: string[];
-  type?: 'VOD' | 'LIVE';
-}) {
+export function useCourses(params: any) {
   return useQuery({
     queryKey: ['courses', params],
-    queryFn: async () => {
-      let priceMin: number | undefined;
-      let priceMax: number | undefined;
-
-      if (params.priceFilter === 'free') {
-        priceMax = 0;
-      } else if (params.priceFilter === 'paid') {
-        priceMin = 1;
-      }
-
-      const levelsString = params.levels?.length ? params.levels.join(',') : undefined;
-
-      return courseApi.advancedSearch({
-        page: params.page,
-        limit: params.limit,
-        search: params.q,
-        levels: levelsString,
-        priceMin,
-        priceMax,
-        sort: params.sortBy,
-        instructorId: params.instructorId,
-        topics: params.topics?.length ? params.topics.join(',') : undefined,
-        type: params.type,
-      } as any);
-    },
-  });
-}
-
-
-/**
- * Hook: Get course by slug
- */
-export function useCourseBySlug(slug: string) {
-  return useQuery({
-    queryKey: ['courses', 'slug', slug],
-    queryFn: () => courseApi.getCourseBySlug(slug),
-    enabled: !!slug,
+    queryFn: () => courseApi.findAll(params),
   });
 }
 
@@ -183,33 +95,11 @@ export function useCourseById(courseId?: string) {
 }
 
 /**
- * Hook: Get curriculum
- */
-export function useCurriculum(courseId?: string) {
-  return useQuery({
-    queryKey: ['curriculum', courseId],
-    queryFn: () => courseApi.getCurriculum(courseId!),
-    enabled: !!courseId,
-  });
-}
-
-/**
- * Hook: Get live courses only (type === 'live')
+ * Hook: Get live courses only (type === 'LIVE')
  */
 export function useLiveCourses() {
   return useQuery({
-    queryKey: ['courses', 'live'],
-    queryFn: () => courseApi.getByType('live'),
-  });
-}
-
-/**
- * Hook: Get student count
- */
-export function useStudentCount(courseId?: string) {
-  return useQuery({
-    queryKey: ['courses', courseId, 'studentCount'],
-    queryFn: () => courseApi.getStudentCount(courseId!),
-    enabled: !!courseId,
+    queryKey: ['courses', 'LIVE'],
+    queryFn: () => courseApi.getByType('LIVE'),
   });
 }

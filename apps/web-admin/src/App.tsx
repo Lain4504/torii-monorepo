@@ -84,6 +84,7 @@ import AcademyEnrollmentCreatePage from '@/routes/academy/enrollment-create-page
 import AcademyEnrollmentEditPage from '@/routes/academy/enrollment-edit-page.tsx'
 import AcademyClassDetailPage from "@/routes/academy/class-detail-page.tsx"
 import AcademyCourseOfferingDetailPage from "@/routes/academy/course-offering-detail-page.tsx"
+import AcademyLecturerDashboardPage from "@/routes/academy/lecturer-dashboard-page.tsx"
 import AcademyQuizTemplatesPage from '@/routes/academy/quiz-templates-page.tsx'
 import AcademyQuizTemplateCreatePage from '@/routes/academy/quiz-template-create-page.tsx'
 import AcademyQuizTemplateEditPage from '@/routes/academy/quiz-template-edit-page.tsx'
@@ -145,6 +146,7 @@ function App() {
                   {/* Academy (new core LMS) */}
                   <Route element={<RoutePermissionGuard anyPermission={["academy.content.read", "academy.content.write", "academy.commerce.read", "academy.commerce.write", "academy.delivery.read", "academy.delivery.write", "exam.manage"]} />}>
                     <Route path="academy" element={<AcademyDashboardPage />} />
+                    <Route path="academy/lecturer" element={<AcademyLecturerDashboardPage />} />
                     <Route path="academy/course-profiles" element={<AcademyCourseProfilesPage />} />
                     <Route path="academy/course-profiles/new" element={<AcademyCourseProfileCreatePage />} />
                     <Route path="academy/course-profiles/:id" element={<AcademyCourseProfileDetailPage />} />

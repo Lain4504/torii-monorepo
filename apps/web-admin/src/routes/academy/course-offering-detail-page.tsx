@@ -1,6 +1,6 @@
 import { useNavigate, useParams, Link } from "react-router-dom"
 import { useMemo } from "react"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import {

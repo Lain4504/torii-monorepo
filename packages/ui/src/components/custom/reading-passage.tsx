@@ -2,19 +2,19 @@
 
 import * as React from "react"
 import { useState, useCallback } from "react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
+import { cn } from "@workspace/ui/lib/utils"
+import { Button } from "@workspace/ui/components/button"
+import { Badge } from "@workspace/ui/components/badge"
+import { Progress } from "@workspace/ui/components/progress"
 import {
     Card,
     CardContent,
     CardHeader,
     CardTitle,
     CardDescription,
-} from "@/components/ui/card"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
+} from "@workspace/ui/components/card"
+import { ScrollArea } from "@workspace/ui/components/scroll-area"
+import { Separator } from "@workspace/ui/components/separator"
 import { BookOpen, ChevronRight, CheckCircle2, XCircle } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────

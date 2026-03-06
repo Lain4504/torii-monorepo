@@ -1,16 +1,17 @@
 "use client"
 
 import * as React from "react"
-import { cn } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Card, CardContent } from "@/components/ui/card"
+import { cn } from "@workspace/ui/lib/utils"
+import { Button } from "@workspace/ui/components/button"
+import { Badge } from "@workspace/ui/components/badge"
+import { Progress } from "@workspace/ui/components/progress"
+import { Card, CardContent } from "@workspace/ui/components/card"
 import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from "@workspace/ui/components/tooltip"
 import { CheckCircle2, Lock, Zap, Star, Trophy } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────

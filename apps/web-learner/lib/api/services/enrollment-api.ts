@@ -14,7 +14,7 @@ export const enrollmentApi = {
      */
     async getMyEnrollments(query?: EnrollmentQueryDTO): Promise<PaginatedApiResponse<EnrollmentResponseDTO>> {
         const response = await apiClient.get<PaginatedApiResponse<EnrollmentResponseDTO>>(
-            '/api/enrollments/me',
+            '/api/academy/enrollments/me',
             { params: query }
         );
         return response.data;
@@ -25,7 +25,7 @@ export const enrollmentApi = {
      */
     async getAllEnrollments(query?: EnrollmentQueryDTO): Promise<PaginatedApiResponse<EnrollmentResponseDTO>> {
         const response = await apiClient.get<PaginatedApiResponse<EnrollmentResponseDTO>>(
-            '/api/enrollments',
+            '/api/academy/enrollments',
             { params: query }
         );
         return response.data;
@@ -35,7 +35,7 @@ export const enrollmentApi = {
      * Get enrollment by ID
      */
     async getEnrollment(id: string): Promise<EnrollmentResponseDTO> {
-        const response = await apiClient.get<StandardApiResponse<{ enrollment: EnrollmentResponseDTO }>>(`/api/enrollments/${id}`);
+        const response = await apiClient.get<StandardApiResponse<{ enrollment: EnrollmentResponseDTO }>>(`/api/academy/enrollments/${id}`);
         return response.data.data!.enrollment;
     },
 
@@ -44,7 +44,7 @@ export const enrollmentApi = {
      */
     async checkEnrollment(courseRunId: string): Promise<{ isEnrolled: boolean; enrollment?: EnrollmentResponseDTO; hasNewerVersion?: boolean }> {
         const response = await apiClient.get<StandardApiResponse<{ isEnrolled: boolean; enrollment?: EnrollmentResponseDTO; hasNewerVersion?: boolean }>>(
-            `/api/enrollments/check/${courseRunId}`
+            `/api/academy/enrollments/check/${courseRunId}`
         );
         return response.data.data!;
     },
@@ -53,7 +53,7 @@ export const enrollmentApi = {
      * Create enrollment
      */
     async createEnrollment(data: EnrollmentCreateDTO): Promise<EnrollmentResponseDTO> {
-        const response = await apiClient.post<StandardApiResponse<{ enrollment: EnrollmentResponseDTO }>>('/api/enrollments', data);
+        const response = await apiClient.post<StandardApiResponse<{ enrollment: EnrollmentResponseDTO }>>('/api/academy/enrollments', data);
         return response.data.data!.enrollment;
     },
 
@@ -62,7 +62,7 @@ export const enrollmentApi = {
      */
     async updateProgress(enrollmentId: string, completionPercentage: number): Promise<EnrollmentResponseDTO> {
         const response = await apiClient.patch<StandardApiResponse<{ enrollment: EnrollmentResponseDTO }>>(
-            `/api/enrollments/${enrollmentId}/progress`,
+            `/api/academy/enrollments/${enrollmentId}/progress`,
             { completionPercentage }
         );
         return response.data.data!.enrollment;
@@ -73,7 +73,7 @@ export const enrollmentApi = {
      */
     async upgradeVersion(courseMasterId: string): Promise<EnrollmentResponseDTO> {
         const response = await apiClient.post<StandardApiResponse<{ enrollment: EnrollmentResponseDTO }>>(
-            `/api/enrollments/upgrade/${courseMasterId}`
+            `/api/academy/enrollments/upgrade/${courseMasterId}`
         );
         return response.data.data!.enrollment;
     },
@@ -83,7 +83,7 @@ export const enrollmentApi = {
      */
     async checkGiftRecipient(email: string, courseMasterId: string): Promise<{ isRegistered: boolean; isEnrolled: boolean }> {
         const response = await apiClient.get<StandardApiResponse<{ isRegistered: boolean; isEnrolled: boolean }>>(
-            '/api/enrollments/check-gift',
+            '/api/academy/enrollments/check-gift',
             { params: { email, courseMasterId } }
         );
         return response.data.data!;

@@ -25,6 +25,11 @@ export class CourseProfileService {
           }
           : {}),
       },
+      include: {
+        _count: {
+          select: { editions: true, classes: true },
+        },
+      },
       orderBy: { createdAt: 'desc' },
     });
   }
