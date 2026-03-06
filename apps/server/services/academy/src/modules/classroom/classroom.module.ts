@@ -6,6 +6,7 @@ import { EnrollmentModule } from './enrollment/enrollment.module';
 import { LearningProgressModule } from './learning-progress/learning-progress.module';
 import { ClassroomCronService } from './classroom-cron.service';
 import { CertificateModule } from './certificate/certificate.module';
+import { ClassReviewModule } from './class-review/class-review.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { CertificateModule } from './certificate/certificate.module';
     EnrollmentModule,
     LearningProgressModule,
     CertificateModule,
+    ClassReviewModule,
   ],
   providers: [ClassroomCronService],
 })

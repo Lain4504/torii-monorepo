@@ -20,9 +20,10 @@ import { EnrollmentController } from './controllers/enrollment.controller';
 import { OrderController } from './controllers/order.controller';
 import { CouponController } from './controllers/coupon.controller';
 import { WebhookController } from './controllers/webhook.controller';
-
 import { QuizTemplateController } from './controllers/quiz-template.controller';
 import { AssignmentTemplateController } from './controllers/assignment-template.controller';
+import { ClassReviewController } from './controllers/class-review.controller';
+
 
 @Module({
   imports: [NatsClientModule],
@@ -49,6 +50,7 @@ import { AssignmentTemplateController } from './controllers/assignment-template.
     OrderController,
     CouponController,
     WebhookController,
+    ClassReviewController,
   ],
 })
 export class AcademyModule { }

@@ -107,10 +107,11 @@ export function PracticeTest() {
                     label: opt
                 }))
                 
-                newOptionMap[q.id] = {}
+                const currentQuestionOptionMap: Record<string, string> = {}
                 optionObjects.forEach(opt => {
-                    newOptionMap[q.id][opt.id] = opt.label
+                    currentQuestionOptionMap[opt.id] = opt.label
                 })
+                newOptionMap[q.id] = currentQuestionOptionMap
 
                 let correctIds: string[] = []
                 // Assuming correctAnswer maps to one of the options
@@ -155,8 +156,8 @@ export function PracticeTest() {
         setIsLoading(true)
         try {
             const formattedAnswers = Object.entries(quizResult.answers).map(([qId, selectedIds]) => {
-                const selectedId = selectedIds[0]
-                const userAnswer = optionMap[qId]?.[selectedId] || ""
+                const selectedId = selectedIds?.[0]
+                const userAnswer = (selectedId && optionMap[qId]) ? optionMap[qId][selectedId] || "" : ""
                 return {
                     questionId: qId,
                     userAnswer
@@ -174,13 +175,16 @@ export function PracticeTest() {
                 questions: quizData.questions.map(q => {
                     const detail = evaluation.details?.find(d => d.questionId === q.id)
                     const userSelectedId = quizResult.answers[q.id]?.[0]
-                    const userSelection = optionMap[q.id]?.[userSelectedId] || ""
+                    const qOptionMap = optionMap[q.id]
+                    const userSelection = (userSelectedId && qOptionMap) ? qOptionMap[userSelectedId] || "" : ""
+                    const correctId = q.correctIds[0]
+                    const correctAnswer = (correctId && qOptionMap) ? qOptionMap[correctId] || "" : ""
                     
                     return {
                         id: q.id,
                         text: q.question,
                         userSelection: userSelection,
-                        correctAnswer: q.correctIds[0] ? optionMap[q.id][q.correctIds[0]] : "", // Not perfect if we only have IDs
+                        correctAnswer: correctAnswer, 
                         isCorrect: detail?.isCorrect ?? false,
                         explanation: detail?.explanation 
                     }

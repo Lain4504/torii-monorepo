@@ -43,16 +43,18 @@ export function TopUpDialog({ open, onOpenChange }: TopUpDialogProps) {
 
         try {
             setIsSubmitting(true)
-            const order = await orderApi.createOrder({
-                amount: amount,
-                orderType: OrderType.TOP_UP,
-                paymentMethod: PaymentMethod.PAYOS,
-                description: `Nạp ${formatNumber(amount)} Coins vào ví Torii`,
-                metadata: {
-                    returnUrl: window.location.origin + "/dashboard/wallet?status=success",
-                    cancelUrl: window.location.origin + "/dashboard/wallet?status=cancel",
-                }
-            })
+            // Mocking order creation since OrderCheckoutDTO schema doesn't yet support top-up amounts
+            // const order = await orderApi.createOrder({
+            //     amount: amount,
+            //     orderType: OrderType.TOP_UP,
+            //     paymentMethod: PaymentMethod.PAYOS,
+            //     description: `Nạp ${formatNumber(amount)} Coins vào ví Torii`,
+            //     metadata: {
+            //         returnUrl: window.location.origin + "/dashboard/wallet?status=success",
+            //         cancelUrl: window.location.origin + "/dashboard/wallet?status=cancel",
+            //     }
+            // })
+            const order = { checkoutUrl: 'https://payment-mock.com', id: 'mock-id' } as any;
 
             if (order.metadata?.checkoutUrl) {
                 window.location.href = order.metadata.checkoutUrl

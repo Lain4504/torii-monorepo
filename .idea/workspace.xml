@@ -4,12 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update rich text eidtor">
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/analytics/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/assessment/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/assessment/placement/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/assessment/test/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/courses/page.tsx" beforeDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="build learner success">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/checkout/[courseId]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/checkout/[courseId]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/skill-drill.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/ai-sensei/skill-drill.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/assessment/placement-assessment.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/assessment/placement-assessment.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -315,15 +314,7 @@
       <workItem from="1772722974385" duration="2264000" />
       <workItem from="1772726265375" duration="1097000" />
       <workItem from="1772802424937" duration="4822000" />
-      <workItem from="1772811140566" duration="374000" />
-    </task>
-    <task id="LOCAL-00938" summary="update core lms flow">
-      <option name="closed" value="true" />
-      <created>1772634574038</created>
-      <option name="number" value="00938" />
-      <option name="presentableId" value="LOCAL-00938" />
-      <option name="project" value="LOCAL" />
-      <updated>1772634574039</updated>
+      <workItem from="1772811140566" duration="900000" />
     </task>
     <task id="LOCAL-00939" summary="update core lms flow">
       <option name="closed" value="true" />
@@ -709,7 +700,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772811268906</updated>
     </task>
-    <option name="localTasksCounter" value="987" />
+    <task id="LOCAL-00987" summary="build learner success">
+      <option name="closed" value="true" />
+      <created>1772811927188</created>
+      <option name="number" value="00987" />
+      <option name="presentableId" value="LOCAL-00987" />
+      <option name="project" value="LOCAL" />
+      <updated>1772811927189</updated>
+    </task>
+    <option name="localTasksCounter" value="988" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -744,7 +743,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactor: Rename course-related entities to use 'courseMaster' terminology and update related references" />
     <MESSAGE value="migation other code" />
     <MESSAGE value="fix to lauch success" />
     <MESSAGE value="fix" />
@@ -769,7 +767,8 @@
     <MESSAGE value="add learning progress statistics and enrollment management features" />
     <MESSAGE value="remove unsued file" />
     <MESSAGE value="update rich text eidtor" />
-    <option name="LAST_COMMIT_MESSAGE" value="update rich text eidtor" />
+    <MESSAGE value="build learner success" />
+    <option name="LAST_COMMIT_MESSAGE" value="build learner success" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

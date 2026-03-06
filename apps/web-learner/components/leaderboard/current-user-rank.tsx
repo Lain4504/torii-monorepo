@@ -3,11 +3,11 @@
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Star, Flame } from 'lucide-react'
-import type { LeaderboardUserDto } from '@workspace/schemas'
+import type { LeaderboardUserDTO } from '@workspace/schemas'
 import { formatNumber } from '@/utils/format-utils'
 
 interface CurrentUserRankProps {
-    user: LeaderboardUserDto
+    user: LeaderboardUserDTO
     type: 'global' | 'streak'
 }
 

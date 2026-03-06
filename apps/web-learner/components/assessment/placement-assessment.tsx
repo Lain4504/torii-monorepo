@@ -52,16 +52,18 @@ export function PlacementAssessment() {
                     }))
                     
                     // Store mapping to retrieve original labels later
-                    newOptionMap[q.id] = {}
+                    const currentQMap: Record<string, string> = {}
                     optionObjects.forEach(opt => {
-                        newOptionMap[q.id][opt.id] = opt.label
+                        currentQMap[opt.id] = opt.label
                     })
+                    newOptionMap[q.id] = currentQMap
 
                     // Find correct ID (assuming correctAnswer is index or value - check backend schema)
                     // If correctAnswer is index
                     let correctIds: string[] = []
                     if (typeof q.correctAnswer === 'number' && optionObjects[q.correctAnswer]) {
-                        correctIds = [optionObjects[q.correctAnswer].id]
+                        const opt = optionObjects[q.correctAnswer]
+                        if (opt) correctIds = [opt.id]
                     } else if (typeof q.correctAnswer === 'string') {
                          const correctOpt = optionObjects.find(o => o.label === q.correctAnswer)
                          if (correctOpt) correctIds = [correctOpt.id]
@@ -96,7 +98,8 @@ export function PlacementAssessment() {
             const formattedAnswers = Object.entries(quizResult.answers).map(([questionId, selectedIds]) => {
                 const question = testData.questions.find(q => q.id === questionId)
                 const selectedId = selectedIds[0] // Single choice
-                const userAnswerLabel = optionMap[questionId]?.[selectedId] || ""
+                const qMap = optionMap[questionId]
+                const userAnswerLabel = (qMap && selectedId) ? qMap[selectedId] : ""
 
                 return {
                     questionId,

@@ -2,10 +2,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
 import type {
     StandardApiResponse,
-    UserAchievementDto,
-    StreakStatusDto,
-    LeaderboardDto,
-    UserGamificationDto,
+    UserAchievementDTO,
+    StreakStatusDTO,
+    LeaderboardDTO,
+    UserGamificationDTO,
     GamificationHistoryPaginatedResponse
 } from '@workspace/schemas';
 import { toast } from 'sonner';
@@ -15,8 +15,8 @@ export const gamificationApi = {
     /**
      * Get user achievements
      */
-    async getAchievements(): Promise<UserAchievementDto[]> {
-        const response = await apiClient.get<StandardApiResponse<{ achievements: UserAchievementDto[] }>>('/api/gamification/achievements');
+    async getAchievements(): Promise<UserAchievementDTO[]> {
+        const response = await apiClient.get<StandardApiResponse<{ achievements: UserAchievementDTO[] }>>('/api/gamification/achievements');
         if (response.data.success && response.data.data) {
             return response.data.data.achievements;
         }
@@ -26,8 +26,8 @@ export const gamificationApi = {
     /**
      * Get user streak status
      */
-    async getStreak(): Promise<StreakStatusDto> {
-        const response = await apiClient.get<StandardApiResponse<StreakStatusDto>>('/api/gamification/streak');
+    async getStreak(): Promise<StreakStatusDTO> {
+        const response = await apiClient.get<StandardApiResponse<StreakStatusDTO>>('/api/gamification/streak');
         if (response.data.success && response.data.data) {
             return response.data.data;
         }
@@ -56,8 +56,8 @@ export const gamificationApi = {
     /**
      * Get user's full gamification profile
      */
-    async getGamificationProfile(): Promise<UserGamificationDto> {
-        const response = await apiClient.get<StandardApiResponse<UserGamificationDto>>('/api/gamification/profile');
+    async getGamificationProfile(): Promise<UserGamificationDTO> {
+        const response = await apiClient.get<StandardApiResponse<UserGamificationDTO>>('/api/gamification/profile');
         if (response.data.success && response.data.data) {
             return response.data.data;
         }

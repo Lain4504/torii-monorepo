@@ -108,10 +108,10 @@ export function SkillDrill({ embed = false }: { embed?: boolean }) {
     const Content = (
         <div className={cn("space-y-8", embed ? "" : "py-6 md:py-8")}>
             {!embed && (
-                <QuizHeader
-                    title="Luyện tập Kỹ năng"
-                    description="Tạo các bài tập tùy chỉnh để rèn luyện kỹ năng tiếng Nhật của bạn."
-                />
+                <div className="space-y-2">
+                    <h1 className="text-3xl font-bold tracking-tight">Luyện tập Kỹ năng</h1>
+                    <p className="text-muted-foreground">Tạo các bài tập tùy chỉnh để rèn luyện kỹ năng tiếng Nhật của bạn.</p>
+                </div>
             )}
 
             <Card className="shadow-none border-border">

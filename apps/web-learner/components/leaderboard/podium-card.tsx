@@ -3,11 +3,11 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Crown, Star, Flame } from 'lucide-react'
 import { cn } from '@workspace/ui/lib/utils'
-import type { LeaderboardUserDto } from '@workspace/schemas'
+import type { LeaderboardUserDTO } from '@workspace/schemas'
 import { formatNumber } from '@/utils/format-utils'
 
 interface PodiumCardProps {
-    user: LeaderboardUserDto
+    user: LeaderboardUserDTO
     rank: number
     isCurrentUser: boolean
     type: 'global' | 'streak'

@@ -84,7 +84,7 @@ export default function CourseDetail() {
                     <div className="flex items-center gap-2 text-sm text-zinc-500 font-medium">
                         <Link href="/" className="hover:text-[#E63946] transition-colors">Trang chủ</Link>
                         <span>/</span>
-                        <Link href="/khoa-hoc" className="hover:text-[#E63946] transition-colors">Khóa học</Link>
+                        <Link href="/dashboard/available-courses" className="hover:text-[#E63946] transition-colors">Khóa học</Link>
                         <span>/</span>
                         <span className="text-zinc-900 truncate font-semibold">Chinh phục JLPT N3</span>
                     </div>
