@@ -68,4 +68,42 @@ export class GamificationController {
             throw new RpcException(error.message);
         }
     }
+
+    // --- Admin CRUD ---
+
+    @MessagePattern('gamification.admin.getAllRewards')
+    async admin_getAllRewards() {
+        try {
+            return await this.gamificationService.admin_getAllRewards();
+        } catch (error) {
+            throw new RpcException(error.message);
+        }
+    }
+
+    @MessagePattern('gamification.admin.createReward')
+    async admin_createReward(@Payload() data: any) {
+        try {
+            return await this.gamificationService.admin_createReward(data);
+        } catch (error) {
+            throw new RpcException(error.message);
+        }
+    }
+
+    @MessagePattern('gamification.admin.updateReward')
+    async admin_updateReward(@Payload() data: { id: string, data: any }) {
+        try {
+            return await this.gamificationService.admin_updateReward(data.id, data.data);
+        } catch (error) {
+            throw new RpcException(error.message);
+        }
+    }
+
+    @MessagePattern('gamification.admin.deleteReward')
+    async admin_deleteReward(@Payload() data: { id: string }) {
+        try {
+            return await this.gamificationService.admin_deleteReward(data.id);
+        } catch (error) {
+            throw new RpcException(error.message);
+        }
+    }
 }

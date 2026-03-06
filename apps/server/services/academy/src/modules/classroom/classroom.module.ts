@@ -4,6 +4,7 @@ import { ClassScheduleModule } from './class-schedule/class-schedule.module';
 import { ClassAssessmentModule } from './class-assessment/class-assessment.module';
 import { EnrollmentModule } from './enrollment/enrollment.module';
 import { LearningProgressModule } from './learning-progress/learning-progress.module';
+import { ClassroomCronService } from './classroom-cron.service';
 import { CertificateModule } from './certificate/certificate.module';
 
 @Module({
@@ -15,6 +16,7 @@ import { CertificateModule } from './certificate/certificate.module';
     LearningProgressModule,
     CertificateModule,
   ],
+  providers: [ClassroomCronService],
 })
 export class ClassroomModule { }
 

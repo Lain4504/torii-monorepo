@@ -1,10 +1,14 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { ClassCreateDto, ClassQueryDto, ClassUpdateDto } from './dto/class.dto';
+import { AuditLoggerService } from '../../audit-logger.service';
 
 @Injectable()
 export class ClassService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly audit: AuditLoggerService,
+  ) { }
 
   async findAll(query: ClassQueryDto) {
     const q = query.q?.trim();
@@ -99,7 +103,7 @@ export class ClassService {
   async publishClass(id: string) {
     const classItem = await this.prisma.class.findUnique({
       where: { id },
-      include: { courseEdition: true },
+      include: { courseEdition: true, schedules: { take: 1 } },
     });
     if (!classItem) throw new NotFoundException('Class not found');
     if (classItem.status !== 'DRAFT') return classItem;
@@ -108,10 +112,30 @@ export class ClassService {
       throw new BadRequestException('Cannot publish class for a non-PUBLISHED edition');
     }
 
-    return this.prisma.class.update({
+    if (classItem.mode === 'LIVE' || classItem.mode === 'BLENDED') {
+      if (!classItem.startDate) {
+        throw new BadRequestException('LIVE or BLENDED classes must have a startDate');
+      }
+      if (classItem.schedules.length === 0) {
+        throw new BadRequestException('LIVE or BLENDED classes must have at least one ClassSchedule');
+      }
+    }
+
+    const result = await this.prisma.class.update({
       where: { id },
-      data: { status: 'ENROLLING' },
+      data: { status: 'ENROLLING', enrollmentOpenAt: new Date() },
     });
+
+    await this.audit.log({
+      userId: 'SYSTEM',
+      action: 'class.publish',
+      entity: 'Class',
+      entityId: id,
+      description: `Published class ${classItem.code}`,
+      metadata: { code: classItem.code },
+    });
+
+    return result;
   }
 
   async startClass(id: string) {
@@ -154,10 +178,20 @@ export class ClassService {
       // For now, let's just mark it.
     }
 
-    return this.prisma.class.update({
+    const result = await this.prisma.class.update({
       where: { id },
       data: { status: 'CANCELLED' },
     });
+
+    await this.audit.log({
+      userId: 'SYSTEM',
+      action: 'class.cancel',
+      entity: 'Class',
+      entityId: id,
+      description: `Cancelled class ${classItem.code}`,
+    });
+
+    return result;
   }
 
   async delete(id: string) {

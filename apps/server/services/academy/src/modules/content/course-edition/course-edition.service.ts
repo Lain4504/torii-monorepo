@@ -5,10 +5,14 @@ import {
   CourseEditionQueryDto,
   CourseEditionUpdateDto,
 } from './dto/course-edition.dto';
+import { AuditLoggerService } from '../../audit-logger.service';
 
 @Injectable()
 export class CourseEditionService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly audit: AuditLoggerService,
+  ) { }
 
   async findAll(query: CourseEditionQueryDto) {
     return this.prisma.courseEdition.findMany({
@@ -110,7 +114,7 @@ export class CourseEditionService {
       throw new BadRequestException('Chapters have duplicate orderIndex');
     }
 
-    // Validate items: check for duplicate orderIndex within each chapter
+    // Validate items: check for duplicate orderIndex and correct courseProfileId
     for (const chapter of edition.chapters) {
       const itemIndexes = chapter.items.map((i) => i.orderIndex);
       if (new Set(itemIndexes).size !== itemIndexes.length) {
@@ -118,12 +122,54 @@ export class CourseEditionService {
           `Chapter "${chapter.title}" has items with duplicate orderIndex`,
         );
       }
+
+      for (const item of chapter.items) {
+        if (item.kind === 'LESSON') {
+          const lesson = await this.prisma.lesson.findUnique({
+            where: { id: item.referenceId },
+            select: { courseProfileId: true },
+          });
+          if (lesson?.courseProfileId !== edition.courseProfileId) {
+            throw new BadRequestException(`Lesson "${item.title}" does not belong to the correct CourseProfile`);
+          }
+        }
+        // Add similar checks for QUIZ_TEMPLATE and ASSIGNMENT_TEMPLATE if they have courseProfileId
+        if (item.kind === 'QUIZ_TEMPLATE') {
+          const quiz = await this.prisma.quizTemplate.findUnique({
+            where: { id: item.referenceId },
+            select: { courseProfileId: true },
+          });
+          if (quiz?.courseProfileId !== edition.courseProfileId) {
+            throw new BadRequestException(`QuizTemplate "${item.title}" does not belong to the correct CourseProfile`);
+          }
+        }
+        if (item.kind === 'ASSIGNMENT_TEMPLATE') {
+          const assignment = await this.prisma.assignmentTemplate.findUnique({
+            where: { id: item.referenceId },
+            select: { courseProfileId: true },
+          });
+          if (assignment?.courseProfileId !== edition.courseProfileId) {
+            throw new BadRequestException(`AssignmentTemplate "${item.title}" does not belong to the correct CourseProfile`);
+          }
+        }
+      }
     }
 
-    return this.prisma.courseEdition.update({
+    const result = await this.prisma.courseEdition.update({
       where: { id },
       data: { status: 'PUBLISHED' },
     });
+
+    await this.audit.log({
+      userId: 'SYSTEM', // In a real app, pass the actual user ID
+      action: 'edition.publish',
+      entity: 'CourseEdition',
+      entityId: id,
+      description: `Published course edition ${edition.editionTag}`,
+      metadata: { editionTag: edition.editionTag },
+    });
+
+    return result;
   }
 
   async archiveEdition(id: string) {
@@ -139,10 +185,20 @@ export class CourseEditionService {
       );
     }
 
-    return this.prisma.courseEdition.update({
+    const result = await this.prisma.courseEdition.update({
       where: { id },
       data: { status: 'ARCHIVED', isCurrent: false },
     });
+
+    await this.audit.log({
+      userId: 'SYSTEM',
+      action: 'edition.archive',
+      entity: 'CourseEdition',
+      entityId: id,
+      description: `Archived course edition ${edition.editionTag}`,
+    });
+
+    return result;
   }
 
   async delete(id: string) {

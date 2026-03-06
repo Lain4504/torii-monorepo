@@ -1,13 +1,6 @@
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
-import { ActivityType, GamificationTransactionType } from '@prisma/generated';
-import { CouponService } from '../commerce/coupon.service';
-
-interface RewardConfig {
-    discountValue: number;
-    minOrderAmount: number;
-    validDuration: number;
-}
+import { ActivityType, GamificationTransactionType, GamificationCurrency } from '@prisma/generated';
 
 @Injectable()
 export class GamificationService {
@@ -15,7 +8,6 @@ export class GamificationService {
 
     constructor(
         private readonly prisma: PrismaService,
-        private readonly couponService: CouponService,
     ) { }
 
     private readonly EARNING_RULES = {
@@ -104,9 +96,24 @@ export class GamificationService {
                     data: {
                         userId,
                         amount: points,
+                        currency: GamificationCurrency.POINT,
                         type: GamificationTransactionType.EARN,
                         activityType,
                         description: `Received points for ${activityType}`,
+                        metadata,
+                    }
+                });
+            }
+
+            if (xp > 0) {
+                await tx.gamificationHistory.create({
+                    data: {
+                        userId,
+                        amount: xp,
+                        currency: GamificationCurrency.XP,
+                        type: GamificationTransactionType.EARN,
+                        activityType,
+                        description: `Received XP for ${activityType}`,
                         metadata,
                     }
                 });
@@ -237,7 +244,7 @@ export class GamificationService {
 
             const profile = await tx.userGamification.findUnique({ where: { userId } });
 
-            if (!profile || profile.points < reward.points) {
+            if (!profile || profile.points < reward.costPoints) {
                 throw new BadRequestException("Insufficient points to redeem this reward");
             }
 
@@ -245,14 +252,15 @@ export class GamificationService {
             await tx.userGamification.update({
                 where: { userId },
                 data: {
-                    points: { decrement: reward.points }
+                    points: { decrement: reward.costPoints }
                 }
             });
 
             await tx.gamificationHistory.create({
                 data: {
                     userId,
-                    amount: -reward.points,
+                    amount: -reward.costPoints,
+                    currency: GamificationCurrency.POINT,
                     type: GamificationTransactionType.REDEEM,
                     description: `Redeemed ${reward.name}`,
                     metadata: { rewardId },
@@ -261,18 +269,21 @@ export class GamificationService {
 
             // NOTE: A real system should integrate with CouponService here to emit a real coupon.
             // Simplified coupon issuance for Phase 1
-            const generatedCode = `REWARD-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+            const config = (reward.config as any) || {};
+            const prefix = config.prefix || 'RWD';
+            const generatedCode = `${prefix}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
             const coupon = await tx.coupon.create({
                 data: {
                     code: generatedCode,
                     description: `Redeemed from: ${reward.name}`,
-                    discountType: reward.discountType,
-                    discountValue: reward.discountValue,
-                    maxDiscountAmount: reward.maxDiscountAmount,
-                    minOrderValue: reward.minOrderAmount,
+                    discountType: config.discountType || 'FIXED_AMOUNT',
+                    discountValue: config.discountValue || 0,
+                    maxDiscountAmount: config.maxDiscountAmount,
+                    minOrderValue: config.minOrderValue,
                     usageLimit: 1,
                     perUserLimit: 1,
+                    metadata: { source: "GAMIFICATION", ownerId: userId },
                 }
             });
 
@@ -281,6 +292,47 @@ export class GamificationService {
                 message: "Reward redeemed successfully",
                 couponCode: coupon.code,
             };
+        });
+    }
+
+    // --- Admin CRUD ---
+
+    async admin_getAllRewards() {
+        return this.prisma.pointReward.findMany({
+            orderBy: { createdAt: 'desc' }
+        });
+    }
+
+    async admin_createReward(data: any) {
+        return this.prisma.pointReward.create({
+            data: {
+                name: data.name,
+                description: data.description,
+                costPoints: data.costPoints,
+                type: data.type || 'COUPON',
+                config: data.config || {},
+                isActive: data.isActive !== undefined ? data.isActive : true,
+            }
+        });
+    }
+
+    async admin_updateReward(id: string, data: any) {
+        return this.prisma.pointReward.update({
+            where: { id },
+            data: {
+                name: data.name,
+                description: data.description,
+                costPoints: data.costPoints,
+                type: data.type,
+                config: data.config,
+                isActive: data.isActive,
+            }
+        });
+    }
+
+    async admin_deleteReward(id: string) {
+        return this.prisma.pointReward.delete({
+            where: { id }
         });
     }
 }

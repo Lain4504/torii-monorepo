@@ -8,7 +8,7 @@ import {
 
 @Injectable()
 export class CourseProfileService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findAll(query: CourseProfileQueryDto) {
     const q = query.q?.trim();
@@ -18,11 +18,11 @@ export class CourseProfileService {
         level: query.level ?? undefined,
         ...(q
           ? {
-              OR: [
-                { code: { contains: q, mode: 'insensitive' } },
-                { title: { contains: q, mode: 'insensitive' } },
-              ],
-            }
+            OR: [
+              { code: { contains: q, mode: 'insensitive' } },
+              { title: { contains: q, mode: 'insensitive' } },
+            ],
+          }
           : {}),
       },
       orderBy: { createdAt: 'desc' },
@@ -66,8 +66,41 @@ export class CourseProfileService {
     });
   }
 
-  async delete(id: string) {
+  async archiveProfile(id: string) {
     await this.findById(id);
+
+    // Archive all editions
+    await this.prisma.courseEdition.updateMany({
+      where: { courseProfileId: id, status: { in: ['PUBLISHED', 'DRAFT'] } },
+      data: { status: 'ARCHIVED', isCurrent: false },
+    });
+
+    return this.prisma.courseProfile.update({
+      where: { id },
+      data: {
+        metadata: {
+          ...(await this.findById(id)).metadata as any,
+          isArchived: true,
+          archivedAt: new Date().toISOString()
+        }
+      },
+    });
+  }
+
+  async delete(id: string) {
+    const profile = await this.prisma.courseProfile.findUnique({
+      where: { id },
+      include: {
+        editions: { select: { id: true }, take: 1 },
+        classes: { select: { id: true }, take: 1 },
+      },
+    });
+    if (!profile) throw new NotFoundException('CourseProfile not found');
+
+    if (profile.editions.length > 0 || profile.classes.length > 0) {
+      throw new Error('Cannot delete CourseProfile with existing editions or classes. Archive it instead.');
+    }
+
     await this.prisma.courseProfile.delete({ where: { id } });
     return { ok: true };
   }

@@ -1,174 +1,199 @@
-# Academy Gamification Specification (Lean & Practical)
+# Academy Gamification Specification (Coupon-Focused)
 
-Tài liệu này mô tả thiết kế module **Gamification** phiên bản tinh gọn, thực tế, tập trung vào mục tiêu duy nhất: **Tăng tỷ lệ quay lại (Retention) và chuyển đổi (Conversion)** của người dùng thông qua cơ chế Streak và Reward.
+Tài liệu này mô tả thiết kế module **Gamification** phiên bản thực tế, tập trung tối đa vào việc **biến điểm thưởng thành doanh thu** thông qua cơ chế đổi Coupon.
 
-> **Triết lý**: "Đơn giản hoá, không RPG hoá". Chúng ta không làm game, chúng ta làm app học tập có yếu tố game.
+> **Trọng tâm**: "Học -> Tích điểm -> Đổi Coupon -> Mua khóa học". Đây là vòng lặp tạo ra giá trị kinh tế rõ ràng nhất.
 
 ## 1. Core Mechanics (Cơ chế cốt lõi)
 
-Hệ thống chỉ tập trung vào 3 yếu tố chính:
-1.  **Streak (Chuỗi ngày)**: Giữ người dùng quay lại hàng ngày.
-2.  **XP & Level (Danh hiệu)**: Cho người dùng cảm giác tiến bộ.
-3.  **Points & Shop (Động lực)**: Điểm thưởng có giá trị thực tế (đổi Coupon giảm giá).
+Hệ thống tập trung vào 2 yếu tố:
+1.  **Streak & XP**: Giữ chân người dùng quay lại hàng ngày và tạo cảm giác tiến bộ.
+2.  **Reward (Coupon Only)**: Động lực duy nhất và mạnh nhất để người dùng tích điểm là **đổi mã giảm giá**.
 
 ### 1.1. Flow Nghiệp vụ Thực tế
 
-**Scenario 1: Học tập hàng ngày (The Daily Loop)**
-1.  User đăng nhập vào app -> Hệ thống check Streak.
-    - Nếu là ngày kế tiếp: Streak +1.
-    - Nếu lỡ 1 ngày và có "Streak Freeze" (Bùa): Dùng bùa, Streak giữ nguyên.
-    - Nếu lỡ và không có bùa: Streak reset về 1.
-2.  User hoàn thành 1 bài học (Lesson) -> Nhận **10 XP** + **10 Points**.
-3.  User làm bài Quiz đạt điểm cao -> Nhận **50 XP** + **20 Points**.
-
-**Scenario 2: Đổi thưởng (The Value Loop)**
-1.  User tích lũy được 1000 Points.
-2.  User vào "Cửa hàng đổi điểm".
-3.  User dùng 1000 Points để đổi lấy **"Mã giảm giá 20% cho khóa học IELTS"**.
-4.  Hệ thống trừ điểm -> Sinh mã Coupon (module Commerce) -> User dùng mã đi mua khóa học.
-    *-> Đây là luồng quan trọng nhất để biến Gamification thành Revenue.*
+**Scenario: Hành trình từ Người học đến Người mua hàng**
+1.  **Tích lũy**:
+    - User học bài, làm quiz hàng ngày -> Tích lũy **Points**.
+    - Ví dụ: Mỗi bài học 10 điểm. Cần 500 điểm để đổi voucher 50k.
+2.  **Đổi thưởng (Redemption)**:
+    - User vào "Kho Quà" (Rewards Store).
+    - Thấy danh sách các **Voucher/Coupon** (giảm tiền mặt hoặc %).
+    - Bấm "Đổi ngay" -> Hệ thống trừ điểm -> Sinh ra một **Mã Coupon Riêng**.
+3.  **Sử dụng (Conversion)**:
+    - User copy mã này, vào trang thanh toán khóa học mới.
+    - Apply mã -> Được giảm giá -> Hoàn tất đơn hàng.
 
 ---
 
-## 2. Schema Design (Simplified)
+## 2. Schema Design (Extensible but Focused)
 
-Schema được tối giản hóa, loại bỏ các bảng phức tạp như `Inventory`, `Quest`, `QuestLog`.
+Schema giữ nguyên tính mở rộng (Generic) nhưng dữ liệu thực tế chỉ dùng cho Coupon.
 
 ### 2.1. User Gamification Profile (`UserGamification`)
 
-Bảng duy nhất lưu trữ trạng thái người chơi.
+Bảng lưu trữ trạng thái người chơi.
 
 | Field | Type | Description |
 | :--- | :--- | :--- |
 | `id` | UUID | PK |
 | `userId` | UUID | FK -> User |
-| `level` | Int | Level hiện tại (1, 2, 3...) - Tính toán từ Total XP |
-| `currentXp` | Int | Tổng XP tích lũy trọn đời (Dùng để tính Level và Rank) |
-| `points` | Int | Điểm khả dụng (Dùng để tiêu xài đổi quà) |
+| `level` | Int | Level hiện tại (tính từ Total XP) |
+| `currentXp` | Int | Tổng XP tích lũy (để hiện Rank/Level) |
+| `points` | Int | **Điểm khả dụng** (Quan trọng nhất: dùng để đổi Coupon) |
 | `currentStreak` | Int | Số ngày liên tục hiện tại |
-| `longestStreak` | Int | Kỷ lục chuỗi ngày cao nhất |
-| `lastActiveDate` | Date | Ngày cuối cùng có hoạt động (chỉ lưu ngày, bỏ giờ) |
-| `streakFreeze` | Int | Số lượng "Bùa hộ mệnh" đang có (Default 0) |
+| `longestStreak` | Int | Kỷ lục chuỗi ngày |
+| `lastActiveDate` | Date | Ngày hoạt động cuối |
 
 ### 2.2. History Ledger (`GamificationHistory`)
 
-Lưu lịch sử để audit và hiển thị "Lịch sử điểm thưởng".
+Lưu lịch sử dòng tiền (Points) để user tra soát.
 
 | Field | Type | Description |
 | :--- | :--- | :--- |
 | `id` | UUID | PK |
 | `userId` | UUID | FK |
-| `actionType` | Enum | `LESSON_COMPLETE`, `QUIZ_PASS`, `DAILY_LOGIN`, `REDEEM_REWARD`, `STREAK_BONUS` |
+| `actionType` | Enum | `EARN` (học), `REDEEM` (đổi quà) |
 | `amount` | Int | Số lượng thay đổi (+ hoặc -) |
-| `currency` | Enum | `XP` (kinh nghiệm), `POINT` (tiền tệ) |
-| `metadata` | JSON | Context (vd: `{ lessonId: "...", couponCode: "..." }`) |
+| `currency` | Enum | `POINT` (chính), `XP` |
+| `metadata` | JSON | Context (vd: `{ lessonId: "...", couponCode: "RWD-XYZ" }`) |
 | `createdAt` | DateTime | |
 
 ### 2.3. Reward Definitions (`PointReward`)
 
-Danh mục quà tặng đổi bằng điểm (Hardcode hoặc DB config đơn giản).
+Danh mục quà tặng. **Hiện tại chỉ chứa các item loại COUPON.**
 
 | Field | Type | Description |
 | :--- | :--- | :--- |
 | `id` | UUID | PK |
-| `name` | String | Tên quà (VD: "Coupon 50k", "Bùa hộ mệnh") |
+| `name` | String | Tên hiển thị (VD: "Voucher 50k", "Giảm 10%") |
 | `costPoints` | Int | Giá điểm (VD: 500) |
-| `type` | Enum | `COUPON`, `STREAK_FREEZE` |
-| `config` | JSON | Cấu hình (VD: `{ discountValue: 50000, minOrder: 200000 }`) |
-| `isActive` | Boolean | |
+| `type` | Enum | **`COUPON`** (Hiện tại chỉ support loại này), *`ITEM`, `TITLE` (Future)* |
+| `config` | JSON | Cấu hình sinh Coupon. VD: `{ "discountType": "FIXED", "value": 50000, "minOrder": 200000 }` |
+| `isActive` | Boolean | Ẩn/Hiện quà |
 
 ---
 
-## 3. Quy tắc tính điểm (Business Rules)
+## 3. Chiến lược Coupon & Business Logic
 
-Thay vì config database phức tạp, chúng ta sẽ define **Constant** trong code (Service Layer) để dễ điều chỉnh nhanh.
+Phần này định nghĩa cách hệ thống sinh ra và kiểm soát Coupon đổi thưởng.
 
-### 3.1. Earning Rules (Kiếm điểm)
+### 3.1. Phân biệt Coupon Hệ thống vs Coupon Đổi thưởng
 
-| Hành động | XP (Level) | Points (Tiêu xài) | Ghi chú |
-| :--- | :--- | :--- | :--- |
-| **Daily Login** | 0 | 5 | Chỉ cộng 1 lần/ngày |
-| **Complete Lesson** | 10 | 10 | Chỉ cộng lần đầu tiên hoàn thành |
-| **Pass Quiz (>80%)** | 20 | 20 | Chỉ cộng lần đầu tiên pass |
-| **Perfect Quiz (100%)** | 50 | 30 | Thưởng thêm |
-| **Streak Milestone** | 100 | 100 | Khi đạt mốc 7, 30, 100 ngày |
+Để tránh việc user lạm dụng (farm nick phụ lấy mã), hệ thống áp dụng cơ chế **Private Owner**.
 
-### 3.2. Leveling Formula (Công thức lên cấp)
+| Đặc điểm | Reward Coupon (Gamification) |
+| :--- | :--- |
+| **Nguồn gốc** | User chủ động đổi bằng Points tích lũy. |
+| **Mã Code** | **Unique & Random**. VD: `RWD-8A2B-9XYZ`. Không trùng lặp. |
+| **Sở hữu** | **Private**. Chỉ user đổi mới dùng được (Check `ownerId`). |
+| **Giới hạn** | Dùng 1 lần duy nhất (`usageLimit = 1`). |
+| **Hết hạn** | Thường ngắn hạn (VD: 30 ngày) để thôi thúc mua hàng. |
 
-Công thức tuyến tính đơn giản:
-`Level = Floor(TotalXP / 1000) + 1`
-- Level 1: 0 - 999 XP
-- Level 2: 1000 - 1999 XP
-...
+### 3.2. Quy trình Đổi Coupon (Redemption Flow)
 
-### 3.3. Shop Items (Tiêu điểm)
+**Step 1: User Request**
+- User chọn quà: "Voucher 50k" (ID: `rew_50k`, Cost: 500 pts).
+- API: `POST /gamification/redeem { rewardId: "rew_50k" }`.
 
-1.  **Streak Freeze (Bùa hộ mệnh)**
-    - Giá: 200 Points.
-    - Tác dụng: Tự động dùng khi user quên học 1 ngày để không mất Streak.
-    - Giới hạn: Max 2 cái trong túi (tránh việc user mua quá nhiều rồi lười học).
+**Step 2: Gamification Service Check**
+- Check `user.points >= 500`.
+- Check `Reward.isActive == true`.
 
-2.  **Discount Coupons**
-    - Coupon 10%: Giá 500 Points.
-    - Coupon 20%: Giá 1000 Points.
-    - Coupon 50k: Giá 300 Points.
-    - *Logic*: Khi redeem, gọi sang `CommerceService` để tạo coupon code gán cho user đó.
+**Step 3: Transaction (Atomic)**
+- Trừ điểm: `user.points -= 500`.
+- Ghi log: `GamificationHistory` (Type: `REDEEM`, Amount: -500, Metadata: `{ rewardName: "Voucher 50k" }`).
+
+**Step 4: Generate Coupon (Call Commerce Module)**
+- Gamification Service gọi nội bộ sang Commerce Service: `CouponService.createRewardCoupon(...)`.
+- **Logic sinh mã**:
+  - Prefix: `RWD` (hoặc config từ Reward).
+  - Body: Random string (VD: `X9A2`).
+  - Result: `RWD-X9A2`.
+- **Lưu vào DB Commerce**:
+  - Tạo record `Coupon` mới.
+  - `code`: `RWD-X9A2`.
+  - `discountValue`: 50000 (lấy từ config của Reward).
+  - `metadata`: `{ source: "GAMIFICATION", ownerId: user.id }`.
+  - `status`: `ACTIVE`.
+
+**Step 5: Return**
+- Trả về `code` cho User hiển thị ngay lập tức.
+- (Optional) Gửi email thông báo mã code.
+
+### 3.3. Quy trình Sử dụng (Validation Flow)
+
+Khi User dùng mã `RWD-X9A2` tại bước Checkout:
+1.  **Check tồn tại & hiệu lực**: (Logic cơ bản của Billing).
+2.  **Check chủ sở hữu (Quan trọng)**:
+    - Billing Service đọc `coupon.metadata.ownerId`.
+    - So sánh với `currentUser.id`.
+    - Nếu khác nhau -> **Reject**: "Mã này không dành cho tài khoản của bạn".
 
 ---
 
-## 4. Technical Implementation Steps
+## 4. Implementation Details
 
-Module `academy` sẽ chứa `GamificationService`.
+### 4.1. Config Reward Data (Hardcode hoặc DB Seed)
 
-### Step 1: Tracking Service (`trackActivity`)
-Tạo một method chung để các module khác gọi vào khi user hoàn thành hành động.
+Ban đầu có thể seed dữ liệu cứng vào DB để chạy ngay:
 
-```typescript
-// GamificationService
-async trackActivity(userId: string, activity: 'LESSON_COMPLETE' | 'QUIZ_PASS', metadata: any) {
-  // 1. Validate (tránh spam)
-  // 2. Tính XP/Point theo Rule
-  // 3. Update UserGamification (Atomic Increment)
-  // 4. Write Log History
-  // 5. Return result (để FE hiển thị popup: "+10 XP")
-}
+```json
+[
+  {
+    "name": "Voucher 20.000đ",
+    "description": "Giảm trực tiếp 20k cho đơn từ 100k",
+    "costPoints": 200,
+    "type": "COUPON",
+    "config": {
+      "discountType": "FIXED_AMOUNT",
+      "discountValue": 20000,
+      "minOrderValue": 100000,
+      "prefix": "RWD20"
+    }
+  },
+  {
+    "name": "Giảm 10% (Tối đa 50k)",
+    "description": "Giảm 10% cho mọi khóa học",
+    "costPoints": 500,
+    "type": "COUPON",
+    "config": {
+      "discountType": "PERCENTAGE",
+      "discountValue": 10,
+      "maxDiscountAmount": 50000,
+      "prefix": "RWD10"
+    }
+  }
+]
 ```
 
-### Step 2: Streak Logic (Cron & On-Demand)
-Có 2 cách xử lý Streak, chọn cách **On-Demand (Lazy)** để tiết kiệm tài nguyên:
+### 4.2. API Endpoints (Minimalist)
 
-- Khi User gọi bất kỳ API nào có auth (hoặc API `checkStreak` lúc mở app):
-  - Lấy `lastActiveDate`.
-  - So sánh với `Today`.
-  - Nếu `Today - lastActiveDate == 1 ngày`: Streak++
-  - Nếu `Today - lastActiveDate > 1 ngày`:
-    - Check `streakFreeze`.
-    - Nếu có: `streakFreeze--`, update `lastActiveDate = Yesterday`, coi như hôm qua đã học -> Tính lại logic trên.
-    - Nếu không: Reset Streak = 1.
-  - Update `lastActiveDate = Today`.
+Chỉ cần 3 API để vận hành toàn bộ luồng đổi quà:
 
-### Step 3: Integration Commerce
-- API `POST /gamification/redeem`:
-  - Input: `rewardId`.
-  - Logic:
-    - Check balance Points.
-    - Trừ Points.
-    - Nếu reward là `COUPON` -> Gọi `CouponService.createPrivateCoupon(userId, config)`.
-    - Trả về `couponCode`.
+1.  `GET /gamification/me`:
+    - Trả về: `points`, `currentStreak`, `level`.
+    - Dùng để hiện trên Header/Dashboard.
 
----
+2.  `GET /gamification/rewards`:
+    - Trả về danh sách quà (Voucher) đang active.
+    - User nhìn vào đây để có động lực cày điểm.
 
-## 5. API Endpoints cần thiết
+3.  `POST /gamification/redeem`:
+    - Input: `{ rewardId }`.
+    - Output: `{ success: true, code: "RWD20-KJ8X" }`.
+    - User nhận mã và dùng ngay.
 
-Chỉ cần 4 API đơn giản cho Phase 1:
+### 4.3. Future Expansion (Mở rộng sau này)
 
-1.  `GET /gamification/me`: Lấy profile (XP, Point, Streak, Level).
-2.  `GET /gamification/history`: Lịch sử nhận/tiêu điểm (phân trang).
-3.  `GET /gamification/rewards`: Danh sách quà đổi được.
-4.  `POST /gamification/redeem`: Đổi quà.
+Schema `PointReward` vẫn có field `type`. Sau này nếu muốn thêm quà khác, chỉ cần:
+- Thêm record mới với `type = 'STREAK_FREEZE'` hoặc `type = 'AVATAR_FRAME'`.
+- Update logic xử lý ở `Step 4` (thay vì gọi CouponService thì gọi InventoryService).
+- DB không cần sửa đổi gì thêm.
 
-## 6. Tại sao thiết kế này phù hợp?
+## 5. Kết luận
 
-1.  **Thực tế**: Không vẽ vời nhiệm vụ ảo (như "Chia sẻ Facebook", "Kết bạn") mà tập trung vào hành động cốt lõi là **Học**.
-2.  **Dễ implement**: Không cần background job phức tạp quét daily quest. Logic Streak xử lý dạng Lazy khi user request.
-3.  **Có doanh thu**: Việc cho đổi Coupon kích thích user tích điểm (học nhiều) và mua khóa học (dùng coupon).
+Thiết kế này đạt được sự cân bằng hoàn hảo:
+- **Tập trung**: Giải quyết bài toán kinh tế (đổi điểm lấy voucher) ngay lập tức.
+- **Tinh gọn**: Không có bảng thừa, không logic phức tạp (không quest, không inventory).
+- **Mở rộng**: Cấu trúc Data vẫn chuẩn để scale lên các tính năng game hóa phức tạp hơn nếu cần trong tương lai.

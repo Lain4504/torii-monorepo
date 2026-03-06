@@ -2,7 +2,7 @@ import {
   Controller,
   Get,
   Post,
-  Put,
+  Patch,
   Delete,
   Body,
   Param,
@@ -87,14 +87,14 @@ export class GamificationController {
   }
 
   @Post('redeem')
-  async redeemPoints(@Req() req: ReqWithRequester) {
+  async redeemPoints(@Req() req: ReqWithRequester, @Body() body: { rewardId: string }) {
     const user = req.requester;
-    const { dealId } = req.body;
+    const { rewardId } = body;
     try {
       const result = await firstValueFrom(
         this.natsClient.send('gamification.redeemPoints', {
           userId: user.sub,
-          dealId,
+          dealId: rewardId,
         }),
       );
       return successResponse(result);
@@ -104,6 +104,64 @@ export class GamificationController {
         error.stack,
       );
       return errorResponse(error.message || 'Failed to redeem points');
+    }
+  }
+
+  // --- Admin CRUD ---
+
+  @Get('admin/rewards')
+  @Permissions('gamification:admin')
+  async admin_getAllRewards() {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send('gamification.admin.getAllRewards', {}),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(`Failed to get all rewards for admin`, error.stack);
+      return errorResponse(error.message || 'Failed to fetch rewards');
+    }
+  }
+
+  @Post('admin/rewards')
+  @Permissions('gamification:admin')
+  async admin_createReward(@Body() body: any) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send('gamification.admin.createReward', body),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(`Failed to create reward`, error.stack);
+      return errorResponse(error.message || 'Failed to create reward');
+    }
+  }
+
+  @Patch('admin/rewards/:id')
+  @Permissions('gamification:admin')
+  async admin_updateReward(@Param('id') id: string, @Body() body: any) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send('gamification.admin.updateReward', { id, data: body }),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(`Failed to update reward ${id}`, error.stack);
+      return errorResponse(error.message || 'Failed to update reward');
+    }
+  }
+
+  @Delete('admin/rewards/:id')
+  @Permissions('gamification:admin')
+  async admin_deleteReward(@Param('id') id: string) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send('gamification.admin.deleteReward', { id }),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(`Failed to delete reward ${id}`, error.stack);
+      return errorResponse(error.message || 'Failed to delete reward');
     }
   }
 }
