@@ -86,8 +86,16 @@ export default function AcademyCourseOfferingsPage() {
               ) : data.length ? (
                 data.map((it) => (
                   <TableRow key={it.id}>
-                    <TableCell className="font-mono text-xs">{it.code}</TableCell>
-                    <TableCell>{it.title}</TableCell>
+                    <TableCell className="font-mono text-xs">
+                      <Link to={`/academy/course-offerings/${it.id}`} className="hover:underline text-primary">
+                        {it.code}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <Link to={`/academy/course-offerings/${it.id}`} className="hover:underline font-medium">
+                        {it.title}
+                      </Link>
+                    </TableCell>
                     <TableCell>{it.status ?? "-"}</TableCell>
                     <TableCell className="text-right">
                       {Intl.NumberFormat("vi-VN").format(it.price)} {it.currency}

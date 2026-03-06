@@ -25,23 +25,25 @@ export class LearningProgressService {
       include: {
         lesson: {
           select: {
+            id: true,
             title: true,
-            // slug: true, // Removed: Field does not exist in schema
-          },
-        },
-        class: {
-          select: {
-            courseProfile: {
-              select: {
-                title: true,
-                code: true, // Used code instead of slug
-              },
-            },
           },
         },
       },
       orderBy: [{ lastAccessedAt: 'desc' }, { id: 'desc' }],
     });
+  }
+
+  async getCompletedLessonIds(classId: string, userId: string): Promise<string[]> {
+    const list = await this.prisma.learningProgress.findMany({
+      where: {
+        classId,
+        userId,
+        status: 'COMPLETED',
+      },
+      select: { lessonId: true },
+    });
+    return list.map((p) => p.lessonId);
   }
 
   async getHistory(userId: string) {
@@ -85,30 +87,31 @@ export class LearningProgressService {
   }
 
   async getStats(userId: string) {
-    const enrollments = await this.prisma.enrollment.findMany({
-      where: { userId },
-    });
+    const [enrollments, progressRecords, gamification, certificates] = await Promise.all([
+      this.prisma.enrollment.findMany({
+        where: { userId, status: { in: ['ACTIVE', 'COMPLETED'] } },
+      }),
+      this.prisma.learningProgress.findMany({
+        where: { userId },
+        select: { progressPercent: true, status: true },
+      }),
+      this.gamificationService.getProfile(userId).catch(() => null),
+      this.prisma.certificate.count({ where: { userId } }),
+    ]);
 
     const totalCourses = enrollments.length;
-    // Note: status in enrollment might be different, but we check if they have any progress
-    const progress = await this.prisma.learningProgress.findMany({
-      where: { userId },
-    });
+    const completedCourses = enrollments.filter((e) => e.status === 'COMPLETED').length;
 
-    const completedLessons = progress.filter((p) => p.status === 'COMPLETED').length;
-    const inProgressCourses = enrollments.length; // Simplified for now
-
-    // Mocking some values as they might need more complex aggregation or aren't in schema yet
     return {
       totalCourses,
-      completedCourses: 0, // Need enrollment completion logic if available
-      inProgressCourses,
-      totalLearningHours: 0, // Need duration tracking logic
-      averageProgress: progress.length > 0
-        ? Math.round(progress.reduce((acc, curr) => acc + (curr.progressPercent || 0), 0) / progress.length)
+      completedCourses,
+      inProgressCourses: totalCourses - completedCourses,
+      totalLearningHours: 0, // Need duration tracking logic to implement fully
+      averageProgress: progressRecords.length > 0
+        ? Math.round(progressRecords.reduce((acc, curr) => acc + (curr.progressPercent || 0), 0) / progressRecords.length)
         : 0,
-      currentStreak: 0,
-      totalCertificates: 0,
+      currentStreak: gamification?.currentStreak ?? 0,
+      totalCertificates: certificates,
     };
   }
 

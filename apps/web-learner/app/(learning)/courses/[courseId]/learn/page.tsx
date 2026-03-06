@@ -791,7 +791,7 @@ export default function CourseLearnPage() {
     const { data: course, isLoading: courseLoading } = useCourseById(courseMasterId);
     const { data: curriculum, isLoading: curriculumLoading } = useCurriculum(courseMasterId);
     const { data: enrollmentData } = useCheckEnrollment(courseRunId);
-    const { data: completedLessonIds = [] } = useCompletedLessons(courseMasterId ?? '');
+    const { data: completedLessonIds = [] } = useCompletedLessons(courseRunId ?? '');
 
     // ── State ──────────────────────────────────────────────────────────────
     const [currentLesson, setCurrentLesson] = useState<CurriculumLesson | null>(null);
@@ -835,7 +835,7 @@ export default function CourseLearnPage() {
         if (!currentLesson) return;
         if (completedIds.has(currentLesson.id)) { toast.info('Bài học này đã được hoàn thành!'); return; }
         try {
-            await learningProgressApi.trackProgress(currentLesson.id, 100, 100);
+            await learningProgressApi.trackProgress(currentLesson.id, courseRunId, 'COMPLETED', 100);
             queryClient.invalidateQueries({ queryKey: ['completed-lessons', courseMasterId] });
             toast.success('Đã hoàn thành bài học! 🎉');
         } catch {

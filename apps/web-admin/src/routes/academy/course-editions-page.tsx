@@ -71,7 +71,7 @@ export default function AcademyCourseEditionsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Edition</TableHead>
-                <TableHead>CourseProfileId</TableHead>
+                <TableHead>Course Profile</TableHead>
                 <TableHead>Current</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -85,8 +85,16 @@ export default function AcademyCourseEditionsPage() {
               ) : data.length ? (
                 data.map((it) => (
                   <TableRow key={it.id}>
-                    <TableCell className="font-medium">{it.editionTag}</TableCell>
-                    <TableCell className="font-mono text-xs">{it.courseProfileId}</TableCell>
+                    <TableCell className="font-medium">
+                      <Link to={`/academy/course-editions/${it.id}`} className="hover:underline text-primary">
+                        {it.editionTag}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
+                       <Link to={`/academy/course-profiles/${it.courseProfileId}`} className="hover:underline">
+                         {it.courseProfileId}
+                       </Link>
+                    </TableCell>
                     <TableCell>{it.isCurrent ? "Yes" : "No"}</TableCell>
                     <TableCell>{it.status ?? "-"}</TableCell>
                     <TableCell className="text-right">

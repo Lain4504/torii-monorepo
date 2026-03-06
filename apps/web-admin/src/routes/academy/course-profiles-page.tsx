@@ -108,7 +108,11 @@ export default function AcademyCourseProfilesPage() {
                         {it.code}
                       </Badge>
                     </TableCell>
-                    <TableCell className="font-medium">{it.title}</TableCell>
+                    <TableCell className="font-medium">
+                      <Link to={`/academy/course-profiles/${it.id}`} className="hover:underline text-primary">
+                        {it.title}
+                      </Link>
+                    </TableCell>
                     <TableCell>{it.subject || <span className="text-muted-foreground text-xs italic">N/A</span>}</TableCell>
                     <TableCell>
                       {it.level ? (

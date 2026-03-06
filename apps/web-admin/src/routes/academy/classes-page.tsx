@@ -115,8 +115,16 @@ export default function AcademyClassesPage() {
               ) : data.length ? (
                 data.map((it) => (
                   <TableRow key={it.id}>
-                    <TableCell className="font-mono text-xs">{it.code}</TableCell>
-                    <TableCell>{it.name}</TableCell>
+                    <TableCell className="font-mono text-xs">
+                      <Link to={`/academy/classes/${it.id}`} className="hover:underline text-primary">
+                        {it.code}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <Link to={`/academy/classes/${it.id}`} className="hover:underline font-medium">
+                        {it.name}
+                      </Link>
+                    </TableCell>
                     <TableCell>{it.mode}</TableCell>
                     <TableCell>
                       {it.term ?? "-"} / {it.batch ?? "-"}

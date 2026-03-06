@@ -82,6 +82,8 @@ import AcademyLessonEditPage from '@/routes/academy/lesson-edit-page.tsx'
 import AcademyEnrollmentsPage from '@/routes/academy/enrollments-page.tsx'
 import AcademyEnrollmentCreatePage from '@/routes/academy/enrollment-create-page.tsx'
 import AcademyEnrollmentEditPage from '@/routes/academy/enrollment-edit-page.tsx'
+import AcademyClassDetailPage from "@/routes/academy/class-detail-page.tsx"
+import AcademyCourseOfferingDetailPage from "@/routes/academy/course-offering-detail-page.tsx"
 import AcademyQuizTemplatesPage from '@/routes/academy/quiz-templates-page.tsx'
 import AcademyQuizTemplateCreatePage from '@/routes/academy/quiz-template-create-page.tsx'
 import AcademyQuizTemplateEditPage from '@/routes/academy/quiz-template-edit-page.tsx'
@@ -89,6 +91,8 @@ import AcademyAssignmentTemplatesPage from '@/routes/academy/assignment-template
 import AcademyAssignmentTemplateCreatePage from '@/routes/academy/assignment-template-create-page.tsx'
 import AcademyAssignmentTemplateEditPage from '@/routes/academy/assignment-template-edit-page.tsx'
 import AcademyReportsPage from '@/routes/academy/reports-page.tsx'
+import AcademyCourseProfileDetailPage from '@/routes/academy/course-profile-detail-page.tsx'
+import AcademyCourseEditionDetailPage from '@/routes/academy/course-edition-detail-page.tsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -143,16 +147,19 @@ function App() {
                     <Route path="academy" element={<AcademyDashboardPage />} />
                     <Route path="academy/course-profiles" element={<AcademyCourseProfilesPage />} />
                     <Route path="academy/course-profiles/new" element={<AcademyCourseProfileCreatePage />} />
+                    <Route path="academy/course-profiles/:id" element={<AcademyCourseProfileDetailPage />} />
                     <Route path="academy/course-profiles/:id/edit" element={<AcademyCourseProfileEditPage />} />
                     <Route path="academy/lessons" element={<AcademyLessonsPage />} />
                     <Route path="academy/lessons/new" element={<AcademyLessonCreatePage />} />
                     <Route path="academy/lessons/:id/edit" element={<AcademyLessonEditPage />} />
                     <Route path="academy/course-editions" element={<AcademyCourseEditionsPage />} />
                     <Route path="academy/course-editions/new" element={<AcademyCourseEditionCreatePage />} />
+                    <Route path="academy/course-editions/:id" element={<AcademyCourseEditionDetailPage />} />
                     <Route path="academy/course-editions/:id/edit" element={<AcademyCourseEditionEditPage />} />
                     <Route path="academy/course-offerings" element={<AcademyCourseOfferingsPage />} />
                     <Route path="academy/course-offerings/new" element={<AcademyCourseOfferingCreatePage />} />
                     <Route path="academy/course-offerings/:id/edit" element={<AcademyCourseOfferingEditPage />} />
+                    <Route path="academy/course-offerings/:id" element={<AcademyCourseOfferingDetailPage />} />
                     <Route path="academy/chapters" element={<AcademyChaptersPage />} />
                     <Route path="academy/chapters/new" element={<AcademyChapterCreatePage />} />
                     <Route path="academy/chapters/:id/edit" element={<AcademyChapterEditPage />} />
@@ -162,6 +169,7 @@ function App() {
                     <Route path="academy/classes" element={<AcademyClassesPage />} />
                     <Route path="academy/classes/new" element={<AcademyClassCreatePage />} />
                     <Route path="academy/classes/:id/edit" element={<AcademyClassEditPage />} />
+                    <Route path="academy/classes/:id" element={<AcademyClassDetailPage />} />
                     <Route path="academy/class-schedules" element={<AcademyClassSchedulesPage />} />
                     <Route path="academy/class-schedules/new" element={<AcademyClassScheduleCreatePage />} />
                     <Route path="academy/class-schedules/:id/edit" element={<AcademyClassScheduleEditPage />} />

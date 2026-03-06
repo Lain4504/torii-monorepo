@@ -73,7 +73,7 @@ export default function AcademyChaptersPage() {
               <TableRow>
                 <TableHead>Order</TableHead>
                 <TableHead>Title</TableHead>
-                <TableHead>CourseEditionId</TableHead>
+                <TableHead>Edition (Link)</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -87,8 +87,12 @@ export default function AcademyChaptersPage() {
                 data.map((it) => (
                   <TableRow key={it.id}>
                     <TableCell>{it.orderIndex}</TableCell>
-                    <TableCell>{it.title}</TableCell>
-                    <TableCell className="font-mono text-xs">{it.courseEditionId}</TableCell>
+                    <TableCell className="font-medium">{it.title}</TableCell>
+                    <TableCell className="font-mono text-xs">
+                       <Link to={`/academy/course-editions/${it.courseEditionId}`} className="hover:underline text-primary">
+                         {it.courseEditionId}
+                       </Link>
+                    </TableCell>
                     <TableCell>{it.status ?? "-"}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">

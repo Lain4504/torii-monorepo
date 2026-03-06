@@ -11,14 +11,88 @@ export class EnrollmentService {
   ) { }
 
   async findAll(query: EnrollmentQueryDto) {
-    return this.prisma.enrollment.findMany({
+    const enrollmentRecords = await this.prisma.enrollment.findMany({
       where: {
         classId: query.classId ?? undefined,
         userId: query.userId ?? undefined,
         status: query.status ?? undefined,
       },
+      include: {
+        class: {
+          include: {
+            courseProfile: {
+              select: {
+                title: true,
+                code: true,
+                thumbnailUrl: true,
+              },
+            },
+            primaryTeacher: {
+              select: {
+                displayName: true,
+                avatarUrl: true,
+              },
+            },
+            courseEdition: {
+              select: {
+                chapters: {
+                  select: {
+                    items: {
+                      where: { kind: 'LESSON' },
+                      select: { referenceId: true },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
       orderBy: [{ enrolledAt: 'desc' }],
     });
+
+    if (query.userId) {
+      // Logic for Learner Portal (rich mapping)
+      return Promise.all(
+        enrollmentRecords.map(async (e) => {
+          const allLessonIds = e.class.courseEdition.chapters.flatMap((c) =>
+            c.items.map((i) => i.referenceId),
+          );
+          const totalLessons = allLessonIds.length;
+
+          let completedCount = 0;
+          if (totalLessons > 0) {
+            completedCount = await this.prisma.learningProgress.count({
+              where: {
+                userId: e.userId,
+                classId: e.classId,
+                status: 'COMPLETED',
+                lessonId: { in: allLessonIds },
+              },
+            });
+          }
+
+          return {
+            id: e.id,
+            status: e.status,
+            enrolledAt: e.enrolledAt,
+            expiresAt: e.expiresAt,
+            courseId: e.class.courseProfileId,
+            courseRunId: e.classId,
+            courseTitle: e.class.courseProfile.title,
+            slug: e.class.courseProfile.code,
+            thumbnailUrl: e.class.courseProfile.thumbnailUrl,
+            instructorName: e.class.primaryTeacher?.displayName ?? 'Academy Instructor',
+            instructorAvatar: e.class.primaryTeacher?.avatarUrl,
+            progress: totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0,
+            completedLessons: completedCount,
+            totalLessons: totalLessons,
+          };
+        }),
+      );
+    }
+
+    return enrollmentRecords;
   }
 
   async findById(id: string) {
