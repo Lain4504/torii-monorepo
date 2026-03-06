@@ -11,7 +11,7 @@ import {
   Users,
   Calendar,
   ClipboardCheck,
-  HelpCircle,
+  CircleHelp,
   GraduationCap,
   History,
   FileCheck,
@@ -140,7 +140,7 @@ export default function AcademyDashboardPage() {
           <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Button asChild variant="outline" className="justify-start gap-2">
               <Link to="/academy/questions">
-                <HelpCircle className="h-4 w-4" /> Ngân hàng câu hỏi
+                <CircleHelp className="h-4 w-4" /> Ngân hàng câu hỏi
               </Link>
             </Button>
             <Button asChild variant="outline" className="justify-start gap-2">

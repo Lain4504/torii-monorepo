@@ -1,4 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { toast } from "@workspace/ui/components/sonner"
 import { PageHeader } from "@/components/common/page-header"
 import { CourseProfileForm } from "@/components/academy/course-profile-form"
@@ -17,23 +16,16 @@ export default function AcademyCourseProfileCreatePage() {
         subtitle="Tạo khóa học trừu tượng (ví dụ: JLPT N5)."
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Thông tin</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <CourseProfileForm
-            mode="create"
-            submitting={create.isPending}
-            onCancel={() => nav("/academy/course-profiles")}
-            onSubmit={async (data) => {
-              await create.mutateAsync(data as AcademyCourseProfileCreateDTO)
-              toast.success("Đã tạo Course Profile")
-              nav("/academy/course-profiles")
-            }}
-          />
-        </CardContent>
-      </Card>
+      <CourseProfileForm
+        mode="create"
+        submitting={create.isPending}
+        onCancel={() => nav("/academy/course-profiles")}
+        onSubmit={async (data) => {
+          await create.mutateAsync(data as AcademyCourseProfileCreateDTO)
+          toast.success("Đã tạo Course Profile")
+          nav("/academy/course-profiles")
+        }}
+      />
     </div>
   )
 }

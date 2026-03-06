@@ -18,6 +18,9 @@ export type AcademyCourseOffering = {
   salesStartAt?: string | null
   salesEndAt?: string | null
   metadata?: unknown | null
+  classes?: any[]
+  validFrom?: string | null
+  validTo?: string | null
   createdAt: string
   updatedAt: string
 }

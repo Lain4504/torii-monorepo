@@ -5,23 +5,22 @@ import { PageHeader } from "@/components/common/page-header"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@workspace/ui/components/table"
-import { 
-  Edit, 
-  Plus, 
-  Eye, 
-  Settings, 
-  Layers, 
-  CheckCircle2, 
-  Clock, 
-  ArrowLeft 
+import {
+  Edit,
+  Plus,
+  Eye,
+  Settings,
+  Layers,
+  CheckCircle2,
+  ArrowLeft
 } from "lucide-react"
 import { Link } from "react-router-dom"
 
@@ -107,7 +106,7 @@ export default function CourseProfileDetailPage() {
                     <TableRow key={ed.id}>
                       <TableCell className="font-medium">{ed.editionTag}</TableCell>
                       <TableCell>
-                        <Badge 
+                        <Badge
                           variant={ed.status === "PUBLISHED" ? "default" : ed.status === "ARCHIVED" ? "secondary" : "outline"}
                         >
                           {ed.status}

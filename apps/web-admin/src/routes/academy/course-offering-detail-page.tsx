@@ -1,5 +1,4 @@
 import { useNavigate, useParams, Link } from "react-router-dom"
-import { useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
@@ -58,9 +57,9 @@ export default function AcademyCourseOfferingDetailPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div 
+              <div
                 className="prose prose-sm dark:prose-invert max-w-none"
-                dangerouslySetInnerHTML={{ __html: item.description || "<em>Chưa có mô tả chi tiết.</em>" }} 
+                dangerouslySetInnerHTML={{ __html: item.description || "<em>Chưa có mô tả chi tiết.</em>" }}
               />
             </CardContent>
           </Card>
@@ -93,7 +92,7 @@ export default function AcademyCourseOfferingDetailPage() {
                         <TableCell className="font-mono text-xs">{c.class.code}</TableCell>
                         <TableCell className="font-medium">{c.class.name}</TableCell>
                         <TableCell className="text-xs text-muted-foreground">
-                          {c.class.startDate ? new Date(c.class.startDate).toLocaleDateString("vi-VN") : "?"} 
+                          {c.class.startDate ? new Date(c.class.startDate).toLocaleDateString("vi-VN") : "?"}
                           {" - "}
                           {c.class.endDate ? new Date(c.class.endDate).toLocaleDateString("vi-VN") : "?"}
                         </TableCell>
@@ -148,9 +147,9 @@ export default function AcademyCourseOfferingDetailPage() {
                 <div className="flex items-center gap-2 text-sm mt-1">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
                   <span>
-                    {item.validFrom ? new Date(item.validFrom).toLocaleDateString("vi-VN") : "Bất đầu"}
+                    {item.salesStartAt ? new Date(item.salesStartAt).toLocaleDateString("vi-VN") : "Bất đầu"}
                     {" - "}
-                    {item.validTo ? new Date(item.validTo).toLocaleDateString("vi-VN") : "Kết thúc"}
+                    {item.salesEndAt ? new Date(item.salesEndAt).toLocaleDateString("vi-VN") : "Kết thúc"}
                   </span>
                 </div>
               </div>

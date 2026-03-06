@@ -29,6 +29,8 @@ export interface NavItem {
         url: string;
         permission?: string;
         anyPermission?: string[];
+        role?: string;
+        roles?: string[];
     }[];
 }
 
@@ -59,14 +61,14 @@ export const academicNavItems: NavItem[] = [
             { titleKey: "Chapters", url: "/academy/chapters", permission: "academy.content.read" },
             { titleKey: "Chapter Items", url: "/academy/chapter-items", permission: "academy.content.read" },
             { titleKey: "Course Offerings", url: "/academy/course-offerings", permission: "academy.commerce.read" },
-          { titleKey: "Classes", url: "/academy/classes", permission: "academy.delivery.read" },
-          { titleKey: "Class Schedules", url: "/academy/class-schedules", permission: "academy.delivery.read" },
-          { titleKey: "Class Assessments", url: "/academy/class-assessments", permission: "academy.delivery.read" },
-          { titleKey: "Question bank (Academy)", url: "/academy/questions", permission: "exam.manage" },
-          { titleKey: "Exams", url: "/academy/exams", permission: "exam.manage" },
-          { titleKey: "Exam Attempts", url: "/academy/exam-attempts", permission: "exam.manage" },
-          { titleKey: "Assignment Submissions", url: "/academy/assignment-submissions", permission: "exam.manage" },
-          { titleKey: "Enrollments", url: "/academy/enrollments", permission: "academy.delivery.read" },
+            { titleKey: "Classes", url: "/academy/classes", permission: "academy.delivery.read" },
+            { titleKey: "Class Schedules", url: "/academy/class-schedules", permission: "academy.delivery.read" },
+            { titleKey: "Class Assessments", url: "/academy/class-assessments", permission: "academy.delivery.read" },
+            { titleKey: "Question bank (Academy)", url: "/academy/questions", permission: "exam.manage" },
+            { titleKey: "Exams", url: "/academy/exams", permission: "exam.manage" },
+            { titleKey: "Exam Attempts", url: "/academy/exam-attempts", permission: "exam.manage" },
+            { titleKey: "Assignment Submissions", url: "/academy/assignment-submissions", permission: "exam.manage" },
+            { titleKey: "Enrollments", url: "/academy/enrollments", permission: "academy.delivery.read" },
         ]
     },
 ];

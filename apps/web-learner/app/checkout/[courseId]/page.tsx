@@ -25,7 +25,7 @@ import { ShieldCheck, ArrowLeft, X, Lock, CheckCircle2, Gift, TicketPercent, Arr
 import { toast } from '@workspace/ui/components/sonner'
 import { courseApi } from '@/lib/api/services/course-api'
 import { enrollmentApi } from '@/lib/api/services/enrollment-api'
-import { useAvailableCourseRuns } from '@/lib/api/services/course-run-api'
+import { useAvailableClasses } from '@/lib/api/services/class-api'
 import { CourseMasterResponseDTO } from '@workspace/schemas'
 import { PaymentMethod, OrderType } from '@workspace/schemas'
 import { PageLoading } from '@workspace/ui/components/page-loading'
@@ -55,16 +55,16 @@ export default function CheckoutPage() {
     const searchParams = useSearchParams()
     const router = useRouter()
     const courseId = params.courseId as string
-    const courseRunId = searchParams.get('runId')
+    const classId = searchParams.get('classId') || searchParams.get('runId')
     const user = useAppSelector((state) => state.auth.user)
 
     const [course, setCourse] = useState<CourseMasterResponseDTO | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const { data: balance = 0, isLoading: isLoadingBalance, refetch: refetchBalance } = useBalance()
-    const { data: availableRuns } = useAvailableCourseRuns(courseId)
+    const { data: availableClasses } = useAvailableClasses(courseId)
     const [isCreatingLink, setIsCreatingLink] = useState(false)
 
-    const selectedRun = courseRunId ? availableRuns?.find(r => r.id === courseRunId) : availableRuns?.[0]
+    const selectedClass = classId ? availableClasses?.find(r => r.id === classId) : availableClasses?.[0]
 
     // Gift State
     const [isGift, setIsGift] = useState(false)
@@ -139,7 +139,7 @@ export default function CheckoutPage() {
             const response = await couponApi.validateCoupon({
                 code: couponCode,
                 courseMasterId: course.id, // Validate against course master
-                courseRunId: selectedRun?.id, // Specific run if selected
+                courseRunId: selectedClass?.id, // Specific run if selected
                 userId: user?.id,
             })
 
@@ -187,7 +187,7 @@ export default function CheckoutPage() {
             const description = `Thanh toan khoa hoc ${course.title}`.slice(0, 25)
 
             const order = await orderApi.createOrder({
-                courseRunId: selectedRun!.id,
+                courseRunId: selectedClass!.id,
                 paymentMethod: PaymentMethod.BALANCE,
                 orderType: isGift ? OrderType.GIFT : OrderType.COURSE_PURCHASE,
                 description: description,
@@ -236,9 +236,9 @@ export default function CheckoutPage() {
 
     if (isLoading) return <PageLoading />
 
-    if (!course || !selectedRun || !selectedRun.id) return null
+    if (!course || !selectedClass || !selectedClass.id) return null
 
-    const finalPrice = Math.max(0, Number(selectedRun.price) - couponDiscount)
+    const finalPrice = Math.max(0, Number(selectedClass.price) - couponDiscount)
 
     return (
         <div className="min-h-screen bg-background pb-20">
@@ -296,12 +296,12 @@ export default function CheckoutPage() {
                                                     <ItemTitle>{course.totalLessons} bài học</ItemTitle>
                                                 </ItemContent>
                                             </Item>
-                                            {selectedRun && (
+                                            {selectedClass && (
                                                 <Item size="sm">
                                                     <ItemMedia variant="icon"><Calendar /></ItemMedia>
                                                     <ItemContent>
-                                                        <ItemTitle>Lớp: {selectedRun.title}</ItemTitle>
-                                                        <ItemDescription>Khai giảng: {new Date(selectedRun.startDate!).toLocaleDateString('vi-VN')}</ItemDescription>
+                                                        <ItemTitle>Lớp: {selectedClass.title}</ItemTitle>
+                                                        <ItemDescription>Khai giảng: {new Date(selectedClass.startDate!).toLocaleDateString('vi-VN')}</ItemDescription>
                                                     </ItemContent>
                                                 </Item>
                                             )}
@@ -442,7 +442,7 @@ export default function CheckoutPage() {
                                 <div className="space-y-3">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-muted-foreground">Giá gốc</span>
-                                        <span className="font-medium">{formatNumber(selectedRun.price)} Coins</span>
+                                        <span className="font-medium">{formatNumber(selectedClass.price)} Coins</span>
                                     </div>
                                     {couponDiscount > 0 && (
                                         <div className="flex justify-between text-sm">

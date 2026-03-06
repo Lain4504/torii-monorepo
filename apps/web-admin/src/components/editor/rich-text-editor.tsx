@@ -16,6 +16,7 @@ import { EditorContent, useEditor } from '@tiptap/react';
 import { useEffect } from 'react';
 import { useTheme } from '@/lib/providers/theme-provider';
 import { RichTextProvider } from 'reactjs-tiptap-editor';
+import { themeActions } from 'reactjs-tiptap-editor/theme';
 import { Attachment, RichTextAttachment } from 'reactjs-tiptap-editor/attachment';
 import { Blockquote, RichTextBlockquote } from 'reactjs-tiptap-editor/blockquote';
 import { Bold, RichTextBold } from 'reactjs-tiptap-editor/bold';
@@ -392,12 +393,24 @@ export function RichTextEditor({ initialContent = '', onUpdate }: RichTextEditor
     });
 
     useEffect(() => {
+        const isDark =
+            theme === 'dark' ||
+            (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        themeActions.setTheme(isDark ? 'dark' : 'light');
+    }, [theme]);
+
+    useEffect(() => {
+        themeActions.setColor('default');
+        themeActions.setBorderRadius('0.5rem');
+    }, []);
+
+    useEffect(() => {
         (window as any).editor = editor;
     }, [editor]);
 
     return (
         <div className='p-6 flex flex-col w-full gap-6'>
-            <RichTextProvider editor={editor} dark={theme === 'dark'}>
+            <RichTextProvider editor={editor}>
                 <div className='overflow-hidden rounded-[0.5rem] bg-background shadow outline outline-1'>
                     <div className='flex max-h-full w-full flex-col'>
                         <RichTextToolbar />

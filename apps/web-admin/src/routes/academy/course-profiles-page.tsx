@@ -10,8 +10,30 @@ import {
   TableRow,
 } from "@workspace/ui/components/table"
 import { Input } from "@workspace/ui/components/input"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
+import { Card, CardContent } from "@workspace/ui/components/card"
 import { PageHeader } from "@/components/common/page-header"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu"
+import {
+  Empty,
+  EmptyContent,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyDescription,
+} from "@workspace/ui/components/empty"
+import { Skeleton } from "@workspace/ui/components/skeleton"
 import {
   useAcademyCourseProfiles,
   useDeleteAcademyCourseProfile,
@@ -28,7 +50,19 @@ import {
   AlertDialogTitle,
 } from "@workspace/ui/components/alert-dialog"
 import { Badge } from "@workspace/ui/components/badge"
-import { Search, Plus, Edit2, Trash2, FolderKey, Flag, BookOpen, Layers } from "lucide-react"
+import {
+  Search,
+  Plus,
+  Edit2,
+  Trash2,
+  FolderKey,
+  Flag,
+  BookOpen,
+  Layers,
+  SlidersHorizontal,
+  Sparkles,
+  BookMarked
+} from "lucide-react"
 
 export default function AcademyCourseProfilesPage() {
   const [q, setQ] = useState("")
@@ -52,96 +86,132 @@ export default function AcademyCourseProfilesPage() {
         }
       />
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <div className="space-y-1">
-            <CardTitle>Danh sách Profiles</CardTitle>
-            <CardDescription>Quản lý các danh mục và cấp độ khóa học cơ bản.</CardDescription>
-          </div>
-          <div className="relative w-full max-w-sm">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Tìm theo mã hoặc tiêu đề..."
-              className="pl-9"
-            />
-          </div>
-        </CardHeader>
-        <CardContent>
+      <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between w-full">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Tìm theo mã hoặc tiêu đề..."
+            className="pl-9"
+          />
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <Select defaultValue="all">
+            <SelectTrigger className="w-full sm:w-[160px]">
+              <div className="flex items-center gap-2">
+                <Layers className="size-3.5 text-muted-foreground" />
+                <SelectValue placeholder="Chủ đề" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả chủ đề</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="gap-2">
+                <SlidersHorizontal className="size-4 text-muted-foreground" />
+                <span>Sắp xếp</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuGroup>
+                <DropdownMenuItem className="flex justify-between">
+                  Mới nhất <Sparkles className="size-3 text-amber-500" />
+                </DropdownMenuItem>
+                <DropdownMenuItem>Cũ nhất</DropdownMenuItem>
+                <DropdownMenuItem>Tiêu đề (A-Z)</DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+
+      <Card className="overflow-hidden border-none shadow-none bg-transparent">
+        <CardContent className="p-0 border rounded-md bg-background shadow-sm overflow-hidden">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-muted/50">
               <TableRow>
-                <TableHead className="w-[150px]">
-                  <div className="flex items-center gap-2">
-                    <FolderKey className="h-3.5 w-3.5" /> Mã (Code)
+                <TableHead className="w-[180px]">
+                  <div className="flex items-center gap-2 font-semibold">
+                    <FolderKey className="h-4 w-4" /> Mã (Code)
                   </div>
                 </TableHead>
                 <TableHead>
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="h-3.5 w-3.5" /> Tiêu đề
+                  <div className="flex items-center gap-2 font-semibold">
+                    <BookOpen className="h-4 w-4" /> Tiêu đề
                   </div>
                 </TableHead>
                 <TableHead>
-                  <div className="flex items-center gap-2">
-                    <Layers className="h-3.5 w-3.5" /> Chủ đề
+                  <div className="flex items-center gap-2 font-semibold">
+                    <Layers className="h-4 w-4" /> Chủ đề
                   </div>
                 </TableHead>
                 <TableHead>
-                  <div className="flex items-center gap-2">
-                    <Flag className="h-3.5 w-3.5" /> Cấp độ
+                  <div className="flex items-center gap-2 font-semibold">
+                    <Flag className="h-4 w-4" /> Cấp độ
                   </div>
                 </TableHead>
-                <TableHead className="text-right">Thao tác</TableHead>
+                <TableHead className="text-right font-semibold">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={5}>Đang tải...</TableCell>
-                </TableRow>
+                Array.from({ length: 5 }).map((_, idx) => (
+                  <TableRow key={idx}>
+                    <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-48" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                    <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto rounded-full" /></TableCell>
+                  </TableRow>
+                ))
               ) : data.length ? (
                 data.map((it) => (
-                  <TableRow key={it.id}>
+                  <TableRow key={it.id} className="group hover:bg-muted/30 transition-colors">
                     <TableCell>
-                      <Badge variant="outline" className="font-mono bg-muted/50">
+                      <code className="px-2 py-1 rounded bg-muted font-mono text-xs font-semibold text-foreground/80">
                         {it.code}
-                      </Badge>
+                      </code>
                     </TableCell>
-                    <TableCell className="font-medium">
-                      <Link to={`/academy/course-profiles/${it.id}`} className="hover:underline text-primary">
+                    <TableCell className="font-semibold">
+                      <Link to={`/academy/course-profiles/${it.id}`} className="hover:text-primary transition-colors">
                         {it.title}
                       </Link>
                     </TableCell>
-                    <TableCell>{it.subject || <span className="text-muted-foreground text-xs italic">N/A</span>}</TableCell>
+                    <TableCell>
+                      <span className="text-sm text-muted-foreground">{it.subject || "N/A"}</span>
+                    </TableCell>
                     <TableCell>
                       {it.level ? (
-                        <Badge variant="secondary" className="font-normal">
-                          {it.level}
+                        <Badge variant="secondary" className="font-medium bg-primary/5 text-primary border-primary/10">
+                          Level: {it.level}
                         </Badge>
                       ) : (
-                        "-"
+                        <span className="text-muted-foreground text-xs">—</span>
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button
                           variant="ghost"
-                          size="icon"
+                          size="sm"
                           asChild
-                          title="Chỉnh sửa"
+                          className="h-8 w-8 p-0"
                         >
                           <Link to={`/academy/course-profiles/${it.id}/edit`}>
-                            <Edit2 className="h-4 w-4" />
+                            <Edit2 className="h-4 w-4 text-muted-foreground" />
                           </Link>
                         </Button>
                         <Button
                           variant="ghost"
-                          size="icon"
+                          size="sm"
                           disabled={del.isPending}
                           onClick={() => setDeleteId(it.id)}
-                          title="Xoá"
-                          className="text-destructive hover:bg-destructive/10"
+                          className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -151,7 +221,19 @@ export default function AcademyCourseProfilesPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5}>Chưa có dữ liệu</TableCell>
+                  <TableCell colSpan={5} className="h-[300px] text-center">
+                    <Empty>
+                      <EmptyMedia>
+                        <BookMarked className="size-10 text-muted-foreground/50" />
+                      </EmptyMedia>
+                      <EmptyContent>
+                        <EmptyTitle>Không tìm thấy Profile</EmptyTitle>
+                        <EmptyDescription>
+                          Thử thay đổi từ khóa tìm kiếm hoặc tạo một Course Profile mới.
+                        </EmptyDescription>
+                      </EmptyContent>
+                    </Empty>
+                  </TableCell>
                 </TableRow>
               )}
             </TableBody>

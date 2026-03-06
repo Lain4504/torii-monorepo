@@ -4,28 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="add learning progress statistics and enrollment management features">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/academy.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/academy.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/course-run.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/course.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/enrollment-admin.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/enrollment.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/learning-progress.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/lesson-material.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/lesson.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/controllers/module.controller.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/learning.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/learning/learning.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/gamification/create-reward-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/gamification/create-reward-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/gamification/edit-reward-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/gamification/edit-reward-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-course-profiles.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-course-profiles.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/assignments.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/assignments.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/gamification.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/gamification.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/submissions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/submissions.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/gamification/rewards-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/gamification/rewards-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/assignment.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/assignment.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/gamification.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/gamification.dto.ts" afterDir="false" />
-    </list>
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="remove unsued file" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -83,37 +62,37 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Jest.CourseRunService.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;#267 on new-markteting-web&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/apps/server/services/meet&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs.jest.jest_package&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/apps/server/node_modules/jest&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Jest.CourseRunService.executor": "Run",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "#268 on update-backend-core-lms",
+    "go.import.settings.migrated": "true",
+    "javascript.preferred.runtime.type.id": "node",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/lain4504/SEP490/torii-monorepo/apps/server/services/meet",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs.jest.jest_package": "/home/lain4504/SEP490/torii-monorepo/apps/server/node_modules/jest",
+    "nodejs_package_manager_path": "pnpm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "ts.external.directory.path": "/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="CourseRunService" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
       <node-interpreter value="project" />
@@ -329,14 +308,6 @@
       <workItem from="1772699001161" duration="4211000" />
       <workItem from="1772722974385" duration="2264000" />
       <workItem from="1772726265375" duration="1097000" />
-    </task>
-    <task id="LOCAL-00926" summary="update meet to user shadcn ui component">
-      <option name="closed" value="true" />
-      <created>1772617005061</created>
-      <option name="number" value="00926" />
-      <option name="presentableId" value="LOCAL-00926" />
-      <option name="project" value="LOCAL" />
-      <updated>1772617005061</updated>
     </task>
     <task id="LOCAL-00927" summary="update meet to user shadcn ui component">
       <option name="closed" value="true" />
@@ -722,7 +693,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772726939267</updated>
     </task>
-    <option name="localTasksCounter" value="975" />
+    <task id="LOCAL-00975" summary="remove unsued file">
+      <option name="closed" value="true" />
+      <created>1772792207215</created>
+      <option name="number" value="00975" />
+      <option name="presentableId" value="LOCAL-00975" />
+      <option name="project" value="LOCAL" />
+      <updated>1772792207215</updated>
+    </task>
+    <option name="localTasksCounter" value="976" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -757,7 +736,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: Add updateStatus and getStudents methods to CourseRun service and controller" />
     <MESSAGE value="feat: Implement attendance processing for live sessions and add course run status update functionality" />
     <MESSAGE value="refactor: Rename course-related entities to use 'courseMaster' terminology and update related references" />
     <MESSAGE value="migation other code" />
@@ -782,7 +760,8 @@
     <MESSAGE value="add lesson form and media uploader components with rich text support" />
     <MESSAGE value="remove unused academy form components from workspace configuration" />
     <MESSAGE value="add learning progress statistics and enrollment management features" />
-    <option name="LAST_COMMIT_MESSAGE" value="add learning progress statistics and enrollment management features" />
+    <MESSAGE value="remove unsued file" />
+    <option name="LAST_COMMIT_MESSAGE" value="remove unsued file" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

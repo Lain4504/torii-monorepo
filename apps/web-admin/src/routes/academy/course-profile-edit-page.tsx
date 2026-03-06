@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom"
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
+import { Card, CardContent } from "@workspace/ui/components/card"
 import { toast } from "@workspace/ui/components/sonner"
 import { PageHeader } from "@/components/common/page-header"
 import { CourseProfileForm } from "@/components/academy/course-profile-form"
@@ -22,31 +22,26 @@ export default function AcademyCourseProfileEditPage() {
         subtitle="Chỉnh sửa thông tin khóa học trừu tượng."
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Thông tin</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading || !item ? (
-            <div>Đang tải...</div>
-          ) : (
-            <CourseProfileForm
-              mode="edit"
-              initial={item}
-              submitting={update.isPending}
-              onCancel={() => nav("/academy/course-profiles")}
-              onSubmit={async (data) => {
-                await update.mutateAsync({
-                  id: item.id,
-                  input: data as AcademyCourseProfileUpdateDTO,
-                })
-                toast.success("Đã cập nhật")
-                nav("/academy/course-profiles")
-              }}
-            />
-          )}
-        </CardContent>
-      </Card>
+      {isLoading || !item ? (
+        <Card>
+          <CardContent className="p-8 text-center text-muted-foreground">Đang tải...</CardContent>
+        </Card>
+      ) : (
+        <CourseProfileForm
+          mode="edit"
+          initial={item}
+          submitting={update.isPending}
+          onCancel={() => nav("/academy/course-profiles")}
+          onSubmit={async (data) => {
+            await update.mutateAsync({
+              id: item.id,
+              input: data as AcademyCourseProfileUpdateDTO,
+            })
+            toast.success("Đã cập nhật")
+            nav("/academy/course-profiles")
+          }}
+        />
+      )}
     </div>
   )
 }
