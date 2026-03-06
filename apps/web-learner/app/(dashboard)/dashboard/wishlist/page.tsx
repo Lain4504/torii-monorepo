@@ -9,8 +9,8 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { wishlistApi } from '@/lib/api/services/wishlist-api'
 import { courseApi } from '@/lib/api/services/course-api'
-import { courseRunApi } from '@/lib/api/services/course-run-api'
-import type { CourseMasterResponseDTO, CourseRunResponseDTO } from '@workspace/schemas'
+import { academyClassesApi } from '@/lib/api/services/academy-classes'
+import type { CourseMasterResponseDTO } from '@workspace/schemas'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { formatCurrency } from '@/utils/format-utils'
@@ -41,18 +41,18 @@ export default function WishlistPage() {
             const courseDetails = await Promise.all(
                 wishlistItems.map(async (item) => {
                     try {
-                        // Fetch both course master and course run details
-                        const [courseRun, courseMaster] = await Promise.all([
-                            courseRunApi.getCourseRunById(item.courseRunId),
+                        // Fetch both course profile and class details
+                        const [classData, courseProfile] = await Promise.all([
+                            academyClassesApi.findById(item.courseRunId),
                             courseApi.getCourseById(item.courseRunId)
                         ]);
 
-                        if (courseMaster) {
+                        if (courseProfile) {
                             return {
-                                ...courseMaster,
+                                ...courseProfile,
                                 wishlistId: item.id,
-                                price: courseRun?.price,
-                                discountPrice: courseRun?.discountPrice
+                                price: (classData as any)?.price,
+                                discountPrice: (classData as any)?.discountPrice
                             } as WishlistCourse
                         }
                         return null
@@ -131,7 +131,7 @@ export default function WishlistPage() {
                             )}
 
                             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/20 transition-all duration-300 z-10">
-                                <Link href={`/courses/${courseMaster.slug}`}>
+                                <Link href={`/dashboard/available-courses/${courseMaster.slug}`}>
                                     <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg transform scale-75 group-hover:scale-100 transition-all">
                                         <PlayCircle className="w-6 h-6 text-primary fill-current" />
                                     </div>
@@ -148,7 +148,7 @@ export default function WishlistPage() {
                         <CardContent className="p-4 md:pl-6 md:pr-4 flex-1 flex flex-col justify-between gap-4">
                             <div className="space-y-2">
                                 <div className="flex justify-between items-start gap-4">
-                                    <Link href={`/courses/${courseMaster.slug}`} className="group-hover:text-primary transition-colors">
+                                    <Link href={`/dashboard/available-courses/${courseMaster.slug}`} className="group-hover:text-primary transition-colors">
                                         <h3 className="text-lg font-bold text-foreground leading-snug line-clamp-2">
                                             {courseMaster.title}
                                         </h3>
@@ -182,7 +182,7 @@ export default function WishlistPage() {
                                 </div>
 
                                 <div className="flex items-center gap-3">
-                                    <Link href={`/courses/${courseMaster.slug}`} className="flex-1 md:flex-none">
+                                    <Link href={`/dashboard/available-courses/${courseMaster.slug}`} className="flex-1 md:flex-none">
                                         <Button variant="outline" size="sm" className="w-full md:w-auto">
                                             Chi tiết
                                         </Button>
@@ -211,7 +211,7 @@ export default function WishlistPage() {
                                 Hãy bắt đầu khám phá và lưu lại những khóa học mà bạn yêu thích nhất.
                             </EmptyDescription>
                         </EmptyHeader>
-                        <Link href="/courses" className="mt-4 flex justify-center">
+                        <Link href="/dashboard/available-courses" className="mt-4 flex justify-center">
                             <Button variant="outline">Khám phá ngay</Button>
                         </Link>
                     </Empty>

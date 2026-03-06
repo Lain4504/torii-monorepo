@@ -2,8 +2,8 @@
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useCourseById, useCurriculum } from '@/lib/api/services/course-api';
-import { useCourseRun } from '@/lib/api/services/course-run-api';
+import { useCourseById } from '@/lib/api/services/course-api';
+import { useClass, useCurriculum } from '@/lib/api/services/class-api';
 import { useCheckEnrollment } from '@/lib/api/services/enrollment-api';
 import { useCompletedLessons, learningProgressApi } from '@/lib/api/services/learning-progress-api';
 import { useLesson, type LessonResponse } from '@/lib/api/services/lesson-api';
@@ -141,9 +141,9 @@ function ArticleViewer({ lesson, onComplete }: { lesson: LessonResponse; onCompl
 // ─── Assignment Panel ─────────────────────────────────────────────────────────
 
 function AssignmentPanel({
-    lessonId, courseId, courseRunId, onComplete
-}: { lessonId: string; courseId: string; courseRunId?: string; onComplete: () => void; }) {
-    const { data: assignment, isLoading: assignmentLoading } = useAssignmentByLesson(lessonId, courseRunId);
+    lessonId, courseId, classId, onComplete
+}: { lessonId: string; courseId: string; classId?: string; onComplete: () => void; }) {
+    const { data: assignment, isLoading: assignmentLoading } = useAssignmentByLesson(lessonId, classId);
 
     const { data: submission } = useMySubmission(assignment?.id ?? '');
     const submitMutation = useSubmitAssignment();
@@ -320,9 +320,9 @@ const SectionTypeMap: Record<string, string> = {
 };
 
 function QuizPanel({
-    lessonId, courseId, courseRunId, onComplete
-}: { lessonId: string; courseId: string; courseRunId?: string; onComplete: () => void; }) {
-    const { data: quiz, isLoading: quizLoading } = useQuizByLesson(lessonId, courseRunId);
+    lessonId, courseId, classId, onComplete
+}: { lessonId: string; courseId: string; classId?: string; onComplete: () => void; }) {
+    const { data: quiz, isLoading: quizLoading } = useQuizByLesson(lessonId, classId);
     const startMutation = useStartQuiz();
     const saveAnswersMutation = useSaveQuizAnswers();
     const submitMutation = useSubmitQuiz();
@@ -778,20 +778,20 @@ function ModuleItem({
 
 export default function CourseLearnPage() {
     const params = useParams<{ courseId: string }>();
-    const courseRunId = params.courseId;
+    const classId = params.courseId;
     const router = useRouter();
     const queryClient = useQueryClient();
 
     // ── API ────────────────────────────────────────────────────────────────
-    // 1. Fetch the course run first
-    const { data: courseRun, isLoading: courseRunLoading } = useCourseRun(courseRunId);
-    const courseMasterId = courseRun?.courseMasterId;
+    // 1. Fetch the class first
+    const { data: classData, isLoading: classLoading } = useClass(classId);
+    const courseProfileId = classData?.courseProfileId;
 
-    // 2. Fetch other details using courseMasterId
-    const { data: course, isLoading: courseLoading } = useCourseById(courseMasterId);
-    const { data: curriculum, isLoading: curriculumLoading } = useCurriculum(courseMasterId);
-    const { data: enrollmentData } = useCheckEnrollment(courseRunId);
-    const { data: completedLessonIds = [] } = useCompletedLessons(courseMasterId ?? '');
+    // 2. Fetch other details using courseProfileId
+    const { data: course, isLoading: courseLoading } = useCourseById(courseProfileId);
+    const { data: curriculum, isLoading: curriculumLoading } = useCurriculum(classId);
+    const { data: enrollmentData } = useCheckEnrollment(classId);
+    const { data: completedLessonIds = [] } = useCompletedLessons(classId ?? '');
 
     // ── State ──────────────────────────────────────────────────────────────
     const [currentLesson, setCurrentLesson] = useState<CurriculumLesson | null>(null);
@@ -808,7 +808,7 @@ export default function CourseLearnPage() {
     useEffect(() => {
         if (!curriculum) return;
         // Expand all modules
-        setExpandedModules(new Set(curriculum.modules.map(m => m.id)));
+        setExpandedModules(new Set(curriculum.modules.map((m: any) => m.id)));
 
         // Pick first unlocked uncompleted lesson
         if (currentLesson) return; // already selected
@@ -835,16 +835,16 @@ export default function CourseLearnPage() {
         if (!currentLesson) return;
         if (completedIds.has(currentLesson.id)) { toast.info('Bài học này đã được hoàn thành!'); return; }
         try {
-            await learningProgressApi.trackProgress(currentLesson.id, 100, 100);
-            queryClient.invalidateQueries({ queryKey: ['completed-lessons', courseMasterId] });
+            await learningProgressApi.trackProgress(currentLesson.id, classId, 'COMPLETED', 100);
+            queryClient.invalidateQueries({ queryKey: ['completed-lessons', courseProfileId] });
             toast.success('Đã hoàn thành bài học! 🎉');
         } catch {
             toast.error('Không thể cập nhật tiến độ.');
         }
-    }, [currentLesson, completedIds, courseMasterId, queryClient]);
+    }, [currentLesson, completedIds, courseProfileId, queryClient, classId]);
 
     // ── Nav ────────────────────────────────────────────────────────────────
-    const allLessons: CurriculumLesson[] = curriculum?.modules.flatMap(m => m.lessons) ?? [];
+    const allLessons: CurriculumLesson[] = curriculum?.modules.flatMap((m: any) => m.lessons) ?? [];
     const currentIndex = currentLesson ? allLessons.findIndex(l => l.id === currentLesson.id) : -1;
     const prevLesson = currentIndex > 0 ? (allLessons[currentIndex - 1] ?? null) : null;
     const nextLesson = currentIndex < allLessons.length - 1 ? (allLessons[currentIndex + 1] ?? null) : null;
@@ -871,7 +871,7 @@ export default function CourseLearnPage() {
     const isCurrentDone = !!currentLesson && completedIds.has(currentLesson.id);
 
     // ── Loading ────────────────────────────────────────────────────────────
-    if (courseRunLoading || courseLoading || curriculumLoading) {
+    if (classLoading || courseLoading || curriculumLoading) {
         return (
             <div className="bg-background h-screen flex flex-col">
                 <div className="h-16 border-b border-border bg-card flex items-center px-6 gap-4">
@@ -892,7 +892,7 @@ export default function CourseLearnPage() {
         );
     }
 
-    if (!courseRun) {
+    if (!classData) {
         return (
             <div className="h-screen flex items-center justify-center bg-background">
                 <div className="text-center space-y-4">
@@ -926,7 +926,7 @@ export default function CourseLearnPage() {
                     </button>
                     <div className="hidden sm:block min-w-0">
                         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider truncate">
-                            {course?.title ?? courseRun.title}
+                            {course?.title ?? classData.title}
                         </p>
                         {currentLesson && <p className="text-sm font-bold text-foreground truncate">{currentLesson.title}</p>}
                     </div>
@@ -939,7 +939,7 @@ export default function CourseLearnPage() {
                         </div>
                     </div>
                     <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm shrink-0">
-                        {(course?.title ?? courseRun.title)?.[0] ?? 'T'}
+                        {(course?.title ?? classData.title)?.[0] ?? 'T'}
                     </div>
                 </div>
             </header>
@@ -1012,7 +1012,7 @@ export default function CourseLearnPage() {
                                         <h3 className="text-xl font-bold text-foreground">Tổng quan bài học</h3>
                                         <p className="text-muted-foreground leading-relaxed">
                                             {lessonDetail?.description || (currentLesson
-                                                ? `Bài học "${currentLesson.title}" thuộc khóa học ${course?.title ?? courseRun.title}.`
+                                                ? `Bài học "${currentLesson.title}" thuộc khóa học ${course?.title ?? classData.title}.`
                                                 : 'Chọn một bài học để bắt đầu.')}
                                         </p>
                                         {course?.learningOutcomes && Array.isArray(course.learningOutcomes) && (course.learningOutcomes as string[]).length > 0 && (
@@ -1082,8 +1082,8 @@ export default function CourseLearnPage() {
                             </div>
                             <AssignmentPanel
                                 lessonId={currentLesson.id}
-                                courseId={courseMasterId ?? ''}
-                                courseRunId={courseRunId}
+                                courseId={courseProfileId ?? ''}
+                                classId={classId}
                                 onComplete={markLessonComplete}
                             />
                         </>
@@ -1104,8 +1104,8 @@ export default function CourseLearnPage() {
                             </div>
                             <QuizPanel
                                 lessonId={currentLesson.id}
-                                courseId={courseMasterId ?? ''}
-                                courseRunId={courseRunId}
+                                courseId={courseProfileId ?? ''}
+                                classId={classId}
                                 onComplete={markLessonComplete}
                             />
                         </>
@@ -1165,7 +1165,7 @@ export default function CourseLearnPage() {
 
                     {/* Module list — fix: pass per-module isExpanded so each module controls independently */}
                     <div className="flex-1 overflow-y-auto no-scrollbar">
-                        {curriculum?.modules.map(mod => (
+                        {curriculum?.modules.map((mod: any) => (
                             <ModuleItem
                                 key={mod.id}
                                 mod={mod}

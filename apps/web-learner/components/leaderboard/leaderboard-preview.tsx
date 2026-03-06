@@ -2,7 +2,7 @@
 
 import { ArrowRight, Star, Trophy } from 'lucide-react'
 import Link from 'next/link'
-import type { LeaderboardDto } from '@workspace/schemas'
+import type { LeaderboardDTO } from '@workspace/schemas'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Button } from '@workspace/ui/components/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card'
@@ -11,7 +11,7 @@ import { Skeleton } from '@workspace/ui/components/skeleton'
 import { cn } from '@workspace/ui/lib/utils'
 
 interface LeaderboardPreviewProps {
-    data?: LeaderboardDto
+    data?: LeaderboardDTO
     isLoading?: boolean
 }
 

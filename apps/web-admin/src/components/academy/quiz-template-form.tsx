@@ -32,7 +32,7 @@ import {
 } from "@workspace/schemas"
 import type { AcademyQuizTemplate } from "@/lib/api/services/academy-quiz-templates"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
-import { RichTextEditor } from "@/components/editor/rich-text-editor"
+import { RichTextEditor, type EditorJsData } from "@/components/editor/rich-text-editor"
 import {
     Tabs,
     TabsContent,
@@ -146,7 +146,7 @@ export function QuizTemplateForm({
                                         <TabsContent value="edit">
                                             <RichTextEditor
                                                 initialContent={field.value || ""}
-                                                onUpdate={(html) => field.onChange(html)}
+                                                onUpdate={(data: EditorJsData) => field.onChange(JSON.stringify(data))}
                                             />
                                         </TabsContent>
                                         <TabsContent value="preview">

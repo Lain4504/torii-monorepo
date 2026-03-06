@@ -1,11 +1,16 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { ChapterService } from './chapter.service';
-import { ChapterCreateDto, ChapterQueryDto, ChapterUpdateDto } from './dto/chapter.dto';
+import {
+  ChapterCreateDto,
+  ChapterQueryDto,
+  ChapterReorderDto,
+  ChapterUpdateDto,
+} from './dto/chapter.dto';
 
 @Controller()
 export class ChapterHandler {
-  constructor(private readonly chapters: ChapterService) {}
+  constructor(private readonly chapters: ChapterService) { }
 
   @MessagePattern({ cmd: 'academy.chapter.findAll' })
   findAll(@Payload() query: ChapterQueryDto) {
@@ -25,6 +30,11 @@ export class ChapterHandler {
   @MessagePattern({ cmd: 'academy.chapter.update' })
   update(@Payload() data: { id: string; input: ChapterUpdateDto }) {
     return this.chapters.update(data.id, data.input);
+  }
+
+  @MessagePattern({ cmd: 'academy.chapter.reorder' })
+  reorder(@Payload() input: ChapterReorderDto) {
+    return this.chapters.reorderChapters(input);
   }
 
   @MessagePattern({ cmd: 'academy.chapter.delete' })

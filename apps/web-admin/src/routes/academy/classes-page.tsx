@@ -14,6 +14,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/componen
 import { PageHeader } from "@/components/common/page-header"
 import { toast } from "@workspace/ui/components/sonner"
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu"
+import { MoreVertical } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -27,6 +41,8 @@ import {
   useAcademyClasses,
   useDeleteAcademyClass,
 } from "@/lib/api/services/academy-classes"
+import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
+import { useAcademyCourseEditions } from "@/lib/api/services/academy-course-editions"
 
 export default function AcademyClassesPage() {
   const [courseProfileId, setCourseProfileId] = useState("")
@@ -36,12 +52,23 @@ export default function AcademyClassesPage() {
   const [q, setQ] = useState("")
   const [deleteId, setDeleteId] = useState<string | null>(null)
 
+  const { data: profilesData = [] } = useAcademyCourseProfiles({})
+  const profiles = Array.isArray(profilesData) ? profilesData : (profilesData as any)?.items || []
+
+  const { data: editionsData = [] } = useAcademyCourseEditions({})
+  const editions = Array.isArray(editionsData) ? editionsData : (editionsData as any)?.items || []
+
+  const filteredEditions = useMemo(() => {
+    if (!courseProfileId) return editions
+    return editions.filter((e: any) => e.courseProfileId === courseProfileId)
+  }, [courseProfileId, editions])
+
   const query = useMemo(
     () => ({
-      courseProfileId: courseProfileId || undefined,
-      courseEditionId: courseEditionId || undefined,
-      mode: mode || undefined,
-      status: status || undefined,
+      courseProfileId: courseProfileId && courseProfileId !== "_all" ? courseProfileId : undefined,
+      courseEditionId: courseEditionId && courseEditionId !== "_all" ? courseEditionId : undefined,
+      mode: mode && mode !== "_all" ? mode : undefined,
+      status: status && status !== "_all" ? status : undefined,
       q: q || undefined,
     }),
     [courseProfileId, courseEditionId, mode, status, q],
@@ -65,34 +92,59 @@ export default function AcademyClassesPage() {
       <Card>
         <CardHeader className="space-y-2">
           <CardTitle>Danh sách</CardTitle>
-          <div className="flex flex-col gap-2 md:flex-row">
+          <div className="flex flex-col gap-2 md:grid md:grid-cols-3">
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Tìm theo code/name..."
             />
-            <Input
-              value={courseProfileId}
-              onChange={(e) => setCourseProfileId(e.target.value)}
-              placeholder="Filter CourseProfileId (uuid)"
-            />
-            <Input
-              value={courseEditionId}
-              onChange={(e) => setCourseEditionId(e.target.value)}
-              placeholder="Filter CourseEditionId (uuid)"
-            />
+            <Select value={courseProfileId} onValueChange={(v) => { setCourseProfileId(v); setCourseEditionId("") }}>
+              <SelectTrigger>
+                <SelectValue placeholder="Tất cả Course Profile" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="_all">Tất cả Profile</SelectItem>
+                {profiles.map((p: any) => (
+                  <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={courseEditionId} onValueChange={setCourseEditionId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Tất cả Edition" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="_all">Tất cả Edition</SelectItem>
+                {filteredEditions.map((e: any) => (
+                  <SelectItem key={e.id} value={e.id}>{e.editionTag}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <div className="flex flex-col gap-2 md:flex-row">
-            <Input
-              value={mode}
-              onChange={(e) => setMode(e.target.value)}
-              placeholder="Mode (VOD/LIVE/BLENDED)"
-            />
-            <Input
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              placeholder="Status (DRAFT/ENROLLING/...)"
-            />
+          <div className="flex flex-col gap-2 md:grid md:grid-cols-2">
+            <Select value={mode} onValueChange={setMode}>
+              <SelectTrigger>
+                <SelectValue placeholder="Hình thức học (Mode)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="_all">Tất cả Mode</SelectItem>
+                <SelectItem value="VOD">VOD</SelectItem>
+                <SelectItem value="LIVE">Live</SelectItem>
+                <SelectItem value="BLENDED">Blended</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger>
+                <SelectValue placeholder="Trạng thái" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="_all">Tất cả Trạng thái</SelectItem>
+                <SelectItem value="DRAFT">Draft</SelectItem>
+                <SelectItem value="ENROLLING">Enrolling</SelectItem>
+                <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                <SelectItem value="COMPLETED">Completed</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardHeader>
         <CardContent>
@@ -115,27 +167,47 @@ export default function AcademyClassesPage() {
               ) : data.length ? (
                 data.map((it) => (
                   <TableRow key={it.id}>
-                    <TableCell className="font-mono text-xs">{it.code}</TableCell>
-                    <TableCell>{it.name}</TableCell>
+                    <TableCell className="font-mono text-xs">
+                      <Link to={`/academy/classes/${it.id}`} className="hover:underline text-primary">
+                        {it.code}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <Link to={`/academy/classes/${it.id}`} className="hover:underline font-medium">
+                        {it.name}
+                      </Link>
+                    </TableCell>
                     <TableCell>{it.mode}</TableCell>
                     <TableCell>
                       {it.term ?? "-"} / {it.batch ?? "-"}
                     </TableCell>
                     <TableCell>{it.status ?? "-"}</TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button size="sm" variant="outline" asChild>
-                          <Link to={`/academy/classes/${it.id}/edit`}>Sửa</Link>
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          disabled={del.isPending}
-                          onClick={() => setDeleteId(it.id)}
-                        >
-                          Xoá
-                        </Button>
-                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="h-8 w-8 p-0"
+                            size="icon"
+                          >
+                            <span className="sr-only">Mở menu thao tác</span>
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40">
+                          <DropdownMenuItem asChild>
+                            <Link to={`/academy/classes/${it.id}/edit`}>
+                              Sửa
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
+                            onClick={() => setDeleteId(it.id)}
+                          >
+                            Xoá
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))

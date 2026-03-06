@@ -22,7 +22,7 @@ export const gamificationApi = {
 
     // PUT /api/gamification/admin/rewards/:id
     async updateReward(id: string, data: UpdatePointRewardDTO): Promise<PointRewardDTO> {
-        const response = await apiClient.put<StandardApiResponse<PointRewardDTO>>(`/api/gamification/admin/rewards/${id}`, data);
+        const response = await apiClient.patch<StandardApiResponse<PointRewardDTO>>(`/api/gamification/admin/rewards/${id}`, data);
         return response.data.data!;
     },
 

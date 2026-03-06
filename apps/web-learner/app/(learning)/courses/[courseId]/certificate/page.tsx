@@ -8,11 +8,11 @@ import { formatDate } from '@/utils/format-utils'
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { ArrowLeft, Download, Share2 } from 'lucide-react'
 import { courseApi } from '@/lib/api/services/course-api'
-import { courseRunApi } from '@/lib/api/services/course-run-api'
+import { academyClassesApi } from '@/lib/api/services/academy-classes'
 
 export default function CourseCertificatePage() {
     const params = useParams()
-    const courseRunId = params.courseId as string
+    const classId = params.courseId as string
     const [course, setCourse] = useState<any>(null)
     const [loading, setLoading] = useState(true)
 
@@ -20,9 +20,9 @@ export default function CourseCertificatePage() {
         const fetchData = async () => {
             try {
                 setLoading(true)
-                const runResult = await courseRunApi.getCourseRunById(courseRunId)
-                if (runResult) {
-                    const courseData = await courseApi.getCourseById(runResult.courseMasterId)
+                const classResult = await academyClassesApi.findById(classId)
+                if (classResult) {
+                    const courseData = await courseApi.getCourseById(classResult.courseProfileId)
                     if (courseData) {
                         setCourse(courseData)
                     }
@@ -34,10 +34,10 @@ export default function CourseCertificatePage() {
             }
         }
 
-        if (courseRunId) {
+        if (classId) {
             fetchData()
         }
-    }, [courseRunId])
+    }, [classId])
 
     if (loading) {
         return (
@@ -61,7 +61,7 @@ export default function CourseCertificatePage() {
             <div className="border-b border-border bg-background">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center gap-4">
-                        <Link href={`/courses/${courseRunId}/learn`}>
+                        <Link href={`/dashboard/courses/${classId}/learn`}>
                             <Button variant="ghost" size="icon" className="rounded-full">
                                 <ArrowLeft className="w-4 h-4" />
                             </Button>

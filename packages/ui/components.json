@@ -6,7 +6,7 @@
   "tailwind": {
     "config": "",
     "css": "src/styles/globals.css",
-    "baseColor": "zinc",
+    "baseColor": "neutral",
     "cssVariables": true,
     "prefix": ""
   },
@@ -21,5 +21,7 @@
   },
   "menuColor": "inverted",
   "menuAccent": "subtle",
-  "registries": {}
+  "registries": {
+    "@lmscn": "https://lmscn.vercel.app/r/{name}.json"
+  }
 }

@@ -4,12 +4,13 @@ import { ChapterItemService } from './chapter-item.service';
 import {
   ChapterItemCreateDto,
   ChapterItemQueryDto,
+  ChapterItemReorderDto,
   ChapterItemUpdateDto,
 } from './dto/chapter-item.dto';
 
 @Controller()
 export class ChapterItemHandler {
-  constructor(private readonly items: ChapterItemService) {}
+  constructor(private readonly items: ChapterItemService) { }
 
   @MessagePattern({ cmd: 'academy.chapterItem.findAll' })
   findAll(@Payload() query: ChapterItemQueryDto) {
@@ -29,6 +30,11 @@ export class ChapterItemHandler {
   @MessagePattern({ cmd: 'academy.chapterItem.update' })
   update(@Payload() data: { id: string; input: ChapterItemUpdateDto }) {
     return this.items.update(data.id, data.input);
+  }
+
+  @MessagePattern({ cmd: 'academy.chapterItem.reorder' })
+  reorder(@Payload() input: ChapterItemReorderDto) {
+    return this.items.reorderItems(input);
   }
 
   @MessagePattern({ cmd: 'academy.chapterItem.delete' })

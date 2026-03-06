@@ -7,10 +7,14 @@ import {
   ExamAttemptStartDto,
   ExamAttemptSubmitDto,
 } from './dto/exam-attempt.dto';
+import { AuditLoggerService } from '../../audit-logger.service';
 
 @Injectable()
 export class ExamAttemptService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly audit: AuditLoggerService,
+  ) { }
 
   async findAll(query: ExamAttemptQueryDto) {
     return this.prisma.examAttempt.findMany({
@@ -54,28 +58,91 @@ export class ExamAttemptService {
     });
     if (!user) throw new BadRequestException('Invalid userId');
 
-    // Create attempt + section states (locked by default; first section unlocked/in_progress)
+    // Check max attempts
+    let maxAttempts: number | null | undefined = undefined;
+    if (input.classAssessmentId) {
+      const ca = await this.prisma.classAssessment.findUnique({
+        where: { id: input.classAssessmentId },
+        select: { maxAttemptsOverride: true },
+      });
+      maxAttempts = ca?.maxAttemptsOverride;
+    }
+
+    if (maxAttempts) {
+      const attemptCount = await this.prisma.examAttempt.count({
+        where: {
+          examId: input.examId,
+          userId: input.userId,
+          classAssessmentId: input.classAssessmentId,
+        },
+      });
+      if (attemptCount >= maxAttempts) {
+        throw new BadRequestException('Maximum attempts reached for this assessment');
+      }
+    }
+
+    // Create attempt + section states
     const sortedSections = [...exam.sections].sort((a, b) => a.orderIndex - b.orderIndex);
     const firstSectionId = sortedSections[0]?.id;
 
-    return this.prisma.examAttempt.create({
+    const now = new Date();
+    const deadlineAt = exam.totalTimeLimitMinutes
+      ? new Date(now.getTime() + exam.totalTimeLimitMinutes * 60000)
+      : null;
+
+    // Question shuffle logic (Level 2)
+    const settings = (exam.settings as any) || {};
+    const questionOrder: Record<string, string[]> = {};
+
+    if (settings.shuffleQuestions) {
+      for (const section of exam.sections) {
+        const eqLinks = await this.prisma.examQuestion.findMany({
+          where: { examId: input.examId, sectionId: section.id },
+          select: { questionId: true },
+          orderBy: { orderIndex: 'asc' },
+        });
+
+        const shuffledIds = eqLinks.map((l) => l.questionId);
+        // Fisher-Yates shuffle
+        for (let i = shuffledIds.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffledIds[i], shuffledIds[j]] = [shuffledIds[j], shuffledIds[i]];
+        }
+        questionOrder[section.id] = shuffledIds;
+      }
+    }
+
+    const result = await this.prisma.examAttempt.create({
       data: {
         examId: input.examId,
         classId: input.classId,
         userId: input.userId,
         classAssessmentId: input.classAssessmentId,
         status: 'IN_PROGRESS',
+        startedAt: now,
+        deadlineAt,
         maxScore: null,
         sections: {
           create: sortedSections.map((s) => ({
             sectionId: s.id,
             status: s.id === firstSectionId ? 'IN_PROGRESS' : 'LOCKED',
-            startedAt: s.id === firstSectionId ? new Date() : null,
+            startedAt: s.id === firstSectionId ? now : null,
           })),
         },
+        metadata: { questionOrder } as any,
       },
       include: { sections: true },
     });
+
+    await this.audit.log({
+      userId: input.userId,
+      action: 'exam.start',
+      entity: 'ExamAttempt',
+      entityId: result.id,
+      description: `Started exam attempt for ${exam.title}`,
+    });
+
+    return result;
   }
 
   async saveAnswers(input: ExamAttemptSaveAnswersDto) {
@@ -89,23 +156,115 @@ export class ExamAttemptService {
     });
   }
 
+  async nextSection(attemptId: string, currentSectionId: string) {
+    const attempt = await this.prisma.examAttempt.findUnique({
+      where: { id: attemptId },
+      include: {
+        sections: { orderBy: { section: { orderIndex: 'asc' } } },
+        exam: { include: { sections: { orderBy: { orderIndex: 'asc' } } } },
+      },
+    });
+    if (!attempt) throw new NotFoundException('ExamAttempt not found');
+    if (attempt.status !== 'IN_PROGRESS') {
+      throw new BadRequestException('ExamAttempt is not IN_PROGRESS');
+    }
+
+    const currentIdx = attempt.exam.sections.findIndex((s) => s.id === currentSectionId);
+    if (currentIdx === -1) throw new BadRequestException('Invalid currentSectionId');
+
+    // Close current section
+    await this.prisma.examAttemptSectionState.updateMany({
+      where: { attemptId, sectionId: currentSectionId },
+      data: { status: 'COMPLETED', endedAt: new Date() },
+    });
+
+    const nextSection = attempt.exam.sections[currentIdx + 1];
+    if (nextSection) {
+      await this.prisma.examAttemptSectionState.updateMany({
+        where: { attemptId, sectionId: nextSection.id },
+        data: { status: 'IN_PROGRESS', startedAt: new Date() },
+      });
+      return { nextSectionId: nextSection.id };
+    } else {
+      // No more sections, suggest submission
+      return { nextSectionId: null, message: 'All sections completed. Please submit.' };
+    }
+  }
+
   async submit(input: ExamAttemptSubmitDto) {
-    const attempt = await this.findById(input.attemptId);
+    const attempt = await this.prisma.examAttempt.findUnique({
+      where: { id: input.attemptId },
+      include: {
+        exam: {
+          include: {
+            examQuestions: {
+              include: { question: true },
+            },
+          },
+        },
+        classAssessment: true,
+      },
+    });
+    if (!attempt) throw new NotFoundException('ExamAttempt not found');
     if (attempt.status !== 'IN_PROGRESS') return attempt;
 
-    // TODO: full grading logic (auto-grade objective types, compute per-section score, etc.)
-    // For now, mark SUBMITTED and store timestamps.
-    return this.prisma.examAttempt.update({
+    const examQuestions = attempt.exam.examQuestions;
+    const draftAnswers = (attempt.draftAnswers as Record<string, any>) || {};
+
+    let rawScore = 0;
+    let totalMaxScore = 0;
+    let hasSubjective = false;
+
+    for (const eq of examQuestions) {
+      const q = eq.question;
+      const weight = Number(eq.points) || 1.0;
+      totalMaxScore += weight;
+
+      if (q.questionType === 'ESSAY' || q.questionType === 'ORAL') {
+        hasSubjective = true;
+        continue;
+      }
+
+      const userAnswer = draftAnswers[q.id];
+      const correctAnswer = q.correctAnswer;
+
+      if (userAnswer !== undefined && JSON.stringify(userAnswer) === JSON.stringify(correctAnswer)) {
+        rawScore += weight;
+      }
+    }
+
+    const percentage = totalMaxScore > 0 ? (rawScore / totalMaxScore) * 100 : 0;
+
+    // Determine passing threshold
+    let passingThreshold = 50;
+    const settings = (attempt.classAssessment?.settings as any) || (attempt.exam?.settings as any) || {};
+    if (settings.passingScorePercent) passingThreshold = settings.passingScorePercent;
+
+    const isPassed = percentage >= passingThreshold;
+
+    const result = await this.prisma.examAttempt.update({
       where: { id: input.attemptId },
       data: {
-        status: 'SUBMITTED',
+        status: hasSubjective ? 'SUBMITTED' : 'COMPLETED',
         submittedAt: new Date(),
-        completedAt: new Date(),
-        percentage: null,
-        rawScore: null,
-        isPassed: null,
-      } as Prisma.ExamAttemptUpdateInput,
+        completedAt: hasSubjective ? null : new Date(),
+        percentage: new Prisma.Decimal(percentage),
+        rawScore: new Prisma.Decimal(rawScore),
+        maxScore: new Prisma.Decimal(totalMaxScore),
+        isPassed: hasSubjective ? null : isPassed,
+      } as any,
     });
+
+    await this.audit.log({
+      userId: attempt.userId,
+      action: 'exam.submit',
+      entity: 'ExamAttempt',
+      entityId: input.attemptId,
+      description: `Submitted exam attempt. Score: ${percentage.toFixed(2)}%`,
+      metadata: { percentage, isPassed },
+    });
+
+    return result;
   }
 }
 

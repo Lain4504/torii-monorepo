@@ -1,10 +1,15 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
-import { ChapterCreateDto, ChapterQueryDto, ChapterUpdateDto } from './dto/chapter.dto';
+import {
+  ChapterCreateDto,
+  ChapterQueryDto,
+  ChapterReorderDto,
+  ChapterUpdateDto,
+} from './dto/chapter.dto';
 
 @Injectable()
 export class ChapterService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findAll(query: ChapterQueryDto) {
     return this.prisma.chapter.findMany({
@@ -52,8 +57,41 @@ export class ChapterService {
     });
   }
 
+  async reorderChapters(input: ChapterReorderDto) {
+    // Transactional update of orderIndex
+    await this.prisma.$transaction(
+      input.orderedIds.map((id, index) =>
+        this.prisma.chapter.update({
+          where: { id, courseEditionId: input.courseEditionId },
+          data: { orderIndex: index },
+        }),
+      ),
+    );
+    return { ok: true };
+  }
+
   async delete(id: string) {
-    await this.findById(id);
+    const chapter = await this.prisma.chapter.findUnique({
+      where: { id },
+      include: {
+        courseEdition: {
+          include: {
+            classes: { where: { status: { in: ['ENROLLING', 'IN_PROGRESS'] } } },
+          },
+        },
+      },
+    });
+    if (!chapter) throw new NotFoundException('Chapter not found');
+
+    if (
+      chapter.courseEdition.status === 'PUBLISHED' &&
+      chapter.courseEdition.classes.length > 0
+    ) {
+      throw new BadRequestException(
+        'Cannot delete chapter from a PUBLISHED edition with active classes',
+      );
+    }
+
     await this.prisma.chapter.delete({ where: { id } });
     return { ok: true };
   }

@@ -9,7 +9,7 @@ import {
 
 @Injectable()
 export class ClassAssessmentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findAll(query: ClassAssessmentQueryDto) {
     return this.prisma.classAssessment.findMany({
@@ -82,8 +82,51 @@ export class ClassAssessmentService {
     });
   }
 
+  async publishAssessment(id: string) {
+    const assessment = await this.prisma.classAssessment.findUnique({
+      where: { id },
+      include: { class: true },
+    });
+    if (!assessment) throw new NotFoundException('ClassAssessment not found');
+    if (assessment.status === 'PUBLISHED') return assessment;
+
+    if (
+      assessment.class.status !== 'ENROLLING' &&
+      assessment.class.status !== 'IN_PROGRESS'
+    ) {
+      throw new BadRequestException('Can only publish assessment for ENROLLING or IN_PROGRESS classes');
+    }
+
+    return this.prisma.classAssessment.update({
+      where: { id },
+      data: { status: 'PUBLISHED' },
+    });
+  }
+
+  async closeAssessment(id: string) {
+    const assessment = await this.findById(id);
+    if (assessment.status === 'CLOSED') return assessment;
+
+    return this.prisma.classAssessment.update({
+      where: { id },
+      data: { status: 'CLOSED' },
+    });
+  }
+
   async delete(id: string) {
-    await this.findById(id);
+    const assessment = await this.prisma.classAssessment.findUnique({
+      where: { id },
+      include: {
+        examAttempts: { select: { id: true }, take: 1 },
+        assignmentSubmissions: { select: { id: true }, take: 1 },
+      },
+    });
+    if (!assessment) throw new NotFoundException('ClassAssessment not found');
+
+    if (assessment.examAttempts.length > 0 || assessment.assignmentSubmissions.length > 0) {
+      throw new BadRequestException('Cannot delete assessment with existing attempts or submissions');
+    }
+
     await this.prisma.classAssessment.delete({ where: { id } });
     return { ok: true };
   }

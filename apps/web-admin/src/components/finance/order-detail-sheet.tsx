@@ -179,7 +179,7 @@ export function OrderDetailSheet({ order, open, onOpenChange }: OrderDetailSheet
                                 </Empty>
                             ) : (
                                 <div className="space-y-2">
-                                    {paymentsData.data.map((payment) => (
+                                    {paymentsData.data.map((payment: any) => (
                                         <div key={payment.id} className="flex items-center justify-between p-3 rounded-md border">
                                             <div className="flex flex-col gap-0.5">
                                                 <span className="text-sm font-medium">

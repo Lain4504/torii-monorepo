@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient, type UseQueryOptions } from "@tanstack/react-query"
 import { apiClient } from "@/lib/api/api-client"
 import type {
   AcademyChapterCreateDTO,
@@ -59,10 +59,14 @@ export const academyChaptersApi = {
   },
 }
 
-export function useAcademyChapters(params: AcademyChapterQueryDTO) {
-  return useQuery({
+export function useAcademyChapters(
+  params: AcademyChapterQueryDTO,
+  options?: Omit<UseQueryOptions<AcademyChapter[]>, "queryKey" | "queryFn">
+) {
+  return useQuery<AcademyChapter[]>({
     queryKey: ["academy-chapters", params],
     queryFn: () => academyChaptersApi.findAll(params),
+    ...options
   })
 }
 

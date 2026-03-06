@@ -3,7 +3,8 @@ title: Kế hoạch hoàn thiện nghiệp vụ backend Academy
 description: Kế hoạch chi tiết để nâng backend Academy từ CRUD cơ bản lên full nghiệp vụ LMS (Content, Delivery, Assessment, Commerce) theo thiết kế trong core-lms.md
 ---
 
-> File này **bổ sung cho** `core-lms.md`, tập trung vào **kế hoạch triển khai nghiệp vụ backend** (service logic, state machine, event flow, background job, validation rule), không bàn về UI.
+> File này **bổ sung cho** `core-lms.md`, tập trung vào **kế hoạch triển khai nghiệp vụ backend** (service logic, state machine, event flow, background job, validation rule), không bàn về UI.  
+> **Rà soát với core-lms**: Logic schema và flow đã được review so với `core-lms.md`; chi tiết xem [ACADEMY_BACKEND_PLAN_REVIEW.md](./ACADEMY_BACKEND_PLAN_REVIEW.md).
 
 ## 1. Phạm vi & mục tiêu
 
@@ -97,7 +98,7 @@ description: Kế hoạch chi tiết để nâng backend Academy từ CRUD cơ b
 
 - **Status propagation**:
   - Khi `CourseEdition` chuyển `PUBLISHED`, enforce:
-    - Tất cả `Chapter.status` phải là `PUBLISHED` hoặc `READY`.
+    - Tất cả `Chapter.status` phải là `PUBLISHED` (theo core-lms §7.1 — không dùng trạng thái READY).
   - Option phase sau: cho phép publish từng Chapter độc lập (không bắt buộc).
 
 - **Validation khi xoá**:
@@ -147,6 +148,7 @@ description: Kế hoạch chi tiết để nâng backend Academy từ CRUD cơ b
      - Validate:
        - `status` hiện tại phải là `DRAFT`.
        - `CourseEdition.status = PUBLISHED`.
+       - Theo **core-lms §15.2**: nếu `mode = LIVE` hoặc `BLENDED` → bắt buộc có `startDate` và ít nhất một `ClassSchedule`; nếu `mode = VOD` → không bắt buộc schedule, chỉ cần edition hợp lệ.
      - Set `status = ENROLLING`, `enrollmentOpenAt = now()` nếu chưa có.
   2. `startClass(classId)`:
      - From `ENROLLING -> IN_PROGRESS`.
@@ -294,9 +296,10 @@ description: Kế hoạch chi tiết để nâng backend Academy từ CRUD cơ b
 - Handler đã có methods:
   - `start`, `saveAnswers`, `submit`, `findAll`, `findById`.
 
-**State machine**:
+**State machine** (có thể map với core-lms §12.3):
 
 - States (field `status` trong `ExamAttempt`): `PENDING`, `IN_PROGRESS`, `SUBMITTED`, `CANCELLED`.
+- core-lms §12.3 dùng `IN_PROGRESS`, `SUBMITTED`, `COMPLETED`, `ABANDONED` — flow tương đương; CANCELLED ≈ ABANDONED, SUBMITTED/COMPLETED tùy implementation.
 
 **Nghiệp vụ chi tiết theo flow**:
 
@@ -373,19 +376,20 @@ description: Kế hoạch chi tiết để nâng backend Academy từ CRUD cơ b
 
 **Hiện tại**: CRUD + `setClasses` đã có.
 
-**State machine**:
+**State machine** (bám core-lms §7.3):
 
-- States: `DRAFT`, `ACTIVE`, `HIDDEN` (mapping từ `status` string).
+- States: `DRAFT`, `ACTIVE`, `HIDDEN` (hoặc `ARCHIVED` trong Prisma — dùng cho "ẩn/ngừng bán").
+- **ACTIVE** trong Plan = **PUBLISHED** trong core-lms — trạng thái "đang mở bán". Chỉ khi `status = ACTIVE` mới cho phép tạo Order từ offering này.
 
 **Nghiệp vụ**:
 
 - `activateOffering(id)`:
   - Validate:
-    - Ít nhất 1 Class được link.
+    - Ít nhất 1 Class được link (bảng `CourseOfferingClass`).
     - Class không `CANCELLED`.
-  - Set `status = ACTIVE`, `salesStartAt = salesStartAt || now()`.
-- `hideOffering(id)`:
-  - Set `status = HIDDEN`.
+  - Set `status = ACTIVE`; có thể set `validFrom = now()` nếu dùng.
+- `hideOffering(id)` / `archiveOffering(id)`:
+  - Set `status = HIDDEN` (hoặc `ARCHIVED` nếu Prisma chỉ có enum này).
   - Không cho tạo Order mới từ offering này (gateway hoặc service order validate).
 
 ### 5.2. Order → Enrollment
@@ -396,10 +400,15 @@ Phần này nằm một phần trong service Payment/Order, nhưng `academy` c�
   - Gửi event: `order.paid` với payload:
     - `userId`, `offeringId`, `orderItemId`, …
   - `academy` subscribe event này và:
-    - Tìm `CourseOfferingClass` theo `offeringId`.
+    - Tìm `CourseOfferingClass` theo `offeringId` (từ từng OrderItem).
     - Với mỗi `classId`:
-      - Tạo hoặc đảm bảo `Enrollment.ACTIVE`.
-      - Ghi `sourceOfferingId` / `orderItemId`.
+      - **Chỉ tạo Enrollment nếu thỏa điều kiện enroll theo core-lms §8.3**:
+        - `Class.status` ∈ {`ENROLLING`, `IN_PROGRESS`} (không enroll vào DRAFT/CANCELLED/COMPLETED).
+        - Nếu Class có `enrollmentOpenAt`/`enrollmentCloseAt` thì `now` nằm trong khoảng đó (trừ policy "enroll muộn").
+        - Nếu Class có `maxStudents` thì số Enrollment ACTIVE hiện tại < maxStudents.
+        - Chưa tồn tại Enrollment **ACTIVE** cho `(userId, classId)` (tối đa 1 ACTIVE per cặp).
+      - Ghi `sourceOfferingId`; (tùy chọn) ghi `sourceOrderId` nếu có field này để phục vụ refund sau này.
+      - Nếu không thỏa (ví dụ class đã đủ slot): log lỗi / xử lý theo chính sách (waitlist, refund, thông báo staff), không tạo Enrollment.
 
 - Khi Order bị refund toàn phần:
   - Event: `order.refunded`.
@@ -703,4 +712,27 @@ Các scenario kiểu này nên được thêm dần vào test file tương ứng
 - `academy-assessment.e2e-spec.ts`
 - `academy-commerce.e2e-spec.ts`
 
+---
 
+## 12. Billing & Commerce Transition
+
+> Chi tiết kỹ thuật xem tại [ACADEMY_BILLING_SPEC.md](./ACADEMY_BILLING_SPEC.md).
+
+### 12.1. Chiến lược Merge vào Academy
+- Thay thế hoàn toàn service `billing` cũ bằng `CommerceModule` nằm trong `academy` service.
+- **Lý do**:
+  - Đảm bảo tính toàn vẹn dữ liệu (transactional integrity) giữa `Order` và `Enrollment`.
+  - Giảm độ phức tạp khi vận hành (bớt 1 microservice).
+  - Phù hợp với kiến trúc "Academy Monolith" mới.
+
+### 12.2. Các bước thực hiện
+1. **Schema Migration**:
+   - Thêm bảng `CourseOffering`, `Order`, `Coupon`, `Transaction` vào schema của Academy.
+   - Xóa bỏ các bảng cũ liên quan đến billing trong schema (hoặc ignore).
+2. **Code Migration**:
+   - Port logic `PayOS` service từ `billing` sang `academy/modules/commerce`.
+   - Viết lại logic `OrderService` và `CouponService` theo spec mới.
+3. **Deprecation**:
+   - Xóa code trong `apps/server/services/billing`.
+   - Update `package.json` để remove script `start:billing`.
+   - Redirect traffic gateway từ `/billing/*` sang `/academy/commerce/*`.

@@ -1,4 +1,5 @@
 import { Controller, useForm } from "react-hook-form"
+import { useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
@@ -34,6 +35,7 @@ import {
 import type { AcademyClass } from "@/lib/api/services/academy-classes"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
 import { useAcademyCourseEditions } from "@/lib/api/services/academy-course-editions"
+import { useUsers } from "@/lib/api/services/users"
 
 export function ClassForm({
   mode,
@@ -53,10 +55,16 @@ export function ClassForm({
   defaultCourseEditionId?: string
 }) {
   const isEdit = mode === "edit"
-  const { data: profiles = [] } = useAcademyCourseProfiles({})
-  const { data: editions = [] } = useAcademyCourseEditions({})
+  const { data: profilesData = [] } = useAcademyCourseProfiles({})
+  const profiles = Array.isArray(profilesData) ? profilesData : (profilesData as any)?.items || []
 
-  const { handleSubmit, control } = useForm<
+  const { data: editionsData = [] } = useAcademyCourseEditions({})
+  const editions = Array.isArray(editionsData) ? editionsData : (editionsData as any)?.items || []
+
+  const { data: teachersData } = useUsers({ role: "TEACHER", limit: 100 })
+  const teachers = teachersData?.data || []
+
+  const { handleSubmit, control, watch } = useForm<
     AcademyClassCreateDTO | AcademyClassUpdateDTO
   >({
     resolver: zodResolver(
@@ -79,6 +87,7 @@ export function ClassForm({
         minStudents: initial?.minStudents ?? undefined,
         maxStudents: initial?.maxStudents ?? undefined,
         status: initial?.status ?? undefined,
+        // Add teacherId and others if present in initial
       }
       : {
         courseProfileId: defaultCourseProfileId ?? "",
@@ -97,6 +106,12 @@ export function ClassForm({
         status: "DRAFT",
       },
   })
+
+  const selectedProfileId = watch("courseProfileId" as any)
+  const filteredEditions = useMemo(() => {
+    if (!selectedProfileId) return editions
+    return editions.filter((e: any) => e.courseProfileId === selectedProfileId)
+  }, [selectedProfileId, editions])
 
   return (
     <form
@@ -126,7 +141,7 @@ export function ClassForm({
                           <SelectValue placeholder="Chọn Profile..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {profiles.map((p) => (
+                          {profiles.map((p: any) => (
                             <SelectItem key={p.id} value={p.id}>
                               {p.code} - {p.title}
                             </SelectItem>
@@ -148,9 +163,9 @@ export function ClassForm({
                           <SelectValue placeholder="Chọn Edition..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {editions.map((e) => (
+                          {filteredEditions.map((e: any) => (
                             <SelectItem key={e.id} value={e.id}>
-                              {(e as any).courseProfile?.title} - {e.editionTag}
+                              {e.editionTag} ({e.status})
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -231,6 +246,28 @@ export function ClassForm({
                       <SelectItem value="VOD">VOD (Video on Demand)</SelectItem>
                       <SelectItem value="LIVE">Live (Trực tuyến)</SelectItem>
                       <SelectItem value="BLENDED">Blended (Kết hợp)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+            <Controller
+              name={"teacherId" as any}
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Giảng viên phụ trách</FieldLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn giảng viên..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teachers.map((t: any) => (
+                        <SelectItem key={t.id} value={t.id}>
+                          {t.name} ({t.email})
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FieldError>{fieldState.error?.message}</FieldError>

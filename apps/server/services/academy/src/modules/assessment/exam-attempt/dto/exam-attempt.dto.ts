@@ -29,6 +29,14 @@ export class ExamAttemptSubmitDto {
   attemptId!: string;
 }
 
+export class ExamAttemptNextSectionDto {
+  @IsUUID()
+  attemptId!: string;
+
+  @IsUUID()
+  currentSectionId!: string;
+}
+
 export class ExamAttemptQueryDto {
   @IsOptional()
   @IsUUID()

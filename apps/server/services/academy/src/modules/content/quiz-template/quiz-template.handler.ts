@@ -9,7 +9,7 @@ import {
 
 @Controller()
 export class QuizTemplateHandler {
-  constructor(private readonly templates: QuizTemplateService) {}
+  constructor(private readonly templates: QuizTemplateService) { }
 
   @MessagePattern({ cmd: 'academy.quizTemplate.findAll' })
   findAll(@Payload() query: QuizTemplateQueryDto) {
@@ -29,6 +29,11 @@ export class QuizTemplateHandler {
   @MessagePattern({ cmd: 'academy.quizTemplate.update' })
   update(@Payload() data: { id: string; input: QuizTemplateUpdateDto }) {
     return this.templates.update(data.id, data.input);
+  }
+
+  @MessagePattern({ cmd: 'academy.quizTemplate.getUsage' })
+  getUsage(@Payload() data: { id: string }) {
+    return this.templates.getUsage(data.id);
   }
 
   @MessagePattern({ cmd: 'academy.quizTemplate.delete' })

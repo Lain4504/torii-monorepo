@@ -6,12 +6,12 @@ import { Card, CardContent } from '@workspace/ui/components/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@workspace/ui/components/table'
 import { Trophy, Star, Flame } from 'lucide-react'
 import { cn } from '@workspace/ui/lib/utils'
-import type { LeaderboardUserDto } from '@workspace/schemas'
+import type { LeaderboardUserDTO } from '@workspace/schemas'
 import { TrendIndicator } from './trend-indicator'
 import { formatNumber } from '@/utils/format-utils'
 
 interface LeaderboardTableProps {
-    users: LeaderboardUserDto[]
+    users: LeaderboardUserDTO[]
     currentUserId?: string
     type: 'global' | 'streak'
 }

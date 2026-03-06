@@ -9,7 +9,7 @@ import {
 
 @Controller()
 export class AssignmentTemplateHandler {
-  constructor(private readonly templates: AssignmentTemplateService) {}
+  constructor(private readonly templates: AssignmentTemplateService) { }
 
   @MessagePattern({ cmd: 'academy.assignmentTemplate.findAll' })
   findAll(@Payload() query: AssignmentTemplateQueryDto) {
@@ -29,6 +29,11 @@ export class AssignmentTemplateHandler {
   @MessagePattern({ cmd: 'academy.assignmentTemplate.update' })
   update(@Payload() data: { id: string; input: AssignmentTemplateUpdateDto }) {
     return this.templates.update(data.id, data.input);
+  }
+
+  @MessagePattern({ cmd: 'academy.assignmentTemplate.getUsage' })
+  getUsage(@Payload() data: { id: string }) {
+    return this.templates.getUsage(data.id);
   }
 
   @MessagePattern({ cmd: 'academy.assignmentTemplate.delete' })

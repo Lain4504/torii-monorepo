@@ -1,10 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { QuestionCreateDto, QuestionQueryDto, QuestionUpdateDto } from './dto/question.dto';
 
 @Injectable()
 export class QuestionService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findAll(query: QuestionQueryDto) {
     const q = query.q?.trim();
@@ -59,6 +59,22 @@ export class QuestionService {
 
   async delete(id: string) {
     await this.findById(id);
+
+    // Check if used in any PUBLISHED exam
+    const examUsage = await this.prisma.examQuestion.findFirst({
+      where: {
+        questionId: id,
+        exam: { status: 'PUBLISHED' },
+      },
+      include: { exam: { select: { id: true, title: true } } },
+    });
+
+    if (examUsage) {
+      throw new BadRequestException(
+        `Cannot delete question used in PUBLISHED exam: ${examUsage.exam.title} (${examUsage.exam.id})`,
+      );
+    }
+
     await this.prisma.question.delete({ where: { id } });
     return { ok: true };
   }

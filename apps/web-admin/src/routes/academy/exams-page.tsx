@@ -14,6 +14,13 @@ import {
 import { PageHeader } from "@/components/common/page-header"
 import { toast } from "@workspace/ui/components/sonner"
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu"
+import { MoreVertical } from "lucide-react"
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -93,19 +100,31 @@ export default function AcademyExamsPage() {
                     <TableCell>{it.level ?? "-"}</TableCell>
                     <TableCell>{it.status ?? "-"}</TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button size="sm" variant="outline" asChild>
-                          <Link to={`/academy/exams/${it.id}/edit`}>Sửa</Link>
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          disabled={del.isPending}
-                          onClick={() => setDeleteId(it.id)}
-                        >
-                          Xoá
-                        </Button>
-                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="h-8 w-8 p-0"
+                            size="icon"
+                          >
+                            <span className="sr-only">Mở menu thao tác</span>
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40">
+                          <DropdownMenuItem asChild>
+                            <Link to={`/academy/exams/${it.id}/edit`}>
+                              Sửa
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
+                            onClick={() => setDeleteId(it.id)}
+                          >
+                            Xoá
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))

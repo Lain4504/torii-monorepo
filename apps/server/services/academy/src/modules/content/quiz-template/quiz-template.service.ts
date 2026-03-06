@@ -9,7 +9,7 @@ import {
 
 @Injectable()
 export class QuizTemplateService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findAll(query: QuizTemplateQueryDto) {
     return this.prisma.quizTemplate.findMany({
@@ -67,8 +67,47 @@ export class QuizTemplateService {
     });
   }
 
+  async getUsage(id: string) {
+    const chapterItems = await this.prisma.chapterItem.findMany({
+      where: { kind: 'QUIZ_TEMPLATE', referenceId: id },
+      include: {
+        chapter: {
+          include: { courseEdition: { include: { courseProfile: true } } },
+        },
+      },
+    });
+
+    const assessments = await this.prisma.classAssessment.findMany({
+      where: { quizTemplateId: id },
+      include: { class: true },
+    });
+
+    return {
+      chapterItems: chapterItems.map((ci) => ({
+        chapterTitle: ci.chapter.title,
+        editionId: ci.chapter.courseEditionId,
+        editionStatus: ci.chapter.courseEdition.status,
+      })),
+      assessments: assessments.map((a) => ({
+        classTitle: a.class.name,
+        status: a.status,
+      })),
+    };
+  }
+
   async delete(id: string) {
-    await this.findById(id);
+    const usage = await this.getUsage(id);
+
+    const publishedUsage = usage.chapterItems.filter((u) => u.editionStatus === 'PUBLISHED');
+    if (publishedUsage.length > 0) {
+      throw new BadRequestException('Cannot delete quiz template used in PUBLISHED editions');
+    }
+
+    const activeAssessments = usage.assessments.filter((a) => a.status !== 'CLOSED');
+    if (activeAssessments.length > 0) {
+      throw new BadRequestException('Cannot delete quiz template used in active class assessments');
+    }
+
     await this.prisma.quizTemplate.delete({ where: { id } });
     return { ok: true };
   }

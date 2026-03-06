@@ -24,7 +24,7 @@ import {
     TabsList,
     TabsTrigger,
 } from "@workspace/ui/components/tabs"
-import { DrillGenerator } from "@/components/ai-sensei/drill-generator"
+import { SkillDrill } from "@/components/ai-sensei/skill-drill"
 
 export function AssessmentDashboard() {
     const [profile, setProfile] = React.useState<ReadinessProfileResponse | null>(null)
@@ -226,7 +226,7 @@ export function AssessmentDashboard() {
                 </TabsContent>
 
                 <TabsContent value="drills" className="focus-visible:outline-none">
-                    <DrillGenerator embed />
+                    <SkillDrill embed />
                 </TabsContent>
             </Tabs>
         </div>

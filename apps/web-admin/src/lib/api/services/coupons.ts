@@ -1,50 +1,40 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api/api-client.ts';
-import type { 
-    PaginatedApiResponse, 
+import type {
     StandardApiResponse,
-    CouponResponseDTO, 
-    CouponCreateDTO, 
-    CouponUpdateDTO, 
-    CouponSearchRequestDTO
+    CouponResponseDTO,
+    CouponCreateDTO,
+    CouponUpdateDTO,
 } from '@workspace/schemas';
 
-// ...
-
 export const couponsApi = {
-    // POST /api/coupons/search
-    async findAll(data: CouponSearchRequestDTO): Promise<PaginatedApiResponse<CouponResponseDTO>> {
-        const response = await apiClient.post<PaginatedApiResponse<CouponResponseDTO>>('/api/coupons/search', data);
+    // GET /api/academy/coupons/admin
+    async findAll(query?: any): Promise<any> {
+        const response = await apiClient.get<StandardApiResponse<any>>('/api/academy/coupons/admin', { params: query });
         return response.data;
     },
 
-    // GET /api/coupons/:id
+    // GET /api/academy/coupons/admin/:id
     async findById(id: string): Promise<CouponResponseDTO> {
-        const response = await apiClient.get<StandardApiResponse<{ coupon: CouponResponseDTO }>>(`/api/coupons/${id}`);
-        return response.data.data!.coupon;
+        const response = await apiClient.get<StandardApiResponse<CouponResponseDTO>>(`/api/academy/coupons/admin/${id}`);
+        return response.data.data!;
     },
 
-    // GET /api/coupons/code/:code
-    async findByCode(code: string): Promise<CouponResponseDTO> {
-        const response = await apiClient.get<StandardApiResponse<{ coupon: CouponResponseDTO }>>(`/api/coupons/code/${code}`);
-        return response.data.data!.coupon;
-    },
-
-    // POST /api/coupons
+    // POST /api/academy/coupons/admin
     async create(data: CouponCreateDTO): Promise<CouponResponseDTO> {
-        const response = await apiClient.post<StandardApiResponse<{ coupon: CouponResponseDTO }>>('/api/coupons', data);
-        return response.data.data!.coupon;
+        const response = await apiClient.post<StandardApiResponse<CouponResponseDTO>>('/api/academy/coupons/admin', data);
+        return response.data.data!;
     },
 
-    // PUT /api/coupons/:id
+    // PATCH /api/academy/coupons/admin/:id
     async update(id: string, data: CouponUpdateDTO): Promise<CouponResponseDTO> {
-        const response = await apiClient.put<StandardApiResponse<{ coupon: CouponResponseDTO }>>(`/api/coupons/${id}`, data);
-        return response.data.data!.coupon;
+        const response = await apiClient.patch<StandardApiResponse<CouponResponseDTO>>(`/api/academy/coupons/admin/${id}`, data);
+        return response.data.data!;
     },
 
-    // DELETE /api/coupons/:id
+    // DELETE /api/academy/coupons/admin/:id
     async delete(id: string): Promise<boolean> {
-        const response = await apiClient.delete<StandardApiResponse<boolean>>(`/api/coupons/${id}`);
+        const response = await apiClient.delete<StandardApiResponse<any>>(`/api/academy/coupons/admin/${id}`);
         return response.data.success;
     },
 
@@ -62,12 +52,10 @@ export const couponsApi = {
 /**
  * Hook: Get coupons list with pagination and filters
  */
-export function useCoupons(params: CouponSearchRequestDTO) {
+export function useCoupons(query?: any) {
     return useQuery({
-        queryKey: ['coupons', params],
-        queryFn: () => couponsApi.findAll(params),
-        // Keep previous data while fetching new data for smoother pagination
-        placeholderData: (previousData) => previousData, 
+        queryKey: ['coupons', query],
+        queryFn: () => couponsApi.findAll(query),
         staleTime: 30000,
     });
 }

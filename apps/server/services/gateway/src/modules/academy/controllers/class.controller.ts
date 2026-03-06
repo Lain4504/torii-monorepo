@@ -34,7 +34,7 @@ import {
 @Controller('api/academy/classes')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class ClassController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
   @Get()
   @Permissions('academy.delivery.read')
@@ -81,6 +81,15 @@ export class ClassController {
       this.nats.send({ cmd: 'academy.class.update' }, { id, input: dto }),
     );
     return successResponse({ item });
+  }
+
+  @Get(':id/curriculum')
+  @Permissions('academy.delivery.read')
+  async getCurriculum(@Param('id', new ParseUUIDPipe()) id: string) {
+    const curriculum = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.getCurriculum' }, { id }),
+    );
+    return successResponse({ curriculum });
   }
 
   @Delete(':id')

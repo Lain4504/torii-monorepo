@@ -367,8 +367,8 @@ export class FastMcpService {
           averageScore:
             item.scores.length > 0
               ? Math.round(
-                  item.scores.reduce((a, b) => a + b, 0) / item.scores.length,
-                )
+                item.scores.reduce((a, b) => a + b, 0) / item.scores.length,
+              )
               : 0,
         }))
         .sort(
@@ -402,27 +402,17 @@ export class FastMcpService {
       }));
 
       // 2. Recent Vocabulary (Flashcards reviewed/added)
-      const recentFlashcards = await this.prisma.flashcardReview.findMany({
-        where: { userId },
-        include: {
-          flashcard: {
-            select: {
-              frontText: true,
-              backText: true,
-              kanji: true,
-              furigana: true,
-            },
-          },
-        },
-        orderBy: { reviewDate: 'desc' },
+      const recentFlashcards = await this.prisma.flashcard.findMany({
+        where: { deck: { userId } },
+        orderBy: { updatedAt: 'desc' },
         take: 10,
       });
 
-      const recentVocabulary = recentFlashcards.map((r) => ({
-        word: r.flashcard.kanji || r.flashcard.frontText,
-        reading: r.flashcard.furigana,
-        meaning: r.flashcard.backText,
-        quality: r.quality, // Review quality (0-4)
+      const recentVocabulary = recentFlashcards.map((f) => ({
+        word: (f.languageDetails as any)?.kanji || f.term,
+        reading: (f.languageDetails as any)?.furigana,
+        meaning: f.definition,
+        status: f.srsState,
       }));
 
       // 3. User Gamification (Streak, Level, XP)
@@ -440,10 +430,10 @@ export class FastMcpService {
         recentVocabulary,
         stats: gamification
           ? {
-              level: gamification.level,
-              streak: gamification.currentStreak,
-              totalXp: gamification.totalXp,
-            }
+            level: gamification.level,
+            streak: gamification.currentStreak,
+            totalXp: gamification.totalXp,
+          }
           : null,
       };
     } catch (error) {

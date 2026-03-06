@@ -335,7 +335,7 @@ export default function SchedulePage() {
                                 Bạn chưa đăng ký khóa học Live nào hoặc chưa có buổi học được lên lịch.
                             </p>
                             <Button asChild variant="default" className="mt-6 rounded-full px-8">
-                                <a href="/courses?type=live">Khám phá ngay</a>
+                                <a href="/dashboard/available-courses?type=live">Khám phá ngay</a>
                             </Button>
                         </div>
                     ) : (

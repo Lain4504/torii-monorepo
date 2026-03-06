@@ -12,6 +12,7 @@ import {
 } from "@workspace/ui/components/card"
 import { Progress } from "@workspace/ui/components/progress"
 import { storageApi } from "@/lib/api/services/storage-api"
+import { ImagePreview } from "../common/image-preview"
 
 interface LessonMediaUploaderProps {
   label?: string
@@ -73,7 +74,7 @@ export function LessonMediaUploader({
                 if (accept) {
                   input.accept = accept
                 }
-                input.onchange = handleFileChange
+                input.onchange = (ev: Event) => handleFileChange(ev as unknown as React.ChangeEvent<HTMLInputElement>)
                 input.click()
               }}
             >
@@ -97,28 +98,29 @@ export function LessonMediaUploader({
 
           {value && !uploading && (
             <div className="space-y-2">
-              <p className="text-sm font-medium">Preview</p>
               {value.match(/\.(mp4|webm|ogg)$/i) ? (
-                <video
-                  src={value}
-                  controls
-                  className="w-full rounded-md"
-                />
+                <>
+                  <p className="text-sm font-medium">Preview</p>
+                  <video
+                    src={value}
+                    controls
+                    className="w-full rounded-md"
+                  />
+                </>
               ) : value.match(/\.(png|jpe?g|gif|webp)$/i) ? (
-                <img
-                  src={value}
-                  alt="Lesson media"
-                  className="w-full rounded-md"
-                />
+                <ImagePreview url={value} />
               ) : (
-                <a
-                  href={value}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-sm text-primary underline"
-                >
-                  Mở file
-                </a>
+                <>
+                  <p className="text-sm font-medium">Preview</p>
+                  <a
+                    href={value}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-sm text-primary underline"
+                  >
+                    Mở file
+                  </a>
+                </>
               )}
             </div>
           )}

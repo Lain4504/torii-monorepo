@@ -23,15 +23,29 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { LiveSessionBlock } from '@/components/courses/live-session-block'
 import { CourseExpirationModal } from '@/components/courses/course-expiration-modal'
-import { learningProgressApi, MyCourseResponse, LearningStats } from '@/lib/api/services/learning-progress-api'
+import { useMyCourses, useLearningStats, learningProgressApi } from '@/lib/api/services/learning-progress-api'
+import { ClassReviewDialog } from '@/components/class-reviews/class-review-dialog'
+import { academyClassReviewHooks } from '@/lib/api/services/academy-class-reviews'
+import { Star } from 'lucide-react'
 
 export default function MyCoursesPage() {
     const [searchQuery, setSearchQuery] = useState('')
     const [filter, setFilter] = useState<'all' | 'in-progress' | 'completed'>('all')
-    const [courses, setCourses] = useState<MyCourseResponse[]>([])
-    const [statsData, setStatsData] = useState<LearningStats | null>(null)
+    const [courses, setCourses] = useState<any[]>([])
+    const [statsData, setStatsData] = useState<any | null>(null)
     const [loading, setLoading] = useState(true)
     const [expiredCourse, setExpiredCourse] = useState<{ title: string, slug: string } | null>(null)
+
+    const { data: myReviewsResp } = academyClassReviewHooks.useListMine()
+    const myReviews = myReviewsResp?.data?.data || []
+
+    const [reviewDialogProps, setReviewDialogProps] = useState<{
+        isOpen: boolean;
+        classId: string;
+        enrollmentId: string;
+        courseTitle: string;
+        existingReview?: any;
+    }>({ isOpen: false, classId: '', enrollmentId: '', courseTitle: '' })
 
     useEffect(() => {
         const fetchData = async () => {
@@ -237,16 +251,40 @@ export default function MyCoursesPage() {
                                         <ChevronRight className="ml-1.5 w-3.5 h-3.5" />
                                     </Button>
                                 ) : (
-                                    <Link
-                                        href={`/courses/${course.courseRunId}/learn`}
-                                        className="w-full"
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        <Button className="w-full text-xs">
-                                            {course.progress === 0 ? 'Bắt đầu học' : course.progress >= 100 ? 'Xem lại' : 'Tiếp tục học'}
-                                            <ChevronRight className="ml-1.5 w-3.5 h-3.5" />
-                                        </Button>
-                                    </Link>
+                                    <div className="flex gap-2">
+                                        <Link
+                                            href={`/dashboard/courses/${course.courseRunId}/learn`}
+                                            className="w-full flex-1"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            <Button className="w-full text-xs" variant={course.progress >= 100 ? "outline" : "default"}>
+                                                {course.progress === 0 ? 'Bắt đầu học' : course.progress >= 100 ? 'Xem lại' : 'Tiếp tục học'}
+                                                <ChevronRight className="ml-1.5 w-3.5 h-3.5" />
+                                            </Button>
+                                        </Link>
+                                        {course.progress >= 100 && (() => {
+                                            const existingReview = myReviews.find((r: any) => r.class?.id === course.courseRunId);
+                                            return (
+                                                <Button
+                                                    className={`text-xs shrink-0 flex-1 ${!existingReview && "bg-amber-500 hover:bg-amber-600 text-white"}`}
+                                                    variant={existingReview ? "secondary" : "default"}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setReviewDialogProps({
+                                                            isOpen: true,
+                                                            classId: course.courseRunId,
+                                                            enrollmentId: course.id,
+                                                            courseTitle: course.title,
+                                                            existingReview
+                                                        });
+                                                    }}
+                                                >
+                                                    <Star className={`mr-1.5 w-3.5 h-3.5 ${existingReview ? 'fill-amber-500 text-amber-500' : ''}`} />
+                                                    {existingReview ? 'Sửa đánh giá' : 'Đánh giá'}
+                                                </Button>
+                                            );
+                                        })()}
+                                    </div>
                                 )}
                             </div>
                         </CardContent>
@@ -262,7 +300,7 @@ export default function MyCoursesPage() {
                     <EmptyContent>
                         <EmptyTitle>Không tìm thấy khóa học</EmptyTitle>
                         <EmptyDescription>Bạn chưa đăng ký khóa học nào hoặc không tìm thấy kết quả phù hợp.</EmptyDescription>
-                        <Link href="/courses">
+                        <Link href="/dashboard/available-courses">
                             <Button className="mt-4" variant="outline">Khám phá khóa học</Button>
                         </Link>
                     </EmptyContent>
@@ -273,6 +311,15 @@ export default function MyCoursesPage() {
                 onClose={() => setExpiredCourse(null)}
                 courseTitle={expiredCourse?.title || ''}
                 courseSlug={expiredCourse?.slug || ''}
+            />
+
+            <ClassReviewDialog
+                isOpen={reviewDialogProps.isOpen}
+                setIsOpen={(isOpen) => setReviewDialogProps(prev => ({ ...prev, isOpen }))}
+                classId={reviewDialogProps.classId}
+                enrollmentId={reviewDialogProps.enrollmentId}
+                courseTitle={reviewDialogProps.courseTitle}
+                existingReview={reviewDialogProps.existingReview}
             />
         </div>
     )

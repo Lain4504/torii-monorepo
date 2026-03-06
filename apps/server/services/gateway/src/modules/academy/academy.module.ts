@@ -16,6 +16,16 @@ import { AssignmentSubmissionController } from './controllers/assignment-submiss
 import { LessonController } from './controllers/lesson.controller';
 import { BlogController } from './controllers/blog.controller';
 import { LearningProgressController } from './controllers/learning-progress.controller';
+import { EnrollmentController } from './controllers/enrollment.controller';
+import { OrderController } from './controllers/order.controller';
+import { CouponController } from './controllers/coupon.controller';
+import { WebhookController } from './controllers/webhook.controller';
+import { QuizTemplateController } from './controllers/quiz-template.controller';
+import { AssignmentTemplateController } from './controllers/assignment-template.controller';
+import { ClassReviewController } from './controllers/class-review.controller';
+import { NoteController } from './controllers/note.controller';
+import { FlashcardController } from './controllers/flashcard.controller';
+
 
 @Module({
   imports: [NatsClientModule],
@@ -25,6 +35,8 @@ import { LearningProgressController } from './controllers/learning-progress.cont
     CourseOfferingController,
     ChapterController,
     ChapterItemController,
+    QuizTemplateController,
+    AssignmentTemplateController,
     TicketController,
     ClassController,
     ClassScheduleController,
@@ -36,6 +48,13 @@ import { LearningProgressController } from './controllers/learning-progress.cont
     LessonController,
     BlogController,
     LearningProgressController,
+    EnrollmentController,
+    OrderController,
+    CouponController,
+    WebhookController,
+    ClassReviewController,
+    NoteController,
+    FlashcardController,
   ],
 })
 export class AcademyModule { }

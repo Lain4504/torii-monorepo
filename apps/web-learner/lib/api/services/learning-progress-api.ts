@@ -2,43 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
 import type { StandardApiResponse } from '@workspace/schemas';
 
-export interface MyCourseResponse {
-    id: string;
-    courseRunId: string;
-    slug: string;
-    title: string;
-    thumbnailUrl: string | null;
-    type?: 'vod' | 'live';
-    instructor: string;
-    progress: number;
-    totalLessons: number;
-    completedLessons: number;
-    lastAccessed: string | null;
-    expiresAt: string | null;
-    status: string;
-}
-
-export interface LearningStats {
-    totalCourses: number;
-    completedCourses: number;
-    inProgressCourses: number;
-    totalLearningHours: number;
-    averageProgress: number;
-    currentStreak: number; // Placeholder
-}
-
-export interface HistoryItem {
-    id: string;
-    courseTitle: string;
-    lessonTitle: string;
-    timestamp: string;
-    duration: number;
-    slug: string;
-    lessonId: string;
-    courseMasterId: string;
-    expiresAt: string | null;
-}
-
 export const learningProgressApi = {
     async getMyCourses(): Promise<any[]> {
         const response = await apiClient.get<StandardApiResponse<any[]>>('/api/learning-progress/my-courses');
@@ -51,6 +14,7 @@ export const learningProgressApi = {
             classId,
             status,
             progressPercent,
+            lastAccessedAt: new Date().toISOString()
         });
         return response.data.data!;
     },
@@ -61,7 +25,7 @@ export const learningProgressApi = {
     },
 
     async getCompletedLessons(classId: string): Promise<any[]> {
-        const response = await apiClient.get<StandardApiResponse<any[]>>(`/api/learning-progress/completed-lessons/${classId}`);
+        const response = await apiClient.get<StandardApiResponse<any[]>>(`/api/learning-progress/completed-lessons/\${classId}`);
         return response.data.data!;
     },
 
@@ -74,11 +38,11 @@ export const learningProgressApi = {
 /**
  * Hook: Get completed lessons for a course
  */
-export function useCompletedLessons(courseId?: string) {
+export function useCompletedLessons(classId?: string) {
     return useQuery({
-        queryKey: ['completed-lessons', courseId],
-        queryFn: () => learningProgressApi.getCompletedLessons(courseId!),
-        enabled: !!courseId,
+        queryKey: ['completed-lessons', classId],
+        queryFn: () => learningProgressApi.getCompletedLessons(classId!),
+        enabled: !!classId,
     });
 }
 
@@ -100,6 +64,6 @@ export function useLearningStats() {
     return useQuery({
         queryKey: ['learning-stats'],
         queryFn: learningProgressApi.getStats,
-        staleTime: 5 * 60 * 1000, // 5 min — stats update on lesson completion
+        staleTime: 5 * 60 * 1000,
     });
 }

@@ -11,7 +11,7 @@ import type { IUsersRepository } from '@server/identity/interfaces/repositories'
 export class UsersRepository implements IUsersRepository {
   private readonly logger = new Logger(UsersRepository.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   /**
    * Find user by ID
@@ -22,7 +22,6 @@ export class UsersRepository implements IUsersRepository {
       include: {
         identities: true,
         gamification: true,
-        balance: true,
       },
     });
 
@@ -32,7 +31,6 @@ export class UsersRepository implements IUsersRepository {
       ...user,
       xp: (user as any).gamification?.totalXp ?? 0,
       level: (user as any).gamification?.level ?? 1,
-      balance: (user as any).balance?.balance ?? 0,
     } as any;
   }
 
@@ -42,7 +40,7 @@ export class UsersRepository implements IUsersRepository {
   async findByEmail(email: string): Promise<User | null> {
     const user = await this.prisma.user.findFirst({
       where: { email },
-      include: { gamification: true, balance: true },
+      include: { gamification: true },
     });
 
     if (!user) return null;
@@ -51,7 +49,6 @@ export class UsersRepository implements IUsersRepository {
       ...user,
       xp: (user as any).gamification?.totalXp ?? 0,
       level: (user as any).gamification?.level ?? 1,
-      balance: (user as any).balance?.balance ?? 0,
     } as any;
   }
 
@@ -72,7 +69,6 @@ export class UsersRepository implements IUsersRepository {
       include: {
         identities: true,
         gamification: true,
-        balance: true,
       },
     });
 
@@ -80,7 +76,6 @@ export class UsersRepository implements IUsersRepository {
       ...user,
       xp: (user as any).gamification?.totalXp ?? 0,
       level: (user as any).gamification?.level ?? 1,
-      balance: (user as any).balance?.balance ?? 0,
     })) as any;
   }
 
@@ -107,20 +102,14 @@ export class UsersRepository implements IUsersRepository {
             longestStreak: 0,
           },
         },
-        balance: {
-          create: {
-            balance: 0,
-          },
-        },
       },
-      include: { gamification: true, balance: true },
+      include: { gamification: true },
     });
 
     return {
       ...user,
       xp: (user as any).gamification?.totalXp ?? 0,
       level: (user as any).gamification?.level ?? 1,
-      balance: (user as any).balance?.balance ?? 0,
     } as any;
   }
 
@@ -141,7 +130,6 @@ export class UsersRepository implements IUsersRepository {
       ...user,
       xp: (user as any).gamification?.totalXp ?? 0,
       level: (user as any).gamification?.level ?? 1,
-      balance: (user as any).balance?.balance ?? 0,
     } as any;
   }
 
@@ -165,7 +153,6 @@ export class UsersRepository implements IUsersRepository {
       ...user,
       xp: (user as any).gamification?.totalXp ?? 0,
       level: (user as any).gamification?.level ?? 1,
-      balance: (user as any).balance?.balance ?? 0,
     } as any;
   }
 
@@ -246,11 +233,6 @@ export class UsersRepository implements IUsersRepository {
             level: true,
           },
         },
-        balance: {
-          select: {
-            balance: true,
-          },
-        },
       },
     });
 
@@ -269,9 +251,8 @@ export class UsersRepository implements IUsersRepository {
 
     return {
       ...user,
-      xp: user.gamification?.totalXp ?? 0,
-      level: user.gamification?.level ?? 1,
-      balance: user.balance?.balance ?? 0,
+      xp: (user as any).gamification?.totalXp ?? 0,
+      level: (user as any).gamification?.level ?? 1,
       userMetadata,
     } as any;
   }

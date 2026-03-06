@@ -30,7 +30,7 @@ import {
 } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 import { usePlatformOverview } from "@/lib/api/services/analytics"
-import { useCourses } from "@/lib/api/services/courses"
+// TODO: Replace legacy useCourses with CourseEdition/Class API when migrating to core-lms
 import { formatNumber, formatCurrency } from "@/lib/format-utils"
 import { PageLoading } from "@workspace/ui/components/page-loading"
 import { Badge } from "@workspace/ui/components/badge"
@@ -294,7 +294,8 @@ function LogItem({ time, user, action }: any) {
 function StaffDashboard() {
   const { data } = usePlatformOverview()
   const overview = data?.overview
-  const { data: pendingCourses } = useCourses({ page: 1, limit: 1, status: 'PENDING_REVIEW' as any });
+  // TODO: Migrate to useAcademyCourseEditions({ status: 'DRAFT' }) from core-lms
+  const pendingCourses = { total: 0 };
 
   return (
     <div className="space-y-6">
@@ -342,8 +343,8 @@ function StaffDashboard() {
 }
 
 function LecturerDashboard() {
-  const user = useAppSelector(selectUser);
-  const { data: myCourses } = useCourses({ page: 1, limit: 1, instructorId: user?.id });
+  // TODO: Migrate to useAcademyClasses({ primaryTeacherId: user?.id }) from core-lms
+  const myCourses = { total: 0 };
 
   return (
     <div className="space-y-6">

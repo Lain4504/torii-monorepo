@@ -2,11 +2,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
 import type {
     StandardApiResponse,
-    UserAchievementDto,
-    StreakStatusDto,
-    LeaderboardDto,
-    UserGamificationDto,
-    GamificationHistoryPaginatedResponse
+    UserAchievementDTO,
+    StreakStatusDTO,
+    LeaderboardDTO,
+    UserGamificationDTO,
+    GamificationHistoryPaginatedResponseDTO
 } from '@workspace/schemas';
 import { toast } from 'sonner';
 import { useEffect, useRef } from 'react';
@@ -15,8 +15,8 @@ export const gamificationApi = {
     /**
      * Get user achievements
      */
-    async getAchievements(): Promise<UserAchievementDto[]> {
-        const response = await apiClient.get<StandardApiResponse<{ achievements: UserAchievementDto[] }>>('/api/gamification/achievements');
+    async getAchievements(): Promise<UserAchievementDTO[]> {
+        const response = await apiClient.get<StandardApiResponse<{ achievements: UserAchievementDTO[] }>>('/api/gamification/achievements');
         if (response.data.success && response.data.data) {
             return response.data.data.achievements;
         }
@@ -26,8 +26,8 @@ export const gamificationApi = {
     /**
      * Get user streak status
      */
-    async getStreak(): Promise<StreakStatusDto> {
-        const response = await apiClient.get<StandardApiResponse<StreakStatusDto>>('/api/gamification/streak');
+    async getStreak(): Promise<StreakStatusDTO> {
+        const response = await apiClient.get<StandardApiResponse<StreakStatusDTO>>('/api/gamification/streak');
         if (response.data.success && response.data.data) {
             return response.data.data;
         }
@@ -56,8 +56,8 @@ export const gamificationApi = {
     /**
      * Get user's full gamification profile
      */
-    async getGamificationProfile(): Promise<UserGamificationDto> {
-        const response = await apiClient.get<StandardApiResponse<UserGamificationDto>>('/api/gamification/profile');
+    async getGamificationProfile(): Promise<UserGamificationDTO> {
+        const response = await apiClient.get<StandardApiResponse<UserGamificationDTO>>('/api/gamification/profile');
         if (response.data.success && response.data.data) {
             return response.data.data;
         }
@@ -67,8 +67,8 @@ export const gamificationApi = {
     /**
      * Get leaderboard
      */
-    async getLeaderboard(type: 'global' | 'streak' = 'global'): Promise<LeaderboardDto> {
-        const response = await apiClient.get<StandardApiResponse<LeaderboardDto>>(`/api/gamification/leaderboard?type=${type}`);
+    async getLeaderboard(type: 'global' | 'streak' = 'global'): Promise<LeaderboardDTO> {
+        const response = await apiClient.get<StandardApiResponse<LeaderboardDTO>>(`/api/gamification/leaderboard?type=${type}`);
         if (response.data.success && response.data.data) {
             return response.data.data;
         }
@@ -81,7 +81,7 @@ export const gamificationApi = {
      */
     async getHistory(
         params: { page?: number; limit?: number; type?: string } = {}
-    ): Promise<GamificationHistoryPaginatedResponse> {
+    ): Promise<GamificationHistoryPaginatedResponseDTO> {
         const queryParams = new URLSearchParams();
 
         if (params.page) queryParams.append('page', params.page.toString());
@@ -90,7 +90,7 @@ export const gamificationApi = {
 
         const response =
             await apiClient.get<
-                StandardApiResponse<GamificationHistoryPaginatedResponse>
+                StandardApiResponse<GamificationHistoryPaginatedResponseDTO>
             >(`/api/gamification/history?${queryParams.toString()}`);
 
         if (response.data.success && response.data.data) {

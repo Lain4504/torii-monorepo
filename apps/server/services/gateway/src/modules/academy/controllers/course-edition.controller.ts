@@ -57,6 +57,20 @@ export class CourseEditionController {
     return successResponse({ item });
   }
 
+  @Get('by-course-profile/:courseProfileId')
+  @Permissions('academy.content.read')
+  async findByCourseProfileId(
+    @Param('courseProfileId', new ParseUUIDPipe()) courseProfileId: string,
+  ) {
+    const items = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.courseEdition.findByCourseProfileId' },
+        { courseProfileId },
+      ),
+    );
+    return successResponse({ items });
+  }
+
   @Post()
   @Permissions('academy.content.write')
   @HttpCode(HttpStatus.CREATED)

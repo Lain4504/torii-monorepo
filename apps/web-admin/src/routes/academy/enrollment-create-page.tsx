@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { PageHeader } from "@/components/common/page-header"
 import { toast } from "@workspace/ui/components/sonner"
 import { EnrollmentForm } from "@/components/academy/enrollment-form"
@@ -7,13 +7,19 @@ import type { AcademyEnrollmentCreateDTO } from "@workspace/schemas"
 
 export default function AcademyEnrollmentCreatePage() {
     const navigate = useNavigate()
+    const [searchParams] = useSearchParams()
+    const classId = searchParams.get("classId") || undefined
     const create = useCreateAcademyEnrollment()
 
     const handleSubmit = async (data: any) => {
         try {
             await create.mutateAsync(data as AcademyEnrollmentCreateDTO)
             toast.success("Ghi danh học viên thành công")
-            navigate("/academy/enrollments")
+            if (classId) {
+                navigate(`/academy/classes/${classId}`)
+            } else {
+                navigate("/academy/enrollments")
+            }
         } catch (e: any) {
             toast.error(e?.message || "Lỗi khi ghi danh")
         }
@@ -27,8 +33,9 @@ export default function AcademyEnrollmentCreatePage() {
             />
             <EnrollmentForm
                 mode="create"
+                defaultClassId={classId}
                 onSubmit={handleSubmit}
-                onCancel={() => navigate("/academy/enrollments")}
+                onCancel={() => classId ? navigate(`/academy/classes/${classId}`) : navigate("/academy/enrollments")}
                 submitting={create.isPending}
             />
         </div>

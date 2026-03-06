@@ -48,8 +48,7 @@ RUN npx nest build gateway
 RUN npx nest build identity
 RUN npx nest build meet
 RUN npx nest build academy
-RUN npx nest build communication
-RUN npx nest build storage
+RUN npx nest build agents
 
 # --- Runner Stage ---
 FROM node:20-slim AS runner

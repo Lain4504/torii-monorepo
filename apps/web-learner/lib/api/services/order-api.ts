@@ -2,53 +2,82 @@ import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
 import type {
     OrderResponseDTO,
-    OrderCreateDTO,
     OrderQueryDTO,
     OrderConfirmDTO,
     StandardApiResponse,
     PaginatedApiResponse,
-    BalanceTransactionPaginatedResponse
+    BalanceTransactionPaginatedResponse,
+    PaymentMethod
 } from '@workspace/schemas';
+
+export interface OrderPreviewDTO {
+    offeringIds: string[];
+    couponCode?: string;
+}
+
+export interface OrderCheckoutDTO {
+    offeringIds: string[];
+    couponCode?: string;
+    paymentMethod: PaymentMethod | string;
+    description?: string;
+    metadata?: any;
+}
+
+export interface OrderPreviewResponse {
+    subtotal: number;
+    discount: number;
+    total: number;
+    items: any[];
+}
 
 export const orderApi = {
     /**
      * Get all orders
      */
     async getAllOrders(query?: OrderQueryDTO): Promise<PaginatedApiResponse<OrderResponseDTO>> {
-        const response = await apiClient.get<PaginatedApiResponse<OrderResponseDTO>>('/api/orders', {
+        const response = await apiClient.get<PaginatedApiResponse<OrderResponseDTO>>('/api/academy/orders', {
             params: query,
         });
         return response.data;
     },
 
     /**
-     * Get order by ID
+     * Preview order totals and discounts
      */
-    async getOrder(id: string): Promise<OrderResponseDTO> {
-        const response = await apiClient.get<StandardApiResponse<{ order: OrderResponseDTO }>>(`/api/orders/${id}`);
-        return response.data.data!.order;
+    async previewOrder(data: OrderPreviewDTO): Promise<OrderPreviewResponse> {
+        const response = await apiClient.post<StandardApiResponse<OrderPreviewResponse>>('/api/academy/orders/preview', data);
+        if (!response.data.success || !response.data.data) {
+            throw new Error(response.data.message || 'Failed to preview order');
+        }
+        return response.data.data;
     },
 
     /**
-     * Create order
+     * Get order by ID
      */
-    async createOrder(data: OrderCreateDTO): Promise<OrderResponseDTO> {
-        // OrderCreateDTO already includes courseRunId
-        const response = await apiClient.post<StandardApiResponse<{ order: OrderResponseDTO }>>('/api/orders', data);
+    async getOrder(id: string): Promise<OrderResponseDTO> {
+        const response = await apiClient.get<StandardApiResponse<{ item: OrderResponseDTO }>>(`/api/academy/orders/\${id}`);
+        return response.data.data!.item;
+    },
 
+    /**
+     * Create order (Checkout)
+     */
+    async createOrder(data: OrderCheckoutDTO): Promise<OrderResponseDTO & { paymentUrl?: string }> {
+        const response = await apiClient.post<StandardApiResponse<OrderResponseDTO & { paymentUrl?: string }>>('/api/academy/orders/checkout', data);
+        
         if (!response.data.success || !response.data.data) {
             throw new Error(response.data.message || 'Failed to create order');
         }
 
-        return response.data.data.order;
+        return response.data.data;
     },
 
     /**
-     * Confirm order
+     * Confirm order (Legacy/Internal)
      */
     async confirmOrder(orderId: string, data: OrderConfirmDTO): Promise<OrderResponseDTO> {
-        const response = await apiClient.post<StandardApiResponse<{ order: OrderResponseDTO }>>(`/api/orders/${orderId}/confirm`, data);
-
+        const response = await apiClient.post<StandardApiResponse<{ order: OrderResponseDTO }>>(`/api/academy/orders/\${orderId}/confirm`, data);
         return response.data.data!.order;
     },
 

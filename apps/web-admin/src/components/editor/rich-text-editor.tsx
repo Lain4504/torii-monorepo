@@ -1,437 +1,315 @@
-// Base Kit
-import { Document } from '@tiptap/extension-document';
-import { HardBreak } from '@tiptap/extension-hard-break';
-import { ListItem } from '@tiptap/extension-list';
-import { Paragraph } from '@tiptap/extension-paragraph';
-import { Text } from '@tiptap/extension-text';
-import { TextStyle } from '@tiptap/extension-text-style';
-import Dropcursor from '@tiptap/extension-dropcursor';
-import Gapcursor from '@tiptap/extension-gapcursor';
-import Placeholder from '@tiptap/extension-placeholder';
-// import Collaboration from '@tiptap/extension-collaboration'
-// import CollaborationCaret from '@tiptap/extension-collaboration-caret'
-// import { HocuspocusProvider } from '@hocuspocus/provider'
-// import * as Y from 'yjs'
-import { EditorContent, useEditor } from '@tiptap/react';
-import { useEffect } from 'react';
-import { useTheme } from '@/lib/providers/theme-provider';
-import { RichTextProvider } from 'reactjs-tiptap-editor';
-import { Attachment, RichTextAttachment } from 'reactjs-tiptap-editor/attachment';
-import { Blockquote, RichTextBlockquote } from 'reactjs-tiptap-editor/blockquote';
-import { Bold, RichTextBold } from 'reactjs-tiptap-editor/bold';
-// Bubble
-import {
-    RichTextBubbleCallout,
-    RichTextBubbleColumns,
-    RichTextBubbleDrawer,
-    RichTextBubbleExcalidraw,
-    RichTextBubbleIframe,
-    RichTextBubbleKatex,
-    RichTextBubbleLink,
-    RichTextBubbleImage,
-    RichTextBubbleVideo,
-    RichTextBubbleImageGif,
-    RichTextBubbleMermaid,
-    RichTextBubbleTable,
-    RichTextBubbleText,
-    RichTextBubbleTwitter,
-    RichTextBubbleMenuDragHandle,
-} from 'reactjs-tiptap-editor/bubble';
-import { BulletList, RichTextBulletList } from 'reactjs-tiptap-editor/bulletlist';
-import { Callout, RichTextCallout } from 'reactjs-tiptap-editor/callout';
-import { Clear, RichTextClear } from 'reactjs-tiptap-editor/clear';
-import { Code, RichTextCode } from 'reactjs-tiptap-editor/code';
-import { CodeBlock, RichTextCodeBlock } from 'reactjs-tiptap-editor/codeblock';
-import { CodeView, RichTextCodeView } from 'reactjs-tiptap-editor/codeview';
-import { Color, RichTextColor } from 'reactjs-tiptap-editor/color';
-import {
-    Column,
-    ColumnNode,
-    MultipleColumnNode,
-    RichTextColumn,
-} from 'reactjs-tiptap-editor/column';
-import { Drawer, RichTextDrawer } from 'reactjs-tiptap-editor/drawer';
-import { Emoji, RichTextEmoji } from 'reactjs-tiptap-editor/emoji';
-import { Excalidraw, RichTextExcalidraw } from 'reactjs-tiptap-editor/excalidraw';
-import { ExportPdf, RichTextExportPdf } from 'reactjs-tiptap-editor/exportpdf';
-import { ExportWord, RichTextExportWord } from 'reactjs-tiptap-editor/exportword';
-import { FontFamily, RichTextFontFamily } from 'reactjs-tiptap-editor/fontfamily';
-import { FontSize, RichTextFontSize } from 'reactjs-tiptap-editor/fontsize';
-import { Heading, RichTextHeading } from 'reactjs-tiptap-editor/heading';
-import { Highlight, RichTextHighlight } from 'reactjs-tiptap-editor/highlight';
-// build extensions
-import { History, RichTextUndo, RichTextRedo } from 'reactjs-tiptap-editor/history';
-import { HorizontalRule, RichTextHorizontalRule } from 'reactjs-tiptap-editor/horizontalrule';
-import { Iframe, RichTextIframe } from 'reactjs-tiptap-editor/iframe';
-import { Image, RichTextImage } from 'reactjs-tiptap-editor/image';
-import { ImageGif, RichTextImageGif } from 'reactjs-tiptap-editor/imagegif';
-import { ImportWord, RichTextImportWord } from 'reactjs-tiptap-editor/importword';
-import { Indent, RichTextIndent } from 'reactjs-tiptap-editor/indent';
-import { Italic, RichTextItalic } from 'reactjs-tiptap-editor/italic';
-import { Katex, RichTextKatex } from 'reactjs-tiptap-editor/katex';
-import { LineHeight, RichTextLineHeight } from 'reactjs-tiptap-editor/lineheight';
-import { Link, RichTextLink } from 'reactjs-tiptap-editor/link';
-import { Mention } from 'reactjs-tiptap-editor/mention';
-import { Mermaid, RichTextMermaid } from 'reactjs-tiptap-editor/mermaid';
-import { MoreMark, RichTextMoreMark } from 'reactjs-tiptap-editor/moremark';
-import { OrderedList, RichTextOrderedList } from 'reactjs-tiptap-editor/orderedlist';
-import { SearchAndReplace, RichTextSearchAndReplace } from 'reactjs-tiptap-editor/searchandreplace';
-// Slash Command
-import { SlashCommand, SlashCommandList } from 'reactjs-tiptap-editor/slashcommand';
-import { Strike, RichTextStrike } from 'reactjs-tiptap-editor/strike';
-import { Table, RichTextTable } from 'reactjs-tiptap-editor/table';
-import { TaskList, RichTextTaskList } from 'reactjs-tiptap-editor/tasklist';
-import { TextAlign, RichTextAlign } from 'reactjs-tiptap-editor/textalign';
-import { TextDirection, RichTextTextDirection } from 'reactjs-tiptap-editor/textdirection';
-import { TextUnderline, RichTextUnderline } from 'reactjs-tiptap-editor/textunderline';
-import { Twitter, RichTextTwitter } from 'reactjs-tiptap-editor/twitter';
-import { Video, RichTextVideo } from 'reactjs-tiptap-editor/video';
+import { useEffect, useMemo, useRef } from 'react';
+import EditorJS, { type OutputData, type API } from '@editorjs/editorjs';
+import Header from '@editorjs/header';
+import List from '@editorjs/list';
+import Quote from '@editorjs/quote';
+import CodeTool from '@editorjs/code';
+import Delimiter from '@editorjs/delimiter';
+import Table from '@editorjs/table';
+import InlineCode from '@editorjs/inline-code';
+import Marker from '@editorjs/marker';
+import Checklist from '@editorjs/checklist';
+import Warning from '@editorjs/warning';
+import Paragraph from '@editorjs/paragraph';
+import ImageTool from '@editorjs/image';
+import Embed from '@editorjs/embed';
 
-import { EMOJI_LIST } from '@/emojis';
-import { storageApi } from '@/lib/api/services/storage-api';
+// ─────────────────────────────────────────────────────────────
+//  Shared type
+// ─────────────────────────────────────────────────────────────
 
-import 'reactjs-tiptap-editor/style.css';
-import 'prism-code-editor-lightweight/layout.css';
-import 'prism-code-editor-lightweight/themes/github-dark.css';
-import 'katex/dist/katex.min.css';
-import 'easydrawer/styles.css';
-import '@excalidraw/excalidraw/index.css';
-import 'katex/contrib/mhchem';
+export type EditorJsData = OutputData;
 
-// const ydoc = new Y.Doc()
+// ─────────────────────────────────────────────────────────────
+//  Helpers
+// ─────────────────────────────────────────────────────────────
 
-// const hocuspocusProvider = new HocuspocusProvider({
-//   url: 'ws://0.0.0.0:8080',
-//   name: 'github.com/hunghg255',
-//   document: ydoc,
-// })
-
-
-
-// custom document to support columns
-const DocumentColumn = /* @__PURE__ */ Document.extend({
-    content: '(block|columns)+',
-});
-
-const MOCK_USERS = [
-    {
-        id: '0',
-        label: 'hunghg255',
-        avatar: {
-            src: 'https://avatars.githubusercontent.com/u/42096908?v=4',
-        },
-    },
-    {
-        id: '1',
-        label: 'benjamincanac',
-        avatar: {
-            src: 'https://avatars.githubusercontent.com/u/739984?v=4',
-        },
-    },
-    {
-        id: '2',
-        label: 'atinux',
-        avatar: {
-            src: 'https://avatars.githubusercontent.com/u/904724?v=4',
-        },
-    },
-    {
-        id: '3',
-        label: 'danielroe',
-        avatar: {
-            src: 'https://avatars.githubusercontent.com/u/28706372?v=4',
-        },
-    },
-    {
-        id: '4',
-        label: 'pi0',
-        avatar: {
-            src: 'https://avatars.githubusercontent.com/u/5158436?v=4',
-        },
-    },
-];
-
-const BaseKit = [
-    DocumentColumn,
-    Text,
-    Dropcursor.configure({
-        class: 'reactjs-tiptap-editor-theme',
-        color: 'hsl(var(--primary))',
-        width: 2,
-    }),
-    Gapcursor,
-    HardBreak,
-    Paragraph,
-    ListItem,
-    TextStyle,
-    Placeholder.configure({
-        placeholder: "Press '/' for commands",
-    }),
-];
-
-const extensions = [
-    ...BaseKit,
-
-    History,
-    SearchAndReplace,
-    Clear,
-    FontFamily,
-    Heading,
-    FontSize,
-    Bold,
-    Italic,
-    TextUnderline,
-    Strike,
-    MoreMark,
-    Emoji.configure({
-        suggestion: {
-            items: async ({ query }: any) => {
-                const lowerCaseQuery = query?.toLowerCase();
-
-                return EMOJI_LIST.filter(({ name }) => name.toLowerCase().includes(lowerCaseQuery));
-            },
-        },
-    }),
-    Color,
-    Highlight,
-    BulletList,
-    OrderedList,
-    TextAlign,
-    Indent,
-    LineHeight,
-    TaskList,
-    Link,
-    Image.configure({
-        upload: async (file: File) => {
-            try {
-                const response = await storageApi.uploadFile(file, 'blogs');
-                return response.fileUrl;
-            } catch (error) {
-                console.error("Upload failed:", error);
-                throw error;
-            }
-        },
-    }),
-    Video.configure({
-        upload: async (file: File) => {
-            try {
-                const response = await storageApi.uploadFile(file, 'blogs');
-                return response.fileUrl;
-            } catch (error) {
-                console.error("Upload failed:", error);
-                throw error;
-            }
-        },
-    }),
-    ImageGif.configure({
-        provider: 'giphy',
-        API_KEY: import.meta.env.VITE_GIPHY_API_KEY as string,
-    }),
-    Blockquote,
-    HorizontalRule,
-    Code,
-    CodeBlock,
-
-    Column,
-    ColumnNode,
-    MultipleColumnNode,
-    Table,
-    Iframe,
-    ExportPdf,
-    ImportWord,
-    ExportWord,
-    TextDirection,
-    Attachment.configure({
-        upload: async (file: File) => {
-            try {
-                const response = await storageApi.uploadFile(file, 'blogs');
-                return response.fileUrl;
-            } catch (error) {
-                console.error("Upload failed:", error);
-                throw error;
-            }
-        },
-    }),
-    Katex,
-    Excalidraw,
-    Mermaid.configure({
-        upload: async (file: File) => {
-            try {
-                const response = await storageApi.uploadFile(file, 'blogs');
-                return response.fileUrl;
-            } catch (error) {
-                console.error("Upload failed:", error);
-                throw error;
-            }
-        },
-    }),
-    Drawer.configure({
-        upload: async (file: File) => {
-            try {
-                const response = await storageApi.uploadFile(file, 'blogs');
-                return response.fileUrl;
-            } catch (error) {
-                console.error("Upload failed:", error);
-                throw error;
-            }
-        },
-    }),
-    Twitter,
-    Mention.configure({
-        suggestion: {
-            char: '@',
-            items: async ({ query }: any) => {
-                console.log('query', query);
-                // const data = MOCK_USERS.map(item => item.label);
-                // return data.filter(item => item.toLowerCase().startsWith(query.toLowerCase()));
-                return MOCK_USERS.filter((item) =>
-                    item.label.toLowerCase().startsWith(query.toLowerCase())
-                );
-            },
-        },
-        // suggestions: [
-        //   {
-        //     char: '@',
-        //     items: async ({ query }: any) => {
-        //       return MOCK_USERS.filter(item => item.label.toLowerCase().startsWith(query.toLowerCase()));
-        //     },
-        //   },
-        //   {
-        //     char: '#',
-        //     items: async ({ query }: any) => {
-        //       return MOCK_USERS.filter(item => item.label.toLowerCase().startsWith(query.toLowerCase()));
-        //     },
-        //   }
-        // ]
-    }),
-    SlashCommand,
-    CodeView,
-    Callout,
-    //  Collaboration.configure({
-    //   document: hocuspocusProvider.document,
-    // }),
-    // CollaborationCaret.configure({
-    //   provider: hocuspocusProvider,
-    //   user: {
-    //     color: getRandomColor(),
-    //   },
-    // }),
-];
-
-
-const RichTextToolbar = () => {
-    return (
-        <div className='flex items-center gap-2 flex-wrap border-b border-solid'>
-            <RichTextUndo />
-            <RichTextRedo />
-            <RichTextSearchAndReplace />
-            <RichTextClear />
-            <RichTextFontFamily />
-            <RichTextHeading />
-            <RichTextFontSize />
-            <RichTextBold />
-            <RichTextItalic />
-            <RichTextUnderline />
-            <RichTextStrike />
-            <RichTextMoreMark />
-            <RichTextEmoji />
-            <RichTextColor />
-            <RichTextHighlight />
-            <RichTextBulletList />
-            <RichTextOrderedList />
-            <RichTextAlign />
-            <RichTextIndent />
-            <RichTextLineHeight />
-            <RichTextTaskList />
-            <RichTextLink />
-            <RichTextImage />
-            <RichTextVideo />
-            <RichTextImageGif />
-            <RichTextBlockquote />
-            <RichTextHorizontalRule />
-            <RichTextCode />
-            <RichTextCodeBlock />
-            <RichTextColumn />
-            <RichTextTable />
-            <RichTextIframe />
-            <RichTextExportPdf />
-            <RichTextImportWord />
-            <RichTextExportWord />
-            <RichTextTextDirection />
-            <RichTextAttachment />
-            <RichTextKatex />
-            <RichTextExcalidraw />
-            <RichTextMermaid />
-            <RichTextDrawer />
-            <RichTextTwitter />
-            <RichTextCodeView />
-            <RichTextCallout />
-        </div>
-    );
-};
-
-interface RichTextEditorProps {
-    initialContent?: string;
-    onUpdate?: (content: string) => void;
+function parseContent(raw: EditorJsData | string | null | undefined): EditorJsData | undefined {
+  if (!raw) return undefined;
+  if (typeof raw === 'string') {
+    try {
+      return JSON.parse(raw) as EditorJsData;
+    } catch {
+      return { time: Date.now(), blocks: [{ type: 'paragraph', data: { text: raw } }], version: '2.28.2' };
+    }
+  }
+  return raw;
 }
 
-export function RichTextEditor({ initialContent = '', onUpdate }: RichTextEditorProps) {
-    const { theme } = useTheme();
+// ─────────────────────────────────────────────────────────────
+//  RichTextEditor
+// ─────────────────────────────────────────────────────────────
 
-    const editor = useEditor({
-        // shouldRerenderOnTransaction:  false,
-        textDirection: 'auto', // global text direction
-        content: initialContent ?? '',
-        extensions: extensions as any[],
-        // content
-        // immediatelyRender: false, // error duplicate plugin key
-        onUpdate: ({ editor }) => {
-            const html = editor.getHTML();
-            onUpdate?.(html);
+interface RichTextEditorProps {
+  initialContent?: EditorJsData | string | null;
+  onUpdate?: (data: EditorJsData) => void;
+  placeholder?: string;
+  minHeight?: number;
+  readOnly?: boolean;
+}
+
+export function RichTextEditor({
+  initialContent,
+  onUpdate,
+  placeholder = 'Nhập nội dung...',
+  minHeight = 300,
+  readOnly = false,
+}: RichTextEditorProps) {
+  const editorRef = useRef<EditorJS | null>(null);
+
+  // Always keep the callback ref fresh so onChange closure never stales
+  const onUpdateRef = useRef(onUpdate);
+  useEffect(() => { onUpdateRef.current = onUpdate; }, [onUpdate]);
+
+  // ổn định id cho holder (pattern giống bài viết holder="editor_create")
+  const holderId = useMemo(
+    () => `editorjs-holder-${Math.random().toString(36).slice(2)}`,
+    [],
+  );
+
+  useEffect(() => {
+    // không chạy trên SSR (pattern bài viết: ssr: false)
+    if (typeof window === 'undefined') return;
+    if (editorRef.current) return;
+
+    const editor = new EditorJS({
+      holder: holderId,
+      placeholder,
+      readOnly,
+      data: parseContent(initialContent),
+      logLevel: 'ERROR' as any,
+
+      tools: {
+        paragraph: { class: Paragraph as any, inlineToolbar: true },
+        header: { class: Header as any, inlineToolbar: true, config: { levels: [1, 2, 3, 4, 5, 6], defaultLevel: 2 } },
+        list: { class: List as any, inlineToolbar: true, config: { defaultStyle: 'unordered' } },
+        checklist: { class: Checklist as any, inlineToolbar: true },
+        quote: { class: Quote as any, inlineToolbar: true },
+        warning: { class: Warning as any, inlineToolbar: true },
+        code: { class: CodeTool as any },
+        inlineCode: { class: InlineCode as any, shortcut: 'CMD+SHIFT+M' },
+        marker: { class: Marker as any, shortcut: 'CMD+SHIFT+H' },
+        delimiter: { class: Delimiter as any },
+        table: { class: Table as any, inlineToolbar: true, config: { rows: 2, cols: 3 } },
+        image: {
+          class: ImageTool,
+          config: {
+            uploader: {
+              uploadByFile: (file: File) =>
+                new Promise((resolve) => resolve({ success: 1, file: { url: URL.createObjectURL(file) } })),
+              uploadByUrl: (url: string) =>
+                Promise.resolve({ success: 1, file: { url } }),
+            },
+          },
         },
+        embed: {
+          class: Embed as any,
+          config: { services: { youtube: true, vimeo: true, twitter: true, codepen: true } },
+        },
+      },
+
+      onChange: async (api: API) => {
+        const data = await api.saver.save();
+        onUpdateRef.current?.(data);
+      },
+
+      i18n: {
+        messages: {
+          ui: {
+            blockTunes: { toggler: { 'Click to tune': 'Tuỳ chỉnh', 'or drag to move': 'hoặc kéo để di chuyển' } },
+            inlineToolbar: { converter: { 'Convert to': 'Chuyển sang' } },
+            toolbar: { toolbox: { Add: 'Thêm' } },
+          },
+          toolNames: {
+            Text: 'Văn bản', Heading: 'Tiêu đề', List: 'Danh sách',
+            Quote: 'Trích dẫn', Code: 'Code', Delimiter: 'Phân cách',
+            Table: 'Bảng', Link: 'Liên kết', Marker: 'Đánh dấu',
+            Bold: 'Đậm', Italic: 'Nghiêng', InlineCode: 'Code nội dòng',
+            Image: 'Hình ảnh', Checklist: 'Danh sách kiểm tra', Warning: 'Cảnh báo', Embed: 'Nhúng',
+          },
+          tools: {
+            warning: { Title: 'Tiêu đề', Message: 'Nội dung' },
+            link: { 'Add a link': 'Nhập liên kết' },
+            image: { Caption: 'Chú thích', 'Select an Image': 'Chọn ảnh', 'With border': 'Viền', 'Stretch image': 'Kéo rộng', 'With background': 'Nền' },
+            code: { 'Enter a code': 'Nhập code...' },
+            list: { Ordered: 'Có thứ tự', Unordered: 'Không thứ tự' },
+            table: {
+              Heading: 'Tiêu đề cột', 'With headings': 'Có tiêu đề', 'Without headings': 'Không tiêu đề',
+              'Add column to left': 'Thêm cột trái', 'Add column to right': 'Thêm cột phải', 'Delete column': 'Xóa cột',
+              'Add row above': 'Thêm hàng trên', 'Add row below': 'Thêm hàng dưới', 'Delete row': 'Xóa hàng',
+            },
+            quote: { 'Align Left': 'Căn trái', 'Align Center': 'Căn giữa' },
+          },
+          blockTunes: {
+            delete: { Delete: 'Xóa', 'Click to delete': 'Nhấn để xóa' },
+            moveUp: { 'Move up': 'Lên' },
+            moveDown: { 'Move down': 'Xuống' },
+          },
+        },
+      },
     });
 
-    useEffect(() => {
-        (window as any).editor = editor;
-    }, [editor]);
+    editorRef.current = editor;
 
-    return (
-        <div className='p-6 flex flex-col w-full gap-6'>
-            <RichTextProvider editor={editor} dark={theme === 'dark'}>
-                <div className='overflow-hidden rounded-[0.5rem] bg-background shadow outline outline-1'>
-                    <div className='flex max-h-full w-full flex-col'>
-                        <RichTextToolbar />
+    return () => {
+      if (editorRef.current) {
+        editorRef.current.destroy?.();
+        editorRef.current = null;
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [holderId, placeholder, readOnly, initialContent]);
 
-                        <EditorContent editor={editor} />
+  return (
+    <div
+      className="border border-border rounded-md bg-background overflow-visible"
+      style={{ minHeight }}
+    >
+      <style>{`
+        .codex-editor { padding: 0.75rem 1rem; }
+        .codex-editor__redactor { padding-bottom: 80px !important; }
+        .ce-toolbar__content, .ce-block__content { max-width: 100% !important; }
+        .ce-toolbar__content { max-width: calc(100% - 72px) !important; }
+        .cdx-block { padding: 0.5rem 0; }
+        .ce-delimiter::before { content: "— — —"; }
+      `}</style>
+      <div id={holderId} />
+    </div>
+  );
+}
 
-                        {/* Bubble */}
-                        <RichTextBubbleCallout />
-                        <RichTextBubbleColumns />
-                        <RichTextBubbleDrawer />
-                        <RichTextBubbleExcalidraw />
-                        <RichTextBubbleIframe />
-                        <RichTextBubbleKatex />
-                        <RichTextBubbleLink />
+// ─────────────────────────────────────────────────────────────
+//  RichTextRenderer  –  no editor instance, pure React render
+// ─────────────────────────────────────────────────────────────
 
-                        <RichTextBubbleImage />
-                        <RichTextBubbleVideo />
-                        <RichTextBubbleImageGif />
+interface RichTextRendererProps {
+  content: EditorJsData | string | null | undefined;
+  className?: string;
+}
 
-                        <RichTextBubbleMermaid />
-                        <RichTextBubbleTable />
-                        <RichTextBubbleText />
-                        <RichTextBubbleTwitter />
+function renderBlock(block: OutputData['blocks'][number]): React.ReactNode {
+  const { type, data } = block;
 
-                        <RichTextBubbleMenuDragHandle />
+  switch (type) {
+    case 'header': {
+      const Tag = `h${data.level ?? 2}` as keyof React.JSX.IntrinsicElements;
+      const sizes: Record<number, string> = { 1: 'text-4xl', 2: 'text-3xl', 3: 'text-2xl', 4: 'text-xl', 5: 'text-lg', 6: 'text-base' };
+      return <Tag key={block.id} className={`font-bold my-2 ${sizes[data.level] ?? 'text-xl'}`} dangerouslySetInnerHTML={{ __html: data.text ?? '' }} />;
+    }
+    case 'paragraph':
+      return <p key={block.id} className="my-2 leading-relaxed" dangerouslySetInnerHTML={{ __html: data.text ?? '' }} />;
 
-                        {/* Command List */}
-                        <SlashCommandList />
-                    </div>
-                </div>
-            </RichTextProvider>
+    case 'list':
+      return data.style === 'ordered'
+        ? <ol key={block.id} className="list-decimal list-inside my-2 space-y-1 pl-4">
+          {(data.items ?? []).map((item: any, i: number) => (
+            <li key={i} dangerouslySetInnerHTML={{ __html: typeof item === 'string' ? item : item.content ?? '' }} />
+          ))}
+        </ol>
+        : <ul key={block.id} className="list-disc list-inside my-2 space-y-1 pl-4">
+          {(data.items ?? []).map((item: any, i: number) => (
+            <li key={i} dangerouslySetInnerHTML={{ __html: typeof item === 'string' ? item : item.content ?? '' }} />
+          ))}
+        </ul>;
 
+    case 'checklist':
+      return (
+        <ul key={block.id} className="my-2 space-y-1">
+          {(data.items ?? []).map((item: any, i: number) => (
+            <li key={i} className="flex items-center gap-2">
+              <input type="checkbox" defaultChecked={item.checked} readOnly className="accent-primary" />
+              <span dangerouslySetInnerHTML={{ __html: item.text ?? '' }} />
+            </li>
+          ))}
+        </ul>
+      );
+
+    case 'quote':
+      return (
+        <blockquote key={block.id} className="border-l-4 border-primary pl-4 my-3 italic text-muted-foreground">
+          <div dangerouslySetInnerHTML={{ __html: data.text ?? '' }} />
+          {data.caption && <cite className="block mt-1 text-sm not-italic font-medium">— {data.caption}</cite>}
+        </blockquote>
+      );
+
+    case 'code':
+      return (
+        <pre key={block.id} className="bg-muted rounded-md p-4 my-3 overflow-x-auto text-sm font-mono">
+          <code>{data.code ?? ''}</code>
+        </pre>
+      );
+
+    case 'delimiter':
+      return <hr key={block.id} className="border-border my-6" />;
+
+    case 'warning':
+      return (
+        <div key={block.id} className="border border-yellow-400 bg-yellow-50 dark:bg-yellow-950/30 rounded-md p-4 my-3">
+          {data.title && <p className="font-semibold text-yellow-800 dark:text-yellow-200 mb-1">{data.title}</p>}
+          <p className="text-yellow-700 dark:text-yellow-300 text-sm" dangerouslySetInnerHTML={{ __html: data.message ?? '' }} />
         </div>
-    );
+      );
+
+    case 'table': {
+      const rows: string[][] = data.content ?? [];
+      const hasHeadings = data.withHeadings && rows.length > 0;
+      return (
+        <div key={block.id} className="overflow-x-auto my-4">
+          <table className="min-w-full border-collapse border border-border text-sm">
+            {hasHeadings && (
+              <thead className="bg-muted">
+                <tr>{rows[0].map((cell, ci) => <th key={ci} className="border border-border px-3 py-2 text-left font-semibold" dangerouslySetInnerHTML={{ __html: cell }} />)}</tr>
+              </thead>
+            )}
+            <tbody>
+              {(hasHeadings ? rows.slice(1) : rows).map((row, ri) => (
+                <tr key={ri} className="odd:bg-background even:bg-muted/30">
+                  {row.map((cell, ci) => <td key={ci} className="border border-border px-3 py-2" dangerouslySetInnerHTML={{ __html: cell }} />)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    case 'image':
+      return (
+        <figure key={block.id} className="my-4">
+          <img
+            src={data.file?.url ?? data.url ?? ''}
+            alt={data.caption ?? ''}
+            className={`rounded-md max-w-full ${data.stretched ? 'w-full' : 'mx-auto'} ${data.withBorder ? 'border border-border' : ''} ${data.withBackground ? 'bg-muted p-4' : ''}`}
+          />
+          {data.caption && <figcaption className="text-center text-sm text-muted-foreground mt-2" dangerouslySetInnerHTML={{ __html: data.caption }} />}
+        </figure>
+      );
+
+    case 'embed':
+      return (
+        <div key={block.id} className="my-4 aspect-video">
+          <iframe src={data.embed ?? data.url} title={data.caption ?? 'Embedded'} className="w-full h-full rounded-md border border-border" allowFullScreen />
+          {data.caption && <p className="text-center text-sm text-muted-foreground mt-1">{data.caption}</p>}
+        </div>
+      );
+
+    default:
+      return <div key={block.id} className="my-2 text-muted-foreground text-xs italic">[Unsupported block: {type}]</div>;
+  }
+}
+
+export function RichTextRenderer({ content, className }: RichTextRendererProps) {
+  const parsed = parseContent(content);
+
+  if (!parsed?.blocks?.length) {
+    return <div className={className ?? 'text-muted-foreground text-sm italic'}>Không có nội dung.</div>;
+  }
+
+  return (
+    <div className={className ?? 'prose prose-sm max-w-none dark:prose-invert'}>
+      {parsed.blocks.map((block: any) => renderBlock(block))}
+    </div>
+  );
 }
 
 export default RichTextEditor;
