@@ -47,9 +47,8 @@ export function SyllabusBuilder({ courseEditionId }: SyllabusBuilderProps) {
               {chapters.sort((a, b) => a.orderIndex - b.orderIndex).map((chapter) => (
                 <div
                   key={chapter.id}
-                  className={`flex items-center justify-between p-3 cursor-pointer transition-colors ${
-                    selectedChapterId === chapter.id ? "bg-accent" : "hover:bg-accent/50"
-                  }`}
+                  className={`flex items-center justify-between p-3 cursor-pointer transition-colors ${selectedChapterId === chapter.id ? "bg-accent" : "hover:bg-accent/50"
+                    }`}
                   onClick={() => setSelectedChapterId(chapter.id)}
                 >
                   <div className="flex-1 min-w-0 mr-2">
