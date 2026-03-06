@@ -22,6 +22,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
+import { Switch } from "@workspace/ui/components/switch"
 import { Field, FieldLabel, FieldError } from "@workspace/ui/components/field"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { agentApi } from "@/lib/api/services/agent-api"
@@ -58,6 +59,7 @@ export function InteractiveRoleplay() {
     const [isStarted, setIsStarted] = React.useState(false)
     const [messages, setMessages] = React.useState<Message[]>([])
     const [isLoading, setIsLoading] = React.useState(false)
+    const [showTranslation, setShowTranslation] = React.useState(true)
     const [history, setHistory] = React.useState<any[]>([])
     const [isFinished, setIsFinished] = React.useState(false)
     const [sessionTokens, setSessionTokens] = React.useState({ prompt: 0, completion: 0, total: 0 })
@@ -401,8 +403,6 @@ export function InteractiveRoleplay() {
             completion: prev.completion + usage.completionTokens,
             total: prev.total + usage.totalTokens,
         }))
-        // Refresh Redux store balance so header/wallet shows updated value
-        dispatch(refreshBalance())
     }
 
     const handleStart = async (data?: TopicFormData) => {
@@ -555,6 +555,9 @@ export function InteractiveRoleplay() {
                     isFeedback: true
                 }
                 setMessages(prev => [...prev, feedbackMsg])
+
+                // Trigger a UI coin balance refresh shortly after finishing to ensure DB applies token-deduction
+                setTimeout(() => dispatch(refreshBalance()), 1500);
 
                 // Final closing message if any
                 if (data.response) {
@@ -732,12 +735,24 @@ export function InteractiveRoleplay() {
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
-                                <DialogTitle className="text-xl font-bold">Cài đặt giọng nói</DialogTitle>
+                                <DialogTitle className="text-xl font-bold">Cài đặt hội thoại</DialogTitle>
                                 <DialogDescription>
-                                    Chọn giọng đọc và kiểm tra âm thanh phản hồi từ AI.
+                                    Tùy chỉnh giọng đọc và hiển thị phụ đề của AI.
                                 </DialogDescription>
                             </DialogHeader>
                             <div className="space-y-6 py-4">
+                                <div className="flex items-center justify-between">
+                                    <div className="space-y-0.5">
+                                        <FieldLabel className="text-sm font-bold">Hiển thị Romaji & Tiếng Việt</FieldLabel>
+                                        <p className="text-xs text-muted-foreground">
+                                            Hiển thị cách phát âm và bản dịch cho câu thoại của Sensei
+                                        </p>
+                                    </div>
+                                    <Switch
+                                        checked={showTranslation}
+                                        onCheckedChange={setShowTranslation}
+                                    />
+                                </div>
                                 <Field>
                                     <FieldLabel className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Giọng đọc (Voice)</FieldLabel>
                                     <Select value={selectedVoiceURI} onValueChange={setSelectedVoiceURI}>
@@ -846,7 +861,7 @@ export function InteractiveRoleplay() {
                                     </div>
 
                                     {/* Helper text for AI responses */}
-                                    {msg.role === 'assistant' && !msg.isFeedback && (
+                                    {msg.role === 'assistant' && !msg.isFeedback && showTranslation && (
                                         <div className="px-1 space-y-1">
                                             {msg.romaji && <p className="text-[10px] text-primary/70 font-bold italic tracking-wider">{msg.romaji}</p>}
                                             {msg.vietnamese && <p className="text-xs text-muted-foreground font-medium">{msg.vietnamese}</p>}

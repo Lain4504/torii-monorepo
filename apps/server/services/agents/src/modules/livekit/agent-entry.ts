@@ -22,18 +22,21 @@ export default defineAgent({
         const roomName = ctx.job.room?.name || 'unknown';
 
         // Find the real user ID from the room (exclude the agent themselves)
-        let userId = 'voice-user';
-        const participants = Array.from(ctx.room.remoteParticipants.values());
+        // Fallback to a special UUID if no user is found to prevent Prisma crashes
+        const SYSTEM_DEFAULT_USER = '00000000-0000-0000-0000-000000000000';
+        let userId = ctx.job.participant?.identity || SYSTEM_DEFAULT_USER;
+
+        const participants = Array.from(ctx.room.remoteParticipants.values()).filter(p => !p.identity.startsWith('agent-'));
         if (participants.length > 0) {
-            // Pick the first remote participant as the user
             userId = participants[0].identity;
             console.log(`[entry] Detected user identity from room: ${userId}`);
-        } else {
-            console.warn(`[entry] No remote participants found in room ${roomName} yet.`);
-            // Fallback to job participant if available and not 'agent-'
-            const jobIdentity = ctx.job.participant?.identity;
-            if (jobIdentity && !jobIdentity.startsWith('agent-')) {
-                userId = jobIdentity;
+        } else if (userId === SYSTEM_DEFAULT_USER || userId.startsWith('agent-')) {
+            console.warn(`[entry] No human participants found in room ${roomName}.`);
+            // Try to parse from room name if it follows roleplay-<graph>-<user>-<session>
+            const parts = roomName.split('-');
+            if (parts.length >= 4 && parts[0] === 'roleplay') {
+                userId = parts[2]; // Potential user UUID
+                console.log(`[entry] Extracted potential user identity from room name: ${userId}`);
             }
         }
 

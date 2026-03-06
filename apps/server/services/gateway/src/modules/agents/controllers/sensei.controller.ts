@@ -213,12 +213,13 @@ export class SenseiHandler {
 
     @Post('livekit-token')
     @UseGuards(GatewayAuthGuard)
-    async getLivekitToken(@Req() req: ReqWithRequester) {
+    async getLivekitToken(@Req() req: ReqWithRequester, @Body() body: { graphName?: string }) {
         const requester = req.requester;
         const userId = requester?.sub;
+        const graphName = body.graphName || 'roleplay';
 
         try {
-            this.logger.log(`🔑 Fetching LiveKit Token for Roleplay Cloud from user ${userId}`);
+            this.logger.log(`🔑 Fetching LiveKit Token for Roleplay Cloud (graph: ${graphName}) from user ${userId}`);
 
             // Check usage and deduct coins (featureType 'live' for live voice roleplay)
             const usageResult = await firstValueFrom(
@@ -234,9 +235,9 @@ export class SenseiHandler {
 
             const { apiKey, apiSecret, wsUrl } = this.appConfig.livekitRoleplay;
             const tokenValidity = 7200; // 2 hours
-            // Unique room per-session: prevents old agent from interfering with new session
-            const sessionId = Date.now().toString(36);
-            const roomId = `roleplay-${userId}-${sessionId}`;
+            // ENCODING: Encode graphName into roomId so auto-dispatched agents can detect it
+            // STABLE ROOM ID: Remove sessionId to prevent room leaks and allow re-joining to clear ghost agents
+            const roomId = `roleplay-${graphName}-${userId}`;
 
             const claims = create(WajlcTokenClaimsSchema, {
                 roomId: roomId,

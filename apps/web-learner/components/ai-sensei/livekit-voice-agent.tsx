@@ -1,374 +1,407 @@
-"use client";
+"use client"
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react"
+import { Mic, MicOff, PhoneOff, Loader2, Wifi, Zap } from "lucide-react"
 import {
     LiveKitRoom,
+    ControlBar,
     RoomAudioRenderer,
-    BarVisualizer,
-    useVoiceAssistant,
-    DisconnectButton,
-    TrackToggle,
-    useRoomContext,
+    useTracks,
     useConnectionState,
-    useLocalParticipant,
-    useDataChannel,
-} from "@livekit/components-react";
-import { Track } from "livekit-client";
-import "@livekit/components-styles";
-import { Button } from "@workspace/ui/components/button";
-import { Mic, Loader2, Zap, PhoneOff, Radio } from "lucide-react";
-import { Spinner } from "@workspace/ui/components/spinner";
-import { apiClient, extractErrorMessage } from "@/lib/api/api-client";
-import { toast } from "sonner";
-import { useAppDispatch } from "@/hooks/hooks";
-import { fetchProfile } from "@/store/slices/authSlice";
-import { GeminiVisualizer } from "./visualizer/gemini-visualizer";
+    useParticipants,
+    useRoomContext
+} from "@livekit/components-react"
+import { Track, ConnectionState as LiveKitConnectionState, RoomEvent } from "livekit-client"
+import { agentApi } from "@/lib/api/services/agent-api"
+import { useAppDispatch } from "@/hooks/hooks"
+import { fetchProfile } from "@/store/slices/authSlice"
+import { Button } from "@workspace/ui/components/button"
+import { cn } from "@workspace/ui/lib/utils"
 
-type SessionTokens = { input: number; output: number; total: number };
+// ─── Constants ────────────────────────────────────────────────────────────────
+const VOICE_AGENT_URL = process.env.NEXT_PUBLIC_VOICE_AGENT_URL || "http://localhost:8123"
 
-// ─── Initial Screen ──────────────────────────────────────────────────────────
+// ─── Types ───────────────────────────────────────────────────────────────────
+type LocalConnectionState = "idle" | "connecting" | "connected" | "error"
 
-function InitialScreen({
-    onConnect,
-    isConnecting,
-}: {
-    onConnect: () => void;
-    isConnecting: boolean;
-}) {
-    return (
-        <div className="h-full flex flex-col items-center justify-center p-6 animate-in fade-in duration-500">
-            <div className="w-full max-w-sm flex flex-col items-center gap-8 text-center">
-                {/* Icon */}
-                <div className="relative">
-                    <div className="absolute inset-0 bg-primary/10 rounded-full blur-2xl animate-pulse scale-150" />
-                    <div className="relative h-20 w-20 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
-                        <Radio className="size-9 text-primary" />
-                    </div>
-                </div>
-
-                {/* Copy */}
-                <div className="space-y-2">
-                    <h3 className="text-xl font-bold tracking-tight">Sensei Voice</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                        Luyện hội thoại tiếng Nhật trực tiếp bằng giọng nói với AI Sensei.
-                    </p>
-                </div>
-
-                {/* CTA */}
-                <Button
-                    onClick={onConnect}
-                    disabled={isConnecting}
-                    size="lg"
-                    className="w-full gap-2"
-                >
-                    {isConnecting ? (
-                        <>
-                            <Loader2 className="size-4 animate-spin" />
-                            Đang kết nối...
-                        </>
-                    ) : (
-                        <>
-                            <Mic className="size-4" />
-                            Bắt đầu
-                        </>
-                    )}
-                </Button>
-            </div>
-        </div>
-    );
+interface LiveKitInfo {
+    token: string
+    wsUrl: string
+    roomId: string
 }
 
-// ─── Main Export ──────────────────────────────────────────────────────────────
-
 export function LivekitVoiceAgent() {
-    const [connectionData, setConnectionData] = useState<{
-        token: string;
-        wsUrl: string;
-        roomId: string;
-    } | null>(null);
-    const [isConnecting, setIsConnecting] = useState(false);
-    const [sessionTokens, setSessionTokens] = useState<SessionTokens>({
-        input: 0,
-        output: 0,
-        total: 0,
-    });
-    const sessionStartRef = useRef<number>(0);
-    const dispatch = useAppDispatch();
+    const dispatch = useAppDispatch()
+    const [connectionState, setConnectionState] = useState<LocalConnectionState>("idle")
+    const [liveKitInfo, setLiveKitInfo] = useState<LiveKitInfo | null>(null)
+    const [sessionTokens, setSessionTokens] = useState({ prompt: 0, completion: 0, total: 0 })
+    const sessionTokensRef = useRef({ prompt: 0, completion: 0, total: 0 })
+    const [error, setError] = useState<string | null>(null)
+    const startTimeRef = useRef<number | null>(null)
+    const liveKitInfoRef = useRef<LiveKitInfo | null>(null)
+    const abortControllerRef = useRef<AbortController | null>(null)
 
-    const connectToVoice = useCallback(async () => {
-        setIsConnecting(true);
-        sessionStartRef.current = Date.now();
-        try {
-            const response = await apiClient.post("/api/agents/livekit-token");
-            if (response.data?.success) {
-                setConnectionData(response.data.data);
-            } else {
-                toast.error("Failed to connect: " + response.data?.message);
-            }
-        } catch (error: any) {
-            toast.error(extractErrorMessage(error));
-        } finally {
-            setIsConnecting(false);
+    // ─── Connect ─────────────────────────────────────────────────────────────────
+    const connect = useCallback(async () => {
+        // Cancel any pending connection attempt
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort()
         }
+        const abortController = new AbortController()
+        abortControllerRef.current = abortController
+
+        setConnectionState("connecting")
+        setError(null)
+        setSessionTokens({ prompt: 0, completion: 0, total: 0 })
+        sessionTokensRef.current = { prompt: 0, completion: 0, total: 0 }
+        startTimeRef.current = Date.now()
+
+        try {
+            const currentGraph = "japanese_tutor"
+            // 1. Get LiveKit Token from Torii Gateway
+            const result = await agentApi.sensei.getLivekitToken(currentGraph)
+            if (abortController.signal.aborted) return
+
+            const { token, wsUrl, roomId } = result
+
+            setLiveKitInfo({ token, wsUrl, roomId })
+            liveKitInfoRef.current = { token, wsUrl, roomId }
+
+            // 2. Instruct the standalone Voice Agent to join the room
+            const resp = await fetch(`${VOICE_AGENT_URL}/start`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    channel_name: roomId,
+                    graph_name: currentGraph,
+                    user_id: "Student",
+                }),
+                signal: abortController.signal
+            })
+
+            if (!resp.ok) {
+                const errData = await resp.json()
+                throw new Error(errData.message || "Voice Agent backend failed to start")
+            }
+
+            if (abortController.signal.aborted) return
+            setConnectionState("connected")
+        } catch (err: any) {
+            if (err.name === 'AbortError') {
+                console.log("[VoiceAgent] Connection aborted")
+                return
+            }
+            console.error("[VoiceAgent] Connection failed:", err)
+            setError(err.message || "Failed to connect")
+            setConnectionState("error")
+        } finally {
+            if (abortControllerRef.current === abortController) {
+                abortControllerRef.current = null
+            }
+        }
+    }, [])
+
+    const disconnect = useCallback(() => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort()
+            abortControllerRef.current = null
+        }
+
+        if (liveKitInfo?.roomId) {
+            const durationSec = startTimeRef.current ? Math.floor((Date.now() - startTimeRef.current) / 1000) : 0
+            // Send end signal to gateway for billing
+            agentApi.sensei.livekitEnd(liveKitInfo.roomId, {
+                inputTokens: sessionTokensRef.current.prompt,
+                outputTokens: sessionTokensRef.current.completion,
+                totalTokens: sessionTokensRef.current.total,
+                durationSec
+            }).catch(console.error)
+        }
+
+        setConnectionState("idle")
+        setLiveKitInfo(null)
+        liveKitInfoRef.current = null
+        startTimeRef.current = null
+        // Refresh profile to update coins after session ends
+        setTimeout(() => dispatch(fetchProfile()), 1500)
+    }, [dispatch, liveKitInfo])
+
+    // ─── Cleanup on Unmount & Page Navigation ────────────────────────────────────
+    useEffect(() => {
+        // We use an empty dependency array to ensure this effect only runs ONCE on mount
+        // and its cleanup function only runs ONCE on actual component unmount.
+        // We read from refs to get the latest values without triggering re-renders.
+
+        const handleBeforeUnload = () => {
+            const currentRoomId = liveKitInfoRef.current?.roomId;
+            if (startTimeRef.current && currentRoomId) {
+                const durationSec = Math.floor((Date.now() - startTimeRef.current) / 1000);
+                const payload = JSON.stringify({
+                    roomId: currentRoomId,
+                    metrics: {
+                        inputTokens: sessionTokensRef.current.prompt,
+                        outputTokens: sessionTokensRef.current.completion,
+                        totalTokens: sessionTokensRef.current.total,
+                        durationSec
+                    }
+                });
+                // Using sendBeacon for reliable delivery during page unload
+                const blob = new Blob([payload], { type: 'application/json' });
+                navigator.sendBeacon('/api/agents/livekit-end', blob);
+                console.log("[VoiceAgent] beforeunload cleanup: Signal sent for room", currentRoomId);
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            // If the component unmounts while connected (e.g. React router navigation)
+            const currentRoomId = liveKitInfoRef.current?.roomId;
+            if (startTimeRef.current && currentRoomId) {
+                const durationSec = Math.floor((Date.now() - startTimeRef.current) / 1000);
+                agentApi.sensei.livekitEnd(currentRoomId, {
+                    inputTokens: sessionTokensRef.current.prompt,
+                    outputTokens: sessionTokensRef.current.completion,
+                    totalTokens: sessionTokensRef.current.total,
+                    durationSec
+                }).catch(console.error);
+                console.log("[VoiceAgent] Unmount cleanup: Signal sent for room", currentRoomId);
+
+                // Refresh profile to update coins on UI after unmounting navigation
+                setTimeout(() => dispatch(fetchProfile()), 1500);
+            }
+        };
     }, []);
 
-    if (!connectionData) {
-        return <InitialScreen onConnect={connectToVoice} isConnecting={isConnecting} />;
+
+    return (
+        <div className="w-full max-w-xl mx-auto font-inherit py-12 px-4">
+            <style jsx global>{`
+                .livekit-heading { font-weight: 700; }
+            `}</style>
+
+            {(connectionState === "idle" || connectionState === "error") && (
+                <div className="w-full border-border shadow-none flex flex-col items-center gap-6 p-8 rounded-[1.5rem] border bg-card/50 animate-in fade-in duration-500">
+                    <div className="size-16 bg-primary/10 rounded-full flex items-center justify-center">
+                        <Mic className="size-8 text-primary" />
+                    </div>
+
+                    <div className="text-center space-y-1.5">
+                        <h2 className="text-2xl font-bold text-foreground">Roleplay với Sensei</h2>
+                        <p className="text-muted-foreground text-sm max-w-[280px]">Luyện nói tiếng Nhật cùng Sensei trong môi trường thực tế</p>
+                    </div>
+
+                    {error && (
+                        <div className="text-sm text-destructive bg-destructive/5 border border-destructive/20 rounded-xl px-4 py-3 font-bold flex items-center gap-2">
+                            <span>⚠️</span> {error}
+                        </div>
+                    )}
+
+                    <Button
+                        onClick={connect}
+                        size="lg"
+                        className="w-full max-w-sm h-11 font-bold uppercase tracking-widest text-[10px]"
+                    >
+                        <Mic className="mr-2 size-3.5" />
+                        Bắt đầu bài học
+                    </Button>
+                    <p className="text-[10px] text-muted-foreground italic text-center w-full">
+                        * Tính năng này tiêu tốn Coins/phiên hội thoại.
+                    </p>
+                </div>
+            )}
+
+            {connectionState === "connecting" && (
+                <div className="w-full border-border shadow-none flex flex-col items-center gap-4 py-20 bg-card/50 rounded-[1.5rem] border animate-in fade-in duration-500">
+                    <Loader2 className="size-10 text-primary animate-spin" strokeWidth={2.5} />
+                    <p className="text-sm text-primary font-bold animate-pulse">Sensei đang chuẩn bị phòng...</p>
+                </div>
+            )}
+
+            {connectionState === "connected" && liveKitInfo && (
+                <div className="w-full border-border shadow-none flex flex-col items-center gap-10 p-8 rounded-[1.5rem] border bg-card/50 animate-in fade-in duration-500">
+                    <LiveKitRoom
+                        video={false}
+                        audio={true}
+                        token={liveKitInfo.token}
+                        serverUrl={liveKitInfo.wsUrl}
+                        onDisconnected={disconnect}
+                        className="flex flex-col items-center gap-10 w-full"
+                    >
+                        <UsageMonitor onUpdate={(usage: { prompt: number; completion: number; total: number }) => {
+                            setSessionTokens(prev => {
+                                const newTokens = {
+                                    prompt: prev.prompt + usage.prompt,
+                                    completion: prev.completion + usage.completion,
+                                    total: prev.total + usage.total
+                                };
+                                sessionTokensRef.current = newTokens;
+                                return newTokens;
+                            })
+                            // Refresh profile balance when usage is recorded
+                            dispatch(fetchProfile())
+                        }} />
+
+                        <div className="w-full flex flex-col items-center gap-8">
+                            <AgentVisualizer />
+                            <div className="flex flex-col items-center gap-6">
+                                <AgentStatus />
+
+                                {sessionTokens.total > 0 && (
+                                    <div className="flex items-center gap-2 bg-primary/5 px-4 py-2 rounded-full border border-primary/10 animate-in zoom-in duration-300">
+                                        <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider">
+                                            <Zap className="size-3 text-yellow-500 shrink-0" />
+                                            <span className="text-muted-foreground">{sessionTokens.total.toLocaleString()} tokens</span>
+                                            <span className="text-muted-foreground/40">·</span>
+                                            <span className="text-blue-500">
+                                                ≈ {Math.ceil((sessionTokens.prompt * 0.075) + (sessionTokens.completion * 0.3)).toLocaleString()} Coins
+                                            </span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <RoomAudioRenderer />
+
+                        <Button
+                            variant="destructive"
+                            size="lg"
+                            onClick={disconnect}
+                            className="h-11 px-8 font-bold uppercase tracking-widest text-[10px]"
+                        >
+                            <PhoneOff className="mr-2 size-4" />
+                            Kết thúc bài học
+                        </Button>
+                    </LiveKitRoom>
+                </div>
+            )}
+        </div>
+    )
+}
+
+/**
+ * Displays the dynamic status of the agent (Connecting, Waiting for Agent, Speaking, Listening)
+ */
+function AgentStatus() {
+    const connState = useConnectionState()
+    const participants = useParticipants()
+    const tracks = useTracks([Track.Source.Microphone])
+
+    // Find agent participant
+    const agentParticipant = participants.find(p => p.identity.startsWith('agent-') || p.isAgent)
+    const agentTrack = tracks.find((t: any) => t.participant.identity.startsWith('agent-') || t.participant.isAgent)
+    const isSpeaking = agentTrack?.participant.isSpeaking ?? false
+
+    // Multi-phase status logic
+    let statusLabel = ""
+    let subLabel = ""
+    let isConnected = false
+
+    if (connState === LiveKitConnectionState.Connecting || connState === LiveKitConnectionState.Reconnecting) {
+        statusLabel = "Đang kết nối phòng..."
+        subLabel = "Đang thiết lập đường truyền bảo mật..."
+    } else if (!agentParticipant) {
+        statusLabel = "Đang chờ Sensei vào lớp..."
+        subLabel = "Sensei đang chuẩn bị giáo án, đợi một xíu nhé!"
+    } else {
+        isConnected = true
+        statusLabel = isSpeaking ? "Sensei đang nói..." : "Sensei đang lắng nghe"
+        subLabel = isSpeaking
+            ? "Hãy chú ý lắng nghe Sensei nhé!"
+            : "Sẵn sàng nhé! Hãy gửi lời chào đến Sensei nào!"
     }
 
     return (
-        <LiveKitRoom
-            serverUrl={connectionData.wsUrl}
-            token={connectionData.token}
-            connect={true}
-            audio={true}
-            video={false}
-            onDisconnected={async () => {
-                if (sessionTokens.total > 0 || sessionStartRef.current > 0) {
-                    const durationSec =
-                        sessionStartRef.current > 0
-                            ? Math.floor(
-                                (Date.now() - sessionStartRef.current) / 1000
-                            )
-                            : 0;
-                    try {
-                        await apiClient.post("/api/agents/livekit-end", {
-                            roomName: connectionData.roomId,
-                            inputTokens: sessionTokens.input,
-                            outputTokens: sessionTokens.output,
-                            totalTokens: sessionTokens.total,
-                            durationSec,
-                        });
-                    } catch (err) {
-                        console.warn("[billing] Failed to call livekit-end:", err);
+        <div className="flex flex-col items-center gap-4">
+            <p className={cn(
+                "text-[10px] font-bold uppercase tracking-widest transition-colors duration-300",
+                isSpeaking ? "text-emerald-500" : isConnected ? "text-muted-foreground" : "text-primary animate-pulse"
+            )}>
+                {isConnected ? "Đang trực tuyến • " : ""}{statusLabel}
+            </p>
+            <p className="text-base text-center italic text-muted-foreground px-4 leading-relaxed h-12 flex items-center justify-center">
+                "{subLabel}"
+            </p>
+        </div>
+    )
+}
+
+/**
+ * Visualizer component that listens to tracks in the room
+ */
+function AgentVisualizer() {
+    const tracks = useTracks([Track.Source.Microphone])
+    const agentTrack = tracks.find((t: any) => t.participant.identity.startsWith('agent-') || t.participant.isAgent)
+    const isSpeaking = agentTrack?.participant.isSpeaking ?? false
+
+    return (
+        <div className="relative group cursor-default">
+            <div className={cn(
+                "size-36 rounded-full flex items-center justify-center border transition-all duration-700 bg-card/50 backdrop-blur-sm",
+                isSpeaking
+                    ? "border-emerald-500 scale-105 shadow-[0_0_40px_rgba(16,185,129,0.1)]"
+                    : "border-border shadow-none"
+            )}>
+                <div className={cn(
+                    "size-24 rounded-full overflow-hidden flex items-center justify-center transition-all duration-700",
+                    isSpeaking ? "bg-emerald-500/5 ring-4 ring-emerald-500/5" : "bg-muted/10 text-muted-foreground/40"
+                )}>
+                    {isSpeaking ? (
+                        <div className="flex items-end gap-1 h-10">
+                            {[0.4, 0.7, 1, 0.6, 0.9, 0.5, 0.8].map((h, i) => (
+                                <div
+                                    key={i}
+                                    className="w-1.5 bg-emerald-500 rounded-full animate-bounce shadow-[0_0_10px_rgba(16,185,129,0.2)]"
+                                    style={{ height: `${h * 100}%`, animationDelay: `${i * 0.1}s`, animationDuration: '0.8s' }}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="relative flex items-center justify-center">
+                            <Mic className="size-12 text-muted-foreground/40" strokeWidth={2} />
+                            <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent blur-2xl" />
+                        </div>
+                    )}
+                </div>
+            </div>
+            {isSpeaking && (
+                <div className="absolute -inset-4 rounded-full border-2 border-emerald-400/10 animate-[ping_3s_linear_infinite]" />
+            )}
+        </div>
+    )
+}
+
+/**
+ * Monitor for billing usage DataPackets from the agent
+ */
+function UsageMonitor({ onUpdate }: { onUpdate: (usage: { prompt: number; completion: number; total: number }) => void }) {
+    const room = useRoomContext()
+
+    useEffect(() => {
+        const handleData = (payload: Uint8Array, participant?: any, kind?: any, topic?: string) => {
+            if (topic === 'billing_update') {
+                try {
+                    const data = JSON.parse(new TextDecoder().decode(payload))
+                    if (data.type === 'billing_update') {
+                        onUpdate({
+                            prompt: data.inputTokens || 0,
+                            completion: data.outputTokens || 0,
+                            total: data.totalTokens || 0
+                        })
                     }
+                } catch (e) {
+                    console.error("[UsageMonitor] Failed to parse billing update", e)
                 }
-                setConnectionData(null);
-                setSessionTokens({ input: 0, output: 0, total: 0 });
-                setTimeout(() => {
-                    dispatch(fetchProfile());
-                }, 3500);
-            }}
-            className="h-full w-full flex flex-col"
-        >
-            <ConnectionHandler
-                roomName={connectionData.roomId}
-                onTokenUpdate={(data) =>
-                    setSessionTokens((prev) => ({
-                        input: prev.input + data.inputTokens,
-                        output: prev.output + data.outputTokens,
-                        total: prev.total + data.totalTokens,
-                    }))
-                }
-            />
-            <SessionUI sessionTokens={sessionTokens} />
-        </LiveKitRoom>
-    );
-}
-
-// ─── Session UI ───────────────────────────────────────────────────────────────
-
-function SessionUI({ sessionTokens }: { sessionTokens: SessionTokens }) {
-    const { state, audioTrack } = useVoiceAssistant();
-
-    const stateLabel: Record<string, string> = {
-        speaking: "Sensei đang nói",
-        listening: "Đang lắng nghe",
-        thinking: "Sensei đang suy nghĩ",
-        connecting: "Đang kết nối",
-        disconnected: "Live Session",
-        idle: "Live Session",
-    };
-
-    return (
-        <div className="flex-1 flex flex-col min-h-0 animate-in fade-in zoom-in-95 duration-700">
-            {/* ── Top bar ── */}
-            <div className="flex items-center justify-between px-5 py-3 border-b border-border/50 flex-shrink-0">
-                {/* Status */}
-                <div className="flex items-center gap-2">
-                    <span
-                        className={`inline-block w-2 h-2 rounded-full transition-colors duration-300 ${state === "speaking"
-                            ? "bg-primary animate-pulse"
-                            : state === "listening"
-                                ? "bg-green-500 animate-pulse"
-                                : state === "thinking"
-                                    ? "bg-yellow-500 animate-bounce"
-                                    : "bg-muted-foreground/40"
-                            }`}
-                    />
-                    <span className="text-xs font-semibold text-muted-foreground">
-                        {stateLabel[state] ?? "Live Session"}
-                    </span>
-                </div>
-
-                {/* Token badge */}
-                {sessionTokens.total > 0 && (
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Zap className="size-3 text-yellow-500" />
-                        <span className="font-medium">{sessionTokens.total.toLocaleString()} tokens</span>
-                        <span className="text-muted-foreground/50">·</span>
-                        <span className="text-primary font-semibold">
-                            ≈ {Math.ceil(sessionTokens.input * 0.075 + sessionTokens.output * 0.3).toLocaleString()} Coins
-                        </span>
-                    </div>
-                )}
-
-                {/* End session */}
-                <DisconnectButton className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-destructive border border-border hover:border-destructive/40 bg-transparent hover:bg-destructive/5 rounded-lg px-3 py-1.5 transition-colors duration-200 cursor-pointer">
-                    <PhoneOff className="size-3.5" />
-                    Kết thúc
-                </DisconnectButton>
-            </div>
-
-
-            {/* ── Main content ── */}
-            <div className="flex flex-col items-center gap-12 w-full flex-1 transition-all duration-500 py-6">
-
-                {/* ── Main: star (all ring effects handled inside Three.js canvas) ── */}
-                <div className="flex-1 flex flex-col items-center justify-center gap-6 min-h-0 px-6 py-4">
-                    <div className="flex items-center justify-center">
-                        <GeminiVisualizer agentState={state} agentTrackRef={audioTrack} />
-                    </div>
-
-                    {/* User audio feedback section */}
-                    <UserVisualizer state={state} />
-                </div>
-
-                {/* ── Mic toggle ── */}
-                <div className="flex items-center justify-center py-4 pb-6 flex-shrink-0">
-                    <MicButton />
-                </div>
-
-                <RoomAudioRenderer />
-            </div>
-        </div>
-    );
-}
-
-// ─── Mic Button ───────────────────────────────────────────────────────────────
-
-function MicButton() {
-    return (
-        <div className="relative">
-            <div className="absolute inset-0 rounded-full bg-primary/15 blur-xl animate-pulse scale-150" />
-            <div className="relative h-14 w-14 rounded-full border border-border bg-background shadow-md hover:shadow-lg hover:bg-accent transition-all duration-200 flex items-center justify-center">
-                <TrackToggle
-                    source={Track.Source.Microphone}
-                    className="!w-full !h-full !bg-transparent !border-none !text-foreground focus-within:!ring-0"
-                />
-            </div>
-        </div>
-    );
-}
-
-// ─── User Visualizer ─────────────────────────────────────────────────────────
-
-function UserVisualizer({ state }: { state: string }) {
-    const { localParticipant } = useLocalParticipant();
-    const micPub = Array.from(localParticipant.trackPublications.values()).find(
-        (p) => p.source === Track.Source.Microphone
-    );
-
-    const isListening = state === "listening";
-
-    return (
-        <div className="w-full flex flex-col items-center gap-2">
-            {/* Waveform — shows when listening or user has mic active */}
-            <div
-                className={`h-10 w-full max-w-xs flex items-center justify-center transition-opacity duration-300 ${isListening ? "opacity-100" : "opacity-30"
-                    }`}
-            >
-                {micPub?.track ? (
-                    <BarVisualizer
-                        trackRef={{
-                            participant: localParticipant,
-                            publication: micPub,
-                            source: Track.Source.Microphone,
-                        }}
-                        barCount={28}
-                        className={`w-full h-full transition-colors duration-300 ${isListening ? "text-cyan-500" : "text-muted-foreground/40"
-                            }`}
-                        style={{ height: "40px" }}
-                    />
-                ) : (
-                    <div className="h-px w-24 bg-border rounded-full" />
-                )}
-            </div>
-
-            {/* Label */}
-            <span
-                className={`text-[10px] font-semibold uppercase tracking-widest transition-colors duration-300 ${isListening ? "text-cyan-500" : "text-muted-foreground/40"
-                    }`}
-            >
-                {isListening ? "Mời bạn nói" : "Bạn"}
-            </span>
-        </div>
-    );
-}
-
-// ─── ConnectionHandler ────────────────────────────────────────────────────────
-
-function ConnectionHandler({
-    roomName,
-    onTokenUpdate,
-}: {
-    roomName: string;
-    onTokenUpdate: (data: {
-        inputTokens: number;
-        outputTokens: number;
-        totalTokens: number;
-    }) => void;
-}) {
-    const connectionState = useConnectionState();
-    const room = useRoomContext();
-    const triggered = useRef(false);
-    const dispatch = useAppDispatch();
-
-    useDataChannel("billing_update", (msg) => {
-        try {
-            const data = JSON.parse(new TextDecoder().decode(msg.payload));
-            if (data.type === "billing_update") {
-                onTokenUpdate({
-                    inputTokens: data.inputTokens,
-                    outputTokens: data.outputTokens,
-                    totalTokens: data.totalTokens,
-                });
             }
-        } catch {
-            /* ignore */
         }
-    });
 
-    useEffect(() => {
-        const disconnect = () => {
-            if (room.state !== "disconnected") {
-                room.disconnect();
-            }
-        };
-        const handleBeforeUnload = () => disconnect();
-        window.addEventListener("beforeunload", handleBeforeUnload);
-        const handlePageHide = () => disconnect();
-        window.addEventListener("pagehide", handlePageHide);
+        room.on(RoomEvent.DataReceived, handleData)
         return () => {
-            disconnect();
-            window.removeEventListener("beforeunload", handleBeforeUnload);
-            window.removeEventListener("pagehide", handlePageHide);
-        };
-    }, [room]);
-
-    useEffect(() => {
-        if (connectionState === "connected" && !triggered.current) {
-            triggered.current = true;
-            toast.promise(
-                apiClient.post("/api/agents/livekit-join", { roomName }),
-                {
-                    loading: "Calling Sensei...",
-                    success: "Sensei is in the room!",
-                    error: "Sensei is busy. Please retry.",
-                }
-            );
+            room.off(RoomEvent.DataReceived, handleData)
         }
-    }, [connectionState, roomName]);
+    }, [room, onUpdate])
 
-    return null;
+    return null
 }

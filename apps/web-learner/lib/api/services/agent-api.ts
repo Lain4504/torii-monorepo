@@ -176,8 +176,37 @@ export const agentApi = {
         getQuotaStatus: async (): Promise<{ remainingTrial: number; cost: number; chargedCoins: boolean }> => {
             const response = await apiClient.get<{ success: boolean; data: { remainingTrial: number; cost: number; chargedCoins: boolean } }>('/api/agents/sensei/quota-status');
             return response.data.data;
+        },
+        getLivekitToken: async (graphName?: string): Promise<{ token: string; wsUrl: string; roomId: string }> => {
+            const response = await apiClient.post<{ success: boolean; data: { token: string; wsUrl: string; roomId: string }; message?: string }>('/api/agents/livekit-token', {
+                graphName
+            });
+            if (!response.data.success || !response.data.data) {
+                throw new Error(response.data.message || 'Failed to get LiveKit token');
+            }
+            return response.data.data;
+        },
+        livekitJoin: async (roomName: string): Promise<{ success: boolean }> => {
+            const response = await apiClient.post<{ success: boolean; data: { success: boolean }; message?: string }>('/api/agents/livekit-join', {
+                roomName
+            });
+            if (!response.data.success) {
+                throw new Error(response.data.message || 'Failed to join LiveKit room');
+            }
+            return response.data.data;
+        },
+        livekitEnd: async (roomName: string, usage: { inputTokens: number; outputTokens: number; totalTokens: number; durationSec?: number }): Promise<{ billed: boolean }> => {
+            const response = await apiClient.post<{ success: boolean; data: { billed: boolean }; message?: string }>('/api/agents/livekit-end', {
+                roomName,
+                ...usage
+            });
+            if (!response.data.success || !response.data.data) {
+                throw new Error(response.data.message || 'Failed to end LiveKit session');
+            }
+            return response.data.data;
         }
     },
+
     assessment: {
         generateTest: async (level: string, section: string, questionCount: number = 10): Promise<AgentTestGenerationResponseDTO> => {
             const response = await apiClient.post<{ success: boolean; data: AgentTestGenerationResponseDTO; message?: string }>('/api/agents/test/generate', {
