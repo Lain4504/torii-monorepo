@@ -38,7 +38,7 @@ export interface NavItem {
 
 export const learningNav: NavItem[] = [
     { name: 'Trang chủ', href: '/dashboard', icon: Home },
-    { name: 'Khám phá khóa học', href: '/dashboard/courses', icon: BookOpen },
+    { name: 'Khám phá khóa học', href: '/dashboard/available-courses', icon: BookOpen },
     { name: 'Khóa học của tôi', href: '/dashboard/my-courses', icon: Clock },
     { name: 'Thời khóa biểu', href: '/dashboard/schedule', icon: CalendarDays },
     { name: 'Kho Thẻ Nhớ', href: '/dashboard/flashcards', icon: BrainCircuit },
@@ -49,7 +49,7 @@ export const communityNav: NavItem[] = [
 ]
 
 export const progressNav: NavItem[] = [
-    { name: 'Analytics', href: '/analytics', icon: TrendingUp },
+    { name: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp },
     { name: 'Thành tích', href: '/dashboard/achievements', icon: Trophy },
     { name: 'Cửa hàng quà tặng', href: '/dashboard/rewards', icon: Gift },
     { name: 'Chứng chỉ', href: '/dashboard/certificates', icon: Award },
@@ -66,7 +66,7 @@ export const accountNav: NavItem[] = [
 
 export const aiSenseiNav: NavItem[] = [
     { name: 'Chat với AI', href: '/ai-sensei/chat', icon: Bot },
-    { name: 'Đánh giá & Luyện tập', href: '/assessment', icon: Award },
+    { name: 'Đánh giá & Luyện tập', href: '/dashboard/assessment', icon: Award },
     { name: 'Hội thoại nhập vai', href: '/ai-sensei/roleplay', icon: MessagesSquare },
     { name: 'Dịch thuật & Ngữ pháp', href: '/ai-sensei/translate', icon: Languages },
 ]

@@ -23,13 +23,13 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { LiveSessionBlock } from '@/components/courses/live-session-block'
 import { CourseExpirationModal } from '@/components/courses/course-expiration-modal'
-import { learningProgressApi, MyCourseResponse, LearningStats } from '@/lib/api/services/learning-progress-api'
+import { useMyCourses, useLearningStats, learningProgressApi } from '@/lib/api/services/learning-progress-api'
 
 export default function MyCoursesPage() {
     const [searchQuery, setSearchQuery] = useState('')
     const [filter, setFilter] = useState<'all' | 'in-progress' | 'completed'>('all')
-    const [courses, setCourses] = useState<MyCourseResponse[]>([])
-    const [statsData, setStatsData] = useState<LearningStats | null>(null)
+    const [courses, setCourses] = useState<any[]>([])
+    const [statsData, setStatsData] = useState<any | null>(null)
     const [loading, setLoading] = useState(true)
     const [expiredCourse, setExpiredCourse] = useState<{ title: string, slug: string } | null>(null)
 
@@ -238,7 +238,7 @@ export default function MyCoursesPage() {
                                     </Button>
                                 ) : (
                                     <Link
-                                        href={`/courses/${course.courseRunId}/learn`}
+                                        href={`/dashboard/courses/${course.courseRunId}/learn`}
                                         className="w-full"
                                         onClick={(e) => e.stopPropagation()}
                                     >
@@ -262,7 +262,7 @@ export default function MyCoursesPage() {
                     <EmptyContent>
                         <EmptyTitle>Không tìm thấy khóa học</EmptyTitle>
                         <EmptyDescription>Bạn chưa đăng ký khóa học nào hoặc không tìm thấy kết quả phù hợp.</EmptyDescription>
-                        <Link href="/courses">
+                        <Link href="/dashboard/available-courses">
                             <Button className="mt-4" variant="outline">Khám phá khóa học</Button>
                         </Link>
                     </EmptyContent>

@@ -175,7 +175,7 @@ export default function DashboardClientPage() {
                                     <BookOpen className="size-12 text-muted-foreground/30 mb-4" />
                                     <h3 className="text-xl font-bold mb-2">Bạn chưa bắt đầu khóa học nào</h3>
                                     <p className="text-muted-foreground mb-6">Khám phá kho khóa học để bắt đầu hành trình chinh phục tiếng Nhật.</p>
-                                    <Link href="/courses" className="px-8 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:bg-primary/90 transition-colors">
+                                    <Link href="/dashboard/available-courses" className="px-8 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:bg-primary/90 transition-colors">
                                         Khám phá khóa học
                                     </Link>
                                 </div>

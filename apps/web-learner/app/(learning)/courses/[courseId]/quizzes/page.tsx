@@ -51,10 +51,10 @@ export default function CourseQuizzesPage() {
             }
         }
 
-        if (courseRunId) {
+        if (classId) {
             fetchData()
         }
-    }, [courseRunId])
+    }, [classId])
 
     if (loading) {
         return (
@@ -78,7 +78,7 @@ export default function CourseQuizzesPage() {
             <div className="border-b border-border bg-background">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center gap-4">
-                        <Link href={`/courses/${classId}/learn`}>
+                        <Link href={`/dashboard/courses/${classId}/learn`}>
                             <Button variant="ghost" size="icon" className="rounded-full">
                                 <ArrowLeft className="w-4 h-4" />
                             </Button>
@@ -135,7 +135,7 @@ export default function CourseQuizzesPage() {
                                             )}
                                         </div>
                                         <Button
-                                            onClick={() => router.push(`/courses/${classId}/quizzes/${quiz.id}`)}
+                                            onClick={() => router.push(`/dashboard/courses/${classId}/quizzes/${quiz.id}`)}
                                         >
                                             {quiz.completed ? 'Xem lại' : 'Làm bài'}
                                             <Play className="ml-2 w-4 h-4" />

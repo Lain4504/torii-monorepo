@@ -92,7 +92,7 @@ export default function HistoryPage() {
                         <ItemActions>
                             <Button asChild variant="ghost" size="icon" className="rounded-full">
                                 <Link
-                                    href={item.isExpired ? `/courses/${item.slug}` : `/courses/${item.slug}/learn`}
+                                    href={item.isExpired ? `/dashboard/available-courses/${item.slug}` : `/dashboard/courses/${item.slug}/learn`}
                                 >
                                     {item.isExpired ? <ArrowRight className="size-4" /> : <ChevronRight className="size-4" />}
                                 </Link>
@@ -112,7 +112,7 @@ export default function HistoryPage() {
                         <EmptyDescription>Bắt đầu học một bài hổi ngay để ghi lại tiến trình của bạn.</EmptyDescription>
                     </EmptyContent>
                     <Button asChild variant="secondary" className="mt-4">
-                        <Link href="/courses">Khám phá khóa học</Link>
+                        <Link href="/dashboard/available-courses">Khám phá khóa học</Link>
                     </Button>
                 </Empty>
             )}
