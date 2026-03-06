@@ -35,43 +35,11 @@ enum SubmissionStatus {
 
 // --- Flashcard / SRS ---
 
-enum FlashcardState {
-  new
-  learning
-  review
-  relearning
-}
-
-enum FlashcardGenerationMethod {
-  manual
-  ai_auto
-  ai_assisted
-  import
-}
-
-enum JapanesePartOfSpeech {
-  noun
-  verb_ichidan
-  verb_godan
-  verb_suru
-  verb_kuru
-  adjective_i
-  adjective_na
-  adverb
-  particle
-  conjunction
-  interjection
-  pronoun
-  number
-  other
-}
-
-enum ReviewQuality {
-  ZERO // Again (incorrect)
-  ONE // Hard
-  TWO // Good
-  THREE // Easy
-  FOUR // Easy+
+enum SrsState {
+  NEW
+  LEARNING
+  REVIEW
+  MASTERED
 }
 
 // --- Commerce ---
@@ -283,14 +251,13 @@ model RoomArtifact {
 model Note {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String   @map("user_id") @db.Uuid
-  content   String   @db.Text // Markdown content
-  lessonId  String?  @map("lesson_id") @db.Uuid // Link to Academy Lesson
+  content   String   @db.Text
+  lessonId  String?  @map("lesson_id") @db.Uuid
   tags      String[] @default([]) @db.VarChar(50)
-  metadata  Json?    @default("{}") @db.JsonB // Timestamp, highlight color, etc.
+  metadata  Json?    @default("{}") @db.JsonB
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  // Relations
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   lesson     Lesson?     @relation(fields: [lessonId], references: [id], onDelete: SetNull)
   flashcards Flashcard[]
@@ -301,36 +268,20 @@ model Note {
 }
 
 model FlashcardDeck {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String   @map("user_id") @db.Uuid
-  name         String   @db.VarChar(255)
-  description  String?  @db.Text
-  subject      String?  @db.VarChar(50) // e.g., "JAPANESE", "ENGLISH", "CODING"
-  isPublic     Boolean  @default(false) @map("is_public")
-  tags         String[] @default([]) @db.VarChar(50)
-  cardCount    Int      @default(0) @map("card_count")
-  studiedCount Int      @default(0) @map("studied_count")
-
-  // SRS Settings (Anki-like / Quizlet-like)
-  srsSettings Json? @default("{\"newCardsPerDay\":20,\"maxReviewsPerDay\":200,\"easyBonus\":1.3,\"intervalModifier\":1.0,\"maximumInterval\":36500}") @map("srs_settings")
-
-  // AI Integration Settings
-  aiSettings Json?   @default("{\"autoGenerate\":false,\"requireApproval\":true,\"minConfidence\":0.8,\"filters\":[]}") @map("ai_settings")
-  sourceType String? @default("manual") @map("source_type") @db.VarChar(20)
-
-  // Activity Tracking
-  lastStudiedAt     DateTime? @map("last_studied_at")
-  totalStudyTime    Int       @default(0) @map("total_study_time") // seconds
-  masteryPercentage Decimal?  @map("mastery_percentage") @db.Decimal(5, 2)
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String  @map("user_id") @db.Uuid
+  title       String  @db.VarChar(255)
+  description String? @db.Text
+  subject     String? @db.VarChar(50)
+  isPublic    Boolean @default(false) @map("is_public")
+  settings    Json?   @default("{}") @db.JsonB
+  stats       Json?   @default("{}") @db.JsonB
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  // Relations
-  user           User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  flashcards     Flashcard[]
-  reviews        FlashcardReview[]
-  reviewSessions FlashcardReviewSession[]
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  flashcards Flashcard[]
 
   @@index([userId])
   @@map("flashcard_decks")
@@ -339,188 +290,29 @@ model FlashcardDeck {
 model Flashcard {
   id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   deckId          String   @map("deck_id") @db.Uuid
-  noteId          String?  @map("note_id") @db.Uuid // Source note
-  term            String   @map("term") @db.Text // Renamed from frontText
-  definition      String   @map("definition") @db.Text // Renamed from backText
-  hint            String?  @map("hint") @db.Text // Example or hint
-  imageUrl        String?  @map("image_url") @db.Text
-  audioUrl        String?  @map("audio_url") @db.Text
-  tags            String[] @default([]) @db.VarChar(50)
-  
-  // Generic language details (JSONB)
-  // Japanese: { "kanji": "...", "furigana": "...", "romaji": "..." }
-  // English: { "ipa": "...", "type": "noun" }
+  noteId          String?  @map("note_id") @db.Uuid
+  term            String   @db.Text
+  definition      String   @db.Text
+  hint            String?  @db.Text
+  mediaUrl        String?  @map("media_url") @db.Text
   languageDetails Json?    @map("language_details") @db.JsonB
+  tags            String[] @default([]) @db.VarChar(50)
 
-  // AI Integration fields
-  aiGenerated        Boolean                   @default(false) @map("ai_generated")
-  sourceDocumentId   String?                   @map("source_document_id") @db.Uuid
-  generationMethod   FlashcardGenerationMethod @default(manual) @map("generation_method")
-  generationMetadata Json?                     @default("{}") @map("generation_metadata")
-
-  // Metadata
-  isArchived     Boolean   @default(false) @map("is_archived")
-  nextReviewDate DateTime? @map("next_review_date")
-  lastReviewDate DateTime? @map("last_review_date")
-  easeFactor     Decimal?  @map("ease_factor") @db.Decimal(4, 2)
-  reviewCount    Int       @default(0) @map("review_count")
-  correctCount   Int       @default(0) @map("correct_count")
-  incorrectCount Int       @default(0) @map("incorrect_count")
-  timesStudied   Int       @default(0) @map("times_studied")
-  intervalDays   Int       @default(0) @map("interval_days")
+  srsState     SrsState  @default(NEW) @map("srs_state")
+  nextReviewAt DateTime? @map("next_review_at")
+  interval     Int       @default(0)
+  easeFactor   Decimal   @default(2.50) @map("ease_factor") @db.Decimal(4, 2)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  // Relations
-  deck           FlashcardDeck           @relation(fields: [deckId], references: [id], onDelete: Cascade)
-  note           Note?                   @relation(fields: [noteId], references: [id], onDelete: SetNull)
-  sourceDocument FileAsset?              @relation("FlashcardSourceDocument", fields: [sourceDocumentId], references: [id], onDelete: SetNull)
-  userProgress   FlashcardUserProgress[]
-  reviews        FlashcardReview[]
+  deck FlashcardDeck @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  note Note?         @relation(fields: [noteId], references: [id], onDelete: SetNull)
 
   @@index([deckId])
   @@index([noteId])
-  @@index([aiGenerated])
-  @@index([sourceDocumentId])
   @@map("flashcards")
 }
-
-model FlashcardUserProgress {
-  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId      String @map("user_id") @db.Uuid
-  flashcardId String @map("flashcard_id") @db.Uuid
-
-  // Card State (Anki-like)
-  state FlashcardState @default(new)
-
-  // SRS Algorithm fields (per-user)
-  currentInterval Int       @default(0) @map("current_interval") // Days until next review
-  easeFactor      Decimal   @default(2.50) @map("ease_factor") @db.Decimal(4, 2)
-  lastReviewedAt  DateTime? @map("last_reviewed_at")
-  nextReviewDate  DateTime? @map("next_review_date") @db.Date
-
-  // Review statistics (per-user)
-  timesReviewed      Int @default(0) @map("times_reviewed")
-  timesCorrect       Int @default(0) @map("times_correct")
-  timesIncorrect     Int @default(0) @map("times_incorrect")
-  consecutiveCorrect Int @default(0) @map("consecutive_correct")
-
-  // Daily limits
-  reviewedToday  Int       @default(0) @map("reviewed_today")
-  lastReviewDate DateTime? @map("last_review_date") @db.Date
-
-  // Performance metrics
-  averageResponseTime Int  @default(0) @map("average_response_time")
-  lastResponseTime    Int? @map("last_response_time")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  flashcard Flashcard @relation(fields: [flashcardId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, flashcardId])
-  @@index([userId])
-  @@index([flashcardId])
-  @@index([userId, nextReviewDate])
-  @@index([userId, state])
-  @@map("flashcard_user_progress")
-}
-
-model FlashcardReview {
-  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId      String  @map("user_id") @db.Uuid
-  flashcardId String  @map("flashcard_id") @db.Uuid
-  sessionId   String? @map("session_id") @db.Uuid
-  deckId      String  @map("deck_id") @db.Uuid
-
-  // Review result
-  quality   ReviewQuality // 0=Again, 1=Hard, 2=Good, 3-4=Easy
-  timeSpent Int           @default(0) @map("time_spent") // milliseconds
-
-  // SRS calculation (before review)
-  previousInterval   Int?            @map("previous_interval")
-  previousEaseFactor Decimal?        @map("previous_ease_factor") @db.Decimal(4, 2)
-  previousState      FlashcardState? @map("previous_state")
-
-  // SRS calculation (after review)
-  newInterval       Int?            @map("new_interval")
-  newEaseFactor     Decimal?        @map("new_ease_factor") @db.Decimal(4, 2)
-  newState          FlashcardState? @map("new_state")
-  newNextReviewDate DateTime?       @map("new_next_review_date") @db.Date
-
-  // Review metadata
-  reviewDate DateTime @default(now()) @map("review_date")
-  userAnswer String?  @map("user_answer") @db.Text
-
-  // Analytics
-  deviceType     String? @map("device_type") @db.VarChar(50)
-  reviewDuration Int?    @map("review_duration")
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  // Relations
-  user      User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  flashcard Flashcard               @relation(fields: [flashcardId], references: [id], onDelete: Cascade)
-  deck      FlashcardDeck           @relation(fields: [deckId], references: [id], onDelete: Cascade)
-  session   FlashcardReviewSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
-
-  @@index([userId])
-  @@index([flashcardId])
-  @@index([sessionId])
-  @@index([deckId])
-  @@index([reviewDate])
-  @@map("flashcard_reviews")
-}
-
-model FlashcardReviewSession {
-  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId String @map("user_id") @db.Uuid
-  deckId String @map("deck_id") @db.Uuid
-
-  // Session tracking
-  startedAt       DateTime  @default(now()) @map("started_at")
-  completedAt     DateTime? @map("completed_at")
-  durationSeconds Int       @default(0) @map("duration_seconds")
-
-  // Statistics
-  totalCards    Int @default(0) @map("total_cards")
-  newCards      Int @default(0) @map("new_cards")
-  learningCards Int @default(0) @map("learning_cards")
-  reviewCards   Int @default(0) @map("review_cards")
-
-  correctCount   Int @default(0) @map("correct_count")
-  incorrectCount Int @default(0) @map("incorrect_count")
-  hardCount      Int @default(0) @map("hard_count")
-  easyCount      Int @default(0) @map("easy_count")
-
-  // Performance
-  averageResponseTime Int      @default(0) @map("average_response_time")
-  masteryScore        Decimal? @map("mastery_score") @db.Decimal(5, 2)
-
-  // Metadata
-  deviceType String? @map("device_type") @db.VarChar(50)
-  studyMode  String? @map("study_mode") @db.VarChar(50)
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  user    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  deck    FlashcardDeck     @relation(fields: [deckId], references: [id], onDelete: Cascade)
-  reviews FlashcardReview[]
-
-  @@index([userId])
-  @@index([deckId])
-  @@index([startedAt])
-  @@map("flashcard_review_sessions")
-}
-
-// ==================================================
-// 7. USER & AUTH
-// ==================================================
 
 // --- Identity ---
 
@@ -551,20 +343,17 @@ model User {
   deletedAt    DateTime? @map("deleted_at") @db.Timestamp() // null = not deleted, value = soft deleted
 
   // Relations
-  identities              UserIdentity[] // OAuth providers (email, google, etc.)
-  sessions                Session[]
-  twoFactorAuth           TwoFactorAuth?
-  flashcardDecks          FlashcardDeck[]
-  flashcardUserProgress   FlashcardUserProgress[] // Per-user flashcard progress
-  flashcardReviews        FlashcardReview[] // Flashcard review history
-  flashcardReviewSessions FlashcardReviewSession[] // Review sessions
-  comments                Comment[]
-  auditLogs               AuditLog[]               @relation("UserAuditLogs")
-  orders                  Order[]
-  tickets                 Ticket[]                 @relation("UserTickets")
-  handledTickets          Ticket[]                 @relation("HandlerTickets")
-  certificates            Certificate[]
-  balance                 UserBalance?
+  identities     UserIdentity[] // OAuth providers (email, google, etc.)
+  sessions       Session[]
+  twoFactorAuth  TwoFactorAuth?
+  flashcardDecks FlashcardDeck[]
+  comments       Comment[]
+  auditLogs      AuditLog[]      @relation("UserAuditLogs")
+  orders         Order[]
+  tickets        Ticket[]        @relation("UserTickets")
+  handledTickets Ticket[]        @relation("HandlerTickets")
+  certificates   Certificate[]
+  balance        UserBalance?
 
   // Gamification Relations
   gamification    UserGamification?
@@ -1046,7 +835,6 @@ model FileAsset {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  flashcardSourceDocs Flashcard[] @relation("FlashcardSourceDocument")
 
   @@index([ownerId])
   @@index([fileUrl])
@@ -1547,25 +1335,25 @@ model LearningProgress {
 }
 
 model ClassReview {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  classId      String   @map("class_id") @db.Uuid
-  enrollmentId String   @map("enrollment_id") @db.Uuid
-  userId       String   @map("user_id") @db.Uuid
+  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  classId      String @map("class_id") @db.Uuid
+  enrollmentId String @map("enrollment_id") @db.Uuid
+  userId       String @map("user_id") @db.Uuid
 
-  rating       Int      // 1-5
-  title        String?  @db.VarChar(255)
-  content      String?  @db.Text
-  status       String   @default("PUBLISHED") @db.VarChar(20) // PENDING, PUBLISHED, HIDDEN, REJECTED
-  isAnonymous  Boolean  @default(false) @map("is_anonymous")
-  metadata     Json?    @default("{}") @db.JsonB
-  publishedAt  DateTime? @map("published_at")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at")
+  rating      Int // 1-5
+  title       String?   @db.VarChar(255)
+  content     String?   @db.Text
+  status      String    @default("PUBLISHED") @db.VarChar(20) // PENDING, PUBLISHED, HIDDEN, REJECTED
+  isAnonymous Boolean   @default(false) @map("is_anonymous")
+  metadata    Json?     @default("{}") @db.JsonB
+  publishedAt DateTime? @map("published_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  class      Class       @relation(fields: [classId], references: [id], onDelete: Cascade)
-  enrollment Enrollment  @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
-  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  class      Class      @relation(fields: [classId], references: [id], onDelete: Cascade)
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([enrollmentId])
   @@index([classId])

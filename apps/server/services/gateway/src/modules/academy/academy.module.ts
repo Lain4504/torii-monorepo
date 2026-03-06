@@ -23,6 +23,8 @@ import { WebhookController } from './controllers/webhook.controller';
 import { QuizTemplateController } from './controllers/quiz-template.controller';
 import { AssignmentTemplateController } from './controllers/assignment-template.controller';
 import { ClassReviewController } from './controllers/class-review.controller';
+import { NoteController } from './controllers/note.controller';
+import { FlashcardController } from './controllers/flashcard.controller';
 
 
 @Module({
@@ -51,6 +53,8 @@ import { ClassReviewController } from './controllers/class-review.controller';
     CouponController,
     WebhookController,
     ClassReviewController,
+    NoteController,
+    FlashcardController,
   ],
 })
 export class AcademyModule { }
