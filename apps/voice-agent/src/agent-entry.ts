@@ -9,25 +9,39 @@ export default defineAgent({
 
         // Wait for room connection
         await ctx.connect();
-        // Make our joining time accessible to other agents
-        await ctx.room.localParticipant.updateName(Date.now().toString());
+        // Make our presence known to other agents immediately
+        const myJoiningTimeStr = Date.now().toString();
+        // We use metadata as it's more standard and triggers specific events
+        await ctx.room.localParticipant.updateMetadata(JSON.stringify({ joinedAt: myJoiningTimeStr }));
+        // Also update name for legacy compatibility with older agents until they are all restarted
+        await ctx.room.localParticipant.updateName(myJoiningTimeStr);
 
         // ─── Continuous Agent Safety (Anti-Double Agent) ─────────────────────────
-        const myIdentity = `agent-${ctx.job.id}`; // Ensure we include the 'agent-' prefix for accurate string comparison
+        const myIdentity = `agent-${ctx.job.id}`;
         let shouldQuit = false;
 
         const checkSafety = async () => {
-            const thisJob = ctx.job;
-            if (!thisJob) return false;
-
-            const myTime = parseInt(ctx.room.localParticipant?.name || '0', 10) || 0;
+            const myTime = parseInt(myJoiningTimeStr, 10);
 
             let newestPeerId = '';
             let newestPeerTime = 0;
 
             for (const [, p] of ctx.room.remoteParticipants) {
                 if (p.identity.startsWith('agent-')) {
-                    const peerTime = parseInt(p.name || '0', 10) || 0;
+                    // Try to get peer join time from their metadata first
+                    let peerTime = 0;
+                    try {
+                        const meta = JSON.parse(p.metadata || '{}');
+                        peerTime = parseInt(meta.joinedAt || '0', 10) || 0;
+                    } catch (e) {
+                        // Not JSON, fallback to name
+                    }
+
+                    // Fallback to name (for legacy compatibility)
+                    if (peerTime === 0) {
+                        peerTime = parseInt(p.name || '0', 10) || 0;
+                    }
+
                     if (peerTime > newestPeerTime || (peerTime === newestPeerTime && p.identity > newestPeerId)) {
                         newestPeerTime = peerTime;
                         newestPeerId = p.identity;
@@ -36,68 +50,100 @@ export default defineAgent({
             }
 
             if (newestPeerId) {
-                // If a peer is newer (larger timestamp), OR it's a tie and my identity is "larger" (string sorting), I should quit.
-                // We want to KEEP the NEWEST agent, so the old agents must quit. Wait, the old logic was: "If a peer is newer... I should quit". Let's verify this carefully.
-                // Wait. We want exactly 1 agent. A zombie is OLD. The new agent is NEW.
-                // If we want the NEW agent to survive, the OLD agent must quit.
-                // So if `myTime < peerTime`, I am OLD, I should quit.
+                // If peer joined AFTER me (larger timestamp), I am the OLD agent. I should quit.
+                // If timestamps are equal, use identity as tie-breaker.
                 if (newestPeerTime > myTime || (newestPeerTime === myTime && myIdentity > newestPeerId)) {
                     if (!shouldQuit) {
-                        console.log(`[Agent] [Safety] Peer agent detected: ${newestPeerId} (newer/tie-breaker won). Quitting current OLD job: ${myIdentity}`);
+                        console.log(`[Agent] [Safety] Newer peer agent detected: ${newestPeerId} (Newer: ${newestPeerTime} > MyTime: ${myTime}). Quitting OLD job: ${myIdentity}`);
                         shouldQuit = true;
                         await ctx.room.disconnect();
                     }
-                    return true; // Quit
+                    return true;
                 }
-                console.log(`[Agent] [Safety] Peer agent detected: ${newestPeerId}, but I am newer/won tie-breaker. Proceeding...`);
+                console.log(`[Agent] [Safety] Peer agent detected: ${newestPeerId} (Older: ${newestPeerTime} <= MyTime: ${myTime}). Proceeding...`);
             }
             return false;
         };
 
-        // 1. Initial check with jitter
-        const jitter = Math.floor(Math.random() * 800) + 200;
+        // 1. Initial check with jitter to allow for name propagation from other agents
+        const jitter = Math.floor(Math.random() * 800) + 400;
         await new Promise(resolve => setTimeout(resolve, jitter));
-        if (await checkSafety()) return;
 
-        // 2. Continuous monitoring for new agents joining later
+        // Wait up to 2 seconds for peer names to potentially propagate
+        let attempts = 0;
+        while (attempts < 3) {
+            if (await checkSafety()) return;
+            const hasZombiePeers = Array.from(ctx.room.remoteParticipants.values()).some(p =>
+                p.identity.startsWith('agent-') && (!p.name || p.name === '0')
+            );
+            if (!hasZombiePeers) break;
+
+            console.log(`[Agent] [Safety] Peer agent(s) found but name hasn't propagated. Waiting... (Attempt ${attempts + 1})`);
+            await new Promise(resolve => setTimeout(resolve, 500));
+            attempts++;
+        }
+
+        // 2. Continuous monitoring for new agents joining or updating info
         ctx.room.on('participantConnected', async (p) => {
             if (p.identity.startsWith('agent-')) {
-                console.log(`[Agent] [Safety] New agent joined: ${p.identity}. Re-running safety check...`);
+                console.log(`[Agent] [Safety] New agent joined: ${p.identity}. Re-running safety check in 1s...`);
+                await new Promise(r => setTimeout(r, 1000));
                 await checkSafety();
             }
         });
 
-        // 3. Disconnect when human leaves so we don't become a zombie
+        // Instant reaction if another agent updates its metadata/name
+        const onPeerUpdate = async (p: any) => {
+            if (p.identity.startsWith('agent-') && p.identity !== myIdentity) {
+                console.log(`[Agent] [Safety] Peer agent ${p.identity} updated info. Re-checking safety...`);
+                await checkSafety();
+            }
+        };
+
+        ctx.room.on('participantMetadataChanged', (_, p) => onPeerUpdate(p));
+        ctx.room.on('participantNameChanged', (_, p) => onPeerUpdate(p));
+
+        // 3. Disconnect when human leaves
         ctx.room.on('participantDisconnected', (p) => {
             if (!p.identity.startsWith('agent-')) {
-                console.log(`[Agent] Human participant ${p.identity} left. Disconnecting agent from room...`);
-                setTimeout(() => ctx.room.disconnect(), 500);
+                const learnersLeft = Array.from(ctx.room.remoteParticipants.values()).filter(rem =>
+                    !rem.identity.startsWith('agent-')
+                ).length;
+
+                if (learnersLeft === 0) {
+                    console.log(`[Agent] No human participants left. Job ${myIdentity} disconnecting...`);
+                    setTimeout(() => ctx.room.disconnect(), 1000);
+                }
             }
         });
+
+
 
 
         console.log(`[Agent] Connected to room: ${roomName} (Job: ${ctx.job.id})`);
 
         // ─── Participant Discovery ──────────────────────────────────────────────
-        // Find the human participant (student) to interact with.
         const humanParticipants = Array.from(ctx.room.remoteParticipants.values()).filter(p =>
             !p.identity.startsWith('agent-')
         );
         const participant = humanParticipants[0];
 
         // ─── Graph Detection ────────────────────────────────────────────────────
-        // 1. Try from job metadata
-        // 2. Fallback: Parse from room name (format: roleplay-<graph>-<user>-<session>)
-        let graphName = 'roleplay';
+        let graphName = 'japanese_tutor';
         try {
             if (ctx.job.metadata) {
                 const meta = typeof ctx.job.metadata === 'string' ? JSON.parse(ctx.job.metadata) : ctx.job.metadata;
-                graphName = meta.graphName || 'roleplay';
+                graphName = meta.graphName || graphName;
             } else {
+                // Fallback: Parse from room name
+                // Format: roleplay-<graphName>-<userId>-<sessionId>
                 const parts = roomName.split('-');
-                if (parts.length >= 4 && parts[0] === 'roleplay') {
-                    graphName = parts[1]; // e.g. 'japanese_tutor'
-                    console.log(`[Agent] Detected graph from room name: ${graphName}`);
+                if (parts.length >= 2) {
+                    const potentialGraph = parts[1];
+                    if (potentialGraph === 'japanese_tutor' || potentialGraph === 'roleplay' || potentialGraph === 'free_conversation') {
+                        graphName = potentialGraph;
+                        console.log(`[Agent] Detected graph from room name: ${graphName}`);
+                    }
                 }
             }
         } catch (e) {
@@ -128,7 +174,8 @@ export default defineAgent({
         await (session as any).start({ agent, room: ctx.room });
         console.log(`[Agent] Session started for room: ${roomName} using model: ${llm.model}`);
 
-        // ─── Token Tracking & Billing ───────────────────────────────────────────
+        // ─── Token Tracking & Billing (DISABLED) ───────────────────────────────────
+        /*
         session.on(voice.AgentSessionEventTypes.MetricsCollected, async (ev: any) => {
             try {
                 const metrics = ev.metrics;
@@ -155,6 +202,7 @@ export default defineAgent({
                 console.error('[Agent] [Billing] Error sending billing update:', error);
             }
         });
+        */
 
         // Wait for disconnection
         await new Promise((resolve) => {

@@ -186,15 +186,7 @@ export const agentApi = {
             }
             return response.data.data;
         },
-        livekitJoin: async (roomName: string): Promise<{ success: boolean }> => {
-            const response = await apiClient.post<{ success: boolean; data: { success: boolean }; message?: string }>('/api/agents/livekit-join', {
-                roomName
-            });
-            if (!response.data.success) {
-                throw new Error(response.data.message || 'Failed to join LiveKit room');
-            }
-            return response.data.data;
-        },
+
         livekitEnd: async (roomName: string, usage: { inputTokens: number; outputTokens: number; totalTokens: number; durationSec?: number }): Promise<{ billed: boolean }> => {
             const response = await apiClient.post<{ success: boolean; data: { billed: boolean }; message?: string }>('/api/agents/livekit-end', {
                 roomName,

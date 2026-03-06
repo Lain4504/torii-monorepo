@@ -29,9 +29,11 @@ export class SenseiService implements OnModuleInit {
     private readonly aiUsageTracking: AIUsageTrackingService,
     private readonly analyticsService: AnalyticsService,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) {}
+  ) { }
 
   private async deductCoins(userId: string, taskType: string, usage: any) {
+    // Billing is temporarily disabled (No deduction, no usage recording, no logs)
+    /*
     try {
       await firstValueFrom(
         this.natsClient.send(
@@ -48,15 +50,10 @@ export class SenseiService implements OnModuleInit {
           },
         ),
       );
-      this.logger.log(
-        `[billing] Synchronous deduction complete for user ${userId} (${taskType})`,
-      );
     } catch (err: any) {
-      this.logger.error(
-        `[billing] Synchronous deduction failed for user ${userId}: ${err.message}`,
-      );
       // Still proceed, don't block the user but log the error
     }
+    */
   }
 
   onModuleInit() {
@@ -417,7 +414,9 @@ export class SenseiService implements OnModuleInit {
           usage.totalTokenCount,
         );
 
+        /*
         await this.deductCoins(userId, 'chat', usage);
+        */
 
         return data;
       },
@@ -476,14 +475,18 @@ export class SenseiService implements OnModuleInit {
           const totalTokens = sessionUsage[`total_roleplay_tokens`] || 0;
 
           if (totalTokens > 0) {
+            /*
             this.logger.log(
               `[billing] Session-based deduction for ${roomId}: ${totalTokens} tokens total.`,
             );
+            */
+            /*
             await this.deductCoins(userId, 'roleplay', {
               promptTokenCount: totalPrompt,
               candidatesTokenCount: totalCompletion,
               totalTokenCount: totalTokens,
             });
+            */
           }
 
           // Delay slightly to ensure usage is recorded for artifacts

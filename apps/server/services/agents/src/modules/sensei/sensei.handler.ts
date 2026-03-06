@@ -4,7 +4,7 @@ import { Requester } from '@workspace/schemas';
 
 import { SenseiService } from './sensei.service';
 import { TTSService } from './tts.service';
-import { LivekitAgentService } from '../livekit/livekit-agent.service';
+
 
 /**
  * NATS Handler for Sensei Agent
@@ -15,30 +15,10 @@ export class SenseiHandler {
   constructor(
     private readonly senseiService: SenseiService,
     private readonly ttsService: TTSService,
-    private readonly livekitAgentService: LivekitAgentService,
-  ) {}
 
-  @MessagePattern({ cmd: 'agents.livekit.joinRoom' })
-  async handleJoinRoom(
-    @Payload() data: { roomName: string; participantIdentity?: string },
-  ) {
-    console.log(
-      `[SenseiHandler] Received agents.livekit.joinRoom for room: ${data.roomName}`,
-    );
-    return this.livekitAgentService.joinRoom(
-      data.roomName,
-      data.participantIdentity,
-    );
-  }
+  ) { }
 
-  @MessagePattern({ cmd: 'agents.livekit.clearJoinLock' })
-  async clearJoinLock(@Payload() data: { roomName: string; userId?: string }) {
-    console.log(
-      `[SenseiHandler] Received agents.livekit.clearJoinLock for room: ${data.roomName}, user: ${data.userId}`,
-    );
-    this.livekitAgentService.clearJoinLock(data.roomName, data.userId);
-    return { success: true };
-  }
+
 
   @MessagePattern({ cmd: 'agents.sensei.grammarCheck' })
   async checkGrammar(@Payload() data: { text: string; requester: Requester }) {
@@ -104,12 +84,12 @@ export class SenseiHandler {
     @Payload()
     data: {
       scenario:
-        | 'restaurant'
-        | 'shopping'
-        | 'station'
-        | 'office'
-        | 'casual'
-        | 'formal';
+      | 'restaurant'
+      | 'shopping'
+      | 'station'
+      | 'office'
+      | 'casual'
+      | 'formal';
       level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
       turns?: number;
       requester: Requester;

@@ -234,7 +234,10 @@ export class SenseiHandler {
 
     @Post('livekit-token')
     @UseGuards(GatewayAuthGuard)
-    async getLivekitToken(@Req() req: ReqWithRequester) {
+    async getLivekitToken(
+        @Req() req: ReqWithRequester,
+        @Body() body: { graphName?: string },
+    ) {
         const requester = req.requester;
         const userId = requester?.sub;
 
@@ -243,7 +246,8 @@ export class SenseiHandler {
                 `🔑 Fetching LiveKit Token for Roleplay Cloud from user ${userId}`,
             );
 
-            // Check usage and deduct coins (featureType 'live' for live voice roleplay)
+            // Check usage and deduct coins (DISABLED)
+            /*
             const usageResult = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'billing.quota.checkAndConsume' },
@@ -260,12 +264,15 @@ export class SenseiHandler {
                     'Bạn đã hết lượt sử dụng miễn phí và không đủ Coins.',
                 );
             }
+            */
+            const usageResult = { allowed: true };
 
             const { apiKey, apiSecret, wsUrl } = this.appConfig.livekitRoleplay;
             const tokenValidity = 7200; // 2 hours
             // Unique room per-session: prevents old agent from interfering with new session
+            const graphName = body.graphName || 'japanese_tutor';
             const sessionId = Date.now().toString(36);
-            const roomId = `roleplay-${userId}-${sessionId}`;
+            const roomId = `roleplay-${graphName}-${userId}-${sessionId}`;
 
             const claims = create(WajlcTokenClaimsSchema, {
                 roomId: roomId,
@@ -321,47 +328,7 @@ export class SenseiHandler {
 
     private joinCooldowns = new Map<string, number>();
 
-    @Post('livekit-join')
-    @UseGuards(GatewayAuthGuard)
-    async livekitJoin(
-        @Req() req: ReqWithRequester,
-        @Body() body: { roomName: string },
-    ) {
-        const requester = req.requester;
-        const userId = requester?.sub;
 
-        if (userId) {
-            const now = Date.now();
-            const lastJoin = this.joinCooldowns.get(userId);
-            if (lastJoin && now - lastJoin < 2500) {
-                // 2.5s cooldown
-                this.logger.warn(
-                    `[cooldown] User ${userId} requested join too quickly. Ignoring duplicate.`,
-                );
-                return successResponse({ success: true, alreadyJoining: true });
-            }
-            this.joinCooldowns.set(userId, now);
-        }
-
-        try {
-            this.logger.log(
-                `📡 Triggering Room Join for room ${body.roomName} from user ${userId}`,
-            );
-            await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'agents.livekit.joinRoom' },
-                    {
-                        roomName: body.roomName,
-                        participantIdentity: userId,
-                    },
-                ),
-            );
-            return successResponse({ success: true });
-        } catch (error: any) {
-            this.logger.error(`❌ Failed to trigger Room Join: ${error.message}`);
-            return errorResponse(error.message || 'Failed to join room');
-        }
-    }
 
     /**
      * Called by the frontend when the live voice session ends.
@@ -386,9 +353,21 @@ export class SenseiHandler {
 
         try {
             this.logger.log(
-                `🔚 LiveKit session ended for room ${body.roomName}, user=${userId}, tokens=${body.totalTokens}, duration=${body.durationSec ?? 0}s`,
+                `🔚 LiveKit session ended for room ${body.roomName}, user=${userId}, tokens=${body.totalTokens}, duration=${body.durationSec ?? 0}s (Billing disabled)`,
             );
 
+            return successResponse({
+                billed: false,
+            });
+        } catch (error: any) {
+            this.logger.error(
+                `❌ Error in livekit-end (billing disabled) for user ${userId}: ${error.message}`,
+            );
+            return errorResponse(error.message || 'Failed to process session end');
+        }
+
+        /*
+        try {
             if (body.totalTokens > 0) {
                 // Primary: token-based billing
                 this.natsClient.emit(
@@ -438,5 +417,6 @@ export class SenseiHandler {
             );
             return errorResponse(error.message || 'Failed to bill session');
         }
+        */
     }
 }

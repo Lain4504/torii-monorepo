@@ -11,7 +11,7 @@ import http from 'http';
 import { v4 as uuidv4 } from 'uuid';
 import { ServerOptions, AgentServer, initializeLogger } from '@livekit/agents';
 import { WorkerMessage, JobType } from '@livekit/protocol';
-import { Room, ParticipantInfo } from 'livekit-server-sdk';
+import { Room, ParticipantInfo, RoomServiceClient } from 'livekit-server-sdk';
 import { VOICE_GRAPHS } from './graphs';
 import fs from 'fs';
 
@@ -102,12 +102,29 @@ app.post('/start', async (req, res) => {
     }
 
     try {
-        // ─── Room Lock Check ─────────────────────────────────────────────────────
-        const lock = activeRoomJobs.get(channel_name);
+        // ─── Room Cleanup & Safety ──────────────────────────────────────────────
         const now = Date.now();
-        if (lock && now - lock.timestamp < 10000) { // 10s cooldown
+        const lock = activeRoomJobs.get(channel_name);
+        if (lock && now - lock.timestamp < 10000) { // 10s cooldown to prevent spam
             console.log(`[Server] [Safety] Join request for ${channel_name} ignored (job ${lock.jobId} active/pending)`);
             return res.json({ success: true, message: 'Agent already joining this room', roomId: channel_name });
+        }
+
+        // Proactively kick any existing agents from the room via LiveKit Server SDK
+        // This ensures old "zombie" agents are removed before we start a new one.
+        try {
+            const apiHost = LIVEKIT_URL.replace('wss://', 'https://').replace('ws://', 'http://');
+            const roomService = new RoomServiceClient(apiHost, LIVEKIT_API_KEY, LIVEKIT_API_SECRET);
+            const participants = await roomService.listParticipants(channel_name);
+            for (const p of participants) {
+                if (p.identity.startsWith('agent-')) {
+                    console.log(`[Server] [Safety] Removing existing agent participant ${p.identity} from room ${channel_name}`);
+                    await roomService.removeParticipant(channel_name, p.identity);
+                }
+            }
+        } catch (e: any) {
+            // Room might not exist or other error, just log and continue
+            console.log(`[Server] [Safety] Room cleanup check finished (No action taken or room not active)`);
         }
 
         console.log(`[Server] Dispatching job for room ${channel_name}, graph ${graph_name}...`);
