@@ -14,7 +14,7 @@ export class CourseOfferingCreateDto {
   description?: string;
 
   @Min(0)
-  price!: number;
+  originalPrice!: number;
 
   @IsString()
   @MaxLength(10)
@@ -23,13 +23,17 @@ export class CourseOfferingCreateDto {
   @IsOptional()
   @IsString()
   @MaxLength(20)
-  status?: string;
+  status?: string; // DRAFT, ACTIVE, ARCHIVED
+
+  @IsString()
+  @MaxLength(20)
+  type?: string; // COURSE, BUNDLE, SUBSCRIPTION
 
   @IsOptional()
-  salesStartAt?: Date;
+  validFrom?: Date;
 
   @IsOptional()
-  salesEndAt?: Date;
+  validTo?: Date;
 
   @IsOptional()
   metadata?: unknown;
@@ -51,7 +55,7 @@ export class CourseOfferingUpdateDto {
 
   @IsOptional()
   @Min(0)
-  price?: number;
+  originalPrice?: number;
 
   @IsOptional()
   @IsString()
@@ -64,10 +68,14 @@ export class CourseOfferingUpdateDto {
   status?: string;
 
   @IsOptional()
-  salesStartAt?: Date;
+  @IsString()
+  type?: string;
 
   @IsOptional()
-  salesEndAt?: Date;
+  validFrom?: Date;
+
+  @IsOptional()
+  validTo?: Date;
 
   @IsOptional()
   metadata?: unknown;

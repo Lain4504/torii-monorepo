@@ -59,3 +59,11 @@ export class ChapterQueryDto {
   courseEditionId?: string;
 }
 
+export class ChapterReorderDto {
+  @IsUUID()
+  courseEditionId!: string;
+
+  @IsUUID(undefined, { each: true })
+  orderedIds!: string[];
+}
+

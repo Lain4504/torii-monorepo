@@ -10,7 +10,7 @@ import {
 
 @Injectable()
 export class ExamAttemptService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findAll(query: ExamAttemptQueryDto) {
     return this.prisma.examAttempt.findMany({
@@ -54,7 +54,30 @@ export class ExamAttemptService {
     });
     if (!user) throw new BadRequestException('Invalid userId');
 
-    // Create attempt + section states (locked by default; first section unlocked/in_progress)
+    // Check max attempts
+    let maxAttempts: number | null | undefined = undefined;
+    if (input.classAssessmentId) {
+      const ca = await this.prisma.classAssessment.findUnique({
+        where: { id: input.classAssessmentId },
+        select: { maxAttemptsOverride: true },
+      });
+      maxAttempts = ca?.maxAttemptsOverride;
+    }
+
+    if (maxAttempts) {
+      const attemptCount = await this.prisma.examAttempt.count({
+        where: {
+          examId: input.examId,
+          userId: input.userId,
+          classAssessmentId: input.classAssessmentId,
+        },
+      });
+      if (attemptCount >= maxAttempts) {
+        throw new BadRequestException('Maximum attempts reached for this assessment');
+      }
+    }
+
+    // Create attempt + section states
     const sortedSections = [...exam.sections].sort((a, b) => a.orderIndex - b.orderIndex);
     const firstSectionId = sortedSections[0]?.id;
 
@@ -90,21 +113,56 @@ export class ExamAttemptService {
   }
 
   async submit(input: ExamAttemptSubmitDto) {
-    const attempt = await this.findById(input.attemptId);
+    const attempt = await this.prisma.examAttempt.findUnique({
+      where: { id: input.attemptId },
+      include: {
+        exam: {
+          include: {
+            examQuestions: {
+              include: { question: true },
+            },
+          },
+        },
+      },
+    });
+    if (!attempt) throw new NotFoundException('ExamAttempt not found');
     if (attempt.status !== 'IN_PROGRESS') return attempt;
 
-    // TODO: full grading logic (auto-grade objective types, compute per-section score, etc.)
-    // For now, mark SUBMITTED and store timestamps.
+    const questions = attempt.exam.examQuestions.map((eq) => eq.question);
+    const draftAnswers = (attempt.draftAnswers as Record<string, any>) || {};
+
+    let rawScore = 0;
+    let totalPossible = questions.length; // Simplified: 1 point per question
+    let hasSubjective = false;
+
+    for (const q of questions) {
+      if (q.questionType === 'ESSAY' || q.questionType === 'ORAL') {
+        hasSubjective = true;
+        continue;
+      }
+
+      const userAnswer = draftAnswers[q.id];
+      const correctAnswer = q.correctAnswer;
+
+      if (userAnswer !== undefined && JSON.stringify(userAnswer) === JSON.stringify(correctAnswer)) {
+        rawScore += 1;
+      }
+    }
+
+    const percentage = totalPossible > 0 ? (rawScore / totalPossible) * 100 : 0;
+    const isPassed = percentage >= 50; // Default threshold
+
     return this.prisma.examAttempt.update({
       where: { id: input.attemptId },
       data: {
-        status: 'SUBMITTED',
+        status: hasSubjective ? 'SUBMITTED' : 'GRADED',
         submittedAt: new Date(),
         completedAt: new Date(),
-        percentage: null,
-        rawScore: null,
-        isPassed: null,
-      } as Prisma.ExamAttemptUpdateInput,
+        percentage: new Prisma.Decimal(percentage),
+        rawScore: new Prisma.Decimal(rawScore),
+        maxScore: new Prisma.Decimal(totalPossible),
+        isPassed,
+      } as any,
     });
   }
 }

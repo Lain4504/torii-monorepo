@@ -8,7 +8,7 @@ import {
 
 @Injectable()
 export class CourseEditionService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findAll(query: CourseEditionQueryDto) {
     return this.prisma.courseEdition.findMany({
@@ -75,6 +75,10 @@ export class CourseEditionService {
 
   async setCurrent(id: string) {
     const edition = await this.findById(id);
+    if (edition.status !== 'PUBLISHED') {
+      throw new BadRequestException('Only PUBLISHED editions can be set as current');
+    }
+
     await this.prisma.courseEdition.updateMany({
       where: { courseProfileId: edition.courseProfileId, isCurrent: true },
       data: { isCurrent: false },
@@ -85,8 +89,67 @@ export class CourseEditionService {
     });
   }
 
+  async publishEdition(id: string) {
+    const edition = await this.prisma.courseEdition.findUnique({
+      where: { id },
+      include: {
+        chapters: {
+          include: { items: true },
+        },
+      },
+    });
+    if (!edition) throw new NotFoundException('CourseEdition not found');
+    if (edition.status === 'PUBLISHED') return edition;
+    if (edition.status === 'ARCHIVED') {
+      throw new BadRequestException('Cannot publish an ARCHIVED edition');
+    }
+
+    // Validate syllabus: check for duplicate orderIndex in chapters
+    const chapterIndexes = edition.chapters.map((c) => c.orderIndex);
+    if (new Set(chapterIndexes).size !== chapterIndexes.length) {
+      throw new BadRequestException('Chapters have duplicate orderIndex');
+    }
+
+    // Validate items: check for duplicate orderIndex within each chapter
+    for (const chapter of edition.chapters) {
+      const itemIndexes = chapter.items.map((i) => i.orderIndex);
+      if (new Set(itemIndexes).size !== itemIndexes.length) {
+        throw new BadRequestException(
+          `Chapter "${chapter.title}" has items with duplicate orderIndex`,
+        );
+      }
+    }
+
+    return this.prisma.courseEdition.update({
+      where: { id },
+      data: { status: 'PUBLISHED' },
+    });
+  }
+
+  async archiveEdition(id: string) {
+    const edition = await this.prisma.courseEdition.findUnique({
+      where: { id },
+      include: { classes: { where: { status: { in: ['ENROLLING', 'IN_PROGRESS'] } } } },
+    });
+    if (!edition) throw new NotFoundException('CourseEdition not found');
+
+    if (edition.classes.length > 0) {
+      throw new BadRequestException(
+        'Cannot archive edition with active classes (ENROLLING/IN_PROGRESS)',
+      );
+    }
+
+    return this.prisma.courseEdition.update({
+      where: { id },
+      data: { status: 'ARCHIVED', isCurrent: false },
+    });
+  }
+
   async delete(id: string) {
-    await this.findById(id);
+    const edition = await this.findById(id);
+    if (edition.status === 'PUBLISHED') {
+      throw new BadRequestException('Cannot delete a PUBLISHED edition. Archive it instead.');
+    }
     await this.prisma.courseEdition.delete({ where: { id } });
     return { ok: true };
   }

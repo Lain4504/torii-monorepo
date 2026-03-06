@@ -5,7 +5,7 @@ import { LessonCreateDto, LessonQueryDto, LessonUpdateDto } from './dto/lesson.d
 
 @Controller()
 export class LessonHandler {
-  constructor(private readonly lessons: LessonService) {}
+  constructor(private readonly lessons: LessonService) { }
 
   @MessagePattern({ cmd: 'academy.lesson.findAll' })
   findAll(@Payload() query: LessonQueryDto) {
@@ -25,6 +25,11 @@ export class LessonHandler {
   @MessagePattern({ cmd: 'academy.lesson.update' })
   update(@Payload() data: { id: string; input: LessonUpdateDto }) {
     return this.lessons.update(data.id, data.input);
+  }
+
+  @MessagePattern({ cmd: 'academy.lesson.getUsage' })
+  getUsage(@Payload() data: { id: string }) {
+    return this.lessons.getUsage(data.id);
   }
 
   @MessagePattern({ cmd: 'academy.lesson.delete' })

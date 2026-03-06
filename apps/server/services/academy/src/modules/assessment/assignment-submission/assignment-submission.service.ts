@@ -9,7 +9,7 @@ import {
 
 @Injectable()
 export class AssignmentSubmissionService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findAll(query: AssignmentSubmissionQueryDto) {
     return this.prisma.assignmentSubmission.findMany({
@@ -37,17 +37,36 @@ export class AssignmentSubmissionService {
 
     const assessment = await this.prisma.classAssessment.findUnique({
       where: { id: input.classAssessmentId },
-      select: { id: true, classId: true, assignmentTemplateId: true, kind: true },
+      select: { id: true, classId: true, assignmentTemplateId: true, kind: true, settings: true },
     });
     if (!assessment) throw new BadRequestException('Invalid classAssessmentId');
     if (assessment.classId !== input.classId) {
       throw new BadRequestException('classAssessmentId does not belong to classId');
     }
-    if ((assessment.kind ?? '').toUpperCase() !== 'ASSIGNMENT') {
-      throw new BadRequestException('classAssessment.kind must be ASSIGNMENT');
-    }
-    if (assessment.assignmentTemplateId !== input.assignmentTemplateId) {
-      throw new BadRequestException('assignmentTemplateId mismatch with classAssessment');
+
+    const existing = await this.prisma.assignmentSubmission.findFirst({
+      where: {
+        classId: input.classId,
+        classAssessmentId: input.classAssessmentId,
+        userId: input.userId,
+      },
+    });
+
+    if (existing) {
+      if (existing.status === 'GRADED') {
+        throw new BadRequestException('Cannot resubmit already graded assignment');
+      }
+
+      const settings = (assessment.settings as any) || {};
+      if (existing.status === 'SUBMITTED' && !settings.allowResubmission) {
+        throw new BadRequestException('Resubmission not allowed for this assignment');
+      }
+
+      // Update existing instead of create
+      return this.update(existing.id, {
+        status: input.status,
+        content: input.content,
+      });
     }
 
     return this.prisma.assignmentSubmission.create({

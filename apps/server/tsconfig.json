@@ -44,9 +44,6 @@
       "@server/agents/*": [
         "./services/agents/src/*"
       ],
-      "@server/billing/*": [
-        "./services/billing/src/*"
-      ],
       "@server/meet/*": [
         "./services/meet/src/*"
       ],

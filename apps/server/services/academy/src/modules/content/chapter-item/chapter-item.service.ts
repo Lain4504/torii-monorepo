@@ -3,12 +3,13 @@ import { PrismaService } from '@server/shared/prisma/prisma.service';
 import {
   ChapterItemCreateDto,
   ChapterItemQueryDto,
+  ChapterItemReorderDto,
   ChapterItemUpdateDto,
 } from './dto/chapter-item.dto';
 
 @Injectable()
 export class ChapterItemService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findAll(query: ChapterItemQueryDto) {
     return this.prisma.chapterItem.findMany({
@@ -85,8 +86,44 @@ export class ChapterItemService {
     });
   }
 
+  async reorderItems(input: ChapterItemReorderDto) {
+    await this.prisma.$transaction(
+      input.orderedIds.map((id, index) =>
+        this.prisma.chapterItem.update({
+          where: { id, chapterId: input.chapterId },
+          data: { orderIndex: index },
+        }),
+      ),
+    );
+    return { ok: true };
+  }
+
   async delete(id: string) {
-    await this.findById(id);
+    const item = await this.prisma.chapterItem.findUnique({
+      where: { id },
+      include: {
+        chapter: {
+          include: {
+            courseEdition: {
+              include: {
+                classes: { where: { status: { in: ['ENROLLING', 'IN_PROGRESS'] } } },
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!item) throw new NotFoundException('ChapterItem not found');
+
+    if (
+      item.chapter.courseEdition.status === 'PUBLISHED' &&
+      item.chapter.courseEdition.classes.length > 0
+    ) {
+      throw new BadRequestException(
+        'Cannot delete item from a PUBLISHED edition with active classes',
+      );
+    }
+
     await this.prisma.chapterItem.delete({ where: { id } });
     return { ok: true };
   }

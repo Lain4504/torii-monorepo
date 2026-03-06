@@ -4,7 +4,7 @@ import { LessonCreateDto, LessonQueryDto, LessonUpdateDto } from './dto/lesson.d
 
 @Injectable()
 export class LessonService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findAll(query: LessonQueryDto) {
     const q = query.q?.trim();
@@ -13,8 +13,8 @@ export class LessonService {
         courseProfileId: query.courseProfileId ?? undefined,
         ...(q
           ? {
-              OR: [{ title: { contains: q, mode: 'insensitive' } }],
-            }
+            OR: [{ title: { contains: q, mode: 'insensitive' } }],
+          }
           : {}),
       },
       orderBy: [{ createdAt: 'desc' }],
@@ -62,8 +62,51 @@ export class LessonService {
     });
   }
 
+  async getUsage(id: string) {
+    const chapterItems = await this.prisma.chapterItem.findMany({
+      where: { kind: 'LESSON', referenceId: id },
+      include: {
+        chapter: {
+          include: { courseEdition: { include: { courseProfile: true } } },
+        },
+      },
+    });
+
+    const activeProgressCount = await this.prisma.learningProgress.count({
+      where: { lessonId: id },
+    });
+
+    return {
+      chapterItems: chapterItems.map((ci) => ({
+        chapterId: ci.chapterId,
+        chapterTitle: ci.chapter.title,
+        editionId: ci.chapter.courseEditionId,
+        editionStatus: ci.chapter.courseEdition.status,
+        courseTitle: ci.chapter.courseEdition.courseProfile?.title,
+      })),
+      activeProgressCount,
+    };
+  }
+
   async delete(id: string) {
-    await this.findById(id);
+    const usage = await this.getUsage(id);
+
+    // Check if used in any PUBLISHED edition
+    const publishedUsage = usage.chapterItems.filter((u) => u.editionStatus === 'PUBLISHED');
+    if (publishedUsage.length > 0) {
+      throw new BadRequestException(
+        `Cannot delete lesson used in PUBLISHED editions: ${publishedUsage
+          .map((u) => u.editionId)
+          .join(', ')}`,
+      );
+    }
+
+    if (usage.activeProgressCount > 0) {
+      throw new BadRequestException(
+        `Cannot delete lesson with ${usage.activeProgressCount} active learning progress records`,
+      );
+    }
+
     await this.prisma.lesson.delete({ where: { id } });
     return { ok: true };
   }

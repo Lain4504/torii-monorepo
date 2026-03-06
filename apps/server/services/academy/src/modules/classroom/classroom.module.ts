@@ -4,6 +4,7 @@ import { ClassScheduleModule } from './class-schedule/class-schedule.module';
 import { ClassAssessmentModule } from './class-assessment/class-assessment.module';
 import { EnrollmentModule } from './enrollment/enrollment.module';
 import { LearningProgressModule } from './learning-progress/learning-progress.module';
+import { CertificateModule } from './certificate/certificate.module';
 
 @Module({
   imports: [
@@ -12,7 +13,8 @@ import { LearningProgressModule } from './learning-progress/learning-progress.mo
     ClassAssessmentModule,
     EnrollmentModule,
     LearningProgressModule,
+    CertificateModule,
   ],
 })
-export class ClassroomModule {}
+export class ClassroomModule { }
 

@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/generated';
+import { Prisma, OfferingStatus, OrderType } from '@prisma/generated';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import {
   CourseOfferingCreateDto,
@@ -10,20 +10,20 @@ import {
 
 @Injectable()
 export class CourseOfferingService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findAll(query: CourseOfferingQueryDto) {
     const q = query.q?.trim();
     return this.prisma.courseOffering.findMany({
       where: {
-        status: query.status ?? undefined,
+        status: query.status as OfferingStatus,
         ...(q
           ? {
-              OR: [
-                { code: { contains: q, mode: 'insensitive' } },
-                { title: { contains: q, mode: 'insensitive' } },
-              ],
-            }
+            OR: [
+              { code: { contains: q, mode: 'insensitive' } },
+              { title: { contains: q, mode: 'insensitive' } },
+            ],
+          }
           : {}),
       },
       orderBy: [{ createdAt: 'desc' }],
@@ -41,6 +41,16 @@ export class CourseOfferingService {
   }
 
   async create(input: CourseOfferingCreateDto) {
+    if (input.status === OfferingStatus.ACTIVE) {
+      if (!input.classIds?.length) {
+        throw new BadRequestException('Active offering must have at least one class');
+      }
+      // Check sales dates
+      if (input.validFrom && input.validTo && input.validFrom > input.validTo) {
+        throw new BadRequestException('validFrom cannot be after validTo');
+      }
+    }
+
     if (input.classIds?.length) {
       const count = await this.prisma.class.count({
         where: { id: { in: input.classIds } },
@@ -55,35 +65,49 @@ export class CourseOfferingService {
         code: input.code,
         title: input.title,
         description: input.description,
-        price: new Prisma.Decimal(input.price),
+        originalPrice: new Prisma.Decimal(input.originalPrice),
         currency: input.currency,
-        status: input.status ?? 'DRAFT',
-        salesStartAt: input.salesStartAt,
-        salesEndAt: input.salesEndAt,
+        status: input.status as OfferingStatus || OfferingStatus.DRAFT,
+        type: input.type as OrderType || OrderType.COURSE,
+        validFrom: input.validFrom,
+        validTo: input.validTo,
         metadata: input.metadata ?? undefined,
         classes: input.classIds?.length
           ? {
-              create: input.classIds.map((classId) => ({ classId })),
-            }
+            create: input.classIds.map((classId) => ({ classId })),
+          }
           : undefined,
-      } as any,
+      },
     });
   }
 
   async update(id: string, input: CourseOfferingUpdateDto) {
-    await this.findById(id);
+    const offering = await this.findById(id);
+
+    if (input.status === OfferingStatus.ACTIVE) {
+      if (offering.classes.length === 0) {
+        throw new BadRequestException('Cannot activate offering with no classes');
+      }
+      const start = input.validFrom || offering.validFrom;
+      const end = input.validTo || offering.validTo;
+      if (start && end && start > end) {
+        throw new BadRequestException('validFrom cannot be after validTo');
+      }
+    }
+
     return this.prisma.courseOffering.update({
       where: { id },
       data: {
         title: input.title,
         description: input.description,
-        price: input.price !== undefined ? new Prisma.Decimal(input.price) : undefined,
+        originalPrice: input.originalPrice !== undefined ? new Prisma.Decimal(input.originalPrice) : undefined,
         currency: input.currency,
-        status: input.status,
-        salesStartAt: input.salesStartAt,
-        salesEndAt: input.salesEndAt,
+        status: input.status as OfferingStatus,
+        type: input.type as OrderType,
+        validFrom: input.validFrom,
+        validTo: input.validTo,
         metadata: input.metadata ?? undefined,
-      } as any,
+      },
     });
   }
 
@@ -96,17 +120,18 @@ export class CourseOfferingService {
       throw new BadRequestException('Some classIds do not exist');
     }
 
-    await this.prisma.courseOfferingClass.deleteMany({
-      where: { offeringId: input.offeringId },
-    });
-
-    await this.prisma.courseOfferingClass.createMany({
-      data: input.classIds.map((classId) => ({
-        offeringId: input.offeringId,
-        classId,
-      })),
-      skipDuplicates: true,
-    });
+    await this.prisma.$transaction([
+      this.prisma.courseOfferingClass.deleteMany({
+        where: { offeringId: input.offeringId },
+      }),
+      this.prisma.courseOfferingClass.createMany({
+        data: input.classIds.map((classId) => ({
+          offeringId: input.offeringId,
+          classId,
+        })),
+        skipDuplicates: true,
+      }),
+    ]);
 
     return this.findById(input.offeringId);
   }

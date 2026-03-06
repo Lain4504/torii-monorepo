@@ -85,16 +85,6 @@
         "tsConfigPath": "services/gamification/tsconfig.app.json",
         "webpack": false
       }
-    },
-    "billing": {
-      "type": "application",
-      "root": "services/billing",
-      "entryFile": "main",
-      "sourceRoot": "services/billing/src",
-      "compilerOptions": {
-        "tsConfigPath": "services/billing/tsconfig.app.json",
-        "webpack": false
-      }
     }
   }
 }

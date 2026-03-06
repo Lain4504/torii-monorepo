@@ -1,4 +1,5 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import {
   LearningProgressQueryDto,
@@ -8,7 +9,10 @@ import {
 
 @Injectable()
 export class LearningProgressService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject('NATS_SERVICE') private readonly nats: ClientProxy,
+  ) { }
 
   async findAll(query: LearningProgressQueryDto) {
     return this.prisma.learningProgress.findMany({
@@ -98,7 +102,7 @@ export class LearningProgressService {
       completedCourses: 0, // Need enrollment completion logic if available
       inProgressCourses,
       totalLearningHours: 0, // Need duration tracking logic
-      averageProgress: progress.length > 0 
+      averageProgress: progress.length > 0
         ? Math.round(progress.reduce((acc, curr) => acc + (curr.progressPercent || 0), 0) / progress.length)
         : 0,
       currentStreak: 0,
@@ -122,7 +126,7 @@ export class LearningProgressService {
       throw new BadRequestException('Lesson does not belong to class courseProfile');
     }
 
-    return this.prisma.learningProgress.upsert({
+    const result = await this.prisma.learningProgress.upsert({
       where: {
         classId_userId_lessonId: {
           classId: input.classId,
@@ -144,6 +148,61 @@ export class LearningProgressService {
         progressPercent: input.progressPercent,
       },
     });
+
+    if (input.status === 'COMPLETED') {
+      await this.checkClassCompletion(input.classId, input.userId);
+    }
+
+    return result;
+  }
+
+  async checkClassCompletion(classId: string, userId: string) {
+    const klass = await this.prisma.class.findUnique({
+      where: { id: classId },
+      include: {
+        courseEdition: {
+          include: {
+            chapters: {
+              include: { items: { where: { kind: 'LESSON' } } },
+            },
+          },
+        },
+      },
+    });
+
+    if (!klass) return;
+
+    const allLessonIds = klass.courseEdition.chapters.flatMap((c) =>
+      c.items.map((i) => i.referenceId),
+    );
+
+    if (allLessonIds.length === 0) return;
+
+    const completedCount = await this.prisma.learningProgress.count({
+      where: {
+        classId,
+        userId,
+        lessonId: { in: allLessonIds },
+        status: 'COMPLETED',
+      },
+    });
+
+    if (completedCount >= allLessonIds.length) {
+      const enrollments = await this.prisma.enrollment.findMany({
+        where: { classId, userId, status: 'ACTIVE' },
+        select: { id: true },
+      });
+
+      for (const enrollment of enrollments) {
+        await this.prisma.enrollment.update({
+          where: { id: enrollment.id },
+          data: { status: 'COMPLETED' },
+        });
+
+        // Emit event
+        this.nats.emit('enrollment.completed', { enrollmentId: enrollment.id });
+      }
+    }
   }
 }
 

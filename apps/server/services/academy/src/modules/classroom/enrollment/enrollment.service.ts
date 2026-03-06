@@ -4,7 +4,7 @@ import { EnrollmentCreateDto, EnrollmentQueryDto } from './dto/enrollment.dto';
 
 @Injectable()
 export class EnrollmentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findAll(query: EnrollmentQueryDto) {
     return this.prisma.enrollment.findMany({
@@ -26,9 +26,13 @@ export class EnrollmentService {
   async create(input: EnrollmentCreateDto) {
     const klass = await this.prisma.class.findUnique({
       where: { id: input.classId },
-      select: { id: true },
+      select: { id: true, status: true, maxStudents: true },
     });
     if (!klass) throw new BadRequestException('Invalid classId');
+
+    if (klass.status !== 'ENROLLING' && klass.status !== 'IN_PROGRESS') {
+      throw new BadRequestException('Can only enroll in ENROLLING or IN_PROGRESS classes');
+    }
 
     const user = await this.prisma.user.findUnique({
       where: { id: input.userId },
@@ -41,6 +45,15 @@ export class EnrollmentService {
       select: { id: true },
     });
     if (existing) return this.findById(existing.id);
+
+    if (klass.maxStudents) {
+      const currentCount = await this.prisma.enrollment.count({
+        where: { classId: input.classId, status: 'ACTIVE' },
+      });
+      if (currentCount >= klass.maxStudents) {
+        throw new BadRequestException('Class is full');
+      }
+    }
 
     return this.prisma.enrollment.create({
       data: {

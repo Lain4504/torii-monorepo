@@ -10,6 +10,7 @@ import { CommerceModule } from '@server/academy/modules/commerce/commerce.module
 import { TicketModule } from '@server/academy/modules/ticket/ticket.module';
 import { StorageModule } from '@server/academy/modules/storage/storage.module';
 import { BlogModule } from '@server/academy/modules/blog/blog.module';
+import { InfrastructureModule } from './infrastructure/infrastructure.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { BlogModule } from '@server/academy/modules/blog/blog.module';
     TicketModule,
     StorageModule,
     BlogModule,
+    InfrastructureModule,
   ],
   providers: [
     {

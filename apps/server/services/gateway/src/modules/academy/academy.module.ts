@@ -16,6 +16,8 @@ import { AssignmentSubmissionController } from './controllers/assignment-submiss
 import { LessonController } from './controllers/lesson.controller';
 import { BlogController } from './controllers/blog.controller';
 import { LearningProgressController } from './controllers/learning-progress.controller';
+import { OrderController } from './controllers/order.controller';
+import { WebhookController } from './controllers/webhook.controller';
 
 @Module({
   imports: [NatsClientModule],
@@ -36,6 +38,8 @@ import { LearningProgressController } from './controllers/learning-progress.cont
     LessonController,
     BlogController,
     LearningProgressController,
+    OrderController,
+    WebhookController,
   ],
 })
 export class AcademyModule { }

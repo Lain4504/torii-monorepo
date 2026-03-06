@@ -9,7 +9,7 @@ import {
 
 @Controller()
 export class CourseEditionHandler {
-  constructor(private readonly editions: CourseEditionService) {}
+  constructor(private readonly editions: CourseEditionService) { }
 
   @MessagePattern({ cmd: 'academy.courseEdition.findAll' })
   findAll(@Payload() query: CourseEditionQueryDto) {
@@ -31,9 +31,14 @@ export class CourseEditionHandler {
     return this.editions.update(data.id, data.input);
   }
 
-  @MessagePattern({ cmd: 'academy.courseEdition.setCurrent' })
-  setCurrent(@Payload() data: { id: string }) {
-    return this.editions.setCurrent(data.id);
+  @MessagePattern({ cmd: 'academy.courseEdition.publish' })
+  publish(@Payload() data: { id: string }) {
+    return this.editions.publishEdition(data.id);
+  }
+
+  @MessagePattern({ cmd: 'academy.courseEdition.archive' })
+  archive(@Payload() data: { id: string }) {
+    return this.editions.archiveEdition(data.id);
   }
 
   @MessagePattern({ cmd: 'academy.courseEdition.delete' })

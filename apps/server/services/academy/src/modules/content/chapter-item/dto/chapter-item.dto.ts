@@ -44,3 +44,11 @@ export class ChapterItemQueryDto {
   chapterId?: string;
 }
 
+export class ChapterItemReorderDto {
+  @IsUUID()
+  chapterId!: string;
+
+  @IsUUID(undefined, { each: true })
+  orderedIds!: string[];
+}
+
