@@ -2,7 +2,7 @@ services:
   # ========================================
   # Infrastructure Services
   # ========================================
-  
+
   postgres:
     image: postgres:16-alpine
     container_name: torii-postgres
@@ -16,7 +16,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      test: [ 'CMD-SHELL', 'pg_isready -U postgres' ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -30,7 +30,7 @@ services:
     volumes:
       - redisdata:/data
     healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
+      test: [ 'CMD', 'redis-cli', 'ping' ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -75,8 +75,8 @@ services:
     restart: always
     command: --config /ingress.yaml
     ports:
-      - '1935:1935/tcp'   # RTMP
-      - '8089:8089/tcp'   # WHIP
+      - '1935:1935/tcp' # RTMP
+      - '8089:8089/tcp' # WHIP
     volumes:
       - ./ingress.yaml:/ingress.yaml
     depends_on:
@@ -213,6 +213,44 @@ services:
       - nats
       - postgres
       - redis
+
+  agents:
+    image: ${DOCKER_USERNAME}/torii-backend:latest
+    command: npm run prod:agents
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - NATS_URL=${NATS_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_HOST=${REDIS_HOST}
+    volumes:
+      - ./apps/server/config/config.yaml:/app/apps/server/config/config.yaml
+      - ./apps/server/services/agents/src/assets:/app/apps/server/services/agents/src/assets # Mount prompts
+    depends_on:
+      - nats
+      - redis
+
+  voice-agent:
+    build:
+      context: .
+      dockerfile: apps/voice-agent/Dockerfile
+    image: ${DOCKER_USERNAME}/torii-voice-agent:latest
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - LIVEKIT_URL=${LIVEKIT_URL}
+      - LIVEKIT_API_KEY=${LIVEKIT_API_KEY}
+      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+    ports:
+      - "8123:8082" # Maps host 8123 to container 8082
+    depends_on:
+      - livekit
 
 volumes:
   pgdata:
