@@ -75,55 +75,5 @@ export class AssessmentHandler {
     }
   }
 
-  @Post('placement/test')
-  async generatePlacementTest(@Req() req: ReqWithRequester, @Body() body: any) {
-    const requester = req.requester || null;
-    const userId = requester?.sub || 'anonymous';
-    try {
-      this.logger.log(
-        `🎯 Placement test generation request from user ${userId}`,
-      );
-      const result = await firstValueFrom(
-        this.natsClient.send(
-          { cmd: 'agents.assessment.placementTest' },
-          { requester, ...body },
-        ),
-      );
-      return successResponse(result);
-    } catch (error: any) {
-      this.logger.error(
-        `Placement test generation failed for user ${userId}`,
-        error.stack,
-      );
-      return errorResponse(
-        error.message || 'Failed to generate placement test',
-      );
-    }
-  }
-
-  @Post('placement/evaluate')
-  async evaluatePlacementTest(@Req() req: ReqWithRequester, @Body() body: any) {
-    const requester = req.requester || null;
-    const userId = requester?.sub || 'anonymous';
-    try {
-      this.logger.log(
-        `📈 Placement test evaluation request from user ${userId}`,
-      );
-      const result = await firstValueFrom(
-        this.natsClient.send(
-          { cmd: 'agents.assessment.evaluatePlacement' },
-          { requester, ...body },
-        ),
-      );
-      return successResponse(result);
-    } catch (error: any) {
-      this.logger.error(
-        `Placement test evaluation failed for user ${userId}`,
-        error.stack,
-      );
-      return errorResponse(
-        error.message || 'Failed to evaluate placement test',
-      );
-    }
-  }
+  // Legacy placement endpoints are deprecated in favor of /api/academy/placement/*
 }

@@ -9,6 +9,7 @@ import {
     Param,
     Query,
     UseGuards,
+    Req,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -17,12 +18,40 @@ import {
     successResponse,
     Permissions,
     PermissionsGuard,
+    ReqWithRequester,
 } from '@server/shared';
 
 @Controller('api/academy/coupons')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class CouponController {
     constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
+
+    // ===================== USER ENDPOINTS =====================
+
+    /**
+     * Validate a coupon code
+     */
+    @Post('validate')
+    async validate(@Body() body: any) {
+        const result = await firstValueFrom(
+            this.nats.send({ cmd: 'academy.coupon.validate' }, body),
+        );
+        return successResponse(result);
+    }
+
+    /**
+     * Get user's owned coupons
+     */
+    @Get('my-coupons')
+    async getMyCoupons(@Req() req: ReqWithRequester) {
+        const userId = req.requester.sub;
+        const result = await firstValueFrom(
+            this.nats.send({ cmd: 'academy.coupon.getMyCoupons' }, { userId }),
+        );
+        return successResponse(result);
+    }
+
+    // ===================== ADMIN ENDPOINTS =====================
 
     @Get('admin')
     @Permissions('academy:coupon:admin')

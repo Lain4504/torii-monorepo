@@ -10,10 +10,11 @@ export class GamificationService {
         private readonly prisma: PrismaService,
     ) { }
 
-    private readonly EARNING_RULES = {
+    private readonly EARNING_RULES: Record<string, { xp: number; points: number }> = {
         [ActivityType.LOGIN]: { xp: 0, points: 5 },
         [ActivityType.LESSON_COMPLETE]: { xp: 10, points: 10 },
         [ActivityType.EXAM_COMPLETE]: { xp: 20, points: 20 },
+        [ActivityType.REVIEW]: { xp: 50, points: 50 },
     };
 
     /**
@@ -45,15 +46,39 @@ export class GamificationService {
             if (existingActivity) {
                 return { amount: 0, message: "Already completed daily login today" };
             }
+        } else if (activityType === ActivityType.REVIEW && metadata?.reviewId) {
+            // Ensure no duplicate points for the same review
+            const existingActivity = await this.prisma.gamificationHistory.findFirst({
+                where: {
+                    userId,
+                    activityType: ActivityType.REVIEW,
+                    metadata: { path: ['reviewId'], equals: metadata.reviewId }
+                }
+            });
+
+            if (existingActivity) {
+                return { amount: 0, message: "Already rewarded for this review" };
+            }
         } else if (metadata?.lessonId) {
             // If lesson, verify if already tracked (simplistic duplicate check)
             // Typically we should store the reference to the lesson, but for now we rely on the specific action or state
         }
 
         return this.prisma.$transaction(async (tx) => {
-            // Log the activity
-            await tx.dailyActivity.create({
-                data: {
+            // Log or update the daily activity summary
+            await tx.dailyActivity.upsert({
+                where: {
+                    userId_date_activityType: {
+                        userId,
+                        date: dateString,
+                        activityType
+                    }
+                },
+                update: {
+                    // Just optionally update meta, or keep count (if you add count to schema later)
+                    meta: metadata
+                },
+                create: {
                     userId,
                     activityType,
                     date: dateString,

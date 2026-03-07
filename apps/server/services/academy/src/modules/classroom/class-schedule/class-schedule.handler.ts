@@ -6,6 +6,7 @@ import {
   ClassScheduleQueryDto,
   ClassScheduleUpdateDto,
 } from './dto/class-schedule.dto';
+import { LiveSessionJoinDto } from './dto/live-session.dto';
 
 @Controller()
 export class ClassScheduleHandler {
@@ -34,6 +35,11 @@ export class ClassScheduleHandler {
   @MessagePattern({ cmd: 'academy.classSchedule.delete' })
   delete(@Payload() data: { id: string }) {
     return this.schedules.delete(data.id);
+  }
+
+  @MessagePattern({ cmd: 'academy.liveSession.join' })
+  join(@Payload() data: LiveSessionJoinDto & { isAdmin?: boolean }) {
+    return this.schedules.join(data.id, data.userId, data.isAdmin);
   }
 }
 

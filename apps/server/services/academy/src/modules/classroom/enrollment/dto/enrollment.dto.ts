@@ -21,6 +21,10 @@ export class EnrollmentCreateDto {
 
   @IsOptional()
   @IsUUID()
+  sourceOrderId?: string;
+
+  @IsOptional()
+  @IsUUID()
   companyId?: string;
 
   @IsOptional()

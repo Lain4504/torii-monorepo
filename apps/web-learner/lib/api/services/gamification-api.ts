@@ -123,11 +123,11 @@ export const gamificationApi = {
     /**
      * Redeem points for a reward
      */
-    async redeemPoints(dealId: string): Promise<any> {
+    async redeemPoints(rewardId: string): Promise<any> {
         const response =
             await apiClient.post<StandardApiResponse<any>>(
                 '/api/gamification/redeem',
-                { dealId }
+                { rewardId }
             );
 
         if (response.data.success && response.data.data) {
@@ -343,8 +343,8 @@ export function useRedeemPoints() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (dealId: string) =>
-            gamificationApi.redeemPoints(dealId),
+        mutationFn: (rewardId: string) =>
+            gamificationApi.redeemPoints(rewardId),
         onSuccess: () => {
             // Invalidate and refetch all related queries to ensure UI updates
             queryClient.invalidateQueries({

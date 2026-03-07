@@ -24,10 +24,11 @@ import {
     CheckCircle2, PlayCircle, Lock, FileText, BookOpen,
     MessageSquare, ChevronRight, Save, Download, Send,
     AlertCircle, Clock, Trophy, HelpCircle, Timer, RotateCcw,
-    Paperclip
+    Paperclip, PenTool
 } from 'lucide-react';
 import { MultiFileUpload } from '@/components/common/multi-file-upload';
 import type { CurriculumLesson, CurriculumModule } from '@/lib/api/services/course-api';
+import { StudyNotesPanel } from '@/components/courses/study-notes-panel';
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -1034,8 +1035,23 @@ export default function CourseLearnPage() {
                                         <textarea className="w-full h-40 p-3 bg-background border border-border rounded-lg text-sm text-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none resize-none"
                                             placeholder="Ghi chú cho bài học này..." value={note} onChange={e => setNote(e.target.value)} />
                                         <button className="mt-3 w-full bg-foreground text-background py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 transition flex items-center justify-center gap-2"
-                                            onClick={() => { setSavingNote(true); setTimeout(() => { setSavingNote(false); toast.success('Đã lưu ghi chú!'); }, 600); }} disabled={savingNote}>
-                                            <Save className="h-4 w-4" /> {savingNote ? 'Đang lưu...' : 'Lưu ghi chú'}
+                                            onClick={async () => {
+                                                setSavingNote(true);
+                                                try {
+                                                    const { StudyNoteApi } = await import('@/lib/api/services/study-note-api');
+                                                    if (currentLesson?.id) {
+                                                        await StudyNoteApi.create({ content: note, lessonId: currentLesson.id });
+                                                        toast.success('Đã lưu ghi chú!');
+                                                    }
+                                                } catch (e: any) {
+                                                    toast.error('Lỗi khi lưu ghi chú');
+                                                } finally {
+                                                    setSavingNote(false);
+                                                }
+                                            }}
+                                            disabled={savingNote}
+                                        >
+                                            <Save className="h-4 w-4" /> {savingNote ? 'Đang lưu...' : 'Lưu ghi chú nhanh'}
                                         </button>
                                     </div>
                                 </div>
@@ -1188,6 +1204,11 @@ export default function CourseLearnPage() {
             >
                 <Menu className="h-6 w-6" />
             </button>
+
+            {/* ── STUDY NOTES PANEL ─────────────────────────────────────────── */}
+            {currentLesson && (
+                <StudyNotesPanel lessonId={currentLesson.id} />
+            )}
         </div>
     );
 }

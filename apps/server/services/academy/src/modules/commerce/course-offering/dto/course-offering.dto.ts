@@ -79,6 +79,10 @@ export class CourseOfferingUpdateDto {
 
   @IsOptional()
   metadata?: unknown;
+
+  @IsOptional()
+  @IsArray()
+  classIds?: string[];
 }
 
 export class CourseOfferingQueryDto {

@@ -140,6 +140,7 @@ export class EnrollmentService {
         expiresAt: input.expiresAt,
         status: input.status ?? 'ACTIVE',
         sourceOfferingId: input.sourceOfferingId,
+        sourceOrderId: input.sourceOrderId,
         companyId: input.companyId,
         metadata: input.metadata ?? undefined,
       },

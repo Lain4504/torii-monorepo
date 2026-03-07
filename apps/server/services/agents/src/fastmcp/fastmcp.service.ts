@@ -402,8 +402,8 @@ export class FastMcpService {
       }));
 
       // 2. Recent Vocabulary (Flashcards reviewed/added)
-      const recentFlashcards = await this.prisma.flashcard.findMany({
-        where: { deck: { userId } },
+      const recentFlashcards = await this.prisma.setCard.findMany({
+        where: { studySet: { userId } },
         orderBy: { updatedAt: 'desc' },
         take: 10,
       });

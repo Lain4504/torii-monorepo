@@ -22,10 +22,12 @@ import {
 } from "@workspace/ui/components/sidebar"
 import { learningNav, progressNav, accountNav, communityNav, aiSenseiNav } from "@/config/navigation"
 import { cn } from "@workspace/ui/lib/utils"
+import { useLogo } from "@/hooks/useLogo"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const pathname = usePathname()
     const isAISenseiPath = pathname?.startsWith('/ai-sensei')
+    const logo = useLogo()
 
     return (
         <Sidebar
@@ -45,7 +47,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             )}
                         >
                             <div className="flex items-center justify-start rounded-lg shrink-0">
-                                <Image src="/logo.png" alt="Torii Nihongo" width={200} height={40} className="h-8 w-auto object-contain" />
+                                <Image src={logo} alt="Torii Nihongo" width={200} height={40} className="h-8 w-auto object-contain" />
                             </div>
                             <div className="grid flex-1 text-left text-sm leading-tight ml-2 group-data-[collapsible=icon]:hidden">
                                 <span className="truncate text-xs font-medium text-muted-foreground">Cổng học viên</span>

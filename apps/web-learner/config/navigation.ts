@@ -41,8 +41,8 @@ export const learningNav: NavItem[] = [
     { name: 'Khám phá khóa học', href: '/dashboard/available-courses', icon: BookOpen },
     { name: 'Khóa học của tôi', href: '/dashboard/my-courses', icon: Clock },
     { name: 'Thời khóa biểu', href: '/dashboard/schedule', icon: CalendarDays },
-    { name: 'Kho Thẻ Nhớ', href: '/dashboard/flashcards', icon: BrainCircuit },
-    { name: 'Sổ tay từ vựng', href: '/dashboard/notes', icon: FileText },
+    { name: 'Thẻ ghi nhớ', href: '/dashboard/study-sets', icon: BrainCircuit },
+    { name: 'Ghi chú học tập', href: '/dashboard/study-notes', icon: FileText },
 ]
 
 export const communityNav: NavItem[] = [

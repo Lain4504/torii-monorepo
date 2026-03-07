@@ -1,0 +1,75 @@
+import { Controller } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
+import { StudySetService } from './study-set.service';
+import {
+    CreateStudySetDto,
+    UpdateStudySetDto,
+    CreateSetCardDto,
+    UpdateSetCardDto,
+    ReviewSetCardDto,
+} from './study-set.dto';
+
+@Controller()
+export class StudySetHandler {
+    constructor(private readonly studySetService: StudySetService) { }
+
+    @MessagePattern('academy.study-set.createSet')
+    createSet(@Payload() payload: { userId: string; data: CreateStudySetDto }) {
+        return this.studySetService.createSet(payload.userId, payload.data);
+    }
+
+    @MessagePattern('academy.study-set.findAllSets')
+    findAllSets(@Payload() payload: { userId: string }) {
+        return this.studySetService.findAllSets(payload.userId);
+    }
+
+    @MessagePattern('academy.study-set.findSetById')
+    findSetById(@Payload() payload: { id: string; userId: string }) {
+        return this.studySetService.findSetById(payload.id, payload.userId);
+    }
+
+    @MessagePattern('academy.study-set.updateSet')
+    updateSet(@Payload() payload: { id: string; userId: string; data: UpdateStudySetDto }) {
+        return this.studySetService.updateSet(payload.id, payload.userId, payload.data);
+    }
+
+    @MessagePattern('academy.study-set.deleteSet')
+    deleteSet(@Payload() payload: { id: string; userId: string }) {
+        return this.studySetService.deleteSet(payload.id, payload.userId);
+    }
+
+    @MessagePattern('academy.study-set.createCard')
+    createCard(@Payload() payload: { setId: string; userId: string; data: CreateSetCardDto }) {
+        return this.studySetService.createCard(payload.setId, payload.userId, payload.data);
+    }
+
+    @MessagePattern('academy.study-set.updateCard')
+    updateCard(@Payload() payload: { cardId: string; userId: string; data: UpdateSetCardDto }) {
+        return this.studySetService.updateCard(payload.cardId, payload.userId, payload.data);
+    }
+
+    @MessagePattern('academy.study-set.deleteCard')
+    deleteCard(@Payload() payload: { cardId: string; userId: string }) {
+        return this.studySetService.deleteCard(payload.cardId, payload.userId);
+    }
+
+    @MessagePattern('academy.study-set.getStudyCards')
+    getStudyCards(@Payload() payload: { setId: string; userId: string }) {
+        return this.studySetService.getStudyCards(payload.setId, payload.userId);
+    }
+
+    @MessagePattern('academy.study-set.reviewCard')
+    reviewCard(@Payload() payload: { cardId: string; userId: string; data: ReviewSetCardDto }) {
+        return this.studySetService.reviewCard(payload.cardId, payload.userId, payload.data);
+    }
+
+    @MessagePattern('academy.study-set.getTestQuiz')
+    getTestQuiz(@Payload() payload: { setId: string; userId: string; count?: number; types?: string }) {
+        return this.studySetService.getTestQuiz(payload.setId, payload.userId, payload.count, payload.types);
+    }
+
+    @MessagePattern('academy.study-set.getMatchGame')
+    getMatchGame(@Payload() payload: { setId: string; userId: string; count?: number }) {
+        return this.studySetService.getMatchGame(payload.setId, payload.userId, payload.count);
+    }
+}

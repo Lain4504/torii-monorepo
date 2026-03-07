@@ -45,6 +45,7 @@ export class CourseOfferingService {
                     avatarUrl: true,
                   },
                 },
+                schedules: true,
               },
             },
           },
@@ -56,10 +57,38 @@ export class CourseOfferingService {
   async findById(id: string) {
     const item = await this.prisma.courseOffering.findUnique({
       where: { id },
-      include: { classes: { include: { class: true } } },
+      include: {
+        classes: {
+          include: {
+            class: {
+              include: {
+                courseProfile: true,
+                courseEdition: {
+                  include: {
+                    chapters: {
+                      orderBy: { orderIndex: 'asc' },
+                      include: {
+                        items: {
+                          orderBy: { orderIndex: 'asc' },
+                        },
+                      },
+                    },
+                  },
+                },
+                primaryTeacher: {
+                  select: {
+                    displayName: true,
+                    avatarUrl: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
     if (!item) throw new NotFoundException('CourseOffering not found');
-    return item;
+    return item as any;
   }
 
   async create(input: CourseOfferingCreateDto) {
@@ -104,16 +133,25 @@ export class CourseOfferingService {
   }
 
   async update(id: string, input: CourseOfferingUpdateDto) {
-    const offering = await this.findById(id);
+    const offering = await this.findById(id) as any;
 
     if (input.status === OfferingStatus.ACTIVE) {
-      if (offering.classes.length === 0) {
+      if (!offering.classes || offering.classes.length === 0) {
         throw new BadRequestException('Cannot activate offering with no classes');
       }
       const start = input.validFrom || offering.validFrom;
       const end = input.validTo || offering.validTo;
       if (start && end && start > end) {
         throw new BadRequestException('validFrom cannot be after validTo');
+      }
+    }
+
+    if (input.classIds?.length) {
+      const count = await this.prisma.class.count({
+        where: { id: { in: input.classIds } },
+      });
+      if (count !== input.classIds.length) {
+        throw new BadRequestException('Some classIds do not exist');
       }
     }
 
@@ -129,6 +167,12 @@ export class CourseOfferingService {
         validFrom: input.validFrom,
         validTo: input.validTo,
         metadata: input.metadata ?? undefined,
+        classes: input.classIds
+          ? {
+            deleteMany: {},
+            create: input.classIds.map((classId) => ({ classId })),
+          }
+          : undefined,
       },
     });
   }

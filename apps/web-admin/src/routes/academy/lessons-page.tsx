@@ -116,6 +116,7 @@ export default function AcademyLessonsPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[80px]">STT</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Course Profile</TableHead>
@@ -126,15 +127,16 @@ export default function AcademyLessonsPage() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-4">
+                  <TableCell colSpan={6} className="text-center py-4">
                     Đang tải...
                   </TableCell>
                 </TableRow>
               ) : data.length ? (
-                data.map((item) => {
+                data.map((item, idx) => {
                   const profile = profiles.find((p) => p.id === item.courseProfileId)
                   return (
                     <TableRow key={item.id}>
+                      <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
                       <TableCell className="font-medium">{item.title}</TableCell>
                       <TableCell>{item.contentType}</TableCell>
                       <TableCell>
@@ -179,7 +181,7 @@ export default function AcademyLessonsPage() {
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-4">
+                  <TableCell colSpan={6} className="text-center py-4">
                     Chưa có dữ liệu
                   </TableCell>
                 </TableRow>

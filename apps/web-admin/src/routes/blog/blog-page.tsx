@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BlogPrimaryToolbar } from '@/components/blogs/blog-primary-toolbar.tsx';
 import { BlogTable } from '@/components/blogs/blog-table.tsx';
-import { CreateBlogDialog } from '@/components/blogs/create-blog-dialog.tsx';
 import { DeleteBlogDialog } from '@/components/blogs/delete-blog-dialog.tsx';
-import { ViewBlogSheet } from '@/components/blogs/view-blog-sheet.tsx';
 import { ScheduleBlogDialog } from '@/components/blogs/schedule-blog-dialog.tsx';
 import type { BlogResponseDTO, BlogQueryDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
@@ -28,9 +26,7 @@ export function BlogPage() {
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
     // Dialog States
-    const [showCreateDialog, setShowCreateDialog] = useState(false);
     const [deletingBlog, setDeletingBlog] = useState<BlogResponseDTO | null>(null);
-    const [viewingBlog, setViewingBlog] = useState<BlogResponseDTO | null>(null);
     const [schedulingBlog, setSchedulingBlog] = useState<BlogResponseDTO | null>(null);
 
     const navigate = useNavigate();
@@ -91,7 +87,7 @@ export function BlogPage() {
                 ]}
                 actions={
                     <Button
-                        onClick={() => setShowCreateDialog(true)}
+                        onClick={() => navigate('/blogs/create')}
                         size="lg"
                     >
                         <Plus />
@@ -120,7 +116,6 @@ export function BlogPage() {
                             data={blogs}
                             onEdit={(b) => navigate(`/blogs/${b.id}/edit`)}
                             onDelete={setDeletingBlog}
-                            onView={setViewingBlog}
                             onScheduleChange={setSchedulingBlog}
                             page={page}
                             limit={queryParams.limit || 10}
@@ -140,21 +135,10 @@ export function BlogPage() {
             </div>
 
             {/* Dialogs */}
-            <CreateBlogDialog
-                open={showCreateDialog}
-                onOpenChange={setShowCreateDialog}
-            />
-
             <DeleteBlogDialog
                 open={!!deletingBlog}
                 onOpenChange={(open) => !open && setDeletingBlog(null)}
                 blog={deletingBlog}
-            />
-
-            <ViewBlogSheet
-                open={!!viewingBlog}
-                onOpenChange={(open) => !open && setViewingBlog(null)}
-                blog={viewingBlog}
             />
 
             <ScheduleBlogDialog

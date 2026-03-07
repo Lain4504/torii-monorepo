@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom"
+import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { useAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
 import { useAcademyCourseEditions } from "@/lib/api/services/academy-course-editions"
 import { PageHeader } from "@/components/common/page-header"
@@ -31,12 +31,20 @@ import {
 } from "@workspace/ui/components/dropdown-menu"
 import { Link } from "react-router-dom"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
+import { RichTextRenderer } from "@/components/editor/rich-text-editor"
 
 export default function CourseProfileDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const activeTab = searchParams.get("tab") || "editions"
+
   const { data: profile, isLoading: isLoadingProfile } = useAcademyCourseProfile(id!)
   const { data: editions = [], isLoading: isLoadingEditions } = useAcademyCourseEditions({ courseProfileId: id })
+
+  const setTab = (val: string) => {
+    setSearchParams({ tab: val }, { replace: true })
+  }
 
   if (isLoadingProfile) return <div className="p-8 text-center">Đang tải profile...</div>
   if (!profile) return <div className="p-8 text-center text-destructive">Không tìm thấy profile</div>
@@ -63,7 +71,7 @@ export default function CourseProfileDetailPage() {
         }
       />
 
-      <Tabs defaultValue="editions" className="w-full">
+      <Tabs value={activeTab} onValueChange={setTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
           <TabsTrigger value="editions">Course Editions</TabsTrigger>
           <TabsTrigger value="info">Thông tin chung</TabsTrigger>
@@ -88,6 +96,7 @@ export default function CourseProfileDetailPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-[80px]">STT</TableHead>
                     <TableHead>Edition Tag</TableHead>
                     <TableHead>Trạng thái</TableHead>
                     <TableHead>Hiện tại</TableHead>
@@ -97,14 +106,15 @@ export default function CourseProfileDetailPage() {
                 <TableBody>
                   {isLoadingEditions ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-4">Đang tải editions...</TableCell>
+                      <TableCell colSpan={5} className="text-center py-4">Đang tải editions...</TableCell>
                     </TableRow>
                   ) : editions.length ? (
-                    editions.map((ed) => (
+                    editions.map((ed, idx) => (
                       <TableRow key={ed.id}>
+                        <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
                         <TableCell className="font-semibold text-primary">
                           <Link to={`/academy/course-editions/${ed.id}`} className="hover:underline">
-                             {ed.editionTag}
+                            {ed.editionTag}
                           </Link>
                         </TableCell>
                         <TableCell>
@@ -155,7 +165,7 @@ export default function CourseProfileDetailPage() {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-12 text-muted-foreground italic">
+                      <TableCell colSpan={5} className="text-center py-12 text-muted-foreground italic">
                         Chưa có phiên bản nào được tạo cho profile này.
                       </TableCell>
                     </TableRow>
@@ -175,19 +185,21 @@ export default function CourseProfileDetailPage() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-1">
+                <div className="space-y-3">
                   <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Mô tả</label>
-                  <p className="text-sm leading-relaxed">{profile.description || "Chưa có mô tả chi tiết."}</p>
+                  <div className="border rounded-md bg-muted/20 p-4">
+                    <RichTextRenderer content={profile.description} />
+                  </div>
                 </div>
                 <div className="space-y-4">
-                   <div>
-                      <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Ngôn ngữ mặc định</label>
-                      <p className="text-sm">{profile.defaultLanguage || "N/A"}</p>
-                   </div>
-                   <div>
-                      <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Mã định danh</label>
-                      <p className="text-sm font-mono">{profile.code}</p>
-                   </div>
+                  <div>
+                    <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Ngôn ngữ mặc định</label>
+                    <p className="text-sm">{profile.defaultLanguage || "N/A"}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Mã định danh</label>
+                    <p className="text-sm font-mono">{profile.code}</p>
+                  </div>
                 </div>
               </div>
             </CardContent>

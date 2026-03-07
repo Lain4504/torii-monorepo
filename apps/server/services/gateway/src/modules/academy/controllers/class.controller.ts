@@ -92,6 +92,42 @@ export class ClassController {
     return successResponse({ curriculum });
   }
 
+  @Post(':id/publish')
+  @Permissions('academy.delivery.write')
+  async publish(@Param('id', new ParseUUIDPipe()) id: string) {
+    const result = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.publish' }, { id }),
+    );
+    return successResponse(result);
+  }
+
+  @Post(':id/start')
+  @Permissions('academy.delivery.write')
+  async start(@Param('id', new ParseUUIDPipe()) id: string) {
+    const result = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.start' }, { id }),
+    );
+    return successResponse(result);
+  }
+
+  @Post(':id/complete')
+  @Permissions('academy.delivery.write')
+  async complete(@Param('id', new ParseUUIDPipe()) id: string) {
+    const result = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.complete' }, { id }),
+    );
+    return successResponse(result);
+  }
+
+  @Post(':id/cancel')
+  @Permissions('academy.delivery.write')
+  async cancel(@Param('id', new ParseUUIDPipe()) id: string) {
+    const result = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.cancel' }, { id }),
+    );
+    return successResponse(result);
+  }
+
   @Delete(':id')
   @Permissions('academy.delivery.write')
   async delete(@Param('id', new ParseUUIDPipe()) id: string) {

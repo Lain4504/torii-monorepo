@@ -1,7 +1,7 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import type { BlogResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
-import { ArrowUpDown, Pencil, Trash, Eye, FileText, MoreVertical } from 'lucide-react';
+import { ArrowUpDown, Pencil, Trash, FileText, MoreVertical } from 'lucide-react';
 import { Badge } from '@workspace/ui/components/badge';
 import {
     DropdownMenu,
@@ -18,7 +18,6 @@ import { Can } from "@/lib/guard/can";
 const columnHelper = createColumnHelper<BlogResponseDTO>();
 
 export type BlogColumnsProps = {
-    onView: (blog: BlogResponseDTO) => void;
     onEdit: (blog: BlogResponseDTO) => void;
     onDelete: (blog: BlogResponseDTO) => void;
     onScheduleChange: (blog: BlogResponseDTO) => void;
@@ -36,7 +35,7 @@ const getStatusLabel = (status: string) => {
     return labels[status] || status;
 };
 
-export const getBlogColumns = ({ onView, onEdit, onDelete, onScheduleChange, page, limit }: BlogColumnsProps) => [
+export const getBlogColumns = ({ onEdit, onDelete, onScheduleChange, page, limit }: BlogColumnsProps) => [
     // STT Column
     columnHelper.display({
         id: 'stt',
@@ -63,22 +62,21 @@ export const getBlogColumns = ({ onView, onEdit, onDelete, onScheduleChange, pag
             const blog = info.row.original;
             return (
                 <div
-                    className="flex items-center gap-3 group/title cursor-pointer max-w-[280px]"
-                    onClick={() => onView(blog)}
+                    className="flex items-center gap-3 max-w-[280px]"
                 >
                     <div className="w-11 h-11 shrink-0 rounded-lg bg-muted border border-border flex items-center justify-center text-muted-foreground overflow-hidden">
                         {blog.coverImageUrl ? (
                             <img
                                 src={blog.coverImageUrl}
                                 alt={blog.title}
-                                className="w-full h-full object-cover transition-transform group-hover/title:scale-110"
+                                className="w-full h-full object-cover"
                             />
                         ) : (
                             <FileText className="size-5" />
                         )}
                     </div>
                     <div className="flex flex-col min-w-0">
-                        <span className="font-semibold text-foreground text-sm group-hover/title:text-primary transition-colors line-clamp-1">
+                        <span className="font-semibold text-foreground text-sm line-clamp-1">
                             {info.getValue()}
                         </span>
                         <span className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wider truncate">
@@ -164,25 +162,6 @@ export const getBlogColumns = ({ onView, onEdit, onDelete, onScheduleChange, pag
         ),
         size: 100,
     }),
-    columnHelper.accessor('commentCount', {
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                >
-                    Bình luận
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            );
-        },
-        cell: (info) => (
-            <div className="text-center font-medium text-muted-foreground">
-                {info.getValue() || 0}
-            </div>
-        ),
-        size: 100,
-    }),
     columnHelper.accessor('publishedAt', {
         header: ({ column }) => {
             return (
@@ -226,13 +205,6 @@ export const getBlogColumns = ({ onView, onEdit, onDelete, onScheduleChange, pag
                             align="end"
                             className="w-[220px]"
                         >
-                            <DropdownMenuItem
-                                onClick={() => onView(blog)}
-                            >
-                                <Eye className="h-4 w-4 mr-2" />
-                                <span>Xem trước bài viết</span>
-                            </DropdownMenuItem>
-
                             <Can permission="blog.manage">
                                 <DropdownMenuItem
                                     onClick={() => onEdit(blog)}

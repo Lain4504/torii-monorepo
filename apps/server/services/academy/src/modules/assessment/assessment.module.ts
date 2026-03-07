@@ -4,9 +4,10 @@ import { ExamModule } from './exam/exam.module';
 import { ExamAttemptModule } from './exam-attempt/exam-attempt.module';
 import { AssignmentSubmissionModule } from './assignment-submission/assignment-submission.module';
 import { AssessmentCronService } from './assessment-cron.service';
+import { PlacementModule } from './placement/placement.module';
 
 @Module({
-  imports: [QuestionModule, ExamModule, ExamAttemptModule, AssignmentSubmissionModule],
+  imports: [QuestionModule, ExamModule, ExamAttemptModule, AssignmentSubmissionModule, PlacementModule],
   providers: [AssessmentCronService],
 })
 export class AssessmentModule { }

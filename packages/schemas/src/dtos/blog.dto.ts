@@ -13,8 +13,6 @@ export const blogCreateDTOSchema = blogSchema
         status: true,
         publishedAt: true,
         tags: true,
-        seoTitle: true,
-        seoDescription: true,
     })
     .partial({
         slug: true,
@@ -23,8 +21,6 @@ export const blogCreateDTOSchema = blogSchema
         status: true,
         publishedAt: true,
         tags: true,
-        seoTitle: true,
-        seoDescription: true,
     });
 
 export type BlogCreateDTO = z.infer<typeof blogCreateDTOSchema>;

@@ -36,6 +36,14 @@ import type { AcademyClass } from "@/lib/api/services/academy-classes"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
 import { useAcademyCourseEditions } from "@/lib/api/services/academy-course-editions"
 import { useUsers } from "@/lib/api/services/users"
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@workspace/ui/components/combobox"
 
 export function ClassForm({
   mode,
@@ -55,14 +63,18 @@ export function ClassForm({
   defaultCourseEditionId?: string
 }) {
   const isEdit = mode === "edit"
-  const { data: profilesData = [] } = useAcademyCourseProfiles({})
+
+  const profilesParams = useMemo(() => ({}), [])
+  const { data: profilesData = [] } = useAcademyCourseProfiles(profilesParams)
   const profiles = Array.isArray(profilesData) ? profilesData : (profilesData as any)?.items || []
 
-  const { data: editionsData = [] } = useAcademyCourseEditions({})
+  const editionsParams = useMemo(() => ({}), [])
+  const { data: editionsData = [] } = useAcademyCourseEditions(editionsParams)
   const editions = Array.isArray(editionsData) ? editionsData : (editionsData as any)?.items || []
 
-  const { data: teachersData } = useUsers({ role: "TEACHER", limit: 100 })
-  const teachers = teachersData?.data || []
+  const teacherParams = useMemo(() => ({ role: "lecturer", limit: 100 }), [])
+  const { data: teachersData } = useUsers(teacherParams)
+  const teachers = (teachersData as any)?.data || []
 
   const { handleSubmit, control, watch } = useForm<
     AcademyClassCreateDTO | AcademyClassUpdateDTO
@@ -87,7 +99,7 @@ export function ClassForm({
         minStudents: initial?.minStudents ?? undefined,
         maxStudents: initial?.maxStudents ?? undefined,
         status: initial?.status ?? undefined,
-        // Add teacherId and others if present in initial
+        primaryTeacherId: (initial as any)?.primaryTeacherId ?? undefined,
       }
       : {
         courseProfileId: defaultCourseProfileId ?? "",
@@ -106,6 +118,9 @@ export function ClassForm({
         status: "DRAFT",
       },
   })
+
+  const modeClass = watch("mode" as any)
+  const statusClass = watch("status" as any)
 
   const selectedProfileId = watch("courseProfileId" as any)
   const filteredEditions = useMemo(() => {
@@ -253,23 +268,30 @@ export function ClassForm({
               )}
             />
             <Controller
-              name={"teacherId" as any}
+              name={"primaryTeacherId" as any}
               control={control}
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel>Giảng viên phụ trách</FieldLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn giảng viên..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {teachers.map((t: any) => (
-                        <SelectItem key={t.id} value={t.id}>
-                          {t.name} ({t.email})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Combobox
+                    value={field.value}
+                    onValueChange={(val) => field.onChange(val)}
+                  >
+                    <ComboboxInput
+                      placeholder="Tìm kiếm giảng viên..."
+                      showClear
+                    />
+                    <ComboboxContent>
+                      <ComboboxList>
+                        {teachers.map((t: any) => (
+                          <ComboboxItem key={t.id} value={t.id}>
+                            {t.displayName || t.name} ({t.email})
+                          </ComboboxItem>
+                        ))}
+                        <ComboboxEmpty>Không tìm thấy giảng viên.</ComboboxEmpty>
+                      </ComboboxList>
+                    </ComboboxContent>
+                  </Combobox>
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
@@ -318,13 +340,20 @@ export function ClassForm({
                       <SelectValue placeholder="Chọn trạng thái..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="DRAFT">Draft</SelectItem>
-                      <SelectItem value="ENROLLING">Enrolling</SelectItem>
-                      <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
-                      <SelectItem value="COMPLETED">Completed</SelectItem>
-                      <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                      <SelectItem value="DRAFT">Bản nháp (Draft)</SelectItem>
+                      <SelectItem value="ENROLLING">Đang nhận học viên (Enrolling)</SelectItem>
+                      <SelectItem value="IN_PROGRESS">Đang học (In Progress)</SelectItem>
+                      <SelectItem value="COMPLETED">Đã kết thúc (Completed)</SelectItem>
+                      <SelectItem value="CANCELLED">Đã hủy (Cancelled)</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FieldDescription>
+                    {statusClass === "DRAFT" && "Lớp học mới khởi tạo, học viên chưa thể thấy."}
+                    {statusClass === "ENROLLING" && "Lớp học đang mở đăng ký tuyển sinh."}
+                    {statusClass === "IN_PROGRESS" && "Lớp học đang diễn ra theo kế hoạch."}
+                    {statusClass === "COMPLETED" && "Lớp học đã hoàn thành chương trình."}
+                    {statusClass === "CANCELLED" && "Lớp học đã bị hủy."}
+                  </FieldDescription>
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
@@ -337,7 +366,9 @@ export function ClassForm({
               control={control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel>Ngày khai giảng</FieldLabel>
+                  <FieldLabel>
+                    {modeClass === "VOD" ? "Ngày bắt đầu hiệu lực" : "Ngày khai giảng"}
+                  </FieldLabel>
                   <Input
                     type="date"
                     value={
@@ -349,6 +380,11 @@ export function ClassForm({
                       field.onChange(e.target.value ? new Date(e.target.value) : undefined)
                     }
                   />
+                  <FieldDescription>
+                    {modeClass === "VOD"
+                      ? "Thời điểm khóa học sẵn sàng cho học viên."
+                      : "Ngày dự kiến bắt đầu buổi học đầu tiên."}
+                  </FieldDescription>
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
@@ -358,7 +394,9 @@ export function ClassForm({
               control={control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel>Ngày kết thúc</FieldLabel>
+                  <FieldLabel>
+                    {modeClass === "VOD" ? "Ngày hết hạn (tùy chọn)" : "Ngày bế giảng"}
+                  </FieldLabel>
                   <Input
                     type="date"
                     value={
@@ -376,117 +414,122 @@ export function ClassForm({
             />
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <Controller
-              name={"minStudents" as any}
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Số học viên tối thiểu</FieldLabel>
-                  <Input
-                    type="number"
-                    min={0}
-                    {...field}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value === "" ? undefined : Number(e.target.value),
-                      )
-                    }
-                  />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-            <Controller
-              name={"maxStudents" as any}
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Số học viên tối đa</FieldLabel>
-                  <Input
-                    type="number"
-                    min={0}
-                    {...field}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value === "" ? undefined : Number(e.target.value),
-                      )
-                    }
-                  />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-          </div>
+          {modeClass !== "VOD" && (
+            <div className="grid gap-4 md:grid-cols-2">
+              <Controller
+                name={"minStudents" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Số học viên tối thiểu</FieldLabel>
+                    <Input
+                      type="number"
+                      min={0}
+                      {...field}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value === "" ? undefined : Number(e.target.value),
+                        )
+                      }
+                    />
+                    <FieldDescription>Cần đạt số lượng này để mở lớp.</FieldDescription>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+              <Controller
+                name={"maxStudents" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Số học viên tối đa</FieldLabel>
+                    <Input
+                      type="number"
+                      min={0}
+                      {...field}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value === "" ? undefined : Number(e.target.value),
+                        )
+                      }
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Thời gian tuyển sinh</CardTitle>
-          <CardDescription>Cấu hình thời gian mở và đóng đăng ký.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            <Controller
-              name={"enrollmentOpenAt" as any}
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Thời gian mở đăng ký</FieldLabel>
-                  <Input
-                    type="datetime-local"
-                    value={
-                      field.value instanceof Date && !Number.isNaN(field.value.getTime())
-                        ? new Date(
-                          field.value.getTime() -
-                          field.value.getTimezoneOffset() * 60000,
+      {modeClass !== "VOD" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Thời gian tuyển sinh</CardTitle>
+            <CardDescription>Cấu hình thời gian mở và đóng đăng ký.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Controller
+                name={"enrollmentOpenAt" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Thời gian mở đăng ký</FieldLabel>
+                    <Input
+                      type="datetime-local"
+                      value={
+                        field.value instanceof Date && !Number.isNaN(field.value.getTime())
+                          ? new Date(
+                            field.value.getTime() -
+                            field.value.getTimezoneOffset() * 60000,
+                          )
+                            .toISOString()
+                            .slice(0, 16)
+                          : ""
+                      }
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value ? new Date(e.target.value) : undefined,
                         )
-                          .toISOString()
-                          .slice(0, 16)
-                        : ""
-                    }
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value ? new Date(e.target.value) : undefined,
-                      )
-                    }
-                  />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-            <Controller
-              name={"enrollmentCloseAt" as any}
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Thời gian đóng đăng ký</FieldLabel>
-                  <Input
-                    type="datetime-local"
-                    value={
-                      field.value instanceof Date && !Number.isNaN(field.value.getTime())
-                        ? new Date(
-                          field.value.getTime() -
-                          field.value.getTimezoneOffset() * 60000,
+                      }
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+              <Controller
+                name={"enrollmentCloseAt" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Thời gian đóng đăng ký</FieldLabel>
+                    <Input
+                      type="datetime-local"
+                      value={
+                        field.value instanceof Date && !Number.isNaN(field.value.getTime())
+                          ? new Date(
+                            field.value.getTime() -
+                            field.value.getTimezoneOffset() * 60000,
+                          )
+                            .toISOString()
+                            .slice(0, 16)
+                          : ""
+                      }
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value ? new Date(e.target.value) : undefined,
                         )
-                          .toISOString()
-                          .slice(0, 16)
-                        : ""
-                    }
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value ? new Date(e.target.value) : undefined,
-                      )
-                    }
-                  />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-          </div>
-        </CardContent>
-      </Card>
+                      }
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

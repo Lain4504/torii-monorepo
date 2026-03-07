@@ -126,6 +126,7 @@ export default function AcademyClassReviewsPage() {
                     <Table>
                         <TableHeader>
                             <TableRow>
+                                <TableHead className="w-[80px]">STT</TableHead>
                                 <TableHead>Review</TableHead>
                                 <TableHead>Context</TableHead>
                                 <TableHead>Status</TableHead>
@@ -135,11 +136,12 @@ export default function AcademyClassReviewsPage() {
                         <TableBody>
                             {isLoading ? (
                                 <TableRow>
-                                    <TableCell colSpan={4} className="text-center">Đang tải...</TableCell>
+                                    <TableCell colSpan={5} className="text-center">Đang tải...</TableCell>
                                 </TableRow>
                             ) : items.length > 0 ? (
-                                items.map((item: any) => (
+                                items.map((item: any, idx: number) => (
                                     <TableRow key={item.id}>
+                                        <TableCell className="text-muted-foreground font-medium align-top py-4">{idx + 1}</TableCell>
                                         <TableCell className="align-top py-4">
                                             <div className="space-y-1 max-w-[400px]">
                                                 <div className="flex items-center gap-2">
@@ -183,7 +185,7 @@ export default function AcademyClassReviewsPage() {
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
+                                    <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
                                         Không tìm thấy dữ liệu.
                                     </TableCell>
                                 </TableRow>

@@ -16,6 +16,7 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
+  Public,
   GatewayAuthGuard,
   Permissions,
   PermissionsGuard,
@@ -36,10 +37,10 @@ import {
 @Controller('api/academy/course-offerings')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class CourseOfferingController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
+  @Public()
   @Get()
-  @Permissions('academy.commerce.read')
   async findAll(
     @Query(new ZodValidationPipe(academyCourseOfferingQueryDTOSchema))
     query: AcademyCourseOfferingQueryDTO,
@@ -50,8 +51,8 @@ export class CourseOfferingController {
     return successResponse({ items });
   }
 
+  @Public()
   @Get(':id')
-  @Permissions('academy.commerce.read')
   async findById(@Param('id', new ParseUUIDPipe()) id: string) {
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.courseOffering.findById' }, { id }),

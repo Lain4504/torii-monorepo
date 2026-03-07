@@ -9,7 +9,7 @@ import { Progress } from "@workspace/ui/components/progress"
 import { Card, CardContent } from "@workspace/ui/components/card"
 import { RotateCcw, ChevronLeft, ChevronRight, ThumbsUp } from "lucide-react"
 
-export type FlashcardDifficulty = "again" | "hard" | "good" | "easy"
+export type FlashcardDifficulty = "forgot" | "known"
 
 export interface Flashcard {
     id: string
@@ -52,12 +52,10 @@ function shuffleArray<T>(arr: T[]): T[] {
 
 const DIFFICULTY_CONFIG: Record<
     FlashcardDifficulty,
-    { label: string; variant: "destructive" | "outline" | "secondary" | "default" }
+    { label: string; variant: "destructive" | "default" }
 > = {
-    again: { label: "Again", variant: "destructive" },
-    hard: { label: "Hard", variant: "outline" },
-    good: { label: "Good", variant: "secondary" },
-    easy: { label: "Easy", variant: "default" },
+    forgot: { label: "Quên", variant: "destructive" },
+    known: { label: "Nhớ", variant: "default" },
 }
 
 export function Flashcards({ flashcardsData, onComplete, className }: FlashcardsProps) {
@@ -75,6 +73,8 @@ export function Flashcards({ flashcardsData, onComplete, className }: Flashcards
     const [finished, setFinished] = useState(false)
 
     const card = cards[index]
+    if (!card) return null
+
     const progress = ((index + (flipped ? 0.5 : 0)) / cards.length) * 100
 
     const handleFlip = useCallback(() => setFlipped((f) => !f), [])
@@ -84,7 +84,7 @@ export function Flashcards({ flashcardsData, onComplete, className }: Flashcards
             const newRatings = [...ratings, { cardId: card.id, difficulty }]
             setRatings(newRatings)
             if (index + 1 >= cards.length) {
-                const counts: Record<FlashcardDifficulty, number> = { again: 0, hard: 0, good: 0, easy: 0 }
+                const counts: Record<FlashcardDifficulty, number> = { forgot: 0, known: 0 }
                 for (const r of newRatings) counts[r.difficulty]++
                 setFinished(true)
                 onComplete?.({ ratings: newRatings, counts })
@@ -98,7 +98,7 @@ export function Flashcards({ flashcardsData, onComplete, className }: Flashcards
 
     // ── Finished ──────────────────────────────────────────────────────────────
     if (finished) {
-        const counts: Record<FlashcardDifficulty, number> = { again: 0, hard: 0, good: 0, easy: 0 }
+        const counts: Record<FlashcardDifficulty, number> = { forgot: 0, known: 0 }
         for (const r of ratings) counts[r.difficulty]++
         return (
             <div className={cn("w-full max-w-2xl mx-auto space-y-4", className)}>
@@ -142,36 +142,32 @@ export function Flashcards({ flashcardsData, onComplete, className }: Flashcards
 
             {/* 3-D flip card */}
             <div
-                className="relative h-64 cursor-pointer select-none"
-                style={{ perspective: "1200px" }}
+                className="relative min-h-[16rem] cursor-pointer select-none"
                 onClick={handleFlip}
                 role="button"
                 aria-label={flipped ? "Card back — click to flip" : "Card front — click to flip"}
                 tabIndex={0}
                 onKeyDown={(e) => e.key === "Enter" && handleFlip()}
             >
-                <div
-                    className="relative w-full h-full transition-transform duration-500"
-                    style={{ transformStyle: "preserve-3d", transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)" }}
-                >
-                    {/* Front */}
-                    <div
-                        className="absolute inset-0 rounded-xl border bg-card shadow-md flex flex-col items-center justify-center p-8 text-center"
-                        style={{ backfaceVisibility: "hidden" }}
-                    >
-                        {card.tag && <Badge variant="secondary" className="mb-3 text-xs">{card.tag}</Badge>}
-                        {card.frontImage && <img src={card.frontImage} alt="card front" className="mb-3 max-h-24 object-contain rounded" />}
-                        <p className="text-xl font-medium leading-snug">{card.front}</p>
-                        <p className="mt-4 text-xs text-muted-foreground">Click to reveal</p>
-                    </div>
-                    {/* Back */}
-                    <div
-                        className="absolute inset-0 rounded-xl border bg-primary/5 shadow-md flex flex-col items-center justify-center p-8 text-center"
-                        style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
-                    >
-                        {card.backImage && <img src={card.backImage} alt="card back" className="mb-3 max-h-24 object-contain rounded" />}
-                        <p className="text-xl leading-snug">{card.back}</p>
-                    </div>
+                <div className="w-full min-h-[16rem] transition-all duration-300">
+                    {!flipped ? (
+                        /* Front Side Only */
+                        <div className="w-full h-full min-h-[16rem] rounded-xl border bg-card shadow-md flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in-95 duration-200">
+                            {card.tag && <Badge variant="secondary" className="mb-3 text-xs">{card.tag}</Badge>}
+                            {card.frontImage && <img src={card.frontImage} alt="card front" className="mb-3 max-h-24 object-contain rounded" />}
+                            <p className="text-2xl font-bold leading-relaxed whitespace-pre-wrap">{card.front}</p>
+                            <p className="mt-6 text-[10px] text-muted-foreground uppercase tracking-widest font-semibold opacity-50">Nhấn để xem đáp án</p>
+                        </div>
+                    ) : (
+                        /* Back Side Only */
+                        <div className="w-full h-full min-h-[16rem] rounded-xl border bg-primary/5 shadow-md flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in-95 duration-200 border-primary/20">
+                            {card.backImage && <img src={card.backImage} alt="card back" className="mb-4 max-h-24 object-contain rounded" />}
+                            <div className="max-h-full w-full overflow-y-auto px-2">
+                                <p className="text-lg leading-relaxed whitespace-pre-wrap font-medium">{card.back}</p>
+                            </div>
+                            <p className="mt-6 text-[10px] text-primary/60 uppercase tracking-widest font-semibold opacity-50">Đáp án</p>
+                        </div>
+                    )}
                 </div>
             </div>
 

@@ -28,9 +28,45 @@ export interface CurriculumResponse {
   modules: CurriculumModule[];
 }
 
+export const offeringApi = {
+  /**
+   * Get all course offerings with pagination and filters
+   */
+  findAll: async (params: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    type?: string;
+    q?: string;
+  } = {}): Promise<PaginatedApiResponse<any>> => {
+    const response = await apiClient.get<StandardApiResponse<{ items: any[] }>>('/api/academy/course-offerings', {
+      params: {
+        status: 'ACTIVE',
+        ...params,
+      },
+    });
+    return {
+      success: response.data.success,
+      data: (response.data.data as any)?.items ?? [],
+      total: (response.data.data as any)?.total ?? ((response.data.data as any)?.items?.length ?? 0),
+      page: (response.data.data as any)?.page ?? 1,
+      limit: (response.data.data as any)?.limit ?? 10,
+      totalPages: (response.data.data as any)?.totalPages ?? 1,
+    } as any;
+  },
+
+  /**
+   * Get offering by id (includes curriculum)
+   */
+  getById: async (id: string): Promise<any | null> => {
+    const response = await apiClient.get<StandardApiResponse<{ item: any }>>(`/api/academy/course-offerings/${id}`);
+    return response.data.data!.item;
+  },
+};
+
 export const courseApi = {
   /**
-   * Get all courses with pagination and filters
+   * Get all courses with pagination and filters (Legacy/Internal)
    */
   findAll: async (params: {
     page?: number;
@@ -74,17 +110,28 @@ export const courseApi = {
 };
 
 /**
- * Hook: Get all courses with filters
+ * Hook: Get all course offerings with filters
  */
-export function useCourses(params: any) {
+export function useCourses(params?: any) {
   return useQuery({
-    queryKey: ['courses', params],
-    queryFn: () => courseApi.findAll(params),
+    queryKey: ['course-offerings', params],
+    queryFn: () => offeringApi.findAll(params),
   });
 }
 
 /**
- * Hook: Get course by ID
+ * Hook: Get course offering by ID
+ */
+export function useCourseOffering(id?: string) {
+  return useQuery({
+    queryKey: ['course-offerings', 'id', id],
+    queryFn: () => offeringApi.getById(id!),
+    enabled: !!id,
+  });
+}
+
+/**
+ * Hook: Get course by ID (Legacy)
  */
 export function useCourseById(courseId?: string) {
   return useQuery({
@@ -95,11 +142,15 @@ export function useCourseById(courseId?: string) {
 }
 
 /**
- * Hook: Get live courses only (type === 'LIVE')
+ * Hook: Get live courses only (Uses offerings now)
  */
 export function useLiveCourses() {
   return useQuery({
-    queryKey: ['courses', 'LIVE'],
-    queryFn: () => courseApi.getByType('LIVE'),
+    queryKey: ['course-offerings', 'LIVE'],
+    queryFn: () => offeringApi.findAll({ type: 'COURSE' }).then(res =>
+      (res.data as any).filter((o: any) =>
+        o.classes?.some((c: any) => c.class?.mode === 'LIVE')
+      )
+    ),
   });
 }

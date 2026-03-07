@@ -34,7 +34,7 @@ import {
 @Controller('api/academy/assignment-submissions')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class AssignmentSubmissionController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
   @Get()
   @Permissions('exam.manage')
@@ -49,7 +49,6 @@ export class AssignmentSubmissionController {
   }
 
   @Get(':id')
-  @Permissions('exam.manage')
   async findById(@Param('id', new ParseUUIDPipe()) id: string) {
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.assignmentSubmission.findById' }, { id }),
@@ -58,7 +57,6 @@ export class AssignmentSubmissionController {
   }
 
   @Post()
-  @Permissions('exam.manage')
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body(new ZodValidationPipe(academyAssignmentSubmissionCreateDTOSchema))
@@ -71,7 +69,6 @@ export class AssignmentSubmissionController {
   }
 
   @Put(':id')
-  @Permissions('exam.manage')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodValidationPipe(academyAssignmentSubmissionUpdateDTOSchema))

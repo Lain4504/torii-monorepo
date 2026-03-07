@@ -10,7 +10,10 @@ import {
     AgentResourceRecommendationResponseDTO,
     AgentTestGenerationResponseDTO,
     AgentTestEvaluationResponseDTO,
-    AgentReadinessProfileResponseDTO
+    AgentReadinessProfileResponseDTO,
+    AcademyPlacementInfoResponseDTO,
+    AcademyPlacementStartResponseDTO,
+    AcademyPlacementSubmitResponseDTO,
 } from '@workspace/schemas';
 
 export interface AnalyticsSnapshot {
@@ -221,25 +224,32 @@ export const agentApi = {
             }
             return response.data.data;
         },
-        generatePlacementTest: async (questionCount: number = 15): Promise<AgentTestGenerationResponseDTO> => {
-            const response = await apiClient.post<{ success: boolean; data: AgentTestGenerationResponseDTO; message?: string }>('/api/agents/placement/test', {
-                questionCount
-            });
+    },
+    placement: {
+        getInfo: async (): Promise<AcademyPlacementInfoResponseDTO> => {
+            const response = await apiClient.get<{ success: boolean; data: AcademyPlacementInfoResponseDTO; message?: string }>('/api/academy/placement/info');
             if (!response.data.success || !response.data.data) {
-                throw new Error(response.data.message || 'Failed to generate placement test');
+                throw new Error(response.data.message || 'Failed to load placement info');
             }
             return response.data.data;
         },
-        evaluatePlacementTest: async (testId: string, userAnswers: any): Promise<AgentTestEvaluationResponseDTO> => {
-            const response = await apiClient.post<{ success: boolean; data: AgentTestEvaluationResponseDTO; message?: string }>('/api/agents/placement/evaluate', {
-                testId,
-                userAnswers
-            });
+        start: async (): Promise<AcademyPlacementStartResponseDTO> => {
+            const response = await apiClient.post<{ success: boolean; data: AcademyPlacementStartResponseDTO; message?: string }>('/api/academy/placement/start', {});
             if (!response.data.success || !response.data.data) {
-                throw new Error(response.data.message || 'Failed to evaluate placement test');
+                throw new Error(response.data.message || 'Failed to start placement test');
             }
             return response.data.data;
         },
+        submit: async (attemptId: string, answers: Record<string, unknown>): Promise<AcademyPlacementSubmitResponseDTO & { analysis?: string; strengths?: string[]; weaknesses?: string[]; studyPlan?: string; recommendations?: any[] }> => {
+            const response = await apiClient.post<{ success: boolean; data: any; message?: string }>('/api/academy/placement/submit', {
+                attemptId,
+                answers
+            });
+            if (!response.data.success || !response.data.data) {
+                throw new Error(response.data.message || 'Failed to submit placement test');
+            }
+            return response.data.data;
+        }
     },
     analytics: {
         trackProgress: async (timeframe: string = 'month'): Promise<ProgressTrackResponse> => {

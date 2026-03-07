@@ -52,7 +52,6 @@ import {
   Flag,
   BookOpen,
   Layers,
-  List,
   Eye,
   SlidersHorizontal,
   Sparkles,
@@ -138,6 +137,7 @@ export default function AcademyCourseProfilesPage() {
           <Table>
             <TableHeader className="bg-muted/50">
               <TableRow>
+                <TableHead className="w-[80px]">STT</TableHead>
                 <TableHead className="w-[180px]">
                   <div className="flex items-center gap-2 font-semibold">
                     <FolderKey className="h-4 w-4" /> Mã (Code)
@@ -165,6 +165,7 @@ export default function AcademyCourseProfilesPage() {
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, idx) => (
                   <TableRow key={idx}>
+                    <TableCell><Skeleton className="h-5 w-8" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-48" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-20" /></TableCell>
@@ -173,8 +174,9 @@ export default function AcademyCourseProfilesPage() {
                   </TableRow>
                 ))
               ) : data.length ? (
-                data.map((it) => (
+                data.map((it, idx) => (
                   <TableRow key={it.id} className="group hover:bg-muted/30 transition-colors">
+                    <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
                     <TableCell>
                       <code className="px-2 py-1 rounded bg-muted font-mono text-xs font-semibold text-foreground/80">
                         {it.code}
@@ -219,12 +221,6 @@ export default function AcademyCourseProfilesPage() {
                                 </Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem asChild>
-                                <Link to={`/academy/course-profiles/${it.id}/editions`}>
-                                  <List className="h-4 w-4 mr-2" />
-                                  <span>Xem Editions</span>
-                                </Link>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem asChild>
                                 <Link to={`/academy/course-profiles/${it.id}/edit`}>
                                   <Edit2 className="h-4 w-4 mr-2" />
                                   <span>Chỉnh sửa</span>
@@ -246,7 +242,7 @@ export default function AcademyCourseProfilesPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-[300px] text-center">
+                  <TableCell colSpan={6} className="h-[300px] text-center">
                     <Empty>
                       <EmptyMedia>
                         <BookMarked className="size-10 text-muted-foreground/50" />

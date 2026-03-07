@@ -6,7 +6,7 @@ import { couponSchema, CouponStatus, CouponDiscountType } from '../models/coupon
  */
 export const couponCreateDTOSchema = z.object({
   code: z.string().min(1).max(50).regex(/^[A-Z0-9_-]+$/, 'Code must contain only uppercase letters, numbers, hyphens, and underscores'),
-  name: z.string().min(1).max(100),
+  name: z.string().min(1).max(200),
   description: z.string().optional().nullable(),
 
   // Discount Configuration
@@ -15,19 +15,19 @@ export const couponCreateDTOSchema = z.object({
   maxDiscountAmount: z.number().positive().optional().nullable(),
 
   // Conditions
-  minOrderAmount: z.number().nonnegative().optional().nullable(),
+  minOrderValue: z.number().nonnegative().optional().nullable(),
   applicableCourseMasterIds: z.array(z.string().uuid()).default([]),
   excludedCourseMasterIds: z.array(z.string().uuid()).default([]),
   applicableRunIds: z.array(z.string().uuid()).default([]),
   excludedRunIds: z.array(z.string().uuid()).default([]),
 
   // Validity Period
-  validFrom: z.date().or(z.string().datetime()),
-  validUntil: z.date().or(z.string().datetime()),
+  startDate: z.date().or(z.string().datetime()),
+  endDate: z.date().or(z.string().datetime()),
 
   // Usage Limits
   usageLimit: z.number().int().positive().optional().nullable(),
-  userUsageLimit: z.number().int().positive().default(1),
+  perUserLimit: z.number().int().positive().default(1),
 
   // Status
   status: z.nativeEnum(CouponStatus).default(CouponStatus.ACTIVE),

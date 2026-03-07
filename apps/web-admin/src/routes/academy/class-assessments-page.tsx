@@ -77,6 +77,7 @@ export default function AcademyClassAssessmentsPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[80px]">STT</TableHead>
                 <TableHead>ClassId</TableHead>
                 <TableHead>Kind</TableHead>
                 <TableHead>Title</TableHead>
@@ -89,11 +90,12 @@ export default function AcademyClassAssessmentsPage() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7}>Đang tải...</TableCell>
+                  <TableCell colSpan={8}>Đang tải...</TableCell>
                 </TableRow>
               ) : data.length ? (
-                data.map((it) => (
+                data.map((it, idx) => (
                   <TableRow key={it.id}>
+                    <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
                     <TableCell className="font-mono text-xs">{it.classId}</TableCell>
                     <TableCell>{it.kind}</TableCell>
                     <TableCell>{it.titleOverride ?? "-"}</TableCell>
@@ -133,7 +135,7 @@ export default function AcademyClassAssessmentsPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7}>Chưa có dữ liệu</TableCell>
+                  <TableCell colSpan={8}>Chưa có dữ liệu</TableCell>
                 </TableRow>
               )}
             </TableBody>

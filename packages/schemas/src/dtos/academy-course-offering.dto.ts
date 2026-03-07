@@ -8,8 +8,8 @@ export const academyCourseOfferingCreateDTOSchema = z.object({
   originalPrice: z.number().min(0),
   currency: z.string().min(1).max(10),
   status: z.string().max(20).optional(),
-  salesStartAt: z.coerce.date().optional(),
-  salesEndAt: z.coerce.date().optional(),
+  validFrom: z.coerce.date().optional(),
+  validTo: z.coerce.date().optional(),
   metadata: z.unknown().optional(),
   classIds: z.array(z.string().uuid()).optional(),
   courseProfileId: z.string().uuid().optional(),
@@ -26,9 +26,10 @@ export const academyCourseOfferingUpdateDTOSchema = z.object({
   originalPrice: z.number().min(0).optional(),
   currency: z.string().max(10).optional(),
   status: z.string().max(20).optional(),
-  salesStartAt: z.coerce.date().optional(),
-  salesEndAt: z.coerce.date().optional(),
+  validFrom: z.coerce.date().optional(),
+  validTo: z.coerce.date().optional(),
   metadata: z.unknown().optional(),
+  classIds: z.array(z.string().uuid()).optional(),
 });
 export type AcademyCourseOfferingUpdateDTO = z.infer<
   typeof academyCourseOfferingUpdateDTOSchema

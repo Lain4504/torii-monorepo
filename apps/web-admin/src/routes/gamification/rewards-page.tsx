@@ -8,8 +8,8 @@ import { PageHeader } from '@/components/common/page-header';
 import { Can } from '@/lib/guard/can';
 import { useAdminRewards } from '@/lib/api/services/gamification';
 import { RewardsTable } from '@/components/gamification/rewards-table';
-import { CreateRewardSheet } from '@/components/gamification/create-reward-sheet';
-import { EditRewardSheet } from '@/components/gamification/edit-reward-sheet';
+import { CreateRewardDialog } from '@/components/gamification/create-reward-dialog';
+import { EditRewardDialog } from '@/components/gamification/edit-reward-dialog';
 import { DeleteRewardDialog } from '@/components/gamification/delete-reward-dialog';
 import type { PointRewardDTO } from '@workspace/schemas';
 
@@ -72,7 +72,7 @@ export default function RewardsPage() {
             {/* Dialogs */}
             <Suspense fallback={null}>
                 {createOpen && (
-                    <CreateRewardSheet
+                    <CreateRewardDialog
                         open={createOpen}
                         onOpenChange={setCreateOpen}
                     />
@@ -80,7 +80,7 @@ export default function RewardsPage() {
 
                 {selectedReward && (
                     <>
-                        <EditRewardSheet
+                        <EditRewardDialog
                             open={editOpen}
                             onOpenChange={setEditOpen}
                             reward={selectedReward}

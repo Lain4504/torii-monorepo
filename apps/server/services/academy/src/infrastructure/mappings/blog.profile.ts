@@ -57,10 +57,6 @@ export class BlogProfile extends AutomapperProfile {
                     (dest: BlogResponseDTO) => dest.viewCount,
                     mapFrom((src: Blog) => src.viewCount),
                 ),
-                forMember(
-                    (dest: BlogResponseDTO) => dest.commentCount,
-                    mapFrom((src: Blog) => src.commentCount),
-                ),
 
                 forMember(
                     (dest: BlogResponseDTO) => dest.createdAt,
@@ -71,12 +67,8 @@ export class BlogProfile extends AutomapperProfile {
                     mapFrom((src: Blog) => src.updatedAt),
                 ),
                 forMember(
-                    (dest: BlogResponseDTO) => dest.seoTitle,
-                    mapFrom((src: Blog) => src.seoTitle || undefined),
-                ),
-                forMember(
-                    (dest: BlogResponseDTO) => dest.seoDescription,
-                    mapFrom((src: Blog) => src.seoDescription || undefined),
+                    (dest: BlogResponseDTO) => dest.excerpt,
+                    mapFrom((src: Blog) => src.excerpt || undefined),
                 ),
                 // Note: author field is populated separately in service
                 forMember(

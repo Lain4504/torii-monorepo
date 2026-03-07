@@ -1,5 +1,5 @@
-import { useNavigate } from "react-router-dom"
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
+import { useNavigate, useSearchParams } from "react-router-dom"
+
 import { toast } from "@workspace/ui/components/sonner"
 import { PageHeader } from "@/components/common/page-header"
 import { CourseEditionForm } from "@/components/academy/course-edition-form"
@@ -10,6 +10,9 @@ export default function AcademyCourseEditionCreatePage() {
   const nav = useNavigate()
   const create = useCreateAcademyCourseEdition()
 
+  const [searchParams] = useSearchParams()
+  const courseProfileId = searchParams.get("courseProfileId") ?? ""
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -17,23 +20,17 @@ export default function AcademyCourseEditionCreatePage() {
         subtitle="Tạo phiên bản chương trình học (syllabus) cho một Course Profile."
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Thông tin</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <CourseEditionForm
-            mode="create"
-            submitting={create.isPending}
-            onCancel={() => nav("/academy/course-editions")}
-            onSubmit={async (data) => {
-              await create.mutateAsync(data as AcademyCourseEditionCreateDTO)
-              toast.success("Đã tạo Course Edition")
-              nav("/academy/course-editions")
-            }}
-          />
-        </CardContent>
-      </Card>
+      <CourseEditionForm
+        mode="create"
+        initial={{ courseProfileId } as any}
+        submitting={create.isPending}
+        onCancel={() => nav(courseProfileId ? `/academy/course-profiles/${courseProfileId}?tab=editions` : "/academy/course-profiles")}
+        onSubmit={async (data) => {
+          await create.mutateAsync(data as AcademyCourseEditionCreateDTO)
+          toast.success("Đã tạo Course Edition")
+          nav(courseProfileId ? `/academy/course-profiles/${courseProfileId}?tab=editions` : "/academy/course-profiles")
+        }}
+      />
     </div>
   )
 }

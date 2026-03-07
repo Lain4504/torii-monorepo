@@ -1,12 +1,12 @@
-# Flashcard & Note System Specification
+# Study Set & Note System Specification
 
 ## 1. Overview & Goals
 
-Tài liệu này mô tả thiết kế cho hệ thống **Flashcard & Note** mới, tích hợp sâu vào quá trình học tập (LMS). Mục tiêu là tạo ra một flow tự nhiên: "Học -> Ghi chú -> Tạo Flashcard -> Ôn tập (SRS)", hỗ trợ đa ngôn ngữ (không chỉ tiếng Nhật).
+Tài liệu này mô tả thiết kế cho hệ thống **Study Set & Study Note** mới, tích hợp sâu vào quá trình học tập (LMS). Mục tiêu là tạo ra một flow tự nhiên: "Học -> Ghi chú (StudyNote) -> Tạo thẻ (SetCard) -> Ôn tập (SRS)", hỗ trợ đa ngôn ngữ (không chỉ tiếng Nhật).
 
 ### Mục tiêu chính
-1.  **Seamless Note-taking**: User có thể ghi chú nhanh (Note) ngay trong lúc học bài (Lesson).
-2.  **Flashcard Generation**: Từ Note hoặc nội dung bài học, user có thể tạo Flashcard thủ công hoặc nhờ AI gợi ý.
+1.  **Seamless Note-taking**: User có thể ghi chú nhanh (**StudyNote**) ngay trong lúc học bài (Lesson).
+2.  **Thẻ học (SetCard) Generation**: Từ StudyNote hoặc nội dung bài học, user có thể tạo thẻ thủ công hoặc nhờ AI gợi ý.
 3.  **Generic Design**: Data model phải hỗ trợ tốt tiếng Anh, tiếng Nhật, tiếng Trung, và các môn học khác (Lập trình, Lịch sử...).
 4.  **Quizlet-like SRS**: Hệ thống ôn tập dựa trên Spaced Repetition System (SRS) nhưng đơn giản hóa (Learn -> Review -> Mastered), không quá phức tạp như Anki.
 
@@ -14,24 +14,24 @@ Tài liệu này mô tả thiết kế cho hệ thống **Flashcard & Note** m�
 
 ## 2. User Stories & Flow
 
-### 2.1. Flow: Note-taking & Flashcard Creation
+### 2.1. Flow: StudyNote & SetCard Creation
 **Context**: User đang xem một Video Lesson hoặc đọc Article.
 
-1.  **Quick Note**:
+1.  **Quick StudyNote**:
     -   User highlight một từ vựng hoặc đoạn văn.
     -   Bấm "Add Note". Sidebar hiện ra cho phép user nhập thêm ghi chú (Meaning, Example).
-    -   Hệ thống lưu `Note` gắn với `Lesson` đó.
+    -   Hệ thống lưu `StudyNote` gắn với `Lesson` đó (DB table đề xuất: `study_notes` – mapping từ model Prisma hiện tại `Note`).
 
-2.  **Generate Flashcard from Note**:
-    -   Tại giao diện Note, user bấm "Create Flashcard".
-    -   Hệ thống pre-fill form Flashcard từ nội dung Note:
+2.  **Generate SetCard from StudyNote**:
+    -   Tại giao diện StudyNote, user bấm "Create Card".
+    -   Hệ thống pre-fill form SetCard từ nội dung StudyNote:
         -   Front: Từ vựng / Câu hỏi.
         -   Back: Nghĩa / Câu trả lời.
         -   Context: Link ngược lại Lesson đang học.
-    -   User chỉnh sửa và bấm Save -> Flashcard được thêm vào Deck mặc định hoặc Deck chọn sẵn.
+    -   User chỉnh sửa và bấm Save -> thẻ (`SetCard`) được thêm vào Study Set mặc định hoặc Study Set chọn sẵn.
 
-3.  **Manual Flashcard**:
-    -   User vào trang "My Flashcards", tạo Deck mới (VD: "Từ vựng IELTS").
+3.  **Manual SetCard**:
+    -   User vào trang "My Study Sets", tạo Study Set mới (VD: "Từ vựng IELTS").
     -   Bấm "Add Card", điền Front/Back và lưu.
 
 ### 2.2. Flow: Review (SRS)
@@ -47,11 +47,11 @@ Tài liệu này mô tả thiết kế cho hệ thống **Flashcard & Note** m�
 
 ---
 
-## 3. Data Model (Generic & Extensible)
+## 3. Data Model (Generic & Extensible, naming đề xuất)
 
 Thay vì các trường cứng nhắc như `kanji`, `furigana`, chúng ta sẽ dùng cấu trúc Generic kết hợp với JSONB để mở rộng cho từng ngôn ngữ.
 
-### 3.1. Note (Ghi chú học tập)
+### 3.1. StudyNote (Ghi chú học tập)
 Lưu trữ các ghi chú thô của user.
 
 -   `id`: UUID
@@ -62,24 +62,27 @@ Lưu trữ các ghi chú thô của user.
 -   `metadata`: JSONB (Lưu vị trí timestamp video, highlight color, etc.)
 -   `createdAt`, `updatedAt`
 
-### 3.2. FlashcardDeck (Bộ thẻ)
-Nhóm các thẻ.
+> **Mapping hiện tại**: Prisma model `Note` + bảng DB `notes`. Đề xuất rename DB table về `study_notes` và/hoặc model về `StudyNote` khi tiện migration; logic nghiệp vụ giữ nguyên.
+
+### 3.2. StudySet (Bộ thẻ / Set học)
+Nhóm các thẻ học (SetCard), tương đương \"Set\" trong Quizlet.
 
 -   `id`: UUID
 -   `userId`: UUID
 -   `title`: String
 -   `description`: String
--   `subject`: String (e.g., "JAPANESE", "ENGLISH", "CODING")
 -   `isPublic`: Boolean
--   `settings`: JSONB (Cấu hình SRS riêng cho deck nếu cần)
+-   `settings`: JSONB (Cấu hình SRS riêng cho set nếu cần – mapping từ `srsSettings` hiện tại)
 -   `stats`: JSONB (Tổng số card, số card thuộc, etc.)
 
-### 3.3. Flashcard (Generic)
-Thẻ học.
+> **Mapping hiện tại**: Prisma model `FlashcardDeck` + bảng DB `flashcard_decks`. Đề xuất đổi tên logic/domain sang `StudySet` (DB table `study_sets`) trong migration tương lai; core field giữ nguyên.
+
+### 3.3. SetCard (Generic)
+Một thẻ học trong StudySet (1 hàng = 1 cặp term–definition).
 
 -   `id`: UUID
--   `deckId`: UUID
--   `noteId`: UUID (Optional - Link nguồn gốc từ Note nào)
+-   `studySetId`: UUID (mapping từ `deckId` hiện tại)
+-   `sourceNoteId`: UUID (Optional - Link nguồn gốc từ StudyNote nào; mapping từ `noteId`)
 -   `term`: String (Mặt trước - Từ vựng, Câu hỏi)
 -   `definition`: String (Mặt sau - Nghĩa, Câu trả lời)
 -   `hint`: String? (Gợi ý, Example sentence)
@@ -93,6 +96,8 @@ Thẻ học.
 -   `nextReviewAt`: DateTime
 -   `interval`: Int (Số ngày/giờ đến lần review tiếp theo)
 -   `easeFactor`: Float (Độ khó, default 2.5)
+
+> **Mapping hiện tại**: Prisma model `Flashcard` + bảng DB `flashcards` (`deckId`, `noteId`, `term`, `definition`, `srsState`, ...). Đề xuất rename domain entity thành `SetCard` (DB table `set_cards`) về sau; cấu trúc cột không cần thay đổi.
 
 ---
 
@@ -125,13 +130,21 @@ Chúng ta không dùng Anki thuần (quá phức tạp cho user phổ thông), m
 -   `GET /notes`: List notes (filter by lesson, tags).
 -   `POST /notes/:id/to-flashcard`: API tiện ích để convert Note -> Flashcard (Draft).
 
-### 5.2. Flashcard Module
--   `POST /decks`: Tạo bộ thẻ.
--   `POST /decks/:id/cards`: Thêm thẻ vào bộ.
--   `GET /decks/:id/study`: Lấy danh sách thẻ cần học hôm nay (Logic: `nextReviewAt <= now` OR `state = NEW`).
--   `POST /cards/:id/review`: Submit kết quả học.
-    -   Body: `{ quality: 0 | 1 }` (0: Quên, 1: Nhớ).
-    -   Server tính toán lại `nextReviewAt` và trả về state mới.
+### 5.2. Flashcard Module (StudySet & SetCard)
+-   `POST /study-sets`: Tạo bộ thẻ.
+-   `POST /study-sets/:id/cards`: Thêm thẻ vào bộ.
+-   `GET /study-sets/:id/study`: Lấy danh sách thẻ cần học hôm nay (Logic: `nextReviewAt <= now` OR `state = NEW`).
+-   `POST /set-cards/:id/review`: Submit kết quả học (Lại, Khó, Tốt, Dễ).
+    -   Body: `{ quality: 0 | 3 | 4 | 5 }`.
+    -   Server tính toán lại `nextReviewAt`, `interval`, `easeFactor` và trả về state mới.
+
+### 5.3. Study Modes Module (Extra Practice)
+-   `GET /study-sets/:id/study-modes/test`: Generate a Test quiz.
+    -   Query: `count` (số lượng câu, default 20), `types` (multiple_choice, true_false).
+    -   Response: Array of randomized questions with options.
+-   `GET /study-sets/:id/study-modes/match`: Generate Match game data.
+    -   Query: `count` (số lượng cặp thẻ, default 6 cặp).
+    -   Response: Array of terms and definitions to be matched by frontend.
 
 ---
 
@@ -149,12 +162,24 @@ Chúng ta không dùng Anki thuần (quá phức tạp cho user phổ thông), m
 
 > **Lưu ý**: Các tính năng dưới đây được liệt kê để đảm bảo hệ thống có khả năng mở rộng tương đương Quizlet trong tương lai. **Hiện tại CHƯA TRIỂN KHAI** (Out of scope MVP), chỉ làm khi flow chính đã ổn định và có yêu cầu từ User.
 
+### 7.0. Có cần rebuild flow Flashcard/Note khi thêm chế độ học kiểu Quizlet?
+
+**Không.** So sánh nhanh:
+
+- **Quizlet**: "Set" = một bộ các cặp (term, definition). Các chế độ (Flashcards, Learn, Test, Match) chỉ là **cách tương tác khác nhau trên cùng bộ dữ liệu** đó.
+- **LMS hiện tại**: "Bộ nội dung" tương đương Set của Quizlet chính là **Deck (FlashcardDeck)** + danh sách **Flashcard** (term, definition). **Note** trong spec là ghi chú khi học (có thể convert thành Flashcard), không đóng vai "collection" để chạy nhiều mode — collection để chạy mode là **Deck**.
+- **Kết luận**: Data model hiện tại (Note, FlashcardDeck, Flashcard) **đủ** để thêm Test (trắc nghiệm / đúng-sai) và Match (nối thẻ). Chỉ cần thêm API và UI; không cần thêm bảng "Note collection" hay rebuild flow. Nếu muốn lưu lịch sử điểm / thời gian chơi thì có thể thêm bảng phiên (session) tùy chọn.
+
 ### 7.1. Study Modes (Ngoài SRS)
-Quizlet có nhiều chế độ học, hệ thống hiện tại tập trung vào SRS (tương đương "Learn Mode").
--   **[PENDING] Test Mode**: Tự động sinh bài kiểm tra (Trắc nghiệm, Điền từ, Đúng/Sai) từ nội dung bộ thẻ.
-    -   *Tech*: Frontend-only logic hoặc API `/decks/:id/generate-test`.
--   **[PENDING] Match Game (Nối thẻ)**: Game nối từ vựng với nghĩa trong thời gian ngắn nhất.
-    -   *Tech*: Cần thêm bảng `GameLeaderboard` để lưu kỷ lục thời gian của user.
+Quizlet có nhiều chế độ học; hệ thống hiện tại tập trung SRS (tương đương "Learn"). Các mode dưới đây chạy trên **cùng StudySet + SetCard**, không đổi schema.
+
+-   **Test Mode**: Tự động sinh bài kiểm tra từ nội dung StudySet.
+    -   **Dạng**: Trắc nghiệm (chọn 1 đáp án đúng trong 4), Đúng/Sai (term → hiện definition, hỏi đúng hay sai).
+    -   **Tech**: API `GET /study-sets/:id/study-modes/test?count=N&types=multiple_choice,true_false` trả về danh sách câu hỏi đã được trộn và chuẩn bị sẵn phương án sai (distractors); frontend render form kiểm tra và tự chấm điểm hoặc gửi về server lưu lịch sử (nếu cần).
+-   **Match Game (Nối thẻ)**: Game kéo thả / tap nối term với definition trong thời gian ngắn nhất.
+    -   **Tech**: API `GET /study-sets/:id/study-modes/match?count=N` trả về list cặp Term và Definition riêng rẽ đã xáo trộn. Frontend quản lý state ghép cặp, animation, đếm ngược thời gian. Kỷ lục thời gian có thể lưu lại backend trong tương lai.
+
+**Tóm tắt**: Hỗ trợ thêm Test và Match **không** yêu cầu rebuild flow flashcard/note hay thêm "Note collection". Deck + Flashcard đã là "collection" để chạy mọi study mode; Note vẫn chỉ dùng để ghi chú và tạo thẻ, không thay đổi vai trò.
 
 ### 7.2. Organization & Social
 -   **[PENDING] Folders**: Cho phép gom nhiều Decks vào một thư mục (VD: "Semester 1" chứa "Tuần 1", "Tuần 2").

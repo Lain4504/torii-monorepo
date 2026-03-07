@@ -134,7 +134,7 @@ export const getCouponsColumns = ({ onEdit, onDelete, page, limit }: CouponsColu
         },
         size: 120,
     }),
-    columnHelper.accessor('validUntil', {
+    columnHelper.accessor('endDate', {
         header: ({ column }) => {
             return (
                 <Button
@@ -148,9 +148,10 @@ export const getCouponsColumns = ({ onEdit, onDelete, page, limit }: CouponsColu
             );
         },
         cell: (info) => {
-            const date = new Date(info.getValue());
+            const value = info.getValue();
+            const date = value ? new Date(value) : null;
             const now = new Date();
-            const isExpired = date < now;
+            const isExpired = date && date < now;
             
             return (
                 <div className={cn(
@@ -174,7 +175,7 @@ export const getCouponsColumns = ({ onEdit, onDelete, page, limit }: CouponsColu
                 inactive: { label: 'Ngừng hoạt động', class: 'bg-slate-500/10 text-slate-600 border-slate-500/20 dot:bg-slate-500' },
                 expired: { label: 'Đã hết hạn', class: 'bg-rose-500/10 text-rose-600 border-rose-500/20 dot:bg-rose-500' }
             };
-            const isExpired = new Date(info.row.original.validUntil) < new Date();
+            const isExpired = info.row.original.endDate && new Date(info.row.original.endDate) < new Date();
             
             // Calculate effective status
             let displayStatus = status.toLowerCase();

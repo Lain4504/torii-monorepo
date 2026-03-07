@@ -23,7 +23,7 @@ export enum CouponDiscountType {
 export const couponSchema = z.object({
   id: z.string().uuid(),
   code: z.string().min(1).max(50),
-  name: z.string().min(1).max(100),
+  name: z.string().min(1).max(200),
   description: z.string().optional().nullable(),
 
   // Discount Configuration
@@ -32,27 +32,26 @@ export const couponSchema = z.object({
   maxDiscountAmount: z.number().positive().optional().nullable(),
 
   // Conditions
-  minOrderAmount: z.number().nonnegative().optional().nullable(),
+  minOrderValue: z.number().nonnegative().optional().nullable(),
   applicableCourseMasterIds: z.array(z.string().uuid()).default([]),
   excludedCourseMasterIds: z.array(z.string().uuid()).default([]),
   applicableRunIds: z.array(z.string().uuid()).default([]),
   excludedRunIds: z.array(z.string().uuid()).default([]),
 
   // Validity Period
-  validFrom: z.date(),
-  validUntil: z.date(),
+  startDate: z.date().optional().nullable(),
+  endDate: z.date().optional().nullable(),
 
   // Usage Limits
   usageLimit: z.number().int().positive().optional().nullable(),
   usageCount: z.number().int().nonnegative().default(0),
-  userUsageLimit: z.number().int().positive().default(1),
+  perUserLimit: z.number().int().positive().default(1),
 
   // Status
   status: z.nativeEnum(CouponStatus).default(CouponStatus.ACTIVE),
 
-  // Ownership
-  userId: z.string().uuid().optional().nullable(),
-  createdBy: z.string().uuid().optional().nullable(),
+  // Additional fields
+  metadata: z.record(z.any()).optional().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

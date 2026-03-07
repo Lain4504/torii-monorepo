@@ -78,6 +78,7 @@ export default function AcademyCourseOfferingsPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[80px]">STT</TableHead>
                 <TableHead>Code</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Status</TableHead>
@@ -88,11 +89,12 @@ export default function AcademyCourseOfferingsPage() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5}>Đang tải...</TableCell>
+                  <TableCell colSpan={6}>Đang tải...</TableCell>
                 </TableRow>
               ) : data.length ? (
-                data.map((it) => (
+                data.map((it, idx) => (
                   <TableRow key={it.id}>
+                    <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
                     <TableCell className="font-mono text-xs">
                       <Link to={`/academy/course-offerings/${it.id}`} className="hover:underline text-primary">
                         {it.code}
@@ -138,7 +140,7 @@ export default function AcademyCourseOfferingsPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5}>Chưa có dữ liệu</TableCell>
+                  <TableCell colSpan={6}>Chưa có dữ liệu</TableCell>
                 </TableRow>
               )}
             </TableBody>

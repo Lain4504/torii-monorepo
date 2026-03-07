@@ -18,6 +18,7 @@ import { z } from 'zod'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { authApi } from '@/lib/api/services/auth'
+import { useLogo } from '@/hooks/useLogo'
 
 const resetPasswordSchema = z.object({
     password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),
@@ -33,6 +34,7 @@ export default function ResetPasswordPage() {
     const navigate = useNavigate()
     const [searchParams] = useSearchParams()
     const token = searchParams.get('token')
+    const logo = useLogo()
 
     const { register, handleSubmit, formState: { errors } } = useForm<ResetPasswordFormValues>({
         resolver: zodResolver(resetPasswordSchema),
@@ -56,42 +58,42 @@ export default function ResetPasswordPage() {
         <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
             <div className="w-full max-w-md">
                 <div className="flex flex-col items-center text-center mb-6">
-                    <img src="/logo.png" alt="Torii Nihongo" className="h-12 w-auto object-contain mb-2" />
+                    <img src={logo} alt="Torii Nihongo" className="h-24 w-auto object-contain mb-2" />
                     <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Cổng quản trị</span>
                 </div>
-            <Card className="w-full">
-                <CardHeader>
-                    <CardTitle>Đặt lại mật khẩu</CardTitle>
-                    <CardDescription>Nhập mật khẩu mới cho tài khoản của bạn.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit(onSubmit)}>
-                        <FieldGroup>
-                            <Field>
-                                <FieldLabel htmlFor="password" className="text-sm font-semibold">Mật khẩu mới</FieldLabel>
-                                <Input
-                                    id="password"
-                                    type="password"
-                                    {...register('password')}
-                                />
-                                {errors.password && <p className="text-red-500">{errors.password.message}</p>}
-                            </Field>
-                            <Field>
-                                <FieldLabel htmlFor="confirmPassword" className="text-sm font-semibold">Xác nhận mật khẩu</FieldLabel>
-                                <Input
-                                    id="confirmPassword"
-                                    type="password"
-                                    {...register('confirmPassword')}
-                                />
-                                {errors.confirmPassword && <p className="text-red-500">{errors.confirmPassword.message}</p>}
-                            </Field>
-                            <Button type="submit" size="lg" className="w-full text-base font-semibold" disabled={mutation.isPending}>
-                                {mutation.isPending ? 'Đang xử lý...' : 'Đặt lại mật khẩu'}
-                            </Button>
-                        </FieldGroup>
-                    </form>
-                </CardContent>
-            </Card>
+                <Card className="w-full">
+                    <CardHeader>
+                        <CardTitle>Đặt lại mật khẩu</CardTitle>
+                        <CardDescription>Nhập mật khẩu mới cho tài khoản của bạn.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleSubmit(onSubmit)}>
+                            <FieldGroup>
+                                <Field>
+                                    <FieldLabel htmlFor="password" className="text-sm font-semibold">Mật khẩu mới</FieldLabel>
+                                    <Input
+                                        id="password"
+                                        type="password"
+                                        {...register('password')}
+                                    />
+                                    {errors.password && <p className="text-red-500">{errors.password.message}</p>}
+                                </Field>
+                                <Field>
+                                    <FieldLabel htmlFor="confirmPassword" className="text-sm font-semibold">Xác nhận mật khẩu</FieldLabel>
+                                    <Input
+                                        id="confirmPassword"
+                                        type="password"
+                                        {...register('confirmPassword')}
+                                    />
+                                    {errors.confirmPassword && <p className="text-red-500">{errors.confirmPassword.message}</p>}
+                                </Field>
+                                <Button type="submit" size="lg" className="w-full text-base font-semibold" disabled={mutation.isPending}>
+                                    {mutation.isPending ? 'Đang xử lý...' : 'Đặt lại mật khẩu'}
+                                </Button>
+                            </FieldGroup>
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
         </div>
     )
