@@ -18,6 +18,7 @@ import { z } from 'zod'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { authApi } from '@/lib/api/services/auth'
+import { useLogo } from '@/hooks/useLogo'
 
 const resetPasswordSchema = z.object({
     password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),
@@ -33,6 +34,7 @@ export default function ResetPasswordPage() {
     const navigate = useNavigate()
     const [searchParams] = useSearchParams()
     const token = searchParams.get('token')
+    const logo = useLogo()
 
     const { register, handleSubmit, formState: { errors } } = useForm<ResetPasswordFormValues>({
         resolver: zodResolver(resetPasswordSchema),
@@ -56,7 +58,7 @@ export default function ResetPasswordPage() {
         <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
             <div className="w-full max-w-md">
                 <div className="flex flex-col items-center text-center mb-6">
-                    <img src="/logo.png" alt="Torii Nihongo" className="h-24 w-auto object-contain mb-2" />
+                    <img src={logo} alt="Torii Nihongo" className="h-24 w-auto object-contain mb-2" />
                     <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Cổng quản trị</span>
                 </div>
                 <Card className="w-full">

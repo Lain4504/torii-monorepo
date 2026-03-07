@@ -124,8 +124,8 @@ export function BlogDetailClient({ slug }: BlogDetailClientProps) {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-zinc-50">
-                <div className="bg-white border-b border-zinc-100 py-4">
+            <div className="min-h-screen bg-background">
+                <div className="bg-card border-b border-border py-4">
                     <div className="container mx-auto px-4 lg:px-8">
                         <Skeleton className="h-4 w-96" />
                     </div>
@@ -149,10 +149,10 @@ export function BlogDetailClient({ slug }: BlogDetailClientProps) {
 
     if (error || !blog) {
         return (
-            <div className="min-h-screen bg-zinc-50 flex items-center justify-center">
+            <div className="min-h-screen bg-background flex items-center justify-center">
                 <div className="text-center">
-                    <h1 className="text-2xl font-bold text-zinc-900 mb-2">Không tìm thấy bài viết</h1>
-                    <p className="text-zinc-600 mb-4">Bài viết bạn tìm kiếm không tồn tại hoặc đã bị xóa.</p>
+                    <h1 className="text-2xl font-bold text-foreground mb-2">Không tìm thấy bài viết</h1>
+                    <p className="text-muted-foreground mb-4">Bài viết bạn tìm kiếm không tồn tại hoặc đã bị xóa.</p>
                     <Link href="/blogs">
                         <Button>Quay lại danh sách</Button>
                     </Link>
@@ -162,47 +162,47 @@ export function BlogDetailClient({ slug }: BlogDetailClientProps) {
     }
 
     return (
-        <div className="min-h-screen bg-zinc-50 font-sans text-zinc-900">
+        <div className="min-h-screen bg-background font-sans text-foreground">
             <main className="container mx-auto px-4 lg:px-8 py-10 md:py-16">
                 {/* Header */}
                 <div className="max-w-5xl mx-auto text-center mb-10">
                     {blog.tags && blog.tags.length > 0 && (
-                        <Badge className="bg-[#E63946]/10 text-[#E63946] hover:bg-[#E63946]/20 mb-6 uppercase tracking-wider font-bold">
+                        <Badge className="bg-primary/10 text-primary hover:bg-primary/20 mb-6 uppercase tracking-wider font-bold">
                             {blog.tags[0]}
                         </Badge>
                     )}
-                    <h1 className="text-3xl md:text-5xl font-bold text-zinc-900 leading-tight md:leading-[1.1] mb-6">
+                    <h1 className="text-3xl md:text-5xl font-bold text-foreground leading-tight md:leading-[1.1] mb-6">
                         {blog.title}
                     </h1>
                     {blog.excerpt && (
-                        <p className="text-lg md:text-xl text-zinc-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+                        <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
                             {blog.excerpt}
                         </p>
                     )}
 
-                    <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-zinc-500 font-medium">
+                    <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground font-medium">
                         {blog.author && (
                             <div className="flex items-center gap-3">
-                                <Avatar className="size-10 border-2 border-white shadow-sm">
+                                <Avatar className="size-10 border-2 border-background shadow-sm">
                                     {blog.author.avatarUrl && <AvatarImage src={blog.author.avatarUrl} />}
                                     <AvatarFallback>
                                         {blog.author.displayName?.substring(0, 2).toUpperCase()}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="text-left">
-                                    <p className="text-zinc-900 font-bold">{blog.author.displayName}</p>
+                                    <p className="text-foreground font-bold">{blog.author.displayName}</p>
                                     <p className="text-xs">{blog.author.email}</p>
                                 </div>
                             </div>
                         )}
-                        <div className="w-1 h-1 rounded-full bg-zinc-300 hidden md:block"></div>
+                        <div className="w-1 h-1 rounded-full bg-border hidden md:block"></div>
                         {blog.publishedAt && (
                             <>
                                 <div className="flex items-center gap-2">
                                     <Calendar className="size-4" strokeWidth={2} />
                                     <span>{formatDate(blog.publishedAt.toString())}</span>
                                 </div>
-                                <div className="w-1 h-1 rounded-full bg-zinc-300 hidden md:block"></div>
+                                <div className="w-1 h-1 rounded-full bg-border hidden md:block"></div>
                             </>
                         )}
                         <div className="flex items-center gap-2">
@@ -211,7 +211,7 @@ export function BlogDetailClient({ slug }: BlogDetailClientProps) {
                         </div>
                         {blog.viewCount !== undefined && (
                             <>
-                                <div className="w-1 h-1 rounded-full bg-zinc-300 hidden md:block"></div>
+                                <div className="w-1 h-1 rounded-full bg-border hidden md:block"></div>
                                 <div className="flex items-center gap-2">
                                     <Eye className="size-4" strokeWidth={2} />
                                     <span>{blog.viewCount} lượt xem</span>
@@ -223,13 +223,13 @@ export function BlogDetailClient({ slug }: BlogDetailClientProps) {
 
                 {/* Content */}
                 <div className="max-w-5xl mx-auto">
-                    <div className="bg-white rounded-2xl shadow-sm border border-zinc-100 p-8 md:p-12">
+                    <div className="bg-card rounded-2xl shadow-sm border border-border p-8 md:p-12">
                         {renderContent(blog.content)}
                     </div>
 
                     {/* Social Share */}
                     <div className="mt-12 flex items-center justify-center gap-4">
-                        <span className="text-sm font-bold text-zinc-600">Chia sẻ:</span>
+                        <span className="text-sm font-bold text-muted-foreground">Chia sẻ:</span>
                         <Button variant="outline" size="icon" className="rounded-full">
                             <Facebook className="size-4" />
                         </Button>

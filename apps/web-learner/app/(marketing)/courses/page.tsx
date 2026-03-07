@@ -19,9 +19,6 @@ import React from "react"
 const UserGroup = Users
 const TaskList = ListChecks
 
-const TORII_RED = "text-[#E63946]"
-const BG_TORII_RED = "bg-[#E63946]"
-
 // Dữ liệu VOD
 const vodCourses = [
     {
@@ -127,39 +124,28 @@ const liveCourses = [
 export default function CourseList() {
     return (
         <>
-            {/* BREADCRUMB */}
-            <div className="bg-white border-b border-zinc-100 py-4">
-                <div className="container mx-auto px-4 lg:px-8">
-                    <div className="flex items-center gap-2 text-sm text-zinc-500 font-medium">
-                        <Link href="/" className="hover:text-[#E63946] transition-colors">Trang chủ</Link>
-                        <span>/</span>
-                        <span className="text-zinc-900 truncate font-semibold">Khóa học</span>
-                    </div>
-                </div>
-            </div>
-
             <main className="container mx-auto px-4 lg:px-8 py-10 md:py-16 max-w-7xl">
                 {/* PAGE HERO */}
                 <div className="text-center max-w-3xl mx-auto mb-12">
-                    <Badge className="bg-[#E63946]/10 text-[#E63946] hover:bg-[#E63946]/20 mb-4 uppercase tracking-wider font-bold">Lộ trình học tập</Badge>
-                    <h1 className="text-4xl md:text-5xl font-bold text-zinc-900 leading-tight mb-4">Danh sách Khóa học</h1>
-                    <p className="text-lg text-zinc-600">Chọn phương thức học tập phù hợp với bạn: học qua Video mọi lúc mọi nơi hoặc tham gia lớp học Trực tuyến tương tác trực tiếp với giáo viên.</p>
+                    <Badge className="bg-primary/10 text-primary hover:bg-primary/20 mb-4 uppercase tracking-wider font-bold">Lộ trình học tập</Badge>
+                    <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight mb-4">Danh sách Khóa học</h1>
+                    <p className="text-lg text-muted-foreground">Chọn phương thức học tập phù hợp với bạn: học qua Video mọi lúc mọi nơi hoặc tham gia lớp học Trực tuyến tương tác trực tiếp với giáo viên.</p>
                 </div>
 
                 {/* TABS NAVIGATION */}
                 <Tabs defaultValue="vod" className="w-full">
                     <div className="flex justify-center mb-10">
-                        <TabsList className="bg-zinc-100/80 p-1.5 rounded-full shadow-inner">
+                        <TabsList className="bg-muted/80 p-1.5 rounded-full shadow-inner">
                             <TabsTrigger
                                 value="vod"
-                                className="rounded-full px-6 py-3 font-semibold text-zinc-600 data-[state=active]:bg-white data-[state=active]:text-[#E63946] data-[state=active]:shadow-sm transition-all"
+                                className="rounded-full px-6 py-3 font-semibold text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all"
                             >
                                 <PlayCircle className="size-5 mr-2" strokeWidth={2} />
                                 Khóa học Video (VOD)
                             </TabsTrigger>
                             <TabsTrigger
                                 value="live"
-                                className="rounded-full px-6 py-3 font-semibold text-zinc-600 data-[state=active]:bg-white data-[state=active]:text-[#E63946] data-[state=active]:shadow-sm transition-all"
+                                className="rounded-full px-6 py-3 font-semibold text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all"
                             >
                                 <UserGroup className="size-5 mr-2" strokeWidth={2} />
                                 Khóa học Trực tuyến (Live)
@@ -171,9 +157,9 @@ export default function CourseList() {
                     <TabsContent value="vod" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {vodCourses.map((course) => (
-                                <div key={course.id} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-zinc-100 hover:shadow-xl transition-all duration-300 group flex flex-col h-full">
+                                <div key={course.id} className="bg-card rounded-2xl overflow-hidden shadow-sm border border-border hover:shadow-xl transition-all duration-300 group flex flex-col h-full">
                                     <div className="relative aspect-video overflow-hidden">
-                                        <div className="absolute top-4 left-4 z-10 flex items-center justify-center size-10 rounded-full bg-[#E63946] text-white font-bold shadow-lg border-2 border-white">
+                                        <div className="absolute top-4 left-4 z-10 flex items-center justify-center size-10 rounded-full bg-primary text-primary-foreground font-bold shadow-lg border-2 border-background">
                                             {course.level}
                                         </div>
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -189,25 +175,25 @@ export default function CourseList() {
                                             <Star className="size-4 fill-current" strokeWidth={2} />
                                             <span>{course.rating}</span>
                                         </div>
-                                        <h3 className="text-xl font-bold text-zinc-900 mb-4 group-hover:text-[#E63946] transition-colors leading-tight line-clamp-2">
+                                        <h3 className="text-xl font-bold text-foreground mb-4 group-hover:text-primary transition-colors leading-tight line-clamp-2">
                                             {course.title}
                                         </h3>
-                                        <div className="flex flex-wrap items-center gap-y-2 gap-x-4 text-sm text-zinc-500 mb-6">
-                                            <div className="flex items-center gap-1.5 border border-zinc-200 rounded-md px-2 py-1 bg-zinc-50">
+                                        <div className="flex flex-wrap items-center gap-y-2 gap-x-4 text-sm text-muted-foreground mb-6">
+                                            <div className="flex items-center gap-1.5 border border-border rounded-md px-2 py-1 bg-muted">
                                                 <TaskList className="size-4" strokeWidth={2} />
                                                 <span className="font-medium">{course.lessons} bài học</span>
                                             </div>
-                                            <div className="flex items-center gap-1.5 border border-zinc-200 rounded-md px-2 py-1 bg-zinc-50">
+                                            <div className="flex items-center gap-1.5 border border-border rounded-md px-2 py-1 bg-muted">
                                                 <Clock className="size-4" strokeWidth={2} />
                                                 <span className="font-medium">{course.hours} giờ</span>
                                             </div>
                                         </div>
-                                        <div className="mt-auto pt-6 border-t border-zinc-100 flex items-center justify-between">
+                                        <div className="mt-auto pt-6 border-t border-border flex items-center justify-between">
                                             <div>
-                                                <div className="text-lg font-bold text-[#E63946]">{course.price}</div>
-                                                <div className="text-xs text-zinc-400 line-through">{course.oldPrice}</div>
+                                                <div className="text-lg font-bold text-primary">{course.price}</div>
+                                                <div className="text-xs text-muted-foreground line-through">{course.oldPrice}</div>
                                             </div>
-                                            <Button className="bg-[#E63946] hover:bg-[#D62828] text-white">Đăng ký</Button>
+                                            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">Đăng ký</Button>
                                         </div>
                                     </div>
                                 </div>
@@ -219,13 +205,13 @@ export default function CourseList() {
                     <TabsContent value="live" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
                         <div className="space-y-6">
                             {liveCourses.map((course) => (
-                                <div key={course.id} className="bg-white rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-8 shadow-sm border border-zinc-100 hover:shadow-md transition-shadow group relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-1 h-full bg-[#E63946]"></div>
+                                <div key={course.id} className="bg-card rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-8 shadow-sm border border-border hover:shadow-md transition-shadow group relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
 
                                     {/* Left Status & Level */}
                                     <div className="w-full md:w-[200px] flex-shrink-0 flex flex-col items-start gap-4">
                                         <div className="flex items-center gap-3 w-full">
-                                            <div className="flex items-center justify-center size-12 rounded-xl bg-[#E63946]/10 text-[#E63946] font-bold text-xl">
+                                            <div className="flex items-center justify-center size-12 rounded-xl bg-primary/10 text-primary font-bold text-xl">
                                                 {course.level}
                                             </div>
                                             {course.status === "Đang mở đăng ký" && (
@@ -235,7 +221,7 @@ export default function CourseList() {
                                             )}
                                         </div>
                                         <div>
-                                            <span className={`text-xs font-bold uppercase tracking-wider ${course.status === 'Đã đủ học viên' ? 'text-zinc-500' : 'text-[#E63946]'}`}>
+                                            <span className={`text-xs font-bold uppercase tracking-wider ${course.status === 'Đã đủ học viên' ? 'text-muted-foreground' : 'text-primary'}`}>
                                                 {course.status}
                                             </span>
                                         </div>
@@ -243,40 +229,39 @@ export default function CourseList() {
 
                                     {/* Center Details */}
                                     <div className="flex-1 space-y-4">
-                                        <h3 className="text-2xl font-bold text-zinc-900 group-hover:text-[#E63946] transition-colors">
+                                        <h3 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors">
                                             {course.title}
                                         </h3>
 
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-zinc-600">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-muted-foreground">
                                             <div className="flex items-center gap-2">
-                                                <Calendar className="size-4 text-zinc-400" strokeWidth={2} />
+                                                <Calendar className="size-4 text-muted-foreground" strokeWidth={2} />
                                                 <span className="font-medium">Từ {course.startDate} đến {course.endDate}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <Clock className="size-4 text-zinc-400" strokeWidth={2} />
-                                                <span className="font-medium text-zinc-900 bg-zinc-100 px-2 py-0.5 rounded-md">{course.schedule}</span>
+                                                <Clock className="size-4 text-muted-foreground" strokeWidth={2} />
+                                                <span className="font-medium text-foreground bg-muted px-2 py-0.5 rounded-md">{course.schedule}</span>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-3 pt-4 border-t border-zinc-100">
-                                            <Avatar className="size-8 border border-zinc-200">
+                                        <div className="flex items-center gap-3 pt-4 border-t border-border">
+                                            <Avatar className="size-8 border border-border">
                                                 <AvatarImage src={course.teacherAvatar} />
                                                 <AvatarFallback>GV</AvatarFallback>
                                             </Avatar>
-                                            <span className="text-sm font-semibold text-zinc-700">Giáo viên: {course.teacher}</span>
-                                            <span className="text-zinc-300 mx-2">•</span>
-                                            <span className="text-sm text-zinc-500">{course.seats}</span>
+                                            <span className="text-sm font-semibold text-foreground">Giáo viên: {course.teacher}</span>
+                                            <span className="text-border mx-2">•</span>
+                                            <span className="text-sm text-muted-foreground">{course.seats}</span>
                                         </div>
                                     </div>
 
                                     {/* Right Action */}
-                                    <div className="w-full md:w-[200px] flex-shrink-0 flex flex-col justify-center items-end border-t md:border-t-0 md:border-l border-zinc-100 pt-6 md:pt-0 pl-0 md:pl-8">
-                                        <div className="text-2xl font-bold text-[#E63946] mb-4 text-right">{course.price}</div>
+                                    <div className="w-full md:w-[200px] flex-shrink-0 flex flex-col justify-center items-end border-t md:border-t-0 md:border-l border-border pt-6 md:pt-0 pl-0 md:pl-8">
+                                        <div className="text-2xl font-bold text-primary mb-4 text-right">{course.price}</div>
                                         <Button
                                             className="w-full flex items-center justify-between group-hover:pr-4 transition-all"
                                             variant={course.status === "Đã đủ học viên" || course.status === "Đang học" ? "secondary" : "default"}
                                             disabled={course.status === "Đã đủ học viên" || course.status === "Đang học"}
-                                            style={{ backgroundColor: course.status === "Đã đủ học viên" || course.status === "Đang học" ? undefined : "#E63946" }}
                                         >
                                             {course.status === "Đã đủ học viên" || course.status === "Đang học" ? "Đã đóng" : "Đăng ký ngay"}
                                             {course.status !== "Đã đủ học viên" && course.status !== "Đang học" && <ArrowRight className="size-4 opacity-0 -mr-4 group-hover:opacity-100 group-hover:mr-0 transition-all" strokeWidth={2.5} />}

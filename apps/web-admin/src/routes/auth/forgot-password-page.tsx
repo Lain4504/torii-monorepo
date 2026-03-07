@@ -11,6 +11,7 @@ import { CheckCircle2, ArrowLeft } from 'lucide-react';
 import { authApi } from '@/lib/api/services/auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card";
 import { Spinner } from "@workspace/ui/components/spinner";
+import { useLogo } from '@/hooks/useLogo';
 
 const forgotPasswordSchema = z.object({
     email: z.string().email('Email không hợp lệ'),
@@ -22,6 +23,7 @@ export default function ForgotPasswordPage() {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [emailSent, setEmailSent] = useState(false);
+    const logo = useLogo();
 
     const form = useForm<ForgotPasswordFormData>({
         resolver: zodResolver(forgotPasswordSchema),
@@ -52,7 +54,7 @@ export default function ForgotPasswordPage() {
         <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
             <div className="w-full max-w-md">
                 <div className="flex flex-col items-center text-center mb-6">
-                    <img src="/logo.png" alt="Torii Nihongo" className="h-24 w-auto object-contain mb-2" />
+                    <img src={logo} alt="Torii Nihongo" className="h-24 w-auto object-contain mb-2" />
                     <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Cổng quản trị</span>
                 </div>
 

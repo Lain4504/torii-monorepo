@@ -4,18 +4,21 @@ import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { LayoutDashboard, Facebook, Youtube } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
+import { useLogo } from "@/hooks/useLogo"
 
 const TORII_RED = "text-[#E63946]"
 const BG_TORII_RED = "bg-[#E63946] hover:bg-[#D62828]"
 
 export function Footer() {
+    const logo = useLogo()
+    
     return (
         <footer className="bg-zinc-900 text-zinc-300 py-16">
             <div className="container mx-auto px-4 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
                 <div className="space-y-6">
                     <div className="flex items-center gap-2">
-                        <LayoutDashboard className={`size-8 text-[#E63946] fill-current`} />
-                        <span className="text-2xl font-bold text-white tracking-tight">Torii Nihongo</span>
+                        <Image src={logo} alt="Torii Nihongo" width={120} height={40} className="h-8 w-auto object-contain" />
                     </div>
                     <p className="text-zinc-400 text-sm leading-relaxed">
                         Hệ thống nhật ngữ cao cấp, tiên phong trong công tác chuyển đổi số E-learning. Giúp bạn chinh phục tiếng Nhật một cách bài bản nhất!

@@ -14,6 +14,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@workspace/ui/components/card";
 import { Checkbox } from '@workspace/ui/components/checkbox';
 import { Spinner } from "@workspace/ui/components/spinner";
+import { useLogo } from '@/hooks/useLogo';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ export default function LoginPage() {
   const loading = useAppSelector(selectAuthLoading);
   const error = useAppSelector(selectAuthError);
   const [showPassword, setShowPassword] = useState(false);
+  const logo = useLogo();
 
   // Initial check - redirect if already authenticated
   useEffect(() => {
@@ -84,7 +86,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center text-center mb-6">
-          <img src="/logo.png" alt="Torii Nihongo" className="h-24 w-auto object-contain mb-2" />
+          <img src={logo} alt="Torii Nihongo" className="h-24 w-auto object-contain mb-2" />
           <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Cổng quản trị</span>
         </div>
 
