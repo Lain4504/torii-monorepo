@@ -30,7 +30,7 @@ export function FlashcardStudy({ deckId }: FlashcardStudyProps) {
     const queryClient = useQueryClient()
 
     // Fetch Study Cards
-    const { data: studyCards, isLoading: isLoadingCards } = useQuery({
+    const { data: studyCards, isLoading: isLoadingCards, refetch: refetchCards } = useQuery({
         queryKey: ["flashcards-study", deckId],
         queryFn: () => flashcardApi.getStudyCards(deckId),
     })
@@ -43,24 +43,35 @@ export function FlashcardStudy({ deckId }: FlashcardStudyProps) {
 
     // Review Card Mutation
     const { mutate: submitReview } = useMutation({
-        mutationFn: ({ cardId, quality }: { cardId: string; quality: 0 | 1 }) =>
-            flashcardApi.reviewCard(cardId, quality),
+        mutationFn: ({ cardId, quality }: { cardId: string; quality: number }) =>
+            flashcardApi.reviewCard(cardId, quality as any),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["flashcards-study", deckId] })
+            queryClient.invalidateQueries({ queryKey: ["flashcard-decks"] })
         },
         onError: () => {
             toast.error("Không thể đồng bộ tiến độ học tập.")
         }
     })
 
+    // Fetch All Cards (Preview Mode)
+    const { data: allCards, isLoading: isLoadingAll } = useQuery({
+        queryKey: ["flashcards-all", deckId],
+        queryFn: () => flashcardApi.getDeckCards(deckId),
+        enabled: !!deck && (!studyCards || studyCards.length === 0),
+    })
+
     // Convert backend StudyCard[] to Flashcards component format
     const flashcardsData: FlashcardsData | null = React.useMemo(() => {
-        if (!studyCards || !deck) return null
+        const sourceCards = (studyCards && studyCards.length > 0) ? studyCards : allCards
+        if (!sourceCards || !deck) return null
 
         return {
             title: deck.name,
-            description: `${studyCards.length} thẻ cần ôn tập`,
-            cards: studyCards.map(card => {
+            description: (studyCards && studyCards.length > 0) 
+                ? `${studyCards.length} thẻ cần ôn tập hôm nay`
+                : `Học ôn tập: ${allCards?.length || 0} thẻ`,
+            cards: sourceCards.map(card => {
                 // Build front text (term + furigana if available)
                 const furigana = card.languageDetails?.furigana as string | undefined
                 let front = card.term
@@ -72,75 +83,67 @@ export function FlashcardStudy({ deckId }: FlashcardStudyProps) {
                     id: card.id,
                     front,
                     back: card.definition,
-                    tag: card.srsState
+                    tag: (card as any).srsState
                 }
             }),
-            showRatings: true,
-            shuffle: false
+            showRatings: (studyCards && studyCards.length > 0),
+            shuffle: true
         }
-    }, [studyCards, deck])
+    }, [studyCards, allCards, deck])
 
     // Handle completion with ratings
     const handleComplete = React.useCallback((result: FlashcardsResult) => {
-        // Map difficulty ratings to quality scores
-        // again/hard -> 0 (forgot), good/easy -> 1 (remember)
-        const qualityMap: Record<FlashcardDifficulty, 0 | 1> = {
-            again: 0,
-            hard: 0,
-            good: 1,
-            easy: 1
-        }
+        if (studyCards && studyCards.length > 0) {
+            // Map difficulty ratings to quality scores (SRS Logic)
+            const qualityMap: Record<FlashcardDifficulty, number> = {
+                again: 0,
+                hard: 1,
+                good: 2,
+                easy: 3
+            }
 
-        // Submit all reviews
-        result.ratings.forEach(rating => {
-            submitReview({
-                cardId: rating.cardId,
-                quality: qualityMap[rating.difficulty]
+            // Submit all reviews
+            result.ratings.forEach(rating => {
+                submitReview({
+                    cardId: rating.cardId,
+                    quality: qualityMap[rating.difficulty]
+                })
             })
-        })
 
-        toast.success(`Đã hoàn thành ${result.ratings.length} thẻ!`)
+            toast.success(`Đã hoàn thành ${result.ratings.length} thẻ ôn tập!`)
+        } else {
+            toast.success("Đã hoàn thành lượt học ôn tập!")
+        }
         
-        // Navigate back after a short delay
+        // Return to dashboard after completion
         setTimeout(() => {
             router.push("/dashboard/flashcards")
-        }, 1500)
-    }, [submitReview, router])
+        }, 2000)
+    }, [studyCards, submitReview, router])
 
-    if (isLoadingCards || isLoadingDeck) {
+    if (isLoadingCards || isLoadingDeck || (isLoadingAll && !studyCards?.length)) {
         return <PageLoading text="Đang chuẩn bị lộ trình ôn tập..." />
     }
 
     if (!flashcardsData || flashcardsData.cards.length === 0) {
-        const isEmptyDeck = deck?.stats?.cardCount === 0
-
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8 animate-in fade-in duration-700">
-                <div className={cn(
-                    "p-6 rounded-full border animate-bounce",
-                    isEmptyDeck ? "bg-muted/10 border-muted text-muted-foreground" : "bg-primary/10 border-primary/20 text-primary"
-                )}>
-                    {isEmptyDeck ? <BrainCircuit className="size-12" /> : <Trophy className="size-12" />}
+                <div className="p-6 rounded-full border animate-bounce bg-muted/10 border-muted text-muted-foreground">
+                    <BrainCircuit className="size-12" />
                 </div>
                 <div className="text-center space-y-2 max-w-sm">
-                    <h2 className="text-3xl font-bold tracking-tight">
-                        {isEmptyDeck ? "Chưa có thẻ nào" : "Tuyệt vời!"}
-                    </h2>
+                    <h2 className="text-3xl font-bold tracking-tight">Chưa có thẻ nào</h2>
                     <p className="text-muted-foreground">
-                        {isEmptyDeck
-                            ? "Bộ thẻ này hiện tại đang trống. Hãy thêm một vài thẻ trước khi bắt đầu hành trình chinh phục kiến thức!"
-                            : "Bạn đã hoàn thành tất cả các thẻ cần ôn tập trong bộ nhớ này. Hãy quay lại vào ngày mai!"}
+                        Bộ thẻ này hiện tại đang trống. Hãy thêm một vài thẻ trước khi bắt đầu hành trình chinh phục kiến thức!
                     </p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
                     <Button variant="outline" onClick={() => router.push("/dashboard/flashcards")} size="lg" className="font-bold uppercase tracking-widest text-[10px] px-8">
                         Quay lại kho thẻ
                     </Button>
-                    {isEmptyDeck && (
-                        <Button onClick={() => router.push(`/dashboard/flashcards/${deckId}/manage`)} size="lg" className="font-bold uppercase tracking-widest text-[10px] px-8">
-                            Quản lý nội dung
-                        </Button>
-                    )}
+                    <Button onClick={() => router.push(`/dashboard/flashcards/${deckId}/manage`)} size="lg" className="font-bold uppercase tracking-widest text-[10px] px-8">
+                        Quản lý nội dung
+                    </Button>
                 </div>
             </div>
         )
