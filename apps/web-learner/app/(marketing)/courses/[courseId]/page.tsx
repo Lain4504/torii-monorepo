@@ -1,9 +1,11 @@
+"use client"
+
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@workspace/ui/components/accordion"
 import {
-    Layout,
+    Layout as LayoutIcon,
     Clock,
     MessageCircle,
     Star,
@@ -20,6 +22,8 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import React from "react"
+import { useParams } from "next/navigation"
+import { useCourseOffering } from "@/lib/api/services/course-api"
 import { StudentReviewsSection } from "@/components/class-reviews/student-reviews-section"
 
 const UserGroup = Users
@@ -31,52 +35,52 @@ const Certificate = Award
 const TORII_RED = "text-[#E63946]"
 const BG_TORII_RED = "bg-[#E63946]"
 
-const curriculum = [
-    {
-        title: "Chương 1: Xây dựng nền tảng Từ vựng JLPT N3",
-        lessons: 12,
-        duration: "04:30:00",
-        items: [
-            { title: "Bài 1: Từ vựng chủ đề Giao tiếp hàng ngày", duration: "18:45", type: "video", preview: true },
-            { title: "Bài 2: Từ vựng chủ đề Công việc", duration: "22:15", type: "video", preview: false },
-            { title: "Bài 3: Từ vựng chủ đề Giải trí", duration: "20:00", type: "video", preview: false },
-            { title: "Bài tập thực hành trắc nghiệm Từ vựng", duration: "30:00", type: "document", preview: false },
-        ]
-    },
-    {
-        title: "Chương 2: Ngữ pháp N3 cốt lõi",
-        lessons: 20,
-        duration: "08:15:00",
-        items: [
-            { title: "Bài 4: Các mẫu câu diễn tả Mục đích", duration: "25:30", type: "video", preview: true },
-            { title: "Bài 5: Các mẫu câu diễn tả Nguyên nhân - Kết quả", duration: "28:10", type: "video", preview: false },
-            { title: "Bài 6: Các mẫu câu Phủ định và Phân biệt", duration: "21:40", type: "video", preview: false },
-            { title: "Bài tập thực hành Ngữ pháp", duration: "45:00", type: "document", preview: false },
-        ]
-    },
-    {
-        title: "Chương 3: Luyện kỹ năng Đọc hiểu (Dokkai)",
-        lessons: 15,
-        duration: "06:45:00",
-        items: [
-            { title: "Bài 7: Kỹ năng Skimming và Scanning", duration: "19:20", type: "video", preview: false },
-            { title: "Bài 8: Phân tích Đoạn văn ngắn", duration: "24:15", type: "video", preview: false },
-            { title: "Bài 9: Phân tích Đoạn văn dài", duration: "30:50", type: "video", preview: false },
-        ]
-    },
-    {
-        title: "Chương 4: Luyện kỹ năng Nghe hiểu (Choukai)",
-        lessons: 18,
-        duration: "07:30:00",
-        items: [
-            { title: "Bài 10: Phân biệt âm dễ nhầm lẫn", duration: "15:30", type: "video", preview: false },
-            { title: "Bài 11: Nghe hiểu Lịch trình", duration: "22:45", type: "video", preview: false },
-            { title: "Bài thi mô phỏng Nghe hiểu N3", duration: "40:00", type: "document", preview: false },
-        ]
-    }
-];
+const formatPrice = (price?: number | string) => {
+    if (price === undefined || price === null) return "Liên hệ";
+    return new Intl.NumberFormat('vi-VN').format(Number(price)) + 'đ';
+};
 
 export default function CourseDetail() {
+    const params = useParams();
+    const courseId = params.courseId as string;
+    const { data: offering, isLoading } = useCourseOffering(courseId);
+
+    if (isLoading) {
+        return (
+            <div className="container mx-auto px-4 lg:px-8 py-20 max-w-7xl text-center">
+                <div className="animate-pulse space-y-8">
+                    <div className="h-8 bg-muted rounded w-1/4 mx-auto"></div>
+                    <div className="h-40 bg-muted rounded"></div>
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        <div className="lg:col-span-8 h-80 bg-muted rounded"></div>
+                        <div className="lg:col-span-4 h-80 bg-muted rounded"></div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (!offering) {
+        return (
+            <div className="container mx-auto px-4 lg:px-8 py-20 max-w-7xl text-center">
+                <h2 className="text-2xl font-bold">Không tìm thấy khóa học</h2>
+                <Button className="mt-4" asChild>
+                    <Link href="/courses">Quay lại danh sách</Link>
+                </Button>
+            </div>
+        );
+    }
+
+    const primaryClass = offering.classes?.find((c: any) => c.isPrimary)?.class || offering.classes?.[0]?.class;
+    const profile = primaryClass?.courseProfile;
+    const edition = primaryClass?.courseEdition;
+    const chapters = edition?.chapters || [];
+    const teacher = primaryClass?.primaryTeacher || { displayName: "Giảng viên Torii", avatarUrl: "" };
+
+    const totalLessons = chapters.reduce((acc: number, chap: any) => acc + (chap.items?.length || 0), 0);
+    const totalMinutes = chapters.reduce((acc: number, chap: any) => acc + (chap.estimatedMinutes || 0), 0);
+    const hoursCount = Math.floor(totalMinutes / 60);
+
     return (
         <>
             {/* BREADCRUMB */}
@@ -87,7 +91,7 @@ export default function CourseDetail() {
                         <span>/</span>
                         <Link href="/courses" className="hover:text-[#E63946] transition-colors">Khóa học</Link>
                         <span>/</span>
-                        <span className="text-zinc-900 truncate font-semibold">Chinh phục JLPT N3</span>
+                        <span className="text-zinc-900 truncate font-semibold">{offering.title}</span>
                     </div>
                 </div>
             </div>
@@ -98,34 +102,36 @@ export default function CourseDetail() {
                     {/* LEFT COLUMN: MAIN CONTENT */}
                     <div className="lg:col-span-8 space-y-12">
 
-                        {/* Course Header info (Mobile view will have sticky card below this) */}
+                        {/* Course Header info */}
                         <div className="space-y-4">
                             <div className="flex flex-wrap items-center gap-4 mb-4">
-                                <Badge className="bg-[#E63946]/10 text-[#E63946] hover:bg-[#E63946]/20 py-1.5 px-3">JLPT N3</Badge>
+                                <Badge className="bg-[#E63946]/10 text-[#E63946] hover:bg-[#E63946]/20 py-1.5 px-3">
+                                    {profile?.level || "Japanese"}
+                                </Badge>
                                 <div className="flex items-center gap-1.5 text-yellow-500 font-bold text-sm">
                                     <Star className="size-4 fill-current" strokeWidth={2} />
-                                    <span>4.9/5</span>
-                                    <span className="text-zinc-500 font-medium ml-1">(450 đánh giá)</span>
+                                    <span>{(offering.metadata as any)?.rating || "4.9"}/5</span>
+                                    <span className="text-zinc-500 font-medium ml-1">({(offering.metadata as any)?.reviewsCount || "0"} đánh giá)</span>
                                 </div>
                                 <div className="flex items-center gap-1.5 text-sm text-zinc-600 font-medium">
                                     <UserGroup className="size-4" strokeWidth={2} />
-                                    <span>1,200+ Học viên</span>
+                                    <span>{(offering.metadata as any)?.studentsCount || "1,000+"} Học viên</span>
                                 </div>
                             </div>
 
                             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-zinc-900 leading-tight">
-                                Chinh phục JLPT N3 - Lộ trình bài bản & cấp tốc
+                                {offering.title}
                             </h1>
-                            <p className="text-lg text-zinc-600 leading-relaxed max-w-3xl">
-                                Khoá học VOD thiết kế riêng dành cho người đi làm và sinh viên bận rộn. Sở hữu ngay 100+ video bài giảng chi tiết, cam kết đạt kết quả đậu JLPT chỉ sau 3 tháng.
-                            </p>
+                            <div className="text-lg text-zinc-600 leading-relaxed max-w-3xl prose prose-zinc prose-p:leading-relaxed">
+                                {offering.description || (offering.metadata as any)?.shortDescription || profile?.description}
+                            </div>
                         </div>
 
                         {/* Video Player Placeholder */}
                         <div className="relative aspect-video rounded-2xl overflow-hidden bg-zinc-900 shadow-2xl group cursor-pointer border border-zinc-200">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
-                                src="https://images.unsplash.com/photo-1544928147-79a2dbc1f389?q=80&w=1974&auto=format&fit=crop"
+                                src={profile?.thumbnailUrl || "https://images.unsplash.com/photo-1544928147-79a2dbc1f389?q=80&w=1974&auto=format&fit=crop"}
                                 alt="Course Cover"
                                 className="w-full h-full object-cover opacity-60 group-hover:opacity-50 transition-all duration-700 group-hover:scale-105"
                             />
@@ -140,14 +146,14 @@ export default function CourseDetail() {
                         <section className="bg-white rounded-2xl p-8 border border-zinc-100 shadow-sm">
                             <h2 className="text-2xl font-bold text-zinc-900 mb-6">Bạn sẽ học được gì?</h2>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
-                                {[
-                                    "Nắm vững hơn 600 Kanji cốt lõi của kỳ thi N3",
-                                    "Ghi nhớ 2000 từ vựng theo chủ đề sát với đề thi thực tế",
-                                    "Làm chủ và ứng dụng nhuần nhuyễn toàn bộ ngữ pháp N3",
-                                    "Cải thiện kỹ năng Đọc hiểu thông qua tips Skimming / Scanning",
-                                    "Phá đảo kỹ năng Nghe hiểu, tự tin lấy điểm cao",
-                                    "Học mẹo điền bài và quản lý thời gian thi chứng chỉ JLPT"
-                                ].map((target, idx) => (
+                                {((offering.metadata as any)?.learningPoints || [
+                                    "Nắm vững Kanji cốt lõi",
+                                    "Ghi nhớ từ vựng theo chủ đề",
+                                    "Làm chủ ngữ pháp ứng dụng",
+                                    "Cải thiện kỹ năng Đọc hiểu",
+                                    "Phá đảo kỹ năng Nghe hiểu",
+                                    "Học mẹo điền bài và quản lý thời gian"
+                                ]).map((target: string, idx: number) => (
                                     <div key={idx} className="flex items-start gap-3">
                                         <Tick className="size-5 text-[#E63946] shrink-0 mt-0.5" strokeWidth={2.5} />
                                         <span className="text-zinc-700 leading-relaxed font-medium">{target}</span>
@@ -161,38 +167,38 @@ export default function CourseDetail() {
                             <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
                                 <div>
                                     <h2 className="text-2xl font-bold text-zinc-900 mb-2">Nội dung khóa học</h2>
-                                    <p className="text-zinc-500 font-medium">10 Chương • 65 Bài học • Tổng thời lượng 27h 30m</p>
+                                    <p className="text-zinc-500 font-medium">{chapters.length} Chương • {totalLessons} Bài học • Tổng thời lượng ~{hoursCount > 0 ? `${hoursCount}h` : ''} {totalMinutes % 60}m</p>
                                 </div>
                             </div>
 
                             <Accordion type="multiple" className="w-full space-y-4" defaultValue={['item-0']}>
-                                {curriculum.map((chapter, index) => (
+                                {chapters.map((chapter: any, index: number) => (
                                     <AccordionItem key={index} value={`item-${index}`} className="bg-white border text-sm md:text-base border-zinc-200 rounded-xl overflow-hidden shadow-sm not-last:border-b-0 px-1">
                                         <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-zinc-50 text-zinc-900 transition-colors">
                                             <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full pr-4 gap-2">
                                                 <span className="font-bold text-left">{chapter.title}</span>
                                                 <span className="text-sm font-medium text-zinc-500 flex-shrink-0">
-                                                    {chapter.lessons} bài học • {chapter.duration}
+                                                    {chapter.items?.length || 0} bài học {chapter.estimatedMinutes ? `• ${chapter.estimatedMinutes} phút` : ''}
                                                 </span>
                                             </div>
                                         </AccordionTrigger>
                                         <AccordionContent className="bg-zinc-50/50 pb-0 pt-0 text-base border-t border-zinc-100">
                                             <div className="flex flex-col py-2 px-1">
-                                                {chapter.items.map((lesson, lIdx) => (
+                                                {chapter.items?.map((item: any, lIdx: number) => (
                                                     <div key={lIdx} className="flex items-center justify-between py-3 px-4 hover:bg-zinc-100 rounded-lg transition-colors group">
                                                         <div className="flex items-center gap-3">
-                                                            {lesson.type === 'video' ? (
+                                                            {item.kind === 'LESSON' ? (
                                                                 <PlayCircle className="size-5 text-zinc-400 group-hover:text-[#E63946] transition-colors" strokeWidth={2} />
                                                             ) : (
                                                                 <FileIcon className="size-5 text-zinc-400 group-hover:text-[#E63946] transition-colors" strokeWidth={2} />
                                                             )}
-                                                            <span className="font-medium text-zinc-700 line-clamp-1 break-all pr-4">{lesson.title}</span>
+                                                            <span className="font-medium text-zinc-700 line-clamp-1 break-all pr-4">{item.title}</span>
                                                         </div>
                                                         <div className="flex items-center gap-3 shrink-0">
-                                                            {lesson.preview && (
+                                                            {(item.metadata as any)?.isPreview && (
                                                                 <Badge variant="outline" className="border-[#E63946] text-[#E63946] cursor-pointer hover:bg-[#E63946] hover:text-white transition-colors hidden sm:flex">Học thử</Badge>
                                                             )}
-                                                            <span className="text-sm text-zinc-500 whitespace-nowrap">{lesson.duration}</span>
+                                                            <span className="text-sm text-zinc-500 whitespace-nowrap">{(item.metadata as any)?.duration || ""}</span>
                                                         </div>
                                                     </div>
                                                 ))}
@@ -209,33 +215,30 @@ export default function CourseDetail() {
                             <h2 className="text-2xl font-bold text-zinc-900 mb-8 relative z-10">Giảng viên của bạn</h2>
                             <div className="flex flex-col md:flex-row gap-8 items-start relative z-10">
                                 <Avatar className="size-32 border-4 border-white shadow-xl flex-shrink-0">
-                                    <AvatarImage src="https://i.pravatar.cc/250?img=33" className="object-cover" />
-                                    <AvatarFallback>AT</AvatarFallback>
+                                    <AvatarImage src={teacher.avatarUrl || "https://i.pravatar.cc/250?img=33"} className="object-cover" />
+                                    <AvatarFallback>{teacher.displayName?.[0] || 'GV'}</AvatarFallback>
                                 </Avatar>
                                 <div className="space-y-4">
                                     <div>
-                                        <h3 className="text-2xl font-bold text-zinc-900 mb-1">Akira Takahashi</h3>
-                                        <p className="text-[#E63946] font-semibold text-lg">Giám đốc Học thuật tại Torii Nihongo</p>
+                                        <h3 className="text-2xl font-bold text-zinc-900 mb-1">{teacher.displayName}</h3>
+                                        <p className="text-[#E63946] font-semibold text-lg">Giảng viên tại Torii Nihongo</p>
                                     </div>
                                     <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-zinc-600">
                                         <div className="flex items-center gap-1.5 bg-zinc-100 px-3 py-1.5 rounded-full">
-                                            <Certificate className="size-4" strokeWidth={2} /> JLPT N1 (180/180)
+                                            <Certificate className="size-4" strokeWidth={2} /> JLPT N1
                                         </div>
                                         <div className="flex items-center gap-1.5 bg-zinc-100 px-3 py-1.5 rounded-full">
-                                            <UserGroup className="size-4" strokeWidth={2} /> 15.000+ Học viên
-                                        </div>
-                                        <div className="flex items-center gap-1.5 bg-zinc-100 px-3 py-1.5 rounded-full">
-                                            <Star className="size-4 text-yellow-500 fill-current" strokeWidth={2} /> 4.9 Đánh giá
+                                            <UserGroup className="size-4" strokeWidth={2} /> 1,000+ Học viên
                                         </div>
                                     </div>
                                     <p className="text-zinc-600 leading-relaxed pt-2">
-                                        Với hơn 10 năm kinh nghiệm giảng dạy tiếng Nhật cho người Việt Nam và Nhật Bản, thầy Akira đã đúc kết ra một phương pháp học từ vựng và ngữ pháp hoàn toàn mới mẻ, giúp học viên nhớ nhanh, hiểu sâu và áp dụng cực kỳ linh hoạt vào thực tế thi lẫn sinh hoạt. Thầy thường xuyên được vinh danh là Giáo viên có thành tích đào tạo học viên xuất sắc nhất của nền tảng 3 năm liên tiếp.
+                                        {teacher.bio || "Với nhiều năm kinh nghiệm giảng dạy tiếng Nhật, giáo viên mang đến phương pháp học tập hiệu quả, giúp học viên dễ dàng tiếp thu kiến thức và đạt kết quả cao trong các kỳ thi JLPT."}
                                     </p>
                                 </div>
                             </div>
                         </section>
 
-                        <StudentReviewsSection classId="mock-class" />
+                        <StudentReviewsSection classId={primaryClass?.id || "mock-class"} />
 
                     </div>
 
@@ -243,15 +246,18 @@ export default function CourseDetail() {
                     <aside className="lg:col-span-4 relative order-first lg:order-last mb-8 lg:mb-0">
                         <div className="lg:sticky lg:top-28">
                             <div className="bg-white rounded-3xl p-6 shadow-2xl shadow-zinc-200/50 border border-zinc-100 relative overflow-hidden">
-                                {/* Discount tag absolute */}
-                                <div className="absolute top-0 right-0 bg-red-500 text-white font-bold px-4 py-1.5 rounded-bl-xl text-sm shadow-md">
-                                    Giảm 45%
-                                </div>
+                                {(offering.metadata as any)?.discount && (
+                                    <div className="absolute top-0 right-0 bg-red-500 text-white font-bold px-4 py-1.5 rounded-bl-xl text-sm shadow-md">
+                                        Giảm {(offering.metadata as any)?.discount}%
+                                    </div>
+                                )}
 
                                 <div className="mb-8 mt-2">
-                                    <div className="text-zinc-400 font-medium line-through mb-1 text-lg">2.200.000đ</div>
+                                    {(offering.metadata as any)?.oldPrice && (
+                                        <div className="text-zinc-400 font-medium line-through mb-1 text-lg">{formatPrice((offering.metadata as any)?.oldPrice)}</div>
+                                    )}
                                     <div className="text-4xl font-extrabold text-[#E63946] flex items-center gap-2">
-                                        1.800.000đ
+                                        {formatPrice(offering.originalPrice)}
                                     </div>
                                 </div>
 
@@ -269,11 +275,11 @@ export default function CourseDetail() {
                                     <ul className="space-y-4">
                                         <li className="flex items-center gap-3 text-zinc-600 font-medium">
                                             <VideoIcon className="size-5 text-zinc-400 shrink-0" strokeWidth={2} />
-                                            <span>Hơn 27.5 giờ video bài giảng chất lượng 4K</span>
+                                            <span>Hơn {hoursCount > 0 ? hoursCount : totalMinutes} {hoursCount > 0 ? 'giờ' : 'phút'} video bài giảng chất lượng</span>
                                         </li>
                                         <li className="flex items-center gap-3 text-zinc-600 font-medium">
                                             <FileIcon className="size-5 text-zinc-400 shrink-0" strokeWidth={2} />
-                                            <span>65 Bài tập thực hành & Đề thi thử đính kèm</span>
+                                            <span>{totalLessons} Bài học & Tài liệu đính kèm</span>
                                         </li>
                                         <li className="flex items-center gap-3 text-zinc-600 font-medium">
                                             <Clock className="size-5 text-zinc-400 shrink-0" strokeWidth={2} />
@@ -370,5 +376,5 @@ export default function CourseDetail() {
                 </div>
             </section>
         </>
-    )
+    );
 }

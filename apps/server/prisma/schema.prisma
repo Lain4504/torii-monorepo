@@ -591,6 +591,7 @@ model Transaction {
 model Coupon {
   id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   code              String             @unique @db.VarChar(50)
+  name              String?            @db.VarChar(200)
   description       String?            @db.Text
   discountType      CouponDiscountType @map("discount_type")
   discountValue     Decimal            @map("discount_value") @db.Decimal(12, 2)

@@ -55,11 +55,11 @@ export function CreateCouponDialog({ open, onOpenChange }: CreateCouponDialogPro
             discountType: CouponDiscountType.PERCENTAGE,
             discountValue: 0,
             maxDiscountAmount: undefined,
-            minOrderAmount: undefined,
+            minOrderValue: undefined,
             usageLimit: undefined,
-            userUsageLimit: 1,
-            validFrom: new Date(),
-            validUntil: defaultValidUntil,
+            perUserLimit: 1,
+            startDate: new Date(),
+            endDate: defaultValidUntil,
             applicableCourseMasterIds: [],
             excludedCourseMasterIds: [],
             applicableRunIds: [],
@@ -82,11 +82,11 @@ export function CreateCouponDialog({ open, onOpenChange }: CreateCouponDialogPro
                 ...data,
                 discountValue: Number(data.discountValue),
                 maxDiscountAmount: data.maxDiscountAmount ? Number(data.maxDiscountAmount) : undefined,
-                minOrderAmount: data.minOrderAmount ? Number(data.minOrderAmount) : undefined,
+                minOrderValue: data.minOrderValue ? Number(data.minOrderValue) : undefined,
                 usageLimit: data.usageLimit ? Number(data.usageLimit) : undefined,
-                userUsageLimit: Number(data.userUsageLimit || 1),
-                validFrom: data.validFrom,
-                validUntil: data.validUntil
+                perUserLimit: Number(data.perUserLimit || 1),
+                startDate: data.startDate,
+                endDate: data.endDate
             });
 
             toast.success('Đã tạo coupon', {
@@ -222,14 +222,14 @@ export function CreateCouponDialog({ open, onOpenChange }: CreateCouponDialogPro
                                 )}
 
                                 <Field>
-                                    <FieldLabel htmlFor="minOrderAmount" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                    <FieldLabel htmlFor="minOrderValue" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
                                         Đơn Hàng Tối Thiểu (VND)
                                     </FieldLabel>
                                     <Input
-                                        id="minOrderAmount"
+                                        id="minOrderValue"
                                         type="number"
                                         min="0"
-                                        {...register('minOrderAmount', { valueAsNumber: true })}
+                                        {...register('minOrderValue', { valueAsNumber: true })}
                                         placeholder="0"
                                         className="font-mono"
                                     />
@@ -264,7 +264,7 @@ export function CreateCouponDialog({ open, onOpenChange }: CreateCouponDialogPro
                                             id="userUsageLimit"
                                             type="number"
                                             min="1"
-                                            {...register('userUsageLimit', { valueAsNumber: true, min: 1 })}
+                                            {...register('perUserLimit', { valueAsNumber: true, min: 1 })}
                                             defaultValue={1}
                                             className="font-mono"
                                         />
@@ -281,7 +281,7 @@ export function CreateCouponDialog({ open, onOpenChange }: CreateCouponDialogPro
                                 <div className="grid grid-cols-2 gap-6">
                                     <Controller
                                         control={control}
-                                        name="validFrom"
+                                        name="startDate"
                                         render={({ field }) => (
                                             <Field>
                                                 <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
@@ -309,14 +309,14 @@ export function CreateCouponDialog({ open, onOpenChange }: CreateCouponDialogPro
                                                         />
                                                     </PopoverContent>
                                                 </Popover>
-                                                {errors.validFrom && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.validFrom.message}</FieldError>}
+                                                {errors.startDate && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.startDate.message}</FieldError>}
                                             </Field>
                                         )}
                                     />
 
                                     <Controller
                                         control={control}
-                                        name="validUntil"
+                                        name="endDate"
                                         render={({ field }) => (
                                             <Field>
                                                 <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
@@ -344,7 +344,7 @@ export function CreateCouponDialog({ open, onOpenChange }: CreateCouponDialogPro
                                                         />
                                                     </PopoverContent>
                                                 </Popover>
-                                                {errors.validUntil && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.validUntil.message}</FieldError>}
+                                                {errors.endDate && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.endDate.message}</FieldError>}
                                             </Field>
                                         )}
                                     />

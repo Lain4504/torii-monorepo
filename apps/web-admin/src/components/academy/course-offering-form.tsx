@@ -95,6 +95,12 @@ export function CourseOfferingForm({
         status: initial?.status ?? "DRAFT",
         type: (initial as any)?.type ?? "COURSE",
         classIds: initial?.classes?.map((c: any) => c.classId) || [],
+        validFrom: initial?.validFrom
+          ? new Date(initial.validFrom).toISOString().split("T")[0]
+          : undefined,
+        validTo: initial?.validTo
+          ? new Date(initial.validTo).toISOString().split("T")[0]
+          : undefined,
       }
       : {
         code: "",
@@ -107,6 +113,8 @@ export function CourseOfferingForm({
         status: "DRAFT",
         type: "COURSE",
         classIds: [],
+        validFrom: undefined,
+        validTo: undefined,
       }) as any,
   })
 
@@ -422,6 +430,40 @@ export function CourseOfferingForm({
                       <SelectItem value="HIDDEN">Hidden (Ẩn)</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+          </div>
+
+          <FieldSeparator />
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <Controller
+              name={"validFrom" as any}
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Ngày bắt đầu bán</FieldLabel>
+                  <Input type="date" {...field} />
+                  <FieldDescription>
+                    Thời điểm gói này bắt đầu hiển thị cho học viên.
+                  </FieldDescription>
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
+              name={"validTo" as any}
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Ngày kết thúc bán</FieldLabel>
+                  <Input type="date" {...field} />
+                  <FieldDescription>
+                    Thời điểm gói này ngừng hiển thị.
+                  </FieldDescription>
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}

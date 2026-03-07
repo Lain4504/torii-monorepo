@@ -55,11 +55,11 @@ export function EditCouponDialog({ open, onOpenChange, coupon }: EditCouponDialo
             discountType: coupon.discountType,
             discountValue: coupon.discountValue,
             maxDiscountAmount: coupon.maxDiscountAmount ?? undefined,
-            minOrderAmount: coupon.minOrderAmount ?? undefined,
+            minOrderValue: coupon.minOrderValue ?? undefined,
             usageLimit: coupon.usageLimit ?? undefined,
-            userUsageLimit: coupon.userUsageLimit,
-            validFrom: new Date(coupon.validFrom),
-            validUntil: new Date(coupon.validUntil),
+            perUserLimit: coupon.perUserLimit,
+            startDate: coupon.startDate ? new Date(coupon.startDate) : new Date(),
+            endDate: coupon.endDate ? new Date(coupon.endDate) : new Date(),
             status: coupon.status,
             applicableCourseMasterIds: coupon.applicableCourseMasterIds,
             excludedCourseMasterIds: coupon.excludedCourseMasterIds,
@@ -77,11 +77,11 @@ export function EditCouponDialog({ open, onOpenChange, coupon }: EditCouponDialo
                 discountType: coupon.discountType,
                 discountValue: coupon.discountValue,
                 maxDiscountAmount: coupon.maxDiscountAmount ?? undefined,
-                minOrderAmount: coupon.minOrderAmount ?? undefined,
+                minOrderValue: coupon.minOrderValue ?? undefined,
                 usageLimit: coupon.usageLimit ?? undefined,
-                userUsageLimit: coupon.userUsageLimit,
-                validFrom: new Date(coupon.validFrom),
-                validUntil: new Date(coupon.validUntil),
+                perUserLimit: coupon.perUserLimit,
+                startDate: coupon.startDate ? new Date(coupon.startDate) : new Date(),
+                endDate: coupon.endDate ? new Date(coupon.endDate) : new Date(),
                 status: coupon.status,
                 applicableCourseMasterIds: coupon.applicableCourseMasterIds,
                 excludedCourseMasterIds: coupon.excludedCourseMasterIds,
@@ -108,11 +108,11 @@ export function EditCouponDialog({ open, onOpenChange, coupon }: EditCouponDialo
                     ...data,
                     discountValue: Number(data.discountValue),
                     maxDiscountAmount: data.maxDiscountAmount ? Number(data.maxDiscountAmount) : undefined,
-                    minOrderAmount: data.minOrderAmount ? Number(data.minOrderAmount) : undefined,
+                    minOrderValue: data.minOrderValue ? Number(data.minOrderValue) : undefined,
                     usageLimit: data.usageLimit ? Number(data.usageLimit) : undefined,
-                    userUsageLimit: Number(data.userUsageLimit || 1),
-                    validFrom: data.validFrom!,
-                    validUntil: data.validUntil!
+                    perUserLimit: Number(data.perUserLimit || 1),
+                    startDate: data.startDate!,
+                    endDate: data.endDate!
                 }
             });
 
@@ -277,14 +277,14 @@ export function EditCouponDialog({ open, onOpenChange, coupon }: EditCouponDialo
                                 )}
 
                                 <Field>
-                                    <FieldLabel htmlFor="minOrderAmount" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                    <FieldLabel htmlFor="minOrderValue" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
                                         Đơn Hàng Tối Thiểu (VND)
                                     </FieldLabel>
                                     <Input
-                                        id="minOrderAmount"
+                                        id="minOrderValue"
                                         type="number"
                                         min="0"
-                                        {...register('minOrderAmount', { valueAsNumber: true })}
+                                        {...register('minOrderValue', { valueAsNumber: true })}
                                         className="font-mono"
                                     />
                                 </Field>
@@ -311,14 +311,14 @@ export function EditCouponDialog({ open, onOpenChange, coupon }: EditCouponDialo
                                         />
                                     </Field>
                                     <Field>
-                                        <FieldLabel htmlFor="userUsageLimit" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
+                                        <FieldLabel htmlFor="perUserLimit" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
                                             Lượt Dùng / User
                                         </FieldLabel>
                                         <Input
-                                            id="userUsageLimit"
+                                            id="perUserLimit"
                                             type="number"
                                             min="1"
-                                            {...register('userUsageLimit', { valueAsNumber: true, min: 1 })}
+                                            {...register('perUserLimit', { valueAsNumber: true, min: 1 })}
                                             className="font-mono"
                                         />
                                     </Field>
@@ -334,7 +334,7 @@ export function EditCouponDialog({ open, onOpenChange, coupon }: EditCouponDialo
                                 <div className="grid grid-cols-2 gap-6">
                                     <Controller
                                         control={control}
-                                        name="validFrom"
+                                        name="startDate"
                                         render={({ field }) => (
                                             <Field>
                                                 <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
@@ -362,13 +362,13 @@ export function EditCouponDialog({ open, onOpenChange, coupon }: EditCouponDialo
                                                         />
                                                     </PopoverContent>
                                                 </Popover>
-                                                {errors.validFrom && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.validFrom.message}</FieldError>}
+                                                {errors.startDate && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.startDate.message}</FieldError>}
                                             </Field>
                                         )}
                                     />
                                     <Controller
                                         control={control}
-                                        name="validUntil"
+                                        name="endDate"
                                         render={({ field }) => (
                                             <Field>
                                                 <FieldLabel className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
@@ -396,7 +396,7 @@ export function EditCouponDialog({ open, onOpenChange, coupon }: EditCouponDialo
                                                         />
                                                     </PopoverContent>
                                                 </Popover>
-                                                {errors.validUntil && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.validUntil.message}</FieldError>}
+                                                {errors.endDate && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.endDate.message}</FieldError>}
                                             </Field>
                                         )}
                                     />
