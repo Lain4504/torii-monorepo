@@ -22,7 +22,6 @@ import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@
 
 interface BlogTableProps {
     data: BlogResponseDTO[];
-    onView: (blog: BlogResponseDTO) => void;
     onEdit: (blog: BlogResponseDTO) => void;
     onDelete: (blog: BlogResponseDTO) => void;
     onScheduleChange: (blog: BlogResponseDTO) => void;
@@ -31,10 +30,10 @@ interface BlogTableProps {
     isLoading?: boolean;
 }
 
-export function BlogTable({ data, onView, onEdit, onDelete, onScheduleChange, page, limit, isLoading }: BlogTableProps) {
+export function BlogTable({ data, onEdit, onDelete, onScheduleChange, page, limit, isLoading }: BlogTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
 
-    const columns = getBlogColumns({ onView, onEdit, onDelete, onScheduleChange, page, limit });
+    const columns = getBlogColumns({ onEdit, onDelete, onScheduleChange, page, limit });
 
     const table = useReactTable({
         data,

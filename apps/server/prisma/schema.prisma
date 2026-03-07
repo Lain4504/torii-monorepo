@@ -782,16 +782,13 @@ model Blog {
   id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title          String    @db.VarChar(255)
   slug           String    @unique @db.VarChar(255)
-  description    String?   @db.VarChar(255)
+  excerpt        String?   @db.Text
   content        String    @db.Text
   coverImageUrl  String?   @map("cover_image_url") @db.Text
   authorId       String    @map("author_id") @db.Uuid
   status         String    @default("draft") @db.VarChar(20) // draft, published, archived
   publishedAt    DateTime? @map("published_at")
   viewCount      Int       @default(0) @map("view_count")
-  commentCount   Int       @default(0) @map("comment_count")
-  seoTitle       String?   @map("seo_title") @db.VarChar(255)
-  seoDescription String?   @map("seo_description") @db.Text
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
 
@@ -1148,6 +1145,7 @@ model ClassSchedule {
   endTime   String  @map("end_time") @db.VarChar(20)
   location  String? @db.VarChar(255)
   note      String? @db.Text
+  roomId    String? @map("room_id") @db.VarChar(64)
 
   // Relations
   class Class @relation(fields: [classId], references: [id], onDelete: Cascade)

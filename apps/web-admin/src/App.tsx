@@ -27,6 +27,7 @@ import SettingsPage from '@/routes/settings/settings-page.tsx'
 import ProfilePage from '@/routes/profile/profile-page.tsx'
 import { BlogPage } from '@/routes/blog/blog-page.tsx'
 import EditBlogPage from '@/routes/blog/edit-blog-page.tsx'
+import CreateBlogPage from '@/routes/blog/create-blog-page.tsx'
 
 import LoginPage from '@/routes/auth/login-page.tsx'
 import ForgotPasswordPage from '@/routes/auth/forgot-password-page.tsx'
@@ -133,6 +134,7 @@ function App() {
 
                   <Route element={<RoutePermissionGuard anyPermission={["blog.manage", "blog.write"]} />}>
                     <Route path="blogs" element={<BlogPage />} />
+                    <Route path="blogs/create" element={<CreateBlogPage />} />
                     <Route path="blogs/:id/edit" element={<EditBlogPage />} />
                   </Route>
 

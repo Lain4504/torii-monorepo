@@ -12,6 +12,66 @@ export class OrderListener {
         private readonly audit: AuditLoggerService,
     ) { }
 
+    @EventPattern('order.paid')
+    async handleOrderPaid(@Payload() data: { orderId: string }) {
+        console.log('[Academy] Order paid event received:', data);
+
+        const order = await this.prisma.order.findUnique({
+            where: { id: data.orderId },
+            include: {
+                items: {
+                    include: {
+                        offering: {
+                            include: {
+                                classes: {
+                                    include: {
+                                        class: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        if (!order || order.status !== 'PAID') {
+            console.log(`[Academy] Order ${data.orderId} not found or not PAID. Ignoring.`);
+            return;
+        }
+
+        let enrolledCount = 0;
+        for (const item of order.items) {
+            if (!item.offering || !item.offering.classes) continue;
+
+            for (const occ of item.offering.classes) {
+                const klass = occ.class;
+
+                // Rule: Enroll unconditionally if status is ENROLLING or IN_PROGRESS
+                if (klass.status !== 'ENROLLING' && klass.status !== 'IN_PROGRESS') {
+                    console.log(`[Academy] Skip enroll: Class ${klass.id} is ${klass.status}`);
+                    continue;
+                }
+
+                try {
+                    await this.enrollments.create({
+                        classId: klass.id,
+                        userId: order.userId,
+                        sourceOfferingId: item.offeringId,
+                        sourceOrderId: order.id,
+                        status: 'ACTIVE',
+                    });
+                    enrolledCount++;
+                } catch (err: any) {
+                    // Ignore duplicate enrollment error or full class silently or log
+                    console.error(`[Academy] Failed to enroll user ${order.userId} in class ${klass.id}:`, err.message);
+                }
+            }
+        }
+
+        console.log(`[Academy] Order ${order.id} paid. Created ${enrolledCount} enrollments.`);
+    }
+
     @EventPattern('order.refunded')
     async handleOrderRefunded(@Payload() data: { orderId: string }) {
         console.log('[Academy] Order refunded event received:', data);

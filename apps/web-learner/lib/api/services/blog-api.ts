@@ -8,11 +8,12 @@ import type {
 } from '@workspace/schemas';
 
 /**
- * API client for Blogs
+ * API client for Blogs (Learner Side - Public APIs Only)
  */
 export const blogApi = {
     /**
-     * Get all blogs with pagination and filters
+     * Get all published blogs with pagination and filters
+     * This endpoint only returns published blogs for learners
      */
     findAll: async (params: BlogQueryDTO = { page: 1, limit: 12 }): Promise<PaginatedApiResponse<BlogResponseDTO>> => {
         const response = await apiClient.get<PaginatedApiResponse<BlogResponseDTO>>('/api/blogs', {
@@ -28,7 +29,7 @@ export const blogApi = {
     },
 
     /**
-     * Get blog by ID
+     * Get blog by ID (public)
      */
     findById: async (id: string): Promise<BlogResponseDTO> => {
         const response = await apiClient.get<StandardApiResponse<{ blog: BlogResponseDTO }>>(`/api/blogs/${id}`);
@@ -42,7 +43,7 @@ export const blogApi = {
     },
 
     /**
-     * Get blog by slug
+     * Get blog by slug (public) - Main method for learners
      */
     findBySlug: async (slug: string): Promise<BlogResponseDTO | null> => {
         try {
@@ -60,24 +61,6 @@ export const blogApi = {
         }
     },
 
-    getBlogBySlugForPreview: async (slug: string): Promise<BlogResponseDTO | null> => {
-        try {
-            const response = await apiClient.get<StandardApiResponse<{ blog: BlogResponseDTO }>>(`/api/blogs/slug/${slug}`, {
-                params: { showScheduled: true },
-            });
-
-            const responseData = response.data;
-            if (!responseData.success || !responseData.data) {
-                return null;
-            }
-
-            return responseData.data.blog;
-        } catch (error) {
-            console.error('Failed to fetch blog by slug for preview:', error);
-            return null;
-        }
-    },
-
     /**
      * Increment view count for a blog
      */
@@ -85,17 +68,49 @@ export const blogApi = {
         try {
             await apiClient.patch(`/api/blogs/${id}/view`);
         } catch (error) {
+            // Silent fail - don't block the UI if view count fails
             console.error('Failed to increment view count:', error);
         }
     },
 };
 
 /**
- * Hook to fetch blogs
+ * Hook to fetch paginated blogs list (for /blogs page)
  */
 export const useBlogs = (params?: BlogQueryDTO) => {
     return useQuery({
         queryKey: ['blogs', params],
         queryFn: () => blogApi.findAll(params),
+        staleTime: 60000, // 1 minute
+    });
+};
+
+/**
+ * Hook to fetch a single blog by slug (for /blogs/[slug] page)
+ */
+export const useBlogBySlug = (slug: string | null) => {
+    return useQuery({
+        queryKey: ['blog', 'slug', slug],
+        queryFn: () => {
+            if (!slug) throw new Error('Slug is required');
+            return blogApi.findBySlug(slug);
+        },
+        enabled: !!slug,
+        staleTime: 300000, // 5 minutes
+    });
+};
+
+/**
+ * Hook to fetch a single blog by ID
+ */
+export const useBlogById = (id: string | null) => {
+    return useQuery({
+        queryKey: ['blog', 'id', id],
+        queryFn: () => {
+            if (!id) throw new Error('ID is required');
+            return blogApi.findById(id);
+        },
+        enabled: !!id,
+        staleTime: 300000, // 5 minutes
     });
 };

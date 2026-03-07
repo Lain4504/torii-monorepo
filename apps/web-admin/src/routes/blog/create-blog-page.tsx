@@ -1,19 +1,11 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useForm, Controller, type SubmitHandler } from 'react-hook-form';
+import { useState } from 'react';
+import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useBlog, useUpdateBlog } from '@/lib/api/services/blog';
-import { PageHeader } from '@/components/common/page-header';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
-import { Card, CardContent } from '@workspace/ui/components/card';
-import { BlogStatus } from '@workspace/schemas';
-import { Spinner } from '@workspace/ui/components/spinner';
-import { toast } from '@workspace/ui/components/sonner';
-import { RichTextEditor, type EditorJsData } from '@/components/editor/rich-text-editor';
-import { ArrowLeft, Save } from 'lucide-react';
 import {
     Field,
     FieldLabel,
@@ -28,32 +20,42 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@workspace/ui/components/select';
+import { Card, CardContent } from '@workspace/ui/components/card';
+import { BlogStatus, type BlogCreateDTO } from '@workspace/schemas';
+import { useCreateBlog } from '@/lib/api/services/blog.ts';
+import { toast } from '@workspace/ui/components/sonner';
+import { useAppSelector } from '@/hooks/hooks.ts';
+import { selectUser } from '@/store/slices/auth-slice.ts';
+import { storageApi } from '@/lib/api/services/storage-api.ts';
+import { Spinner } from "@workspace/ui/components/spinner";
+import { PageHeader } from '@/components/common/page-header';
+import { ArrowLeft, Save } from 'lucide-react';
+import { RichTextEditor, type EditorJsData } from '@/components/editor/rich-text-editor';
+import { X } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
 
-const editBlogSchema = z.object({
+const createBlogSchema = z.object({
     title: z.string().min(1, 'Tiêu đề là bắt buộc'),
     excerpt: z.string().optional(),
     status: z.nativeEnum(BlogStatus),
 });
 
-type EditBlogFormData = z.infer<typeof editBlogSchema>;
+type CreateBlogFormData = z.infer<typeof createBlogSchema>;
 
-export default function EditBlogPage() {
-    const { id } = useParams<{ id: string }>();
+export default function CreateBlogPage() {
+    const user = useAppSelector(selectUser);
     const navigate = useNavigate();
-    const { data: blog, isLoading, error } = useBlog(id!);
-    const updateBlog = useUpdateBlog();
-
+    const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
+    const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
     const [content, setContent] = useState<string>('');
-    const [isSaving, setIsSaving] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
 
     const {
         control,
         handleSubmit,
-        reset,
-    } = useForm<EditBlogFormData>({
-        resolver: zodResolver(editBlogSchema),
+    } = useForm<CreateBlogFormData>({
+        resolver: zodResolver(createBlogSchema),
         defaultValues: {
             title: '',
             excerpt: '',
@@ -61,39 +63,92 @@ export default function EditBlogPage() {
         },
     });
 
-    useEffect(() => {
-        if (blog) {
-            setContent(blog.content || '');
-            reset({
-                title: blog.title,
-                excerpt: blog.excerpt || '',
-                status: blog.status,
-            });
-        }
-    }, [blog, reset]);
+    const createBlog = useCreateBlog();
 
-    const handleFormSubmit: SubmitHandler<EditBlogFormData> = async (data) => {
-        if (!blog) return;
-
-        setIsSaving(true);
+    const handleFileUpload = async (file: File, module: string) => {
         try {
-            await updateBlog.mutateAsync({
-                id: blog.id,
-                blog: {
-                    title: data.title,
-                    excerpt: data.excerpt || undefined,
-                    content,
-                    status: data.status,
-                }
+            const uploadData = {
+                filename: file.name,
+                contentType: file.type,
+                module,
+            };
+            const { uploadUrl, fileId } = await storageApi.generateUploadUrl(uploadData);
+
+            const uploadResponse = await fetch(uploadUrl, {
+                method: 'PUT',
+                body: file,
+                headers: {
+                    'Content-Type': file.type,
+                },
+                mode: 'cors',
             });
-            toast.success('Đã lưu bài viết');
+
+            if (!uploadResponse.ok) {
+                const errorText = await uploadResponse.text().catch(() => 'Lỗi không xác định');
+                throw new Error(`Tải lên thất bại với mã lỗi ${uploadResponse.status}: ${errorText}`);
+            }
+
+            const confirmResult = await storageApi.confirmUpload({ fileId });
+            return confirmResult.fileUrl;
+        } catch (error) {
+            console.error('Upload failed:', error);
+            const errorMessage = error instanceof Error ? error.message : 'Lỗi tải lên không xác định';
+            throw new Error(`Không thể tải lên file: ${errorMessage}`);
+        }
+    };
+
+    const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setCoverImageFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setCoverImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const removeCoverImage = () => {
+        setCoverImageFile(null);
+        setCoverImagePreview(null);
+    };
+
+    const handleFormSubmit: SubmitHandler<CreateBlogFormData> = async (data) => {
+        if (!user?.id) {
+            toast.error('User not found');
+            return;
+        }
+
+        try {
+            setUploading(true);
+            let coverImageUrl: string | undefined = undefined;
+
+            if (coverImageFile) {
+                coverImageUrl = await handleFileUpload(coverImageFile, 'blog-images');
+            }
+
+            const dto: BlogCreateDTO = {
+                title: data.title,
+                content: content || '<p></p>',
+                excerpt: data.excerpt || undefined,
+                status: data.status,
+                authorId: user.id,
+                coverImageUrl,
+            };
+
+            const createdBlog = await createBlog.mutateAsync(dto);
+            console.log('Blog created:', createdBlog.id);
+            toast.success('Đã tạo bài viết', {
+                description: 'Bài viết đã được tạo thành công',
+            });
             navigate('/blogs');
         } catch (error: any) {
-            toast.error('Lưu bài viết thất bại', {
-                description: error.response?.data?.message || error.message
+            toast.error('Tạo bài viết thất bại', {
+                description: error.response?.data?.message || error.userMessage || error.message,
             });
         } finally {
-            setIsSaving(false);
+            setUploading(false);
         }
     };
 
@@ -159,22 +214,6 @@ export default function EditBlogPage() {
         }
     };
 
-    if (isLoading) {
-        return (
-            <div className="flex h-[400px] items-center justify-center">
-                <Spinner />
-            </div>
-        );
-    }
-
-    if (error || !blog) {
-        return (
-            <div className="p-8 text-center text-destructive">
-                Không thể tải bài viết
-            </div>
-        );
-    }
-
     return (
         <div className="flex flex-col gap-8 max-w-7xl mx-auto w-full">
             <PageHeader
@@ -183,17 +222,17 @@ export default function EditBlogPage() {
                         <Button variant="ghost" size="icon" onClick={() => navigate('/blogs')}>
                             <ArrowLeft className="w-4 h-4" />
                         </Button>
-                        <span>Chỉnh sửa bài viết</span>
+                        <span>Tạo bài viết mới</span>
                     </div>
                 }
-                subtitle="Sử dụng trình soạn thảo để thiết kế nội dung bài viết."
+                subtitle="Điền thông tin và nội dung cho bài viết mới."
                 actions={
                     <Button
-                        disabled={isSaving}
+                        disabled={uploading}
                         onClick={handleSubmit(handleFormSubmit)}
                     >
-                        {isSaving ? <Spinner className="mr-2" /> : <Save className="mr-2 size-4" />}
-                        Lưu bài viết
+                        {uploading ? <Spinner className="mr-2" /> : <Save className="mr-2 size-4" />}
+                        Tạo bài viết
                     </Button>
                 }
             />
@@ -269,6 +308,43 @@ export default function EditBlogPage() {
                                             </Field>
                                         )}
                                     />
+
+                                    <Field>
+                                        <FieldLabel htmlFor="cover-image-upload">
+                                            Ảnh bìa (Tùy chọn)
+                                        </FieldLabel>
+                                        <div className="space-y-4">
+                                            <div className="flex items-center gap-3">
+                                                <Input
+                                                    id="cover-image-upload"
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handleCoverImageChange}
+                                                    className="pt-2 file:text-foreground"
+                                                />
+                                                {coverImageFile && (
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={removeCoverImage}
+                                                        className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                                                        <X className="h-4 w-4" />
+                                                    </Button>
+                                                )}
+                                            </div>
+
+                                            {(coverImagePreview || coverImageFile) && (
+                                                <div className="relative rounded-lg overflow-hidden border border-border/50 aspect-video w-full">
+                                                    <img
+                                                        src={coverImagePreview || ''}
+                                                        alt="Bản xem trước"
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </Field>
                                 </FieldGroup>
                             </FieldSet>
                         </FieldGroup>
@@ -286,7 +362,7 @@ export default function EditBlogPage() {
                             </div>
                             <TabsContent value="edit" className="m-0 p-6">
                                 <RichTextEditor
-                                    initialContent={blog.content}
+                                    initialContent={content}
                                     onUpdate={(data: EditorJsData) => setContent(JSON.stringify(data))}
                                 />
                             </TabsContent>

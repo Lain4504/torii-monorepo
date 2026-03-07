@@ -17,8 +17,6 @@ import type {
 } from './dto/class-review.dto';
 import { ActivityType, GamificationCurrency, GamificationTransactionType } from '@prisma/generated';
 
-/** Points awarded for leaving a first review */
-const POINT_REWARD_FOR_REVIEW = 50;
 
 @Injectable()
 export class ClassReviewService {
@@ -143,10 +141,13 @@ export class ClassReviewService {
 
         // 6. Award gamification points if review is immediately PUBLISHED
         if (status === 'PUBLISHED') {
-            await this._earnGamificationForReview(userId, review.id, {
+            await this.gamification.trackActivity(userId, ActivityType.REVIEW, {
+                reviewId: review.id,
                 classId,
                 enrollmentId: dto.enrollmentId,
                 rating: dto.rating,
+            }).catch(err => {
+                this.logger.error(`Failed to award gamification for review ${review.id}`, err);
             });
         }
 
@@ -278,10 +279,13 @@ export class ClassReviewService {
 
         // If review is being published for the first time (was PENDING), award gamification
         if (dto.action === 'publish' && review.status === 'PENDING') {
-            await this._earnGamificationForReview(review.userId, review.id, {
+            await this.gamification.trackActivity(review.userId, ActivityType.REVIEW, {
+                reviewId: review.id,
                 classId: review.classId,
                 enrollmentId: review.enrollmentId,
                 rating: review.rating,
+            }).catch(err => {
+                this.logger.error(`Failed to award gamification for review ${review.id}`, err);
             });
         }
 
@@ -381,61 +385,5 @@ export class ClassReviewService {
         return review;
     }
 
-    private async _earnGamificationForReview(
-        userId: string,
-        reviewId: string,
-        meta: { classId: string; enrollmentId: string; rating: number },
-    ) {
-        try {
-            // Check if already rewarded (gamification history with this reviewId)
-            const alreadyRewarded = await this.prisma.gamificationHistory.findFirst({
-                where: {
-                    userId,
-                    activityType: ActivityType.REVIEW,
-                    metadata: { path: ['reviewId'], equals: reviewId },
-                },
-            });
 
-            if (alreadyRewarded) return;
-
-            await this.prisma.$transaction(async (tx) => {
-                // Ensure profile exists
-                let profile = await tx.userGamification.findUnique({ where: { userId } });
-                if (!profile) {
-                    profile = await tx.userGamification.create({
-                        data: { userId, currentXp: 0, totalXp: 0, points: 0, level: 1 },
-                    });
-                }
-
-                await tx.userGamification.update({
-                    where: { userId },
-                    data: { points: { increment: POINT_REWARD_FOR_REVIEW } },
-                });
-
-                await tx.gamificationHistory.create({
-                    data: {
-                        userId,
-                        amount: POINT_REWARD_FOR_REVIEW,
-                        currency: GamificationCurrency.POINT,
-                        type: GamificationTransactionType.EARN,
-                        activityType: ActivityType.REVIEW,
-                        description: `Earned points for leaving a review`,
-                        metadata: {
-                            reviewId,
-                            classId: meta.classId,
-                            enrollmentId: meta.enrollmentId,
-                            rating: meta.rating,
-                        },
-                    },
-                });
-            });
-
-            this.logger.log(
-                `Awarded ${POINT_REWARD_FOR_REVIEW} points to user ${userId} for review ${reviewId}`,
-            );
-        } catch (err) {
-            // Non-critical: log but don't fail the review creation
-            this.logger.error(`Failed to award gamification for review ${reviewId}`, err);
-        }
-    }
 }

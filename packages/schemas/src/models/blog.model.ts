@@ -18,10 +18,7 @@ export const blogSchema = z.object({
     status: z.nativeEnum(BlogStatus).default(BlogStatus.DRAFT),
     publishedAt: z.coerce.date().optional(),
     viewCount: z.number().default(0),
-    commentCount: z.number().default(0),
     tags: z.array(z.string()).default([]),
-    seoTitle: z.string().optional(),
-    seoDescription: z.string().optional(),
     createdAt: z.date(),
     updatedAt: z.date(),
 });

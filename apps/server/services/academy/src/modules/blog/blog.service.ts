@@ -110,12 +110,11 @@ export class BlogService implements IBlogService {
         const blog = await this.blogRepository.create({
             title: finalDto.title,
             slug: finalDto.slug,
+            excerpt: finalDto.excerpt || null,
             content: finalDto.content,
             coverImageUrl: finalDto.coverImageUrl,
             status: finalDto.status || BlogStatus.DRAFT,
             publishedAt: finalDto.publishedAt || null,
-            seoTitle: finalDto.seoTitle,
-            seoDescription: finalDto.seoDescription,
             author: {
                 connect: {
                     id: finalDto.authorId,
