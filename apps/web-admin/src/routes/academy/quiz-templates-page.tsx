@@ -76,6 +76,7 @@ export default function AcademyQuizTemplatesPage() {
                     <Table>
                         <TableHeader>
                             <TableRow>
+                                <TableHead className="w-[80px]">STT</TableHead>
                                 <TableHead>Title</TableHead>
                                 <TableHead>Time Limit</TableHead>
                                 <TableHead>Max Attempts</TableHead>
@@ -86,11 +87,12 @@ export default function AcademyQuizTemplatesPage() {
                         <TableBody>
                             {isLoading ? (
                                 <TableRow>
-                                    <TableCell colSpan={5}>Đang tải...</TableCell>
+                                    <TableCell colSpan={6}>Đang tải...</TableCell>
                                 </TableRow>
                             ) : data.length ? (
-                                data.map((it) => (
+                                data.map((it, idx) => (
                                     <TableRow key={it.id}>
+                                        <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
                                         <TableCell className="font-medium">{it.title}</TableCell>
                                         <TableCell>{it.defaultTimeLimitMinutes ? `${it.defaultTimeLimitMinutes}m` : 'None'}</TableCell>
                                         <TableCell>{it.defaultMaxAttempts}</TableCell>
@@ -126,7 +128,7 @@ export default function AcademyQuizTemplatesPage() {
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={5}>Chưa có dữ liệu</TableCell>
+                                    <TableCell colSpan={6}>Chưa có dữ liệu</TableCell>
                                 </TableRow>
                             )}
                         </TableBody>

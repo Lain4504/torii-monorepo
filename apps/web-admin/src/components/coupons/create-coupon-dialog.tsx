@@ -1,13 +1,12 @@
-import { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-    SheetFooter,
-} from '@workspace/ui/components/sheet';
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from '@workspace/ui/components/dialog';
 
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
@@ -23,22 +22,23 @@ import { Popover, PopoverContent, PopoverTrigger } from '@workspace/ui/component
 import { Calendar } from '@workspace/ui/components/calendar';
 import { cn } from '@workspace/ui/lib/utils';
 import { format } from 'date-fns';
-import { X, Ticket, CalendarIcon, Percent, DollarSign, AlertCircle } from 'lucide-react';
+import { Ticket, CalendarIcon, Percent, DollarSign } from 'lucide-react';
 import { toast } from '@workspace/ui/components/sonner';
-import { CouponDiscountType, CouponStatus, type CouponResponseDTO, type CouponUpdateDTO } from '@workspace/schemas';
-import { useUpdateCoupon } from "@/lib/api/services/coupons";
-import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert';
+import { CouponDiscountType, type CouponCreateDTO } from '@workspace/schemas';
+import { useCreateCoupon } from "@/lib/api/services/coupons";
 import { Spinner } from "@workspace/ui/components/spinner";
 
-interface EditCouponSheetProps {
+interface CreateCouponDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    coupon: CouponResponseDTO;
 }
 
-export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetProps) {
-    const updateMutation = useUpdateCoupon();
-    const hasUsage = coupon.usageCount > 0;
+export function CreateCouponDialog({ open, onOpenChange }: CreateCouponDialogProps) {
+    const createMutation = useCreateCoupon();
+
+    // Default validUntil = 30 days from now
+    const defaultValidUntil = new Date();
+    defaultValidUntil.setDate(defaultValidUntil.getDate() + 30);
 
     const {
         register,
@@ -47,124 +47,87 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
         formState: { errors, isDirty },
         reset,
         watch,
-    } = useForm<CouponUpdateDTO>({
+    } = useForm<CouponCreateDTO>({
         defaultValues: {
-            code: coupon.code,
-            name: coupon.name,
-            description: coupon.description || '',
-            discountType: coupon.discountType,
-            discountValue: coupon.discountValue,
-            maxDiscountAmount: coupon.maxDiscountAmount ?? undefined,
-            minOrderAmount: coupon.minOrderAmount ?? undefined,
-            usageLimit: coupon.usageLimit ?? undefined,
-            userUsageLimit: coupon.userUsageLimit,
-            validFrom: new Date(coupon.validFrom),
-            validUntil: new Date(coupon.validUntil),
-            status: coupon.status,
-            applicableCourseMasterIds: coupon.applicableCourseMasterIds,
-            excludedCourseMasterIds: coupon.excludedCourseMasterIds,
-            applicableRunIds: coupon.applicableRunIds || [],
-            excludedRunIds: coupon.excludedRunIds || [],
+            code: '',
+            name: '',
+            description: '',
+            discountType: CouponDiscountType.PERCENTAGE,
+            discountValue: 0,
+            maxDiscountAmount: undefined,
+            minOrderAmount: undefined,
+            usageLimit: undefined,
+            userUsageLimit: 1,
+            validFrom: new Date(),
+            validUntil: defaultValidUntil,
+            applicableCourseMasterIds: [],
+            excludedCourseMasterIds: [],
+            applicableRunIds: [],
+            excludedRunIds: [],
         },
     });
-
-    useEffect(() => {
-        if (open && coupon) {
-            reset({
-                code: coupon.code,
-                name: coupon.name,
-                description: coupon.description || '',
-                discountType: coupon.discountType,
-                discountValue: coupon.discountValue,
-                maxDiscountAmount: coupon.maxDiscountAmount ?? undefined,
-                minOrderAmount: coupon.minOrderAmount ?? undefined,
-                usageLimit: coupon.usageLimit ?? undefined,
-                userUsageLimit: coupon.userUsageLimit,
-                validFrom: new Date(coupon.validFrom),
-                validUntil: new Date(coupon.validUntil),
-                status: coupon.status,
-                applicableCourseMasterIds: coupon.applicableCourseMasterIds,
-                excludedCourseMasterIds: coupon.excludedCourseMasterIds,
-                applicableRunIds: coupon.applicableRunIds || [],
-                excludedRunIds: coupon.excludedRunIds || [],
-            });
-        }
-    }, [open, coupon, reset]);
 
     const discountType = watch('discountType');
 
     const handleClose = () => {
-        if (!updateMutation.isPending) {
+        if (!createMutation.isPending) {
             onOpenChange(false);
             reset();
         }
     };
 
-    const onSubmit = async (data: CouponUpdateDTO) => {
+    const onSubmit = async (data: CouponCreateDTO) => {
         try {
-            await updateMutation.mutateAsync({
-                id: coupon.id,
-                data: {
-                    ...data,
-                    // Ensure correct types
-                    discountValue: Number(data.discountValue),
-                    maxDiscountAmount: data.maxDiscountAmount ? Number(data.maxDiscountAmount) : undefined,
-                    minOrderAmount: data.minOrderAmount ? Number(data.minOrderAmount) : undefined,
-                    usageLimit: data.usageLimit ? Number(data.usageLimit) : undefined,
-                    userUsageLimit: Number(data.userUsageLimit || 1),
-                    validFrom: data.validFrom!,
-                    validUntil: data.validUntil!
-                }
+            await createMutation.mutateAsync({
+                ...data,
+                discountValue: Number(data.discountValue),
+                maxDiscountAmount: data.maxDiscountAmount ? Number(data.maxDiscountAmount) : undefined,
+                minOrderAmount: data.minOrderAmount ? Number(data.minOrderAmount) : undefined,
+                usageLimit: data.usageLimit ? Number(data.usageLimit) : undefined,
+                userUsageLimit: Number(data.userUsageLimit || 1),
+                validFrom: data.validFrom,
+                validUntil: data.validUntil
             });
 
-            toast.success('Đã cập nhật', {
-                description: `Mã ${coupon.code} đã được cập nhật thành công.`,
+            toast.success('Đã tạo coupon', {
+                description: `Mã ${data.code} đã được tạo thành công.`,
             });
             handleClose();
         } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Cập nhật thất bại', {
-                description: 'Đã xảy ra lỗi khi cập nhật coupon. Vui lòng thử lại.',
+            toast.error(error.response?.data?.message || 'Tạo thất bại', {
+                description: 'Đã xảy ra lỗi khi tạo coupon. Vui lòng thử lại.',
             });
         }
     };
 
     return (
-        <Sheet open={open} onOpenChange={handleClose}>
-            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col">
-                <SheetHeader>
-                    <SheetTitle>Chỉnh Sửa Coupon</SheetTitle>
-                    <SheetDescription>
-                        Cập nhật thông tin mã phiếu giảm giá #{coupon.id.slice(0, 8)}
-                    </SheetDescription>
-                </SheetHeader>
+        <Dialog open={open} onOpenChange={handleClose}>
+            <DialogContent className="max-w-3xl max-h-[90vh] p-0">
+                <DialogHeader className="p-6 pb-0">
+                    <DialogTitle>Tạo Coupon Mới</DialogTitle>
+                    <DialogDescription>
+                        Thiết lập mã giảm giá mới cho hệ thống.
+                    </DialogDescription>
+                </DialogHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full overflow-hidden" noValidate>
-                    <ScrollArea className="flex-1 min-h-0">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col overflow-hidden" noValidate>
+                    <ScrollArea className="flex-1 max-h-[calc(90vh-180px)]">
                         <div className="space-y-6 p-6">
-
-                            {hasUsage && (
-                                <Alert className="bg-amber-500/10 border-amber-500/20 text-amber-600 rounded-xl">
-                                    <AlertCircle className="h-4 w-4" />
-                                    <AlertTitle className="ml-2 font-bold mb-0">Lưu ý quan trọng</AlertTitle>
-                                    <AlertDescription className="ml-2 text-xs opacity-90">
-                                        Coupon này đã được sử dụng. Một số trường (Loại giảm giá, Giá trị) có thể bị khóa để đảm bảo tính toàn vẹn dữ liệu.
-                                    </AlertDescription>
-                                </Alert>
-                            )}
 
                             {/* Basic Info */}
                             <div className="space-y-6">
                                 <div className="grid grid-cols-2 gap-6">
                                     <Field>
                                         <FieldLabel htmlFor="code" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                            Mã Coupon
+                                            Mã Coupon <span className="text-destructive">*</span>
                                         </FieldLabel>
                                         <Input
                                             id="code"
-                                            {...register('code')}
-                                            disabled={true} // Code should not be editable ideally, or strict check
-                                            className="font-mono uppercase tracking-widest font-bold placeholder:normal-case bg-muted/20"
+                                            {...register('code', { required: 'Mã coupon là bắt buộc' })}
+                                            placeholder="VD: SALE50, SUMMER2024"
+                                            className="font-mono uppercase tracking-widest font-bold placeholder:normal-case"
                                         />
+                                        {errors.code && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.code.message}</FieldError>}
                                     </Field>
                                     <Field>
                                         <FieldLabel htmlFor="name" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
@@ -173,6 +136,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                         <Input
                                             id="name"
                                             {...register('name', { required: 'Tên chiến dịch là bắt buộc' })}
+                                            placeholder="VD: Siêu sale mùa hè"
                                             className=""
                                         />
                                         {errors.name && <FieldError className="text-xs font-medium text-rose-500 pl-2">{errors.name.message}</FieldError>}
@@ -186,30 +150,9 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                     <Textarea
                                         id="description"
                                         {...register('description')}
+                                        placeholder="Mô tả chi tiết về mã giảm giá..."
                                         rows={3}
                                         className="rounded-xl resize-none p-4"
-                                    />
-                                </Field>
-
-                                <Field>
-                                    <FieldLabel htmlFor="status" className="text-xs font-bold text-muted-foreground ml-1 uppercase tracking-wide">
-                                        Trạng Thái
-                                    </FieldLabel>
-                                    <Controller
-                                        name="status"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <Select value={field.value} onValueChange={field.onChange}>
-                                                <SelectTrigger className="">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value={CouponStatus.ACTIVE}>Đang hoạt động</SelectItem>
-                                                    <SelectItem value={CouponStatus.INACTIVE}>Ngừng hoạt động</SelectItem>
-                                                    <SelectItem value={CouponStatus.EXPIRED}>Đã hết hạn</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        )}
                                     />
                                 </Field>
                             </div>
@@ -274,6 +217,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                             placeholder="Không giới hạn"
                                             className="font-mono"
                                         />
+                                        <p className="text-[10px] text-muted-foreground mt-1.5 ml-1">Để trống nếu không giới hạn số tiền giảm.</p>
                                     </Field>
                                 )}
 
@@ -286,6 +230,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                         type="number"
                                         min="0"
                                         {...register('minOrderAmount', { valueAsNumber: true })}
+                                        placeholder="0"
                                         className="font-mono"
                                     />
                                 </Field>
@@ -320,6 +265,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                             type="number"
                                             min="1"
                                             {...register('userUsageLimit', { valueAsNumber: true, min: 1 })}
+                                            defaultValue={1}
                                             className="font-mono"
                                         />
                                     </Field>
@@ -351,13 +297,13 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                                             )}
                                                         >
                                                             <CalendarIcon className="mr-2 h-4 w-4" />
-                                                            {field.value ? format(new Date(field.value), "PPP") : <span>Chọn ngày</span>}
+                                                            {field.value ? format(field.value, "PPP") : <span>Chọn ngày</span>}
                                                         </Button>
                                                     </PopoverTrigger>
                                                     <PopoverContent className="w-auto p-0">
                                                         <Calendar
                                                             mode="single"
-                                                            selected={new Date(field.value!)}
+                                                            selected={field.value ? new Date(field.value) : undefined}
                                                             onSelect={field.onChange}
                                                             initialFocus
                                                         />
@@ -367,6 +313,7 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                             </Field>
                                         )}
                                     />
+
                                     <Controller
                                         control={control}
                                         name="validUntil"
@@ -385,13 +332,13 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                                                             )}
                                                         >
                                                             <CalendarIcon className="mr-2 h-4 w-4" />
-                                                            {field.value ? format(new Date(field.value), "PPP") : <span>Chọn ngày</span>}
+                                                            {field.value ? format(field.value, "PPP") : <span>Chọn ngày</span>}
                                                         </Button>
                                                     </PopoverTrigger>
                                                     <PopoverContent className="w-auto p-0">
                                                         <Calendar
                                                             mode="single"
-                                                            selected={new Date(field.value!)}
+                                                            selected={field.value ? new Date(field.value) : undefined}
                                                             onSelect={field.onChange}
                                                             initialFocus
                                                         />
@@ -406,33 +353,32 @@ export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetP
                         </div>
                     </ScrollArea>
 
-                    <SheetFooter>
-                        <Button
-                            type="submit"
-                            disabled={updateMutation.isPending || !isDirty}>
-                            {updateMutation.isPending ? (
-                                <>
-                                    <Spinner className="mr-2" />
-                                    Đang lưu...
-                                </>
-                            ) : (
-                                <>
-                                    <Ticket className="mr-2 h-4 w-4" />
-                                    Lưu Thay Đổi
-                                </>
-                            )}
-                        </Button>
+                    <DialogFooter className="p-6 pt-0">
                         <Button
                             type="button"
                             variant="outline"
                             onClick={handleClose}
-                            disabled={updateMutation.isPending}>
-                            <X className="mr-2 h-3.5 w-3.5 transition-transform group-hover:rotate-90" />
+                            disabled={createMutation.isPending}>
                             Hủy Bỏ
                         </Button>
-                    </SheetFooter>
+                        <Button
+                            type="submit"
+                            disabled={createMutation.isPending || !isDirty}>
+                            {createMutation.isPending ? (
+                                <>
+                                    <Spinner className="mr-2" />
+                                    Đang tạo...
+                                </>
+                            ) : (
+                                <>
+                                    <Ticket className="mr-2 h-4 w-4" />
+                                    Tạo Coupon
+                                </>
+                            )}
+                        </Button>
+                    </DialogFooter>
                 </form>
-            </SheetContent>
-        </Sheet>
+            </DialogContent>
+        </Dialog>
     );
 }

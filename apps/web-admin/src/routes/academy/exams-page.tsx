@@ -80,6 +80,7 @@ export default function AcademyExamsPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[80px]">STT</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Level</TableHead>
@@ -90,11 +91,12 @@ export default function AcademyExamsPage() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5}>Đang tải...</TableCell>
+                  <TableCell colSpan={6}>Đang tải...</TableCell>
                 </TableRow>
               ) : data.length ? (
-                data.map((it) => (
+                data.map((it, idx) => (
                   <TableRow key={it.id}>
+                    <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
                     <TableCell>{it.title}</TableCell>
                     <TableCell>{it.examType}</TableCell>
                     <TableCell>{it.level ?? "-"}</TableCell>
@@ -130,7 +132,7 @@ export default function AcademyExamsPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5}>Chưa có dữ liệu</TableCell>
+                  <TableCell colSpan={6}>Chưa có dữ liệu</TableCell>
                 </TableRow>
               )}
             </TableBody>

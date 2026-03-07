@@ -46,6 +46,11 @@ export class CourseEditionHandler {
     return this.editions.archiveEdition(data.id);
   }
 
+  @MessagePattern({ cmd: 'academy.courseEdition.setCurrent' })
+  setCurrent(@Payload() data: { id: string }) {
+    return this.editions.setCurrent(data.id);
+  }
+
   @MessagePattern({ cmd: 'academy.courseEdition.delete' })
   delete(@Payload() data: { id: string }) {
     return this.editions.delete(data.id);

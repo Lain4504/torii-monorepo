@@ -133,40 +133,47 @@ export function CourseProfileForm({
                 </Field>
               )}
             />
-
-            <Controller
-              name={"description" as any}
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Mô tả chi tiết</FieldLabel>
-                  <Tabs defaultValue="edit">
-                    <TabsList className="mb-4">
-                      <TabsTrigger value="edit">Chỉnh sửa</TabsTrigger>
-                      <TabsTrigger value="preview">Xem trước</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="edit">
-                      <RichTextEditor
-                        initialContent={field.value || ""}
-                        onUpdate={(data: EditorJsData) => field.onChange(JSON.stringify(data))}
-                      />
-                    </TabsContent>
-                    <TabsContent value="preview">
-                      <div
-                        className="border rounded-md p-4 min-h-[150px] prose prose-sm dark:prose-invert max-w-none"
-                        dangerouslySetInnerHTML={{
-                          __html: field.value || "<em>Chưa có mô tả.</em>",
-                        }}
-                      />
-                    </TabsContent>
-                  </Tabs>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
           </FieldGroup>
         </CardContent>
       </Card>
+
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-lg font-semibold">Mô tả chi tiết</h3>
+          <p className="text-sm text-muted-foreground">
+            Nội dung mô tả chi tiết về Course Profile.
+          </p>
+        </div>
+        <Controller
+          name={"description" as any}
+          control={control}
+          render={({ field, fieldState }) => (
+            <Field>
+              <Tabs defaultValue="edit">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="edit">Chỉnh sửa</TabsTrigger>
+                  <TabsTrigger value="preview">Xem trước</TabsTrigger>
+                </TabsList>
+                <TabsContent value="edit">
+                  <RichTextEditor
+                    initialContent={field.value || ""}
+                    onUpdate={(data: EditorJsData) => field.onChange(JSON.stringify(data))}
+                  />
+                </TabsContent>
+                <TabsContent value="preview">
+                  <div
+                    className="border rounded-md p-4 min-h-[150px] prose prose-sm dark:prose-invert max-w-none"
+                    dangerouslySetInnerHTML={{
+                      __html: field.value || "<em>Chưa có mô tả.</em>",
+                    }}
+                  />
+                </TabsContent>
+              </Tabs>
+              <FieldError>{fieldState.error?.message}</FieldError>
+            </Field>
+          )}
+        />
+      </div>
 
       <Card>
         <CardHeader>

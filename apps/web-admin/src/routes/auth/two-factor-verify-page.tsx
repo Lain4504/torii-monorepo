@@ -127,7 +127,7 @@ export default function TwoFactorVerifyPage() {
     return (
         <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
             <div className="w-full max-w-md">
-                <div classNam{logo}x-col items-center text-center mb-6">
+                <div className="flex flex-col items-center text-center mb-6">
                     <img src="/logo.png" alt="Torii Nihongo" className="h-24 w-auto object-contain mb-2" />
                     <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Cổng quản trị</span>
                 </div>

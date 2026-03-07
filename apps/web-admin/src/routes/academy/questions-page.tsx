@@ -83,6 +83,7 @@ export default function AcademyQuestionsPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[80px]">STT</TableHead>
                 <TableHead>Nội dung</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -91,11 +92,12 @@ export default function AcademyQuestionsPage() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={3}>Đang tải...</TableCell>
+                  <TableCell colSpan={4}>Đang tải...</TableCell>
                 </TableRow>
               ) : data.length ? (
-                data.map((it) => (
+                data.map((it, idx) => (
                   <TableRow key={it.id}>
+                    <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
                     <TableCell className="max-w-xl truncate">
                       {it.content}
                     </TableCell>
@@ -131,7 +133,7 @@ export default function AcademyQuestionsPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={3}>Chưa có dữ liệu</TableCell>
+                  <TableCell colSpan={4}>Chưa có dữ liệu</TableCell>
                 </TableRow>
               )}
             </TableBody>

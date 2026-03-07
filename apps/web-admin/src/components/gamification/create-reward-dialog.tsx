@@ -6,13 +6,13 @@ import {
     type CreatePointRewardDTO,
 } from "@workspace/schemas"
 import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-    SheetFooter,
-} from "@workspace/ui/components/sheet"
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from "@workspace/ui/components/dialog"
 import {
     Field,
     FieldGroup,
@@ -36,12 +36,12 @@ import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { useCreateReward } from "@/lib/api/services/gamification"
 import { Star, Gift } from "lucide-react"
 
-interface CreateRewardSheetProps {
+interface CreateRewardDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
 }
 
-export function CreateRewardSheet({ open, onOpenChange }: CreateRewardSheetProps) {
+export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogProps) {
     const createMutation = useCreateReward()
 
     const {
@@ -84,19 +84,19 @@ export function CreateRewardSheet({ open, onOpenChange }: CreateRewardSheetProps
     }
 
     return (
-        <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col p-0">
-                <SheetHeader className="p-6 pb-0">
-                    <SheetTitle className="flex items-center gap-2">
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="max-w-3xl max-h-[90vh] p-0">
+                <DialogHeader className="p-6 pb-0">
+                    <DialogTitle className="flex items-center gap-2">
                         <Gift className="h-5 w-5 text-primary" />
                         Tạo mẫu phần thưởng mới
-                    </SheetTitle>
-                    <SheetDescription>
+                    </DialogTitle>
+                    <DialogDescription>
                         Thiết lập thông tin phần thưởng để người dùng dùng điểm XP quy đổi.
-                    </SheetDescription>
-                </SheetHeader>
+                    </DialogDescription>
+                </DialogHeader>
 
-                <ScrollArea className="flex-1 min-h-0">
+                <ScrollArea className="flex-1 max-h-[calc(90vh-180px)]">
                     <div className="space-y-6 p-6">
                         <form id="create-reward-form" onSubmit={handleSubmit(onSubmit)}>
                             <FieldGroup>
@@ -211,15 +211,15 @@ export function CreateRewardSheet({ open, onOpenChange }: CreateRewardSheetProps
                     </div>
                 </ScrollArea>
 
-                <SheetFooter className="p-6 border-t bg-card">
+                <DialogFooter className="p-6 pt-0">
                     <Button variant="outline" onClick={handleClose} disabled={createMutation.isPending}>
                         Hủy
                     </Button>
                     <Button form="create-reward-form" type="submit" disabled={createMutation.isPending}>
                         {createMutation.isPending ? "Đang tạo..." : "Tạo mẫu phần thưởng"}
                     </Button>
-                </SheetFooter>
-            </SheetContent>
-        </Sheet>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     )
 }

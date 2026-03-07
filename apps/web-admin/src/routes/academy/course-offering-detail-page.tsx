@@ -78,6 +78,7 @@ export default function AcademyCourseOfferingDetailPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-[80px]">STT</TableHead>
                     <TableHead>Mã lớp</TableHead>
                     <TableHead>Tên lớp</TableHead>
                     <TableHead>Thời gian</TableHead>
@@ -87,8 +88,9 @@ export default function AcademyCourseOfferingDetailPage() {
                 </TableHeader>
                 <TableBody>
                   {item.classes && item.classes.length > 0 ? (
-                    item.classes.map((c: any) => (
+                    item.classes.map((c: any, idx: number) => (
                       <TableRow key={c.class.id}>
+                        <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
                         <TableCell className="font-mono text-xs">{c.class.code}</TableCell>
                         <TableCell className="font-medium">{c.class.name}</TableCell>
                         <TableCell className="text-xs text-muted-foreground">
@@ -108,7 +110,7 @@ export default function AcademyCourseOfferingDetailPage() {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                         Chưa liên kết với lớp học nào.
                       </TableCell>
                     </TableRow>

@@ -34,7 +34,7 @@ import {
 @Controller('api/academy/exams')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class ExamController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
   @Get()
   @Permissions('exam.manage')
@@ -49,7 +49,6 @@ export class ExamController {
   }
 
   @Get(':id')
-  @Permissions('exam.manage')
   async findById(@Param('id', new ParseUUIDPipe()) id: string) {
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.exam.findById' }, { id }),

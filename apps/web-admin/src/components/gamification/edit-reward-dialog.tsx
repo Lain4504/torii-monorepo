@@ -8,13 +8,13 @@ import {
     type UpdatePointRewardDTO,
 } from "@workspace/schemas"
 import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-    SheetFooter,
-} from "@workspace/ui/components/sheet"
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from "@workspace/ui/components/dialog"
 import {
     Field,
     FieldGroup,
@@ -38,13 +38,13 @@ import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { useUpdateReward } from "@/lib/api/services/gamification"
 import { Star, Gift } from "lucide-react"
 
-interface EditRewardSheetProps {
+interface EditRewardDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
     reward: PointRewardDTO
 }
 
-export function EditRewardSheet({ open, onOpenChange, reward }: EditRewardSheetProps) {
+export function EditRewardDialog({ open, onOpenChange, reward }: EditRewardDialogProps) {
     const updateMutation = useUpdateReward()
 
     const {
@@ -101,19 +101,19 @@ export function EditRewardSheet({ open, onOpenChange, reward }: EditRewardSheetP
     }
 
     return (
-        <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col p-0">
-                <SheetHeader className="p-6 pb-0">
-                    <SheetTitle className="flex items-center gap-2">
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="max-w-3xl max-h-[90vh] p-0">
+                <DialogHeader className="p-6 pb-0">
+                    <DialogTitle className="flex items-center gap-2">
                         <Gift className="h-5 w-5 text-primary" />
                         Chỉnh sửa mẫu phần thưởng
-                    </SheetTitle>
-                    <SheetDescription>
+                    </DialogTitle>
+                    <DialogDescription>
                         Cập nhật các thông tin và điều kiện của phần thưởng.
-                    </SheetDescription>
-                </SheetHeader>
+                    </DialogDescription>
+                </DialogHeader>
 
-                <ScrollArea className="flex-1 min-h-0">
+                <ScrollArea className="flex-1 max-h-[calc(90vh-180px)]">
                     <div className="space-y-6 p-6">
                         <form id="edit-reward-form" onSubmit={handleSubmit(onSubmit)}>
                             <FieldGroup>
@@ -222,15 +222,15 @@ export function EditRewardSheet({ open, onOpenChange, reward }: EditRewardSheetP
                     </div>
                 </ScrollArea>
 
-                <SheetFooter className="p-6 border-t bg-card">
+                <DialogFooter className="p-6 pt-0">
                     <Button variant="outline" onClick={handleClose} disabled={updateMutation.isPending}>
                         Hủy
                     </Button>
                     <Button form="edit-reward-form" type="submit" disabled={updateMutation.isPending}>
                         {updateMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
                     </Button>
-                </SheetFooter>
-            </SheetContent>
-        </Sheet>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     )
 }

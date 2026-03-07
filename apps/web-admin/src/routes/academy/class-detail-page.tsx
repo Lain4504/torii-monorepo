@@ -179,6 +179,7 @@ export default function ClassDetailPage() {
                            <Table>
                               <TableHeader>
                                  <TableRow className="bg-muted/50">
+                                    <TableHead className="w-[80px]">STT</TableHead>
                                     <TableHead>Thứ (Weekday)</TableHead>
                                     <TableHead>Giờ bắt đầu</TableHead>
                                     <TableHead>Giờ kết thúc</TableHead>
@@ -188,10 +189,11 @@ export default function ClassDetailPage() {
                               </TableHeader>
                               <TableBody>
                                  {isLoadingSchedules ? (
-                                    <TableRow><TableCell colSpan={5} className="text-center">Đang tải...</TableCell></TableRow>
+                                    <TableRow><TableCell colSpan={7} className="text-center">Đang tải...</TableCell></TableRow>
                                  ) : schedules.length ? (
-                                    schedules.map((s) => (
+                                    schedules.map((s, idx) => (
                                        <TableRow key={s.id}>
+                                          <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
                                           <TableCell className="font-semibold">{formatWeekday(s.weekday)}</TableCell>
                                           <TableCell>{s.startTime}</TableCell>
                                           <TableCell>{s.endTime}</TableCell>
@@ -210,7 +212,7 @@ export default function ClassDetailPage() {
                                     ))
                                  ) : (
                                     <TableRow>
-                                       <TableCell colSpan={5} className="text-center py-8 text-muted-foreground italic">Chưa có lịch học nào</TableCell>
+                                       <TableCell colSpan={6} className="text-center py-8 text-muted-foreground italic">Chưa có lịch học nào</TableCell>
                                     </TableRow>
                                  )}
                               </TableBody>
@@ -234,6 +236,7 @@ export default function ClassDetailPage() {
                            <Table>
                               <TableHeader>
                                  <TableRow className="bg-muted/50">
+                                    <TableHead className="w-[80px]">STT</TableHead>
                                     <TableHead>Tiêu đề</TableHead>
                                     <TableHead>Loại</TableHead>
                                     <TableHead>Hạn nộp</TableHead>
@@ -244,10 +247,11 @@ export default function ClassDetailPage() {
                               </TableHeader>
                               <TableBody>
                                  {isLoadingAssessments ? (
-                                    <TableRow><TableCell colSpan={6} className="text-center">Đang tải...</TableCell></TableRow>
+                                    <TableRow><TableCell colSpan={7} className="text-center">Đang tải...</TableCell></TableRow>
                                  ) : assessments.length ? (
-                                    assessments.map((a) => (
+                                    assessments.map((a, idx) => (
                                        <TableRow key={a.id}>
+                                          <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
                                           <TableCell className="font-medium">{a.titleOverride || "Default Template"}</TableCell>
                                           <TableCell>
                                              <Badge variant="outline">{a.kind}</Badge>
@@ -266,7 +270,7 @@ export default function ClassDetailPage() {
                                     ))
                                  ) : (
                                     <TableRow>
-                                       <TableCell colSpan={6} className="text-center py-8 text-muted-foreground italic">Chưa có Assessment nào</TableCell>
+                                       <TableCell colSpan={7} className="text-center py-8 text-muted-foreground italic">Chưa có Assessment nào</TableCell>
                                     </TableRow>
                                  )}
                               </TableBody>
@@ -285,6 +289,7 @@ export default function ClassDetailPage() {
                            <Table>
                               <TableHeader>
                                  <TableRow className="bg-muted/50">
+                                    <TableHead className="w-[80px]">STT</TableHead>
                                     <TableHead>Học viên</TableHead>
                                     <TableHead>Trạng thái</TableHead>
                                     <TableHead>Điểm</TableHead>
@@ -295,10 +300,11 @@ export default function ClassDetailPage() {
                               </TableHeader>
                               <TableBody>
                                  {isLoadingAttempts ? (
-                                    <TableRow><TableCell colSpan={6} className="text-center">Đang tải...</TableCell></TableRow>
+                                    <TableRow><TableCell colSpan={7} className="text-center">Đang tải...</TableCell></TableRow>
                                  ) : attempts.length ? (
-                                    attempts.map((att) => (
+                                    attempts.map((att, idx) => (
                                        <TableRow key={att.id}>
+                                          <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
                                           <TableCell className="font-medium">User ID: {att.userId}</TableCell>
                                           <TableCell><Badge variant="outline">{att.status}</Badge></TableCell>
                                           <TableCell>{att.rawScore ?? "-"} / {att.maxScore ?? "-"}</TableCell>
@@ -317,7 +323,7 @@ export default function ClassDetailPage() {
                                     ))
                                  ) : (
                                     <TableRow>
-                                       <TableCell colSpan={6} className="text-center py-8 text-muted-foreground italic">Chưa có dữ liệu thi</TableCell>
+                                       <TableCell colSpan={7} className="text-center py-8 text-muted-foreground italic">Chưa có dữ liệu thi</TableCell>
                                     </TableRow>
                                  )}
                               </TableBody>
@@ -336,6 +342,7 @@ export default function ClassDetailPage() {
                            <Table>
                               <TableHeader>
                                  <TableRow className="bg-muted/50">
+                                    <TableHead className="w-[80px]">STT</TableHead>
                                     <TableHead>Học viên</TableHead>
                                     <TableHead>Trạng thái</TableHead>
                                     <TableHead>Ngày nộp</TableHead>
@@ -345,10 +352,11 @@ export default function ClassDetailPage() {
                               </TableHeader>
                               <TableBody>
                                  {isLoadingSubmissions ? (
-                                    <TableRow><TableCell colSpan={5} className="text-center">Đang tải...</TableCell></TableRow>
+                                    <TableRow><TableCell colSpan={7} className="text-center">Đang tải...</TableCell></TableRow>
                                  ) : submissions.length ? (
-                                    submissions.map((sub) => (
+                                    submissions.map((sub, idx) => (
                                        <TableRow key={sub.id}>
+                                          <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
                                           <TableCell className="font-medium">User ID: {sub.userId}</TableCell>
                                           <TableCell><Badge variant="outline">{sub.status}</Badge></TableCell>
                                           <TableCell>{sub.submittedAt ? new Date(sub.submittedAt).toLocaleString("vi-VN") : "-"}</TableCell>
@@ -362,7 +370,7 @@ export default function ClassDetailPage() {
                                     ))
                                  ) : (
                                     <TableRow>
-                                       <TableCell colSpan={5} className="text-center py-8 text-muted-foreground italic">Chưa có bài nộp nào</TableCell>
+                                       <TableCell colSpan={6} className="text-center py-8 text-muted-foreground italic">Chưa có bài nộp nào</TableCell>
                                     </TableRow>
                                  )}
                               </TableBody>

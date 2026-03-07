@@ -181,21 +181,6 @@ export function BlogDetailClient({ slug }: BlogDetailClientProps) {
                     )}
 
                     <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground font-medium">
-                        {blog.author && (
-                            <div className="flex items-center gap-3">
-                                <Avatar className="size-10 border-2 border-background shadow-sm">
-                                    {blog.author.avatarUrl && <AvatarImage src={blog.author.avatarUrl} />}
-                                    <AvatarFallback>
-                                        {blog.author.displayName?.substring(0, 2).toUpperCase()}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div className="text-left">
-                                    <p className="text-foreground font-bold">{blog.author.displayName}</p>
-                                    <p className="text-xs">{blog.author.email}</p>
-                                </div>
-                            </div>
-                        )}
-                        <div className="w-1 h-1 rounded-full bg-border hidden md:block"></div>
                         {blog.publishedAt && (
                             <>
                                 <div className="flex items-center gap-2">
@@ -223,7 +208,7 @@ export function BlogDetailClient({ slug }: BlogDetailClientProps) {
 
                 {/* Content */}
                 <div className="max-w-5xl mx-auto">
-                    <div className="bg-card rounded-2xl shadow-sm border border-border p-8 md:p-12">
+                    <div>
                         {renderContent(blog.content)}
                     </div>
 

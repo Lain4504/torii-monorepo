@@ -34,7 +34,7 @@ import {
 @Controller('api/academy/exam-attempts')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class ExamAttemptController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
   @Get()
   @Permissions('exam.manage')
@@ -49,7 +49,6 @@ export class ExamAttemptController {
   }
 
   @Get(':id')
-  @Permissions('exam.manage')
   async findById(@Param('id', new ParseUUIDPipe()) id: string) {
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.examAttempt.findById' }, { id }),
@@ -58,7 +57,6 @@ export class ExamAttemptController {
   }
 
   @Post('start')
-  @Permissions('exam.manage')
   @HttpCode(HttpStatus.CREATED)
   async start(
     @Body(new ZodValidationPipe(academyExamAttemptStartDTOSchema))
@@ -71,7 +69,6 @@ export class ExamAttemptController {
   }
 
   @Post('save-answers')
-  @Permissions('exam.manage')
   async saveAnswers(
     @Body(new ZodValidationPipe(academyExamAttemptSaveAnswersDTOSchema))
     dto: AcademyExamAttemptSaveAnswersDTO,
@@ -83,7 +80,6 @@ export class ExamAttemptController {
   }
 
   @Post('submit')
-  @Permissions('exam.manage')
   async submit(
     @Body(new ZodValidationPipe(academyExamAttemptSubmitDTOSchema))
     dto: AcademyExamAttemptSubmitDTO,
