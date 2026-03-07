@@ -1,129 +1,154 @@
-y# Torii Nihongo Monorepo
-Hệ thống học tiếng Nhật trực tuyến tích hợp Live Class (WebRTC) và AI Tutor (FastMCP). Monorepo được kiến trúc theo mô hình **Microservices** hiện đại, giao tiếp hybrid giữa **HTTP REST** và **NATS Message Broker**.
+# 🏯 Torii Nihongo Monorepo
 
-## 🌐 Danh sách Domains
-- **Backend API (Gateway)**: [api.torii.sbs](https://api.torii.sbs)
-- **Learning platform**: [app.torii.sbs](https://app.torii.sbs)
-- **Live Class**: [meet.torii.sbs](https://meet.torii.sbs)
-- **Hệ quản trị (Admin)**: [admin.torii.sbs](https://admin.torii.sbs)
+> **Hệ sinh thái học tiếng Nhật thế hệ mới** tích hợp công nghệ AI Tutor (FastMCP, Gemini Live) và Live Class (WebRTC). Monorepo này được thiết kế với kiến trúc **Microservices** hiện đại, sử dụng **NATS JetStream** làm xương sống giao tiếp và **Turborepo** để quản lý hiệu năng.
 
-## 🏗 Cấu trúc Monorepo
-
-```
-torii-monorepo/
-├── apps/
-│   ├── server/               # NestJS Microservices Workspace
-│   │   ├── modules/          # 8 Microservices độc lập (gateway, identity, learning, agents, meet, gamification, communication, storage)
-│   │   └── libs/             # Thư viện dùng chung (shared logic, nats, prisma, shared-schemas)
-│   ├── web-admin/            # React Admin Dashboard (Vite)
-│   └── web-learner/          # Next.js Learning Platform
-├── packages/
-│   ├── protocol/             # Định nghĩa Protobuf & mã nguồn generate (@workspace/protocol)
-│   ├── schemas/              # Zod schemas & DTO types dùng chung (@workspace/schemas)
-│   ├── ui/                   # Shared UI components (shadcn/ui)
-│   └── *-config/             # Cấu hình ESLint, TypeScript dùng chung
-├── nats_server.conf          # Cấu hình NATS Server (JetStream, Auth Callout)
-├── livekit.yaml              # Cấu hình LiveKit Server (Local Dev)
-├── turbo.json                # TurboRepo config
-└── pnpm-workspace.yaml       # PNPM Workspaces config
-```
+[![Technology](https://img.shields.io/badge/Architecture-Microservices-orange?style=for-the-badge)](https://microservices.io/)
+[![Framework](https://img.shields.io/badge/Framework-NestJS%20|%20Next.js-red?style=for-the-badge)](https://nestjs.com/)
+[![Message Broker](https://img.shields.io/badge/Broker-NATS%20JetStream-blue?style=for-the-badge)](https://nats.io/)
+[![Database](https://img.shields.io/badge/Database-PostgreSQL%20|%20Redis-blue?style=for-the-badge)](https://www.postgresql.org/)
 
 ---
 
-## 🛰 Kiến trúc Microservices (HTTP + NATS Hybrid)
+## 🌐 Hệ thống Tên miền (Domains)
 
-Backend được xây dựng dựa trên sự kết hợp giữa **NestJS** và **NATS Message Broker**. API Gateway đóng vai trò là "cửa ngõ" duy nhất, điều hành luồng dữ liệu sang các microservices nghiệp vụ qua giao thức mạng hiệu năng cao.
+| Dịch vụ | URL | Mô tả |
+| :--- | :--- | :--- |
+| **Backend API** | [api.torii.sbs](https://api.torii.sbs) | Điểm truy cập duy nhất (Gateway) cho toàn bộ hệ thống. |
+| **Learning Platform** | [app.torii.sbs](https://app.torii.sbs) | Cổng thông tin học tập dành cho học viên (Next.js). |
+| **Live Meet** | [meet.torii.sbs](https://meet.torii.sbs) | Hệ thống lớp học trực tuyến WebRTC. |
+| **Admin Dashboard** | [admin.torii.sbs](https://admin.torii.sbs) | Công cụ quản trị dành cho Giáo viên & Quản lý. |
 
-### 🏛 Sơ đồ Kiến trúc Hệ thống
+---
+
+## 🏗 Kiến trúc Hệ thống (New Architecture)
+
+Dự án áp dụng mô hình **Hybrid Cloud Architecture** kết hợp giữa tính đồng bộ của **REST/gRPC** và tính linh hoạt của **Event-Driven Design**.
+
+### 🏛 Sơ đồ Luồng dữ liệu (Hub-and-Spoke Microservices)
 
 ```mermaid
 graph TB
-    Client((Clients)) -->|HTTP| Gateway["API Gateway :8080"]
-    Gateway -->|NATS Proxy| Services
-    
-    subgraph Services ["Hệ sinh thái Microservices"]
-        direction TB
-        Identity["<b>Identity</b><br>Auth, RBAC, 2FA, Billing"]
-        Learning["<b>Learning</b><br>LMS, Exams, Flashcards"]
-        Comm["<b>Communication</b><br>Notifications, Messaging"]
-        Gamification["<b>Gamification</b><br>Streaks, Achievements"]
-        Storage["<b>Storage</b><br>S3 Integration, Meta"]
-        Agents["<b>Agents</b><br>AI Tutor, Analytics"]
-        Meet["<b>Meet</b><br>WebRTC Live Class"]
+    subgraph Clients ["🌐 Kênh Giao diện (Frontends)"]
+        Learner["Learner Web (Next.js)"]
+        Admin["Admin Web (Vite)"]
+        Mobile["Mobile App (Coming Soon)"]
     end
+
+    Clients -->|HTTPS/REST/WS| Gateway
+
+    subgraph Backend ["🗼 Torii Backend Engine"]
+        Gateway["<b>API Gateway</b><br/>Registry, Proxy, Auth Guard"]
+        
+        subgraph Internal ["💎 Hệ sinh thái Microservices"]
+            direction LR
+            Identity["<b>Identity Service</b><br/>Auth, RBAC, Profile"]
+            Academy["<b>Academy Service</b><br/>LMS, Exam, Commerce"]
+            Meet["<b>Meet Service</b><br/>WebRTC, Recording"]
+            Agents["<b>AI Agents</b><br/>Tutor, Analytics"]
+            VoiceAgent["<b>Voice Agent</b><br/>Gemini Live, STT/TTS"]
+        end
+
+        Gateway <-->|NATS Request-Response| Internal
+    end
+
+    Internal <-->|Pub/Sub Events| NATS[("📡 NATS JetStream")]
+    Meet <-->|Signaling| LiveKit(("🎙 LiveKit Server"))
+    Internal --- DB[("🗄 PostgreSQL + Redis")]
     
-    Services -.->|Pub/Sub & Events| NATS[("NATS Broker")]
-    Meet -.->|WebRTC Signaling| LiveKit(("LiveKit Server"))
-    Services --- DB[("PostgreSQL + Redis")]
+    style Gateway fill:#f9f,stroke:#333,stroke-width:2px
+    style NATS fill:#69f,stroke:#333,stroke-width:2px
+    style DB fill:#9f9,stroke:#333,stroke-width:2px
 ```
-
-### 📡 Mô hình Giao tiếp
-
-1.  **HTTP REST (External):** Client tương tác với Gateway qua REST API. Gateway thực hiện Authentication, Rate Limiting và định tuyến request.
-2.  **NATS Message Pattern (Internal):** Gateway proxy các request phức tạp sang các service khác qua NATS (Request-Response).
-3.  **NATS Event-Driven (Internal):** Các service giao tiếp bất đồng bộ qua sự kiện (ví dụ: `Learning` phát sự kiện `LESSON_COMPLETE`, `Gamification` nhận và cập nhật Streak).
-
-### 🧩 Chi tiết các Microservices
-
-| Service | Protocol | Vai trò & Trách nhiệm |
-|:---|:---|:---|
-| **Gateway** | HTTP / NATS | Entry point chính (Port 8080), xử lý Auth Guard, Proxy routing qua NATS. |
-| **Identity** | NATS | Quản lý định danh (Login/OAuth), Phân quyền (RBAC), Bảo mật (2FA), Thanh toán (Payments). |
-| **Learning** | NATS | LMS Core: Khóa học, Bài học, Thi cử (Exams), Cộng đồng (Blog), Flashcards (SRS). |
-| **Communication**| NATS | Trung tâm thông báo (In-app, Email, Push). |
-| **Storage** | NATS | Quản lý tập tin, tích hợp S3, xử lý metadata file. |
-| **Gamification** | NATS | Hệ thống Streak, Huy hiệu (Achievements), Điểm thưởng (XP). |
-| **Agents** | NATS | Trí tuệ nhân tạo: AI Sensei hỗ trợ học tập qua FastMCP. |
-| **Meet** | NATS / WebRTC | Lớp học trực tuyến WebRTC, tích hợp LiveKit. |
 
 ---
 
-## 🧩 Danh sách các Modules nghiệp vụ nội bộ
+## 🧩 Chi tiết các Microservices
 
-#### **Identity Service**
-- **Auth & 2FA**: Xử lý đăng ký, đăng nhập email/Google, xác thực 2 lớp TOTP.
-- **Users & Profile**: Quản lý thông tin cá nhân và cài đặt người dùng.
-- **Authorization**: Hệ thống phân quyền RBAC dựa trên Role và Permissions.
-- **Payments & Billing**: Tích hợp thanh toán khóa học và quản lý hóa đơn.
-- **Audit Logs**: Lưu vết các hành động quan trọng để bảo mật.
+### 1. 🛡 Identity Service (Định danh & Bảo mật)
+Trung tâm quản lý người dùng và quyền hạn.
+*   **Auth Module**: Đăng nhập đa phương thức (Email, Google OAuth2).
+*   **2FA**: Bảo mật 2 lớp qua TOTP ứng dụng.
+*   **RBAC**: Phân quyền dựa trên vai trò (Student, Teacher, Admin).
+*   **Audit Logger**: Lưu vết hoạt động hệ thống nhằm mục đích bảo mật và hoàn tác.
+*   **Notification**: Tích hợp Email (SendGrid/SMTP) và In-app notification.
 
-#### **Learning Service**
-- **LMS Engine**: Quản lý nội dung khóa học theo phân cấp Course -> Module -> Lesson.
-- **Assessment**: Hệ thống ngân hàng câu hỏi, tạo đề thi và chấm điểm tự động.
-- **Flashcards (SRS)**: Học từ vựng qua thẻ nhớ với thuật toán lặp lại ngắt quãng.
-- **Community**: Forum và Blog nơi người dùng chia sẻ kinh nghiệm học tập.
-- **Learning Progress**: Theo dõi tiến độ hoàn thành bài học và khóa học.
+### 2. 📚 Academy Service (Lõi LMS - Học thuật)
+Dịch vụ lớn nhất, quản lý toàn bộ nội dung giáo dục.
+*   **Content Engine**: Quản lý Course, Module, Lesson đa phương tiện.
+*   **Assessment & Exam**: Hệ thống ngân hàng câu hỏi, tạo đề thi tự động và chấm điểm Real-time.
+*   **Classroom Management**: Quản lý lớp học, lịch học, điểm danh và tiến độ học viên.
+*   **Commerce (PayOS)**: Tích hợp thanh toán khóa học, quản lý mã giảm giá (Coupon) và hóa đơn.
+*   **SRS Flashcards**: Thuật toán lặp lại ngắt quãng giúp ghi nhớ từ vựng hiệu quả.
+*   **Gamification**: Hệ thống Streak, XP và Huy chương (Achievements).
 
-#### **Storage Service**
-- **S3 Storage**: Tích hợp Amazon S3 / Cloudflare R2 để lưu trữ multimedia content.
-- **File Meta**: Quản lý quyền truy cập và thông tin chi tiết của từng file.
+### 3. 🎥 Meet Service (Lớp học Trực tuyến)
+Xây dựng trên nền tảng **LiveKit**, tối ưu cho dạy học ngoại ngữ.
+*   **WebRTC Integration**: Truyền tải âm thanh/hình ảnh độ trễ thấp.
+*   **Artifacts & Recording**: Ghi hình buổi học, lưu trữ tài liệu đã chia sẻ.
+*   **Interactive Tools**: Thăm dò ý kiến (Polls), chia phòng (Breakout rooms), Bảng trắng (Whiteboard).
+*   **AI Insights**: Phân tích biểu cảm học viên, tự động tạo phụ đề (Speech-to-Text).
 
-#### **Gamification Service**
-- **Streak System**: Theo dõi tần suất học tập hàng ngày để tạo thói quen.
-- **Achievements**: Hệ thống huy hiệu dựa trên các cột mốc quan trọng.
+### 4. 🤖 AI Agents & Voice Agent (Trợ lý Sensei)
+Sức mạnh vượt trội của Torii.
+*   **Sensei Agent**: Giải thích ngữ pháp, sửa bài tập và dịch thuật ngữ cảnh.
+*   **Gemini Live Integration**: Giao tiếp bằng giọng nói trực tiếp với AI để luyện phản xạ.
+*   **FastMCP Architecture**: Cho phép AI truy cập vào database dự án để đưa ra tư vấn chính xác nhất về tiến độ học tập.
+*   **TTS Service**: Sử dụng Microsoft Azure Neural voices cho phát âm chuẩn Nhật.
 
 ---
 
-## 🛠 Hướng dẫn Triển khai & Phát triển
+## 🛠 Công nghệ Sử dụng (Tech Stack)
 
-### 1. Yêu cầu hệ thống
-- Docker & Docker Compose
-- Node.js v20+ & pnpm
+*   **Ngôn ngữ**: TypeScript, Python (cho AI/TTS).
+*   **Framework**: 
+    *   Backend: [NestJS](https://nestjs.com/) (Microservices mode).
+    *   Frontend: [Next.js](https://nextjs.org/), [Vite](https://vitejs.dev/), [React](https://reactjs.org/).
+*   **Infrastructure**: 
+    *   Messaging: [NATS JetStream](https://nats.io/).
+    *   Media: [LiveKit](https://livekit.io/).
+    *   ORM/DB: [Prisma](https://www.prisma.io/), [PostgreSQL](https://www.postgresql.org/), [Redis](https://redis.io/).
+*   **AI/ML**: Google Gemini (Flash/Pro/Live), Azure Cognitive Services.
+*   **DevOps**: Docker, TurboRepo, PNPM Workspaces.
 
-### 2. Thiết lập hạ tầng (Infrastructure)
+---
+
+## 📂 Cấu trúc Thư mục
+
 ```bash
-# Khởi chạy DB, Redis, NATS, LiveKit
-docker compose up -d
+torii-monorepo/
+├── apps/
+│   ├── server/             # Backend Workspace (NestJS)
+│   │   ├── services/       # 5 Microservices chính (Gateway, Identity, Academy, Agents, Meet)
+│   │   └── libs/           # Thư viện dùng chung (Shared logic, NATS Proxy, Prisma)
+│   ├── web-learner/        # 🎓 Giao diện Học viên (Next.js)
+│   ├── web-admin/          # ⚙ Giao diện Quản trị (Vite + React)
+│   ├── meet/               # 📹 Ứng dụng WebRTC chuyên biệt
+│   └── voice-agent/        # 🎙 Dịch vụ AI Voice Agent (Gemini Live)
+├── packages/               # Shared Packages (@workspace/*)
+│   ├── protocol/           # Định nghĩa Protobuf cho NATS/LiveKit
+│   ├── schemas/            # Zod schemas & DTO dùng chung cho BE & FE
+│   ├── ui/                 # Design System (Tailwind + Shadcn/ui)
+│   └── typescript-config/  # Cấu hình compiler tập trung
+└── deploy/                 # Docker Compose & K8s config
 ```
 
-### 3. Thiết lập ứng dụng
+---
+
+## 🚀 Hướng dẫn Bắt đầu (Quick Start)
+
+### 1. Cài đặt Cơ sở hạ tầng
 ```bash
-# Cài đặt dependency
+docker compose up -d # Khởi chạy NATS, DB, Redis, LiveKit
+```
+
+### 2. Cài đặt Dependencies
+```bash
 pnpm install
+```
 
-# Tạo file cấu hình
+### 3. Thiết lập Môi trường & Database
+```bash
 cp .env.example .env
-
 # Đồng bộ Database schema
 cd apps/server
 npx prisma generate
@@ -135,12 +160,10 @@ pnpm --filter @workspace/protocol run generate
 pnpm --filter @workspace/protocol run build
 ```
 
-### 4. Chạy dự án (Development)
+### 4. Khởi chạy Chế độ Phát triển
 ```bash
-# Chạy toàn bộ hệ thống (Backend + Frontend)
-pnpm dev
-
-# Chạy cụ thể Backend
+pnpm dev # Chạy toàn bộ hệ thống
+# HOẶC chạy riêng Backend
 pnpm --filter server dev
 ```
 
@@ -149,10 +172,17 @@ pnpm --filter server dev
 # Cập nhật và triển khai image mới
 docker compose pull
 docker compose up -d
-
 # Dọn dẹp tài nguyên thừa
 docker image prune -f
 ```
+---
+
+## 📐 Nguyên tắc Thiết kế (Design Principles)
+
+1.  **Protocol-First**: Mọi giao tiếp giữa các service phải được định nghĩa qua Protobuf hoặc Shared Schemas.
+2.  **Stateless Services**: Các microservice không lưu trạng thái cục bộ, cho phép scale ngang dễ dàng.
+3.  **Eventual Consistency**: Sử dụng NATS JetStream để đảm bảo tính nhất quán dữ liệu qua các sự kiện.
+4.  **Security-First**: Mọi request qua Gateway đều được kiểm tra bởi JWT Guard và RBAC policy.
 
 ---
-**Torii Nihongo Team** - *Bringing AI and WebRTC to Language Learning.* 🚀
+**Torii Nihongo Team** - *Mang sức mạnh AI vào giáo dục tiếng Nhật.* 🗼🚀
