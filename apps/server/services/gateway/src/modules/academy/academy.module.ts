@@ -26,6 +26,7 @@ import { ClassReviewController } from './controllers/class-review.controller';
 import { StudyNoteController } from './controllers/study-note.controller';
 import { StudySetController } from './controllers/study-set.controller';
 import { PlacementController } from './controllers/placement.controller';
+import { LiveSessionController } from './controllers/live-session.controller';
 
 
 @Module({
@@ -57,6 +58,7 @@ import { PlacementController } from './controllers/placement.controller';
     StudyNoteController,
     StudySetController,
     PlacementController,
+    LiveSessionController,
   ],
 })
 export class AcademyModule { }

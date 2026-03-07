@@ -6,6 +6,7 @@ import { PayOSService } from '../payos.service';
 import { EnrollmentService } from '../../classroom/enrollment/enrollment.service';
 import { OrderCheckoutDto, OrderPreviewDto } from './dto/order.dto';
 import { Prisma } from '@prisma/generated';
+import { AppConfigService } from '@server/shared';
 
 @Injectable()
 export class OrderService {
@@ -16,6 +17,7 @@ export class OrderService {
         private readonly couponService: CouponService,
         private readonly payOS: PayOSService,
         private readonly enrollmentService: EnrollmentService,
+        private readonly appConfig: AppConfigService,
     ) { }
 
     async preview(userId: string, input: OrderPreviewDto) {
@@ -89,12 +91,14 @@ export class OrderService {
         if (input.paymentMethod === PaymentMethod.PAYOS) {
             const numericOrderCode = Number(Date.now().toString().slice(-9)) + Math.floor(Math.random() * 1000);
 
+            const webLearnerUrl = this.appConfig.identity.webLearnerUrl;
+
             const paymentLink = await this.payOS.createPaymentLink({
                 orderCode: numericOrderCode,
                 amount: preview.grandTotal,
                 description: `Thanh toán đơn hàng ${order.code}`,
-                cancelUrl: 'https://your-frontend.com/payment/cancel',
-                returnUrl: 'https://your-frontend.com/payment/success',
+                cancelUrl: `${webLearnerUrl}/payment/cancel?orderCode=${order.code}`,
+                returnUrl: `${webLearnerUrl}/payment/success?orderCode=${order.code}`,
                 items: preview.offerings.map(o => ({
                     name: o.title,
                     quantity: 1,

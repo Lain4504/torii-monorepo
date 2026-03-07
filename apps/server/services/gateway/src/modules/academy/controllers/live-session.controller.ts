@@ -11,24 +11,53 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
   GatewayAuthGuard,
+  Permissions,
+  PermissionsGuard,
+  ReqWithRequester,
   successResponse,
 } from '@server/shared';
-import { Request } from 'express';
 
 @Controller('api/live-sessions')
-@UseGuards(GatewayAuthGuard)
+@UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class LiveSessionController {
   constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
-  @Post(':id/join')
-  async join(
+  @Post(':id/join/lecturer')
+  @Permissions('academy.delivery.write')
+  async joinAsLecturer(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Req() req: Request,
+    @Req() req: ReqWithRequester,
   ) {
-    const userId = req.user?.id;
+    const userId = req.requester?.sub;
+    if (!userId) {
+      throw new Error('User ID not found in request');
+    }
     const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.liveSession.join' }, { id, userId }),
+      this.nats.send(
+        { cmd: 'academy.liveSession.join' },
+        { id, userId, isAdmin: true },
+      ),
+    );
+    return successResponse(result);
+  }
+
+  @Post(':id/join')
+  @Permissions('academy.delivery.read')
+  async joinAsStudent(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const userId = req.requester?.sub;
+    if (!userId) {
+      throw new Error('User ID not found in request');
+    }
+    const result = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.liveSession.join' },
+        { id, userId, isAdmin: false },
+      ),
     );
     return successResponse(result);
   }
 }
+
