@@ -218,7 +218,7 @@ export default function ManageDeckPage() {
                         <ArrowLeft className="size-4" />
                     </Button>
                     <div className="space-y-1.5">
-                        <h1 className="text-3xl font-bold tracking-tight">{deck?.title}</h1>
+                        <h1 className="text-3xl font-bold tracking-tight">{deck?.name}</h1>
                         <p className="text-muted-foreground">
                             Quản lý nội dung bộ thẻ • {deck?.stats?.cardCount || 0} thẻ
                         </p>
@@ -363,27 +363,22 @@ export default function ManageDeckPage() {
                             />
                         </Field>
 
-                        {/* Japanese Language Details */}
-                        {deck?.subject === 'JAPANESE' && (
-                            <>
-                                <Field>
-                                    <FieldLabel>Furigana (Optional)</FieldLabel>
-                                    <Input
-                                        value={furigana}
-                                        onChange={(e) => setFurigana(e.target.value)}
-                                        placeholder="VD: ねこ"
-                                    />
-                                </Field>
-                                <Field>
-                                    <FieldLabel>Romaji (Optional)</FieldLabel>
-                                    <Input
-                                        value={romaji}
-                                        onChange={(e) => setRomaji(e.target.value)}
-                                        placeholder="VD: neko"
-                                    />
-                                </Field>
-                            </>
-                        )}
+                        <Field>
+                            <FieldLabel>Furigana (Optional)</FieldLabel>
+                            <Input
+                                value={furigana}
+                                onChange={(e) => setFurigana(e.target.value)}
+                                placeholder="VD: ねこ"
+                            />
+                        </Field>
+                        <Field>
+                            <FieldLabel>Romaji (Optional)</FieldLabel>
+                            <Input
+                                value={romaji}
+                                onChange={(e) => setRomaji(e.target.value)}
+                                placeholder="VD: neko"
+                            />
+                        </Field>
 
                         <DialogFooter>
                             <Button type="submit" className="w-full font-bold uppercase tracking-widest text-[10px]">

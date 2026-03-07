@@ -58,26 +58,20 @@ export function FlashcardStudy({ deckId }: FlashcardStudyProps) {
         if (!studyCards || !deck) return null
 
         return {
-            title: deck.title,
+            title: deck.name,
             description: `${studyCards.length} thẻ cần ôn tập`,
             cards: studyCards.map(card => {
                 // Build front text (term + furigana if available)
                 const furigana = card.languageDetails?.furigana as string | undefined
                 let front = card.term
-                if (furigana) {
-                    front = `${card.term}\n${furigana}`
-                }
-
-                // Build back text (definition + hint if available)
-                let back = card.definition
-                if (card.hint) {
-                    back = `${card.definition}\n\n💡 ${card.hint}`
+                if (furigana && furigana !== card.term) {
+                    front = `${card.term}\n(${furigana})`
                 }
 
                 return {
                     id: card.id,
                     front,
-                    back,
+                    back: card.definition,
                     tag: card.srsState
                 }
             }),

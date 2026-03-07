@@ -252,7 +252,6 @@ model FlashcardDeck {
   userId       String   @map("user_id") @db.Uuid
   name         String   @db.VarChar(255)
   description  String?  @db.Text
-  subject      String?  @db.VarChar(50) // e.g., "JAPANESE", "ENGLISH", "CODING"
   isPublic     Boolean  @default(false) @map("is_public")
   tags         String[] @default([]) @db.VarChar(50)
   cardCount    Int      @default(0) @map("card_count")

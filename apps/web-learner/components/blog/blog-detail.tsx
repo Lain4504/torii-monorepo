@@ -397,7 +397,7 @@ export function BlogDetail({ blog, recentBlogs }: { blog: BlogResponseDTO; recen
                         )}
 
                         {/* Comments */}
-                        <CommentSection blogId={blog.id} commentCount={blog.commentCount ?? 0} />
+                        <CommentSection blogId={blog.id} commentCount={(blog as any).commentCount ?? 0} />
                     </div>
 
                     {/* ── STICKY SIDEBAR ───────────────────────────────────── */}

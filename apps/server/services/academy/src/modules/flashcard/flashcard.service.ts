@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
-import { CreateDeckDto, CreateFlashcardDto, ReviewFlashcardDto } from './flashcard.dto';
+import { CreateDeckDto, CreateFlashcardDto, ReviewFlashcardDto, UpdateDeckDto, UpdateFlashcardDto } from './flashcard.dto';
 import { SrsState } from '@prisma/generated/enums';
 
 @Injectable()
@@ -11,13 +11,15 @@ export class FlashcardService {
         return this.prisma.flashcardDeck.create({
             data: {
                 userId,
-                ...dto,
+                name: dto.name,
+                description: dto.description,
+                isPublic: dto.isPublic,
             },
         });
     }
 
     async getMyDecks(userId: string) {
-        return this.prisma.flashcardDeck.findMany({
+        const decks = await this.prisma.flashcardDeck.findMany({
             where: { userId },
             include: {
                 _count: {
@@ -26,6 +28,13 @@ export class FlashcardService {
             },
             orderBy: { createdAt: 'desc' },
         });
+
+        return decks.map((deck) => ({
+            ...deck,
+            stats: {
+                cardCount: deck._count.flashcards,
+            },
+        }));
     }
 
     async getDeckById(userId: string, deckId: string) {
@@ -33,10 +42,47 @@ export class FlashcardService {
             where: { id: deckId, userId },
             include: {
                 flashcards: true,
+                _count: {
+                    select: { flashcards: true },
+                },
             },
         });
         if (!deck) throw new NotFoundException('Deck not found');
-        return deck;
+        return {
+            ...deck,
+            stats: {
+                cardCount: deck._count.flashcards,
+            },
+        };
+    }
+
+    async updateDeck(userId: string, deckId: string, dto: UpdateDeckDto) {
+        const deck = await this.prisma.flashcardDeck.findFirst({
+            where: { id: deckId, userId },
+        });
+        if (!deck) throw new NotFoundException('Deck not found');
+
+        return this.prisma.flashcardDeck.update({
+            where: { id: deckId },
+            data: {
+                name: dto.name,
+                description: dto.description,
+                isPublic: dto.isPublic,
+            },
+        });
+    }
+
+    async deleteDeck(userId: string, deckId: string) {
+        const deck = await this.prisma.flashcardDeck.findFirst({
+            where: { id: deckId, userId },
+        });
+        if (!deck) throw new NotFoundException('Deck not found');
+
+        await this.prisma.flashcardDeck.delete({
+            where: { id: deckId },
+        });
+
+        return { success: true };
     }
 
     async addCard(userId: string, deckId: string, dto: CreateFlashcardDto) {
@@ -45,12 +91,55 @@ export class FlashcardService {
         });
         if (!deck) throw new NotFoundException('Deck not found');
 
+        const { mediaUrl, ...rest } = dto;
         return this.prisma.flashcard.create({
             data: {
                 deckId,
-                ...dto,
+                ...rest,
+                imageUrl: mediaUrl,
             },
         });
+    }
+
+    async getDeckCards(userId: string, deckId: string) {
+        const deck = await this.prisma.flashcardDeck.findFirst({
+            where: { id: deckId, userId },
+        });
+        if (!deck) throw new NotFoundException('Deck not found');
+
+        return this.prisma.flashcard.findMany({
+            where: { deckId },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    async updateCard(userId: string, cardId: string, dto: UpdateFlashcardDto) {
+        const card = await this.prisma.flashcard.findFirst({
+            where: { id: cardId, deck: { userId } },
+        });
+        if (!card) throw new NotFoundException('Card not found');
+
+        const { mediaUrl, ...rest } = dto;
+        return this.prisma.flashcard.update({
+            where: { id: cardId },
+            data: {
+                ...rest,
+                imageUrl: mediaUrl,
+            },
+        });
+    }
+
+    async deleteCard(userId: string, cardId: string) {
+        const card = await this.prisma.flashcard.findFirst({
+            where: { id: cardId, deck: { userId } },
+        });
+        if (!card) throw new NotFoundException('Card not found');
+
+        await this.prisma.flashcard.delete({
+            where: { id: cardId },
+        });
+
+        return { success: true };
     }
 
     async getStudyCards(userId: string, deckId: string) {

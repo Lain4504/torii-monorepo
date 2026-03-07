@@ -10,11 +10,9 @@ export type SrsState = 'NEW' | 'LEARNING' | 'REVIEW' | 'MASTERED';
 export interface FlashcardDeck {
     id: string;
     userId: string;
-    title: string;
+    name: string;
     description?: string;
-    subject?: string;
     isPublic: boolean;
-    settings?: Record<string, any>;
     stats?: {
         cardCount?: number;
         newCount?: number;
@@ -45,19 +43,15 @@ export interface Flashcard {
 }
 
 export interface CreateDeckDTO {
-    title: string;
+    name: string;
     description?: string;
-    subject?: string;
     isPublic?: boolean;
-    settings?: Record<string, any>;
 }
 
 export interface UpdateDeckDTO {
-    title?: string;
+    name?: string;
     description?: string;
-    subject?: string;
     isPublic?: boolean;
-    settings?: Record<string, any>;
 }
 
 export interface CreateCardDTO {
@@ -154,7 +148,10 @@ export const flashcardApi = {
     addCard: async (deckId: string, data: Omit<CreateCardDTO, 'deckId'>): Promise<Flashcard> => {
         const response = await apiClient.post<StandardApiResponse<Flashcard>>(`/api/flashcards/decks/${deckId}/cards`, data);
         if (!response.data.success) throw new Error(response.data.message || 'Failed to add card');
-        return response.data.data!;
+        return {
+            ...response.data.data!,
+            mediaUrl: (response.data.data as any)?.imageUrl ?? response.data.data?.mediaUrl,
+        };
     },
 
     /**
@@ -163,7 +160,10 @@ export const flashcardApi = {
     updateCard: async (cardId: string, data: Omit<UpdateCardDTO, 'id'>): Promise<Flashcard> => {
         const response = await apiClient.patch<StandardApiResponse<Flashcard>>(`/api/flashcards/cards/${cardId}`, data);
         if (!response.data.success) throw new Error(response.data.message || 'Failed to update card');
-        return response.data.data!;
+        return {
+            ...response.data.data!,
+            mediaUrl: (response.data.data as any)?.imageUrl ?? response.data.data?.mediaUrl,
+        };
     },
 
     /**
@@ -180,7 +180,10 @@ export const flashcardApi = {
     getDeckCards: async (deckId: string): Promise<Flashcard[]> => {
         const response = await apiClient.get<StandardApiResponse<Flashcard[]>>(`/api/flashcards/decks/${deckId}/cards`);
         if (!response.data.success) throw new Error(response.data.message || 'Failed to fetch cards');
-        return response.data.data!;
+        return (response.data.data || []).map((card: any) => ({
+            ...card,
+            mediaUrl: card?.imageUrl ?? card?.mediaUrl,
+        }));
     },
 
     // ========================================================================
@@ -204,6 +207,9 @@ export const flashcardApi = {
     reviewCard: async (cardId: string, quality: 0 | 1): Promise<Flashcard> => {
         const response = await apiClient.post<StandardApiResponse<Flashcard>>(`/api/flashcards/cards/${cardId}/review`, { quality });
         if (!response.data.success) throw new Error(response.data.message || 'Failed to review card');
-        return response.data.data!;
+        return {
+            ...response.data.data!,
+            mediaUrl: (response.data.data as any)?.imageUrl ?? response.data.data?.mediaUrl,
+        };
     },
 };

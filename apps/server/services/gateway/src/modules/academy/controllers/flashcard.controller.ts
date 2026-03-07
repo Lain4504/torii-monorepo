@@ -2,6 +2,8 @@ import {
     Controller,
     Get,
     Post,
+    Patch,
+    Delete,
     Body,
     Param,
     UseGuards,
@@ -69,6 +71,36 @@ export class FlashcardController {
         }
     }
 
+    @Patch('decks/:id')
+    async updateDeck(@Param('id') id: string, @Body() dto: any, @Req() req: ReqWithRequester) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'academy.flashcard.updateDeck' },
+                    { userId: req.requester.sub, deckId: id, dto },
+                ),
+            );
+            return successResponse(result, 'Deck updated successfully');
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to update deck');
+        }
+    }
+
+    @Delete('decks/:id')
+    async deleteDeck(@Param('id') id: string, @Req() req: ReqWithRequester) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'academy.flashcard.deleteDeck' },
+                    { userId: req.requester.sub, deckId: id },
+                ),
+            );
+            return successResponse(result, 'Deck deleted successfully');
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to delete deck');
+        }
+    }
+
     @Post('decks/:id/cards')
     async addCard(@Param('id') id: string, @Body() dto: any, @Req() req: ReqWithRequester) {
         try {
@@ -81,6 +113,51 @@ export class FlashcardController {
             return successResponse(result, 'Card added successfully');
         } catch (error: any) {
             return errorResponse(error.message || 'Failed to add card');
+        }
+    }
+
+    @Get('decks/:id/cards')
+    async getDeckCards(@Param('id') id: string, @Req() req: ReqWithRequester) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'academy.flashcard.getDeckCards' },
+                    { userId: req.requester.sub, deckId: id },
+                ),
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to fetch cards');
+        }
+    }
+
+    @Patch('cards/:id')
+    async updateCard(@Param('id') id: string, @Body() dto: any, @Req() req: ReqWithRequester) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'academy.flashcard.updateCard' },
+                    { userId: req.requester.sub, cardId: id, dto },
+                ),
+            );
+            return successResponse(result, 'Card updated successfully');
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to update card');
+        }
+    }
+
+    @Delete('cards/:id')
+    async deleteCard(@Param('id') id: string, @Req() req: ReqWithRequester) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'academy.flashcard.deleteCard' },
+                    { userId: req.requester.sub, cardId: id },
+                ),
+            );
+            return successResponse(result, 'Card deleted successfully');
+        } catch (error: any) {
+            return errorResponse(error.message || 'Failed to delete card');
         }
     }
 

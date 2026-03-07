@@ -18,6 +18,8 @@ import {
     Video,
     User,
     ArrowRight,
+    Facebook,
+    Twitter,
 } from "lucide-react"
 import Link from "next/link"
 import React from "react"
@@ -359,6 +361,21 @@ export default function LiveCourseDetail() {
                                         </li>
                                     </ul>
                                 </div>
+
+                                <div className="mt-8 pt-6 border-t border-zinc-100 flex flex-col items-center">
+                                    <span className="text-sm text-zinc-500 font-medium mb-3">Tự tin chia sẻ cho bạn bè</span>
+                                    <div className="flex gap-4">
+                                        <Button variant="secondary" size="icon" className="rounded-full bg-zinc-100 hover:bg-[#1877F2] hover:text-white transition-colors">
+                                            <Facebook className="size-5" />
+                                        </Button>
+                                        <Button variant="secondary" size="icon" className="rounded-full bg-zinc-100 hover:bg-[#1DA1F2] hover:text-white transition-colors">
+                                            <Twitter className="size-5" />
+                                        </Button>
+                                        <Button variant="secondary" size="icon" className="rounded-full bg-zinc-100 hover:bg-[#E63946] hover:text-white transition-colors">
+                                            <MessageCircle className="size-5" />
+                                        </Button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </aside>
@@ -366,6 +383,65 @@ export default function LiveCourseDetail() {
                 </div>
                 <StudentReviewsSection classId={primaryClass?.id || "mock-class"} />
             </main>
+
+            {/* RELATED COURSES */}
+            <section className="bg-white py-16 md:py-24 border-t border-zinc-100 mt-12">
+                <div className="container mx-auto px-4 lg:px-8 max-w-7xl">
+                    <div className="flex items-center justify-between mb-10">
+                        <div>
+                            <h3 className="text-3xl font-bold text-zinc-900 mb-2">Khóa học thường mua cùng</h3>
+                            <p className="text-zinc-500 font-medium">Nhiều học viên đã chọn các khóa học này để tối ưu hóa lộ trình của họ.</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {/* Course 1 */}
+                        <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-zinc-100 hover:shadow-xl transition-all duration-300 group cursor-pointer">
+                            <div className="relative aspect-video overflow-hidden">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src="https://images.unsplash.com/photo-1528360983277-13d401cdc186?q=80&w=2070&auto=format&fit=crop" alt="C" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                <Badge className="absolute top-4 left-4 bg-zinc-900/80 text-white backdrop-blur-md">Kaiwa Hội thoại</Badge>
+                            </div>
+                            <div className="p-6">
+                                <h4 className="text-xl font-bold text-zinc-900 mb-3 group-hover:text-[#E63946] transition-colors line-clamp-2">
+                                    Luyện Kaiwa (Giao tiếp thực hành) Trình độ Tung cấp
+                                </h4>
+                                <div className="font-bold text-[#E63946] text-lg">1.500.000đ</div>
+                            </div>
+                        </div>
+
+                        {/* Course 2 */}
+                        <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-zinc-100 hover:shadow-xl transition-all duration-300 group cursor-pointer">
+                            <div className="relative aspect-video overflow-hidden">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070&auto=format&fit=crop" alt="C" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                <Badge className="absolute top-4 left-4 bg-zinc-900/80 text-white backdrop-blur-md">Phỏng vấn thực chiến</Badge>
+                            </div>
+                            <div className="p-6">
+                                <h4 className="text-xl font-bold text-zinc-900 mb-3 group-hover:text-[#E63946] transition-colors line-clamp-2">
+                                    Trọn bộ kỹ năng phỏng vấn trong công ty Nhật Bản
+                                </h4>
+                                <div className="font-bold text-[#E63946] text-lg">900.000đ</div>
+                            </div>
+                        </div>
+
+                        {/* Course 3 */}
+                        <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-zinc-100 hover:shadow-xl transition-all duration-300 group cursor-pointer">
+                            <div className="relative aspect-video overflow-hidden">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src="https://images.unsplash.com/photo-1480796927426-f609979314bd?q=80&w=2070&auto=format&fit=crop" alt="C" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                <Badge className="absolute top-4 left-4 bg-zinc-900/80 text-white backdrop-blur-md">Doanh nghiệp thực tế</Badge>
+                            </div>
+                            <div className="p-6">
+                                <h4 className="text-xl font-bold text-zinc-900 mb-3 group-hover:text-[#E63946] transition-colors line-clamp-2">
+                                    Tiếng Nhật thương mại - Viết mail & Báo cáo chuẩn
+                                </h4>
+                                <div className="font-bold text-[#E63946] text-lg">1.200.000đ</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </>
     );
 }

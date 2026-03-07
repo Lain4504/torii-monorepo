@@ -6,6 +6,20 @@ import { CouponStatus, CouponDiscountType, CouponScope } from '@prisma/generated
 export class CouponService {
     constructor(private readonly prisma: PrismaService) { }
 
+    private normalizeDiscountType(value: unknown): CouponDiscountType | undefined {
+        if (value === undefined || value === null) return undefined;
+        if (value === CouponDiscountType.PERCENTAGE || value === 'percentage') return CouponDiscountType.PERCENTAGE;
+        if (value === CouponDiscountType.FIXED_AMOUNT || value === 'fixed_amount') return CouponDiscountType.FIXED_AMOUNT;
+        throw new BadRequestException('Invalid discountType');
+    }
+
+    private normalizeStatus(value: unknown): CouponStatus | undefined {
+        if (value === undefined || value === null) return undefined;
+        if (value === CouponStatus.ACTIVE || value === 'active') return CouponStatus.ACTIVE;
+        if (value === CouponStatus.INACTIVE || value === 'inactive' || value === 'expired') return CouponStatus.INACTIVE;
+        throw new BadRequestException('Invalid status');
+    }
+
     async findByCode(code: string) {
         const coupon = await this.prisma.coupon.findUnique({
             where: { code: code.toUpperCase() },
@@ -106,20 +120,26 @@ export class CouponService {
     }
 
     async admin_create(data: any) {
+        const { discountType, status, ...rest } = data ?? {};
         return this.prisma.coupon.create({
             data: {
-                ...data,
+                ...rest,
                 code: data.code.toUpperCase(),
+                discountType: this.normalizeDiscountType(discountType),
+                status: this.normalizeStatus(status),
             },
         });
     }
 
     async admin_update(id: string, data: any) {
+        const { discountType, status, ...rest } = data ?? {};
         return this.prisma.coupon.update({
             where: { id },
             data: {
-                ...data,
+                ...rest,
                 code: data.code?.toUpperCase(),
+                discountType: this.normalizeDiscountType(discountType),
+                status: this.normalizeStatus(status),
             },
         });
     }

@@ -8,9 +8,19 @@ export class CreateDeckDto {
     @IsOptional()
     description?: string;
 
+    @IsBoolean()
+    @IsOptional()
+    isPublic?: boolean;
+}
+
+export class UpdateDeckDto {
     @IsString()
     @IsOptional()
-    subject?: string;
+    name?: string;
+
+    @IsString()
+    @IsOptional()
+    description?: string;
 
     @IsBoolean()
     @IsOptional()
@@ -30,11 +40,7 @@ export class CreateFlashcardDto {
 
     @IsString()
     @IsOptional()
-    imageUrl?: string;
-
-    @IsString()
-    @IsOptional()
-    audioUrl?: string;
+    mediaUrl?: string;
 
     @IsObject()
     @IsOptional()
@@ -48,6 +54,33 @@ export class CreateFlashcardDto {
     @IsString()
     @IsOptional()
     noteId?: string;
+}
+
+export class UpdateFlashcardDto {
+    @IsString()
+    @IsOptional()
+    term?: string;
+
+    @IsString()
+    @IsOptional()
+    definition?: string;
+
+    @IsString()
+    @IsOptional()
+    hint?: string;
+
+    @IsString()
+    @IsOptional()
+    mediaUrl?: string;
+
+    @IsObject()
+    @IsOptional()
+    languageDetails?: Record<string, any>;
+
+    @IsArray()
+    @IsOptional()
+    @IsString({ each: true })
+    tags?: string[];
 }
 
 export class ReviewFlashcardDto {
