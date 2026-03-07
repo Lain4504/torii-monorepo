@@ -6,8 +6,6 @@ import RoomSettings from '@/components/header/room-settings';
 import KeyboardShortcuts from '@/components/header/keyboardShortcuts';
 import VolumeControl from '@/components/header/volumeControl';
 import DurationView from '@/components/header/durationView';
-import DarkThemeSwitcher from '@/components/header/darkThemeSwitcher';
-import HeaderLogo from '@/components/header/headerLogo';
 import { getNatsConn } from '@/helpers/nats';
 import { Menu as MenuIcon } from 'lucide-react';
 import UserNotifications from '@/components/header/user-notifications';
@@ -27,8 +25,10 @@ const Header = () => {
   useEffect(() => {
     if (roomTitle) {
       setTitle(roomTitle);
+    } else if (roomId) {
+      setTitle(roomId);
     }
-  }, [roomTitle]);
+  }, [roomTitle, roomId]);
 
   const handleLogout = useCallback(() => {
     const confirm = async () => {
@@ -45,20 +45,14 @@ const Header = () => {
       <>
         <header
           id="main-header"
-          className={`relative z-99999 px-4 min-h-[54px] 3xl:min-h-[68px] py-1 md:py-0 flex flex-wrap md:flex-nowrap items-center justify-between bg-card transition-transform border-b border-border`}
+          className={`relative z-99999 px-4 min-h-[54px] 3xl:min-h-[68px] py-1 md:py-0 flex flex-nowrap items-center justify-between bg-card transition-transform border-b border-border`}
         >
-          <div className="left relative z-20 flex items-center gap-2 md:gap-5 w-1/2 md:flex-1">
-            <HeaderLogo />
-            <div className="dark-mode">
-              <DarkThemeSwitcher />
-            </div>
-          </div>
-          <div className="middle absolute w-2/3 md:w-1/3 left-1/2 -translate-x-1/2 z-10 order-3 md:order-2 py-0.5 pointer-events-none">
-            <h2 className="header-title text-sm 3xl:text-base font-medium text-foreground leading-tight text-center truncate">
+          <div className="left relative z-20 flex items-center gap-2 md:gap-5 flex-1 overflow-hidden">
+            <h2 className="header-title text-sm 3xl:text-base font-medium text-foreground leading-tight truncate">
               {title}
             </h2>
           </div>
-          <div className="right flex items-center justify-end relative -right-3 w-1/2 md:flex-1 gap-0.5 z-30 order-2 md:order-3">
+          <div className="right flex items-center justify-end relative -right-3 flex-1 gap-0.5 z-30">
             <DurationView />
             <UserNotifications />
             <VolumeControl />

@@ -15,7 +15,6 @@ import { setAuthenticated, setUser } from '@/store/slices/auth-slice';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card";
 import { Spinner } from "@workspace/ui/components/spinner";
 import { useLogo } from '@/hooks/useLogo';
-
 const verifyCodeSchema = z.object({
     code: z.string().min(1, 'Vui lòng nhập mã xác thực'),
     isBackup: z.boolean(),
@@ -60,6 +59,7 @@ export default function TwoFactorVerifyPage() {
 
     const [isLoading, setIsLoading] = useState(false);
     const [useBackupCode, setUseBackupCode] = useState(false);
+
     const logo = useLogo();
 
     const form = useForm<VerifyCodeForm>({
@@ -128,7 +128,7 @@ export default function TwoFactorVerifyPage() {
         <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
             <div className="w-full max-w-md">
                 <div className="flex flex-col items-center text-center mb-6">
-                    <img src="/logo.png" alt="Torii Nihongo" className="h-24 w-auto object-contain mb-2" />
+               <img src={logo} alt="Torii Nihongo" className="h-24 w-auto object-contain mb-2" />
                     <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Cổng quản trị</span>
                 </div>
 

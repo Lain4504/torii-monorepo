@@ -4,9 +4,13 @@ import {
   IngressClient,
   IngressInput,
 } from 'livekit-server-sdk';
-import { NatsKvUserInfo, WajlcTokenClaimsSchema } from '@workspace/protocol';
+import {
+  NatsKvUserInfo,
+  WajlcTokenClaimsSchema,
+  UserMetadataSchema,
+} from '@workspace/protocol';
 import { generateLivekitAccessToken } from '@server/shared';
-import { create } from '@bufbuild/protobuf';
+import { create, fromJsonString } from '@bufbuild/protobuf';
 import {
   LIVEKIT_ROOM_SERVICE,
   LIVEKIT_INGRESS_CLIENT,
@@ -189,12 +193,17 @@ export class LiveKitService {
     const { apiKey, apiSecret } = this.appConfig.livekit;
     const tokenValidity = 7200; // Default 2 hours
 
+    const metadata = userInfo.metadata
+      ? fromJsonString(UserMetadataSchema, userInfo.metadata)
+      : undefined;
+
     // Create claims
     const c = create(WajlcTokenClaimsSchema, {
       roomId: roomId,
       name: userInfo.name,
       userId: userInfo.userId,
       isAdmin: userInfo.isAdmin,
+      profilePic: metadata?.profilePic,
     });
 
     return await generateLivekitAccessToken(

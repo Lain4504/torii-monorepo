@@ -47,6 +47,7 @@ message WajlcTokenClaims {
   string room_id = 3;
   bool is_admin = 4;
   bool is_hidden = 5;
+  optional string profile_pic = 6;
 }
 
 message LockSettings {

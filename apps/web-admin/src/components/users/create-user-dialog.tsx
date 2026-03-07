@@ -30,12 +30,10 @@ import { Input } from '@workspace/ui/components/input';
 import {
     GraduationCap,
     Users,
-    Mail,
     BookOpen,
     MessageCircle,
     TrendingUp,
     ChevronRight,
-    User,
     ArrowLeft,
     ShieldCheck,
     BadgeCheck,
