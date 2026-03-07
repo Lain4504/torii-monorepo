@@ -72,6 +72,12 @@ export function RichTextEditor({
     if (typeof window === 'undefined') return;
     if (editorRef.current) return;
 
+    // Ensure the holder is empty before starting to prevent double rendering in Strict Mode
+    const holder = document.getElementById(holderId);
+    if (holder) {
+      holder.innerHTML = '';
+    }
+
     const editor = new EditorJS({
       holder: holderId,
       placeholder,
@@ -158,7 +164,7 @@ export function RichTextEditor({
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [holderId, placeholder, readOnly, initialContent]);
+  }, [holderId, placeholder, readOnly]);
 
   return (
     <div

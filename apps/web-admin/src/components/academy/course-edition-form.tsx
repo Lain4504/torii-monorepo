@@ -67,7 +67,7 @@ export function CourseEditionForm({
         ? academyCourseEditionUpdateDTOSchema
         : academyCourseEditionCreateDTOSchema) as any
     ) as any,
-    defaultValues: isEdit
+    values: isEdit
       ? {
         editionTag: initial?.editionTag ?? "",
         isCurrent: initial?.isCurrent ?? undefined,
@@ -83,6 +83,7 @@ export function CourseEditionForm({
         changelog: undefined,
       },
   })
+
 
   return (
     <form

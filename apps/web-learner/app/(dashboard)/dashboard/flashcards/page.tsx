@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { flashcardApi } from '@/lib/api/services/flashcard-api'
+import type { FlashcardDeck } from '@/lib/api/services/flashcard-api'
 import { Button } from '@workspace/ui/components/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@workspace/ui/components/card'
 import { Input } from '@workspace/ui/components/input'
@@ -21,7 +22,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value'
 import {
@@ -50,20 +51,31 @@ export default function FlashcardsPage() {
     const [debouncedSearchQuery] = useDebounceValue(searchQuery, 300)
     const [isDeckModalOpen, setIsDeckModalOpen] = useState(false)
     const [isAiDeckModalOpen, setIsAiDeckModalOpen] = useState(false)
-    const [editingDeck, setEditingDeck] = useState<any>(null)
+    const [editingDeck, setEditingDeck] = useState<FlashcardDeck | null>(null)
     const [aiTopic, setAiTopic] = useState('')
     const [isGeneratingAi, setIsGeneratingAi] = useState(false)
     const queryClient = useQueryClient()
 
     // Form states
-    const [deckName, setDeckName] = useState('')
+    const [deckTitle, setDeckTitle] = useState('')
     const [deckDesc, setDeckDesc] = useState('')
-    const [jlptLevel, setJlptLevel] = useState('N5')
+    const [subject, setSubject] = useState('JAPANESE')
 
-    const { data: decksData, isLoading } = useQuery({
-        queryKey: ['flashcard-decks', debouncedSearchQuery],
-        queryFn: () => flashcardApi.getDecks({ search: debouncedSearchQuery }),
+    const { data: decks, isLoading } = useQuery({
+        queryKey: ['flashcard-decks'],
+        queryFn: () => flashcardApi.getMyDecks(),
     })
+
+    // Client-side search filtering
+    const filteredDecks = useMemo(() => {
+        if (!decks) return []
+        if (!debouncedSearchQuery) return decks
+        const query = debouncedSearchQuery.toLowerCase()
+        return decks.filter(deck =>
+            deck.title.toLowerCase().includes(query) ||
+            deck.description?.toLowerCase().includes(query)
+        )
+    }, [decks, debouncedSearchQuery])
 
     const createDeckMutation = useMutation({
         mutationFn: flashcardApi.createDeck,
@@ -97,37 +109,35 @@ export default function FlashcardsPage() {
     })
 
     const handleSaveDeck = () => {
-        if (!deckName) return toast.error("Vui lòng nhập tên bộ thẻ.")
+        if (!deckTitle) return toast.error("Vui lòng nhập tên bộ thẻ.")
 
         if (editingDeck) {
             updateDeckMutation.mutate({
                 id: editingDeck.id,
-                input: { name: deckName, description: deckDesc, jlptLevel }
+                input: { title: deckTitle, description: deckDesc, subject }
             })
         } else {
-            createDeckMutation.mutate({ name: deckName, description: deckDesc, jlptLevel })
+            createDeckMutation.mutate({ title: deckTitle, description: deckDesc, subject })
         }
     }
 
     const resetForm = () => {
-        setDeckName('')
+        setDeckTitle('')
         setDeckDesc('')
-        setJlptLevel('N5')
+        setSubject('JAPANESE')
         setEditingDeck(null)
     }
 
-    const startEditing = (deck: any) => {
+    const startEditing = (deck: FlashcardDeck) => {
         setEditingDeck(deck)
-        setDeckName(deck.name)
+        setDeckTitle(deck.title)
         setDeckDesc(deck.description || '')
-        setJlptLevel(deck.jlptLevel || 'N5')
+        setSubject(deck.subject || 'JAPANESE')
         setIsDeckModalOpen(true)
     }
 
-    const decks = decksData?.data || []
-
     const handleAiDeckCreate = async () => {
-        if (!deckName.trim() || !aiTopic.trim()) {
+        if (!deckTitle.trim() || !aiTopic.trim()) {
             toast.error("Vui lòng nhập tên bộ thẻ và chủ đề.")
             return
         }
@@ -135,26 +145,22 @@ export default function FlashcardsPage() {
         try {
             // 1. Create Deck
             const deck = await flashcardApi.createDeck({
-                name: deckName,
+                title: deckTitle,
                 description: `AI Generated: ${aiTopic}`,
-                jlptLevel
+                subject
             })
 
             // 2. Generate Cards
-            const level = (jlptLevel === 'All' ? 'N3' : jlptLevel) as 'N5' | 'N4' | 'N3' | 'N2' | 'N1'
+            const level = (subject === 'JAPANESE' ? 'N3' : 'N3') as 'N5' | 'N4' | 'N3' | 'N2' | 'N1'
             const result = await agentApi.sensei.createFlashcard(aiTopic, level)
 
             // 3. Save Cards
-            const createData = result.flashcards.map(card => ({
-                deckId: deck.id,
-                frontText: card.front,
-                backText: card.back,
-                furigana: card.reading || '',
-                exampleSentence: ''
-            }))
-
-            if (createData.length > 0) {
-                await flashcardApi.bulkOperations({ create: createData })
+            for (const card of result.flashcards) {
+                await flashcardApi.addCard(deck.id, {
+                    term: card.front,
+                    definition: card.back,
+                    languageDetails: card.reading ? { furigana: card.reading } : undefined
+                })
             }
 
             queryClient.invalidateQueries({ queryKey: ['flashcard-decks'] })
@@ -221,7 +227,7 @@ export default function FlashcardsPage() {
                         <Card key={i} className="h-64 animate-pulse bg-muted/50 shadow-none border-border" />
                     ))}
                 </div>
-            ) : decks.length === 0 ? (
+            ) : filteredDecks.length === 0 ? (
                 <Card className="flex flex-col items-center justify-center py-20 border-dashed border-2 shadow-none bg-muted/5">
                     <div className="p-4 rounded-full bg-muted mb-4 text-muted-foreground/40">
                         <Layers className="size-8" />
@@ -231,7 +237,7 @@ export default function FlashcardsPage() {
                 </Card>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {decks.map((deck) => (
+                    {filteredDecks.map((deck) => (
                         <Card key={deck.id} className="group flex flex-col shadow-none hover:shadow-md transition-all border-border h-full overflow-hidden">
                             <CardHeader className="flex-none p-6 pb-4">
                                 <div className="flex justify-between items-start">
@@ -239,9 +245,9 @@ export default function FlashcardsPage() {
                                         <Layers className="size-5" />
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        {deck.jlptLevel && (
+                                        {deck.subject && (
                                             <Badge variant="secondary" className="font-bold text-[10px] uppercase">
-                                                {deck.jlptLevel}
+                                                {deck.subject}
                                             </Badge>
                                         )}
                                         <DropdownMenu>
@@ -265,7 +271,7 @@ export default function FlashcardsPage() {
                                     </div>
                                 </div>
                                 <div className="space-y-1.5 mt-4">
-                                    <CardTitle className="text-lg font-bold line-clamp-1 group-hover:text-primary transition-colors">{deck.name}</CardTitle>
+                                    <CardTitle className="text-lg font-bold line-clamp-1 group-hover:text-primary transition-colors">{deck.title}</CardTitle>
                                     <CardDescription className="line-clamp-2 min-h-[40px] leading-relaxed">
                                         {deck.description || "Không có mô tả cho bộ thẻ này."}
                                     </CardDescription>
@@ -277,13 +283,13 @@ export default function FlashcardsPage() {
                                     <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground uppercase tracking-widest">
                                         <div className="flex items-center gap-1.5">
                                             <Layers className="size-3.5 opacity-60" />
-                                            <span>{deck.cardCount} THẺ</span>
+                                            <span>{deck.stats?.cardCount || 0} THẺ</span>
                                         </div>
-                                        {deck.lastStudiedAt && (
+                                        {deck.updatedAt && (
                                             <div className="flex items-center gap-1.5">
                                                 <Clock className="size-3.5 opacity-60" />
                                                 <span>
-                                                    {formatDistanceToNow(new Date(deck.lastStudiedAt))}
+                                                    {formatDistanceToNow(new Date(deck.updatedAt), { addSuffix: true })}
                                                 </span>
                                             </div>
                                         )}
@@ -316,8 +322,8 @@ export default function FlashcardsPage() {
                         <Field>
                             <FieldLabel className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Tên bộ thẻ</FieldLabel>
                             <Input
-                                value={deckName}
-                                onChange={(e) => setDeckName(e.target.value)}
+                                value={deckTitle}
+                                onChange={(e) => setDeckTitle(e.target.value)}
                                 placeholder="VD: 2000 Kanji thông dụng"
                                 className="h-11"
                             />
@@ -332,18 +338,16 @@ export default function FlashcardsPage() {
                             />
                         </Field>
                         <Field>
-                            <FieldLabel className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Cấp độ JLPT</FieldLabel>
-                            <Select value={jlptLevel} onValueChange={setJlptLevel}>
+                            <FieldLabel className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Môn học</FieldLabel>
+                            <Select value={subject} onValueChange={setSubject}>
                                 <SelectTrigger className="h-11">
-                                    <SelectValue placeholder="Chọn cấp độ" />
+                                    <SelectValue placeholder="Chọn môn học" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="N5">N5</SelectItem>
-                                    <SelectItem value="N4">N4</SelectItem>
-                                    <SelectItem value="N3">N3</SelectItem>
-                                    <SelectItem value="N2">N2</SelectItem>
-                                    <SelectItem value="N1">N1</SelectItem>
-                                    <SelectItem value="All">All Levels</SelectItem>
+                                    <SelectItem value="JAPANESE">Tiếng Nhật</SelectItem>
+                                    <SelectItem value="ENGLISH">Tiếng Anh</SelectItem>
+                                    <SelectItem value="CODING">Lập trình</SelectItem>
+                                    <SelectItem value="OTHER">Khác</SelectItem>
                                 </SelectContent>
                             </Select>
                         </Field>
@@ -383,8 +387,8 @@ export default function FlashcardsPage() {
                         <Field>
                             <FieldLabel className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Tên bộ thẻ</FieldLabel>
                             <Input
-                                value={deckName}
-                                onChange={(e) => setDeckName(e.target.value)}
+                                value={deckTitle}
+                                onChange={(e) => setDeckTitle(e.target.value)}
                                 className="h-11 border-primary/20 font-bold"
                                 placeholder="VD: Từ vựng Du lịch Nhật Bản"
                             />
@@ -399,18 +403,16 @@ export default function FlashcardsPage() {
                             />
                         </Field>
                         <Field>
-                            <FieldLabel className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Cấp độ JLPT</FieldLabel>
-                            <Select value={jlptLevel} onValueChange={setJlptLevel}>
+                            <FieldLabel className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Môn học</FieldLabel>
+                            <Select value={subject} onValueChange={setSubject}>
                                 <SelectTrigger className="h-11 border-primary/20">
-                                    <SelectValue placeholder="Chọn cấp độ" />
+                                    <SelectValue placeholder="Chọn môn học" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="N5">N5</SelectItem>
-                                    <SelectItem value="N4">N4</SelectItem>
-                                    <SelectItem value="N3">N3</SelectItem>
-                                    <SelectItem value="N2">N2</SelectItem>
-                                    <SelectItem value="N1">N1</SelectItem>
-                                    <SelectItem value="All">All Levels</SelectItem>
+                                    <SelectItem value="JAPANESE">Tiếng Nhật</SelectItem>
+                                    <SelectItem value="ENGLISH">Tiếng Anh</SelectItem>
+                                    <SelectItem value="CODING">Lập trình</SelectItem>
+                                    <SelectItem value="OTHER">Khác</SelectItem>
                                 </SelectContent>
                             </Select>
                         </Field>
@@ -420,7 +422,7 @@ export default function FlashcardsPage() {
                         <Button
                             onClick={handleAiDeckCreate}
                             className="w-full h-11 font-bold uppercase tracking-widest text-[10px]"
-                            disabled={!aiTopic.trim() || !deckName.trim() || isGeneratingAi}
+                            disabled={!aiTopic.trim() || !deckTitle.trim() || isGeneratingAi}
                         >
                             {isGeneratingAi ? <Spinner className="mr-2" /> : null}
                             {isGeneratingAi ? 'ĐANG TẠO & SINH THẺ...' : 'TẠO BỘ THẺ AI'}

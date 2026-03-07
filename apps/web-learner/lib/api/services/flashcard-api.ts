@@ -1,133 +1,209 @@
 import { apiClient } from '../api-client';
-import type {
-    FlashcardDeckResponseDTO,
-    FlashcardDeckCreateDTO,
-    FlashcardDeckUpdateDTO,
-    FlashcardDeckQueryDTO,
-    FlashcardResponseDTO,
-    FlashcardCreateDTO,
-    FlashcardUpdateDTO,
-    FlashcardQueryDTO,
-    StandardApiResponse,
-    PaginatedApiResponse,
-    BulkFlashcardOperationsDTO,
-    BulkFlashcardOperationsResponseDTO,
-} from '@workspace/schemas';
+import type { StandardApiResponse } from '@workspace/schemas';
+
+// ============================================================================
+// NEW FLASHCARD SYSTEM - Matches FLASHCARD_SPEC.md
+// ============================================================================
+
+export type SrsState = 'NEW' | 'LEARNING' | 'REVIEW' | 'MASTERED';
+
+export interface FlashcardDeck {
+    id: string;
+    userId: string;
+    title: string;
+    description?: string;
+    subject?: string;
+    isPublic: boolean;
+    settings?: Record<string, any>;
+    stats?: {
+        cardCount?: number;
+        newCount?: number;
+        learningCount?: number;
+        reviewCount?: number;
+        masteredCount?: number;
+    };
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface Flashcard {
+    id: string;
+    deckId: string;
+    noteId?: string;
+    term: string;
+    definition: string;
+    hint?: string;
+    mediaUrl?: string;
+    languageDetails?: Record<string, any>;
+    tags?: string[];
+    srsState: SrsState;
+    nextReviewAt?: string;
+    interval: number;
+    easeFactor: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface CreateDeckDTO {
+    title: string;
+    description?: string;
+    subject?: string;
+    isPublic?: boolean;
+    settings?: Record<string, any>;
+}
+
+export interface UpdateDeckDTO {
+    title?: string;
+    description?: string;
+    subject?: string;
+    isPublic?: boolean;
+    settings?: Record<string, any>;
+}
+
+export interface CreateCardDTO {
+    deckId: string;
+    term: string;
+    definition: string;
+    hint?: string;
+    mediaUrl?: string;
+    languageDetails?: Record<string, any>;
+    tags?: string[];
+    noteId?: string;
+}
+
+export interface UpdateCardDTO {
+    id: string;
+    term?: string;
+    definition?: string;
+    hint?: string;
+    mediaUrl?: string;
+    languageDetails?: Record<string, any>;
+    tags?: string[];
+}
+
+export interface ReviewCardDTO {
+    quality: 0 | 1; // 0: Forgot, 1: Remember
+}
+
+export interface StudyCard {
+    id: string;
+    term: string;
+    definition: string;
+    hint?: string;
+    mediaUrl?: string;
+    languageDetails?: Record<string, any>;
+    srsState: SrsState;
+}
 
 export const flashcardApi = {
-    // --- DECKS ---
+    // ========================================================================
+    // DECKS
+    // ========================================================================
 
-    getDecks: async (params: Partial<FlashcardDeckQueryDTO> = {}): Promise<PaginatedApiResponse<FlashcardDeckResponseDTO>> => {
-        const query: FlashcardDeckQueryDTO = {
-            page: params.page ?? 1,
-            limit: params.limit ?? 10,
-            search: params.search,
-            jlptLevel: params.jlptLevel,
-        };
-
-        const response = await apiClient.get<PaginatedApiResponse<FlashcardDeckResponseDTO>>('/api/flashcard-decks', {
-            params: query,
-        });
-        return response.data;
-    },
-
-    createDeck: async (data: FlashcardDeckCreateDTO): Promise<FlashcardDeckResponseDTO> => {
-        const response = await apiClient.post<StandardApiResponse<{ deck: FlashcardDeckResponseDTO }>>('/api/flashcard-decks', data);
-        return response.data.data!.deck;
-    },
-
-    updateDeck: async (id: string, data: FlashcardDeckUpdateDTO): Promise<FlashcardDeckResponseDTO> => {
-        const response = await apiClient.patch<StandardApiResponse<{ deck: FlashcardDeckResponseDTO }>>(`/api/flashcard-decks/${id}`, data);
-        return response.data.data!.deck;
-    },
-
-    deleteDeck: async (id: string): Promise<void> => {
-        await apiClient.delete(`/api/flashcard-decks/${id}`);
-    },
-
-    // --- FLASHCARDS ---
-
-    getFlashcards: async (params: Partial<FlashcardQueryDTO> = {}): Promise<PaginatedApiResponse<FlashcardResponseDTO>> => {
-        const query: FlashcardQueryDTO = {
-            page: params.page ?? 1,
-            limit: params.limit ?? 10,
-            deckId: params.deckId,
-            search: params.search,
-            difficulty: params.difficulty,
-            tags: params.tags,
-            jlptLevel: params.jlptLevel,
-            dueForReview: params.dueForReview,
-            userId: params.userId,
-            isArchived: params.isArchived,
-        };
-
-        const response = await apiClient.get<PaginatedApiResponse<FlashcardResponseDTO>>('/api/flashcards', {
-            params: query,
-        });
-        return response.data;
-    },
-
-    getFlashcardById: async (id: string): Promise<FlashcardResponseDTO> => {
-        const response = await apiClient.get<StandardApiResponse<{ flashcard: FlashcardResponseDTO }>>(`/api/flashcards/${id}`);
-        return response.data.data!.flashcard;
-    },
-
-    createFlashcard: async (data: FlashcardCreateDTO): Promise<FlashcardResponseDTO> => {
-        const response = await apiClient.post<StandardApiResponse<{ flashcard: FlashcardResponseDTO }>>('/api/flashcards', data);
-        return response.data.data!.flashcard;
-    },
-
-    updateFlashcard: async (data: FlashcardUpdateDTO): Promise<FlashcardResponseDTO> => {
-        const response = await apiClient.patch<StandardApiResponse<{ flashcard: FlashcardResponseDTO }>>('/api/flashcards', data);
-        return response.data.data!.flashcard;
-    },
-
-    deleteFlashcard: async (id: string): Promise<void> => {
-        await apiClient.delete(`/api/flashcards/${id}`);
-    },
-
-    // --- REVIEWS ---
-
-    getCardsDue: async (params: { deckId?: string; limit?: number }): Promise<any[]> => {
-        const response = await apiClient.get<StandardApiResponse<{ flashcards: any[] }>>('/api/flashcards/reviews/due', { params });
-        return response.data.data!.flashcards;
-    },
-
-    submitReview: async (data: { flashcardId: string; deckId: string; quality: number; timeSpent: number; sessionId?: string }): Promise<any> => {
-        const response = await apiClient.post<StandardApiResponse<{ review: any }>>('/api/flashcards/reviews/submit', data);
-        return response.data.data!.review;
-    },
-
-    startSession: async (data: { deckId: string; studyMode?: string }): Promise<any> => {
-        const response = await apiClient.post<StandardApiResponse<{ session: any }>>('/api/flashcards/reviews/sessions', data);
-        if (!response.data.success) throw new Error(response.data.message || 'Failed to start session');
-        return response.data.data!.session;
-    },
-
-    completeSession: async (sessionId: string, data: { durationSeconds?: number } = {}): Promise<any> => {
-        const response = await apiClient.patch<StandardApiResponse<{ session: any }>>(`/api/flashcards/reviews/sessions/${sessionId}/complete`, data);
-        if (!response.data.success) throw new Error(response.data.message || 'Failed to complete session');
-        return response.data.data!.session;
-    },
-
-    getDeckById: async (id: string): Promise<FlashcardDeckResponseDTO> => {
-        const response = await apiClient.get<StandardApiResponse<{ deck: FlashcardDeckResponseDTO }>>(`/api/flashcard-decks/${id}`);
-        if (!response.data.success) throw new Error(response.data.message || 'Failed to get deck');
-        return response.data.data!.deck;
-    },
-
-    bulkOperations: async (data: BulkFlashcardOperationsDTO): Promise<BulkFlashcardOperationsResponseDTO> => {
-        const response = await apiClient.post<StandardApiResponse<BulkFlashcardOperationsResponseDTO>>('/api/flashcards/bulk', data);
+    /**
+     * Get all decks for current user
+     */
+    getMyDecks: async (): Promise<FlashcardDeck[]> => {
+        const response = await apiClient.get<StandardApiResponse<FlashcardDeck[]>>('/api/flashcards/decks');
+        if (!response.data.success) throw new Error(response.data.message || 'Failed to fetch decks');
         return response.data.data!;
     },
 
-    getUserProgress: async (flashcardId: string): Promise<any> => {
-        const response = await apiClient.get<StandardApiResponse<{ progress: any }>>(`/api/flashcards/reviews/progress/${flashcardId}`);
-        return response.data.data!.progress;
+    /**
+     * Get deck by ID
+     */
+    getDeckById: async (id: string): Promise<FlashcardDeck> => {
+        const response = await apiClient.get<StandardApiResponse<FlashcardDeck>>(`/api/flashcards/decks/${id}`);
+        if (!response.data.success) throw new Error(response.data.message || 'Failed to fetch deck');
+        return response.data.data!;
     },
 
-    getRecentSessions: async (params: { deckId?: string; limit?: number }): Promise<any[]> => {
-        const response = await apiClient.get<StandardApiResponse<{ sessions: any[] }>>('/api/flashcards/reviews/sessions', { params });
-        return response.data.data!.sessions;
-    }
+    /**
+     * Create a new deck
+     */
+    createDeck: async (data: CreateDeckDTO): Promise<FlashcardDeck> => {
+        const response = await apiClient.post<StandardApiResponse<FlashcardDeck>>('/api/flashcards/decks', data);
+        if (!response.data.success) throw new Error(response.data.message || 'Failed to create deck');
+        return response.data.data!;
+    },
+
+    /**
+     * Update a deck
+     */
+    updateDeck: async (id: string, data: UpdateDeckDTO): Promise<FlashcardDeck> => {
+        const response = await apiClient.patch<StandardApiResponse<FlashcardDeck>>(`/api/flashcards/decks/${id}`, data);
+        if (!response.data.success) throw new Error(response.data.message || 'Failed to update deck');
+        return response.data.data!;
+    },
+
+    /**
+     * Delete a deck
+     */
+    deleteDeck: async (id: string): Promise<void> => {
+        const response = await apiClient.delete<StandardApiResponse<void>>(`/api/flashcards/decks/${id}`);
+        if (!response.data.success) throw new Error(response.data.message || 'Failed to delete deck');
+    },
+
+    // ========================================================================
+    // CARDS
+    // ========================================================================
+
+    /**
+     * Add a card to a deck
+     */
+    addCard: async (deckId: string, data: Omit<CreateCardDTO, 'deckId'>): Promise<Flashcard> => {
+        const response = await apiClient.post<StandardApiResponse<Flashcard>>(`/api/flashcards/decks/${deckId}/cards`, data);
+        if (!response.data.success) throw new Error(response.data.message || 'Failed to add card');
+        return response.data.data!;
+    },
+
+    /**
+     * Update a card
+     */
+    updateCard: async (cardId: string, data: Omit<UpdateCardDTO, 'id'>): Promise<Flashcard> => {
+        const response = await apiClient.patch<StandardApiResponse<Flashcard>>(`/api/flashcards/cards/${cardId}`, data);
+        if (!response.data.success) throw new Error(response.data.message || 'Failed to update card');
+        return response.data.data!;
+    },
+
+    /**
+     * Delete a card
+     */
+    deleteCard: async (cardId: string): Promise<void> => {
+        const response = await apiClient.delete<StandardApiResponse<void>>(`/api/flashcards/cards/${cardId}`);
+        if (!response.data.success) throw new Error(response.data.message || 'Failed to delete card');
+    },
+
+    /**
+     * Get all cards in a deck
+     */
+    getDeckCards: async (deckId: string): Promise<Flashcard[]> => {
+        const response = await apiClient.get<StandardApiResponse<Flashcard[]>>(`/api/flashcards/decks/${deckId}/cards`);
+        if (!response.data.success) throw new Error(response.data.message || 'Failed to fetch cards');
+        return response.data.data!;
+    },
+
+    // ========================================================================
+    // STUDY / SRS
+    // ========================================================================
+
+    /**
+     * Get today's study cards (NEW or due for review)
+     */
+    getStudyCards: async (deckId: string): Promise<StudyCard[]> => {
+        const response = await apiClient.get<StandardApiResponse<StudyCard[]>>(`/api/flashcards/decks/${deckId}/study`);
+        if (!response.data.success) throw new Error(response.data.message || 'Failed to fetch study cards');
+        return response.data.data!;
+    },
+
+    /**
+     * Submit review for a card
+     * @param cardId - Card ID
+     * @param quality - 0 = Forgot, 1 = Remember
+     */
+    reviewCard: async (cardId: string, quality: 0 | 1): Promise<Flashcard> => {
+        const response = await apiClient.post<StandardApiResponse<Flashcard>>(`/api/flashcards/cards/${cardId}/review`, { quality });
+        if (!response.data.success) throw new Error(response.data.message || 'Failed to review card');
+        return response.data.data!;
+    },
 };
