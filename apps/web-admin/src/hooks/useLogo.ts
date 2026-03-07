@@ -18,6 +18,6 @@ export function useLogo() {
 
   // Use resolvedTheme to get the actual applied theme (respects system preference)
   const currentTheme = resolvedTheme || theme
-  
+
   return currentTheme === "dark" ? "/logo_dark.png" : "/logo_light.png"
 }

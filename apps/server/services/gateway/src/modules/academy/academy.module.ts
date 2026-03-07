@@ -23,8 +23,9 @@ import { WebhookController } from './controllers/webhook.controller';
 import { QuizTemplateController } from './controllers/quiz-template.controller';
 import { AssignmentTemplateController } from './controllers/assignment-template.controller';
 import { ClassReviewController } from './controllers/class-review.controller';
-import { NoteController } from './controllers/note.controller';
-import { FlashcardController } from './controllers/flashcard.controller';
+import { StudyNoteController } from './controllers/study-note.controller';
+import { StudySetController } from './controllers/study-set.controller';
+import { PlacementController } from './controllers/placement.controller';
 
 
 @Module({
@@ -53,8 +54,9 @@ import { FlashcardController } from './controllers/flashcard.controller';
     CouponController,
     WebhookController,
     ClassReviewController,
-    NoteController,
-    FlashcardController,
+    StudyNoteController,
+    StudySetController,
+    PlacementController,
   ],
 })
 export class AcademyModule { }

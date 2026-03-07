@@ -14,8 +14,8 @@ import { BlogModule } from '@server/academy/modules/blog/blog.module';
 import { GamificationModule } from '@server/academy/modules/gamification/gamification.module';
 import { InfrastructureModule } from './infrastructure/infrastructure.module';
 import { AuditModule } from './modules/audit.module';
-import { NoteModule } from './modules/note/note.module';
-import { FlashcardModule } from './modules/flashcard/flashcard.module';
+import { StudyNoteModule } from './modules/study-note/study-note.module';
+import { StudySetModule } from './modules/study-set/study-set.module';
 
 @Module({
   imports: [
@@ -34,8 +34,8 @@ import { FlashcardModule } from './modules/flashcard/flashcard.module';
     BlogModule,
     GamificationModule,
     InfrastructureModule,
-    NoteModule,
-    FlashcardModule,
+    StudyNoteModule,
+    StudySetModule,
   ],
   providers: [
     {

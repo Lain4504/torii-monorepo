@@ -227,103 +227,74 @@ model RoomArtifact {
 
 // --- Flashcards & Notes ---
 
-model Note {
+model StudyNote {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String   @map("user_id") @db.Uuid
-  content   String   @db.Text // Markdown content
-  lessonId  String?  @map("lesson_id") @db.Uuid // Link to Academy Lesson
+  content   String   @db.Text
+  lessonId  String?  @map("lesson_id") @db.Uuid
   tags      String[] @default([]) @db.VarChar(50)
-  metadata  Json?    @default("{}") @db.JsonB // Timestamp, highlight color, etc.
+  metadata  Json?    @default("{}") @db.JsonB
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  // Relations
-  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson     Lesson?     @relation(fields: [lessonId], references: [id], onDelete: SetNull)
-  flashcards Flashcard[]
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson  Lesson?   @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  setCards SetCard[]
 
   @@index([userId])
   @@index([lessonId])
-  @@map("notes")
+  @@map("academy_study_notes")
 }
 
-model FlashcardDeck {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String   @map("user_id") @db.Uuid
-  name         String   @db.VarChar(255)
-  description  String?  @db.Text
-  isPublic     Boolean  @default(false) @map("is_public")
-  tags         String[] @default([]) @db.VarChar(50)
-  cardCount    Int      @default(0) @map("card_count")
-  studiedCount Int      @default(0) @map("studied_count")
-
-  // SRS Settings (Anki-like / Quizlet-like)
-  srsSettings Json? @default("{\"newCardsPerDay\":20,\"maxReviewsPerDay\":200,\"easyBonus\":1.3,\"intervalModifier\":1.0,\"maximumInterval\":36500}") @map("srs_settings")
-
-  // AI Integration Settings
-  aiSettings Json?   @default("{\"autoGenerate\":false,\"requireApproval\":true,\"minConfidence\":0.8,\"filters\":[]}") @map("ai_settings")
-  sourceType String? @default("manual") @map("source_type") @db.VarChar(20)
-
-  // Activity Tracking
-  lastStudiedAt     DateTime? @map("last_studied_at")
-  totalStudyTime    Int       @default(0) @map("total_study_time") // seconds
-  masteryPercentage Decimal?  @map("mastery_percentage") @db.Decimal(5, 2)
-
+model StudySet {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  title       String   @db.VarChar(255)
+  description String?  @db.Text
+  isPublic    Boolean  @default(false) @map("is_public")
+  settings    Json?    @default("{}") @map("settings") @db.JsonB
+  stats       Json?    @default("{\"cardCount\": 0, \"masteredCount\": 0}") @map("stats") @db.JsonB
+  
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  // Relations
-  user           User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  flashcards     Flashcard[]
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  setCards SetCard[]
 
   @@index([userId])
-  @@map("flashcard_decks")
+  @@map("academy_study_sets")
 }
 
-model Flashcard {
-  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  deckId          String   @map("deck_id") @db.Uuid
-  noteId          String?  @map("note_id") @db.Uuid // Source note
-  term            String   @map("term") @db.Text // Renamed from frontText
-  definition      String   @map("definition") @db.Text // Renamed from backText
-  hint            String?  @map("hint") @db.Text // Example or hint
-  imageUrl        String?  @map("image_url") @db.Text
-  audioUrl        String?  @map("audio_url") @db.Text
-  tags            String[] @default([]) @db.VarChar(50)
+model SetCard {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  studySetId       String   @map("study_set_id") @db.Uuid
+  sourceNoteId     String?  @map("source_note_id") @db.Uuid
+  term             String   @map("term") @db.Text
+  definition       String   @map("definition") @db.Text
+  hint             String?  @map("hint") @db.Text
+  mediaUrl         String?  @map("media_url") @db.Text
+  languageDetails  Json?    @map("language_details") @db.JsonB
+  tags             String[] @default([]) @db.VarChar(50)
   
-  // Generic language details (JSONB)
-  // Japanese: { "kanji": "...", "furigana": "...", "romaji": "..." }
-  // English: { "ipa": "...", "type": "noun" }
-  languageDetails Json?    @map("language_details") @db.JsonB
+  sourceDocumentId String?  @map("source_document_id") @db.Uuid
 
-  // AI Integration fields
-  aiGenerated        Boolean     @default(false) @map("ai_generated")
-  sourceDocumentId   String?     @map("source_document_id") @db.Uuid
-  generationMetadata Json?       @default("{}") @map("generation_metadata")
-
-  // Metadata
-  isArchived Boolean @default(false) @map("is_archived")
-
-  // SRS (Directly on card)
-  srsState     SrsState  @default(NEW) @map("srs_state")
-  nextReviewAt DateTime  @default(now()) @map("next_review_at")
-  lastReviewAt DateTime? @map("last_review_at")
-  easeFactor   Decimal   @default(2.5) @map("ease_factor") @db.Decimal(4, 2)
-  interval     Int       @default(0) @map("interval")
+  srsState     SrsState @default(NEW) @map("srs_state")
+  nextReviewAt DateTime @default(now()) @map("next_review_at")
+  interval     Int      @default(0) @map("interval")
+  easeFactor   Decimal  @default(2.5) @map("ease_factor") @db.Decimal(4, 2)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  // Relations
-  deck           FlashcardDeck @relation(fields: [deckId], references: [id], onDelete: Cascade)
-  note           Note?         @relation(fields: [noteId], references: [id], onDelete: SetNull)
-  sourceDocument FileAsset?    @relation("FlashcardSourceDocument", fields: [sourceDocumentId], references: [id], onDelete: SetNull)
+  studySet       StudySet   @relation(fields: [studySetId], references: [id], onDelete: Cascade)
+  sourceNote     StudyNote? @relation(fields: [sourceNoteId], references: [id], onDelete: SetNull)
+  sourceDocument FileAsset? @relation("SetCardSourceDocument", fields: [sourceDocumentId], references: [id], onDelete: SetNull)
 
-  @@index([deckId])
-  @@index([noteId])
-  @@index([aiGenerated])
+  @@index([studySetId])
+  @@index([sourceNoteId])
   @@index([sourceDocumentId])
-  @@map("flashcards")
+  @@index([srsState])
+  @@map("academy_set_cards")
 }
 
 
@@ -364,7 +335,7 @@ model User {
   identities              UserIdentity[] // OAuth providers (email, google, etc.)
   sessions                Session[]
   twoFactorAuth           TwoFactorAuth?
-  flashcardDecks          FlashcardDeck[]
+  studySets               StudySet[]
   comments                Comment[]
   auditLogs               AuditLog[]               @relation("UserAuditLogs")
   orders                  Order[]
@@ -383,7 +354,7 @@ model User {
 
   // History Relations
   gamificationHistories        GamificationHistory[]
-  notes                        Note[] // New Study Notes
+  studyNotes                   StudyNote[] // New Study Notes
   blogs                        Blog[]
   // Academy (new core LMS) relations
   academyEnrollments           Enrollment[]
@@ -768,7 +739,7 @@ model FileAsset {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  flashcardSourceDocs Flashcard[] @relation("FlashcardSourceDocument")
+  setCardSourceDocs SetCard[] @relation("SetCardSourceDocument")
 
   @@index([ownerId])
   @@index([fileUrl])
@@ -1041,7 +1012,7 @@ model Lesson {
   // Relations
   courseProfile    CourseProfile      @relation(fields: [courseProfileId], references: [id], onDelete: Cascade)
   learningProgress LearningProgress[]
-  notes            Note[]
+  studyNotes       StudyNote[]
 
   @@index([courseProfileId])
   @@map("academy_lessons")

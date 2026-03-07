@@ -71,7 +71,6 @@ Nhóm các thẻ học (SetCard), tương đương \"Set\" trong Quizlet.
 -   `userId`: UUID
 -   `title`: String
 -   `description`: String
--   `subject`: String (e.g., \"JAPANESE\", \"ENGLISH\", \"CODING\")
 -   `isPublic`: Boolean
 -   `settings`: JSONB (Cấu hình SRS riêng cho set nếu cần – mapping từ `srsSettings` hiện tại)
 -   `stats`: JSONB (Tổng số card, số card thuộc, etc.)

@@ -6,7 +6,9 @@ import { Button } from "@workspace/ui/components/button"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { agentApi } from "@/lib/api/services/agent-api"
-import { AgentTestGenerationResponseDTO as PlacementTestResponse, AgentTestEvaluationResponseDTO as PlacementEvaluationResponse } from "@workspace/schemas"
+import {
+    AcademyPlacementInfoResponseDTO,
+} from "@workspace/schemas"
 import { cn } from "@workspace/ui/lib/utils"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -24,63 +26,53 @@ import { nanoid } from 'nanoid'
 export function PlacementAssessment() {
     const [step, setStep] = React.useState<"intro" | "test" | "result">("intro")
     const [isLoading, setIsLoading] = React.useState(false)
-    const [testData, setTestData] = React.useState<PlacementTestResponse | null>(null)
+    const [attemptId, setAttemptId] = React.useState<string | null>(null)
+    const [info, setInfo] = React.useState<AcademyPlacementInfoResponseDTO | null>(null)
     const [quizData, setQuizData] = React.useState<QuizData | null>(null)
-    const [result, setResult] = React.useState<PlacementEvaluationResponse | null>(null)
-    const [optionMap, setOptionMap] = React.useState<Record<string, Record<string, string>>>({}) // qId -> { optId -> label }
+    const [result, setResult] = React.useState<any | null>(null)
 
     const pathname = usePathname()
     const router = useRouter()
     const isMarketing = pathname === "/placement-test"
 
+    React.useEffect(() => {
+        const loadInfo = async () => {
+            try {
+                const data = await agentApi.placement.getInfo()
+                setInfo(data)
+            } catch (error) {
+                console.error(error)
+            }
+        }
+        loadInfo()
+    }, [])
+
     const handleStart = async () => {
         setIsLoading(true)
         try {
-            const data = await agentApi.assessment.generatePlacementTest(15)
-            setTestData(data)
+            const data = await agentApi.placement.start()
+            setAttemptId(data.attemptId)
 
-            // Map to QuizData
-            const newOptionMap: Record<string, Record<string, string>> = {}
-            
             const mappedQuizData: QuizData = {
                 title: "Bài Thi Xác Định Trình Độ",
-                description: "Bài thi gồm các câu từ N5 đến N1. AI sẽ điều chỉnh độ khó theo từng câu trả lời.",
+                description: "Bài thi gồm các câu từ N5 đến N1. Kết quả dùng để gợi ý lộ trình học phù hợp.",
                 questions: data.questions.map((q) => {
                     const optionObjects = (q.options || []).map(opt => ({
                         id: nanoid(),
                         label: opt
                     }))
-                    
-                    // Store mapping to retrieve original labels later
-                    const currentQMap: Record<string, string> = {}
-                    optionObjects.forEach(opt => {
-                        currentQMap[opt.id] = opt.label
-                    })
-                    newOptionMap[q.id] = currentQMap
-
-                    // Find correct ID (assuming correctAnswer is index or value - check backend schema)
-                    // If correctAnswer is index
-                    let correctIds: string[] = []
-                    if (typeof q.correctAnswer === 'number' && optionObjects[q.correctAnswer]) {
-                        const opt = optionObjects[q.correctAnswer]
-                        if (opt) correctIds = [opt.id]
-                    } else if (typeof q.correctAnswer === 'string') {
-                         const correctOpt = optionObjects.find(o => o.label === q.correctAnswer)
-                         if (correctOpt) correctIds = [correctOpt.id]
-                    }
 
                     return {
                         id: q.id,
                         type: 'single',
-                        question: q.question,
+                        question: q.content,
                         options: optionObjects,
-                        correctIds: correctIds,
+                        correctIds: [],
                         hint: undefined
                     }
                 })
             }
-            
-            setOptionMap(newOptionMap)
+
             setQuizData(mappedQuizData)
             setStep("test")
         } catch (error) {
@@ -91,25 +83,22 @@ export function PlacementAssessment() {
     }
 
     const handleQuizComplete = async (quizResult: QuizResult) => {
-        if (!testData) return
+        if (!attemptId) return
         setIsLoading(true)
         try {
-            // Map answers back to the format expected by the backend
-            const formattedAnswers = Object.entries(quizResult.answers).map(([questionId, selectedIds]) => {
-                const question = testData.questions.find(q => q.id === questionId)
-                const selectedId = selectedIds[0] // Single choice
-                const qMap = optionMap[questionId]
-                const userAnswerLabel = (qMap && selectedId) ? qMap[selectedId] : ""
-
-                return {
-                    questionId,
-                    level: question?.level || "N5",
-                    userAnswer: userAnswerLabel,
-                    correctAnswer: question?.correctAnswer || 0
+            const formattedAnswers: Record<string, unknown> = {}
+            Object.entries(quizResult.answers).forEach(([questionId, selectedIds]) => {
+                const selectedId = selectedIds[0]
+                if (!quizData) return
+                const question = quizData.questions.find(q => q.id === questionId)
+                if (!question) return
+                const index = question.options.findIndex(o => o.id === selectedId)
+                if (index >= 0) {
+                    formattedAnswers[questionId] = index
                 }
             })
 
-            const evaluation = await agentApi.assessment.evaluatePlacementTest(testData.testId, formattedAnswers)
+            const evaluation = await agentApi.placement.submit(attemptId, formattedAnswers)
             setResult(evaluation)
             setStep("result")
         } catch (error) {
@@ -134,7 +123,7 @@ export function PlacementAssessment() {
                     <div className="space-y-2">
                         <h2 className="text-3xl font-black font-serif tracking-tight">Bài Thi Xác Định Trình Độ</h2>
                         <p className="text-muted-foreground text-base max-w-lg mx-auto leading-relaxed">
-                            Hãy trả lời 15 câu hỏi để AI phân tích và đề xuất lộ trình học tập tối ưu cho bạn.
+                            Hãy hoàn thành bài kiểm tra để hệ thống xác định trình độ hiện tại và gợi ý lộ trình học phù hợp nhất cho bạn.
                         </p>
                     </div>
                 </div>
@@ -142,8 +131,8 @@ export function PlacementAssessment() {
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-4 max-w-xl mx-auto">
                     {[
-                        { icon: BookCheck, val: '15', label: 'Câu hỏi' },
-                        { icon: Clock, val: '~10', label: 'Phút' },
+                        { icon: BookCheck, val: info?.totalQuestions?.toString() ?? '—', label: 'Câu hỏi' },
+                        { icon: Clock, val: info?.timeLimitMinutes ? `~${info.timeLimitMinutes}` : 'Không giới hạn', label: 'Phút' },
                         { icon: Sparkles, val: 'AI', label: 'Thích nghi' },
                     ].map((item, i) => (
                         <div key={i} className="bg-card border border-border/60 rounded-2xl p-5 flex flex-col items-center gap-2 hover:border-primary/30 transition-colors">
@@ -169,7 +158,7 @@ export function PlacementAssessment() {
                     <Button
                         size="lg"
                         onClick={handleStart}
-                        disabled={isLoading}
+                        disabled={isLoading || (info && !info.canRetake)}
                         className="h-12 px-10 rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                     >
                         {isLoading ? <><Spinner className="mr-2 size-4" /> Đang chuẩn bị...</> : <><Sparkles className="mr-2 size-4" /> Bắt đầu kiểm tra</>}
