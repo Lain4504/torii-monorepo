@@ -9,7 +9,7 @@ import { Progress } from "@workspace/ui/components/progress"
 import { Card, CardContent } from "@workspace/ui/components/card"
 import { RotateCcw, ChevronLeft, ChevronRight, ThumbsUp } from "lucide-react"
 
-export type FlashcardDifficulty = "again" | "hard" | "good" | "easy"
+export type FlashcardDifficulty = "forgot" | "known"
 
 export interface Flashcard {
     id: string
@@ -52,12 +52,10 @@ function shuffleArray<T>(arr: T[]): T[] {
 
 const DIFFICULTY_CONFIG: Record<
     FlashcardDifficulty,
-    { label: string; variant: "destructive" | "outline" | "secondary" | "default" }
+    { label: string; variant: "destructive" | "default" }
 > = {
-    again: { label: "Again", variant: "destructive" },
-    hard: { label: "Hard", variant: "outline" },
-    good: { label: "Good", variant: "secondary" },
-    easy: { label: "Easy", variant: "default" },
+    forgot: { label: "Quên", variant: "destructive" },
+    known: { label: "Nhớ", variant: "default" },
 }
 
 export function Flashcards({ flashcardsData, onComplete, className }: FlashcardsProps) {
@@ -75,6 +73,8 @@ export function Flashcards({ flashcardsData, onComplete, className }: Flashcards
     const [finished, setFinished] = useState(false)
 
     const card = cards[index]
+    if (!card) return null
+
     const progress = ((index + (flipped ? 0.5 : 0)) / cards.length) * 100
 
     const handleFlip = useCallback(() => setFlipped((f) => !f), [])
@@ -84,7 +84,7 @@ export function Flashcards({ flashcardsData, onComplete, className }: Flashcards
             const newRatings = [...ratings, { cardId: card.id, difficulty }]
             setRatings(newRatings)
             if (index + 1 >= cards.length) {
-                const counts: Record<FlashcardDifficulty, number> = { again: 0, hard: 0, good: 0, easy: 0 }
+                const counts: Record<FlashcardDifficulty, number> = { forgot: 0, known: 0 }
                 for (const r of newRatings) counts[r.difficulty]++
                 setFinished(true)
                 onComplete?.({ ratings: newRatings, counts })
@@ -98,7 +98,7 @@ export function Flashcards({ flashcardsData, onComplete, className }: Flashcards
 
     // ── Finished ──────────────────────────────────────────────────────────────
     if (finished) {
-        const counts: Record<FlashcardDifficulty, number> = { again: 0, hard: 0, good: 0, easy: 0 }
+        const counts: Record<FlashcardDifficulty, number> = { forgot: 0, known: 0 }
         for (const r of ratings) counts[r.difficulty]++
         return (
             <div className={cn("w-full max-w-2xl mx-auto space-y-4", className)}>

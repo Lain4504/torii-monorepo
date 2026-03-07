@@ -6,13 +6,14 @@ import {
   HttpStatus,
   Post,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import {
   GatewayAuthGuard,
-  NatsRequest,
+  ReqWithRequester,
   successResponse,
 } from '@server/shared';
 import {
@@ -23,7 +24,7 @@ import {
   academyPlacementSubmitDTOSchema,
   Requester,
 } from '@workspace/schemas';
-import { ZodValidationPipe } from '@server/shared/zod-validation.pipe';
+import { ZodValidationPipe } from '@server/shared';
 
 @Controller('api/academy/placement')
 @UseGuards(GatewayAuthGuard)
@@ -34,11 +35,11 @@ export class PlacementController {
 
   @Get('info')
   @HttpCode(HttpStatus.OK)
-  async getInfo(@NatsRequest() requester: Requester) {
+  async getInfo(@Req() req: ReqWithRequester) {
     const data = await firstValueFrom<AcademyPlacementInfoResponseDTO>(
       this.nats.send(
         { cmd: 'academy.placement.info' },
-        { userId: requester.sub },
+        { userId: req.requester.sub },
       ),
     );
     return successResponse(data);
@@ -46,11 +47,11 @@ export class PlacementController {
 
   @Post('start')
   @HttpCode(HttpStatus.CREATED)
-  async start(@NatsRequest() requester: Requester) {
+  async start(@Req() req: ReqWithRequester) {
     const data = await firstValueFrom<AcademyPlacementStartResponseDTO>(
       this.nats.send(
         { cmd: 'academy.placement.start' },
-        { userId: requester.sub },
+        { userId: req.requester.sub },
       ),
     );
     return successResponse(data);
@@ -59,7 +60,7 @@ export class PlacementController {
   @Post('submit')
   @HttpCode(HttpStatus.OK)
   async submit(
-    @NatsRequest() requester: Requester,
+    @Req() req: ReqWithRequester,
     @Body(new ZodValidationPipe(academyPlacementSubmitDTOSchema))
     dto: AcademyPlacementSubmitDTO,
   ) {
@@ -67,7 +68,7 @@ export class PlacementController {
       this.nats.send(
         { cmd: 'academy.placement.submit' },
         {
-          userId: requester.sub,
+          userId: req.requester.sub,
           attemptId: dto.attemptId,
           answers: dto.answers,
         },
@@ -79,7 +80,7 @@ export class PlacementController {
         { cmd: 'agents.assessment.recommendCourses' },
         {
           placementResultId: coreResult.attemptId,
-          requester,
+          requester: req.requester,
         },
       ),
     );

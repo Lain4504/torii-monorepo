@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { Prisma, PrismaService } from '@server/shared/prisma/prisma.service';
+import { PrismaService } from '@server/shared';
+import { Prisma } from '@prisma/generated';
 import { ExamAttemptService } from '../exam-attempt/exam-attempt.service';
 
 type PlacementRetakePolicy = 'never' | 'always' | 'after_days';
@@ -584,4 +585,3 @@ export class PlacementService {
     return fallbackExamLevel || 'N5';
   }
 }
-

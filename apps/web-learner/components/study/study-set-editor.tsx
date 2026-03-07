@@ -7,8 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
-import { ChevronLeft, Plus, Trash2, Save } from 'lucide-react';
+import { ChevronLeft, Plus, Trash2, Save, Play, BookOpen, Layers, Zap } from 'lucide-react';
 import { toast } from 'sonner';
+import Link from 'next/link';
 
 export function StudySetEditor({ setId }: { setId: string }) {
     const router = useRouter();
@@ -23,14 +24,14 @@ export function StudySetEditor({ setId }: { setId: string }) {
     const [isEditingMeta, setIsEditingMeta] = useState(false);
 
     // New card state
-    const [newFront, setNewFront] = useState('');
-    const [newBack, setNewBack] = useState('');
+    const [newTerm, setNewTerm] = useState('');
+    const [newDefinition, setNewDefinition] = useState('');
     const [isCreatingCard, setIsCreatingCard] = useState(false);
 
     // Editing cards state
     const [editingCardId, setEditingCardId] = useState<string | null>(null);
-    const [editFront, setEditFront] = useState('');
-    const [editBack, setEditBack] = useState('');
+    const [editTerm, setEditTerm] = useState('');
+    const [editDefinition, setEditDefinition] = useState('');
 
     useEffect(() => {
         if (set) {
@@ -50,12 +51,12 @@ export function StudySetEditor({ setId }: { setId: string }) {
     };
 
     const handleCreateCard = async () => {
-        if (!newFront.trim() || !newBack.trim()) return;
+        if (!newTerm.trim() || !newDefinition.trim()) return;
         setIsCreatingCard(true);
         try {
-            await createCard.mutateAsync({ setId, payload: { front: newFront, back: newBack } });
-            setNewFront('');
-            setNewBack('');
+            await createCard.mutateAsync({ setId, payload: { term: newTerm, definition: newDefinition } });
+            setNewTerm('');
+            setNewDefinition('');
             toast.success('Đã thêm thẻ mới!');
         } catch (e: any) {
             toast.error(e.message || 'Lỗi khi thêm thẻ');
@@ -66,13 +67,13 @@ export function StudySetEditor({ setId }: { setId: string }) {
 
     const startEditingCard = (card: any) => {
         setEditingCardId(card.id);
-        setEditFront(card.front);
-        setEditBack(card.back);
+        setEditTerm(card.term);
+        setEditDefinition(card.definition);
     };
 
     const handleSaveCard = async (id: string) => {
         try {
-            await updateCard.mutateAsync({ setId, cardId: id, payload: { front: editFront, back: editBack } });
+            await updateCard.mutateAsync({ setId, cardId: id, payload: { term: editTerm, definition: editDefinition } });
             toast.success('Đã cập nhật thẻ!');
             setEditingCardId(null);
         } catch (e: any) {
@@ -125,12 +126,54 @@ export function StudySetEditor({ setId }: { setId: string }) {
                 </CardHeader>
             </Card>
 
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Link href={`/dashboard/study-sets/${setId}/review`} className="block group">
+                    <Card className="hover:border-primary transition-colors cursor-pointer h-full">
+                        <CardContent className="p-6 flex items-center gap-4">
+                            <div className="bg-primary/10 p-3 rounded-xl text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                                <BookOpen className="size-6" />
+                            </div>
+                            <div>
+                                <h4 className="font-bold">Học (SRS)</h4>
+                                <p className="text-sm text-muted-foreground whitespace-nowrap">Ôn tập ghi nhớ lâu</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </Link>
+                <Link href={`/dashboard/study-sets/${setId}/test`} className="block group">
+                    <Card className="hover:border-primary transition-colors cursor-pointer h-full">
+                        <CardContent className="p-6 flex items-center gap-4">
+                            <div className="bg-orange-500/10 p-3 rounded-xl text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                                <Zap className="size-6" />
+                            </div>
+                            <div>
+                                <h4 className="font-bold">Kiểm tra</h4>
+                                <p className="text-sm text-muted-foreground whitespace-nowrap">Làm bài trắc nghiệm</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </Link>
+                <Link href={`/dashboard/study-sets/${setId}/match`} className="block group">
+                    <Card className="hover:border-primary transition-colors cursor-pointer h-full">
+                        <CardContent className="p-6 flex items-center gap-4">
+                            <div className="bg-purple-500/10 p-3 rounded-xl text-purple-500 group-hover:bg-purple-500 group-hover:text-white transition-colors">
+                                <Layers className="size-6" />
+                            </div>
+                            <div>
+                                <h4 className="font-bold">Ghép cặp</h4>
+                                <p className="text-sm text-muted-foreground whitespace-nowrap">Trò chơi nối thẻ</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </Link>
+            </div>
+
             <div className="space-y-4">
                 <h3 className="text-xl font-bold flex items-center gap-2">
-                    Các thẻ trong bộ <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-sm">{set.cards?.length || 0}</span>
+                    Các thẻ trong bộ <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-sm">{set.setCards?.length || 0}</span>
                 </h3>
 
-                {set.cards?.map((card: any, index: number) => (
+                {set.setCards?.map((card: any, index: number) => (
                     <Card key={card.id} className="group transition-all hover:shadow-md">
                         <CardContent className="p-0">
                             {editingCardId === card.id ? (
@@ -138,11 +181,11 @@ export function StudySetEditor({ setId }: { setId: string }) {
                                     <div className="grid md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
                                             <label className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Thuật ngữ (Mặt trước)</label>
-                                            <Input value={editFront} onChange={e => setEditFront(e.target.value)} />
+                                            <Input value={editTerm} onChange={e => setEditTerm(e.target.value)} />
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Định nghĩa (Mặt sau)</label>
-                                            <Input value={editBack} onChange={e => setEditBack(e.target.value)} />
+                                            <Input value={editDefinition} onChange={e => setEditDefinition(e.target.value)} />
                                         </div>
                                     </div>
                                     <div className="flex justify-end gap-2 pt-2">
@@ -158,12 +201,12 @@ export function StudySetEditor({ setId }: { setId: string }) {
                                     <div className="flex gap-4">
                                         <span className="text-muted-foreground font-mono text-sm w-6 shrink-0">{index + 1}</span>
                                         <div className="border-l-2 pl-4 border-border w-full">
-                                            <p className="text-base font-medium">{card.front}</p>
+                                            <p className="text-base font-medium">{card.term}</p>
                                         </div>
                                     </div>
                                     <div className="flex justify-between items-start gap-4">
                                         <div className="border-l-2 pl-4 border-border w-full">
-                                            <p className="text-base">{card.back}</p>
+                                            <p className="text-base">{card.definition}</p>
                                         </div>
                                         <Button
                                             variant="ghost"
@@ -185,15 +228,15 @@ export function StudySetEditor({ setId }: { setId: string }) {
                         <div className="grid md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Thêm thuật ngữ mới</label>
-                                <Input placeholder="Mặt trước..." value={newFront} onChange={e => setNewFront(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') handleCreateCard(); }} />
+                                <Input placeholder="Mặt trước..." value={newTerm} onChange={e => setNewTerm(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') handleCreateCard(); }} />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Thêm định nghĩa</label>
-                                <Input placeholder="Mặt sau..." value={newBack} onChange={e => setNewBack(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') handleCreateCard(); }} />
+                                <Input placeholder="Mặt sau..." value={newDefinition} onChange={e => setNewDefinition(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') handleCreateCard(); }} />
                             </div>
                         </div>
                         <div className="mt-4 flex justify-end">
-                            <Button onClick={handleCreateCard} disabled={isCreatingCard || !newFront.trim() || !newBack.trim()} className="w-full md:w-auto">
+                            <Button onClick={handleCreateCard} disabled={isCreatingCard || !newTerm.trim() || !newDefinition.trim()} className="w-full md:w-auto">
                                 <Plus className="mr-2 h-4 w-4" /> Thêm thẻ
                             </Button>
                         </div>

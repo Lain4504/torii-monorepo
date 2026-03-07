@@ -158,7 +158,7 @@ export function PlacementAssessment() {
                     <Button
                         size="lg"
                         onClick={handleStart}
-                        disabled={isLoading || (info && !info.canRetake)}
+                        disabled={isLoading || !!(info && !info.canRetake)}
                         className="h-12 px-10 rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                     >
                         {isLoading ? <><Spinner className="mr-2 size-4" /> Đang chuẩn bị...</> : <><Sparkles className="mr-2 size-4" /> Bắt đầu kiểm tra</>}
@@ -172,8 +172,8 @@ export function PlacementAssessment() {
     if (step === "test" && quizData) {
         return (
             <div className="max-w-2xl mx-auto">
-                <Quiz 
-                    quizData={quizData} 
+                <Quiz
+                    quizData={quizData}
                     onComplete={handleQuizComplete}
                 />
             </div>
@@ -186,9 +186,9 @@ export function PlacementAssessment() {
                 <Card className="border-border shadow-sm rounded-xl overflow-hidden">
                     <CardHeader className="text-center pb-2">
                         <CardTitle className="text-2xl font-bold">Hoàn Thành Đánh Giá!</CardTitle>
-                         <CardDescription>
+                        <CardDescription>
                             Assessment Complete
-                         </CardDescription>
+                        </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div className="flex justify-center gap-8">
@@ -203,7 +203,7 @@ export function PlacementAssessment() {
                                 <div className="text-sm text-muted-foreground uppercase tracking-wider">Score</div>
                                 <div className="text-2xl font-bold flex items-center justify-center gap-2">
                                     <CheckCircle2 className="size-5" />
-                                    {result.score} / {result.maxScore}
+                                    {result.rawScore || result.score || 0} / {result.maxScore}
                                 </div>
                             </div>
                             <div className="text-center">
@@ -215,8 +215,8 @@ export function PlacementAssessment() {
                             </div>
                         </div>
 
-                         <div className="flex justify-center">
-                            <Button 
+                        <div className="flex justify-center">
+                            <Button
                                 onClick={() => {
                                     if (isMarketing) {
                                         router.push(`/register?level=${result.assessedLevel}`)
@@ -232,14 +232,14 @@ export function PlacementAssessment() {
                 </Card>
 
                 <div className="grid gap-6 md:grid-cols-2 text-left pt-12 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
-                    {result.scoreBreakdown && Object.keys(result.scoreBreakdown).length > 0 && (
+                    {(result.levelPercentages || result.scoreBreakdown) && Object.keys(result.levelPercentages || result.scoreBreakdown).length > 0 && (
                         <Card className="shadow-sm rounded-xl border-border">
                             <CardHeader className="pb-3">
                                 <CardTitle className="text-base font-bold">Phân Tích Điểm Số</CardTitle>
                                 <CardDescription className="text-[10px] font-medium uppercase tracking-wider">Tỉ lệ chính xác theo trình độ</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                {Object.entries(result.scoreBreakdown).map(([level, score]) => (
+                                {Object.entries(result.levelPercentages || result.scoreBreakdown || {}).map(([level, score]: [string, any]) => (
                                     <div key={level} className="flex items-center justify-between">
                                         <div className="font-bold text-xs w-8">{level}</div>
                                         <div className="flex-1 mx-4 h-1.5 bg-muted rounded-full overflow-hidden">

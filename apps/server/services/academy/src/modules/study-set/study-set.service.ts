@@ -22,7 +22,7 @@ export class StudySetService {
                 userId,
             },
             include: {
-                _count: { select: { cards: true } },
+                _count: { select: { setCards: true } },
             },
         });
     }
@@ -31,7 +31,7 @@ export class StudySetService {
         return this.prisma.studySet.findMany({
             where: { userId },
             include: {
-                _count: { select: { cards: true } },
+                _count: { select: { setCards: true } },
             },
             orderBy: { updatedAt: 'desc' },
         });
@@ -41,10 +41,10 @@ export class StudySetService {
         const set = await this.prisma.studySet.findFirst({
             where: { id, userId },
             include: {
-                cards: {
+                setCards: {
                     orderBy: { createdAt: 'desc' },
                 },
-                _count: { select: { cards: true } },
+                _count: { select: { setCards: true } },
             },
         });
         if (!set) throw new NotFoundException('Study Set not found');
@@ -127,17 +127,92 @@ export class StudySetService {
         if (!card) throw new NotFoundException('Card not found');
 
         const srsUpdates = calculateSrsInterval(
-            card.srsState as 'NEW' | 'LEARNING' | 'REVIEW' | 'GRADUATED',
+            card.srsState as any,
             card.interval,
-            data.rating
+            data.quality
         );
 
         return this.prisma.setCard.update({
             where: { id: cardId },
             data: {
                 ...srsUpdates,
-                lastReviewedAt: new Date(),
             },
         });
+    }
+
+    // --- Extra Study Modes ---
+
+    async getTestQuiz(setId: string, userId: string, count: number = 20, types: string = 'multiple_choice,true_false') {
+        const set = await this.findSetById(setId, userId);
+        const cards = set.setCards;
+
+        if (cards.length < 4) {
+            throw new Error('Cần ít nhất 4 thẻ trong bộ để tạo Test Mode');
+        }
+
+        const selectedTypes = types.split(',');
+        const numItems = Math.min(count, cards.length);
+        const shuffledCards = [...cards].sort(() => 0.5 - Math.random()).slice(0, numItems);
+
+        const questions = shuffledCards.map(card => {
+            const type = selectedTypes[Math.floor(Math.random() * selectedTypes.length)];
+
+            if (type === 'multiple_choice') {
+                // Get 3 random distractors
+                const distractors = cards
+                    .filter(c => c.id !== card.id)
+                    .sort(() => 0.5 - Math.random())
+                    .slice(0, 3)
+                    .map(c => c.definition);
+
+                const options = [...distractors, card.definition].sort(() => 0.5 - Math.random());
+
+                return {
+                    id: card.id,
+                    type: 'multiple_choice',
+                    question: card.term,
+                    options,
+                    correctAnswer: card.definition
+                };
+            } else {
+                // true_false
+                const isTrue = Math.random() > 0.5;
+                const falseAnswer = cards
+                    .filter(c => c.id !== card.id)
+                    .sort(() => 0.5 - Math.random())[0]?.definition || 'Sai';
+
+                return {
+                    id: card.id,
+                    type: 'true_false',
+                    question: card.term,
+                    displayedAnswer: isTrue ? card.definition : falseAnswer,
+                    correctAnswer: isTrue
+                };
+            }
+        });
+
+        return questions;
+    }
+
+    async getMatchGame(setId: string, userId: string, count: number = 6) {
+        const set = await this.findSetById(setId, userId); // check exists/ownership
+        const cards = await this.prisma.setCard.findMany({
+            where: { studySetId: setId },
+        });
+
+        if (cards.length < 2) {
+            throw new Error('Cần ít nhất 2 thẻ trong bộ để tạo Match Game');
+        }
+
+        const numItems = Math.min(count, cards.length);
+        const selectedCards = [...cards].sort(() => 0.5 - Math.random()).slice(0, numItems);
+
+        const pairs = selectedCards.map(card => ({
+            id: card.id,
+            term: card.term,
+            definition: card.definition
+        }));
+
+        return pairs;
     }
 }

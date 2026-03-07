@@ -21,26 +21,26 @@ export function StudyNotesList() {
     const [openConvertDialog, setOpenConvertDialog] = useState(false);
     const [selectedNote, setSelectedNote] = useState<any>(null);
     const [targetSetId, setTargetSetId] = useState('');
-    const [cardFront, setCardFront] = useState('');
-    const [cardBack, setCardBack] = useState('');
+    const [cardTerm, setCardTerm] = useState('');
+    const [cardDefinition, setCardDefinition] = useState('');
 
     const handleOpenConvert = (note: any) => {
         setSelectedNote(note);
-        setCardFront(note.content); // Default front is the note content
-        setCardBack('');
+        setCardTerm(note.content); // Default front is the note content
+        setCardDefinition('');
         setTargetSetId('');
         setOpenConvertDialog(true);
     };
 
     const handleConvert = async () => {
-        if (!targetSetId || !cardFront.trim() || !cardBack.trim()) {
-            toast.error('Vui lòng điền đủ thông tin mặt trước, mặt sau và chọn bộ thẻ.');
+        if (!targetSetId || !cardTerm.trim() || !cardDefinition.trim()) {
+            toast.error('Vui lòng điền đủ thông tin thuật ngữ, định nghĩa và chọn bộ thẻ.');
             return;
         }
         try {
             await createCard.mutateAsync({
                 setId: targetSetId,
-                payload: { front: cardFront, back: cardBack }
+                payload: { term: cardTerm, definition: cardDefinition }
             });
             toast.success('Đã tạo thẻ mới thành công!');
             setOpenConvertDialog(false);
@@ -106,7 +106,7 @@ export function StudyNotesList() {
                     <DialogHeader>
                         <DialogTitle>Tạo thẻ ghi nhớ từ ghi chú</DialogTitle>
                         <DialogDescription>
-                            Chuyển đổi ghi chú thành một thẻ bao gồm mặt trước (câu hỏi/từ vựng) và mặt sau (đáp án/nghĩa).
+                            Chuyển đổi ghi chú thành một thẻ bao gồm thuật ngữ (thông tin cần nhớ) và định nghĩa (nghĩa/giải thích).
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
@@ -124,26 +124,26 @@ export function StudyNotesList() {
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Mặt trước <span className="text-red-500">*</span></label>
+                            <label className="text-sm font-medium">Thuật ngữ <span className="text-red-500">*</span></label>
                             <Input
                                 placeholder="Ví dụ: 食べる"
-                                value={cardFront}
-                                onChange={(e) => setCardFront(e.target.value)}
+                                value={cardTerm}
+                                onChange={(e) => setCardTerm(e.target.value)}
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Mặt sau <span className="text-red-500">*</span></label>
+                            <label className="text-sm font-medium">Định nghĩa <span className="text-red-500">*</span></label>
                             <Textarea
                                 placeholder="Ví dụ: Ăn"
-                                value={cardBack}
-                                onChange={(e) => setCardBack(e.target.value)}
+                                value={cardDefinition}
+                                onChange={(e) => setCardDefinition(e.target.value)}
                                 className="resize-none h-20"
                             />
                         </div>
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setOpenConvertDialog(false)}>Hủy</Button>
-                        <Button onClick={handleConvert} disabled={createCard.isPending || !targetSetId || !cardFront.trim() || !cardBack.trim()}>
+                        <Button onClick={handleConvert} disabled={createCard.isPending || !targetSetId || !cardTerm.trim() || !cardDefinition.trim()}>
                             {createCard.isPending ? 'Đang lưu...' : 'Lưu thẻ'}
                         </Button>
                     </DialogFooter>

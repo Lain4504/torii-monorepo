@@ -36,9 +36,7 @@ enum SubmissionStatus {
 // --- Flashcard / SRS ---
 
 enum SrsState {
-  NEW
   LEARNING
-  REVIEW
   MASTERED
 }
 
@@ -278,7 +276,7 @@ model SetCard {
   
   sourceDocumentId String?  @map("source_document_id") @db.Uuid
 
-  srsState     SrsState @default(NEW) @map("srs_state")
+  srsState     SrsState @default(LEARNING) @map("srs_state")
   nextReviewAt DateTime @default(now()) @map("next_review_at")
   interval     Int      @default(0) @map("interval")
   easeFactor   Decimal  @default(2.5) @map("ease_factor") @db.Decimal(4, 2)

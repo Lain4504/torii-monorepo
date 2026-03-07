@@ -1,29 +1,26 @@
-export type SrsState = 'NEW' | 'LEARNING' | 'REVIEW' | 'GRADUATED';
-export type SrsRating = 'KNOW' | 'DONT_KNOW';
+import { SrsState } from '@prisma/generated/enums';
+
+
 
 export function calculateSrsInterval(
     currentState: SrsState,
     currentIntervalSeconds: number,
-    rating: SrsRating
+    quality: number
 ): { srsState: SrsState; interval: number; nextReviewAt: Date } {
     let newState = currentState;
     let newInterval = currentIntervalSeconds;
 
-    if (rating === 'DONT_KNOW') {
+    if (quality === 0) {
         // Reset to LEARNING state, interval to 1 min
-        newState = 'LEARNING';
+        newState = SrsState.LEARNING;
         newInterval = 60; // 1 min
     } else {
-        // KNOW
-        if (currentState === 'NEW' || currentState === 'LEARNING') {
-            newState = 'REVIEW';
-            newInterval = 10 * 60; // 10 min
-        } else if (currentState === 'REVIEW') {
-            newState = 'GRADUATED';
+        // KNOW (quality === 1)
+        if (currentState === SrsState.LEARNING) {
+            newState = SrsState.MASTERED;
             newInterval = 24 * 60 * 60; // 1 day
-        } else if (currentState === 'GRADUATED') {
-            // Basic scaling for graduated cards.
-            // E.g. Multiply current interval by a factor (e.g. 2.5)
+        } else if (currentState === SrsState.MASTERED) {
+            // Apply multiplier for mastered cards
             newInterval = Math.max(currentIntervalSeconds * 2.5, 24 * 60 * 60);
         }
     }

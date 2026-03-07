@@ -238,4 +238,54 @@ export class StudySetController {
             return errorResponse(error.message);
         }
     }
+
+    // --- Extra Study Modes Endpoints ---
+
+    @Get('study-sets/:id/study-modes/test')
+    @Permissions('academy.content.read')
+    async getTestQuiz(
+        @Param('id') setId: string,
+        @Req() req: ReqWithRequester,
+        @Req() request: any, // To extract query params easily if we don't import Query
+    ) {
+        try {
+            const count = request.query.count ? parseInt(request.query.count, 10) : 20;
+            const types = request.query.types || 'multiple_choice,true_false';
+
+            const items = await firstValueFrom(
+                this.natsClient.send('academy.study-set.getTestQuiz', {
+                    setId,
+                    userId: req.requester.sub,
+                    count,
+                    types,
+                }),
+            );
+            return successResponse({ items });
+        } catch (error: any) {
+            return errorResponse(error.message);
+        }
+    }
+
+    @Get('study-sets/:id/study-modes/match')
+    @Permissions('academy.content.read')
+    async getMatchGame(
+        @Param('id') setId: string,
+        @Req() req: ReqWithRequester,
+        @Req() request: any,
+    ) {
+        try {
+            const count = request.query.count ? parseInt(request.query.count, 10) : 6;
+
+            const items = await firstValueFrom(
+                this.natsClient.send('academy.study-set.getMatchGame', {
+                    setId,
+                    userId: req.requester.sub,
+                    count,
+                }),
+            );
+            return successResponse({ items });
+        } catch (error: any) {
+            return errorResponse(error.message);
+        }
+    }
 }

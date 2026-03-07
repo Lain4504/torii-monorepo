@@ -5,7 +5,7 @@ export const createStudySetSchema = z.object({
     description: z.string().optional(),
     tags: z.array(z.string()).optional(),
     isPublic: z.boolean().optional(),
-    color: z.string().optional(),
+    settings: z.record(z.any()).optional(),
 });
 export type CreateStudySetDto = z.infer<typeof createStudySetSchema>;
 
@@ -13,13 +13,11 @@ export const updateStudySetSchema = createStudySetSchema.partial();
 export type UpdateStudySetDto = z.infer<typeof updateStudySetSchema>;
 
 export const createSetCardSchema = z.object({
-    front: z.string().min(1),
-    back: z.string().min(1),
-    frontAudio: z.string().optional(),
-    backAudio: z.string().optional(),
-    frontImage: z.string().optional(),
-    backImage: z.string().optional(),
+    term: z.string().min(1),
+    definition: z.string().min(1),
     hint: z.string().optional(),
+    mediaUrl: z.string().optional(),
+    tags: z.array(z.string()).optional(),
 });
 export type CreateSetCardDto = z.infer<typeof createSetCardSchema>;
 
@@ -27,6 +25,6 @@ export const updateSetCardSchema = createSetCardSchema.partial();
 export type UpdateSetCardDto = z.infer<typeof updateSetCardSchema>;
 
 export const reviewSetCardSchema = z.object({
-    rating: z.enum(['KNOW', 'DONT_KNOW']),
+    quality: z.number().int().min(0).max(1),
 });
 export type ReviewSetCardDto = z.infer<typeof reviewSetCardSchema>;

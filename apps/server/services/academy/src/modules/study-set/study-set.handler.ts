@@ -62,4 +62,14 @@ export class StudySetHandler {
     reviewCard(@Payload() payload: { cardId: string; userId: string; data: ReviewSetCardDto }) {
         return this.studySetService.reviewCard(payload.cardId, payload.userId, payload.data);
     }
+
+    @MessagePattern('academy.study-set.getTestQuiz')
+    getTestQuiz(@Payload() payload: { setId: string; userId: string; count?: number; types?: string }) {
+        return this.studySetService.getTestQuiz(payload.setId, payload.userId, payload.count, payload.types);
+    }
+
+    @MessagePattern('academy.study-set.getMatchGame')
+    getMatchGame(@Payload() payload: { setId: string; userId: string; count?: number }) {
+        return this.studySetService.getMatchGame(payload.setId, payload.userId, payload.count);
+    }
 }

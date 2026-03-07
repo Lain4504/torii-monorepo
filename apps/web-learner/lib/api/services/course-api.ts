@@ -148,7 +148,7 @@ export function useLiveCourses() {
   return useQuery({
     queryKey: ['course-offerings', 'LIVE'],
     queryFn: () => offeringApi.findAll({ type: 'COURSE' }).then(res =>
-      res.data.filter((o: any) =>
+      (res.data as any).filter((o: any) =>
         o.classes?.some((c: any) => c.class?.mode === 'LIVE')
       )
     ),

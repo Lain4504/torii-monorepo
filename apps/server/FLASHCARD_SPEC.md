@@ -130,13 +130,21 @@ Chúng ta không dùng Anki thuần (quá phức tạp cho user phổ thông), m
 -   `GET /notes`: List notes (filter by lesson, tags).
 -   `POST /notes/:id/to-flashcard`: API tiện ích để convert Note -> Flashcard (Draft).
 
-### 5.2. Flashcard Module
--   `POST /decks`: Tạo bộ thẻ.
--   `POST /decks/:id/cards`: Thêm thẻ vào bộ.
--   `GET /decks/:id/study`: Lấy danh sách thẻ cần học hôm nay (Logic: `nextReviewAt <= now` OR `state = NEW`).
--   `POST /cards/:id/review`: Submit kết quả học.
-    -   Body: `{ quality: 0 | 1 }` (0: Quên, 1: Nhớ).
-    -   Server tính toán lại `nextReviewAt` và trả về state mới.
+### 5.2. Flashcard Module (StudySet & SetCard)
+-   `POST /study-sets`: Tạo bộ thẻ.
+-   `POST /study-sets/:id/cards`: Thêm thẻ vào bộ.
+-   `GET /study-sets/:id/study`: Lấy danh sách thẻ cần học hôm nay (Logic: `nextReviewAt <= now` OR `state = NEW`).
+-   `POST /set-cards/:id/review`: Submit kết quả học (Lại, Khó, Tốt, Dễ).
+    -   Body: `{ quality: 0 | 3 | 4 | 5 }`.
+    -   Server tính toán lại `nextReviewAt`, `interval`, `easeFactor` và trả về state mới.
+
+### 5.3. Study Modes Module (Extra Practice)
+-   `GET /study-sets/:id/study-modes/test`: Generate a Test quiz.
+    -   Query: `count` (số lượng câu, default 20), `types` (multiple_choice, true_false).
+    -   Response: Array of randomized questions with options.
+-   `GET /study-sets/:id/study-modes/match`: Generate Match game data.
+    -   Query: `count` (số lượng cặp thẻ, default 6 cặp).
+    -   Response: Array of terms and definitions to be matched by frontend.
 
 ---
 
@@ -163,13 +171,13 @@ Chúng ta không dùng Anki thuần (quá phức tạp cho user phổ thông), m
 - **Kết luận**: Data model hiện tại (Note, FlashcardDeck, Flashcard) **đủ** để thêm Test (trắc nghiệm / đúng-sai) và Match (nối thẻ). Chỉ cần thêm API và UI; không cần thêm bảng "Note collection" hay rebuild flow. Nếu muốn lưu lịch sử điểm / thời gian chơi thì có thể thêm bảng phiên (session) tùy chọn.
 
 ### 7.1. Study Modes (Ngoài SRS)
-Quizlet có nhiều chế độ học; hệ thống hiện tại tập trung SRS (tương đương "Learn"). Các mode dưới đây chạy trên **cùng Deck + Flashcard**, không đổi schema.
+Quizlet có nhiều chế độ học; hệ thống hiện tại tập trung SRS (tương đương "Learn"). Các mode dưới đây chạy trên **cùng StudySet + SetCard**, không đổi schema.
 
--   **[PENDING] Test Mode**: Tự động sinh bài kiểm tra từ nội dung Deck.
-    -   **Dạng**: Trắc nghiệm (chọn 1 đáp án đúng trong 4), Đúng/Sai (term → hiện definition, hỏi đúng hay sai), có thể mở rộng Điền từ (type definition).
-    -   **Tech**: API `GET /decks/:id/cards` (hoặc endpoint riêng `GET /decks/:id/study-modes/test?count=N`) trả về N thẻ; frontend shuffle và render theo dạng (multiple choice / true-false). Không cần bảng mới; nếu cần lưu điểm có thể thêm `FlashcardStudySession` (deckId, userId, mode: TEST, score, completedAt).
--   **[PENDING] Match Game (Nối thẻ)**: Game kéo thả / tap nối term với definition trong thời gian ngắn nhất.
-    -   **Tech**: Cùng nguồn Deck/cards; frontend shuffle cặp term–definition và hiển thị grid. Kỷ lục thời gian có thể lưu trong `Deck.settings` (bestTimeByUser) hoặc bảng `FlashcardStudySession` (mode: MATCH, durationSeconds).
+-   **Test Mode**: Tự động sinh bài kiểm tra từ nội dung StudySet.
+    -   **Dạng**: Trắc nghiệm (chọn 1 đáp án đúng trong 4), Đúng/Sai (term → hiện definition, hỏi đúng hay sai).
+    -   **Tech**: API `GET /study-sets/:id/study-modes/test?count=N&types=multiple_choice,true_false` trả về danh sách câu hỏi đã được trộn và chuẩn bị sẵn phương án sai (distractors); frontend render form kiểm tra và tự chấm điểm hoặc gửi về server lưu lịch sử (nếu cần).
+-   **Match Game (Nối thẻ)**: Game kéo thả / tap nối term với definition trong thời gian ngắn nhất.
+    -   **Tech**: API `GET /study-sets/:id/study-modes/match?count=N` trả về list cặp Term và Definition riêng rẽ đã xáo trộn. Frontend quản lý state ghép cặp, animation, đếm ngược thời gian. Kỷ lục thời gian có thể lưu lại backend trong tương lai.
 
 **Tóm tắt**: Hỗ trợ thêm Test và Match **không** yêu cầu rebuild flow flashcard/note hay thêm "Note collection". Deck + Flashcard đã là "collection" để chạy mọi study mode; Note vẫn chỉ dùng để ghi chú và tạo thẻ, không thay đổi vai trò.
 

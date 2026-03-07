@@ -1,5 +1,4 @@
-import { api } from '../api';
-import { PagedResult } from '../types/common';
+import { apiClient } from '../api-client';
 
 export interface StudyNote {
     id: string;
@@ -26,29 +25,29 @@ export interface UpdateStudyNotePayload {
 
 export class StudyNoteApi {
     static async create(payload: CreateStudyNotePayload) {
-        const res = await api.post('/academy/study-notes', payload);
+        const res = await apiClient.post('/academy/study-notes', payload);
         return res.data.item as StudyNote;
     }
 
     static async findAll(lessonId?: string) {
-        const res = await api.get('/academy/study-notes', {
+        const res = await apiClient.get('/academy/study-notes', {
             params: { lessonId },
         });
         return res.data.items as StudyNote[];
     }
 
     static async findOne(id: string) {
-        const res = await api.get(`/academy/study-notes/${id}`);
+        const res = await apiClient.get(`/academy/study-notes/${id}`);
         return res.data.item as StudyNote;
     }
 
     static async update(id: string, payload: UpdateStudyNotePayload) {
-        const res = await api.patch(`/academy/study-notes/${id}`, payload);
+        const res = await apiClient.patch(`/academy/study-notes/${id}`, payload);
         return res.data.item as StudyNote;
     }
 
     static async remove(id: string) {
-        const res = await api.delete(`/academy/study-notes/${id}`);
+        const res = await apiClient.delete(`/academy/study-notes/${id}`);
         return res.data.result;
     }
 }

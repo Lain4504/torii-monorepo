@@ -132,7 +132,7 @@ export function StudySetsList() {
                                 <div className="flex gap-4 text-sm text-muted-foreground">
                                     <div className="flex items-center gap-1.5 bg-muted/50 px-3 py-1.5 rounded-md">
                                         <BrainCircuit className="size-4" />
-                                        <span className="font-medium text-foreground">{set._count?.cards || 0} thẻ</span>
+                                        <span className="font-medium text-foreground">{set._count?.setCards || 0} thẻ</span>
                                     </div>
                                 </div>
                                 <div className="mt-4 text-xs text-muted-foreground flex gap-1 items-center">
@@ -140,7 +140,7 @@ export function StudySetsList() {
                                 </div>
                             </CardContent>
                             <CardFooter className="pt-4 border-t flex justify-between gap-2">
-                                <Button asChild variant="default" className="w-full flex-1" disabled={set._count?.cards === 0}>
+                                <Button asChild variant="default" className="w-full flex-1" disabled={set._count?.setCards === 0}>
                                     <Link href={`/dashboard/study-sets/${set.id}/review`}>
                                         <Play className="size-4 mr-2" /> Học bài
                                     </Link>
