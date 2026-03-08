@@ -37,8 +37,7 @@ import {
     ArrowLeft,
     ShieldCheck,
     BadgeCheck,
-    Lock,
-    Save
+    Lock
 } from 'lucide-react';
 import { UserRole, adminCreateInternalUserDTOSchema } from '@workspace/schemas';
 import { toast } from 'sonner';
@@ -106,8 +105,8 @@ export function CreateUserDialog({
     open,
     onOpenChange,
 }: CreateUserDialogProps) {
-    const isLecturerOnly = false;
-    const isStaffOnly = false;
+    // const isLecturerOnly = false;
+    // const isStaffOnly = false;
 
     // We always want 2 steps: 
     // Step 1: Details

@@ -19,7 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import { MoreVertical, Search, Filter, HelpCircle, Layers, Tag as TagIcon } from "lucide-react"
+import { MoreVertical, Search, Filter, Layers, Tag as TagIcon } from "lucide-react"
 import { Badge } from "@workspace/ui/components/badge"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import {
@@ -47,7 +47,7 @@ import {
 export default function AcademyQuestionsPage() {
   const [q, setQ] = useState("")
   const [questionType, setQuestionType] = useState("all")
-  const [level, setLevel] = useState("all")
+  const [level] = useState("all")
   const [deleteId, setDeleteId] = useState<string | null>(null)
 
   const query = useMemo(

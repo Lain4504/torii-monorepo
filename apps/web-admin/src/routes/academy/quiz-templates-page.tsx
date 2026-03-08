@@ -18,8 +18,8 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from "@workspace/ui/components/dropdown-menu"
-import { MoreVertical, Filter, Layout, Copy, Clock, Target } from "lucide-react"
-import { Badge } from "@workspace/ui/components/badge"
+import { MoreVertical, Layout, Copy, Clock, Target } from "lucide-react"
+// import { Badge } from "@workspace/ui/components/badge"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import {
     Select,

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
@@ -19,7 +19,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import { MoreVertical, Layers, Plus, Search, Tag, Database, BarChart3 } from "lucide-react"
+import { MoreVertical, Plus, Search, Tag, Database, BarChart3 } from "lucide-react"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -50,7 +50,7 @@ export default function QuestionPoolsPage() {
                 title="Academy · Nhóm câu hỏi"
                 subtitle="Quản lý các nhóm câu hỏi (Pools) dùng để tổ chức ngân hàng câu hỏi cho Exams và Quizzes."
                 actions={
-                    <Button asChild shadow="none">
+                    <Button asChild>
                         <Link to="/academy/question-pools/new">
                             <Plus className="mr-2 h-4 w-4" /> Tạo Pool mới
                         </Link>

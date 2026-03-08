@@ -39,13 +39,16 @@ export class CourseOfferingService {
                     thumbnailUrl: true,
                   },
                 },
-                primaryTeacher: {
-                  select: {
-                    displayName: true,
-                    avatarUrl: true,
+                liveClass: {
+                  include: {
+                    primaryTeacher: {
+                      select: {
+                        displayName: true,
+                        avatarUrl: true,
+                      },
+                    },
                   },
                 },
-                schedules: true,
               },
             },
           },
@@ -75,10 +78,14 @@ export class CourseOfferingService {
                     },
                   },
                 },
-                primaryTeacher: {
-                  select: {
-                    displayName: true,
-                    avatarUrl: true,
+                liveClass: {
+                  include: {
+                    primaryTeacher: {
+                      select: {
+                        displayName: true,
+                        avatarUrl: true,
+                      },
+                    },
                   },
                 },
               },
@@ -92,7 +99,7 @@ export class CourseOfferingService {
   }
 
   async create(input: CourseOfferingCreateDto) {
-    if (input.status === OfferingStatus.ACTIVE) {
+    if (input.status === OfferingStatus.PUBLISHED) {
       if (!input.classIds?.length) {
         throw new BadRequestException('Active offering must have at least one class');
       }
@@ -135,7 +142,7 @@ export class CourseOfferingService {
   async update(id: string, input: CourseOfferingUpdateDto) {
     const offering = await this.findById(id) as any;
 
-    if (input.status === OfferingStatus.ACTIVE) {
+    if (input.status === OfferingStatus.PUBLISHED) {
       if (!offering.classes || offering.classes.length === 0) {
         throw new BadRequestException('Cannot activate offering with no classes');
       }

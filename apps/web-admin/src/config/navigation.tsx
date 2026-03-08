@@ -1,6 +1,5 @@
 import {
     Home,
-    Users,
     Newspaper,
     CreditCard,
     BarChart3,
@@ -8,7 +7,6 @@ import {
     Ticket,
     Key,
     UserCheck,
-    UsersRound,
     Gift,
     GraduationCap,
 } from "lucide-react";
@@ -42,11 +40,11 @@ export const academicNavItems: NavItem[] = [
     },
     {
         titleKey: "Academy (LMS)",
-        url: "/academy",
+        url: "/",
         icon: GraduationCap,
         anyPermission: ["academy.content.read", "academy.content.write", "academy.delivery.read", "academy.delivery.write"],
         items: [
-            { titleKey: "Tổng quan (Staff)", url: "/academy" },
+            { titleKey: "Tổng quan (Staff)", url: "/" },
             { titleKey: "Kho Khóa học & Nội dung", url: "/academy/course-profiles" },
             { titleKey: "Gói bán (Offerings)", url: "/academy/course-offerings" },
             { titleKey: "Quản lý Lớp học", url: "/academy/classes" },

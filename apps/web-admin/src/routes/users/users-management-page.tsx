@@ -5,7 +5,7 @@ import { CreateUserDialog } from '@/components/users/create-user-dialog.tsx';
 import { ChangeUserRoleDialog } from '@/components/users/change-user-role-dialog.tsx';
 import { ChangeUserStatusDialog } from '@/components/users/change-user-status-dialog.tsx';
 import { ViewUserSheet } from '@/components/users/view-user-sheet.tsx';
-import { UserRole, type UserResponseDTO } from '@workspace/schemas';
+import { type UserResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 import { useUsers } from "@/lib/api/services/users.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';

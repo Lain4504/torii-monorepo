@@ -106,7 +106,7 @@
 
 - **`LiveClass`** (extends Class, 1–1 khi mode = LIVE)
   - Field: `id`, `classId` → `Class` (unique), `term`, `batch`, `startDate`, `endDate`, `enrollmentOpenAt`, `enrollmentCloseAt`, `minStudents`, `maxStudents`, `minStudentsEnforcement`, `primaryTeacherId`
-  - Rule: `courseEditionId` không đổi sau ENROLLING; cần ít nhất 1 LiveSchedule.
+  - Rule: Chỉ 1 giảng viên dạy chính và xuyên suốt (`primaryTeacherId`). `courseEditionId` không đổi sau ENROLLING; cần ít nhất 1 LiveSchedule.
 
 - **`LiveSchedule`** (cho LiveClass, 1–n)
   - Field:
@@ -384,15 +384,8 @@ Nếu bạn muốn bước tiếp theo, tôi có thể:
     - `startDate`, `endDate`, `enrollmentOpenAt`, `enrollmentCloseAt`
     - `minStudents`, `maxStudents`
     - `minStudentsEnforcement` (enum: `STRICT`, `NOTIFY`, `DISABLED`, nullable)
-    - `primaryTeacherId` (FK → `User.id`, nullable)
-  - Rule: `Class.courseEditionId` không đổi sau ENROLLING; cần ít nhất 1 LiveSchedule khi publish.
-
-- **`LiveLiveClassTeacher`** (optional nếu cần nhiều GV cho LiveClass)
-
-  - Columns:
-    - `liveClassId` (FK → `LiveClass.id`)
-    - `teacherId` (FK → `User.id`)
-    - `role` (enum: `PRIMARY`, `ASSISTANT`, ...)
+    - `primaryTeacherId` (FK → `User.id`, nullable) – 1 giảng viên dạy chính và xuyên suốt
+  - Rule: `Class.courseEditionId` không đổi sau ENROLLING; cần ít nhất 1 LiveSchedule khi publish. Không hỗ trợ nhiều GV (assistant) – chỉ 1 primary teacher.
 
 - **`LiveSchedule`** (cho LiveClass, 1–n)
 
@@ -510,12 +503,6 @@ Nếu bạn muốn bước tiếp theo, tôi có thể:
     - `id` (UUID, PK), `liveScheduleId` (FK → `LiveSchedule.id`), `userId` (FK → `User.id`)
     - `status` (enum: `PRESENT`, `ABSENT`, `LATE`, `EXCUSED`), `recordedAt` (datetime)
   - Điểm danh theo từng buổi (chỉ LIVE).
-
-- **`EnrollmentFreeze`**
-  - Columns:
-    - `id` (UUID, PK), `enrollmentId` (FK → `Enrollment.id`)
-    - `frozenAt`, `resumeAt` (datetime), `reason` (text, nullable), `status` (enum: `ACTIVE`, `RESUMED`)
-  - Rule: Khi `EnrollmentFreeze.status = ACTIVE` → học viên không được truy cập nội dung. Khi `now >= resumeAt` → job/cron cập nhật `status = RESUMED`.
 
 - **`Certificate`**
   - Columns:
@@ -679,7 +666,7 @@ Trung tâm có thể bật/tắt luồng approval. Mặc định: **có thể t�
     - `Lesson`, `QuizTemplate`, `AssignmentTemplate`,
     - `Class`, `VodClass`, `LiveClass`, `LiveSchedule`, `ClassAssessment`,
     - `CourseOffering`, `CourseOfferingClass`,
-    - `Waitlist`, `ClassAttendance`, `EnrollmentFreeze`, `Certificate`, `RefundPolicy`, `RefundRequest`,
+    - `Waitlist`, `ClassAttendance`, `Certificate`, `RefundPolicy`, `RefundRequest`,
     - Adjust `Enrollment`, `QuizAttempt`, `AssignmentSubmission` để thêm `classId` / `classAssessmentId`,
     - Thêm fields approval (`submittedForApprovalAt`, `approvedBy`, v.v.) và status `PENDING_APPROVAL` cho CourseEdition, Class, CourseOffering.
   - Xóa/hoặc comment out các model cũ không dùng nữa (nếu quyết định drop luôn DB cũ).
@@ -769,7 +756,7 @@ Trung tâm có thể bật/tắt luồng approval. Mặc định: **có thể t�
 
 - **Delivery bổ sung:**
   - [ ] minStudentsEnforcement: STRICT / NOTIFY / DISABLED khi &lt; minStudents?
-  - [ ] EnrollmentFreeze: khi ACTIVE thì chặn truy cập? Job resume khi resumeAt?
+  - [ ] **Không hỗ trợ** EnrollmentFreeze (tạm ngừng học).
   - [ ] VOD expiresAt: job/cron check và set EXPIRED?
 
 - **Assessment:**
@@ -790,12 +777,10 @@ Trung tâm có thể bật/tắt luồng approval. Mặc định: **có thể t�
 | **P1** | Waitlist | Lớp đủ maxStudents → đăng ký chờ; có slot → offer | Mục 7.4, 17.D |
 | **P1** | Refund policy | Hoàn tiền theo điều kiện (trước 7 ngày, sau 3 buổi...) | Mục 7.4, 17.C |
 | **P1** | Chuyển lớp | Transfer cùng level, cùng CourseProfile | Mục 17.E |
-| **P1** | EnrollmentFreeze | Tạm ngừng học 1 tháng, rồi quay lại | Mục 7.4 |
 | **P2** | Trial class | Học thử 1–2 buổi trước khi mua | Mục 17.F |
 | **P2** | Khuyến mãi (Early bird, voucher) | Giảm giá theo thời điểm / mã | Commerce |
 | **P2** | Certificate | Chứng nhận hoàn thành | Mục 7.4 |
 | **P3** | Điểm danh (ClassAttendance) | Gắn với LiveSchedule, PRESENT/ABSENT/LATE | Mục 7.4 |
-| **P3** | Học bù | Nghỉ có phép → học bù buổi khác | Mục 17.G |
 | **P3** | Clone edition / Duplicate class | Tạo mới từ edition/lớp cũ | Mục 17.H |
 | **P3** | Placement test | Thi xếp lớp N5/N4/N3 | Exam (examType = PLACEMENT) |
 | **P3** | VOD enrollment hết hạn | expiresAt → EXPIRED, mất quyền truy cập | Mục 17.I |
@@ -956,9 +941,9 @@ Mục tiêu: một service LMS core **tự chứa**, có thể mang sang hệ th
     - `AssignmentTemplate`.
 - **ClassroomModule**
   - Quản lý:
-    - `Class`, `VodClass`, `LiveClass`, `LiveSchedule`, `LiveClassTeacher`,
+    - `Class`, `VodClass`, `LiveClass`, `LiveSchedule`,
     - `ClassAssessment`, `ClassAttendance`,
-    - `Enrollment`, `LearningProgress`, `EnrollmentFreeze`, `Waitlist`.
+    - `Enrollment`, `LearningProgress`, `Waitlist`.
 - **AssessmentModule**
   - Quản lý:
     - `Exam`, `ExamSection`, `ExamQuestion`,
@@ -1131,12 +1116,9 @@ Các rule này nhằm tránh việc dùng `Class` sai cách, đặc biệt với
   - Option 2: Offering riêng "Trial 2 buổi" → mua 0đ hoặc giá symbolic.
   - Sau trial: học viên chuyển sang Enrollment chính thức qua mua Offering.
 
-#### 17.G. Rule học bù (make-up session)
+#### 17.G. ~~Rule học bù (make-up session)~~ – **Không hỗ trợ**
 
-- Học viên nghỉ có phép (ABSENT/EXCUSED) → được học bù buổi khác:
-  - Cần `LiveSchedule` có `isMakeupAllowed` hoặc lớp "học bù" riêng.
-  - `ClassAttendance` ghi ABSENT/EXCUSED; Staff tạo `MakeupSession` (hoặc dùng LiveSchedule) cho học viên tham gia buổi khác.
-  - Entity: có thể thêm `EnrollmentMakeup` (enrollmentId, liveScheduleId, status) hoặc dùng `ClassAttendance` với status `MAKEUP_ATTENDED`.
+- Tính năng "học bù" (nghỉ có phép → học bù buổi khác) **không nằm trong scope** core LMS hiện tại.
 
 #### 17.H. Rule clone edition / duplicate class
 
@@ -1276,7 +1258,7 @@ UI cần đọc permission từ hệ thống role/permission hiện tại để:
      - Tạo mới class:
        - Chọn `CourseProfile`, `CourseEdition`, `mode` (VOD hoặc LIVE).
        - Với VOD: form VodClass (enrollmentOpenAt, enrollmentCloseAt, maxStudents, defaultExpiresMonths).
-       - Với LIVE: form LiveClass (term, batch, startDate, endDate, minStudents, maxStudents, primaryTeacher) + thêm LiveSchedule.
+       - Với LIVE: form LiveClass (term, batch, startDate, endDate, minStudents, maxStudents, primaryTeacherId – 1 giảng viên dạy chính xuyên suốt) + thêm LiveSchedule.
      - Xem chi tiết class:
        - Tab `Overview`: info cơ bản, subject, edition, stats.
        - Tab `Schedule`: danh sách LiveSchedule – chỉ hiển thị khi class mode = LIVE.

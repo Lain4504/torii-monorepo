@@ -41,7 +41,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import { MoreVertical, Search, Filter, Layout, BookOpen, Clock, FileText, Video, Globe } from "lucide-react"
+import { MoreVertical, Search, Layout, BookOpen, Clock, FileText, Video, Globe } from "lucide-react"
 import { Badge } from "@workspace/ui/components/badge"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { format } from "date-fns"

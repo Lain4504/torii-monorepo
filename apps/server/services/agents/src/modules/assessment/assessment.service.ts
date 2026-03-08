@@ -16,7 +16,7 @@ export class AssessmentService implements OnModuleInit {
   constructor(
     private readonly fastMcpService: FastMcpService,
     private readonly prisma: PrismaService,
-  ) {}
+  ) { }
 
   onModuleInit() {
     this.registerTools();
@@ -237,7 +237,11 @@ export class AssessmentService implements OnModuleInit {
         // Fetch available enrolling course runs to provide real recommendations
         const enrollingCourses = await this.prisma.class.findMany({
           where: { status: 'ENROLLING' },
-          include: { courseProfile: true },
+          include: {
+            courseProfile: true,
+            liveClass: true,
+            vodClass: true,
+          },
           take: 10,
         });
 
@@ -251,7 +255,7 @@ export class AssessmentService implements OnModuleInit {
             id: c.id,
             title: c.courseProfile.title,
             level: c.courseProfile.level,
-            startDate: c.startDate,
+            startDate: c.mode === 'LIVE' ? c.liveClass?.startDate : c.vodClass?.enrollmentOpenAt,
           })),
           userContext,
           timestamp: new Date().toISOString(),

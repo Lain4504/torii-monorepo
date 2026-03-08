@@ -36,7 +36,7 @@ import { Textarea } from "@workspace/ui/components/textarea"
 import { Switch } from "@workspace/ui/components/switch"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { useUpdateReward } from "@/lib/api/services/gamification"
-import { Star, Gift, Save, X, Ticket } from "lucide-react"
+import { Star, Gift, Save } from "lucide-react"
 import { Spinner } from "@workspace/ui/components/spinner"
 
 interface EditRewardDialogProps {
@@ -52,12 +52,11 @@ export function EditRewardDialog({ open, onOpenChange, reward }: EditRewardDialo
         register,
         handleSubmit,
         setValue,
-        watch,
         reset,
         control,
         formState: { errors, isDirty },
     } = useForm<UpdatePointRewardDTO>({
-        resolver: zodResolver(updatePointRewardDTOSchema),
+        resolver: zodResolver(updatePointRewardDTOSchema) as any,
         defaultValues: {
             name: reward.name,
             description: reward.description || "",
@@ -74,7 +73,7 @@ export function EditRewardDialog({ open, onOpenChange, reward }: EditRewardDialo
         },
     })
 
-    const config = watch("config")
+    // const config = watch("config")
 
     useEffect(() => {
         if (reward) {
@@ -126,7 +125,7 @@ export function EditRewardDialog({ open, onOpenChange, reward }: EditRewardDialo
 
                 <ScrollArea className="flex-1 max-h-[calc(90vh-180px)]">
                     <div className="space-y-6 p-6">
-                        <form id="edit-reward-form" onSubmit={handleSubmit(onSubmit)}>
+                        <form id="edit-reward-form" onSubmit={handleSubmit(onSubmit as any)}>
                             <FieldGroup>
                                 <FieldSet>
                                     <FieldLegend>Thông tin cơ bản</FieldLegend>

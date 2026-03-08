@@ -18,7 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import { MoreVertical, Filter, Layout, Calendar, Percent, Tag } from "lucide-react"
+import { MoreVertical, Filter, Layout, Calendar, Percent } from "lucide-react"
 import {
   Select,
   SelectContent,

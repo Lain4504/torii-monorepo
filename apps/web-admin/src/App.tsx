@@ -42,7 +42,7 @@ import ServiceUnavailablePage from '@/routes/error/service-unavailable-page.tsx'
 import NotImplementedPage from '@/routes/error/not-implemented-page.tsx'
 import UnauthorizedPage from '@/routes/error/unauthorized-page.tsx'
 import AcademyCourseProfilesPage from '@/routes/academy/course-profiles-page.tsx'
-import AcademyDashboardPage from '@/routes/academy/academy-dashboard-page.tsx'
+// import AcademyDashboardPage from '@/routes/academy/academy-dashboard-page.tsx'
 import AcademyCourseProfileCreatePage from '@/routes/academy/course-profile-create-page.tsx'
 import AcademyCourseProfileEditPage from '@/routes/academy/course-profile-edit-page.tsx'
 import AcademyCourseEditionCreatePage from '@/routes/academy/course-edition-create-page.tsx'
@@ -147,7 +147,7 @@ function App() {
 
                   {/* Academy - Core Grouping */}
                   <Route element={<RoutePermissionGuard anyPermission={["academy.content.read", "academy.content.write", "academy.commerce.read", "academy.commerce.write", "academy.delivery.read", "academy.delivery.write", "exam.manage"]} />}>
-                    <Route path="academy" element={<AcademyDashboardPage />} />
+                    {/* <Route path="academy" element={<AcademyDashboardPage />} /> */}
                     <Route path="academy/lecturer" element={<AcademyLecturerDashboardPage />} />
 
                     {/* 1. CONTENT LAYER: Profiles, Lessons, Quizzes, Assignments, Question Bank */}

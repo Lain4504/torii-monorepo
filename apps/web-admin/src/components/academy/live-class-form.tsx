@@ -240,7 +240,7 @@ export function LiveClassForm({
                             control={control}
                             render={({ field, fieldState }) => (
                                 <Field>
-                                    <FieldLabel>Giảng viên phụ trách</FieldLabel>
+                                    <FieldLabel>Giảng viên dạy chính xuyên suốt</FieldLabel>
                                     <Combobox value={field.value} onValueChange={field.onChange}>
                                         <ComboboxInput placeholder="Tìm kiếm giảng viên..." showClear />
                                         <ComboboxContent>

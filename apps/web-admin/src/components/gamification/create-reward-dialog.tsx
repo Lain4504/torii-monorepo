@@ -34,7 +34,7 @@ import { Textarea } from "@workspace/ui/components/textarea"
 import { Switch } from "@workspace/ui/components/switch"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { useCreateReward } from "@/lib/api/services/gamification"
-import { Star, Gift, Ticket, X } from "lucide-react"
+import { Star, Gift, Ticket } from "lucide-react"
 import { Spinner } from "@workspace/ui/components/spinner"
 
 interface CreateRewardDialogProps {
@@ -49,12 +49,11 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
         register,
         handleSubmit,
         setValue,
-        watch,
         reset,
         control,
         formState: { errors, isDirty },
     } = useForm<CreatePointRewardDTO>({
-        resolver: zodResolver(createPointRewardDTOSchema),
+        resolver: zodResolver(createPointRewardDTOSchema) as any,
         defaultValues: {
             name: "",
             description: "",
@@ -71,7 +70,7 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
         },
     })
 
-    const config = watch("config")
+    // const config = watch("config")
 
     const handleClose = () => {
         if (!createMutation.isPending) {
@@ -80,9 +79,9 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
         }
     }
 
-    const onSubmit = async (data: CreatePointRewardDTO) => {
+    const onSubmit = (data: CreatePointRewardDTO) => {
         try {
-            await createMutation.mutateAsync(data)
+            createMutation.mutateAsync(data)
             toast.success("Đã tạo mẫu phần thưởng mới")
             handleClose()
         } catch (error: any) {
@@ -105,7 +104,7 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
 
                 <ScrollArea className="flex-1 max-h-[calc(90vh-180px)]">
                     <div className="space-y-6 p-6">
-                        <form id="create-reward-form" onSubmit={handleSubmit(onSubmit)}>
+                        <form id="create-reward-form" onSubmit={handleSubmit(onSubmit as any)}>
                             <FieldGroup>
                                 <FieldSet>
                                     <FieldLegend>Thông tin cơ bản</FieldLegend>

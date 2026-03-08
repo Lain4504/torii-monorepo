@@ -112,10 +112,7 @@ enum MinStudentsEnforcement {
   DISABLED
 }
 
-enum LiveClassTeacherRole {
-  PRIMARY
-  ASSISTANT
-}
+
 
 // --- Support ---
 
@@ -1172,7 +1169,6 @@ model LiveClass {
   class          Class              @relation(fields: [classId], references: [id], onDelete: Cascade)
   primaryTeacher User?              @relation("AcademyClassTeacher", fields: [primaryTeacherId], references: [id], onDelete: SetNull)
   schedules      LiveSchedule[]
-  teachers       LiveClassTeacher[]
 
   @@map("academy_live_classes")
 }
@@ -1194,16 +1190,7 @@ model LiveSchedule {
   @@map("academy_live_schedules")
 }
 
-model LiveClassTeacher {
-  liveClassId String               @map("live_class_id") @db.Uuid
-  teacherId   String               @map("teacher_id") @db.Uuid
-  role        LiveClassTeacherRole @default(PRIMARY)
 
-  liveClass LiveClass @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
-
-  @@id([liveClassId, teacherId])
-  @@map("academy_live_class_teachers")
-}
 
 model ClassAssessment {
   id                       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
