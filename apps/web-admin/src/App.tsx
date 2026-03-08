@@ -87,6 +87,8 @@ import AcademyCourseEditionDetailPage from '@/routes/academy/course-edition-deta
 import AcademyLessonCreatePage from '@/routes/academy/lesson-create-page.tsx'
 import AcademyLessonEditPage from '@/routes/academy/lesson-edit-page.tsx'
 import AcademyClassReviewsPage from '@/routes/academy/class-reviews-page.tsx'
+import AchievementsPage from '@/routes/gamification/achievements-page.tsx'
+import RewardsPage from '@/routes/gamification/rewards-page.tsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -209,6 +211,11 @@ function App() {
 
                   <Route element={<RoutePermissionGuard anyPermission={["payment.view", "payment.refund", "payment.manage"]} />}>
                     <Route path="orders" element={<OrdersPage />} />
+                  </Route>
+
+                  <Route element={<RoutePermissionGuard permission="gamification.manage" />}>
+                    <Route path="rewards" element={<RewardsPage />} />
+                    <Route path="achievements" element={<AchievementsPage />} />
                   </Route>
 
                   <Route element={<RoutePermissionGuard permission="report.view" />}>

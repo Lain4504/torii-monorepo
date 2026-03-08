@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/generated';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import {
@@ -8,12 +8,15 @@ import {
   ExamAttemptSubmitDto,
 } from './dto/exam-attempt.dto';
 import { AuditLoggerService } from '../../audit-logger.service';
+import { GamificationService } from '../../gamification/gamification.service';
+import { ActivityType } from '@prisma/generated';
 
 @Injectable()
 export class ExamAttemptService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
+    private readonly gamification: GamificationService,
   ) { }
 
   async findAll(query: ExamAttemptQueryDto) {
@@ -264,7 +267,18 @@ export class ExamAttemptService {
       metadata: { percentage, isPassed },
     });
 
+    // Trigger Gamification Activity
+    this.gamification.trackActivity(attempt.userId, ActivityType.EXAM_COMPLETE, {
+      examAttemptId: result.id,
+      examId: attempt.examId,
+      classId: attempt.classId,
+      isPassed: result.isPassed,
+      percentage: result.percentage,
+    }).catch(err => this.logger.error(`Failed to track exam activity for user ${attempt.userId}: ${err.message}`));
+
     return result;
   }
+
+  private readonly logger = new Logger(ExamAttemptService.name);
 }
 
