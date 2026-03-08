@@ -51,7 +51,7 @@ import type { AcademyCourseOffering } from "@/lib/api/services/academy-course-of
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
 import { useAcademyCourseEditions } from "@/lib/api/services/academy-course-editions"
 import { useAcademyClasses } from "@/lib/api/services/academy-classes"
-import { RichTextEditor, type EditorJsData } from "@/components/editor/rich-text-editor"
+import { RichTextEditor } from "@/components/editor/rich-text-editor"
 import { Badge } from "@workspace/ui/components/badge"
 
 export function CourseOfferingForm({
@@ -328,7 +328,7 @@ export function CourseOfferingForm({
                   <TabsContent value="edit">
                     <RichTextEditor
                       initialContent={field.value || ""}
-                      onUpdate={(data: EditorJsData) => field.onChange(JSON.stringify(data))}
+                      onUpdate={(data: string) => field.onChange(data)}
                     />
                   </TabsContent>
                   <TabsContent value="preview">

@@ -39,7 +39,7 @@ import {
 } from "@workspace/schemas"
 import type { AcademyCourseEdition } from "@/lib/api/services/academy-course-editions"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
-import { RichTextEditor, type EditorJsData } from "@/components/editor/rich-text-editor"
+import { RichTextEditor } from "@/components/editor/rich-text-editor"
 
 export function CourseEditionForm({
   mode,
@@ -229,7 +229,7 @@ export function CourseEditionForm({
                     <TabsContent value="edit">
                       <RichTextEditor
                         initialContent={field.value || ""}
-                        onUpdate={(data: EditorJsData) => field.onChange(JSON.stringify(data))}
+                        onUpdate={(data: string) => field.onChange(data)}
                       />
                     </TabsContent>
                     <TabsContent value="preview">

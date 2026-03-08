@@ -32,7 +32,7 @@ import {
 } from "@workspace/schemas"
 import type { AcademyAssignmentTemplate } from "@/lib/api/services/academy-assignment-templates"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
-import { RichTextEditor, type EditorJsData } from "@/components/editor/rich-text-editor"
+import { RichTextEditor } from "@/components/editor/rich-text-editor"
 import {
     Tabs,
     TabsContent,
@@ -145,7 +145,7 @@ export function AssignmentTemplateForm({
                                         <TabsContent value="edit">
                                             <RichTextEditor
                                                 initialContent={field.value || ""}
-                                                onUpdate={(data: EditorJsData) => field.onChange(JSON.stringify(data))}
+                                                onUpdate={(data: string) => field.onChange(data)}
                                             />
                                         </TabsContent>
                                         <TabsContent value="preview">

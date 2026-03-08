@@ -29,7 +29,7 @@ import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-prof
 import { LessonMediaUploader } from "@/components/academy/lesson-media-uploader"
 import type { AcademyLessonCreateDTO } from "@workspace/schemas"
 import { academyLessonCreateDTOSchema } from "@workspace/schemas"
-import { RichTextEditor, type EditorJsData } from "@/components/editor/rich-text-editor"
+import { RichTextEditor } from "@/components/editor/rich-text-editor"
 
 interface LessonFormProps {
   defaultValues?: Partial<AcademyLessonCreateDTO>
@@ -171,8 +171,8 @@ export function LessonForm({
                   <FieldLabel>Nội dung</FieldLabel>
                   <RichTextEditor
                     initialContent={field.value || ""}
-                    onUpdate={(data: EditorJsData) =>
-                      field.onChange(JSON.stringify(data))
+                    onUpdate={(data: string) =>
+                      field.onChange(data)
                     }
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>

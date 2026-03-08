@@ -2,11 +2,10 @@ import { useState } from 'react';
 import {
   RichTextEditor,
   RichTextRenderer,
-  type EditorJsData,
 } from '@/components/editor/rich-text-editor';
 
 export default function EditorTestPage() {
-  const [data, setData] = useState<EditorJsData | null>(null);
+  const [data, setData] = useState<string | null>(null);
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-8">
@@ -20,7 +19,7 @@ export default function EditorTestPage() {
 
       <div className="border rounded-md bg-background">
         <RichTextEditor
-          onUpdate={(d: EditorJsData) => setData(d)}
+          onUpdate={(d: string) => setData(d)}
         />
       </div>
 

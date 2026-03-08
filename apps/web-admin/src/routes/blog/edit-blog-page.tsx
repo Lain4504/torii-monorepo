@@ -12,7 +12,7 @@ import { Card, CardContent } from '@workspace/ui/components/card';
 import { BlogStatus } from '@workspace/schemas';
 import { Spinner } from '@workspace/ui/components/spinner';
 import { toast } from '@workspace/ui/components/sonner';
-import { RichTextEditor, type EditorJsData } from '@/components/editor/rich-text-editor';
+import { RichTextEditor, RichTextRenderer } from '@/components/editor/rich-text-editor';
 import { ArrowLeft, Save } from 'lucide-react';
 import {
     Field,
@@ -98,65 +98,7 @@ export default function EditBlogPage() {
     };
 
     const renderPreview = () => {
-        if (!content) {
-            return (
-                <div className="p-8 text-center text-muted-foreground">
-                    Chưa có nội dung để xem trước
-                </div>
-            );
-        }
-
-        try {
-            const parsedContent = JSON.parse(content) as EditorJsData;
-            return (
-                <div className="prose prose-slate max-w-none p-8">
-                    {parsedContent.blocks?.map((block: any, index: number) => {
-                        switch (block.type) {
-                            case 'header': {
-                                const level = block.data.level as 1 | 2 | 3 | 4 | 5 | 6;
-                                const Tag = `h${level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
-                                return <Tag key={index}>{block.data.text}</Tag>;
-                            }
-                            case 'paragraph':
-                                return <p key={index} dangerouslySetInnerHTML={{ __html: block.data.text }} />;
-                            case 'list':
-                                const ListTag = block.data.style === 'ordered' ? 'ol' : 'ul';
-                                return (
-                                    <ListTag key={index}>
-                                        {block.data.items?.map((item: string, i: number) => (
-                                            <li key={i} dangerouslySetInnerHTML={{ __html: item }} />
-                                        ))}
-                                    </ListTag>
-                                );
-                            case 'quote':
-                                return (
-                                    <blockquote key={index}>
-                                        <p dangerouslySetInnerHTML={{ __html: block.data.text }} />
-                                        {block.data.caption && <cite>{block.data.caption}</cite>}
-                                    </blockquote>
-                                );
-                            case 'code':
-                                return <pre key={index}><code>{block.data.code}</code></pre>;
-                            case 'image':
-                                return (
-                                    <figure key={index}>
-                                        <img src={block.data.file?.url} alt={block.data.caption || ''} />
-                                        {block.data.caption && <figcaption>{block.data.caption}</figcaption>}
-                                    </figure>
-                                );
-                            default:
-                                return null;
-                        }
-                    })}
-                </div>
-            );
-        } catch (error) {
-            return (
-                <div className="p-8 text-center text-destructive">
-                    Lỗi hiển thị nội dung xem trước
-                </div>
-            );
-        }
+        return <RichTextRenderer content={content} />;
     };
 
     if (isLoading) {
@@ -287,7 +229,7 @@ export default function EditBlogPage() {
                             <TabsContent value="edit" className="m-0 p-6">
                                 <RichTextEditor
                                     initialContent={blog.content}
-                                    onUpdate={(data: EditorJsData) => setContent(JSON.stringify(data))}
+                                    onUpdate={(data: string) => setContent(data)}
                                 />
                             </TabsContent>
                             <TabsContent value="preview" className="m-0">
