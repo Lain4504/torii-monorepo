@@ -17,6 +17,8 @@ export type AcademyExam = {
   totalTimeLimitMinutes?: number | null
   status?: string | null
   settings?: unknown | null
+  sections?: any[]
+  examQuestions?: any[]
   createdAt: string
   updatedAt: string
 }
@@ -56,6 +58,19 @@ export const academyExamsApi = {
   async delete(id: string) {
     const res = await apiClient.delete<StandardApiResponse<{ ok: boolean }>>(
       `/api/academy/exams/${id}`,
+    )
+    return res.data
+  },
+
+  async addQuestionsFromPool(data: {
+    examId: string
+    sectionId: string
+    poolId: string
+    count: number
+  }) {
+    const res = await apiClient.post<StandardApiResponse<{ ok: boolean }>>(
+      `/api/academy/exams/${data.examId}/questions-from-pool`,
+      data,
     )
     return res.data
   },
@@ -101,3 +116,12 @@ export function useDeleteAcademyExam() {
   })
 }
 
+export function useAddQuestionsFromPool() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: academyExamsApi.addQuestionsFromPool,
+    onSuccess: (_, variables) => {
+      qc.invalidateQueries({ queryKey: ["academy-exam", variables.examId] })
+    },
+  })
+}

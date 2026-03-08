@@ -33,6 +33,7 @@ import {
   type AcademyExamUpdateDTO,
 } from "@workspace/schemas"
 import type { AcademyExam } from "@/lib/api/services/academy-exams"
+import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
 
 export function ExamForm({
   mode,
@@ -50,6 +51,7 @@ export function ExamForm({
   defaultCourseProfileId?: string
 }) {
   const isEdit = mode === "edit"
+  const { data: profiles = [] } = useAcademyCourseProfiles({})
 
   const { handleSubmit, control } = useForm<
     AcademyExamCreateDTO | AcademyExamUpdateDTO
@@ -100,7 +102,18 @@ export function ExamForm({
                 render={({ field, fieldState }) => (
                   <Field>
                     <FieldLabel>Course Profile</FieldLabel>
-                    <Input placeholder="Nhập UUID Course Profile (Tùy chọn)" {...field} />
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn Course Profile..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {profiles.map((p) => (
+                          <SelectItem key={p.id} value={p.id}>
+                            {p.code} - {p.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FieldDescription>Liên kết đề thi này với một hồ sơ khóa học cụ thể.</FieldDescription>
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>

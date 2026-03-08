@@ -1,6 +1,5 @@
 import {
     Home,
-    Users,
     Newspaper,
     CreditCard,
     BarChart3,
@@ -8,7 +7,6 @@ import {
     Ticket,
     Key,
     UserCheck,
-    UsersRound,
     Gift,
     GraduationCap,
     Trophy,
@@ -43,15 +41,16 @@ export const academicNavItems: NavItem[] = [
     },
     {
         titleKey: "Academy (LMS)",
-        url: "/academy",
+        url: "/",
         icon: GraduationCap,
         anyPermission: ["academy.content.read", "academy.content.write", "academy.delivery.read", "academy.delivery.write"],
         items: [
-            { titleKey: "Tổng quan (Staff)", url: "/academy" },
+            { titleKey: "Tổng quan (Staff)", url: "/" },
             { titleKey: "Kho Khóa học & Nội dung", url: "/academy/course-profiles" },
             { titleKey: "Gói bán (Offerings)", url: "/academy/course-offerings" },
             { titleKey: "Quản lý Lớp học", url: "/academy/classes" },
             { titleKey: "Ngân hàng câu hỏi", url: "/academy/questions" },
+            { titleKey: "Question Pools", url: "/academy/question-pools" },
             { titleKey: "Mẫu đề thi (Quiz/Exam)", url: "/academy/quiz-templates" },
         ]
     },
@@ -59,12 +58,6 @@ export const academicNavItems: NavItem[] = [
 
 // 2. Operational & Support items
 export const operationsNavItems: NavItem[] = [
-    {
-        titleKey: "Quản lý Học viên",
-        url: "/learners",
-        icon: Users,
-        anyPermission: ["user.manage", "user.view"],
-    },
     {
         titleKey: "Bài viết & Tin tức",
         url: "/blogs",
@@ -116,15 +109,9 @@ export const financeNavItems: NavItem[] = [
 // 4. Personnel & HR items
 export const personnelNavItems: NavItem[] = [
     {
-        titleKey: "Đội ngũ Giảng viên",
-        url: "/personnel/lecturers",
+        titleKey: "Quản lý Người dùng",
+        url: "/users",
         icon: UserCheck,
-        anyPermission: ["user.manage", "user.view"],
-    },
-    {
-        titleKey: "Nhân viên vận hành",
-        url: "/personnel/staff",
-        icon: UsersRound,
         anyPermission: ["user.manage", "user.view"],
     },
     {

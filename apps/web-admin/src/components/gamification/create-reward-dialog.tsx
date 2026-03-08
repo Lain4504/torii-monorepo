@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form"
+import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import {
@@ -34,7 +34,8 @@ import { Textarea } from "@workspace/ui/components/textarea"
 import { Switch } from "@workspace/ui/components/switch"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { useCreateReward } from "@/lib/api/services/gamification"
-import { Star, Gift } from "lucide-react"
+import { Star, Gift, Ticket } from "lucide-react"
+import { Spinner } from "@workspace/ui/components/spinner"
 
 interface CreateRewardDialogProps {
     open: boolean
@@ -49,22 +50,27 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
         handleSubmit,
         setValue,
         reset,
-        formState: { errors },
+        control,
+        formState: { errors, isDirty },
     } = useForm<CreatePointRewardDTO>({
-        resolver: zodResolver(createPointRewardDTOSchema),
+        resolver: zodResolver(createPointRewardDTOSchema) as any,
         defaultValues: {
             name: "",
             description: "",
-            points: 100,
-            discountType: "percentage" as "percentage" | "fixed_amount",
-            discountValue: 10,
-            maxDiscountAmount: null as number | null,
-            minOrderAmount: null as number | null,
-            validDuration: 30,
+            costPoints: 100,
+            type: "COUPON",
+            config: {
+                discountType: "PERCENTAGE",
+                discountValue: 10,
+                maxDiscountAmount: null,
+                minOrderValue: null,
+                validDays: 30,
+            },
             isActive: true,
         },
     })
 
+    // const config = watch("config")
 
     const handleClose = () => {
         if (!createMutation.isPending) {
@@ -73,9 +79,9 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
         }
     }
 
-    const onSubmit = async (data: CreatePointRewardDTO) => {
+    const onSubmit = (data: CreatePointRewardDTO) => {
         try {
-            await createMutation.mutateAsync(data)
+            createMutation.mutateAsync(data)
             toast.success("Đã tạo mẫu phần thưởng mới")
             handleClose()
         } catch (error: any) {
@@ -85,7 +91,7 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-3xl max-h-[90vh] p-0">
+            <DialogContent className="max-w-xl max-h-[90vh] p-0">
                 <DialogHeader className="p-6 pb-0">
                     <DialogTitle className="flex items-center gap-2">
                         <Gift className="h-5 w-5 text-primary" />
@@ -98,7 +104,7 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
 
                 <ScrollArea className="flex-1 max-h-[calc(90vh-180px)]">
                     <div className="space-y-6 p-6">
-                        <form id="create-reward-form" onSubmit={handleSubmit(onSubmit)}>
+                        <form id="create-reward-form" onSubmit={handleSubmit(onSubmit as any)}>
                             <FieldGroup>
                                 <FieldSet>
                                     <FieldLegend>Thông tin cơ bản</FieldLegend>
@@ -130,15 +136,15 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
                                             </FieldLabel>
                                             <Input
                                                 type="number"
-                                                {...register("points", { valueAsNumber: true })}
+                                                {...register("costPoints", { valueAsNumber: true })}
                                             />
-                                            {errors.points && <FieldDescription className="text-destructive">{errors.points.message}</FieldDescription>}
+                                            {errors.costPoints && <FieldDescription className="text-destructive">{errors.costPoints.message}</FieldDescription>}
                                         </Field>
                                         <Field>
                                             <FieldLabel>Thời hạn sử dụng (ngày)</FieldLabel>
                                             <Input
                                                 type="number"
-                                                {...register("validDuration", { valueAsNumber: true })}
+                                                {...register("config.validDays", { valueAsNumber: true })}
                                             />
                                             <FieldDescription>Kể từ lúc người dùng nhấn đổi quà.</FieldDescription>
                                         </Field>
@@ -150,26 +156,31 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
                                     <div className="grid grid-cols-2 gap-4">
                                         <Field>
                                             <FieldLabel>Loại giảm giá</FieldLabel>
-                                            <Select
-                                                defaultValue="percentage"
-                                                onValueChange={(val: any) => setValue("discountType", val)}
-                                            >
-                                                <SelectTrigger>
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="percentage">Theo phần trăm (%)</SelectItem>
-                                                    <SelectItem value="fixed_amount">Số tiền cố định (VND)</SelectItem>
-                                                </SelectContent>
-                                            </Select>
+                                            <Controller
+                                                name="config.discountType"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Select
+                                                        value={field.value}
+                                                        onValueChange={field.onChange}
+                                                    >
+                                                        <SelectTrigger>
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="PERCENTAGE">Theo phần trăm (%)</SelectItem>
+                                                            <SelectItem value="FIXED_AMOUNT">Số tiền cố định (VND)</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                )}
+                                            />
                                         </Field>
                                         <Field>
                                             <FieldLabel>Giá trị giảm</FieldLabel>
                                             <Input
                                                 type="number"
-                                                {...register("discountValue", { valueAsNumber: true })}
+                                                {...register("config.discountValue", { valueAsNumber: true })}
                                             />
-                                            {errors.discountValue && <FieldDescription className="text-destructive">{errors.discountValue.message}</FieldDescription>}
                                         </Field>
                                     </div>
 
@@ -179,7 +190,7 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
                                             <Input
                                                 type="number"
                                                 placeholder="Ví dụ: 200000"
-                                                onChange={(e) => setValue("maxDiscountAmount", e.target.value ? Number(e.target.value) : null)}
+                                                {...register("config.maxDiscountAmount", { valueAsNumber: true })}
                                             />
                                             <FieldDescription>Chỉ áp dụng cho loại phần trăm.</FieldDescription>
                                         </Field>
@@ -188,7 +199,7 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
                                             <Input
                                                 type="number"
                                                 placeholder="Ví dụ: 500000"
-                                                onChange={(e) => setValue("minOrderAmount", e.target.value ? Number(e.target.value) : null)}
+                                                {...register("config.minOrderValue", { valueAsNumber: true })}
                                             />
                                         </Field>
                                     </div>
@@ -212,11 +223,28 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
                 </ScrollArea>
 
                 <DialogFooter className="p-6 pt-0">
-                    <Button variant="outline" onClick={handleClose} disabled={createMutation.isPending}>
-                        Hủy
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleClose}
+                        disabled={createMutation.isPending}>
+                        Hủy Bỏ
                     </Button>
-                    <Button form="create-reward-form" type="submit" disabled={createMutation.isPending}>
-                        {createMutation.isPending ? "Đang tạo..." : "Tạo mẫu phần thưởng"}
+                    <Button
+                        form="create-reward-form"
+                        type="submit"
+                        disabled={createMutation.isPending || !isDirty}>
+                        {createMutation.isPending ? (
+                            <>
+                                <Spinner className="mr-2" />
+                                Đang tạo...
+                            </>
+                        ) : (
+                            <>
+                                <Ticket className="mr-2 h-4 w-4" />
+                                Tạo phần thưởng
+                            </>
+                        )}
                     </Button>
                 </DialogFooter>
             </DialogContent>

@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom"
 import { useAcademyClass } from "@/lib/api/services/academy-classes"
-import { useAcademyClassSchedules } from "@/lib/api/services/academy-class-schedules"
+import { useAcademyLiveSchedules } from "@/lib/api/services/academy-live-schedules"
 import { useAcademyClassAssessments } from "@/lib/api/services/academy-class-assessments"
 import { useAcademyEnrollments } from "@/lib/api/services/academy-enrollments"
 import { useAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
@@ -29,7 +29,8 @@ import {
    ArrowLeft,
    Clock,
    MapPin,
-   Link as LinkIcon
+   Link as LinkIcon,
+   User
 } from "lucide-react"
 import { Link } from "react-router-dom"
 
@@ -39,7 +40,7 @@ export default function ClassDetailPage() {
    const { data: cls, isLoading: isLoadingClass } = useAcademyClass(id!)
    const { data: profile } = useAcademyCourseProfile(cls?.courseProfileId)
    const { data: edition } = useAcademyCourseEdition(cls?.courseEditionId)
-   const { data: schedules = [], isLoading: isLoadingSchedules } = useAcademyClassSchedules({ classId: id })
+   const { data: schedules = [], isLoading: isLoadingSchedules } = useAcademyLiveSchedules({ liveClassId: id })
    const { data: assessments = [], isLoading: isLoadingAssessments } = useAcademyClassAssessments({ classId: id })
    const { data: enrollmentsData, isLoading: isLoadingEnrollments } = useAcademyEnrollments({ classId: id })
    const { data: attempts = [], isLoading: isLoadingAttempts } = useAcademyExamAttempts({ classId: id })
@@ -54,6 +55,18 @@ export default function ClassDetailPage() {
       <p>Không tìm thấy lớp học</p>
       <Button onClick={() => navigate("/academy/classes")}>Quay lại</Button>
    </div>
+
+   const isLive = cls.mode === "LIVE"
+   const tpt = isLive ? cls.liveClass : cls.vodClass
+
+   const enrollmentOpenAt = tpt?.enrollmentOpenAt
+   const enrollmentCloseAt = tpt?.enrollmentCloseAt
+   const maxStudents = tpt?.maxStudents
+   const startDate = isLive ? cls.liveClass?.startDate : null
+   const endDate = isLive ? cls.liveClass?.endDate : null
+   const term = isLive ? cls.liveClass?.term : "N/A"
+   const batch = isLive ? cls.liveClass?.batch : "N/A"
+   const primaryTeacher = isLive ? cls.liveClass?.primaryTeacher : null
 
    return (
       <div className="space-y-6">
@@ -104,17 +117,17 @@ export default function ClassDetailPage() {
                      </div>
                      <div className="space-y-1">
                         <p className="text-xs text-muted-foreground">Tối đa</p>
-                        <p className="text-2xl font-bold">{cls.maxStudents || "∞"}</p>
+                        <p className="text-2xl font-bold">{maxStudents || "∞"}</p>
                      </div>
                   </div>
                   <div className="pt-4 border-t space-y-3">
                      <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground flex items-center gap-1"><Calendar className="h-3.5 w-3.5" /> Bắt đầu</span>
-                        <span className="font-medium">{cls.startDate ? new Date(cls.startDate).toLocaleDateString("vi-VN") : "N/A"}</span>
+                        <span className="font-medium">{startDate ? new Date(startDate).toLocaleDateString("vi-VN") : "N/A"}</span>
                      </div>
                      <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> Kết thúc</span>
-                        <span className="font-medium">{cls.endDate ? new Date(cls.endDate).toLocaleDateString("vi-VN") : "N/A"}</span>
+                        <span className="font-medium">{endDate ? new Date(endDate).toLocaleDateString("vi-VN") : "N/A"}</span>
                      </div>
                   </div>
                </CardContent>
@@ -124,7 +137,7 @@ export default function ClassDetailPage() {
                <Tabs defaultValue="overview" className="w-full">
                   <TabsList className="grid w-full grid-cols-6 mb-6">
                      <TabsTrigger value="overview">Tổng quan</TabsTrigger>
-                     {cls.mode !== "VOD" && <TabsTrigger value="schedule">Lịch học ({schedules.length})</TabsTrigger>}
+                     {cls.mode === "LIVE" && <TabsTrigger value="schedule">Lịch học ({schedules.length})</TabsTrigger>}
                      <TabsTrigger value="assessments">Bài kiểm tra ({assessments.length})</TabsTrigger>
                      <TabsTrigger value="attempts">Kết quả thi ({attempts.length})</TabsTrigger>
                      <TabsTrigger value="submissions">Bài nộp ({submissions.length})</TabsTrigger>
@@ -140,25 +153,54 @@ export default function ClassDetailPage() {
                            <div className="space-y-4">
                               <div className="space-y-1">
                                  <p className="text-sm font-medium text-muted-foreground">Mô tả kỳ học (Term/Batch)</p>
-                                 <p className="text-sm font-semibold">{cls.term} / {cls.batch}</p>
+                                 <p className="text-sm font-semibold">{term} / {batch}</p>
                               </div>
                               <div className="space-y-1">
                                  <p className="text-sm font-medium text-muted-foreground">Thời gian mở đăng ký</p>
                                  <p className="text-sm">
-                                    {cls.enrollmentOpenAt ? new Date(cls.enrollmentOpenAt).toLocaleString("vi-VN") : "N/A"}
+                                    {enrollmentOpenAt ? new Date(enrollmentOpenAt).toLocaleString("vi-VN") : "N/A"}
                                     {" → "}
-                                    {cls.enrollmentCloseAt ? new Date(cls.enrollmentCloseAt).toLocaleString("vi-VN") : "N/A"}
+                                    {enrollmentCloseAt ? new Date(enrollmentCloseAt).toLocaleString("vi-VN") : "N/A"}
                                  </p>
                               </div>
+                              {!isLive && cls.vodClass?.defaultExpiresMonths && (
+                                 <div className="space-y-1">
+                                    <p className="text-sm font-medium text-muted-foreground">Thời hạn mặc định</p>
+                                    <p className="text-sm">{cls.vodClass.defaultExpiresMonths} tháng</p>
+                                 </div>
+                              )}
                            </div>
                            <div className="space-y-4">
                               <div className="space-y-1">
-                                 <p className="text-sm font-medium text-muted-foreground">Giảng viên chính</p>
+                                 <p className="text-sm font-medium text-muted-foreground">Giảng viên / Hỗ trợ</p>
                                  <div className="flex items-center gap-2">
-                                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">GV</div>
-                                    <span className="text-sm">Chưa có thông tin định danh</span>
+                                    {primaryTeacher ? (
+                                       <>
+                                          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+                                             {primaryTeacher.avatarUrl ? (
+                                                <img src={primaryTeacher.avatarUrl} alt={primaryTeacher.displayName} className="h-full w-full object-cover" />
+                                             ) : (
+                                                <User className="h-4 w-4 text-primary" />
+                                             )}
+                                          </div>
+                                          <span className="text-sm font-medium">{primaryTeacher.displayName}</span>
+                                       </>
+                                    ) : (
+                                       <>
+                                          <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
+                                             <User className="h-4 w-4 text-muted-foreground" />
+                                          </div>
+                                          <span className="text-sm italic text-muted-foreground">Chưa có thông tin giảng viên</span>
+                                       </>
+                                    )}
                                  </div>
                               </div>
+                              {isLive && cls.liveClass?.minStudents && (
+                                 <div className="space-y-1">
+                                    <p className="text-sm font-medium text-muted-foreground">Số học viên tối thiểu</p>
+                                    <p className="text-sm">{cls.liveClass.minStudents} (Enforcement: {cls.liveClass.minStudentsEnforcement})</p>
+                                 </div>
+                              )}
                            </div>
                         </CardContent>
                      </Card>
@@ -172,7 +214,7 @@ export default function ClassDetailPage() {
                               <CardDescription>Các ca học cố định trong tuần cho lớp này</CardDescription>
                            </div>
                            <Button size="sm" asChild className="gap-2">
-                              <Link to={`/academy/class-schedule/new?classId=${id}`}><Plus className="h-4 w-4" /> Thêm lịch</Link>
+                              <Link to={`/academy/live-schedule/new?liveClassId=${id}`}><Plus className="h-4 w-4" /> Thêm lịch</Link>
                            </Button>
                         </CardHeader>
                         <CardContent>
@@ -205,7 +247,7 @@ export default function ClassDetailPage() {
                                           </TableCell>
                                           <TableCell className="text-right">
                                              <Button variant="ghost" size="sm" asChild>
-                                                <Link to={`/academy/class-schedule/${s.id}/edit`}><Edit className="h-3.5 w-3.5" /></Link>
+                                                <Link to={`/academy/live-schedule/${s.id}/edit`}><Edit className="h-3.5 w-3.5" /></Link>
                                              </Button>
                                           </TableCell>
                                        </TableRow>

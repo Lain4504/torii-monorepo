@@ -22,17 +22,22 @@ export class EnrollmentService {
       include: {
         class: {
           include: {
+            vodClass: true,
+            liveClass: {
+              include: {
+                primaryTeacher: {
+                  select: {
+                    displayName: true,
+                    avatarUrl: true,
+                  },
+                },
+              },
+            },
             courseProfile: {
               select: {
                 title: true,
                 code: true,
                 thumbnailUrl: true,
-              },
-            },
-            primaryTeacher: {
-              select: {
-                displayName: true,
-                avatarUrl: true,
               },
             },
             courseEdition: {
@@ -74,6 +79,8 @@ export class EnrollmentService {
             });
           }
 
+          const primaryTeacher = e.class.liveClass?.primaryTeacher;
+
           return {
             id: e.id,
             status: e.status,
@@ -84,8 +91,8 @@ export class EnrollmentService {
             courseTitle: e.class.courseProfile.title,
             slug: e.class.courseProfile.code,
             thumbnailUrl: e.class.courseProfile.thumbnailUrl,
-            instructorName: e.class.primaryTeacher?.displayName ?? 'Academy Instructor',
-            instructorAvatar: e.class.primaryTeacher?.avatarUrl,
+            instructorName: primaryTeacher?.displayName ?? 'Academy Instructor',
+            instructorAvatar: primaryTeacher?.avatarUrl,
             progress: totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0,
             completedLessons: completedCount,
             totalLessons: totalLessons,
@@ -106,7 +113,10 @@ export class EnrollmentService {
   async create(input: EnrollmentCreateDto) {
     const klass = await this.prisma.class.findUnique({
       where: { id: input.classId },
-      select: { id: true, status: true, maxStudents: true },
+      include: {
+        vodClass: true,
+        liveClass: true,
+      },
     });
     if (!klass) throw new BadRequestException('Invalid classId');
 
@@ -126,11 +136,13 @@ export class EnrollmentService {
     });
     if (existing) return this.findById(existing.id);
 
-    if (klass.maxStudents) {
+    const maxStudents = klass.mode === 'VOD' ? klass.vodClass?.maxStudents : klass.liveClass?.maxStudents;
+
+    if (maxStudents) {
       const currentCount = await this.prisma.enrollment.count({
         where: { classId: input.classId, status: 'ACTIVE' },
       });
-      if (currentCount >= klass.maxStudents) {
+      if (currentCount >= maxStudents) {
         throw new BadRequestException('Class is full');
       }
     }
@@ -253,4 +265,3 @@ export class EnrollmentService {
     return { ok: true };
   }
 }
-

@@ -83,7 +83,7 @@ export default function LecturerDashboardPage() {
                         <CardTitle className="text-lg group-hover:text-primary transition-colors">{cls.name}</CardTitle>
                         <CardDescription className="flex items-center gap-1 pt-1">
                            <Calendar className="h-3.5 w-3.5" />
-                           {cls.startDate ? new Date(cls.startDate).toLocaleDateString("vi-VN") : "N/A"}
+                           {cls.mode === 'LIVE' ? (cls.liveClass?.startDate ? new Date(cls.liveClass.startDate).toLocaleDateString("vi-VN") : "N/A") : (cls.vodClass?.enrollmentOpenAt ? new Date(cls.vodClass.enrollmentOpenAt).toLocaleDateString("vi-VN") : "N/A")}
                         </CardDescription>
                      </CardHeader>
                      <CardFooter className="pt-2">

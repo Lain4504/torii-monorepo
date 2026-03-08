@@ -16,6 +16,8 @@ export type AcademyQuestion = {
   options?: unknown | null
   correctAnswer?: unknown | null
   explanation?: string | null
+  level?: string | null
+  category?: string | null
   metadata?: unknown | null
   createdAt: string
   updatedAt: string

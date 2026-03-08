@@ -13,18 +13,38 @@ export type AcademyClass = {
   courseEditionId: string
   code: string
   name: string
-  mode: string
-  term?: string | null
-  batch?: string | null
-  startDate?: string | null
-  endDate?: string | null
-  enrollmentOpenAt?: string | null
-  enrollmentCloseAt?: string | null
-  minStudents?: number | null
-  maxStudents?: number | null
-  status?: string | null
+  mode: "VOD" | "LIVE"
+  status: string
   createdAt: string
   updatedAt: string
+  settings?: any
+
+  // TPT Relations
+  vodClass?: {
+    id: string
+    enrollmentOpenAt?: string | null
+    enrollmentCloseAt?: string | null
+    maxStudents?: number | null
+    defaultExpiresMonths?: number | null
+  } | null
+  liveClass?: {
+    id: string
+    term?: string | null
+    batch?: string | null
+    startDate?: string | null
+    endDate?: string | null
+    enrollmentOpenAt?: string | null
+    enrollmentCloseAt?: string | null
+    minStudents?: number | null
+    maxStudents?: number | null
+    minStudentsEnforcement?: string | null
+    primaryTeacherId?: string | null
+    primaryTeacher?: {
+      id: string
+      displayName: string
+      avatarUrl?: string | null
+    } | null
+  } | null
 }
 
 export const academyClassesApi = {
@@ -106,4 +126,3 @@ export function useDeleteAcademyClass() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-classes"] }),
   })
 }
-

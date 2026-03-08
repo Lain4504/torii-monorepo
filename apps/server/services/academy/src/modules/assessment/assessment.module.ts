@@ -5,9 +5,17 @@ import { ExamAttemptModule } from './exam-attempt/exam-attempt.module';
 import { AssignmentSubmissionModule } from './assignment-submission/assignment-submission.module';
 import { AssessmentCronService } from './assessment-cron.service';
 import { PlacementModule } from './placement/placement.module';
+import { QuestionPoolModule } from './question-pool/question-pool.module';
 
 @Module({
-  imports: [QuestionModule, ExamModule, ExamAttemptModule, AssignmentSubmissionModule, PlacementModule],
+  imports: [
+    QuestionModule,
+    ExamModule,
+    ExamAttemptModule,
+    AssignmentSubmissionModule,
+    PlacementModule,
+    QuestionPoolModule,
+  ],
   providers: [AssessmentCronService],
 })
 export class AssessmentModule { }

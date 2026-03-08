@@ -7,7 +7,7 @@ import { ChapterController } from './controllers/chapter.controller';
 import { ChapterItemController } from './controllers/chapter-item.controller';
 import { TicketController } from './controllers/ticket.controller';
 import { ClassController } from './controllers/class.controller';
-import { ClassScheduleController } from './controllers/class-schedule.controller';
+import { LiveScheduleController } from './controllers/live-schedule.controller';
 import { ClassAssessmentController } from './controllers/class-assessment.controller';
 import { QuestionController } from './controllers/question.controller';
 import { ExamController } from './controllers/exam.controller';
@@ -41,7 +41,7 @@ import { LiveSessionController } from './controllers/live-session.controller';
     AssignmentTemplateController,
     TicketController,
     ClassController,
-    ClassScheduleController,
+    LiveScheduleController,
     ClassAssessmentController,
     QuestionController,
     ExamController,

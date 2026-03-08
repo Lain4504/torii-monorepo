@@ -32,6 +32,7 @@ import {
 } from "@workspace/schemas"
 import type { AcademyQuizTemplate } from "@/lib/api/services/academy-quiz-templates"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
+import { useAcademyQuestionPools } from "@/lib/api/services/academy-question-pools"
 import { RichTextEditor, type EditorJsData } from "@/components/editor/rich-text-editor"
 import {
     Tabs,
@@ -57,6 +58,7 @@ export function QuizTemplateForm({
 }) {
     const isEdit = mode === "edit"
     const { data: courseProfiles = [] } = useAcademyCourseProfiles({})
+    const { data: pools = [] } = useAcademyQuestionPools({})
 
     const { handleSubmit, control } = useForm<
         AcademyQuizTemplateCreateDTO | AcademyQuizTemplateUpdateDTO
@@ -80,6 +82,7 @@ export function QuizTemplateForm({
                 courseProfileId: "",
                 title: "",
                 description: "",
+                questionPoolId: undefined,
                 defaultMaxAttempts: 1,
             },
     })
@@ -222,6 +225,30 @@ export function QuizTemplateForm({
                                         {...field}
                                         onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
                                     />
+                                    <FieldError>{fieldState.error?.message}</FieldError>
+                                </Field>
+                            )}
+                        />
+
+                        <Controller
+                            name={"questionPoolId" as any}
+                            control={control}
+                            render={({ field, fieldState }) => (
+                                <Field>
+                                    <FieldLabel>Question Pool (Tùy chọn)</FieldLabel>
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Chọn Pool để lấy câu hỏi ngẫu nhiên..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="none">-- Không dùng pool --</SelectItem>
+                                            {pools.map((p) => (
+                                                <SelectItem key={p.id} value={p.id}>
+                                                    {p.name} ({p.code})
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                     <FieldError>{fieldState.error?.message}</FieldError>
                                 </Field>
                             )}

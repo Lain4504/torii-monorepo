@@ -31,7 +31,7 @@ export default function RewardsPage() {
     }
 
     const handleRedeemClick = (deal: any) => {
-        if ((profile?.points || 0) < deal.points) {
+        if ((profile?.points || 0) < deal.costPoints) {
             toast.error('Bạn không đủ điểm để đổi quà này')
             return
         }
@@ -51,16 +51,11 @@ export default function RewardsPage() {
                 refetchCoupons()
             ])
 
-            if (result.isInternal) {
-                setRedeemedCoupon(null)
-                toast.success(result.message || 'Đổi quà thành công!')
-            } else {
-                setRedeemedCoupon({
-                    code: result.couponCode || result.coupon?.code,
-                    pointsDeducted: selectedDeal.points
-                })
-                toast.success('Đã nhận được mã giảm giá!')
-            }
+            setRedeemedCoupon({
+                code: result.couponCode,
+                pointsDeducted: selectedDeal.costPoints
+            })
+            toast.success('Đã nhận được mã giảm giá!')
             setIsConfirmOpen(false)
         } catch (error: any) {
             toast.error(error.message || 'Đã có lỗi xảy ra')
@@ -112,15 +107,15 @@ export default function RewardsPage() {
                                     {isStreakFreeze ? (
                                         <Snowflake className="size-5 text-blue-500" />
                                     ) : (
-                                        reward.discountType === 'percentage' ? <TrendingUp className="size-5 text-primary" /> : <Ticket className="size-5 text-primary" />
+                                        reward.config?.discountType === 'PERCENTAGE' ? <TrendingUp className="size-5 text-primary" /> : <Ticket className="size-5 text-primary" />
                                     )}
                                 </div>
                                 <CardTitle className="text-xl">{reward.name}</CardTitle>
                                 <CardDescription>{reward.description}</CardDescription>
                                 <div className="flex flex-wrap gap-2 mt-2">
-                                    {reward.minOrderAmount ? (
+                                    {reward.config?.minOrderValue ? (
                                         <Badge variant="secondary" className="text-[10px] px-2 py-0.5 h-auto font-normal">
-                                            Đơn tối thiểu: {formatCurrency(reward.minOrderAmount)}
+                                            Đơn tối thiểu: {formatCurrency(reward.config.minOrderValue)}
                                         </Badge>
                                     ) : isStreakFreeze ? (
                                         <Badge variant="secondary" className="text-[10px] px-2 py-0.5 h-auto font-normal bg-blue-50 text-blue-600 border-none">
@@ -133,18 +128,18 @@ export default function RewardsPage() {
                             <CardContent>
                                 <div className="flex items-center gap-2 text-primary font-bold">
                                     <Star className="size-4 fill-primary" />
-                                    <span>{formatNumber(reward.points)} Points</span>
+                                    <span>{formatNumber(reward.costPoints)} Points</span>
                                 </div>
                             </CardContent>
 
                             <CardFooter>
                                 <Button
                                     className="w-full"
-                                    variant={(profile?.points || 0) >= reward.points ? (isStreakFreeze ? "outline" : "default") : "outline"}
-                                    disabled={(profile?.points || 0) < reward.points || redeemMutation.isPending}
+                                    variant={(profile?.points || 0) >= reward.costPoints ? (isStreakFreeze ? "outline" : "default") : "outline"}
+                                    disabled={(profile?.points || 0) < reward.costPoints || redeemMutation.isPending}
                                     onClick={() => handleRedeemClick(reward)}
                                 >
-                                    {(profile?.points || 0) >= reward.points ? 'Đổi ngay' : 'Chưa đủ điểm'}
+                                    {(profile?.points || 0) >= reward.costPoints ? 'Đổi ngay' : 'Chưa đủ điểm'}
                                     <ArrowRight className="ml-2 size-4 group-hover:translate-x-1 transition-transform" />
                                 </Button>
                             </CardFooter>
@@ -175,9 +170,9 @@ export default function RewardsPage() {
                                             <h3 className="text-lg font-black text-primary tracking-widest truncate">{coupon.code}</h3>
                                             {!coupon.userId && <Badge variant="secondary" className="text-[10px]">Công khai</Badge>}
                                         </div>
-                                        <p className="text-sm font-medium text-foreground truncate">{coupon.name}</p>
+                                        <p className="text-sm font-medium text-foreground truncate">{coupon.description || 'Mã giảm giá Torii'}</p>
                                         <p className="text-xs text-muted-foreground mt-0.5">
-                                            Hạn dùng: {formatDate(coupon.validUntil)}
+                                            Hạn dùng: {coupon.validUntil ? formatDate(coupon.validUntil) : 'Không giới hạn'}
                                             {coupon.maxDiscountAmount && ` • Giảm tối đa ${formatCurrency(coupon.maxDiscountAmount)}`}
                                         </p>
                                     </div>
@@ -221,7 +216,7 @@ export default function RewardsPage() {
                 open={!!redeemedCoupon}
                 onOpenChange={(open) => !open && setRedeemedCoupon(null)}
                 coupon={redeemedCoupon}
-                pointsDeducted={selectedDeal?.points || null}
+                pointsDeducted={selectedDeal?.costPoints || null}
             />
         </div>
     )

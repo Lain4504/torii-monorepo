@@ -41,7 +41,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import { MoreVertical } from "lucide-react"
+import { MoreVertical, Search, Layout, BookOpen, Clock, FileText, Video, Globe } from "lucide-react"
+import { Badge } from "@workspace/ui/components/badge"
+import { Skeleton } from "@workspace/ui/components/skeleton"
+import { format } from "date-fns"
 
 export default function AcademyLessonsPage() {
   const [q, setQ] = useState("")
@@ -64,41 +67,57 @@ export default function AcademyLessonsPage() {
     if (!deleteId) return
     try {
       await del.mutateAsync(deleteId)
-      toast.success("Đã xoá lesson")
+      toast.success("Đã xoá bài học thành công")
     } catch (e: any) {
-      toast.error(e?.message || "Xoá thất bại")
+      toast.error(e?.message || "Xoá bài học thất bại")
     } finally {
       setDeleteId(null)
+    }
+  }
+
+  const getContentTypeIcon = (type: string) => {
+    switch (type) {
+      case "VIDEO": return <Video className="size-3.5" />
+      case "HTML": return <Globe className="size-3.5" />
+      case "MARKDOWN": return <FileText className="size-3.5" />
+      default: return <BookOpen className="size-3.5" />
     }
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Academy · Lessons"
-        subtitle="Quản lý bài học (Video, HTML, Markdown...)"
+        title="Academy · Kho bài học"
+        subtitle="Quản lý kho nội dung học tập (Video, HTML, Markdown...)."
         actions={
           <Button asChild>
-            <Link to="/academy/lessons/new">Tạo mới</Link>
+            <Link to="/academy/lessons/new">Tạo bài học mới</Link>
           </Button>
         }
       />
 
       <Card>
         <CardHeader className="space-y-4">
-          <CardTitle>Danh sách Lessons</CardTitle>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
+          <div className="flex items-center justify-between">
+            <CardTitle>Danh sách Bài học</CardTitle>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 md:items-center">
+            <div className="relative flex-1">
+              <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
               <Input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Tìm theo tiêu đề..."
+                placeholder="Tìm tiêu đề bài học..."
+                className="pl-9"
               />
             </div>
             <div className="w-full sm:w-[300px]">
               <Select value={courseProfileId} onValueChange={setCourseProfileId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Lọc theo Course Profile" />
+                  <div className="flex items-center gap-2">
+                    <Layout className="size-4 text-muted-foreground" />
+                    <SelectValue placeholder="Lọc theo Course Profile" />
+                  </div>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tất cả Course Profile</SelectItem>
@@ -117,38 +136,56 @@ export default function AcademyLessonsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[80px]">STT</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>Type</TableHead>
+                <TableHead>Tiêu đề bài học</TableHead>
+                <TableHead>Loại nội dung</TableHead>
                 <TableHead>Course Profile</TableHead>
-                <TableHead>Created At</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>Ngày tạo</TableHead>
+                <TableHead className="text-right">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-4">
-                    Đang tải...
-                  </TableCell>
-                </TableRow>
+                Array.from({ length: 5 }).map((_, idx) => (
+                  <TableRow key={idx}>
+                    <TableCell><Skeleton className="h-5 w-8" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-64" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-32" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                    <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto rounded-full" /></TableCell>
+                  </TableRow>
+                ))
               ) : data.length ? (
                 data.map((item, idx) => {
                   const profile = profiles.find((p) => p.id === item.courseProfileId)
                   return (
                     <TableRow key={item.id}>
                       <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
-                      <TableCell className="font-medium">{item.title}</TableCell>
-                      <TableCell>{item.contentType}</TableCell>
+                      <TableCell className="font-semibold">{item.title}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary" className="font-normal gap-1.5 shadow-none">
+                          {getContentTypeIcon(item.contentType)}
+                          {item.contentType}
+                        </Badge>
+                      </TableCell>
                       <TableCell>
                         {profile ? (
-                          <span title={profile.title}>{profile.code}</span>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium">{profile.code}</span>
+                            <span className="text-[10px] text-muted-foreground truncate max-w-[150px]">{profile.title}</span>
+                          </div>
                         ) : (
                           <span className="text-muted-foreground text-xs font-mono">
                             {item.courseProfileId.slice(0, 8)}...
                           </span>
                         )}
                       </TableCell>
-                      <TableCell>{new Date(item.createdAt).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Clock className="size-3.5" />
+                          {format(new Date(item.createdAt), "dd/MM/yyyy")}
+                        </div>
+                      </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -164,14 +201,14 @@ export default function AcademyLessonsPage() {
                           <DropdownMenuContent align="end" className="w-44">
                             <DropdownMenuItem asChild>
                               <Link to={`/academy/lessons/${item.id}/edit`}>
-                                Sửa
+                                Sửa bài học
                               </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               className="text-destructive focus:text-destructive"
                               onClick={() => setDeleteId(item.id)}
                             >
-                              Xoá
+                              Xoá bài học
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -181,8 +218,8 @@ export default function AcademyLessonsPage() {
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-4">
-                    Chưa có dữ liệu
+                  <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                    Chưa có bài học nào được tạo.
                   </TableCell>
                 </TableRow>
               )}
@@ -194,15 +231,15 @@ export default function AcademyLessonsPage() {
       <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Xoá Lesson?</AlertDialogTitle>
+            <AlertDialogTitle>Xoá Bài học?</AlertDialogTitle>
             <AlertDialogDescription>
-              Hành động này không thể hoàn tác. Lesson sẽ bị xoá vĩnh viễn khỏi hệ thống.
+              Thao tác này sẽ xoá vĩnh viễn nội dung bài học khỏi hệ thống. Các chương trình học đang sử dụng bài học này có thể bị ảnh hưởng.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Hủy</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Xoá
+              Xác nhận Xoá
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

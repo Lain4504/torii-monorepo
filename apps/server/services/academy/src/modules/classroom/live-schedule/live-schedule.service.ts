@@ -3,25 +3,23 @@ import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
-  ClassScheduleCreateDto,
-  ClassScheduleQueryDto,
-  ClassScheduleUpdateDto,
-} from './dto/class-schedule.dto';
+  LiveScheduleCreateDto,
+  LiveScheduleQueryDto,
+  LiveScheduleUpdateDto,
+} from './dto/live-schedule.dto';
 import { create } from '@bufbuild/protobuf';
 import {
-  CreateRoomReqSchema,
   RoomMetadataSchema,
   RoomCreateFeaturesSchema,
   GenerateTokenReqSchema,
   UserInfoSchema,
   UserMetadataSchema,
-  NatsSubjectsSchema,
 } from '@workspace/protocol';
 import { AppConfigService } from '@server/shared';
 
 @Injectable()
-export class ClassScheduleService {
-  private readonly logger = new Logger(ClassScheduleService.name);
+export class LiveScheduleService {
+  private readonly logger = new Logger(LiveScheduleService.name);
 
   constructor(
     private readonly prisma: PrismaService,
@@ -29,35 +27,31 @@ export class ClassScheduleService {
     @Inject('NATS_SERVICE') private readonly nats: ClientProxy,
   ) { }
 
-  async findAll(query: ClassScheduleQueryDto) {
-    return this.prisma.classSchedule.findMany({
-      where: { classId: query.classId ?? undefined },
+  async findAll(query: LiveScheduleQueryDto) {
+    return this.prisma.liveSchedule.findMany({
+      where: { liveClassId: query.liveClassId ?? undefined },
       orderBy: [{ weekday: 'asc' }, { startTime: 'asc' }, { id: 'asc' }],
     });
   }
 
   async findById(id: string) {
-    const item = await this.prisma.classSchedule.findUnique({ where: { id } });
-    if (!item) throw new NotFoundException('ClassSchedule not found');
+    const item = await this.prisma.liveSchedule.findUnique({ where: { id } });
+    if (!item) throw new NotFoundException('LiveSchedule not found');
     return item;
   }
 
-  async create(input: ClassScheduleCreateDto) {
-    const klass = await this.prisma.class.findUnique({
-      where: { id: input.classId },
-      select: { id: true, mode: true, code: true, name: true },
+  async create(input: LiveScheduleCreateDto) {
+    const liveKlass = await this.prisma.liveClass.findUnique({
+      where: { id: input.liveClassId },
+      include: { class: true },
     });
-    if (!klass) throw new BadRequestException('Invalid classId');
-    const mode = (klass.mode ?? '').toUpperCase();
-    if (mode === 'VOD') {
-      throw new BadRequestException('Cannot create schedule for VOD class');
-    }
+    if (!liveKlass) throw new BadRequestException('Invalid liveClassId');
 
-    const roomId = `class-${klass.id.substring(0, 8)}-${Date.now()}`;
+    const roomId = `live-${liveKlass.classId.substring(0, 8)}-${Date.now()}`;
 
-    const schedule = await this.prisma.classSchedule.create({
+    const schedule = await this.prisma.liveSchedule.create({
       data: {
-        classId: input.classId,
+        liveClassId: input.liveClassId,
         weekday: input.weekday,
         startTime: input.startTime,
         endTime: input.endTime,
@@ -67,31 +61,20 @@ export class ClassScheduleService {
       },
     });
 
-    // =========================================================================
-    // NATS ROOM CREATION - DEFERRED (LAZY LOAD)
-    // =========================================================================
-    // We intentionally DO NOT call NATS `room.create` here.
-    // 1. NATS KV TTL constraint: The Meet service sets a 7-day TTL on JetStream buckets.
-    //    If we create the room here, and the class is > 7 days away, the room will expire and break.
-    // 2. Resource optimization: JetStream Streams (KV Buckets) are heavy. Creating thousands 
-    //    of future schedules in advance would drain NATS Stream cluster resources.
-    // 
-    // SOLUTION: We only generate the `roomId` and save it. 
-    // The actual `room.create` will be called "Just In Time" (JIT) 
-    // when the Lecturer clicks "Start Session" before the class time.
-
     return schedule;
   }
 
   async join(id: string, userId: string, isAdmin = false) {
-    const schedule = await this.prisma.classSchedule.findUnique({
+    const schedule = await this.prisma.liveSchedule.findUnique({
       where: { id },
       include: {
-        class: {
-          select: {
-            id: true,
-            name: true,
-            courseProfile: { select: { title: true } },
+        liveClass: {
+          include: {
+            class: {
+              include: {
+                courseProfile: { select: { title: true } },
+              },
+            },
           },
         },
       },
@@ -105,10 +88,6 @@ export class ClassScheduleService {
     ).catch(() => ({ status: false }));
 
     if (!roomExists?.status) {
-      // If student joins and room does not exist, throw error or wait? 
-      // Usually, lecturer must start the room first, or we allow first person to trigger creation.
-      // Based on your requirement: Lecturer (admin) may need to check it, for learner maybe not.
-      // We will allow lecturer to create it.
       if (!isAdmin) {
         throw new BadRequestException('Phòng học chưa được khởi tạo bởi giảng viên.');
       }
@@ -118,11 +97,11 @@ export class ClassScheduleService {
       }
 
       const roomTitle =
-        schedule.class.courseProfile?.title || schedule.class.name;
+        schedule.liveClass.class.courseProfile?.title || schedule.liveClass.class.name;
       const roomInfo = this.getDefaultRoomInfo(schedule.roomId, roomTitle);
 
       await firstValueFrom(this.nats.send({ cmd: 'room.create' }, roomInfo)).catch((err) => {
-        this.logger.error(`Failed to create room ${schedule.roomId} for class ${schedule.classId}: ${err instanceof Error ? err.message : err}`);
+        this.logger.error(`Failed to create room ${schedule.roomId} for live class ${schedule.liveClassId}: ${err instanceof Error ? err.message : err}`);
         throw new BadRequestException('Không thể khởi tạo phòng học. Vui lòng thử lại.');
       });
     }
@@ -156,13 +135,13 @@ export class ClassScheduleService {
       token: tokenRes.token,
       roomId: schedule.roomId,
       userId: userId,
-      roomTitle: schedule.class.courseProfile?.title || schedule.class.name,
+      roomTitle: schedule.liveClass.class.courseProfile?.title || schedule.liveClass.class.name,
     };
   }
 
-  async update(id: string, input: ClassScheduleUpdateDto) {
+  async update(id: string, input: LiveScheduleUpdateDto) {
     await this.findById(id);
-    return this.prisma.classSchedule.update({
+    return this.prisma.liveSchedule.update({
       where: { id },
       data: {
         weekday: input.weekday,
@@ -176,7 +155,7 @@ export class ClassScheduleService {
 
   async delete(id: string) {
     await this.findById(id);
-    await this.prisma.classSchedule.delete({ where: { id } });
+    await this.prisma.liveSchedule.delete({ where: { id } });
     return { ok: true };
   }
 
@@ -265,4 +244,3 @@ export class ClassScheduleService {
     }
   }
 }
-
