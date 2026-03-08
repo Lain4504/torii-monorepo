@@ -43,24 +43,55 @@ export function DashboardHeader() {
             )}
             {pathSegments.map((segment, index) => {
               const isLast = index === pathSegments.length - 1
-              const href = `/${pathSegments.slice(0, index + 1).join('/')}`
+              // Map segments to valid paths
+              let href = `/${pathSegments.slice(0, index + 1).join('/')}`
 
-              if (segment.length > 20) return null;
+              // Handle special cases where parent route doesn't exist
+              if (segment === 'academy') href = '/'
+
+              // Lecturer exceptions
+              if (isLecturer && segment === 'course-master') href = '/course-master/my'
+
+              // Friendly names map
+              const labels: Record<string, string> = {
+                'academy': 'Học viện',
+                'course-profiles': 'Hồ sơ khóa học',
+                'course-editions': 'Phiên bản',
+                'course-offerings': 'Gói bán',
+                'classes': 'Lớp học',
+                'lessons': 'Bài học',
+                'chapters': 'Chương',
+                'quizzes': 'Trắc nghiệm',
+                'assignments': 'Bài tập',
+                'exams': 'Kỳ thi',
+                'class-assessments': 'Đánh giá lớp',
+                'question-pools': 'Ngân hàng câu hỏi',
+                'users': 'Người dùng',
+                'roles': 'Vai trò',
+                'settings': 'Cài đặt',
+                'orders': 'Đơn hàng',
+                'coupons': 'Mã giảm giá',
+                'tickets': 'Hỗ trợ',
+              }
+
+              const label = labels[segment] || segment.replace(/-/g, ' ')
+
+              if (segment.length > 20 && !labels[segment]) return null;
 
               return (
-                <React.Fragment key={href}>
+                <React.Fragment key={href + index}>
                   <BreadcrumbItem>
                     {isLast ? (
-                      <BreadcrumbPage className="capitalize text-xs font-bold italic text-foreground flex items-center gap-2 max-w-[150px] truncate">
-                        {segment.replace('-', ' ')}
+                      <BreadcrumbPage className="capitalize text-xs font-bold italic text-foreground flex items-center gap-2 max-w-[200px] truncate">
+                        {label}
                       </BreadcrumbPage>
                     ) : (
                       <BreadcrumbLink asChild>
                         <Link
-                          to={(isLecturer && segment === 'course-master') ? '/course-master/my' : href}
+                          to={href}
                           className="capitalize text-xs font-semibold text-muted-foreground/50 hover:text-foreground transition-colors"
                         >
-                          {segment.replace('-', ' ')}
+                          {label}
                         </Link>
                       </BreadcrumbLink>
                     )}

@@ -32,16 +32,17 @@ export class CouponHandler {
 
     @MessagePattern({ cmd: 'academy.coupon.admin.create' })
     admin_create(@Payload() data: any) {
-        return this.couponService.admin_create(data);
+        const { requesterId, ...input } = data;
+        return this.couponService.admin_create(input, requesterId);
     }
 
     @MessagePattern({ cmd: 'academy.coupon.admin.update' })
-    admin_update(@Payload() data: { id: string; data: any }) {
-        return this.couponService.admin_update(data.id, data.data);
+    admin_update(@Payload() data: { id: string; data: any; requesterId?: string }) {
+        return this.couponService.admin_update(data.id, data.data, data.requesterId);
     }
 
     @MessagePattern({ cmd: 'academy.coupon.admin.delete' })
-    admin_delete(@Payload() data: { id: string }) {
-        return this.couponService.admin_delete(data.id);
+    admin_delete(@Payload() data: { id: string; requesterId?: string }) {
+        return this.couponService.admin_delete(data.id, data.requesterId);
     }
 }

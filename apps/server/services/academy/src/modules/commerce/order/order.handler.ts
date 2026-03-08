@@ -35,7 +35,7 @@ export class OrderHandler {
     }
 
     @MessagePattern({ cmd: 'academy.order.admin.updateStatus' })
-    admin_updateStatus(@Payload() data: { id: string; status: any }) {
-        return this.orderService.admin_updateStatus(data.id, data.status);
+    admin_updateStatus(@Payload() data: { id: string; status: any; requesterId?: string }) {
+        return this.orderService.admin_updateStatus(data.id, data.status, data.requesterId);
     }
 }

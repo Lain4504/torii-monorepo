@@ -9,7 +9,7 @@ import {
 
 @Controller()
 export class AssignmentSubmissionHandler {
-  constructor(private readonly submissions: AssignmentSubmissionService) {}
+  constructor(private readonly submissions: AssignmentSubmissionService) { }
 
   @MessagePattern({ cmd: 'academy.assignmentSubmission.findAll' })
   findAll(@Payload() query: AssignmentSubmissionQueryDto) {
@@ -22,18 +22,19 @@ export class AssignmentSubmissionHandler {
   }
 
   @MessagePattern({ cmd: 'academy.assignmentSubmission.create' })
-  create(@Payload() input: AssignmentSubmissionCreateDto) {
-    return this.submissions.create(input);
+  create(@Payload() data: AssignmentSubmissionCreateDto & { requesterId?: string }) {
+    const { requesterId, ...input } = data;
+    return this.submissions.create(input, requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.assignmentSubmission.update' })
-  update(@Payload() data: { id: string; input: AssignmentSubmissionUpdateDto }) {
-    return this.submissions.update(data.id, data.input);
+  update(@Payload() data: { id: string; input: AssignmentSubmissionUpdateDto; requesterId?: string }) {
+    return this.submissions.update(data.id, data.input, data.requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.assignmentSubmission.delete' })
-  delete(@Payload() data: { id: string }) {
-    return this.submissions.delete(data.id);
+  delete(@Payload() data: { id: string; requesterId?: string }) {
+    return this.submissions.delete(data.id, data.requesterId);
   }
 }
 

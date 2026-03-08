@@ -32,7 +32,7 @@ import {
 } from "@workspace/ui/components/select"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { Switch } from "@workspace/ui/components/switch"
-import { ScrollArea } from "@workspace/ui/components/scroll-area"
+
 import { useCreateReward } from "@/lib/api/services/gamification"
 import { Star, Gift, Ticket } from "lucide-react"
 import { Spinner } from "@workspace/ui/components/spinner"
@@ -51,6 +51,7 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
         setValue,
         reset,
         control,
+        watch,
         formState: { errors, isDirty },
     } = useForm<CreatePointRewardDTO>({
         resolver: zodResolver(createPointRewardDTOSchema) as any,
@@ -71,6 +72,7 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
     })
 
     // const config = watch("config")
+    const discountType = watch("config.discountType")
 
     const handleClose = () => {
         if (!createMutation.isPending) {
@@ -91,7 +93,7 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-xl max-h-[90vh] p-0">
+            <DialogContent className="sm:max-w-[700px] max-h-[90vh] p-0 flex flex-col overflow-hidden">
                 <DialogHeader className="p-6 pb-0">
                     <DialogTitle className="flex items-center gap-2">
                         <Gift className="h-5 w-5 text-primary" />
@@ -102,7 +104,7 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
                     </DialogDescription>
                 </DialogHeader>
 
-                <ScrollArea className="flex-1 max-h-[calc(90vh-180px)]">
+                <div className="flex-1 overflow-y-auto">
                     <div className="space-y-6 p-6">
                         <form id="create-reward-form" onSubmit={handleSubmit(onSubmit as any)}>
                             <FieldGroup>
@@ -185,16 +187,18 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-4">
-                                        <Field>
-                                            <FieldLabel>Giảm tối đa (không bắt buộc)</FieldLabel>
-                                            <Input
-                                                type="number"
-                                                placeholder="Ví dụ: 200000"
-                                                {...register("config.maxDiscountAmount", { valueAsNumber: true })}
-                                            />
-                                            <FieldDescription>Chỉ áp dụng cho loại phần trăm.</FieldDescription>
-                                        </Field>
-                                        <Field>
+                                        {discountType === "PERCENTAGE" && (
+                                            <Field>
+                                                <FieldLabel>Giảm tối đa (không bắt buộc)</FieldLabel>
+                                                <Input
+                                                    type="number"
+                                                    placeholder="Ví dụ: 200000"
+                                                    {...register("config.maxDiscountAmount", { valueAsNumber: true })}
+                                                />
+                                                <FieldDescription>Chỉ áp dụng cho loại phần trăm.</FieldDescription>
+                                            </Field>
+                                        )}
+                                        <Field className={discountType === "PERCENTAGE" ? "" : "col-span-2"}>
                                             <FieldLabel>Đơn hàng tối thiểu</FieldLabel>
                                             <Input
                                                 type="number"
@@ -220,7 +224,7 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
                             </FieldGroup>
                         </form>
                     </div>
-                </ScrollArea>
+                </div>
 
                 <DialogFooter className="p-6 pt-0">
                     <Button

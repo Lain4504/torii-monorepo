@@ -5,7 +5,6 @@ import { PageHeader } from "@/components/common/page-header"
 import {
   BookOpen,
   Layers,
-  FileText,
   FolderTree,
   ListChecks,
   Users,
@@ -16,11 +15,20 @@ import {
   History,
   FileCheck,
   ShoppingBag,
-  BarChart3,
-  Search
+  Search,
+  AlertCircle
 } from "lucide-react"
+import { useAcademyCourseEditions } from "@/lib/api/services/academy-course-editions"
+import { useAcademyClasses } from "@/lib/api/services/academy-classes"
+import { useAcademyCourseOfferings } from "@/lib/api/services/academy-course-offerings"
 
 export default function AcademyDashboardPage() {
+  const { data: pendingEditions = [] } = useAcademyCourseEditions({ status: "PENDING_APPROVAL" } as any)
+  const { data: pendingClasses = [] } = useAcademyClasses({ status: "PENDING_APPROVAL" } as any)
+  const { data: pendingOfferings = [] } = useAcademyCourseOfferings({ status: "PENDING_APPROVAL" } as any)
+
+  const totalPending = pendingEditions.length + pendingClasses.length + pendingOfferings.length
+
   return (
     <div className="space-y-8">
       <PageHeader
@@ -48,10 +56,40 @@ export default function AcademyDashboardPage() {
             <CardTitle className="text-3xl font-bold">--</CardTitle>
           </CardHeader>
         </Card>
-        <Card>
+        <Card className={totalPending > 0 ? "bg-amber-500/10 border-amber-500/50" : ""}>
           <CardHeader className="pb-2">
-            <CardDescription>Open Submissions</CardDescription>
-            <CardTitle className="text-3xl font-bold">--</CardTitle>
+            <CardDescription className="flex items-center gap-1">
+              Chờ phê duyệt
+              {totalPending > 0 && <AlertCircle className="h-3 w-3 text-amber-500" />}
+            </CardDescription>
+            <CardTitle className={`text-3xl font-bold ${totalPending > 0 ? "text-amber-600" : ""}`}>
+              {totalPending}
+            </CardTitle>
+            {totalPending > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {pendingEditions.length > 0 && (
+                  <Button asChild variant="outline" size="sm" className="h-7 text-xs">
+                    <Link to="/academy/course-profiles">
+                      {pendingEditions.length} Edition{pendingEditions.length > 1 ? "s" : ""}
+                    </Link>
+                  </Button>
+                )}
+                {pendingClasses.length > 0 && (
+                  <Button asChild variant="outline" size="sm" className="h-7 text-xs">
+                    <Link to="/academy/classes?status=PENDING_APPROVAL">
+                      {pendingClasses.length} Lớp
+                    </Link>
+                  </Button>
+                )}
+                {pendingOfferings.length > 0 && (
+                  <Button asChild variant="outline" size="sm" className="h-7 text-xs">
+                    <Link to="/academy/course-offerings?status=PENDING_APPROVAL">
+                      {pendingOfferings.length} Gói bán
+                    </Link>
+                  </Button>
+                )}
+              </div>
+            )}
           </CardHeader>
         </Card>
       </div>
@@ -73,8 +111,8 @@ export default function AcademyDashboardPage() {
               </Link>
             </Button>
             <Button asChild variant="outline" className="justify-start gap-2">
-              <Link to="/academy/course-editions">
-                <History className="h-4 w-4" /> Course Editions
+              <Link to="/academy/course-profiles">
+                <History className="h-4 w-4" /> Course Editions (trong Profile)
               </Link>
             </Button>
             <Button asChild variant="outline" className="justify-start gap-2">
@@ -85,11 +123,6 @@ export default function AcademyDashboardPage() {
             <Button asChild variant="outline" className="justify-start gap-2">
               <Link to="/academy/chapter-items">
                 <ListChecks className="h-4 w-4" /> Chapter Items
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="justify-start gap-2 sm:col-span-2">
-              <Link to="/academy/lessons">
-                <FileText className="h-4 w-4" /> Quản lý bài học (Lessons)
               </Link>
             </Button>
           </CardContent>
@@ -120,11 +153,6 @@ export default function AcademyDashboardPage() {
                 <Users className="h-4 w-4" /> Ghi danh (Enrollments)
               </Link>
             </Button>
-            <Button asChild variant="outline" className="justify-start gap-2">
-              <Link to="/academy/reports">
-                <BarChart3 className="h-4 w-4" /> Báo cáo học tập (BETA)
-              </Link>
-            </Button>
           </CardContent>
         </Card>
 
@@ -149,23 +177,8 @@ export default function AcademyDashboardPage() {
               </Link>
             </Button>
             <Button asChild variant="outline" className="justify-start gap-2">
-              <Link to="/academy/quiz-templates">
-                <Search className="h-4 w-4" /> Quiz Templates
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="justify-start gap-2">
-              <Link to="/academy/assignment-templates">
-                <FileText className="h-4 w-4" /> Assignment Templates
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="justify-start gap-2">
-              <Link to="/academy/class-assessments">
-                <ClipboardCheck className="h-4 w-4" /> Bài tập lớp (Class Assessments)
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="justify-start gap-2">
-              <Link to="/academy/assignment-submissions">
-                <FileCheck className="h-4 w-4" /> Chấm bài (Submissions)
+              <Link to="/academy/course-profiles">
+                <Search className="h-4 w-4" /> Quiz & Assignment Templates (trong Course Profile)
               </Link>
             </Button>
           </CardContent>

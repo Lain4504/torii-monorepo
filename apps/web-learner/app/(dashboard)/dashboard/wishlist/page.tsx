@@ -8,17 +8,27 @@ import { PlayCircle, BookOpen, Clock, Heart, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { wishlistApi } from '@/lib/api/services/wishlist-api'
-import { courseApi } from '@/lib/api/services/course-api'
+import { academyCourseApi as courseApi } from '@/lib/api/services/academy-course-api'
 import { academyClassesApi } from '@/lib/api/services/academy-classes'
-import type { CourseMasterResponseDTO } from '@workspace/schemas'
+import type { AcademyCourseProfileCreateDTO } from '@workspace/schemas'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { formatCurrency } from '@/utils/format-utils'
 
-interface WishlistCourse extends CourseMasterResponseDTO {
+interface WishlistCourse extends AcademyCourseProfileCreateDTO {
+    id: string;
+    slug: string;
+    jlptLevel?: string;
     wishlistId: string;
     price?: number | null;
     discountPrice?: number | null;
+    totalLessons?: number;
+    duration?: string;
+    durationWeeks?: number;
+    lecturer?: {
+        displayName: string;
+        avatarUrl?: string;
+    };
 }
 
 export default function WishlistPage() {

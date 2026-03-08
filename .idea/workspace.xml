@@ -4,7 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: enhance Course and CourseEdition models with approval workflow and new status options" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(academy): implement class assignment and quiz forms with validation and UI integration">
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/academy/chapter-item-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/academy/chapter-item-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/academy/course-edition-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/academy/course-edition-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/academy/course-offering-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/academy/course-offering-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/academy/course-profile-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/academy/course-profile-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/layout/dashboard-header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/layout/dashboard-header.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-course-editions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-course-editions.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-course-profiles.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-course-profiles.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-course-edition.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-course-edition.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-course-profile.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-course-profile.dto.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -35,9 +45,13 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
+  &quot;history&quot;: [
+    {
+      &quot;state&quot;: &quot;OPEN&quot;
+    }
+  ],
   &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;Lain4504&quot;
+    &quot;state&quot;: &quot;OPEN&quot;
   }
 }</component>
   <component name="GithubPullRequestsUISettings">{
@@ -73,7 +87,7 @@
     &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;update-missing-page&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#275 on implement-course-aproval-flow&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
@@ -310,70 +324,11 @@
       <workItem from="1772726265375" duration="1097000" />
       <workItem from="1772802424937" duration="4822000" />
       <workItem from="1772811140566" duration="900000" />
-    </task>
-    <task id="LOCAL-00940" summary="update core lms flow">
-      <option name="closed" value="true" />
-      <created>1772635046399</created>
-      <option name="number" value="00940" />
-      <option name="presentableId" value="LOCAL-00940" />
-      <option name="project" value="LOCAL" />
-      <updated>1772635046399</updated>
-    </task>
-    <task id="LOCAL-00941" summary="update core lms flow">
-      <option name="closed" value="true" />
-      <created>1772635132884</created>
-      <option name="number" value="00941" />
-      <option name="presentableId" value="LOCAL-00941" />
-      <option name="project" value="LOCAL" />
-      <updated>1772635132884</updated>
-    </task>
-    <task id="LOCAL-00942" summary="feat: initialize new marketing web project with Tailwind CSS and Radix UI components">
-      <option name="closed" value="true" />
-      <created>1772636235031</created>
-      <option name="number" value="00942" />
-      <option name="presentableId" value="LOCAL-00942" />
-      <option name="project" value="LOCAL" />
-      <updated>1772636235031</updated>
-    </task>
-    <task id="LOCAL-00943" summary="feat: add new UI components including Skeleton, AspectRatio, Spinner, and more">
-      <option name="closed" value="true" />
-      <created>1772636342269</created>
-      <option name="number" value="00943" />
-      <option name="presentableId" value="LOCAL-00943" />
-      <option name="project" value="LOCAL" />
-      <updated>1772636342269</updated>
-    </task>
-    <task id="LOCAL-00944" summary="feat: add new UI components including Skeleton, AspectRatio, Spinner, and more">
-      <option name="closed" value="true" />
-      <created>1772636488220</created>
-      <option name="number" value="00944" />
-      <option name="presentableId" value="LOCAL-00944" />
-      <option name="project" value="LOCAL" />
-      <updated>1772636488220</updated>
-    </task>
-    <task id="LOCAL-00945" summary="feat: add new UI components including Skeleton, AspectRatio, Spinner, and more">
-      <option name="closed" value="true" />
-      <created>1772636645449</created>
-      <option name="number" value="00945" />
-      <option name="presentableId" value="LOCAL-00945" />
-      <option name="project" value="LOCAL" />
-      <updated>1772636645449</updated>
-    </task>
-    <task id="LOCAL-00946" summary="update create review submit flow for course and course master">
-      <option name="closed" value="true" />
-      <created>1772643004038</created>
-      <option name="number" value="00946" />
-      <option name="presentableId" value="LOCAL-00946" />
-      <option name="project" value="LOCAL" />
-      <updated>1772643004038</updated>
-    </task>
-    <task id="LOCAL-00947" summary="update create review submit flow for course and course master">
-      <option name="closed" value="true" />
-      <created>1772643359298</created>
-      <option name="number" value="00947" />
-      <option name="presentableId" value="LOCAL-00947" />
-      <option name="project" value="LOCAL" />
-      <updated>1772643359298</updated>
+      <workItem from="1772962511915" duration="976000" />
+      <workItem from="1772972179657" duration="2421000" />
+      <workItem from="1772979957763" duration="1629000" />
+      <workItem from="1772987158766" duration="480000" />
+      <workItem from="1772988124145" duration="523000" />
     </task>
     <task id="LOCAL-00948" summary="update create review submit flow for course and course master">
       <option name="closed" value="true" />
@@ -703,7 +658,71 @@
       <option name="project" value="LOCAL" />
       <updated>1772939519615</updated>
     </task>
-    <option name="localTasksCounter" value="989" />
+    <task id="LOCAL-00989" summary="feat(academy): add class attendance module with CRUD operations and UI integration">
+      <option name="closed" value="true" />
+      <created>1772967944785</created>
+      <option name="number" value="00989" />
+      <option name="presentableId" value="LOCAL-00989" />
+      <option name="project" value="LOCAL" />
+      <updated>1772967944785</updated>
+    </task>
+    <task id="LOCAL-00990" summary="feat(academy): add class attendance module with CRUD operations and UI integration">
+      <option name="closed" value="true" />
+      <created>1772967986104</created>
+      <option name="number" value="00990" />
+      <option name="presentableId" value="LOCAL-00990" />
+      <option name="project" value="LOCAL" />
+      <updated>1772967986104</updated>
+    </task>
+    <task id="LOCAL-00991" summary="feat(academy): add class attendance module with CRUD operations and UI integration">
+      <option name="closed" value="true" />
+      <created>1772968469206</created>
+      <option name="number" value="00991" />
+      <option name="presentableId" value="LOCAL-00991" />
+      <option name="project" value="LOCAL" />
+      <updated>1772968469206</updated>
+    </task>
+    <task id="LOCAL-00992" summary="feat(academy): add class attendance module with CRUD operations and UI integration">
+      <option name="closed" value="true" />
+      <created>1772971081949</created>
+      <option name="number" value="00992" />
+      <option name="presentableId" value="LOCAL-00992" />
+      <option name="project" value="LOCAL" />
+      <updated>1772971081949</updated>
+    </task>
+    <task id="LOCAL-00993" summary="feat(academy): enhance DTOs and APIs for course management, including new models and updated query hooks">
+      <option name="closed" value="true" />
+      <created>1772977748407</created>
+      <option name="number" value="00993" />
+      <option name="presentableId" value="LOCAL-00993" />
+      <option name="project" value="LOCAL" />
+      <updated>1772977748408</updated>
+    </task>
+    <task id="LOCAL-00994" summary="feat(academy): enhance DTOs and APIs for course management, including new models and updated query hooks">
+      <option name="closed" value="true" />
+      <created>1772979980804</created>
+      <option name="number" value="00994" />
+      <option name="presentableId" value="LOCAL-00994" />
+      <option name="project" value="LOCAL" />
+      <updated>1772979980804</updated>
+    </task>
+    <task id="LOCAL-00995" summary="feat(academy): enhance course management services with improved delete and archive functionalities&#10;&#10;- Updated delete methods in various services to include checks for existing associations, preventing deletion of active records.&#10;- Introduced archive functionality for course offerings and profiles, allowing for better management of course states.&#10;- Enhanced metadata handling in forms with a new Key-Value editor for improved user experience.&#10;- Refactored exam and assignment templates to support structured data input through dedicated editors.">
+      <option name="closed" value="true" />
+      <created>1772987492781</created>
+      <option name="number" value="00995" />
+      <option name="presentableId" value="LOCAL-00995" />
+      <option name="project" value="LOCAL" />
+      <updated>1772987492782</updated>
+    </task>
+    <task id="LOCAL-00996" summary="feat(academy): implement class assignment and quiz forms with validation and UI integration">
+      <option name="closed" value="true" />
+      <created>1772988183564</created>
+      <option name="number" value="00996" />
+      <option name="presentableId" value="LOCAL-00996" />
+      <option name="project" value="LOCAL" />
+      <updated>1772988183564</updated>
+    </task>
+    <option name="localTasksCounter" value="997" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -738,10 +757,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fix" />
-    <MESSAGE value="remomve uiuxpromax" />
-    <MESSAGE value="add gamification services and repositories; update tsconfig and module configurations" />
-    <MESSAGE value="feat(billing): restructure billing service modules and interfaces" />
     <MESSAGE value="add comment for interface" />
     <MESSAGE value="update meet to user shadcn ui component" />
     <MESSAGE value="update ui flow course detail" />
@@ -763,7 +778,11 @@
     <MESSAGE value="build learner success" />
     <MESSAGE value="refactor: merge logic to new academy service (#268)" />
     <MESSAGE value="feat: add Academy Achievement and Gamification Heatmap specifications" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add Academy Achievement and Gamification Heatmap specifications" />
+    <MESSAGE value="feat(academy): add class attendance module with CRUD operations and UI integration" />
+    <MESSAGE value="feat(academy): enhance DTOs and APIs for course management, including new models and updated query hooks" />
+    <MESSAGE value="feat(academy): enhance course management services with improved delete and archive functionalities&#10;&#10;- Updated delete methods in various services to include checks for existing associations, preventing deletion of active records.&#10;- Introduced archive functionality for course offerings and profiles, allowing for better management of course states.&#10;- Enhanced metadata handling in forms with a new Key-Value editor for improved user experience.&#10;- Refactored exam and assignment templates to support structured data input through dedicated editors." />
+    <MESSAGE value="feat(academy): implement class assignment and quiz forms with validation and UI integration" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(academy): implement class assignment and quiz forms with validation and UI integration" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

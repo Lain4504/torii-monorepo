@@ -22,10 +22,8 @@ import {
 import { formatNumber } from '@/utils/format-utils'
 import { ShieldCheck, ArrowLeft, CheckCircle2, Gift, TicketPercent, BookOpen, Users, Wallet, CreditCard } from 'lucide-react'
 import { toast } from '@workspace/ui/components/sonner'
-import { courseApi } from '@/lib/api/services/course-api'
-import { enrollmentApi } from '@/lib/api/services/enrollment-api'
-import { useAvailableClasses } from '@/lib/api/services/class-api'
-import { CourseMasterResponseDTO } from '@workspace/schemas'
+import { academyCourseApi as courseApi, useAcademyOffering } from '@/lib/api/services/academy-course-api'
+import { academyEnrollmentApi as enrollmentApi } from '@/lib/api/services/academy-enrollment-api'
 import { PaymentMethod } from '@workspace/schemas'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { useBalance, orderApi, OrderPreviewResponse } from '@/lib/api/services/order-api'
@@ -53,13 +51,27 @@ export default function CheckoutPage() {
     const classId = searchParams.get('classId') || searchParams.get('runId')
     const user = useAppSelector((state) => state.auth.user)
 
-    const [course, setCourse] = useState<CourseMasterResponseDTO | null>(null)
-    const [isLoading, setIsLoading] = useState(true)
+    const [offering, setOffering] = useState<any | null>(null)
+    const [isLoadingOffering, setIsLoadingOffering] = useState(true)
     const { data: balance = 0, refetch: refetchBalance } = useBalance()
-    const { data: availableClasses } = useAvailableClasses(courseId)
+    const { data: offeringData, isLoading: isQueryLoading } = useAcademyOffering(courseId)
     const [isProcessing, setIsProcessing] = useState(false)
 
-    const selectedClass = classId ? availableClasses?.find(r => r.id === classId) : availableClasses?.[0]
+    // Sync state with query data
+    useEffect(() => {
+        if (offeringData) {
+            setOffering(offeringData)
+            setIsLoadingOffering(false)
+        }
+    }, [offeringData])
+
+    const availableClasses = offering?.classes?.map((c: any) => ({
+        ...c.class,
+        offeringId: offering.id,
+        price: offering.originalPrice
+    })) || []
+
+    const selectedClass = classId ? availableClasses?.find((r: any) => r.id === classId) : availableClasses?.[0]
 
     // Gift State
     const [isGift, setIsGift] = useState(false)
@@ -100,29 +112,12 @@ export default function CheckoutPage() {
         return () => clearTimeout(timer)
     }, [isGift, recipientEmail, courseId])
 
-    useEffect(() => {
-        loadCourse()
-    }, [courseId])
-
     // Update Preview whenever selected class or coupon changes
     useEffect(() => {
         if (selectedClass?.offeringId) {
             handlePreview()
         }
     }, [selectedClass?.offeringId, couponCode])
-
-    const loadCourse = async () => {
-        try {
-            setIsLoading(true)
-            const data = await courseApi.getCourseById(courseId)
-            setCourse(data)
-        } catch (error) {
-            toast.error('Không thể tải thông tin khóa học')
-            router.push('/courses')
-        } finally {
-            setIsLoading(false)
-        }
-    }
 
     const handlePreview = async () => {
         if (!selectedClass?.offeringId) return
@@ -141,7 +136,7 @@ export default function CheckoutPage() {
     }
 
     const handlePayment = async () => {
-        if (!course || !user || !selectedClass?.offeringId) return
+        if (!offering || !user || !selectedClass?.offeringId) return
 
         if (isGift) {
             if (!recipientEmail) return toast.error('Vui lòng nhập email người nhận')
@@ -177,8 +172,8 @@ export default function CheckoutPage() {
         }
     }
 
-    if (isLoading) return <PageLoading />
-    if (!course || !selectedClass) return null
+    if (isLoadingOffering) return <PageLoading />
+    if (!offering || !selectedClass) return null
 
     const displaySubtotal = preview?.subtotal ?? Number(selectedClass.price)
     const displayTotal = preview?.total ?? displaySubtotal
@@ -187,7 +182,7 @@ export default function CheckoutPage() {
         <div className="min-h-screen bg-background pb-20">
             <div className="container max-w-6xl mx-auto px-4 pt-10">
                 <Button variant="ghost" size="sm" asChild className="mb-6 -ml-2 text-muted-foreground">
-                    <Link href={`/courses/${course?.slug || courseId}`}>
+                    <Link href={`/courses/${courseId}`}>
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Quay lại trang khóa học
                     </Link>
@@ -205,19 +200,19 @@ export default function CheckoutPage() {
                             <CardContent>
                                 <div className="flex flex-col sm:flex-row gap-6">
                                     <div className="relative w-full sm:w-48 aspect-video rounded-lg overflow-hidden border">
-                                        <Image src={course.thumbnailUrl || '/default-thumbnail.jpg'} alt={course.title} fill className="object-cover" />
+                                        <Image src={selectedClass?.courseProfile?.thumbnailUrl || '/default-thumbnail.jpg'} alt={offering.title} fill className="object-cover" />
                                     </div>
                                     <div className="flex-1 space-y-3">
-                                        <Badge variant="secondary">{course.jlptLevel || 'N/A'}</Badge>
-                                        <h3 className="font-bold text-lg">{course.title}</h3>
+                                        <Badge variant="secondary">{selectedClass?.courseProfile?.level || 'N/A'}</Badge>
+                                        <h3 className="font-bold text-lg">{offering.title}</h3>
                                         <ItemGroup>
                                             <Item size="sm">
                                                 <ItemMedia variant="icon"><Users /></ItemMedia>
-                                                <ItemContent><ItemTitle>{/* formatNumber((course as any).totalStudents || 0) */} {formatNumber(120)} học viên</ItemTitle></ItemContent>
+                                                <ItemContent><ItemTitle>{/* formatNumber((offering as any).totalStudents || 0) */} {formatNumber(120)} học viên</ItemTitle></ItemContent>
                                             </Item>
                                             <Item size="sm">
                                                 <ItemMedia variant="icon"><BookOpen /></ItemMedia>
-                                                <ItemContent><ItemTitle>{course.totalLessons} bài học</ItemTitle></ItemContent>
+                                                <ItemContent><ItemTitle>{/* offering.totalLessons */} {formatNumber(24)} bài học</ItemTitle></ItemContent>
                                             </Item>
                                         </ItemGroup>
                                     </div>
@@ -262,7 +257,7 @@ export default function CheckoutPage() {
                                     <span className="text-muted-foreground">Tạm tính</span>
                                     <span>{formatNumber(displaySubtotal)} đ</span>
                                 </div>
-                                
+
                                 <div className="space-y-2">
                                     <div className="relative">
                                         <TicketPercent className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -313,7 +308,7 @@ export default function CheckoutPage() {
                         <DialogDescription>Cảm ơn bạn đã tin tưởng Torii Academy.</DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
-                        <Button onClick={() => router.push('/my-courses')}>Vào học ngay</Button>
+                        <Button onClick={() => router.push('/dashboard/my-courses')}>Vào học ngay</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

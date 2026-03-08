@@ -31,6 +31,7 @@ import {
 } from "@workspace/schemas"
 import type { AcademyEnrollment } from "@/lib/api/services/academy-enrollments"
 import { useAcademyClasses } from "@/lib/api/services/academy-classes"
+import { KeyValueEditor } from "@/components/academy/key-value-editor"
 import { useUsers } from "@/lib/api/services/users"
 
 export function EnrollmentForm({
@@ -174,6 +175,25 @@ export function EnrollmentForm({
                                 )}
                             />
                         </div>
+
+                        <Controller
+                            name={"metadata" as any}
+                            control={control}
+                            render={({ field, fieldState }) => (
+                                <Field>
+                                    <FieldLabel>Metadata (Key-Value)</FieldLabel>
+                                    <KeyValueEditor
+                                        value={field.value || {}}
+                                        onChange={field.onChange}
+                                        presets={[
+                                            { key: "source", label: "Nguồn", defaultValue: "admin" },
+                                            { key: "notes", label: "Ghi chú", defaultValue: "" },
+                                        ]}
+                                    />
+                                    <FieldError>{fieldState.error?.message}</FieldError>
+                                </Field>
+                            )}
+                        />
                     </FieldGroup>
                 </CardContent>
             </Card>

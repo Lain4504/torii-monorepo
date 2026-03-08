@@ -386,6 +386,7 @@ model User {
   academyLiveClassesTaught     LiveClass[]            @relation("AcademyClassTeacher")
   academyClassReviews          ClassReview[]
   userAchievements             UserAchievement[]
+  academyClassAttendances      ClassAttendance[]
 
   @@index([email])
   @@index([role])
@@ -1225,6 +1226,7 @@ model LiveSchedule {
   roomId        String? @map("room_id") @db.VarChar(64)
 
   liveClass LiveClass @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
+  attendances ClassAttendance[]
 
   @@index([liveClassId])
   @@map("academy_live_schedules")
@@ -1617,4 +1619,20 @@ model CourseOfferingClass {
   @@id([offeringId, classId])
   @@index([classId])
   @@map("academy_course_offering_classes")
+}
+
+model ClassAttendance {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  liveScheduleId String  @map("live_schedule_id") @db.Uuid
+  userId         String  @map("user_id") @db.Uuid
+  status         String  @db.VarChar(20) // PRESENT, ABSENT, LATE, EXCUSED
+  recordedAt     DateTime @default(now()) @map("recorded_at")
+
+  liveSchedule LiveSchedule @relation(fields: [liveScheduleId], references: [id], onDelete: Cascade)
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([liveScheduleId, userId])
+  @@index([liveScheduleId])
+  @@index([userId])
+  @@map("academy_class_attendances")
 }

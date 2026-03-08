@@ -1,6 +1,8 @@
+'use client'
+
 import { useState, useEffect } from 'react'
 import { ReviewItem } from './review-item'
-import { reviewApi, ReviewResponse } from '@/lib/api/services/review-api'
+import { academyClassReviewsClient as reviewApi, type ClassReview as ReviewResponse } from '@/lib/api/services/academy-class-reviews'
 import { MessageSquareOff } from 'lucide-react'
 import {
     AlertDialog,
@@ -29,14 +31,12 @@ export function ReviewList({ learnerId }: ReviewListProps) {
         const fetchReviews = async () => {
             setLoading(true)
             try {
-                // Fetch all reviews (paginated, but we'll fetch a reasonable batch)
-                // Since API doesn't filter by userId, we fetch recent reviews and filter client-side
-                const response = await reviewApi.getAllReviews(1, 100) // Fetching 100 to increase chance of finding user's reviews
+                // Use listMine as it's specifically for the current user
+                const response = await reviewApi.listMine()
+                const data = response.data.data || []
 
-                // Client-side filtering for reviews written BY this learner
-                const userReviews = (response?.data || []).filter(review => review.userId === learnerId)
-
-                setReviews(userReviews)
+                // Map the data if structure is slightly different
+                setReviews(data as any)
             } catch (error) {
                 console.error("Failed to fetch reviews", error)
             } finally {
@@ -56,7 +56,7 @@ export function ReviewList({ learnerId }: ReviewListProps) {
         if (!deleteId) return
 
         try {
-            await reviewApi.deleteReview(deleteId)
+            await reviewApi.hide(deleteId)
             setReviews(reviews.filter(r => r.id !== deleteId))
         } catch (error) {
             console.error("Failed to delete review", error)

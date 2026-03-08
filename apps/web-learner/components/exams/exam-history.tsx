@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
     Table,
@@ -13,55 +12,25 @@ import {
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import { Eye, Inbox, FileText, Calendar, Sparkles } from "lucide-react"
-import { getExamAttempts } from "@/lib/api/services/exam-api"
-import type { ExamSessionWithExamResponseDTO } from '@workspace/schemas'
-import { ExamSessionStatus } from '@workspace/schemas'
+import { useAcademyExamAttempts } from "@/lib/api/services/academy-exam-api"
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 import { cn } from "@workspace/ui/lib/utils"
 import { formatDate } from "@/utils/format-utils"
 
 export function ExamHistory() {
     const router = useRouter()
-    const [sessions, setSessions] = useState<ExamSessionWithExamResponseDTO[]>([])
-    const [loading, setLoading] = useState(true)
 
-    useEffect(() => {
-        async function loadHistory() {
-            try {
-                setLoading(true)
-                const response = await getExamAttempts({
-                    status: ExamSessionStatus.SUBMITTED,
-                    page: 1,
-                    limit: 50,
-                })
-                setSessions(response.data || [])
-            } catch (error) {
-                console.error('Error loading exam history:', error)
-                setSessions([])
-            } finally {
-                setLoading(false)
-            }
-        }
+    const { data: sessions = [], isLoading } = useAcademyExamAttempts({
+        status: 'SUBMITTED'
+    })
 
-        loadHistory()
-    }, [])
-
-
-    const formatTime = (minutes: number | undefined) => {
-        if (!minutes) return '-'
-        if (minutes < 60) return `${minutes} phút`
-        const hours = Math.floor(minutes / 60)
-        const mins = minutes % 60
-        return mins > 0 ? `${hours}h ${mins} phút` : `${hours}h`
-    }
-
-    const handleViewDetails = (session: ExamSessionWithExamResponseDTO) => {
-        if (session.exam?.id) {
-            router.push(`/exams/${session.exam.id}`)
+    const handleViewDetails = (session: any) => {
+        if (session.examId) {
+            router.push(`/dashboard/exams/${session.examId}/review/${session.id}`)
         }
     }
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="rounded-lg border border-border/40 overflow-hidden bg-background/60 py-12">
                 <Empty className="border-none shadow-none bg-transparent">
@@ -109,21 +78,21 @@ export function ExamHistory() {
                     {sessions.map((session, idx) => {
                         const exam = session.exam
                         const date = session.submittedAt || session.startedAt
-                        const passed = session.passed ?? false
+                        const isPassed = session.isPassed ?? false
 
                         return (
                             <TableRow key={session.id} className="group hover:bg-primary/[0.02] border-b-border/10 transition-colors">
                                 <TableCell className="py-8 pl-10">
                                     <div className="flex items-center gap-4">
                                         <div className="w-8 h-8 rounded bg-muted/30 flex items-center justify-center text-[10px] font-bold text-muted-foreground/40">
-                                            0{idx + 1}
+                                            {idx < 9 ? `0${idx + 1}` : idx + 1}
                                         </div>
                                         <div className="space-y-1">
                                             <div className="flex items-center gap-2 text-xs font-bold text-foreground">
                                                 <Calendar className="w-3 h-3 text-muted-foreground/40" />
                                                 {formatDate(date) || '-'}
                                             </div>
-                                            <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/30">Lần thi gần nhất</div>
+                                            <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/30">Thời điểm nộp bài</div>
                                         </div>
                                     </div>
                                 </TableCell>
@@ -134,13 +103,13 @@ export function ExamHistory() {
                                         </h4>
                                         <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-wider text-muted-foreground/30">
                                             <FileText className="w-3 h-3" />
-                                            Full Simulation Test
+                                            Bài thi đánh giá
                                         </div>
                                     </div>
                                 </TableCell>
                                 <TableCell className="py-8 text-center">
                                     <Badge variant="outline" className="border-border/40 text-muted-foreground/60 font-bold uppercase tracking-wider text-[9px] px-3 py-1">
-                                        {exam?.jlptLevel || 'N/A'}
+                                        {exam?.level || 'N/A'}
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="py-8 text-center">
@@ -154,12 +123,12 @@ export function ExamHistory() {
                                     <Badge
                                         className={cn(
                                             "font-bold uppercase tracking-wider text-[8px] px-3 py-1",
-                                            passed
+                                            isPassed
                                                 ? "bg-primary/10 text-primary border-primary/20"
                                                 : "bg-destructive/10 text-destructive border-destructive/20"
                                         )}
                                     >
-                                        {passed ? 'PASSED' : 'FAILED'}
+                                        {isPassed ? 'PASSED' : 'FAILED'}
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="py-8 pr-10 text-right">

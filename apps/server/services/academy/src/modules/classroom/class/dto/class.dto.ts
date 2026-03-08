@@ -170,3 +170,31 @@ export class ClassQueryDto {
   @IsString()
   q?: string;
 }
+
+export class ClassDuplicateDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  term?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  batch?: string;
+
+  @IsOptional()
+  startDate?: Date;
+
+  @IsOptional()
+  endDate?: Date;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(150)
+  code?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  name?: string;
+}

@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { Button } from "@workspace/ui/components/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import {
   Table,
   TableBody,
@@ -71,142 +70,136 @@ export default function AcademyExamsPage() {
         }
       />
 
-      <Card>
-        <CardHeader className="space-y-4">
-          <div className="flex items-center justify-between">
-            <CardTitle>Danh sách Đề thi</CardTitle>
-          </div>
-          <div className="flex flex-col gap-3 md:flex-row md:items-center">
-            <div className="flex-1">
-              <Select value={courseProfileId} onValueChange={setCourseProfileId}>
-                <SelectTrigger className="w-full">
-                  <div className="flex items-center gap-2">
-                    <Layout className="size-4 text-muted-foreground" />
-                    <SelectValue placeholder="Tất cả Course Profile" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả Course Profile</SelectItem>
-                  {profiles.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.code} - {p.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="w-full md:w-[200px]">
-              <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger>
-                  <div className="flex items-center gap-2">
-                    <Filter className="size-4 text-muted-foreground" />
-                    <SelectValue placeholder="Tất cả trạng thái" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                  <SelectItem value="DRAFT">Draft</SelectItem>
-                  <SelectItem value="PUBLISHED">Published</SelectItem>
-                  <SelectItem value="ARCHIVED">Archived</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[80px]">STT</TableHead>
-                <TableHead>Tiêu đề</TableHead>
-                <TableHead>Loại</TableHead>
-                <TableHead>Cấp độ</TableHead>
-                <TableHead>Trạng thái</TableHead>
-                <TableHead className="text-right">Thao tác</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                Array.from({ length: 5 }).map((_, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell><Skeleton className="h-5 w-8" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-48" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-20" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-16" /></TableCell>
-                    <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto rounded-full" /></TableCell>
-                  </TableRow>
-                ))
-              ) : data.length ? (
-                data.map((it, idx) => (
-                  <TableRow key={it.id}>
-                    <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
-                    <TableCell className="font-semibold">{it.title}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="font-normal">{it.examType}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      {it.level ? (
-                        <div className="flex items-center gap-1.5 text-sm font-medium">
-                          <Layers className="size-3.5 text-primary" />
-                          {it.level}
-                        </div>
-                      ) : "-"}
-                    </TableCell>
-                    <TableCell>
-                      {it.status === "PUBLISHED" ? (
-                        <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20 shadow-none">PUBLISHED</Badge>
-                      ) : it.status === "DRAFT" ? (
-                        <Badge variant="secondary" className="opacity-70 shadow-none">DRAFT</Badge>
-                      ) : (
-                        <Badge variant="outline" className="shadow-none">{it.status}</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="h-8 w-8 p-0"
-                            size="icon"
-                          >
-                            <span className="sr-only">Mở menu thao tác</span>
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuItem asChild>
-                            <Link to={`/academy/exams/${it.id}`}>
-                              Xem chi tiết & Câu hỏi
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link to={`/academy/exams/${it.id}/edit`}>
-                              Sửa thông tin
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-destructive focus:text-destructive"
-                            onClick={() => setDeleteId(it.id)}
-                          >
-                            Xoá
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                    Chưa có đề thi nào.
+      <div className="flex flex-col gap-3 md:flex-row md:items-center">
+        <div className="flex-1">
+          <Select value={courseProfileId} onValueChange={setCourseProfileId}>
+            <SelectTrigger className="w-full">
+              <div className="flex items-center gap-2">
+                <Layout className="size-4 text-muted-foreground" />
+                <SelectValue placeholder="Tất cả Course Profile" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả Course Profile</SelectItem>
+              {profiles.map((p) => (
+                <SelectItem key={p.id} value={p.id}>
+                  {p.code} - {p.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="w-full md:w-[200px]">
+          <Select value={status} onValueChange={setStatus}>
+            <SelectTrigger>
+              <div className="flex items-center gap-2">
+                <Filter className="size-4 text-muted-foreground" />
+                <SelectValue placeholder="Tất cả trạng thái" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả trạng thái</SelectItem>
+              <SelectItem value="DRAFT">Draft</SelectItem>
+              <SelectItem value="PUBLISHED">Published</SelectItem>
+              <SelectItem value="ARCHIVED">Archived</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="rounded-md bg-background border overflow-hidden">
+        <Table>
+          <TableHeader className="bg-muted/50">
+            <TableRow>
+              <TableHead className="w-[80px]">STT</TableHead>
+              <TableHead>Tiêu đề</TableHead>
+              <TableHead>Loại</TableHead>
+              <TableHead>Cấp độ</TableHead>
+              <TableHead>Trạng thái</TableHead>
+              <TableHead className="text-right">Thao tác</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, idx) => (
+                <TableRow key={idx}>
+                  <TableCell><Skeleton className="h-5 w-8" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-48" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                  <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto rounded-full" /></TableCell>
+                </TableRow>
+              ))
+            ) : data.length ? (
+              data.map((it, idx) => (
+                <TableRow key={it.id}>
+                  <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
+                  <TableCell className="font-semibold">{it.title}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="font-normal">{it.examType}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    {it.level ? (
+                      <div className="flex items-center gap-1.5 text-sm font-medium">
+                        <Layers className="size-3.5 text-primary" />
+                        {it.level}
+                      </div>
+                    ) : "-"}
+                  </TableCell>
+                  <TableCell>
+                    {it.status === "PUBLISHED" ? (
+                      <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20 shadow-none">PUBLISHED</Badge>
+                    ) : it.status === "DRAFT" ? (
+                      <Badge variant="secondary" className="opacity-70 shadow-none">DRAFT</Badge>
+                    ) : (
+                      <Badge variant="outline" className="shadow-none">{it.status}</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          size="icon"
+                        >
+                          <span className="sr-only">Mở menu thao tác</span>
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem asChild>
+                          <Link to={`/academy/exams/${it.id}`}>
+                            Xem chi tiết & Câu hỏi
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to={`/academy/exams/${it.id}/edit`}>
+                            Sửa thông tin
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={() => setDeleteId(it.id)}
+                        >
+                          Xoá
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                  Chưa có đề thi nào.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
       <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
         <AlertDialogContent>

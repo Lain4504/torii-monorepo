@@ -13,8 +13,6 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import {
     GatewayAuthGuard,
-    Permissions,
-    PermissionsGuard,
     ReqWithRequester,
     ZodValidationPipe,
     successResponse,
@@ -35,14 +33,13 @@ import {
 } from '../../../../../academy/src/modules/study-set/study-set.dto';
 
 @Controller('api/academy')
-@UseGuards(GatewayAuthGuard, PermissionsGuard)
+@UseGuards(GatewayAuthGuard)
 export class StudySetController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     // --- Study Set Endpoints ---
 
     @Post('study-sets')
-    @Permissions('academy.content.write')
     async createSet(
         @Req() req: ReqWithRequester,
         @Body(new ZodValidationPipe(createStudySetSchema)) createDto: CreateStudySetDto,
@@ -61,7 +58,6 @@ export class StudySetController {
     }
 
     @Get('study-sets')
-    @Permissions('academy.content.read', 'academy.content.write')
     async findAllSets(@Req() req: ReqWithRequester) {
         try {
             const items = await firstValueFrom(
@@ -76,7 +72,6 @@ export class StudySetController {
     }
 
     @Get('study-sets/:id')
-    @Permissions('academy.content.read', 'academy.content.write')
     async findSetById(
         @Param('id') id: string,
         @Req() req: ReqWithRequester,
@@ -95,7 +90,6 @@ export class StudySetController {
     }
 
     @Patch('study-sets/:id')
-    @Permissions('academy.content.write')
     async updateSet(
         @Param('id') id: string,
         @Req() req: ReqWithRequester,
@@ -116,7 +110,6 @@ export class StudySetController {
     }
 
     @Delete('study-sets/:id')
-    @Permissions('academy.content.write')
     async deleteSet(
         @Param('id') id: string,
         @Req() req: ReqWithRequester,
@@ -137,7 +130,6 @@ export class StudySetController {
     // --- Set Card Endpoints ---
 
     @Post('study-sets/:id/cards')
-    @Permissions('academy.content.write')
     async createCard(
         @Param('id') setId: string,
         @Req() req: ReqWithRequester,
@@ -158,7 +150,6 @@ export class StudySetController {
     }
 
     @Patch('set-cards/:id')
-    @Permissions('academy.content.write')
     async updateCard(
         @Param('id') cardId: string,
         @Req() req: ReqWithRequester,
@@ -179,7 +170,6 @@ export class StudySetController {
     }
 
     @Delete('set-cards/:id')
-    @Permissions('academy.content.write')
     async deleteCard(
         @Param('id') cardId: string,
         @Req() req: ReqWithRequester,
@@ -200,7 +190,6 @@ export class StudySetController {
     // --- Study Flow / SRS Endpoints ---
 
     @Get('study-sets/:id/study')
-    @Permissions('academy.content.read')
     async getStudyCards(
         @Param('id') setId: string,
         @Req() req: ReqWithRequester,
@@ -219,7 +208,6 @@ export class StudySetController {
     }
 
     @Post('set-cards/:id/review')
-    @Permissions('academy.content.write')
     async reviewCard(
         @Param('id') cardId: string,
         @Req() req: ReqWithRequester,
@@ -242,7 +230,6 @@ export class StudySetController {
     // --- Extra Study Modes Endpoints ---
 
     @Get('study-sets/:id/study-modes/test')
-    @Permissions('academy.content.read')
     async getTestQuiz(
         @Param('id') setId: string,
         @Req() req: ReqWithRequester,
@@ -267,7 +254,6 @@ export class StudySetController {
     }
 
     @Get('study-sets/:id/study-modes/match')
-    @Permissions('academy.content.read')
     async getMatchGame(
         @Param('id') setId: string,
         @Req() req: ReqWithRequester,

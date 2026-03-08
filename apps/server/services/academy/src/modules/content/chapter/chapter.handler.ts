@@ -23,13 +23,14 @@ export class ChapterHandler {
   }
 
   @MessagePattern({ cmd: 'academy.chapter.create' })
-  create(@Payload() input: ChapterCreateDto) {
-    return this.chapters.create(input);
+  create(@Payload() data: ChapterCreateDto & { requesterId?: string }) {
+    const { requesterId, ...input } = data;
+    return this.chapters.create(input, requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.chapter.update' })
-  update(@Payload() data: { id: string; input: ChapterUpdateDto }) {
-    return this.chapters.update(data.id, data.input);
+  update(@Payload() data: { id: string; input: ChapterUpdateDto; requesterId?: string }) {
+    return this.chapters.update(data.id, data.input, data.requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.chapter.reorder' })
@@ -38,8 +39,8 @@ export class ChapterHandler {
   }
 
   @MessagePattern({ cmd: 'academy.chapter.delete' })
-  delete(@Payload() data: { id: string }) {
-    return this.chapters.delete(data.id);
+  delete(@Payload() data: { id: string; requesterId?: string }) {
+    return this.chapters.delete(data.id, data.requesterId);
   }
 }
 

@@ -18,6 +18,7 @@ import {
     successResponse,
     Permissions,
     PermissionsGuard,
+    ReqWithRequester,
 } from '@server/shared';
 import {
     orderCheckoutSchema,
@@ -33,10 +34,10 @@ export class OrderController {
     async preview(
         @Body(new ZodValidationPipe(orderPreviewSchema))
         dto: any,
-        @Req() req: any
+        @Req() req: ReqWithRequester
     ) {
         const result = await firstValueFrom(
-            this.nats.send({ cmd: 'academy.order.preview' }, { userId: req.user.id, input: dto }),
+            this.nats.send({ cmd: 'academy.order.preview' }, { userId: req.requester?.sub, input: dto }),
         );
         return successResponse(result);
     }
@@ -45,10 +46,10 @@ export class OrderController {
     async checkout(
         @Body(new ZodValidationPipe(orderCheckoutSchema))
         dto: any,
-        @Req() req: any
+        @Req() req: ReqWithRequester
     ) {
         const result = await firstValueFrom(
-            this.nats.send({ cmd: 'academy.order.checkout' }, { userId: req.user.id, input: dto }),
+            this.nats.send({ cmd: 'academy.order.checkout' }, { userId: req.requester?.sub, input: dto }),
         );
         return successResponse(result);
     }
@@ -75,9 +76,9 @@ export class OrderController {
 
     @Patch('admin/:id/status')
     @Permissions('academy:order:admin')
-    async admin_updateStatus(@Param('id') id: string, @Body() body: { status: string }) {
+    async admin_updateStatus(@Param('id') id: string, @Body() body: { status: string }, @Req() req: ReqWithRequester) {
         const result = await firstValueFrom(
-            this.nats.send({ cmd: 'academy.order.admin.updateStatus' }, { id, status: body.status }),
+            this.nats.send({ cmd: 'academy.order.admin.updateStatus' }, { id, status: body.status, requesterId: req.requester?.sub }),
         );
         return successResponse(result);
     }

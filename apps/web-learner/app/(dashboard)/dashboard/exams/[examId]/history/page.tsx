@@ -8,21 +8,16 @@ import { Badge } from '@workspace/ui/components/badge'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { ArrowLeft, History, Eye, Calendar, Clock } from 'lucide-react'
 import { format } from 'date-fns'
-import { useExamSessions } from '@/lib/api/services/exam-api'
-import { ExamSessionStatus } from '@workspace/schemas'
+import { useAcademyExamAttempts as useExamSessions } from '@/lib/api/services/academy-exam-api'
 
 export default function ExamHistoryPage() {
-    const params = useParams()
+    const { examId } = useParams<{ examId: string }>()
     const router = useRouter()
-    const examId = params.examId as string
 
-    const { data: sessionsData, isLoading } = useExamSessions(examId, { 
-        page: 1,
-        limit: 50,
-        status: ExamSessionStatus.SUBMITTED 
+    const { data: sessions = [], isLoading } = useExamSessions({
+        examId,
+        status: 'SUBMITTED'
     })
-
-    const sessions = sessionsData?.data || []
 
     if (isLoading) {
         return <PageLoading text="Retreiving Archives..." className="h-screen" />
@@ -67,10 +62,10 @@ export default function ExamHistoryPage() {
                                 ? Math.round((session.score / session.maxScore) * 100)
                                 : null
                             const isPassed = percentage !== null && percentage >= 60 // Assuming 60% is pass
-                            const timeTakenMinutes = session.timeTakenSeconds 
-                                ? Math.round(session.timeTakenSeconds / 60) 
+                            const timeTakenMinutes = session.timeTakenSeconds
+                                ? Math.round(session.timeTakenSeconds / 60)
                                 : null
-                            
+
                             return (
                                 <Card key={session.id} className="group overflow-hidden border-white/5 bg-background/40 backdrop-blur-sm hover:bg-background/60 hover:border-primary/20 transition-all duration-300">
                                     <CardContent className="p-6">
@@ -92,7 +87,7 @@ export default function ExamHistoryPage() {
                                                     <div className="flex items-center gap-4 text-xs font-medium text-muted-foreground">
                                                         <div className="flex items-center gap-1.5">
                                                             <Calendar className="w-3.5 h-3.5" />
-                                                            {session.submittedAt 
+                                                            {session.submittedAt
                                                                 ? format(new Date(session.submittedAt), 'dd MMM yyyy, HH:mm')
                                                                 : session.startedAt
                                                                     ? format(new Date(session.startedAt), 'dd MMM yyyy, HH:mm')

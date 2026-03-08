@@ -11,6 +11,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
@@ -21,6 +22,7 @@ import {
   PermissionsGuard,
   ZodValidationPipe,
   successResponse,
+  ReqWithRequester,
 } from '@server/shared';
 import {
   AcademyChapterItemCreateDTO,
@@ -34,7 +36,7 @@ import {
 @Controller('api/academy/chapter-items')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class ChapterItemController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
   @Get()
   @Permissions('academy.content.read')
@@ -63,9 +65,10 @@ export class ChapterItemController {
   async create(
     @Body(new ZodValidationPipe(academyChapterItemCreateDTOSchema))
     dto: AcademyChapterItemCreateDTO,
+    @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.chapterItem.create' }, dto),
+      this.nats.send({ cmd: 'academy.chapterItem.create' }, { ...dto, requesterId: req.requester?.sub }),
     );
     return successResponse({ item });
   }
@@ -76,18 +79,19 @@ export class ChapterItemController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodValidationPipe(academyChapterItemUpdateDTOSchema))
     dto: AcademyChapterItemUpdateDTO,
+    @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.chapterItem.update' }, { id, input: dto }),
+      this.nats.send({ cmd: 'academy.chapterItem.update' }, { id, input: dto, requesterId: req.requester?.sub }),
     );
     return successResponse({ item });
   }
 
   @Delete(':id')
   @Permissions('academy.content.write')
-  async delete(@Param('id', new ParseUUIDPipe()) id: string) {
+  async delete(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
     const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.chapterItem.delete' }, { id }),
+      this.nats.send({ cmd: 'academy.chapterItem.delete' }, { id, requesterId: req.requester?.sub }),
     );
     return successResponse(result);
   }

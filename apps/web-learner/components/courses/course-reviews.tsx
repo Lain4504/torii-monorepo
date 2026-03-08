@@ -7,8 +7,18 @@ import { Button } from '@workspace/ui/components/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@workspace/ui/components/dialog'
 import { Textarea } from '@workspace/ui/components/textarea'
-import type { CourseMasterResponseDTO } from '@workspace/schemas'
-import { reviewApi, type ReviewResponse, type RatingDistribution } from '@/lib/api/services/review-api'
+import type { AcademyCourseProfileCreateDTO } from '@workspace/schemas'
+import { academyClassReviewsClient as reviewApi, type ClassReview as ReviewResponse } from '@/lib/api/services/academy-class-reviews'
+
+export interface RatingDistribution {
+    averageRating: number
+    totalReviews: number
+    distribution: Array<{
+        stars: number
+        count: number
+        percent: number
+    }>
+}
 import { useAppSelector } from '@/hooks/hooks'
 import { useCourseEnrollment } from '@/hooks/use-course-enrollment'
 import { Field, FieldLabel, FieldError } from '@workspace/ui/components/field'
@@ -45,7 +55,7 @@ const courseReviewSchema = z.object({
 type CourseReviewFormData = z.infer<typeof courseReviewSchema>
 
 interface CourseReviewsProps {
-    course: CourseMasterResponseDTO
+    course: AcademyCourseProfileCreateDTO & { id: string; slug?: string }
 }
 
 export function CourseReviews({ course }: CourseReviewsProps) {
@@ -72,8 +82,8 @@ export function CourseReviews({ course }: CourseReviewsProps) {
     const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated)
     const user = useAppSelector((state) => state.auth.user)
 
-    const { isEnrolled, isLoadingEnrollment } = useCourseEnrollment(course.id, course.slug)
-    const userReview = reviews.find((r) => r.userId === user?.id)
+    const { enrollment, isEnrolled, isLoadingEnrollment } = useCourseEnrollment(course.id, course.slug || '')
+    const userReview = reviews.find((r) => r.user?.id === user?.id)
 
     useEffect(() => {
         loadReviews()
@@ -83,13 +93,16 @@ export function CourseReviews({ course }: CourseReviewsProps) {
     const loadReviews = async () => {
         try {
             setLoading(true)
-            const response = await reviewApi.getReviewsByCourse(course.id, page, 10)
+            const response = await reviewApi.listByClass(course.id, { limit: 10, offset: (page - 1) * 10, status: 'PUBLISHED' })
+            const data = response?.data?.data?.items || []
+            const total = response?.data?.data?.total || 0
+
             if (page === 1) {
-                setReviews(response?.data || [])
+                setReviews(data)
             } else {
-                setReviews((prev) => [...prev, ...(response?.data || [])])
+                setReviews((prev) => [...prev, ...data])
             }
-            setHasMore((response?.page || 1) < (response?.totalPages || 0))
+            setHasMore(reviews.length + data.length < total)
         } catch (error: any) {
             console.error('Failed to load reviews:', error)
             toast.error('Không thể tải đánh giá')
@@ -99,12 +112,8 @@ export function CourseReviews({ course }: CourseReviewsProps) {
     }
 
     const loadRatingDistribution = async () => {
-        try {
-            const distribution = await reviewApi.getRatingDistribution(course.id)
-            setRatingDistribution(distribution)
-        } catch (error: any) {
-            console.error('Failed to load rating distribution:', error)
-        }
+        // NOTE: Distribution API is no longer separate. We can mock it or skip for now.
+        // In a real scenario, this might come from the course/class metadata.
     }
 
     const queryClient = useQueryClient()
@@ -117,17 +126,20 @@ export function CourseReviews({ course }: CourseReviewsProps) {
 
         try {
             setSubmitting(true)
-            const newReview = await reviewApi.createReview(course.id, {
+            const response = await reviewApi.create(course.id, {
+                enrollmentId: enrollment?.id || '',
                 rating: data.rating,
-                comment: data.comment || undefined,
+                isAnonymous: false,
+                content: data.comment || '',
             })
+            const newReview = response.data.data
             setReviews((prev) => [newReview, ...prev])
             setShowReviewForm(false)
             reset()
             toast.success('Đánh giá của bạn đã được gửi')
 
             // Invalidate queries to refresh data across the app
-            queryClient.invalidateQueries({ queryKey: ['home-reviews'] })
+            queryClient.invalidateQueries({ queryKey: ['class-reviews', course.id] })
 
             await loadRatingDistribution()
         } catch (error: any) {
@@ -194,8 +206,8 @@ export function CourseReviews({ course }: CourseReviewsProps) {
                         ))}
                     </div>
                 </div>
-                {review.comment && (
-                    <p className="text-sm text-muted-foreground">{review.comment}</p>
+                {review.content && (
+                    <p className="text-sm text-muted-foreground">{review.content}</p>
                 )}
             </div>
         )

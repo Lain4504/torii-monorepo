@@ -3,7 +3,6 @@ import { useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
-import { Textarea } from "@workspace/ui/components/textarea"
 import {
     Field,
     FieldError,
@@ -35,6 +34,7 @@ import {
 import type { AcademyClass } from "@/lib/api/services/academy-classes"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
 import { useAcademyCourseEditions } from "@/lib/api/services/academy-course-editions"
+import { KeyValueEditor } from "@/components/academy/key-value-editor"
 
 export function VodClassForm({
     mode,
@@ -207,20 +207,39 @@ export function VodClassForm({
                         <Controller
                             name={"status" as any}
                             control={control}
-                            render={({ field, fieldState }) => (
+                            render={({ field }) => (
                                 <Field>
                                     <FieldLabel>Trạng thái</FieldLabel>
-                                    <Select value={field.value} onValueChange={field.onChange}>
-                                        <SelectTrigger><SelectValue /></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="DRAFT">Bản nháp</SelectItem>
-                                            <SelectItem value="ENROLLING">Đang mở tuyển sinh</SelectItem>
-                                            <SelectItem value="IN_PROGRESS">Đang vận hành</SelectItem>
-                                            <SelectItem value="COMPLETED">Đã đóng</SelectItem>
-                                            <SelectItem value="CANCELLED">Hủy bỏ</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <FieldError>{fieldState.error?.message}</FieldError>
+                                    {isEdit ? (
+                                        <div className="flex flex-col gap-1">
+                                            <span
+                                                className={`inline-flex w-fit items-center rounded-md px-2 py-1 text-xs font-medium ${field.value === "ENROLLING" || field.value === "IN_PROGRESS"
+                                                        ? "bg-primary/10 text-primary"
+                                                        : field.value === "PENDING_APPROVAL"
+                                                            ? "bg-amber-500/10 text-amber-600"
+                                                            : "bg-muted text-muted-foreground"
+                                                    }`}
+                                            >
+                                                {field.value === "DRAFT" && "Bản nháp"}
+                                                {field.value === "PENDING_APPROVAL" && "Chờ phê duyệt"}
+                                                {field.value === "ENROLLING" && "Đang mở tuyển sinh"}
+                                                {field.value === "IN_PROGRESS" && "Đang vận hành"}
+                                                {field.value === "COMPLETED" && "Đã đóng"}
+                                                {field.value === "CANCELLED" && "Hủy bỏ"}
+                                                {!["DRAFT", "PENDING_APPROVAL", "ENROLLING", "IN_PROGRESS", "COMPLETED", "CANCELLED"].includes(field.value || "") && field.value}
+                                            </span>
+                                            <span className="text-xs text-muted-foreground">
+                                                {field.value === "DRAFT" && "→ Vào trang chi tiết để Gửi phê duyệt"}
+                                                {field.value === "PENDING_APPROVAL" && "→ Admin phê duyệt hoặc từ chối"}
+                                                {field.value === "ENROLLING" && "→ Đã mở tuyển sinh"}
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <span className="text-sm text-muted-foreground">Draft — tạo xong vào trang chi tiết để Gửi phê duyệt</span>
+                                    )}
+                                    <FieldDescription>
+                                        Luồng: DRAFT → Gửi phê duyệt → PENDING_APPROVAL → Admin Approve → ENROLLING
+                                    </FieldDescription>
                                 </Field>
                             )}
                         />
@@ -300,17 +319,16 @@ export function VodClassForm({
                         control={control}
                         render={({ field, fieldState }) => (
                             <Field>
-                                <FieldLabel>Settings (JSON)</FieldLabel>
-                                <Textarea
-                                    className="font-mono min-h-[100px]"
-                                    value={field.value ? (typeof field.value === "string" ? field.value : JSON.stringify(field.value, null, 2)) : ""}
-                                    onChange={(e: any) => {
-                                        const val = e.target.value
-                                        if (!val) field.onChange(undefined)
-                                        else {
-                                            try { field.onChange(JSON.parse(val)) } catch { field.onChange(val) }
-                                        }
-                                    }}
+                                <FieldLabel>Settings (Key-Value)</FieldLabel>
+                                <KeyValueEditor
+                                    value={field.value || {}}
+                                    onChange={field.onChange}
+                                    presets={[
+                                        { key: "allowTrial", label: "Cho phép học thử", defaultValue: "false" },
+                                        { key: "trialSessionsCount", label: "Số buổi học thử", defaultValue: "2" },
+                                        { key: "autoApprove", label: "Tự động duyệt", defaultValue: "false" },
+                                        { key: "requirePhone", label: "Yêu cầu SĐT", defaultValue: "true" },
+                                    ]}
                                 />
                                 <FieldError>{fieldState.error?.message}</FieldError>
                             </Field>

@@ -23,7 +23,7 @@ import {
 import Link from "next/link"
 import React from "react"
 import { useParams } from "next/navigation"
-import { useCourseOffering } from "@/lib/api/services/course-api"
+import { useAcademyOffering as useCourseOffering } from "@/lib/api/services/academy-course-api"
 import { StudentReviewsSection } from "@/components/class-reviews/student-reviews-section"
 
 const UserGroup = Users

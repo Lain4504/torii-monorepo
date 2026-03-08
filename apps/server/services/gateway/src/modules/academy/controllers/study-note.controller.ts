@@ -14,8 +14,6 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import {
     GatewayAuthGuard,
-    Permissions,
-    PermissionsGuard,
     ReqWithRequester,
     ZodValidationPipe,
     successResponse,
@@ -30,12 +28,11 @@ import {
 } from '../../../../../academy/src/modules/study-note/study-note.dto';
 
 @Controller('api/academy/study-notes')
-@UseGuards(GatewayAuthGuard, PermissionsGuard)
+@UseGuards(GatewayAuthGuard)
 export class StudyNoteController {
     constructor(@Inject('NATS_SERVICE') private readonly natsClient: ClientProxy) { }
 
     @Post()
-    @Permissions('academy.content.write')
     async create(
         @Req() req: ReqWithRequester,
         @Body(new ZodValidationPipe(createStudyNoteSchema)) createDto: CreateStudyNoteDto,
@@ -54,7 +51,6 @@ export class StudyNoteController {
     }
 
     @Get()
-    @Permissions('academy.content.read', 'academy.content.write')
     async findAll(
         @Req() req: ReqWithRequester,
         @Query('lessonId') lessonId?: string,
@@ -73,7 +69,6 @@ export class StudyNoteController {
     }
 
     @Get(':id')
-    @Permissions('academy.content.read', 'academy.content.write')
     async findOne(
         @Param('id') id: string,
         @Req() req: ReqWithRequester,
@@ -89,7 +84,6 @@ export class StudyNoteController {
     }
 
     @Patch(':id')
-    @Permissions('academy.content.write')
     async update(
         @Param('id') id: string,
         @Req() req: ReqWithRequester,
@@ -110,7 +104,6 @@ export class StudyNoteController {
     }
 
     @Delete(':id')
-    @Permissions('academy.content.write')
     async remove(
         @Param('id') id: string,
         @Req() req: ReqWithRequester,

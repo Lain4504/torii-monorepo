@@ -1,6 +1,7 @@
-import { useNavigate, useParams } from "react-router-dom"
-import { useAcademyClass } from "@/lib/api/services/academy-classes"
+import { useNavigate, useParams, Link } from "react-router-dom"
+import { useAcademyClass, useSubmitClassForApproval, useApproveClass, useRejectClass } from "@/lib/api/services/academy-classes"
 import { useAcademyLiveSchedules } from "@/lib/api/services/academy-live-schedules"
+import { cn } from "@workspace/ui/lib/utils"
 import { useAcademyClassAssessments } from "@/lib/api/services/academy-class-assessments"
 import { useAcademyEnrollments } from "@/lib/api/services/academy-enrollments"
 import { useAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
@@ -12,6 +13,19 @@ import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
+import { ClassAttendanceTab } from "@/components/academy/class-attendance-tab"
+import {
+   Dialog,
+   DialogContent,
+   DialogDescription,
+   DialogFooter,
+   DialogHeader,
+   DialogTitle,
+} from "@workspace/ui/components/dialog"
+import { Textarea } from "@workspace/ui/components/textarea"
+import { useState } from "react"
+import { toast } from "sonner"
+import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert"
 import {
    Table,
    TableBody,
@@ -21,6 +35,7 @@ import {
    TableRow
 } from "@workspace/ui/components/table"
 import { LearnerList } from "@/components/academy/learner-list"
+import { DuplicateClassDialog } from "@/components/academy/duplicate-class-dialog"
 import {
    Edit,
    Plus,
@@ -30,9 +45,12 @@ import {
    Clock,
    MapPin,
    Link as LinkIcon,
-   User
+   User,
+   AlertCircle,
+   CheckCircle2,
+   Send,
+   Copy
 } from "lucide-react"
-import { Link } from "react-router-dom"
 
 export default function ClassDetailPage() {
    const { id } = useParams<{ id: string }>()
@@ -42,9 +60,17 @@ export default function ClassDetailPage() {
    const { data: edition } = useAcademyCourseEdition(cls?.courseEditionId)
    const { data: schedules = [], isLoading: isLoadingSchedules } = useAcademyLiveSchedules({ liveClassId: id })
    const { data: assessments = [], isLoading: isLoadingAssessments } = useAcademyClassAssessments({ classId: id })
-   const { data: enrollmentsData, isLoading: isLoadingEnrollments } = useAcademyEnrollments({ classId: id })
+   const { data: enrollmentsData, isLoading: isLoadingEnrollments } = useAcademyEnrollments({ classId: id, page: 1, limit: 1000 })
    const { data: attempts = [], isLoading: isLoadingAttempts } = useAcademyExamAttempts({ classId: id })
    const { data: submissions = [], isLoading: isLoadingSubmissions } = useAcademyAssignmentSubmissions({ classId: id })
+
+   const submitMutation = useSubmitClassForApproval()
+   const approveMutation = useApproveClass()
+   const rejectMutation = useRejectClass()
+
+   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false)
+   const [isDuplicateDialogOpen, setIsDuplicateDialogOpen] = useState(false)
+   const [rejectionReason, setRejectionReason] = useState("")
 
    // Giả sử API trả về structure { items, total } cho enrollments
    const enrollments = Array.isArray(enrollmentsData) ? enrollmentsData : (enrollmentsData as any)?.items || []
@@ -58,6 +84,39 @@ export default function ClassDetailPage() {
 
    const isLive = cls.mode === "LIVE"
    const tpt = isLive ? cls.liveClass : cls.vodClass
+
+   const handleSubmit = async () => {
+      try {
+         await submitMutation.mutateAsync(id!)
+         toast.success("Submitted for approval")
+      } catch (error: any) {
+         toast.error(error.response?.data?.message || "Failed to submit")
+      }
+   }
+
+   const handleApprove = async () => {
+      try {
+         await approveMutation.mutateAsync(id!)
+         toast.success("Approved successfully")
+      } catch (error: any) {
+         toast.error(error.response?.data?.message || "Failed to approve")
+      }
+   }
+
+   const handleReject = async () => {
+      if (!rejectionReason.trim()) {
+         toast.error("Please provide a reason for rejection")
+         return
+      }
+      try {
+         await rejectMutation.mutateAsync({ id: id!, reason: rejectionReason })
+         toast.success("Rejected successfully")
+         setIsRejectDialogOpen(false)
+         setRejectionReason("")
+      } catch (error: any) {
+         toast.error(error.response?.data?.message || "Failed to reject")
+      }
+   }
 
    const enrollmentOpenAt = tpt?.enrollmentOpenAt
    const enrollmentCloseAt = tpt?.enrollmentCloseAt
@@ -78,15 +137,65 @@ export default function ClassDetailPage() {
 
          <PageHeader
             title={cls.name}
-            subtitle={`Mã lớp: ${cls.code} | Mode: ${cls.mode} | Trạng thái: ${cls.status}`}
+            subtitle={
+               <div className="flex items-center gap-4 mt-1">
+                  <span className="text-sm text-muted-foreground">Mã lớp: <span className="text-foreground font-medium">{cls.code}</span></span>
+                  <span className="text-sm text-muted-foreground">Mode: <span className="text-foreground font-medium">{cls.mode}</span></span>
+                  <Badge variant={
+                     cls.status === "ENROLLING" ? "default" :
+                        cls.status === "PENDING_APPROVAL" ? "secondary" : "outline"
+                  }>
+                     {cls.status}
+                  </Badge>
+               </div>
+            }
             actions={
-               <Button asChild variant="outline" className="gap-2 shadow-sm">
-                  <Link to={`/academy/classes/${id}/edit`}>
-                     <Edit className="h-4 w-4" /> Chỉnh sửa lớp học
-                  </Link>
-               </Button>
+               <div className="flex gap-2">
+                  {cls.status === "DRAFT" && (
+                     <Button onClick={handleSubmit} disabled={submitMutation.isPending}>
+                        <Send className="h-4 w-4 mr-2" />
+                        Gửi phê duyệt
+                     </Button>
+                  )}
+
+                  {cls.status === "PENDING_APPROVAL" && (
+                     <>
+                        <Button
+                           variant="outline"
+                           className="text-destructive hover:bg-destructive/10"
+                           onClick={() => setIsRejectDialogOpen(true)}
+                        >
+                           Từ chối
+                        </Button>
+                        <Button onClick={handleApprove} disabled={approveMutation.isPending}>
+                           <CheckCircle2 className="h-4 w-4 mr-2" />
+                           Phê duyệt
+                        </Button>
+                     </>
+                  )}
+
+                  <Button variant="outline" className="gap-2 shadow-sm" onClick={() => setIsDuplicateDialogOpen(true)}>
+                     <Copy className="h-4 w-4" /> Nhân bản
+                  </Button>
+
+                  <Button asChild variant="outline" className="gap-2 shadow-sm">
+                     <Link to={`/academy/classes/${id}/edit`}>
+                        <Edit className="h-4 w-4" /> Chỉnh sửa lớp học
+                     </Link>
+                  </Button>
+               </div>
             }
          />
+
+         {cls.status === "DRAFT" && cls.rejectionReason && (
+            <Alert variant="destructive">
+               <AlertCircle className="h-4 w-4" />
+               <AlertTitle>Lớp học bị từ chối</AlertTitle>
+               <AlertDescription>
+                  Lý do: {cls.rejectionReason}
+               </AlertDescription>
+            </Alert>
+         )}
 
          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <Card className="md:col-span-1 shadow-sm">
@@ -135,9 +244,10 @@ export default function ClassDetailPage() {
 
             <div className="md:col-span-3">
                <Tabs defaultValue="overview" className="w-full">
-                  <TabsList className="grid w-full grid-cols-6 mb-6">
+                  <TabsList className={cn("grid w-full mb-6", isLive ? "grid-cols-7" : "grid-cols-5")}>
                      <TabsTrigger value="overview">Tổng quan</TabsTrigger>
-                     {cls.mode === "LIVE" && <TabsTrigger value="schedule">Lịch học ({schedules.length})</TabsTrigger>}
+                     {isLive && <TabsTrigger value="schedule">Lịch học ({schedules.length})</TabsTrigger>}
+                     {isLive && <TabsTrigger value="attendance">Điểm danh</TabsTrigger>}
                      <TabsTrigger value="assessments">Bài kiểm tra ({assessments.length})</TabsTrigger>
                      <TabsTrigger value="attempts">Kết quả thi ({attempts.length})</TabsTrigger>
                      <TabsTrigger value="submissions">Bài nộp ({submissions.length})</TabsTrigger>
@@ -270,9 +380,14 @@ export default function ClassDetailPage() {
                               <CardTitle className="text-lg">Bài kiểm tra & Bài tập (Assessments)</CardTitle>
                               <CardDescription>Quản lý các instance bài kiểm tra riêng cho lớp này</CardDescription>
                            </div>
-                           <Button size="sm" asChild className="gap-2">
-                              <Link to={`/academy/class-assessments/new?classId=${id}`}><Plus className="h-4 w-4" /> Tạo Assessment</Link>
-                           </Button>
+                           <div className="flex gap-2">
+                              <Button size="sm" asChild className="gap-2">
+                                 <Link to={`/academy/class-assessments/new?classId=${id}&kind=QUIZ`}><Plus className="h-4 w-4" /> Tạo Quiz</Link>
+                              </Button>
+                              <Button size="sm" asChild variant="outline" className="gap-2">
+                                 <Link to={`/academy/class-assessments/new?classId=${id}&kind=ASSIGNMENT`}><Plus className="h-4 w-4" /> Tạo Assignment</Link>
+                              </Button>
+                           </div>
                         </CardHeader>
                         <CardContent>
                            <Table>
@@ -437,9 +552,49 @@ export default function ClassDetailPage() {
                         </CardContent>
                      </Card>
                   </TabsContent>
+
+                  {isLive && (
+                     <TabsContent value="attendance">
+                        <ClassAttendanceTab
+                           classId={id!}
+                           liveClassId={cls.liveClass?.id || ""}
+                        />
+                     </TabsContent>
+                  )}
                </Tabs>
             </div>
          </div>
+
+         <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
+            <DialogContent>
+               <DialogHeader>
+                  <DialogTitle>Từ chối phê duyệt lớp học</DialogTitle>
+                  <DialogDescription>
+                     Vui lòng nhập lý do từ chối để người soạn thảo có thể chỉnh sửa lại.
+                  </DialogDescription>
+               </DialogHeader>
+               <div className="py-4">
+                  <Textarea
+                     placeholder="Nhập lý do tại đây..."
+                     value={rejectionReason}
+                     onChange={(e) => setRejectionReason(e.target.value)}
+                     className="min-h-[100px]"
+                  />
+               </div>
+               <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsRejectDialogOpen(false)}>Hủy</Button>
+                  <Button variant="destructive" onClick={handleReject} disabled={rejectMutation.isPending}>
+                     Xác nhận từ chối
+                  </Button>
+               </DialogFooter>
+            </DialogContent>
+         </Dialog>
+
+         <DuplicateClassDialog
+            sourceClass={cls as any}
+            open={isDuplicateDialogOpen}
+            onOpenChange={setIsDuplicateDialogOpen}
+         />
       </div>
    )
 }

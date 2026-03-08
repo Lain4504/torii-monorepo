@@ -108,7 +108,12 @@ export class QuizTemplateService {
       throw new BadRequestException('Cannot delete quiz template used in active class assessments');
     }
 
-    await this.prisma.quizTemplate.delete({ where: { id } });
+    await this.prisma.$transaction([
+      this.prisma.chapterItem.deleteMany({
+        where: { kind: 'QUIZ_TEMPLATE', referenceId: id },
+      }),
+      this.prisma.quizTemplate.delete({ where: { id } }),
+    ]);
     return { ok: true };
   }
 }

@@ -11,6 +11,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
@@ -21,6 +22,7 @@ import {
   PermissionsGuard,
   ZodValidationPipe,
   successResponse,
+  ReqWithRequester,
 } from '@server/shared';
 import {
   AcademyAssignmentSubmissionCreateDTO,
@@ -61,9 +63,10 @@ export class AssignmentSubmissionController {
   async create(
     @Body(new ZodValidationPipe(academyAssignmentSubmissionCreateDTOSchema))
     dto: AcademyAssignmentSubmissionCreateDTO,
+    @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.assignmentSubmission.create' }, dto),
+      this.nats.send({ cmd: 'academy.assignmentSubmission.create' }, { ...dto, requesterId: req.requester?.sub }),
     );
     return successResponse({ item });
   }
@@ -73,11 +76,12 @@ export class AssignmentSubmissionController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodValidationPipe(academyAssignmentSubmissionUpdateDTOSchema))
     dto: AcademyAssignmentSubmissionUpdateDTO,
+    @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.assignmentSubmission.update' },
-        { id, input: dto },
+        { id, input: dto, requesterId: req.requester?.sub },
       ),
     );
     return successResponse({ item });
@@ -85,11 +89,11 @@ export class AssignmentSubmissionController {
 
   @Delete(':id')
   @Permissions('exam.manage')
-  async delete(@Param('id', new ParseUUIDPipe()) id: string) {
+  async delete(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
     const result = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.assignmentSubmission.delete' },
-        { id },
+        { id, requesterId: req.requester?.sub },
       ),
     );
     return successResponse(result);

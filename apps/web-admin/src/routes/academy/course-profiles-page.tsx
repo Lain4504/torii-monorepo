@@ -10,7 +10,6 @@ import {
   TableRow,
 } from "@workspace/ui/components/table"
 import { Input } from "@workspace/ui/components/input"
-import { Card, CardContent } from "@workspace/ui/components/card"
 import { PageHeader } from "@/components/common/page-header"
 import {
   Select,
@@ -29,6 +28,7 @@ import {
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import {
   useAcademyCourseProfiles,
+  useArchiveAcademyCourseProfile,
   useDeleteAcademyCourseProfile,
 } from "@/lib/api/services/academy-course-profiles"
 import { toast } from "@workspace/ui/components/sonner"
@@ -48,6 +48,7 @@ import {
   Plus,
   Edit2,
   Trash2,
+  Archive,
   FolderKey,
   Flag,
   BookOpen,
@@ -69,9 +70,11 @@ import {
 export default function AcademyCourseProfilesPage() {
   const [q, setQ] = useState("")
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [archiveId, setArchiveId] = useState<string | null>(null)
 
   const query = useMemo(() => ({ q: q || undefined }), [q])
   const { data = [], isLoading } = useAcademyCourseProfiles(query)
+  const archiveMutation = useArchiveAcademyCourseProfile()
   const del = useDeleteAcademyCourseProfile()
 
   return (
@@ -132,142 +135,145 @@ export default function AcademyCourseProfilesPage() {
         </div>
       </div>
 
-      <Card className="overflow-hidden border-none shadow-none bg-transparent">
-        <CardContent className="p-0 border rounded-md bg-background shadow-sm overflow-hidden">
-          <Table>
-            <TableHeader className="bg-muted/50">
-              <TableRow>
-                <TableHead className="w-[80px]">STT</TableHead>
-                <TableHead className="w-[180px]">
-                  <div className="flex items-center gap-2 font-semibold">
-                    <FolderKey className="h-4 w-4" /> Mã (Code)
-                  </div>
-                </TableHead>
-                <TableHead>
-                  <div className="flex items-center gap-2 font-semibold">
-                    <BookOpen className="h-4 w-4" /> Tiêu đề
-                  </div>
-                </TableHead>
-                <TableHead>
-                  <div className="flex items-center gap-2 font-semibold">
-                    <Layers className="h-4 w-4" /> Chủ đề
-                  </div>
-                </TableHead>
-                <TableHead>
-                  <div className="flex items-center gap-2 font-semibold">
-                    <Flag className="h-4 w-4" /> Cấp độ
-                  </div>
-                </TableHead>
-                <TableHead className="text-right font-semibold">Thao tác</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                Array.from({ length: 5 }).map((_, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell><Skeleton className="h-5 w-8" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-48" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-20" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-16" /></TableCell>
-                    <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto rounded-full" /></TableCell>
-                  </TableRow>
-                ))
-              ) : data.length ? (
-                data.map((it, idx) => (
-                  <TableRow key={it.id} className="group hover:bg-muted/30 transition-colors">
-                    <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
-                    <TableCell>
-                      <code className="px-2 py-1 rounded bg-muted font-mono text-xs font-semibold text-foreground/80">
-                        {it.code}
-                      </code>
-                    </TableCell>
-                    <TableCell className="font-semibold">
-                      <Link to={`/academy/course-profiles/${it.id}`} className="hover:text-primary transition-colors">
-                        {it.title}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-sm text-muted-foreground">{it.subject || "N/A"}</span>
-                    </TableCell>
-                    <TableCell>
-                      {it.level ? (
-                        <Badge variant="secondary" className="font-medium bg-primary/5 text-primary border-primary/10">
-                          Level: {it.level}
-                        </Badge>
-                      ) : (
-                        <span className="text-muted-foreground text-xs">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              className="h-8 w-8 p-0"
-                              size="icon"
+      <div className="rounded-md bg-background border overflow-hidden">
+        <Table>
+          <TableHeader className="bg-muted/50">
+            <TableRow>
+              <TableHead className="w-[80px]">STT</TableHead>
+              <TableHead className="w-[180px]">
+                <div className="flex items-center gap-2 font-semibold">
+                  <FolderKey className="h-4 w-4" /> Mã (Code)
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center gap-2 font-semibold">
+                  <BookOpen className="h-4 w-4" /> Tiêu đề
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center gap-2 font-semibold">
+                  <Layers className="h-4 w-4" /> Chủ đề
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center gap-2 font-semibold">
+                  <Flag className="h-4 w-4" /> Cấp độ
+                </div>
+              </TableHead>
+              <TableHead className="text-right font-semibold">Thao tác</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, idx) => (
+                <TableRow key={idx}>
+                  <TableCell><Skeleton className="h-5 w-8" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-48" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                  <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto rounded-full" /></TableCell>
+                </TableRow>
+              ))
+            ) : data.length ? (
+              data.map((it, idx) => (
+                <TableRow key={it.id} className="group hover:bg-muted/30 transition-colors">
+                  <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
+                  <TableCell>
+                    <code className="px-2 py-1 rounded bg-muted font-mono text-xs font-semibold text-foreground/80">
+                      {it.code}
+                    </code>
+                  </TableCell>
+                  <TableCell className="font-semibold">
+                    <Link to={`/academy/course-profiles/${it.id}`} className="hover:text-primary transition-colors">
+                      {it.title}
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm text-muted-foreground">{it.subject || "N/A"}</span>
+                  </TableCell>
+                  <TableCell>
+                    {it.level ? (
+                      <Badge variant="secondary" className="font-medium bg-primary/5 text-primary border-primary/10">
+                        Level: {it.level}
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground text-xs">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          size="icon"
+                        >
+                          <span className="sr-only">Mở menu thao tác</span>
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuGroup>
+                          <DropdownMenuItem asChild>
+                            <Link to={`/academy/course-profiles/${it.id}`}>
+                              <Eye className="h-4 w-4 mr-2" />
+                              <span>Chi tiết</span>
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link to={`/academy/course-profiles/${it.id}/edit`}>
+                              <Edit2 className="h-4 w-4 mr-2" />
+                              <span>Chỉnh sửa</span>
+                            </Link>
+                          </DropdownMenuItem>
+                          {((it as any)._count?.editions > 0 || (it as any)._count?.classes > 0) ? (
+                            <DropdownMenuItem onClick={() => setArchiveId(it.id)}>
+                              <Archive className="h-4 w-4 mr-2" />
+                              <span>Lưu trữ</span>
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => setDeleteId(it.id)}
                             >
-                              <span className="sr-only">Mở menu thao tác</span>
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-44">
-                            <DropdownMenuGroup>
-                              <DropdownMenuItem asChild>
-                                <Link to={`/academy/course-profiles/${it.id}`}>
-                                  <Eye className="h-4 w-4 mr-2" />
-                                  <span>Chi tiết</span>
-                                </Link>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem asChild>
-                                <Link to={`/academy/course-profiles/${it.id}/edit`}>
-                                  <Edit2 className="h-4 w-4 mr-2" />
-                                  <span>Chỉnh sửa</span>
-                                </Link>
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="text-destructive focus:text-destructive"
-                                onClick={() => setDeleteId(it.id)}
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                <span>Xoá</span>
-                              </DropdownMenuItem>
-                            </DropdownMenuGroup>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-[300px] text-center">
-                    <Empty>
-                      <EmptyMedia>
-                        <BookMarked className="size-10 text-muted-foreground/50" />
-                      </EmptyMedia>
-                      <EmptyContent>
-                        <EmptyTitle>Không tìm thấy Profile</EmptyTitle>
-                        <EmptyDescription>
-                          Thử thay đổi từ khóa tìm kiếm hoặc tạo một Course Profile mới.
-                        </EmptyDescription>
-                      </EmptyContent>
-                    </Empty>
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              <span>Xoá</span>
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuGroup>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={6} className="h-[300px] text-center">
+                  <Empty>
+                    <EmptyMedia>
+                      <BookMarked className="size-10 text-muted-foreground/50" />
+                    </EmptyMedia>
+                    <EmptyContent>
+                      <EmptyTitle>Không tìm thấy Profile</EmptyTitle>
+                      <EmptyDescription>
+                        Thử thay đổi từ khóa tìm kiếm hoặc tạo một Course Profile mới.
+                      </EmptyDescription>
+                    </EmptyContent>
+                  </Empty>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
       <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Xoá Course Profile</AlertDialogTitle>
             <AlertDialogDescription>
-              Thao tác này sẽ xoá vĩnh viễn Course Profile và các dữ liệu liên quan (nếu có ràng buộc).
+              Chỉ xoá được khi profile chưa có editions hoặc classes. Nếu đã có, dùng Lưu trữ thay vì Xoá.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -279,7 +285,7 @@ export default function AcademyCourseProfilesPage() {
                   await del.mutateAsync(deleteId)
                   toast.success("Đã xoá")
                 } catch (e: any) {
-                  toast.error(e?.message || "Xoá thất bại")
+                  toast.error(e?.response?.data?.message || e?.message || "Xoá thất bại. Dùng Lưu trữ nếu đã có editions/classes.")
                 } finally {
                   setDeleteId(null)
                 }
@@ -290,7 +296,36 @@ export default function AcademyCourseProfilesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+
+      <AlertDialog open={!!archiveId} onOpenChange={(o) => !o && setArchiveId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Lưu trữ Course Profile</AlertDialogTitle>
+            <AlertDialogDescription>
+              Profile và tất cả editions sẽ được lưu trữ, ẩn khỏi danh sách nhưng giữ nguyên dữ liệu.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (!archiveId) return
+                try {
+                  await archiveMutation.mutateAsync(archiveId)
+                  toast.success("Đã lưu trữ")
+                } catch (e: any) {
+                  toast.error(e?.response?.data?.message || e?.message || "Lưu trữ thất bại")
+                } finally {
+                  setArchiveId(null)
+                }
+              }}
+            >
+              Lưu trữ
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div >
   )
 }
 

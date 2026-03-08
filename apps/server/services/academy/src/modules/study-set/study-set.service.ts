@@ -8,15 +8,16 @@ import {
     ReviewSetCardDto,
 } from './study-set.dto';
 import { calculateSrsInterval } from './srs.utils';
-
 @Injectable()
 export class StudySetService {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        private readonly prisma: PrismaService,
+    ) { }
 
     // --- Study Set Methods ---
 
     async createSet(userId: string, data: CreateStudySetDto) {
-        return this.prisma.studySet.create({
+        const result = await this.prisma.studySet.create({
             data: {
                 ...data,
                 userId,
@@ -25,6 +26,8 @@ export class StudySetService {
                 _count: { select: { setCards: true } },
             },
         });
+
+        return result;
     }
 
     async findAllSets(userId: string) {
@@ -53,30 +56,38 @@ export class StudySetService {
 
     async updateSet(id: string, userId: string, data: UpdateStudySetDto) {
         await this.findSetById(id, userId); // check exists
-        return this.prisma.studySet.update({
+        const updated = await this.prisma.studySet.update({
             where: { id },
             data,
         });
+
+        return updated;
     }
 
     async deleteSet(id: string, userId: string) {
         await this.findSetById(id, userId); // check exists
-        return this.prisma.studySet.delete({
+        await this.prisma.studySet.delete({
             where: { id },
         });
+
+        return { ok: true };
     }
 
     // --- Set Card Methods ---
 
     async createCard(setId: string, userId: string, data: CreateSetCardDto) {
         await this.findSetById(setId, userId); // verify ownership
-        return this.prisma.setCard.create({
+        const result = await this.prisma.setCard.create({
             data: {
                 ...data,
                 studySetId: setId,
                 nextReviewAt: new Date(), // Due immediately
             },
         });
+
+        // Logging card creation might be too verbose for standard users, 
+        // but if we need tracing we can add it here.
+        return result;
     }
 
     async updateCard(cardId: string, userId: string, data: UpdateSetCardDto) {

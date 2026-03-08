@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
+import { AuditLoggerService } from '../audit-logger.service';
 import { CouponStatus, CouponDiscountType, CouponScope } from '@prisma/generated';
 
 @Injectable()
 export class CouponService {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly audit: AuditLoggerService,
+    ) { }
 
     private normalizeDiscountType(value: unknown): CouponDiscountType | undefined {
         if (value === undefined || value === null) return undefined;
@@ -119,7 +123,7 @@ export class CouponService {
         return coupon;
     }
 
-    async admin_create(data: any) {
+    async admin_create(data: any, requesterId = 'SYSTEM') {
         const {
             discountType,
             status,
@@ -130,7 +134,7 @@ export class CouponService {
             ...rest
         } = data ?? {};
 
-        return this.prisma.coupon.create({
+        const coupon = await this.prisma.coupon.create({
             data: {
                 ...rest,
                 code: data.code.toUpperCase(),
@@ -138,9 +142,21 @@ export class CouponService {
                 status: this.normalizeStatus(status),
             },
         });
+
+        await this.audit.log({
+            userId: requesterId,
+            action: 'coupon.create',
+            entity: 'Coupon',
+            entityId: coupon.id,
+            description: `Created coupon: ${coupon.code} (${coupon.discountType} - ${coupon.discountValue})`,
+            newValues: { code: coupon.code, discountType: coupon.discountType, status: coupon.status },
+        });
+
+        return coupon;
     }
 
-    async admin_update(id: string, data: any) {
+    async admin_update(id: string, data: any, requesterId = 'SYSTEM') {
+        const old = await this.admin_findOne(id);
         const {
             discountType,
             status,
@@ -151,7 +167,7 @@ export class CouponService {
             ...rest
         } = data ?? {};
 
-        return this.prisma.coupon.update({
+        const updated = await this.prisma.coupon.update({
             where: { id },
             data: {
                 ...rest,
@@ -160,11 +176,61 @@ export class CouponService {
                 status: this.normalizeStatus(status),
             },
         });
+
+        await this.audit.log({
+            userId: requesterId,
+            action: 'coupon.update',
+            entity: 'Coupon',
+            entityId: id,
+            description: `Updated coupon: ${old.code}`,
+            oldValues: { status: old.status, discountValue: old.discountValue },
+            newValues: { status: updated.status, discountValue: updated.discountValue },
+        });
+
+        return updated;
     }
 
-    async admin_delete(id: string) {
-        return this.prisma.coupon.delete({
+    async admin_delete(id: string, requesterId = 'SYSTEM') {
+        const coupon = await this.prisma.coupon.findUnique({
             where: { id },
+            include: {
+                _count: {
+                    select: { usages: true },
+                },
+            },
         });
+        if (!coupon) throw new NotFoundException('Coupon not found');
+
+        const orderCount = await this.prisma.order.count({
+            where: { couponId: id },
+        });
+        const hasBeenUsed = coupon._count.usages > 0 || orderCount > 0;
+
+        if (hasBeenUsed) {
+            const updated = await this.prisma.coupon.update({
+                where: { id },
+                data: { status: CouponStatus.INACTIVE },
+            });
+            await this.audit.log({
+                userId: requesterId,
+                action: 'coupon.deactivate',
+                entity: 'Coupon',
+                entityId: id,
+                description: `Deactivated coupon: ${coupon.code} (preserved for order history)`,
+                metadata: { code: coupon.code },
+            });
+            return updated;
+        }
+
+        await this.prisma.coupon.delete({ where: { id } });
+        await this.audit.log({
+            userId: requesterId,
+            action: 'coupon.delete',
+            entity: 'Coupon',
+            entityId: id,
+            description: `Deleted coupon: ${coupon.code}`,
+            metadata: { code: coupon.code },
+        });
+        return { ok: true };
     }
 }

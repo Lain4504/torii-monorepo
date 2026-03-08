@@ -18,6 +18,7 @@ export class CourseEditionService {
     return this.prisma.courseEdition.findMany({
       where: {
         courseProfileId: query.courseProfileId ?? undefined,
+        status: query.status ?? undefined,
         isCurrent: query.isCurrent ?? undefined,
       },
       orderBy: [{ createdAt: 'desc' }],
@@ -37,14 +38,14 @@ export class CourseEditionService {
     });
   }
 
-  async create(input: CourseEditionCreateDto) {
+  async create(input: CourseEditionCreateDto, requesterId = 'SYSTEM') {
     const profile = await this.prisma.courseProfile.findUnique({
       where: { id: input.courseProfileId },
       select: { id: true },
     });
     if (!profile) throw new BadRequestException('Invalid courseProfileId');
 
-    return this.prisma.courseEdition.create({
+    const edition = await this.prisma.courseEdition.create({
       data: {
         courseProfileId: input.courseProfileId,
         editionTag: input.editionTag,
@@ -53,10 +54,21 @@ export class CourseEditionService {
         changelog: input.changelog,
       },
     });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'edition.create',
+      entity: 'CourseEdition',
+      entityId: edition.id,
+      description: `Created course edition: ${edition.editionTag} for profile ${input.courseProfileId}`,
+      newValues: { editionTag: edition.editionTag, status: edition.status },
+    });
+
+    return edition;
   }
 
-  async update(id: string, input: CourseEditionUpdateDto) {
-    await this.findById(id);
+  async update(id: string, input: CourseEditionUpdateDto, requesterId = 'SYSTEM') {
+    const old = await this.findById(id);
 
     if (input.isCurrent === true) {
       // ensure only 1 current per CourseProfile
@@ -72,7 +84,7 @@ export class CourseEditionService {
       }
     }
 
-    return this.prisma.courseEdition.update({
+    const updated = await this.prisma.courseEdition.update({
       where: { id },
       data: {
         editionTag: input.editionTag,
@@ -82,9 +94,21 @@ export class CourseEditionService {
         changelog: input.changelog,
       },
     });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'edition.update',
+      entity: 'CourseEdition',
+      entityId: id,
+      description: `Updated edition ${old.editionTag}`,
+      oldValues: { status: old.status, isCurrent: old.isCurrent, editionTag: old.editionTag },
+      newValues: { status: updated.status, isCurrent: updated.isCurrent, editionTag: updated.editionTag },
+    });
+
+    return updated;
   }
 
-  async setCurrent(id: string) {
+  async setCurrent(id: string, requesterId = 'SYSTEM') {
     const edition = await this.findById(id);
     if (edition.status !== 'PUBLISHED') {
       throw new BadRequestException('Only PUBLISHED editions can be set as current');
@@ -94,13 +118,23 @@ export class CourseEditionService {
       where: { courseProfileId: edition.courseProfileId, isCurrent: true },
       data: { isCurrent: false },
     });
-    return this.prisma.courseEdition.update({
+    const result = await this.prisma.courseEdition.update({
       where: { id },
       data: { isCurrent: true },
     });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'edition.setCurrent',
+      entity: 'CourseEdition',
+      entityId: id,
+      description: `Set edition ${edition.editionTag} as current for profile ${edition.courseProfileId}`,
+    });
+
+    return result;
   }
 
-  async publishEdition(id: string) {
+  async publishEdition(id: string, requesterId = 'SYSTEM') {
     const edition = await this.prisma.courseEdition.findUnique({
       where: { id },
       include: {
@@ -164,22 +198,85 @@ export class CourseEditionService {
 
     const result = await this.prisma.courseEdition.update({
       where: { id },
-      data: { status: 'PUBLISHED' },
+      data: {
+        status: 'PUBLISHED',
+        approvedAt: new Date(),
+        approvedBy: requesterId,
+      },
     });
 
     await this.audit.log({
-      userId: 'SYSTEM', // In a real app, pass the actual user ID
+      userId: requesterId,
       action: 'edition.publish',
       entity: 'CourseEdition',
       entityId: id,
-      description: `Published course edition ${edition.editionTag}`,
+      description: `Published (Approved) course edition ${edition.editionTag}`,
       metadata: { editionTag: edition.editionTag },
     });
 
     return result;
   }
 
-  async archiveEdition(id: string) {
+  async submitForApproval(id: string, requesterId: string) {
+    const edition = await this.findById(id);
+    if (edition.status !== 'DRAFT') {
+      throw new BadRequestException('Only DRAFT editions can be submitted for approval');
+    }
+
+    const updated = await this.prisma.courseEdition.update({
+      where: { id },
+      data: {
+        status: 'PENDING_APPROVAL',
+        submittedForApprovalAt: new Date(),
+        submittedBy: requesterId,
+      },
+    });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'edition.submit',
+      entity: 'CourseEdition',
+      entityId: id,
+      description: `Submitted course edition ${edition.editionTag} for approval`,
+    });
+
+    return updated;
+  }
+
+  async approve(id: string, requesterId: string) {
+    // Reuse publishEdition logic as it covers all validations
+    return this.publishEdition(id, requesterId);
+  }
+
+  async reject(id: string, reason: string, requesterId: string) {
+    const edition = await this.findById(id);
+    if (edition.status !== 'PENDING_APPROVAL') {
+      throw new BadRequestException('Only PENDING_APPROVAL editions can be rejected');
+    }
+
+    const updated = await this.prisma.courseEdition.update({
+      where: { id },
+      data: {
+        status: 'DRAFT',
+        rejectedAt: new Date(),
+        rejectedBy: requesterId,
+        rejectionReason: reason,
+      },
+    });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'edition.reject',
+      entity: 'CourseEdition',
+      entityId: id,
+      description: `Rejected course edition ${edition.editionTag} for reason: ${reason}`,
+      metadata: { reason },
+    });
+
+    return updated;
+  }
+
+  async archiveEdition(id: string, requesterId = 'SYSTEM') {
     const edition = await this.prisma.courseEdition.findUnique({
       where: { id },
       include: { classes: { where: { status: { in: ['ENROLLING', 'IN_PROGRESS'] } } } },
@@ -198,7 +295,7 @@ export class CourseEditionService {
     });
 
     await this.audit.log({
-      userId: 'SYSTEM',
+      userId: requesterId,
       action: 'edition.archive',
       entity: 'CourseEdition',
       entityId: id,
@@ -208,12 +305,32 @@ export class CourseEditionService {
     return result;
   }
 
-  async delete(id: string) {
-    const edition = await this.findById(id);
+  async delete(id: string, requesterId = 'SYSTEM') {
+    const edition = await this.prisma.courseEdition.findUnique({
+      where: { id },
+      include: { classes: { select: { id: true }, take: 1 } },
+    });
+    if (!edition) throw new NotFoundException('CourseEdition not found');
+
     if (edition.status === 'PUBLISHED') {
       throw new BadRequestException('Cannot delete a PUBLISHED edition. Archive it instead.');
     }
+    if (edition.classes.length > 0) {
+      throw new BadRequestException(
+        'Cannot delete edition with existing classes. Archive it instead.',
+      );
+    }
     await this.prisma.courseEdition.delete({ where: { id } });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'edition.delete',
+      entity: 'CourseEdition',
+      entityId: id,
+      description: `Deleted course edition ${edition.editionTag} (status was: ${edition.status})`,
+      metadata: { editionTag: edition.editionTag, status: edition.status },
+    });
+
     return { ok: true };
   }
 }

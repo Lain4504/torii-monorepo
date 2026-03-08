@@ -27,33 +27,49 @@ export class CourseEditionHandler {
   }
 
   @MessagePattern({ cmd: 'academy.courseEdition.create' })
-  create(@Payload() input: CourseEditionCreateDto) {
-    return this.editions.create(input);
+  create(@Payload() data: CourseEditionCreateDto & { requesterId?: string }) {
+    const { requesterId, ...input } = data;
+    return this.editions.create(input, requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.courseEdition.update' })
-  update(@Payload() data: { id: string; input: CourseEditionUpdateDto }) {
-    return this.editions.update(data.id, data.input);
+  update(@Payload() data: { id: string; input: CourseEditionUpdateDto; requesterId?: string }) {
+    return this.editions.update(data.id, data.input, data.requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.courseEdition.publish' })
-  publish(@Payload() data: { id: string }) {
-    return this.editions.publishEdition(data.id);
+  publish(@Payload() data: { id: string; requesterId?: string }) {
+    return this.editions.publishEdition(data.id, data.requesterId);
+  }
+
+  @MessagePattern({ cmd: 'academy.courseEdition.submitForApproval' })
+  submitForApproval(@Payload() data: { id: string; requesterId: string }) {
+    return this.editions.submitForApproval(data.id, data.requesterId);
+  }
+
+  @MessagePattern({ cmd: 'academy.courseEdition.approve' })
+  approve(@Payload() data: { id: string; requesterId: string }) {
+    return this.editions.approve(data.id, data.requesterId);
+  }
+
+  @MessagePattern({ cmd: 'academy.courseEdition.reject' })
+  reject(@Payload() data: { id: string; reason: string; requesterId: string }) {
+    return this.editions.reject(data.id, data.reason, data.requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.courseEdition.archive' })
-  archive(@Payload() data: { id: string }) {
-    return this.editions.archiveEdition(data.id);
+  archive(@Payload() data: { id: string; requesterId?: string }) {
+    return this.editions.archiveEdition(data.id, data.requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.courseEdition.setCurrent' })
-  setCurrent(@Payload() data: { id: string }) {
-    return this.editions.setCurrent(data.id);
+  setCurrent(@Payload() data: { id: string; requesterId?: string }) {
+    return this.editions.setCurrent(data.id, data.requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.courseEdition.delete' })
-  delete(@Payload() data: { id: string }) {
-    return this.editions.delete(data.id);
+  delete(@Payload() data: { id: string; requesterId?: string }) {
+    return this.editions.delete(data.id, data.requesterId);
   }
 }
 

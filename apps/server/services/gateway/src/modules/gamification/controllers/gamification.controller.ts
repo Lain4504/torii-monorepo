@@ -181,10 +181,10 @@ export class GamificationController {
 
   @Post('admin/rewards')
   @Permissions('gamification.manage')
-  async admin_createReward(@Body() body: any) {
+  async admin_createReward(@Body() body: any, @Req() req: ReqWithRequester) {
     try {
       const result = await firstValueFrom(
-        this.natsClient.send('gamification.admin.createReward', body),
+        this.natsClient.send('gamification.admin.createReward', { ...body, requesterId: req.requester?.sub }),
       );
       return successResponse(result);
     } catch (error: any) {
@@ -195,10 +195,10 @@ export class GamificationController {
 
   @Patch('admin/rewards/:id')
   @Permissions('gamification.manage')
-  async admin_updateReward(@Param('id') id: string, @Body() body: any) {
+  async admin_updateReward(@Param('id') id: string, @Body() body: any, @Req() req: ReqWithRequester) {
     try {
       const result = await firstValueFrom(
-        this.natsClient.send('gamification.admin.updateReward', { id, data: body }),
+        this.natsClient.send('gamification.admin.updateReward', { id, data: body, requesterId: req.requester?.sub }),
       );
       return successResponse(result);
     } catch (error: any) {
@@ -209,10 +209,10 @@ export class GamificationController {
 
   @Delete('admin/rewards/:id')
   @Permissions('gamification.manage')
-  async admin_deleteReward(@Param('id') id: string) {
+  async admin_deleteReward(@Param('id') id: string, @Req() req: ReqWithRequester) {
     try {
       const result = await firstValueFrom(
-        this.natsClient.send('gamification.admin.deleteReward', { id }),
+        this.natsClient.send('gamification.admin.deleteReward', { id, requesterId: req.requester?.sub }),
       );
       return successResponse(result);
     } catch (error: any) {
@@ -239,10 +239,10 @@ export class GamificationController {
 
   @Post('admin/achievements')
   @Permissions('gamification.manage')
-  async admin_createAchievement(@Body() body: any) {
+  async admin_createAchievement(@Body() body: any, @Req() req: ReqWithRequester) {
     try {
       const result = await firstValueFrom(
-        this.natsClient.send('gamification.admin.createAchievement', body),
+        this.natsClient.send('gamification.admin.createAchievement', { ...body, requesterId: req.requester?.sub }),
       );
       return successResponse(result);
     } catch (error: any) {
@@ -253,10 +253,10 @@ export class GamificationController {
 
   @Patch('admin/achievements/:id')
   @Permissions('gamification.manage')
-  async admin_updateAchievement(@Param('id') id: string, @Body() body: any) {
+  async admin_updateAchievement(@Param('id') id: string, @Body() body: any, @Req() req: ReqWithRequester) {
     try {
       const result = await firstValueFrom(
-        this.natsClient.send('gamification.admin.updateAchievement', { id, data: body }),
+        this.natsClient.send('gamification.admin.updateAchievement', { id, data: body, requesterId: req.requester?.sub }),
       );
       return successResponse(result);
     } catch (error: any) {
@@ -267,10 +267,10 @@ export class GamificationController {
 
   @Delete('admin/achievements/:id')
   @Permissions('gamification.manage')
-  async admin_deleteAchievement(@Param('id') id: string) {
+  async admin_deleteAchievement(@Param('id') id: string, @Req() req: ReqWithRequester) {
     try {
       const result = await firstValueFrom(
-        this.natsClient.send('gamification.admin.deleteAchievement', { id }),
+        this.natsClient.send('gamification.admin.deleteAchievement', { id, requesterId: req.requester?.sub }),
       );
       return successResponse(result);
     } catch (error: any) {

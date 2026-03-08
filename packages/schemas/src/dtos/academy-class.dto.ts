@@ -66,3 +66,47 @@ export const academyClassQueryDTOSchema = z.object({
   q: z.string().optional(),
 });
 export type AcademyClassQueryDTO = z.infer<typeof academyClassQueryDTOSchema>;
+
+export const academyClassDuplicateDTOSchema = z.object({
+  term: z.string().max(100).optional(),
+  batch: z.string().max(100).optional(),
+  startDate: z.coerce.date().optional(),
+  endDate: z.coerce.date().optional(),
+  code: z.string().max(150).optional(),
+  name: z.string().max(255).optional(),
+});
+export type AcademyClassDuplicateDTO = z.infer<typeof academyClassDuplicateDTOSchema>;
+export const academyClassModelSchema = z.object({
+  id: z.string().uuid(),
+  courseProfileId: z.string().uuid(),
+  courseEditionId: z.string().uuid(),
+  code: z.string(),
+  name: z.string(),
+  mode: z.enum(['VOD', 'LIVE']),
+  status: z.string(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+
+  // TPT Relations (Flattened or nested depending on include)
+  vodClass: z.object({
+    id: z.string().uuid(),
+    enrollmentOpenAt: z.coerce.date().nullable(),
+    enrollmentCloseAt: z.coerce.date().nullable(),
+    maxStudents: z.number().nullable(),
+    defaultExpiresMonths: z.number().nullable(),
+  }).nullable().optional(),
+  liveClass: z.object({
+    id: z.string().uuid(),
+    term: z.string().nullable(),
+    batch: z.string().nullable(),
+    startDate: z.coerce.date().nullable(),
+    endDate: z.coerce.date().nullable(),
+    enrollmentOpenAt: z.coerce.date().nullable(),
+    enrollmentCloseAt: z.coerce.date().nullable(),
+    minStudents: z.number().nullable(),
+    maxStudents: z.number().nullable(),
+    primaryTeacherId: z.string().uuid().nullable(),
+    primaryTeacher: z.any().nullable().optional(),
+  }).nullable().optional(),
+});
+export type AcademyClassModel = z.infer<typeof academyClassModelSchema>;

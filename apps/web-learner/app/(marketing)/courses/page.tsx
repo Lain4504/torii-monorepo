@@ -17,7 +17,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import React, { useMemo } from "react"
-import { useCourses } from "@/lib/api/services/course-api"
+import { useAcademyOfferings as useCourses } from "@/lib/api/services/academy-course-api"
 
 const UserGroup = Users
 const TaskList = ListChecks

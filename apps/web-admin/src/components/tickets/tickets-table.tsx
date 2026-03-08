@@ -45,75 +45,73 @@ export function TicketsTable({ data, isLoading, onView, onChangeStatus, page, li
     });
 
     return (
-        <div className="rounded-md border">
-            <Table>
-                <TableHeader>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => {
-                                return (
-                                    <TableHead key={header.id}>
-                                        {header.isPlaceholder
-                                            ? null
-                                            : flexRender(
-                                                header.column.columnDef.header,
-                                                header.getContext()
-                                            )}
-                                    </TableHead>
-                                );
-                            })}
-                        </TableRow>
-                    ))}
-                </TableHeader>
-                <TableBody>
-                    {isLoading ? (
-                        Array.from({ length: limit }).map((_, index) => (
-                            <TableRow key={index}>
-                                {columns.map((_, colIndex) => (
-                                    <TableCell key={colIndex}>
-                                        <Skeleton className="h-4 w-full" />
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        ))
-                    ) : table.getRowModel().rows?.length ? (
-                        table.getRowModel().rows.map((row) => (
-                            <TableRow
-                                key={row.id}
-                                data-state={row.getIsSelected() && 'selected'}
-                            >
-                                {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id}>
-                                        {flexRender(
-                                            cell.column.columnDef.cell,
-                                            cell.getContext()
+        <Table>
+            <TableHeader className="bg-muted/50">
+                {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                        {headerGroup.headers.map((header) => {
+                            return (
+                                <TableHead key={header.id}>
+                                    {header.isPlaceholder
+                                        ? null
+                                        : flexRender(
+                                            header.column.columnDef.header,
+                                            header.getContext()
                                         )}
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        ))
-                    ) : (
-                        <TableRow className="hover:bg-transparent">
-                            <TableCell
-                                colSpan={columns.length}
-                                className="h-[400px] text-center"
-                            >
-                                <Empty>
-                                    <EmptyMedia>
-                                        <Search className="size-8 text-muted-foreground" />
-                                    </EmptyMedia>
-                                    <EmptyContent>
-                                        <EmptyTitle>Không tìm thấy yêu cầu nào.</EmptyTitle>
-                                        <EmptyDescription>
-                                            Không có yêu cầu hỗ trợ nào khớp với tiêu chí tìm kiếm của bạn.
-                                        </EmptyDescription>
-                                    </EmptyContent>
-                                </Empty>
-                            </TableCell>
+                                </TableHead>
+                            );
+                        })}
+                    </TableRow>
+                ))}
+            </TableHeader>
+            <TableBody>
+                {isLoading ? (
+                    Array.from({ length: limit }).map((_, index) => (
+                        <TableRow key={index}>
+                            {columns.map((_, colIndex) => (
+                                <TableCell key={colIndex}>
+                                    <Skeleton className="h-4 w-full" />
+                                </TableCell>
+                            ))}
                         </TableRow>
-                    )}
-                </TableBody>
-            </Table>
-        </div>
+                    ))
+                ) : table.getRowModel().rows?.length ? (
+                    table.getRowModel().rows.map((row) => (
+                        <TableRow
+                            key={row.id}
+                            data-state={row.getIsSelected() && 'selected'}
+                        >
+                            {row.getVisibleCells().map((cell) => (
+                                <TableCell key={cell.id}>
+                                    {flexRender(
+                                        cell.column.columnDef.cell,
+                                        cell.getContext()
+                                    )}
+                                </TableCell>
+                            ))}
+                        </TableRow>
+                    ))
+                ) : (
+                    <TableRow className="hover:bg-transparent">
+                        <TableCell
+                            colSpan={columns.length}
+                            className="h-[400px] text-center"
+                        >
+                            <Empty>
+                                <EmptyMedia>
+                                    <Search className="size-8 text-muted-foreground" />
+                                </EmptyMedia>
+                                <EmptyContent>
+                                    <EmptyTitle>Không tìm thấy yêu cầu nào.</EmptyTitle>
+                                    <EmptyDescription>
+                                        Không có yêu cầu hỗ trợ nào khớp với tiêu chí tìm kiếm của bạn.
+                                    </EmptyDescription>
+                                </EmptyContent>
+                            </Empty>
+                        </TableCell>
+                    </TableRow>
+                )}
+            </TableBody>
+        </Table>
     );
 }

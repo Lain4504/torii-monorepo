@@ -11,6 +11,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
@@ -21,12 +22,15 @@ import {
   PermissionsGuard,
   ZodValidationPipe,
   successResponse,
+  ReqWithRequester,
 } from '@server/shared';
 import {
   AcademyClassCreateDTO,
+  AcademyClassDuplicateDTO,
   AcademyClassQueryDTO,
   AcademyClassUpdateDTO,
   academyClassCreateDTOSchema,
+  academyClassDuplicateDTOSchema,
   academyClassQueryDTOSchema,
   academyClassUpdateDTOSchema,
 } from '@workspace/schemas';
@@ -63,9 +67,10 @@ export class ClassController {
   async create(
     @Body(new ZodValidationPipe(academyClassCreateDTOSchema))
     dto: AcademyClassCreateDTO,
+    @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.create' }, dto),
+      this.nats.send({ cmd: 'academy.class.create' }, { ...dto, requesterId: req.requester?.sub }),
     );
     return successResponse({ item });
   }
@@ -76,9 +81,10 @@ export class ClassController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodValidationPipe(academyClassUpdateDTOSchema))
     dto: AcademyClassUpdateDTO,
+    @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.update' }, { id, input: dto }),
+      this.nats.send({ cmd: 'academy.class.update' }, { id, input: dto, requesterId: req.requester?.sub }),
     );
     return successResponse({ item });
   }
@@ -94,47 +100,98 @@ export class ClassController {
 
   @Post(':id/publish')
   @Permissions('academy.delivery.write')
-  async publish(@Param('id', new ParseUUIDPipe()) id: string) {
-    const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.publish' }, { id }),
+  async publish(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.publish' }, { id, requesterId: req.requester?.sub }),
     );
-    return successResponse(result);
+    return successResponse({ item });
   }
 
   @Post(':id/start')
   @Permissions('academy.delivery.write')
-  async start(@Param('id', new ParseUUIDPipe()) id: string) {
-    const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.start' }, { id }),
+  async start(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.start' }, { id, requesterId: req.requester?.sub }),
     );
-    return successResponse(result);
+    return successResponse({ item });
   }
 
   @Post(':id/complete')
   @Permissions('academy.delivery.write')
-  async complete(@Param('id', new ParseUUIDPipe()) id: string) {
-    const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.complete' }, { id }),
+  async complete(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.complete' }, { id, requesterId: req.requester?.sub }),
     );
-    return successResponse(result);
+    return successResponse({ item });
   }
 
   @Post(':id/cancel')
   @Permissions('academy.delivery.write')
-  async cancel(@Param('id', new ParseUUIDPipe()) id: string) {
-    const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.cancel' }, { id }),
+  async cancel(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.cancel' }, { id, requesterId: req.requester?.sub }),
     );
-    return successResponse(result);
+    return successResponse({ item });
+  }
+
+  @Post(':id/submit-for-approval')
+  @Permissions('academy.delivery.write')
+  async submitForApproval(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.submitForApproval' }, { id, requesterId: req.requester?.sub }),
+    );
+    return successResponse({ item });
+  }
+
+  @Post(':id/approve')
+  @Permissions('academy.delivery.approve')
+  async approve(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.approve' }, { id, requesterId: req.requester?.sub }),
+    );
+    return successResponse({ item });
+  }
+
+  @Post(':id/reject')
+  @Permissions('academy.delivery.approve')
+  async reject(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() body: { reason: string },
+    @Req() req: ReqWithRequester,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.class.reject' },
+        { id, reason: body.reason, requesterId: req.requester?.sub },
+      ),
+    );
+    return successResponse({ item });
   }
 
   @Delete(':id')
   @Permissions('academy.delivery.write')
-  async delete(@Param('id', new ParseUUIDPipe()) id: string) {
+  async delete(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
     const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.delete' }, { id }),
+      this.nats.send({ cmd: 'academy.class.delete' }, { id, requesterId: req.requester?.sub }),
     );
     return successResponse(result);
+  }
+
+  @Post(':id/duplicate')
+  @Permissions('academy.delivery.write')
+  async duplicate(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body(new ZodValidationPipe(academyClassDuplicateDTOSchema))
+    dto: AcademyClassDuplicateDTO,
+    @Req() req: ReqWithRequester,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.class.duplicate' },
+        { id, input: dto, requesterId: req.requester?.sub },
+      ),
+    );
+    return successResponse({ item });
   }
 }
 

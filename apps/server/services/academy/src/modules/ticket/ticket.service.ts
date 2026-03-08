@@ -30,6 +30,7 @@ import {
   TICKET_REPOSITORY_TOKEN,
 } from '@server/academy/interfaces/repositories';
 import { EmailService } from '@server/identity/modules/email/email.service';
+import { AuditLoggerService } from '../audit-logger.service';
 
 @Injectable()
 export class TicketService implements ITicketService {
@@ -43,26 +44,10 @@ export class TicketService implements ITicketService {
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
     private readonly emailService: EmailService,
+    private readonly audit: AuditLoggerService,
   ) { }
 
-  private async createAuditLog(entry: {
-    userId: string;
-    action: string;
-    entity: string;
-    entityId?: string;
-    description: string;
-    metadata?: any;
-    oldValues?: any;
-    newValues?: any;
-  }) {
-    try {
-      this.natsClient.emit({ cmd: 'identity.audit.log' }, entry);
-    } catch (error) {
-      this.logger.error(`Failed to emit audit log: ${error.message}`);
-    }
-  }
-
-  async createTicket(userId: string, dto: CreateTicketDTO): Promise<Ticket> {
+  async createTicket(userId: string, dto: CreateTicketDTO, requesterId?: string): Promise<Ticket> {
     let ticketMetadata = dto.metadata;
 
     if (dto.type === TicketType.REFUND) {
@@ -170,6 +155,7 @@ export class TicketService implements ITicketService {
     id: string,
     handlerId: string,
     dto: UpdateTicketStatusDTO,
+    requesterId?: string,
   ): Promise<Ticket> {
     const ticket = await this.getTicketById(id);
 
@@ -338,18 +324,15 @@ export class TicketService implements ITicketService {
       handlerId,
     );
 
-    await this.createAuditLog({
-      userId: handlerId,
+    await this.audit.log({
+      userId: requesterId || handlerId,
       action: 'ticket.update_status',
-      entity: 'ticket',
+      entity: 'Ticket',
       entityId: id,
       description: `Updated ticket status to ${dto.status}`,
-      oldValues: { status: ticket.status, response: (ticket as any).response },
-      newValues: {
-        status: updatedTicket.status,
-        response: (updatedTicket as any).response,
-      },
-      metadata: { handlerId },
+      oldValues: { status: ticket.status },
+      newValues: { status: updatedTicket.status },
+      metadata: { handlerId, response: dto.response },
     });
 
     try {
@@ -419,7 +402,7 @@ export class TicketService implements ITicketService {
     };
   }
 
-  async deleteTicket(id: string, userId: string): Promise<void> {
+  async deleteTicket(id: string, userId: string, requesterId?: string): Promise<void> {
     const ticket = await this.ticketRepository.findById(id);
     if (!ticket) {
       throw new NotFoundException('Ticket not found');
@@ -435,13 +418,13 @@ export class TicketService implements ITicketService {
 
     await this.ticketRepository.delete(id);
 
-    this.createAuditLog({
-      userId,
+    await this.audit.log({
+      userId: requesterId || userId,
       action: 'ticket.delete',
-      entity: 'ticket',
+      entity: 'Ticket',
       entityId: id,
-      description: `User deleted ticket ${id}`,
+      description: `Deleted ticket: ${ticket.subject}`,
       metadata: { subject: ticket.subject, type: ticket.type },
-    }).catch((err) => this.logger.error(`Audit log failed: ${err.message}`));
+    });
   }
 }

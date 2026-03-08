@@ -109,21 +109,17 @@ export function BlogPage() {
                     }}
                 />
 
-                <Card className="overflow-hidden">
-                    <CardContent className="p-0">
-
-                        <BlogTable
-                            data={blogs}
-                            onEdit={(b) => navigate(`/blogs/${b.id}/edit`)}
-                            onDelete={setDeletingBlog}
-                            onScheduleChange={setSchedulingBlog}
-                            page={page}
-                            limit={queryParams.limit || 10}
-                            isLoading={isLoading}
-                        />
-
-                    </CardContent>
-                </Card>
+                <div className="rounded-md bg-background border overflow-hidden">
+                    <BlogTable
+                        data={blogs}
+                        onEdit={(b) => navigate(`/blogs/${b.id}/edit`)}
+                        onDelete={setDeletingBlog}
+                        onScheduleChange={setSchedulingBlog}
+                        page={page}
+                        limit={queryParams.limit || 10}
+                        isLoading={isLoading}
+                    />
+                </div>
 
                 <SmartPagination
                     page={page}

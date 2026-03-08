@@ -68,9 +68,9 @@ export class EnrollmentController {
     @Post()
     @Permissions('academy.delivery.write')
     @HttpCode(HttpStatus.CREATED)
-    async create(@Body(new ZodValidationPipe(academyEnrollmentCreateDTOSchema)) dto: any) {
+    async create(@Body(new ZodValidationPipe(academyEnrollmentCreateDTOSchema)) dto: any, @Req() req: ReqWithRequester) {
         const result = await firstValueFrom(
-            this.nats.send({ cmd: 'academy.enrollment.create' }, dto),
+            this.nats.send({ cmd: 'academy.enrollment.create' }, { ...dto, requesterId: req.requester?.sub }),
         );
         return successResponse(result);
     }
@@ -80,18 +80,19 @@ export class EnrollmentController {
     async updateStatus(
         @Param('id', new ParseUUIDPipe()) id: string,
         @Body(new ZodValidationPipe(academyEnrollmentUpdateDTOSchema)) dto: any,
+        @Req() req: ReqWithRequester,
     ) {
         const result = await firstValueFrom(
-            this.nats.send({ cmd: 'academy.enrollment.updateStatus' }, { id, ...dto }),
+            this.nats.send({ cmd: 'academy.enrollment.updateStatus' }, { id, ...dto, requesterId: req.requester?.sub }),
         );
         return successResponse(result);
     }
 
     @Delete(':id')
     @Permissions('academy.delivery.write')
-    async delete(@Param('id', new ParseUUIDPipe()) id: string) {
+    async delete(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
         const result = await firstValueFrom(
-            this.nats.send({ cmd: 'academy.enrollment.delete' }, { id }),
+            this.nats.send({ cmd: 'academy.enrollment.delete' }, { id, requesterId: req.requester?.sub }),
         );
         return successResponse(result);
     }

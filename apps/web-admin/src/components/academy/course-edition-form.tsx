@@ -39,7 +39,8 @@ import {
 } from "@workspace/schemas"
 import type { AcademyCourseEdition } from "@/lib/api/services/academy-course-editions"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
-import { RichTextEditor, type EditorJsData } from "@/components/editor/rich-text-editor"
+import { RichTextEditor } from "@/components/editor/rich-text-editor"
+import { KeyValueEditor } from "./key-value-editor"
 
 export function CourseEditionForm({
   mode,
@@ -74,6 +75,7 @@ export function CourseEditionForm({
         status: initial?.status ?? undefined,
         syllabusSnapshot: initial?.syllabusSnapshot ?? undefined,
         changelog: initial?.changelog ?? undefined,
+        metadata: initial?.metadata ?? undefined,
       }
       : {
         courseProfileId: initial?.courseProfileId ?? "",
@@ -81,6 +83,7 @@ export function CourseEditionForm({
         status: "DRAFT",
         syllabusSnapshot: undefined,
         changelog: undefined,
+        metadata: undefined,
       },
   })
 
@@ -165,20 +168,37 @@ export function CourseEditionForm({
               <Controller
                 name={"status" as any}
                 control={control}
-                render={({ field, fieldState }) => (
+                render={({ field }) => (
                   <Field>
                     <FieldLabel>Trạng thái</FieldLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Chọn trạng thái" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="DRAFT">Draft (Nháp)</SelectItem>
-                        <SelectItem value="PUBLISHED">Published (Công khai)</SelectItem>
-                        <SelectItem value="ARCHIVED">Archived (Lưu trữ)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FieldError>{fieldState.error?.message}</FieldError>
+                    {isEdit ? (
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${field.value === "PUBLISHED"
+                            ? "bg-primary/10 text-primary"
+                            : field.value === "PENDING_APPROVAL"
+                              ? "bg-amber-500/10 text-amber-600"
+                              : "bg-muted text-muted-foreground"
+                            }`}
+                        >
+                          {field.value === "DRAFT" && "Draft (Nháp)"}
+                          {field.value === "PENDING_APPROVAL" && "Chờ phê duyệt"}
+                          {field.value === "PUBLISHED" && "Published (Công khai)"}
+                          {field.value === "ARCHIVED" && "Archived (Lưu trữ)"}
+                          {!["DRAFT", "PENDING_APPROVAL", "PUBLISHED", "ARCHIVED"].includes(field.value || "") && field.value}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {field.value === "DRAFT" && "→ Vào trang chi tiết để Gửi phê duyệt"}
+                          {field.value === "PENDING_APPROVAL" && "→ Admin phê duyệt hoặc từ chối"}
+                          {field.value === "PUBLISHED" && "→ Đã công bố"}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">Draft — tạo xong vào trang chi tiết để Gửi phê duyệt</span>
+                    )}
+                    <FieldDescription>
+                      Luồng: DRAFT → Gửi phê duyệt → PENDING_APPROVAL → Admin Approve → PUBLISHED
+                    </FieldDescription>
                   </Field>
                 )}
               />
@@ -229,7 +249,7 @@ export function CourseEditionForm({
                     <TabsContent value="edit">
                       <RichTextEditor
                         initialContent={field.value || ""}
-                        onUpdate={(data: EditorJsData) => field.onChange(JSON.stringify(data))}
+                        onUpdate={(data: string) => field.onChange(data)}
                       />
                     </TabsContent>
                     <TabsContent value="preview">
@@ -239,6 +259,33 @@ export function CourseEditionForm({
                     </TabsContent>
                   </Tabs>
                   <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+          </FieldGroup>
+        </FieldSet>
+
+        <FieldSeparator />
+
+        <FieldSet>
+          <FieldLegend>Cấu hình nâng cao (Metadata)</FieldLegend>
+          <FieldDescription>
+            Thiết lập các thông số bổ sung cho edition này.
+          </FieldDescription>
+          <FieldGroup>
+            <Controller
+              name={"metadata" as any}
+              control={control}
+              render={({ field }) => (
+                <Field>
+                  <KeyValueEditor
+                    value={field.value || {}}
+                    onChange={field.onChange}
+                    presets={[
+                      { key: "isReviewEnabled", label: "Cho phép đánh giá", defaultValue: "true" },
+                      { key: "showCertificate", label: "Hiển thị chứng chỉ", defaultValue: "true" },
+                    ]}
+                  />
                 </Field>
               )}
             />

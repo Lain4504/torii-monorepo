@@ -3,12 +3,12 @@ import { useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
-import { Textarea } from "@workspace/ui/components/textarea"
 import {
     Field,
     FieldError,
     FieldLabel,
     FieldGroup,
+    FieldDescription,
 } from "@workspace/ui/components/field"
 import {
     Select,
@@ -43,6 +43,7 @@ import {
     ComboboxItem,
     ComboboxList,
 } from "@workspace/ui/components/combobox"
+import { KeyValueEditor } from "@/components/academy/key-value-editor"
 
 export function LiveClassForm({
     mode,
@@ -261,22 +262,39 @@ export function LiveClassForm({
                         <Controller
                             name={"status" as any}
                             control={control}
-                            render={({ field, fieldState }) => (
+                            render={({ field }) => (
                                 <Field>
                                     <FieldLabel>Trạng thái</FieldLabel>
-                                    <Select value={field.value} onValueChange={field.onChange}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Chọn trạng thái..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="DRAFT">Bản nháp (Draft)</SelectItem>
-                                            <SelectItem value="ENROLLING">Đang nhận học viên (Enrolling)</SelectItem>
-                                            <SelectItem value="IN_PROGRESS">Đang học (In Progress)</SelectItem>
-                                            <SelectItem value="COMPLETED">Đã kết thúc (Completed)</SelectItem>
-                                            <SelectItem value="CANCELLED">Đã hủy (Cancelled)</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <FieldError>{fieldState.error?.message}</FieldError>
+                                    {isEdit ? (
+                                        <div className="flex flex-col gap-1">
+                                            <span
+                                                className={`inline-flex w-fit items-center rounded-md px-2 py-1 text-xs font-medium ${field.value === "ENROLLING" || field.value === "IN_PROGRESS"
+                                                    ? "bg-primary/10 text-primary"
+                                                    : field.value === "PENDING_APPROVAL"
+                                                        ? "bg-amber-500/10 text-amber-600"
+                                                        : "bg-muted text-muted-foreground"
+                                                    }`}
+                                            >
+                                                {field.value === "DRAFT" && "Bản nháp"}
+                                                {field.value === "PENDING_APPROVAL" && "Chờ phê duyệt"}
+                                                {field.value === "ENROLLING" && "Đang nhận học viên"}
+                                                {field.value === "IN_PROGRESS" && "Đang học"}
+                                                {field.value === "COMPLETED" && "Đã kết thúc"}
+                                                {field.value === "CANCELLED" && "Đã hủy"}
+                                                {!["DRAFT", "PENDING_APPROVAL", "ENROLLING", "IN_PROGRESS", "COMPLETED", "CANCELLED"].includes(field.value || "") && field.value}
+                                            </span>
+                                            <span className="text-xs text-muted-foreground">
+                                                {field.value === "DRAFT" && "→ Vào trang chi tiết để Gửi phê duyệt"}
+                                                {field.value === "PENDING_APPROVAL" && "→ Admin phê duyệt hoặc từ chối"}
+                                                {field.value === "ENROLLING" && "→ Đã mở tuyển sinh"}
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <span className="text-sm text-muted-foreground">Draft — tạo xong vào trang chi tiết để Gửi phê duyệt</span>
+                                    )}
+                                    <FieldDescription>
+                                        Luồng: DRAFT → Gửi phê duyệt → PENDING_APPROVAL → Admin Approve → ENROLLING
+                                    </FieldDescription>
                                 </Field>
                             )}
                         />
@@ -437,17 +455,16 @@ export function LiveClassForm({
                             control={control}
                             render={({ field, fieldState }) => (
                                 <Field>
-                                    <FieldLabel>Settings (JSON)</FieldLabel>
-                                    <Textarea
-                                        className="font-mono min-h-[100px]"
-                                        value={field.value ? (typeof field.value === "string" ? field.value : JSON.stringify(field.value, null, 2)) : ""}
-                                        onChange={(e: any) => {
-                                            const val = e.target.value
-                                            if (!val) field.onChange(undefined)
-                                            else {
-                                                try { field.onChange(JSON.parse(val)) } catch { field.onChange(val) }
-                                            }
-                                        }}
+                                    <FieldLabel>Settings (Key-Value)</FieldLabel>
+                                    <KeyValueEditor
+                                        value={field.value || {}}
+                                        onChange={field.onChange}
+                                        presets={[
+                                            { key: "allowTrial", label: "Cho phép học thử", defaultValue: "false" },
+                                            { key: "trialSessionsCount", label: "Số buổi học thử", defaultValue: "2" },
+                                            { key: "autoApprove", label: "Tự động duyệt", defaultValue: "false" },
+                                            { key: "requirePhone", label: "Yêu cầu SĐT", defaultValue: "true" },
+                                        ]}
                                     />
                                     <FieldError>{fieldState.error?.message}</FieldError>
                                 </Field>

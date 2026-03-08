@@ -61,6 +61,10 @@ export const academyEnrollmentsApi = {
         return res.data.data!.item
     },
 
+    async cancel(id: string) {
+        return this.update(id, { status: "CANCELLED" })
+    },
+
     async delete(id: string) {
         const res = await apiClient.delete<StandardApiResponse<{ ok: boolean }>>(
             `/api/academy/enrollments/${id}`,
@@ -105,6 +109,15 @@ export function useUpdateAcademyEnrollment() {
             id: string
             input: AcademyEnrollmentUpdateDTO
         }) => academyEnrollmentsApi.update(id, input),
+        onSuccess: () =>
+            qc.invalidateQueries({ queryKey: ["academy-enrollments"] }),
+    })
+}
+
+export function useCancelAcademyEnrollment() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: (id: string) => academyEnrollmentsApi.cancel(id),
         onSuccess: () =>
             qc.invalidateQueries({ queryKey: ["academy-enrollments"] }),
     })

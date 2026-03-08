@@ -3,7 +3,6 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { OrdersTable } from '@/components/finance/orders-table';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
-import { Card } from '@workspace/ui/components/card';
 import {
   Select,
   SelectContent,
@@ -209,7 +208,8 @@ export default function OrdersPage() {
         </div>
 
         {/* Table */}
-        <Card>
+
+        <div className="rounded-md bg-background border overflow-hidden">
           <OrdersTable
             data={orders}
             isLoading={isLoading}
@@ -248,7 +248,7 @@ export default function OrdersPage() {
             page={page}
             limit={10}
           />
-        </Card>
+        </div>
 
         <SmartPagination
           page={page}

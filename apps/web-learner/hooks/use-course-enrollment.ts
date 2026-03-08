@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
-import { enrollmentApi } from '@/lib/api/services/enrollment-api'
+import { academyEnrollmentApi as enrollmentApi } from '@/lib/api/services/academy-enrollment-api'
 import { wishlistApi } from '@/lib/api/services/wishlist-api'
 import { useAppSelector } from '@/hooks/hooks'
 import { toast } from '@workspace/ui/components/sonner'
 import { useRouter } from 'next/navigation'
-import { type EnrollmentResponseDTO, EnrollmentStatus } from '@workspace/schemas'
+import { type AcademyEnrollmentModel as EnrollmentResponseDTO } from '@workspace/schemas'
 
 export function useCourseEnrollment(courseMasterId: string, courseSlug: string) {
     const [isInWishlist, setIsInWishlist] = useState(false)
@@ -50,8 +50,8 @@ export function useCourseEnrollment(courseMasterId: string, courseSlug: string) 
                 // Check if expired
                 if (result.enrollment.expiresAt) {
                     const expiresAt = new Date(result.enrollment.expiresAt)
-                    setIsExpired(expiresAt < new Date() || result.enrollment.completionStatus === EnrollmentStatus.EXPIRED)
-                } else if (result.enrollment.completionStatus === EnrollmentStatus.EXPIRED) {
+                    setIsExpired(expiresAt < new Date() || result.enrollment.status === 'EXPIRED')
+                } else if (result.enrollment.status === 'EXPIRED') {
                     setIsExpired(true)
                 } else {
                     setIsExpired(false)

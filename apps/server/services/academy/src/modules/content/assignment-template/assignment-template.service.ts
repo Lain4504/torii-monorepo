@@ -114,7 +114,12 @@ export class AssignmentTemplateService {
       );
     }
 
-    await this.prisma.assignmentTemplate.delete({ where: { id } });
+    await this.prisma.$transaction([
+      this.prisma.chapterItem.deleteMany({
+        where: { kind: 'ASSIGNMENT_TEMPLATE', referenceId: id },
+      }),
+      this.prisma.assignmentTemplate.delete({ where: { id } }),
+    ]);
     return { ok: true };
   }
 }

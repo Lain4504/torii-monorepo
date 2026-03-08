@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 export const academyAssignmentSubmissionCreateDTOSchema = z.object({
-  classId: z.string().uuid(),
-  classAssessmentId: z.string().uuid(),
+  classId: z.string().uuid().optional().nullable(),
+  classAssessmentId: z.string().uuid().optional().nullable(),
   assignmentTemplateId: z.string().uuid(),
   userId: z.string().uuid(),
   status: z.string().max(20).optional(),
@@ -24,9 +24,24 @@ export type AcademyAssignmentSubmissionUpdateDTO = z.infer<
 export const academyAssignmentSubmissionQueryDTOSchema = z.object({
   classId: z.string().uuid().optional(),
   classAssessmentId: z.string().uuid().optional(),
+  assignmentTemplateId: z.string().uuid().optional(),
   userId: z.string().uuid().optional(),
 });
 export type AcademyAssignmentSubmissionQueryDTO = z.infer<
   typeof academyAssignmentSubmissionQueryDTOSchema
 >;
+
+export type AcademyAssignmentSubmissionModel = {
+  id: string;
+  classId: string;
+  classAssessmentId: string;
+  assignmentTemplateId: string;
+  userId: string;
+  status: string; // DRAFT, SUBMITTED, GRADED, RETURNED
+  score?: number | null;
+  content?: any | null;
+  submittedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
 

@@ -30,14 +30,14 @@ import { storageApi } from '@/lib/api/services/storage-api.ts';
 import { Spinner } from "@workspace/ui/components/spinner";
 import { PageHeader } from '@/components/common/page-header';
 import { ArrowLeft, Save } from 'lucide-react';
-import { RichTextEditor, type EditorJsData } from '@/components/editor/rich-text-editor';
+import { RichTextEditor } from '@/components/editor/rich-text-editor';
 import { X } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
 
 const createBlogSchema = z.object({
     title: z.string().min(1, 'Tiêu đề là bắt buộc'),
     excerpt: z.string().optional(),
     status: z.nativeEnum(BlogStatus),
+    publishedAt: z.string().optional(),
 });
 
 type CreateBlogFormData = z.infer<typeof createBlogSchema>;
@@ -49,19 +49,22 @@ export default function CreateBlogPage() {
     const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
     const [content, setContent] = useState<string>('');
     const [uploading, setUploading] = useState(false);
-    const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
 
     const {
         control,
         handleSubmit,
+        watch,
     } = useForm<CreateBlogFormData>({
         resolver: zodResolver(createBlogSchema),
         defaultValues: {
             title: '',
             excerpt: '',
             status: BlogStatus.DRAFT,
+            publishedAt: '',
         },
     });
+
+    const statusValue = watch("status");
 
     const createBlog = useCreateBlog();
 
@@ -133,6 +136,7 @@ export default function CreateBlogPage() {
                 content: content || '<p></p>',
                 excerpt: data.excerpt || undefined,
                 status: data.status,
+                publishedAt: data.status === BlogStatus.SCHEDULED && data.publishedAt ? new Date(data.publishedAt) : undefined,
                 authorId: user.id,
                 coverImageUrl,
             };
@@ -149,68 +153,6 @@ export default function CreateBlogPage() {
             });
         } finally {
             setUploading(false);
-        }
-    };
-
-    const renderPreview = () => {
-        if (!content) {
-            return (
-                <div className="p-8 text-center text-muted-foreground">
-                    Chưa có nội dung để xem trước
-                </div>
-            );
-        }
-
-        try {
-            const parsedContent = JSON.parse(content) as EditorJsData;
-            return (
-                <div className="prose prose-slate max-w-none p-8">
-                    {parsedContent.blocks?.map((block: any, index: number) => {
-                        switch (block.type) {
-                            case 'header': {
-                                const level = block.data.level as 1 | 2 | 3 | 4 | 5 | 6;
-                                const Tag = `h${level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
-                                return <Tag key={index}>{block.data.text}</Tag>;
-                            }
-                            case 'paragraph':
-                                return <p key={index} dangerouslySetInnerHTML={{ __html: block.data.text }} />;
-                            case 'list':
-                                const ListTag = block.data.style === 'ordered' ? 'ol' : 'ul';
-                                return (
-                                    <ListTag key={index}>
-                                        {block.data.items?.map((item: string, i: number) => (
-                                            <li key={i} dangerouslySetInnerHTML={{ __html: item }} />
-                                        ))}
-                                    </ListTag>
-                                );
-                            case 'quote':
-                                return (
-                                    <blockquote key={index}>
-                                        <p dangerouslySetInnerHTML={{ __html: block.data.text }} />
-                                        {block.data.caption && <cite>{block.data.caption}</cite>}
-                                    </blockquote>
-                                );
-                            case 'code':
-                                return <pre key={index}><code>{block.data.code}</code></pre>;
-                            case 'image':
-                                return (
-                                    <figure key={index}>
-                                        <img src={block.data.file?.url} alt={block.data.caption || ''} />
-                                        {block.data.caption && <figcaption>{block.data.caption}</figcaption>}
-                                    </figure>
-                                );
-                            default:
-                                return null;
-                        }
-                    })}
-                </div>
-            );
-        } catch (error) {
-            return (
-                <div className="p-8 text-center text-destructive">
-                    Lỗi hiển thị nội dung xem trước
-                </div>
-            );
         }
     };
 
@@ -238,8 +180,8 @@ export default function CreateBlogPage() {
             />
 
             <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-                <Card>
-                    <CardContent className="p-6">
+                <Card className="overflow-hidden bg-background">
+                    <div className="p-6 border-b">
                         <FieldGroup>
                             <FieldSet>
                                 <FieldGroup>
@@ -300,7 +242,8 @@ export default function CreateBlogPage() {
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         <SelectItem value={BlogStatus.DRAFT}>Bản nháp</SelectItem>
-                                                        <SelectItem value={BlogStatus.PUBLISHED}>Đã đăng</SelectItem>
+                                                        <SelectItem value={BlogStatus.PUBLISHED}>Đã đăng (Xuất bản)</SelectItem>
+                                                        <SelectItem value={BlogStatus.SCHEDULED}>Lên lịch</SelectItem>
                                                         <SelectItem value={BlogStatus.ARCHIVED}>Đã lưu trữ</SelectItem>
                                                     </SelectContent>
                                                 </Select>
@@ -308,6 +251,26 @@ export default function CreateBlogPage() {
                                             </Field>
                                         )}
                                     />
+
+                                    {statusValue === BlogStatus.SCHEDULED && (
+                                        <Controller
+                                            control={control}
+                                            name="publishedAt"
+                                            render={({ field, fieldState }) => (
+                                                <Field data-invalid={fieldState.invalid}>
+                                                    <FieldLabel htmlFor={field.name} className="required">
+                                                        Thời gian đăng bài
+                                                    </FieldLabel>
+                                                    <Input
+                                                        id={field.name}
+                                                        type="datetime-local"
+                                                        {...field}
+                                                    />
+                                                    <FieldError errors={[fieldState.error]} />
+                                                </Field>
+                                            )}
+                                        />
+                                    )}
 
                                     <Field>
                                         <FieldLabel htmlFor="cover-image-upload">
@@ -348,28 +311,13 @@ export default function CreateBlogPage() {
                                 </FieldGroup>
                             </FieldSet>
                         </FieldGroup>
-                    </CardContent>
-                </Card>
+                    </div>
 
-                <Card className="overflow-hidden bg-background">
                     <CardContent className="p-0">
-                        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'edit' | 'preview')}>
-                            <div className="border-b px-6 pt-6">
-                                <TabsList>
-                                    <TabsTrigger value="edit">Chỉnh sửa</TabsTrigger>
-                                    <TabsTrigger value="preview">Xem trước</TabsTrigger>
-                                </TabsList>
-                            </div>
-                            <TabsContent value="edit" className="m-0 p-6">
-                                <RichTextEditor
-                                    initialContent={content}
-                                    onUpdate={(data: EditorJsData) => setContent(JSON.stringify(data))}
-                                />
-                            </TabsContent>
-                            <TabsContent value="preview" className="m-0">
-                                {renderPreview()}
-                            </TabsContent>
-                        </Tabs>
+                        <RichTextEditor
+                            initialContent={content}
+                            onUpdate={(data: string) => setContent(data)}
+                        />
                     </CardContent>
                 </Card>
             </form>

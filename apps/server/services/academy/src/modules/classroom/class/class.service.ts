@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
-import { ClassCreateDto, ClassQueryDto, ClassUpdateDto } from './dto/class.dto';
+import { ClassCreateDto, ClassDuplicateDto, ClassQueryDto, ClassUpdateDto } from './dto/class.dto';
 import { AuditLoggerService } from '../../audit-logger.service';
 
 @Injectable()
@@ -79,7 +79,7 @@ export class ClassService {
     return item;
   }
 
-  async create(input: ClassCreateDto) {
+  async create(input: ClassCreateDto, requesterId = 'SYSTEM') {
     const edition = await this.prisma.courseEdition.findUnique({
       where: { id: input.courseEditionId },
       select: { id: true, courseProfileId: true },
@@ -134,7 +134,7 @@ export class ClassService {
       }
 
       await this.audit.log({
-        userId: 'SYSTEM',
+        userId: requesterId,
         action: 'class.create',
         entity: 'Class',
         entityId: classItem.id,
@@ -146,7 +146,7 @@ export class ClassService {
     });
   }
 
-  async update(id: string, input: ClassUpdateDto) {
+  async update(id: string, input: ClassUpdateDto, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
 
     return this.prisma.$transaction(async (tx) => {
@@ -187,11 +187,21 @@ export class ClassService {
         });
       }
 
+      await this.audit.log({
+        userId: requesterId,
+        action: 'class.update',
+        entity: 'Class',
+        entityId: id,
+        description: `Updated class ${classItem.code}`,
+        oldValues: { name: classItem.name, status: classItem.status },
+        newValues: { name: updatedClass.name, status: updatedClass.status },
+      });
+
       return updatedClass;
     });
   }
 
-  async publishClass(id: string) {
+  async publishClass(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.prisma.class.findUnique({
       where: { id },
       include: {
@@ -214,42 +224,139 @@ export class ClassService {
 
     const result = await this.prisma.class.update({
       where: { id },
-      data: { status: 'ENROLLING' },
+      data: {
+        status: 'ENROLLING',
+        approvedAt: new Date(),
+        approvedBy: requesterId,
+      },
     });
 
     await this.audit.log({
-      userId: 'SYSTEM',
+      userId: requesterId,
       action: 'class.publish',
       entity: 'Class',
       entityId: id,
-      description: `Published class ${classItem.code}`,
+      description: `Published (Approved) class ${classItem.code}`,
       metadata: { code: classItem.code },
     });
 
     return result;
   }
 
-  async startClass(id: string) {
+  async submitForApproval(id: string, requesterId: string) {
+    const classItem = await this.findById(id);
+    if (classItem.status !== 'DRAFT') {
+      throw new BadRequestException('Only DRAFT classes can be submitted for approval');
+    }
+
+    if (classItem.mode === 'LIVE') {
+      const liveClass = await this.prisma.liveClass.findUnique({
+        where: { classId: id },
+        include: { schedules: { take: 1 } },
+      });
+      if (!liveClass?.schedules || liveClass.schedules.length === 0) {
+        throw new BadRequestException('LIVE classes must have at least one LiveSchedule before submitting for approval');
+      }
+    }
+
+    const updated = await this.prisma.class.update({
+      where: { id },
+      data: {
+        status: 'PENDING_APPROVAL',
+        submittedForApprovalAt: new Date(),
+        submittedBy: requesterId,
+      },
+    });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'class.submit',
+      entity: 'Class',
+      entityId: id,
+      description: `Submitted class ${classItem.code} for approval`,
+    });
+
+    return updated;
+  }
+
+  async approve(id: string, requesterId: string) {
+    // Reuse publishClass logic
+    return this.publishClass(id, requesterId);
+  }
+
+  async reject(id: string, reason: string, requesterId: string) {
+    const classItem = await this.findById(id);
+    if (classItem.status !== 'PENDING_APPROVAL') {
+      throw new BadRequestException('Only PENDING_APPROVAL classes can be rejected');
+    }
+
+    const updated = await this.prisma.class.update({
+      where: { id },
+      data: {
+        status: 'DRAFT',
+        rejectedAt: new Date(),
+        rejectedBy: requesterId,
+        rejectionReason: reason,
+      },
+    });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'class.reject',
+      entity: 'Class',
+      entityId: id,
+      description: `Rejected class ${classItem.code} for reason: ${reason}`,
+      metadata: { reason },
+    });
+
+    return updated;
+  }
+
+  async startClass(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
     if (classItem.status === 'IN_PROGRESS') return classItem;
 
-    return this.prisma.class.update({
+    const result = await this.prisma.class.update({
       where: { id },
       data: { status: 'IN_PROGRESS' },
     });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'class.start',
+      entity: 'Class',
+      entityId: id,
+      description: `Started class ${classItem.code}`,
+      oldValues: { status: classItem.status },
+      newValues: { status: 'IN_PROGRESS' },
+    });
+
+    return result;
   }
 
-  async completeClass(id: string) {
+  async completeClass(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
     if (classItem.status === 'COMPLETED') return classItem;
 
-    return this.prisma.class.update({
+    const result = await this.prisma.class.update({
       where: { id },
       data: { status: 'COMPLETED' },
     });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'class.complete',
+      entity: 'Class',
+      entityId: id,
+      description: `Completed class ${classItem.code}`,
+      oldValues: { status: classItem.status },
+      newValues: { status: 'COMPLETED' },
+    });
+
+    return result;
   }
 
-  async cancelClass(id: string) {
+  async cancelClass(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
     if (classItem.status === 'CANCELLED') return classItem;
 
@@ -259,7 +366,7 @@ export class ClassService {
     });
 
     await this.audit.log({
-      userId: 'SYSTEM',
+      userId: requesterId,
       action: 'class.cancel',
       entity: 'Class',
       entityId: id,
@@ -310,7 +417,7 @@ export class ClassService {
     };
   }
 
-  async delete(id: string) {
+  async delete(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
     if (classItem.status !== 'DRAFT' && classItem.status !== 'CANCELLED') {
       throw new BadRequestException('Can only delete DRAFT or CANCELLED classes');
@@ -322,6 +429,147 @@ export class ClassService {
     }
 
     await this.prisma.class.delete({ where: { id } });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'class.delete',
+      entity: 'Class',
+      entityId: id,
+      description: `Deleted class ${classItem.code} (status was: ${classItem.status})`,
+      metadata: { code: classItem.code, mode: classItem.mode },
+    });
+
     return { ok: true };
+  }
+
+  async duplicate(id: string, input?: ClassDuplicateDto, requesterId = 'SYSTEM') {
+    const source = await this.prisma.class.findUnique({
+      where: { id },
+      include: {
+        vodClass: true,
+        liveClass: {
+          include: {
+            schedules: true,
+          },
+        },
+        assessments: true,
+      },
+    });
+
+    if (!source) throw new NotFoundException('Class not found');
+
+    // Handle code unique
+    let targetCode = input?.code || `${source.code}_COPY_${Date.now()}`;
+    const existing = await this.prisma.class.findUnique({ where: { code: targetCode } });
+    if (existing) {
+      targetCode = `${targetCode}_${Math.floor(Math.random() * 1000)}`;
+    }
+
+    const targetName = input?.name || `${source.name} (Bản sao)`;
+
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Create base Class
+      const newClass = await tx.class.create({
+        data: {
+          courseProfileId: source.courseProfileId,
+          courseEditionId: source.courseEditionId,
+          code: targetCode,
+          name: targetName,
+          mode: source.mode,
+          status: 'DRAFT',
+          settings: source.settings ?? undefined,
+        },
+      });
+
+      // 2. Handle specific mode
+      if (source.mode === 'VOD' && source.vodClass) {
+        await tx.vodClass.create({
+          data: {
+            classId: newClass.id,
+            enrollmentOpenAt: source.vodClass.enrollmentOpenAt,
+            enrollmentCloseAt: source.vodClass.enrollmentCloseAt,
+            maxStudents: source.vodClass.maxStudents,
+            defaultExpiresMonths: source.vodClass.defaultExpiresMonths,
+          },
+        });
+      } else if (source.mode === 'LIVE' && source.liveClass) {
+        const startDate = input?.startDate || source.liveClass.startDate;
+        const endDate = input?.endDate || source.liveClass.endDate;
+
+        if (!startDate || !endDate) {
+          throw new BadRequestException('LIVE classes must have startDate and endDate');
+        }
+
+        const liveClass = await tx.liveClass.create({
+          data: {
+            classId: newClass.id,
+            term: input?.term || source.liveClass.term,
+            batch: input?.batch || source.liveClass.batch,
+            startDate,
+            endDate,
+            enrollmentOpenAt: source.liveClass.enrollmentOpenAt,
+            enrollmentCloseAt: source.liveClass.enrollmentCloseAt,
+            minStudents: source.liveClass.minStudents,
+            maxStudents: source.liveClass.maxStudents,
+            minStudentsEnforcement: source.liveClass.minStudentsEnforcement,
+            primaryTeacherId: source.liveClass.primaryTeacherId,
+          },
+        });
+
+        // Copy schedules
+        if (source.liveClass.schedules.length > 0) {
+          await tx.liveSchedule.createMany({
+            data: source.liveClass.schedules.map((s) => ({
+              liveClassId: liveClass.id,
+              weekday: s.weekday,
+              startTime: s.startTime,
+              endTime: s.endTime,
+              location: s.location,
+              excludedDates: s.excludedDates ?? undefined,
+              note: s.note,
+              roomId: s.roomId,
+            })),
+          });
+        }
+      }
+
+      // 3. Copy Assessments
+      if (source.assessments.length > 0) {
+        await tx.classAssessment.createMany({
+          data: source.assessments.map((a) => ({
+            classId: newClass.id,
+            kind: a.kind,
+            quizTemplateId: a.quizTemplateId,
+            assignmentTemplateId: a.assignmentTemplateId,
+            titleOverride: a.titleOverride,
+            deadline: a.deadline,
+            weight: a.weight,
+            maxAttemptsOverride: a.maxAttemptsOverride,
+            timeLimitOverrideMinutes: a.timeLimitOverrideMinutes,
+            maxScoreOverride: a.maxScoreOverride,
+            settings: a.settings ?? undefined,
+            status: 'DRAFT',
+          })),
+        });
+      }
+
+      // 4. Audit Log
+      await this.audit.log({
+        userId: requesterId,
+        action: 'class.duplicate',
+        entity: 'Class',
+        entityId: newClass.id,
+        description: `Duplicated class ${source.code} to ${targetCode}`,
+        metadata: { sourceId: id, targetCode },
+      });
+
+      return tx.class.findUnique({
+        where: { id: newClass.id },
+        include: {
+          vodClass: true,
+          liveClass: { include: { schedules: true } },
+        },
+      });
+    });
   }
 }

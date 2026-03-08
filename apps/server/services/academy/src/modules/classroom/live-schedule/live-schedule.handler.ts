@@ -23,18 +23,19 @@ export class LiveScheduleHandler {
   }
 
   @MessagePattern({ cmd: 'academy.liveSchedule.create' })
-  create(@Payload() input: LiveScheduleCreateDto) {
-    return this.schedules.create(input);
+  create(@Payload() input: LiveScheduleCreateDto & { requesterId?: string }) {
+    const { requesterId, ...dto } = input;
+    return this.schedules.create(dto, requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.liveSchedule.update' })
-  update(@Payload() data: { id: string; input: LiveScheduleUpdateDto }) {
-    return this.schedules.update(data.id, data.input);
+  update(@Payload() data: { id: string; input: LiveScheduleUpdateDto; requesterId?: string }) {
+    return this.schedules.update(data.id, data.input, data.requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.liveSchedule.delete' })
-  delete(@Payload() data: { id: string }) {
-    return this.schedules.delete(data.id);
+  delete(@Payload() data: { id: string; requesterId?: string }) {
+    return this.schedules.delete(data.id, data.requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.liveSession.join' })

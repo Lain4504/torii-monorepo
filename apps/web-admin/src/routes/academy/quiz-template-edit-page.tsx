@@ -20,7 +20,7 @@ export default function AcademyQuizTemplateEditPage() {
         try {
             await update.mutateAsync({ id, input: data as AcademyQuizTemplateUpdateDTO })
             toast.success("Cập nhật thành công")
-            navigate("/academy/quiz-templates")
+            navigate(-1)
         } catch (e: any) {
             toast.error(e?.message || "Lỗi khi cập nhật")
         }
@@ -38,7 +38,7 @@ export default function AcademyQuizTemplateEditPage() {
                 mode="edit"
                 initial={initial}
                 onSubmit={handleSubmit}
-                onCancel={() => navigate("/academy/quiz-templates")}
+                onCancel={() => navigate(-1)}
                 submitting={update.isPending}
             />
         </div>

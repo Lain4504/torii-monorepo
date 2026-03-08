@@ -12,7 +12,6 @@ import { TicketDetailDialog } from '@/components/tickets/ticket-detail-dialog';
 import { ChangeTicketStatusDialog } from '@/components/tickets/change-ticket-status-dialog';
 import { ticketApi, useTicketStats } from '@/lib/api/services/tickets';
 import { SmartPagination } from "@/components/common/smart-pagination";
-import { Card, CardContent } from "@workspace/ui/components/card";
 
 export default function TicketsPage() {
     const [page, setPage] = useState(1);
@@ -67,18 +66,16 @@ export default function TicketsPage() {
                     status={statusFilter}
                     onStatusChange={(v) => setStatusFilter(v === 'all' ? '' : v as TicketStatus)}
                 />
-                <Card>
-                    <CardContent className="p-0">
-                        <TicketsTable
-                            data={tickets}
-                            isLoading={isLoading}
-                            onView={setViewingTicket}
-                            onChangeStatus={setChangingStatusTicket}
-                            page={page}
-                            limit={queryParams.limit || 10}
-                        />
-                    </CardContent>
-                </Card>
+                <div className="rounded-md bg-background border overflow-hidden">
+                    <TicketsTable
+                        data={tickets}
+                        isLoading={isLoading}
+                        onView={setViewingTicket}
+                        onChangeStatus={setChangingStatusTicket}
+                        page={page}
+                        limit={queryParams.limit || 10}
+                    />
+                </div>
                 <SmartPagination
                     page={page}
                     totalPages={meta?.totalPages || 0}

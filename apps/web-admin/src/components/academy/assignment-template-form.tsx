@@ -2,7 +2,6 @@ import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
-import { Textarea } from "@workspace/ui/components/textarea"
 import {
     Field,
     FieldError,
@@ -32,13 +31,14 @@ import {
 } from "@workspace/schemas"
 import type { AcademyAssignmentTemplate } from "@/lib/api/services/academy-assignment-templates"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
-import { RichTextEditor, type EditorJsData } from "@/components/editor/rich-text-editor"
+import { RichTextEditor } from "@/components/editor/rich-text-editor"
 import {
     Tabs,
     TabsContent,
     TabsList,
     TabsTrigger,
 } from "@workspace/ui/components/tabs"
+import { KeyValueEditor } from "@/components/academy/key-value-editor"
 
 export function AssignmentTemplateForm({
     mode,
@@ -76,7 +76,7 @@ export function AssignmentTemplateForm({
                 defaultSubmissionSettings: initial?.defaultSubmissionSettings ?? undefined,
             }
             : {
-                courseProfileId: "",
+                courseProfileId: (initial as any)?.courseProfileId ?? "",
                 title: "",
                 description: "",
                 defaultType: "TEXT",
@@ -145,7 +145,7 @@ export function AssignmentTemplateForm({
                                         <TabsContent value="edit">
                                             <RichTextEditor
                                                 initialContent={field.value || ""}
-                                                onUpdate={(data: EditorJsData) => field.onChange(JSON.stringify(data))}
+                                                onUpdate={(data: string) => field.onChange(data)}
                                             />
                                         </TabsContent>
                                         <TabsContent value="preview">
@@ -217,25 +217,16 @@ export function AssignmentTemplateForm({
                             control={control}
                             render={({ field, fieldState }) => (
                                 <Field>
-                                    <FieldLabel>Cài đặt nộp bài (JSON)</FieldLabel>
-                                    <Textarea
-                                        placeholder='Ví dụ: {"allowLate":true}'
-                                        value={
-                                            typeof field.value === "string"
-                                                ? field.value
-                                                : field.value
-                                                    ? JSON.stringify(field.value, null, 2)
-                                                    : ""
-                                        }
-                                        onChange={(e) => {
-                                            const raw = e.target.value
-                                            if (!raw) return field.onChange(undefined)
-                                            try {
-                                                field.onChange(JSON.parse(raw))
-                                            } catch {
-                                                field.onChange(raw)
-                                            }
-                                        }}
+                                    <FieldLabel>Cài đặt nộp bài (Key-Value)</FieldLabel>
+                                    <KeyValueEditor
+                                        value={field.value || {}}
+                                        onChange={field.onChange}
+                                        presets={[
+                                            { key: "maxFileSize", label: "File tối đa (MB)", defaultValue: "10" },
+                                            { key: "allowedExtensions", label: "Đuôi file", defaultValue: ".pdf,.docx,.zip" },
+                                            { key: "maxWordCount", label: "Giới hạn từ", defaultValue: "5000" },
+                                            { key: "plagiarismCheck", label: "Check đạo văn", defaultValue: "false" },
+                                        ]}
                                     />
                                     <FieldError>{fieldState.error?.message}</FieldError>
                                 </Field>

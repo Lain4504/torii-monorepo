@@ -6,7 +6,7 @@ import { Progress } from "@workspace/ui/components/progress"
 import { cn } from "@workspace/ui/lib/utils"
 import { useState } from "react"
 import { CourseExpirationModal } from "@/components/courses/course-expiration-modal"
-import { useMyCourses } from "@/lib/api/services/learning-progress-api"
+import { useAcademyMyCourses as useMyCourses } from "@/lib/api/services/academy-learning-progress-api"
 import { SidebarGroup, SidebarGroupLabel, useSidebar } from "@workspace/ui/components/sidebar"
 
 export function NavLearning() {
@@ -41,7 +41,7 @@ export function NavLearning() {
                 >
                     <div className="flex items-start justify-between gap-3 mb-4">
                         <h4 className="text-xs font-bold leading-snug group-hover:text-primary transition-colors line-clamp-2">
-                            {activeCourse.title}
+                            {activeCourse.courseTitle}
                         </h4>
                         <div className={cn(
                             "w-8 h-8 rounded flex items-center justify-center shrink-0 transition-all",
@@ -62,8 +62,8 @@ export function NavLearning() {
             <CourseExpirationModal
                 isOpen={showExpiredModal}
                 onClose={() => setShowExpiredModal(false)}
-                courseTitle={activeCourse.title}
-                courseSlug={activeCourse.slug}
+                courseTitle={activeCourse.courseTitle || ""}
+                courseSlug={activeCourse.slug || ""}
             />
         </SidebarGroup>
     )

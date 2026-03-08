@@ -110,7 +110,7 @@ export class EnrollmentService {
     return item;
   }
 
-  async create(input: EnrollmentCreateDto) {
+  async create(input: EnrollmentCreateDto, requesterId = 'SYSTEM') {
     const klass = await this.prisma.class.findUnique({
       where: { id: input.classId },
       include: {
@@ -161,7 +161,7 @@ export class EnrollmentService {
     });
 
     await this.audit.log({
-      userId: input.userId,
+      userId: requesterId,
       action: 'enrollment.create',
       entity: 'Enrollment',
       entityId: result.id,
@@ -172,12 +172,24 @@ export class EnrollmentService {
     return result;
   }
 
-  async updateStatus(id: string, status: string) {
-    await this.findById(id);
-    return this.prisma.enrollment.update({
+  async updateStatus(id: string, status: string, requesterId = 'SYSTEM') {
+    const old = await this.findById(id);
+    const updated = await this.prisma.enrollment.update({
       where: { id },
       data: { status },
     });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'enrollment.update_status',
+      entity: 'Enrollment',
+      entityId: id,
+      description: `Updated enrollment ${id} status to ${status}`,
+      oldValues: { status: old.status },
+      newValues: { status },
+    });
+
+    return updated;
   }
 
   async moveEnrollment(id: string, targetClassId: string) {
@@ -259,9 +271,31 @@ export class EnrollmentService {
     }
   }
 
-  async delete(id: string) {
-    await this.findById(id);
+  async delete(id: string, requesterId = 'SYSTEM') {
+    const enrollment = await this.prisma.enrollment.findUnique({
+      where: { id },
+      include: { class: { select: { status: true } } },
+    });
+    if (!enrollment) throw new NotFoundException('Enrollment not found');
+
+    const canDelete = ['CANCELLED', 'EXPIRED'].includes(enrollment.status);
+    if (!canDelete) {
+      throw new BadRequestException(
+        'Cannot delete active enrollment. Cancel it first to preserve audit history.',
+      );
+    }
+
     await this.prisma.enrollment.delete({ where: { id } });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'enrollment.delete',
+      entity: 'Enrollment',
+      entityId: id,
+      description: `Deleted enrollment for user ${enrollment.userId} in class ${enrollment.classId}`,
+      metadata: { userId: enrollment.userId, classId: enrollment.classId },
+    });
+
     return { ok: true };
   }
 }

@@ -7,29 +7,29 @@ import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import { ArrowLeft, Clock, FileText, Play, History } from 'lucide-react'
 import { PageLoading } from '@workspace/ui/components/page-loading'
-import { useExamById, useExamSessions } from '@/lib/api/services/exam-api'
+import { useAcademyExam as useExamById, useAcademyExamAttempts as useExamSessions } from '@/lib/api/services/academy-exam-api'
 import { useMemo } from 'react'
 import { formatDate } from '@/utils/format-utils'
-import { ExamSessionStatus } from '@workspace/schemas'
+import type { AcademyExamAttemptModel } from '@workspace/schemas'
 
 export default function ExamDetailPage() {
-    const params = useParams()
+    const { examId } = useParams<{ examId: string }>()
     const router = useRouter()
-    const examId = params.examId as string
 
     const { data: exam, isLoading: examLoading, error: examError } = useExamById(examId)
-    const { data: sessionsData, isLoading: sessionsLoading } = useExamSessions(examId, { page: 1, limit: 10 })
+    const { data: sessions = [], isLoading: sessionsLoading } = useExamSessions({ examId })
 
     const isLoading = examLoading || sessionsLoading
-    const sessions = sessionsData?.data || []
 
     const bestScore = useMemo(() => {
         if (sessions.length === 0) return null
         const scores = sessions
-            .filter((s: any) => s.score !== undefined && s.maxScore !== undefined)
-            .map((s: any) => (s.score / s.maxScore) * 100)
+            .filter((s) => s.percentage !== undefined && s.percentage !== null)
+            .map((s) => s.percentage!)
         return scores.length > 0 ? Math.max(...scores) : null
     }, [sessions])
+
+    const totalQuestions = exam?.examQuestions?.length || 0
 
     if (isLoading) {
         return <PageLoading text="Đang tải dữ liệu bài thi..." className="h-[80vh]" />
@@ -57,7 +57,7 @@ export default function ExamDetailPage() {
                     <div>
                         <div className="flex items-center gap-3 mb-1">
                             <Badge variant="outline" className="rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest border-primary/20 text-primary bg-primary/5">
-                                Trình độ {exam.jlptLevel || 'N/A'}
+                                Trình độ {exam.level || 'N/A'}
                             </Badge>
                             {bestScore !== null && (
                                 <Badge variant="secondary" className="rounded-md px-2 py-0.5 text-[9px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20">
@@ -119,7 +119,7 @@ export default function ExamDetailPage() {
                             <div className="size-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 mb-2 group-hover:scale-110 transition-transform">
                                 <FileText className="w-6 h-6" />
                             </div>
-                            <div className="text-3xl font-black text-foreground tracking-tight">{exam.totalQuestions}</div>
+                            <div className="text-3xl font-black text-foreground tracking-tight">{totalQuestions}</div>
                             <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">Câu hỏi</div>
                         </Card>
 
@@ -127,7 +127,7 @@ export default function ExamDetailPage() {
                             <div className="size-12 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 mb-2 group-hover:scale-110 transition-transform">
                                 <Clock className="w-6 h-6" />
                             </div>
-                            <div className="text-3xl font-black text-foreground tracking-tight">{exam.totalTime || 0}p</div>
+                            <div className="text-3xl font-black text-foreground tracking-tight">{exam.totalTimeLimitMinutes || 0}p</div>
                             <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">Thời gian</div>
                         </Card>
                     </div>
@@ -144,13 +144,13 @@ export default function ExamDetailPage() {
                             <CardContent className="p-0">
                                 <div className="divide-y divide-white/5">
                                     {sessions
-                                        .filter((s: any) => s.status === ExamSessionStatus.SUBMITTED || s.status === ExamSessionStatus.COMPLETED)
+                                        .filter((s: AcademyExamAttemptModel) => s.status === 'SUBMITTED' || s.status === 'COMPLETED')
                                         .slice(0, 3)
-                                        .map((session: any) => {
-                                            const percentage = session.score !== undefined && session.maxScore !== undefined
-                                                ? Math.round((session.score / session.maxScore) * 100)
+                                        .map((session: AcademyExamAttemptModel) => {
+                                            const percentage = session.percentage !== undefined && session.percentage !== null
+                                                ? Math.round(session.percentage)
                                                 : null
-                                            const isPassed = percentage !== null && percentage >= 60 // Assuming 60% is passing
+                                            const isPassed = session.isPassed ?? (percentage !== null && percentage >= 60)
 
                                             return (
                                                 <div

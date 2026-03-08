@@ -18,13 +18,14 @@ export class LessonHandler {
   }
 
   @MessagePattern({ cmd: 'academy.lesson.create' })
-  create(@Payload() input: LessonCreateDto) {
-    return this.lessons.create(input);
+  create(@Payload() data: LessonCreateDto & { requesterId?: string }) {
+    const { requesterId, ...input } = data;
+    return this.lessons.create(input, requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.lesson.update' })
-  update(@Payload() data: { id: string; input: LessonUpdateDto }) {
-    return this.lessons.update(data.id, data.input);
+  update(@Payload() data: { id: string; input: LessonUpdateDto; requesterId?: string }) {
+    return this.lessons.update(data.id, data.input, data.requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.lesson.getUsage' })
@@ -33,8 +34,8 @@ export class LessonHandler {
   }
 
   @MessagePattern({ cmd: 'academy.lesson.delete' })
-  delete(@Payload() data: { id: string }) {
-    return this.lessons.delete(data.id);
+  delete(@Payload() data: { id: string; requesterId?: string }) {
+    return this.lessons.delete(data.id, data.requesterId);
   }
 }
 

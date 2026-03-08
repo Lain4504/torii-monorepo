@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { useMySchedule, liveSessionApi } from '@/lib/api/services/live-session-api'
+import { useMySchedule, liveSessionApi } from '@/lib/api/services/academy-live-session-api'
 import { LiveSessionResponseDTO } from '@workspace/schemas'
 import {
     format,

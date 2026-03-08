@@ -23,6 +23,13 @@ export type AcademyCourseOffering = {
   validTo?: string | null
   createdAt: string
   updatedAt: string
+  rejectedAt: string | null
+  rejectedBy: string | null
+  rejectionReason: string | null
+  submittedForApprovalAt: string | null
+  submittedBy: string | null
+  approvedAt: string | null
+  approvedBy: string | null
 }
 
 export const academyCourseOfferingsApi = {
@@ -57,6 +64,14 @@ export const academyCourseOfferingsApi = {
     return res.data.data!.item
   },
 
+  async archive(id: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseOffering }>>(
+      `/api/academy/course-offerings/${id}/archive`,
+      {},
+    )
+    return res.data.data!.item
+  },
+
   async delete(id: string) {
     const res = await apiClient.delete<StandardApiResponse<{ ok: boolean }>>(
       `/api/academy/course-offerings/${id}`,
@@ -70,6 +85,27 @@ export const academyCourseOfferingsApi = {
       { classIds },
     )
     return res.data
+  },
+  async submitForApproval(id: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseOffering }>>(
+      `/api/academy/course-offerings/${id}/submit-for-approval`,
+      {},
+    )
+    return res.data.data!.item
+  },
+  async approve(id: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseOffering }>>(
+      `/api/academy/course-offerings/${id}/approve`,
+      {},
+    )
+    return res.data.data!.item
+  },
+  async reject(id: string, reason: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseOffering }>>(
+      `/api/academy/course-offerings/${id}/reject`,
+      { reason },
+    )
+    return res.data.data!.item
   },
 }
 
@@ -105,6 +141,17 @@ export function useUpdateAcademyCourseOffering() {
   })
 }
 
+export function useArchiveAcademyCourseOffering() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => academyCourseOfferingsApi.archive(id),
+    onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: ["academy-course-offerings"] })
+      qc.invalidateQueries({ queryKey: ["academy-course-offering", id] })
+    },
+  })
+}
+
 export function useDeleteAcademyCourseOffering() {
   const qc = useQueryClient()
   return useMutation({
@@ -120,6 +167,40 @@ export function useLinkAcademyCourseOfferingClasses() {
       academyCourseOfferingsApi.linkClasses(id, classIds),
     onSuccess: (_, { id }) =>
       qc.invalidateQueries({ queryKey: ["academy-course-offering", id] }),
+  })
+}
+
+export function useSubmitCourseOfferingForApproval() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => academyCourseOfferingsApi.submitForApproval(id),
+    onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: ["academy-course-offerings"] })
+      qc.invalidateQueries({ queryKey: ["academy-course-offering", id] })
+    },
+  })
+}
+
+export function useApproveCourseOffering() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => academyCourseOfferingsApi.approve(id),
+    onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: ["academy-course-offerings"] })
+      qc.invalidateQueries({ queryKey: ["academy-course-offering", id] })
+    },
+  })
+}
+
+export function useRejectCourseOffering() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
+      academyCourseOfferingsApi.reject(id, reason),
+    onSuccess: (_, { id }) => {
+      qc.invalidateQueries({ queryKey: ["academy-course-offerings"] })
+      qc.invalidateQueries({ queryKey: ["academy-course-offering", id] })
+    },
   })
 }
 

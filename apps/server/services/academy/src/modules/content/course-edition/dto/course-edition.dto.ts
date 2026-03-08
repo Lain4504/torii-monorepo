@@ -56,6 +56,11 @@ export class CourseEditionQueryDto {
   courseProfileId?: string;
 
   @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  status?: string;
+
+  @IsOptional()
   @IsBoolean()
   isCurrent?: boolean;
 }

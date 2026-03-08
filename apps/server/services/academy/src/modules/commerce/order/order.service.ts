@@ -4,6 +4,7 @@ import { OrderStatus, PaymentMethod, PaymentGateway, OfferingStatus } from '@pri
 import { CouponService } from '../coupon.service';
 import { PayOSService } from '../payos.service';
 import { EnrollmentService } from '../../classroom/enrollment/enrollment.service';
+import { AuditLoggerService } from '../../audit-logger.service';
 import { OrderCheckoutDto, OrderPreviewDto } from './dto/order.dto';
 import { Prisma } from '@prisma/generated';
 import { AppConfigService } from '@server/shared';
@@ -18,6 +19,7 @@ export class OrderService {
         private readonly payOS: PayOSService,
         private readonly enrollmentService: EnrollmentService,
         private readonly appConfig: AppConfigService,
+        private readonly audit: AuditLoggerService,
     ) { }
 
     async preview(userId: string, input: OrderPreviewDto) {
@@ -88,6 +90,15 @@ export class OrderService {
             },
         });
 
+        await this.audit.log({
+            userId: userId,
+            action: 'order.create',
+            entity: 'Order',
+            entityId: order.id,
+            description: `User created order ${order.code} for ${preview.grandTotal} ${order.currency}`,
+            metadata: { orderCode: order.code, grandTotal: preview.grandTotal },
+        });
+
         if (input.paymentMethod === PaymentMethod.PAYOS) {
             const numericOrderCode = Number(Date.now().toString().slice(-9)) + Math.floor(Math.random() * 1000);
 
@@ -155,7 +166,7 @@ export class OrderService {
         return this.processPayment(order, transactionId, payload);
     }
 
-    private async processPayment(order: any, transactionId?: string, payload?: any) {
+    private async processPayment(order: any, transactionId?: string, payload?: any, requesterId = 'SYSTEM') {
         if (order.status === OrderStatus.PAID) return { ok: true };
 
         await this.prisma.$transaction(async (tx) => {
@@ -166,6 +177,15 @@ export class OrderService {
                     status: OrderStatus.PAID,
                     paidAt: new Date(),
                 },
+            });
+
+            await this.audit.log({
+                userId: requesterId,
+                action: 'order.payment_success',
+                entity: 'Order',
+                entityId: order.id,
+                description: `Order ${order.code} marked as PAID. Transaction ID: ${transactionId}`,
+                metadata: { orderCode: order.code, transactionId },
             });
 
             // Update Coupon Usage
@@ -251,7 +271,7 @@ export class OrderService {
         return order;
     }
 
-    async admin_updateStatus(id: string, status: OrderStatus) {
+    async admin_updateStatus(id: string, status: OrderStatus, requesterId = 'SYSTEM') {
         const order = await this.prisma.order.findUnique({
             where: { id },
             include: { items: true },
@@ -260,12 +280,24 @@ export class OrderService {
         if (!order) throw new NotFoundException('Order not found');
 
         if (status === OrderStatus.PAID && order.status !== OrderStatus.PAID) {
-            return this.processPayment(order, 'MANUAL');
+            return this.processPayment(order, 'MANUAL', null, requesterId);
         }
 
-        return this.prisma.order.update({
+        const updated = await this.prisma.order.update({
             where: { id },
             data: { status },
         });
+
+        await this.audit.log({
+            userId: requesterId,
+            action: 'order.update_status',
+            entity: 'Order',
+            entityId: id,
+            description: `Admin updated order ${order.code} status from ${order.status} to ${status}`,
+            oldValues: { status: order.status },
+            newValues: { status },
+        });
+
+        return updated;
     }
 }

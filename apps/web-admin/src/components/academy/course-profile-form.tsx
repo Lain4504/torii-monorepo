@@ -25,7 +25,8 @@ import {
 } from "@workspace/schemas"
 import type { AcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
 import { LessonMediaUploader } from "./lesson-media-uploader"
-import { RichTextEditor, type EditorJsData } from "@/components/editor/rich-text-editor"
+import { RichTextEditor } from "@/components/editor/rich-text-editor"
+import { KeyValueEditor } from "./key-value-editor"
 import {
   Tabs,
   TabsContent,
@@ -66,15 +67,18 @@ export function CourseProfileForm({
         level: initial?.level ?? undefined,
         defaultLanguage: initial?.defaultLanguage ?? undefined,
         thumbnailUrl: initial?.thumbnailUrl ?? undefined,
+        metadata: initial?.metadata ?? undefined,
       }
       : {
         code: "",
         title: "",
         shortTitle: undefined,
+        description: undefined,
         subject: undefined,
         level: undefined,
         defaultLanguage: undefined,
         thumbnailUrl: undefined,
+        metadata: undefined,
       },
   })
 
@@ -157,7 +161,7 @@ export function CourseProfileForm({
                 <TabsContent value="edit">
                   <RichTextEditor
                     initialContent={field.value || ""}
-                    onUpdate={(data: EditorJsData) => field.onChange(JSON.stringify(data))}
+                    onUpdate={(data: string) => field.onChange(data)}
                   />
                 </TabsContent>
                 <TabsContent value="preview">
@@ -252,6 +256,34 @@ export function CourseProfileForm({
               )}
             />
           </FieldGroup>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Cấu hình nâng cao (Metadata)</CardTitle>
+          <CardDescription>
+            Thiết lập các thông số bổ sung cho Course Profile.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Controller
+            name={"metadata" as any}
+            control={control}
+            render={({ field }) => (
+              <Field>
+                <KeyValueEditor
+                  value={field.value || {}}
+                  onChange={field.onChange}
+                  presets={[
+                    { key: "duration", label: "Thời lượng", defaultValue: "20 hours" },
+                    { key: "lessonsCount", label: "Số bài học", defaultValue: "50" },
+                    { key: "difficulty", label: "Độ khó", defaultValue: "Beginner" },
+                  ]}
+                />
+              </Field>
+            )}
+          />
         </CardContent>
       </Card>
 

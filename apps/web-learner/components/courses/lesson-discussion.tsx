@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 import { useAppSelector } from '@/hooks/hooks'
-import { useDiscussions, useCreateDiscussion } from '@/lib/api/services/discussion-topic-api'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { commentApi } from '@/lib/api/services/comment-api'
+import type { CommentResponseDTO } from '@workspace/schemas'
 import { CommentSection } from '@/components/blog/comment-section'
 import {
     MessageSquare,
@@ -31,6 +33,33 @@ interface LessonDiscussionProps {
     courseRunId: string
     moduleId?: string
     lessonId: string
+}
+
+// Local hooks to replace missing discussion-topic-api
+function useDiscussions(lessonId: string) {
+    return useQuery({
+        queryKey: ['discussions', lessonId],
+        queryFn: () => commentApi.findAll({ discussionId: lessonId, limit: 100, page: 1 }),
+        enabled: !!lessonId
+    })
+}
+
+function useCreateDiscussion() {
+    const queryClient = useQueryClient()
+    const { user } = useAppSelector(state => state.auth)
+
+    return useMutation({
+        mutationFn: (data: { title: string, content: string, courseRunId: string, moduleId?: string, lessonId: string, category: string }) => {
+            return commentApi.create({
+                discussionId: data.lessonId,
+                userId: user?.id || '',
+                content: `${data.title}\n\n${data.content}`,
+            })
+        },
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['discussions', variables.lessonId] })
+        }
+    })
 }
 
 export function LessonDiscussion({ courseRunId, moduleId, lessonId }: LessonDiscussionProps) {
@@ -217,7 +246,7 @@ export function LessonDiscussion({ courseRunId, moduleId, lessonId }: LessonDisc
                                                 </span>
                                             </div>
                                             <CardTitle className="text-lg font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
-                                                {topic.title}
+                                                {topic.content.split('\n')[0]}
                                             </CardTitle>
                                         </div>
                                     </div>
@@ -226,7 +255,7 @@ export function LessonDiscussion({ courseRunId, moduleId, lessonId }: LessonDisc
                                         <div className="flex items-center gap-3">
                                             <div className="flex items-center gap-1.5 text-muted-foreground font-bold">
                                                 <MessageCircle className="size-4" />
-                                                <span className="text-xs">{topic.commentCount || 0}</span>
+                                                <span className="text-xs">{topic.replyCount || 0}</span>
                                             </div>
                                             {expandedTopicId === topic.id ? <ChevronUp className="size-5 text-primary" /> : <ChevronDown className="size-5 text-muted-foreground/50 group-hover:text-primary/50 transition-colors" />}
                                         </div>

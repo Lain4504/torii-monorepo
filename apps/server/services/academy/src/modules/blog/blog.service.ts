@@ -19,6 +19,7 @@ import type {
 import type { Blog, Prisma } from '@prisma/generated';
 import type { IBlogService } from '@server/academy/interfaces/services/i-blog.service';
 import { BlogRepository } from '@server/academy/modules/blog/blog.repository';
+import { AuditLoggerService } from '../audit-logger.service';
 
 /**
  * Blog Service
@@ -33,6 +34,7 @@ export class BlogService implements IBlogService {
         private readonly prisma: PrismaService,
         @InjectMapper() private readonly mapper: Mapper,
         @Inject(REDIS_CLIENT) private readonly redis: Redis,
+        private readonly audit: AuditLoggerService,
     ) { }
 
     /**
@@ -71,7 +73,7 @@ export class BlogService implements IBlogService {
     /**
      * Create new blog blog
      */
-    async createBlog(dto: BlogCreateDTO): Promise<BlogResponseDTO> {
+    async createBlog(dto: BlogCreateDTO, requesterId?: string): Promise<BlogResponseDTO> {
         // Auto-generate slug from title if not provided
         const baseSlug = dto.slug || generateSlug(dto.title);
 
@@ -120,6 +122,15 @@ export class BlogService implements IBlogService {
                     id: finalDto.authorId,
                 },
             },
+        });
+
+        await this.audit.log({
+            userId: requesterId || finalDto.authorId,
+            action: 'blog.create',
+            entity: 'Blog',
+            entityId: blog.id,
+            description: `Created blog: "${blog.title}" with status ${blog.status}`,
+            newValues: { title: blog.title, status: blog.status, slug: blog.slug },
         });
 
         return this.toBlogResponseDTO(blog);
@@ -266,7 +277,7 @@ export class BlogService implements IBlogService {
     /**
      * Update blog
      */
-    async updateBlog(id: string, dto: BlogUpdateDTO): Promise<BlogResponseDTO> {
+    async updateBlog(id: string, dto: BlogUpdateDTO, requesterId?: string): Promise<BlogResponseDTO> {
         const existing = await this.blogRepository.findById(id);
 
         if (!existing) {
@@ -310,13 +321,23 @@ export class BlogService implements IBlogService {
 
         const blog = await this.blogRepository.update(id, updateData);
 
+        await this.audit.log({
+            userId: requesterId || existing.authorId,
+            action: 'blog.update',
+            entity: 'Blog',
+            entityId: id,
+            description: `Updated blog: "${existing.title}"`,
+            oldValues: { title: existing.title, status: existing.status },
+            newValues: { title: blog.title, status: blog.status },
+        });
+
         return this.toBlogResponseDTO(blog);
     }
 
     /**
      * Publish blog (change status to published)
      */
-    async publishBlog(id: string): Promise<BlogResponseDTO> {
+    async publishBlog(id: string, requesterId?: string): Promise<BlogResponseDTO> {
         const blog = await this.blogRepository.findById(id);
 
         if (!blog) {
@@ -332,13 +353,23 @@ export class BlogService implements IBlogService {
             publishedAt: new Date(),
         });
 
+        await this.audit.log({
+            userId: requesterId || blog.authorId,
+            action: 'blog.publish',
+            entity: 'Blog',
+            entityId: id,
+            description: `Published blog: "${blog.title}"`,
+            oldValues: { status: blog.status },
+            newValues: { status: BlogStatus.PUBLISHED },
+        });
+
         return this.toBlogResponseDTO(updated);
     }
 
     /**
      * Delete blog
      */
-    async deleteBlog(id: string) {
+    async deleteBlog(id: string, requesterId?: string) {
         const blog = await this.blogRepository.findById(id);
 
         if (!blog) {
@@ -346,6 +377,15 @@ export class BlogService implements IBlogService {
         }
 
         await this.blogRepository.delete(id);
+
+        await this.audit.log({
+            userId: requesterId || blog.authorId,
+            action: 'blog.delete',
+            entity: 'Blog',
+            entityId: id,
+            description: `Deleted blog: "${blog.title}" (status: ${blog.status})`,
+            metadata: { slug: blog.slug, title: blog.title },
+        });
 
         return { success: true };
     }

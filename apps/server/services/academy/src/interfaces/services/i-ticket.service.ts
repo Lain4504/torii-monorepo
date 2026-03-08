@@ -10,7 +10,7 @@ export interface ITicketService {
   /**
    * Create ticket.
    */
-  createTicket(userId: string, dto: CreateTicketDTO): Promise<Ticket>;
+  createTicket(userId: string, dto: CreateTicketDTO, requesterId?: string): Promise<Ticket>;
   /**
    * Get ticket by id.
    */
@@ -26,6 +26,7 @@ export interface ITicketService {
     id: string,
     handlerId: string,
     dto: UpdateTicketStatusDTO,
+    requesterId?: string,
   ): Promise<Ticket>;
   /**
    * Get ticket stats.
@@ -38,5 +39,5 @@ export interface ITicketService {
   /**
    * Delete ticket.
    */
-  deleteTicket(id: string, userId: string): Promise<void>;
+  deleteTicket(id: string, userId: string, requesterId?: string): Promise<void>;
 }

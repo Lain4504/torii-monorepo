@@ -44,6 +44,34 @@ export function TranslatorView() {
     const [translationResult, setTranslationResult] = React.useState<AgentTranslateResponseDTO | null>(null)
     const [grammarResult, setGrammarResult] = React.useState<AgentGrammarCheckResponseDTO | null>(null)
 
+    const handleSourceLangChange = (value: string) => {
+        if (value === targetLang) {
+            setTargetLang(sourceLang)
+            setSourceText(targetText)
+            setTargetText(sourceText)
+        }
+        setSourceLang(value)
+    }
+
+    const handleTargetLangChange = (value: string) => {
+        if (value === sourceLang) {
+            setSourceLang(targetLang)
+            setSourceText(targetText)
+            setTargetText(sourceText)
+        }
+        setTargetLang(value)
+    }
+
+    const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const value = e.target.value
+        if (value.length <= 5000) {
+            setSourceText(value)
+        } else {
+            setSourceText(value.slice(0, 5000))
+            toast.error("Vượt quá giới hạn 5000 ký tự")
+        }
+    }
+
     const handleTranslate = async () => {
         if (!sourceText.trim()) return
         setIsTranslating(true)
@@ -83,7 +111,7 @@ export function TranslatorView() {
         <div className="max-w-7xl mx-auto py-8 space-y-6">
             {/* Language Selector Bar */}
             <div className="flex items-center gap-2 p-1 bg-muted rounded-lg w-fit">
-                <Select value={sourceLang} onValueChange={setSourceLang}>
+                <Select value={sourceLang} onValueChange={handleSourceLangChange}>
                     <SelectTrigger className="w-[140px] border-none shadow-none font-medium h-9 focus:ring-0">
                         <SelectValue />
                     </SelectTrigger>
@@ -96,7 +124,7 @@ export function TranslatorView() {
                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={swapLanguages}>
                     <ArrowRightLeft className="size-4" />
                 </Button>
-                <Select value={targetLang} onValueChange={setTargetLang}>
+                <Select value={targetLang} onValueChange={handleTargetLangChange}>
                     <SelectTrigger className="w-[140px] border-none shadow-none font-medium h-9 focus:ring-0">
                         <SelectValue />
                     </SelectTrigger>
@@ -111,17 +139,17 @@ export function TranslatorView() {
             {/* Translation Layout (2 Columns) */}
             <div className="grid md:grid-cols-2 gap-4">
                 {/* Source Input */}
-                <Card className="shadow-none border-border">
-                    <CardContent className="p-0 flex flex-col h-full min-h-[280px]">
-                        <div className="p-4 flex-1">
+                <Card className="shadow-none border-border overflow-hidden">
+                    <CardContent className="p-0 flex flex-col h-[320px]">
+                        <div className="p-4 flex-1 overflow-y-auto custom-scrollbar">
                             <Textarea
                                 value={sourceText}
-                                onChange={(e) => setSourceText(e.target.value)}
+                                onChange={handleTextChange}
                                 placeholder="Nhập văn bản cần dịch..."
-                                className="min-h-[180px] border-none focus-visible:ring-0 p-0 text-xl resize-none shadow-none leading-relaxed bg-transparent"
+                                className="min-h-full border-none focus-visible:ring-0 p-0 text-xl resize-none shadow-none leading-relaxed bg-transparent"
                             />
                         </div>
-                        <div className="p-4 border-t bg-muted/50 flex items-center justify-between">
+                        <div className="p-4 border-t bg-muted/50 flex items-center justify-between shrink-0">
                             <div className="flex gap-1">
                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground"><Volume2 className="size-4" /></Button>
                                 {sourceText && (
@@ -129,7 +157,12 @@ export function TranslatorView() {
                                 )}
                             </div>
                             <div className="flex items-center gap-3">
-                                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{sourceText.length}/5000</span>
+                                <span className={cn(
+                                    "text-[10px] font-medium uppercase tracking-wider",
+                                    sourceText.length >= 5000 ? "text-destructive" : "text-muted-foreground"
+                                )}>
+                                    {sourceText.length}/5000
+                                </span>
                                 <Button size="sm" onClick={handleTranslate} disabled={!sourceText.trim() || isTranslating} className="font-bold">
                                     {isTranslating ? <Spinner className="size-3 mr-2" /> : <Languages className="size-3 mr-2" />}
                                     Dịch
@@ -140,9 +173,9 @@ export function TranslatorView() {
                 </Card>
 
                 {/* Target Output */}
-                <Card className="shadow-none border-border bg-muted/30">
-                    <CardContent className="p-0 flex flex-col h-full min-h-[280px]">
-                        <div className="p-4 flex-1 text-xl font-medium leading-relaxed">
+                <Card className="shadow-none border-border bg-muted/30 overflow-hidden">
+                    <CardContent className="p-0 flex flex-col h-[320px]">
+                        <div className="p-4 flex-1 text-xl font-medium leading-relaxed overflow-y-auto custom-scrollbar">
                             {isTranslating ? (
                                 <div className="space-y-4 pt-2">
                                     <div className="h-5 bg-muted animate-pulse rounded w-3/4" />
@@ -152,7 +185,7 @@ export function TranslatorView() {
                                 targetText || <span className="text-muted-foreground/30 font-normal italic">Kết quả dịch...</span>
                             )}
                         </div>
-                        <div className="p-4 border-t flex items-center justify-between">
+                        <div className="p-4 border-t flex items-center justify-between shrink-0">
                             <div className="flex gap-1">
                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => navigator.clipboard.writeText(targetText)} disabled={!targetText}><Copy className="size-4" /></Button>
                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" disabled={!targetText}><Volume2 className="size-4" /></Button>

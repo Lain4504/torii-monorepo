@@ -10,7 +10,7 @@ import { vi } from 'date-fns/locale'
 import { Video } from 'lucide-react'
 import { toast } from '@workspace/ui/components/sonner'
 
-import { liveSessionApi } from '@/lib/api/services/live-session-api'
+import { liveSessionApi } from '@/lib/api/services/academy-live-session-api'
 
 const MEET_URL = (typeof process !== 'undefined' ? (process.env.NEXT_PUBLIC_MEET_URL || 'https://meet.torii.com') : 'https://meet.torii.com')
 

@@ -8,6 +8,7 @@ import {
     FieldError,
     FieldLabel,
     FieldGroup,
+    FieldDescription,
 } from "@workspace/ui/components/field"
 import {
     Select,
@@ -32,6 +33,7 @@ import {
 } from "@workspace/schemas"
 import type { AcademyQuestionPool } from "@/lib/api/services/academy-question-pools"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
+import { KeyValueEditor } from "@/components/academy/key-value-editor"
 
 export function QuestionPoolForm({
     mode,
@@ -93,14 +95,15 @@ export function QuestionPoolForm({
                 </CardHeader>
                 <CardContent>
                     <FieldGroup>
-                        <div className="grid gap-4 md:grid-cols-2">
+                        <div className="grid gap-6 md:grid-cols-2">
                             <Controller
                                 name={"code" as any}
                                 control={control}
                                 render={({ field, fieldState }) => (
                                     <Field>
-                                        <FieldLabel>Mã Pool (Code)</FieldLabel>
-                                        <Input placeholder="POOL_N5_VOCAB..." {...field} />
+                                        <FieldLabel>Mã định danh (Code)</FieldLabel>
+                                        <Input placeholder="Ví dụ: POOL_VOCAB_N5" {...field} className="font-mono uppercase" />
+                                        <FieldDescription>Mã duy nhất để phân biệt các pool.</FieldDescription>
                                         <FieldError>{fieldState.error?.message}</FieldError>
                                     </Field>
                                 )}
@@ -111,7 +114,7 @@ export function QuestionPoolForm({
                                 render={({ field, fieldState }) => (
                                     <Field>
                                         <FieldLabel>Tên Pool</FieldLabel>
-                                        <Input placeholder="N5 Vocabulary Pool..." {...field} />
+                                        <Input placeholder="Ví dụ: Pool Từ vựng N5" {...field} />
                                         <FieldError>{fieldState.error?.message}</FieldError>
                                     </Field>
                                 )}
@@ -123,30 +126,52 @@ export function QuestionPoolForm({
                             control={control}
                             render={({ field, fieldState }) => (
                                 <Field>
-                                    <FieldLabel>Mô tả</FieldLabel>
-                                    <Textarea placeholder="Mô tả về pool này..." {...field} />
+                                    <FieldLabel>Mô tả chi tiết</FieldLabel>
+                                    <Textarea placeholder="Mô tả mục đích của pool này..." {...field} rows={3} />
                                     <FieldError>{fieldState.error?.message}</FieldError>
                                 </Field>
                             )}
                         />
 
-                        <div className="grid gap-4 md:grid-cols-2">
+                        <div className="grid gap-6 md:grid-cols-3">
                             <Controller
-                                name={"courseProfileId" as any}
+                                name={"level" as any}
                                 control={control}
                                 render={({ field, fieldState }) => (
                                     <Field>
-                                        <FieldLabel>Course Profile</FieldLabel>
+                                        <FieldLabel>Cấp độ (Level)</FieldLabel>
                                         <Select value={field.value} onValueChange={field.onChange}>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Chọn Profile (optional)..." />
+                                                <SelectValue placeholder="Chọn Level..." />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {profiles.map((p) => (
-                                                    <SelectItem key={p.id} value={p.id}>
-                                                        {p.title}
-                                                    </SelectItem>
-                                                ))}
+                                                <SelectItem value="N1">JLPT N1</SelectItem>
+                                                <SelectItem value="N2">JLPT N2</SelectItem>
+                                                <SelectItem value="N3">JLPT N3</SelectItem>
+                                                <SelectItem value="N4">JLPT N4</SelectItem>
+                                                <SelectItem value="N5">JLPT N5</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FieldError>{fieldState.error?.message}</FieldError>
+                                    </Field>
+                                )}
+                            />
+                            <Controller
+                                name={"category" as any}
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <Field>
+                                        <FieldLabel>Danh mục (Category)</FieldLabel>
+                                        <Select value={field.value} onValueChange={field.onChange}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Chọn Danh mục..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="VOCABULARY">Từ vựng</SelectItem>
+                                                <SelectItem value="GRAMMAR">Ngữ pháp</SelectItem>
+                                                <SelectItem value="KANJI">Hán tự</SelectItem>
+                                                <SelectItem value="READING">Đọc hiểu</SelectItem>
+                                                <SelectItem value="LISTENING">Nghe hiểu</SelectItem>
                                             </SelectContent>
                                         </Select>
                                         <FieldError>{fieldState.error?.message}</FieldError>
@@ -161,39 +186,14 @@ export function QuestionPoolForm({
                                         <FieldLabel>Trạng thái</FieldLabel>
                                         <Select value={field.value} onValueChange={field.onChange}>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Chọn trạng thái..." />
+                                                <SelectValue placeholder="Trạng thái..." />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="DRAFT">DRAFT</SelectItem>
-                                                <SelectItem value="ACTIVE">ACTIVE</SelectItem>
-                                                <SelectItem value="ARCHIVED">ARCHIVED</SelectItem>
+                                                <SelectItem value="DRAFT">Nháp (Draft)</SelectItem>
+                                                <SelectItem value="PUBLISHED">Công khai (Published)</SelectItem>
+                                                <SelectItem value="ARCHIVED">Lưu trữ (Archived)</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-                        </div>
-
-                        <div className="grid gap-4 md:grid-cols-2">
-                            <Controller
-                                name={"level" as any}
-                                control={control}
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>Level</FieldLabel>
-                                        <Input placeholder="N1, N2, N3..." {...field} />
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-                            <Controller
-                                name={"category" as any}
-                                control={control}
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>Danh mục</FieldLabel>
-                                        <Input placeholder="Vocabulary, Kanji..." {...field} />
                                         <FieldError>{fieldState.error?.message}</FieldError>
                                     </Field>
                                 )}
@@ -205,28 +205,41 @@ export function QuestionPoolForm({
                             control={control}
                             render={({ field, fieldState }) => (
                                 <Field>
-                                    <FieldLabel>Metadata (JSON)</FieldLabel>
-                                    <Textarea
-                                        placeholder='Ví dụ: {"tags":["JLPT N5"]}'
-                                        className="font-mono text-xs shadow-none"
-                                        rows={3}
-                                        value={
-                                            field.value
-                                                ? typeof field.value === "string"
-                                                    ? field.value
-                                                    : JSON.stringify(field.value, null, 2)
-                                                : ""
-                                        }
-                                        onChange={(e) => {
-                                            const raw = e.target.value
-                                            if (!raw) return field.onChange(undefined)
-                                            try {
-                                                field.onChange(JSON.parse(raw))
-                                            } catch {
-                                                field.onChange(raw)
-                                            }
-                                        }}
+                                    <FieldLabel>Metadata (Key-Value)</FieldLabel>
+                                    <KeyValueEditor
+                                        value={field.value || {}}
+                                        onChange={field.onChange}
+                                        presets={[
+                                            { key: "tags", label: "Thẻ (Tags)", defaultValue: "jlpt,n5" },
+                                            { key: "difficulty", label: "Độ khó", defaultValue: "medium" },
+                                            { key: "source", label: "Nguồn câu hỏi", defaultValue: "manual" },
+                                        ]}
                                     />
+                                    <FieldDescription>Thông tin bổ sung cho pool.</FieldDescription>
+                                    <FieldError>{fieldState.error?.message}</FieldError>
+                                </Field>
+                            )}
+                        />
+
+                        <Controller
+                            name={"courseProfileId" as any}
+                            control={control}
+                            render={({ field, fieldState }) => (
+                                <Field>
+                                    <FieldLabel>Gắn với Course Profile (Tùy chọn)</FieldLabel>
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Chọn Profile (optional)..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {profiles.map((p: any) => (
+                                                <SelectItem key={p.id} value={p.id}>
+                                                    {p.title}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FieldDescription>Nếu chọn, pool này chỉ hiển thị cho khóa học đó.</FieldDescription>
                                     <FieldError>{fieldState.error?.message}</FieldError>
                                 </Field>
                             )}
@@ -235,13 +248,13 @@ export function QuestionPoolForm({
                 </CardContent>
             </Card>
 
-            <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={onCancel} disabled={submitting}>
-                    Hủy
+            <div className="flex justify-end gap-3 pt-4">
+                <Button type="button" variant="ghost" onClick={onCancel} disabled={submitting}>
+                    Hủy bỏ
                 </Button>
-                <Button type="submit" disabled={submitting}>
+                <Button type="submit" disabled={submitting} className="px-8">
                     {submitting ? <Spinner className="mr-2" /> : null}
-                    {isEdit ? "Lưu thay đổi" : "Tạo Pool"}
+                    {isEdit ? "Cập nhật Pool" : "Tạo Pool"}
                 </Button>
             </div>
         </form>

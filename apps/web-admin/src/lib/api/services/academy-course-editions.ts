@@ -12,13 +12,21 @@ export type AcademyCourseEdition = {
   courseProfileId: string
   editionTag: string
   isCurrent: boolean
-  status?: string | null
-  syllabusSnapshot?: unknown | null
+  status: string | null
+  syllabusSnapshot?: any | null
   changelog?: string | null
+  metadata?: any | null
   createdAt: string
   updatedAt: string
   title?: string
   version?: string
+  rejectedAt: string | null
+  rejectedBy: string | null
+  rejectionReason: string | null
+  submittedForApprovalAt: string | null
+  submittedBy: string | null
+  approvedAt: string | null
+  approvedBy: string | null
   courseProfile?: {
     title: string
     code: string
@@ -78,6 +86,27 @@ export const academyCourseEditionsApi = {
     )
     return res.data
   },
+  async submitForApproval(id: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseEdition }>>(
+      `/api/academy/course-editions/${id}/submit-for-approval`,
+      {},
+    )
+    return res.data.data!.item
+  },
+  async approve(id: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseEdition }>>(
+      `/api/academy/course-editions/${id}/approve`,
+      {},
+    )
+    return res.data.data!.item
+  },
+  async reject(id: string, reason: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseEdition }>>(
+      `/api/academy/course-editions/${id}/reject`,
+      { reason },
+    )
+    return res.data.data!.item
+  },
 }
 
 export function useAcademyCourseEditions(params: AcademyCourseEditionQueryDTO) {
@@ -130,6 +159,40 @@ export function useDeleteAcademyCourseEdition() {
   return useMutation({
     mutationFn: (id: string) => academyCourseEditionsApi.delete(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-course-editions"] }),
+  })
+}
+
+export function useSubmitCourseEditionForApproval() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => academyCourseEditionsApi.submitForApproval(id),
+    onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: ["academy-course-editions"] })
+      qc.invalidateQueries({ queryKey: ["academy-course-edition", id] })
+    },
+  })
+}
+
+export function useApproveCourseEdition() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => academyCourseEditionsApi.approve(id),
+    onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: ["academy-course-editions"] })
+      qc.invalidateQueries({ queryKey: ["academy-course-edition", id] })
+    },
+  })
+}
+
+export function useRejectCourseEdition() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
+      academyCourseEditionsApi.reject(id, reason),
+    onSuccess: (_, { id }) => {
+      qc.invalidateQueries({ queryKey: ["academy-course-editions"] })
+      qc.invalidateQueries({ queryKey: ["academy-course-edition", id] })
+    },
   })
 }
 

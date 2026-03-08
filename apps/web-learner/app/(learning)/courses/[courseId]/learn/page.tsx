@@ -2,19 +2,21 @@
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useCourseById } from '@/lib/api/services/course-api';
-import { useClass, useCurriculum } from '@/lib/api/services/class-api';
-import { useCheckEnrollment } from '@/lib/api/services/enrollment-api';
-import { useCompletedLessons, learningProgressApi } from '@/lib/api/services/learning-progress-api';
-import { useLesson, type LessonResponse } from '@/lib/api/services/lesson-api';
+import { useAcademyCourseById } from '@/lib/api/services/academy-course-api';
+import { useAcademyClass, useCurriculum } from '@/lib/api/services/academy-classes';
+import { useAcademyEnrollmentCheck } from '@/lib/api/services/academy-enrollment-api';
+import { useAcademyCompletedLessonIds, academyLearningProgressApi } from '@/lib/api/services/academy-learning-progress-api';
+import { useAcademyLesson } from '@/lib/api/services/academy-lesson-api';
 import {
-    useAssignmentByLesson, useMySubmission, useSubmitAssignment, useSaveDraft,
-    type AssignmentResponseDTO, type SubmissionResponseDTO
-} from '@/lib/api/services/assignment-api';
+    useAcademyAssignmentSubmissions, useCreateAcademyAssignmentSubmission, useUpdateAcademyAssignmentSubmission,
+    useAcademyAssignmentTemplates, useAcademyAssignmentTemplate
+} from '@/lib/api/services/academy-assignment-api';
 import {
-    useQuizByLesson, useStartQuiz, useSaveQuizAnswers, useSubmitQuiz,
-    type QuizResponseDTO, type QuizSessionDTO, type QuizQuestionDTO,
-} from '@/lib/api/services/quiz-lesson-api';
+    useAcademyQuizTemplate
+} from '@/lib/api/services/academy-quiz-api';
+import {
+    useStartAcademyExamAttempt, useSaveAcademyExamAnswers, useSubmitAcademyExamAttempt
+} from '@/lib/api/services/academy-exam-api';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from '@workspace/ui/components/sonner';
 import { Skeleton } from '@workspace/ui/components/skeleton';
@@ -27,7 +29,12 @@ import {
     Paperclip, PenTool
 } from 'lucide-react';
 import { MultiFileUpload } from '@/components/common/multi-file-upload';
-import type { CurriculumLesson, CurriculumModule } from '@/lib/api/services/course-api';
+import type { CurriculumLesson, CurriculumModule } from '@/lib/api/services/academy-classes';
+import { type AcademyQuizTemplateModel } from '@/lib/api/services/academy-quiz-api';
+import type {
+    AcademyLessonModel,
+    AcademyAssignmentTemplateModel
+} from '@workspace/schemas';
 import { StudyNotesPanel } from '@/components/courses/study-notes-panel';
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -54,7 +61,7 @@ function LessonIcon({ lesson, isActive, isCompleted }: {
 
 // ─── Video Player ─────────────────────────────────────────────────────────────
 
-function VideoPlayer({ lesson, onComplete }: { lesson: LessonResponse | undefined; onComplete: () => void; }) {
+function VideoPlayer({ lesson, onComplete }: { lesson: AcademyLessonModel | undefined; onComplete: () => void; }) {
     if (!lesson) {
         return (
             <div className="aspect-video bg-black flex items-center justify-center">
@@ -66,7 +73,7 @@ function VideoPlayer({ lesson, onComplete }: { lesson: LessonResponse | undefine
         );
     }
 
-    if (!lesson.videoUrl) {
+    if (!lesson.contentUrl) {
         return (
             <div className="aspect-video bg-black flex items-center justify-center">
                 <div className="text-white/50 flex flex-col items-center gap-3">
@@ -87,7 +94,7 @@ function VideoPlayer({ lesson, onComplete }: { lesson: LessonResponse | undefine
         <div className="aspect-video bg-black w-full">
             <video
                 key={lesson.id}
-                src={lesson.videoUrl}
+                src={lesson.contentUrl}
                 controls
                 controlsList="nodownload"
                 className="w-full h-full"
@@ -101,7 +108,7 @@ function VideoPlayer({ lesson, onComplete }: { lesson: LessonResponse | undefine
 
 // ─── Article Viewer ───────────────────────────────────────────────────────────
 
-function ArticleViewer({ lesson, onComplete }: { lesson: LessonResponse; onComplete: () => void; }) {
+function ArticleViewer({ lesson, onComplete }: { lesson: AcademyLessonModel; onComplete: () => void; }) {
     return (
         <div className="p-6 sm:p-10 max-w-3xl mx-auto">
             <div className="flex items-center gap-3 mb-6 pb-6 border-b border-border">
@@ -114,10 +121,10 @@ function ArticleViewer({ lesson, onComplete }: { lesson: LessonResponse; onCompl
                 </div>
             </div>
 
-            {lesson.articleContent ? (
+            {lesson.contentBody ? (
                 <div
                     className="prose prose-sm sm:prose dark:prose-invert max-w-none text-foreground leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: lesson.articleContent }}
+                    dangerouslySetInnerHTML={{ __html: lesson.contentBody }}
                 />
             ) : (
                 <div className="bg-muted/40 rounded-xl p-8 text-center text-muted-foreground border border-border">
@@ -142,20 +149,30 @@ function ArticleViewer({ lesson, onComplete }: { lesson: LessonResponse; onCompl
 // ─── Assignment Panel ─────────────────────────────────────────────────────────
 
 function AssignmentPanel({
-    lessonId, courseId, classId, onComplete
-}: { lessonId: string; courseId: string; classId?: string; onComplete: () => void; }) {
-    const { data: assignment, isLoading: assignmentLoading } = useAssignmentByLesson(lessonId, classId);
+    lessonId, templateId, classId, classAssessmentId, onComplete
+}: { lessonId: string; templateId: string; classId?: string; classAssessmentId?: string; onComplete: () => void; }) {
+    const { data: assignment, isLoading: assignmentLoading } = useAcademyAssignmentTemplate(templateId);
 
-    const { data: submission } = useMySubmission(assignment?.id ?? '');
-    const submitMutation = useSubmitAssignment();
-    const saveDraftMutation = useSaveDraft();
-    const [textAnswer, setTextAnswer] = useState(submission?.textAnswer ?? '');
-    const [fileUrls, setFileUrls] = useState<string[]>(submission?.fileUrls ?? []);
+    const { data: submissions } = useAcademyAssignmentSubmissions({
+        assignmentTemplateId: templateId,
+        ...(classId ? { classId: classId } : {}),
+        ...(classAssessmentId ? { classAssessmentId: classAssessmentId } : {})
+    }, { enabled: !!templateId });
+    const submission = submissions?.[0];
+
+    const submitMutation = useCreateAcademyAssignmentSubmission();
+    const updateMutation = useUpdateAcademyAssignmentSubmission();
+
+    const [textAnswer, setTextAnswer] = useState('');
+    const [fileUrls, setFileUrls] = useState<string[]>([]);
 
     useEffect(() => {
-        if (submission?.textAnswer) setTextAnswer(submission.textAnswer);
-        if (submission?.fileUrls) setFileUrls(submission.fileUrls);
-    }, [submission?.textAnswer, submission?.fileUrls]);
+        if (submission?.content) {
+            const content = typeof submission.content === 'string' ? JSON.parse(submission.content) : submission.content;
+            if (content?.textAnswer) setTextAnswer(content.textAnswer);
+            if (content?.fileUrls) setFileUrls(content.fileUrls);
+        }
+    }, [submission?.content]);
 
     if (assignmentLoading) {
         return (
@@ -188,47 +205,18 @@ function AssignmentPanel({
                 <div className="flex-1">
                     <h2 className="text-xl font-bold text-foreground">{assignment.title}</h2>
                     <div className="flex flex-wrap gap-3 mt-2 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1"><Trophy className="h-3.5 w-3.5" /> {assignment.maxScore} điểm</span>
-                        {assignment.dueDate && (
-                            <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />
-                                Hạn: {new Date(assignment.dueDate).toLocaleDateString('vi-VN')}
-                            </span>
-                        )}
+                        <span className="flex items-center gap-1"><Trophy className="h-3.5 w-3.5" /> {assignment.defaultMaxScore} điểm</span>
                     </div>
                 </div>
             </div>
 
             {/* Description / Instructions */}
-            {(assignment.description || assignment.instructions) && (
+            {assignment.description && (
                 <div className="bg-muted/40 rounded-xl p-5 border border-border">
                     <h3 className="font-bold text-foreground mb-2 text-sm uppercase tracking-wider">Hướng dẫn</h3>
                     <p className="text-foreground/80 leading-relaxed whitespace-pre-wrap">
-                        {assignment.instructions || assignment.description}
+                        {assignment.description}
                     </p>
-                </div>
-            )}
-
-            {/* Attachment downloads */}
-            {assignment.attachmentUrls && assignment.attachmentUrls.length > 0 && (
-                <div>
-                    <h3 className="font-semibold text-foreground mb-3 text-sm">Tài liệu đính kèm</h3>
-                    <div className="space-y-2">
-                        {assignment.attachmentUrls.map((url: string, i: number) => {
-                            const name = url.split('/').pop() ?? `file_${i + 1}`;
-                            return (
-                                <a
-                                    key={i}
-                                    href={url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-3 p-3 bg-card border border-border rounded-lg hover:bg-muted/40 transition group"
-                                >
-                                    <Download className="h-4 w-4 text-primary shrink-0" />
-                                    <span className="text-sm text-foreground group-hover:text-primary transition truncate">{name}</span>
-                                </a>
-                            );
-                        })}
-                    </div>
                 </div>
             )}
 
@@ -239,15 +227,12 @@ function AssignmentPanel({
                         <CheckCircle2 className="h-5 w-5 text-emerald-500" />
                         <span className="font-bold text-emerald-600 dark:text-emerald-400">Đã chấm điểm</span>
                     </div>
-                    <p className="text-3xl font-black text-foreground">{submission.score ?? 0} <span className="text-lg font-normal text-muted-foreground">/ {assignment.maxScore}</span></p>
-                    {submission.feedback && (
-                        <p className="mt-3 text-sm text-muted-foreground bg-background/60 rounded-lg p-3">{submission.feedback}</p>
-                    )}
+                    <p className="text-3xl font-black text-foreground">{submission.score ?? 0} <span className="text-lg font-normal text-muted-foreground">/ {assignment.defaultMaxScore}</span></p>
                 </div>
             )}
 
             {/* Submission form */}
-            {(assignment.type === 'TEXT' || assignment.type === 'BOTH') && (
+            {(assignment.defaultType === 'TEXT' || assignment.defaultType === 'BOTH') && (
                 <div>
                     <label className="block font-semibold text-foreground mb-3 text-sm uppercase tracking-widest">Câu trả lời bài viết</label>
                     <textarea
@@ -261,14 +246,14 @@ function AssignmentPanel({
                 </div>
             )}
 
-            {(assignment.type === 'FILE' || assignment.type === 'BOTH') && (
+            {(assignment.defaultType === 'FILE' || assignment.defaultType === 'BOTH') && (
                 <div className="space-y-3">
                     <label className="block font-semibold text-foreground text-sm uppercase tracking-widest">Tệp đính kèm bài làm</label>
                     <MultiFileUpload
                         currentUrls={fileUrls}
                         onUploadChange={setFileUrls}
                         disabled={isSubmitted}
-                        maxFiles={assignment.maxFiles}
+                        maxFiles={5}
                         label="Tải lên tệp bài làm của bạn"
                     />
                 </div>
@@ -278,25 +263,40 @@ function AssignmentPanel({
             {!isSubmitted ? (
                 <div className="flex flex-col sm:flex-row gap-3">
                     <button
-                        onClick={() => saveDraftMutation.mutate({ assignmentId: assignment.id, dto: { textAnswer, fileUrls } }, {
-                            onSuccess: () => toast.success('Đã lưu nháp!'),
-                        })}
-                        disabled={saveDraftMutation.isPending}
+                        onClick={() => {
+                            const content = { textAnswer, fileUrls };
+                            if (submission) {
+                                updateMutation.mutate({ id: submission.id, dto: { content, status: 'DRAFT' } }, { onSuccess: () => toast.success('Đã lưu nháp!') });
+                            } else {
+                                submitMutation.mutate({ assignmentTemplateId: templateId, classId, classAssessmentId, content, status: 'DRAFT', userId: 'me' }, { onSuccess: () => toast.success('Đã lưu nháp!') });
+                            }
+                        }}
+                        disabled={submitMutation.isPending || updateMutation.isPending}
                         className="flex-1 sm:flex-none px-6 py-3 border border-border rounded-xl font-semibold text-sm hover:bg-muted/50 transition flex items-center justify-center gap-2"
                     >
                         <Save className="h-4 w-4" />
-                        {saveDraftMutation.isPending ? 'Đang lưu...' : 'Lưu nháp'}
+                        {submitMutation.isPending || updateMutation.isPending ? 'Đang lưu...' : 'Lưu nháp'}
                     </button>
                     <button
-                        onClick={() => submitMutation.mutate({ assignmentId: assignment.id, dto: { textAnswer, fileUrls } }, {
-                            onSuccess: () => { toast.success('Đã nộp bài!'); onComplete(); },
-                            onError: () => toast.error('Không thể nộp bài. Vui lòng thử lại.'),
-                        })}
-                        disabled={submitMutation.isPending || (assignment.type !== 'FILE' && !textAnswer.trim()) || (assignment.type === 'FILE' && fileUrls.length === 0)}
+                        onClick={() => {
+                            const content = { textAnswer, fileUrls };
+                            if (submission) {
+                                updateMutation.mutate({ id: submission.id, dto: { content, status: 'SUBMITTED' } }, {
+                                    onSuccess: () => { toast.success('Đã nộp bài!'); onComplete(); },
+                                    onError: () => toast.error('Lỗi khi nộp bài.')
+                                });
+                            } else {
+                                submitMutation.mutate({ assignmentTemplateId: templateId, classId, classAssessmentId, content, status: 'SUBMITTED', userId: 'me' }, {
+                                    onSuccess: () => { toast.success('Đã nộp bài!'); onComplete(); },
+                                    onError: () => toast.error('Lỗi khi nộp bài.')
+                                });
+                            }
+                        }}
+                        disabled={submitMutation.isPending || updateMutation.isPending || (assignment.defaultType !== 'FILE' && !textAnswer.trim()) || (assignment.defaultType === 'FILE' && fileUrls.length === 0)}
                         className="flex-1 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:bg-primary/90 transition flex items-center justify-center gap-2 disabled:opacity-60"
                     >
                         <Send className="h-4 w-4" />
-                        {submitMutation.isPending ? 'Đang nộp...' : 'Nộp bài'}
+                        {submitMutation.isPending || updateMutation.isPending ? 'Đang nộp...' : 'Nộp bài'}
                     </button>
                 </div>
             ) : (
@@ -321,102 +321,13 @@ const SectionTypeMap: Record<string, string> = {
 };
 
 function QuizPanel({
-    lessonId, courseId, classId, onComplete
-}: { lessonId: string; courseId: string; classId?: string; onComplete: () => void; }) {
-    const { data: quiz, isLoading: quizLoading } = useQuizByLesson(lessonId, classId);
-    const startMutation = useStartQuiz();
-    const saveAnswersMutation = useSaveQuizAnswers();
-    const submitMutation = useSubmitQuiz();
+    lessonId, templateId, classId, onComplete
+}: { lessonId: string; templateId: string; classId?: string; onComplete: () => void; }) {
+    const { data: quiz, isLoading: quizLoading } = useAcademyQuizTemplate(templateId);
 
-    const [panelState, setPanelState] = useState<QuizPanelState>('intro');
-    const [session, setSession] = useState<QuizSessionDTO | null>(null);
-    const [answers, setAnswers] = useState<Record<string, string>>({});
-    const [currentQIdx, setCurrentQIdx] = useState(0);
-    const [timeLeft, setTimeLeft] = useState(0);
-    const [result, setResult] = useState<any>(null);
-    const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    // We will just show the info and a "Mark Complete" button for now
+    // until the Quiz taking UI is fully integrated with Exam attempts.
 
-    // Auto-save every 15s while in_progress
-    const autoSaveRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-    // Clear timers on unmount
-    useEffect(() => {
-        return () => {
-            if (timerRef.current) clearInterval(timerRef.current);
-            if (autoSaveRef.current) clearInterval(autoSaveRef.current);
-        };
-    }, []);
-
-    // Countdown timer
-    useEffect(() => {
-        if (panelState !== 'in_progress') return;
-        if (!session?.timeLimit) return;
-        setTimeLeft(session.timeRemaining ?? session.timeLimit);
-        timerRef.current = setInterval(() => {
-            setTimeLeft(prev => {
-                if (prev <= 1) {
-                    clearInterval(timerRef.current!);
-                    handleSubmit();
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-        return () => { if (timerRef.current) clearInterval(timerRef.current!); };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [panelState, session?.sessionId]);
-
-    // Auto-save
-    useEffect(() => {
-        if (panelState !== 'in_progress' || !session) return;
-        autoSaveRef.current = setInterval(() => {
-            saveAnswersMutation.mutate({
-                sessionId: session.sessionId,
-                data: { answers, timeRemaining: timeLeft, currentQuestion: currentQIdx + 1 },
-            });
-        }, 15_000);
-        return () => { if (autoSaveRef.current) clearInterval(autoSaveRef.current!); };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [panelState, session?.sessionId, answers, timeLeft, currentQIdx]);
-
-    const handleStart = async () => {
-        if (!quiz) return;
-        try {
-            const sess = await startMutation.mutateAsync(quiz.id);
-            setSession(sess);
-            setAnswers(sess.answers ?? {});
-            setCurrentQIdx((sess.currentQuestion ?? 1) - 1);
-            setPanelState('in_progress');
-        } catch (e: any) {
-            toast.error(e?.message || 'Không thể bắt đầu quiz. Thử lại sau.');
-        }
-    };
-
-    const handleAnswer = (questionId: string, answer: string) => {
-        setAnswers(prev => ({ ...prev, [questionId]: answer }));
-    };
-
-    const handleSubmit = async () => {
-        if (!session) return;
-        if (timerRef.current) clearInterval(timerRef.current);
-        if (autoSaveRef.current) clearInterval(autoSaveRef.current);
-        try {
-            const res = await submitMutation.mutateAsync(session.sessionId);
-            setResult(res);
-            setPanelState('result');
-            if (res.isPassed) { onComplete(); }
-        } catch (e: any) {
-            toast.error(e?.message || 'Không thể nộp bài. Thử lại.');
-        }
-    };
-
-    const fmtTime = (s: number) => {
-        const m = Math.floor(s / 60);
-        const sec = s % 60;
-        return `${m}:${String(sec).padStart(2, '0')}`;
-    };
-
-    // ── Loading
     if (quizLoading) {
         return (
             <div className="p-8 space-y-4 max-w-3xl mx-auto">
@@ -426,7 +337,6 @@ function QuizPanel({
         );
     }
 
-    // ── No quiz found
     if (!quiz) {
         return (
             <div className="p-8 text-center text-muted-foreground max-w-3xl mx-auto">
@@ -437,275 +347,55 @@ function QuizPanel({
         );
     }
 
-    const questions = session?.questions ?? [];
-    const currentQ = questions[currentQIdx];
-    const answeredCount = Object.keys(answers).length;
-
-    // ── Intro screen
-    if (panelState === 'intro') {
-        return (
-            <div className="p-6 sm:p-10 max-w-2xl mx-auto">
-                {/* Header */}
-                <div className="flex items-start gap-4 pb-6 border-b border-border mb-8">
-                    <div className="p-4 rounded-2xl bg-violet-500/10 shrink-0">
-                        <HelpCircle className="h-8 w-8 text-violet-500" />
-                    </div>
-                    <div>
-                        <p className="text-xs font-bold uppercase tracking-widest text-violet-500 mb-1">Quiz</p>
-                        <h2 className="text-2xl font-bold text-foreground">{quiz.title}</h2>
-                        {quiz.description && <p className="text-sm text-muted-foreground mt-1">{quiz.description}</p>}
-                    </div>
+    return (
+        <div className="p-6 sm:p-10 max-w-2xl mx-auto">
+            {/* Header */}
+            <div className="flex items-start gap-4 pb-6 border-b border-border mb-8">
+                <div className="p-4 rounded-2xl bg-violet-500/10 shrink-0">
+                    <HelpCircle className="h-8 w-8 text-violet-500" />
                 </div>
-
-                {/* Stats */}
-                <div className="grid grid-cols-3 gap-4 mb-8">
-                    <div className="bg-muted/40 rounded-xl p-4 text-center border border-border">
-                        <p className="text-2xl font-black text-foreground">{quiz.totalQuestions}</p>
-                        <p className="text-xs text-muted-foreground mt-1">Câu hỏi</p>
-                    </div>
-                    <div className="bg-muted/40 rounded-xl p-4 text-center border border-border">
-                        <p className="text-2xl font-black text-foreground">{quiz.totalTime ?? '∞'}</p>
-                        <p className="text-xs text-muted-foreground mt-1">Phút</p>
-                    </div>
-                    <div className="bg-muted/40 rounded-xl p-4 text-center border border-border">
-                        <p className="text-2xl font-black text-foreground">{quiz.passingScore ?? 60}%</p>
-                        <p className="text-xs text-muted-foreground mt-1">Đạt</p>
-                    </div>
+                <div>
+                    <p className="text-xs font-bold uppercase tracking-widest text-violet-500 mb-1">Quiz</p>
+                    <h2 className="text-2xl font-bold text-foreground">{quiz.title}</h2>
+                    {quiz.description && <p className="text-sm text-muted-foreground mt-1">{quiz.description}</p>}
                 </div>
+            </div>
 
-                {quiz.maxAttempts > 0 && (
-                    <p className="text-sm text-muted-foreground mb-6">
-                        Số lần làm tối đa: <strong>{quiz.maxAttempts}</strong>
-                    </p>
-                )}
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-4 mb-8">
+                <div className="bg-muted/40 rounded-xl p-4 text-center border border-border">
+                    <p className="text-2xl font-black text-foreground">{'?'}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Câu hỏi</p>
+                </div>
+                <div className="bg-muted/40 rounded-xl p-4 text-center border border-border">
+                    <p className="text-2xl font-black text-foreground">{quiz.timeLimit ?? '∞'}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Phút</p>
+                </div>
+                <div className="bg-muted/40 rounded-xl p-4 text-center border border-border">
+                    <p className="text-2xl font-black text-foreground">{quiz.passingScore ?? 60}%</p>
+                    <p className="text-xs text-muted-foreground mt-1">Đạt</p>
+                </div>
+            </div>
 
-                {/* Sections preview if available */}
-                {(quiz as any).sections && (quiz as any).sections.length > 0 && (
-                    <div className="mb-8 space-y-3">
-                        <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Cấu trúc bài thi</h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            {(quiz as any).sections.map((s: any, i: number) => (
-                                <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border/50">
-                                    <div className="size-8 rounded-lg bg-background flex items-center justify-center text-xs font-bold text-primary border border-border">
-                                        {i + 1}
-                                    </div>
-                                    <div className="min-w-0">
-                                        <p className="text-sm font-bold truncate">{SectionTypeMap[s.type] || s.type}</p>
-                                        <p className="text-[10px] text-muted-foreground">{s.questionCount} câu · {s.timeLimit} phút</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
+            {quiz.maxAttempts > 0 && (
+                <p className="text-sm text-muted-foreground mb-6">
+                    Số lần làm tối đa: <strong>{quiz.maxAttempts}</strong>
+                </p>
+            )}
 
+            <div className="space-y-4 bg-muted/30 border border-border rounded-xl p-6 text-center">
+                <p className="text-sm text-foreground font-medium">
+                    Hệ thống làm bài thi đang được nâng cấp.
+                </p>
                 <button
-                    onClick={handleStart}
-                    disabled={startMutation.isPending}
+                    onClick={onComplete}
                     className="w-full py-4 bg-violet-500 hover:bg-violet-600 text-white rounded-2xl font-bold text-base transition flex items-center justify-center gap-2 shadow-lg shadow-violet-500/25"
                 >
-                    <PlayCircle className="h-5 w-5" />
-                    {startMutation.isPending ? 'Đang chuẩn bị...' : 'Bắt đầu làm bài'}
+                    <CheckCircle2 className="h-5 w-5" /> Đánh dấu hoàn thành
                 </button>
             </div>
-        );
-    }
-
-    // ── Result screen
-    if (panelState === 'result' && result) {
-        const pct = result.percentage ?? 0;
-        const passed = result.isPassed;
-
-        return (
-            <div className="p-6 sm:p-10 max-w-2xl mx-auto">
-                {/* Result header */}
-                <div className={`rounded-2xl p-8 text-center mb-8 ${passed
-                    ? 'bg-emerald-500/10 border border-emerald-500/20'
-                    : 'bg-red-500/10 border border-red-500/20'}`}>
-                    <div className={`h-20 w-20 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl
-                        ${passed ? 'bg-emerald-500/20' : 'bg-red-500/20'}`}>
-                        {passed ? '🎉' : '😔'}
-                    </div>
-                    <p className={`text-2xl font-black mb-1 ${passed ? 'text-emerald-600' : 'text-red-500'}`}>
-                        {passed ? 'Xuất sắc! Đã vượt qua!' : 'Chưa đạt — cố lên!'}
-                    </p>
-                    <p className="text-muted-foreground text-sm">{quiz.title}</p>
-                </div>
-
-                {/* Score */}
-                <div className="grid grid-cols-3 gap-4 mb-8">
-                    <div className="bg-muted/40 rounded-xl p-4 text-center border border-border">
-                        <p className="text-2xl font-black text-foreground">{Number(result.score ?? 0).toFixed(0)}</p>
-                        <p className="text-xs text-muted-foreground mt-1">Điểm đạt</p>
-                    </div>
-                    <div className="bg-muted/40 rounded-xl p-4 text-center border border-border">
-                        <p className="text-2xl font-black text-foreground">{Number(result.maxScore ?? 0).toFixed(0)}</p>
-                        <p className="text-xs text-muted-foreground mt-1">Tổng điểm</p>
-                    </div>
-                    <div className={`rounded-xl p-4 text-center border ${passed
-                        ? 'bg-emerald-500/10 border-emerald-500/20'
-                        : 'bg-red-500/10 border-red-500/20'}`}>
-                        <p className={`text-2xl font-black ${passed ? 'text-emerald-500' : 'text-red-500'}`}>
-                            {Number(pct).toFixed(0)}%
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">Tỉ lệ đúng</p>
-                    </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex flex-col gap-3">
-                    {!passed && quiz.maxAttempts !== 1 && (
-                        <button
-                            onClick={() => { setPanelState('intro'); setSession(null); setAnswers({}); setResult(null); }}
-                            className="w-full py-3 border border-border rounded-xl font-semibold text-sm hover:bg-muted transition flex items-center justify-center gap-2"
-                        >
-                            <RotateCcw className="h-4 w-4" /> Làm lại
-                        </button>
-                    )}
-                    <button
-                        onClick={onComplete}
-                        className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:bg-primary/90 transition flex items-center justify-center gap-2"
-                    >
-                        <ChevronRight className="h-4 w-4" /> Tiếp tục học
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
-    // ── In-progress screen
-    if (panelState === 'in_progress' && session && currentQ) {
-        const timePercent = session.timeLimit > 0 ? (timeLeft / session.timeLimit) * 100 : 100;
-        const isTimeLow = timeLeft < 60;
-        const options = (currentQ.options ?? {}) as Record<string, string>;
-        const optionKeys = Object.keys(options).filter(k => k !== 'audioUrl');
-
-        return (
-            <div className="flex flex-col h-full">
-                {/* Timer bar */}
-                {session.timeLimit > 0 && (
-                    <div className="w-full h-1.5 bg-muted shrink-0">
-                        <div
-                            className={`h-full transition-all duration-1000 ${isTimeLow ? 'bg-red-500' : 'bg-primary'}`}
-                            style={{ width: `${timePercent}%` }}
-                        />
-                    </div>
-                )}
-
-                <div className="p-5 sm:p-8 max-w-2xl mx-auto w-full flex flex-col gap-6">
-                    {/* Top bar */}
-                    <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground font-medium">
-                            Câu {currentQIdx + 1}/{questions.length}
-                            {answeredCount > 0 && <span className="ml-2 text-xs text-emerald-500">({answeredCount} đã trả lời)</span>}
-                        </span>
-                        {session.timeLimit > 0 && (
-                            <span className={`flex items-center gap-1.5 text-sm font-bold tabular-nums
-                                ${isTimeLow ? 'text-red-500 animate-pulse' : 'text-muted-foreground'}`}>
-                                <Timer className="h-4 w-4" />
-                                {fmtTime(timeLeft)}
-                            </span>
-                        )}
-                    </div>
-
-                    {/* Progress dots */}
-                    <div className="flex flex-wrap gap-1.5">
-                        {questions.map((q, idx) => (
-                            <button
-                                key={q.id}
-                                onClick={() => setCurrentQIdx(idx)}
-                                className={`h-6 w-6 rounded-md text-[10px] font-bold transition
-                                    ${idx === currentQIdx ? 'bg-primary text-primary-foreground scale-110' :
-                                        answers[q.id] ? 'bg-emerald-500/20 text-emerald-600 border border-emerald-500/30' :
-                                            'bg-muted text-muted-foreground hover:bg-muted/80'}`}
-                            >
-                                {idx + 1}
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* Current Section & Question */}
-                    <div className="space-y-1">
-                        {currentQ.section && (
-                            <Badge variant="outline" className="bg-violet-500/5 text-violet-600 border-violet-500/20 text-[10px] uppercase font-bold tracking-widest px-2 py-0">
-                                Phần: {SectionTypeMap[currentQ.section] || currentQ.section}
-                            </Badge>
-                        )}
-                        <div className="bg-muted/40 rounded-2xl p-5 border border-border">
-                            <p className="text-foreground font-medium leading-relaxed">{currentQ.questionText}</p>
-                        </div>
-                    </div>
-
-                    {/* Options */}
-                    {(currentQ.questionType === 'multiple_choice' || currentQ.questionType === 'true_false') && (
-                        <div className="space-y-3">
-                            {optionKeys.map(key => {
-                                const isSelected = answers[currentQ.id] === key;
-                                return (
-                                    <button
-                                        key={key}
-                                        onClick={() => handleAnswer(currentQ.id, key)}
-                                        className={`w-full text-left p-4 rounded-xl border-2 font-medium text-sm transition
-                                            ${isSelected
-                                                ? 'border-primary bg-primary/10 text-foreground'
-                                                : 'border-border bg-background hover:border-primary/40 hover:bg-muted/40 text-foreground/80'}`}
-                                    >
-                                        <span className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-black mr-3
-                                            ${isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
-                                            {key.toUpperCase()}
-                                        </span>
-                                        {options[key]}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    )}
-
-                    {/* Fill blank */}
-                    {currentQ.questionType === 'fill_blank' && (
-                        <input
-                            type="text"
-                            value={answers[currentQ.id] ?? ''}
-                            onChange={e => handleAnswer(currentQ.id, e.target.value)}
-                            placeholder="Nhập câu trả lời..."
-                            className="w-full p-4 bg-background border border-border rounded-xl text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition"
-                        />
-                    )}
-
-                    {/* Nav buttons */}
-                    <div className="flex items-center justify-between pt-2">
-                        <button
-                            onClick={() => setCurrentQIdx(i => Math.max(0, i - 1))}
-                            disabled={currentQIdx === 0}
-                            className="px-5 py-2.5 border border-border rounded-xl font-semibold text-sm hover:bg-muted transition disabled:opacity-40 flex items-center gap-1"
-                        >
-                            <ChevronLeft className="h-4 w-4" /> Câu trước
-                        </button>
-
-                        {currentQIdx < questions.length - 1 ? (
-                            <button
-                                onClick={() => setCurrentQIdx(i => Math.min(questions.length - 1, i + 1))}
-                                className="px-5 py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:bg-primary/90 transition flex items-center gap-1"
-                            >
-                                Câu tiếp <ChevronRight className="h-4 w-4" />
-                            </button>
-                        ) : (
-                            <button
-                                onClick={handleSubmit}
-                                disabled={submitMutation.isPending}
-                                className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-sm transition flex items-center gap-1 disabled:opacity-60"
-                            >
-                                <Send className="h-4 w-4" />
-                                {submitMutation.isPending ? 'Đang nộp...' : `Nộp bài (${answeredCount}/${questions.length})`}
-                            </button>
-                        )}
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    return null;
+        </div>
+    );
 }
 
 
@@ -785,14 +475,14 @@ export default function CourseLearnPage() {
 
     // ── API ────────────────────────────────────────────────────────────────
     // 1. Fetch the class first
-    const { data: classData, isLoading: classLoading } = useClass(classId);
+    const { data: classData, isLoading: classLoading } = useAcademyClass(classId);
     const courseProfileId = classData?.courseProfileId;
 
     // 2. Fetch other details using courseProfileId
-    const { data: course, isLoading: courseLoading } = useCourseById(courseProfileId);
+    const { data: course, isLoading: courseLoading } = useAcademyCourseById(courseProfileId ?? '');
     const { data: curriculum, isLoading: curriculumLoading } = useCurriculum(classId);
-    const { data: enrollmentData } = useCheckEnrollment(classId);
-    const { data: completedLessonIds = [] } = useCompletedLessons(classId ?? '');
+    const { data: enrollmentData } = useAcademyEnrollmentCheck(classId);
+    const { data: completedLessonIds = [] } = useAcademyCompletedLessonIds(classId ?? '');
 
     // ── State ──────────────────────────────────────────────────────────────
     const [currentLesson, setCurrentLesson] = useState<CurriculumLesson | null>(null);
@@ -829,20 +519,25 @@ export default function CourseLearnPage() {
     }, [curriculum?.courseId]);
 
     // ── Fetch current lesson details (video url, article content etc.) ─────
-    const { data: lessonDetail, isLoading: lessonLoading } = useLesson(currentLesson?.id ?? '');
+    const { data: lessonDetail, isLoading: lessonLoading } = useAcademyLesson(currentLesson?.referenceId ?? '');
 
     // ── Progress ───────────────────────────────────────────────────────────
     const markLessonComplete = useCallback(async () => {
         if (!currentLesson) return;
         if (completedIds.has(currentLesson.id)) { toast.info('Bài học này đã được hoàn thành!'); return; }
         try {
-            await learningProgressApi.trackProgress(currentLesson.id, classId, 'COMPLETED', 100);
-            queryClient.invalidateQueries({ queryKey: ['completed-lessons', courseProfileId] });
+            await academyLearningProgressApi.trackProgress({
+                lessonId: currentLesson.id,
+                classId: classId!,
+                status: 'COMPLETED',
+                progressPercent: 100
+            });
+            queryClient.invalidateQueries({ queryKey: ['academy-learning', 'completed-lessons', classId] });
             toast.success('Đã hoàn thành bài học! 🎉');
         } catch {
             toast.error('Không thể cập nhật tiến độ.');
         }
-    }, [currentLesson, completedIds, courseProfileId, queryClient, classId]);
+    }, [currentLesson, completedIds, queryClient, classId]);
 
     // ── Nav ────────────────────────────────────────────────────────────────
     const allLessons: CurriculumLesson[] = curriculum?.modules.flatMap((m: any) => m.lessons) ?? [];
@@ -927,7 +622,7 @@ export default function CourseLearnPage() {
                     </button>
                     <div className="hidden sm:block min-w-0">
                         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider truncate">
-                            {course?.title ?? classData.title}
+                            {course?.title ?? classData?.name}
                         </p>
                         {currentLesson && <p className="text-sm font-bold text-foreground truncate">{currentLesson.title}</p>}
                     </div>
@@ -940,7 +635,7 @@ export default function CourseLearnPage() {
                         </div>
                     </div>
                     <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm shrink-0">
-                        {(course?.title ?? classData.title)?.[0] ?? 'T'}
+                        {(course?.title ?? classData?.name)?.[0] ?? 'T'}
                     </div>
                 </div>
             </header>
@@ -1012,15 +707,15 @@ export default function CourseLearnPage() {
                                     <div className="lg:col-span-2 space-y-5">
                                         <h3 className="text-xl font-bold text-foreground">Tổng quan bài học</h3>
                                         <p className="text-muted-foreground leading-relaxed">
-                                            {lessonDetail?.description || (currentLesson
-                                                ? `Bài học "${currentLesson.title}" thuộc khóa học ${course?.title ?? classData.title}.`
+                                            {(lessonDetail as any)?.description || (currentLesson
+                                                ? `Bài học "${currentLesson.title}" thuộc khóa học ${course?.title ?? classData?.name}.`
                                                 : 'Chọn một bài học để bắt đầu.')}
                                         </p>
-                                        {course?.learningOutcomes && Array.isArray(course.learningOutcomes) && (course.learningOutcomes as string[]).length > 0 && (
+                                        {(course as any)?.learningOutcomes && Array.isArray((course as any).learningOutcomes) && ((course as any).learningOutcomes as string[]).length > 0 && (
                                             <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl">
                                                 <h4 className="text-primary font-bold mb-3 uppercase text-sm tracking-widest">Mục tiêu khóa học</h4>
                                                 <ul className="space-y-2">
-                                                    {(course.learningOutcomes as string[]).slice(0, 4).map((item, i) => (
+                                                    {((course as any).learningOutcomes as string[]).slice(0, 4).map((item, i) => (
                                                         <li key={i} className="flex items-start gap-2 text-foreground/80 text-sm">
                                                             <span className="text-primary mt-0.5 shrink-0">•</span><span>{item}</span>
                                                         </li>
@@ -1038,7 +733,7 @@ export default function CourseLearnPage() {
                                             onClick={async () => {
                                                 setSavingNote(true);
                                                 try {
-                                                    const { StudyNoteApi } = await import('@/lib/api/services/study-note-api');
+                                                    const { studyNoteApi: StudyNoteApi } = await import('@/lib/api/services/academy-study-note-api');
                                                     if (currentLesson?.id) {
                                                         await StudyNoteApi.create({ content: note, lessonId: currentLesson.id });
                                                         toast.success('Đã lưu ghi chú!');
@@ -1098,7 +793,7 @@ export default function CourseLearnPage() {
                             </div>
                             <AssignmentPanel
                                 lessonId={currentLesson.id}
-                                courseId={courseProfileId ?? ''}
+                                templateId={currentLesson.referenceId!}
                                 classId={classId}
                                 onComplete={markLessonComplete}
                             />
@@ -1120,7 +815,7 @@ export default function CourseLearnPage() {
                             </div>
                             <QuizPanel
                                 lessonId={currentLesson.id}
-                                courseId={courseProfileId ?? ''}
+                                templateId={currentLesson.referenceId!}
                                 classId={classId}
                                 onComplete={markLessonComplete}
                             />
@@ -1171,8 +866,8 @@ export default function CourseLearnPage() {
                             <div>
                                 <p className="text-sm font-semibold text-foreground">{completedCount}/{totalLessons} bài học</p>
                                 <p className="text-xs text-muted-foreground mt-0.5">
-                                    {enrollmentData?.enrollment?.completionPercentage != null
-                                        ? `Đã hoàn thành ${Math.round(enrollmentData.enrollment.completionPercentage)}%`
+                                    {progressPct > 0
+                                        ? `Đã hoàn thành ${progressPct}%`
                                         : 'Đang học'}
                                 </p>
                             </div>

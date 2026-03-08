@@ -1,35 +1,14 @@
 // Models
 export * from './models/user.model';
-export * from './models/course-master.model';
-export * from './models/course-version.model';
-export * from './models/course-run.model';
-export * from './models/module.model';
-export * from './models/module-item.model';
-export type { ModuleItem } from './models/module-item.model';
-export * from './models/lesson.model';
-export * from './models/question.model';
-export * from './models/question-pool.model';
-export * from './models/wishlist.model';
 export * from './models/storage.model';
 export * from './models/notification.model';
 export * from './models/blog.model';
 export * from './models/comment.model';
-export * from './models/flashcard.model';
-export * from './models/flashcard-deck.model';
-export * from './models/flashcard-user-progress.model';
-export * from './models/flashcard-review.model';
-export * from './models/flashcard-review-session.model';
-export * from './models/review.model';
-export * from './models/exam.model';
-export * from './models/enrollment.model';
 export * from './models/order.model';
 export * from './models/coupon.model';
 export * from './models/ticket.model';
-export * from './models/discussion-topic.model';
-export * from './models/assignment.model';
 export * from './models/certificate.model';
-export * from './models/attendance.model';
-export * from './models/teaching-schedule.model';
+
 
 // DTOs (all types are now here with Zod schemas)
 export * from './dtos/user.dto';
@@ -38,43 +17,24 @@ export * from './dtos/oauth.dto';
 export * from './dtos/two-factor-auth.dto';
 export * from './dtos/common.dto';
 export * from './dtos/audit.dto';
-export * from './dtos/module.dto';
-export * from './dtos/lesson.dto';
-export * from './dtos/question.dto';
-export * from './dtos/question-pool.dto';
-export * from './dtos/wishlist.dto';
 export * from './dtos/storage.dto';
 export * from './dtos/notification.dto';
 export * from './dtos/blog.dto';
 export * from './dtos/comment.dto';
-export * from './dtos/flashcard.dto';
-export * from './dtos/flashcard-deck.dto';
-export * from './dtos/flashcard-review.dto';
-export * from './dtos/flashcard-review-session.dto';
-export * from './dtos/review.dto';
-export * from './dtos/exam.dto';
-export * from './dtos/lesson-material.dto';
-export * from './dtos/course-instructor.dto';
 export * from './dtos/staff-dashboard.dto';
-export * from './dtos/course-master.dto';
-export * from './dtos/course-run.dto';
 export * from './dtos/academy-course-profile.dto';
 export * from './dtos/academy-course-edition.dto';
 export * from './dtos/academy-course-offering.dto';
 export * from './dtos/academy-chapter.dto';
 export * from './dtos/academy-chapter-item.dto';
-export * from './dtos/enrollment.dto';
 export * from './dtos/order.dto';
 export * from './dtos/coupon.dto';
 export * from './dtos/gamification.dto';
 export * from './dtos/live-session.dto';
 export * from './dtos/ticket.dto';
-export * from './dtos/discussion-topic.dto';
-export * from './dtos/assignment.dto';
 export * from './dtos/certificate.dto';
 export * from './dtos/agent.dto';
 export * from './dtos/balance.dto';
-export * from './dtos/attendance.dto';
 export * from './dtos/academy-class.dto';
 export * from './dtos/academy-class-assessment.dto';
 export * from './dtos/academy-live-schedule.dto';
@@ -89,11 +49,15 @@ export * from './dtos/academy-enrollment.dto';
 export * from './dtos/academy-class-review.dto';
 export * from './dtos/academy-placement.dto';
 export * from './dtos/academy-question-pool.dto';
+export * from './dtos/academy-class-attendance.dto';
+export * from './dtos/academy-study-set.dto';
+export * from './dtos/academy-study-note.dto';
+export * from './dtos/academy-learning-progress.dto';
+
 
 // Enums
-export * from './enums/enrollment.enum';
-export * from './enums/course-run.enum';
 export * from './enums/live-session.enum';
+export * from './enums/academy.enum';
 
 // Interfaces (only internal/utility types)
 export * from './interfaces/auth.interface';

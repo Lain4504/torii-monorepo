@@ -8,12 +8,14 @@ export const academyLessonSchema = z.object({
   contentUrl: z.string().optional().nullable(),
   contentBody: z.string().optional().nullable(),
   attachments: z.any().optional().nullable(),
-  metadata: z.any().optional().nullable(),
+  description: z.string().optional().nullable(),
   createdAt: z.date().optional(),
   updatedAt: z.date().optional(),
 });
 
 export type AcademyLesson = z.infer<typeof academyLessonSchema>;
+export type AcademyLessonModel = AcademyLesson;
+
 
 export const academyLessonCreateDTOSchema = z.object({
   courseProfileId: z.string().uuid(),
@@ -22,6 +24,7 @@ export const academyLessonCreateDTOSchema = z.object({
   contentUrl: z.string().optional(),
   contentBody: z.string().optional(),
   attachments: z.any().optional(),
+  description: z.string().optional(),
   metadata: z.any().optional(),
 });
 
@@ -33,6 +36,7 @@ export const academyLessonUpdateDTOSchema = z.object({
   contentUrl: z.string().optional(),
   contentBody: z.string().optional(),
   attachments: z.any().optional(),
+  description: z.string().optional(),
   metadata: z.any().optional(),
 });
 

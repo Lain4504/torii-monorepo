@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
+import { AuditLoggerService } from '../../audit-logger.service';
 import {
   CourseProfileCreateDto,
   CourseProfileQueryDto,
@@ -8,7 +9,10 @@ import {
 
 @Injectable()
 export class CourseProfileService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly audit: AuditLoggerService,
+  ) { }
 
   async findAll(query: CourseProfileQueryDto) {
     const q = query.q?.trim();
@@ -40,8 +44,8 @@ export class CourseProfileService {
     return item;
   }
 
-  async create(input: CourseProfileCreateDto) {
-    return this.prisma.courseProfile.create({
+  async create(input: CourseProfileCreateDto, requesterId = 'SYSTEM') {
+    const profile = await this.prisma.courseProfile.create({
       data: {
         code: input.code,
         title: input.title,
@@ -53,11 +57,20 @@ export class CourseProfileService {
         thumbnailUrl: input.thumbnailUrl,
       },
     });
+    await this.audit.log({
+      userId: requesterId,
+      action: 'courseProfile.create',
+      entity: 'CourseProfile',
+      entityId: profile.id,
+      description: `Created course profile: ${profile.title} (${profile.code})`,
+      newValues: { code: profile.code, title: profile.title, subject: profile.subject, level: profile.level },
+    });
+    return profile;
   }
 
-  async update(id: string, input: CourseProfileUpdateDto) {
-    await this.findById(id);
-    return this.prisma.courseProfile.update({
+  async update(id: string, input: CourseProfileUpdateDto, requesterId = 'SYSTEM') {
+    const old = await this.findById(id);
+    const updated = await this.prisma.courseProfile.update({
       where: { id },
       data: {
         title: input.title,
@@ -69,10 +82,20 @@ export class CourseProfileService {
         thumbnailUrl: input.thumbnailUrl,
       },
     });
+    await this.audit.log({
+      userId: requesterId,
+      action: 'courseProfile.update',
+      entity: 'CourseProfile',
+      entityId: id,
+      description: `Updated course profile: ${old.title} (${old.code})`,
+      oldValues: { title: old.title, subject: old.subject, level: old.level },
+      newValues: { title: updated.title, subject: updated.subject, level: updated.level },
+    });
+    return updated;
   }
 
-  async archiveProfile(id: string) {
-    await this.findById(id);
+  async archiveProfile(id: string, requesterId = 'SYSTEM') {
+    const profile = await this.findById(id);
 
     // Archive all editions
     await this.prisma.courseEdition.updateMany({
@@ -80,19 +103,29 @@ export class CourseProfileService {
       data: { status: 'ARCHIVED', isCurrent: false },
     });
 
-    return this.prisma.courseProfile.update({
+    const result = await this.prisma.courseProfile.update({
       where: { id },
       data: {
         metadata: {
-          ...(await this.findById(id)).metadata as any,
+          ...(profile.metadata as any),
           isArchived: true,
-          archivedAt: new Date().toISOString()
-        }
+          archivedAt: new Date().toISOString(),
+        },
       },
     });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'courseProfile.archive',
+      entity: 'CourseProfile',
+      entityId: id,
+      description: `Archived course profile: ${profile.title} (${profile.code}) and all its editions`,
+    });
+
+    return result;
   }
 
-  async delete(id: string) {
+  async delete(id: string, requesterId = 'SYSTEM') {
     const profile = await this.prisma.courseProfile.findUnique({
       where: { id },
       include: {
@@ -103,10 +136,22 @@ export class CourseProfileService {
     if (!profile) throw new NotFoundException('CourseProfile not found');
 
     if (profile.editions.length > 0 || profile.classes.length > 0) {
-      throw new Error('Cannot delete CourseProfile with existing editions or classes. Archive it instead.');
+      throw new BadRequestException(
+        'Cannot delete CourseProfile with existing editions or classes. Use archive instead.',
+      );
     }
 
     await this.prisma.courseProfile.delete({ where: { id } });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'courseProfile.delete',
+      entity: 'CourseProfile',
+      entityId: id,
+      description: `Deleted course profile: ${profile.title} (${profile.code})`,
+      metadata: { code: profile.code, title: profile.title },
+    });
+
     return { ok: true };
   }
 }
