@@ -1,6 +1,7 @@
 import { useNavigate, useParams, Link } from "react-router-dom"
 import { useAcademyClass, useSubmitClassForApproval, useApproveClass, useRejectClass } from "@/lib/api/services/academy-classes"
 import { useAcademyLiveSchedules } from "@/lib/api/services/academy-live-schedules"
+import { cn } from "@workspace/ui/lib/utils"
 import { useAcademyClassAssessments } from "@/lib/api/services/academy-class-assessments"
 import { useAcademyEnrollments } from "@/lib/api/services/academy-enrollments"
 import { useAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
@@ -12,6 +13,7 @@ import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
+import { ClassAttendanceTab } from "@/components/academy/class-attendance-tab"
 import {
    Dialog,
    DialogContent,
@@ -235,9 +237,10 @@ export default function ClassDetailPage() {
 
             <div className="md:col-span-3">
                <Tabs defaultValue="overview" className="w-full">
-                  <TabsList className="grid w-full grid-cols-6 mb-6">
+                  <TabsList className={cn("grid w-full mb-6", isLive ? "grid-cols-7" : "grid-cols-5")}>
                      <TabsTrigger value="overview">Tổng quan</TabsTrigger>
-                     {cls.mode === "LIVE" && <TabsTrigger value="schedule">Lịch học ({schedules.length})</TabsTrigger>}
+                     {isLive && <TabsTrigger value="schedule">Lịch học ({schedules.length})</TabsTrigger>}
+                     {isLive && <TabsTrigger value="attendance">Điểm danh</TabsTrigger>}
                      <TabsTrigger value="assessments">Bài kiểm tra ({assessments.length})</TabsTrigger>
                      <TabsTrigger value="attempts">Kết quả thi ({attempts.length})</TabsTrigger>
                      <TabsTrigger value="submissions">Bài nộp ({submissions.length})</TabsTrigger>
@@ -537,6 +540,15 @@ export default function ClassDetailPage() {
                         </CardContent>
                      </Card>
                   </TabsContent>
+
+                  {isLive && (
+                     <TabsContent value="attendance">
+                        <ClassAttendanceTab
+                           classId={id!}
+                           liveClassId={cls.liveClass?.id || ""}
+                        />
+                     </TabsContent>
+                  )}
                </Tabs>
             </div>
          </div>

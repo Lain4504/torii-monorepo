@@ -7,6 +7,7 @@ import { ClassroomCronService } from './classroom-cron.service';
 import { CertificateModule } from './certificate/certificate.module';
 import { ClassReviewModule } from './class-review/class-review.module';
 import { LiveScheduleModule } from './live-schedule/live-schedule.module';
+import { ClassAttendanceModule } from './class-attendance/class-attendance.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { LiveScheduleModule } from './live-schedule/live-schedule.module';
     LearningProgressModule,
     CertificateModule,
     ClassReviewModule,
+    ClassAttendanceModule,
   ],
   providers: [ClassroomCronService],
 })
