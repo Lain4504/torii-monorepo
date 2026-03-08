@@ -205,7 +205,13 @@ export default function DashboardClientPage() {
                                     endDate={endDate}
                                     colorMode="discrete"
                                     displayStyle="squares"
-                                    colorScale={["#ebedf0", "#fee2e2", "#f87171", "#dc2626", "#7f1d1d"]}
+                                    colorScale={[
+                                        "var(--heatmap-zero)",
+                                        "var(--heatmap-1)",
+                                        "var(--heatmap-2)",
+                                        "var(--heatmap-3)",
+                                        "var(--heatmap-4)",
+                                    ]}
                                     customColorMap={(value) => {
                                         if (value <= 0) return 0;
                                         if (value <= 2) return 1; // Nhạt (Login)
