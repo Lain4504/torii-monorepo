@@ -4,13 +4,14 @@ import { useQuery } from '@tanstack/react-query';
 import { useAppSelector } from '@/hooks/hooks';
 import { learningProgressApi } from '@/lib/api/services/learning-progress-api';
 import { useMyCourses, useLearningHistory } from '@/lib/api/services/learning-progress-api';
-import { useGamificationProfile, useStreak, useAchievements } from '@/lib/api/services/gamification-api';
+import { useGamificationProfile, useStreak, useAchievements, useActivityHeatmap } from '@/lib/api/services/gamification-api';
 import { useMySchedule } from '@/lib/api/services/live-session-api';
 import Link from 'next/link';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, subDays } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { BookOpen, Clock, Calendar, Video } from 'lucide-react';
 import { LiveSessionStatus } from '@workspace/schemas';
+import Heatmap from '@workspace/ui/components/heatmap';
 
 function formatDuration(seconds: number): string {
     if (!seconds) return '0 phút';
@@ -37,6 +38,13 @@ export default function DashboardClientPage() {
     const { data: achievements } = useAchievements();
     const { data: history } = useLearningHistory();
     const { data: schedule } = useMySchedule();
+
+    const startDate = subDays(new Date(), 365);
+    const endDate = new Date();
+    const { data: heatmapData } = useActivityHeatmap(
+        startDate.toISOString().split('T')[0],
+        endDate.toISOString().split('T')[0]
+    );
 
     const mainCourse = courses?.[0];
     const otherCourses = courses?.slice(1, 3) || [];
@@ -180,6 +188,33 @@ export default function DashboardClientPage() {
                                     </Link>
                                 </div>
                             )}
+                        </section>
+
+                        {/* Activity Heatmap */}
+                        <section className="bg-card p-6 rounded-3xl border border-border shadow-sm" data-purpose="activity-heatmap">
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="font-bold">Lịch sử hoạt động</h3>
+                                <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                                    365 ngày gần nhất
+                                </div>
+                            </div>
+                            <div className="w-full overflow-x-auto pb-4 custom-scrollbar" ref={(el) => { if (el) el.scrollLeft = el.scrollWidth; }}>
+                                <Heatmap
+                                    data={heatmapData || []}
+                                    startDate={startDate}
+                                    endDate={endDate}
+                                    colorMode="discrete"
+                                    displayStyle="squares"
+                                    colorScale={["#ebedf0", "#fee2e2", "#f87171", "#dc2626", "#7f1d1d"]}
+                                    customColorMap={(value) => {
+                                        if (value <= 0) return 0;
+                                        if (value <= 2) return 1; // Nhạt (Login)
+                                        if (value <= 5) return 2; // Vừa (Lesson)
+                                        if (value <= 9) return 3; // Đậm
+                                        return 4; // Rất đậm (Exam hoặc nhiều hoạt động)
+                                    }}
+                                />
+                            </div>
                         </section>
 
                         {/* Analytics & Progress */}

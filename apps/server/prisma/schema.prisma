@@ -690,6 +690,7 @@ model DailyActivity {
   userId       String       @map("user_id") @db.Uuid
   date         String       @db.VarChar(10) // YYYY-MM-DD
   activityType ActivityType @map("activity_type")
+  count        Int          @default(1) // Số lần activity trong ngày (cho heatmap)
 
   // Metadata for analytics
   meta Json? @default("{}")
