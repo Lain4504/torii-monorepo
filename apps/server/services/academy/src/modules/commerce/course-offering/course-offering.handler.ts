@@ -43,5 +43,20 @@ export class CourseOfferingHandler {
   delete(@Payload() data: { id: string; requesterId?: string }) {
     return this.offerings.delete(data.id, data.requesterId);
   }
+
+  @MessagePattern({ cmd: 'academy.courseOffering.submitForApproval' })
+  submitForApproval(@Payload() data: { id: string; requesterId: string }) {
+    return this.offerings.submitForApproval(data.id, data.requesterId);
+  }
+
+  @MessagePattern({ cmd: 'academy.courseOffering.approve' })
+  approve(@Payload() data: { id: string; requesterId: string }) {
+    return this.offerings.approve(data.id, data.requesterId);
+  }
+
+  @MessagePattern({ cmd: 'academy.courseOffering.reject' })
+  reject(@Payload() data: { id: string; reason: string; requesterId: string }) {
+    return this.offerings.reject(data.id, data.reason, data.requesterId);
+  }
 }
 

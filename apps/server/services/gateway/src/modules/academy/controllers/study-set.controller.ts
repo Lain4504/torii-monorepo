@@ -52,6 +52,7 @@ export class StudySetController {
                 this.natsClient.send('academy.study-set.createSet', {
                     userId: req.requester.sub,
                     data: createDto,
+                    requesterId: req.requester.sub,
                 }),
             );
             return successResponse({ item });
@@ -107,6 +108,7 @@ export class StudySetController {
                     id,
                     userId: req.requester.sub,
                     data: updateDto,
+                    requesterId: req.requester.sub,
                 }),
             );
             return successResponse({ item });
@@ -126,6 +128,7 @@ export class StudySetController {
                 this.natsClient.send('academy.study-set.deleteSet', {
                     id,
                     userId: req.requester.sub,
+                    requesterId: req.requester.sub,
                 }),
             );
             return successResponse({ result });
@@ -149,6 +152,7 @@ export class StudySetController {
                     setId,
                     userId: req.requester.sub,
                     data: createDto,
+                    requesterId: req.requester.sub,
                 }),
             );
             return successResponse({ item });
@@ -170,6 +174,7 @@ export class StudySetController {
                     cardId,
                     userId: req.requester.sub,
                     data: updateDto,
+                    requesterId: req.requester.sub,
                 }),
             );
             return successResponse({ item });
@@ -189,6 +194,7 @@ export class StudySetController {
                 this.natsClient.send('academy.study-set.deleteCard', {
                     cardId,
                     userId: req.requester.sub,
+                    requesterId: req.requester.sub,
                 }),
             );
             return successResponse({ result });

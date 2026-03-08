@@ -115,5 +115,39 @@ export class CourseOfferingController {
     );
     return successResponse(result);
   }
+
+  @Post(':id/submit-for-approval')
+  @Permissions('academy.commerce.write')
+  async submitForApproval(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.courseOffering.submitForApproval' }, { id, requesterId: req.requester?.sub }),
+    );
+    return successResponse({ item });
+  }
+
+  @Post(':id/approve')
+  @Permissions('academy.commerce.approve')
+  async approve(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.courseOffering.approve' }, { id, requesterId: req.requester?.sub }),
+    );
+    return successResponse({ item });
+  }
+
+  @Post(':id/reject')
+  @Permissions('academy.commerce.approve')
+  async reject(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() body: { reason: string },
+    @Req() req: ReqWithRequester,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.courseOffering.reject' },
+        { id, reason: body.reason, requesterId: req.requester?.sub },
+      ),
+    );
+    return successResponse({ item });
+  }
 }
 

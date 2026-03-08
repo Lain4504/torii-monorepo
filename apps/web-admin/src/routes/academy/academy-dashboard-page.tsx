@@ -17,10 +17,20 @@ import {
   FileCheck,
   ShoppingBag,
   BarChart3,
-  Search
+  Search,
+  AlertCircle
 } from "lucide-react"
+import { useAcademyCourseEditions } from "@/lib/api/services/academy-course-editions"
+import { useAcademyClasses } from "@/lib/api/services/academy-classes"
+import { useAcademyCourseOfferings } from "@/lib/api/services/academy-course-offerings"
 
 export default function AcademyDashboardPage() {
+  const { data: pendingEditions = [] } = useAcademyCourseEditions({ status: "PENDING_APPROVAL" } as any)
+  const { data: pendingClasses = [] } = useAcademyClasses({ status: "PENDING_APPROVAL" } as any)
+  const { data: pendingOfferings = [] } = useAcademyCourseOfferings({ status: "PENDING_APPROVAL" } as any)
+
+  const totalPending = pendingEditions.length + pendingClasses.length + pendingOfferings.length
+
   return (
     <div className="space-y-8">
       <PageHeader
@@ -48,10 +58,15 @@ export default function AcademyDashboardPage() {
             <CardTitle className="text-3xl font-bold">--</CardTitle>
           </CardHeader>
         </Card>
-        <Card>
+        <Card className={totalPending > 0 ? "bg-amber-500/10 border-amber-500/50" : ""}>
           <CardHeader className="pb-2">
-            <CardDescription>Open Submissions</CardDescription>
-            <CardTitle className="text-3xl font-bold">--</CardTitle>
+            <CardDescription className="flex items-center gap-1">
+              Pending Approvals
+              {totalPending > 0 && <AlertCircle className="h-3 w-3 text-amber-500" />}
+            </CardDescription>
+            <CardTitle className={`text-3xl font-bold ${totalPending > 0 ? "text-amber-600" : ""}`}>
+              {totalPending}
+            </CardTitle>
           </CardHeader>
         </Card>
       </div>

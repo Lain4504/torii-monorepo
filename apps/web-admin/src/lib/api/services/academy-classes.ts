@@ -18,6 +18,13 @@ export type AcademyClass = {
   createdAt: string
   updatedAt: string
   settings?: any
+  rejectedAt: string | null
+  rejectedBy: string | null
+  rejectionReason: string | null
+  submittedForApprovalAt: string | null
+  submittedBy: string | null
+  approvedAt: string | null
+  approvedBy: string | null
 
   // TPT Relations
   vodClass?: {
@@ -85,6 +92,27 @@ export const academyClassesApi = {
     )
     return res.data
   },
+  async submitForApproval(id: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyClass }>>(
+      `/api/academy/classes/${id}/submit-for-approval`,
+      {},
+    )
+    return res.data.data!.item
+  },
+  async approve(id: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyClass }>>(
+      `/api/academy/classes/${id}/approve`,
+      {},
+    )
+    return res.data.data!.item
+  },
+  async reject(id: string, reason: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyClass }>>(
+      `/api/academy/classes/${id}/reject`,
+      { reason },
+    )
+    return res.data.data!.item
+  },
 }
 
 export function useAcademyClasses(params: AcademyClassQueryDTO) {
@@ -124,5 +152,39 @@ export function useDeleteAcademyClass() {
   return useMutation({
     mutationFn: (id: string) => academyClassesApi.delete(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-classes"] }),
+  })
+}
+
+export function useSubmitClassForApproval() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => academyClassesApi.submitForApproval(id),
+    onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: ["academy-classes"] })
+      qc.invalidateQueries({ queryKey: ["academy-class", id] })
+    },
+  })
+}
+
+export function useApproveClass() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => academyClassesApi.approve(id),
+    onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: ["academy-classes"] })
+      qc.invalidateQueries({ queryKey: ["academy-class", id] })
+    },
+  })
+}
+
+export function useRejectClass() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
+      academyClassesApi.reject(id, reason),
+    onSuccess: (_, { id }) => {
+      qc.invalidateQueries({ queryKey: ["academy-classes"] })
+      qc.invalidateQueries({ queryKey: ["academy-class", id] })
+    },
   })
 }

@@ -11,13 +11,36 @@ import {
   TableRow,
 } from "@workspace/ui/components/table"
 import { PageHeader } from "@/components/common/page-header"
-import { useAcademyCourseOffering } from "@/lib/api/services/academy-course-offerings"
-import { ArrowLeft, Edit, Package, GraduationCap, Calendar, DollarSign } from "lucide-react"
+import {
+  useAcademyCourseOffering,
+  useApproveCourseOffering,
+  useRejectCourseOffering,
+  useSubmitCourseOfferingForApproval,
+} from "@/lib/api/services/academy-course-offerings"
+import { ArrowLeft, Edit, Package, GraduationCap, Calendar, DollarSign, Send, CheckCircle2, AlertCircle } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@workspace/ui/components/dialog"
+import { Textarea } from "@workspace/ui/components/textarea"
+import { useState } from "react"
+import { toast } from "sonner"
+import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert"
 
 export default function AcademyCourseOfferingDetailPage() {
   const { id } = useParams()
   const nav = useNavigate()
   const { data: item, isLoading } = useAcademyCourseOffering(id)
+  const submitMutation = useSubmitCourseOfferingForApproval()
+  const approveMutation = useApproveCourseOffering()
+  const rejectMutation = useRejectCourseOffering()
+
+  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false)
+  const [rejectionReason, setRejectionReason] = useState("")
 
   if (isLoading) {
     return <div className="p-8 text-center text-muted-foreground">Đang tải thông tin gói bán...</div>
@@ -25,6 +48,39 @@ export default function AcademyCourseOfferingDetailPage() {
 
   if (!item) {
     return <div className="p-8 text-center text-destructive">Không tìm thấy gói bán này.</div>
+  }
+
+  const handleSubmit = async () => {
+    try {
+      await submitMutation.mutateAsync(id!)
+      toast.success("Submitted for approval")
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to submit")
+    }
+  }
+
+  const handleApprove = async () => {
+    try {
+      await approveMutation.mutateAsync(id!)
+      toast.success("Approved successfully")
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to approve")
+    }
+  }
+
+  const handleReject = async () => {
+    if (!rejectionReason.trim()) {
+      toast.error("Please provide a reason for rejection")
+      return
+    }
+    try {
+      await rejectMutation.mutateAsync({ id: id!, reason: rejectionReason })
+      toast.success("Rejected successfully")
+      setIsRejectDialogOpen(false)
+      setRejectionReason("")
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to reject")
+    }
   }
 
   return (
@@ -37,15 +93,50 @@ export default function AcademyCourseOfferingDetailPage() {
           title={item.title}
           subtitle={`Mã gói: ${item.code}`}
           actions={
-            <Button asChild>
-              <Link to={`/academy/course-offerings/${item.id}/edit`}>
-                <Edit className="w-4 h-4 mr-2" />
-                Chỉnh sửa
-              </Link>
-            </Button>
+            <div className="flex gap-2">
+              {item.status === "DRAFT" && (
+                <Button onClick={handleSubmit} disabled={submitMutation.isPending}>
+                  <Send className="h-4 w-4 mr-2" />
+                  Gửi phê duyệt
+                </Button>
+              )}
+
+              {item.status === "PENDING_APPROVAL" && (
+                <>
+                  <Button
+                    variant="outline"
+                    className="text-destructive hover:bg-destructive/10"
+                    onClick={() => setIsRejectDialogOpen(true)}
+                  >
+                    Từ chối
+                  </Button>
+                  <Button onClick={handleApprove} disabled={approveMutation.isPending}>
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    Phê duyệt
+                  </Button>
+                </>
+              )}
+
+              <Button asChild variant="outline">
+                <Link to={`/academy/course-offerings/${item.id}/edit`}>
+                  <Edit className="w-4 h-4 mr-2" />
+                  Chỉnh sửa
+                </Link>
+              </Button>
+            </div>
           }
         />
       </div>
+
+      {item.status === "DRAFT" && item.rejectionReason && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Gói bán bị từ chối</AlertTitle>
+          <AlertDescription>
+            Lý do: {item.rejectionReason}
+          </AlertDescription>
+        </Alert>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
@@ -139,7 +230,10 @@ export default function AcademyCourseOfferingDetailPage() {
               <div>
                 <label className="text-xs text-muted-foreground uppercase font-semibold">Trạng thái</label>
                 <div>
-                  <Badge className={item.status === 'ACTIVE' ? 'bg-green-500' : ''}>
+                  <Badge variant={
+                    item.status === "PUBLISHED" ? "default" :
+                      item.status === "PENDING_APPROVAL" ? "secondary" : "outline"
+                  }>
                     {item.status}
                   </Badge>
                 </div>
@@ -170,6 +264,30 @@ export default function AcademyCourseOfferingDetailPage() {
           </Card>
         </div>
       </div>
+      <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Từ chối phê duyệt gói bán</DialogTitle>
+            <DialogDescription>
+              Vui lòng nhập lý do từ chối để người soạn thảo có thể chỉnh sửa lại.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Textarea
+              placeholder="Nhập lý do tại đây..."
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              className="min-h-[100px]"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsRejectDialogOpen(false)}>Hủy</Button>
+            <Button variant="destructive" onClick={handleReject} disabled={rejectMutation.isPending}>
+              Xác nhận từ chối
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

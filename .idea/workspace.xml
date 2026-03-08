@@ -6,6 +6,51 @@
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: enhance Course and CourseEdition models with approval workflow and new status options">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/interfaces/services/i-ticket.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/interfaces/services/i-ticket.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/assessment/assignment-submission/assignment-submission.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/assessment/assignment-submission/assignment-submission.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/assessment/assignment-submission/assignment-submission.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/assessment/assignment-submission/assignment-submission.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/assessment/exam/exam.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/assessment/exam/exam.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/assessment/exam/exam.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/assessment/exam/exam.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/class.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/class.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/class.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/class.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/enrollment/enrollment.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/enrollment/enrollment.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/enrollment/enrollment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/enrollment/enrollment.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-schedule/live-schedule.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-schedule/live-schedule.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-schedule/live-schedule.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-schedule/live-schedule.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/course-offering/course-offering.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/course-offering/course-offering.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/course-offering/course-offering.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/course-offering/course-offering.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/order/order.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/content/chapter-item/chapter-item.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/content/chapter-item/chapter-item.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/content/chapter-item/chapter-item.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/content/chapter-item/chapter-item.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/content/chapter/chapter.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/content/chapter/chapter.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/content/chapter/chapter.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/content/chapter/chapter.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/content/course-edition/course-edition.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/content/course-edition/course-edition.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/content/course-edition/course-edition.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/content/course-edition/course-edition.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/content/lesson/lesson.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/content/lesson/lesson.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/content/lesson/lesson.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/content/lesson/lesson.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/ticket/ticket.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/ticket/ticket.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/ticket/ticket.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/ticket/ticket.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/assignment-submission.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/assignment-submission.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/chapter-item.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/chapter-item.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/chapter.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/chapter.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/class.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/class.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/course-edition.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/course-edition.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/course-offering.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/course-offering.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/exam.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/exam.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/lesson.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/lesson.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/live-schedule.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/live-schedule.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/study-set.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/study-set.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/ticket.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/ticket.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-classes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-classes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-course-editions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-course-editions.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-course-offerings.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-course-offerings.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/academy-dashboard-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/academy-dashboard-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/class-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/class-detail-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/course-edition-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/course-edition-detail-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/course-offering-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/course-offering-detail-page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,37 +109,37 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Jest.CourseRunService.executor": "Run",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "implement-course-aproval-flow",
-    "go.import.settings.migrated": "true",
-    "javascript.preferred.runtime.type.id": "node",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/lain4504/SEP490/torii-monorepo/apps/server/services/meet",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs.jest.jest_package": "/home/lain4504/SEP490/torii-monorepo/apps/server/node_modules/jest",
-    "nodejs_package_manager_path": "pnpm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "ts.external.directory.path": "/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Jest.CourseRunService.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;implement-course-aproval-flow&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/apps/server/services/meet&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs.jest.jest_package&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/apps/server/node_modules/jest&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="CourseRunService" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
       <node-interpreter value="project" />
@@ -312,6 +357,7 @@
       <workItem from="1772726265375" duration="1097000" />
       <workItem from="1772802424937" duration="4822000" />
       <workItem from="1772811140566" duration="900000" />
+      <workItem from="1772962511915" duration="976000" />
     </task>
     <task id="LOCAL-00940" summary="update core lms flow">
       <option name="closed" value="true" />

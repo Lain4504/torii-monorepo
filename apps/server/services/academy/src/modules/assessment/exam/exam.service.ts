@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { ExamCreateDto, ExamQueryDto, ExamUpdateDto } from './dto/exam.dto';
+import { AuditLoggerService } from '../../audit-logger.service';
 
 import { QuestionPoolService } from '../question-pool/question-pool.service';
 
@@ -9,6 +10,7 @@ export class ExamService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly poolService: QuestionPoolService,
+    private readonly audit: AuditLoggerService,
   ) { }
 
   async findAll(query: ExamQueryDto) {
@@ -30,7 +32,7 @@ export class ExamService {
     return item;
   }
 
-  async create(input: ExamCreateDto) {
+  async create(input: ExamCreateDto, requesterId = 'SYSTEM') {
     if (input.courseProfileId) {
       const profile = await this.prisma.courseProfile.findUnique({
         where: { id: input.courseProfileId },
@@ -39,7 +41,7 @@ export class ExamService {
       if (!profile) throw new BadRequestException('Invalid courseProfileId');
     }
 
-    return this.prisma.exam.create({
+    const result = await this.prisma.exam.create({
       data: {
         courseProfileId: input.courseProfileId,
         title: input.title,
@@ -62,14 +64,25 @@ export class ExamService {
       },
       include: { sections: true },
     });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'exam.create',
+      entity: 'Exam',
+      entityId: result.id,
+      description: `Created exam: "${result.title}"`,
+      newValues: { title: result.title, examType: result.examType },
+    });
+
+    return result;
   }
 
-  async update(id: string, input: ExamUpdateDto) {
+  async update(id: string, input: ExamUpdateDto, requesterId = 'SYSTEM') {
     const exam = await this.findById(id);
     if (exam.status !== 'DRAFT') {
       throw new BadRequestException('Cannot update non-DRAFT exam');
     }
-    return this.prisma.exam.update({
+    const updated = await this.prisma.exam.update({
       where: { id },
       data: {
         title: input.title,
@@ -81,6 +94,18 @@ export class ExamService {
         settings: input.settings ?? undefined,
       },
     });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'exam.update',
+      entity: 'Exam',
+      entityId: id,
+      description: `Updated exam: "${exam.title}"`,
+      oldValues: { title: exam.title, status: exam.status },
+      newValues: { title: updated.title, status: updated.status },
+    });
+
+    return updated;
   }
 
   async publishExam(id: string) {
@@ -108,7 +133,7 @@ export class ExamService {
     });
   }
 
-  async delete(id: string) {
+  async delete(id: string, requesterId = 'SYSTEM') {
     const exam = await this.prisma.exam.findUnique({
       where: { id },
       include: {
@@ -126,6 +151,16 @@ export class ExamService {
     }
 
     await this.prisma.exam.delete({ where: { id } });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'exam.delete',
+      entity: 'Exam',
+      entityId: id,
+      description: `Deleted exam: "${exam.title}"`,
+      metadata: { title: exam.title, courseProfileId: exam.courseProfileId },
+    });
+
     return { ok: true };
   }
 

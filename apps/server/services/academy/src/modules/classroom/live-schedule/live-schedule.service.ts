@@ -16,6 +16,7 @@ import {
   UserMetadataSchema,
 } from '@workspace/protocol';
 import { AppConfigService } from '@server/shared';
+import { AuditLoggerService } from '../../audit-logger.service';
 
 @Injectable()
 export class LiveScheduleService {
@@ -25,6 +26,7 @@ export class LiveScheduleService {
     private readonly prisma: PrismaService,
     private readonly appConfig: AppConfigService,
     @Inject('NATS_SERVICE') private readonly nats: ClientProxy,
+    private readonly audit: AuditLoggerService,
   ) { }
 
   async findAll(query: LiveScheduleQueryDto) {
@@ -40,7 +42,7 @@ export class LiveScheduleService {
     return item;
   }
 
-  async create(input: LiveScheduleCreateDto) {
+  async create(input: LiveScheduleCreateDto, requesterId = 'SYSTEM') {
     const liveKlass = await this.prisma.liveClass.findUnique({
       where: { id: input.liveClassId },
       include: { class: true },
@@ -58,6 +60,19 @@ export class LiveScheduleService {
         location: input.location,
         note: input.note,
         roomId: roomId,
+      },
+    });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'live_schedule.create',
+      entity: 'LiveSchedule',
+      entityId: schedule.id,
+      description: `Created live schedule for class: ${liveKlass.class.name}`,
+      newValues: {
+        liveClassId: schedule.liveClassId,
+        weekday: schedule.weekday,
+        startTime: schedule.startTime,
       },
     });
 
@@ -139,9 +154,9 @@ export class LiveScheduleService {
     };
   }
 
-  async update(id: string, input: LiveScheduleUpdateDto) {
-    await this.findById(id);
-    return this.prisma.liveSchedule.update({
+  async update(id: string, input: LiveScheduleUpdateDto, requesterId = 'SYSTEM') {
+    const oldSchedule = await this.findById(id);
+    const updated = await this.prisma.liveSchedule.update({
       where: { id },
       data: {
         weekday: input.weekday,
@@ -151,11 +166,39 @@ export class LiveScheduleService {
         note: input.note,
       },
     });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'live_schedule.update',
+      entity: 'LiveSchedule',
+      entityId: id,
+      description: `Updated live schedule for session ${id}`,
+      oldValues: {
+        weekday: oldSchedule.weekday,
+        startTime: oldSchedule.startTime,
+      },
+      newValues: {
+        weekday: updated.weekday,
+        startTime: updated.startTime,
+      },
+    });
+
+    return updated;
   }
 
-  async delete(id: string) {
-    await this.findById(id);
+  async delete(id: string, requesterId = 'SYSTEM') {
+    const schedule = await this.findById(id);
     await this.prisma.liveSchedule.delete({ where: { id } });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'live_schedule.delete',
+      entity: 'LiveSchedule',
+      entityId: id,
+      description: `Deleted live schedule session ${id}`,
+      metadata: { weekday: schedule.weekday, startTime: schedule.startTime },
+    });
+
     return { ok: true };
   }
 

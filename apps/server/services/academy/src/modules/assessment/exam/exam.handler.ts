@@ -18,13 +18,14 @@ export class ExamHandler {
   }
 
   @MessagePattern({ cmd: 'academy.exam.create' })
-  create(@Payload() input: ExamCreateDto) {
-    return this.exams.create(input);
+  create(@Payload() data: ExamCreateDto & { requesterId?: string }) {
+    const { requesterId, ...input } = data;
+    return this.exams.create(input, requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.exam.update' })
-  update(@Payload() data: { id: string; input: ExamUpdateDto }) {
-    return this.exams.update(data.id, data.input);
+  update(@Payload() data: { id: string; input: ExamUpdateDto; requesterId?: string }) {
+    return this.exams.update(data.id, data.input, data.requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.exam.publish' })
@@ -38,8 +39,8 @@ export class ExamHandler {
   }
 
   @MessagePattern({ cmd: 'academy.exam.delete' })
-  delete(@Payload() data: { id: string }) {
-    return this.exams.delete(data.id);
+  delete(@Payload() data: { id: string; requesterId?: string }) {
+    return this.exams.delete(data.id, data.requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.exam.addQuestionsFromPool' })

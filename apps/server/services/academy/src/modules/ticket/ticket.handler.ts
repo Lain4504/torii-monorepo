@@ -14,13 +14,13 @@ export class TicketHandler {
   constructor(
     @Inject(TICKET_SERVICE_TOKEN)
     private readonly ticketService: ITicketService,
-  ) {}
+  ) { }
 
   @MessagePattern({ cmd: 'academy.ticket.create' })
   async createTicket(
-    @Payload() payload: { userId: string; dto: CreateTicketDTO },
+    @Payload() payload: { userId: string; dto: CreateTicketDTO; requesterId?: string },
   ) {
-    return this.ticketService.createTicket(payload.userId, payload.dto);
+    return this.ticketService.createTicket(payload.userId, payload.dto, payload.requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.ticket.findAll' })
@@ -40,12 +40,14 @@ export class TicketHandler {
       id: string;
       handlerId: string;
       dto: UpdateTicketStatusDTO;
+      requesterId?: string;
     },
   ) {
     return this.ticketService.updateTicketStatus(
       payload.id,
       payload.handlerId,
       payload.dto,
+      payload.requesterId,
     );
   }
 
@@ -55,7 +57,7 @@ export class TicketHandler {
   }
 
   @MessagePattern({ cmd: 'academy.ticket.delete' })
-  async deleteTicket(@Payload() payload: { id: string; userId: string }) {
-    return this.ticketService.deleteTicket(payload.id, payload.userId);
+  async deleteTicket(@Payload() payload: { id: string; userId: string; requesterId?: string }) {
+    return this.ticketService.deleteTicket(payload.id, payload.userId, payload.requesterId);
   }
 }

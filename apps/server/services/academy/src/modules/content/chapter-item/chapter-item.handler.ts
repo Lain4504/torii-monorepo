@@ -23,13 +23,14 @@ export class ChapterItemHandler {
   }
 
   @MessagePattern({ cmd: 'academy.chapterItem.create' })
-  create(@Payload() input: ChapterItemCreateDto) {
-    return this.items.create(input);
+  create(@Payload() data: ChapterItemCreateDto & { requesterId?: string }) {
+    const { requesterId, ...input } = data;
+    return this.items.create(input, requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.chapterItem.update' })
-  update(@Payload() data: { id: string; input: ChapterItemUpdateDto }) {
-    return this.items.update(data.id, data.input);
+  update(@Payload() data: { id: string; input: ChapterItemUpdateDto; requesterId?: string }) {
+    return this.items.update(data.id, data.input, data.requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.chapterItem.reorder' })
@@ -38,8 +39,8 @@ export class ChapterItemHandler {
   }
 
   @MessagePattern({ cmd: 'academy.chapterItem.delete' })
-  delete(@Payload() data: { id: string }) {
-    return this.items.delete(data.id);
+  delete(@Payload() data: { id: string; requesterId?: string }) {
+    return this.items.delete(data.id, data.requesterId);
   }
 }
 

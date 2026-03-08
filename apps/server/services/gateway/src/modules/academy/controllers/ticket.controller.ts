@@ -33,7 +33,7 @@ import {
 export class TicketController {
   constructor(
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) {}
+  ) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -45,7 +45,7 @@ export class TicketController {
     const result = await firstValueFrom(
       this.natsClient.send(
         { cmd: 'academy.ticket.create' },
-        { userId: requester.sub, dto },
+        { userId: requester.sub, dto, requesterId: requester.sub },
       ),
     );
     return successResponse(result, 'Ticket submitted successfully');
@@ -97,7 +97,7 @@ export class TicketController {
     const result = await firstValueFrom(
       this.natsClient.send(
         { cmd: 'academy.ticket.updateStatus' },
-        { id, handlerId: requester.sub, dto },
+        { id, handlerId: requester.sub, dto, requesterId: requester.sub },
       ),
     );
     return successResponse(result, 'Ticket status updated successfully');
@@ -110,7 +110,7 @@ export class TicketController {
     await firstValueFrom(
       this.natsClient.send(
         { cmd: 'academy.ticket.delete' },
-        { id, userId: requester.sub },
+        { id, userId: requester.sub, requesterId: requester.sub },
       ),
     );
     return successResponse(null, 'Ticket deleted successfully');

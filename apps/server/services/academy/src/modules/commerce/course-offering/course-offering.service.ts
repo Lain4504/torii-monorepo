@@ -211,6 +211,90 @@ export class CourseOfferingService {
     return updated;
   }
 
+  async submitForApproval(id: string, requesterId: string) {
+    const offering = await this.findById(id);
+    if (offering.status !== OfferingStatus.DRAFT) {
+      throw new BadRequestException('Only DRAFT offerings can be submitted for approval');
+    }
+
+    const updated = await this.prisma.courseOffering.update({
+      where: { id },
+      data: {
+        status: OfferingStatus.PENDING_APPROVAL,
+        submittedForApprovalAt: new Date(),
+        submittedBy: requesterId,
+      },
+    });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'offering.submit',
+      entity: 'CourseOffering',
+      entityId: id,
+      description: `Submitted course offering ${offering.title} for approval`,
+    });
+
+    return updated;
+  }
+
+  async approve(id: string, requesterId: string) {
+    const offering = await this.findById(id);
+    if (offering.status !== OfferingStatus.PENDING_APPROVAL) {
+      throw new BadRequestException('Only PENDING_APPROVAL offerings can be approved');
+    }
+
+    if (!offering.classes || offering.classes.length === 0) {
+      throw new BadRequestException('Cannot approve offering with no classes');
+    }
+
+    const updated = await this.prisma.courseOffering.update({
+      where: { id },
+      data: {
+        status: OfferingStatus.PUBLISHED,
+        approvedAt: new Date(),
+        approvedBy: requesterId,
+      },
+    });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'offering.approve',
+      entity: 'CourseOffering',
+      entityId: id,
+      description: `Approved course offering ${offering.title}`,
+    });
+
+    return updated;
+  }
+
+  async reject(id: string, reason: string, requesterId: string) {
+    const offering = await this.findById(id);
+    if (offering.status !== OfferingStatus.PENDING_APPROVAL) {
+      throw new BadRequestException('Only PENDING_APPROVAL offerings can be rejected');
+    }
+
+    const updated = await this.prisma.courseOffering.update({
+      where: { id },
+      data: {
+        status: OfferingStatus.DRAFT,
+        rejectedAt: new Date(),
+        rejectedBy: requesterId,
+        rejectionReason: reason,
+      },
+    });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'offering.reject',
+      entity: 'CourseOffering',
+      entityId: id,
+      description: `Rejected course offering ${offering.title} for reason: ${reason}`,
+      metadata: { reason },
+    });
+
+    return updated;
+  }
+
   async setClasses(input: CourseOfferingSetClassesDto, requesterId = 'SYSTEM') {
     await this.findById(input.offeringId);
     const count = await this.prisma.class.count({

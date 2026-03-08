@@ -42,6 +42,21 @@ export class CourseEditionHandler {
     return this.editions.publishEdition(data.id, data.requesterId);
   }
 
+  @MessagePattern({ cmd: 'academy.courseEdition.submitForApproval' })
+  submitForApproval(@Payload() data: { id: string; requesterId: string }) {
+    return this.editions.submitForApproval(data.id, data.requesterId);
+  }
+
+  @MessagePattern({ cmd: 'academy.courseEdition.approve' })
+  approve(@Payload() data: { id: string; requesterId: string }) {
+    return this.editions.approve(data.id, data.requesterId);
+  }
+
+  @MessagePattern({ cmd: 'academy.courseEdition.reject' })
+  reject(@Payload() data: { id: string; reason: string; requesterId: string }) {
+    return this.editions.reject(data.id, data.reason, data.requesterId);
+  }
+
   @MessagePattern({ cmd: 'academy.courseEdition.archive' })
   archive(@Payload() data: { id: string; requesterId?: string }) {
     return this.editions.archiveEdition(data.id, data.requesterId);

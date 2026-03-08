@@ -1,10 +1,14 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { LessonCreateDto, LessonQueryDto, LessonUpdateDto } from './dto/lesson.dto';
+import { AuditLoggerService } from '../../audit-logger.service';
 
 @Injectable()
 export class LessonService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly audit: AuditLoggerService,
+  ) { }
 
   async findAll(query: LessonQueryDto) {
     const q = query.q?.trim();
@@ -27,14 +31,14 @@ export class LessonService {
     return item;
   }
 
-  async create(input: LessonCreateDto) {
+  async create(input: LessonCreateDto, requesterId = 'SYSTEM') {
     const profile = await this.prisma.courseProfile.findUnique({
       where: { id: input.courseProfileId },
       select: { id: true },
     });
     if (!profile) throw new BadRequestException('Invalid courseProfileId');
 
-    return this.prisma.lesson.create({
+    const result = await this.prisma.lesson.create({
       data: {
         courseProfileId: input.courseProfileId,
         title: input.title,
@@ -45,11 +49,22 @@ export class LessonService {
         metadata: input.metadata ?? undefined,
       },
     });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'lesson.create',
+      entity: 'Lesson',
+      entityId: result.id,
+      description: `Created lesson: "${result.title}" in course profile ${result.courseProfileId}`,
+      newValues: { title: result.title, contentType: result.contentType },
+    });
+
+    return result;
   }
 
-  async update(id: string, input: LessonUpdateDto) {
-    await this.findById(id);
-    return this.prisma.lesson.update({
+  async update(id: string, input: LessonUpdateDto, requesterId = 'SYSTEM') {
+    const oldLesson = await this.findById(id);
+    const updated = await this.prisma.lesson.update({
       where: { id },
       data: {
         title: input.title,
@@ -60,6 +75,18 @@ export class LessonService {
         metadata: input.metadata ?? undefined,
       },
     });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'lesson.update',
+      entity: 'Lesson',
+      entityId: id,
+      description: `Updated lesson: "${oldLesson.title}"`,
+      oldValues: { title: oldLesson.title, contentType: oldLesson.contentType },
+      newValues: { title: updated.title, contentType: updated.contentType },
+    });
+
+    return updated;
   }
 
   async getUsage(id: string) {
@@ -88,7 +115,7 @@ export class LessonService {
     };
   }
 
-  async delete(id: string) {
+  async delete(id: string, requesterId = 'SYSTEM') {
     const usage = await this.getUsage(id);
 
     // Check if used in any PUBLISHED edition
@@ -107,7 +134,18 @@ export class LessonService {
       );
     }
 
+    const lesson = await this.prisma.lesson.findUnique({ where: { id } });
     await this.prisma.lesson.delete({ where: { id } });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'lesson.delete',
+      entity: 'Lesson',
+      entityId: id,
+      description: `Deleted lesson: "${lesson?.title}"`,
+      metadata: { title: lesson?.title },
+    });
+
     return { ok: true };
   }
 }

@@ -8,15 +8,19 @@ import {
     ReviewSetCardDto,
 } from './study-set.dto';
 import { calculateSrsInterval } from './srs.utils';
+import { AuditLoggerService } from '../audit-logger.service';
 
 @Injectable()
 export class StudySetService {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly audit: AuditLoggerService,
+    ) { }
 
     // --- Study Set Methods ---
 
-    async createSet(userId: string, data: CreateStudySetDto) {
-        return this.prisma.studySet.create({
+    async createSet(userId: string, data: CreateStudySetDto, requesterId = 'SYSTEM') {
+        const result = await this.prisma.studySet.create({
             data: {
                 ...data,
                 userId,
@@ -25,6 +29,17 @@ export class StudySetService {
                 _count: { select: { setCards: true } },
             },
         });
+
+        await this.audit.log({
+            userId: requesterId,
+            action: 'study_set.create',
+            entity: 'StudySet',
+            entityId: result.id,
+            description: `Created study set: "${result.title}"`,
+            newValues: { title: result.title, userId: result.userId },
+        });
+
+        return result;
     }
 
     async findAllSets(userId: string) {
@@ -51,35 +66,62 @@ export class StudySetService {
         return set;
     }
 
-    async updateSet(id: string, userId: string, data: UpdateStudySetDto) {
-        await this.findSetById(id, userId); // check exists
-        return this.prisma.studySet.update({
+    async updateSet(id: string, userId: string, data: UpdateStudySetDto, requesterId = 'SYSTEM') {
+        const oldSet = await this.findSetById(id, userId); // check exists
+        const updated = await this.prisma.studySet.update({
             where: { id },
             data,
         });
+
+        await this.audit.log({
+            userId: requesterId,
+            action: 'study_set.update',
+            entity: 'StudySet',
+            entityId: id,
+            description: `Updated study set: "${oldSet.title}"`,
+            oldValues: { title: oldSet.title },
+            newValues: { title: updated.title },
+        });
+
+        return updated;
     }
 
-    async deleteSet(id: string, userId: string) {
-        await this.findSetById(id, userId); // check exists
-        return this.prisma.studySet.delete({
+    async deleteSet(id: string, userId: string, requesterId = 'SYSTEM') {
+        const set = await this.findSetById(id, userId); // check exists
+        await this.prisma.studySet.delete({
             where: { id },
         });
+
+        await this.audit.log({
+            userId: requesterId,
+            action: 'study_set.delete',
+            entity: 'StudySet',
+            entityId: id,
+            description: `Deleted study set: "${set.title}"`,
+            metadata: { title: set.title, userId: set.userId },
+        });
+
+        return { ok: true };
     }
 
     // --- Set Card Methods ---
 
-    async createCard(setId: string, userId: string, data: CreateSetCardDto) {
+    async createCard(setId: string, userId: string, data: CreateSetCardDto, requesterId = 'SYSTEM') {
         await this.findSetById(setId, userId); // verify ownership
-        return this.prisma.setCard.create({
+        const result = await this.prisma.setCard.create({
             data: {
                 ...data,
                 studySetId: setId,
                 nextReviewAt: new Date(), // Due immediately
             },
         });
+
+        // Logging card creation might be too verbose for standard users, 
+        // but if we need tracing we can add it here.
+        return result;
     }
 
-    async updateCard(cardId: string, userId: string, data: UpdateSetCardDto) {
+    async updateCard(cardId: string, userId: string, data: UpdateSetCardDto, requesterId = 'SYSTEM') {
         const card = await this.prisma.setCard.findFirst({
             where: { id: cardId, studySet: { userId } },
         });
@@ -91,7 +133,7 @@ export class StudySetService {
         });
     }
 
-    async deleteCard(cardId: string, userId: string) {
+    async deleteCard(cardId: string, userId: string, requesterId = 'SYSTEM') {
         const card = await this.prisma.setCard.findFirst({
             where: { id: cardId, studySet: { userId } },
         });

@@ -132,6 +132,40 @@ export class ClassController {
     return successResponse({ item });
   }
 
+  @Post(':id/submit-for-approval')
+  @Permissions('academy.delivery.write')
+  async submitForApproval(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.submitForApproval' }, { id, requesterId: req.requester?.sub }),
+    );
+    return successResponse({ item });
+  }
+
+  @Post(':id/approve')
+  @Permissions('academy.delivery.approve')
+  async approve(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.approve' }, { id, requesterId: req.requester?.sub }),
+    );
+    return successResponse({ item });
+  }
+
+  @Post(':id/reject')
+  @Permissions('academy.delivery.approve')
+  async reject(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() body: { reason: string },
+    @Req() req: ReqWithRequester,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.class.reject' },
+        { id, reason: body.reason, requesterId: req.requester?.sub },
+      ),
+    );
+    return successResponse({ item });
+  }
+
   @Delete(':id')
   @Permissions('academy.delivery.write')
   async delete(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {

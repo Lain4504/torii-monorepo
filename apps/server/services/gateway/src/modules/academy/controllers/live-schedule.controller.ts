@@ -11,6 +11,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
@@ -19,6 +20,7 @@ import {
   GatewayAuthGuard,
   Permissions,
   PermissionsGuard,
+  ReqWithRequester,
   ZodValidationPipe,
   successResponse,
 } from '@server/shared';
@@ -61,11 +63,15 @@ export class LiveScheduleController {
   @Permissions('academy.delivery.write')
   @HttpCode(HttpStatus.CREATED)
   async create(
+    @Req() req: ReqWithRequester,
     @Body(new ZodValidationPipe(academyLiveScheduleCreateDTOSchema))
     dto: AcademyLiveScheduleCreateDTO,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.liveSchedule.create' }, dto),
+      this.nats.send({ cmd: 'academy.liveSchedule.create' }, {
+        ...dto,
+        requesterId: req.requester.sub,
+      }),
     );
     return successResponse({ item });
   }
@@ -74,13 +80,14 @@ export class LiveScheduleController {
   @Permissions('academy.delivery.write')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
     @Body(new ZodValidationPipe(academyLiveScheduleUpdateDTOSchema))
     dto: AcademyLiveScheduleUpdateDTO,
   ) {
     const item = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.liveSchedule.update' },
-        { id, input: dto },
+        { id, input: dto, requesterId: req.requester.sub },
       ),
     );
     return successResponse({ item });
@@ -88,9 +95,15 @@ export class LiveScheduleController {
 
   @Delete(':id')
   @Permissions('academy.delivery.write')
-  async delete(@Param('id', new ParseUUIDPipe()) id: string) {
+  async delete(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
     const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.liveSchedule.delete' }, { id }),
+      this.nats.send({ cmd: 'academy.liveSchedule.delete' }, {
+        id,
+        requesterId: req.requester.sub,
+      }),
     );
     return successResponse(result);
   }

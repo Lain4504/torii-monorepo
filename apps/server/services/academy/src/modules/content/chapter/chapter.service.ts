@@ -6,10 +6,14 @@ import {
   ChapterReorderDto,
   ChapterUpdateDto,
 } from './dto/chapter.dto';
+import { AuditLoggerService } from '../../audit-logger.service';
 
 @Injectable()
 export class ChapterService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly audit: AuditLoggerService,
+  ) { }
 
   async findAll(query: ChapterQueryDto) {
     return this.prisma.chapter.findMany({
@@ -24,14 +28,14 @@ export class ChapterService {
     return item;
   }
 
-  async create(input: ChapterCreateDto) {
+  async create(input: ChapterCreateDto, requesterId = 'SYSTEM') {
     const edition = await this.prisma.courseEdition.findUnique({
       where: { id: input.courseEditionId },
       select: { id: true },
     });
     if (!edition) throw new BadRequestException('Invalid courseEditionId');
 
-    return this.prisma.chapter.create({
+    const result = await this.prisma.chapter.create({
       data: {
         courseEditionId: input.courseEditionId,
         title: input.title,
@@ -41,11 +45,22 @@ export class ChapterService {
         status: input.status ?? 'DRAFT',
       },
     });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'chapter.create',
+      entity: 'Chapter',
+      entityId: result.id,
+      description: `Created chapter: "${result.title}" in edition ${result.courseEditionId}`,
+      newValues: { title: result.title, orderIndex: result.orderIndex },
+    });
+
+    return result;
   }
 
-  async update(id: string, input: ChapterUpdateDto) {
-    await this.findById(id);
-    return this.prisma.chapter.update({
+  async update(id: string, input: ChapterUpdateDto, requesterId = 'SYSTEM') {
+    const oldChapter = await this.findById(id);
+    const updated = await this.prisma.chapter.update({
       where: { id },
       data: {
         title: input.title,
@@ -55,9 +70,21 @@ export class ChapterService {
         status: input.status,
       },
     });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'chapter.update',
+      entity: 'Chapter',
+      entityId: id,
+      description: `Updated chapter: "${oldChapter.title}"`,
+      oldValues: { title: oldChapter.title, status: oldChapter.status },
+      newValues: { title: updated.title, status: updated.status },
+    });
+
+    return updated;
   }
 
-  async reorderChapters(input: ChapterReorderDto) {
+  async reorderChapters(input: ChapterReorderDto, requesterId = 'SYSTEM') {
     // Transactional update of orderIndex
     await this.prisma.$transaction(
       input.orderedIds.map((id, index) =>
@@ -67,10 +94,20 @@ export class ChapterService {
         }),
       ),
     );
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'chapter.reorder',
+      entity: 'CourseEdition',
+      entityId: input.courseEditionId,
+      description: `Reordered chapters in edition ${input.courseEditionId}`,
+      metadata: { orderedIds: input.orderedIds },
+    });
+
     return { ok: true };
   }
 
-  async delete(id: string) {
+  async delete(id: string, requesterId = 'SYSTEM') {
     const chapter = await this.prisma.chapter.findUnique({
       where: { id },
       include: {
@@ -93,6 +130,16 @@ export class ChapterService {
     }
 
     await this.prisma.chapter.delete({ where: { id } });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'chapter.delete',
+      entity: 'Chapter',
+      entityId: id,
+      description: `Deleted chapter: "${chapter.title}" from edition ${chapter.courseEditionId}`,
+      metadata: { title: chapter.title, editionId: chapter.courseEditionId },
+    });
+
     return { ok: true };
   }
 }

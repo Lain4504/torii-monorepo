@@ -33,6 +33,21 @@ export class ClassHandler {
     return this.classes.publishClass(data.id, data.requesterId);
   }
 
+  @MessagePattern({ cmd: 'academy.class.submitForApproval' })
+  submitForApproval(@Payload() data: { id: string; requesterId: string }) {
+    return this.classes.submitForApproval(data.id, data.requesterId);
+  }
+
+  @MessagePattern({ cmd: 'academy.class.approve' })
+  approve(@Payload() data: { id: string; requesterId: string }) {
+    return this.classes.approve(data.id, data.requesterId);
+  }
+
+  @MessagePattern({ cmd: 'academy.class.reject' })
+  reject(@Payload() data: { id: string; reason: string; requesterId: string }) {
+    return this.classes.reject(data.id, data.reason, data.requesterId);
+  }
+
   @MessagePattern({ cmd: 'academy.class.start' })
   start(@Payload() data: { id: string; requesterId?: string }) {
     return this.classes.startClass(data.id, data.requesterId);

@@ -224,7 +224,11 @@ export class ClassService {
 
     const result = await this.prisma.class.update({
       where: { id },
-      data: { status: 'ENROLLING' },
+      data: {
+        status: 'ENROLLING',
+        approvedAt: new Date(),
+        approvedBy: requesterId,
+      },
     });
 
     await this.audit.log({
@@ -232,11 +236,80 @@ export class ClassService {
       action: 'class.publish',
       entity: 'Class',
       entityId: id,
-      description: `Published class ${classItem.code}`,
+      description: `Published (Approved) class ${classItem.code}`,
       metadata: { code: classItem.code },
     });
 
     return result;
+  }
+
+  async submitForApproval(id: string, requesterId: string) {
+    const classItem = await this.findById(id);
+    if (classItem.status !== 'DRAFT') {
+      throw new BadRequestException('Only DRAFT classes can be submitted for approval');
+    }
+
+    if (classItem.mode === 'LIVE') {
+      const liveClass = await this.prisma.liveClass.findUnique({
+        where: { classId: id },
+        include: { schedules: { take: 1 } },
+      });
+      if (!liveClass?.schedules || liveClass.schedules.length === 0) {
+        throw new BadRequestException('LIVE classes must have at least one LiveSchedule before submitting for approval');
+      }
+    }
+
+    const updated = await this.prisma.class.update({
+      where: { id },
+      data: {
+        status: 'PENDING_APPROVAL',
+        submittedForApprovalAt: new Date(),
+        submittedBy: requesterId,
+      },
+    });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'class.submit',
+      entity: 'Class',
+      entityId: id,
+      description: `Submitted class ${classItem.code} for approval`,
+    });
+
+    return updated;
+  }
+
+  async approve(id: string, requesterId: string) {
+    // Reuse publishClass logic
+    return this.publishClass(id, requesterId);
+  }
+
+  async reject(id: string, reason: string, requesterId: string) {
+    const classItem = await this.findById(id);
+    if (classItem.status !== 'PENDING_APPROVAL') {
+      throw new BadRequestException('Only PENDING_APPROVAL classes can be rejected');
+    }
+
+    const updated = await this.prisma.class.update({
+      where: { id },
+      data: {
+        status: 'DRAFT',
+        rejectedAt: new Date(),
+        rejectedBy: requesterId,
+        rejectionReason: reason,
+      },
+    });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'class.reject',
+      entity: 'Class',
+      entityId: id,
+      description: `Rejected class ${classItem.code} for reason: ${reason}`,
+      metadata: { reason },
+    });
+
+    return updated;
   }
 
   async startClass(id: string, requesterId = 'SYSTEM') {

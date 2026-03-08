@@ -197,19 +197,82 @@ export class CourseEditionService {
 
     const result = await this.prisma.courseEdition.update({
       where: { id },
-      data: { status: 'PUBLISHED' },
+      data: {
+        status: 'PUBLISHED',
+        approvedAt: new Date(),
+        approvedBy: requesterId,
+      },
     });
 
     await this.audit.log({
-      userId: requesterId, // In a real app, pass the actual user ID
+      userId: requesterId,
       action: 'edition.publish',
       entity: 'CourseEdition',
       entityId: id,
-      description: `Published course edition ${edition.editionTag}`,
+      description: `Published (Approved) course edition ${edition.editionTag}`,
       metadata: { editionTag: edition.editionTag },
     });
 
     return result;
+  }
+
+  async submitForApproval(id: string, requesterId: string) {
+    const edition = await this.findById(id);
+    if (edition.status !== 'DRAFT') {
+      throw new BadRequestException('Only DRAFT editions can be submitted for approval');
+    }
+
+    const updated = await this.prisma.courseEdition.update({
+      where: { id },
+      data: {
+        status: 'PENDING_APPROVAL',
+        submittedForApprovalAt: new Date(),
+        submittedBy: requesterId,
+      },
+    });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'edition.submit',
+      entity: 'CourseEdition',
+      entityId: id,
+      description: `Submitted course edition ${edition.editionTag} for approval`,
+    });
+
+    return updated;
+  }
+
+  async approve(id: string, requesterId: string) {
+    // Reuse publishEdition logic as it covers all validations
+    return this.publishEdition(id, requesterId);
+  }
+
+  async reject(id: string, reason: string, requesterId: string) {
+    const edition = await this.findById(id);
+    if (edition.status !== 'PENDING_APPROVAL') {
+      throw new BadRequestException('Only PENDING_APPROVAL editions can be rejected');
+    }
+
+    const updated = await this.prisma.courseEdition.update({
+      where: { id },
+      data: {
+        status: 'DRAFT',
+        rejectedAt: new Date(),
+        rejectedBy: requesterId,
+        rejectionReason: reason,
+      },
+    });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'edition.reject',
+      entity: 'CourseEdition',
+      entityId: id,
+      description: `Rejected course edition ${edition.editionTag} for reason: ${reason}`,
+      metadata: { reason },
+    });
+
+    return updated;
   }
 
   async archiveEdition(id: string, requesterId = 'SYSTEM') {

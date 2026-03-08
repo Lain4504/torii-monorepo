@@ -5,7 +5,7 @@ import { EnrollmentCreateDto, EnrollmentQueryDto } from './dto/enrollment.dto';
 
 @Controller()
 export class EnrollmentHandler {
-  constructor(private readonly enrollments: EnrollmentService) {}
+  constructor(private readonly enrollments: EnrollmentService) { }
 
   @MessagePattern({ cmd: 'academy.enrollment.findAll' })
   findAll(@Payload() query: EnrollmentQueryDto) {
@@ -18,18 +18,19 @@ export class EnrollmentHandler {
   }
 
   @MessagePattern({ cmd: 'academy.enrollment.create' })
-  create(@Payload() input: EnrollmentCreateDto) {
-    return this.enrollments.create(input);
+  create(@Payload() data: EnrollmentCreateDto & { requesterId?: string }) {
+    const { requesterId, ...input } = data;
+    return this.enrollments.create(input, requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.enrollment.updateStatus' })
-  updateStatus(@Payload() data: { id: string; status: string }) {
-    return this.enrollments.updateStatus(data.id, data.status);
+  updateStatus(@Payload() data: { id: string; status: string; requesterId?: string }) {
+    return this.enrollments.updateStatus(data.id, data.status, data.requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.enrollment.delete' })
-  delete(@Payload() data: { id: string }) {
-    return this.enrollments.delete(data.id);
+  delete(@Payload() data: { id: string; requesterId?: string }) {
+    return this.enrollments.delete(data.id, data.requesterId);
   }
 }
 
