@@ -120,7 +120,16 @@ export class CouponService {
     }
 
     async admin_create(data: any) {
-        const { discountType, status, ...rest } = data ?? {};
+        const {
+            discountType,
+            status,
+            applicableCourseMasterIds,
+            excludedCourseMasterIds,
+            applicableRunIds,
+            excludedRunIds,
+            ...rest
+        } = data ?? {};
+
         return this.prisma.coupon.create({
             data: {
                 ...rest,
@@ -132,7 +141,16 @@ export class CouponService {
     }
 
     async admin_update(id: string, data: any) {
-        const { discountType, status, ...rest } = data ?? {};
+        const {
+            discountType,
+            status,
+            applicableCourseMasterIds,
+            excludedCourseMasterIds,
+            applicableRunIds,
+            excludedRunIds,
+            ...rest
+        } = data ?? {};
+
         return this.prisma.coupon.update({
             where: { id },
             data: {

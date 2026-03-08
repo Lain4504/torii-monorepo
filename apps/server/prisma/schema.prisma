@@ -930,6 +930,7 @@ model CourseProfile {
   assignmentTemplates AssignmentTemplate[]
   classes             Class[]
   exams               Exam[]
+  questionPools       QuestionPool[]
 
   @@index([subject])
   @@index([level])
@@ -1030,7 +1031,8 @@ model QuizTemplate {
   updatedAt                  DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  courseProfile    CourseProfile     @relation(fields: [courseProfileId], references: [id], onDelete: Cascade)
+  courseProfile    CourseProfile @relation(fields: [courseProfileId], references: [id], onDelete: Cascade)
+  questionPool     QuestionPool? @relation(fields: [questionPoolId], references: [id], onDelete: SetNull)
   classAssessments ClassAssessment[]
 
   @@index([courseProfileId])
@@ -1280,6 +1282,8 @@ model Question {
   options       Json?    @db.JsonB
   correctAnswer Json?    @map("correct_answer") @db.JsonB
   explanation   String?  @db.Text
+  level         String?  @db.VarChar(20)
+  category      String?  @db.VarChar(50)
   metadata      Json?    @default("{}") @db.JsonB
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
@@ -1289,8 +1293,11 @@ model Question {
   subQuestions       Question[]          @relation("AcademyQuestionToSub")
   examQuestions      ExamQuestion[]
   examAttemptDetails ExamAttemptDetail[]
+  poolQuestions      PoolQuestion[]
 
   @@index([parentId])
+  @@index([level])
+  @@index([category])
   @@map("academy_questions")
 }
 
@@ -1348,6 +1355,46 @@ model ExamAttempt {
   @@index([userId])
   @@index([status])
   @@map("academy_exam_attempts")
+}
+
+model QuestionPool {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code            String?  @unique @db.VarChar(64)
+  name            String   @db.VarChar(255)
+  description     String?  @db.Text
+  courseProfileId String?  @map("course_profile_id") @db.Uuid
+  level           String?  @db.VarChar(20)
+  category        String?  @db.VarChar(50)
+  status          String   @default("DRAFT") @db.VarChar(20) // DRAFT, ACTIVE, ARCHIVED
+  metadata        Json?    @default("{}") @db.JsonB
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
+
+  courseProfile CourseProfile? @relation(fields: [courseProfileId], references: [id], onDelete: SetNull)
+  poolQuestions PoolQuestion[]
+  quizTemplates QuizTemplate[]
+
+  @@index([courseProfileId])
+  @@index([level])
+  @@index([category])
+  @@index([status])
+  @@map("academy_question_pools")
+}
+
+model PoolQuestion {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  poolId     String   @map("pool_id") @db.Uuid
+  questionId String   @map("question_id") @db.Uuid
+  orderIndex Int      @default(0) @map("order_index")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  pool     QuestionPool @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  question Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([poolId, questionId])
+  @@index([poolId])
+  @@index([questionId])
+  @@map("academy_pool_questions")
 }
 
 model ExamAttemptSectionState {

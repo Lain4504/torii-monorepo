@@ -9,17 +9,25 @@ import {
     TableHeader,
     TableRow,
 } from "@workspace/ui/components/table"
-import { Input } from "@workspace/ui/components/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { PageHeader } from "@/components/common/page-header"
-import { toast } from "@workspace/ui/components/sonner"
+import { toast } from "sonner"
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger
 } from "@workspace/ui/components/dropdown-menu"
-import { MoreVertical } from "lucide-react"
+import { MoreVertical, Filter, Layout, Copy, Clock, Target } from "lucide-react"
+import { Badge } from "@workspace/ui/components/badge"
+import { Skeleton } from "@workspace/ui/components/skeleton"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@workspace/ui/components/select"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -34,14 +42,17 @@ import {
     useAcademyQuizTemplates,
     useDeleteAcademyQuizTemplate,
 } from "@/lib/api/services/academy-quiz-templates"
+import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
 
 export default function AcademyQuizTemplatesPage() {
-    const [courseProfileId, setCourseProfileId] = useState("")
+    const [courseProfileId, setCourseProfileId] = useState("all")
     const [deleteId, setDeleteId] = useState<string | null>(null)
+
+    const { data: profiles = [] } = useAcademyCourseProfiles({})
 
     const query = useMemo(
         () => ({
-            courseProfileId: courseProfileId || undefined,
+            courseProfileId: courseProfileId === "all" ? undefined : courseProfileId,
         }),
         [courseProfileId],
     )
@@ -52,24 +63,39 @@ export default function AcademyQuizTemplatesPage() {
     return (
         <div className="space-y-6">
             <PageHeader
-                title="Academy · Quiz Templates"
-                subtitle="Quản lý các mẫu quiz dùng chung cho CourseProfile."
+                title="Academy · Quản lý mẫu Quiz"
+                subtitle="Quản lý các mẫu quiz dùng chung cho Course Profile."
                 actions={
                     <Button asChild>
-                        <Link to="/academy/quiz-templates/new">Tạo mới</Link>
+                        <Link to="/academy/quiz-templates/new">Tạo mẫu mới</Link>
                     </Button>
                 }
             />
 
             <Card>
-                <CardHeader>
-                    <CardTitle>Danh sách</CardTitle>
-                    <div className="flex flex-col gap-2 md:flex-row">
-                        <Input
-                            value={courseProfileId}
-                            onChange={(e) => setCourseProfileId(e.target.value)}
-                            placeholder="Filter CourseProfileId (uuid)"
-                        />
+                <CardHeader className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <CardTitle>Mẫu Quiz hiện có</CardTitle>
+                    </div>
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center">
+                        <div className="flex-1">
+                            <Select value={courseProfileId} onValueChange={setCourseProfileId}>
+                                <SelectTrigger className="w-full">
+                                    <div className="flex items-center gap-2">
+                                        <Layout className="size-4 text-muted-foreground" />
+                                        <SelectValue placeholder="Lọc theo Course Profile" />
+                                    </div>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Tất cả Course Profile</SelectItem>
+                                    {profiles.map((p) => (
+                                        <SelectItem key={p.id} value={p.id}>
+                                            {p.code} - {p.title}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
                 </CardHeader>
                 <CardContent>
@@ -77,26 +103,48 @@ export default function AcademyQuizTemplatesPage() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead className="w-[80px]">STT</TableHead>
-                                <TableHead>Title</TableHead>
-                                <TableHead>Time Limit</TableHead>
-                                <TableHead>Max Attempts</TableHead>
-                                <TableHead>Passing Score</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
+                                <TableHead>Tên mẫu</TableHead>
+                                <TableHead>Thời gian</TableHead>
+                                <TableHead>Lượt làm</TableHead>
+                                <TableHead>Điểm đạt</TableHead>
+                                <TableHead className="text-right">Thao tác</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {isLoading ? (
-                                <TableRow>
-                                    <TableCell colSpan={6}>Đang tải...</TableCell>
-                                </TableRow>
+                                Array.from({ length: 5 }).map((_, idx) => (
+                                    <TableRow key={idx}>
+                                        <TableCell><Skeleton className="h-5 w-8" /></TableCell>
+                                        <TableCell><Skeleton className="h-5 w-64" /></TableCell>
+                                        <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                                        <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                                        <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                                        <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto rounded-full" /></TableCell>
+                                    </TableRow>
+                                ))
                             ) : data.length ? (
                                 data.map((it, idx) => (
                                     <TableRow key={it.id}>
                                         <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
-                                        <TableCell className="font-medium">{it.title}</TableCell>
-                                        <TableCell>{it.defaultTimeLimitMinutes ? `${it.defaultTimeLimitMinutes}m` : 'None'}</TableCell>
-                                        <TableCell>{it.defaultMaxAttempts}</TableCell>
-                                        <TableCell>{it.defaultPassingScorePercent ? `${it.defaultPassingScorePercent}%` : '-'}</TableCell>
+                                        <TableCell className="font-semibold">{it.title}</TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                                                <Clock className="size-3.5" />
+                                                {it.defaultTimeLimitMinutes ? `${it.defaultTimeLimitMinutes} phút` : "Không giới hạn"}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                                                <Copy className="size-3.5" />
+                                                {it.defaultMaxAttempts ? `${it.defaultMaxAttempts} lần` : "1 lần"}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                                                <Target className="size-3.5" />
+                                                {it.defaultPassingScorePercent ? `${it.defaultPassingScorePercent}%` : "-"}
+                                            </div>
+                                        </TableCell>
                                         <TableCell className="text-right">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
@@ -112,7 +160,7 @@ export default function AcademyQuizTemplatesPage() {
                                                 <DropdownMenuContent align="end" className="w-44">
                                                     <DropdownMenuItem asChild>
                                                         <Link to={`/academy/quiz-templates/${it.id}/edit`}>
-                                                            Sửa
+                                                            Sửa mẫu
                                                         </Link>
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem
@@ -128,7 +176,9 @@ export default function AcademyQuizTemplatesPage() {
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={6}>Chưa có dữ liệu</TableCell>
+                                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                                        Chưa có mẫu Quiz nào được tạo.
+                                    </TableCell>
                                 </TableRow>
                             )}
                         </TableBody>
@@ -139,27 +189,28 @@ export default function AcademyQuizTemplatesPage() {
             <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Xoá Quiz Template</AlertDialogTitle>
+                        <AlertDialogTitle>Xoá mẫu Quiz</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Thao tác này sẽ xoá vĩnh viễn Quiz Template và có thể ảnh hưởng đến ClassAssessment liên quan.
+                            Thao tác này sẽ xoá vĩnh viễn mẫu Quiz và có thể ảnh hưởng đến các Class Assessment đang sử dụng mẫu này.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Hủy</AlertDialogCancel>
                         <AlertDialogAction
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                             onClick={async () => {
                                 if (!deleteId) return
                                 try {
                                     await del.mutateAsync(deleteId)
-                                    toast.success("Đã xoá")
+                                    toast.success("Đã xoá mẫu Quiz thành công")
                                 } catch (e: any) {
-                                    toast.error(e?.message || "Xoá thất bại")
+                                    toast.error(e?.message || "Xoá mẫu Quiz thất bại")
                                 } finally {
                                     setDeleteId(null)
                                 }
                             }}
                         >
-                            Xoá
+                            Xác nhận Xoá
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

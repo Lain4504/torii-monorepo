@@ -27,6 +27,16 @@ export class QuestionCreateDto {
   explanation?: string;
 
   @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  level?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  category?: string;
+
+  @IsOptional()
   metadata?: unknown;
 }
 
@@ -55,6 +65,16 @@ export class QuestionUpdateDto {
   explanation?: string;
 
   @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  level?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  category?: string;
+
+  @IsOptional()
   metadata?: unknown;
 }
 
@@ -70,5 +90,13 @@ export class QuestionQueryDto {
   @IsOptional()
   @IsString()
   q?: string;
+
+  @IsOptional()
+  @IsString()
+  level?: string;
+
+  @IsOptional()
+  @IsString()
+  category?: string;
 }
 

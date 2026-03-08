@@ -6,7 +6,6 @@ import { ChangeUserRoleDialog } from '@/components/users/change-user-role-dialog
 import { ChangeUserStatusDialog } from '@/components/users/change-user-status-dialog.tsx';
 import { ViewUserSheet } from '@/components/users/view-user-sheet.tsx';
 import { UserRole, type UserResponseDTO } from '@workspace/schemas';
-import { Card } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { useUsers } from "@/lib/api/services/users.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
@@ -14,20 +13,16 @@ import { useBoolean } from "@workspace/ui/hooks/use-boolean";
 
 import { SmartPagination } from '@/components/common/smart-pagination';
 import { UserPlus, ShieldCheck } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
 import { PageHeader } from '@/components/common/page-header';
 import { formatNumber } from "@/lib/format-utils";
 
-export default function PersonnelPage() {
-    const location = useLocation();
-    const isLecturers = location.pathname.includes('lecturers');
-    const targetRole = isLecturers ? 'lecturer' : 'staff';
-
+export default function UsersManagementPage() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const [debouncedSearch] = useDebounceValue(search, 500);
     const [sortBy, setSortBy] = useState('createdAt');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+    const [roleFilter, setRoleFilter] = useState<string | undefined>(undefined);
 
     // Dialog States
     const createDialog = useBoolean();
@@ -37,20 +32,19 @@ export default function PersonnelPage() {
 
     const limit = 10;
 
-    // API Hooks - Filter by target role
+    // API Hooks
     const { data, isLoading, error } = useUsers({
         page,
         limit,
         search: debouncedSearch,
-        role: targetRole,
+        role: roleFilter,
         sortBy,
         sortOrder,
     });
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPage(1);
-    }, [debouncedSearch, targetRole]);
+    }, [debouncedSearch, roleFilter]);
 
     if (error) {
         return (
@@ -83,40 +77,34 @@ export default function PersonnelPage() {
     return (
         <div className="flex flex-col gap-8">
             <PageHeader
-                title={isLecturers ? "Đội ngũ Giảng viên" : "Đội ngũ Nhân viên"}
-                subtitle={isLecturers
-                    ? 'Quản lý thông tin bằng cấp, chuyên môn và lịch dạy của giảng viên.'
-                    : 'Điều hành đội ngũ nhân viên hỗ trợ, vận hành và quản trị trung tâm.'}
+                title="Quản lý Người dùng"
+                subtitle="Quản lý tất cả người dùng trong hệ thống bao gồm học viên, giảng viên và nhân viên."
                 stats={[
-                    { label: `Tổng số ${isLecturers ? 'giáo viên' : 'nhân viên'}`, value: formatNumber(total) }
+                    { label: "Tổng số người dùng", value: formatNumber(total) }
                 ]}
                 actions={
                     <Button onClick={createDialog.setTrue} size="lg">
                         <UserPlus />
-                        Thêm {isLecturers ? 'Giảng viên' : 'Nhân viên'}
+                        Thêm Người dùng
                     </Button>
                 }
             />
 
-
             <div className="space-y-4">
-                {/* Search & Filter */}
                 <UsersPrimaryToolbar
                     search={search}
                     onSearchChange={setSearch}
-                    filters={{ role: targetRole }}
-                    onFilterChange={() => { }}
+                    filters={{ role: roleFilter }}
+                    onFilterChange={(f) => setRoleFilter(f.role)}
                     sortBy={sortBy}
                     sortOrder={sortOrder}
                     onSortChange={(field, order) => {
                         setSortBy(field);
                         setSortOrder(order);
                     }}
-                    hideRoleFilter={true}
                 />
 
-                {/* Table container */}
-                <Card>
+                <div className="rounded-md bg-background border overflow-hidden">
                     <UsersTable
                         data={users}
                         onEdit={setEditingUser}
@@ -126,23 +114,20 @@ export default function PersonnelPage() {
                         limit={limit}
                         isLoading={isLoading}
                     />
-                </Card>
+                </div>
 
-                {/* Footer / Pagination */}
                 <SmartPagination
                     page={page}
                     totalPages={totalPages}
                     totalItems={total}
                     onPageChange={setPage}
-                    itemName={isLecturers ? "giáo viên" : "nhân viên"}
+                    itemName="người dùng"
                 />
             </div>
 
-            {/* Sheets & Dialogs */}
             <CreateUserDialog
                 open={createDialog.value}
                 onOpenChange={createDialog.setValue}
-                fixedRole={isLecturers ? UserRole.LECTURER : UserRole.STAFF}
             />
 
             <ChangeUserRoleDialog

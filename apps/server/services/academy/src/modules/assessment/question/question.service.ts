@@ -12,6 +12,8 @@ export class QuestionService {
       where: {
         parentId: query.parentId ?? undefined,
         questionType: query.questionType ?? undefined,
+        level: query.level ?? undefined,
+        category: query.category ?? undefined,
         ...(q
           ? { content: { contains: q, mode: 'insensitive' } }
           : {}),
@@ -36,6 +38,8 @@ export class QuestionService {
         options: input.options ?? undefined,
         correctAnswer: input.correctAnswer ?? undefined,
         explanation: input.explanation,
+        level: input.level,
+        category: input.category,
         metadata: input.metadata ?? undefined,
       },
     });
@@ -52,6 +56,8 @@ export class QuestionService {
         options: input.options ?? undefined,
         correctAnswer: input.correctAnswer ?? undefined,
         explanation: input.explanation,
+        level: input.level,
+        category: input.category,
         metadata: input.metadata ?? undefined,
       },
     });

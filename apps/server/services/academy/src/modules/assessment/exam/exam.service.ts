@@ -2,9 +2,14 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { ExamCreateDto, ExamQueryDto, ExamUpdateDto } from './dto/exam.dto';
 
+import { QuestionPoolService } from '../question-pool/question-pool.service';
+
 @Injectable()
 export class ExamService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly poolService: QuestionPoolService,
+  ) { }
 
   async findAll(query: ExamQueryDto) {
     return this.prisma.exam.findMany({
@@ -122,6 +127,49 @@ export class ExamService {
 
     await this.prisma.exam.delete({ where: { id } });
     return { ok: true };
+  }
+
+  async addQuestionsFromPool(
+    examId: string,
+    sectionId: string,
+    poolId: string,
+    count: number,
+  ) {
+    const exam = await this.findById(examId);
+    if (exam.status !== 'DRAFT') {
+      throw new BadRequestException('Cannot add questions to non-DRAFT exam');
+    }
+
+    const section = await this.prisma.examSection.findUnique({
+      where: { id: sectionId },
+    });
+    if (!section || section.examId !== examId) {
+      throw new BadRequestException('Invalid sectionId');
+    }
+
+    // Get random questions from pool
+    const samples = await this.poolService.sampleQuestions(poolId, { count });
+
+    // Get current max order index in this section
+    const lastQuestion = await this.prisma.examQuestion.findFirst({
+      where: { sectionId },
+      orderBy: { orderIndex: 'desc' },
+      select: { orderIndex: true },
+    });
+
+    let currentOrder = (lastQuestion?.orderIndex ?? -1) + 1;
+
+    const data = samples.map((q) => ({
+      examId,
+      sectionId,
+      questionId: q.id,
+      orderIndex: currentOrder++,
+      points: 1.0, // Default points
+    }));
+
+    return this.prisma.examQuestion.createMany({
+      data,
+    });
   }
 }
 

@@ -105,11 +105,11 @@ export function RewardsTable({ data, isLoading, onEdit, onDelete }: RewardsTable
                         <TableCell>
                             <div className="flex items-center gap-1.5 font-bold text-amber-600">
                                 <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
-                                {formatNumber(reward.points)}
+                                {formatNumber(reward.costPoints)}
                             </div>
                         </TableCell>
                         <TableCell>
-                            {reward.discountType === 'percentage' ? (
+                            {reward.config?.discountType === 'PERCENTAGE' ? (
                                 <Badge variant="secondary" className="gap-1 font-normal">
                                     <Percent className="h-3 w-3" /> Phần trăm
                                 </Badge>
@@ -120,9 +120,9 @@ export function RewardsTable({ data, isLoading, onEdit, onDelete }: RewardsTable
                             )}
                         </TableCell>
                         <TableCell className="font-medium">
-                            {reward.discountType === 'percentage'
-                                ? `${reward.discountValue}%`
-                                : formatCurrency(reward.discountValue)}
+                            {reward.config?.discountType === 'PERCENTAGE'
+                                ? `${reward.config?.discountValue}%`
+                                : formatCurrency(reward.config?.discountValue || 0)}
                         </TableCell>
                         <TableCell>
                             {reward.isActive ? (
