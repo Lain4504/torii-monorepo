@@ -31,3 +31,16 @@ export const academyAssignmentTemplateQueryDTOSchema = z.object({
 export type AcademyAssignmentTemplateQueryDTO = z.infer<
     typeof academyAssignmentTemplateQueryDTOSchema
 >;
+
+export type AcademyAssignmentTemplateModel = {
+    id: string;
+    courseProfileId: string;
+    title: string;
+    description?: string | null;
+    defaultType: 'TEXT' | 'FILE' | 'BOTH';
+    defaultMaxScore?: number | null;
+    defaultRubric?: any | null;
+    defaultSubmissionSettings?: any | null;
+    createdAt: string;
+    updatedAt: string;
+};

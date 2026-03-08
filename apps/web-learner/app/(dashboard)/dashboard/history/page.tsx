@@ -13,7 +13,8 @@ import {
 import Link from 'next/link'
 import { Calendar, BookOpen, Clock, ArrowRight, ChevronRight } from 'lucide-react'
 
-import { useLearningHistory } from '@/lib/api/services/learning-progress-api'
+import { useAcademyLearningHistory } from '@/lib/api/services/academy-learning-progress-api'
+
 import { Button } from '@workspace/ui/components/button'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
@@ -24,16 +25,16 @@ function formatDuration(seconds: number) {
 }
 
 export default function HistoryPage() {
-    const { data: history, isLoading } = useLearningHistory()
+    const { data: history, isLoading } = useAcademyLearningHistory()
 
     const historyItems = history?.map(item => ({
         id: item.id,
-        courseTitle: item.courseTitle,
-        lessonTitle: item.lessonTitle,
-        timestamp: format(new Date(item.timestamp), "d MMM, yyyy HH:mm", { locale: vi }),
-        duration: formatDuration(item.duration),
+        courseTitle: item.courseTitle || "Khóa học",
+        lessonTitle: item.lessonTitle || "Bài học",
+        timestamp: format(new Date(item.timestamp || item.lastAccessedAt), "d MMM, yyyy HH:mm", { locale: vi }),
+        duration: "Bản ghi học tập",
         slug: item.slug,
-        isExpired: item.expiresAt && new Date(item.expiresAt) < new Date()
+        isExpired: false // History items don't expire directly
     })) || []
 
     if (isLoading) {

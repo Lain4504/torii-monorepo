@@ -35,3 +35,20 @@ export type AcademyExamAttemptQueryDTO = z.infer<
   typeof academyExamAttemptQueryDTOSchema
 >;
 
+export type AcademyExamAttemptModel = {
+  id: string;
+  examId: string;
+  userId: string;
+  classId?: string | null;
+  classAssessmentId?: string | null;
+  status: string; // IN_PROGRESS, SUBMITTED
+  score?: number | null;
+  maxScore?: number | null;
+  percentage?: number | null;
+  draftAnswers?: Record<string, any> | null;
+  startedAt: string;
+  submittedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+

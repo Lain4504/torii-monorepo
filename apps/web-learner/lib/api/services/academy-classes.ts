@@ -1,76 +1,120 @@
-import { useQuery } from "@tanstack/react-query"
-import { apiClient } from "@/lib/api/api-client"
+import { useQuery } from '@tanstack/react-query';
+import { apiClient } from '../api-client';
 import type {
+  AcademyClassModel,
   AcademyClassQueryDTO,
   StandardApiResponse,
-} from "@workspace/schemas"
+  PaginatedApiResponse
+} from '@workspace/schemas';
 
-export type AcademyClass = {
-  id: string
-  courseProfileId: string
-  courseEditionId: string
-  code: string
-  name: string
-  mode: "VOD" | "LIVE"
-  status: string
-  createdAt: string
-  updatedAt: string
+export interface CurriculumLesson {
+  id: string; // This is the ChapterItemId
+  title: string;
+  contentType: 'video' | 'article' | 'assignment' | 'quiz' | string;
+  isUnlocked: boolean;
+  isPreview: boolean;
+  order: number;
+  referenceId: string; // The ID of the actual Lesson (video/article), AssignmentTemplate, or QuizTemplate
+}
 
-  // TPT Relations
-  vodClass?: {
-    id: string
-    enrollmentOpenAt?: string | null
-    enrollmentCloseAt?: string | null
-    maxStudents?: number | null
-    defaultExpiresMonths?: number | null
-  } | null
-  liveClass?: {
-    id: string
-    term?: string | null
-    batch?: string | null
-    startDate?: string | null
-    endDate?: string | null
-    enrollmentOpenAt?: string | null
-    enrollmentCloseAt?: string | null
-    minStudents?: number | null
-    maxStudents?: number | null
-    primaryTeacherId?: string | null
-    primaryTeacher?: {
-      id: string
-      displayName: string
-      avatarUrl?: string | null
-    } | null
-  } | null
+export interface CurriculumModule {
+  id: string; // Chapter ID
+  title: string;
+  order: number;
+  lessons: CurriculumLesson[];
 }
 
 export const academyClassesApi = {
-  async findAll(params: AcademyClassQueryDTO) {
-    const res = await apiClient.get<StandardApiResponse<{ items: AcademyClass[] }>>(
-      "/api/academy/classes",
-      { params },
-    )
-    return res.data.data!.items
+  /**
+   * Get all classes with pagination and filters
+   */
+  findAll: async (params: AcademyClassQueryDTO): Promise<PaginatedApiResponse<AcademyClassModel>> => {
+    const response = await apiClient.get<StandardApiResponse<{ items: AcademyClassModel[]; total: number; page: number; limit: number; totalPages: number }>>(
+      '/api/academy/classes',
+      { params }
+    );
+    const data = response.data.data!;
+    return {
+      success: response.data.success,
+      data: data.items,
+      total: data.total,
+      page: data.page,
+      limit: data.limit,
+      totalPages: data.totalPages,
+    };
   },
 
-  async findById(id: string) {
-    const res = await apiClient.get<StandardApiResponse<{ item: AcademyClass }>>(
-      `/api/academy/classes/${id}`,
-    )
-    return res.data.data!.item
+  /**
+   * Get class by ID
+   */
+  findById: async (id: string): Promise<AcademyClassModel> => {
+    const response = await apiClient.get<StandardApiResponse<{ item: AcademyClassModel }>>(
+      `/api/academy/classes/\${id}`,
+    );
+    return response.data.data!.item;
   },
-}
 
+  /**
+   * Get curriculum for a class
+   */
+  getCurriculum: async (id: string): Promise<any> => {
+    const response = await apiClient.get<StandardApiResponse<{ curriculum: any }>>(
+      `/api/academy/classes/\${id}/curriculum`
+    );
+    const data = response.data.data?.curriculum;
+    if (!data) return null;
+
+    // Map academy structure (chapters) to UI structure (modules for legacy compatibility if needed)
+    // or just return as is if the UI is updated. 
+    // Keeping mapping for now if UI expects 'modules'
+    return {
+      courseId: data.classId,
+      modules: data.chapters.map((ch: any) => ({
+        id: ch.id,
+        title: ch.title,
+        order: ch.orderIndex,
+        lessons: ch.items.map((it: any) => ({
+          id: it.id,
+          title: it.title,
+          contentType: it.kind.toLowerCase() === 'lesson' ? 'video' : it.kind.toLowerCase(),
+          isUnlocked: true,
+          isPreview: false,
+          order: it.orderIndex,
+          referenceId: it.referenceId,
+        })),
+      })),
+    };
+  },
+};
+
+/**
+ * Hook: Get all classes with filters
+ */
 export function useAcademyClasses(params: AcademyClassQueryDTO) {
   return useQuery({
-    queryKey: ["academy-classes", params],
+    queryKey: ['academy-classes', params],
     queryFn: () => academyClassesApi.findAll(params),
-  })
+  });
 }
 
+/**
+ * Hook: Get academy class by ID
+ */
 export function useAcademyClass(id?: string) {
   return useQuery({
-    enabled: !!id,
-    queryKey: ["academy-class", id],
+    queryKey: ['academy-classes', 'id', id],
     queryFn: () => academyClassesApi.findById(id!),
-  })
+    enabled: !!id,
+  });
+}
+
+/**
+ * Hook: Get curriculum for a class
+ */
+export function useCurriculum(classId?: string) {
+  return useQuery({
+    queryKey: ['curriculum', classId],
+    queryFn: () => academyClassesApi.getCurriculum(classId!),
+    enabled: !!classId,
+  });
 }

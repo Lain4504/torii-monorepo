@@ -23,7 +23,8 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { LiveSessionBlock } from '@/components/courses/live-session-block'
 import { CourseExpirationModal } from '@/components/courses/course-expiration-modal'
-import { useMyCourses, useLearningStats, learningProgressApi } from '@/lib/api/services/learning-progress-api'
+import { academyLearningProgressApi, useAcademyMyCourses, useAcademyLearningStats } from '@/lib/api/services/academy-learning-progress-api'
+
 import { ClassReviewDialog } from '@/components/class-reviews/class-review-dialog'
 import { academyClassReviewHooks } from '@/lib/api/services/academy-class-reviews'
 import { Star } from 'lucide-react'
@@ -47,30 +48,21 @@ export default function MyCoursesPage() {
         existingReview?: any;
     }>({ isOpen: false, classId: '', enrollmentId: '', courseTitle: '' })
 
+    const { data: respCourses, isLoading: loadingCourses } = useAcademyMyCourses();
+    const { data: respStats, isLoading: loadingStats } = useAcademyLearningStats();
+
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [coursesData, stats] = await Promise.all([
-                    learningProgressApi.getMyCourses(),
-                    learningProgressApi.getStats()
-                ])
-                setCourses(coursesData)
-                setStatsData(stats)
-            } catch (error) {
-                console.error("Failed to fetch data", error)
-            } finally {
-                setLoading(false)
-            }
-        }
-        fetchData()
-    }, [])
+        if (respCourses) setCourses(respCourses);
+        if (respStats) setStatsData(respStats);
+        if (!loadingCourses && !loadingStats) setLoading(false);
+    }, [respCourses, respStats, loadingCourses, loadingStats]);
 
     const filteredCourses = courses.filter((course) => {
-        const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase())
+        const matchesSearch = (course.courseTitle || "").toLowerCase().includes(searchQuery.toLowerCase())
         const matchesFilter =
             filter === 'all' ||
-            (filter === 'in-progress' && course.progress < 100) ||
-            (filter === 'completed' && course.progress >= 100)
+            (filter === 'in-progress' && (course.progress || 0) < 100) ||
+            (filter === 'completed' && (course.progress || 0) >= 100)
         return matchesSearch && matchesFilter
     })
 
@@ -163,7 +155,7 @@ export default function MyCoursesPage() {
                         key={course.id}
                         onClick={() => {
                             if (course.expiresAt && new Date(course.expiresAt) < new Date()) {
-                                setExpiredCourse({ title: course.title, slug: course.slug })
+                                setExpiredCourse({ title: course.courseTitle || "", slug: course.slug || "" })
                             }
                         }}
                         className="border-border bg-card hover:shadow-lg transition-all group overflow-hidden cursor-pointer flex flex-col h-full rounded-2xl"
@@ -171,7 +163,7 @@ export default function MyCoursesPage() {
                         <div className="relative aspect-video bg-muted overflow-hidden">
                             {/* Placeholder/Thumb - real image if available */}
                             {course.thumbnailUrl ? (
-                                <img src={course.thumbnailUrl} alt={course.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                <img src={course.thumbnailUrl} alt={course.courseTitle} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center bg-muted/50">
                                     <BookOpen className="w-10 h-10 text-muted-foreground/30" />
@@ -206,9 +198,9 @@ export default function MyCoursesPage() {
                         <CardContent className="p-5 space-y-4 flex-1 flex flex-col justify-between">
                             <div className="space-y-1.5">
                                 <h3 className="text-lg font-bold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
-                                    {course.title}
+                                    {course.courseTitle}
                                 </h3>
-                                <p className="text-xs text-muted-foreground font-medium">{course.instructor || 'Giảng viên Torii'}</p>
+                                <p className="text-xs text-muted-foreground font-medium">{course.instructorName || 'Giảng viên Torii'}</p>
                             </div>
 
                             <div className="space-y-3">
@@ -242,7 +234,7 @@ export default function MyCoursesPage() {
                                     <Button
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            setExpiredCourse({ title: course.title, slug: course.slug })
+                                            setExpiredCourse({ title: course.courseTitle || "", slug: course.slug || "" })
                                         }}
                                         variant="destructive"
                                         className="w-full text-xs"
@@ -274,7 +266,7 @@ export default function MyCoursesPage() {
                                                             isOpen: true,
                                                             classId: course.courseRunId,
                                                             enrollmentId: course.id,
-                                                            courseTitle: course.title,
+                                                            courseTitle: course.courseTitle || "",
                                                             existingReview
                                                         });
                                                     }}

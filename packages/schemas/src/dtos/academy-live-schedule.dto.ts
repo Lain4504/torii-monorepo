@@ -33,3 +33,17 @@ export const academyLiveScheduleQueryDTOSchema = z.object({
 export type AcademyLiveScheduleQueryDTO = z.infer<
   typeof academyLiveScheduleQueryDTOSchema
 >;
+
+export type AcademyLiveScheduleModel = {
+  id: string;
+  liveClassId: string;
+  weekday: number;
+  startTime: string;
+  endTime: string;
+  location?: string | null;
+  note?: string | null;
+  excludedDates?: any | null;
+  roomId?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};

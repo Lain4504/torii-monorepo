@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { LiveSessionStatus } from '../enums/live-session.enum';
-import { CourseRunResponseDTO } from './course-run.dto';
+
 
 export const liveSessionCreateDTOSchema = z.object({
     courseRunId: z.string().uuid(),
@@ -55,7 +55,7 @@ export interface LiveSessionResponseDTO {
         displayName: string;
         avatarUrl: string | null;
     };
-    courseRun?: CourseRunResponseDTO;
+    courseRun?: any;
 }
 
 export interface LiveSessionJoinResponseDTO {

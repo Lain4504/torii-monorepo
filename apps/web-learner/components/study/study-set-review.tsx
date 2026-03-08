@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { StudySetApi } from '@/lib/api/services/study-set-api';
+import { useStudyCards, useReviewCard } from '@/lib/api/services/study-set-api';
 import { Card, CardContent } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { ChevronLeft, CheckCircle2, RefreshCw, X, Check } from 'lucide-react';
@@ -11,32 +10,27 @@ import { toast } from 'sonner';
 
 export function StudySetReview({ setId }: { setId: string }) {
     const router = useRouter();
-    const queryClient = useQueryClient();
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [showAnswer, setShowAnswer] = useState(false);
 
     // Fetch all cards due for review
-    const { data: cards, isLoading, isError, refetch } = useQuery({
-        queryKey: ['study-set', setId, 'review-cards'],
-        queryFn: () => StudySetApi.getStudyCards(setId),
-    });
+    const { data: cards, isLoading, isError, refetch } = useStudyCards(setId);
 
-    const reviewMutation = useMutation({
-        mutationFn: ({ cardId, quality }: { cardId: string, quality: number }) =>
-            StudySetApi.reviewCard(cardId, quality),
-        onSuccess: () => {
+    const reviewMutation = useReviewCard();
+
+    const handleRating = async (quality: number) => {
+        if (!cards || !cards[currentIndex]) return;
+        try {
+            await reviewMutation.mutateAsync({
+                cardId: cards[currentIndex].id,
+                payload: { quality }
+            });
             setShowAnswer(false);
             setCurrentIndex(prev => prev + 1);
-        },
-        onError: (e: any) => {
+        } catch (e: any) {
             toast.error(e.message || 'Lỗi khi lưu kết quả ôn tập');
         }
-    });
-
-    const handleRating = (quality: number) => {
-        if (!cards || !cards[currentIndex]) return;
-        reviewMutation.mutate({ cardId: cards[currentIndex].id, quality });
     };
 
     if (isLoading) {

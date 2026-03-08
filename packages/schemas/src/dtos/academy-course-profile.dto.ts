@@ -36,3 +36,4 @@ export type AcademyCourseProfileQueryDTO = z.infer<
   typeof academyCourseProfileQueryDTOSchema
 >;
 
+export type AcademyCourseProfileModel = any;

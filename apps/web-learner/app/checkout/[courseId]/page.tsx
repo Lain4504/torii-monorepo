@@ -22,11 +22,13 @@ import {
 import { formatNumber } from '@/utils/format-utils'
 import { ShieldCheck, ArrowLeft, CheckCircle2, Gift, TicketPercent, BookOpen, Users, Wallet, CreditCard } from 'lucide-react'
 import { toast } from '@workspace/ui/components/sonner'
-import { courseApi } from '@/lib/api/services/course-api'
-import { enrollmentApi } from '@/lib/api/services/enrollment-api'
-import { useAvailableClasses } from '@/lib/api/services/class-api'
-import { CourseMasterResponseDTO } from '@workspace/schemas'
-import { PaymentMethod } from '@workspace/schemas'
+import { academyCourseApi as courseApi } from '@/lib/api/services/academy-course-api'
+import { academyEnrollmentApi as enrollmentApi } from '@/lib/api/services/academy-enrollment-api'
+import { useAcademyClasses as useAvailableClasses } from '@/lib/api/services/academy-classes'
+import {
+    type AcademyCourseProfileResponseDto as CourseMasterResponseDTO,
+    PaymentMethod
+} from '@workspace/schemas'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { useBalance, orderApi, OrderPreviewResponse } from '@/lib/api/services/order-api'
 import { cn } from "@workspace/ui/lib/utils"
@@ -53,13 +55,14 @@ export default function CheckoutPage() {
     const classId = searchParams.get('classId') || searchParams.get('runId')
     const user = useAppSelector((state) => state.auth.user)
 
-    const [course, setCourse] = useState<CourseMasterResponseDTO | null>(null)
+    const [course, setCourse] = useState<any | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const { data: balance = 0, refetch: refetchBalance } = useBalance()
-    const { data: availableClasses } = useAvailableClasses(courseId)
+    const { data: availableClassesResponse } = useAvailableClasses({ courseProfileId: courseId })
+    const availableClasses = availableClassesResponse?.data
     const [isProcessing, setIsProcessing] = useState(false)
 
-    const selectedClass = classId ? availableClasses?.find(r => r.id === classId) : availableClasses?.[0]
+    const selectedClass = classId ? availableClasses?.find((r: any) => r.id === classId) : availableClasses?.[0]
 
     // Gift State
     const [isGift, setIsGift] = useState(false)
@@ -262,7 +265,7 @@ export default function CheckoutPage() {
                                     <span className="text-muted-foreground">Tạm tính</span>
                                     <span>{formatNumber(displaySubtotal)} đ</span>
                                 </div>
-                                
+
                                 <div className="space-y-2">
                                     <div className="relative">
                                         <TicketPercent className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />

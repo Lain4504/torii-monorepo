@@ -2,8 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useAppSelector } from '@/hooks/hooks';
-import { learningProgressApi } from '@/lib/api/services/learning-progress-api';
-import { useMyCourses, useLearningHistory } from '@/lib/api/services/learning-progress-api';
+import { academyLearningProgressApi, useAcademyMyCourses, useAcademyLearningHistory, useAcademyLearningStats } from '@/lib/api/services/academy-learning-progress-api';
+
 import { useGamificationProfile, useStreak, useAchievements, useActivityHeatmap } from '@/lib/api/services/gamification-api';
 import { useMySchedule } from '@/lib/api/services/live-session-api';
 import Link from 'next/link';
@@ -28,15 +28,12 @@ function formatScheduledAt(date: Date | string): string {
 export default function DashboardClientPage() {
     const { user } = useAppSelector((state) => state.auth);
 
-    const { data: courses, isLoading: coursesLoading } = useMyCourses();
-    const { data: statsData } = useQuery({
-        queryKey: ['learning-stats'],
-        queryFn: learningProgressApi.getStats,
-    });
+    const { data: courses, isLoading: coursesLoading } = useAcademyMyCourses();
+    const { data: statsData } = useAcademyLearningStats();
     const { data: streak } = useStreak();
     const { data: profile } = useGamificationProfile();
     const { data: achievements } = useAchievements();
-    const { data: history } = useLearningHistory();
+    const { data: history } = useAcademyLearningHistory();
     const { data: schedule } = useMySchedule();
 
     const startDate = subDays(new Date(), 365);
@@ -135,7 +132,7 @@ export default function DashboardClientPage() {
                                         <div className="md:w-1/3 h-48 md:h-auto relative">
                                             {mainCourse.thumbnailUrl ? (
                                                 <img
-                                                    alt={mainCourse.title}
+                                                    alt={mainCourse.courseTitle}
                                                     className="w-full h-full object-cover"
                                                     src={mainCourse.thumbnailUrl}
                                                 />
@@ -151,11 +148,11 @@ export default function DashboardClientPage() {
                                         <div className="p-6 md:w-2/3 flex flex-col justify-between">
                                             <div>
                                                 <div className="flex justify-between items-start mb-2">
-                                                    <h2 className="text-xl font-bold line-clamp-2">{mainCourse.title}</h2>
+                                                    <h2 className="text-xl font-bold line-clamp-2">{mainCourse.courseTitle}</h2>
                                                     <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-1 rounded ml-2 shrink-0">Đang học</span>
                                                 </div>
                                                 <p className="text-muted-foreground text-sm mb-4">
-                                                    {mainCourse.instructor && `GV: ${mainCourse.instructor} • `}
+                                                    {mainCourse.instructorName && `GV: ${mainCourse.instructorName} • `}
                                                     {mainCourse.completedLessons}/{mainCourse.totalLessons} bài học
                                                 </p>
                                                 <div className="w-full bg-muted rounded-full h-2.5 mb-1">
