@@ -11,6 +11,7 @@ import {
     UsersRound,
     Gift,
     GraduationCap,
+    Trophy,
 } from "lucide-react";
 
 export interface NavItem {
@@ -96,6 +97,12 @@ export const financeNavItems: NavItem[] = [
         titleKey: "Phần thưởng (Rewards)",
         url: "/rewards",
         icon: Gift,
+        permission: "gamification.manage",
+    },
+    {
+        titleKey: "Thành tích (Achievements)",
+        url: "/achievements",
+        icon: Trophy,
         permission: "gamification.manage",
     },
     {

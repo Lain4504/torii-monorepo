@@ -1,6 +1,7 @@
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { ActivityType, GamificationTransactionType, GamificationCurrency } from '@prisma/generated';
+import { AchievementService } from './achievement.service';
 
 @Injectable()
 export class GamificationService {
@@ -8,6 +9,7 @@ export class GamificationService {
 
     constructor(
         private readonly prisma: PrismaService,
+        private readonly achievementService: AchievementService,
     ) { }
 
     private readonly EARNING_RULES: Record<string, { xp: number; points: number }> = {
@@ -144,11 +146,18 @@ export class GamificationService {
                 });
             }
 
-            return {
+            const result = {
                 xpEarned: xp,
                 pointsEarned: points,
                 newLevel: updatedProfile.level,
             };
+
+            // Trigger achievement evaluation asynchronously
+            this.achievementService.evaluateForUser(userId).catch(err =>
+                this.logger.error(`Failed to evaluate achievements for user ${userId}:`, err)
+            );
+
+            return result;
         });
     }
 
@@ -177,7 +186,7 @@ export class GamificationService {
 
         if (!profile.lastActiveDate) {
             // First time
-            return this.prisma.userGamification.update({
+            const updated = await this.prisma.userGamification.update({
                 where: { userId },
                 data: {
                     currentStreak: 1,
@@ -185,6 +194,8 @@ export class GamificationService {
                     lastActiveDate: today.toISOString().split('T')[0],
                 }
             });
+            this.achievementService.evaluateForUser(userId).catch(e => this.logger.error(e));
+            return updated;
         }
 
         const lastActive = new Date(profile.lastActiveDate);
@@ -200,7 +211,7 @@ export class GamificationService {
         if (diffDays === 1) {
             // Perfect sequential login
             const newStreak = profile.currentStreak + 1;
-            return this.prisma.userGamification.update({
+            const updated = await this.prisma.userGamification.update({
                 where: { userId },
                 data: {
                     currentStreak: newStreak,
@@ -208,6 +219,8 @@ export class GamificationService {
                     lastActiveDate: today.toISOString().split('T')[0],
                 }
             });
+            this.achievementService.evaluateForUser(userId).catch(e => this.logger.error(e));
+            return updated;
         }
 
         // Missed one or more days. Try to consume streak freezes.
@@ -216,7 +229,7 @@ export class GamificationService {
         if (profile.freezeCount >= missingDaysToCover) {
             // Used streak freeze
             const newStreak = profile.currentStreak + 1;
-            return this.prisma.userGamification.update({
+            const updated = await this.prisma.userGamification.update({
                 where: { userId },
                 data: {
                     freezeCount: { decrement: missingDaysToCover },
@@ -225,16 +238,25 @@ export class GamificationService {
                     lastActiveDate: today.toISOString().split('T')[0],
                 }
             });
+            this.achievementService.evaluateForUser(userId).catch(e => this.logger.error(e));
+            return updated;
         }
 
-        // Out of shields, reset streak.
-        return this.prisma.userGamification.update({
+        // Start anew today
+        const updated = await this.prisma.userGamification.update({
             where: { userId },
             data: {
                 currentStreak: 1, // Start anew today
                 lastActiveDate: today.toISOString().split('T')[0],
             }
         });
+
+        // Trigger evaluation after streak update
+        this.achievementService.evaluateForUser(userId).catch(err =>
+            this.logger.error(`Failed to evaluate achievements for user ${userId} after streak reset:`, err)
+        );
+
+        return updated;
     }
 
     async getProfile(userId: string) {

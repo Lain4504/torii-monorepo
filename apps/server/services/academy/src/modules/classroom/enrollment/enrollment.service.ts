@@ -2,12 +2,14 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { EnrollmentCreateDto, EnrollmentQueryDto } from './dto/enrollment.dto';
 import { AuditLoggerService } from '../../audit-logger.service';
+import { AchievementService } from '../../gamification/achievement.service';
 
 @Injectable()
 export class EnrollmentService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
+    private readonly achievementService: AchievementService,
   ) { }
 
   async findAll(query: EnrollmentQueryDto) {
@@ -237,6 +239,11 @@ export class EnrollmentService {
         where: { id: enrollmentId },
         data: { status: 'COMPLETED' },
       });
+
+      // Trigger achievement evaluation for course completion
+      this.achievementService.evaluateForUser(enrollment.userId).catch(err =>
+        console.error(`Failed to evaluate achievements for user ${enrollment.userId} after enrollment completion`, err)
+      );
     }
   }
 

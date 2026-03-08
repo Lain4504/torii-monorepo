@@ -1,0 +1,256 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { PrismaService } from '@server/shared/prisma/prisma.service';
+import {
+    AchievementDTO,
+    UserAchievementDTO,
+    AchievementUnlockedEvent,
+    GamificationTransactionType
+} from '@workspace/schemas';
+
+@Injectable()
+export class AchievementService {
+    private readonly logger = new Logger(AchievementService.name);
+
+    constructor(private readonly prisma: PrismaService) { }
+
+    async getAchievementsForUser(userId: string): Promise<UserAchievementDTO[]> {
+        // Get all active achievements
+        const achievements = await this.prisma.achievement.findMany({
+            where: { isActive: true },
+            orderBy: { orderIndex: 'asc' },
+        });
+
+        // Get user's progress for each achievement
+        const userAchievements = await this.prisma.userAchievement.findMany({
+            where: { userId },
+            include: { achievement: true },
+        });
+
+        const userAchievementMap = new Map(userAchievements.map(ua => [ua.achievementId, ua]));
+
+        return achievements.map(achievement => {
+            const userAchievement = userAchievementMap.get(achievement.id);
+            if (userAchievement) {
+                return userAchievement as unknown as UserAchievementDTO;
+            }
+
+            // If no record exists, return a virtual one with isUnlocked: false
+            return {
+                id: '', // Temporary ID
+                achievementId: achievement.id,
+                isUnlocked: false,
+                progress: { current: 0, target: (achievement.requirements as any).value || 0 },
+                unlockedAt: null,
+                achievement: achievement as unknown as AchievementDTO,
+            } as UserAchievementDTO;
+        });
+    }
+
+    async evaluateForUser(userId: string): Promise<void> {
+        this.logger.log(`Evaluating achievements for user: ${userId}`);
+
+        const achievements = await this.prisma.achievement.findMany({
+            where: { isActive: true },
+        });
+
+        const userAchievements = await this.prisma.userAchievement.findMany({
+            where: { userId },
+        });
+
+        const unlockedAchievementIds = new Set(
+            userAchievements.filter(ua => ua.isUnlocked).map(ua => ua.achievementId)
+        );
+
+        for (const achievement of achievements) {
+            if (unlockedAchievementIds.has(achievement.id)) {
+                continue;
+            }
+
+            try {
+                const requirements = achievement.requirements as any;
+                const currentValue = await this.calculateCriteria(userId, requirements.type, requirements);
+                const targetValue = requirements.value;
+
+                const progress = { current: currentValue, target: targetValue };
+
+                // Find or create UserAchievement record to update progress
+                const uaRecord = userAchievements.find(ua => ua.achievementId === achievement.id);
+
+                if (currentValue >= targetValue) {
+                    await this.unlockAchievement(userId, achievement.id, progress);
+                } else {
+                    // Update progress even if not unlocked
+                    await this.prisma.userAchievement.upsert({
+                        where: { userId_achievementId: { userId, achievementId: achievement.id } },
+                        update: { progress },
+                        create: { userId, achievementId: achievement.id, isUnlocked: false, progress },
+                    });
+                }
+            } catch (error) {
+                this.logger.error(`Error evaluating achievement ${achievement.code} for user ${userId}:`, error);
+            }
+        }
+    }
+
+    private async calculateCriteria(userId: string, type: string, requirements: any): Promise<number> {
+        switch (type) {
+            case 'STREAK_DAYS': {
+                const gamification = await this.prisma.userGamification.findUnique({ where: { userId } });
+                return gamification?.currentStreak || 0;
+            }
+            case 'LONGEST_STREAK': {
+                const gamification = await this.prisma.userGamification.findUnique({ where: { userId } });
+                return gamification?.longestStreak || 0;
+            }
+            case 'LOGIN_DAYS': {
+                const gamification = await this.prisma.userGamification.findUnique({ where: { userId } });
+                return gamification?.totalActiveDays || 0;
+            }
+            case 'LESSONS_COMPLETED': {
+                return await this.prisma.learningProgress.count({
+                    where: { userId, status: 'COMPLETED' },
+                });
+            }
+            case 'EXAM_PASSED_COUNT': {
+                return await this.prisma.examAttempt.count({
+                    where: { userId, status: { in: ['COMPLETED', 'SUBMITTED'] }, isPassed: true },
+                });
+            }
+            case 'EXAM_ATTEMPT_COUNT': {
+                return await this.prisma.examAttempt.count({
+                    where: { userId, status: { in: ['COMPLETED', 'SUBMITTED'] } },
+                });
+            }
+            case 'REVIEWS_PUBLISHED': {
+                return await this.prisma.classReview.count({
+                    where: { userId, status: 'PUBLISHED' },
+                });
+            }
+            case 'POINTS_EARNED_TOTAL': {
+                const result = await this.prisma.gamificationHistory.aggregate({
+                    where: { userId, type: 'EARN', currency: 'POINT' },
+                    _sum: { amount: true },
+                });
+                return result._sum.amount || 0;
+            }
+            case 'CLASSES_COMPLETED': {
+                return await this.prisma.enrollment.count({
+                    where: { userId, status: 'COMPLETED' },
+                });
+            }
+            case 'ENROLLMENTS_COUNT': {
+                return await this.prisma.enrollment.count({
+                    where: { userId },
+                });
+            }
+            case 'LEVEL_REACHED': {
+                const gamification = await this.prisma.userGamification.findUnique({ where: { userId } });
+                return gamification?.level || 1;
+            }
+            default:
+                this.logger.warn(`Unknown achievement criteria type: ${type}`);
+                return 0;
+        }
+    }
+
+    private async unlockAchievement(userId: string, achievementId: string, progress: any): Promise<void> {
+        const achievement = await this.prisma.achievement.findUnique({ where: { id: achievementId } });
+        if (!achievement) return;
+
+        await this.prisma.$transaction(async (tx) => {
+            // Check again inside transaction to prevent double unlock
+            const ua = await tx.userAchievement.findUnique({
+                where: { userId_achievementId: { userId, achievementId } },
+            });
+
+            if (ua?.isUnlocked) return;
+
+            // 1. Mark as unlocked
+            await tx.userAchievement.upsert({
+                where: { userId_achievementId: { userId, achievementId } },
+                update: { isUnlocked: true, unlockedAt: new Date(), progress },
+                create: { userId, achievementId, isUnlocked: true, unlockedAt: new Date(), progress },
+            });
+
+            // 2. Handle rewards
+            const rewards = achievement.rewards as any;
+            if (rewards?.points && rewards.points > 0) {
+                await tx.userGamification.update({
+                    where: { userId },
+                    data: { points: { increment: rewards.points } },
+                });
+
+                await tx.gamificationHistory.create({
+                    data: {
+                        userId,
+                        amount: rewards.points,
+                        type: 'EARN',
+                        currency: 'POINT',
+                        description: `Unlock achievement: ${achievement.title}`,
+                        metadata: { source: 'ACHIEVEMENT', achievementId: achievement.id },
+                    },
+                });
+            }
+
+            // 3. (Optional) In-app notification could be added here
+        });
+
+        this.logger.log(`User ${userId} unlocked achievement: ${achievement.code}`);
+    }
+
+    // --- Admin CRUD ---
+
+    async admin_getAllAchievements() {
+        return this.prisma.achievement.findMany({
+            orderBy: { orderIndex: 'asc' },
+        });
+    }
+
+    async admin_createAchievement(data: any) {
+        return this.prisma.achievement.create({
+            data: {
+                code: data.code,
+                category: data.category,
+                title: data.title,
+                description: data.description,
+                icon: data.icon,
+                requirements: data.requirements || {},
+                rewards: data.rewards || {},
+                isActive: data.isActive !== undefined ? data.isActive : true,
+                orderIndex: data.orderIndex || 0,
+            },
+        });
+    }
+
+    async admin_updateAchievement(id: string, data: any) {
+        return this.prisma.achievement.update({
+            where: { id },
+            data: {
+                code: data.code,
+                category: data.category,
+                title: data.title,
+                description: data.description,
+                icon: data.icon,
+                requirements: data.requirements,
+                rewards: data.rewards,
+                isActive: data.isActive,
+                orderIndex: data.orderIndex,
+            },
+        });
+    }
+
+    async admin_deleteAchievement(id: string) {
+        // Soft delete or hard delete? Spec says: Xóa (hoặc soft-delete bằng isActive = false)
+        // Let's do hard delete for now if requested, but maybe soft delete is safer.
+        // The prisma schema doesn't have deletedAt for Achievement, so let's just use isActive: false or hard delete.
+        // Given the spec's flexibility, I'll go with hard delete but check if it's used first.
+        const usedCount = await this.prisma.userAchievement.count({ where: { achievementId: id } });
+        if (usedCount > 0) {
+            return this.prisma.achievement.update({
+                where: { id },
+                data: { isActive: false },
+            });
+        }
+        return this.prisma.achievement.delete({ where: { id } });
+    }
+}
