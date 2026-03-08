@@ -8,18 +8,15 @@ import {
     ReviewSetCardDto,
 } from './study-set.dto';
 import { calculateSrsInterval } from './srs.utils';
-import { AuditLoggerService } from '../audit-logger.service';
-
 @Injectable()
 export class StudySetService {
     constructor(
         private readonly prisma: PrismaService,
-        private readonly audit: AuditLoggerService,
     ) { }
 
     // --- Study Set Methods ---
 
-    async createSet(userId: string, data: CreateStudySetDto, requesterId = 'SYSTEM') {
+    async createSet(userId: string, data: CreateStudySetDto) {
         const result = await this.prisma.studySet.create({
             data: {
                 ...data,
@@ -28,15 +25,6 @@ export class StudySetService {
             include: {
                 _count: { select: { setCards: true } },
             },
-        });
-
-        await this.audit.log({
-            userId: requesterId,
-            action: 'study_set.create',
-            entity: 'StudySet',
-            entityId: result.id,
-            description: `Created study set: "${result.title}"`,
-            newValues: { title: result.title, userId: result.userId },
         });
 
         return result;
@@ -66,39 +54,20 @@ export class StudySetService {
         return set;
     }
 
-    async updateSet(id: string, userId: string, data: UpdateStudySetDto, requesterId = 'SYSTEM') {
-        const oldSet = await this.findSetById(id, userId); // check exists
+    async updateSet(id: string, userId: string, data: UpdateStudySetDto) {
+        await this.findSetById(id, userId); // check exists
         const updated = await this.prisma.studySet.update({
             where: { id },
             data,
         });
 
-        await this.audit.log({
-            userId: requesterId,
-            action: 'study_set.update',
-            entity: 'StudySet',
-            entityId: id,
-            description: `Updated study set: "${oldSet.title}"`,
-            oldValues: { title: oldSet.title },
-            newValues: { title: updated.title },
-        });
-
         return updated;
     }
 
-    async deleteSet(id: string, userId: string, requesterId = 'SYSTEM') {
-        const set = await this.findSetById(id, userId); // check exists
+    async deleteSet(id: string, userId: string) {
+        await this.findSetById(id, userId); // check exists
         await this.prisma.studySet.delete({
             where: { id },
-        });
-
-        await this.audit.log({
-            userId: requesterId,
-            action: 'study_set.delete',
-            entity: 'StudySet',
-            entityId: id,
-            description: `Deleted study set: "${set.title}"`,
-            metadata: { title: set.title, userId: set.userId },
         });
 
         return { ok: true };
@@ -106,7 +75,7 @@ export class StudySetService {
 
     // --- Set Card Methods ---
 
-    async createCard(setId: string, userId: string, data: CreateSetCardDto, requesterId = 'SYSTEM') {
+    async createCard(setId: string, userId: string, data: CreateSetCardDto) {
         await this.findSetById(setId, userId); // verify ownership
         const result = await this.prisma.setCard.create({
             data: {
@@ -121,7 +90,7 @@ export class StudySetService {
         return result;
     }
 
-    async updateCard(cardId: string, userId: string, data: UpdateSetCardDto, requesterId = 'SYSTEM') {
+    async updateCard(cardId: string, userId: string, data: UpdateSetCardDto) {
         const card = await this.prisma.setCard.findFirst({
             where: { id: cardId, studySet: { userId } },
         });
@@ -133,7 +102,7 @@ export class StudySetService {
         });
     }
 
-    async deleteCard(cardId: string, userId: string, requesterId = 'SYSTEM') {
+    async deleteCard(cardId: string, userId: string) {
         const card = await this.prisma.setCard.findFirst({
             where: { id: cardId, studySet: { userId } },
         });

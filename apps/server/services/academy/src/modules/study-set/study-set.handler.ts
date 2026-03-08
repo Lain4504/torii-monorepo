@@ -14,8 +14,8 @@ export class StudySetHandler {
     constructor(private readonly studySetService: StudySetService) { }
 
     @MessagePattern('academy.study-set.createSet')
-    createSet(@Payload() payload: { userId: string; data: CreateStudySetDto; requesterId?: string }) {
-        return this.studySetService.createSet(payload.userId, payload.data, payload.requesterId);
+    createSet(@Payload() payload: { userId: string; data: CreateStudySetDto }) {
+        return this.studySetService.createSet(payload.userId, payload.data);
     }
 
     @MessagePattern('academy.study-set.findAllSets')
@@ -29,28 +29,28 @@ export class StudySetHandler {
     }
 
     @MessagePattern('academy.study-set.updateSet')
-    updateSet(@Payload() payload: { id: string; userId: string; data: UpdateStudySetDto; requesterId?: string }) {
-        return this.studySetService.updateSet(payload.id, payload.userId, payload.data, payload.requesterId);
+    updateSet(@Payload() payload: { id: string; userId: string; data: UpdateStudySetDto }) {
+        return this.studySetService.updateSet(payload.id, payload.userId, payload.data);
     }
 
     @MessagePattern('academy.study-set.deleteSet')
-    deleteSet(@Payload() payload: { id: string; userId: string; requesterId?: string }) {
-        return this.studySetService.deleteSet(payload.id, payload.userId, payload.requesterId);
+    deleteSet(@Payload() payload: { id: string; userId: string }) {
+        return this.studySetService.deleteSet(payload.id, payload.userId);
     }
 
     @MessagePattern('academy.study-set.createCard')
-    createCard(@Payload() payload: { setId: string; userId: string; data: CreateSetCardDto; requesterId?: string }) {
-        return this.studySetService.createCard(payload.setId, payload.userId, payload.data, payload.requesterId);
+    createCard(@Payload() payload: { setId: string; userId: string; data: CreateSetCardDto }) {
+        return this.studySetService.createCard(payload.setId, payload.userId, payload.data);
     }
 
     @MessagePattern('academy.study-set.updateCard')
-    updateCard(@Payload() payload: { cardId: string; userId: string; data: UpdateSetCardDto; requesterId?: string }) {
-        return this.studySetService.updateCard(payload.cardId, payload.userId, payload.data, payload.requesterId);
+    updateCard(@Payload() payload: { cardId: string; userId: string; data: UpdateSetCardDto }) {
+        return this.studySetService.updateCard(payload.cardId, payload.userId, payload.data);
     }
 
     @MessagePattern('academy.study-set.deleteCard')
-    deleteCard(@Payload() payload: { cardId: string; userId: string; requesterId?: string }) {
-        return this.studySetService.deleteCard(payload.cardId, payload.userId, payload.requesterId);
+    deleteCard(@Payload() payload: { cardId: string; userId: string }) {
+        return this.studySetService.deleteCard(payload.cardId, payload.userId);
     }
 
     @MessagePattern('academy.study-set.getStudyCards')

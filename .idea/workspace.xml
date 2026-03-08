@@ -4,19 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: enhance Course and CourseEdition models with approval workflow and new status options">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(academy): add class attendance module with CRUD operations and UI integration">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/class.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/class.handler.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/class.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/class.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/dto/class.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/dto/class.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/class.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/class.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-classes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-classes.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/class-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/class-detail-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/classes-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/classes-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/blog/create-blog-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/blog/create-blog-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/permissions/permissions-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/permissions/permissions-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/tickets/tickets-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/tickets/tickets-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-class.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-class.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.handler.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.handler.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/study-set/study-set.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/study-set.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/controllers/study-set.controller.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,12 +39,16 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;Lain4504&quot;
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "history": [
+    {
+      "state": "OPEN"
+    }
+  ],
+  "lastFilter": {
+    "state": "OPEN"
   }
-}</component>
+}]]></component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;git@github.com:Lain4504/torii-monorepo.git&quot;,
@@ -324,30 +320,6 @@
       <workItem from="1772802424937" duration="4822000" />
       <workItem from="1772811140566" duration="900000" />
       <workItem from="1772962511915" duration="976000" />
-    </task>
-    <task id="LOCAL-00940" summary="update core lms flow">
-      <option name="closed" value="true" />
-      <created>1772635046399</created>
-      <option name="number" value="00940" />
-      <option name="presentableId" value="LOCAL-00940" />
-      <option name="project" value="LOCAL" />
-      <updated>1772635046399</updated>
-    </task>
-    <task id="LOCAL-00941" summary="update core lms flow">
-      <option name="closed" value="true" />
-      <created>1772635132884</created>
-      <option name="number" value="00941" />
-      <option name="presentableId" value="LOCAL-00941" />
-      <option name="project" value="LOCAL" />
-      <updated>1772635132884</updated>
-    </task>
-    <task id="LOCAL-00942" summary="feat: initialize new marketing web project with Tailwind CSS and Radix UI components">
-      <option name="closed" value="true" />
-      <created>1772636235031</created>
-      <option name="number" value="00942" />
-      <option name="presentableId" value="LOCAL-00942" />
-      <option name="project" value="LOCAL" />
-      <updated>1772636235031</updated>
     </task>
     <task id="LOCAL-00943" summary="feat: add new UI components including Skeleton, AspectRatio, Spinner, and more">
       <option name="closed" value="true" />
@@ -717,7 +689,31 @@
       <option name="project" value="LOCAL" />
       <updated>1772939519615</updated>
     </task>
-    <option name="localTasksCounter" value="989" />
+    <task id="LOCAL-00989" summary="feat(academy): add class attendance module with CRUD operations and UI integration">
+      <option name="closed" value="true" />
+      <created>1772967944785</created>
+      <option name="number" value="00989" />
+      <option name="presentableId" value="LOCAL-00989" />
+      <option name="project" value="LOCAL" />
+      <updated>1772967944785</updated>
+    </task>
+    <task id="LOCAL-00990" summary="feat(academy): add class attendance module with CRUD operations and UI integration">
+      <option name="closed" value="true" />
+      <created>1772967986104</created>
+      <option name="number" value="00990" />
+      <option name="presentableId" value="LOCAL-00990" />
+      <option name="project" value="LOCAL" />
+      <updated>1772967986104</updated>
+    </task>
+    <task id="LOCAL-00991" summary="feat(academy): add class attendance module with CRUD operations and UI integration">
+      <option name="closed" value="true" />
+      <created>1772968469206</created>
+      <option name="number" value="00991" />
+      <option name="presentableId" value="LOCAL-00991" />
+      <option name="project" value="LOCAL" />
+      <updated>1772968469206</updated>
+    </task>
+    <option name="localTasksCounter" value="992" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -752,7 +748,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fix" />
     <MESSAGE value="remomve uiuxpromax" />
     <MESSAGE value="add gamification services and repositories; update tsconfig and module configurations" />
     <MESSAGE value="feat(billing): restructure billing service modules and interfaces" />
@@ -777,7 +772,8 @@
     <MESSAGE value="build learner success" />
     <MESSAGE value="refactor: merge logic to new academy service (#268)" />
     <MESSAGE value="feat: add Academy Achievement and Gamification Heatmap specifications" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add Academy Achievement and Gamification Heatmap specifications" />
+    <MESSAGE value="feat(academy): add class attendance module with CRUD operations and UI integration" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(academy): add class attendance module with CRUD operations and UI integration" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
