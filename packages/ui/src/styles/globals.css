@@ -60,8 +60,9 @@
   --shadow-2xl: var(--shadow-2xl);
 
   --breakpoint-3xl: 110rem;
-}
 
+  --color-heatmap-zero: var(--heatmap-zero);
+}
 
 :root {
   --background: oklch(1 0 0);
@@ -97,11 +98,18 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 
+  --heatmap-zero: oklch(0.922 0 0);
+  --heatmap-1: oklch(0.85 0.08 19);
+  --heatmap-2: oklch(0.7 0.14 19);
+  --heatmap-3: oklch(0.6 0.18 19);
+  --heatmap-4: oklch(0.51 0.22 19);
+
   --shadow-sm: 0px 1px 2px rgba(0, 0, 0, 0.05);
   --shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.05), 0px 2px 4px -1px rgba(0, 0, 0, 0.03);
   --shadow-md: 0px 6px 16px -4px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0px 10px 32px -8px rgba(0, 0, 0, 0.10);
   --shadow-xl: 0px 20px 40px -12px rgba(0, 0, 0, 0.12);
+  --heatmap-zero: rgb(221, 221, 221);
 }
 
 .dark {
@@ -136,9 +144,13 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  --heatmap-zero: oklch(0.269 0 0);
+  --heatmap-1: oklch(0.35 0.1 19);
+  --heatmap-2: oklch(0.45 0.15 19);
+  --heatmap-3: oklch(0.55 0.2 19);
+  --heatmap-4: oklch(0.65 0.25 19);
 }
-
-
 
 @layer base {
   * {

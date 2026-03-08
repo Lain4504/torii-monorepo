@@ -19,6 +19,13 @@ export class GamificationService {
         [ActivityType.REVIEW]: { xp: 50, points: 50 },
     };
 
+    private readonly ACTIVITY_WEIGHTS: Record<string, number> = {
+        [ActivityType.LOGIN]: 1,
+        [ActivityType.LESSON_COMPLETE]: 5,
+        [ActivityType.EXAM_COMPLETE]: 10,
+        [ActivityType.REVIEW]: 3,
+    };
+
     /**
      * Track a user learning activity and reward them.
      */
@@ -33,24 +40,28 @@ export class GamificationService {
 
         const dateString = new Date().toISOString().split('T')[0];
 
-        // Ensure we don't duplicate one-time daily activities like login
-        if (activityType === ActivityType.LOGIN) {
-            const existingActivity = await this.prisma.dailyActivity.findUnique({
-                where: {
-                    userId_date_activityType: {
-                        userId,
-                        date: dateString,
-                        activityType
-                    }
+        // Retrieve existing activity for this day and type
+        const existingActivity = await this.prisma.dailyActivity.findUnique({
+            where: {
+                userId_date_activityType: {
+                    userId,
+                    date: dateString,
+                    activityType
                 }
-            });
+            }
+        });
 
+        // Points/XP Award Eligibility Check
+        let shouldAward = true;
+
+        if (activityType === ActivityType.LOGIN) {
+            // LOGIN only awards points once per day
             if (existingActivity) {
-                return { amount: 0, message: "Already completed daily login today" };
+                shouldAward = false;
             }
         } else if (activityType === ActivityType.REVIEW && metadata?.reviewId) {
             // Ensure no duplicate points for the same review
-            const existingActivity = await this.prisma.gamificationHistory.findFirst({
+            const existingHistory = await this.prisma.gamificationHistory.findFirst({
                 where: {
                     userId,
                     activityType: ActivityType.REVIEW,
@@ -58,16 +69,17 @@ export class GamificationService {
                 }
             });
 
-            if (existingActivity) {
-                return { amount: 0, message: "Already rewarded for this review" };
+            if (existingHistory) {
+                shouldAward = false;
             }
         } else if (metadata?.lessonId) {
-            // If lesson, verify if already tracked (simplistic duplicate check)
-            // Typically we should store the reference to the lesson, but for now we rely on the specific action or state
+            // Optional: check if lesson already rewarded
         }
 
+        const weight = this.ACTIVITY_WEIGHTS[activityType] || 1;
+
         return this.prisma.$transaction(async (tx) => {
-            // Log or update the daily activity summary
+            // Log or update the daily activity summary (Always increment count for Heatmap)
             await tx.dailyActivity.upsert({
                 where: {
                     userId_date_activityType: {
@@ -77,16 +89,23 @@ export class GamificationService {
                     }
                 },
                 update: {
-                    // Just optionally update meta, or keep count (if you add count to schema later)
+                    // For LOGIN, we only record it once per day (increment 0 if exists)
+                    // For other activities, we add their weight
+                    count: activityType === ActivityType.LOGIN ? { increment: 0 } : { increment: weight },
                     meta: metadata
                 },
                 create: {
                     userId,
                     activityType,
                     date: dateString,
+                    count: weight,
                     meta: metadata
                 }
             });
+
+            if (!shouldAward) {
+                return { xpEarned: 0, pointsEarned: 0, message: "Activity tracked for heatmap, but points already awarded." };
+            }
 
             // Retrieve or create UserGamification profile
             let profile = await tx.userGamification.findUnique({ where: { userId } });
@@ -260,6 +279,12 @@ export class GamificationService {
     }
 
     async getProfile(userId: string) {
+        // Track login activity automatically when profile is fetched (Daily Check-in)
+        // trackActivity handles points and daily check-in logic
+        this.trackActivity(userId, ActivityType.LOGIN).catch(err =>
+            this.logger.error(`Failed to track daily login for user ${userId}:`, err.stack)
+        );
+
         // Enforce eager streak validation as part of profile retrieval
         return this.checkAndGetStreak(userId);
     }
@@ -381,5 +406,43 @@ export class GamificationService {
         return this.prisma.pointReward.delete({
             where: { id }
         });
+    }
+
+    /**
+     * Get heatmap data for a user.
+     */
+    async getActivityHeatmap(userId: string, startDate?: string, endDate?: string) {
+        // Use raw query to avoid issues with Prisma's groupBy/findMany when used with certain driver adapters
+        // that cause "column must appear in GROUP BY clause" or nested aggregate errors.
+
+        let query = `
+            SELECT date, SUM(count)::int as value 
+            FROM daily_activities 
+            WHERE user_id = $1::uuid
+        `;
+
+        const params: any[] = [userId];
+        let paramCount = 2;
+
+        if (startDate) {
+            query += ` AND date >= $${paramCount++}`;
+            params.push(startDate);
+        }
+
+        if (endDate) {
+            query += ` AND date <= $${paramCount++}`;
+            params.push(endDate);
+        }
+
+        query += ` GROUP BY date ORDER BY date ASC`;
+
+        try {
+            const result = await this.prisma.$queryRawUnsafe<{ date: string; value: number }[]>(query, ...params);
+            return result;
+        } catch (error) {
+            this.logger.error(`Failed to execute heatmap raw query: ${error.message}`, error.stack);
+            // Fallback to empty array to avoid crashing the whole request
+            return [];
+        }
     }
 }

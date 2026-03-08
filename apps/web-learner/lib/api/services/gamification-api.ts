@@ -138,6 +138,25 @@ export const gamificationApi = {
             response.data.message || 'Failed to redeem points'
         );
     },
+
+    /**
+     * Get activity heatmap data
+     */
+    async getActivityHeatmap(startDate?: string, endDate?: string): Promise<{ date: string; value: number }[]> {
+        const queryParams = new URLSearchParams();
+        if (startDate) queryParams.append('startDate', startDate);
+        if (endDate) queryParams.append('endDate', endDate);
+
+        const response = await apiClient.get<StandardApiResponse<{ date: string; value: number }[]>>(
+            `/api/gamification/activity-heatmap?${queryParams.toString()}`
+        );
+
+        if (response.data.success && response.data.data) {
+            return response.data.data;
+        }
+
+        throw new Error(response.data.message || 'Failed to fetch activity heatmap');
+    },
 };
 
 /**
@@ -158,6 +177,17 @@ export function useAchievements() {
     return useQuery({
         queryKey: ['achievements'],
         queryFn: gamificationApi.getAchievements,
+    });
+}
+
+/**
+ * Hook: Get activity heatmap
+ */
+export function useActivityHeatmap(startDate?: string, endDate?: string) {
+    return useQuery({
+        queryKey: ['activity-heatmap', startDate, endDate],
+        queryFn: () => gamificationApi.getActivityHeatmap(startDate, endDate),
+        staleTime: 300000, // 5 minutes
     });
 }
 

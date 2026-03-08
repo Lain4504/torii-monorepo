@@ -158,4 +158,14 @@ export class GamificationController {
             throw new RpcException(error.message);
         }
     }
+
+    @MessagePattern('gamification.getActivityHeatmap')
+    async getActivityHeatmap(@Payload() data: { userId: string, startDate?: string, endDate?: string }) {
+        try {
+            return await this.gamificationService.getActivityHeatmap(data.userId, data.startDate, data.endDate);
+        } catch (error) {
+            this.logger.error(`Error getting activity heatmap: ${error.message}`, error.stack);
+            throw new RpcException(error.message);
+        }
+    }
 }
