@@ -86,8 +86,35 @@ enum CouponScope {
 
 enum OfferingStatus {
   DRAFT
-  ACTIVE
+  PENDING_APPROVAL
+  PUBLISHED
+  HIDDEN
   ARCHIVED
+}
+
+enum ClassMode {
+  VOD
+  LIVE
+}
+
+enum ClassStatus {
+  DRAFT
+  PENDING_APPROVAL
+  ENROLLING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum MinStudentsEnforcement {
+  STRICT
+  NOTIFY
+  DISABLED
+}
+
+enum LiveClassTeacherRole {
+  PRIMARY
+  ASSISTANT
 }
 
 // --- Support ---
@@ -359,7 +386,7 @@ model User {
   academyLearningProgresses    LearningProgress[]
   academyExamAttempts          ExamAttempt[]
   academyAssignmentSubmissions AssignmentSubmission[]
-  academyClassesTaught         Class[]                @relation("AcademyClassTeacher")
+  academyLiveClassesTaught     LiveClass[]            @relation("AcademyClassTeacher")
   academyClassReviews          ClassReview[]
 
   @@index([email])
@@ -945,7 +972,16 @@ model CourseEdition {
   status           String    @default("DRAFT") @db.VarChar(20)
   syllabusSnapshot Json?     @map("syllabus_snapshot") @db.JsonB
   changelog        String?   @db.Text
-  publishedAt      DateTime? @map("published_at")
+  
+  submittedForApprovalAt DateTime? @map("submitted_for_approval_at")
+  submittedBy            String?   @map("submitted_by") @db.Uuid
+  approvedAt            DateTime? @map("approved_at")
+  approvedBy            String?   @map("approved_by") @db.Uuid
+  rejectedAt            DateTime? @map("rejected_at")
+  rejectedBy            String?   @map("rejected_by") @db.Uuid
+  rejectionReason       String?   @map("rejection_reason") @db.Text
+
+  publishedAt DateTime? @map("published_at")
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at")
 
@@ -1064,33 +1100,32 @@ model AssignmentTemplate {
 // --- Delivery layer ---
 
 model Class {
-  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseProfileId   String    @map("course_profile_id") @db.Uuid
-  courseEditionId   String    @map("course_edition_id") @db.Uuid
-  code              String    @unique @db.VarChar(150)
-  name              String    @db.VarChar(255)
-  mode              String    @db.VarChar(20) // VOD, LIVE, BLENDED
-  term              String?   @db.VarChar(100)
-  batch             String?   @db.VarChar(100)
-  startDate         DateTime? @map("start_date")
-  endDate           DateTime? @map("end_date")
-  enrollmentOpenAt  DateTime? @map("enrollment_open_at")
-  enrollmentCloseAt DateTime? @map("enrollment_close_at")
-  minStudents       Int?      @map("min_students")
-  maxStudents       Int?      @map("max_students")
-  status            String    @default("DRAFT") @db.VarChar(20) // DRAFT, ENROLLING, IN_PROGRESS, COMPLETED, CANCELLED
-  primaryTeacherId  String?   @map("primary_teacher_id") @db.Uuid
-  companyId         String?   @map("company_id") @db.Uuid
-  settings          Json?     @default("{}") @db.JsonB
-  createdAt         DateTime  @default(now()) @map("created_at")
-  updatedAt         DateTime  @default(now()) @updatedAt @map("updated_at")
+  id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseProfileId String      @map("course_profile_id") @db.Uuid
+  courseEditionId String      @map("course_edition_id") @db.Uuid
+  code            String      @unique @db.VarChar(150)
+  name            String      @db.VarChar(255)
+  mode            ClassMode
+  status          ClassStatus @default(DRAFT)
+  settings        Json?       @default("{}") @db.JsonB
+
+  submittedForApprovalAt DateTime? @map("submitted_for_approval_at")
+  submittedBy            String?   @map("submitted_by") @db.Uuid
+  approvedAt            DateTime? @map("approved_at")
+  approvedBy            String?   @map("approved_by") @db.Uuid
+  rejectedAt            DateTime? @map("rejected_at")
+  rejectedBy            String?   @map("rejected_by") @db.Uuid
+  rejectionReason       String?   @map("rejection_reason") @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Relations
   courseProfile         CourseProfile          @relation(fields: [courseProfileId], references: [id], onDelete: Cascade)
   courseEdition         CourseEdition          @relation(fields: [courseEditionId], references: [id], onDelete: Cascade)
-  primaryTeacher        User?                  @relation("AcademyClassTeacher", fields: [primaryTeacherId], references: [id], onDelete: SetNull)
+  vodClass              VodClass?
+  liveClass             LiveClass?
   enrollments           Enrollment[]
-  schedules             ClassSchedule[]
   assessments           ClassAssessment[]
   learningProgress      LearningProgress[]
   examAttempts          ExamAttempt[]
@@ -1104,25 +1139,70 @@ model Class {
   @@index([courseEditionId])
   @@index([mode])
   @@index([status])
-  @@index([companyId])
   @@map("academy_classes")
 }
 
-model ClassSchedule {
-  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  classId   String  @map("class_id") @db.Uuid
-  weekday   Int // 0-6
-  startTime String  @map("start_time") @db.VarChar(20)
-  endTime   String  @map("end_time") @db.VarChar(20)
-  location  String? @db.VarChar(255)
-  note      String? @db.Text
-  roomId    String? @map("room_id") @db.VarChar(64)
+model VodClass {
+  id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  classId              String    @unique @map("class_id") @db.Uuid
+  enrollmentOpenAt     DateTime? @map("enrollment_open_at")
+  enrollmentCloseAt    DateTime? @map("enrollment_close_at")
+  maxStudents          Int?      @map("max_students")
+  defaultExpiresMonths Int?      @map("default_expires_months")
 
-  // Relations
   class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
 
-  @@index([classId])
-  @@map("academy_class_schedules")
+  @@map("academy_vod_classes")
+}
+
+model LiveClass {
+  id                     String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  classId                String                  @unique @map("class_id") @db.Uuid
+  term                   String?                 @db.VarChar(100)
+  batch                  String?                 @db.VarChar(100)
+  startDate              DateTime                @map("start_date")
+  endDate                DateTime                @map("end_date")
+  enrollmentOpenAt       DateTime                @map("enrollment_open_at")
+  enrollmentCloseAt      DateTime                @map("enrollment_close_at")
+  minStudents            Int                     @map("min_students")
+  maxStudents            Int                     @map("max_students")
+  minStudentsEnforcement MinStudentsEnforcement? @map("min_students_enforcement")
+  primaryTeacherId       String?                 @map("primary_teacher_id") @db.Uuid
+
+  class          Class              @relation(fields: [classId], references: [id], onDelete: Cascade)
+  primaryTeacher User?              @relation("AcademyClassTeacher", fields: [primaryTeacherId], references: [id], onDelete: SetNull)
+  schedules      LiveSchedule[]
+  teachers       LiveClassTeacher[]
+
+  @@map("academy_live_classes")
+}
+
+model LiveSchedule {
+  id            String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  liveClassId   String  @map("live_class_id") @db.Uuid
+  weekday       Int // 0-6
+  startTime     String  @map("start_time") @db.VarChar(20)
+  endTime       String  @map("end_time") @db.VarChar(20)
+  location      String? @db.VarChar(255)
+  excludedDates Json?   @map("excluded_dates") @db.JsonB
+  note          String? @db.Text
+  roomId        String? @map("room_id") @db.VarChar(64)
+
+  liveClass LiveClass @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
+
+  @@index([liveClassId])
+  @@map("academy_live_schedules")
+}
+
+model LiveClassTeacher {
+  liveClassId String               @map("live_class_id") @db.Uuid
+  teacherId   String               @map("teacher_id") @db.Uuid
+  role        LiveClassTeacherRole @default(PRIMARY)
+
+  liveClass LiveClass @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
+
+  @@id([liveClassId, teacherId])
+  @@map("academy_live_class_teachers")
 }
 
 model ClassAssessment {
@@ -1478,7 +1558,16 @@ model CourseOffering {
   validFrom     DateTime?      @map("valid_from")
   validTo       DateTime?      @map("valid_to")
   metadata      Json?          @default("{}") @db.JsonB
-  createdAt     DateTime       @default(now()) @map("created_at")
+
+  submittedForApprovalAt DateTime? @map("submitted_for_approval_at")
+  submittedBy            String?   @map("submitted_by") @db.Uuid
+  approvedAt            DateTime? @map("approved_at")
+  approvedBy            String?   @map("approved_by") @db.Uuid
+  rejectedAt            DateTime? @map("rejected_at")
+  rejectedBy            String?   @map("rejected_by") @db.Uuid
+  rejectionReason       String?   @map("rejection_reason") @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at")
   updatedAt     DateTime       @default(now()) @updatedAt @map("updated_at")
 
   // Relations

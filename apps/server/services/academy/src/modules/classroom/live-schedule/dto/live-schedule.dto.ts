@@ -1,8 +1,8 @@
 import { IsInt, IsOptional, IsString, IsUUID, MaxLength, Min } from 'class-validator';
 
-export class ClassScheduleCreateDto {
+export class LiveScheduleCreateDto {
   @IsUUID()
-  classId!: string;
+  liveClassId!: string;
 
   @IsInt()
   @Min(0)
@@ -22,11 +22,19 @@ export class ClassScheduleCreateDto {
   location?: string;
 
   @IsOptional()
+  excludedDates?: unknown;
+
+  @IsOptional()
   @IsString()
   note?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  roomId?: string;
 }
 
-export class ClassScheduleUpdateDto {
+export class LiveScheduleUpdateDto {
   @IsOptional()
   @IsInt()
   @Min(0)
@@ -48,13 +56,20 @@ export class ClassScheduleUpdateDto {
   location?: string;
 
   @IsOptional()
+  excludedDates?: unknown;
+
+  @IsOptional()
   @IsString()
   note?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  roomId?: string;
 }
 
-export class ClassScheduleQueryDto {
+export class LiveScheduleQueryDto {
   @IsOptional()
   @IsUUID()
-  classId?: string;
+  liveClassId?: string;
 }
-

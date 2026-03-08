@@ -57,13 +57,13 @@ import AcademyChapterItemEditPage from '@/routes/academy/chapter-item-edit-page.
 import AcademyClassesPage from '@/routes/academy/classes-page.tsx'
 import AcademyClassCreatePage from '@/routes/academy/class-create-page.tsx'
 import AcademyClassEditPage from '@/routes/academy/class-edit-page.tsx'
-import AcademyClassScheduleCreatePage from '@/routes/academy/class-schedule-create-page.tsx'
-import AcademyClassScheduleEditPage from '@/routes/academy/class-schedule-edit-page.tsx'
+import AcademyLiveScheduleCreatePage from '@/routes/academy/live-schedule-create-page.tsx'
+import AcademyLiveScheduleEditPage from '@/routes/academy/live-schedule-edit-page.tsx'
 import AcademyClassAssessmentCreatePage from '@/routes/academy/class-assessment-create-page.tsx'
 import AcademyClassAssessmentEditPage from '@/routes/academy/class-assessment-edit-page.tsx'
 import AcademyQuestionCreatePage from '@/routes/academy/question-create-page.tsx'
 import AcademyQuestionEditPage from '@/routes/academy/question-edit-page.tsx'
-import AcademyQuestionPoolsPage from '@/routes/academy/question-pools-page.tsx'
+
 import AcademyQuestionPoolNewPage from '@/routes/academy/question-pool-new-page.tsx'
 import AcademyQuestionPoolEditPage from '@/routes/academy/question-pool-edit-page.tsx'
 import AcademyQuestionPoolDetailPage from '@/routes/academy/question-pool-detail-page.tsx'
@@ -202,8 +202,8 @@ function App() {
                     <Route path="academy/classes/:id" element={<AcademyClassDetailPage />} />
                     <Route path="academy/classes/:id/edit" element={<AcademyClassEditPage />} />
 
-                    <Route path="academy/class-schedule/new" element={<AcademyClassScheduleCreatePage />} />
-                    <Route path="academy/class-schedule/:id/edit" element={<AcademyClassScheduleEditPage />} />
+                    <Route path="academy/live-schedule/new" element={<AcademyLiveScheduleCreatePage />} />
+                    <Route path="academy/live-schedule/:id/edit" element={<AcademyLiveScheduleEditPage />} />
                     <Route path="academy/class-assessments" element={<AcademyClassAssessmentsPage />} />
                     <Route path="academy/class-assessments/new" element={<AcademyClassAssessmentCreatePage />} />
                     <Route path="academy/class-assessments/:id/edit" element={<AcademyClassAssessmentEditPage />} />

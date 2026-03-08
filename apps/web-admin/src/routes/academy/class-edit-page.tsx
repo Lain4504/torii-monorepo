@@ -1,13 +1,15 @@
 import { useNavigate, useParams } from "react-router-dom"
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
+import { Card, CardContent } from "@workspace/ui/components/card"
 import { toast } from "@workspace/ui/components/sonner"
 import { PageHeader } from "@/components/common/page-header"
-import { ClassForm } from "@/components/academy/class-form"
+import { VodClassForm } from "@/components/academy/vod-class-form"
+import { LiveClassForm } from "@/components/academy/live-class-form"
 import {
   useAcademyClass,
   useUpdateAcademyClass,
 } from "@/lib/api/services/academy-classes"
 import type { AcademyClassUpdateDTO } from "@workspace/schemas"
+import { Spinner } from "@workspace/ui/components/spinner"
 
 export default function AcademyClassEditPage() {
   const nav = useNavigate()
@@ -15,39 +17,58 @@ export default function AcademyClassEditPage() {
   const { data: item, isLoading } = useAcademyClass(id)
   const update = useUpdateAcademyClass()
 
+  const handleUpdate = async (data: any) => {
+    if (!item) return
+    try {
+      await update.mutateAsync({
+        id: item.id,
+        input: data as AcademyClassUpdateDTO,
+      })
+      toast.success("Đã cập nhật lớp học")
+      nav("/academy/classes")
+    } catch (err: any) {
+      toast.error("Có lỗi xảy ra: " + (err.message || "Unknown error"))
+    }
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Cập nhật Class"
-        subtitle="Chỉnh sửa thông tin lớp học."
+        title="Cập nhật Lớp học"
+        subtitle={`Chỉnh sửa thông tin ${item?.mode === "LIVE" ? "Live Class" : "VOD Class"}.`}
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Thông tin</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading || !item ? (
-            <div>Đang tải...</div>
-          ) : (
-            <ClassForm
+      {isLoading ? (
+        <div className="flex h-40 items-center justify-center">
+          <Spinner />
+        </div>
+      ) : !item ? (
+        <Card>
+          <CardContent className="p-10 text-center text-muted-foreground">
+            Không tìm thấy lớp học.
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          {item.mode === "LIVE" ? (
+            <LiveClassForm
               mode="edit"
               initial={item}
               submitting={update.isPending}
-              onCancel={() => nav("/academy/classes")}
-              onSubmit={async (data) => {
-                await update.mutateAsync({
-                  id: item.id,
-                  input: data as AcademyClassUpdateDTO,
-                })
-                toast.success("Đã cập nhật")
-                nav("/academy/classes")
-              }}
+              onCancel={() => nav(`/academy/classes/${id}`)}
+              onSubmit={handleUpdate}
+            />
+          ) : (
+            <VodClassForm
+              mode="edit"
+              initial={item}
+              submitting={update.isPending}
+              onCancel={() => nav(`/academy/classes/${id}`)}
+              onSubmit={handleUpdate}
             />
           )}
-        </CardContent>
-      </Card>
+        </>
+      )}
     </div>
   )
 }
-

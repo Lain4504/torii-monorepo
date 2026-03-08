@@ -1,4 +1,5 @@
 import {
+  IsInt,
   IsOptional,
   IsString,
   IsUUID,
@@ -22,8 +23,22 @@ export class ClassCreateDto {
 
   @IsString()
   @MaxLength(20)
-  mode!: string; // VOD, LIVE, BLENDED
+  mode!: 'VOD' | 'LIVE';
 
+  // --- Common optional ---
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  status?: string;
+
+  @IsOptional()
+  @IsUUID()
+  companyId?: string;
+
+  @IsOptional()
+  settings?: unknown;
+
+  // --- Live-only fields ---
   @IsOptional()
   @IsString()
   @MaxLength(100)
@@ -41,32 +56,30 @@ export class ClassCreateDto {
   endDate?: Date;
 
   @IsOptional()
+  minStudents?: number;
+
+  @IsOptional()
+  @IsString()
+  minStudentsEnforcement?: 'STRICT' | 'NOTIFY' | 'DISABLED';
+
+  @IsOptional()
+  @IsUUID()
+  primaryTeacherId?: string;
+
+  // --- Shared enrollment fields ---
+  @IsOptional()
   enrollmentOpenAt?: Date;
 
   @IsOptional()
   enrollmentCloseAt?: Date;
 
   @IsOptional()
-  minStudents?: number;
-
-  @IsOptional()
   maxStudents?: number;
 
+  // --- VOD-only fields ---
   @IsOptional()
-  @IsString()
-  @MaxLength(20)
-  status?: string;
-
-  @IsOptional()
-  @IsUUID()
-  primaryTeacherId?: string;
-
-  @IsOptional()
-  @IsUUID()
-  companyId?: string;
-
-  @IsOptional()
-  settings?: unknown;
+  @IsInt()
+  defaultExpiresMonths?: number;
 }
 
 export class ClassUpdateDto {
@@ -78,8 +91,9 @@ export class ClassUpdateDto {
   @IsOptional()
   @IsString()
   @MaxLength(20)
-  mode?: string;
+  mode?: 'VOD' | 'LIVE';
 
+  // --- Live fields ---
   @IsOptional()
   @IsString()
   @MaxLength(100)
@@ -97,25 +111,35 @@ export class ClassUpdateDto {
   endDate?: Date;
 
   @IsOptional()
+  minStudents?: number;
+
+  @IsOptional()
+  @IsString()
+  minStudentsEnforcement?: 'STRICT' | 'NOTIFY' | 'DISABLED';
+
+  @IsOptional()
+  @IsUUID()
+  primaryTeacherId?: string;
+
+  // --- Shared enrollment fields ---
+  @IsOptional()
   enrollmentOpenAt?: Date;
 
   @IsOptional()
   enrollmentCloseAt?: Date;
 
   @IsOptional()
-  minStudents?: number;
-
-  @IsOptional()
   maxStudents?: number;
+
+  // --- VOD-only fields ---
+  @IsOptional()
+  @IsInt()
+  defaultExpiresMonths?: number;
 
   @IsOptional()
   @IsString()
   @MaxLength(20)
   status?: string;
-
-  @IsOptional()
-  @IsUUID()
-  primaryTeacherId?: string;
 
   @IsOptional()
   @IsUUID()
@@ -146,4 +170,3 @@ export class ClassQueryDto {
   @IsString()
   q?: string;
 }
-

@@ -19,7 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import { MoreVertical, Search, Filter, Layout, BookOpen, User as UserIcon, Calendar } from "lucide-react"
+import { MoreVertical, Search, Filter, Layout, BookOpen, Calendar } from "lucide-react"
 import { Badge } from "@workspace/ui/components/badge"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import {
@@ -150,7 +150,6 @@ export default function AcademyClassesPage() {
                     <SelectItem value="_all">Tất cả Hình thức</SelectItem>
                     <SelectItem value="VOD">VOD (Video)</SelectItem>
                     <SelectItem value="LIVE">Live (Trực tuyến)</SelectItem>
-                    <SelectItem value="BLENDED">Blended (Kết hợp)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -220,7 +219,7 @@ export default function AcademyClassesPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {it.term ?? "-"} / {it.batch ?? "-"}
+                      {it.liveClass?.term ?? "-"} / {it.liveClass?.batch ?? "-"}
                     </TableCell>
                     <TableCell>
                       {it.status === "ENROLLING" ? (

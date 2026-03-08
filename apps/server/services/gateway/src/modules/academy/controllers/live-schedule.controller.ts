@@ -23,27 +23,27 @@ import {
   successResponse,
 } from '@server/shared';
 import {
-  AcademyClassScheduleCreateDTO,
-  AcademyClassScheduleQueryDTO,
-  AcademyClassScheduleUpdateDTO,
-  academyClassScheduleCreateDTOSchema,
-  academyClassScheduleQueryDTOSchema,
-  academyClassScheduleUpdateDTOSchema,
+  AcademyLiveScheduleCreateDTO,
+  AcademyLiveScheduleQueryDTO,
+  AcademyLiveScheduleUpdateDTO,
+  academyLiveScheduleCreateDTOSchema,
+  academyLiveScheduleQueryDTOSchema,
+  academyLiveScheduleUpdateDTOSchema,
 } from '@workspace/schemas';
 
-@Controller('api/academy/class-schedules')
+@Controller('api/academy/live-schedules')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
-export class ClassScheduleController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
+export class LiveScheduleController {
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
   @Get()
   @Permissions('academy.delivery.read')
   async findAll(
-    @Query(new ZodValidationPipe(academyClassScheduleQueryDTOSchema))
-    query: AcademyClassScheduleQueryDTO,
+    @Query(new ZodValidationPipe(academyLiveScheduleQueryDTOSchema))
+    query: AcademyLiveScheduleQueryDTO,
   ) {
     const items = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.classSchedule.findAll' }, query),
+      this.nats.send({ cmd: 'academy.liveSchedule.findAll' }, query),
     );
     return successResponse({ items });
   }
@@ -52,7 +52,7 @@ export class ClassScheduleController {
   @Permissions('academy.delivery.read')
   async findById(@Param('id', new ParseUUIDPipe()) id: string) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.classSchedule.findById' }, { id }),
+      this.nats.send({ cmd: 'academy.liveSchedule.findById' }, { id }),
     );
     return successResponse({ item });
   }
@@ -61,11 +61,11 @@ export class ClassScheduleController {
   @Permissions('academy.delivery.write')
   @HttpCode(HttpStatus.CREATED)
   async create(
-    @Body(new ZodValidationPipe(academyClassScheduleCreateDTOSchema))
-    dto: AcademyClassScheduleCreateDTO,
+    @Body(new ZodValidationPipe(academyLiveScheduleCreateDTOSchema))
+    dto: AcademyLiveScheduleCreateDTO,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.classSchedule.create' }, dto),
+      this.nats.send({ cmd: 'academy.liveSchedule.create' }, dto),
     );
     return successResponse({ item });
   }
@@ -74,12 +74,12 @@ export class ClassScheduleController {
   @Permissions('academy.delivery.write')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Body(new ZodValidationPipe(academyClassScheduleUpdateDTOSchema))
-    dto: AcademyClassScheduleUpdateDTO,
+    @Body(new ZodValidationPipe(academyLiveScheduleUpdateDTOSchema))
+    dto: AcademyLiveScheduleUpdateDTO,
   ) {
     const item = await firstValueFrom(
       this.nats.send(
-        { cmd: 'academy.classSchedule.update' },
+        { cmd: 'academy.liveSchedule.update' },
         { id, input: dto },
       ),
     );
@@ -90,9 +90,8 @@ export class ClassScheduleController {
   @Permissions('academy.delivery.write')
   async delete(@Param('id', new ParseUUIDPipe()) id: string) {
     const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.classSchedule.delete' }, { id }),
+      this.nats.send({ cmd: 'academy.liveSchedule.delete' }, { id }),
     );
     return successResponse(result);
   }
 }
-

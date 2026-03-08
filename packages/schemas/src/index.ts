@@ -77,7 +77,7 @@ export * from './dtos/balance.dto';
 export * from './dtos/attendance.dto';
 export * from './dtos/academy-class.dto';
 export * from './dtos/academy-class-assessment.dto';
-export * from './dtos/academy-class-schedule.dto';
+export * from './dtos/academy-live-schedule.dto';
 export * from './dtos/academy-question.dto';
 export * from './dtos/academy-exam.dto';
 export * from './dtos/academy-exam-attempt.dto';

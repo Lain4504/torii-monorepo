@@ -26,39 +26,39 @@ import {
 } from "@workspace/ui/components/card"
 import { Spinner } from "@workspace/ui/components/spinner"
 import {
-  academyClassScheduleCreateDTOSchema,
-  academyClassScheduleUpdateDTOSchema,
-  type AcademyClassScheduleCreateDTO,
-  type AcademyClassScheduleUpdateDTO,
+  academyLiveScheduleCreateDTOSchema,
+  academyLiveScheduleUpdateDTOSchema,
+  type AcademyLiveScheduleCreateDTO,
+  type AcademyLiveScheduleUpdateDTO,
 } from "@workspace/schemas"
-import type { AcademyClassSchedule } from "@/lib/api/services/academy-class-schedules"
+import type { AcademyLiveSchedule } from "@/lib/api/services/academy-live-schedules"
 
-export function ClassScheduleForm({
+export function LiveScheduleForm({
   mode,
   initial,
   onSubmit,
   onCancel,
   submitting,
-  defaultClassId,
+  defaultLiveClassId,
 }: {
   mode: "create" | "edit"
-  initial?: AcademyClassSchedule
+  initial?: AcademyLiveSchedule
   onSubmit: (
-    data: AcademyClassScheduleCreateDTO | AcademyClassScheduleUpdateDTO,
+    data: AcademyLiveScheduleCreateDTO | AcademyLiveScheduleUpdateDTO,
   ) => Promise<void>
   onCancel: () => void
   submitting?: boolean
-  defaultClassId?: string
+  defaultLiveClassId?: string
 }) {
   const isEdit = mode === "edit"
 
   const { handleSubmit, control } = useForm<
-    AcademyClassScheduleCreateDTO | AcademyClassScheduleUpdateDTO
+    AcademyLiveScheduleCreateDTO | AcademyLiveScheduleUpdateDTO
   >({
     resolver: zodResolver(
       (isEdit
-        ? academyClassScheduleUpdateDTOSchema
-        : academyClassScheduleCreateDTOSchema) as any,
+        ? academyLiveScheduleUpdateDTOSchema
+        : academyLiveScheduleCreateDTOSchema) as any,
     ) as any,
     defaultValues: isEdit
       ? {
@@ -67,14 +67,16 @@ export function ClassScheduleForm({
         endTime: initial?.endTime ?? "",
         location: initial?.location ?? undefined,
         note: initial?.note ?? undefined,
+        roomId: initial?.roomId ?? undefined,
       }
       : {
-        classId: defaultClassId ?? "",
+        liveClassId: defaultLiveClassId ?? "",
         weekday: 1,
         startTime: "19:00",
         endTime: "21:00",
         location: undefined,
         note: undefined,
+        roomId: undefined,
       },
   })
 
@@ -93,12 +95,12 @@ export function ClassScheduleForm({
           <FieldGroup>
             {!isEdit && (
               <Controller
-                name={"classId" as any}
+                name={"liveClassId" as any}
                 control={control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Class ID</FieldLabel>
-                    <Input placeholder="UUID của Class" disabled {...field} />
+                    <FieldLabel>Live Class ID</FieldLabel>
+                    <Input placeholder="UUID của Live Class" disabled {...field} />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}
@@ -183,6 +185,21 @@ export function ClassScheduleForm({
             />
 
             <Controller
+              name={"roomId" as any}
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>LMS Room ID (Optional)</FieldLabel>
+                  <Input placeholder="Tự động tạo nếu để trống" {...field} />
+                  <FieldDescription>
+                    ID định danh phòng họp ảo trên hệ thống LMS.
+                  </FieldDescription>
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+
+            <Controller
               name={"note" as any}
               control={control}
               render={({ field, fieldState }) => (
@@ -213,4 +230,3 @@ export function ClassScheduleForm({
     </form>
   )
 }
-
