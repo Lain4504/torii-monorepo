@@ -9,6 +9,7 @@ export const academyCourseProfileCreateDTOSchema = z.object({
   level: z.string().max(50).optional(),
   defaultLanguage: z.string().max(20).optional(),
   thumbnailUrl: z.string().url().optional(),
+  metadata: z.any().optional(),
 });
 export type AcademyCourseProfileCreateDTO = z.infer<
   typeof academyCourseProfileCreateDTOSchema
@@ -22,6 +23,7 @@ export const academyCourseProfileUpdateDTOSchema = z.object({
   level: z.string().max(50).optional(),
   defaultLanguage: z.string().max(20).optional(),
   thumbnailUrl: z.string().url().optional(),
+  metadata: z.any().optional(),
 });
 export type AcademyCourseProfileUpdateDTO = z.infer<
   typeof academyCourseProfileUpdateDTOSchema

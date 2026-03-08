@@ -40,6 +40,7 @@ import {
 import type { AcademyCourseEdition } from "@/lib/api/services/academy-course-editions"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
 import { RichTextEditor } from "@/components/editor/rich-text-editor"
+import { KeyValueEditor } from "./key-value-editor"
 
 export function CourseEditionForm({
   mode,
@@ -74,6 +75,7 @@ export function CourseEditionForm({
         status: initial?.status ?? undefined,
         syllabusSnapshot: initial?.syllabusSnapshot ?? undefined,
         changelog: initial?.changelog ?? undefined,
+        metadata: initial?.metadata ?? undefined,
       }
       : {
         courseProfileId: initial?.courseProfileId ?? "",
@@ -81,6 +83,7 @@ export function CourseEditionForm({
         status: "DRAFT",
         syllabusSnapshot: undefined,
         changelog: undefined,
+        metadata: undefined,
       },
   })
 
@@ -171,13 +174,12 @@ export function CourseEditionForm({
                     {isEdit ? (
                       <div className="flex items-center gap-2">
                         <span
-                          className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
-                            field.value === "PUBLISHED"
-                              ? "bg-primary/10 text-primary"
-                              : field.value === "PENDING_APPROVAL"
-                                ? "bg-amber-500/10 text-amber-600"
-                                : "bg-muted text-muted-foreground"
-                          }`}
+                          className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${field.value === "PUBLISHED"
+                            ? "bg-primary/10 text-primary"
+                            : field.value === "PENDING_APPROVAL"
+                              ? "bg-amber-500/10 text-amber-600"
+                              : "bg-muted text-muted-foreground"
+                            }`}
                         >
                           {field.value === "DRAFT" && "Draft (Nháp)"}
                           {field.value === "PENDING_APPROVAL" && "Chờ phê duyệt"}
@@ -257,6 +259,33 @@ export function CourseEditionForm({
                     </TabsContent>
                   </Tabs>
                   <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
+          </FieldGroup>
+        </FieldSet>
+
+        <FieldSeparator />
+
+        <FieldSet>
+          <FieldLegend>Cấu hình nâng cao (Metadata)</FieldLegend>
+          <FieldDescription>
+            Thiết lập các thông số bổ sung cho edition này.
+          </FieldDescription>
+          <FieldGroup>
+            <Controller
+              name={"metadata" as any}
+              control={control}
+              render={({ field }) => (
+                <Field>
+                  <KeyValueEditor
+                    value={field.value || {}}
+                    onChange={field.onChange}
+                    presets={[
+                      { key: "isReviewEnabled", label: "Cho phép đánh giá", defaultValue: "true" },
+                      { key: "showCertificate", label: "Hiển thị chứng chỉ", defaultValue: "true" },
+                    ]}
+                  />
                 </Field>
               )}
             />

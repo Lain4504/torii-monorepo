@@ -75,20 +75,20 @@ import AcademyEnrollmentCreatePage from '@/routes/academy/enrollment-create-page
 import AcademyEnrollmentEditPage from '@/routes/academy/enrollment-edit-page.tsx'
 import AcademyClassDetailPage from "@/routes/academy/class-detail-page.tsx"
 import AcademyCourseOfferingDetailPage from "@/routes/academy/course-offering-detail-page.tsx"
-import AcademyLecturerDashboardPage from "@/routes/academy/lecturer-dashboard-page.tsx"
+
 import AcademyQuizTemplateCreatePage from '@/routes/academy/quiz-template-create-page.tsx'
 import AcademyQuizTemplateEditPage from '@/routes/academy/quiz-template-edit-page.tsx'
 import AcademyAssignmentTemplateCreatePage from '@/routes/academy/assignment-template-create-page.tsx'
 import AcademyAssignmentTemplateEditPage from '@/routes/academy/assignment-template-edit-page.tsx'
 import AcademyQuestionsPage from '@/routes/academy/questions-page.tsx'
 import AcademyExamsPage from '@/routes/academy/exams-page.tsx'
-import AcademyReportsPage from '@/routes/academy/reports-page.tsx'
+
 import AcademyCourseProfileDetailPage from '@/routes/academy/course-profile-detail-page.tsx'
 import AcademyCourseEditionDetailPage from '@/routes/academy/course-edition-detail-page.tsx'
 import AcademyLessonCreatePage from '@/routes/academy/lesson-create-page.tsx'
 import AcademyLessonEditPage from '@/routes/academy/lesson-edit-page.tsx'
-import AcademyClassReviewsPage from '@/routes/academy/class-reviews-page.tsx'
-import AcademyClassAssessmentsPage from '@/routes/academy/class-assessments-page.tsx'
+
+
 import RewardsPage from '@/routes/gamification/rewards-page.tsx'
 import QuestionPoolsPage from '@/routes/academy/question-pools-page.tsx'
 import AcademyEnrollmentsPage from '@/routes/academy/enrollments-page.tsx'
@@ -143,7 +143,7 @@ function App() {
                   {/* Academy - Core Grouping */}
                   <Route element={<RoutePermissionGuard anyPermission={["academy.content.read", "academy.content.write", "academy.commerce.read", "academy.commerce.write", "academy.delivery.read", "academy.delivery.write", "exam.manage"]} />}>
                     {/* <Route path="academy" element={<AcademyDashboardPage />} /> */}
-                    <Route path="academy/lecturer" element={<AcademyLecturerDashboardPage />} />
+
 
                     {/* 1. CONTENT LAYER: Profiles, Lessons, Quizzes, Assignments, Question Bank */}
                     <Route path="academy/course-profiles" element={<AcademyCourseProfilesPage />} />
@@ -196,7 +196,7 @@ function App() {
 
                     <Route path="academy/live-schedule/new" element={<AcademyLiveScheduleCreatePage />} />
                     <Route path="academy/live-schedule/:id/edit" element={<AcademyLiveScheduleEditPage />} />
-                    <Route path="academy/class-assessments" element={<AcademyClassAssessmentsPage />} />
+
                     <Route path="academy/class-assessments/new" element={<AcademyClassAssessmentCreatePage />} />
                     <Route path="academy/class-assessments/:id/edit" element={<AcademyClassAssessmentEditPage />} />
 
@@ -207,8 +207,7 @@ function App() {
                     <Route path="academy/exam-attempts/:id" element={<AcademyExamAttemptDetailPage />} />
                     <Route path="academy/assignment-submissions/:id" element={<AcademyAssignmentSubmissionDetailPage />} />
 
-                    <Route path="academy/reports" element={<AcademyReportsPage />} />
-                    <Route path="academy/class-reviews" element={<AcademyClassReviewsPage />} />
+
                   </Route>
 
                   <Route element={<RoutePermissionGuard permission="coupon.manage" />}>

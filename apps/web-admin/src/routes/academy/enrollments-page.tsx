@@ -59,6 +59,8 @@ export default function AcademyEnrollmentsPage() {
     () => ({
       classId: classId && classId !== "_all" ? classId : undefined,
       status: (status && status !== "_all" ? status : undefined) as any,
+      page: 1,
+      limit: 100,
     }),
     [classId, status],
   )

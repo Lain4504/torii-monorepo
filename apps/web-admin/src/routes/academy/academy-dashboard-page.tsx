@@ -15,7 +15,6 @@ import {
   History,
   FileCheck,
   ShoppingBag,
-  BarChart3,
   Search,
   AlertCircle
 } from "lucide-react"
@@ -154,11 +153,6 @@ export default function AcademyDashboardPage() {
                 <Users className="h-4 w-4" /> Ghi danh (Enrollments)
               </Link>
             </Button>
-            <Button asChild variant="outline" className="justify-start gap-2">
-              <Link to="/academy/reports">
-                <BarChart3 className="h-4 w-4" /> Báo cáo học tập (BETA)
-              </Link>
-            </Button>
           </CardContent>
         </Card>
 
@@ -185,16 +179,6 @@ export default function AcademyDashboardPage() {
             <Button asChild variant="outline" className="justify-start gap-2">
               <Link to="/academy/course-profiles">
                 <Search className="h-4 w-4" /> Quiz & Assignment Templates (trong Course Profile)
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="justify-start gap-2">
-              <Link to="/academy/class-assessments">
-                <ClipboardCheck className="h-4 w-4" /> Bài tập lớp (Class Assessments)
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="justify-start gap-2">
-              <Link to="/academy/assignment-submissions">
-                <FileCheck className="h-4 w-4" /> Chấm bài (Submissions)
               </Link>
             </Button>
           </CardContent>

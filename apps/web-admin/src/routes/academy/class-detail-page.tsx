@@ -60,7 +60,7 @@ export default function ClassDetailPage() {
    const { data: edition } = useAcademyCourseEdition(cls?.courseEditionId)
    const { data: schedules = [], isLoading: isLoadingSchedules } = useAcademyLiveSchedules({ liveClassId: id })
    const { data: assessments = [], isLoading: isLoadingAssessments } = useAcademyClassAssessments({ classId: id })
-   const { data: enrollmentsData, isLoading: isLoadingEnrollments } = useAcademyEnrollments({ classId: id })
+   const { data: enrollmentsData, isLoading: isLoadingEnrollments } = useAcademyEnrollments({ classId: id, page: 1, limit: 1000 })
    const { data: attempts = [], isLoading: isLoadingAttempts } = useAcademyExamAttempts({ classId: id })
    const { data: submissions = [], isLoading: isLoadingSubmissions } = useAcademyAssignmentSubmissions({ classId: id })
 
@@ -380,9 +380,14 @@ export default function ClassDetailPage() {
                               <CardTitle className="text-lg">Bài kiểm tra & Bài tập (Assessments)</CardTitle>
                               <CardDescription>Quản lý các instance bài kiểm tra riêng cho lớp này</CardDescription>
                            </div>
-                           <Button size="sm" asChild className="gap-2">
-                              <Link to={`/academy/class-assessments/new?classId=${id}`}><Plus className="h-4 w-4" /> Tạo Assessment</Link>
-                           </Button>
+                           <div className="flex gap-2">
+                              <Button size="sm" asChild className="gap-2">
+                                 <Link to={`/academy/class-assessments/new?classId=${id}&kind=QUIZ`}><Plus className="h-4 w-4" /> Tạo Quiz</Link>
+                              </Button>
+                              <Button size="sm" asChild variant="outline" className="gap-2">
+                                 <Link to={`/academy/class-assessments/new?classId=${id}&kind=ASSIGNMENT`}><Plus className="h-4 w-4" /> Tạo Assignment</Link>
+                              </Button>
+                           </div>
                         </CardHeader>
                         <CardContent>
                            <Table>

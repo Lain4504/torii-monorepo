@@ -15,6 +15,7 @@ export type AcademyCourseEdition = {
   status: string | null
   syllabusSnapshot?: any | null
   changelog?: string | null
+  metadata?: any | null
   createdAt: string
   updatedAt: string
   title?: string

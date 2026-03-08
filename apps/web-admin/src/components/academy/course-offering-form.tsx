@@ -53,6 +53,7 @@ import { useAcademyCourseEditions } from "@/lib/api/services/academy-course-edit
 import { useAcademyClasses } from "@/lib/api/services/academy-classes"
 import { RichTextEditor } from "@/components/editor/rich-text-editor"
 import { Badge } from "@workspace/ui/components/badge"
+import { KeyValueEditor } from "./key-value-editor"
 
 export function CourseOfferingForm({
   mode,
@@ -95,12 +96,10 @@ export function CourseOfferingForm({
         status: initial?.status ?? "DRAFT",
         type: (initial as any)?.type ?? "COURSE",
         classIds: initial?.classes?.map((c: any) => c.classId) || [],
-        validFrom: initial?.validFrom
-          ? new Date(initial.validFrom).toISOString().split("T")[0]
-          : undefined,
         validTo: initial?.validTo
           ? new Date(initial.validTo).toISOString().split("T")[0]
           : undefined,
+        metadata: initial?.metadata ?? undefined,
       }
       : {
         code: "",
@@ -115,6 +114,7 @@ export function CourseOfferingForm({
         classIds: [],
         validFrom: undefined,
         validTo: undefined,
+        metadata: undefined,
       }) as any,
   })
 
@@ -488,6 +488,33 @@ export function CourseOfferingForm({
               )}
             />
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Cấu hình bổ sung (Metadata)</CardTitle>
+          <CardDescription>Các thông tin hiển thị thêm cho gói này.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Controller
+            name="metadata"
+            control={control}
+            render={({ field }) => (
+              <Field>
+                <KeyValueEditor
+                  value={field.value || {}}
+                  onChange={field.onChange}
+                  presets={[
+                    { key: "discount", label: "Giảm giá (%)", defaultValue: "0" },
+                    { key: "oldPrice", label: "Giá cũ", defaultValue: "0" },
+                    { key: "lessonsCount", label: "Số lượng bài học", defaultValue: "50" },
+                    { key: "hoursCount", label: "Số giờ học", defaultValue: "20" },
+                  ]}
+                />
+              </Field>
+            )}
+          />
         </CardContent>
       </Card>
 

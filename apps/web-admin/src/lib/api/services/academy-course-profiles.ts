@@ -17,6 +17,7 @@ export type AcademyCourseProfile = {
   level?: string | null
   defaultLanguage?: string | null
   thumbnailUrl?: string | null
+  metadata?: any | null
   createdAt: string
   updatedAt: string
 }

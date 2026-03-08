@@ -2,7 +2,6 @@ import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
-import { Textarea } from "@workspace/ui/components/textarea"
 import {
   Field,
   FieldError,
@@ -35,6 +34,7 @@ import type { AcademyChapterItem } from "@/lib/api/services/academy-chapter-item
 import { useAcademyChapters, useAcademyChapter } from "@/lib/api/services/academy-chapters"
 import { useAcademyCourseEdition } from "@/lib/api/services/academy-course-editions"
 import { ResourcePicker } from "./resource-picker"
+import { KeyValueEditor } from "./key-value-editor"
 
 export function ChapterItemForm({
   mode,
@@ -72,20 +72,20 @@ export function ChapterItemForm({
     ) as any,
     defaultValues: isEdit
       ? {
-          title: initial?.title ?? "",
-          orderIndex: initial?.orderIndex ?? 0,
-          metadata: initial?.metadata ?? undefined,
-          kind: initial?.kind ?? "LESSON",
-          referenceId: initial?.referenceId ?? "",
-        }
+        title: initial?.title ?? "",
+        orderIndex: initial?.orderIndex ?? 0,
+        metadata: initial?.metadata ?? undefined,
+        kind: initial?.kind ?? "LESSON",
+        referenceId: initial?.referenceId ?? "",
+      }
       : {
-          chapterId: chapterId || "",
-          title: "",
-          kind: "LESSON",
-          referenceId: "",
-          orderIndex: 0,
-          metadata: undefined,
-        },
+        chapterId: chapterId || "",
+        title: "",
+        kind: "LESSON",
+        referenceId: "",
+        orderIndex: 0,
+        metadata: undefined,
+      },
   })
 
   const kind = watch("kind") as "LESSON" | "QUIZ" | "ASSIGNMENT" | "EXAM"
@@ -147,7 +147,7 @@ export function ChapterItemForm({
                     value={field.value}
                     onValueChange={field.onChange}
                     disabled={isEdit} // Usually changing kind in edit is risky, but let's see if allowed. Assuming no for now or yes? The original code didn't disable it.
-                    // Wait, original code: {!isEdit && ( ... )} around kind select. So it was disabled/hidden in edit mode.
+                  // Wait, original code: {!isEdit && ( ... )} around kind select. So it was disabled/hidden in edit mode.
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Chọn loại..." />
@@ -201,15 +201,15 @@ export function ChapterItemForm({
                     value={field.value}
                     onChange={field.onChange}
                     disabled={isEdit} // Should we allow changing reference in edit? Original code: {!isEdit && ( ... )} around referenceId.
-                    // If original code hid referenceId in edit, then we should probably respect that or check why.
-                    // The original code:
-                    // {!isEdit && ( ... referenceId input ... )}
-                    // So it was NOT editable in edit mode.
+                  // If original code hid referenceId in edit, then we should probably respect that or check why.
+                  // The original code:
+                  // {!isEdit && ( ... referenceId input ... )}
+                  // So it was NOT editable in edit mode.
                   />
                   {isEdit && (
-                     <div className="mt-2 text-sm text-muted-foreground">
-                       Reference ID: {field.value} (Không thể thay đổi)
-                     </div>
+                    <div className="mt-2 text-sm text-muted-foreground">
+                      Reference ID: {field.value} (Không thể thay đổi)
+                    </div>
                   )}
                   <FieldDescription>
                     Chọn tài nguyên từ thư viện nội dung.
@@ -238,29 +238,19 @@ export function ChapterItemForm({
             <Controller
               name={"metadata" as any}
               control={control}
-              render={({ field, fieldState }) => (
+              render={({ field }) => (
                 <Field>
-                  <FieldLabel>Metadata (JSON)</FieldLabel>
-                  <Textarea
-                    placeholder='Ví dụ: {"isOptional":true}'
-                    value={
-                      typeof field.value === "string"
-                        ? field.value
-                        : field.value
-                          ? JSON.stringify(field.value, null, 2)
-                          : ""
-                    }
-                    onChange={(e) => {
-                      const raw = e.target.value
-                      if (!raw) return field.onChange(undefined)
-                      try {
-                        field.onChange(JSON.parse(raw))
-                      } catch {
-                        field.onChange(raw)
-                      }
-                    }}
+                  <FieldLabel>Cấu hình nâng cao (Metadata)</FieldLabel>
+                  <KeyValueEditor
+                    value={field.value || {}}
+                    onChange={field.onChange}
+                    presets={[
+                      { key: "isOptional", label: "Tùy chọn (Optional)", defaultValue: "false" },
+                      { key: "previewable", label: "Cho phép xem trước", defaultValue: "false" },
+                      { key: "estimatedMinutes", label: "Số phút ước tính", defaultValue: "15" },
+                    ]}
                   />
-                  <FieldError>{fieldState.error?.message}</FieldError>
+                  <FieldDescription>Cấu hình bổ sung cho bài học (vd: cho phép xem trước, bài học tùy chọn).</FieldDescription>
                 </Field>
               )}
             />
