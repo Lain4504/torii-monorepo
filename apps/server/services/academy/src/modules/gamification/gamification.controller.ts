@@ -1,6 +1,7 @@
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { GamificationService } from './gamification.service';
+import { AchievementService } from './achievement.service';
 import { RpcException } from '@nestjs/microservices';
 
 @Controller()
@@ -8,7 +9,8 @@ export class GamificationController {
     private readonly logger = new Logger(GamificationController.name);
 
     constructor(
-        private readonly gamificationService: GamificationService
+        private readonly gamificationService: GamificationService,
+        private readonly achievementService: AchievementService,
     ) { }
 
     @MessagePattern('gamification.getProfile')
@@ -102,6 +104,56 @@ export class GamificationController {
     async admin_deleteReward(@Payload() data: { id: string }) {
         try {
             return await this.gamificationService.admin_deleteReward(data.id);
+        } catch (error) {
+            throw new RpcException(error.message);
+        }
+    }
+
+    // --- Achievement ---
+
+    @MessagePattern('gamification.getAchievements')
+    async getAchievements(@Payload() data: { userId: string }) {
+        try {
+            return await this.achievementService.getAchievementsForUser(data.userId);
+        } catch (error) {
+            this.logger.error(`Error getting achievements: ${error.message}`, error.stack);
+            throw new RpcException(error.message);
+        }
+    }
+
+    // --- Admin Achievement CRUD ---
+
+    @MessagePattern('gamification.admin.getAllAchievements')
+    async admin_getAllAchievements() {
+        try {
+            return await this.achievementService.admin_getAllAchievements();
+        } catch (error) {
+            throw new RpcException(error.message);
+        }
+    }
+
+    @MessagePattern('gamification.admin.createAchievement')
+    async admin_createAchievement(@Payload() data: any) {
+        try {
+            return await this.achievementService.admin_createAchievement(data);
+        } catch (error) {
+            throw new RpcException(error.message);
+        }
+    }
+
+    @MessagePattern('gamification.admin.updateAchievement')
+    async admin_updateAchievement(@Payload() data: { id: string, data: any }) {
+        try {
+            return await this.achievementService.admin_updateAchievement(data.id, data.data);
+        } catch (error) {
+            throw new RpcException(error.message);
+        }
+    }
+
+    @MessagePattern('gamification.admin.deleteAchievement')
+    async admin_deleteAchievement(@Payload() data: { id: string }) {
+        try {
+            return await this.achievementService.admin_deleteAchievement(data.id);
         } catch (error) {
             throw new RpcException(error.message);
         }

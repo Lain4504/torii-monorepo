@@ -385,6 +385,7 @@ model User {
   academyAssignmentSubmissions AssignmentSubmission[]
   academyLiveClassesTaught     LiveClass[]            @relation("AcademyClassTeacher")
   academyClassReviews          ClassReview[]
+  userAchievements             UserAchievement[]
 
   @@index([email])
   @@index([role])
@@ -666,6 +667,44 @@ model UserGamification {
   @@index([totalXp(sort: Desc)]) // Index quan trọng nhất để lấy Leaderboard (Bảng xếp hạng)
   @@index([userId])
   @@map("user_gamification")
+}
+
+model Achievement {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code        String   @unique @db.VarChar(64)
+  category    String   @db.VarChar(32) // STREAK | CONSISTENCY | LEARNING_PROGRESS | ...
+  title       String   @db.VarChar(255)
+  description String?  @db.Text
+  icon        String?  @db.VarChar(64)
+  requirements Json    @default("{}") @db.JsonB
+  rewards     Json     @default("{}") @db.JsonB
+  isActive    Boolean  @default(true) @map("is_active")
+  orderIndex  Int      @default(0) @map("order_index")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  userAchievements UserAchievement[]
+
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String    @map("user_id") @db.Uuid
+  achievementId String    @map("achievement_id") @db.Uuid
+  isUnlocked    Boolean   @default(false) @map("is_unlocked")
+  progress      Json?     @default("{}") @db.JsonB
+  unlockedAt    DateTime? @map("unlocked_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@index([achievementId])
+  @@map("user_achievements")
 }
 
 

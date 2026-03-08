@@ -107,10 +107,27 @@ export class GamificationController {
     }
   }
 
+  @Get('achievements')
+  async getAchievements(@Req() req: ReqWithRequester) {
+    const user = req.requester;
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send('gamification.getAchievements', { userId: user.sub }),
+      );
+      return successResponse({ achievements: result });
+    } catch (error: any) {
+      this.logger.error(
+        `Failed to get achievements for user ${user?.sub}`,
+        error.stack,
+      );
+      return errorResponse(error.message || 'Failed to fetch achievements');
+    }
+  }
+
   // --- Admin CRUD ---
 
   @Get('admin/rewards')
-  @Permissions('gamification:admin')
+  @Permissions('gamification.manage')
   async admin_getAllRewards() {
     try {
       const result = await firstValueFrom(
@@ -124,7 +141,7 @@ export class GamificationController {
   }
 
   @Post('admin/rewards')
-  @Permissions('gamification:admin')
+  @Permissions('gamification.manage')
   async admin_createReward(@Body() body: any) {
     try {
       const result = await firstValueFrom(
@@ -138,7 +155,7 @@ export class GamificationController {
   }
 
   @Patch('admin/rewards/:id')
-  @Permissions('gamification:admin')
+  @Permissions('gamification.manage')
   async admin_updateReward(@Param('id') id: string, @Body() body: any) {
     try {
       const result = await firstValueFrom(
@@ -152,7 +169,7 @@ export class GamificationController {
   }
 
   @Delete('admin/rewards/:id')
-  @Permissions('gamification:admin')
+  @Permissions('gamification.manage')
   async admin_deleteReward(@Param('id') id: string) {
     try {
       const result = await firstValueFrom(
@@ -162,6 +179,64 @@ export class GamificationController {
     } catch (error: any) {
       this.logger.error(`Failed to delete reward ${id}`, error.stack);
       return errorResponse(error.message || 'Failed to delete reward');
+    }
+  }
+
+  // --- Admin Achievement CRUD ---
+
+  @Get('admin/achievements')
+  @Permissions('gamification.manage')
+  async admin_getAllAchievements() {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send('gamification.admin.getAllAchievements', {}),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(`Failed to get all achievements for admin`, error.stack);
+      return errorResponse(error.message || 'Failed to fetch achievements');
+    }
+  }
+
+  @Post('admin/achievements')
+  @Permissions('gamification.manage')
+  async admin_createAchievement(@Body() body: any) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send('gamification.admin.createAchievement', body),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(`Failed to create achievement`, error.stack);
+      return errorResponse(error.message || 'Failed to create achievement');
+    }
+  }
+
+  @Patch('admin/achievements/:id')
+  @Permissions('gamification.manage')
+  async admin_updateAchievement(@Param('id') id: string, @Body() body: any) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send('gamification.admin.updateAchievement', { id, data: body }),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(`Failed to update achievement ${id}`, error.stack);
+      return errorResponse(error.message || 'Failed to update achievement');
+    }
+  }
+
+  @Delete('admin/achievements/:id')
+  @Permissions('gamification.manage')
+  async admin_deleteAchievement(@Param('id') id: string) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send('gamification.admin.deleteAchievement', { id }),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(`Failed to delete achievement ${id}`, error.stack);
+      return errorResponse(error.message || 'Failed to delete achievement');
     }
   }
 }
