@@ -42,7 +42,6 @@ import ServiceUnavailablePage from '@/routes/error/service-unavailable-page.tsx'
 import NotImplementedPage from '@/routes/error/not-implemented-page.tsx'
 import UnauthorizedPage from '@/routes/error/unauthorized-page.tsx'
 import AcademyCourseProfilesPage from '@/routes/academy/course-profiles-page.tsx'
-// import AcademyDashboardPage from '@/routes/academy/academy-dashboard-page.tsx'
 import AcademyCourseProfileCreatePage from '@/routes/academy/course-profile-create-page.tsx'
 import AcademyCourseProfileEditPage from '@/routes/academy/course-profile-edit-page.tsx'
 import AcademyCourseEditionCreatePage from '@/routes/academy/course-edition-create-page.tsx'
@@ -109,7 +108,6 @@ const queryClient = new QueryClient({
   },
 })
 
-import EditorTestPage from '@/routes/test/editor-test-page.tsx'
 
 function App() {
   return (
@@ -119,7 +117,6 @@ function App() {
           <TooltipProvider>
             <BrowserRouter>
               <Routes>
-                <Route path="/test-editor" element={<EditorTestPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />

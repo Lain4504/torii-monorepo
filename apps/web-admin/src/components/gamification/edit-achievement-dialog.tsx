@@ -30,7 +30,7 @@ import {
 } from "@workspace/ui/components/select";
 import { Switch } from "@workspace/ui/components/switch";
 import { Textarea } from "@workspace/ui/components/textarea";
-import { ScrollArea } from "@workspace/ui/components/scroll-area";
+
 import { useUpdateAchievement } from "@/lib/api/services/gamification";
 import { Trophy, Star, Target, Zap, Flame, Award } from "lucide-react";
 import type { AchievementDTO } from "@workspace/schemas";
@@ -155,7 +155,7 @@ export function EditAchievementDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-3xl max-h-[90vh] p-0 flex flex-col overflow-hidden">
+            <DialogContent className="sm:max-w-[700px] max-h-[90vh] p-0 flex flex-col overflow-hidden">
                 <DialogHeader className="p-6 pb-0 flex-none">
                     <DialogTitle className="flex items-center gap-2">
                         <Trophy className="h-5 w-5 text-primary" />
@@ -166,7 +166,7 @@ export function EditAchievementDialog({
                     </DialogDescription>
                 </DialogHeader>
 
-                <ScrollArea className="flex-1 overflow-y-auto">
+                <div className="flex-1 overflow-y-auto w-full">
                     <div className="p-6">
                         <form id="edit-achievement-form" onSubmit={handleSubmit(onSubmit)}>
                             <FieldGroup className="space-y-6">
@@ -272,7 +272,7 @@ export function EditAchievementDialog({
                             </FieldGroup>
                         </form>
                     </div>
-                </ScrollArea>
+                </div>
 
                 <DialogFooter className="p-6 pt-0 flex-none">
                     <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>Hủy</Button>

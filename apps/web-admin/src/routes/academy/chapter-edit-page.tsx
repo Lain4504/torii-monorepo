@@ -34,14 +34,18 @@ export default function AcademyChapterEditPage() {
               mode="edit"
               initial={item}
               submitting={update.isPending}
-              onCancel={() => nav("/academy/chapters")}
+              onCancel={() => {
+                if (item.courseEditionId) nav(`/academy/course-editions/${item.courseEditionId}`)
+                else nav(-1)
+              }}
               onSubmit={async (data) => {
                 await update.mutateAsync({
                   id: item.id,
                   input: data as AcademyChapterUpdateDTO,
                 })
                 toast.success("Đã cập nhật")
-                nav("/academy/chapters")
+                if (item.courseEditionId) nav(`/academy/course-editions/${item.courseEditionId}`)
+                else nav(-1)
               }}
             />
           )}

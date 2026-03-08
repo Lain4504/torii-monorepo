@@ -209,7 +209,8 @@ export default function OrdersPage() {
         </div>
 
         {/* Table */}
-        <Card>
+
+        <div className="rounded-md bg-background border overflow-hidden">
           <OrdersTable
             data={orders}
             isLoading={isLoading}
@@ -248,7 +249,7 @@ export default function OrdersPage() {
             page={page}
             limit={10}
           />
-        </Card>
+        </div>
 
         <SmartPagination
           page={page}

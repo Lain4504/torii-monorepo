@@ -12,7 +12,7 @@ import {
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
 import { Textarea } from '@workspace/ui/components/textarea';
-import { ScrollArea } from '@workspace/ui/components/scroll-area';
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import {
     Field,
@@ -53,16 +53,16 @@ export function EditCouponDialog({ open, onOpenChange, coupon }: EditCouponDialo
             name: coupon.name,
             description: coupon.description || '',
             discountType: coupon.discountType,
-            discountValue: coupon.discountValue,
-            maxDiscountAmount: coupon.maxDiscountAmount ?? undefined,
-            minOrderValue: coupon.minOrderValue ?? undefined,
-            usageLimit: coupon.usageLimit ?? undefined,
-            perUserLimit: coupon.perUserLimit,
+            discountValue: Number(coupon.discountValue),
+            maxDiscountAmount: coupon.maxDiscountAmount ? Number(coupon.maxDiscountAmount) : undefined,
+            minOrderValue: coupon.minOrderValue ? Number(coupon.minOrderValue) : undefined,
+            usageLimit: coupon.usageLimit ? Number(coupon.usageLimit) : undefined,
+            perUserLimit: Number(coupon.perUserLimit || 1),
             startDate: coupon.startDate ? new Date(coupon.startDate) : new Date(),
             endDate: coupon.endDate ? new Date(coupon.endDate) : new Date(),
             status: coupon.status,
-            applicableCourseMasterIds: coupon.applicableCourseMasterIds,
-            excludedCourseMasterIds: coupon.excludedCourseMasterIds,
+            applicableCourseMasterIds: coupon.applicableCourseMasterIds || [],
+            excludedCourseMasterIds: coupon.excludedCourseMasterIds || [],
             applicableRunIds: coupon.applicableRunIds || [],
             excludedRunIds: coupon.excludedRunIds || [],
         },
@@ -75,16 +75,16 @@ export function EditCouponDialog({ open, onOpenChange, coupon }: EditCouponDialo
                 name: coupon.name,
                 description: coupon.description || '',
                 discountType: coupon.discountType,
-                discountValue: coupon.discountValue,
-                maxDiscountAmount: coupon.maxDiscountAmount ?? undefined,
-                minOrderValue: coupon.minOrderValue ?? undefined,
-                usageLimit: coupon.usageLimit ?? undefined,
-                perUserLimit: coupon.perUserLimit,
+                discountValue: Number(coupon.discountValue),
+                maxDiscountAmount: coupon.maxDiscountAmount ? Number(coupon.maxDiscountAmount) : undefined,
+                minOrderValue: coupon.minOrderValue ? Number(coupon.minOrderValue) : undefined,
+                usageLimit: coupon.usageLimit ? Number(coupon.usageLimit) : undefined,
+                perUserLimit: Number(coupon.perUserLimit || 1),
                 startDate: coupon.startDate ? new Date(coupon.startDate) : new Date(),
                 endDate: coupon.endDate ? new Date(coupon.endDate) : new Date(),
                 status: coupon.status,
-                applicableCourseMasterIds: coupon.applicableCourseMasterIds,
-                excludedCourseMasterIds: coupon.excludedCourseMasterIds,
+                applicableCourseMasterIds: coupon.applicableCourseMasterIds || [],
+                excludedCourseMasterIds: coupon.excludedCourseMasterIds || [],
                 applicableRunIds: coupon.applicableRunIds || [],
                 excludedRunIds: coupon.excludedRunIds || [],
             });
@@ -107,9 +107,9 @@ export function EditCouponDialog({ open, onOpenChange, coupon }: EditCouponDialo
                 data: {
                     ...data,
                     discountValue: Number(data.discountValue),
-                    maxDiscountAmount: data.maxDiscountAmount ? Number(data.maxDiscountAmount) : undefined,
-                    minOrderValue: data.minOrderValue ? Number(data.minOrderValue) : undefined,
-                    usageLimit: data.usageLimit ? Number(data.usageLimit) : undefined,
+                    maxDiscountAmount: (data.maxDiscountAmount && !Number.isNaN(data.maxDiscountAmount)) ? Number(data.maxDiscountAmount) : null,
+                    minOrderValue: (data.minOrderValue !== undefined && data.minOrderValue !== null && !Number.isNaN(data.minOrderValue)) ? Number(data.minOrderValue) : null,
+                    usageLimit: (data.usageLimit && !Number.isNaN(data.usageLimit)) ? Number(data.usageLimit) : null,
                     perUserLimit: Number(data.perUserLimit || 1),
                     startDate: data.startDate!,
                     endDate: data.endDate!
@@ -129,16 +129,16 @@ export function EditCouponDialog({ open, onOpenChange, coupon }: EditCouponDialo
 
     return (
         <Dialog open={open} onOpenChange={handleClose}>
-            <DialogContent className="max-w-3xl max-h-[90vh] p-0">
-                <DialogHeader className="p-6 pb-0">
+            <DialogContent className="sm:max-w-[800px] max-h-[90vh] p-0 flex flex-col overflow-hidden">
+                <DialogHeader className="p-6 pb-0 shadow-sm z-10 bg-background">
                     <DialogTitle>Chỉnh Sửa Coupon</DialogTitle>
                     <DialogDescription>
                         Cập nhật thông tin mã phiếu giảm giá #{coupon.id.slice(0, 8)}
                     </DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col overflow-hidden" noValidate>
-                    <ScrollArea className="flex-1 max-h-[calc(90vh-180px)]">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden" noValidate>
+                    <div className="flex-1 overflow-y-auto">
                         <div className="space-y-6 p-6">
 
                             {hasUsage && (
@@ -403,9 +403,9 @@ export function EditCouponDialog({ open, onOpenChange, coupon }: EditCouponDialo
                                 </div>
                             </div>
                         </div>
-                    </ScrollArea>
+                    </div>
 
-                    <DialogFooter className="p-6 pt-0">
+                    <DialogFooter className="p-6 pt-0 mt-4 shadow-sm z-10 bg-background">
                         <Button
                             type="button"
                             variant="outline"

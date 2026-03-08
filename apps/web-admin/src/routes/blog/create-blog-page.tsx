@@ -30,14 +30,14 @@ import { storageApi } from '@/lib/api/services/storage-api.ts';
 import { Spinner } from "@workspace/ui/components/spinner";
 import { PageHeader } from '@/components/common/page-header';
 import { ArrowLeft, Save } from 'lucide-react';
-import { RichTextEditor, RichTextRenderer } from '@/components/editor/rich-text-editor';
+import { RichTextEditor } from '@/components/editor/rich-text-editor';
 import { X } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
 
 const createBlogSchema = z.object({
     title: z.string().min(1, 'Tiêu đề là bắt buộc'),
     excerpt: z.string().optional(),
     status: z.nativeEnum(BlogStatus),
+    publishedAt: z.string().optional(),
 });
 
 type CreateBlogFormData = z.infer<typeof createBlogSchema>;
@@ -49,19 +49,22 @@ export default function CreateBlogPage() {
     const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
     const [content, setContent] = useState<string>('');
     const [uploading, setUploading] = useState(false);
-    const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
 
     const {
         control,
         handleSubmit,
+        watch,
     } = useForm<CreateBlogFormData>({
         resolver: zodResolver(createBlogSchema),
         defaultValues: {
             title: '',
             excerpt: '',
             status: BlogStatus.DRAFT,
+            publishedAt: '',
         },
     });
+
+    const statusValue = watch("status");
 
     const createBlog = useCreateBlog();
 
@@ -133,6 +136,7 @@ export default function CreateBlogPage() {
                 content: content || '<p></p>',
                 excerpt: data.excerpt || undefined,
                 status: data.status,
+                publishedAt: data.status === BlogStatus.SCHEDULED && data.publishedAt ? new Date(data.publishedAt) : undefined,
                 authorId: user.id,
                 coverImageUrl,
             };
@@ -150,10 +154,6 @@ export default function CreateBlogPage() {
         } finally {
             setUploading(false);
         }
-    };
-
-    const renderPreview = () => {
-        return <RichTextRenderer content={content} />;
     };
 
     return (
@@ -180,8 +180,8 @@ export default function CreateBlogPage() {
             />
 
             <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-                <Card>
-                    <CardContent className="p-6">
+                <Card className="overflow-hidden bg-background">
+                    <div className="p-6 border-b">
                         <FieldGroup>
                             <FieldSet>
                                 <FieldGroup>
@@ -242,7 +242,8 @@ export default function CreateBlogPage() {
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         <SelectItem value={BlogStatus.DRAFT}>Bản nháp</SelectItem>
-                                                        <SelectItem value={BlogStatus.PUBLISHED}>Đã đăng</SelectItem>
+                                                        <SelectItem value={BlogStatus.PUBLISHED}>Đã đăng (Xuất bản)</SelectItem>
+                                                        <SelectItem value={BlogStatus.SCHEDULED}>Lên lịch</SelectItem>
                                                         <SelectItem value={BlogStatus.ARCHIVED}>Đã lưu trữ</SelectItem>
                                                     </SelectContent>
                                                 </Select>
@@ -250,6 +251,26 @@ export default function CreateBlogPage() {
                                             </Field>
                                         )}
                                     />
+
+                                    {statusValue === BlogStatus.SCHEDULED && (
+                                        <Controller
+                                            control={control}
+                                            name="publishedAt"
+                                            render={({ field, fieldState }) => (
+                                                <Field data-invalid={fieldState.invalid}>
+                                                    <FieldLabel htmlFor={field.name} className="required">
+                                                        Thời gian đăng bài
+                                                    </FieldLabel>
+                                                    <Input
+                                                        id={field.name}
+                                                        type="datetime-local"
+                                                        {...field}
+                                                    />
+                                                    <FieldError errors={[fieldState.error]} />
+                                                </Field>
+                                            )}
+                                        />
+                                    )}
 
                                     <Field>
                                         <FieldLabel htmlFor="cover-image-upload">
@@ -290,10 +311,8 @@ export default function CreateBlogPage() {
                                 </FieldGroup>
                             </FieldSet>
                         </FieldGroup>
-                    </CardContent>
-                </Card>
+                    </div>
 
-                <Card className="overflow-hidden bg-background">
                     <CardContent className="p-0">
                         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'edit' | 'preview')}>
                             <div className="border-b px-6 pt-6">

@@ -187,6 +187,16 @@ export class ClassService {
         });
       }
 
+      await this.audit.log({
+        userId: 'SYSTEM',
+        action: 'class.update',
+        entity: 'Class',
+        entityId: id,
+        description: `Updated class ${classItem.code}`,
+        oldValues: { name: classItem.name, status: classItem.status },
+        newValues: { name: updatedClass.name, status: updatedClass.status },
+      });
+
       return updatedClass;
     });
   }
@@ -233,20 +243,44 @@ export class ClassService {
     const classItem = await this.findById(id);
     if (classItem.status === 'IN_PROGRESS') return classItem;
 
-    return this.prisma.class.update({
+    const result = await this.prisma.class.update({
       where: { id },
       data: { status: 'IN_PROGRESS' },
     });
+
+    await this.audit.log({
+      userId: 'SYSTEM',
+      action: 'class.start',
+      entity: 'Class',
+      entityId: id,
+      description: `Started class ${classItem.code}`,
+      oldValues: { status: classItem.status },
+      newValues: { status: 'IN_PROGRESS' },
+    });
+
+    return result;
   }
 
   async completeClass(id: string) {
     const classItem = await this.findById(id);
     if (classItem.status === 'COMPLETED') return classItem;
 
-    return this.prisma.class.update({
+    const result = await this.prisma.class.update({
       where: { id },
       data: { status: 'COMPLETED' },
     });
+
+    await this.audit.log({
+      userId: 'SYSTEM',
+      action: 'class.complete',
+      entity: 'Class',
+      entityId: id,
+      description: `Completed class ${classItem.code}`,
+      oldValues: { status: classItem.status },
+      newValues: { status: 'COMPLETED' },
+    });
+
+    return result;
   }
 
   async cancelClass(id: string) {
@@ -322,6 +356,16 @@ export class ClassService {
     }
 
     await this.prisma.class.delete({ where: { id } });
+
+    await this.audit.log({
+      userId: 'SYSTEM',
+      action: 'class.delete',
+      entity: 'Class',
+      entityId: id,
+      description: `Deleted class ${classItem.code} (status was: ${classItem.status})`,
+      metadata: { code: classItem.code, mode: classItem.mode },
+    });
+
     return { ok: true };
   }
 }

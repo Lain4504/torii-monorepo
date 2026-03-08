@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { Button } from "@workspace/ui/components/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Input } from "@workspace/ui/components/input"
 import {
   Table,
@@ -19,7 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import { MoreVertical } from "lucide-react"
+import { MoreVertical, Search } from "lucide-react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -62,91 +61,87 @@ export default function AcademyCourseOfferingsPage() {
         }
       />
 
-      <Card>
-        <CardHeader className="space-y-2">
-          <CardTitle>Danh sách</CardTitle>
-          <div className="flex gap-2">
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Tìm theo code/title..." />
-            <Input
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              placeholder="Lọc theo status (DRAFT/ACTIVE/...)"
-            />
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Tìm theo code/title..." className="pl-9" />
+        </div>
+        <Input
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          placeholder="Lọc theo status (DRAFT/ACTIVE/...)"
+          className="w-[220px]"
+        />
+      </div>
+
+      <div className="rounded-md bg-background border overflow-hidden">
+        <Table>
+          <TableHeader className="bg-muted/50">
+            <TableRow>
+              <TableHead className="w-[80px]">STT</TableHead>
+              <TableHead>Code</TableHead>
+              <TableHead>Title</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Giá</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
               <TableRow>
-                <TableHead className="w-[80px]">STT</TableHead>
-                <TableHead>Code</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Giá</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableCell colSpan={6}>Đang tải...</TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={6}>Đang tải...</TableCell>
+            ) : data.length ? (
+              data.map((it, idx) => (
+                <TableRow key={it.id}>
+                  <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
+                  <TableCell className="font-mono text-xs">
+                    <Link to={`/academy/course-offerings/${it.id}`} className="hover:underline text-primary">
+                      {it.code}
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    <Link to={`/academy/course-offerings/${it.id}`} className="hover:underline font-medium">
+                      {it.title}
+                    </Link>
+                  </TableCell>
+                  <TableCell>{it.status ?? "-"}</TableCell>
+                  <TableCell className="text-right">
+                    {Intl.NumberFormat("vi-VN").format(it.price)} {it.currency}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0" size="icon">
+                          <span className="sr-only">Mở menu thao tác</span>
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-44">
+                        <DropdownMenuItem asChild>
+                          <Link to={`/academy/course-offerings/${it.id}/edit`}>
+                            Sửa
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={() => setDeleteId(it.id)}
+                        >
+                          Xoá
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
                 </TableRow>
-              ) : data.length ? (
-                data.map((it, idx) => (
-                  <TableRow key={it.id}>
-                    <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
-                    <TableCell className="font-mono text-xs">
-                      <Link to={`/academy/course-offerings/${it.id}`} className="hover:underline text-primary">
-                        {it.code}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <Link to={`/academy/course-offerings/${it.id}`} className="hover:underline font-medium">
-                        {it.title}
-                      </Link>
-                    </TableCell>
-                    <TableCell>{it.status ?? "-"}</TableCell>
-                    <TableCell className="text-right">
-                      {Intl.NumberFormat("vi-VN").format(it.price)} {it.currency}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="h-8 w-8 p-0"
-                            size="icon"
-                          >
-                            <span className="sr-only">Mở menu thao tác</span>
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-44">
-                          <DropdownMenuItem asChild>
-                            <Link to={`/academy/course-offerings/${it.id}/edit`}>
-                              Sửa
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-destructive focus:text-destructive"
-                            onClick={() => setDeleteId(it.id)}
-                          >
-                            Xoá
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6}>Chưa có dữ liệu</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={6}>Chưa có dữ liệu</TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
       <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
         <AlertDialogContent>

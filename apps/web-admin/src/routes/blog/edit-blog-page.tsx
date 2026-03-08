@@ -12,7 +12,7 @@ import { Card, CardContent } from '@workspace/ui/components/card';
 import { BlogStatus } from '@workspace/schemas';
 import { Spinner } from '@workspace/ui/components/spinner';
 import { toast } from '@workspace/ui/components/sonner';
-import { RichTextEditor, RichTextRenderer } from '@/components/editor/rich-text-editor';
+import { RichTextEditor } from '@/components/editor/rich-text-editor';
 import { ArrowLeft, Save } from 'lucide-react';
 import {
     Field,
@@ -28,12 +28,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@workspace/ui/components/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
 
 const editBlogSchema = z.object({
     title: z.string().min(1, 'Tiêu đề là bắt buộc'),
     excerpt: z.string().optional(),
     status: z.nativeEnum(BlogStatus),
+    publishedAt: z.string().optional(),
 });
 
 type EditBlogFormData = z.infer<typeof editBlogSchema>;
@@ -46,20 +46,23 @@ export default function EditBlogPage() {
 
     const [content, setContent] = useState<string>('');
     const [isSaving, setIsSaving] = useState(false);
-    const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
 
     const {
         control,
         handleSubmit,
         reset,
+        watch,
     } = useForm<EditBlogFormData>({
         resolver: zodResolver(editBlogSchema),
         defaultValues: {
             title: '',
             excerpt: '',
             status: BlogStatus.DRAFT,
+            publishedAt: '',
         },
     });
+
+    const statusValue = watch("status");
 
     useEffect(() => {
         if (blog) {
@@ -68,6 +71,7 @@ export default function EditBlogPage() {
                 title: blog.title,
                 excerpt: blog.excerpt || '',
                 status: blog.status,
+                publishedAt: blog.publishedAt ? new Date(blog.publishedAt).toISOString().slice(0, 16) : '',
             });
         }
     }, [blog, reset]);
@@ -84,6 +88,7 @@ export default function EditBlogPage() {
                     excerpt: data.excerpt || undefined,
                     content,
                     status: data.status,
+                    publishedAt: data.status === BlogStatus.SCHEDULED && data.publishedAt ? new Date(data.publishedAt) : undefined,
                 }
             });
             toast.success('Đã lưu bài viết');
@@ -95,10 +100,6 @@ export default function EditBlogPage() {
         } finally {
             setIsSaving(false);
         }
-    };
-
-    const renderPreview = () => {
-        return <RichTextRenderer content={content} />;
     };
 
     if (isLoading) {
@@ -141,8 +142,8 @@ export default function EditBlogPage() {
             />
 
             <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-                <Card>
-                    <CardContent className="p-6">
+                <Card className="overflow-hidden bg-background">
+                    <div className="p-6 border-b">
                         <FieldGroup>
                             <FieldSet>
                                 <FieldGroup>
@@ -203,7 +204,8 @@ export default function EditBlogPage() {
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         <SelectItem value={BlogStatus.DRAFT}>Bản nháp</SelectItem>
-                                                        <SelectItem value={BlogStatus.PUBLISHED}>Đã đăng</SelectItem>
+                                                        <SelectItem value={BlogStatus.PUBLISHED}>Đã đăng (Xuất bản)</SelectItem>
+                                                        <SelectItem value={BlogStatus.SCHEDULED}>Lên lịch</SelectItem>
                                                         <SelectItem value={BlogStatus.ARCHIVED}>Đã lưu trữ</SelectItem>
                                                     </SelectContent>
                                                 </Select>
@@ -211,31 +213,38 @@ export default function EditBlogPage() {
                                             </Field>
                                         )}
                                     />
+
+                                    {statusValue === BlogStatus.SCHEDULED && (
+                                        <Controller
+                                            control={control}
+                                            name="publishedAt"
+                                            render={({ field, fieldState }) => (
+                                                <Field data-invalid={fieldState.invalid}>
+                                                    <FieldLabel htmlFor={field.name} className="required">
+                                                        Thời gian đăng bài
+                                                    </FieldLabel>
+                                                    <Input
+                                                        id={field.name}
+                                                        type="datetime-local"
+                                                        {...field}
+                                                    />
+                                                    <FieldError errors={[fieldState.error]} />
+                                                </Field>
+                                            )}
+                                        />
+                                    )}
                                 </FieldGroup>
                             </FieldSet>
                         </FieldGroup>
-                    </CardContent>
-                </Card>
+                    </div>
 
-                <Card className="overflow-hidden bg-background">
-                    <CardContent className="p-0">
-                        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'edit' | 'preview')}>
-                            <div className="border-b px-6 pt-6">
-                                <TabsList>
-                                    <TabsTrigger value="edit">Chỉnh sửa</TabsTrigger>
-                                    <TabsTrigger value="preview">Xem trước</TabsTrigger>
-                                </TabsList>
-                            </div>
-                            <TabsContent value="edit" className="m-0 p-6">
-                                <RichTextEditor
-                                    initialContent={blog.content}
-                                    onUpdate={(data: string) => setContent(data)}
-                                />
-                            </TabsContent>
-                            <TabsContent value="preview" className="m-0">
-                                {renderPreview()}
-                            </TabsContent>
-                        </Tabs>
+                    <CardContent className="p-0 border-y">
+                        <div className="p-6 h-full min-h-[500px]">
+                            <RichTextEditor
+                                initialContent={blog.content}
+                                onUpdate={(data: string) => setContent(data)}
+                            />
+                        </div>
                     </CardContent>
                 </Card>
             </form>

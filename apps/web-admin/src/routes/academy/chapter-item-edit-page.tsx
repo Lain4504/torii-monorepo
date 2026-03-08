@@ -34,14 +34,14 @@ export default function AcademyChapterItemEditPage() {
               mode="edit"
               initial={item}
               submitting={update.isPending}
-              onCancel={() => nav("/academy/chapter-items")}
+              onCancel={() => nav(-1)}
               onSubmit={async (data) => {
                 await update.mutateAsync({
                   id: item.id,
                   input: data as AcademyChapterItemUpdateDTO,
                 })
                 toast.success("Đã cập nhật")
-                nav("/academy/chapter-items")
+                nav(-1)
               }}
             />
           )}

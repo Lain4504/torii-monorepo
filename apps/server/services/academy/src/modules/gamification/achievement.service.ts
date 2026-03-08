@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
+import { AuditLoggerService } from '../audit-logger.service';
 import {
     AchievementDTO,
     UserAchievementDTO,
@@ -11,7 +12,10 @@ import {
 export class AchievementService {
     private readonly logger = new Logger(AchievementService.name);
 
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly audit: AuditLoggerService,
+    ) { }
 
     async getAchievementsForUser(userId: string): Promise<UserAchievementDTO[]> {
         // Get all active achievements
@@ -206,8 +210,8 @@ export class AchievementService {
         });
     }
 
-    async admin_createAchievement(data: any) {
-        return this.prisma.achievement.create({
+    async admin_createAchievement(data: any, actorId = 'SYSTEM') {
+        const achievement = await this.prisma.achievement.create({
             data: {
                 code: data.code,
                 category: data.category,
@@ -220,10 +224,22 @@ export class AchievementService {
                 orderIndex: data.orderIndex || 0,
             },
         });
+
+        await this.audit.log({
+            userId: actorId,
+            action: 'achievement.create',
+            entity: 'Achievement',
+            entityId: achievement.id,
+            description: `Created achievement: ${achievement.title} (${achievement.code})`,
+            newValues: { code: achievement.code, title: achievement.title, category: achievement.category },
+        });
+
+        return achievement;
     }
 
-    async admin_updateAchievement(id: string, data: any) {
-        return this.prisma.achievement.update({
+    async admin_updateAchievement(id: string, data: any, actorId = 'SYSTEM') {
+        const old = await this.prisma.achievement.findUnique({ where: { id }, select: { title: true, code: true, isActive: true } });
+        const updated = await this.prisma.achievement.update({
             where: { id },
             data: {
                 code: data.code,
@@ -237,20 +253,44 @@ export class AchievementService {
                 orderIndex: data.orderIndex,
             },
         });
+
+        await this.audit.log({
+            userId: actorId,
+            action: 'achievement.update',
+            entity: 'Achievement',
+            entityId: id,
+            description: `Updated achievement: ${old?.title || id}`,
+            oldValues: { title: old?.title, isActive: old?.isActive },
+            newValues: { title: updated.title, isActive: updated.isActive },
+        });
+
+        return updated;
     }
 
-    async admin_deleteAchievement(id: string) {
-        // Soft delete or hard delete? Spec says: Xóa (hoặc soft-delete bằng isActive = false)
-        // Let's do hard delete for now if requested, but maybe soft delete is safer.
-        // The prisma schema doesn't have deletedAt for Achievement, so let's just use isActive: false or hard delete.
-        // Given the spec's flexibility, I'll go with hard delete but check if it's used first.
+    async admin_deleteAchievement(id: string, actorId = 'SYSTEM') {
+        const achievement = await this.prisma.achievement.findUnique({ where: { id } });
         const usedCount = await this.prisma.userAchievement.count({ where: { achievementId: id } });
+        let result: any;
         if (usedCount > 0) {
-            return this.prisma.achievement.update({
+            result = await this.prisma.achievement.update({
                 where: { id },
                 data: { isActive: false },
             });
+        } else {
+            result = await this.prisma.achievement.delete({ where: { id } });
         }
-        return this.prisma.achievement.delete({ where: { id } });
+
+        await this.audit.log({
+            userId: actorId,
+            action: usedCount > 0 ? 'achievement.deactivate' : 'achievement.delete',
+            entity: 'Achievement',
+            entityId: id,
+            description: usedCount > 0
+                ? `Deactivated achievement: ${achievement?.title} (in use by ${usedCount} users)`
+                : `Deleted achievement: ${achievement?.title}`,
+            metadata: { code: achievement?.code, usedCount },
+        });
+
+        return result;
     }
 }

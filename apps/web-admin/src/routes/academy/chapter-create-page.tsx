@@ -29,11 +29,15 @@ export default function AcademyChapterCreatePage() {
             mode="create"
             courseEditionId={courseEditionId}
             submitting={create.isPending}
-            onCancel={() => nav("/academy/chapters")}
+            onCancel={() => {
+              if (courseEditionId) nav(`/academy/course-editions/${courseEditionId}`)
+              else nav(-1)
+            }}
             onSubmit={async (data) => {
               await create.mutateAsync(data as AcademyChapterCreateDTO)
               toast.success("Đã tạo Chapter")
-              nav("/academy/chapters")
+              if (courseEditionId) nav(`/academy/course-editions/${courseEditionId}`)
+              else nav(-1)
             }}
           />
         </CardContent>

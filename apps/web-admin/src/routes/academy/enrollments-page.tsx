@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@workspace/ui/components/table"
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
+
 import { PageHeader } from "@/components/common/page-header"
 import { toast } from "sonner"
 import {
@@ -88,156 +88,150 @@ export default function AcademyEnrollmentsPage() {
         }
       />
 
-      <Card>
-        <CardHeader className="space-y-4">
-          <div className="flex items-center justify-between">
-            <CardTitle>Danh sách Ghi danh</CardTitle>
-          </div>
-          <div className="flex flex-col gap-3 md:flex-row md:items-center">
-            <div className="flex-1">
-              <Select value={classId} onValueChange={setClassId}>
-                <SelectTrigger>
-                  <div className="flex items-center gap-2">
-                    <Layout className="size-4 text-muted-foreground" />
-                    <SelectValue placeholder="Chọn lớp học" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="_all">Tất cả lớp học</SelectItem>
-                  {classes.map((c: any) => (
-                    <SelectItem key={c.id} value={c.id}>{c.name} ({c.code})</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="w-full md:w-[200px]">
-              <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger>
-                  <div className="flex items-center gap-2">
-                    <Filter className="size-4 text-muted-foreground" />
-                    <SelectValue placeholder="Trạng thái" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="_all">Tất cả trạng thái</SelectItem>
-                  <SelectItem value="ACTIVE">Hoạt động (Active)</SelectItem>
-                  <SelectItem value="COMPLETED">Hoàn thành (Completed)</SelectItem>
-                  <SelectItem value="CANCELLED">Đã hủy (Cancelled)</SelectItem>
-                  <SelectItem value="EXPIRED">Hết hạn (Expired)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
+      <div className="flex flex-col gap-3 md:flex-row md:items-center">
+        <div className="flex-1">
+          <Select value={classId} onValueChange={setClassId}>
+            <SelectTrigger>
+              <div className="flex items-center gap-2">
+                <Layout className="size-4 text-muted-foreground" />
+                <SelectValue placeholder="Chọn lớp học" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="_all">Tất cả lớp học</SelectItem>
+              {classes.map((c: any) => (
+                <SelectItem key={c.id} value={c.id}>{c.name} ({c.code})</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="w-full md:w-[200px]">
+          <Select value={status} onValueChange={setStatus}>
+            <SelectTrigger>
+              <div className="flex items-center gap-2">
+                <Filter className="size-4 text-muted-foreground" />
+                <SelectValue placeholder="Trạng thái" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="_all">Tất cả trạng thái</SelectItem>
+              <SelectItem value="ACTIVE">Hoạt động (Active)</SelectItem>
+              <SelectItem value="COMPLETED">Hoàn thành (Completed)</SelectItem>
+              <SelectItem value="CANCELLED">Đã hủy (Cancelled)</SelectItem>
+              <SelectItem value="EXPIRED">Hết hạn (Expired)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="rounded-md bg-background border overflow-hidden">
+        <Table>
+          <TableHeader className="bg-muted/50">
+            <TableRow>
+              <TableHead>Học viên</TableHead>
+              <TableHead>Lớp học</TableHead>
+              <TableHead>Ngày ghi danh</TableHead>
+              <TableHead>Hết hạn</TableHead>
+              <TableHead>Trạng thái</TableHead>
+              <TableHead className="text-right">Thao tác</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, idx) => (
+                <TableRow key={idx}>
+                  <TableCell><Skeleton className="h-5 w-40" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-48" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                  <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto rounded-full" /></TableCell>
+                </TableRow>
+              ))
+            ) : enrollments.length === 0 ? (
               <TableRow>
-                <TableHead>Học viên</TableHead>
-                <TableHead>Lớp học</TableHead>
-                <TableHead>Ngày ghi danh</TableHead>
-                <TableHead>Hết hạn</TableHead>
-                <TableHead>Trạng thái</TableHead>
-                <TableHead className="text-right">Thao tác</TableHead>
+                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                  Không tìm thấy dữ liệu ghi danh.
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                Array.from({ length: 5 }).map((_, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell><Skeleton className="h-5 w-40" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-48" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-20" /></TableCell>
-                    <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto rounded-full" /></TableCell>
-                  </TableRow>
-                ))
-              ) : enrollments.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                    Không tìm thấy dữ liệu ghi danh.
+            ) : (
+              enrollments.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <User className="size-4" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-medium text-sm">{item.user?.displayName || "N/A"}</span>
+                        <span className="text-xs text-muted-foreground">{item.user?.email || item.userId}</span>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <Link
+                        to={`/academy/classes/${item.classId}`}
+                        className="font-medium hover:underline text-primary text-sm"
+                      >
+                        {item.class?.name || "N/A"}
+                      </Link>
+                      <span className="text-xs text-muted-foreground font-mono">{item.class?.code || item.classId}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Calendar className="size-3.5" />
+                      <span>{item.enrolledAt ? format(new Date(item.enrolledAt), "dd/MM/yyyy") : "N/A"}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {item.expiresAt ? (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+                        <Clock className="size-3.5" />
+                        <span>{format(new Date(item.expiresAt), "dd/MM/yyyy")}</span>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Vô thời hạn</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {item.status === "ACTIVE" ? (
+                      <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-none">ACTIVE</Badge>
+                    ) : item.status === "COMPLETED" ? (
+                      <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20 shadow-none">COMPLETED</Badge>
+                    ) : (
+                      <Badge variant="secondary" className="shadow-none opacity-70">{item.status}</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0" size="icon">
+                          <MoreVertical className="size-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-40">
+                        <DropdownMenuItem asChild>
+                          <Link to={`/academy/enrollments/${item.id}/edit`}>
+                            Sửa ghi danh
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={() => setDeleteId(item.id)}
+                        >
+                          Xoá ghi danh
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
-              ) : (
-                enrollments.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-primary">
-                          <User className="size-4" />
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-medium text-sm">{item.user?.displayName || "N/A"}</span>
-                          <span className="text-xs text-muted-foreground">{item.user?.email || item.userId}</span>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <Link
-                          to={`/academy/classes/${item.classId}`}
-                          className="font-medium hover:underline text-primary text-sm"
-                        >
-                          {item.class?.name || "N/A"}
-                        </Link>
-                        <span className="text-xs text-muted-foreground font-mono">{item.class?.code || item.classId}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Calendar className="size-3.5" />
-                        <span>{item.enrolledAt ? format(new Date(item.enrolledAt), "dd/MM/yyyy") : "N/A"}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {item.expiresAt ? (
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
-                          <Clock className="size-3.5" />
-                          <span>{format(new Date(item.expiresAt), "dd/MM/yyyy")}</span>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">Vô thời hạn</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {item.status === "ACTIVE" ? (
-                        <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-none">ACTIVE</Badge>
-                      ) : item.status === "COMPLETED" ? (
-                        <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20 shadow-none">COMPLETED</Badge>
-                      ) : (
-                        <Badge variant="secondary" className="shadow-none opacity-70">{item.status}</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0" size="icon">
-                            <MoreVertical className="size-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-40">
-                          <DropdownMenuItem asChild>
-                            <Link to={`/academy/enrollments/${item.id}/edit`}>
-                              Sửa ghi danh
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-destructive focus:text-destructive"
-                            onClick={() => setDeleteId(item.id)}
-                          >
-                            Xoá ghi danh
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
       <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
         <AlertDialogContent>

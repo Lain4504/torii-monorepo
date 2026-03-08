@@ -67,18 +67,16 @@ export default function TicketsPage() {
                     status={statusFilter}
                     onStatusChange={(v) => setStatusFilter(v === 'all' ? '' : v as TicketStatus)}
                 />
-                <Card>
-                    <CardContent className="p-0">
-                        <TicketsTable
-                            data={tickets}
-                            isLoading={isLoading}
-                            onView={setViewingTicket}
-                            onChangeStatus={setChangingStatusTicket}
-                            page={page}
-                            limit={queryParams.limit || 10}
-                        />
-                    </CardContent>
-                </Card>
+                <div className="rounded-md bg-background border overflow-hidden">
+                    <TicketsTable
+                        data={tickets}
+                        isLoading={isLoading}
+                        onView={setViewingTicket}
+                        onChangeStatus={setChangingStatusTicket}
+                        page={page}
+                        limit={queryParams.limit || 10}
+                    />
+                </div>
                 <SmartPagination
                     page={page}
                     totalPages={meta?.totalPages || 0}

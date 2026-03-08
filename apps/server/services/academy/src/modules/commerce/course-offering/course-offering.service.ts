@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, OfferingStatus, OrderType } from '@prisma/generated';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
+import { AuditLoggerService } from '../../audit-logger.service';
 import {
   CourseOfferingCreateDto,
   CourseOfferingQueryDto,
@@ -10,7 +11,10 @@ import {
 
 @Injectable()
 export class CourseOfferingService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly audit: AuditLoggerService,
+  ) { }
 
   async findAll(query: CourseOfferingQueryDto) {
     const q = query.q?.trim();
@@ -98,7 +102,7 @@ export class CourseOfferingService {
     return item as any;
   }
 
-  async create(input: CourseOfferingCreateDto) {
+  async create(input: CourseOfferingCreateDto, actorId = 'SYSTEM') {
     if (input.status === OfferingStatus.PUBLISHED) {
       if (!input.classIds?.length) {
         throw new BadRequestException('Active offering must have at least one class');
@@ -118,7 +122,7 @@ export class CourseOfferingService {
       }
     }
 
-    return this.prisma.courseOffering.create({
+    const offering = await this.prisma.courseOffering.create({
       data: {
         code: input.code,
         title: input.title,
@@ -137,9 +141,20 @@ export class CourseOfferingService {
           : undefined,
       },
     });
+
+    await this.audit.log({
+      userId: actorId,
+      action: 'offering.create',
+      entity: 'CourseOffering',
+      entityId: offering.id,
+      description: `Created course offering: ${offering.title} (${offering.code}) with status ${offering.status}`,
+      newValues: { code: offering.code, status: offering.status, originalPrice: offering.originalPrice },
+    });
+
+    return offering;
   }
 
-  async update(id: string, input: CourseOfferingUpdateDto) {
+  async update(id: string, input: CourseOfferingUpdateDto, actorId = 'SYSTEM') {
     const offering = await this.findById(id) as any;
 
     if (input.status === OfferingStatus.PUBLISHED) {
@@ -162,7 +177,7 @@ export class CourseOfferingService {
       }
     }
 
-    return this.prisma.courseOffering.update({
+    const updated = await this.prisma.courseOffering.update({
       where: { id },
       data: {
         title: input.title,
@@ -182,6 +197,18 @@ export class CourseOfferingService {
           : undefined,
       },
     });
+
+    await this.audit.log({
+      userId: actorId,
+      action: 'offering.update',
+      entity: 'CourseOffering',
+      entityId: id,
+      description: `Updated course offering: ${offering.title} (${offering.code})`,
+      oldValues: { status: offering.status, originalPrice: offering.originalPrice },
+      newValues: { status: updated.status, originalPrice: updated.originalPrice },
+    });
+
+    return updated;
   }
 
   async setClasses(input: CourseOfferingSetClassesDto) {
@@ -209,9 +236,19 @@ export class CourseOfferingService {
     return this.findById(input.offeringId);
   }
 
-  async delete(id: string) {
-    await this.findById(id);
+  async delete(id: string, actorId = 'SYSTEM') {
+    const offering = await this.findById(id) as any;
     await this.prisma.courseOffering.delete({ where: { id } });
+
+    await this.audit.log({
+      userId: actorId,
+      action: 'offering.delete',
+      entity: 'CourseOffering',
+      entityId: id,
+      description: `Deleted course offering: ${offering.title} (${offering.code})`,
+      metadata: { code: offering.code, status: offering.status },
+    });
+
     return { ok: true };
   }
 }

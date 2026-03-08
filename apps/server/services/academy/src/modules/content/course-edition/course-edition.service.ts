@@ -37,14 +37,14 @@ export class CourseEditionService {
     });
   }
 
-  async create(input: CourseEditionCreateDto) {
+  async create(input: CourseEditionCreateDto, actorId = 'SYSTEM') {
     const profile = await this.prisma.courseProfile.findUnique({
       where: { id: input.courseProfileId },
       select: { id: true },
     });
     if (!profile) throw new BadRequestException('Invalid courseProfileId');
 
-    return this.prisma.courseEdition.create({
+    const edition = await this.prisma.courseEdition.create({
       data: {
         courseProfileId: input.courseProfileId,
         editionTag: input.editionTag,
@@ -53,10 +53,21 @@ export class CourseEditionService {
         changelog: input.changelog,
       },
     });
+
+    await this.audit.log({
+      userId: actorId,
+      action: 'edition.create',
+      entity: 'CourseEdition',
+      entityId: edition.id,
+      description: `Created course edition: ${edition.editionTag} for profile ${input.courseProfileId}`,
+      newValues: { editionTag: edition.editionTag, status: edition.status },
+    });
+
+    return edition;
   }
 
-  async update(id: string, input: CourseEditionUpdateDto) {
-    await this.findById(id);
+  async update(id: string, input: CourseEditionUpdateDto, actorId = 'SYSTEM') {
+    const old = await this.findById(id);
 
     if (input.isCurrent === true) {
       // ensure only 1 current per CourseProfile
@@ -72,7 +83,7 @@ export class CourseEditionService {
       }
     }
 
-    return this.prisma.courseEdition.update({
+    const updated = await this.prisma.courseEdition.update({
       where: { id },
       data: {
         editionTag: input.editionTag,
@@ -82,6 +93,18 @@ export class CourseEditionService {
         changelog: input.changelog,
       },
     });
+
+    await this.audit.log({
+      userId: actorId,
+      action: 'edition.update',
+      entity: 'CourseEdition',
+      entityId: id,
+      description: `Updated edition ${old.editionTag}`,
+      oldValues: { status: old.status, isCurrent: old.isCurrent, editionTag: old.editionTag },
+      newValues: { status: updated.status, isCurrent: updated.isCurrent, editionTag: updated.editionTag },
+    });
+
+    return updated;
   }
 
   async setCurrent(id: string) {

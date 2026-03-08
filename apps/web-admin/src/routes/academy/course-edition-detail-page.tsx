@@ -74,7 +74,7 @@ export default function CourseEditionDetailPage() {
                 <h2 className="text-xl font-bold tracking-tight">Cấu trúc khóa học (Syllabus)</h2>
                 <p className="text-sm text-muted-foreground">Quản lý các chương học và nội dung đào tạo.</p>
               </div>
-              <Button onClick={() => navigate(`/academy/chapters/new?editionId=${id}`)}>
+              <Button onClick={() => navigate(`/academy/chapters/new?courseEditionId=${id}`)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Thêm chương học
               </Button>
@@ -83,7 +83,7 @@ export default function CourseEditionDetailPage() {
           </TabsContent>
 
           <TabsContent value="lessons">
-             <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">Danh sách bài học (Lessons)</h2>
               <Button onClick={() => navigate(`/academy/lessons/new?profileId=${edition.courseProfileId}`)}>
                 <Plus className="h-4 w-4 mr-2" />
@@ -91,7 +91,7 @@ export default function CourseEditionDetailPage() {
               </Button>
             </div>
             <div className="text-center py-10 bg-muted/20 rounded-lg border-2 border-dashed">
-               <p className="text-muted-foreground">Danh sách lesson của profile này sẽ hiển thị ở đây (Filter theo profileId)</p>
+              <p className="text-muted-foreground">Danh sách lesson của profile này sẽ hiển thị ở đây (Filter theo profileId)</p>
             </div>
           </TabsContent>
 
@@ -103,8 +103,8 @@ export default function CourseEditionDetailPage() {
                 Tạo Quiz mới
               </Button>
             </div>
-             <div className="text-center py-10 bg-muted/20 rounded-lg border-2 border-dashed">
-               <p className="text-muted-foreground">Danh sách quiz template của profile này sẽ hiển thị ở đây</p>
+            <div className="text-center py-10 bg-muted/20 rounded-lg border-2 border-dashed">
+              <p className="text-muted-foreground">Danh sách quiz template của profile này sẽ hiển thị ở đây</p>
             </div>
           </TabsContent>
 
@@ -116,8 +116,8 @@ export default function CourseEditionDetailPage() {
                 Tạo Assignment mới
               </Button>
             </div>
-             <div className="text-center py-10 bg-muted/20 rounded-lg border-2 border-dashed">
-               <p className="text-muted-foreground">Danh sách bài tập của profile này sẽ hiển thị ở đây</p>
+            <div className="text-center py-10 bg-muted/20 rounded-lg border-2 border-dashed">
+              <p className="text-muted-foreground">Danh sách bài tập của profile này sẽ hiển thị ở đây</p>
             </div>
           </TabsContent>
         </div>
