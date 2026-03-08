@@ -14,10 +14,11 @@ import { PageHeader } from "@/components/common/page-header"
 import {
   useAcademyCourseOffering,
   useApproveCourseOffering,
+  useArchiveAcademyCourseOffering,
   useRejectCourseOffering,
   useSubmitCourseOfferingForApproval,
 } from "@/lib/api/services/academy-course-offerings"
-import { ArrowLeft, Edit, Package, GraduationCap, Calendar, DollarSign, Send, CheckCircle2, AlertCircle } from "lucide-react"
+import { ArrowLeft, Archive, Edit, Package, GraduationCap, Calendar, DollarSign, Send, CheckCircle2, AlertCircle } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,7 @@ export default function AcademyCourseOfferingDetailPage() {
   const submitMutation = useSubmitCourseOfferingForApproval()
   const approveMutation = useApproveCourseOffering()
   const rejectMutation = useRejectCourseOffering()
+  const archiveMutation = useArchiveAcademyCourseOffering()
 
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false)
   const [rejectionReason, setRejectionReason] = useState("")
@@ -123,6 +125,24 @@ export default function AcademyCourseOfferingDetailPage() {
                   Chỉnh sửa
                 </Link>
               </Button>
+
+              {["PUBLISHED", "HIDDEN"].includes(item.status || "") && (
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    try {
+                      await archiveMutation.mutateAsync(id!)
+                      toast.success("Đã lưu trữ gói bán")
+                    } catch (error: any) {
+                      toast.error(error?.response?.data?.message || "Lưu trữ thất bại")
+                    }
+                  }}
+                  disabled={archiveMutation.isPending}
+                >
+                  <Archive className="w-4 h-4 mr-2" />
+                  Lưu trữ
+                </Button>
+              )}
             </div>
           }
         />
@@ -232,7 +252,8 @@ export default function AcademyCourseOfferingDetailPage() {
                 <div>
                   <Badge variant={
                     item.status === "PUBLISHED" ? "default" :
-                      item.status === "PENDING_APPROVAL" ? "secondary" : "outline"
+                      item.status === "PENDING_APPROVAL" ? "secondary" :
+                        item.status === "ARCHIVED" ? "secondary" : "outline"
                   }>
                     {item.status}
                   </Badge>

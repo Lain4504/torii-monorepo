@@ -23,13 +23,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select"
-import { Textarea } from "@workspace/ui/components/textarea"
 
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
 import { LessonMediaUploader } from "@/components/academy/lesson-media-uploader"
 import type { AcademyLessonCreateDTO } from "@workspace/schemas"
 import { academyLessonCreateDTOSchema } from "@workspace/schemas"
 import { RichTextEditor } from "@/components/editor/rich-text-editor"
+import { KeyValueEditor } from "@/components/academy/key-value-editor"
+import { AttachmentListEditor } from "@/components/academy/attachment-list-editor"
 
 interface LessonFormProps {
   defaultValues?: Partial<AcademyLessonCreateDTO>
@@ -64,7 +65,11 @@ export function LessonForm({
   })
 
   const contentType = watch("contentType")
-  const isRichTextType = contentType === "HTML" || contentType === "MARKDOWN" || contentType === "RICH_TEXT"
+  // User requests: Video content can still have content body.
+  // And content body is markdown.
+  // We keep the editor visible for VIDEO and MARKDOWN.
+  const showContentEditor = contentType === "VIDEO" || contentType === "MARKDOWN" || contentType === "HTML" || contentType === "RICH_TEXT"
+  
   const isMediaUrlType =
     contentType === "VIDEO" ||
     contentType === "PDF" ||
@@ -137,8 +142,9 @@ export function LessonForm({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="VIDEO">Video</SelectItem>
-                      <SelectItem value="HTML">HTML</SelectItem>
+                      {/* Removed HTML option as requested */}
                       <SelectItem value="MARKDOWN">Markdown</SelectItem>
+                      {/* Kept EXTERNAL_LINK and PDF as they are distinct from just "content" */}
                       <SelectItem value="EXTERNAL_LINK">External Link</SelectItem>
                       <SelectItem value="PDF">PDF</SelectItem>
                     </SelectContent>
@@ -156,13 +162,13 @@ export function LessonForm({
 
       <Card>
         <CardHeader>
-          <CardTitle>Nội dung bài học</CardTitle>
+          <CardTitle>Nội dung bài học (Markdown)</CardTitle>
           <CardDescription>
             Soạn nội dung chi tiết và xem trước hiển thị.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {isRichTextType ? (
+          {showContentEditor ? (
             <Controller
               name="contentBody"
               control={control}
@@ -181,57 +187,73 @@ export function LessonForm({
             />
           ) : (
             <FieldDescription>
-              Nội dung văn bản chỉ áp dụng cho loại HTML hoặc Markdown.
+              Nội dung văn bản chỉ áp dụng cho loại Video hoặc Markdown.
             </FieldDescription>
           )}
         </CardContent>
       </Card>
 
+      {isMediaUrlType && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Media & liên kết</CardTitle>
+            <CardDescription>
+              Thiết lập link video, file, hoặc external link cho bài học.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FieldGroup>
+                <Controller
+                  name="contentUrl"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <LessonMediaUploader
+                      value={field.value || null}
+                      onChange={field.onChange}
+                      label={
+                        contentType === "EXTERNAL_LINK"
+                          ? "Liên kết nội dung"
+                          : "File nội dung (Video/PDF/Media)"
+                      }
+                      description={
+                        contentType === "EXTERNAL_LINK"
+                          ? "Liên kết đến trang hoặc tài nguyên bên ngoài."
+                          : "Chọn file video hoặc tài liệu, hệ thống sẽ tự động upload lên storage."
+                      }
+                      accept={
+                        contentType === "VIDEO"
+                          ? "video/*"
+                          : contentType === "PDF"
+                            ? "application/pdf"
+                            : undefined
+                      }
+                      errorMessage={fieldState.error?.message}
+                    />
+                  )}
+                />
+            </FieldGroup>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
-          <CardTitle>Media & liên kết</CardTitle>
+          <CardTitle>Tài liệu đính kèm</CardTitle>
           <CardDescription>
-            Thiết lập link video, file, hoặc external link cho bài học.
+            Thêm tài liệu tham khảo cho bài học.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <FieldGroup>
-            {isMediaUrlType && (
-              <Controller
-                name="contentUrl"
-                control={control}
-                render={({ field, fieldState }) => (
-                  <LessonMediaUploader
-                    value={field.value || null}
-                    onChange={field.onChange}
-                    label={
-                      contentType === "EXTERNAL_LINK"
-                        ? "Liên kết nội dung"
-                        : "File nội dung (Video/PDF/Media)"
-                    }
-                    description={
-                      contentType === "EXTERNAL_LINK"
-                        ? "Liên kết đến trang hoặc tài nguyên bên ngoài."
-                        : "Chọn file video hoặc tài liệu, hệ thống sẽ tự động upload lên storage."
-                    }
-                    accept={
-                      contentType === "VIDEO"
-                        ? "video/*"
-                        : contentType === "PDF"
-                          ? "application/pdf"
-                          : undefined
-                    }
-                    errorMessage={fieldState.error?.message}
-                  />
-                )}
+          <Controller
+            name="attachments"
+            control={control}
+            render={({ field }) => (
+              <AttachmentListEditor
+                value={field.value || []}
+                onChange={field.onChange}
               />
             )}
-            {!isMediaUrlType && (
-              <FieldDescription>
-                URL nội dung chỉ áp dụng cho loại Video, PDF hoặc External Link.
-              </FieldDescription>
-            )}
-          </FieldGroup>
+          />
         </CardContent>
       </Card>
 
@@ -239,7 +261,7 @@ export function LessonForm({
         <CardHeader>
           <CardTitle>Metadata nâng cao</CardTitle>
           <CardDescription>
-            Thêm thông tin bổ sung cho bài học dưới dạng JSON.
+            Thêm thông tin bổ sung cho bài học (key-value).
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -247,29 +269,17 @@ export function LessonForm({
             <Controller
               name="metadata"
               control={control}
-              render={({ field, fieldState }) => (
+              render={({ field }) => (
                 <Field>
-                  <FieldLabel>Metadata (JSON)</FieldLabel>
-                  <Textarea
-                    placeholder='{"duration": 120, "tags": ["intro"]}'
-                    className="font-mono text-xs"
-                    {...field}
-                    value={
-                      typeof field.value === "object"
-                        ? JSON.stringify(field.value, null, 2)
-                        : field.value || ""
-                    }
-                    onChange={(e) => {
-                      try {
-                        const json = JSON.parse(e.target.value)
-                        field.onChange(json)
-                      } catch {
-                        field.onChange(e.target.value)
-                      }
-                    }}
+                  <KeyValueEditor
+                    value={field.value || {}}
+                    onChange={field.onChange}
+                    presets={[
+                      { key: "tags", label: "Thẻ (Tags)", defaultValue: "jlpt,n5" },
+                      { key: "difficulty", label: "Độ khó", defaultValue: "medium" },
+                      { key: "estimatedReadingTime", label: "Thời gian đọc (phút)", defaultValue: "5" },
+                    ]}
                   />
-                  <FieldDescription>Dữ liệu bổ sung dạng JSON.</FieldDescription>
-                  <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
             />

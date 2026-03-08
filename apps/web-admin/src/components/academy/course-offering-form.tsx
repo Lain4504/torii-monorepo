@@ -248,7 +248,7 @@ export function CourseOfferingForm({
                 <Field>
                   <FieldLabel>
                     Lớp học được kèm theo ({field.value?.length || 0})
-                    {offeringStatus === "ACTIVE" && (
+                    {(offeringStatus === "PUBLISHED" || offeringStatus === "PENDING_APPROVAL") && (
                       <span className="text-destructive ml-1">*</span>
                     )}
                   </FieldLabel>
@@ -295,8 +295,8 @@ export function CourseOfferingForm({
                     )}
                   </div>
                   <FieldDescription>
-                    {offeringStatus === "ACTIVE"
-                      ? "Bắt buộc chọn ít nhất 1 lớp khi gói ở trạng thái Active."
+                    {(offeringStatus === "PUBLISHED" || offeringStatus === "PENDING_APPROVAL")
+                      ? "Bắt buộc chọn ít nhất 1 lớp khi gửi phê duyệt hoặc đang bán."
                       : "Chọn các lớp học sẽ được mở cho học viên mua gói này."}
                   </FieldDescription>
                   <FieldError>{fieldState.error?.message}</FieldError>
@@ -417,20 +417,39 @@ export function CourseOfferingForm({
             <Controller
               name={"status" as any}
               control={control}
-              render={({ field, fieldState }) => (
+              render={({ field }) => (
                 <Field>
                   <FieldLabel>Trạng thái</FieldLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn trạng thái" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="DRAFT">Draft (Nháp)</SelectItem>
-                      <SelectItem value="ACTIVE">Active (Đang bán)</SelectItem>
-                      <SelectItem value="HIDDEN">Hidden (Ẩn)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FieldError>{fieldState.error?.message}</FieldError>
+                  {isEdit ? (
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant={
+                          field.value === "PUBLISHED"
+                            ? "default"
+                            : field.value === "PENDING_APPROVAL"
+                              ? "secondary"
+                              : "outline"
+                        }
+                      >
+                        {field.value === "DRAFT" && "Draft (Nháp)"}
+                        {field.value === "PENDING_APPROVAL" && "Chờ phê duyệt"}
+                        {field.value === "PUBLISHED" && "Đang bán"}
+                        {field.value === "HIDDEN" && "Ẩn"}
+                        {field.value === "ARCHIVED" && "Lưu trữ"}
+                        {!["DRAFT", "PENDING_APPROVAL", "PUBLISHED", "HIDDEN", "ARCHIVED"].includes(field.value || "") && field.value}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        {field.value === "DRAFT" && "→ Vào trang chi tiết để Gửi phê duyệt"}
+                        {field.value === "PENDING_APPROVAL" && "→ Admin phê duyệt hoặc từ chối"}
+                        {field.value === "PUBLISHED" && "→ Đã công bố"}
+                      </span>
+                    </div>
+                  ) : (
+                    <Badge variant="outline">Draft (Nháp) — tạo xong vào trang chi tiết để Gửi phê duyệt</Badge>
+                  )}
+                  <FieldDescription>
+                    Luồng: DRAFT → Gửi phê duyệt → PENDING_APPROVAL → Admin Approve → PUBLISHED
+                  </FieldDescription>
                 </Field>
               )}
             />

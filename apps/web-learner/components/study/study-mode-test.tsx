@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTestQuiz } from '@/lib/api/services/study-set-api';
+import { useAcademyTestQuiz as useTestQuiz } from '@/lib/api/services/academy-study-set-api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { ChevronLeft, Check, X, RefreshCw, Trophy, ArrowRight } from 'lucide-react';

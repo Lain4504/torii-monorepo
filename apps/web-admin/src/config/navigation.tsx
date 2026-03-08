@@ -50,7 +50,6 @@ export const academicNavItems: NavItem[] = [
             { titleKey: "Quản lý Lớp học", url: "/academy/classes" },
             { titleKey: "Ngân hàng câu hỏi", url: "/academy/questions" },
             { titleKey: "Question Pools", url: "/academy/question-pools" },
-            { titleKey: "Mẫu đề thi (Quiz/Exam)", url: "/academy/quiz-templates" },
         ]
     },
 ];

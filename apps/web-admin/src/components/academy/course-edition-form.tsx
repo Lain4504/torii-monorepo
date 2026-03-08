@@ -165,20 +165,38 @@ export function CourseEditionForm({
               <Controller
                 name={"status" as any}
                 control={control}
-                render={({ field, fieldState }) => (
+                render={({ field }) => (
                   <Field>
                     <FieldLabel>Trạng thái</FieldLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Chọn trạng thái" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="DRAFT">Draft (Nháp)</SelectItem>
-                        <SelectItem value="PUBLISHED">Published (Công khai)</SelectItem>
-                        <SelectItem value="ARCHIVED">Archived (Lưu trữ)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FieldError>{fieldState.error?.message}</FieldError>
+                    {isEdit ? (
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
+                            field.value === "PUBLISHED"
+                              ? "bg-primary/10 text-primary"
+                              : field.value === "PENDING_APPROVAL"
+                                ? "bg-amber-500/10 text-amber-600"
+                                : "bg-muted text-muted-foreground"
+                          }`}
+                        >
+                          {field.value === "DRAFT" && "Draft (Nháp)"}
+                          {field.value === "PENDING_APPROVAL" && "Chờ phê duyệt"}
+                          {field.value === "PUBLISHED" && "Published (Công khai)"}
+                          {field.value === "ARCHIVED" && "Archived (Lưu trữ)"}
+                          {!["DRAFT", "PENDING_APPROVAL", "PUBLISHED", "ARCHIVED"].includes(field.value || "") && field.value}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {field.value === "DRAFT" && "→ Vào trang chi tiết để Gửi phê duyệt"}
+                          {field.value === "PENDING_APPROVAL" && "→ Admin phê duyệt hoặc từ chối"}
+                          {field.value === "PUBLISHED" && "→ Đã công bố"}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">Draft — tạo xong vào trang chi tiết để Gửi phê duyệt</span>
+                    )}
+                    <FieldDescription>
+                      Luồng: DRAFT → Gửi phê duyệt → PENDING_APPROVAL → Admin Approve → PUBLISHED
+                    </FieldDescription>
                   </Field>
                 )}
               />

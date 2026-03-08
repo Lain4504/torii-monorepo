@@ -32,6 +32,11 @@ export class CourseProfileHandler {
     return this.courseProfiles.update(data.id, data.input, data.requesterId);
   }
 
+  @MessagePattern({ cmd: 'academy.courseProfile.archive' })
+  archive(@Payload() data: { id: string; requesterId?: string }) {
+    return this.courseProfiles.archiveProfile(data.id, data.requesterId);
+  }
+
   @MessagePattern({ cmd: 'academy.courseProfile.delete' })
   delete(@Payload() data: { id: string; requesterId?: string }) {
     return this.courseProfiles.delete(data.id, data.requesterId);

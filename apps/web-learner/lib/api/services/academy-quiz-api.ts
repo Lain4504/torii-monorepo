@@ -13,7 +13,7 @@ export type AcademyQuizTemplateModel = {
     title: string;
     description?: string | null;
     totalQuestions: number;
-    totalTime?: number | null;
+    timeLimit?: number | null;
     passingScore?: number | null;
     maxAttempts: number;
     settings?: any | null;

@@ -33,6 +33,7 @@ import {
 } from "@workspace/schemas"
 import type { AcademyQuestionPool } from "@/lib/api/services/academy-question-pools"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
+import { KeyValueEditor } from "@/components/academy/key-value-editor"
 
 export function QuestionPoolForm({
     mode,
@@ -200,6 +201,27 @@ export function QuestionPoolForm({
                         </div>
 
                         <Controller
+                            name={"metadata" as any}
+                            control={control}
+                            render={({ field, fieldState }) => (
+                                <Field>
+                                    <FieldLabel>Metadata (Key-Value)</FieldLabel>
+                                    <KeyValueEditor
+                                        value={field.value || {}}
+                                        onChange={field.onChange}
+                                        presets={[
+                                            { key: "tags", label: "Thẻ (Tags)", defaultValue: "jlpt,n5" },
+                                            { key: "difficulty", label: "Độ khó", defaultValue: "medium" },
+                                            { key: "source", label: "Nguồn câu hỏi", defaultValue: "manual" },
+                                        ]}
+                                    />
+                                    <FieldDescription>Thông tin bổ sung cho pool.</FieldDescription>
+                                    <FieldError>{fieldState.error?.message}</FieldError>
+                                </Field>
+                            )}
+                        />
+
+                        <Controller
                             name={"courseProfileId" as any}
                             control={control}
                             render={({ field, fieldState }) => (
@@ -210,7 +232,7 @@ export function QuestionPoolForm({
                                             <SelectValue placeholder="Chọn Profile (optional)..." />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {profiles.map((p) => (
+                                            {profiles.map((p: any) => (
                                                 <SelectItem key={p.id} value={p.id}>
                                                     {p.title}
                                                 </SelectItem>

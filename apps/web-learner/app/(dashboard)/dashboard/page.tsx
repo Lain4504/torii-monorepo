@@ -5,7 +5,7 @@ import { useAppSelector } from '@/hooks/hooks';
 import { academyLearningProgressApi, useAcademyMyCourses, useAcademyLearningHistory, useAcademyLearningStats } from '@/lib/api/services/academy-learning-progress-api';
 
 import { useGamificationProfile, useStreak, useAchievements, useActivityHeatmap } from '@/lib/api/services/gamification-api';
-import { useMySchedule } from '@/lib/api/services/live-session-api';
+import { useMySchedule } from '@/lib/api/services/academy-live-session-api';
 import Link from 'next/link';
 import { formatDistanceToNow, subDays } from 'date-fns';
 import { vi } from 'date-fns/locale';

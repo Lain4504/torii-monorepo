@@ -87,6 +87,15 @@ export class CourseProfileController {
     return successResponse({ item });
   }
 
+  @Post(':id/archive')
+  @Permissions('academy.content.write')
+  async archive(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.courseProfile.archive' }, { id, requesterId: req.requester?.sub }),
+    );
+    return successResponse({ item });
+  }
+
   @Delete(':id')
   @Permissions('academy.content.write')
   async delete(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {

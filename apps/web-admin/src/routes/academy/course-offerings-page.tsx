@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react"
-import { Link } from "react-router-dom"
+import { useMemo, useState, useEffect } from "react"
+import { Link, useSearchParams } from "react-router-dom"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import {
@@ -31,22 +31,47 @@ import {
 } from "@workspace/ui/components/alert-dialog"
 import {
   useAcademyCourseOfferings,
+  useArchiveAcademyCourseOffering,
   useDeleteAcademyCourseOffering,
 } from "@/lib/api/services/academy-course-offerings"
+import { Archive, ArchiveX } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
+
+const OFFERING_STATUS_OPTIONS = [
+  { value: "all", label: "Tất cả" },
+  { value: "DRAFT", label: "Draft" },
+  { value: "PENDING_APPROVAL", label: "Chờ phê duyệt" },
+  { value: "PUBLISHED", label: "Đang bán" },
+  { value: "HIDDEN", label: "Ẩn" },
+  { value: "ARCHIVED", label: "Đã lưu trữ" },
+]
 
 export default function AcademyCourseOfferingsPage() {
+  const [searchParams] = useSearchParams()
+  const statusFromUrl = searchParams.get("status")
   const [q, setQ] = useState("")
-  const [status, setStatus] = useState("")
+  const [status, setStatus] = useState(statusFromUrl || "")
+  useEffect(() => {
+    if (statusFromUrl) setStatus(statusFromUrl)
+  }, [statusFromUrl])
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [archiveId, setArchiveId] = useState<string | null>(null)
 
   const query = useMemo(
     () => ({
       q: q || undefined,
-      status: status || undefined,
+      status: status && status !== "all" ? status : undefined,
     }),
     [q, status],
   )
   const { data = [], isLoading } = useAcademyCourseOfferings(query)
+  const archiveMutation = useArchiveAcademyCourseOffering()
   const del = useDeleteAcademyCourseOffering()
 
   return (
@@ -66,12 +91,18 @@ export default function AcademyCourseOfferingsPage() {
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Tìm theo code/title..." className="pl-9" />
         </div>
-        <Input
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          placeholder="Lọc theo status (DRAFT/ACTIVE/...)"
-          className="w-[220px]"
-        />
+        <Select value={status || "all"} onValueChange={setStatus}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Lọc theo trạng thái" />
+          </SelectTrigger>
+          <SelectContent>
+            {OFFERING_STATUS_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="rounded-md bg-background border overflow-hidden">
@@ -117,18 +148,29 @@ export default function AcademyCourseOfferingsPage() {
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-44">
+                      <DropdownMenuContent align="end" className="w-48">
                         <DropdownMenuItem asChild>
                           <Link to={`/academy/course-offerings/${it.id}/edit`}>
                             Sửa
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive focus:text-destructive"
-                          onClick={() => setDeleteId(it.id)}
-                        >
-                          Xoá
-                        </DropdownMenuItem>
+                        {["PUBLISHED", "HIDDEN"].includes(it.status || "") && (
+                          <DropdownMenuItem
+                            onClick={() => setArchiveId(it.id)}
+                          >
+                            <Archive className="mr-2 h-4 w-4" />
+                            Lưu trữ
+                          </DropdownMenuItem>
+                        )}
+                        {["DRAFT", "PENDING_APPROVAL"].includes(it.status || "") && (
+                          <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
+                            onClick={() => setDeleteId(it.id)}
+                          >
+                            <ArchiveX className="mr-2 h-4 w-4" />
+                            Xoá
+                          </DropdownMenuItem>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -148,7 +190,7 @@ export default function AcademyCourseOfferingsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Xoá Course Offering</AlertDialogTitle>
             <AlertDialogDescription>
-              Thao tác này sẽ xoá vĩnh viễn Course Offering và có thể ảnh hưởng tới việc bán khoá học.
+              Thao tác này sẽ xoá vĩnh viễn. Chỉ áp dụng cho gói DRAFT hoặc Chờ phê duyệt chưa có đơn hàng.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -160,13 +202,43 @@ export default function AcademyCourseOfferingsPage() {
                   await del.mutateAsync(deleteId)
                   toast.success("Đã xoá")
                 } catch (e: any) {
-                  toast.error(e?.message || "Xoá thất bại")
+                  const msg = e?.response?.data?.message || e?.message || "Xoá thất bại. Gói đã có đơn hàng? Dùng Lưu trữ thay vì Xoá."
+                  toast.error(msg)
                 } finally {
                   setDeleteId(null)
                 }
               }}
             >
               Xoá
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!archiveId} onOpenChange={(o) => !o && setArchiveId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Lưu trữ Course Offering</AlertDialogTitle>
+            <AlertDialogDescription>
+              Gói bán sẽ được chuyển sang trạng thái Lưu trữ, ẩn khỏi catalog nhưng giữ nguyên lịch sử đơn hàng.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (!archiveId) return
+                try {
+                  await archiveMutation.mutateAsync(archiveId)
+                  toast.success("Đã lưu trữ")
+                } catch (e: any) {
+                  toast.error(e?.response?.data?.message || e?.message || "Lưu trữ thất bại")
+                } finally {
+                  setArchiveId(null)
+                }
+              }}
+            >
+              Lưu trữ
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

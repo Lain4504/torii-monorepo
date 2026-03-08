@@ -81,6 +81,45 @@ export class QuestionService {
       );
     }
 
+    // Check if used in pool -> QuizTemplate in PUBLISHED edition or active ClassAssessment
+    const poolQuestions = await this.prisma.poolQuestion.findMany({
+      where: { questionId: id },
+      include: {
+        pool: {
+          include: {
+            quizTemplates: {
+              include: {
+                classAssessments: {
+                  where: { status: { not: 'CLOSED' } },
+                  select: { id: true },
+                  take: 1,
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    for (const pq of poolQuestions) {
+      for (const qt of pq.pool.quizTemplates) {
+        const inPublishedEdition = await this.prisma.chapterItem.findFirst({
+          where: {
+            kind: 'QUIZ_TEMPLATE',
+            referenceId: qt.id,
+            chapter: {
+              courseEdition: { status: 'PUBLISHED' },
+            },
+          },
+        });
+        if (inPublishedEdition || qt.classAssessments.length > 0) {
+          throw new BadRequestException(
+            'Cannot delete question used in quiz template that is in PUBLISHED edition or active class assessment',
+          );
+        }
+      }
+    }
+
     await this.prisma.question.delete({ where: { id } });
     return { ok: true };
   }

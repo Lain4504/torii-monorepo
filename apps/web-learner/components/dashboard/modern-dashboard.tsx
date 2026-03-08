@@ -26,9 +26,8 @@ import { useAppSelector } from '@/hooks/hooks'
 import { Progress } from '@workspace/ui/components/progress'
 import { Button } from '@workspace/ui/components/button'
 import { Card } from '@workspace/ui/components/card'
-import { useMyCourses } from '@/lib/api/services/learning-progress-api'
+import { useAcademyMyCourses as useMyCourses, academyLearningProgressApi as learningProgressApi } from '@/lib/api/services/academy-learning-progress-api'
 import { useGamificationProfile, useStreak, useAchievements, useLeaderboard } from '@/lib/api/services/gamification-api'
-import { learningProgressApi } from '@/lib/api/services/learning-progress-api'
 import { useQuery } from '@tanstack/react-query'
 import { formatNumber } from '@/utils/format-utils'
 
@@ -97,20 +96,20 @@ export default function ModernDashboard() {
                                 <div className="w-full sm:w-56 h-48 sm:h-auto overflow-hidden">
                                     <img
                                         src={mainCourse.thumbnailUrl || "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=400&auto=format&fit=crop"}
-                                        alt={mainCourse.title}
+                                        alt={mainCourse.courseTitle}
                                         className="w-full h-full object-cover transition-transform hover:scale-105 duration-500"
                                     />
                                 </div>
                                 <div className="p-8 flex-1 flex flex-col justify-between space-y-4">
                                     <div className="space-y-2">
                                         <div className="flex justify-between items-start">
-                                            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{mainCourse.title}</h3>
+                                            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{mainCourse.courseTitle}</h3>
                                             <Badge variant="outline" className="bg-[#ec5b13]/10 text-[#ec5b13] border-[#ec5b13]/20 font-bold uppercase tracking-widest text-[10px]">
                                                 Active Course
                                             </Badge>
                                         </div>
                                         <p className="text-slate-500 dark:text-slate-400 font-medium line-clamp-2">
-                                            Instructor: {mainCourse.instructor} • Keep going to finish this module!
+                                            Instructor: {mainCourse.instructorName} • Keep going to finish this module!
                                         </p>
                                     </div>
 

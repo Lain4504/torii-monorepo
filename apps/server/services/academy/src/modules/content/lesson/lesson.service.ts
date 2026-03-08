@@ -135,7 +135,12 @@ export class LessonService {
     }
 
     const lesson = await this.prisma.lesson.findUnique({ where: { id } });
-    await this.prisma.lesson.delete({ where: { id } });
+    await this.prisma.$transaction([
+      this.prisma.chapterItem.deleteMany({
+        where: { kind: 'LESSON', referenceId: id },
+      }),
+      this.prisma.lesson.delete({ where: { id } }),
+    ]);
 
     await this.audit.log({
       userId: requesterId,

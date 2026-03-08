@@ -39,6 +39,11 @@ export class CourseOfferingHandler {
     return this.offerings.setClasses(input, requesterId);
   }
 
+  @MessagePattern({ cmd: 'academy.courseOffering.archive' })
+  archive(@Payload() data: { id: string; requesterId?: string }) {
+    return this.offerings.archive(data.id, data.requesterId);
+  }
+
   @MessagePattern({ cmd: 'academy.courseOffering.delete' })
   delete(@Payload() data: { id: string; requesterId?: string }) {
     return this.offerings.delete(data.id, data.requesterId);

@@ -272,7 +272,19 @@ export class EnrollmentService {
   }
 
   async delete(id: string, requesterId = 'SYSTEM') {
-    const enrollment = await this.findById(id);
+    const enrollment = await this.prisma.enrollment.findUnique({
+      where: { id },
+      include: { class: { select: { status: true } } },
+    });
+    if (!enrollment) throw new NotFoundException('Enrollment not found');
+
+    const canDelete = ['CANCELLED', 'EXPIRED'].includes(enrollment.status);
+    if (!canDelete) {
+      throw new BadRequestException(
+        'Cannot delete active enrollment. Cancel it first to preserve audit history.',
+      );
+    }
+
     await this.prisma.enrollment.delete({ where: { id } });
 
     await this.audit.log({

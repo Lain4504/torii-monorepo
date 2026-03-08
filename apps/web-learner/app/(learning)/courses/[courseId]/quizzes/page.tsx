@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/componen
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import { ArrowLeft, Clock, CheckCircle2, Circle, Play } from 'lucide-react'
-import { courseApi } from '@/lib/api/services/course-api'
+import { academyCourseApi as courseApi } from '@/lib/api/services/academy-course-api'
 import { academyClassesApi } from '@/lib/api/services/academy-classes'
 
 export default function CourseQuizzesPage() {

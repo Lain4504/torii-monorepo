@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useStudyCards, useReviewCard } from '@/lib/api/services/study-set-api';
+import { useAcademyStudyCards as useStudyCards, useReviewAcademyCard as useReviewCard } from '@/lib/api/services/academy-study-set-api';
 import { Card, CardContent } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { ChevronLeft, CheckCircle2, RefreshCw, X, Check } from 'lucide-react';

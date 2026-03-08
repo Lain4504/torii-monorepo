@@ -2,14 +2,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { useAcademyCourseEdition } from "@/lib/api/services/academy-course-editions"
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
-import {
-  Plus,
-  ArrowLeft,
-  LayoutList,
-  BookOpen,
-  FileText,
-  HelpCircle,
-} from "lucide-react"
+import { Plus, ArrowLeft, LayoutList } from "lucide-react"
 import { SyllabusBuilder } from "@/components/academy/syllabus-builder"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import {
@@ -143,22 +136,10 @@ export default function CourseEditionDetailPage() {
       )}
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full max-w-2xl grid-cols-4">
+        <TabsList className="grid w-full max-w-2xl grid-cols-2">
           <TabsTrigger value="syllabus" className="gap-2">
             <LayoutList className="h-4 w-4" />
             Syllabus
-          </TabsTrigger>
-          <TabsTrigger value="lessons" className="gap-2">
-            <BookOpen className="h-4 w-4" />
-            Lessons
-          </TabsTrigger>
-          <TabsTrigger value="quizzes" className="gap-2">
-            <HelpCircle className="h-4 w-4" />
-            Quizzes
-          </TabsTrigger>
-          <TabsTrigger value="assignments" className="gap-2">
-            <FileText className="h-4 w-4" />
-            Assignments
           </TabsTrigger>
         </TabsList>
 
@@ -175,45 +156,6 @@ export default function CourseEditionDetailPage() {
               </Button>
             </div>
             <SyllabusBuilder editionId={id!} />
-          </TabsContent>
-
-          <TabsContent value="lessons">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Danh sách bài học (Lessons)</h2>
-              <Button onClick={() => navigate(`/academy/lessons/new?profileId=${edition.courseProfileId}`)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Tạo Lesson mới
-              </Button>
-            </div>
-            <div className="text-center py-10 bg-muted/20 rounded-lg border-2 border-dashed">
-              <p className="text-muted-foreground">Danh sách lesson của profile này sẽ hiển thị ở đây (Filter theo profileId)</p>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="quizzes">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Ngân hàng câu hỏi & Quiz</h2>
-              <Button onClick={() => navigate(`/academy/quiz-templates/new?profileId=${edition.courseProfileId}`)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Tạo Quiz mới
-              </Button>
-            </div>
-            <div className="text-center py-10 bg-muted/20 rounded-lg border-2 border-dashed">
-              <p className="text-muted-foreground">Danh sách quiz template của profile này sẽ hiển thị ở đây</p>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="assignments">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">Bài tập về nhà (Assignments)</h2>
-              <Button onClick={() => navigate(`/academy/assignment-templates/new?profileId=${edition.courseProfileId}`)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Tạo Assignment mới
-              </Button>
-            </div>
-            <div className="text-center py-10 bg-muted/20 rounded-lg border-2 border-dashed">
-              <p className="text-muted-foreground">Danh sách bài tập của profile này sẽ hiển thị ở đây</p>
-            </div>
           </TabsContent>
         </div>
       </Tabs>
@@ -242,6 +184,7 @@ export default function CourseEditionDetailPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
     </div>
   )
 }

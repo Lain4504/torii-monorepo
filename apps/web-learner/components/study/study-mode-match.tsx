@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useMatchGame } from '@/lib/api/services/study-set-api';
+import { useAcademyMatchGame as useMatchGame, useAcademyTestQuiz as useTestQuiz } from '@/lib/api/services/academy-study-set-api';
 import { Card, CardContent } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { ChevronLeft, RefreshCw, Trophy, Timer, X } from 'lucide-react';

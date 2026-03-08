@@ -10,8 +10,9 @@ import { Menu, X } from "lucide-react"
 import { ExamTimer } from "@/components/exams/take/exam-timer"
 import { QuestionArea, Question } from "@/components/exams/take/question-area"
 import { QuestionNavigator } from "@/components/exams/take/question-navigator"
-import { startExam, saveExamAnswers, submitExam } from "@/lib/api/services/exam-api"
-import type { ExamSessionStartResponseDTO, ExamSessionAnswersDTO } from '@workspace/schemas'
+import { academyExamsApi } from "@/lib/api/services/academy-exam-api"
+import { useAppSelector } from "@/hooks/hooks"
+import { RootState } from "@/store/store"
 import { PageLoading } from "@workspace/ui/components/page-loading"
 import {
     AlertDialog,
@@ -22,19 +23,11 @@ import {
     AlertDialogTitle,
 } from "@workspace/ui/components/alert-dialog"
 import { toast } from "@workspace/ui/components/sonner"
-import { Empty, EmptyContent, EmptyDescription, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
+import { Empty, EmptyContent, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty';
 import { AlertCircle } from "lucide-react"
 
-// Type helper for resume data (schema includes these fields but types may not be updated)
-type ExamSessionStartResponseWithResume = ExamSessionStartResponseDTO & {
-    answers?: Record<string, string>
-    flaggedQuestions?: string[]
-    currentQuestion?: number
-    timeRemaining?: number
-}
-
 // Transform API question to component Question format
-function transformQuestion(apiQuestion: any, index: number): Question {
+function transformQuestion(apiQuestion: any): Question {
     const options = apiQuestion.options ? Object.entries(apiQuestion.options).map(([key, value]) => ({
         id: key,
         label: value as string,
@@ -42,17 +35,17 @@ function transformQuestion(apiQuestion: any, index: number): Question {
 
     return {
         id: apiQuestion.id,
-        content: apiQuestion.questionText,
-        type: apiQuestion.section === 'listening' ? 'listening' : apiQuestion.section === 'reading' ? 'reading' : 'single',
-        audioUrl: apiQuestion.audioUrl,
+        content: apiQuestion.content,
+        type: apiQuestion.category === 'listening' ? 'listening' : apiQuestion.category === 'reading' ? 'reading' : 'single',
+        audioUrl: apiQuestion.mediaUrl,
         options,
     };
 }
 
 export default function TakeExamPage() {
     const router = useRouter()
-    const params = useParams()
-    const examId = params.examId as string
+    const { examId } = useParams<{ examId: string }>()
+    const userId = useAppSelector((state: RootState) => state.auth.user?.id)
 
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -76,51 +69,50 @@ export default function TakeExamPage() {
     // Load exam on mount
     useEffect(() => {
         async function loadExam() {
+            if (!userId) return;
             try {
                 setLoading(true)
-                const response = await startExam(examId)
-                setSessionId(response.sessionId)
-                setExamTitle(response.exam.title)
-                setTimeLimit(response.timeLimit)
-                setCurrentSection(response.sections[0]?.type || null)
 
-                // Transform API questions to component format
-                const transformedQuestions = response.questions.map(transformQuestion)
+                // 1. Start or resume attempt
+                const attempt = await academyExamsApi.startAttempt({
+                    examId,
+                    userId
+                })
+                setSessionId(attempt.id)
+
+                // 2. Fetch full exam details (for questions/titles)
+                const exam = await academyExamsApi.findById(examId)
+                setExamTitle(exam.title)
+
+                const originalTimeLimit = (exam.totalTimeLimitMinutes || 0) * 60
+                setTimeLimit(originalTimeLimit)
+
+                // Transform questions from examQuestions (which now include question content)
+                const apiQuestions = exam.sections?.flatMap(s =>
+                    exam.examQuestions?.filter(eq => eq.sectionId === s.id).map(eq => eq.question) || []
+                ) || []
+
+                const transformedQuestions = apiQuestions.map(transformQuestion)
                 setQuestions(transformedQuestions)
 
-                // Load existing answers and flags from session (for resume)
-                // Response includes optional resume data: answers, flaggedQuestions, currentQuestion, timeRemaining
-                const resumeData = response as ExamSessionStartResponseWithResume
+                // 3. Load resume state from attempt.metadata or attempt.draftAnswers
+                const savedState = attempt.draftAnswers as any
+                if (savedState) {
+                    if (savedState.answers) setAnswers(savedState.answers)
+                    if (savedState.flaggedQuestions) setFlags(new Set(savedState.flaggedQuestions))
+                    if (savedState.currentQuestionIndex) setCurrentQuestionIndex(savedState.currentQuestionIndex)
+                }
 
-                if (resumeData.answers && typeof resumeData.answers === 'object') {
-                    setAnswers(resumeData.answers)
+                // 4. Handle time remaining
+                if (attempt.deadlineAt) {
+                    const deadline = new Date(attempt.deadlineAt).getTime()
+                    const now = new Date().getTime()
+                    const remaining = Math.max(0, Math.floor((deadline - now) / 1000))
+                    setTimeRemaining(remaining)
                 } else {
-                    setAnswers({})
+                    setTimeRemaining(originalTimeLimit)
                 }
 
-                if (resumeData.flaggedQuestions && Array.isArray(resumeData.flaggedQuestions) && resumeData.flaggedQuestions.length > 0) {
-                    setFlags(new Set(resumeData.flaggedQuestions))
-                } else {
-                    setFlags(new Set())
-                }
-
-                // Resume to last question if available
-                if (resumeData.currentQuestion && typeof resumeData.currentQuestion === 'number' && resumeData.currentQuestion > 1) {
-                    setCurrentQuestionIndex(resumeData.currentQuestion - 1)
-                }
-
-                // Update time limit if resuming (use timeRemaining if available)
-                // Always use timeRemaining from server if available (even if 0, it means time is up)
-                if (typeof resumeData.timeRemaining === 'number') {
-                    // Server calculated timeRemaining based on actual elapsed time
-                    setTimeRemaining(resumeData.timeRemaining)
-                    // Keep original timeLimit for progress calculation, but use timeRemaining for timer
-                    setTimeLimit(response.timeLimit)
-                } else {
-                    // New session - use full time limit
-                    setTimeRemaining(response.timeLimit)
-                    setTimeLimit(response.timeLimit)
-                }
             } catch (err: any) {
                 setError(err.message || 'Failed to load exam')
                 console.error('Error loading exam:', err)
@@ -129,10 +121,10 @@ export default function TakeExamPage() {
             }
         }
 
-        if (examId) {
+        if (examId && userId) {
             loadExam()
         }
-    }, [examId])
+    }, [examId, userId])
 
     // Auto-save function
     const autoSave = useCallback(async () => {
@@ -145,22 +137,24 @@ export default function TakeExamPage() {
         if (!hasChanges) return
 
         try {
-            // Type assertion: timeRemaining is in schema but type may not be updated
-            const saveData = {
+            const draftAnswers = {
                 answers,
                 flaggedQuestions: Array.from(flags),
-                currentSection: currentSection || undefined,
-                currentQuestion: currentQuestionIndex + 1,
-                timeRemaining: timeRemaining > 0 ? timeRemaining : undefined,
-            } as ExamSessionAnswersDTO & { timeRemaining?: number }
-            await saveExamAnswers(sessionId, saveData)
+                currentQuestionIndex,
+                lastSavedAt: new Date().toISOString()
+            }
+
+            await academyExamsApi.saveAnswers({
+                attemptId: sessionId,
+                draftAnswers
+            })
+
             lastSaveRef.current = { ...answers }
             lastFlagsRef.current = new Set(flags)
         } catch (err) {
             console.error('Auto-save failed:', err)
-            // Don't show error to user for auto-save failures
         }
-    }, [sessionId, answers, flags, currentSection, currentQuestionIndex, timeRemaining, isSubmitting])
+    }, [sessionId, answers, flags, currentQuestionIndex, isSubmitting])
 
     // Auto-save on answer/flag change (debounced)
     useEffect(() => {
@@ -170,31 +164,32 @@ export default function TakeExamPage() {
 
         autoSaveTimerRef.current = setTimeout(() => {
             autoSave()
-        }, 2000) // Save 2 seconds after last change
+        }, 2000)
 
         return () => {
             if (autoSaveTimerRef.current) {
                 clearTimeout(autoSaveTimerRef.current)
             }
         }
-    }, [answers, flags, currentSection, currentQuestionIndex, timeRemaining, autoSave])
+    }, [answers, flags, currentQuestionIndex, autoSave])
 
     // Save on unmount
     useEffect(() => {
         return () => {
             if (sessionId && !isSubmitting && Object.keys(answers).length > 0) {
-                // Final save on unmount only if not already submitting
-                const saveData = {
+                const draftAnswers = {
                     answers,
                     flaggedQuestions: Array.from(flags),
-                    currentSection: currentSection || undefined,
-                    currentQuestion: currentQuestionIndex + 1,
-                    timeRemaining: timeRemaining > 0 ? timeRemaining : undefined,
-                } as ExamSessionAnswersDTO & { timeRemaining?: number }
-                saveExamAnswers(sessionId, saveData).catch(console.error)
+                    currentQuestionIndex,
+                    lastSavedAt: new Date().toISOString()
+                }
+                academyExamsApi.saveAnswers({
+                    attemptId: sessionId,
+                    draftAnswers
+                }).catch(console.error)
             }
         }
-    }, [sessionId, answers, flags, currentSection, currentQuestionIndex, timeRemaining, isSubmitting])
+    }, [sessionId, answers, flags, currentQuestionIndex, isSubmitting])
 
     const handleAnswer = (qId: string, optId: string) => {
         setAnswers(prev => ({ ...prev, [qId]: optId }))
@@ -236,20 +231,23 @@ export default function TakeExamPage() {
         try {
             setIsSubmitting(true)
             toast.loading("Đang nộp bài...", { id: "submit-exam" })
+
             // Final save before submit
-            const saveData = {
+            const draftAnswers = {
                 answers,
                 flaggedQuestions: Array.from(flags),
-                currentSection: currentSection || undefined,
-                currentQuestion: currentQuestionIndex + 1,
-                timeRemaining: timeRemaining > 0 ? timeRemaining : undefined,
-            } as ExamSessionAnswersDTO & { timeRemaining?: number }
-            await saveExamAnswers(sessionId, saveData)
+                currentQuestionIndex,
+                lastSavedAt: new Date().toISOString()
+            }
+            await academyExamsApi.saveAnswers({
+                attemptId: sessionId,
+                draftAnswers
+            })
 
             // Submit exam
-            await submitExam(sessionId)
+            await academyExamsApi.submitAttempt({ attemptId: sessionId })
             toast.success("Nộp bài thành công!", { id: "submit-exam" })
-            router.push('/dashboard/exams')
+            router.push(`/dashboard/exams/${examId}/review/${sessionId}`)
         } catch (err: any) {
             setIsSubmitting(false)
             toast.error('Lỗi khi nộp bài: ' + (err.message || 'Unknown error'), { id: "submit-exam" })
@@ -262,34 +260,30 @@ export default function TakeExamPage() {
 
         try {
             setIsSubmitting(true)
-            // Auto-submit on time up
-            const saveData = {
+            const draftAnswers = {
                 answers,
                 flaggedQuestions: Array.from(flags),
-                currentSection: currentSection || undefined,
-                currentQuestion: currentQuestionIndex + 1,
-                timeRemaining: 0, // Time is up
-            } as ExamSessionAnswersDTO & { timeRemaining?: number }
+                currentQuestionIndex,
+                lastSavedAt: new Date().toISOString()
+            }
 
-            // Try to save first, but don't fail if it errors (time might be up)
             try {
-                await saveExamAnswers(sessionId, saveData)
+                await academyExamsApi.saveAnswers({
+                    attemptId: sessionId,
+                    draftAnswers
+                })
             } catch (saveErr: any) {
                 console.warn('Failed to save before auto-submit:', saveErr)
-                // Continue to submit even if save fails
             }
 
             // Submit exam
-            await submitExam(sessionId)
+            await academyExamsApi.submitAttempt({ attemptId: sessionId })
             toast.success('Hết giờ! Bài thi đã được nộp tự động.', { duration: 5000 })
-            router.push('/dashboard/exams')
+            router.push(`/dashboard/exams/${examId}/review/${sessionId}`)
         } catch (err: any) {
             setIsSubmitting(false)
-            const errorMessage = err.response?.data?.message || err.message || 'Unknown error'
             console.error('Error auto-submitting exam:', err)
-            toast.error('Lỗi khi nộp bài tự động: ' + errorMessage)
-            // Still redirect to exams page even if submit fails
-            router.push('/dashboard/exams')
+            router.push(`/dashboard/exams/${examId}/review/${sessionId}`)
         }
     }
 

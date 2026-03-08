@@ -2,7 +2,7 @@ import { Star, Trash2 } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/avatar'
 import { Badge } from '@workspace/ui/components/badge'
 import { cn } from '@workspace/ui/lib/utils'
-import { ReviewResponse } from '@/lib/api/services/review-api'
+import { type ClassReview as ReviewResponse } from '@/lib/api/services/academy-class-reviews'
 import { format } from 'date-fns'
 import { useRouter } from 'next/navigation'
 import { Button } from '@workspace/ui/components/button'
@@ -52,7 +52,7 @@ export function ReviewItem({ review, className, onDelete }: ReviewItemProps) {
             <div className="flex items-start justify-between gap-4 relative z-10">
                 <div className="flex items-center gap-3">
                     <Avatar className="size-10 ring-2 ring-border">
-                        <AvatarImage src={review.user.avatarUrl} alt={review.user.displayName} />
+                        <AvatarImage src={review.user.avatarUrl || undefined} alt={review.user.displayName} />
                         <AvatarFallback className="bg-primary/10 text-primary font-bold">
                             {review.user.displayName.charAt(0).toUpperCase()}
                         </AvatarFallback>
@@ -86,7 +86,7 @@ export function ReviewItem({ review, className, onDelete }: ReviewItemProps) {
                     </Badge>
                 )}
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                    {review.comment}
+                    {review.content}
                 </p>
             </div>
 

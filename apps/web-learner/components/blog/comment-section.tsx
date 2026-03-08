@@ -35,7 +35,7 @@ export function CommentSection({ blogId, feedId, discussionId, onCommentCountCha
     const fetchComments = async () => {
         try {
             setLoading(true)
-            if (!blogId && !feedId) return
+            if (!blogId && !feedId && !discussionId) return
 
             const response = await commentApi.findAll({
                 page: 1,
@@ -89,7 +89,7 @@ export function CommentSection({ blogId, feedId, discussionId, onCommentCountCha
         }
 
         try {
-            if (!blogId && !feedId) {
+            if (!blogId && !feedId && !discussionId) {
                 toast.error('Không thể xác định bài viết')
                 return
             }

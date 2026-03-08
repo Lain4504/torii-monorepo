@@ -7,16 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/componen
 import { Badge } from '@workspace/ui/components/badge'
 import { ArrowLeft, FileText, CheckCircle2, XCircle, Clock, Award } from 'lucide-react'
 import { PageLoading } from '@workspace/ui/components/page-loading'
-import { useAttemptDetails } from '@/lib/api/services/exam-api'
+import { useAcademyExamAttempt } from '@/lib/api/services/academy-exam-api'
 import { format } from 'date-fns'
 
 export default function ExamReviewPage() {
-    const params = useParams()
+    const { examId, sessionId } = useParams<{ examId: string, sessionId: string }>()
     const router = useRouter()
-    const examId = params.examId as string
-    const sessionId = params.sessionId as string
 
-    const { data: reviewData, isLoading, error } = useAttemptDetails(sessionId)
+    const { data: reviewData, isLoading, error } = useAcademyExamAttempt(sessionId)
 
     if (isLoading) {
         return <PageLoading text="Đang phân tích kết quả bài thi..." className="h-screen" />
@@ -44,8 +42,10 @@ export default function ExamReviewPage() {
         )
     }
 
-    const percentage = reviewData.percentage !== undefined ? Math.round(reviewData.percentage) : null
-    const isPassed = (reviewData.isPassed !== undefined && reviewData.isPassed !== null) ? reviewData.isPassed : (percentage !== null && percentage >= 60)
+    const percentage = (reviewData.percentage !== undefined && reviewData.percentage !== null)
+        ? Math.round(reviewData.percentage)
+        : null
+    const isPassed = reviewData.isPassed ?? (percentage !== null && percentage >= 60)
     const details = reviewData.details || []
 
     return (
@@ -101,7 +101,7 @@ export default function ExamReviewPage() {
                                 <Clock className="size-8" />
                             </div>
                             <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">Thời gian làm</div>
-                            {reviewData.timeTakenSeconds !== undefined && (
+                            {reviewData.timeTakenSeconds != null && (
                                 <div className="text-[8px] text-muted-foreground/40">
                                     {Math.round(reviewData.timeTakenSeconds / 60)} phút
                                 </div>
@@ -176,12 +176,12 @@ export default function ExamReviewPage() {
                                                         <div
                                                             key={key}
                                                             className={`p-2 rounded-lg text-sm ${detail.userAnswer === key
-                                                                    ? detail.isCorrect
-                                                                        ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-500'
-                                                                        : 'bg-destructive/10 border border-destructive/20 text-destructive'
-                                                                    : detail.correctAnswer === key && !detail.isCorrect
-                                                                        ? 'bg-blue-500/10 border border-blue-500/20 text-blue-500'
-                                                                        : 'bg-white/5 border border-white/5 text-muted-foreground'
+                                                                ? detail.isCorrect
+                                                                    ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-500'
+                                                                    : 'bg-destructive/10 border border-destructive/20 text-destructive'
+                                                                : detail.correctAnswer === key && !detail.isCorrect
+                                                                    ? 'bg-blue-500/10 border border-blue-500/20 text-blue-500'
+                                                                    : 'bg-white/5 border border-white/5 text-muted-foreground'
                                                                 }`}
                                                         >
                                                             <span className="font-bold mr-2">{key}:</span>

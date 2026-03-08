@@ -5,7 +5,7 @@ import type {
     LiveSessionJoinResponseDTO,
     StandardApiResponse
 } from '@workspace/schemas';
-import { learningProgressApi } from './learning-progress-api';
+import { academyLearningProgressApi } from './academy-learning-progress-api';
 
 export const liveSessionApi = {
     // GET /api/live-sessions/run/:courseRunId/active
@@ -33,18 +33,19 @@ export const liveSessionApi = {
 
     // Aggregate sessions from all enrolled live courses
     async getMySchedule(): Promise<(LiveSessionResponseDTO & { courseTitle: string; courseThumbnail: string | null })[]> {
-        const courses = await learningProgressApi.getMyCourses();
-        const liveCourses = courses.filter(c => c.type === 'live');
+        const courses = await academyLearningProgressApi.getMyCourses();
+        // Assuming 'type' might be in class or we can just filter by courseRunId
+        const liveCourses = courses.filter(c => c.courseRunId);
 
         if (liveCourses.length === 0) return [];
 
         const sessionArrays = await Promise.allSettled(
             liveCourses.map(course =>
-                liveSessionApi.getSessions(course.courseRunId).then(sessions =>
+                liveSessionApi.getSessions(course.courseRunId!).then(sessions =>
                     sessions.map(s => ({
                         ...s,
-                        courseTitle: course.title,
-                        courseThumbnail: course.thumbnailUrl,
+                        courseTitle: course.courseTitle || 'Untitled Course',
+                        courseThumbnail: course.thumbnailUrl || null,
                     }))
                 )
             )

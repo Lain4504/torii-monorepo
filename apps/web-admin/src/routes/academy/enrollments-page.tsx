@@ -18,7 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import { MoreVertical, User, Calendar, Filter, Layout } from "lucide-react"
+import { MoreVertical, User, Calendar, Filter, Layout, XCircle, Trash2 } from "lucide-react"
 import {
   Select,
   SelectContent,
@@ -38,6 +38,7 @@ import {
 } from "@workspace/ui/components/alert-dialog"
 import {
   useAcademyEnrollments,
+  useCancelAcademyEnrollment,
   useDeleteAcademyEnrollment,
 } from "@/lib/api/services/academy-enrollments"
 import { useAcademyClasses } from "@/lib/api/services/academy-classes"
@@ -49,6 +50,7 @@ export default function AcademyEnrollmentsPage() {
   const [classId, setClassId] = useState("_all")
   const [status, setStatus] = useState("_all")
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [cancelId, setCancelId] = useState<string | null>(null)
 
   const { data: classesData = [] } = useAcademyClasses({})
   const classes = Array.isArray(classesData) ? classesData : (classesData as any)?.items || []
@@ -62,6 +64,7 @@ export default function AcademyEnrollmentsPage() {
   )
 
   const { data: enrollments = [], isLoading } = useAcademyEnrollments(query)
+  const cancelMutation = useCancelAcademyEnrollment()
   const del = useDeleteAcademyEnrollment()
 
   const handleDelete = async () => {
@@ -70,7 +73,7 @@ export default function AcademyEnrollmentsPage() {
       await del.mutateAsync(deleteId)
       toast.success("Đã xoá ghi danh thành công")
     } catch (error: any) {
-      toast.error(error.message || "Lỗi khi xoá ghi danh")
+      toast.error(error?.response?.data?.message || error?.message || "Lỗi khi xoá. Chỉ xoá được ghi danh đã Hủy hoặc Hết hạn.")
     } finally {
       setDeleteId(null)
     }
@@ -211,18 +214,30 @@ export default function AcademyEnrollmentsPage() {
                           <MoreVertical className="size-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-40">
+                      <DropdownMenuContent align="end" className="w-48">
                         <DropdownMenuItem asChild>
                           <Link to={`/academy/enrollments/${item.id}/edit`}>
                             Sửa ghi danh
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive focus:text-destructive"
-                          onClick={() => setDeleteId(item.id)}
-                        >
-                          Xoá ghi danh
-                        </DropdownMenuItem>
+                        {["ACTIVE", "COMPLETED"].includes(item.status) && (
+                          <DropdownMenuItem
+                            className="text-amber-600 focus:text-amber-600"
+                            onClick={() => setCancelId(item.id)}
+                          >
+                            <XCircle className="h-4 w-4 mr-2" />
+                            Hủy ghi danh
+                          </DropdownMenuItem>
+                        )}
+                        {["CANCELLED", "EXPIRED"].includes(item.status) && (
+                          <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
+                            onClick={() => setDeleteId(item.id)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Xoá ghi danh
+                          </DropdownMenuItem>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -238,13 +253,42 @@ export default function AcademyEnrollmentsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận xoá?</AlertDialogTitle>
             <AlertDialogDescription>
-              Thao tác này sẽ xoá vĩnh viễn Ghi danh này. Học viên có thể bị mất quyền truy cập vào lớp học và các tài nguyên liên quan immediately.
+              Chỉ xoá được ghi danh đã Hủy hoặc Hết hạn. Xoá sẽ xóa vĩnh viễn khỏi hệ thống (dùng để dọn dẹp dữ liệu).
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Huỷ</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Xác nhận Xoá
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!cancelId} onOpenChange={(open) => !open && setCancelId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hủy ghi danh?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Học viên sẽ mất quyền truy cập lớp học. Ghi danh chuyển sang trạng thái Đã hủy, giữ lại lịch sử. Sau đó có thể xoá nếu cần.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Huỷ</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (!cancelId) return
+                try {
+                  await cancelMutation.mutateAsync(cancelId)
+                  toast.success("Đã hủy ghi danh")
+                } catch (error: any) {
+                  toast.error(error?.response?.data?.message || "Hủy thất bại")
+                } finally {
+                  setCancelId(null)
+                }
+              }}
+            >
+              Xác nhận hủy
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

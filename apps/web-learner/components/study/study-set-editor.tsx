@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useStudySet, useUpdateStudySet, useCreateSetCard, useUpdateSetCard, useDeleteSetCard } from '@/lib/api/services/study-set-api';
+import { useAcademyStudySet as useStudySet, useUpdateAcademyStudySet as useUpdateStudySet, useCreateAcademySetCard as useCreateSetCard, useUpdateAcademySetCard as useUpdateSetCard, useDeleteAcademySetCard as useDeleteSetCard } from '@/lib/api/services/academy-study-set-api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';

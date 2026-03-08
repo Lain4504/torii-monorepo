@@ -2,7 +2,6 @@ import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
-import { Textarea } from "@workspace/ui/components/textarea"
 import {
     Field,
     FieldError,
@@ -41,6 +40,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@workspace/ui/components/popover"
 import { cn } from "@workspace/ui/lib/utils"
 import { Check, ChevronsUpDown } from "lucide-react"
+import { KeyValueEditor } from "@/components/academy/key-value-editor"
 
 export function QuizTemplateForm({
     mode,
@@ -80,7 +80,7 @@ export function QuizTemplateForm({
                 settings: initial?.settings ?? undefined,
             }
             : {
-                courseProfileId: "",
+                courseProfileId: (initial as any)?.courseProfileId ?? "",
                 title: "",
                 description: "",
                 questionPoolId: undefined,
@@ -147,21 +147,20 @@ export function QuizTemplateForm({
                                 control={control}
                                 render={({ field, fieldState }) => (
                                     <Field>
-                                        <FieldLabel>Cài đặt JSON (Tùy chọn)</FieldLabel>
-                                        <Textarea
-                                            placeholder='Ví dụ: {"shuffleQuestions": true, "showPoints": true}'
-                                            className="font-mono text-xs"
-                                            rows={5}
-                                            value={field.value ? (typeof field.value === 'string' ? field.value : JSON.stringify(field.value, null, 2)) : ""}
-                                            onChange={(e) => {
-                                                try {
-                                                    field.onChange(e.target.value ? JSON.parse(e.target.value) : undefined)
-                                                } catch {
-                                                    field.onChange(e.target.value)
-                                                }
-                                            }}
+                                        <FieldLabel>Cài đặt (Key-Value)</FieldLabel>
+                                        <KeyValueEditor
+                                            value={field.value || {}}
+                                            onChange={field.onChange}
+                                            presets={[
+                                                { key: "maxAttemptsPerUser", label: "Số lần làm tối đa", defaultValue: "1" },
+                                                { key: "shuffleQuestions", label: "Trộn câu hỏi", defaultValue: "true" },
+                                                { key: "showResultType", label: "Hiển thị kết quả", defaultValue: "DETAILED" },
+                                                { key: "passingScore", label: "Điểm đạt", defaultValue: "50" },
+                                                { key: "timeLimit", label: "Thời gian (phút)", defaultValue: "60" },
+                                                { key: "allowReview", label: "Xem lại bài", defaultValue: "true" },
+                                            ]}
                                         />
-                                        <FieldDescription>Sử dụng để ghi đè các logic hiển thị đặc biệt.</FieldDescription>
+                                        <FieldDescription>Thiết lập các thông số bổ sung như thời gian, số lần thử, trộn câu hỏi...</FieldDescription>
                                         <FieldError>{fieldState.error?.message}</FieldError>
                                     </Field>
                                 )}

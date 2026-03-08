@@ -17,7 +17,7 @@ export default function AcademyLessonEditPage() {
     try {
       await update.mutateAsync({ id, input: data })
       toast.success("Đã cập nhật Lesson")
-      nav("/academy/lessons")
+      nav(-1)
     } catch (e: any) {
       toast.error(e?.message || "Cập nhật thất bại")
     }
@@ -48,7 +48,7 @@ export default function AcademyLessonEditPage() {
               metadata: lesson.metadata ?? undefined,
             }}
             submitting={update.isPending}
-            onCancel={() => nav("/academy/lessons")}
+            onCancel={() => nav(-1)}
             onSubmit={onSubmit}
           />
         </CardContent>

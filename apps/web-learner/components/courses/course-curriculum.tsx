@@ -5,10 +5,10 @@ import { useState } from 'react'
 import { ChevronDown, PlayCircle, FileText, Lock, CheckCircle, HelpCircle, ClipboardList } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { cn } from '@workspace/ui/lib/utils'
-import type { CurriculumResponse } from '@/lib/api/services/course-api'
+import type { CurriculumModule } from '@/lib/api/services/academy-classes'
 
 interface CourseCurriculumProps {
-    curriculum: CurriculumResponse
+    curriculum: { modules: CurriculumModule[] }
     courseSlug: string
 }
 

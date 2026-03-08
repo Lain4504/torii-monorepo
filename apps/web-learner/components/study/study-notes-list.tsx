@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useStudyNotes, useDeleteStudyNote } from '@/lib/api/services/study-note-api';
-import { useStudySets, useCreateSetCard } from '@/lib/api/services/study-set-api';
+import { useStudyNotes, useDeleteStudyNote } from '@/lib/api/services/academy-study-note-api';
+import { useAcademyStudySets, useCreateAcademySetCard } from '@/lib/api/services/academy-study-set-api';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@workspace/ui/components/dialog';
@@ -14,9 +14,9 @@ import { toast } from 'sonner';
 
 export function StudyNotesList() {
     const { data: notes, isLoading: notesLoading } = useStudyNotes(); // Pass undefined to get all notes
-    const { data: studySets } = useStudySets();
+    const { data: studySets } = useAcademyStudySets();
     const deleteNote = useDeleteStudyNote();
-    const createCard = useCreateSetCard();
+    const createCard = useCreateAcademySetCard();
 
     const [openConvertDialog, setOpenConvertDialog] = useState(false);
     const [selectedNote, setSelectedNote] = useState<any>(null);

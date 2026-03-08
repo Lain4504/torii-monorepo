@@ -45,9 +45,18 @@ export type AcademyExamAttemptModel = {
   score?: number | null;
   maxScore?: number | null;
   percentage?: number | null;
+  deadlineAt?: string | null;
   draftAnswers?: Record<string, any> | null;
+  metadata?: Record<string, any> | null;
   startedAt: string;
   submittedAt?: string | null;
+  completedAt?: string | null;
+  isPassed?: boolean | null;
+  timeTakenSeconds?: number | null;
+  resultMetadata?: any | null;
+  exam?: any | null;
+  details?: any[] | null;
+  quizTitle?: string | null;
   createdAt: string;
   updatedAt: string;
 };

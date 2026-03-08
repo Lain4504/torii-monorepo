@@ -329,8 +329,46 @@ export class CourseOfferingService {
     return this.findById(input.offeringId);
   }
 
-  async delete(id: string, requesterId = 'SYSTEM') {
+  async archive(id: string, requesterId = 'SYSTEM') {
     const offering = await this.findById(id) as any;
+    if (offering.status === OfferingStatus.ARCHIVED) {
+      return offering;
+    }
+    const updated = await this.prisma.courseOffering.update({
+      where: { id },
+      data: { status: OfferingStatus.ARCHIVED },
+    });
+    await this.audit.log({
+      userId: requesterId,
+      action: 'offering.archive',
+      entity: 'CourseOffering',
+      entityId: id,
+      description: `Archived course offering: ${offering.title} (${offering.code})`,
+      metadata: { code: offering.code },
+    });
+    return updated;
+  }
+
+  async delete(id: string, requesterId = 'SYSTEM') {
+    const offering = await this.prisma.courseOffering.findUnique({
+      where: { id },
+      include: {
+        orderItems: { select: { id: true }, take: 1 },
+      },
+    });
+    if (!offering) throw new NotFoundException('CourseOffering not found');
+
+    if (offering.orderItems.length > 0) {
+      throw new BadRequestException(
+        'Cannot delete offering with existing orders. Use archive instead.',
+      );
+    }
+    if (offering.status !== OfferingStatus.DRAFT && offering.status !== OfferingStatus.PENDING_APPROVAL) {
+      throw new BadRequestException(
+        'Can only delete DRAFT or PENDING_APPROVAL offerings. Use archive instead.',
+      );
+    }
+
     await this.prisma.courseOffering.delete({ where: { id } });
 
     await this.audit.log({

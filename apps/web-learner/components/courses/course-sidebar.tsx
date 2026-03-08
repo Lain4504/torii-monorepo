@@ -1,6 +1,6 @@
 'use client'
 
-import type { CourseMasterResponseDTO } from '@workspace/schemas'
+import type { AcademyCourseProfileCreateDTO } from '@workspace/schemas'
 import { useRouter } from 'next/navigation'
 import { Button } from '@workspace/ui/components/button'
 import { cn } from '@workspace/ui/lib/utils'
@@ -11,9 +11,15 @@ import { useCourseEnrollment } from '@/hooks/use-course-enrollment'
 import { formatCurrency, formatDate } from '@/utils/format-utils'
 
 interface CourseSidebarProps {
-    course: CourseMasterResponseDTO & {
+    course: AcademyCourseProfileCreateDTO & {
+        id: string;
+        slug?: string;
         price?: number | null;
         discountPrice?: number | null;
+        validForMonths?: number;
+        jlptLevel?: string;
+        durationWeeks?: number;
+        totalLessons?: number;
     };
 }
 
@@ -32,7 +38,7 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
         isAuthenticated,
         handleToggleWishlist,
         handleEnroll,
-    } = useCourseEnrollment(course.id, course.slug)
+    } = useCourseEnrollment(course.id, course.slug || '')
 
     const handlePurchase = async () => {
         if (!isAuthenticated) {
@@ -58,7 +64,7 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
 
     const discount = calculateDiscount()
 
-    const getLevelLabel = (jlptLevel: string) => {
+    const getLevelLabel = (jlptLevel?: string) => {
         const levelMap: Record<string, string> = {
             'N5': 'N5',
             'N4': 'N4',
@@ -66,7 +72,7 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
             'N2': 'N2',
             'N1': 'N1',
         }
-        return levelMap[jlptLevel] || 'N5'
+        return (jlptLevel && levelMap[jlptLevel]) || 'N5'
     }
 
     return (

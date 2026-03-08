@@ -7,7 +7,7 @@ import { Button } from '@workspace/ui/components/button'
 import { formatDate } from '@/utils/format-utils'
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { ArrowLeft, Download, Share2 } from 'lucide-react'
-import { courseApi } from '@/lib/api/services/course-api'
+import { academyCourseApi as courseApi } from '@/lib/api/services/academy-course-api'
 import { academyClassesApi } from '@/lib/api/services/academy-classes'
 
 export default function CourseCertificatePage() {
@@ -120,4 +120,3 @@ export default function CourseCertificatePage() {
         </div>
     )
 }
-

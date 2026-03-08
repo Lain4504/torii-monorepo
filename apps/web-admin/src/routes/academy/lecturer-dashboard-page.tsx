@@ -21,12 +21,11 @@ export default function LecturerDashboardPage() {
    const { user } = useAuth()
    const navigate = useNavigate()
 
-   // Filter classes where this user is the lecturer (if API supports it)
-   // For now, we fetch all but we should ideally filter by lecturerId: user.id
-   const { data: classes = [], isLoading } = useAcademyClasses({
-      status: "ACTIVE"
-      // lecturerId: user?.id 
-   })
+   // Filter classes: ENROLLING + IN_PROGRESS = "đang dạy" (ClassStatus không có ACTIVE)
+   const { data: allClasses = [], isLoading } = useAcademyClasses({})
+   const classes = allClasses.filter(
+      (c) => c.status === "ENROLLING" || c.status === "IN_PROGRESS"
+   )
 
    return (
       <div className="space-y-8 p-6">
@@ -120,9 +119,6 @@ export default function LecturerDashboardPage() {
                   </Button>
                   <Button variant="outline" className="justify-start gap-2" onClick={() => navigate('/academy/questions')}>
                      <CircleHelp className="h-4 w-4" /> Soạn câu hỏi
-                  </Button>
-                  <Button variant="outline" className="justify-start gap-2" onClick={() => navigate('/academy/lessons')}>
-                     <BookOpen className="h-4 w-4" /> Bài giảng
                   </Button>
                </CardContent>
             </Card>

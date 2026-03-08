@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useStudySets, useCreateStudySet, useDeleteStudySet } from '@/lib/api/services/study-set-api';
+import { useAcademyStudySets as useStudySets, useCreateAcademyStudySet as useCreateStudySet, useDeleteAcademyStudySet as useDeleteStudySet } from '@/lib/api/services/academy-study-set-api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
@@ -109,53 +109,56 @@ export function StudySetsList() {
                 </div>
             ) : studySets?.length ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {studySets.map((set) => (
-                        <Card key={set.id} className="group hover:shadow-lg transition-all duration-300 flex flex-col h-full bg-gradient-to-br from-card to-card/50 border-primary/10">
-                            <CardHeader>
-                                <div className="flex items-start justify-between">
-                                    <div className="space-y-1 pr-6">
-                                        <CardTitle className="leading-tight break-words line-clamp-2">
-                                            {set.title}
-                                        </CardTitle>
-                                        {set.description && (
-                                            <CardDescription className="line-clamp-2">
-                                                {set.description}
-                                            </CardDescription>
-                                        )}
+                    {studySets.map((set) => {
+                        const count = (set as any)._count?.setCards || 0;
+                        return (
+                            <Card key={set.id} className="group hover:shadow-lg transition-all duration-300 flex flex-col h-full bg-gradient-to-br from-card to-card/50 border-primary/10">
+                                <CardHeader>
+                                    <div className="flex items-start justify-between">
+                                        <div className="space-y-1 pr-6">
+                                            <CardTitle className="leading-tight break-words line-clamp-2">
+                                                {set.title}
+                                            </CardTitle>
+                                            {set.description && (
+                                                <CardDescription className="line-clamp-2">
+                                                    {set.description}
+                                                </CardDescription>
+                                            )}
+                                        </div>
+                                        <div className="h-10 w-10 shrink-0 bg-primary/10 rounded-full flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                                            <LayoutGrid className="size-5" />
+                                        </div>
                                     </div>
-                                    <div className="h-10 w-10 shrink-0 bg-primary/10 rounded-full flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                                        <LayoutGrid className="size-5" />
+                                </CardHeader>
+                                <CardContent className="flex-1">
+                                    <div className="flex gap-4 text-sm text-muted-foreground">
+                                        <div className="flex items-center gap-1.5 bg-muted/50 px-3 py-1.5 rounded-md">
+                                            <BrainCircuit className="size-4" />
+                                            <span className="font-medium text-foreground">{count} thẻ</span>
+                                        </div>
                                     </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="flex-1">
-                                <div className="flex gap-4 text-sm text-muted-foreground">
-                                    <div className="flex items-center gap-1.5 bg-muted/50 px-3 py-1.5 rounded-md">
-                                        <BrainCircuit className="size-4" />
-                                        <span className="font-medium text-foreground">{set._count?.setCards || 0} thẻ</span>
+                                    <div className="mt-4 text-xs text-muted-foreground flex gap-1 items-center">
+                                        <span>Tạo ngày {new Date(set.createdAt).toLocaleDateString('vi-VN')}</span>
                                     </div>
-                                </div>
-                                <div className="mt-4 text-xs text-muted-foreground flex gap-1 items-center">
-                                    <span>Tạo ngày {new Date(set.createdAt).toLocaleDateString('vi-VN')}</span>
-                                </div>
-                            </CardContent>
-                            <CardFooter className="pt-4 border-t flex justify-between gap-2">
-                                <Button asChild variant="default" className="w-full flex-1" disabled={set._count?.setCards === 0}>
-                                    <Link href={`/dashboard/study-sets/${set.id}/review`}>
-                                        <Play className="size-4 mr-2" /> Học bài
-                                    </Link>
-                                </Button>
-                                <Button asChild variant="outline" size="icon" className="shrink-0 group-hover:bg-primary/5">
-                                    <Link href={`/dashboard/study-sets/${set.id}`}>
-                                        <Edit className="size-4 text-primary" />
-                                    </Link>
-                                </Button>
-                                <Button variant="outline" size="icon" className="shrink-0 hover:bg-destructive hover:text-destructive-foreground hover:border-destructive" onClick={() => handleDelete(set.id)}>
-                                    <Trash2 className="size-4" />
-                                </Button>
-                            </CardFooter>
-                        </Card>
-                    ))}
+                                </CardContent>
+                                <CardFooter className="pt-4 border-t flex justify-between gap-2">
+                                    <Button asChild variant="default" className="w-full flex-1" disabled={count === 0}>
+                                        <Link href={`/dashboard/study-sets/${set.id}/review`}>
+                                            <Play className="size-4 mr-2" /> Học bài
+                                        </Link>
+                                    </Button>
+                                    <Button asChild variant="outline" size="icon" className="shrink-0 group-hover:bg-primary/5">
+                                        <Link href={`/dashboard/study-sets/${set.id}`}>
+                                            <Edit className="size-4 text-primary" />
+                                        </Link>
+                                    </Button>
+                                    <Button variant="outline" size="icon" className="shrink-0 hover:bg-destructive hover:text-destructive-foreground hover:border-destructive" onClick={() => handleDelete(set.id)}>
+                                        <Trash2 className="size-4" />
+                                    </Button>
+                                </CardFooter>
+                            </Card>
+                        );
+                    })}
                 </div>
             ) : (
                 <div className="text-center py-20 bg-muted/30 rounded-2xl border border-dashed">

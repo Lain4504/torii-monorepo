@@ -187,7 +187,28 @@ export class LiveScheduleService {
   }
 
   async delete(id: string, requesterId = 'SYSTEM') {
-    const schedule = await this.findById(id);
+    const schedule = await this.prisma.liveSchedule.findUnique({
+      where: { id },
+      include: {
+        liveClass: {
+          include: {
+            class: { select: { status: true } },
+            schedules: { select: { id: true } },
+          },
+        },
+      },
+    });
+    if (!schedule) throw new NotFoundException('LiveSchedule not found');
+
+    const { liveClass } = schedule;
+    const isLastSchedule = liveClass.schedules.length <= 1;
+    const isActiveClass = ['ENROLLING', 'IN_PROGRESS'].includes(liveClass.class.status);
+    if (isLastSchedule && isActiveClass) {
+      throw new BadRequestException(
+        'Cannot delete the last schedule of an active class. Cancel the class first.',
+      );
+    }
+
     await this.prisma.liveSchedule.delete({ where: { id } });
 
     await this.audit.log({

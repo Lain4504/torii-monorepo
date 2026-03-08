@@ -2,7 +2,6 @@ import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
-import { Textarea } from "@workspace/ui/components/textarea"
 import {
   Field,
   FieldError,
@@ -35,6 +34,7 @@ import type { AcademyClassAssessment } from "@/lib/api/services/academy-class-as
 import { useAcademyClass } from "@/lib/api/services/academy-classes"
 import { useAcademyQuizTemplates } from "@/lib/api/services/academy-quiz-templates"
 import { useAcademyAssignmentTemplates } from "@/lib/api/services/academy-assignment-templates"
+import { KeyValueEditor } from "@/components/academy/key-value-editor"
 
 export function ClassAssessmentForm({
   mode,
@@ -387,28 +387,12 @@ export function ClassAssessmentForm({
             control={control}
             render={({ field, fieldState }) => (
               <Field>
-                <FieldLabel>Cấu hình nâng cao (JSON)</FieldLabel>
-                <Textarea
-                  placeholder='Ví dụ: {"shuffleQuestions":true}'
-                  className="font-mono"
-                  value={
-                    field.value
-                      ? typeof field.value === "string"
-                        ? field.value
-                        : JSON.stringify(field.value, null, 2)
-                      : ""
-                  }
-                  onChange={(e) => {
-                    const raw = e.target.value
-                    if (!raw) return field.onChange(undefined)
-                    try {
-                      field.onChange(JSON.parse(raw))
-                    } catch {
-                      field.onChange(raw)
-                    }
-                  }}
+                <FieldLabel>Cấu hình nâng cao (Key-Value)</FieldLabel>
+                <KeyValueEditor
+                  value={field.value || {}}
+                  onChange={field.onChange}
                 />
-                <FieldDescription>Dữ liệu cấu hình bổ sung dưới dạng JSON.</FieldDescription>
+                <FieldDescription>Dữ liệu cấu hình bổ sung.</FieldDescription>
                 <FieldError>{fieldState.error?.message}</FieldError>
               </Field>
             )}

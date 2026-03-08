@@ -18,7 +18,7 @@ export const academyOfferingApi = {
   } = {}): Promise<PaginatedApiResponse<any>> => {
     const response = await apiClient.get<StandardApiResponse<{ items: any[]; total: number; page: number; limit: number; totalPages: number }>>('/api/academy/course-offerings', {
       params: {
-        status: 'ACTIVE',
+        status: 'PUBLISHED',
         ...params,
       },
     });

@@ -32,7 +32,9 @@ import {
   type AcademyChapterItemUpdateDTO,
 } from "@workspace/schemas"
 import type { AcademyChapterItem } from "@/lib/api/services/academy-chapter-items"
-import { useAcademyChapters } from "@/lib/api/services/academy-chapters"
+import { useAcademyChapters, useAcademyChapter } from "@/lib/api/services/academy-chapters"
+import { useAcademyCourseEdition } from "@/lib/api/services/academy-course-editions"
+import { ResourcePicker } from "./resource-picker"
 
 export function ChapterItemForm({
   mode,
@@ -54,7 +56,13 @@ export function ChapterItemForm({
   const isEdit = mode === "edit"
   const { data: chapters = [] } = useAcademyChapters({})
 
-  const { handleSubmit, control } = useForm<
+  // Fetch context to get courseProfileId for filtering
+  const effectiveChapterId = chapterId || initial?.chapterId
+  const { data: chapter } = useAcademyChapter(effectiveChapterId)
+  const { data: edition } = useAcademyCourseEdition(chapter?.courseEditionId)
+  const courseProfileId = edition?.courseProfileId
+
+  const { handleSubmit, control, watch } = useForm<
     AcademyChapterItemCreateDTO | AcademyChapterItemUpdateDTO
   >({
     resolver: zodResolver(
@@ -64,19 +72,23 @@ export function ChapterItemForm({
     ) as any,
     defaultValues: isEdit
       ? {
-        title: initial?.title ?? "",
-        orderIndex: initial?.orderIndex ?? 0,
-        metadata: initial?.metadata ?? undefined,
-      }
+          title: initial?.title ?? "",
+          orderIndex: initial?.orderIndex ?? 0,
+          metadata: initial?.metadata ?? undefined,
+          kind: initial?.kind ?? "LESSON",
+          referenceId: initial?.referenceId ?? "",
+        }
       : {
-        chapterId: chapterId || "",
-        title: "",
-        kind: "LESSON",
-        referenceId: "",
-        orderIndex: 0,
-        metadata: undefined,
-      },
+          chapterId: chapterId || "",
+          title: "",
+          kind: "LESSON",
+          referenceId: "",
+          orderIndex: 0,
+          metadata: undefined,
+        },
   })
+
+  const kind = watch("kind") as "LESSON" | "QUIZ" | "ASSIGNMENT" | "EXAM"
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -125,29 +137,32 @@ export function ChapterItemForm({
               </Field>
             )}
 
-            {!isEdit && (
-              <Controller
-                name={"kind" as any}
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Loại nội dung</FieldLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Chọn loại..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="LESSON">Lesson</SelectItem>
-                        <SelectItem value="QUIZ">Quiz</SelectItem>
-                        <SelectItem value="ASSIGNMENT">Assignment</SelectItem>
-                        <SelectItem value="EXAM">Exam</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-            )}
+            <Controller
+              name={"kind" as any}
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Loại nội dung</FieldLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={isEdit} // Usually changing kind in edit is risky, but let's see if allowed. Assuming no for now or yes? The original code didn't disable it.
+                    // Wait, original code: {!isEdit && ( ... )} around kind select. So it was disabled/hidden in edit mode.
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn loại..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="LESSON">Lesson</SelectItem>
+                      <SelectItem value="QUIZ">Quiz</SelectItem>
+                      <SelectItem value="ASSIGNMENT">Assignment</SelectItem>
+                      <SelectItem value="EXAM">Exam</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
           </FieldGroup>
         </CardContent>
       </Card>
@@ -173,22 +188,36 @@ export function ChapterItemForm({
               )}
             />
 
-            {!isEdit && (
-              <Controller
-                name={"referenceId" as any}
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Reference ID</FieldLabel>
-                    <Input placeholder="ID của Lesson/Quiz/..." {...field} />
-                    <FieldDescription>
-                      ID của tài nguyên tương ứng với loại nội dung đã chọn.
-                    </FieldDescription>
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-            )}
+            <Controller
+              name={"referenceId" as any}
+              control={control}
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Tài nguyên gốc</FieldLabel>
+                  {/* Use ResourcePicker here */}
+                  <ResourcePicker
+                    kind={kind}
+                    courseProfileId={courseProfileId}
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={isEdit} // Should we allow changing reference in edit? Original code: {!isEdit && ( ... )} around referenceId.
+                    // If original code hid referenceId in edit, then we should probably respect that or check why.
+                    // The original code:
+                    // {!isEdit && ( ... referenceId input ... )}
+                    // So it was NOT editable in edit mode.
+                  />
+                  {isEdit && (
+                     <div className="mt-2 text-sm text-muted-foreground">
+                       Reference ID: {field.value} (Không thể thay đổi)
+                     </div>
+                  )}
+                  <FieldDescription>
+                    Chọn tài nguyên từ thư viện nội dung.
+                  </FieldDescription>
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
 
             <Controller
               name={"orderIndex" as any}

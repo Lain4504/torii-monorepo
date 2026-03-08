@@ -18,20 +18,20 @@ type InterpolationModes = "linear" | "sqrt" | "log";
 
 type ColorOptions =
   | {
-      colorMode: "discrete";
-      colorScale?: string[];
-      customColorMap?: (
-        value: number,
-        max: number,
-        colorCount: number
-      ) => number;
-    }
+    colorMode: "discrete";
+    colorScale?: string[];
+    customColorMap?: (
+      value: number,
+      max: number,
+      colorCount: number
+    ) => number;
+  }
   | {
-      colorMode: "interpolate";
-      maxColor?: string;
-      minColor?: string;
-      interpolation?: InterpolationModes;
-    };
+    colorMode: "interpolate";
+    maxColor?: string;
+    minColor?: string;
+    interpolation?: InterpolationModes;
+  };
 
 type HeatmapProps = HTMLAttributes<HTMLDivElement> &
   ColorOptions & {
@@ -84,8 +84,8 @@ function getMonthLabel(week: (string | null)[]) {
   return !lastDay
     ? null
     : new Date(lastDay + "T00:00:00").toLocaleString("default", {
-        month: "short"
-      });
+      month: "short"
+    });
 }
 
 function defaultColourMap(value: number, max: number, colorCount: number) {
@@ -269,7 +269,7 @@ export default function Heatmap(props: HeatmapProps) {
 
   const monthLabels = weeks.map((week, i) => {
     const label = getMonthLabel(week);
-    const prevLabel = i > 0 ? getMonthLabel(weeks[i - 1]) : null;
+    const prevLabel = i > 0 ? getMonthLabel(weeks[i - 1]!) : null;
     return label !== prevLabel ? label : null;
   });
 
@@ -316,7 +316,7 @@ export default function Heatmap(props: HeatmapProps) {
     safeProps = others;
   }
 
-  const getCellColor = (value: number) => {
+  const getCellColor = (value: number): string => {
     if (colorMode === "interpolate") {
       if (value <= 0) {
         return props.minColor ?? "var(--heatmap-zero)";
@@ -339,7 +339,7 @@ export default function Heatmap(props: HeatmapProps) {
 
       const map = props.customColorMap ?? defaultColourMap;
 
-      return colorArray[map(value, maxValue, colorArray.length)];
+      return colorArray[map(value, maxValue, colorArray.length)] ?? colorArray[0]!;
     }
   };
 

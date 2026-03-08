@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { paginationOptionsDTOSchema } from './common.dto';
 
 export const academyEnrollmentCreateDTOSchema = z.object({
     classId: z.string().uuid(),
@@ -22,7 +23,7 @@ export type AcademyEnrollmentUpdateDTO = z.infer<
     typeof academyEnrollmentUpdateDTOSchema
 >;
 
-export const academyEnrollmentQueryDTOSchema = z.object({
+export const academyEnrollmentQueryDTOSchema = paginationOptionsDTOSchema.extend({
     classId: z.string().uuid().optional(),
     userId: z.string().uuid().optional(),
     status: z.string().optional(),

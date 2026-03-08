@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient, type UseQueryOptions } from "@tanstack/react-query"
 import { apiClient } from "../api-client"
 import type {
-    CreateStudyNoteDto,
-    UpdateStudyNoteDto,
-    StudyNoteModel,
+    AcademyStudyNoteCreateDTO as CreateStudyNoteDto,
+    AcademyStudyNoteUpdateDTO as UpdateStudyNoteDto,
+    AcademyStudyNoteModel as StudyNoteModel,
     StandardApiResponse,
 } from "@workspace/schemas"
 

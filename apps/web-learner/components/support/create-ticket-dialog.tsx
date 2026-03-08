@@ -29,7 +29,7 @@ import {
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { TicketType } from '@workspace/schemas';
 import { useCreateTicket } from '@/lib/api/services/ticket-api';
-import { useEnrollments } from '@/lib/api/services/enrollment-api';
+import { useMyEnrollments } from '@/lib/api/services/academy-enrollment-api';
 import { toast } from 'sonner';
 import { Spinner } from '@workspace/ui/components/spinner';
 
@@ -57,7 +57,7 @@ interface CreateTicketDialogProps {
 
 export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogProps) {
     const createTicketMutation = useCreateTicket();
-    const { data: enrollmentsData, isLoading: isLoadingEnrollments } = useEnrollments({ page: 1, limit: 100 });
+    const { data: enrollmentsData, isLoading: isLoadingEnrollments } = useMyEnrollments({ page: 1, limit: 100 });
     const enrollments = enrollmentsData?.data || [];
 
     const form = useForm<CreateTicketFormValues>({

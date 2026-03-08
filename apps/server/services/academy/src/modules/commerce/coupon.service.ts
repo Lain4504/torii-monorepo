@@ -191,18 +191,46 @@ export class CouponService {
     }
 
     async admin_delete(id: string, requesterId = 'SYSTEM') {
-        const coupon = await this.prisma.coupon.findUnique({ where: { id } });
-        const result = await this.prisma.coupon.delete({ where: { id } });
+        const coupon = await this.prisma.coupon.findUnique({
+            where: { id },
+            include: {
+                _count: {
+                    select: { usages: true },
+                },
+            },
+        });
+        if (!coupon) throw new NotFoundException('Coupon not found');
 
+        const orderCount = await this.prisma.order.count({
+            where: { couponId: id },
+        });
+        const hasBeenUsed = coupon._count.usages > 0 || orderCount > 0;
+
+        if (hasBeenUsed) {
+            const updated = await this.prisma.coupon.update({
+                where: { id },
+                data: { status: CouponStatus.INACTIVE },
+            });
+            await this.audit.log({
+                userId: requesterId,
+                action: 'coupon.deactivate',
+                entity: 'Coupon',
+                entityId: id,
+                description: `Deactivated coupon: ${coupon.code} (preserved for order history)`,
+                metadata: { code: coupon.code },
+            });
+            return updated;
+        }
+
+        await this.prisma.coupon.delete({ where: { id } });
         await this.audit.log({
             userId: requesterId,
             action: 'coupon.delete',
             entity: 'Coupon',
             entityId: id,
-            description: `Deleted coupon: ${coupon?.code}`,
-            metadata: { code: coupon?.code },
+            description: `Deleted coupon: ${coupon.code}`,
+            metadata: { code: coupon.code },
         });
-
-        return result;
+        return { ok: true };
     }
 }

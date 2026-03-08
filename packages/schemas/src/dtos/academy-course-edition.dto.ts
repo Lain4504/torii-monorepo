@@ -24,6 +24,7 @@ export type AcademyCourseEditionUpdateDTO = z.infer<
 
 export const academyCourseEditionQueryDTOSchema = z.object({
   courseProfileId: z.string().uuid().optional(),
+  status: z.string().max(20).optional(),
   isCurrent: z
     .union([z.literal('true'), z.literal('false')])
     .transform((v) => v === 'true')

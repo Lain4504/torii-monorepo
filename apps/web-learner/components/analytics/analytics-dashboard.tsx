@@ -6,8 +6,9 @@ import {
     ChevronRight, RefreshCcw, AlertCircle, X, Loader2, Clock,
     BarChart3, Target, BookMarked, Calendar,
 } from 'lucide-react';
-import { useLearningStats, useMyCourses } from '@/lib/api/services/learning-progress-api';
+import { useAcademyLearningStats as useLearningStats, useAcademyMyCourses as useMyCourses } from '@/lib/api/services/academy-learning-progress-api';
 import { useAnalyticsSnapshot, useGenerateAnalyticsSnapshot } from '@/lib/api/services/agent-api';
+import { useMySchedule, liveSessionApi } from '@/lib/api/services/academy-live-session-api';
 import type { AnalyticsSnapshot } from '@/lib/api/services/agent-api';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { toast } from '@workspace/ui/components/sonner';
@@ -332,9 +333,9 @@ export function AnalyticsDashboard() {
                                 value={`${Math.round(stats.averageProgress ?? 0)}%`}
                                 progress={stats.averageProgress ?? 0}
                                 sub={`${stats.completedCourses ?? 0} khóa hoàn thành`} />
-                            <StatCard icon={<Flame className="w-4 h-4 text-orange-500" />} label="Streak học tập"
-                                value={`${stats.currentStreak ?? 0} ngày`}
-                                sub={(stats.currentStreak ?? 0) > 0 ? 'Hôm nay đã học' : 'Chưa học hôm nay'} />
+                            <StatCard icon={<Flame className="w-4 h-4 text-orange-500" />} label="Học tập"
+                                value={`Active`}
+                                sub={`Tiếp tục duy trì`} />
                             <StatCard icon={<BookOpen className="w-4 h-4 text-blue-500" />} label="Giờ học tích lũy"
                                 value={fmtHours(stats.totalLearningHours)}
                                 sub="Tổng thời gian học" />
@@ -353,7 +354,7 @@ export function AnalyticsDashboard() {
                                 <div key={course.id} className="flex items-center gap-4">
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center justify-between mb-1">
-                                            <p className="text-sm font-semibold text-foreground truncate">{course.title}</p>
+                                            <p className="text-sm font-semibold text-foreground truncate">{course.courseTitle}</p>
                                             <span className="text-xs text-muted-foreground shrink-0 ml-2">{Math.round(course.progress ?? 0)}%</span>
                                         </div>
                                         <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
@@ -362,7 +363,7 @@ export function AnalyticsDashboard() {
                                         </div>
                                         <p className="text-xs text-muted-foreground mt-1">
                                             {course.completedLessons}/{course.totalLessons} bài{' '}
-                                            {course.lastAccessed ? `· ${fmtRelTime(course.lastAccessed)}` : ''}
+                                            {course.updatedAt ? `· ${fmtRelTime(course.updatedAt.toISOString())}` : ''}
                                         </p>
                                     </div>
                                 </div>

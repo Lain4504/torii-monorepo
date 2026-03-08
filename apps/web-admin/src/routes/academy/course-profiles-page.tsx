@@ -28,6 +28,7 @@ import {
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import {
   useAcademyCourseProfiles,
+  useArchiveAcademyCourseProfile,
   useDeleteAcademyCourseProfile,
 } from "@/lib/api/services/academy-course-profiles"
 import { toast } from "@workspace/ui/components/sonner"
@@ -47,6 +48,7 @@ import {
   Plus,
   Edit2,
   Trash2,
+  Archive,
   FolderKey,
   Flag,
   BookOpen,
@@ -68,9 +70,11 @@ import {
 export default function AcademyCourseProfilesPage() {
   const [q, setQ] = useState("")
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [archiveId, setArchiveId] = useState<string | null>(null)
 
   const query = useMemo(() => ({ q: q || undefined }), [q])
   const { data = [], isLoading } = useAcademyCourseProfiles(query)
+  const archiveMutation = useArchiveAcademyCourseProfile()
   const del = useDeleteAcademyCourseProfile()
 
   return (
@@ -209,7 +213,7 @@ export default function AcademyCourseProfilesPage() {
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-44">
+                      <DropdownMenuContent align="end" className="w-48">
                         <DropdownMenuGroup>
                           <DropdownMenuItem asChild>
                             <Link to={`/academy/course-profiles/${it.id}`}>
@@ -223,13 +227,20 @@ export default function AcademyCourseProfilesPage() {
                               <span>Chỉnh sửa</span>
                             </Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-destructive focus:text-destructive"
-                            onClick={() => setDeleteId(it.id)}
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            <span>Xoá</span>
-                          </DropdownMenuItem>
+                          {((it as any)._count?.editions > 0 || (it as any)._count?.classes > 0) ? (
+                            <DropdownMenuItem onClick={() => setArchiveId(it.id)}>
+                              <Archive className="h-4 w-4 mr-2" />
+                              <span>Lưu trữ</span>
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => setDeleteId(it.id)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              <span>Xoá</span>
+                            </DropdownMenuItem>
+                          )}
                         </DropdownMenuGroup>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -262,7 +273,7 @@ export default function AcademyCourseProfilesPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Xoá Course Profile</AlertDialogTitle>
             <AlertDialogDescription>
-              Thao tác này sẽ xoá vĩnh viễn Course Profile và các dữ liệu liên quan (nếu có ràng buộc).
+              Chỉ xoá được khi profile chưa có editions hoặc classes. Nếu đã có, dùng Lưu trữ thay vì Xoá.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -274,13 +285,42 @@ export default function AcademyCourseProfilesPage() {
                   await del.mutateAsync(deleteId)
                   toast.success("Đã xoá")
                 } catch (e: any) {
-                  toast.error(e?.message || "Xoá thất bại")
+                  toast.error(e?.response?.data?.message || e?.message || "Xoá thất bại. Dùng Lưu trữ nếu đã có editions/classes.")
                 } finally {
                   setDeleteId(null)
                 }
               }}
             >
               Xoá
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!archiveId} onOpenChange={(o) => !o && setArchiveId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Lưu trữ Course Profile</AlertDialogTitle>
+            <AlertDialogDescription>
+              Profile và tất cả editions sẽ được lưu trữ, ẩn khỏi danh sách nhưng giữ nguyên dữ liệu.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (!archiveId) return
+                try {
+                  await archiveMutation.mutateAsync(archiveId)
+                  toast.success("Đã lưu trữ")
+                } catch (e: any) {
+                  toast.error(e?.response?.data?.message || e?.message || "Lưu trữ thất bại")
+                } finally {
+                  setArchiveId(null)
+                }
+              }}
+            >
+              Lưu trữ
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

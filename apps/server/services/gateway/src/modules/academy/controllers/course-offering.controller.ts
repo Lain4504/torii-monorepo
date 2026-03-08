@@ -107,6 +107,15 @@ export class CourseOfferingController {
     return successResponse({ item });
   }
 
+  @Post(':id/archive')
+  @Permissions('academy.commerce.write')
+  async archive(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.courseOffering.archive' }, { id, requesterId: req.requester?.sub }),
+    );
+    return successResponse({ item });
+  }
+
   @Delete(':id')
   @Permissions('academy.commerce.write')
   async delete(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useExams } from '@/lib/api/services/exam-api'
+import { useAcademyExams } from '@/lib/api/services/academy-exam-api'
 import { PageLoading } from '@workspace/ui/components/page-loading'
 import { Card } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
@@ -9,19 +9,14 @@ import { Input } from '@workspace/ui/components/input'
 import { FileText, Clock, Trophy, Search, Play, History } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useMemo } from 'react'
-import { ExamSessionStatus } from '@workspace/schemas'
 import { Empty, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent } from '@workspace/ui/components/empty'
 
 export default function ExamsPage() {
     const [searchQuery, setSearchQuery] = useState('')
 
-    const { data: examsData, isLoading } = useExams({
-        page: 1,
-        limit: 50,
-        search: searchQuery || undefined
+    const { data: exams = [], isLoading } = useAcademyExams({
+        status: 'ACTIVE'
     })
-
-    const exams = examsData?.data || []
 
     // Filter exams by search query
     const filteredExams = useMemo(() => {
@@ -80,23 +75,16 @@ export default function ExamsPage() {
                                 <div className="p-6 space-y-6 flex-1">
                                     <div className="flex justify-between items-start">
                                         <Badge variant="outline" className={
-                                            `rounded-md px-2 py-0.5 text-xs font-bold border-border ${exam.jlptLevel === 'N5' ? 'bg-blue-500/10 text-blue-600' :
-                                                exam.jlptLevel === 'N4' ? 'bg-emerald-500/10 text-emerald-600' :
-                                                    exam.jlptLevel === 'N3' ? 'bg-amber-500/10 text-amber-600' :
-                                                        exam.jlptLevel === 'N2' ? 'bg-purple-500/10 text-purple-600' :
-                                                            exam.jlptLevel === 'N1' ? 'bg-red-500/10 text-red-600' :
+                                            `rounded-md px-2 py-0.5 text-xs font-bold border-border ${exam.level === 'N5' ? 'bg-blue-500/10 text-blue-600' :
+                                                exam.level === 'N4' ? 'bg-emerald-500/10 text-emerald-600' :
+                                                    exam.level === 'N3' ? 'bg-amber-500/10 text-amber-600' :
+                                                        exam.level === 'N2' ? 'bg-purple-500/10 text-purple-600' :
+                                                            exam.level === 'N1' ? 'bg-red-500/10 text-red-600' :
                                                                 'bg-muted text-muted-foreground'
                                             }`
                                         }>
-                                            {exam.jlptLevel || 'N/A'}
+                                            {exam.level || 'N/A'}
                                         </Badge>
-
-                                        {(exam.sessionStatus === ExamSessionStatus.SUBMITTED || exam.sessionStatus === ExamSessionStatus.COMPLETED) && exam.score !== undefined && (
-                                            <Badge variant="default" className="bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 border-0 text-xs font-bold gap-1">
-                                                <Trophy className="size-3" />
-                                                {exam.maxScore ? `${Math.round((exam.score / exam.maxScore) * 100)}%` : exam.score}
-                                            </Badge>
-                                        )}
                                     </div>
 
                                     <div className="space-y-2">
@@ -111,26 +99,18 @@ export default function ExamsPage() {
                                     <div className="flex items-center gap-4 text-muted-foreground text-xs font-medium pt-2 border-t border-border/50 mt-auto">
                                         <div className="flex items-center gap-1.5">
                                             <FileText className="size-3.5" />
-                                            <span>{exam.totalQuestions || 0} câu hỏi</span>
+                                            <span>{exam.sections?.length || 0} phần</span>
                                         </div>
                                         <div className="flex items-center gap-1.5">
                                             <Clock className="size-3.5" />
-                                            <span>{exam.totalTime || 0} phút</span>
+                                            <span>{exam.totalTimeLimitMinutes || 0} phút</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="p-4 bg-muted/20 border-t border-border/50">
                                     <Button className="w-full">
-                                        {(exam.sessionStatus === ExamSessionStatus.SUBMITTED || exam.sessionStatus === ExamSessionStatus.COMPLETED) ? (
-                                            <>
-                                                <History className="mr-2 size-3.5" /> Xem kết quả
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Play className="mr-2 size-3.5" /> Bắt đầu thi
-                                            </>
-                                        )}
+                                        <Play className="mr-2 size-3.5" /> Bắt đầu thi
                                     </Button>
                                 </div>
                             </Card>

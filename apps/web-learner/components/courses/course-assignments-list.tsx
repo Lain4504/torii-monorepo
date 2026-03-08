@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import { AlertCircle, CheckCircle2, Clock, FileText, Filter, X } from 'lucide-react'
-import type { AssignmentResponseDTO } from '@/lib/api/services/assignment-api'
-import { useCourseAssignments } from '@/lib/api/services/assignment-api'
+import { 
+  useAcademyAssignmentTemplates as useCourseAssignments,
+} from '@/lib/api/services/academy-assignment-api'
+import type { AcademyAssignmentTemplateModel as AssignmentResponseDTO } from '@workspace/schemas'
 import { Button } from '@workspace/ui/components/button'
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@workspace/ui/components/empty'
 import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@workspace/ui/components/item'
@@ -31,8 +33,7 @@ export function CourseAssignmentsList({ courseId, courseSlug, onAssignmentClick 
   const activeCourseRunId = enrollment?.courseRunId
 
   const { data, isLoading: isLoadingAssignments } = useCourseAssignments({
-    courseRunId: activeCourseRunId,
-    status: 'PUBLISHED',
+    courseProfileId: courseId,
   })
 
   // Hide for non-enrolled users
@@ -40,24 +41,24 @@ export function CourseAssignmentsList({ courseId, courseSlug, onAssignmentClick 
     return null
   }
 
-  const allAssignments = data?.data || []
+  const allAssignments = data || []
 
   // Filter assignments based on selected filter
-  const assignments = allAssignments.filter((assignment) => {
+  const assignments = allAssignments.filter((assignment: any) => {
     if (filterStatus === 'ALL')
       return true
 
     if (filterStatus === 'PENDING') {
       // Show assignments that are not submitted or only have draft
-      return !assignment.userSubmissionStatus || assignment.userSubmissionStatus === 'DRAFT'
+      return !((assignment as any).userSubmissionStatus) || ((assignment as any).userSubmissionStatus) === 'DRAFT'
     }
 
     if (filterStatus === 'SUBMITTED') {
-      return assignment.userSubmissionStatus === 'SUBMITTED'
+      return ((assignment as any).userSubmissionStatus) === 'SUBMITTED'
     }
 
     if (filterStatus === 'GRADED') {
-      return assignment.userSubmissionStatus === 'GRADED'
+      return ((assignment as any).userSubmissionStatus) === 'GRADED'
     }
 
     return true
@@ -65,22 +66,22 @@ export function CourseAssignmentsList({ courseId, courseSlug, onAssignmentClick 
 
   const getStatusBadge = (assignment: AssignmentResponseDTO) => {
     // Check user's submission status first
-    if (assignment.userSubmissionStatus) {
-      if (assignment.userSubmissionStatus === 'GRADED') {
+    if (((assignment as any).userSubmissionStatus)) {
+      if (((assignment as any).userSubmissionStatus) === 'GRADED') {
         return {
           icon: CheckCircle2,
           label: 'Đã chấm',
           className: 'border-primary/20 bg-primary/10 text-primary',
         }
       }
-      if (assignment.userSubmissionStatus === 'SUBMITTED') {
+      if (((assignment as any).userSubmissionStatus) === 'SUBMITTED') {
         return {
           icon: CheckCircle2,
           label: 'Đã nộp',
           className: 'border-border/50 bg-muted/50 text-foreground',
         }
       }
-      if (assignment.userSubmissionStatus === 'DRAFT') {
+      if (((assignment as any).userSubmissionStatus) === 'DRAFT') {
         return {
           icon: Clock,
           label: 'Nháp',
@@ -90,7 +91,7 @@ export function CourseAssignmentsList({ courseId, courseSlug, onAssignmentClick 
     }
 
     // If no submission, check due date
-    const dueDate = assignment.dueDate ? new Date(assignment.dueDate) : null
+    const dueDate = ((assignment as any).dueDate) ? new Date(((assignment as any).dueDate)) : null
     const isOverdue = dueDate && new Date() > dueDate
 
     if (isOverdue) {
@@ -198,11 +199,11 @@ export function CourseAssignmentsList({ courseId, courseSlug, onAssignmentClick 
 
       {/* Assignments Grid */}
       <div className="grid gap-6">
-        {assignments.map((assignment) => {
+        {assignments.map((assignment: any) => {
           const status = getStatusBadge(assignment)
           const StatusIcon = status.icon
-          const dueDate = assignment.dueDate ? new Date(assignment.dueDate) : null
-          const isOverdue = dueDate && new Date() > dueDate && (!assignment.userSubmissionStatus || assignment.userSubmissionStatus === 'DRAFT')
+          const dueDate = ((assignment as any).dueDate) ? new Date(((assignment as any).dueDate)) : null
+          const isOverdue = dueDate && new Date() > dueDate && (!((assignment as any).userSubmissionStatus) || ((assignment as any).userSubmissionStatus) === 'DRAFT')
 
           return (
             <Item
@@ -223,8 +224,8 @@ export function CourseAssignmentsList({ courseId, courseSlug, onAssignmentClick 
               </ItemMedia>
               <ItemContent className="min-w-0 flex-1 space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-primary">{assignment.type}</span>
-                  <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Unit {assignment.order || 0}</span>
+                  <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-primary">{(assignment as any).defaultType}</span>
+                  <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Unit {(assignment as any).order || 0}</span>
                 </div>
                 <ItemTitle className="line-clamp-1 text-lg transition-colors group-hover:text-primary">
                   {assignment.title}
@@ -259,7 +260,7 @@ export function CourseAssignmentsList({ courseId, courseSlug, onAssignmentClick 
                   <div className="flex items-center gap-1.5">
                     <CheckCircle2 className="h-3.5 w-3.5 text-primary/60" />
                     <span className="text-xs font-semibold text-muted-foreground">
-                      {assignment.maxScore} PTS
+                      {(assignment as any).defaultMaxScore} PTS
                     </span>
                   </div>
                 </div>

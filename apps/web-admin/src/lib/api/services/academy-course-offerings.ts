@@ -64,6 +64,14 @@ export const academyCourseOfferingsApi = {
     return res.data.data!.item
   },
 
+  async archive(id: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseOffering }>>(
+      `/api/academy/course-offerings/${id}/archive`,
+      {},
+    )
+    return res.data.data!.item
+  },
+
   async delete(id: string) {
     const res = await apiClient.delete<StandardApiResponse<{ ok: boolean }>>(
       `/api/academy/course-offerings/${id}`,
@@ -130,6 +138,17 @@ export function useUpdateAcademyCourseOffering() {
     mutationFn: ({ id, input }: { id: string; input: AcademyCourseOfferingUpdateDTO }) =>
       academyCourseOfferingsApi.update(id, input),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-course-offerings"] }),
+  })
+}
+
+export function useArchiveAcademyCourseOffering() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => academyCourseOfferingsApi.archive(id),
+    onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: ["academy-course-offerings"] })
+      qc.invalidateQueries({ queryKey: ["academy-course-offering", id] })
+    },
   })
 }
 

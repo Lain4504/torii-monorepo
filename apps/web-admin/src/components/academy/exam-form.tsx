@@ -2,7 +2,6 @@ import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
-import { Textarea } from "@workspace/ui/components/textarea"
 import {
   Field,
   FieldError,
@@ -34,6 +33,8 @@ import {
 } from "@workspace/schemas"
 import type { AcademyExam } from "@/lib/api/services/academy-exams"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
+import { SectionListEditor } from "@/components/academy/section-list-editor"
+import { KeyValueEditor } from "@/components/academy/key-value-editor"
 
 export function ExamForm({
   mode,
@@ -242,26 +243,18 @@ export function ExamForm({
               control={control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel>Cấu hình nâng cao (JSON)</FieldLabel>
-                  <Textarea
-                    placeholder='Ví dụ: {"shuffleQuestions":true,"passPercent":60}'
-                    className="font-mono"
-                    value={
-                      field.value
-                        ? typeof field.value === "string"
-                          ? field.value
-                          : JSON.stringify(field.value, null, 2)
-                        : ""
-                    }
-                    onChange={(e) => {
-                      const raw = e.target.value
-                      if (!raw) return field.onChange(undefined)
-                      try {
-                        field.onChange(JSON.parse(raw))
-                      } catch {
-                        field.onChange(raw)
-                      }
-                    }}
+                  <FieldLabel>Cấu hình nâng cao (Key-Value)</FieldLabel>
+                  <KeyValueEditor
+                    value={field.value || {}}
+                    onChange={field.onChange}
+                    presets={[
+                      { key: "maxAttemptsPerUser", label: "Số lần làm tối đa", defaultValue: "1" },
+                      { key: "shuffleQuestions", label: "Trộn câu hỏi", defaultValue: "true" },
+                      { key: "showResultType", label: "Hiển thị kết quả", defaultValue: "DETAILED" },
+                      { key: "passingScore", label: "Điểm đạt", defaultValue: "50" },
+                      { key: "timeLimit", label: "Thời gian (phút)", defaultValue: "60" },
+                      { key: "allowReview", label: "Xem lại bài", defaultValue: "true" },
+                    ]}
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
@@ -274,27 +267,12 @@ export function ExamForm({
                 control={control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Cấu trúc đề thi (Sections JSON)</FieldLabel>
-                    <Textarea
-                      placeholder='[{"title":"Phần 1","orderIndex":0,"sectionType":"READING"}]'
-                      className="font-mono text-xs"
-                      rows={6}
-                      value={
-                        field.value && Array.isArray(field.value)
-                          ? JSON.stringify(field.value, null, 2)
-                          : field.value || ""
-                      }
-                      onChange={(e) => {
-                        const raw = e.target.value
-                        if (!raw) return field.onChange([])
-                        try {
-                          field.onChange(JSON.parse(raw))
-                        } catch {
-                          field.onChange(raw)
-                        }
-                      }}
+                    <FieldLabel>Cấu trúc đề thi (Sections)</FieldLabel>
+                    <SectionListEditor
+                      value={field.value || []}
+                      onChange={field.onChange}
                     />
-                    <FieldDescription>Cấu trúc ban đầu của đề thi.</FieldDescription>
+                    <FieldDescription>Thiết lập các phần thi chính cho đề thi mới.</FieldDescription>
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}

@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react"
-import { Link } from "react-router-dom"
+import { useMemo, useState, useEffect } from "react"
+import { Link, useSearchParams } from "react-router-dom"
 import { Button } from "@workspace/ui/components/button"
 import {
   Table,
@@ -49,10 +49,15 @@ import { useAcademyCourseEditions } from "@/lib/api/services/academy-course-edit
 import { DuplicateClassDialog } from "@/components/academy/duplicate-class-dialog"
 
 export default function AcademyClassesPage() {
+  const [searchParams] = useSearchParams()
+  const statusFromUrl = searchParams.get("status")
   const [courseProfileId, setCourseProfileId] = useState("_all")
   const [courseEditionId, setCourseEditionId] = useState("_all")
   const [mode, setMode] = useState("_all")
-  const [status, setStatus] = useState("_all")
+  const [status, setStatus] = useState(statusFromUrl || "_all")
+  useEffect(() => {
+    if (statusFromUrl) setStatus(statusFromUrl)
+  }, [statusFromUrl])
   const [q, setQ] = useState("")
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [duplicateClass, setDuplicateClass] = useState<AcademyClass | null>(null)
@@ -162,6 +167,7 @@ export default function AcademyClassesPage() {
               <SelectContent>
                 <SelectItem value="_all">Tất cả Trạng thái</SelectItem>
                 <SelectItem value="DRAFT">Draft</SelectItem>
+                <SelectItem value="PENDING_APPROVAL">Chờ phê duyệt</SelectItem>
                 <SelectItem value="ENROLLING">Enrolling</SelectItem>
                 <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
                 <SelectItem value="COMPLETED">Completed</SelectItem>

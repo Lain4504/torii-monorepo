@@ -9,7 +9,7 @@ import { useAcademyCompletedLessonIds, academyLearningProgressApi } from '@/lib/
 import { useAcademyLesson } from '@/lib/api/services/academy-lesson-api';
 import {
     useAcademyAssignmentSubmissions, useCreateAcademyAssignmentSubmission, useUpdateAcademyAssignmentSubmission,
-    useAcademyAssignmentTemplates
+    useAcademyAssignmentTemplates, useAcademyAssignmentTemplate
 } from '@/lib/api/services/academy-assignment-api';
 import {
     useAcademyQuizTemplate
@@ -30,6 +30,11 @@ import {
 } from 'lucide-react';
 import { MultiFileUpload } from '@/components/common/multi-file-upload';
 import type { CurriculumLesson, CurriculumModule } from '@/lib/api/services/academy-classes';
+import { type AcademyQuizTemplateModel } from '@/lib/api/services/academy-quiz-api';
+import type {
+    AcademyLessonModel,
+    AcademyAssignmentTemplateModel
+} from '@workspace/schemas';
 import { StudyNotesPanel } from '@/components/courses/study-notes-panel';
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -728,7 +733,7 @@ export default function CourseLearnPage() {
                                             onClick={async () => {
                                                 setSavingNote(true);
                                                 try {
-                                                    const { StudyNoteApi } = await import('@/lib/api/services/study-note-api');
+                                                    const { studyNoteApi: StudyNoteApi } = await import('@/lib/api/services/academy-study-note-api');
                                                     if (currentLesson?.id) {
                                                         await StudyNoteApi.create({ content: note, lessonId: currentLesson.id });
                                                         toast.success('Đã lưu ghi chú!');

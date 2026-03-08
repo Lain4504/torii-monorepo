@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { AuditLoggerService } from '../../audit-logger.service';
 import {
@@ -136,7 +136,9 @@ export class CourseProfileService {
     if (!profile) throw new NotFoundException('CourseProfile not found');
 
     if (profile.editions.length > 0 || profile.classes.length > 0) {
-      throw new Error('Cannot delete CourseProfile with existing editions or classes. Archive it instead.');
+      throw new BadRequestException(
+        'Cannot delete CourseProfile with existing editions or classes. Use archive instead.',
+      );
     }
 
     await this.prisma.courseProfile.delete({ where: { id } });

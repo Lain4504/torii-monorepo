@@ -20,7 +20,7 @@ export default function AcademyAssignmentTemplateEditPage() {
         try {
             await update.mutateAsync({ id, input: data as AcademyAssignmentTemplateUpdateDTO })
             toast.success("Cập nhật thành công")
-            navigate("/academy/assignment-templates")
+            navigate(-1)
         } catch (e: any) {
             toast.error(e?.message || "Lỗi khi cập nhật")
         }
@@ -38,7 +38,7 @@ export default function AcademyAssignmentTemplateEditPage() {
                 mode="edit"
                 initial={initial}
                 onSubmit={handleSubmit}
-                onCancel={() => navigate("/academy/assignment-templates")}
+                onCancel={() => navigate(-1)}
                 submitting={update.isPending}
             />
         </div>

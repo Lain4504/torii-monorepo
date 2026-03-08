@@ -14,6 +14,7 @@ export interface CurriculumLesson {
   isUnlocked: boolean;
   isPreview: boolean;
   order: number;
+  videoDuration?: number;
   referenceId: string; // The ID of the actual Lesson (video/article), AssignmentTemplate, or QuizTemplate
 }
 
@@ -21,6 +22,7 @@ export interface CurriculumModule {
   id: string; // Chapter ID
   title: string;
   order: number;
+  durationMinutes?: number;
   lessons: CurriculumLesson[];
 }
 

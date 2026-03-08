@@ -26,7 +26,15 @@ export class ExamService {
   async findById(id: string) {
     const item = await this.prisma.exam.findUnique({
       where: { id },
-      include: { sections: true, examQuestions: true },
+      include: {
+        sections: {
+          orderBy: { orderIndex: 'asc' },
+        },
+        examQuestions: {
+          include: { question: true },
+          orderBy: { orderIndex: 'asc' },
+        },
+      },
     });
     if (!item) throw new NotFoundException('Exam not found');
     return item;

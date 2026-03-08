@@ -33,8 +33,10 @@ import {
 import type { AcademyQuestionCreateDTO, AcademyQuestionUpdateDTO } from "@workspace/schemas"
 import type { AcademyQuestion } from "@/lib/api/services/academy-questions"
 import { QuestionPicker } from "./question-picker"
+import { StringListEditor } from "@/components/academy/string-list-editor"
+import  { Tabs, TabsList, TabsTrigger, TabsContent } from "@workspace/ui/components/tabs"
+import { KeyValueEditor } from "./key-value-editor"
 import { QuestionOptionsEditor } from "./question-options-editor"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 
 export function QuestionForm({
   mode,
@@ -255,6 +257,30 @@ export function QuestionForm({
                         }}
                       />
                     </div>
+                  ) : questionType === "SHORT_ANSWER" ? (
+                    <div className="space-y-2">
+                      <Controller
+                        name={"correctAnswer" as any}
+                        control={control}
+                        render={({ field, fieldState }) => (
+                          <Field>
+                            <FieldLabel>Các câu trả lời chấp nhận được</FieldLabel>
+                            <StringListEditor
+                                value={field.value || []}
+                                onChange={field.onChange}
+                                placeholder="Nhập đáp án đúng..."
+                                addButtonLabel="Thêm đáp án chấp nhận"
+                            />
+                            <FieldDescription>Danh sách các câu trả lời được tính là đúng (không phân biệt hoa thường).</FieldDescription>
+                            <FieldError>{fieldState.error?.message}</FieldError>
+                          </Field>
+                        )}
+                      />
+                    </div>
+                  ) : questionType === "GROUP_PARENT" ? (
+                    <div className="p-4 border rounded-md bg-muted/50 text-sm text-muted-foreground text-center italic">
+                        Câu hỏi nhóm đóng vai trò chứa các câu hỏi con. Không cần cấu hình đáp án tại đây.
+                    </div>
                   ) : (
                     <div className="grid gap-6 md:grid-cols-2">
                       <Controller
@@ -348,27 +374,15 @@ export function QuestionForm({
                   control={control}
                   render={({ field, fieldState }) => (
                     <Field>
-                      <FieldLabel>Metadata (JSON)</FieldLabel>
-                      <Textarea
-                        placeholder='Ví dụ: {"tags":["JLPT N5","kana"],"difficulty":"easy"}'
-                        className="font-mono text-xs shadow-none"
-                        rows={3}
-                        value={
-                          field.value
-                            ? typeof field.value === "string"
-                              ? field.value
-                              : JSON.stringify(field.value, null, 2)
-                            : ""
-                        }
-                        onChange={(e) => {
-                          const raw = e.target.value
-                          if (!raw) return field.onChange(undefined)
-                          try {
-                            field.onChange(JSON.parse(raw))
-                          } catch {
-                            field.onChange(raw)
-                          }
-                        }}
+                      <FieldLabel>Metadata (Key-Value)</FieldLabel>
+                      <KeyValueEditor
+                        value={field.value || {}}
+                        onChange={field.onChange}
+                        presets={[
+                          { key: "tags", label: "Thẻ (Tags)", defaultValue: "jlpt,n5" },
+                          { key: "difficulty", label: "Độ khó", defaultValue: "medium" },
+                          { key: "estimatedReadingTime", label: "Thời gian đọc (phút)", defaultValue: "5" },
+                        ]}
                       />
                       <FieldDescription>Thông tin bổ sung khác.</FieldDescription>
                       <FieldError>{fieldState.error?.message}</FieldError>

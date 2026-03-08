@@ -23,6 +23,7 @@ export type AcademyExam = {
     status?: string | null
     settings?: unknown | null
     sections?: any[]
+    examQuestions?: any[]
     createdAt: string
     updatedAt: string
 }

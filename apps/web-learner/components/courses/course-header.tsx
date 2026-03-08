@@ -1,4 +1,4 @@
-import type { CourseMasterResponseDTO } from '@workspace/schemas'
+import type { AcademyCourseProfileCreateDTO } from '@workspace/schemas'
 import { Badge } from '@workspace/ui/components/badge'
 import { Star, Users } from 'lucide-react'
 import Image from 'next/image'
@@ -6,11 +6,16 @@ import { Avatar, AvatarFallback, AvatarImage } from '@workspace/ui/components/av
 import { formatNumber } from '@/utils/format-utils'
 
 interface CourseHeaderProps {
-    course: CourseMasterResponseDTO
+    course: AcademyCourseProfileCreateDTO & {
+        id: string;
+        jlptLevel?: string;
+        lecturer?: any;
+        shortDescription?: string;
+    }
 }
 
 export function CourseHeader({ course }: CourseHeaderProps) {
-    const getLevelLabel = (jlptLevel: string) => {
+    const getLevelLabel = (jlptLevel?: string) => {
         const levelMap: Record<string, string> = {
             'N5': 'Sơ cấp',
             'N4': 'Sơ trung cấp',
@@ -18,7 +23,7 @@ export function CourseHeader({ course }: CourseHeaderProps) {
             'N2': 'Trung cao cấp',
             'N1': 'Cao cấp',
         }
-        return levelMap[jlptLevel] || 'Sơ cấp'
+        return (jlptLevel && levelMap[jlptLevel]) || 'Sơ cấp'
     }
 
     const lecturer = course.lecturer

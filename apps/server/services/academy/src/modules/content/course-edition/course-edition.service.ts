@@ -18,6 +18,7 @@ export class CourseEditionService {
     return this.prisma.courseEdition.findMany({
       where: {
         courseProfileId: query.courseProfileId ?? undefined,
+        status: query.status ?? undefined,
         isCurrent: query.isCurrent ?? undefined,
       },
       orderBy: [{ createdAt: 'desc' }],
@@ -305,9 +306,19 @@ export class CourseEditionService {
   }
 
   async delete(id: string, requesterId = 'SYSTEM') {
-    const edition = await this.findById(id);
+    const edition = await this.prisma.courseEdition.findUnique({
+      where: { id },
+      include: { classes: { select: { id: true }, take: 1 } },
+    });
+    if (!edition) throw new NotFoundException('CourseEdition not found');
+
     if (edition.status === 'PUBLISHED') {
       throw new BadRequestException('Cannot delete a PUBLISHED edition. Archive it instead.');
+    }
+    if (edition.classes.length > 0) {
+      throw new BadRequestException(
+        'Cannot delete edition with existing classes. Archive it instead.',
+      );
     }
     await this.prisma.courseEdition.delete({ where: { id } });
 

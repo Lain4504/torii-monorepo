@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useStudyNotes, useCreateStudyNote, useDeleteStudyNote } from '@/lib/api/services/study-note-api';
+import { useStudyNotes, useCreateStudyNote, useDeleteStudyNote } from '@/lib/api/services/academy-study-note-api';
 import {
     Sheet,
     SheetContent,

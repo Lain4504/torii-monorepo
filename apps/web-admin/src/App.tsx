@@ -76,10 +76,8 @@ import AcademyEnrollmentEditPage from '@/routes/academy/enrollment-edit-page.tsx
 import AcademyClassDetailPage from "@/routes/academy/class-detail-page.tsx"
 import AcademyCourseOfferingDetailPage from "@/routes/academy/course-offering-detail-page.tsx"
 import AcademyLecturerDashboardPage from "@/routes/academy/lecturer-dashboard-page.tsx"
-import AcademyQuizTemplatesPage from '@/routes/academy/quiz-templates-page.tsx'
 import AcademyQuizTemplateCreatePage from '@/routes/academy/quiz-template-create-page.tsx'
 import AcademyQuizTemplateEditPage from '@/routes/academy/quiz-template-edit-page.tsx'
-import AcademyAssignmentTemplatesPage from '@/routes/academy/assignment-templates-page.tsx'
 import AcademyAssignmentTemplateCreatePage from '@/routes/academy/assignment-template-create-page.tsx'
 import AcademyAssignmentTemplateEditPage from '@/routes/academy/assignment-template-edit-page.tsx'
 import AcademyQuestionsPage from '@/routes/academy/questions-page.tsx'
@@ -90,7 +88,6 @@ import AcademyCourseEditionDetailPage from '@/routes/academy/course-edition-deta
 import AcademyLessonCreatePage from '@/routes/academy/lesson-create-page.tsx'
 import AcademyLessonEditPage from '@/routes/academy/lesson-edit-page.tsx'
 import AcademyClassReviewsPage from '@/routes/academy/class-reviews-page.tsx'
-import AcademyLessonsPage from '@/routes/academy/lessons-page.tsx'
 import AcademyClassAssessmentsPage from '@/routes/academy/class-assessments-page.tsx'
 import RewardsPage from '@/routes/gamification/rewards-page.tsx'
 import QuestionPoolsPage from '@/routes/academy/question-pools-page.tsx'
@@ -154,15 +151,12 @@ function App() {
                     <Route path="academy/course-profiles/:id" element={<AcademyCourseProfileDetailPage />} />
                     <Route path="academy/course-profiles/:id/edit" element={<AcademyCourseProfileEditPage />} />
 
-                    <Route path="academy/lessons" element={<AcademyLessonsPage />} />
                     <Route path="academy/lessons/new" element={<AcademyLessonCreatePage />} />
                     <Route path="academy/lessons/:id/edit" element={<AcademyLessonEditPage />} />
 
-                    <Route path="academy/quiz-templates" element={<AcademyQuizTemplatesPage />} />
                     <Route path="academy/quiz-templates/new" element={<AcademyQuizTemplateCreatePage />} />
                     <Route path="academy/quiz-templates/:id/edit" element={<AcademyQuizTemplateEditPage />} />
 
-                    <Route path="academy/assignment-templates" element={<AcademyAssignmentTemplatesPage />} />
                     <Route path="academy/assignment-templates/new" element={<AcademyAssignmentTemplateCreatePage />} />
                     <Route path="academy/assignment-templates/:id/edit" element={<AcademyAssignmentTemplateEditPage />} />
 
