@@ -22,7 +22,7 @@ export class OrderService {
 
     async preview(userId: string, input: OrderPreviewDto) {
         const offerings = await this.prisma.courseOffering.findMany({
-            where: { id: { in: input.offeringIds }, status: OfferingStatus.ACTIVE },
+            where: { id: { in: input.offeringIds }, status: OfferingStatus.PUBLISHED },
         });
 
         if (offerings.length !== input.offeringIds.length) {

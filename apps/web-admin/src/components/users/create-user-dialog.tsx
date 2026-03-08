@@ -37,8 +37,7 @@ import {
     ArrowLeft,
     ShieldCheck,
     BadgeCheck,
-    Lock,
-    Save
+    Lock
 } from 'lucide-react';
 import { UserRole, adminCreateInternalUserDTOSchema } from '@workspace/schemas';
 import { toast } from 'sonner';
@@ -105,17 +104,16 @@ interface CreateUserDialogProps {
 export function CreateUserDialog({
     open,
     onOpenChange,
-    fixedRole,
 }: CreateUserDialogProps) {
-    const isLecturerOnly = fixedRole === UserRole.LECTURER;
-    const isStaffOnly = fixedRole === UserRole.STAFF;
+    // const isLecturerOnly = false;
+    // const isStaffOnly = false;
 
-    // For staff, we always want 2 steps: 
+    // We always want 2 steps: 
     // Step 1: Details
-    // Step 2: Specific Staff Role Selection
-    const totalSteps = isLecturerOnly ? 1 : 2;
+    // Step 2: Role Selection (Lecturer or Staff types)
+    const totalSteps = 2;
 
-    const [showStaffVariants, setShowStaffVariants] = useState(isStaffOnly);
+    const [showStaffVariants, setShowStaffVariants] = useState(false);
     const [currentStep, { goToNextStep, goToPrevStep, reset }] = useStep(totalSteps);
 
     const form = useForm<FormValues>({
@@ -124,7 +122,7 @@ export function CreateUserDialog({
         defaultValues: {
             displayName: '',
             email: '',
-            role: fixedRole || UserRole.LECTURER,
+            role: UserRole.LECTURER,
         },
     });
 
@@ -132,15 +130,15 @@ export function CreateUserDialog({
 
     useEffect(() => {
         if (open) {
-            setShowStaffVariants(isStaffOnly);
+            setShowStaffVariants(false);
             reset();
             form.reset({
                 displayName: '',
                 email: '',
-                role: fixedRole || UserRole.LECTURER,
+                role: UserRole.LECTURER,
             });
         }
-    }, [open, fixedRole, isStaffOnly, form, reset]);
+    }, [open, form, reset]);
 
     const [showConfirm, setShowConfirm] = useState(false);
 
@@ -151,7 +149,7 @@ export function CreateUserDialog({
                 description: `Tài khoản ${data.displayName} đã được tạo thành công.`,
             });
             form.reset();
-            setShowStaffVariants(isStaffOnly);
+            setShowStaffVariants(false);
             reset();
             setShowConfirm(false);
             onOpenChange(false);
@@ -174,7 +172,7 @@ export function CreateUserDialog({
     const handleOpenChange = (newOpen: boolean) => {
         if (!newOpen) {
             form.reset();
-            setShowStaffVariants(isStaffOnly);
+            setShowStaffVariants(false);
             reset();
         }
         onOpenChange(newOpen);
@@ -183,19 +181,13 @@ export function CreateUserDialog({
     const handleNextToRole = async () => {
         const valid = await form.trigger(['displayName', 'email']);
         if (valid) {
-            if (isLecturerOnly) {
-                form.handleSubmit(onSubmit)();
-            } else {
-                goToNextStep();
-            }
+            goToNextStep();
         }
     };
 
     const handleBackToDetails = () => {
         goToPrevStep();
-        if (!isStaffOnly) {
-            setShowStaffVariants(false);
-        }
+        setShowStaffVariants(false);
     };
 
     const handleRoleSelect = (roleId: string) => {
@@ -203,7 +195,7 @@ export function CreateUserDialog({
             setShowStaffVariants(true);
             form.setValue('role', UserRole.STAFF, { shouldValidate: false });
         } else if (roleId === UserRole.LECTURER) {
-            form.setValue('role', UserRole.LECTURER, { shouldValidate: false });
+            form.setValue('role', UserRole.LECTURER, { shouldValidate: true });
             setShowStaffVariants(false);
         }
     };
@@ -222,11 +214,7 @@ export function CreateUserDialog({
     const email = form.watch('email');
     const detailsValid = !!displayName && !!email;
 
-    const dialogTitle = isLecturerOnly
-        ? 'Thêm Giảng Viên Mới'
-        : isStaffOnly
-            ? 'Thêm Nhân Viên Mới'
-            : 'Thêm Người Dùng Mới';
+    const dialogTitle = 'Thêm Người Dùng Mới';
 
     return (
         <>
@@ -236,32 +224,28 @@ export function CreateUserDialog({
                         <DialogHeader>
                             <div className="flex items-center gap-2">
                                 <div className="p-2 rounded-lg bg-primary text-primary-foreground">
-                                    {isLecturerOnly ? <GraduationCap className="size-5" /> : <Users className="size-5" />}
+                                    <Users className="size-5" />
                                 </div>
                                 <DialogTitle>{dialogTitle}</DialogTitle>
                             </div>
                             <DialogDescription>
-                                {totalSteps === 1
-                                    ? 'Cung cấp thông tin để cấp quyền truy cập hệ thống.'
-                                    : currentStep === 1
-                                        ? 'Bước 1: Nhập thông tin cá nhân'
-                                        : 'Bước 2: Chọn vai trò'}
+                                {currentStep === 1
+                                    ? 'Bước 1: Nhập thông tin cá nhân'
+                                    : 'Bước 2: Chọn vai trò'}
                             </DialogDescription>
                         </DialogHeader>
 
-                        {totalSteps > 1 && (
-                            <div className="flex gap-2 mb-4">
-                                {[1, 2].map((step) => (
-                                    <div
-                                        key={step}
-                                        className={cn(
-                                            "h-2 flex-1 rounded-full",
-                                            currentStep >= step ? "bg-primary" : "bg-muted"
-                                        )}
-                                    />
-                                ))}
-                            </div>
-                        )}
+                        <div className="flex gap-2 mb-4">
+                            {[1, 2].map((step) => (
+                                <div
+                                    key={step}
+                                    className={cn(
+                                        "h-2 flex-1 rounded-full",
+                                        currentStep >= step ? "bg-primary" : "bg-muted"
+                                    )}
+                                />
+                            ))}
+                        </div>
 
                         <div className="space-y-4">
                             {currentStep === 1 ? (
@@ -321,7 +305,6 @@ export function CreateUserDialog({
                                     {!showStaffVariants ? (
                                         <div className="space-y-2">
                                             {internalRoles
-                                                .filter(role => !fixedRole || role.id === fixedRole)
                                                 .map((role) => {
                                                     const Icon = role.icon;
                                                     const isSelected = currentRole === role.id ||
@@ -362,17 +345,15 @@ export function CreateUserDialog({
                                         </div>
                                     ) : (
                                         <div className="space-y-4">
-                                            {!isStaffOnly && (
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={handleBackToRoles}
-                                                >
-                                                    <ArrowLeft className="size-4 mr-2" />
-                                                    Quay lại
-                                                </Button>
-                                            )}
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={handleBackToRoles}
+                                            >
+                                                <ArrowLeft className="size-4 mr-2" />
+                                                Quay lại
+                                            </Button>
 
                                             <div className="grid grid-cols-2 gap-2">
                                                 {staffVariants.map((variant) => {
@@ -439,24 +420,8 @@ export function CreateUserDialog({
                                         }}
                                         disabled={!detailsValid || createInternalUser.isPending}
                                     >
-                                        {isLecturerOnly ? (
-                                            createInternalUser.isPending ? (
-                                                <>
-                                                    <Spinner className="mr-2 size-4" />
-                                                    Đang tạo...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Save className="mr-2 size-4" />
-                                                    Tạo ngay
-                                                </>
-                                            )
-                                        ) : (
-                                            <>
-                                                Tiếp theo
-                                                <ChevronRight className="ml-2 size-4" />
-                                            </>
-                                        )}
+                                        Tiếp theo
+                                        <ChevronRight className="ml-2 size-4" />
                                     </Button>
                                 </>
                             ) : (
@@ -471,7 +436,7 @@ export function CreateUserDialog({
                                     </Button>
                                     <Button
                                         type="submit"
-                                        disabled={createInternalUser.isPending || (isStaffOnly && currentRole === UserRole.STAFF)}
+                                        disabled={createInternalUser.isPending || currentRole === UserRole.STAFF}
                                     >
                                         {createInternalUser.isPending ? (
                                             <>

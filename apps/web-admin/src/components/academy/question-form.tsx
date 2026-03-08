@@ -67,6 +67,8 @@ export function QuestionForm({
         options: initial?.options ?? undefined,
         correctAnswer: initial?.correctAnswer ?? undefined,
         explanation: initial?.explanation ?? undefined,
+        level: initial?.level ?? undefined,
+        category: initial?.category ?? undefined,
         metadata: initial?.metadata ?? undefined,
       }
       : {
@@ -77,6 +79,8 @@ export function QuestionForm({
         options: undefined,
         correctAnswer: undefined,
         explanation: undefined,
+        level: undefined,
+        category: undefined,
         metadata: undefined,
       },
   })
@@ -140,6 +144,31 @@ export function QuestionForm({
                     <FieldLabel>Media URL</FieldLabel>
                     <Input placeholder="https://..." {...field} />
                     <FieldDescription>Link hình ảnh, âm thanh hoặc video cho câu hỏi.</FieldDescription>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <Controller
+                name={"level" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Độ khó (Level)</FieldLabel>
+                    <Input placeholder="L1, L2, N1, N2..." {...field} />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+              <Controller
+                name={"category" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Danh mục (Category)</FieldLabel>
+                    <Input placeholder="Vocabulary, Grammar, Kanji..." {...field} />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}

@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form"
+import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import { useEffect } from "react"
@@ -36,7 +36,8 @@ import { Textarea } from "@workspace/ui/components/textarea"
 import { Switch } from "@workspace/ui/components/switch"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { useUpdateReward } from "@/lib/api/services/gamification"
-import { Star, Gift } from "lucide-react"
+import { Star, Gift, Save } from "lucide-react"
+import { Spinner } from "@workspace/ui/components/spinner"
 
 interface EditRewardDialogProps {
     open: boolean
@@ -52,33 +53,42 @@ export function EditRewardDialog({ open, onOpenChange, reward }: EditRewardDialo
         handleSubmit,
         setValue,
         reset,
-        formState: { errors },
+        control,
+        formState: { errors, isDirty },
     } = useForm<UpdatePointRewardDTO>({
-        resolver: zodResolver(updatePointRewardDTOSchema),
+        resolver: zodResolver(updatePointRewardDTOSchema) as any,
         defaultValues: {
             name: reward.name,
             description: reward.description || "",
-            points: reward.points,
-            discountType: reward.discountType as "percentage" | "fixed_amount",
-            discountValue: Number(reward.discountValue),
-            maxDiscountAmount: reward.maxDiscountAmount ? Number(reward.maxDiscountAmount) : null,
-            minOrderAmount: reward.minOrderAmount ? Number(reward.minOrderAmount) : null,
-            validDuration: reward.validDuration || 30,
+            costPoints: reward.costPoints,
+            type: reward.type,
+            config: reward.config || {
+                discountType: "PERCENTAGE",
+                discountValue: 0,
+                maxDiscountAmount: null,
+                minOrderValue: null,
+                validDays: 30,
+            },
             isActive: reward.isActive,
         },
     })
+
+    // const config = watch("config")
 
     useEffect(() => {
         if (reward) {
             reset({
                 name: reward.name,
                 description: reward.description || "",
-                points: reward.points,
-                discountType: reward.discountType as "percentage" | "fixed_amount",
-                discountValue: Number(reward.discountValue),
-                maxDiscountAmount: reward.maxDiscountAmount ? Number(reward.maxDiscountAmount) : null,
-                minOrderAmount: reward.minOrderAmount ? Number(reward.minOrderAmount) : null,
-                validDuration: reward.validDuration || 30,
+                costPoints: reward.costPoints,
+                type: reward.type,
+                config: reward.config || {
+                    discountType: "PERCENTAGE",
+                    discountValue: 0,
+                    maxDiscountAmount: null,
+                    minOrderValue: null,
+                    validDays: 30,
+                },
                 isActive: reward.isActive,
             })
         }
@@ -102,7 +112,7 @@ export function EditRewardDialog({ open, onOpenChange, reward }: EditRewardDialo
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-3xl max-h-[90vh] p-0">
+            <DialogContent className="max-w-xl max-h-[90vh] p-0">
                 <DialogHeader className="p-6 pb-0">
                     <DialogTitle className="flex items-center gap-2">
                         <Gift className="h-5 w-5 text-primary" />
@@ -115,7 +125,7 @@ export function EditRewardDialog({ open, onOpenChange, reward }: EditRewardDialo
 
                 <ScrollArea className="flex-1 max-h-[calc(90vh-180px)]">
                     <div className="space-y-6 p-6">
-                        <form id="edit-reward-form" onSubmit={handleSubmit(onSubmit)}>
+                        <form id="edit-reward-form" onSubmit={handleSubmit(onSubmit as any)}>
                             <FieldGroup>
                                 <FieldSet>
                                     <FieldLegend>Thông tin cơ bản</FieldLegend>
@@ -143,15 +153,15 @@ export function EditRewardDialog({ open, onOpenChange, reward }: EditRewardDialo
                                             </FieldLabel>
                                             <Input
                                                 type="number"
-                                                {...register("points", { valueAsNumber: true })}
+                                                {...register("costPoints", { valueAsNumber: true })}
                                             />
-                                            {errors.points && <FieldDescription className="text-destructive">{errors.points.message}</FieldDescription>}
+                                            {errors.costPoints && <FieldDescription className="text-destructive">{errors.costPoints.message}</FieldDescription>}
                                         </Field>
                                         <Field>
                                             <FieldLabel>Thời hạn sử dụng (ngày)</FieldLabel>
                                             <Input
                                                 type="number"
-                                                {...register("validDuration", { valueAsNumber: true })}
+                                                {...register("config.validDays", { valueAsNumber: true })}
                                             />
                                         </Field>
                                     </div>
@@ -162,26 +172,31 @@ export function EditRewardDialog({ open, onOpenChange, reward }: EditRewardDialo
                                     <div className="grid grid-cols-2 gap-4">
                                         <Field>
                                             <FieldLabel>Loại giảm giá</FieldLabel>
-                                            <Select
-                                                defaultValue={reward.discountType as string}
-                                                onValueChange={(val: any) => setValue("discountType", val)}
-                                            >
-                                                <SelectTrigger>
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="percentage">Theo phần trăm (%)</SelectItem>
-                                                    <SelectItem value="fixed_amount">Số tiền cố định (VND)</SelectItem>
-                                                </SelectContent>
-                                            </Select>
+                                            <Controller
+                                                name="config.discountType"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Select
+                                                        value={field.value}
+                                                        onValueChange={field.onChange}
+                                                    >
+                                                        <SelectTrigger>
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="PERCENTAGE">Theo phần trăm (%)</SelectItem>
+                                                            <SelectItem value="FIXED_AMOUNT">Số tiền cố định (VND)</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                )}
+                                            />
                                         </Field>
                                         <Field>
                                             <FieldLabel>Giá trị giảm</FieldLabel>
                                             <Input
                                                 type="number"
-                                                {...register("discountValue", { valueAsNumber: true })}
+                                                {...register("config.discountValue", { valueAsNumber: true })}
                                             />
-                                            {errors.discountValue && <FieldDescription className="text-destructive">{errors.discountValue.message}</FieldDescription>}
                                         </Field>
                                     </div>
 
@@ -190,16 +205,14 @@ export function EditRewardDialog({ open, onOpenChange, reward }: EditRewardDialo
                                             <FieldLabel>Giảm tối đa (không bắt buộc)</FieldLabel>
                                             <Input
                                                 type="number"
-                                                defaultValue={reward.maxDiscountAmount ? Number(reward.maxDiscountAmount) : ""}
-                                                onChange={(e) => setValue("maxDiscountAmount", e.target.value ? Number(e.target.value) : null)}
+                                                {...register("config.maxDiscountAmount", { valueAsNumber: true })}
                                             />
                                         </Field>
                                         <Field>
                                             <FieldLabel>Đơn hàng tối thiểu</FieldLabel>
                                             <Input
                                                 type="number"
-                                                defaultValue={reward.minOrderAmount ? Number(reward.minOrderAmount) : ""}
-                                                onChange={(e) => setValue("minOrderAmount", e.target.value ? Number(e.target.value) : null)}
+                                                {...register("config.minOrderValue", { valueAsNumber: true })}
                                             />
                                         </Field>
                                     </div>
@@ -223,11 +236,28 @@ export function EditRewardDialog({ open, onOpenChange, reward }: EditRewardDialo
                 </ScrollArea>
 
                 <DialogFooter className="p-6 pt-0">
-                    <Button variant="outline" onClick={handleClose} disabled={updateMutation.isPending}>
-                        Hủy
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleClose}
+                        disabled={updateMutation.isPending}>
+                        Hủy Bố
                     </Button>
-                    <Button form="edit-reward-form" type="submit" disabled={updateMutation.isPending}>
-                        {updateMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
+                    <Button
+                        form="edit-reward-form"
+                        type="submit"
+                        disabled={updateMutation.isPending || !isDirty}>
+                        {updateMutation.isPending ? (
+                            <>
+                                <Spinner className="mr-2" />
+                                Đang lưu...
+                            </>
+                        ) : (
+                            <>
+                                <Save className="mr-2 h-4 w-4" />
+                                Lưu thay đổi
+                            </>
+                        )}
                     </Button>
                 </DialogFooter>
             </DialogContent>

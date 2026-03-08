@@ -8,6 +8,8 @@ export const academyQuestionCreateDTOSchema = z.object({
   options: z.unknown().optional(),
   correctAnswer: z.unknown().optional(),
   explanation: z.string().optional(),
+  level: z.string().max(20).optional(),
+  category: z.string().max(50).optional(),
   metadata: z.unknown().optional(),
 });
 export type AcademyQuestionCreateDTO = z.infer<
@@ -21,6 +23,8 @@ export const academyQuestionUpdateDTOSchema = z.object({
   options: z.unknown().optional(),
   correctAnswer: z.unknown().optional(),
   explanation: z.string().optional(),
+  level: z.string().max(20).optional(),
+  category: z.string().max(50).optional(),
   metadata: z.unknown().optional(),
 });
 export type AcademyQuestionUpdateDTO = z.infer<
@@ -31,8 +35,9 @@ export const academyQuestionQueryDTOSchema = z.object({
   parentId: z.string().uuid().optional(),
   questionType: z.string().optional(),
   q: z.string().optional(),
+  level: z.string().optional(),
+  category: z.string().optional(),
 });
 export type AcademyQuestionQueryDTO = z.infer<
   typeof academyQuestionQueryDTOSchema
 >;
-

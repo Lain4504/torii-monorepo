@@ -41,5 +41,12 @@ export class ExamHandler {
   delete(@Payload() data: { id: string }) {
     return this.exams.delete(data.id);
   }
+
+  @MessagePattern({ cmd: 'academy.exam.addQuestionsFromPool' })
+  addQuestionsFromPool(
+    @Payload() data: { examId: string; sectionId: string; poolId: string; count: number },
+  ) {
+    return this.exams.addQuestionsFromPool(data.examId, data.sectionId, data.poolId, data.count);
+  }
 }
 

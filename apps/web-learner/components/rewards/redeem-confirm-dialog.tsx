@@ -15,7 +15,7 @@ interface RedeemConfirmDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
     selectedDeal: {
-        points: number
+        costPoints: number
         name: string
     } | null
     isLoading: boolean
@@ -35,7 +35,7 @@ export function RedeemConfirmDialog({
                 <DialogHeader>
                     <DialogTitle>Xác nhận đổi điểm</DialogTitle>
                     <DialogDescription>
-                        Bạn muốn dùng <span className="font-bold text-primary">{selectedDeal?.points} Points</span> để đổi lấy <span className="font-bold">"{selectedDeal?.name}"</span>?
+                        Bạn muốn dùng <span className="font-bold text-primary">{selectedDeal?.costPoints} Points</span> để đổi lấy <span className="font-bold">"{selectedDeal?.name}"</span>?
                     </DialogDescription>
                 </DialogHeader>
                 <div className="py-4 flex items-center gap-4 text-amber-600 bg-amber-50 p-4 rounded-xl border border-amber-100">
