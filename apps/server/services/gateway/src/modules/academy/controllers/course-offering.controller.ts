@@ -12,6 +12,7 @@ import {
   Put,
   Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -22,6 +23,7 @@ import {
   PermissionsGuard,
   ZodValidationPipe,
   successResponse,
+  ReqWithRequester,
 } from '@server/shared';
 import {
   AcademyCourseOfferingCreateDTO,
@@ -66,9 +68,10 @@ export class CourseOfferingController {
   async create(
     @Body(new ZodValidationPipe(academyCourseOfferingCreateDTOSchema))
     dto: AcademyCourseOfferingCreateDTO,
+    @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.courseOffering.create' }, dto),
+      this.nats.send({ cmd: 'academy.courseOffering.create' }, { ...dto, requesterId: req.requester?.sub }),
     );
     return successResponse({ item });
   }
@@ -79,9 +82,10 @@ export class CourseOfferingController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodValidationPipe(academyCourseOfferingUpdateDTOSchema))
     dto: AcademyCourseOfferingUpdateDTO,
+    @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.courseOffering.update' }, { id, input: dto }),
+      this.nats.send({ cmd: 'academy.courseOffering.update' }, { id, input: dto, requesterId: req.requester?.sub }),
     );
     return successResponse({ item });
   }
@@ -92,11 +96,12 @@ export class CourseOfferingController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodValidationPipe(academyCourseOfferingSetClassesDTOSchema))
     dto: AcademyCourseOfferingSetClassesDTO,
+    @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.courseOffering.setClasses' },
-        { offeringId: id, classIds: dto.classIds },
+        { offeringId: id, classIds: dto.classIds, requesterId: req.requester?.sub },
       ),
     );
     return successResponse({ item });
@@ -104,9 +109,9 @@ export class CourseOfferingController {
 
   @Delete(':id')
   @Permissions('academy.commerce.write')
-  async delete(@Param('id', new ParseUUIDPipe()) id: string) {
+  async delete(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
     const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.courseOffering.delete' }, { id }),
+      this.nats.send({ cmd: 'academy.courseOffering.delete' }, { id, requesterId: req.requester?.sub }),
     );
     return successResponse(result);
   }

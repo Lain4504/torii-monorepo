@@ -73,7 +73,7 @@ export class BlogService implements IBlogService {
     /**
      * Create new blog blog
      */
-    async createBlog(dto: BlogCreateDTO): Promise<BlogResponseDTO> {
+    async createBlog(dto: BlogCreateDTO, requesterId?: string): Promise<BlogResponseDTO> {
         // Auto-generate slug from title if not provided
         const baseSlug = dto.slug || generateSlug(dto.title);
 
@@ -125,7 +125,7 @@ export class BlogService implements IBlogService {
         });
 
         await this.audit.log({
-            userId: finalDto.authorId,
+            userId: requesterId || finalDto.authorId,
             action: 'blog.create',
             entity: 'Blog',
             entityId: blog.id,
@@ -277,7 +277,7 @@ export class BlogService implements IBlogService {
     /**
      * Update blog
      */
-    async updateBlog(id: string, dto: BlogUpdateDTO): Promise<BlogResponseDTO> {
+    async updateBlog(id: string, dto: BlogUpdateDTO, requesterId?: string): Promise<BlogResponseDTO> {
         const existing = await this.blogRepository.findById(id);
 
         if (!existing) {
@@ -322,7 +322,7 @@ export class BlogService implements IBlogService {
         const blog = await this.blogRepository.update(id, updateData);
 
         await this.audit.log({
-            userId: existing.authorId,
+            userId: requesterId || existing.authorId,
             action: 'blog.update',
             entity: 'Blog',
             entityId: id,
@@ -337,7 +337,7 @@ export class BlogService implements IBlogService {
     /**
      * Publish blog (change status to published)
      */
-    async publishBlog(id: string): Promise<BlogResponseDTO> {
+    async publishBlog(id: string, requesterId?: string): Promise<BlogResponseDTO> {
         const blog = await this.blogRepository.findById(id);
 
         if (!blog) {
@@ -354,7 +354,7 @@ export class BlogService implements IBlogService {
         });
 
         await this.audit.log({
-            userId: blog.authorId,
+            userId: requesterId || blog.authorId,
             action: 'blog.publish',
             entity: 'Blog',
             entityId: id,
@@ -369,7 +369,7 @@ export class BlogService implements IBlogService {
     /**
      * Delete blog
      */
-    async deleteBlog(id: string) {
+    async deleteBlog(id: string, requesterId?: string) {
         const blog = await this.blogRepository.findById(id);
 
         if (!blog) {
@@ -379,7 +379,7 @@ export class BlogService implements IBlogService {
         await this.blogRepository.delete(id);
 
         await this.audit.log({
-            userId: blog.authorId,
+            userId: requesterId || blog.authorId,
             action: 'blog.delete',
             entity: 'Blog',
             entityId: id,

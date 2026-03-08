@@ -73,27 +73,27 @@ export class CouponController {
 
     @Post('admin')
     @Permissions('academy:coupon:admin')
-    async create(@Body() body: any) {
+    async create(@Body() body: any, @Req() req: ReqWithRequester) {
         const result = await firstValueFrom(
-            this.nats.send({ cmd: 'academy.coupon.admin.create' }, body),
+            this.nats.send({ cmd: 'academy.coupon.admin.create' }, { ...body, requesterId: req.requester?.sub }),
         );
         return successResponse(result);
     }
 
     @Patch('admin/:id')
     @Permissions('academy:coupon:admin')
-    async update(@Param('id') id: string, @Body() body: any) {
+    async update(@Param('id') id: string, @Body() body: any, @Req() req: ReqWithRequester) {
         const result = await firstValueFrom(
-            this.nats.send({ cmd: 'academy.coupon.admin.update' }, { id, data: body }),
+            this.nats.send({ cmd: 'academy.coupon.admin.update' }, { id, data: body, requesterId: req.requester?.sub }),
         );
         return successResponse(result);
     }
 
     @Delete('admin/:id')
     @Permissions('academy:coupon:admin')
-    async delete(@Param('id') id: string) {
+    async delete(@Param('id') id: string, @Req() req: ReqWithRequester) {
         const result = await firstValueFrom(
-            this.nats.send({ cmd: 'academy.coupon.admin.delete' }, { id }),
+            this.nats.send({ cmd: 'academy.coupon.admin.delete' }, { id, requesterId: req.requester?.sub }),
         );
         return successResponse(result);
     }

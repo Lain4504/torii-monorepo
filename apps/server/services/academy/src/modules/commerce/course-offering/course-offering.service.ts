@@ -102,7 +102,7 @@ export class CourseOfferingService {
     return item as any;
   }
 
-  async create(input: CourseOfferingCreateDto, actorId = 'SYSTEM') {
+  async create(input: CourseOfferingCreateDto, requesterId = 'SYSTEM') {
     if (input.status === OfferingStatus.PUBLISHED) {
       if (!input.classIds?.length) {
         throw new BadRequestException('Active offering must have at least one class');
@@ -143,7 +143,7 @@ export class CourseOfferingService {
     });
 
     await this.audit.log({
-      userId: actorId,
+      userId: requesterId,
       action: 'offering.create',
       entity: 'CourseOffering',
       entityId: offering.id,
@@ -154,7 +154,7 @@ export class CourseOfferingService {
     return offering;
   }
 
-  async update(id: string, input: CourseOfferingUpdateDto, actorId = 'SYSTEM') {
+  async update(id: string, input: CourseOfferingUpdateDto, requesterId = 'SYSTEM') {
     const offering = await this.findById(id) as any;
 
     if (input.status === OfferingStatus.PUBLISHED) {
@@ -199,7 +199,7 @@ export class CourseOfferingService {
     });
 
     await this.audit.log({
-      userId: actorId,
+      userId: requesterId,
       action: 'offering.update',
       entity: 'CourseOffering',
       entityId: id,
@@ -211,7 +211,7 @@ export class CourseOfferingService {
     return updated;
   }
 
-  async setClasses(input: CourseOfferingSetClassesDto) {
+  async setClasses(input: CourseOfferingSetClassesDto, requesterId = 'SYSTEM') {
     await this.findById(input.offeringId);
     const count = await this.prisma.class.count({
       where: { id: { in: input.classIds } },
@@ -233,15 +233,24 @@ export class CourseOfferingService {
       }),
     ]);
 
+    await this.audit.log({
+      userId: requesterId,
+      action: 'offering.setClasses',
+      entity: 'CourseOffering',
+      entityId: input.offeringId,
+      description: `Set classes for offering: ${input.offeringId}`,
+      metadata: { classIds: input.classIds },
+    });
+
     return this.findById(input.offeringId);
   }
 
-  async delete(id: string, actorId = 'SYSTEM') {
+  async delete(id: string, requesterId = 'SYSTEM') {
     const offering = await this.findById(id) as any;
     await this.prisma.courseOffering.delete({ where: { id } });
 
     await this.audit.log({
-      userId: actorId,
+      userId: requesterId,
       action: 'offering.delete',
       entity: 'CourseOffering',
       entityId: id,

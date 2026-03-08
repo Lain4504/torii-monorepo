@@ -44,7 +44,7 @@ export class CourseProfileService {
     return item;
   }
 
-  async create(input: CourseProfileCreateDto, actorId = 'SYSTEM') {
+  async create(input: CourseProfileCreateDto, requesterId = 'SYSTEM') {
     const profile = await this.prisma.courseProfile.create({
       data: {
         code: input.code,
@@ -58,7 +58,7 @@ export class CourseProfileService {
       },
     });
     await this.audit.log({
-      userId: actorId,
+      userId: requesterId,
       action: 'courseProfile.create',
       entity: 'CourseProfile',
       entityId: profile.id,
@@ -68,7 +68,7 @@ export class CourseProfileService {
     return profile;
   }
 
-  async update(id: string, input: CourseProfileUpdateDto, actorId = 'SYSTEM') {
+  async update(id: string, input: CourseProfileUpdateDto, requesterId = 'SYSTEM') {
     const old = await this.findById(id);
     const updated = await this.prisma.courseProfile.update({
       where: { id },
@@ -83,7 +83,7 @@ export class CourseProfileService {
       },
     });
     await this.audit.log({
-      userId: actorId,
+      userId: requesterId,
       action: 'courseProfile.update',
       entity: 'CourseProfile',
       entityId: id,
@@ -94,7 +94,7 @@ export class CourseProfileService {
     return updated;
   }
 
-  async archiveProfile(id: string, actorId = 'SYSTEM') {
+  async archiveProfile(id: string, requesterId = 'SYSTEM') {
     const profile = await this.findById(id);
 
     // Archive all editions
@@ -115,7 +115,7 @@ export class CourseProfileService {
     });
 
     await this.audit.log({
-      userId: actorId,
+      userId: requesterId,
       action: 'courseProfile.archive',
       entity: 'CourseProfile',
       entityId: id,
@@ -125,7 +125,7 @@ export class CourseProfileService {
     return result;
   }
 
-  async delete(id: string, actorId = 'SYSTEM') {
+  async delete(id: string, requesterId = 'SYSTEM') {
     const profile = await this.prisma.courseProfile.findUnique({
       where: { id },
       include: {
@@ -142,7 +142,7 @@ export class CourseProfileService {
     await this.prisma.courseProfile.delete({ where: { id } });
 
     await this.audit.log({
-      userId: actorId,
+      userId: requesterId,
       action: 'courseProfile.delete',
       entity: 'CourseProfile',
       entityId: id,

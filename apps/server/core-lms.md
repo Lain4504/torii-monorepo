@@ -498,11 +498,11 @@ Nếu bạn muốn bước tiếp theo, tôi có thể:
     - `joinedAt` (datetime), `status` (enum: `WAITING`, `OFFERED`, `ENROLLED`, `EXPIRED`)
   - Khi lớp đủ maxStudents, học viên đăng ký waitlist. Khi có slot trống, staff gửi offer → chuyển sang Enrollment.
 
-- **`ClassAttendance`**
+- **`ClassAttendance`** – **chỉ dành cho lớp LIVE**
   - Columns:
     - `id` (UUID, PK), `liveScheduleId` (FK → `LiveSchedule.id`), `userId` (FK → `User.id`)
     - `status` (enum: `PRESENT`, `ABSENT`, `LATE`, `EXCUSED`), `recordedAt` (datetime)
-  - Điểm danh theo từng buổi (chỉ LIVE).
+  - Rule: Điểm danh theo từng buổi (LiveSchedule). **VOD không có buổi học cố định → không dùng ClassAttendance.** Chỉ áp dụng khi `Class.mode = LIVE`.
 
 - **`Certificate`**
   - Columns:
@@ -780,7 +780,7 @@ Trung tâm có thể bật/tắt luồng approval. Mặc định: **có thể t�
 | **P2** | Trial class | Học thử 1–2 buổi trước khi mua | Mục 17.F |
 | **P2** | Khuyến mãi (Early bird, voucher) | Giảm giá theo thời điểm / mã | Commerce |
 | **P2** | Certificate | Chứng nhận hoàn thành | Mục 7.4 |
-| **P3** | Điểm danh (ClassAttendance) | Gắn với LiveSchedule, PRESENT/ABSENT/LATE | Mục 7.4 |
+| **P3** | Điểm danh (ClassAttendance) | Chỉ LIVE – gắn với LiveSchedule, PRESENT/ABSENT/LATE | Mục 7.4 |
 | **P3** | Clone edition / Duplicate class | Tạo mới từ edition/lớp cũ | Mục 17.H |
 | **P3** | Placement test | Thi xếp lớp N5/N4/N3 | Exam (examType = PLACEMENT) |
 | **P3** | VOD enrollment hết hạn | expiresAt → EXPIRED, mất quyền truy cập | Mục 17.I |
@@ -1073,6 +1073,11 @@ Các rule này nhằm tránh việc dùng `Class` sai cách, đặc biệt với
   - UI không nên ẩn `Class` chỉ vì không có schedule:
     - Schedule là optional cho VOD, required cho LIVE.
 
+- **16.5. ClassAttendance – chỉ LIVE**
+  - `ClassAttendance` gắn với `LiveSchedule` (liveClassId → LiveSchedule).
+  - **VOD không có buổi học cố định** → không dùng ClassAttendance. Không tạo/ghi điểm danh cho class mode = VOD.
+  - API/UI điểm danh chỉ hiển thị và hoạt động khi `Class.mode = LIVE`.
+
 ---
 
 ### 17. Rule nghiệp vụ bổ sung (trung tâm tiếng Nhật)
@@ -1262,6 +1267,7 @@ UI cần đọc permission từ hệ thống role/permission hiện tại để:
      - Xem chi tiết class:
        - Tab `Overview`: info cơ bản, subject, edition, stats.
        - Tab `Schedule`: danh sách LiveSchedule – chỉ hiển thị khi class mode = LIVE.
+       - Tab `Attendance`: điểm danh theo LiveSchedule – **chỉ hiển thị khi class mode = LIVE** (VOD không có).
        - Tab `Assessment`: `ClassAssessment` (quiz/assignment instance).
        - Tab `Learners`: enrollment list + quick actions (add/remove).
        - Tab `Waitlist`: danh sách Waitlist (nếu lớp đủ maxStudents), action offer slot.

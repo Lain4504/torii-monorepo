@@ -11,6 +11,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
@@ -21,6 +22,7 @@ import {
   PermissionsGuard,
   ZodValidationPipe,
   successResponse,
+  ReqWithRequester,
 } from '@server/shared';
 import {
   AcademyCourseEditionCreateDTO,
@@ -34,7 +36,7 @@ import {
 @Controller('api/academy/course-editions')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class CourseEditionController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
   @Get()
   @Permissions('academy.content.read')
@@ -77,9 +79,10 @@ export class CourseEditionController {
   async create(
     @Body(new ZodValidationPipe(academyCourseEditionCreateDTOSchema))
     dto: AcademyCourseEditionCreateDTO,
+    @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.courseEdition.create' }, dto),
+      this.nats.send({ cmd: 'academy.courseEdition.create' }, { ...dto, requesterId: req.requester?.sub }),
     );
     return successResponse({ item });
   }
@@ -90,27 +93,28 @@ export class CourseEditionController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodValidationPipe(academyCourseEditionUpdateDTOSchema))
     dto: AcademyCourseEditionUpdateDTO,
+    @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.courseEdition.update' }, { id, input: dto }),
+      this.nats.send({ cmd: 'academy.courseEdition.update' }, { id, input: dto, requesterId: req.requester?.sub }),
     );
     return successResponse({ item });
   }
 
   @Post(':id/set-current')
   @Permissions('academy.content.write')
-  async setCurrent(@Param('id', new ParseUUIDPipe()) id: string) {
+  async setCurrent(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.courseEdition.setCurrent' }, { id }),
+      this.nats.send({ cmd: 'academy.courseEdition.setCurrent' }, { id, requesterId: req.requester?.sub }),
     );
     return successResponse({ item });
   }
 
   @Delete(':id')
   @Permissions('academy.content.write')
-  async delete(@Param('id', new ParseUUIDPipe()) id: string) {
+  async delete(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
     const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.courseEdition.delete' }, { id }),
+      this.nats.send({ cmd: 'academy.courseEdition.delete' }, { id, requesterId: req.requester?.sub }),
     );
     return successResponse(result);
   }

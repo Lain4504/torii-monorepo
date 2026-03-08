@@ -28,22 +28,23 @@ export class BlogHandler {
     }
 
     @MessagePattern({ cmd: 'academy.blog.create' })
-    async create(@Payload() data: BlogCreateDTO) {
-        return this.blogService.createBlog(data);
+    async create(@Payload() data: BlogCreateDTO & { requesterId?: string }) {
+        const { requesterId, ...input } = data;
+        return this.blogService.createBlog(input, requesterId);
     }
 
     @MessagePattern({ cmd: 'academy.blog.update' })
-    async update(@Payload() data: { id: string; dto: BlogUpdateDTO }) {
-        return this.blogService.updateBlog(data.id, data.dto);
+    async update(@Payload() data: { id: string; dto: BlogUpdateDTO; requesterId?: string }) {
+        return this.blogService.updateBlog(data.id, data.dto, data.requesterId);
     }
 
     @MessagePattern({ cmd: 'academy.blog.delete' })
-    async delete(@Payload() data: { id: string }) {
-        return this.blogService.deleteBlog(data.id);
+    async delete(@Payload() data: { id: string; requesterId?: string }) {
+        return this.blogService.deleteBlog(data.id, data.requesterId);
     }
 
     @MessagePattern({ cmd: 'academy.blog.publish' })
-    async publish(@Payload() data: { id: string }) {
-        return this.blogService.publishBlog(data.id);
+    async publish(@Payload() data: { id: string; requesterId?: string }) {
+        return this.blogService.publishBlog(data.id, data.requesterId);
     }
 }

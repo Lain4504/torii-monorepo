@@ -79,7 +79,7 @@ export class ClassService {
     return item;
   }
 
-  async create(input: ClassCreateDto) {
+  async create(input: ClassCreateDto, requesterId = 'SYSTEM') {
     const edition = await this.prisma.courseEdition.findUnique({
       where: { id: input.courseEditionId },
       select: { id: true, courseProfileId: true },
@@ -134,7 +134,7 @@ export class ClassService {
       }
 
       await this.audit.log({
-        userId: 'SYSTEM',
+        userId: requesterId,
         action: 'class.create',
         entity: 'Class',
         entityId: classItem.id,
@@ -146,7 +146,7 @@ export class ClassService {
     });
   }
 
-  async update(id: string, input: ClassUpdateDto) {
+  async update(id: string, input: ClassUpdateDto, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
 
     return this.prisma.$transaction(async (tx) => {
@@ -188,7 +188,7 @@ export class ClassService {
       }
 
       await this.audit.log({
-        userId: 'SYSTEM',
+        userId: requesterId,
         action: 'class.update',
         entity: 'Class',
         entityId: id,
@@ -201,7 +201,7 @@ export class ClassService {
     });
   }
 
-  async publishClass(id: string) {
+  async publishClass(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.prisma.class.findUnique({
       where: { id },
       include: {
@@ -228,7 +228,7 @@ export class ClassService {
     });
 
     await this.audit.log({
-      userId: 'SYSTEM',
+      userId: requesterId,
       action: 'class.publish',
       entity: 'Class',
       entityId: id,
@@ -239,7 +239,7 @@ export class ClassService {
     return result;
   }
 
-  async startClass(id: string) {
+  async startClass(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
     if (classItem.status === 'IN_PROGRESS') return classItem;
 
@@ -249,7 +249,7 @@ export class ClassService {
     });
 
     await this.audit.log({
-      userId: 'SYSTEM',
+      userId: requesterId,
       action: 'class.start',
       entity: 'Class',
       entityId: id,
@@ -261,7 +261,7 @@ export class ClassService {
     return result;
   }
 
-  async completeClass(id: string) {
+  async completeClass(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
     if (classItem.status === 'COMPLETED') return classItem;
 
@@ -271,7 +271,7 @@ export class ClassService {
     });
 
     await this.audit.log({
-      userId: 'SYSTEM',
+      userId: requesterId,
       action: 'class.complete',
       entity: 'Class',
       entityId: id,
@@ -283,7 +283,7 @@ export class ClassService {
     return result;
   }
 
-  async cancelClass(id: string) {
+  async cancelClass(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
     if (classItem.status === 'CANCELLED') return classItem;
 
@@ -293,7 +293,7 @@ export class ClassService {
     });
 
     await this.audit.log({
-      userId: 'SYSTEM',
+      userId: requesterId,
       action: 'class.cancel',
       entity: 'Class',
       entityId: id,
@@ -344,7 +344,7 @@ export class ClassService {
     };
   }
 
-  async delete(id: string) {
+  async delete(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
     if (classItem.status !== 'DRAFT' && classItem.status !== 'CANCELLED') {
       throw new BadRequestException('Can only delete DRAFT or CANCELLED classes');
@@ -358,7 +358,7 @@ export class ClassService {
     await this.prisma.class.delete({ where: { id } });
 
     await this.audit.log({
-      userId: 'SYSTEM',
+      userId: requesterId,
       action: 'class.delete',
       entity: 'Class',
       entityId: id,

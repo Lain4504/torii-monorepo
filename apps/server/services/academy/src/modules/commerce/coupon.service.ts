@@ -123,7 +123,7 @@ export class CouponService {
         return coupon;
     }
 
-    async admin_create(data: any, actorId = 'SYSTEM') {
+    async admin_create(data: any, requesterId = 'SYSTEM') {
         const {
             discountType,
             status,
@@ -144,7 +144,7 @@ export class CouponService {
         });
 
         await this.audit.log({
-            userId: actorId,
+            userId: requesterId,
             action: 'coupon.create',
             entity: 'Coupon',
             entityId: coupon.id,
@@ -155,7 +155,7 @@ export class CouponService {
         return coupon;
     }
 
-    async admin_update(id: string, data: any, actorId = 'SYSTEM') {
+    async admin_update(id: string, data: any, requesterId = 'SYSTEM') {
         const old = await this.admin_findOne(id);
         const {
             discountType,
@@ -178,7 +178,7 @@ export class CouponService {
         });
 
         await this.audit.log({
-            userId: actorId,
+            userId: requesterId,
             action: 'coupon.update',
             entity: 'Coupon',
             entityId: id,
@@ -190,12 +190,12 @@ export class CouponService {
         return updated;
     }
 
-    async admin_delete(id: string, actorId = 'SYSTEM') {
+    async admin_delete(id: string, requesterId = 'SYSTEM') {
         const coupon = await this.prisma.coupon.findUnique({ where: { id } });
         const result = await this.prisma.coupon.delete({ where: { id } });
 
         await this.audit.log({
-            userId: actorId,
+            userId: requesterId,
             action: 'coupon.delete',
             entity: 'Coupon',
             entityId: id,

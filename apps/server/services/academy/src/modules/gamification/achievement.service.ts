@@ -210,7 +210,7 @@ export class AchievementService {
         });
     }
 
-    async admin_createAchievement(data: any, actorId = 'SYSTEM') {
+    async admin_createAchievement(data: any, requesterId = 'SYSTEM') {
         const achievement = await this.prisma.achievement.create({
             data: {
                 code: data.code,
@@ -226,7 +226,7 @@ export class AchievementService {
         });
 
         await this.audit.log({
-            userId: actorId,
+            userId: requesterId,
             action: 'achievement.create',
             entity: 'Achievement',
             entityId: achievement.id,
@@ -237,7 +237,7 @@ export class AchievementService {
         return achievement;
     }
 
-    async admin_updateAchievement(id: string, data: any, actorId = 'SYSTEM') {
+    async admin_updateAchievement(id: string, data: any, requesterId = 'SYSTEM') {
         const old = await this.prisma.achievement.findUnique({ where: { id }, select: { title: true, code: true, isActive: true } });
         const updated = await this.prisma.achievement.update({
             where: { id },
@@ -255,7 +255,7 @@ export class AchievementService {
         });
 
         await this.audit.log({
-            userId: actorId,
+            userId: requesterId,
             action: 'achievement.update',
             entity: 'Achievement',
             entityId: id,
@@ -267,7 +267,7 @@ export class AchievementService {
         return updated;
     }
 
-    async admin_deleteAchievement(id: string, actorId = 'SYSTEM') {
+    async admin_deleteAchievement(id: string, requesterId = 'SYSTEM') {
         const achievement = await this.prisma.achievement.findUnique({ where: { id } });
         const usedCount = await this.prisma.userAchievement.count({ where: { achievementId: id } });
         let result: any;
@@ -281,7 +281,7 @@ export class AchievementService {
         }
 
         await this.audit.log({
-            userId: actorId,
+            userId: requesterId,
             action: usedCount > 0 ? 'achievement.deactivate' : 'achievement.delete',
             entity: 'Achievement',
             entityId: id,

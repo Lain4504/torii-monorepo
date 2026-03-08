@@ -9,7 +9,7 @@ import {
 
 @Controller()
 export class CourseProfileHandler {
-  constructor(private readonly courseProfiles: CourseProfileService) {}
+  constructor(private readonly courseProfiles: CourseProfileService) { }
 
   @MessagePattern({ cmd: 'academy.courseProfile.findAll' })
   findAll(@Payload() query: CourseProfileQueryDto) {
@@ -22,18 +22,19 @@ export class CourseProfileHandler {
   }
 
   @MessagePattern({ cmd: 'academy.courseProfile.create' })
-  create(@Payload() input: CourseProfileCreateDto) {
-    return this.courseProfiles.create(input);
+  create(@Payload() data: CourseProfileCreateDto & { requesterId?: string }) {
+    const { requesterId, ...input } = data;
+    return this.courseProfiles.create(input, requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.courseProfile.update' })
-  update(@Payload() data: { id: string; input: CourseProfileUpdateDto }) {
-    return this.courseProfiles.update(data.id, data.input);
+  update(@Payload() data: { id: string; input: CourseProfileUpdateDto; requesterId?: string }) {
+    return this.courseProfiles.update(data.id, data.input, data.requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.courseProfile.delete' })
-  delete(@Payload() data: { id: string }) {
-    return this.courseProfiles.delete(data.id);
+  delete(@Payload() data: { id: string; requesterId?: string }) {
+    return this.courseProfiles.delete(data.id, data.requesterId);
   }
 }
 

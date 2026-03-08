@@ -8,6 +8,7 @@ import {
     FieldError,
     FieldLabel,
     FieldGroup,
+    FieldDescription,
 } from "@workspace/ui/components/field"
 import {
     Select,
@@ -40,6 +41,13 @@ import {
     TabsList,
     TabsTrigger,
 } from "@workspace/ui/components/tabs"
+import { Badge } from "@workspace/ui/components/badge"
+import { Search, Info, Settings2 } from "lucide-react"
+import { useState } from "react"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@workspace/ui/components/command"
+import { Popover, PopoverContent, PopoverTrigger } from "@workspace/ui/components/popover"
+import { cn } from "@workspace/ui/lib/utils"
+import { Check, ChevronsUpDown } from "lucide-react"
 
 export function QuizTemplateForm({
     mode,
@@ -60,7 +68,7 @@ export function QuizTemplateForm({
     const { data: courseProfiles = [] } = useAcademyCourseProfiles({})
     const { data: pools = [] } = useAcademyQuestionPools({})
 
-    const { handleSubmit, control } = useForm<
+    const { handleSubmit, control, watch, setValue } = useForm<
         AcademyQuizTemplateCreateDTO | AcademyQuizTemplateUpdateDTO
     >({
         resolver: zodResolver(
@@ -87,110 +95,209 @@ export function QuizTemplateForm({
             },
     })
 
+    const selectedPoolId = watch("questionPoolId" as any)
+    const selectedPool = pools.find(p => p.id === selectedPoolId)
+    const [poolOpen, setPoolOpen] = useState(false)
+
     return (
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Thông tin cơ bản</CardTitle>
-                    <CardDescription>
-                        Thiết lập tên và mô tả cho mẫu Quiz.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <FieldGroup>
-                        {!isEdit && (
-                            <Controller
-                                name={"courseProfileId" as any}
-                                control={control}
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>Course Profile</FieldLabel>
-                                        <Select value={field.value} onValueChange={field.onChange}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Chọn Course Profile..." />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {courseProfiles.map((cp) => (
-                                                    <SelectItem key={cp.id} value={cp.id}>
-                                                        {cp.title}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-                        )}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 space-y-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Nội dung mẫu Quiz</CardTitle>
+                            <CardDescription>
+                                Mô tả chi tiết mục tiêu của bài kiểm tra này.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <FieldGroup>
+                                <Controller
+                                    name={"title" as any}
+                                    control={control}
+                                    render={({ field, fieldState }) => (
+                                        <Field>
+                                            <FieldLabel>Tiêu đề Mẫu</FieldLabel>
+                                            <Input placeholder="Ví dụ: Quiz Tổng hợp N5 - Tuần 1" {...field} className="text-lg font-medium h-12" />
+                                            <FieldError>{fieldState.error?.message}</FieldError>
+                                        </Field>
+                                    )}
+                                />
 
-                        <Controller
-                            name={"title" as any}
-                            control={control}
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel>Tiêu đề</FieldLabel>
-                                    <Input placeholder="Quiz giới thiệu..." {...field} />
-                                    <FieldError>{fieldState.error?.message}</FieldError>
-                                </Field>
-                            )}
-                        />
-
-                        <Controller
-                            name={"description" as any}
-                            control={control}
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel>Mô tả</FieldLabel>
-                                    <Tabs defaultValue="edit">
-                                        <TabsList className="mb-4">
-                                            <TabsTrigger value="edit">Chỉnh sửa</TabsTrigger>
-                                            <TabsTrigger value="preview">Xem trước</TabsTrigger>
-                                        </TabsList>
-                                        <TabsContent value="edit">
+                                <Controller
+                                    name={"description" as any}
+                                    control={control}
+                                    render={({ field, fieldState }) => (
+                                        <Field>
+                                            <FieldLabel>Hướng dẫn làm bài</FieldLabel>
                                             <RichTextEditor
                                                 initialContent={field.value || ""}
                                                 onUpdate={(data: string) => field.onChange(data)}
                                             />
-                                        </TabsContent>
-                                        <TabsContent value="preview">
-                                            <div
-                                                className="border rounded-md p-4 min-h-[150px] prose prose-sm dark:prose-invert max-w-none"
-                                                dangerouslySetInnerHTML={{
-                                                    __html: field.value || "<em>Chưa có mô tả.</em>",
-                                                }}
-                                            />
-                                        </TabsContent>
-                                    </Tabs>
-                                    <FieldError>{fieldState.error?.message}</FieldError>
-                                </Field>
-                            )}
-                        />
-                    </FieldGroup>
-                </CardContent>
-            </Card>
+                                            <FieldError>{fieldState.error?.message}</FieldError>
+                                        </Field>
+                                    )}
+                                />
+                            </FieldGroup>
+                        </CardContent>
+                    </Card>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Cấu hình mặc định</CardTitle>
-                    <CardDescription>
-                        Các thiết lập này sẽ được áp dụng khi tạo Class Assessment từ mẫu này.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <FieldGroup>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Settings2 className="size-4" /> Cấu hình nâng cao
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Controller
+                                name={"settings" as any}
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <Field>
+                                        <FieldLabel>Cài đặt JSON (Tùy chọn)</FieldLabel>
+                                        <Textarea
+                                            placeholder='Ví dụ: {"shuffleQuestions": true, "showPoints": true}'
+                                            className="font-mono text-xs"
+                                            rows={5}
+                                            value={field.value ? (typeof field.value === 'string' ? field.value : JSON.stringify(field.value, null, 2)) : ""}
+                                            onChange={(e) => {
+                                                try {
+                                                    field.onChange(e.target.value ? JSON.parse(e.target.value) : undefined)
+                                                } catch {
+                                                    field.onChange(e.target.value)
+                                                }
+                                            }}
+                                        />
+                                        <FieldDescription>Sử dụng để ghi đè các logic hiển thị đặc biệt.</FieldDescription>
+                                        <FieldError>{fieldState.error?.message}</FieldError>
+                                    </Field>
+                                )}
+                            />
+                        </CardContent>
+                    </Card>
+                </div>
+
+                <div className="lg:col-span-1 space-y-6">
+                    <Card className="bg-muted/10 border-dashed border-2">
+                        <CardHeader>
+                            <CardTitle className="text-sm">Phạm vi & Nguồn câu hỏi</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            {!isEdit && (
+                                <Controller
+                                    name={"courseProfileId" as any}
+                                    control={control}
+                                    render={({ field, fieldState }) => (
+                                        <Field>
+                                            <FieldLabel>Khóa học áp dụng</FieldLabel>
+                                            <Select value={field.value} onValueChange={field.onChange}>
+                                                <SelectTrigger className="bg-background">
+                                                    <SelectValue placeholder="Chọn Course Profile..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {courseProfiles.map((cp) => (
+                                                        <SelectItem key={cp.id} value={cp.id}>
+                                                            {cp.title}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <FieldError>{fieldState.error?.message}</FieldError>
+                                        </Field>
+                                    )}
+                                />
+                            )}
+
+                            <Controller
+                                name={"questionPoolId" as any}
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <Field>
+                                        <FieldLabel>Ngân hàng câu hỏi (Pool)</FieldLabel>
+                                        <Popover open={poolOpen} onOpenChange={setPoolOpen}>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant="outline"
+                                                    role="combobox"
+                                                    aria-expanded={poolOpen}
+                                                    className="w-full justify-between bg-background"
+                                                >
+                                                    {selectedPool ? selectedPool.name : "Chọn Pool..."}
+                                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-full p-0" align="start">
+                                                <Command>
+                                                    <CommandInput placeholder="Tìm kiếm pool..." />
+                                                    <CommandList>
+                                                        <CommandEmpty>Không tìm thấy pool nào.</CommandEmpty>
+                                                        <CommandGroup>
+                                                            <CommandItem
+                                                                onSelect={() => {
+                                                                    field.onChange(undefined)
+                                                                    setPoolOpen(false)
+                                                                }}
+                                                            >
+                                                                <Check className={cn("mr-2 h-4 w-4", !field.value ? "opacity-100" : "opacity-0")} />
+                                                                -- Không dùng pool --
+                                                            </CommandItem>
+                                                            {pools.map((p) => (
+                                                                <CommandItem
+                                                                    key={p.id}
+                                                                    value={p.name}
+                                                                    onSelect={() => {
+                                                                        field.onChange(p.id)
+                                                                        setPoolOpen(false)
+                                                                    }}
+                                                                >
+                                                                    <Check className={cn("mr-2 h-4 w-4", field.value === p.id ? "opacity-100" : "opacity-0")} />
+                                                                    <div className="flex flex-col">
+                                                                        <span>{p.name}</span>
+                                                                        <span className="text-[10px] text-muted-foreground uppercase">{p.code} • {p.level}</span>
+                                                                    </div>
+                                                                </CommandItem>
+                                                            ))}
+                                                        </CommandGroup>
+                                                    </CommandList>
+                                                </Command>
+                                            </PopoverContent>
+                                        </Popover>
+                                        {selectedPool && (
+                                            <div className="mt-2 p-3 bg-primary/5 rounded-lg border border-primary/10 space-y-2">
+                                                <div className="flex items-center gap-2 text-xs font-semibold text-primary">
+                                                    <Info className="size-3" /> Chi tiết Pool
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                                                    <div className="text-muted-foreground">Level: <span className="text-foreground">{selectedPool.level || "N/A"}</span></div>
+                                                    <div className="text-muted-foreground">Category: <span className="text-foreground">{selectedPool.category || "N/A"}</span></div>
+                                                </div>
+                                            </div>
+                                        )}
+                                        <FieldError>{fieldState.error?.message}</FieldError>
+                                    </Field>
+                                )}
+                            />
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-sm text-muted-foreground uppercase tracking-wider">Luật mặc định</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
                             <Controller
                                 name={"defaultTimeLimitMinutes" as any}
                                 control={control}
                                 render={({ field, fieldState }) => (
                                     <Field>
-                                        <FieldLabel>Thời gian làm bài (phút)</FieldLabel>
+                                        <FieldLabel>Thời gian làm (phút)</FieldLabel>
                                         <Input
                                             type="number"
-                                            placeholder="Trống = Không giới hạn"
+                                            placeholder="Phút..."
                                             {...field}
                                             onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
                                         />
+                                        <FieldDescription>Để trống = Không giới hạn.</FieldDescription>
                                         <FieldError>{fieldState.error?.message}</FieldError>
                                     </Field>
                                 )}
@@ -201,7 +308,7 @@ export function QuizTemplateForm({
                                 control={control}
                                 render={({ field, fieldState }) => (
                                     <Field>
-                                        <FieldLabel>Số lần làm tối đa</FieldLabel>
+                                        <FieldLabel>Số lần thử</FieldLabel>
                                         <Input
                                             type="number"
                                             {...field}
@@ -211,94 +318,35 @@ export function QuizTemplateForm({
                                     </Field>
                                 )}
                             />
-                        </div>
 
-                        <Controller
-                            name={"defaultPassingScorePercent" as any}
-                            control={control}
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel>Điểm đạt (%)</FieldLabel>
-                                    <Input
-                                        type="number"
-                                        placeholder="80"
-                                        {...field}
-                                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                                    />
-                                    <FieldError>{fieldState.error?.message}</FieldError>
-                                </Field>
-                            )}
-                        />
+                            <Controller
+                                name={"defaultPassingScorePercent" as any}
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <Field>
+                                        <FieldLabel>Điểm đạt (%)</FieldLabel>
+                                        <Input
+                                            type="number"
+                                            placeholder="80..."
+                                            {...field}
+                                            onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                                        />
+                                        <FieldError>{fieldState.error?.message}</FieldError>
+                                    </Field>
+                                )}
+                            />
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
 
-                        <Controller
-                            name={"questionPoolId" as any}
-                            control={control}
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel>Question Pool (Tùy chọn)</FieldLabel>
-                                    <Select value={field.value} onValueChange={field.onChange}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Chọn Pool để lấy câu hỏi ngẫu nhiên..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="none">-- Không dùng pool --</SelectItem>
-                                            {pools.map((p) => (
-                                                <SelectItem key={p.id} value={p.id}>
-                                                    {p.name} ({p.code})
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FieldError>{fieldState.error?.message}</FieldError>
-                                </Field>
-                            )}
-                        />
-
-                        <Controller
-                            name={"settings" as any}
-                            control={control}
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel>Cài đặt khác (JSON)</FieldLabel>
-                                    <Textarea
-                                        placeholder='Ví dụ: {"shuffleQuestions":true}'
-                                        value={
-                                            typeof field.value === "string"
-                                                ? field.value
-                                                : field.value
-                                                    ? JSON.stringify(field.value, null, 2)
-                                                    : ""
-                                        }
-                                        onChange={(e) => {
-                                            const raw = e.target.value
-                                            if (!raw) return field.onChange(undefined)
-                                            try {
-                                                field.onChange(JSON.parse(raw))
-                                            } catch {
-                                                field.onChange(raw)
-                                            }
-                                        }}
-                                    />
-                                    <FieldError>{fieldState.error?.message}</FieldError>
-                                </Field>
-                            )}
-                        />
-                    </FieldGroup>
-                </CardContent>
-            </Card>
-
-            <div className="flex justify-end gap-2">
-                <Button
-                    type="button"
-                    variant="outline"
-                    onClick={onCancel}
-                    disabled={submitting}
-                >
-                    Hủy
+            <div className="flex justify-end gap-3 pt-6 border-t">
+                <Button type="button" variant="ghost" onClick={onCancel} disabled={submitting}>
+                    Hủy bỏ
                 </Button>
-                <Button type="submit" disabled={submitting}>
+                <Button type="submit" disabled={submitting} className="min-w-[150px]">
                     {submitting ? <Spinner className="mr-2" /> : null}
-                    {isEdit ? "Lưu thay đổi" : "Tạo Quiz Template"}
+                    {isEdit ? "Cập nhật Mẫu" : "Tạo Mẫu mới"}
                 </Button>
             </div>
         </form>

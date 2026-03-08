@@ -146,7 +146,7 @@ export class BlogController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'academy.blog.create' },
-                    { ...dto, requester: req.requester },
+                    { ...dto, requester: req.requester, requesterId: req.requester?.sub },
                 ),
             );
             return successResponse({ blog: result }, 'Blog created successfully');
@@ -166,7 +166,7 @@ export class BlogController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'academy.blog.update' },
-                    { id, dto, requester: req.requester },
+                    { id, dto, requester: req.requester, requesterId: req.requester?.sub },
                 ),
             );
             return successResponse({ blog: result }, 'Blog updated successfully');
@@ -182,7 +182,7 @@ export class BlogController {
             await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'academy.blog.delete' },
-                    { id, requester: req.requester },
+                    { id, requester: req.requester, requesterId: req.requester?.sub },
                 ),
             );
             return successResponse(null, 'Blog deleted successfully');
@@ -198,7 +198,7 @@ export class BlogController {
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'academy.blog.publish' },
-                    { id, requester: req.requester },
+                    { id, requester: req.requester, requesterId: req.requester?.sub },
                 ),
             );
             return successResponse({ blog: result }, 'Blog published successfully');

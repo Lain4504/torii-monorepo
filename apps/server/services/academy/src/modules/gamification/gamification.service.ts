@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException, BadRequestException } from '@nes
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { ActivityType, GamificationTransactionType, GamificationCurrency } from '@prisma/generated';
 import { AchievementService } from './achievement.service';
+import { AuditLoggerService } from '../audit-logger.service';
 
 @Injectable()
 export class GamificationService {
@@ -10,6 +11,7 @@ export class GamificationService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly achievementService: AchievementService,
+        private readonly audit: AuditLoggerService,
     ) { }
 
     private readonly EARNING_RULES: Record<string, { xp: number; points: number }> = {
@@ -375,8 +377,8 @@ export class GamificationService {
         });
     }
 
-    async admin_createReward(data: any) {
-        return this.prisma.pointReward.create({
+    async admin_createReward(data: any, requesterId = 'SYSTEM') {
+        const reward = await this.prisma.pointReward.create({
             data: {
                 name: data.name,
                 description: data.description,
@@ -386,10 +388,22 @@ export class GamificationService {
                 isActive: data.isActive !== undefined ? data.isActive : true,
             }
         });
+
+        await this.audit.log({
+            userId: requesterId,
+            action: 'gamification.reward.create',
+            entity: 'PointReward',
+            entityId: reward.id,
+            description: `Created reward: ${reward.name} (${reward.costPoints} points)`,
+            newValues: { name: reward.name, costPoints: reward.costPoints, isActive: reward.isActive },
+        });
+
+        return reward;
     }
 
-    async admin_updateReward(id: string, data: any) {
-        return this.prisma.pointReward.update({
+    async admin_updateReward(id: string, data: any, requesterId = 'SYSTEM') {
+        const old = await this.prisma.pointReward.findUnique({ where: { id }, select: { name: true, isActive: true } });
+        const updated = await this.prisma.pointReward.update({
             where: { id },
             data: {
                 name: data.name,
@@ -400,12 +414,36 @@ export class GamificationService {
                 isActive: data.isActive,
             }
         });
+
+        await this.audit.log({
+            userId: requesterId,
+            action: 'gamification.reward.update',
+            entity: 'PointReward',
+            entityId: id,
+            description: `Updated reward: ${old?.name || id}`,
+            oldValues: { name: old?.name, isActive: old?.isActive },
+            newValues: { name: updated.name, isActive: updated.isActive },
+        });
+
+        return updated;
     }
 
-    async admin_deleteReward(id: string) {
-        return this.prisma.pointReward.delete({
+    async admin_deleteReward(id: string, requesterId = 'SYSTEM') {
+        const reward = await this.prisma.pointReward.findUnique({ where: { id } });
+        const result = await this.prisma.pointReward.delete({
             where: { id }
         });
+
+        await this.audit.log({
+            userId: requesterId,
+            action: 'gamification.reward.delete',
+            entity: 'PointReward',
+            entityId: id,
+            description: `Deleted reward: ${reward?.name || id}`,
+            metadata: { name: reward?.name },
+        });
+
+        return result;
     }
 
     /**
