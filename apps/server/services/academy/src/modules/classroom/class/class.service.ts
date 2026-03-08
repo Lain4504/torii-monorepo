@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
-import { ClassCreateDto, ClassQueryDto, ClassUpdateDto } from './dto/class.dto';
+import { ClassCreateDto, ClassDuplicateDto, ClassQueryDto, ClassUpdateDto } from './dto/class.dto';
 import { AuditLoggerService } from '../../audit-logger.service';
 
 @Injectable()
@@ -440,5 +440,136 @@ export class ClassService {
     });
 
     return { ok: true };
+  }
+
+  async duplicate(id: string, input?: ClassDuplicateDto, requesterId = 'SYSTEM') {
+    const source = await this.prisma.class.findUnique({
+      where: { id },
+      include: {
+        vodClass: true,
+        liveClass: {
+          include: {
+            schedules: true,
+          },
+        },
+        assessments: true,
+      },
+    });
+
+    if (!source) throw new NotFoundException('Class not found');
+
+    // Handle code unique
+    let targetCode = input?.code || `${source.code}_COPY_${Date.now()}`;
+    const existing = await this.prisma.class.findUnique({ where: { code: targetCode } });
+    if (existing) {
+      targetCode = `${targetCode}_${Math.floor(Math.random() * 1000)}`;
+    }
+
+    const targetName = input?.name || `${source.name} (Bản sao)`;
+
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Create base Class
+      const newClass = await tx.class.create({
+        data: {
+          courseProfileId: source.courseProfileId,
+          courseEditionId: source.courseEditionId,
+          code: targetCode,
+          name: targetName,
+          mode: source.mode,
+          status: 'DRAFT',
+          settings: source.settings ?? undefined,
+        },
+      });
+
+      // 2. Handle specific mode
+      if (source.mode === 'VOD' && source.vodClass) {
+        await tx.vodClass.create({
+          data: {
+            classId: newClass.id,
+            enrollmentOpenAt: source.vodClass.enrollmentOpenAt,
+            enrollmentCloseAt: source.vodClass.enrollmentCloseAt,
+            maxStudents: source.vodClass.maxStudents,
+            defaultExpiresMonths: source.vodClass.defaultExpiresMonths,
+          },
+        });
+      } else if (source.mode === 'LIVE' && source.liveClass) {
+        const startDate = input?.startDate || source.liveClass.startDate;
+        const endDate = input?.endDate || source.liveClass.endDate;
+
+        if (!startDate || !endDate) {
+          throw new BadRequestException('LIVE classes must have startDate and endDate');
+        }
+
+        const liveClass = await tx.liveClass.create({
+          data: {
+            classId: newClass.id,
+            term: input?.term || source.liveClass.term,
+            batch: input?.batch || source.liveClass.batch,
+            startDate,
+            endDate,
+            enrollmentOpenAt: source.liveClass.enrollmentOpenAt,
+            enrollmentCloseAt: source.liveClass.enrollmentCloseAt,
+            minStudents: source.liveClass.minStudents,
+            maxStudents: source.liveClass.maxStudents,
+            minStudentsEnforcement: source.liveClass.minStudentsEnforcement,
+            primaryTeacherId: source.liveClass.primaryTeacherId,
+          },
+        });
+
+        // Copy schedules
+        if (source.liveClass.schedules.length > 0) {
+          await tx.liveSchedule.createMany({
+            data: source.liveClass.schedules.map((s) => ({
+              liveClassId: liveClass.id,
+              weekday: s.weekday,
+              startTime: s.startTime,
+              endTime: s.endTime,
+              location: s.location,
+              excludedDates: s.excludedDates ?? undefined,
+              note: s.note,
+              roomId: s.roomId,
+            })),
+          });
+        }
+      }
+
+      // 3. Copy Assessments
+      if (source.assessments.length > 0) {
+        await tx.classAssessment.createMany({
+          data: source.assessments.map((a) => ({
+            classId: newClass.id,
+            kind: a.kind,
+            quizTemplateId: a.quizTemplateId,
+            assignmentTemplateId: a.assignmentTemplateId,
+            titleOverride: a.titleOverride,
+            deadline: a.deadline,
+            weight: a.weight,
+            maxAttemptsOverride: a.maxAttemptsOverride,
+            timeLimitOverrideMinutes: a.timeLimitOverrideMinutes,
+            maxScoreOverride: a.maxScoreOverride,
+            settings: a.settings ?? undefined,
+            status: 'DRAFT',
+          })),
+        });
+      }
+
+      // 4. Audit Log
+      await this.audit.log({
+        userId: requesterId,
+        action: 'class.duplicate',
+        entity: 'Class',
+        entityId: newClass.id,
+        description: `Duplicated class ${source.code} to ${targetCode}`,
+        metadata: { sourceId: id, targetCode },
+      });
+
+      return tx.class.findUnique({
+        where: { id: newClass.id },
+        include: {
+          vodClass: true,
+          liveClass: { include: { schedules: true } },
+        },
+      });
+    });
   }
 }

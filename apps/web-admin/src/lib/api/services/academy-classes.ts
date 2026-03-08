@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { apiClient } from "@/lib/api/api-client"
 import type {
   AcademyClassCreateDTO,
+  AcademyClassDuplicateDTO,
   AcademyClassQueryDTO,
   AcademyClassUpdateDTO,
   StandardApiResponse,
@@ -113,6 +114,13 @@ export const academyClassesApi = {
     )
     return res.data.data!.item
   },
+  async duplicate(id: string, input: AcademyClassDuplicateDTO) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyClass }>>(
+      `/api/academy/classes/${id}/duplicate`,
+      input,
+    )
+    return res.data.data!.item
+  },
 }
 
 export function useAcademyClasses(params: AcademyClassQueryDTO) {
@@ -186,5 +194,14 @@ export function useRejectClass() {
       qc.invalidateQueries({ queryKey: ["academy-classes"] })
       qc.invalidateQueries({ queryKey: ["academy-class", id] })
     },
+  })
+}
+
+export function useDuplicateAcademyClass() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: AcademyClassDuplicateDTO }) =>
+      academyClassesApi.duplicate(id, input),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-classes"] }),
   })
 }

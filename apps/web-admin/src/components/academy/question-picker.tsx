@@ -30,7 +30,6 @@ export function QuestionPicker({
     value,
     onSelect,
     placeholder = "Chọn câu hỏi...",
-    label,
     disabled = false,
 }: QuestionPickerProps) {
     const [open, setOpen] = useState(false)

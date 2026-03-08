@@ -35,14 +35,7 @@ import type { AcademyQuizTemplate } from "@/lib/api/services/academy-quiz-templa
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
 import { useAcademyQuestionPools } from "@/lib/api/services/academy-question-pools"
 import { RichTextEditor } from "@/components/editor/rich-text-editor"
-import {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
-} from "@workspace/ui/components/tabs"
-import { Badge } from "@workspace/ui/components/badge"
-import { Search, Info, Settings2 } from "lucide-react"
+import { Info, Settings2 } from "lucide-react"
 import { useState } from "react"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@workspace/ui/components/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@workspace/ui/components/popover"
@@ -68,7 +61,7 @@ export function QuizTemplateForm({
     const { data: courseProfiles = [] } = useAcademyCourseProfiles({})
     const { data: pools = [] } = useAcademyQuestionPools({})
 
-    const { handleSubmit, control, watch, setValue } = useForm<
+    const { handleSubmit, control, watch } = useForm<
         AcademyQuizTemplateCreateDTO | AcademyQuizTemplateUpdateDTO
     >({
         resolver: zodResolver(

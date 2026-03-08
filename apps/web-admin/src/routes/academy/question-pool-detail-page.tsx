@@ -37,7 +37,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
-import { Trash2, Plus, ArrowLeft, Search, Filter, BookOpen, Layers } from "lucide-react"
+import { Trash2, Plus, ArrowLeft, Search, BookOpen, Layers } from "lucide-react"
 
 export default function QuestionPoolDetailPage() {
     const { id } = useParams()
@@ -116,7 +116,7 @@ export default function QuestionPoolDetailPage() {
                                     <DialogTitle className="text-xl">Ngân hàng câu hỏi</DialogTitle>
                                     <CardDescription>Chọn câu hỏi để thêm vào pool <strong>{pool.name}</strong></CardDescription>
                                 </DialogHeader>
-                                
+
                                 <div className="flex-1 flex flex-col overflow-hidden">
                                     <div className="p-4 bg-muted/30 border-b space-y-4">
                                         <div className="flex gap-4">
@@ -240,7 +240,7 @@ export default function QuestionPoolDetailPage() {
                             </div>
                             <div className="space-y-1">
                                 <div className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Trạng thái</div>
-                                <Badge className={pool.status === 'PUBLISHED' ? 'bg-green-100 text-green-800' : ''}>{pool.status}</Badge>
+                                <Badge className={pool.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : ''}>{pool.status}</Badge>
                             </div>
                             <div className="space-y-1">
                                 <div className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Mô tả</div>

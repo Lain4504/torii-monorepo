@@ -3,7 +3,6 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { OrdersTable } from '@/components/finance/orders-table';
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
-import { Card } from '@workspace/ui/components/card';
 import {
   Select,
   SelectContent,

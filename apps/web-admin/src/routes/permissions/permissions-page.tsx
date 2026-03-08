@@ -19,7 +19,7 @@ import {
 } from "@workspace/ui/components/table";
 import { useQueries } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api/api-client.ts';
-import { Card, CardContent } from '@workspace/ui/components/card';
+import { Card } from '@workspace/ui/components/card';
 import { Badge } from '@workspace/ui/components/badge';
 
 import { PageHeader } from '@/components/common/page-header';

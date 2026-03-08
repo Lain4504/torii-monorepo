@@ -26,9 +26,11 @@ import {
 } from '@server/shared';
 import {
   AcademyClassCreateDTO,
+  AcademyClassDuplicateDTO,
   AcademyClassQueryDTO,
   AcademyClassUpdateDTO,
   academyClassCreateDTOSchema,
+  academyClassDuplicateDTOSchema,
   academyClassQueryDTOSchema,
   academyClassUpdateDTOSchema,
 } from '@workspace/schemas';
@@ -173,6 +175,23 @@ export class ClassController {
       this.nats.send({ cmd: 'academy.class.delete' }, { id, requesterId: req.requester?.sub }),
     );
     return successResponse(result);
+  }
+
+  @Post(':id/duplicate')
+  @Permissions('academy.delivery.write')
+  async duplicate(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body(new ZodValidationPipe(academyClassDuplicateDTOSchema))
+    dto: AcademyClassDuplicateDTO,
+    @Req() req: ReqWithRequester,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.class.duplicate' },
+        { id, input: dto, requesterId: req.requester?.sub },
+      ),
+    );
+    return successResponse({ item });
   }
 }
 

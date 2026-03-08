@@ -12,7 +12,6 @@ import { TicketDetailDialog } from '@/components/tickets/ticket-detail-dialog';
 import { ChangeTicketStatusDialog } from '@/components/tickets/change-ticket-status-dialog';
 import { ticketApi, useTicketStats } from '@/lib/api/services/tickets';
 import { SmartPagination } from "@/components/common/smart-pagination";
-import { Card, CardContent } from "@workspace/ui/components/card";
 
 export default function TicketsPage() {
     const [page, setPage] = useState(1);

@@ -35,6 +35,7 @@ import {
    TableRow
 } from "@workspace/ui/components/table"
 import { LearnerList } from "@/components/academy/learner-list"
+import { DuplicateClassDialog } from "@/components/academy/duplicate-class-dialog"
 import {
    Edit,
    Plus,
@@ -47,7 +48,8 @@ import {
    User,
    AlertCircle,
    CheckCircle2,
-   Send
+   Send,
+   Copy
 } from "lucide-react"
 
 export default function ClassDetailPage() {
@@ -67,6 +69,7 @@ export default function ClassDetailPage() {
    const rejectMutation = useRejectClass()
 
    const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false)
+   const [isDuplicateDialogOpen, setIsDuplicateDialogOpen] = useState(false)
    const [rejectionReason, setRejectionReason] = useState("")
 
    // Giả sử API trả về structure { items, total } cho enrollments
@@ -170,6 +173,10 @@ export default function ClassDetailPage() {
                         </Button>
                      </>
                   )}
+
+                  <Button variant="outline" className="gap-2 shadow-sm" onClick={() => setIsDuplicateDialogOpen(true)}>
+                     <Copy className="h-4 w-4" /> Nhân bản
+                  </Button>
 
                   <Button asChild variant="outline" className="gap-2 shadow-sm">
                      <Link to={`/academy/classes/${id}/edit`}>
@@ -577,6 +584,12 @@ export default function ClassDetailPage() {
                </DialogFooter>
             </DialogContent>
          </Dialog>
+
+         <DuplicateClassDialog
+            sourceClass={cls as any}
+            open={isDuplicateDialogOpen}
+            onOpenChange={setIsDuplicateDialogOpen}
+         />
       </div>
    )
 }

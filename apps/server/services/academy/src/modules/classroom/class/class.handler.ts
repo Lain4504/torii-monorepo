@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { ClassService } from './class.service';
-import { ClassCreateDto, ClassQueryDto, ClassUpdateDto } from './dto/class.dto';
+import { ClassCreateDto, ClassDuplicateDto, ClassQueryDto, ClassUpdateDto } from './dto/class.dto';
 
 @Controller()
 export class ClassHandler {
@@ -71,6 +71,11 @@ export class ClassHandler {
   @MessagePattern({ cmd: 'academy.class.delete' })
   delete(@Payload() data: { id: string; requesterId?: string }) {
     return this.classes.delete(data.id, data.requesterId);
+  }
+
+  @MessagePattern({ cmd: 'academy.class.duplicate' })
+  duplicate(@Payload() data: { id: string; input?: ClassDuplicateDto; requesterId?: string }) {
+    return this.classes.duplicate(data.id, data.input, data.requesterId);
   }
 }
 

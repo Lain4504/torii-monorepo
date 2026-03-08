@@ -314,23 +314,10 @@ export default function CreateBlogPage() {
                     </div>
 
                     <CardContent className="p-0">
-                        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'edit' | 'preview')}>
-                            <div className="border-b px-6 pt-6">
-                                <TabsList>
-                                    <TabsTrigger value="edit">Chỉnh sửa</TabsTrigger>
-                                    <TabsTrigger value="preview">Xem trước</TabsTrigger>
-                                </TabsList>
-                            </div>
-                            <TabsContent value="edit" className="m-0 p-6">
-                                <RichTextEditor
-                                    initialContent={content}
-                                    onUpdate={(data: string) => setContent(data)}
-                                />
-                            </TabsContent>
-                            <TabsContent value="preview" className="m-0">
-                                {renderPreview()}
-                            </TabsContent>
-                        </Tabs>
+                        <RichTextEditor
+                            initialContent={content}
+                            onUpdate={(data: string) => setContent(data)}
+                        />
                     </CardContent>
                 </Card>
             </form>

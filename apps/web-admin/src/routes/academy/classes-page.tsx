@@ -42,9 +42,11 @@ import {
 import {
   useAcademyClasses,
   useDeleteAcademyClass,
+  type AcademyClass,
 } from "@/lib/api/services/academy-classes"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
 import { useAcademyCourseEditions } from "@/lib/api/services/academy-course-editions"
+import { DuplicateClassDialog } from "@/components/academy/duplicate-class-dialog"
 
 export default function AcademyClassesPage() {
   const [courseProfileId, setCourseProfileId] = useState("_all")
@@ -53,6 +55,7 @@ export default function AcademyClassesPage() {
   const [status, setStatus] = useState("_all")
   const [q, setQ] = useState("")
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [duplicateClass, setDuplicateClass] = useState<AcademyClass | null>(null)
 
   const { data: profiles = [] } = useAcademyCourseProfiles({})
   const { data: editions = [] } = useAcademyCourseEditions({})
@@ -249,6 +252,11 @@ export default function AcademyClassesPage() {
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem
+                          onClick={() => setDuplicateClass(it)}
+                        >
+                          Nhân bản
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
                           className="text-destructive focus:text-destructive"
                           onClick={() => setDeleteId(it.id)}
                         >
@@ -299,6 +307,14 @@ export default function AcademyClassesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {duplicateClass && (
+        <DuplicateClassDialog
+          sourceClass={duplicateClass}
+          open={!!duplicateClass}
+          onOpenChange={(o) => !o && setDuplicateClass(null)}
+        />
+      )}
     </div>
   )
 }
