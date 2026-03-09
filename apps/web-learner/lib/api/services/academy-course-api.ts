@@ -5,6 +5,37 @@ import type {
   PaginatedApiResponse
 } from '@workspace/schemas';
 
+function normalizeOfferingForLearner(item: any) {
+  const classes = Array.isArray(item?.classes) ? item.classes : [];
+  const firstClass = classes[0]?.class;
+  const profile = firstClass?.courseProfile;
+  const classModes = classes
+    .map((entry: any) => entry?.class?.mode)
+    .filter(Boolean);
+  const hasLiveClass = classModes.includes('LIVE');
+
+  const rawPrice = item?.originalPrice ?? item?.price ?? 0;
+  const parsedPrice = Number(rawPrice);
+
+  return {
+    ...item,
+    price: Number.isFinite(parsedPrice) ? parsedPrice : 0,
+    thumbnailUrl:
+      item?.thumbnailUrl ||
+      profile?.thumbnailUrl ||
+      item?.metadata?.thumbnailUrl ||
+      null,
+    jlptLevel:
+      item?.jlptLevel ||
+      profile?.level ||
+      item?.metadata?.level ||
+      null,
+    isLive: hasLiveClass,
+    // Frontend tabs currently rely on type === 'LIVE' | 'VOD'
+    type: hasLiveClass ? 'LIVE' : 'VOD',
+  };
+}
+
 export const academyOfferingApi = {
   /**
    * Get all course offerings with pagination and filters
@@ -30,10 +61,11 @@ export const academyOfferingApi = {
       const toOk = !item.validTo || new Date(item.validTo) >= now;
       return fromOk && toOk;
     });
+    const normalizedItems = visibleItems.map(normalizeOfferingForLearner);
     return {
       success: response.data.success,
-      data: visibleItems,
-      total: visibleItems.length,
+      data: normalizedItems,
+      total: normalizedItems.length,
       page: data.page ?? 1,
       limit: data.limit ?? 10,
       totalPages: data.totalPages ?? 1,
@@ -64,10 +96,11 @@ export const academyOfferingApi = {
       const toOk = !item.validTo || new Date(item.validTo) >= now;
       return fromOk && toOk;
     });
+    const normalizedItems = visibleItems.map(normalizeOfferingForLearner);
     return {
       success: response.data.success,
-      data: visibleItems,
-      total: visibleItems.length,
+      data: normalizedItems,
+      total: normalizedItems.length,
       page: data.page ?? 1,
       limit: data.limit ?? 10,
       totalPages: data.totalPages ?? 1,
@@ -79,7 +112,7 @@ export const academyOfferingApi = {
    */
   getById: async (id: string): Promise<any | null> => {
     const response = await apiClient.get<StandardApiResponse<{ item: any }>>(`/api/academy/course-offerings/public/${id}`);
-    return response.data.data!.item;
+    return normalizeOfferingForLearner(response.data.data!.item);
   },
 
   /**
@@ -87,7 +120,7 @@ export const academyOfferingApi = {
    */
   getPublicById: async (id: string): Promise<any | null> => {
     const response = await apiClient.get<StandardApiResponse<{ item: any }>>(`/api/academy/course-offerings/public/${id}`);
-    return response.data.data!.item;
+    return normalizeOfferingForLearner(response.data.data!.item);
   },
 };
 

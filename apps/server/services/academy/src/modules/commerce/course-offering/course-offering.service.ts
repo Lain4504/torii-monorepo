@@ -43,7 +43,6 @@ export class CourseOfferingService {
                 courseProfile: {
                   select: {
                     level: true,
-                    subject: true,
                     thumbnailUrl: true,
                   },
                 },

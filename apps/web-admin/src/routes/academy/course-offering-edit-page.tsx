@@ -30,6 +30,13 @@ export default function AcademyCourseOfferingEditPage() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [pendingData, setPendingData] = useState<AcademyCourseOfferingUpdateDTO | null>(null)
 
+  const toDateOnlyString = (value: unknown): string | undefined => {
+    if (!value) return undefined
+    const date = value instanceof Date ? value : new Date(String(value))
+    if (Number.isNaN(date.getTime())) return undefined
+    return date.toISOString().split("T")[0]
+  }
+
   const submitUpdate = async (data: AcademyCourseOfferingUpdateDTO) => {
     await update.mutateAsync({
       id: item!.id,
@@ -80,11 +87,21 @@ export default function AcademyCourseOfferingEditPage() {
                   const priceChanged =
                     payload.originalPrice !== undefined &&
                     Number(payload.originalPrice) !== Number((item as any).originalPrice)
+                  const titleChanged =
+                    payload.title !== undefined && payload.title !== item.title
+                  const currentValidFrom = toDateOnlyString((item as any).validFrom)
+                  const currentValidTo = toDateOnlyString((item as any).validTo)
+                  const nextValidFrom = payload.validFrom !== undefined
+                    ? toDateOnlyString(payload.validFrom)
+                    : currentValidFrom
+                  const nextValidTo = payload.validTo !== undefined
+                    ? toDateOnlyString(payload.validTo)
+                    : currentValidTo
                   const validityChanged =
-                    payload.validFrom !== undefined || payload.validTo !== undefined
+                    nextValidFrom !== currentValidFrom || nextValidTo !== currentValidTo
 
-                  if (item.status === "PUBLISHED" && (classIdsChanged || priceChanged || validityChanged)) {
-                    setPendingData(payload)
+                  if (item.status === "PUBLISHED" && (classIdsChanged || priceChanged || titleChanged || validityChanged)) {
+                    setPendingData({ ...payload, status: "PENDING_APPROVAL" })
                     setIsConfirmOpen(true)
                     return
                   }

@@ -13,6 +13,7 @@ export type AcademyCourseOffering = {
   title: string
   description?: string | null
   price: number
+  originalPrice?: number | string | null
   currency: string
   status?: string | null
   salesStartAt?: string | null
@@ -32,20 +33,31 @@ export type AcademyCourseOffering = {
   approvedBy: string | null
 }
 
+function normalizeCourseOffering(item: any): AcademyCourseOffering {
+  const normalizedPrice = Number(item?.originalPrice ?? item?.price ?? 0)
+  return {
+    ...item,
+    price: Number.isFinite(normalizedPrice) ? normalizedPrice : 0,
+    originalPrice: item?.originalPrice ?? item?.price ?? null,
+    salesStartAt: item?.salesStartAt ?? item?.validFrom ?? null,
+    salesEndAt: item?.salesEndAt ?? item?.validTo ?? null,
+  }
+}
+
 export const academyCourseOfferingsApi = {
   async findAll(params: AcademyCourseOfferingQueryDTO) {
     const res = await apiClient.get<StandardApiResponse<{ items: AcademyCourseOffering[] }>>(
       "/api/academy/course-offerings",
       { params },
     )
-    return res.data.data!.items
+    return res.data.data!.items.map((item) => normalizeCourseOffering(item))
   },
 
   async findById(id: string) {
     const res = await apiClient.get<StandardApiResponse<{ item: AcademyCourseOffering }>>(
       `/api/academy/course-offerings/${id}`,
     )
-    return res.data.data!.item
+    return normalizeCourseOffering(res.data.data!.item)
   },
 
   async create(input: AcademyCourseOfferingCreateDTO) {
@@ -53,7 +65,7 @@ export const academyCourseOfferingsApi = {
       "/api/academy/course-offerings",
       input,
     )
-    return res.data.data!.item
+    return normalizeCourseOffering(res.data.data!.item)
   },
 
   async update(id: string, input: AcademyCourseOfferingUpdateDTO) {
@@ -61,7 +73,7 @@ export const academyCourseOfferingsApi = {
       `/api/academy/course-offerings/${id}`,
       input,
     )
-    return res.data.data!.item
+    return normalizeCourseOffering(res.data.data!.item)
   },
 
   async archive(id: string) {
@@ -69,7 +81,7 @@ export const academyCourseOfferingsApi = {
       `/api/academy/course-offerings/${id}/archive`,
       {},
     )
-    return res.data.data!.item
+    return normalizeCourseOffering(res.data.data!.item)
   },
 
   async delete(id: string) {
@@ -84,28 +96,28 @@ export const academyCourseOfferingsApi = {
       `/api/academy/course-offerings/${id}/set-classes`,
       { classIds },
     )
-    return res.data.data!.item
+    return normalizeCourseOffering(res.data.data!.item)
   },
   async submitForApproval(id: string) {
     const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseOffering }>>(
       `/api/academy/course-offerings/${id}/submit-for-approval`,
       {},
     )
-    return res.data.data!.item
+    return normalizeCourseOffering(res.data.data!.item)
   },
   async approve(id: string) {
     const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseOffering }>>(
       `/api/academy/course-offerings/${id}/approve`,
       {},
     )
-    return res.data.data!.item
+    return normalizeCourseOffering(res.data.data!.item)
   },
   async reject(id: string, reason: string) {
     const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseOffering }>>(
       `/api/academy/course-offerings/${id}/reject`,
       { reason },
     )
-    return res.data.data!.item
+    return normalizeCourseOffering(res.data.data!.item)
   },
 }
 

@@ -63,6 +63,10 @@ export default function AcademyCourseOfferingDetailPage() {
     return <div className="p-8 text-center text-destructive">Không tìm thấy gói bán này.</div>
   }
 
+  const displayPrice = Number((item as any).originalPrice ?? item.price ?? 0)
+  const displayValidFrom = (item as any).validFrom ?? item.salesStartAt
+  const displayValidTo = (item as any).validTo ?? item.salesEndAt
+
   const handleSubmit = async () => {
     try {
       await submitMutation.mutateAsync(id!)
@@ -124,7 +128,7 @@ export default function AcademyCourseOfferingDetailPage() {
             <div className="flex items-center gap-1 border-l pl-4">
               <DollarSign className="h-4 w-4" />
               <span className="font-semibold text-foreground">
-                {Intl.NumberFormat("vi-VN").format(item.price || 0)} {item.currency}
+                {Intl.NumberFormat("vi-VN").format(displayPrice || 0)} {item.currency}
               </span>
             </div>
           </div>
@@ -279,7 +283,7 @@ export default function AcademyCourseOfferingDetailPage() {
               <div>
                 <label className="text-xs text-muted-foreground uppercase font-semibold">Giá bán</label>
                 <div className="text-2xl font-bold text-primary">
-                  {Intl.NumberFormat("vi-VN").format(item.price)} {item.currency}
+                  {Intl.NumberFormat("vi-VN").format(displayPrice)} {item.currency}
                 </div>
               </div>
               <div>
@@ -299,9 +303,9 @@ export default function AcademyCourseOfferingDetailPage() {
                 <div className="flex items-center gap-2 text-sm mt-1">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
                   <span>
-                    {item.salesStartAt ? new Date(item.salesStartAt).toLocaleDateString("vi-VN") : "Bắt đầu"}
+                    {displayValidFrom ? new Date(displayValidFrom).toLocaleDateString("vi-VN") : "Bắt đầu"}
                     {" - "}
-                    {item.salesEndAt ? new Date(item.salesEndAt).toLocaleDateString("vi-VN") : "Kết thúc"}
+                    {displayValidTo ? new Date(displayValidTo).toLocaleDateString("vi-VN") : "Kết thúc"}
                   </span>
                 </div>
               </div>

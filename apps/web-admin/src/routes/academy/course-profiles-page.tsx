@@ -12,13 +12,6 @@ import {
 import { Input } from "@workspace/ui/components/input"
 import { PageHeader } from "@/components/common/page-header"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@workspace/ui/components/select"
-import {
   Empty,
   EmptyContent,
   EmptyMedia,
@@ -52,7 +45,6 @@ import {
   FolderKey,
   Flag,
   BookOpen,
-  Layers,
   Eye,
   SlidersHorizontal,
   Sparkles,
@@ -103,18 +95,6 @@ export default function AcademyCourseProfilesPage() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <Select defaultValue="all">
-            <SelectTrigger className="w-full sm:w-[160px]">
-              <div className="flex items-center gap-2">
-                <Layers className="size-3.5 text-muted-foreground" />
-                <SelectValue placeholder="Chủ đề" />
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tất cả chủ đề</SelectItem>
-            </SelectContent>
-          </Select>
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="gap-2">
@@ -152,11 +132,6 @@ export default function AcademyCourseProfilesPage() {
               </TableHead>
               <TableHead>
                 <div className="flex items-center gap-2 font-semibold">
-                  <Layers className="h-4 w-4" /> Chủ đề
-                </div>
-              </TableHead>
-              <TableHead>
-                <div className="flex items-center gap-2 font-semibold">
                   <Flag className="h-4 w-4" /> Cấp độ
                 </div>
               </TableHead>
@@ -170,7 +145,6 @@ export default function AcademyCourseProfilesPage() {
                   <TableCell><Skeleton className="h-5 w-8" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-48" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-20" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                   <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto rounded-full" /></TableCell>
                 </TableRow>
@@ -191,13 +165,7 @@ export default function AcademyCourseProfilesPage() {
                           {it.title}
                         </Link>
                       </span>
-                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">{it.shortTitle || "No short title"}</span>
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="font-normal bg-muted/30">
-                      {it.subject || "N/A"}
-                    </Badge>
                   </TableCell>
                   <TableCell>
                     {it.level ? (
@@ -256,7 +224,7 @@ export default function AcademyCourseProfilesPage() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="h-[300px] text-center">
+                <TableCell colSpan={5} className="h-[300px] text-center">
                   <Empty>
                     <EmptyMedia>
                       <BookMarked className="size-10 text-muted-foreground/50" />

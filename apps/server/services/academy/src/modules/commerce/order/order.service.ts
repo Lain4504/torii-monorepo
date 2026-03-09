@@ -33,15 +33,67 @@ export class OrderService {
   ) {}
 
   async preview(userId: string, input: OrderPreviewDto) {
+    const offeringIds = Array.from(new Set(input.offeringIds ?? []));
+    if (!offeringIds.length) {
+      throw new BadRequestException('offeringIds must not be empty');
+    }
+    const now = new Date();
+
     const offerings = await this.prisma.courseOffering.findMany({
       where: {
-        id: { in: input.offeringIds },
+        id: { in: offeringIds },
         status: OfferingStatus.PUBLISHED,
+        AND: [
+          {
+            OR: [{ validFrom: null }, { validFrom: { lte: now } }],
+          },
+          {
+            OR: [{ validTo: null }, { validTo: { gte: now } }],
+          },
+        ],
+      },
+      include: {
+        classes: {
+          include: {
+            class: {
+              select: {
+                id: true,
+                code: true,
+                status: true,
+                courseEdition: {
+                  select: {
+                    status: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
 
-    if (offerings.length !== input.offeringIds.length) {
+    if (offerings.length !== offeringIds.length) {
       throw new BadRequestException('Some offerings are not available');
+    }
+    for (const offering of offerings) {
+      if (!offering.classes.length) {
+        throw new BadRequestException(
+          `Offering ${offering.code} has no class mapped for enrollment`,
+        );
+      }
+      for (const offeringClass of offering.classes) {
+        const klass = offeringClass.class;
+        if (klass.status !== 'ENROLLING' && klass.status !== 'IN_PROGRESS') {
+          throw new BadRequestException(
+            `Class ${klass.code} is in status ${klass.status}, not sellable`,
+          );
+        }
+        if (klass.courseEdition.status !== 'PUBLISHED') {
+          throw new BadRequestException(
+            `Class ${klass.code} uses unpublished course edition`,
+          );
+        }
+      }
     }
 
     const subTotal = offerings.reduce(
@@ -56,7 +108,7 @@ export class OrderService {
         input.couponCode,
         userId,
         subTotal,
-        input.offeringIds,
+        offeringIds,
       );
       discountTotal = await this.couponService.calculateDiscount(
         coupon.id,

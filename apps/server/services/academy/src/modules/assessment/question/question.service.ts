@@ -10,7 +10,7 @@ export class QuestionService {
     const q = query.q?.trim();
     return this.prisma.question.findMany({
       where: {
-        parentId: query.parentId ?? undefined,
+        parentId: query.parentId ?? (query.topLevelOnly === 'true' ? null : undefined),
         questionType: query.questionType ?? undefined,
         level: query.level ?? undefined,
         category: query.category ?? undefined,

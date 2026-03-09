@@ -993,11 +993,8 @@ model CourseProfile {
   id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   code            String   @unique @db.VarChar(100)
   title           String   @db.VarChar(255)
-  shortTitle      String?  @map("short_title") @db.VarChar(100)
   description     String?  @db.Text
-  subject         String?  @db.VarChar(100)
   level           String?  @db.VarChar(50)
-  defaultLanguage String?  @map("default_language") @db.VarChar(20)
   thumbnailUrl    String?  @map("thumbnail_url") @db.Text
   metadata        Json?    @default("{}") @db.JsonB
   createdAt       DateTime @default(now()) @map("created_at")
@@ -1012,7 +1009,6 @@ model CourseProfile {
   exams               Exam[]
   questionPools       QuestionPool[]
 
-  @@index([subject])
   @@index([level])
   @@map("academy_course_profiles")
 }

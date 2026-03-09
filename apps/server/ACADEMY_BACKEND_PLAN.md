@@ -526,7 +526,7 @@ Phần này nằm một phần trong service Payment/Order, nhưng `academy` c�
 - GIVEN: Không có course JLPT trong hệ thống.
 - WHEN:
   1. Staff tạo `CourseProfile`:
-     - `code = 'JP_N5'`, `title = 'JLPT N5'`, `subject = 'japanese'`, `level = 'N5'`.
+     - `code = 'JP_N5'`, `title = 'JLPT N5'`.
   2. Staff tạo `CourseEdition` v1 cho N5:
      - `courseProfileId = JP_N5`, `editionTag = 'v1'`, `status = DRAFT`, `isCurrent = false`.
   3. Staff tạo các `Chapter`:

@@ -92,7 +92,7 @@ export class PlacementController {
       recommendations: (aiResult.recommendedCourses || []).map((c: any) => ({
         classId: c.id,
         title: c.courseProfile?.title ?? '',
-        level: c.courseProfile?.level ?? null,
+        level: null, // previously c.courseProfile?.level
         reason: `Recommended for level ${coreResult.assessedLevel}`,
       })),
       strengths: aiResult.strengths || [],

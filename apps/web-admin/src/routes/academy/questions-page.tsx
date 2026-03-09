@@ -54,6 +54,7 @@ export default function AcademyQuestionsPage() {
       q: q || undefined,
       questionType: questionType === "all" ? undefined : questionType,
       level: level === "all" ? undefined : level,
+      topLevelOnly: 'true',
     }),
     [q, questionType, level],
   )

@@ -63,7 +63,7 @@ export function RedeemSuccessDialog({
                     </div>
 
                     <div className="text-xs text-muted-foreground font-medium">
-                        Mã này đã được lưu vào <Link href="/dashboard/wallet" className="text-primary hover:underline font-bold">Ví của bạn</Link>.
+                        Bạn có thể sử dụng mã này khi thanh toán khóa học.
                     </div>
                 </div>
 

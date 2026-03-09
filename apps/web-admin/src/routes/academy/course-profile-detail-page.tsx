@@ -70,7 +70,6 @@ export default function CourseProfileDetailPage() {
   const { data: profile, isLoading: isLoadingProfile } = useAcademyCourseProfile(id!)
   const { data: editions = [], isLoading: isLoadingEditions } = useAcademyCourseEditions({ courseProfileId: id })
 
-  // Resources queries
   const { data: lessons = [], isLoading: isLoadingLessons } = useAcademyLessons({ courseProfileId: id })
   const { data: quizzes = [], isLoading: isLoadingQuizzes } = useAcademyQuizTemplates({ courseProfileId: id })
   const { data: assignments = [], isLoading: isLoadingAssignments } = useAcademyAssignmentTemplates({ courseProfileId: id })
@@ -128,7 +127,7 @@ export default function CourseProfileDetailPage() {
 
       <PageHeader
         title={profile.title}
-        subtitle={profile.shortTitle || profile.code}
+        subtitle={profile.code}
         actions={
           <div className="flex gap-2">
             <Button asChild variant="outline" size="sm" className="gap-2">
@@ -607,20 +606,10 @@ export default function CourseProfileDetailPage() {
                   </div>
                   <FieldSeparator />
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground font-bold">Chủ đề</p>
-                    <p className="font-medium capitalize">{profile.subject || "N/A"}</p>
-                  </div>
-                  <FieldSeparator />
-                  <div className="space-y-1">
                     <p className="text-xs text-muted-foreground font-bold">Trình độ</p>
                     <Badge variant="secondary" className="mt-1">
                       {profile.level || "N/A"}
                     </Badge>
-                  </div>
-                  <FieldSeparator />
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground font-bold">Ngôn ngữ mặc định</p>
-                    <p className="font-medium">{profile.defaultLanguage === "vi" ? "Tiếng Việt" : profile.defaultLanguage === "ja" ? "Tiếng Nhật" : profile.defaultLanguage === "en" ? "Tiếng Anh" : profile.defaultLanguage || "N/A"}</p>
                   </div>
                 </CardContent>
               </Card>

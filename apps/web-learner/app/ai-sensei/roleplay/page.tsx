@@ -6,29 +6,14 @@ import { Card } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 import { LivekitVoiceAgent } from "@/components/ai-sensei/livekit-voice-agent"
 import { InteractiveRoleplay } from "@/components/ai-sensei/interactive-roleplay"
-import { MonitorPlay, MessageSquareText, Sparkles, Coins } from "lucide-react"
+import { MonitorPlay, MessageSquareText, Sparkles } from "lucide-react"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { useAppDispatch } from "@/hooks/hooks"
-import { fetchProfile } from "@/store/slices/authSlice"
 
 export default function RoleplayPage() {
     const dispatch = useAppDispatch()
     const [quota, setQuota] = React.useState<{ remainingTrial: number; cost: number; chargedCoins: boolean } | null>(null)
     const [activeTab, setActiveTab] = React.useState("interactive")
-
-    // Track when user switches away from the Live Voice tab to refresh balance
-    const prevTabRef = React.useRef(activeTab)
-    React.useEffect(() => {
-        if (prevTabRef.current === "scenario" && activeTab !== "scenario") {
-            // User just switched away from Live Voice — billing is processing server-side.
-            // Use fetchProfile (full user refetch) to ensure balance re-renders in header.
-            const t1 = setTimeout(() => dispatch(fetchProfile()), 2000);
-            const t2 = setTimeout(() => dispatch(fetchProfile()), 6000);
-            prevTabRef.current = activeTab;
-            return () => { clearTimeout(t1); clearTimeout(t2); };
-        }
-        prevTabRef.current = activeTab;
-    }, [activeTab, dispatch]);
 
     React.useEffect(() => {
         const fetchQuota = async () => {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAppSelector } from '@/hooks/hooks'
 import { Button } from '@workspace/ui/components/button'
@@ -20,14 +20,13 @@ import {
     DialogTitle,
 } from "@workspace/ui/components/dialog"
 import { formatNumber } from '@/utils/format-utils'
-import { ShieldCheck, ArrowLeft, CheckCircle2, Gift, TicketPercent, BookOpen, Users, Wallet } from 'lucide-react'
+import { ShieldCheck, ArrowLeft, CheckCircle2, Gift, TicketPercent, BookOpen, Users } from 'lucide-react'
 import { toast } from '@workspace/ui/components/sonner'
 import { useAcademyOffering } from '@/lib/api/services/academy-course-api'
 import { academyEnrollmentApi as enrollmentApi } from '@/lib/api/services/academy-enrollment-api'
 import { PaymentMethod } from '@workspace/schemas'
 import { PageLoading } from '@workspace/ui/components/page-loading'
-import { useBalance, orderApi, OrderPreviewResponse } from '@/lib/api/services/order-api'
-import { cn } from "@workspace/ui/lib/utils"
+import { orderApi, OrderPreviewResponse } from '@/lib/api/services/order-api'
 import Image from 'next/image'
 import {
     Field,
@@ -45,33 +44,26 @@ import {
 
 export default function CheckoutPage() {
     const params = useParams()
-    const searchParams = useSearchParams()
     const router = useRouter()
     const courseId = params.courseId as string
-    const classId = searchParams.get('classId') || searchParams.get('runId')
     const user = useAppSelector((state) => state.auth.user)
 
-    const [offering, setOffering] = useState<any | null>(null)
-    const [isLoadingOffering, setIsLoadingOffering] = useState(true)
-    const { data: balance = 0, refetch: refetchBalance } = useBalance()
-    const { data: offeringData } = useAcademyOffering(courseId)
+    const { data: offering, isLoading: isLoadingOffering } = useAcademyOffering(courseId)
     const [isProcessing, setIsProcessing] = useState(false)
-
-    // Sync state with query data
-    useEffect(() => {
-        if (offeringData) {
-            setOffering(offeringData)
-            setIsLoadingOffering(false)
-        }
-    }, [offeringData])
-
-    const availableClasses = offering?.classes?.map((c: any) => ({
-        ...c.class,
-        offeringId: offering.id,
-        price: offering.originalPrice
-    })) || []
-
-    const selectedClass = classId ? availableClasses?.find((r: any) => r.id === classId) : availableClasses?.[0]
+    const classes = Array.isArray(offering?.classes) ? offering.classes : []
+    const selectedClass =
+        classes.find((entry: any) => entry?.isPrimary)?.class ??
+        classes[0]?.class ??
+        null
+    const lessonCount = Array.isArray(selectedClass?.courseEdition?.chapters)
+        ? selectedClass.courseEdition.chapters.reduce((acc: number, chapter: any) => {
+            const chapterItems = Array.isArray(chapter?.items) ? chapter.items : []
+            return (
+                acc +
+                chapterItems.filter((item: any) => item?.kind === 'LESSON').length
+            )
+        }, 0)
+        : 0
 
     // Gift State
     const [isGift, setIsGift] = useState(false)
@@ -86,7 +78,6 @@ export default function CheckoutPage() {
     // UI/Dialog State
     const [recipientStatus, setRecipientStatus] = useState<'idle' | 'checking' | 'enrolled' | 'not_found' | 'available'>('idle')
     const [showSuccessDialog, setShowSuccessDialog] = useState(false)
-    const [orderId, setOrderId] = useState<string | null>(null)
 
     // Debounced Recipient Check
     useEffect(() => {
@@ -114,17 +105,17 @@ export default function CheckoutPage() {
 
     // Update Preview whenever selected class or coupon changes
     useEffect(() => {
-        if (selectedClass?.offeringId) {
+        if (offering?.id) {
             handlePreview()
         }
-    }, [selectedClass?.offeringId, couponCode])
+    }, [offering?.id, couponCode])
 
     const handlePreview = async () => {
-        if (!selectedClass?.offeringId) return
+        if (!offering?.id) return
         try {
             setIsPreviewing(true)
             const result = await orderApi.previewOrder({
-                offeringIds: [selectedClass.offeringId],
+                offeringIds: [offering.id],
                 couponCode: couponCode.trim() || undefined
             })
             setPreview(result)
@@ -136,7 +127,7 @@ export default function CheckoutPage() {
     }
 
     const handlePayment = async () => {
-        if (!offering || !user || !selectedClass?.offeringId) return
+        if (!offering || !user) return
 
         if (isGift) {
             if (!recipientEmail) return toast.error('Vui lòng nhập email người nhận')
@@ -147,7 +138,7 @@ export default function CheckoutPage() {
         try {
             setIsProcessing(true)
             const result = await orderApi.createOrder({
-                offeringIds: [selectedClass.offeringId],
+                offeringIds: [offering.id],
                 paymentMethod: PaymentMethod.PAYOS,
                 couponCode: couponCode.trim() || undefined,
                 metadata: {
@@ -161,8 +152,6 @@ export default function CheckoutPage() {
                 window.location.href = result.paymentUrl
             } else {
                 toast.success('Thanh toán thành công!')
-                refetchBalance()
-                setOrderId(result.id ?? result.orderCode ?? null)
                 setShowSuccessDialog(true)
             }
         } catch (error: any) {
@@ -173,16 +162,16 @@ export default function CheckoutPage() {
     }
 
     if (isLoadingOffering) return <PageLoading />
-    if (!offering || !selectedClass) return null
+    if (!offering) return null
 
-    const displaySubtotal = preview?.subtotal ?? Number(selectedClass.price)
+    const displaySubtotal = preview?.subtotal ?? Number(offering.price ?? 0)
     const displayTotal = preview?.total ?? displaySubtotal
 
     return (
         <div className="min-h-screen bg-background pb-20">
             <div className="container max-w-6xl mx-auto px-4 pt-10">
                 <Button variant="ghost" size="sm" asChild className="mb-6 -ml-2 text-muted-foreground">
-                    <Link href={`/courses/${courseId}`}>
+                    <Link href={`/dashboard/available-courses/${courseId}`}>
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Quay lại trang khóa học
                     </Link>
@@ -200,19 +189,19 @@ export default function CheckoutPage() {
                             <CardContent>
                                 <div className="flex flex-col sm:flex-row gap-6">
                                     <div className="relative w-full sm:w-48 aspect-video rounded-lg overflow-hidden border">
-                                        <Image src={selectedClass?.courseProfile?.thumbnailUrl || '/default-thumbnail.jpg'} alt={offering.title} fill className="object-cover" />
+                                        <Image src={offering.thumbnailUrl || selectedClass?.courseProfile?.thumbnailUrl || '/default-thumbnail.jpg'} alt={offering.title} fill className="object-cover" />
                                     </div>
                                     <div className="flex-1 space-y-3">
-                                        <Badge variant="secondary">{selectedClass?.courseProfile?.level || 'N/A'}</Badge>
+                                        <Badge variant="secondary">{offering.jlptLevel || selectedClass?.courseProfile?.level || 'N/A'}</Badge>
                                         <h3 className="font-bold text-lg">{offering.title}</h3>
                                         <ItemGroup>
                                             <Item size="sm">
                                                 <ItemMedia variant="icon"><Users /></ItemMedia>
-                                                <ItemContent><ItemTitle>{/* formatNumber((offering as any).totalStudents || 0) */} {formatNumber(120)} học viên</ItemTitle></ItemContent>
+                                                <ItemContent><ItemTitle>{formatNumber(classes.length)} lớp khả dụng</ItemTitle></ItemContent>
                                             </Item>
                                             <Item size="sm">
                                                 <ItemMedia variant="icon"><BookOpen /></ItemMedia>
-                                                <ItemContent><ItemTitle>{/* offering.totalLessons */} {formatNumber(24)} bài học</ItemTitle></ItemContent>
+                                                <ItemContent><ItemTitle>{formatNumber(lessonCount)} bài học</ItemTitle></ItemContent>
                                             </Item>
                                         </ItemGroup>
                                     </div>
@@ -281,12 +270,6 @@ export default function CheckoutPage() {
                                     <Button className="w-full py-6 text-lg" onClick={handlePayment} disabled={isProcessing || isPreviewing || (isGift && recipientStatus === 'enrolled')}>
                                         {isProcessing ? 'Đang xử lý...' : 'Thanh toán ngay'}
                                     </Button>
-                                    {balance < displayTotal && (
-                                        <div className="flex items-center gap-2 text-xs text-muted-foreground justify-center">
-                                            <Wallet className="h-3 w-3" />
-                                            Số dư: {formatNumber(balance)} đ (Thiếu {formatNumber(displayTotal - balance)} đ)
-                                        </div>
-                                    )}
                                 </div>
                             </CardContent>
                         </Card>

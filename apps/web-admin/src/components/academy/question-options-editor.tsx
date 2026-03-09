@@ -25,7 +25,7 @@ export function QuestionOptionsEditor({
 }: QuestionOptionsEditorProps) {
     const [localOptions, setLocalOptions] = useState<Option[]>([])
     const [localCorrect, setLocalCorrect] = useState<any>(null)
-    
+
     const lastPushedOptionsRef = useRef<string>("")
     const lastPushedCorrectRef = useRef<string>("")
     const prevTypeRef = useRef<string>(type)
@@ -49,7 +49,7 @@ export function QuestionOptionsEditor({
             }
             setLocalOptions(newOpts)
             setLocalCorrect(null)
-            
+
             const strippedOpts = newOpts.map(({ id, ...rest }) => ({ ...rest }))
             lastPushedOptionsRef.current = JSON.stringify(strippedOpts)
             lastPushedCorrectRef.current = "null"
@@ -73,12 +73,12 @@ export function QuestionOptionsEditor({
                     { id: "false", label: "Sai (False)", value: "false" }
                 ]
             }
-            
+
             setLocalOptions(newOpts)
             if (correctAnswer !== undefined) {
                 setLocalCorrect(correctAnswer)
             }
-            
+
             const strippedOpts = newOpts.map(({ id, ...rest }) => ({ ...rest }))
             lastPushedOptionsRef.current = JSON.stringify(strippedOpts)
             lastPushedCorrectRef.current = JSON.stringify(correctAnswer || null)
@@ -86,26 +86,46 @@ export function QuestionOptionsEditor({
     }, [type])
 
     const updateAll = (newOpts: Option[], newCorrect: any) => {
-        setLocalOptions(newOpts)
-        setLocalCorrect(newCorrect)
-        
-        const strippedOpts = newOpts.map(({ id, ...rest }) => ({ ...rest }))
+        // Auto re-index A, B, C... for choice types
+        let reIndexedOpts = newOpts
+        let reMappedCorrect = newCorrect
+
+        if (type === "SINGLE_CHOICE" || type === "MULTIPLE_CHOICE") {
+            // Store old values to remap correct answer
+            const oldToNew = new Map<string, string>()
+
+            reIndexedOpts = newOpts.map((opt, idx) => {
+                const newValue = String.fromCharCode(65 + idx)
+                oldToNew.set(opt.value, newValue)
+                return { ...opt, value: newValue }
+            })
+
+            // Remap single choice
+            if (type === "SINGLE_CHOICE" && newCorrect?.value) {
+                const newValue = oldToNew.get(newCorrect.value)
+                reMappedCorrect = newValue ? { value: newValue } : null
+            }
+
+            // Remap multiple choice
+            if (type === "MULTIPLE_CHOICE" && Array.isArray(newCorrect)) {
+                reMappedCorrect = newCorrect
+                    .map(v => oldToNew.get(v))
+                    .filter(Boolean) as string[]
+            }
+        }
+
+        setLocalOptions(reIndexedOpts)
+        setLocalCorrect(reMappedCorrect)
+
+        const strippedOpts = reIndexedOpts.map(({ id, ...rest }) => ({ ...rest }))
         lastPushedOptionsRef.current = JSON.stringify(strippedOpts)
-        lastPushedCorrectRef.current = JSON.stringify(newCorrect || null)
-        
-        onChange(strippedOpts, newCorrect)
+        lastPushedCorrectRef.current = JSON.stringify(reMappedCorrect || null)
+
+        onChange(strippedOpts, reMappedCorrect)
     }
 
     const addOption = () => {
-        // Find highest char code to avoid collisions when deleting
-        let maxCode = 64 // 'A' - 1
-        localOptions.forEach(o => {
-            if (o.value && o.value.length === 1) {
-                const code = o.value.charCodeAt(0)
-                if (code > maxCode) maxCode = code
-            }
-        })
-        const nextChar = String.fromCharCode(maxCode + 1)
+        const nextChar = String.fromCharCode(65 + localOptions.length)
         const newOpts = [
             ...localOptions,
             { id: Math.random().toString(36).substr(2, 9), label: "", value: nextChar }
@@ -114,17 +134,8 @@ export function QuestionOptionsEditor({
     }
 
     const removeOption = (id: string) => {
-        const optToRemove = localOptions.find(o => o.id === id)
         const newOpts = localOptions.filter(o => o.id !== id)
-        
-        let newCorrect = localCorrect
-        if (type === "SINGLE_CHOICE" && localCorrect?.value === optToRemove?.value) {
-            newCorrect = null
-        } else if (type === "MULTIPLE_CHOICE" && Array.isArray(localCorrect)) {
-            newCorrect = localCorrect.filter(val => val !== optToRemove?.value)
-        }
-        
-        updateAll(newOpts, newCorrect)
+        updateAll(newOpts, localCorrect)
     }
 
     const toggleCorrect = (value: string) => {

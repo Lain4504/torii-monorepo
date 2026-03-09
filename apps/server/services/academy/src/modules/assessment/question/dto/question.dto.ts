@@ -98,5 +98,8 @@ export class QuestionQueryDto {
   @IsOptional()
   @IsString()
   category?: string;
+
+  @IsOptional()
+  topLevelOnly?: string; // 'true' or 'false'
 }
 

@@ -284,7 +284,6 @@ export class FastMcpService {
                   id: true,
                   title: true,
                   metadata: true,
-                  level: true,
                 },
               },
             },

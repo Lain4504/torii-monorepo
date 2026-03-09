@@ -157,14 +157,6 @@ export const orderApi = {
         return response.data.data;
     },
 
-    /**
-     * Confirm order (Legacy/Internal)
-     */
-    async confirmOrder(orderId: string, data: OrderConfirmDTO): Promise<any> {
-        const response = await apiClient.post<StandardApiResponse<{ order: any }>>(`/api/academy/orders/${orderId}/confirm`, data);
-        return response.data.data!.order;
-    },
-
     async getOrderByCode(orderCode: string): Promise<OrderFulfillmentSummary> {
         const response = await apiClient.get<StandardApiResponse<OrderFulfillmentSummary>>(
             `/api/academy/orders/by-code/${orderCode}`,
@@ -174,30 +166,6 @@ export const orderApi = {
         }
         return response.data.data;
     },
-
-    /**
-     * Get user balance transaction history (internal coins)
-     */
-    async getBalanceHistory(params: { page?: number; limit?: number; type?: string; aiOnly?: boolean } = {}): Promise<BalanceTransactionPaginatedResponse> {
-        const response = await apiClient.get<StandardApiResponse<BalanceTransactionPaginatedResponse>>('/api/orders/wallet/balance-history', {
-            params,
-        });
-        if (response.data.success && response.data.data) {
-            return response.data.data;
-        }
-        throw new Error(response.data.message || 'Failed to fetch balance history');
-    },
-
-    /**
-     * Get current user balance
-     */
-    async getBalance(): Promise<number> {
-        const response = await apiClient.get<StandardApiResponse<{ balance: number }>>('/api/orders/wallet/balance');
-        if (response.data.success && response.data.data) {
-            return response.data.data.balance;
-        }
-        return 0;
-    }
 };
 
 /**
@@ -218,39 +186,6 @@ export function useOrder(id: string) {
         queryKey: ['orders', id],
         queryFn: () => orderApi.getOrder(id),
         enabled: !!id,
-    });
-}
-
-/**
- * Hook: Get balance history
- */
-export function useBalanceHistory(params: { page?: number; limit?: number; type?: string; aiOnly?: boolean } = {}) {
-    return useQuery({
-        queryKey: ['balance-history', params],
-        queryFn: () => orderApi.getBalanceHistory(params),
-        staleTime: 30000,
-    });
-}
-
-/**
- * Hook: Get AI usage (token billing) history
- */
-export function useAiUsageHistory(params: { page?: number; limit?: number } = {}) {
-    return useQuery({
-        queryKey: ['ai-usage-history', params],
-        queryFn: () => orderApi.getBalanceHistory({ ...params, aiOnly: true }),
-        staleTime: 30000,
-    });
-}
-
-/**
- * Hook: Get current balance
- */
-export function useBalance() {
-    return useQuery({
-        queryKey: ['user-balance'],
-        queryFn: () => orderApi.getBalance(),
-        staleTime: 60000,
     });
 }
 

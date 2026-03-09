@@ -3,15 +3,13 @@
 Đây là “chương trình học” không phụ thuộc live/VOD.
 
 - **`CourseProfile`**  
-  - Ý nghĩa: 1 “khóa học” trừu tượng (VD: “JLPT N5”, “IELTS 6.5+”, “Web Backend”).  
-  - Field chính:
-    - `id`
-    - `code` (unique, ví dụ: `JP_N5`)
-    - `title`, `shortTitle`
-    - `description`
-    - `subject` (japanese / english / programming / …)
-    - `level` (N5, Beginner, Intermediate, …)
-    - `defaultLanguage`
+   - Ý nghĩa: 1 “khóa học” trừu tượng (VD: “JLPT N5”, “IELTS 6.5+”, “Web Backend”).  
+   - Field chính:
+     - `id`
+     - `code` (unique, ví dụ: `JP_N5`)
+     - `title`
+     - `level` (N5, Beginner, Intermediate, …)
+     - `description`
 
 - **`CourseEdition`** (version chương trình)  
   - Field:
@@ -278,11 +276,7 @@ Nếu bạn muốn bước tiếp theo, tôi có thể:
     - `id` (UUID, PK)
     - `code` (string, unique, index)
     - `title` (string)
-    - `shortTitle` (string, nullable)
     - `description` (text, nullable)
-    - `subject` (string, index) – ví dụ: `japanese`, `english`, `programming`
-    - `level` (string, nullable) – ví dụ: `N5`, `A2`, `Beginner`
-    - `defaultLanguage` (string, nullable)
     - `thumbnailUrl` (text, nullable)
     - `metadata` (jsonb, default `{}`)
     - `createdAt`, `updatedAt`
@@ -768,7 +762,7 @@ Trung tâm có thể bật/tắt luồng approval. Mặc định: **có thể t�
 ### 12. Checklist để review logic nghiệp vụ (tránh sai sót)
 
 - **Content:**
-  - [ ] Một `CourseProfile` có thể dùng cho nhiều subject/cấp độ? (yes – subject/level là field mềm).
+  - [ ] Một `CourseProfile` có dùng metadata mở rộng để phân nhóm nội dung khi cần? (yes).
   - [ ] Một `CourseEdition` chỉ dùng cho các `Class` được tạo sau khi publish? (nên enforce).
   - [ ] Thay đổi syllabus cho tương lai → tạo edition mới, không phá edition cũ? (yes).
   - [ ] Edition đã `PUBLISHED` phải immutable ở mức syllabus (không edit trực tiếp, bắt buộc clone để thay đổi)?
@@ -785,8 +779,8 @@ Trung tâm có thể bật/tắt luồng approval. Mặc định: **có thể t�
   - [ ] Fulfillment sau thanh toán có enforce cùng rule enrollment như flow enroll thủ công?
 
 - **Mở rộng các mảng khác (English, Programming, …):**
-  - [ ] Có field nào hard-code tiếng Nhật? (không, chỉ có `subject`, `level` dạng text).
-  - [ ] Có logic nào dựa vào JLPT-level? (nên đưa vào `metadata` thay vì field cứng).
+  - [ ] Có field nào hard-code tiếng Nhật? (không).
+  - [ ] Có logic nào dựa vào JLPT-level? (nên đưa vào `metadata`).
 
 - **Approval:**
   - [ ] Có bật `requireApprovalForPublish`? Nếu có: Staff submit → Admin approve.
@@ -1285,10 +1279,10 @@ UI cần đọc permission từ hệ thống role/permission hiện tại để:
 2. **Course Profiles**
    - Đường dẫn: `/academy/course-profiles`.
    - Chức năng:
-     - List tất cả `CourseProfile` (search, filter theo subject, level).
+     - List tất cả `CourseProfile` (search theo code/title).
      - CRUD (create/update/archive).
    - UI:
-     - List view dùng `Table` + `Input` + `Select`.
+     - List view dùng `Table` + `Input`.
      - Form dùng `Card` + `Field` components + `Tabs` (General / Metadata).
 
 3. **Course Edition & Syllabus Builder**
@@ -1312,7 +1306,7 @@ UI cần đọc permission từ hệ thống role/permission hiện tại để:
    - Chức năng:
      - Tìm kiếm và quản lý `Lesson` (video, markdown, external link).
    - UI:
-     - List view + filter theo subject/level.
+    - List view + filter theo nhu cầu nghiệp vụ hiện tại.
      - Form chi tiết lesson dùng `Card` + `Tabs` (Content / Attachments / Metadata).
 
 5. **Question Bank & Exams**
@@ -1335,7 +1329,7 @@ UI cần đọc permission từ hệ thống role/permission hiện tại để:
        - Với VOD: form VodClass (enrollmentOpenAt, enrollmentCloseAt, maxStudents, defaultExpiresMonths).
        - Với LIVE: form LiveClass (term, batch, startDate, endDate, minStudents, maxStudents, primaryTeacherId – 1 giảng viên dạy chính xuyên suốt) + thêm LiveSchedule.
      - Xem chi tiết class:
-       - Tab `Overview`: info cơ bản, subject, edition, stats.
+      - Tab `Overview`: info cơ bản, edition, stats.
        - Tab `Schedule`: danh sách LiveSchedule – chỉ hiển thị khi class mode = LIVE.
        - Tab `Attendance`: điểm danh theo LiveSchedule – **chỉ hiển thị khi class mode = LIVE** (VOD không có).
        - Tab `Assessment`: `ClassAssessment` (quiz/assignment instance).

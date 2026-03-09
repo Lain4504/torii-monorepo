@@ -24,7 +24,7 @@ interface PlacementScoringConfig {
   categoryWeights?: Record<string, number>;
 }
 
-interface PlacementInfoResult {
+export interface PlacementInfoResult {
   examId: string | null;
   title: string | null;
   description: string | null;
@@ -50,7 +50,7 @@ interface PlacementSubmitPayload {
   answers: Record<string, unknown>;
 }
 
-interface PlacementSubmitResult {
+export interface PlacementSubmitResult {
   attemptId: string;
   examId: string;
   assessedLevel: string;

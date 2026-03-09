@@ -32,7 +32,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { toast } from "sonner"
 import { useAppDispatch } from "@/hooks/hooks"
-import { refreshBalance } from "@/store/slices/authSlice"
 
 const topicSchema = z.object({
     topic: z.string().min(1, "Vui lòng nhập hoặc chọn chủ đề"),
@@ -181,13 +180,11 @@ export function InteractiveRoleplay() {
         const backgroundDeductAndRefresh = async (topic: string, history: any[]) => {
             try {
                 console.log('[billing] Background session deduction started');
-                await agentApi.sensei.roleplay(topic, "", history, true);
-                // Refresh balance after server-side deduction is confirmed
-                setTimeout(() => dispatch(refreshBalance()), 1000);
-            } catch (err) {
-                console.error('[billing] Background deduction failed', err);
-            }
+            await agentApi.sensei.roleplay(topic, "", history, true);
+        } catch (err) {
+            console.error('[billing] Background deduction failed', err);
         }
+    }
 
         const triggerFinalCleanup = () => {
             // Only trigger if started, not finished, and has at least one user message
@@ -414,27 +411,6 @@ export function InteractiveRoleplay() {
         try {
             const res = await agentApi.sensei.roleplay(topicValue, "", [])
             addTokenUsage(res.tokenUsage)
-
-            const aiMsg: Message = {
-                id: Date.now().toString(),
-                role: 'assistant',
-                content: res.response,
-                romaji: res.romaji,
-                vietnamese: res.vietnamese
-            }
-
-            setMessages([aiMsg])
-            setHistory([{ role: 'model', content: JSON.stringify(res) }])
-
-            if (res.response && autoPlay) {
-                setTimeout(() => speak(res.response), 500)
-            }
-
-        } catch (error: any) {
-            console.error("Failed to start roleplay", error)
-            toast.error(error.message || "Không thể bắt đầu hội thoại. Vui lòng kiểm tra số dư Coins của bạn.")
-            setIsStarted(false)
-        } finally {
             setIsLoading(false)
         }
     }
@@ -527,9 +503,7 @@ export function InteractiveRoleplay() {
         const userTurns = currentHistory.filter(m => m.role === 'user').length
         if (wasStarted && !wasFinished && userTurns > 0) {
             console.log('[billing] Background deduction triggered by reset');
-            agentApi.sensei.roleplay(currentTopic, "", currentHistory, true).then(() => {
-                setTimeout(() => dispatch(refreshBalance()), 1000);
-            }).catch(err => {
+            agentApi.sensei.roleplay(currentTopic, "", currentHistory, true).catch(err => {
                 console.error('[billing] Reset deduction failed', err);
             });
         }
@@ -542,24 +516,21 @@ export function InteractiveRoleplay() {
 
         try {
             console.log('[DEBUG] Calling roleplay API with isFinal=true');
-            // Signal backend to finish and generate feedback
-            const data = await agentApi.sensei.roleplay(topicForm.getValues("topic"), "", history, true) // isFinal = true
-            console.log('[DEBUG] Roleplay API response:', data);
-            addTokenUsage(data.tokenUsage)
+                // Signal backend to finish and generate feedback
+                const data = await agentApi.sensei.roleplay(topicForm.getValues("topic"), "", history, true) // isFinal = true
+                console.log('[DEBUG] Roleplay API response:', data);
+                addTokenUsage(data.tokenUsage)
 
-            if (data.isFinished && data.feedback) {
-                const feedbackMsg: Message = {
-                    id: (Date.now() + 2).toString(),
-                    role: 'assistant',
-                    content: data.feedback,
-                    isFeedback: true
-                }
-                setMessages(prev => [...prev, feedbackMsg])
+                if (data.isFinished && data.feedback) {
+                    const feedbackMsg: Message = {
+                        id: (Date.now() + 2).toString(),
+                        role: 'assistant',
+                        content: data.feedback,
+                        isFeedback: true
+                    }
+                    setMessages(prev => [...prev, feedbackMsg])
 
-                // Trigger a UI coin balance refresh shortly after finishing to ensure DB applies token-deduction
-                setTimeout(() => dispatch(refreshBalance()), 1500);
-
-                // Final closing message if any
+                    // Final closing message if any
                 if (data.response) {
                     const closingMsg: Message = {
                         id: Date.now().toString(),
@@ -642,7 +613,7 @@ export function InteractiveRoleplay() {
                                 Bắt đầu hội thoại
                             </Button>
                             <p className="text-[10px] text-muted-foreground italic text-center w-full">
-                                * Tính năng này tiêu tốn 1 lượt dùng thử hoặc Coins/phiên hội thoại.
+                                * Tính năng này đang được thử nghiệm.
                             </p>
                         </div>
 
@@ -686,10 +657,6 @@ export function InteractiveRoleplay() {
                                 <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider">
                                     <Zap className="size-3 text-yellow-500 shrink-0" />
                                     <span className="text-muted-foreground">{sessionTokens.total.toLocaleString()} tokens</span>
-                                    <span className="text-muted-foreground/40">·</span>
-                                    <span className="text-blue-500">
-                                        ≈ {Math.ceil((sessionTokens.prompt * 0.0025) + (sessionTokens.completion * 0.01)).toLocaleString()} Coins
-                                    </span>
                                 </div>
                             )}
                         </div>

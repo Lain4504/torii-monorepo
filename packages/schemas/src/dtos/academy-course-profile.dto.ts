@@ -3,11 +3,8 @@ import { z } from 'zod';
 export const academyCourseProfileCreateDTOSchema = z.object({
   code: z.string().min(1).max(100),
   title: z.string().min(1).max(255),
-  shortTitle: z.string().max(100).optional(),
   description: z.string().optional(),
-  subject: z.string().max(100).optional(),
   level: z.string().max(50).optional(),
-  defaultLanguage: z.string().max(20).optional(),
   thumbnailUrl: z.string().url().optional(),
   metadata: z.any().optional(),
 });
@@ -17,11 +14,8 @@ export type AcademyCourseProfileCreateDTO = z.infer<
 
 export const academyCourseProfileUpdateDTOSchema = z.object({
   title: z.string().min(1).max(255).optional(),
-  shortTitle: z.string().max(100).optional(),
   description: z.string().optional(),
-  subject: z.string().max(100).optional(),
   level: z.string().max(50).optional(),
-  defaultLanguage: z.string().max(20).optional(),
   thumbnailUrl: z.string().url().optional(),
   metadata: z.any().optional(),
 });
@@ -31,7 +25,6 @@ export type AcademyCourseProfileUpdateDTO = z.infer<
 
 export const academyCourseProfileQueryDTOSchema = z.object({
   q: z.string().optional(),
-  subject: z.string().optional(),
   level: z.string().optional(),
 });
 export type AcademyCourseProfileQueryDTO = z.infer<

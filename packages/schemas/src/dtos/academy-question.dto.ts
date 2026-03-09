@@ -37,6 +37,7 @@ export const academyQuestionQueryDTOSchema = z.object({
   q: z.string().optional(),
   level: z.string().optional(),
   category: z.string().optional(),
+  topLevelOnly: z.string().optional(),
 });
 export type AcademyQuestionQueryDTO = z.infer<
   typeof academyQuestionQueryDTOSchema

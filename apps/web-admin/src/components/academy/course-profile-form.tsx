@@ -65,22 +65,16 @@ export function CourseProfileForm({
     defaultValues: isEdit
       ? {
         title: initial?.title ?? "",
-        shortTitle: initial?.shortTitle ?? undefined,
         description: initial?.description ?? undefined,
-        subject: initial?.subject ?? undefined,
         level: initial?.level ?? undefined,
-        defaultLanguage: initial?.defaultLanguage ?? "vi",
         thumbnailUrl: initial?.thumbnailUrl ?? undefined,
         metadata: initial?.metadata ?? undefined,
       }
       : {
         code: "",
         title: "",
-        shortTitle: undefined,
         description: undefined,
-        subject: "japanese",
         level: "N5",
-        defaultLanguage: "vi",
         thumbnailUrl: undefined,
         metadata: undefined,
       },
@@ -129,12 +123,26 @@ export function CourseProfileForm({
             />
 
             <Controller
-              name={"shortTitle" as any}
+              name={"level" as any}
               control={control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel>Tên ngắn</FieldLabel>
-                  <Input placeholder="N5" {...field} />
+                  <FieldLabel>Cấp độ (Level)</FieldLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn cấp độ" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="N5">N5 (Sơ cấp 1)</SelectItem>
+                      <SelectItem value="N4">N4 (Sơ cấp 2)</SelectItem>
+                      <SelectItem value="N3">N3 (Trung cấp)</SelectItem>
+                      <SelectItem value="N2">N2 (Thượng cấp 1)</SelectItem>
+                      <SelectItem value="N1">N1 (Thượng cấp 2)</SelectItem>
+                      <SelectItem value="Beginner">Cơ bản (Beginner)</SelectItem>
+                      <SelectItem value="Intermediate">Trung bình (Intermediate)</SelectItem>
+                      <SelectItem value="Advanced">Nâng cao (Advanced)</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
@@ -176,88 +184,6 @@ export function CourseProfileForm({
               </Field>
             )}
           />
-        </FieldSet>
-
-        <FieldSet>
-          <FieldLegend>Phân loại & Ngôn ngữ</FieldLegend>
-          <FieldDescription>
-            Thiết lập môn học, cấp độ và ngôn ngữ hiển thị mặc định.
-          </FieldDescription>
-          <FieldGroup>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Controller
-                name={"subject" as any}
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Môn học (Subject)</FieldLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Chọn môn học" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="japanese">Tiếng Nhật (Japanese)</SelectItem>
-                        <SelectItem value="english">Tiếng Anh (English)</SelectItem>
-                        <SelectItem value="programming">Lập trình (Programming)</SelectItem>
-                        <SelectItem value="other">Khác (Other)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-
-              <Controller
-                name={"level" as any}
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Cấp độ (Level)</FieldLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Chọn cấp độ" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="N5">N5 (Sơ cấp 1)</SelectItem>
-                        <SelectItem value="N4">N4 (Sơ cấp 2)</SelectItem>
-                        <SelectItem value="N3">N3 (Trung cấp)</SelectItem>
-                        <SelectItem value="N2">N2 (Thượng cấp 1)</SelectItem>
-                        <SelectItem value="N1">N1 (Thượng cấp 2)</SelectItem>
-                        <SelectItem value="Beginner">Cơ bản (Beginner)</SelectItem>
-                        <SelectItem value="Intermediate">Trung bình (Intermediate)</SelectItem>
-                        <SelectItem value="Advanced">Nâng cao (Advanced)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-            </div>
-
-            <Controller
-              name={"defaultLanguage" as any}
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Ngôn ngữ hiển thị mặc định</FieldLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn ngôn ngữ" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="vi">Tiếng Việt (vi)</SelectItem>
-                      <SelectItem value="ja">Tiếng Nhật (ja)</SelectItem>
-                      <SelectItem value="en">Tiếng Anh (en)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FieldDescription>
-                    Ngôn ngữ mặc định cho các tài liệu và nội dung bài học.
-                  </FieldDescription>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-          </FieldGroup>
         </FieldSet>
 
         <FieldSet>
