@@ -106,6 +106,18 @@ export class CourseOfferingService {
     return item as any;
   }
 
+  async findPublicById(id: string) {
+    const item = await this.findById(id);
+    if (item.status !== OfferingStatus.PUBLISHED) {
+      throw new NotFoundException('CourseOffering not found');
+    }
+    const now = new Date();
+    if ((item.validFrom && new Date(item.validFrom) > now) || (item.validTo && new Date(item.validTo) < now)) {
+      throw new NotFoundException('CourseOffering not found');
+    }
+    return item;
+  }
+
   private async validateClassIdsForSelling(classIds: string[]) {
     if (!classIds.length) {
       throw new BadRequestException(

@@ -288,8 +288,8 @@ export default function CourseDetail() {
                                 </div>
 
                                 <div className="space-y-4 mb-8">
-                                    <Button className="w-full h-14 text-lg font-bold bg-[#E63946] hover:bg-[#D62828] text-white shadow-lg shadow-[#E63946]/30 hover:-translate-y-0.5 transition-all">
-                                        Đăng ký ngay
+                                    <Button className="w-full h-14 text-lg font-bold bg-[#E63946] hover:bg-[#D62828] text-white shadow-lg shadow-[#E63946]/30 hover:-translate-y-0.5 transition-all" asChild>
+                                        <Link href={`/checkout/${offering.id}${primaryClass?.id ? `?classId=${primaryClass.id}` : ''}`}>Đăng ký ngay</Link>
                                     </Button>
                                     <Button variant="outline" className="w-full h-12 text-base font-bold border-2 border-[#E63946]/20 text-[#E63946] hover:bg-[#E63946]/5 hover:border-[#E63946] transition-colors">
                                         Học thử miễn phí ngay

@@ -71,6 +71,28 @@ export class OrderController {
     return successResponse(result);
   }
 
+  @Get('my')
+  async findAllForUser(@Req() req: ReqWithRequester, @Query() query: any) {
+    const result = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.order.findAllForUser' },
+        { userId: req.requester?.sub, query },
+      ),
+    );
+    return successResponse(result);
+  }
+
+  @Get('my/:id')
+  async findOneForUser(@Param('id') id: string, @Req() req: ReqWithRequester) {
+    const result = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.order.findOneForUser' },
+        { userId: req.requester?.sub, id },
+      ),
+    );
+    return successResponse({ item: result });
+  }
+
   // --- Admin CRUD ---
 
   @Get('admin')

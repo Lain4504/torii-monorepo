@@ -1,7 +1,12 @@
 'use client'
 
 import * as React from 'react'
-import { useMySchedule, liveSessionApi } from '@/lib/api/services/academy-live-session-api'
+import {
+    canJoinLiveSessionNow,
+    getLiveSessionUiState,
+    liveSessionApi,
+    useMySchedule,
+} from '@/lib/api/services/academy-live-session-api'
 import { LiveSessionResponseDTO } from '@workspace/schemas'
 import {
     format,
@@ -83,14 +88,17 @@ function SessionPill({
     session,
     onJoin,
     joiningId,
+    now,
 }: {
     session: ScheduleSession
     onJoin: (id: string) => void
     joiningId: string | null
+    now: Date
 }) {
-    const normalizedStatus = (session.status || '').toLowerCase()
-    const isLive = normalizedStatus === 'live'
-    const isEnded = normalizedStatus === 'ended' || (normalizedStatus !== 'live' && isPast(new Date(session.scheduledAt)))
+    const uiState = getLiveSessionUiState(session, now)
+    const isLive = uiState === 'live'
+    const canJoin = canJoinLiveSessionNow(session, now)
+    const isEnded = uiState === 'ended'
 
     return (
         <div
@@ -115,13 +123,13 @@ function SessionPill({
                         <Clock className="w-2.5 h-2.5" />
                         {format(new Date(session.scheduledAt), 'HH:mm')}
                     </div>
-                    {isLive && (
+                    {(isLive || canJoin) && (
                         <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-destructive text-[9px] font-black text-destructive-foreground shadow-sm animate-pulse whitespace-nowrap">
                             <span className="relative flex h-1.5 w-1.5">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
                             </span>
-                            LIVE
+                            {isLive ? 'LIVE' : 'OPEN'}
                         </div>
                     )}
                 </div>
@@ -141,7 +149,7 @@ function SessionPill({
                         <span className="truncate">{session.courseTitle}</span>
                     </div>
 
-                    {isLive && (
+                    {canJoin && (
                         <Button
                             size="sm"
                             variant="destructive"
@@ -149,7 +157,7 @@ function SessionPill({
                             onClick={() => onJoin(session.id)}
                             disabled={!!joiningId}
                         >
-                            {joiningId === session.id ? <Spinner className="size-3" /> : 'Vào học'}
+                            {joiningId === session.id ? <Spinner className="size-3" /> : isLive ? 'Vào học' : 'Vào sớm'}
                         </Button>
                     )}
                 </div>
@@ -162,6 +170,12 @@ export default function SchedulePage() {
     const { data: allSessions = [], isLoading } = useMySchedule()
     const [weekOffset, setWeekOffset] = React.useState(0)
     const [joiningId, setJoiningId] = React.useState<string | null>(null)
+    const [now, setNow] = React.useState(() => new Date())
+
+    React.useEffect(() => {
+        const timer = setInterval(() => setNow(new Date()), 30 * 1000)
+        return () => clearInterval(timer)
+    }, [])
 
     const today = new Date()
     const weekStart = startOfWeek(addWeeks(today, weekOffset), { weekStartsOn: 1 }) // Mon–Sun
@@ -173,9 +187,9 @@ export default function SchedulePage() {
         return d >= weekStart && d < addDays(weekEnd, 1)
     })
 
-    const liveSessions = allSessions.filter((s) => (s.status || '').toLowerCase() === 'live')
+    const liveSessions = allSessions.filter((s) => getLiveSessionUiState(s, now) === 'live')
     const upcomingSessions = allSessions.filter(
-        (s) => (s.status || '').toLowerCase() === 'scheduled' && isFuture(new Date(s.scheduledAt))
+        (s) => getLiveSessionUiState(s, now) === 'scheduled' && isFuture(new Date(s.scheduledAt))
     )
 
     const handleJoin = async (sessionId: string) => {
@@ -411,6 +425,7 @@ export default function SchedulePage() {
                                                                         session={s}
                                                                         onJoin={handleJoin}
                                                                         joiningId={joiningId}
+                                                                        now={now}
                                                                     />
                                                                 ))}
                                                             </div>

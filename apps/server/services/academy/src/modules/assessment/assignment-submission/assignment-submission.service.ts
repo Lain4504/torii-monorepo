@@ -35,9 +35,12 @@ export class AssignmentSubmissionService {
   async create(input: AssignmentSubmissionCreateDto, requesterId = 'SYSTEM') {
     const klass = await this.prisma.class.findUnique({
       where: { id: input.classId },
-      select: { id: true },
+      select: { id: true, mode: true },
     });
     if (!klass) throw new BadRequestException('Invalid classId');
+    if (klass.mode === 'VOD') {
+      throw new BadRequestException('ASSIGNMENT submission is not supported for VOD classes');
+    }
 
     const assessment = await this.prisma.classAssessment.findUnique({
       where: { id: input.classAssessmentId },
@@ -46,6 +49,18 @@ export class AssignmentSubmissionService {
     if (!assessment) throw new BadRequestException('Invalid classAssessmentId');
     if (assessment.classId !== input.classId) {
       throw new BadRequestException('classAssessmentId does not belong to classId');
+    }
+    if (assessment.kind !== 'ASSIGNMENT') {
+      throw new BadRequestException('classAssessmentId is not an ASSIGNMENT');
+    }
+    if (!assessment.assignmentTemplateId) {
+      throw new BadRequestException('ASSIGNMENT template is missing for classAssessmentId');
+    }
+    if (
+      input.assignmentTemplateId &&
+      assessment.assignmentTemplateId !== input.assignmentTemplateId
+    ) {
+      throw new BadRequestException('assignmentTemplateId does not match classAssessment');
     }
 
     const existing = await this.prisma.assignmentSubmission.findFirst({

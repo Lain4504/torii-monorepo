@@ -33,7 +33,7 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
 
     const handleLessonClick = (lessonId: string, isUnlocked: boolean) => {
         if (isUnlocked) {
-            router.push(`/courses/${courseSlug}/learn/lessons/${lessonId}`)
+            router.push(`/courses/${courseSlug}/learn?lesson=${lessonId}`)
         }
     }
 

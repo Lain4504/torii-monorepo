@@ -10,7 +10,11 @@ import { vi } from 'date-fns/locale'
 import { Video } from 'lucide-react'
 import { toast } from '@workspace/ui/components/sonner'
 
-import { liveSessionApi } from '@/lib/api/services/academy-live-session-api'
+import {
+    canJoinLiveSessionNow,
+    getLiveSessionUiState,
+    liveSessionApi,
+} from '@/lib/api/services/academy-live-session-api'
 
 const MEET_URL = (typeof process !== 'undefined' ? (process.env.NEXT_PUBLIC_MEET_URL || 'https://meet.torii.com') : 'https://meet.torii.com')
 
@@ -27,6 +31,12 @@ export function LiveSessionBlock({ courseId, compact = false, maxSessions = 3, c
     const [sessions, setSessions] = useState<LiveSessionResponseDTO[]>([])
     const [loading, setLoading] = useState(true)
     const [joiningId, setJoiningId] = useState<string | null>(null)
+    const [now, setNow] = useState(() => new Date())
+
+    useEffect(() => {
+        const timer = setInterval(() => setNow(new Date()), 30 * 1000)
+        return () => clearInterval(timer)
+    }, [])
 
     useEffect(() => {
         let cancelled = false
@@ -46,7 +56,7 @@ export function LiveSessionBlock({ courseId, compact = false, maxSessions = 3, c
     }, [courseId])
 
     const upcomingOrLive = sessions
-        .filter(s => s.status === 'scheduled' || s.status === 'live')
+        .filter((s) => getLiveSessionUiState(s, now) !== 'ended')
         .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
         .slice(0, maxSessions)
 
@@ -89,7 +99,9 @@ export function LiveSessionBlock({ courseId, compact = false, maxSessions = 3, c
             </p>
             <ul className={cn('space-y-1.5', compact && 'space-y-1')}>
                 {upcomingOrLive.map((session) => {
-                    const isLive = session.status === 'live'
+                    const uiState = getLiveSessionUiState(session, now)
+                    const canJoin = canJoinLiveSessionNow(session, now)
+                    const isLive = uiState === 'live'
                     return (
                         <li
                             key={session.id}
@@ -106,7 +118,7 @@ export function LiveSessionBlock({ courseId, compact = false, maxSessions = 3, c
                                     {format(new Date(session.scheduledAt), 'EEE, dd/MM • HH:mm', { locale: vi })} · {session.duration} phút
                                 </p>
                             </div>
-                            {isLive && (
+                            {canJoin && (
                                 <Button
                                     size="sm"
                                     className={cn(
@@ -119,10 +131,10 @@ export function LiveSessionBlock({ courseId, compact = false, maxSessions = 3, c
                                     {joiningId === session.id
                                         ? <Spinner className="h-3.5 w-3.5 animate-spin" />
                                         : <Video className="h-3.5 w-3.5" />}
-                                    Vào phòng
+                                    {isLive ? 'Vào phòng' : 'Sẵn sàng vào'}
                                 </Button>
                             )}
-                            {!isLive && session.status === 'scheduled' && (
+                            {!canJoin && uiState === 'scheduled' && (
                                 <span className={cn('shrink-0 text-muted-foreground', compact ? 'text-[10px]' : 'text-xs')}>
                                     Sắp diễn ra
                                 </span>

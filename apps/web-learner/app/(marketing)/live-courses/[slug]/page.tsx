@@ -328,8 +328,10 @@ export default function LiveCourseDetail() {
                                 </div>
 
                                 <div className="space-y-4 mb-8">
-                                    <Button className="w-full h-14 text-lg font-bold bg-[#E63946] hover:bg-[#D62828] text-white shadow-lg shadow-[#E63946]/30 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
-                                        Giữ chỗ ngay <ArrowRight className="size-5" />
+                                    <Button className="w-full h-14 text-lg font-bold bg-[#E63946] hover:bg-[#D62828] text-white shadow-lg shadow-[#E63946]/30 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2" asChild>
+                                        <Link href={`/checkout/${offering.id}${primaryClass?.id ? `?classId=${primaryClass.id}` : ''}`}>
+                                            Giữ chỗ ngay <ArrowRight className="size-5" />
+                                        </Link>
                                     </Button>
                                     <Button variant="outline" className="w-full h-12 text-base font-bold border-2 border-[#E63946]/20 text-[#E63946] hover:bg-[#E63946]/5 hover:border-[#E63946] transition-colors">
                                         Nhận tư vấn lộ trình

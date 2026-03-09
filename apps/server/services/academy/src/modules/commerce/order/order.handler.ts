@@ -60,4 +60,19 @@ export class OrderHandler {
   findByCodeForUser(@Payload() data: { userId: string; orderCode: string }) {
     return this.orderService.getByCodeForUser(data.userId, data.orderCode);
   }
+
+  @MessagePattern({ cmd: 'academy.order.findAllForUser' })
+  findAllForUser(
+    @Payload() data: {
+      userId: string;
+      query: { page?: number; limit?: number; status?: string; search?: string };
+    },
+  ) {
+    return this.orderService.findAllForUser(data.userId, data.query ?? {});
+  }
+
+  @MessagePattern({ cmd: 'academy.order.findOneForUser' })
+  findOneForUser(@Payload() data: { userId: string; id: string }) {
+    return this.orderService.findOneForUser(data.userId, data.id);
+  }
 }

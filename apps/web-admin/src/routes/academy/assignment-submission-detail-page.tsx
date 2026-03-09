@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom"
+import { useLocation, useNavigate, useParams } from "react-router-dom"
 import {
   Card,
   CardContent,
@@ -41,6 +41,11 @@ type FormValues = {
 export default function AcademyAssignmentSubmissionDetailPage() {
   const { id } = useParams()
   const nav = useNavigate()
+  const location = useLocation()
+  const search = new URLSearchParams(location.search)
+  const classId = search.get("classId") || undefined
+  const returnTab = search.get("tab") || "submissions"
+  const backToClass = classId ? `/academy/classes/${classId}?tab=${returnTab}` : "/academy/assignment-submissions"
   const { data: item, isLoading } = useAcademyAssignmentSubmission(id)
   const update = useUpdateAcademyAssignmentSubmission()
 
@@ -139,7 +144,7 @@ export default function AcademyAssignmentSubmissionDetailPage() {
                     },
                   })
                   toast.success("Đã cập nhật bài nộp")
-                  nav("/academy/assignment-submissions")
+                  nav(backToClass)
                 } catch (e: any) {
                   toast.error(e?.message || "Cập nhật thất bại")
                 }
@@ -214,7 +219,7 @@ export default function AcademyAssignmentSubmissionDetailPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => nav("/academy/assignment-submissions")}
+                  onClick={() => nav(backToClass)}
                   disabled={update.isPending}
                 >
                   Hủy

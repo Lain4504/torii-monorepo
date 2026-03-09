@@ -1,4 +1,4 @@
-import { useNavigate, useParams, Link } from "react-router-dom"
+import { useLocation, useNavigate, useParams, Link } from "react-router-dom"
 import { useAcademyClass, useSubmitClassForApproval, useApproveClass, useRejectClass } from "@/lib/api/services/academy-classes"
 import { useAcademyLiveSchedules, usePreviewAcademyLiveScheduleConflict } from "@/lib/api/services/academy-live-schedules"
 import {
@@ -13,11 +13,14 @@ import { roomsApi } from "@/lib/api/services/rooms"
 import { usePermissions } from "@/hooks/use-permissions"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { cn } from "@workspace/ui/lib/utils"
-import { useAcademyClassAssessments } from "@/lib/api/services/academy-class-assessments"
+import {
+   useAcademyClassAssessments,
+   useAcademyClassAssessmentAttempts,
+   useAcademyWrongQuestionAnalytics,
+} from "@/lib/api/services/academy-class-assessments"
 import { useAcademyEnrollments } from "@/lib/api/services/academy-enrollments"
 import { useAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
 import { useAcademyCourseEdition } from "@/lib/api/services/academy-course-editions"
-import { useAcademyExamAttempts } from "@/lib/api/services/academy-exam-attempts"
 import { useAcademyAssignmentSubmissions } from "@/lib/api/services/academy-assignment-submissions"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
@@ -76,7 +79,9 @@ export default function ClassDetailPage() {
    const MEET_URL = import.meta.env.VITE_MEET_URL || "https://meet.torii.sbs"
    const { id } = useParams<{ id: string }>()
    const navigate = useNavigate()
+   const location = useLocation()
    const { data: cls, isLoading: isLoadingClass } = useAcademyClass(id!)
+   const isLive = cls?.mode === "LIVE"
    const { can } = usePermissions()
    const canManageLiveSession = can("academy.delivery.write")
    const canApproveLiveRequest = can("academy.delivery.approve")
@@ -90,8 +95,27 @@ export default function ClassDetailPage() {
    )
    const { data: assessments = [], isLoading: isLoadingAssessments } = useAcademyClassAssessments({ classId: id })
    const { data: enrollmentsData, isLoading: isLoadingEnrollments } = useAcademyEnrollments({ classId: id, page: 1, limit: 100 })
-   const { data: attempts = [], isLoading: isLoadingAttempts } = useAcademyExamAttempts({ classId: id })
-   const { data: submissions = [], isLoading: isLoadingSubmissions } = useAcademyAssignmentSubmissions({ classId: id })
+   const [selectedQuizAssessmentId, setSelectedQuizAssessmentId] = useState<string>("")
+   const quizAssessments = useMemo(
+      () => assessments.filter((assessment) => assessment.kind === "QUIZ"),
+      [assessments],
+   )
+   const selectedQuizAssessment = useMemo(
+      () => quizAssessments.find((assessment) => assessment.id === selectedQuizAssessmentId),
+      [quizAssessments, selectedQuizAssessmentId],
+   )
+   const { data: attempts = [], isLoading: isLoadingAttempts } = useAcademyClassAssessmentAttempts(
+      selectedQuizAssessmentId || undefined,
+      { latestOnly: true },
+   )
+   const { data: wrongQuestionAnalytics, isLoading: isLoadingWrongQuestionAnalytics } =
+      useAcademyWrongQuestionAnalytics(
+         selectedQuizAssessmentId || undefined,
+         { latestOnly: true },
+      )
+   const { data: submissions = [], isLoading: isLoadingSubmissions } = useAcademyAssignmentSubmissions(
+      isLive ? { classId: id } : {},
+   )
 
    const submitMutation = useSubmitClassForApproval()
    const approveMutation = useApproveClass()
@@ -145,6 +169,8 @@ export default function ClassDetailPage() {
    const [proposedDate, setProposedDate] = useState("")
    const [proposedStartTime, setProposedStartTime] = useState("19:00")
    const [proposedEndTime, setProposedEndTime] = useState("21:00")
+   const queryTab = new URLSearchParams(location.search).get("tab") || "overview"
+   const [activeTab, setActiveTab] = useState(queryTab)
 
    const selectedScheduleId = requestScheduleId || schedules[0]?.id || ""
    const selectedSchedule = useMemo(
@@ -184,6 +210,23 @@ export default function ClassDetailPage() {
       }
    }, [schedules, requestScheduleId])
 
+   useEffect(() => {
+      const nextTab = new URLSearchParams(location.search).get("tab") || "overview"
+      setActiveTab(nextTab)
+   }, [location.search])
+
+   useEffect(() => {
+      if (!selectedQuizAssessmentId && quizAssessments[0]?.id) {
+         setSelectedQuizAssessmentId(quizAssessments[0].id)
+      }
+      if (
+         selectedQuizAssessmentId &&
+         !quizAssessments.some((assessment) => assessment.id === selectedQuizAssessmentId)
+      ) {
+         setSelectedQuizAssessmentId(quizAssessments[0]?.id ?? "")
+      }
+   }, [quizAssessments, selectedQuizAssessmentId])
+
    // Giả sử API trả về structure { items, total } cho enrollments
    const enrollments = Array.isArray(enrollmentsData) ? enrollmentsData : (enrollmentsData as any)?.items || []
 
@@ -194,7 +237,6 @@ export default function ClassDetailPage() {
       <Button onClick={() => navigate("/academy/classes")}>Quay lại</Button>
    </div>
 
-   const isLive = cls.mode === "LIVE"
    const tpt = isLive ? cls.liveClass : cls.vodClass
 
    const handleSubmit = async () => {
@@ -513,15 +555,22 @@ export default function ClassDetailPage() {
             </Card>
 
             <div className="md:col-span-3">
-               <Tabs defaultValue="overview" className="w-full">
-                  <TabsList className={cn("grid w-full mb-6", isLive ? "grid-cols-8" : "grid-cols-5")}>
+               <Tabs
+                  value={activeTab}
+                  onValueChange={(value) => {
+                     setActiveTab(value)
+                     navigate(`/academy/classes/${id}?tab=${value}`, { replace: true })
+                  }}
+                  className="w-full"
+               >
+                  <TabsList className={cn("grid w-full mb-6", isLive ? "grid-cols-8" : "grid-cols-4")}>
                      <TabsTrigger value="overview">Tổng quan</TabsTrigger>
                      {isLive && <TabsTrigger value="schedule">Lịch học ({schedules.length})</TabsTrigger>}
                      {isLive && <TabsTrigger value="requests">Yêu cầu ({scheduleRequests.length})</TabsTrigger>}
                      {isLive && <TabsTrigger value="attendance">Điểm danh</TabsTrigger>}
                      <TabsTrigger value="assessments">Bài kiểm tra ({assessments.length})</TabsTrigger>
                      <TabsTrigger value="attempts">Kết quả thi ({attempts.length})</TabsTrigger>
-                     <TabsTrigger value="submissions">Bài nộp ({submissions.length})</TabsTrigger>
+                     {isLive && <TabsTrigger value="submissions">Bài nộp ({submissions.length})</TabsTrigger>}
                      <TabsTrigger value="learners">Học viên ({enrollments.length})</TabsTrigger>
                   </TabsList>
 
@@ -850,16 +899,18 @@ export default function ClassDetailPage() {
                      <Card>
                         <CardHeader className="flex flex-row items-center justify-between">
                            <div>
-                              <CardTitle className="text-lg">Bài kiểm tra & Bài tập (Assessments)</CardTitle>
+                              <CardTitle className="text-lg">Bài kiểm tra theo lớp (Assessments)</CardTitle>
                               <CardDescription>Quản lý các instance bài kiểm tra riêng cho lớp này</CardDescription>
                            </div>
                            <div className="flex gap-2">
                               <Button size="sm" asChild className="gap-2">
                                  <Link to={`/academy/class-assessments/new?classId=${id}&kind=QUIZ`}><Plus className="h-4 w-4" /> Tạo Quiz</Link>
                               </Button>
-                              <Button size="sm" asChild variant="outline" className="gap-2">
-                                 <Link to={`/academy/class-assessments/new?classId=${id}&kind=ASSIGNMENT`}><Plus className="h-4 w-4" /> Tạo Assignment</Link>
-                              </Button>
+                              {isLive && (
+                                 <Button size="sm" asChild variant="outline" className="gap-2">
+                                    <Link to={`/academy/class-assessments/new?classId=${id}&kind=ASSIGNMENT`}><Plus className="h-4 w-4" /> Tạo Assignment</Link>
+                                 </Button>
+                              )}
                            </div>
                         </CardHeader>
                         <CardContent>
@@ -878,8 +929,8 @@ export default function ClassDetailPage() {
                               <TableBody>
                                  {isLoadingAssessments ? (
                                     <TableRow><TableCell colSpan={7} className="text-center">Đang tải...</TableCell></TableRow>
-                                 ) : assessments.length ? (
-                                    assessments.map((a, idx) => (
+                                 ) : (isLive ? assessments : quizAssessments).length ? (
+                                    (isLive ? assessments : quizAssessments).map((a, idx) => (
                                        <TableRow key={a.id}>
                                           <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
                                           <TableCell className="font-medium">{a.titleOverride || "Default Template"}</TableCell>
@@ -913,9 +964,31 @@ export default function ClassDetailPage() {
                      <Card>
                         <CardHeader>
                            <CardTitle className="text-lg">Kết quả thi & Kiểm tra</CardTitle>
-                           <CardDescription>Chi tiết các lượt làm bài của học viên trong lớp</CardDescription>
+                           <CardDescription>Chi tiết các lượt làm bài quiz của học viên trong lớp</CardDescription>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="space-y-6">
+                           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                              <Select
+                                 value={selectedQuizAssessmentId}
+                                 onValueChange={setSelectedQuizAssessmentId}
+                              >
+                                 <SelectTrigger>
+                                    <SelectValue placeholder="Chọn quiz assessment" />
+                                 </SelectTrigger>
+                                 <SelectContent>
+                                    {quizAssessments.map((assessment) => (
+                                       <SelectItem key={assessment.id} value={assessment.id}>
+                                          {assessment.titleOverride || assessment.id}
+                                       </SelectItem>
+                                    ))}
+                                 </SelectContent>
+                              </Select>
+                              <div className="text-sm text-muted-foreground md:col-span-2">
+                                 {selectedQuizAssessment
+                                    ? `Đang xem analytics cho quiz: ${selectedQuizAssessment.titleOverride || selectedQuizAssessment.id}`
+                                    : "Chưa có quiz assessment trong lớp này."}
+                              </div>
+                           </div>
                            <Table>
                               <TableHeader>
                                  <TableRow className="bg-muted/50">
@@ -946,7 +1019,7 @@ export default function ClassDetailPage() {
                                           </TableCell>
                                           <TableCell className="text-right">
                                              <Button variant="ghost" size="sm" asChild>
-                                                <Link to={`/academy/exam-attempts/${att.id}`}><Info className="h-3.5 w-3.5" /></Link>
+                                                <Link to={`/academy/exam-attempts/${att.id}?classId=${id}&tab=attempts&classAssessmentId=${selectedQuizAssessmentId}`}><Info className="h-3.5 w-3.5" /></Link>
                                              </Button>
                                           </TableCell>
                                        </TableRow>
@@ -958,56 +1031,103 @@ export default function ClassDetailPage() {
                                  )}
                               </TableBody>
                            </Table>
+
+                           <Card>
+                              <CardHeader>
+                                 <CardTitle className="text-base">Thống kê câu sai</CardTitle>
+                                 <CardDescription>
+                                    Tổng hợp câu hỏi có tỉ lệ sai cao từ các lượt làm mới nhất.
+                                 </CardDescription>
+                              </CardHeader>
+                              <CardContent>
+                                 <Table>
+                                    <TableHeader>
+                                       <TableRow className="bg-muted/50">
+                                          <TableHead>Câu hỏi</TableHead>
+                                          <TableHead>Loại</TableHead>
+                                          <TableHead>Số lượt làm</TableHead>
+                                          <TableHead>Số lượt sai</TableHead>
+                                          <TableHead>Tỉ lệ sai</TableHead>
+                                       </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                       {isLoadingWrongQuestionAnalytics ? (
+                                          <TableRow>
+                                             <TableCell colSpan={5} className="text-center">Đang tải...</TableCell>
+                                          </TableRow>
+                                       ) : wrongQuestionAnalytics?.questions?.length ? (
+                                          wrongQuestionAnalytics.questions.map((question) => (
+                                             <TableRow key={question.questionId}>
+                                                <TableCell className="max-w-[360px] truncate">{question.questionContent}</TableCell>
+                                                <TableCell>{question.questionType}</TableCell>
+                                                <TableCell>{question.attempts}</TableCell>
+                                                <TableCell>{question.wrongCount}</TableCell>
+                                                <TableCell>{question.wrongRatePercent}%</TableCell>
+                                             </TableRow>
+                                          ))
+                                       ) : (
+                                          <TableRow>
+                                             <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
+                                                Chưa có dữ liệu câu sai.
+                                             </TableCell>
+                                          </TableRow>
+                                       )}
+                                    </TableBody>
+                                 </Table>
+                              </CardContent>
+                           </Card>
                         </CardContent>
                      </Card>
                   </TabsContent>
 
-                  <TabsContent value="submissions">
-                     <Card>
-                        <CardHeader>
-                           <CardTitle className="text-lg">Bài nộp từ học viên</CardTitle>
-                           <CardDescription>Quản lý và chấm điểm các bài tập đã nộp</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                           <Table>
-                              <TableHeader>
-                                 <TableRow className="bg-muted/50">
-                                    <TableHead className="w-[80px]">STT</TableHead>
-                                    <TableHead>Học viên</TableHead>
-                                    <TableHead>Trạng thái</TableHead>
-                                    <TableHead>Ngày nộp</TableHead>
-                                    <TableHead>Điểm</TableHead>
-                                    <TableHead className="text-right">Hành động</TableHead>
-                                 </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                 {isLoadingSubmissions ? (
-                                    <TableRow><TableCell colSpan={7} className="text-center">Đang tải...</TableCell></TableRow>
-                                 ) : submissions.length ? (
-                                    submissions.map((sub, idx) => (
-                                       <TableRow key={sub.id}>
-                                          <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
-                                          <TableCell className="font-medium">User ID: {sub.userId}</TableCell>
-                                          <TableCell><Badge variant="outline">{sub.status}</Badge></TableCell>
-                                          <TableCell>{sub.submittedAt ? new Date(sub.submittedAt).toLocaleString("vi-VN") : "-"}</TableCell>
-                                          <TableCell className="font-bold">{sub.score ?? "-"}</TableCell>
-                                          <TableCell className="text-right">
-                                             <Button variant="ghost" size="sm" asChild>
-                                                <Link to={`/academy/assignment-submissions/${sub.id}`}><Info className="h-3.5 w-3.5" /></Link>
-                                             </Button>
-                                          </TableCell>
-                                       </TableRow>
-                                    ))
-                                 ) : (
-                                    <TableRow>
-                                       <TableCell colSpan={6} className="text-center py-8 text-muted-foreground italic">Chưa có bài nộp nào</TableCell>
+                  {isLive && (
+                     <TabsContent value="submissions">
+                        <Card>
+                           <CardHeader>
+                              <CardTitle className="text-lg">Bài nộp từ học viên</CardTitle>
+                              <CardDescription>Quản lý và chấm điểm các bài tập đã nộp</CardDescription>
+                           </CardHeader>
+                           <CardContent>
+                              <Table>
+                                 <TableHeader>
+                                    <TableRow className="bg-muted/50">
+                                       <TableHead className="w-[80px]">STT</TableHead>
+                                       <TableHead>Học viên</TableHead>
+                                       <TableHead>Trạng thái</TableHead>
+                                       <TableHead>Ngày nộp</TableHead>
+                                       <TableHead>Điểm</TableHead>
+                                       <TableHead className="text-right">Hành động</TableHead>
                                     </TableRow>
-                                 )}
-                              </TableBody>
-                           </Table>
-                        </CardContent>
-                     </Card>
-                  </TabsContent>
+                                 </TableHeader>
+                                 <TableBody>
+                                    {isLoadingSubmissions ? (
+                                       <TableRow><TableCell colSpan={7} className="text-center">Đang tải...</TableCell></TableRow>
+                                    ) : submissions.length ? (
+                                       submissions.map((sub, idx) => (
+                                          <TableRow key={sub.id}>
+                                             <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
+                                             <TableCell className="font-medium">User ID: {sub.userId}</TableCell>
+                                             <TableCell><Badge variant="outline">{sub.status}</Badge></TableCell>
+                                             <TableCell>{sub.submittedAt ? new Date(sub.submittedAt).toLocaleString("vi-VN") : "-"}</TableCell>
+                                             <TableCell className="font-bold">{sub.score ?? "-"}</TableCell>
+                                             <TableCell className="text-right">
+                                                <Button variant="ghost" size="sm" asChild>
+                                                   <Link to={`/academy/assignment-submissions/${sub.id}?classId=${id}&tab=submissions`}><Info className="h-3.5 w-3.5" /></Link>
+                                                </Button>
+                                             </TableCell>
+                                          </TableRow>
+                                       ))
+                                    ) : (
+                                       <TableRow>
+                                          <TableCell colSpan={6} className="text-center py-8 text-muted-foreground italic">Chưa có bài nộp nào</TableCell>
+                                       </TableRow>
+                                    )}
+                                 </TableBody>
+                              </Table>
+                           </CardContent>
+                        </Card>
+                     </TabsContent>
+                  )}
 
                   <TabsContent value="learners">
                      <Card>

@@ -53,6 +53,15 @@ export class EnrollmentController {
                 { ...query, userId: requester.sub },
             ),
         );
+        if (Array.isArray(result)) {
+            return successResponse({
+                items: result,
+                total: result.length,
+                page: 1,
+                limit: result.length || 1,
+                totalPages: 1,
+            });
+        }
         return successResponse(result);
     }
 

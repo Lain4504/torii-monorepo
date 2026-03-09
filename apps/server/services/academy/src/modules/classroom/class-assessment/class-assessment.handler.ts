@@ -2,6 +2,7 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { ClassAssessmentService } from './class-assessment.service';
 import {
+  ClassAssessmentAttemptQueryDto,
   ClassAssessmentCreateDto,
   ClassAssessmentQueryDto,
   ClassAssessmentUpdateDto,
@@ -34,6 +35,23 @@ export class ClassAssessmentHandler {
   @MessagePattern({ cmd: 'academy.classAssessment.delete' })
   delete(@Payload() data: { id: string }) {
     return this.assessments.delete(data.id);
+  }
+
+  @MessagePattern({ cmd: 'academy.classAssessment.findAttempts' })
+  findAttempts(@Payload() data: { id: string; query: ClassAssessmentAttemptQueryDto }) {
+    return this.assessments.findAttemptsByAssessment(data.id, data.query);
+  }
+
+  @MessagePattern({ cmd: 'academy.classAssessment.findAttemptQuestionDetail' })
+  findAttemptQuestionDetail(@Payload() data: { id: string; attemptId: string }) {
+    return this.assessments.findAttemptQuestionDetail(data.id, data.attemptId);
+  }
+
+  @MessagePattern({ cmd: 'academy.classAssessment.findWrongQuestionAnalytics' })
+  findWrongQuestionAnalytics(
+    @Payload() data: { id: string; query: ClassAssessmentAttemptQueryDto },
+  ) {
+    return this.assessments.findWrongQuestionAnalytics(data.id, data.query);
   }
 }
 

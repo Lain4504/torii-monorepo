@@ -88,15 +88,28 @@ export class EnrollmentService {
             enrolledAt: e.enrolledAt,
             expiresAt: e.expiresAt,
             courseId: e.class.courseProfileId,
+            classId: e.classId,
             courseRunId: e.classId,
             courseTitle: e.class.courseProfile.title,
             slug: e.class.courseProfile.code,
             thumbnailUrl: e.class.courseProfile.thumbnailUrl,
             instructorName: primaryTeacher?.displayName ?? 'Academy Instructor',
             instructorAvatar: primaryTeacher?.avatarUrl,
+            mode: e.class.mode,
+            type: e.class.mode === 'LIVE' ? 'live' : 'vod',
             progress: totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0,
             completedLessons: completedCount,
             totalLessons: totalLessons,
+            class: {
+              id: e.class.id,
+              mode: e.class.mode,
+              status: e.class.status,
+              courseProfile: {
+                title: e.class.courseProfile.title,
+                code: e.class.courseProfile.code,
+                thumbnailUrl: e.class.courseProfile.thumbnailUrl,
+              },
+            },
           };
         }),
       );

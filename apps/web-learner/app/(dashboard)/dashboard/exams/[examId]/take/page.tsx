@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter, useParams, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from "@workspace/ui/components/button"
 import { Sheet, SheetContent, SheetTrigger } from "@workspace/ui/components/sheet"
@@ -72,7 +72,10 @@ function transformQuestion(apiQuestion: any): Question {
 export default function TakeExamPage() {
     const router = useRouter()
     const { examId } = useParams<{ examId: string }>()
+    const searchParams = useSearchParams()
     const userId = useAppSelector((state: RootState) => state.auth.user?.id)
+    const classId = searchParams.get('classId') ?? undefined
+    const classAssessmentId = searchParams.get('classAssessmentId') ?? undefined
 
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -103,7 +106,9 @@ export default function TakeExamPage() {
                 // 1. Start or resume attempt
                 const attempt = await academyExamsApi.startAttempt({
                     examId,
-                    userId
+                    userId,
+                    classId,
+                    classAssessmentId,
                 })
                 setSessionId(attempt.id)
 

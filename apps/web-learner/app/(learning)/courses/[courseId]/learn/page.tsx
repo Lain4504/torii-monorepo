@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useAcademyCourseById } from '@/lib/api/services/academy-course-api';
 import { useAcademyClass, useCurriculum } from '@/lib/api/services/academy-classes';
 import { useAcademyEnrollmentCheck } from '@/lib/api/services/academy-enrollment-api';
@@ -17,6 +17,11 @@ import {
 import {
     useStartAcademyExamAttempt, useSaveAcademyExamAnswers, useSubmitAcademyExamAttempt
 } from '@/lib/api/services/academy-exam-api';
+import {
+    extractAssessmentExamId,
+    useAcademyClassAssessment,
+    useAcademyClassAssessments,
+} from '@/lib/api/services/academy-class-assessments';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from '@workspace/ui/components/sonner';
 import { Skeleton } from '@workspace/ui/components/skeleton';
@@ -321,9 +326,15 @@ const SectionTypeMap: Record<string, string> = {
 };
 
 function QuizPanel({
-    lessonId, templateId, classId, onComplete
-}: { lessonId: string; templateId: string; classId?: string; onComplete: () => void; }) {
+    lessonId, templateId, classId, classAssessmentId, onComplete
+}: { lessonId: string; templateId: string; classId?: string; classAssessmentId?: string; onComplete: () => void; }) {
+    const router = useRouter();
     const { data: quiz, isLoading: quizLoading } = useAcademyQuizTemplate(templateId);
+    const { data: classAssessment } = useAcademyClassAssessment(classAssessmentId);
+    const examId = useMemo(
+        () => extractAssessmentExamId(classAssessment?.settings),
+        [classAssessment?.settings],
+    );
 
     // We will just show the info and a "Mark Complete" button for now
     // until the Quiz taking UI is fully integrated with Exam attempts.
@@ -385,13 +396,31 @@ function QuizPanel({
 
             <div className="space-y-4 bg-muted/30 border border-border rounded-xl p-6 text-center">
                 <p className="text-sm text-foreground font-medium">
-                    Hệ thống làm bài thi đang được nâng cấp.
+                    Bài kiểm tra đã sẵn sàng. Bạn có thể bắt đầu làm bài ngay.
                 </p>
                 <button
-                    onClick={onComplete}
+                    onClick={() => {
+                        if (!classId || !classAssessmentId) {
+                            toast.error('Không tìm thấy assessment của quiz này.');
+                            return;
+                        }
+                        const query = examId ? `?examId=${examId}` : '';
+                        router.push(`/courses/${classId}/quizzes/${classAssessmentId}${query}`);
+                    }}
                     className="w-full py-4 bg-violet-500 hover:bg-violet-600 text-white rounded-2xl font-bold text-base transition flex items-center justify-center gap-2 shadow-lg shadow-violet-500/25"
                 >
-                    <CheckCircle2 className="h-5 w-5" /> Đánh dấu hoàn thành
+                    <PlayCircle className="h-5 w-5" /> Bắt đầu làm bài
+                </button>
+                {!examId && (
+                    <p className="text-xs text-muted-foreground">
+                        Quiz này chưa liên kết đề thi. Vui lòng liên hệ giảng viên.
+                    </p>
+                )}
+                <button
+                    onClick={onComplete}
+                    className="w-full py-3 border border-border rounded-xl font-semibold text-sm hover:bg-muted transition"
+                >
+                    Đánh dấu hoàn thành bài học
                 </button>
             </div>
         </div>
@@ -471,6 +500,7 @@ export default function CourseLearnPage() {
     const params = useParams<{ courseId: string }>();
     const classId = params.courseId;
     const router = useRouter();
+    const searchParams = useSearchParams();
     const queryClient = useQueryClient();
 
     // ── API ────────────────────────────────────────────────────────────────
@@ -481,6 +511,7 @@ export default function CourseLearnPage() {
     // 2. Fetch other details using courseProfileId
     const { data: course, isLoading: courseLoading } = useAcademyCourseById(courseProfileId ?? '');
     const { data: curriculum, isLoading: curriculumLoading } = useCurriculum(classId);
+    const { data: classAssessments = [] } = useAcademyClassAssessments({ classId });
     const { data: enrollmentData } = useAcademyEnrollmentCheck(classId);
     const { data: completedLessonIds = [] } = useAcademyCompletedLessonIds(classId ?? '');
 
@@ -493,6 +524,13 @@ export default function CourseLearnPage() {
     const [note, setNote] = useState('');
     const [savingNote, setSavingNote] = useState(false);
 
+    useEffect(() => {
+        if (enrollmentData && !enrollmentData.isEnrolled) {
+            toast.error('Bạn chưa được ghi danh vào lớp học này.');
+            router.replace('/dashboard/my-courses');
+        }
+    }, [enrollmentData, router]);
+
     const completedIds = new Set(completedLessonIds);
 
     // ── Load curriculum → pick first uncompleted lesson + expand all ───────
@@ -503,6 +541,16 @@ export default function CourseLearnPage() {
 
         // Pick first unlocked uncompleted lesson
         if (currentLesson) return; // already selected
+        const requestedLessonId = searchParams.get('lesson');
+        if (requestedLessonId) {
+            for (const mod of curriculum.modules) {
+                const requested = mod.lessons.find((lesson: CurriculumLesson) => lesson.id === requestedLessonId);
+                if (requested?.isUnlocked) {
+                    setCurrentLesson(requested);
+                    return;
+                }
+            }
+        }
         let pick: CurriculumLesson | null = null;
         for (const mod of curriculum.modules) {
             for (const lesson of mod.lessons) {
@@ -516,7 +564,7 @@ export default function CourseLearnPage() {
         if (!pick) pick = curriculum.modules[0]?.lessons[0] ?? null;
         setCurrentLesson(pick);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [curriculum?.courseId]);
+    }, [curriculum?.courseId, searchParams]);
 
     // ── Fetch current lesson details (video url, article content etc.) ─────
     const { data: lessonDetail, isLoading: lessonLoading } = useAcademyLesson(currentLesson?.referenceId ?? '');
@@ -795,6 +843,14 @@ export default function CourseLearnPage() {
                                 lessonId={currentLesson.id}
                                 templateId={currentLesson.referenceId!}
                                 classId={classId}
+                                classAssessmentId={
+                                    classAssessments.find(
+                                        (a) =>
+                                            a.classId === classId &&
+                                            a.kind === 'ASSIGNMENT' &&
+                                            a.assignmentTemplateId === currentLesson.referenceId,
+                                    )?.id
+                                }
                                 onComplete={markLessonComplete}
                             />
                         </>
@@ -817,6 +873,14 @@ export default function CourseLearnPage() {
                                 lessonId={currentLesson.id}
                                 templateId={currentLesson.referenceId!}
                                 classId={classId}
+                                classAssessmentId={
+                                    classAssessments.find(
+                                        (a) =>
+                                            a.classId === classId &&
+                                            a.kind === 'QUIZ' &&
+                                            a.quizTemplateId === currentLesson.referenceId,
+                                    )?.id
+                                }
                                 onComplete={markLessonComplete}
                             />
                         </>

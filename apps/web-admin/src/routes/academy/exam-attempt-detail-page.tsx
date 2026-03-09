@@ -1,11 +1,32 @@
-import { useParams } from "react-router-dom"
+import { useLocation, useNavigate, useParams } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
+import { Button } from "@workspace/ui/components/button"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@workspace/ui/components/table"
 import { PageHeader } from "@/components/common/page-header"
 import { useAcademyExamAttempt } from "@/lib/api/services/academy-exam-attempts"
+import { useAcademyClassAssessmentAttemptQuestionDetail } from "@/lib/api/services/academy-class-assessments"
 
 export default function AcademyExamAttemptDetailPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const search = new URLSearchParams(location.search)
+  const classId = search.get("classId") || undefined
+  const classAssessmentId = search.get("classAssessmentId") || undefined
+  const returnTab = search.get("tab") || "attempts"
+  const backToClass = classId ? `/academy/classes/${classId}?tab=${returnTab}` : "/academy/exam-attempts"
   const { data: item, isLoading } = useAcademyExamAttempt(id)
+  const { data: enrichedAttempt } = useAcademyClassAssessmentAttemptQuestionDetail(
+    classAssessmentId,
+    id,
+  )
 
   return (
     <div className="space-y-6">
@@ -13,6 +34,11 @@ export default function AcademyExamAttemptDetailPage() {
         title="Chi tiết Exam Attempt"
         subtitle="Thông tin trạng thái attempt (read-only)."
       />
+      {classId ? (
+        <Button variant="outline" onClick={() => navigate(backToClass)}>
+          Quay lại lớp học
+        </Button>
+      ) : null}
 
       <Card>
         <CardHeader>
@@ -72,6 +98,42 @@ export default function AcademyExamAttemptDetailPage() {
           )}
         </CardContent>
       </Card>
+
+      {!enrichedAttempt?.details?.length ? null : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Chi tiết câu trả lời</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Câu hỏi</TableHead>
+                  <TableHead>Loại</TableHead>
+                  <TableHead>Kết quả</TableHead>
+                  <TableHead>Điểm</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {enrichedAttempt.details.map((detail: any) => (
+                  <TableRow key={detail.id}>
+                    <TableCell className="max-w-[420px] truncate">{detail.question?.content}</TableCell>
+                    <TableCell>{detail.question?.questionType || "-"}</TableCell>
+                    <TableCell>
+                      {detail.isCorrect === null
+                        ? "Cần chấm tay"
+                        : detail.isCorrect
+                          ? "Đúng"
+                          : "Sai"}
+                    </TableCell>
+                    <TableCell>{detail.pointsEarned ?? "-"}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

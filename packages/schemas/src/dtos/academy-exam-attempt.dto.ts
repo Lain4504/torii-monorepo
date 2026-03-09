@@ -29,7 +29,9 @@ export const academyExamAttemptQueryDTOSchema = z.object({
   examId: z.string().uuid().optional(),
   userId: z.string().uuid().optional(),
   classId: z.string().uuid().optional(),
+  classAssessmentId: z.string().uuid().optional(),
   status: z.string().optional(),
+  latestOnly: z.coerce.boolean().optional(),
 });
 export type AcademyExamAttemptQueryDTO = z.infer<
   typeof academyExamAttemptQueryDTOSchema

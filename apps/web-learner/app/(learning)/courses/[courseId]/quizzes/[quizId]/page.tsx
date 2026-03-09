@@ -1,23 +1,28 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useMemo } from 'react'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@workspace/ui/components/button'
 import { Card, CardContent } from '@workspace/ui/components/card'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Clock, PlayCircle, AlertTriangle } from 'lucide-react'
+import { useAcademyClassAssessment, extractAssessmentExamId } from '@/lib/api/services/academy-class-assessments'
+import { useAcademyQuizTemplate } from '@/lib/api/services/academy-quiz-api'
 
 export default function TakeCourseQuizPage() {
     const params = useParams()
     const router = useRouter()
-    const courseRunId = params.courseId as string
+    const searchParams = useSearchParams()
+    const classId = params.courseId as string
     const quizId = params.quizId as string
-    const [loading, setLoading] = useState(true)
+    const { data: assessment, isLoading: assessmentLoading } = useAcademyClassAssessment(quizId)
+    const { data: quizTemplate, isLoading: templateLoading } = useAcademyQuizTemplate(assessment?.quizTemplateId ?? undefined)
 
-    useEffect(() => {
-        // TODO: Fetch quiz data
-        setLoading(false)
-    }, [courseRunId, quizId])
+    const examId = useMemo(
+        () => searchParams.get('examId') || extractAssessmentExamId(assessment?.settings),
+        [searchParams, assessment?.settings],
+    )
+    const loading = assessmentLoading || templateLoading
 
     if (loading) {
         return (
@@ -33,13 +38,14 @@ export default function TakeCourseQuizPage() {
             <div className="border-b border-border bg-background">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center gap-4">
-                        <Link href={`/dashboard/courses/${courseRunId}/quizzes`}>
+                        <Link href={`/courses/${classId}/quizzes`}>
                             <Button variant="ghost" size="icon" className="rounded-full">
                                 <ArrowLeft className="w-4 h-4" />
                             </Button>
                         </Link>
                         <div>
-                            <h1 className="text-xl font-bold text-foreground">Bài kiểm tra</h1>
+                            <h1 className="text-xl font-bold text-foreground">{quizTemplate?.title || 'Bài kiểm tra'}</h1>
+                            <p className="text-sm text-muted-foreground">{quizTemplate?.description || 'Chuẩn bị bắt đầu bài kiểm tra'}</p>
                         </div>
                     </div>
                 </div>
@@ -49,12 +55,40 @@ export default function TakeCourseQuizPage() {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-4xl">
                 <Card>
                     <CardContent className="p-12 text-center">
-                        <p className="text-muted-foreground mb-4">
-                            Nội dung bài kiểm tra sẽ được hiển thị tại đây
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                            Khóa học: {courseRunId} | Bài kiểm tra: {quizId}
-                        </p>
+                        <div className="mx-auto max-w-md space-y-4">
+                            <div className="flex justify-center">
+                                <PlayCircle className="w-12 h-12 text-primary" />
+                            </div>
+                            <p className="text-muted-foreground">
+                                Bạn sẽ chuyển đến giao diện làm bài thi ngay bây giờ.
+                            </p>
+                            <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
+                                {quizTemplate?.timeLimit && (
+                                    <span className="inline-flex items-center gap-1">
+                                        <Clock className="w-4 h-4" /> {quizTemplate.timeLimit} phút
+                                    </span>
+                                )}
+                                {quizTemplate?.totalQuestions ? <span>{quizTemplate.totalQuestions} câu hỏi</span> : null}
+                            </div>
+                            {!examId && (
+                                <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:bg-amber-950/20 dark:border-amber-900 dark:text-amber-300 flex items-start gap-2">
+                                    <AlertTriangle className="w-4 h-4 mt-0.5" />
+                                    <span>Bài kiểm tra này chưa được liên kết đề thi. Vui lòng liên hệ giảng viên.</span>
+                                </div>
+                            )}
+                            <div className="pt-2">
+                                <Button
+                                    disabled={!examId}
+                                    onClick={() =>
+                                        router.push(
+                                            `/dashboard/exams/${examId}/take?classId=${classId}&classAssessmentId=${quizId}`,
+                                        )
+                                    }
+                                >
+                                    Bắt đầu làm bài
+                                </Button>
+                            </div>
+                        </div>
                     </CardContent>
                 </Card>
             </div>

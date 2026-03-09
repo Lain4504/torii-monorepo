@@ -20,15 +20,26 @@ export class ExamAttemptService {
   ) { }
 
   async findAll(query: ExamAttemptQueryDto) {
-    return this.prisma.examAttempt.findMany({
+    const items = await this.prisma.examAttempt.findMany({
       where: {
         examId: query.examId ?? undefined,
         userId: query.userId ?? undefined,
         classId: query.classId ?? undefined,
+        classAssessmentId: query.classAssessmentId ?? undefined,
         status: query.status ?? undefined,
       },
       orderBy: [{ createdAt: 'desc' }],
     });
+
+    if (!query.latestOnly) return items;
+    const latestMap = new Map<string, (typeof items)[number]>();
+    for (const item of items) {
+      const key = `${item.classAssessmentId ?? 'none'}:${item.userId}`;
+      if (!latestMap.has(key)) {
+        latestMap.set(key, item);
+      }
+    }
+    return Array.from(latestMap.values());
   }
 
   async findById(id: string) {
@@ -47,9 +58,19 @@ export class ExamAttemptService {
     });
     if (!exam) throw new BadRequestException('Invalid examId');
 
-    if (input.classId) {
+    let resolvedClassId = input.classId;
+    if (input.classAssessmentId && !resolvedClassId) {
+      const assessment = await this.prisma.classAssessment.findUnique({
+        where: { id: input.classAssessmentId },
+        select: { classId: true },
+      });
+      if (!assessment) throw new BadRequestException('Invalid classAssessmentId');
+      resolvedClassId = assessment.classId;
+    }
+
+    if (resolvedClassId) {
       const klass = await this.prisma.class.findUnique({
-        where: { id: input.classId },
+        where: { id: resolvedClassId },
         select: { id: true },
       });
       if (!klass) throw new BadRequestException('Invalid classId');
@@ -61,14 +82,35 @@ export class ExamAttemptService {
     });
     if (!user) throw new BadRequestException('Invalid userId');
 
-    // Check max attempts
+    // Check class assessment relation + max attempts
     let maxAttempts: number | null | undefined = undefined;
     if (input.classAssessmentId) {
       const ca = await this.prisma.classAssessment.findUnique({
         where: { id: input.classAssessmentId },
-        select: { maxAttemptsOverride: true },
+        select: { maxAttemptsOverride: true, classId: true, kind: true },
       });
+      if (!ca) throw new BadRequestException('Invalid classAssessmentId');
+      if (ca.kind !== 'QUIZ') {
+        throw new BadRequestException('classAssessmentId must reference QUIZ');
+      }
+      if (resolvedClassId && ca.classId !== resolvedClassId) {
+        throw new BadRequestException('classAssessmentId does not belong to classId');
+      }
       maxAttempts = ca?.maxAttemptsOverride;
+    }
+
+    if (resolvedClassId) {
+      const enrollment = await this.prisma.enrollment.findFirst({
+        where: {
+          classId: resolvedClassId,
+          userId: input.userId,
+          status: 'ACTIVE',
+        },
+        select: { id: true },
+      });
+      if (!enrollment) {
+        throw new BadRequestException('User is not actively enrolled in this class');
+      }
     }
 
     if (maxAttempts) {
@@ -118,7 +160,7 @@ export class ExamAttemptService {
     const result = await this.prisma.examAttempt.create({
       data: {
         examId: input.examId,
-        classId: input.classId,
+        classId: resolvedClassId,
         userId: input.userId,
         classAssessmentId: input.classAssessmentId,
         status: 'IN_PROGRESS',
@@ -210,6 +252,22 @@ export class ExamAttemptService {
     });
     if (!attempt) throw new NotFoundException('ExamAttempt not found');
     if (attempt.status !== 'IN_PROGRESS') return attempt;
+    if (attempt.classAssessmentId && attempt.classAssessment?.classId !== attempt.classId) {
+      throw new BadRequestException('ExamAttempt has invalid classAssessment relation');
+    }
+    if (attempt.classId) {
+      const enrollment = await this.prisma.enrollment.findFirst({
+        where: {
+          classId: attempt.classId,
+          userId: attempt.userId,
+          status: 'ACTIVE',
+        },
+        select: { id: true },
+      });
+      if (!enrollment) {
+        throw new BadRequestException('User is not actively enrolled in this class');
+      }
+    }
 
     const examQuestions = attempt.exam.examQuestions;
     const answerMap = this.extractAnswerMap(attempt.draftAnswers);
@@ -217,10 +275,14 @@ export class ExamAttemptService {
     let rawScore = 0;
     let totalMaxScore = 0;
     let hasSubjective = false;
+    const detailCreates: Prisma.ExamAttemptDetailCreateManyInput[] = [];
 
     for (const eq of examQuestions) {
       const q = eq.question;
       const weight = Number(eq.points) || 1.0;
+      const userAnswer = answerMap[q.id];
+      const normalizedUserAnswer =
+        userAnswer === undefined ? Prisma.JsonNull : (userAnswer as Prisma.InputJsonValue);
 
       if (q.questionType === 'GROUP_PARENT') {
         continue;
@@ -228,17 +290,33 @@ export class ExamAttemptService {
 
       if (q.questionType === 'ESSAY' || q.questionType === 'ORAL' || q.questionType === 'SHORT_ANSWER') {
         hasSubjective = true;
+        detailCreates.push({
+          attemptId: attempt.id,
+          examQuestionId: eq.id,
+          questionId: q.id,
+          userAnswer: normalizedUserAnswer,
+          isCorrect: null,
+          pointsEarned: null,
+        });
         continue;
       }
 
       totalMaxScore += weight;
-
-      const userAnswer = answerMap[q.id];
       const correctAnswer = q.correctAnswer;
+      const isCorrect = this.isAnswerCorrect(q.questionType, userAnswer, correctAnswer);
+      const pointsEarned = isCorrect ? weight : 0;
 
-      if (this.isAnswerCorrect(q.questionType, userAnswer, correctAnswer)) {
-        rawScore += weight;
+      if (isCorrect) {
+        rawScore += pointsEarned;
       }
+      detailCreates.push({
+        attemptId: attempt.id,
+        examQuestionId: eq.id,
+        questionId: q.id,
+        userAnswer: normalizedUserAnswer,
+        isCorrect,
+        pointsEarned,
+      });
     }
 
     const percentage = totalMaxScore > 0 ? (rawScore / totalMaxScore) * 100 : 0;
@@ -250,17 +328,29 @@ export class ExamAttemptService {
 
     const isPassed = percentage >= passingThreshold;
 
-    const result = await this.prisma.examAttempt.update({
-      where: { id: input.attemptId },
-      data: {
-        status: hasSubjective ? 'SUBMITTED' : 'COMPLETED',
-        submittedAt: new Date(),
-        completedAt: hasSubjective ? null : new Date(),
-        percentage: new Prisma.Decimal(percentage),
-        rawScore: new Prisma.Decimal(rawScore),
-        maxScore: new Prisma.Decimal(totalMaxScore),
-        isPassed: hasSubjective ? null : isPassed,
-      } as any,
+    const now = new Date();
+    const result = await this.prisma.$transaction(async (tx) => {
+      await tx.examAttemptDetail.deleteMany({
+        where: { attemptId: attempt.id },
+      });
+      if (detailCreates.length > 0) {
+        await tx.examAttemptDetail.createMany({
+          data: detailCreates,
+        });
+      }
+
+      return tx.examAttempt.update({
+        where: { id: input.attemptId },
+        data: {
+          status: hasSubjective ? 'SUBMITTED' : 'COMPLETED',
+          submittedAt: now,
+          completedAt: hasSubjective ? null : now,
+          percentage: new Prisma.Decimal(percentage),
+          rawScore: new Prisma.Decimal(rawScore),
+          maxScore: new Prisma.Decimal(totalMaxScore),
+          isPassed: hasSubjective ? null : isPassed,
+        } as any,
+      });
     });
 
     await this.audit.log({

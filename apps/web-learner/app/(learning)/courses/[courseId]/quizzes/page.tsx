@@ -1,60 +1,57 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@workspace/ui/components/card'
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import { ArrowLeft, Clock, CheckCircle2, Circle, Play } from 'lucide-react'
-import { academyCourseApi as courseApi } from '@/lib/api/services/academy-course-api'
-import { academyClassesApi } from '@/lib/api/services/academy-classes'
+import { useAcademyClass } from '@/lib/api/services/academy-classes'
+import { useAcademyCourseById } from '@/lib/api/services/academy-course-api'
+import {
+    extractAssessmentExamId,
+    useAcademyClassAssessments,
+} from '@/lib/api/services/academy-class-assessments'
+import { useQueries } from '@tanstack/react-query'
+import { academyQuizApi } from '@/lib/api/services/academy-quiz-api'
 
 export default function CourseQuizzesPage() {
     const params = useParams()
     const router = useRouter()
     const classId = params.courseId as string
-    const [course, setCourse] = useState<any>(null)
-    const [quizzes, setQuizzes] = useState<any[]>([])
-    const [loading, setLoading] = useState(true)
+    const { data: classData, isLoading: classLoading } = useAcademyClass(classId)
+    const { data: course, isLoading: courseLoading } = useAcademyCourseById(classData?.courseProfileId)
+    const { data: assessments = [], isLoading: assessmentsLoading } = useAcademyClassAssessments({ classId })
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true)
-                // 1. Get Class
-                const classResult = await academyClassesApi.findById(classId)
-                if (classResult) {
-                    const profileId = classResult.courseProfileId
-                    // 2. Get CourseProfile details
-                    const courseData = await courseApi.getCourseById(profileId)
-                    if (courseData) {
-                        setCourse(courseData)
-                        // Mock data for quizzes
-                        setQuizzes([
-                            {
-                                id: '1',
-                                title: 'Quiz 1: Bảng chữ cái Hiragana',
-                                description: 'Kiểm tra kiến thức về bảng chữ cái Hiragana',
-                                totalQuestions: 20,
-                                timeLimit: 30,
-                                completed: true,
-                                score: 85,
-                            },
-                        ])
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching data:', error)
-            } finally {
-                setLoading(false)
-            }
-        }
+    const quizAssessments = useMemo(
+        () => assessments.filter((a) => a.kind === 'QUIZ' && a.quizTemplateId && a.status === 'PUBLISHED'),
+        [assessments],
+    )
 
-        if (classId) {
-            fetchData()
+    const quizTemplateQueries = useQueries({
+        queries: quizAssessments.map((assessment) => ({
+            queryKey: ['academy-quiz-template', assessment.quizTemplateId],
+            queryFn: () => academyQuizApi.findTemplateById(assessment.quizTemplateId!),
+            enabled: !!assessment.quizTemplateId,
+        })),
+    })
+
+    const loading = classLoading || courseLoading || assessmentsLoading || quizTemplateQueries.some((q) => q.isLoading)
+
+    const quizzes = quizAssessments.map((assessment, idx) => {
+        const template = quizTemplateQueries[idx]?.data
+        const examId = extractAssessmentExamId(assessment.settings)
+        return {
+            id: assessment.id,
+            title: assessment.titleOverride || template?.title || 'Bài kiểm tra',
+            description: template?.description || 'Bài kiểm tra theo lớp học',
+            totalQuestions: template?.totalQuestions ?? 0,
+            timeLimit: assessment.timeLimitOverrideMinutes ?? template?.timeLimit ?? null,
+            examId,
+            isAvailable: !!examId,
         }
-    }, [classId])
+    })
 
     if (loading) {
         return (
@@ -78,7 +75,7 @@ export default function CourseQuizzesPage() {
             <div className="border-b border-border bg-background">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center gap-4">
-                        <Link href={`/dashboard/courses/${classId}/learn`}>
+                        <Link href={`/courses/${classId}/learn`}>
                             <Button variant="ghost" size="icon" className="rounded-full">
                                 <ArrowLeft className="w-4 h-4" />
                             </Button>
@@ -97,7 +94,7 @@ export default function CourseQuizzesPage() {
                     {quizzes.length === 0 ? (
                         <Card>
                             <CardContent className="p-12 text-center">
-                                <p className="text-muted-foreground">Chưa có bài kiểm tra nào</p>
+                                <p className="text-muted-foreground">Chưa có bài kiểm tra được phát hành</p>
                             </CardContent>
                         </Card>
                     ) : (
@@ -109,12 +106,10 @@ export default function CourseQuizzesPage() {
                                             <CardTitle className="mb-2">{quiz.title}</CardTitle>
                                             <p className="text-sm text-muted-foreground">{quiz.description}</p>
                                         </div>
-                                        {quiz.completed && (
-                                            <Badge variant="secondary" className="ml-4">
-                                                <CheckCircle2 className="w-3 h-3 mr-1" />
-                                                Đã hoàn thành
-                                            </Badge>
-                                        )}
+                                        <Badge variant={quiz.isAvailable ? 'secondary' : 'outline'} className="ml-4">
+                                            <CheckCircle2 className="w-3 h-3 mr-1" />
+                                            {quiz.isAvailable ? 'Sẵn sàng' : 'Chưa khả dụng'}
+                                        </Badge>
                                     </div>
                                 </CardHeader>
                                 <CardContent>
@@ -128,16 +123,12 @@ export default function CourseQuizzesPage() {
                                                 <Clock className="w-4 h-4" />
                                                 <span>{quiz.timeLimit} phút</span>
                                             </div>
-                                            {quiz.completed && quiz.score !== undefined && (
-                                                <Badge variant="outline">
-                                                    Điểm: {quiz.score}%
-                                                </Badge>
-                                            )}
                                         </div>
                                         <Button
-                                            onClick={() => router.push(`/dashboard/courses/${classId}/quizzes/${quiz.id}`)}
+                                            onClick={() => router.push(`/courses/${classId}/quizzes/${quiz.id}${quiz.examId ? `?examId=${quiz.examId}` : ''}`)}
+                                            disabled={!quiz.isAvailable}
                                         >
-                                            {quiz.completed ? 'Xem lại' : 'Làm bài'}
+                                            {quiz.isAvailable ? 'Làm bài' : 'Đang cập nhật'}
                                             <Play className="ml-2 w-4 h-4" />
                                         </Button>
                                     </div>

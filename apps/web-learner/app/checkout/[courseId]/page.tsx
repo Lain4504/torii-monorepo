@@ -20,9 +20,9 @@ import {
     DialogTitle,
 } from "@workspace/ui/components/dialog"
 import { formatNumber } from '@/utils/format-utils'
-import { ShieldCheck, ArrowLeft, CheckCircle2, Gift, TicketPercent, BookOpen, Users, Wallet, CreditCard } from 'lucide-react'
+import { ShieldCheck, ArrowLeft, CheckCircle2, Gift, TicketPercent, BookOpen, Users, Wallet } from 'lucide-react'
 import { toast } from '@workspace/ui/components/sonner'
-import { academyCourseApi as courseApi, useAcademyOffering } from '@/lib/api/services/academy-course-api'
+import { useAcademyOffering } from '@/lib/api/services/academy-course-api'
 import { academyEnrollmentApi as enrollmentApi } from '@/lib/api/services/academy-enrollment-api'
 import { PaymentMethod } from '@workspace/schemas'
 import { PageLoading } from '@workspace/ui/components/page-loading'
@@ -54,7 +54,7 @@ export default function CheckoutPage() {
     const [offering, setOffering] = useState<any | null>(null)
     const [isLoadingOffering, setIsLoadingOffering] = useState(true)
     const { data: balance = 0, refetch: refetchBalance } = useBalance()
-    const { data: offeringData, isLoading: isQueryLoading } = useAcademyOffering(courseId)
+    const { data: offeringData } = useAcademyOffering(courseId)
     const [isProcessing, setIsProcessing] = useState(false)
 
     // Sync state with query data
@@ -148,7 +148,7 @@ export default function CheckoutPage() {
             setIsProcessing(true)
             const result = await orderApi.createOrder({
                 offeringIds: [selectedClass.offeringId],
-                paymentMethod: balance >= (preview?.total || 0) ? PaymentMethod.BALANCE : 'PAYOS',
+                paymentMethod: PaymentMethod.PAYOS,
                 couponCode: couponCode.trim() || undefined,
                 metadata: {
                     isGift,
@@ -162,7 +162,7 @@ export default function CheckoutPage() {
             } else {
                 toast.success('Thanh toán thành công!')
                 refetchBalance()
-                setOrderId(result.id)
+                setOrderId(result.id ?? result.orderCode ?? null)
                 setShowSuccessDialog(true)
             }
         } catch (error: any) {
@@ -279,7 +279,7 @@ export default function CheckoutPage() {
 
                                 <div className="pt-4 space-y-3">
                                     <Button className="w-full py-6 text-lg" onClick={handlePayment} disabled={isProcessing || isPreviewing || (isGift && recipientStatus === 'enrolled')}>
-                                        {isProcessing ? 'Đang xử lý...' : balance >= displayTotal ? 'Thanh toán bằng Ví' : 'Thanh toán ngay'}
+                                        {isProcessing ? 'Đang xử lý...' : 'Thanh toán ngay'}
                                     </Button>
                                     {balance < displayTotal && (
                                         <div className="flex items-center gap-2 text-xs text-muted-foreground justify-center">

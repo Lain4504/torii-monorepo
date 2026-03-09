@@ -41,10 +41,52 @@ export const academyOfferingApi = {
   },
 
   /**
+   * Get all publicly visible offerings
+   */
+  findAllPublic: async (params: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    type?: string;
+    q?: string;
+  } = {}): Promise<PaginatedApiResponse<any>> => {
+    const { status: _status, ...restParams } = params;
+    const response = await apiClient.get<StandardApiResponse<{ items: any[]; total: number; page: number; limit: number; totalPages: number }>>('/api/academy/course-offerings/public', {
+      params: {
+        status: 'PUBLISHED',
+        ...restParams,
+      },
+    });
+    const data = response.data.data!;
+    const now = new Date();
+    const visibleItems = (data.items ?? []).filter((item: any) => {
+      const fromOk = !item.validFrom || new Date(item.validFrom) <= now;
+      const toOk = !item.validTo || new Date(item.validTo) >= now;
+      return fromOk && toOk;
+    });
+    return {
+      success: response.data.success,
+      data: visibleItems,
+      total: visibleItems.length,
+      page: data.page ?? 1,
+      limit: data.limit ?? 10,
+      totalPages: data.totalPages ?? 1,
+    };
+  },
+
+  /**
    * Get offering by id (includes curriculum)
    */
   getById: async (id: string): Promise<any | null> => {
     const response = await apiClient.get<StandardApiResponse<{ item: any }>>(`/api/academy/course-offerings/${id}`);
+    return response.data.data!.item;
+  },
+
+  /**
+   * Get public offering by id
+   */
+  getPublicById: async (id: string): Promise<any | null> => {
+    const response = await apiClient.get<StandardApiResponse<{ item: any }>>(`/api/academy/course-offerings/public/${id}`);
     return response.data.data!.item;
   },
 };
@@ -90,7 +132,7 @@ export const academyCourseApi = {
 export function useAcademyOfferings(params?: any) {
   return useQuery({
     queryKey: ['academy-course-offerings', params],
-    queryFn: () => academyOfferingApi.findAll(params),
+    queryFn: () => academyOfferingApi.findAllPublic(params),
   });
 }
 
@@ -100,7 +142,7 @@ export function useAcademyOfferings(params?: any) {
 export function useAcademyOffering(id?: string) {
   return useQuery({
     queryKey: ['academy-course-offerings', 'id', id],
-    queryFn: () => academyOfferingApi.getById(id!),
+    queryFn: () => academyOfferingApi.getPublicById(id!),
     enabled: !!id,
   });
 }

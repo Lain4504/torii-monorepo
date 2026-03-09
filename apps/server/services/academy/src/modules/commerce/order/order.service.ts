@@ -168,6 +168,31 @@ export class OrderService {
     transactionId?: string,
     payload?: any,
   ) {
+    if (payload) {
+      const isValid = this.payOS.verifyPaymentWebhookData(payload);
+      if (!isValid) {
+        throw new BadRequestException('Invalid PayOS webhook signature');
+      }
+      const isSuccess = payload?.success === true || payload?.code === '00';
+      if (!isSuccess) {
+        throw new BadRequestException('PayOS payment is not successful');
+      }
+    }
+
+    if (transactionId) {
+      const existingTransaction = await this.prisma.transaction.findFirst({
+        where: {
+          gateway: PaymentGateway.PAYOS,
+          transactionCode: transactionId,
+          status: 'SUCCESS',
+        },
+        select: { id: true },
+      });
+      if (existingTransaction) {
+        return { ok: true, idempotent: true };
+      }
+    }
+
     const order = await this.prisma.order.findUnique({
       where: { code: orderCode },
       include: { items: true },
@@ -428,6 +453,79 @@ export class OrderService {
       currency: order.currency,
       items: itemResults,
     };
+  }
+
+  async findAllForUser(
+    userId: string,
+    query: { page?: number; limit?: number; status?: string; search?: string },
+  ) {
+    const page = Math.max(1, Number(query.page || 1));
+    const limit = Math.max(1, Math.min(100, Number(query.limit || 10)));
+    const where: Prisma.OrderWhereInput = {
+      userId,
+      status: query.status ? (query.status as OrderStatus) : undefined,
+      ...(query.search
+        ? {
+            OR: [
+              { code: { contains: query.search, mode: 'insensitive' } },
+              {
+                items: {
+                  some: {
+                    offering: {
+                      title: { contains: query.search, mode: 'insensitive' },
+                    },
+                  },
+                },
+              },
+            ],
+          }
+        : {}),
+    };
+
+    const [total, items] = await Promise.all([
+      this.prisma.order.count({ where }),
+      this.prisma.order.findMany({
+        where,
+        include: {
+          items: {
+            include: {
+              offering: {
+                select: { id: true, title: true, code: true },
+              },
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip: (page - 1) * limit,
+      }),
+    ]);
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async findOneForUser(userId: string, id: string) {
+    const order = await this.prisma.order.findFirst({
+      where: { id, userId },
+      include: {
+        items: {
+          include: {
+            offering: {
+              select: { id: true, title: true, code: true },
+            },
+          },
+        },
+        transactions: true,
+      },
+    });
+    if (!order) throw new NotFoundException('Order not found');
+    return order;
   }
 
   private async getOfferingClassMap(offeringIds: string[]) {
