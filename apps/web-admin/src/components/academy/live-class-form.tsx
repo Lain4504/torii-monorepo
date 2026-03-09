@@ -29,7 +29,7 @@ import {
     academyClassUpdateDTOSchema,
     type AcademyClassCreateDTO,
     type AcademyClassUpdateDTO,
-    CLASS_METADATA,
+    LIVE_CLASS_METADATA,
 } from "@workspace/schemas"
 import type { AcademyClass } from "@/lib/api/services/academy-classes"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
@@ -461,7 +461,7 @@ export function LiveClassForm({
                                             <KeyValueEditor
                                                 value={field.value || {}}
                                                 onChange={field.onChange}
-                                                presets={CLASS_METADATA}
+                                                presets={LIVE_CLASS_METADATA}
                                             />
                                             <FieldError>{fieldState.error?.message}</FieldError>
                                         </Field>

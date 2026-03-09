@@ -21,17 +21,22 @@ export const COURSE_OFFERING_METADATA: MetadataDefinition[] = [
 ];
 
 // 2. Class (VOD/Live) Metadata
-export const CLASS_METADATA: MetadataDefinition[] = [
+export const VOD_CLASS_METADATA: MetadataDefinition[] = [
     { key: "requirement", label: "Yêu cầu đầu vào", description: "Kiến thức cần có trước khi học" },
     { key: "hours_count", label: "Tổng số giờ học", description: "Ví dụ: 40 giờ", defaultValue: "20" },
     { key: "lessons_count", label: "Tổng số bài học", description: "Tự động hiển thị nếu để trống", defaultValue: "50" },
     { key: "allow_trial", label: "Cho phép học thử", description: "true hoặc false", defaultValue: "false" },
     { key: "trial_sessions_count", label: "Số buổi học thử", description: "Ví dụ: 2 buổi", defaultValue: "2" },
-    // Live specific
+];
+
+export const LIVE_CLASS_METADATA: MetadataDefinition[] = [
+    ...VOD_CLASS_METADATA,
     { key: "zoom_link", label: "Link Zoom học trực tuyến", description: "Link phòng học chính" },
     { key: "zoom_password", label: "Mật khẩu Zoom", description: "Nếu có" },
     { key: "messenger_group", label: "Nhóm hỗ trợ", description: "Link Zalo/Telegram/Discord cho lớp" },
 ];
+
+export const CLASS_METADATA = LIVE_CLASS_METADATA; // For backward compatibility
 
 // 3. Question Pool Metadata
 export const QUESTION_POOL_METADATA: MetadataDefinition[] = [

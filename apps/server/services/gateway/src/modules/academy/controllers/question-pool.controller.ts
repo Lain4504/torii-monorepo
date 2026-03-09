@@ -41,11 +41,6 @@ import {
 export class QuestionPoolController {
     constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
-    @Get('test-me')
-    @Public()
-    async testMe() {
-        return successResponse({ message: 'Question Pool Controller is reachable' });
-    }
 
     @Get()
     @Permissions('exam.manage')
