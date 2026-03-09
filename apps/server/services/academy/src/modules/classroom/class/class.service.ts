@@ -1,6 +1,15 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
-import { ClassCreateDto, ClassDuplicateDto, ClassQueryDto, ClassUpdateDto } from './dto/class.dto';
+import {
+  ClassCreateDto,
+  ClassDuplicateDto,
+  ClassQueryDto,
+  ClassUpdateDto,
+} from './dto/class.dto';
 import { AuditLoggerService } from '../../audit-logger.service';
 
 @Injectable()
@@ -8,7 +17,7 @@ export class ClassService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
-  ) { }
+  ) {}
 
   async findAll(query: ClassQueryDto) {
     const q = query.q?.trim();
@@ -20,11 +29,11 @@ export class ClassService {
         status: (query.status as any) ?? undefined,
         ...(q
           ? {
-            OR: [
-              { code: { contains: q, mode: 'insensitive' } },
-              { name: { contains: q, mode: 'insensitive' } },
-            ],
-          }
+              OR: [
+                { code: { contains: q, mode: 'insensitive' } },
+                { name: { contains: q, mode: 'insensitive' } },
+              ],
+            }
           : {}),
       },
       include: {
@@ -49,6 +58,13 @@ export class ClassService {
             id: true,
             title: true,
             code: true,
+          },
+        },
+        courseEdition: {
+          select: {
+            id: true,
+            editionTag: true,
+            status: true,
           },
         },
       },
@@ -86,7 +102,9 @@ export class ClassService {
     });
     if (!edition) throw new BadRequestException('Invalid courseEditionId');
     if (edition.courseProfileId !== input.courseProfileId) {
-      throw new BadRequestException('courseEditionId does not belong to courseProfileId');
+      throw new BadRequestException(
+        'courseEditionId does not belong to courseProfileId',
+      );
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -114,7 +132,9 @@ export class ClassService {
         });
       } else if (input.mode === 'LIVE') {
         if (!input.startDate || !input.endDate) {
-          throw new BadRequestException('LIVE classes must have startDate and endDate');
+          throw new BadRequestException(
+            'LIVE classes must have startDate and endDate',
+          );
         }
         await tx.liveClass.create({
           data: {
@@ -210,15 +230,23 @@ export class ClassService {
       },
     });
     if (!classItem) throw new NotFoundException('Class not found');
-    if (classItem.status !== 'DRAFT' && classItem.status !== 'PENDING_APPROVAL') return classItem;
+    if (classItem.status !== 'DRAFT' && classItem.status !== 'PENDING_APPROVAL')
+      return classItem;
 
     if (classItem.courseEdition.status !== 'PUBLISHED') {
-      throw new BadRequestException('Cannot publish class for a non-PUBLISHED edition');
+      throw new BadRequestException(
+        'Cannot publish class for a non-PUBLISHED edition',
+      );
     }
 
     if (classItem.mode === 'LIVE') {
-      if (!classItem.liveClass?.schedules || classItem.liveClass.schedules.length === 0) {
-        throw new BadRequestException('LIVE classes must have at least one LiveSchedule');
+      if (
+        !classItem.liveClass?.schedules ||
+        classItem.liveClass.schedules.length === 0
+      ) {
+        throw new BadRequestException(
+          'LIVE classes must have at least one LiveSchedule',
+        );
       }
     }
 
@@ -246,7 +274,9 @@ export class ClassService {
   async submitForApproval(id: string, requesterId: string) {
     const classItem = await this.findById(id);
     if (classItem.status !== 'DRAFT') {
-      throw new BadRequestException('Only DRAFT classes can be submitted for approval');
+      throw new BadRequestException(
+        'Only DRAFT classes can be submitted for approval',
+      );
     }
 
     if (classItem.mode === 'LIVE') {
@@ -255,7 +285,9 @@ export class ClassService {
         include: { schedules: { take: 1 } },
       });
       if (!liveClass?.schedules || liveClass.schedules.length === 0) {
-        throw new BadRequestException('LIVE classes must have at least one LiveSchedule before submitting for approval');
+        throw new BadRequestException(
+          'LIVE classes must have at least one LiveSchedule before submitting for approval',
+        );
       }
     }
 
@@ -287,7 +319,9 @@ export class ClassService {
   async reject(id: string, reason: string, requesterId: string) {
     const classItem = await this.findById(id);
     if (classItem.status !== 'PENDING_APPROVAL') {
-      throw new BadRequestException('Only PENDING_APPROVAL classes can be rejected');
+      throw new BadRequestException(
+        'Only PENDING_APPROVAL classes can be rejected',
+      );
     }
 
     const updated = await this.prisma.class.update({
@@ -420,12 +454,18 @@ export class ClassService {
   async delete(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
     if (classItem.status !== 'DRAFT' && classItem.status !== 'CANCELLED') {
-      throw new BadRequestException('Can only delete DRAFT or CANCELLED classes');
+      throw new BadRequestException(
+        'Can only delete DRAFT or CANCELLED classes',
+      );
     }
 
-    const enrollCount = await this.prisma.enrollment.count({ where: { classId: id } });
+    const enrollCount = await this.prisma.enrollment.count({
+      where: { classId: id },
+    });
     if (enrollCount > 0) {
-      throw new BadRequestException('Cannot delete class with existing enrollments');
+      throw new BadRequestException(
+        'Cannot delete class with existing enrollments',
+      );
     }
 
     await this.prisma.class.delete({ where: { id } });
@@ -442,7 +482,11 @@ export class ClassService {
     return { ok: true };
   }
 
-  async duplicate(id: string, input?: ClassDuplicateDto, requesterId = 'SYSTEM') {
+  async duplicate(
+    id: string,
+    input?: ClassDuplicateDto,
+    requesterId = 'SYSTEM',
+  ) {
     const source = await this.prisma.class.findUnique({
       where: { id },
       include: {
@@ -460,7 +504,9 @@ export class ClassService {
 
     // Handle code unique
     let targetCode = input?.code || `${source.code}_COPY_${Date.now()}`;
-    const existing = await this.prisma.class.findUnique({ where: { code: targetCode } });
+    const existing = await this.prisma.class.findUnique({
+      where: { code: targetCode },
+    });
     if (existing) {
       targetCode = `${targetCode}_${Math.floor(Math.random() * 1000)}`;
     }
@@ -497,7 +543,9 @@ export class ClassService {
         const endDate = input?.endDate || source.liveClass.endDate;
 
         if (!startDate || !endDate) {
-          throw new BadRequestException('LIVE classes must have startDate and endDate');
+          throw new BadRequestException(
+            'LIVE classes must have startDate and endDate',
+          );
         }
 
         const liveClass = await tx.liveClass.create({

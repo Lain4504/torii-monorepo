@@ -26,6 +26,11 @@ export type AcademyClass = {
   submittedBy: string | null
   approvedAt: string | null
   approvedBy: string | null
+  courseEdition?: {
+    id: string
+    editionTag: string
+    status: string
+  } | null
 
   // TPT Relations
   vodClass?: {

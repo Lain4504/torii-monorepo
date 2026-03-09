@@ -27,6 +27,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@workspace/ui/components/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -42,6 +52,8 @@ export default function AcademyCourseOfferingDetailPage() {
 
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false)
   const [rejectionReason, setRejectionReason] = useState("")
+  const [isSubmitConfirmOpen, setIsSubmitConfirmOpen] = useState(false)
+  const [isApproveConfirmOpen, setIsApproveConfirmOpen] = useState(false)
 
   if (isLoading) {
     return <div className="p-8 text-center text-muted-foreground">Đang tải thông tin gói bán...</div>
@@ -120,7 +132,7 @@ export default function AcademyCourseOfferingDetailPage() {
 
         <div className="flex items-center gap-3 self-end md:self-auto">
           {item.status === "DRAFT" && (
-            <Button onClick={handleSubmit} disabled={submitMutation.isPending} className="gap-2 shadow-sm">
+            <Button onClick={() => setIsSubmitConfirmOpen(true)} disabled={submitMutation.isPending} className="gap-2 shadow-sm">
               <Send className="h-4 w-4" />
               Gửi phê duyệt
             </Button>
@@ -135,7 +147,7 @@ export default function AcademyCourseOfferingDetailPage() {
               >
                 Từ chối
               </Button>
-              <Button onClick={handleApprove} disabled={approveMutation.isPending} className="gap-2 bg-emerald-600 hover:bg-emerald-700">
+              <Button onClick={() => setIsApproveConfirmOpen(true)} disabled={approveMutation.isPending} className="gap-2 bg-emerald-600 hover:bg-emerald-700">
                 <CheckCircle2 className="h-4 w-4" />
                 Phê duyệt
               </Button>
@@ -332,6 +344,46 @@ export default function AcademyCourseOfferingDetailPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={isSubmitConfirmOpen} onOpenChange={setIsSubmitConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận gửi phê duyệt?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Offering sẽ chuyển sang trạng thái <strong>PENDING_APPROVAL</strong> và chờ duyệt trước khi được bán.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleSubmit}
+              disabled={submitMutation.isPending}
+            >
+              Xác nhận
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={isApproveConfirmOpen} onOpenChange={setIsApproveConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận phê duyệt để publish?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Hệ thống sẽ validate class liên kết hợp lệ để bán và chuyển offering sang <strong>PUBLISHED</strong>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleApprove}
+              disabled={approveMutation.isPending}
+            >
+              Publish
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

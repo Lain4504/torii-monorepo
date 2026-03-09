@@ -1,6 +1,16 @@
-import { Injectable, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
-import { OrderStatus, PaymentMethod, PaymentGateway, OfferingStatus } from '@prisma/generated';
+import {
+  OrderStatus,
+  PaymentMethod,
+  PaymentGateway,
+  OfferingStatus,
+} from '@prisma/generated';
 import { CouponService } from '../coupon.service';
 import { PayOSService } from '../payos.service';
 import { EnrollmentService } from '../../classroom/enrollment/enrollment.service';
@@ -11,290 +21,391 @@ import { AppConfigService } from '@server/shared';
 
 @Injectable()
 export class OrderService {
-    private readonly logger = new Logger(OrderService.name);
+  private readonly logger = new Logger(OrderService.name);
 
-    constructor(
-        private readonly prisma: PrismaService,
-        private readonly couponService: CouponService,
-        private readonly payOS: PayOSService,
-        private readonly enrollmentService: EnrollmentService,
-        private readonly appConfig: AppConfigService,
-        private readonly audit: AuditLoggerService,
-    ) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly couponService: CouponService,
+    private readonly payOS: PayOSService,
+    private readonly enrollmentService: EnrollmentService,
+    private readonly appConfig: AppConfigService,
+    private readonly audit: AuditLoggerService,
+  ) {}
 
-    async preview(userId: string, input: OrderPreviewDto) {
-        const offerings = await this.prisma.courseOffering.findMany({
-            where: { id: { in: input.offeringIds }, status: OfferingStatus.PUBLISHED },
+  async preview(userId: string, input: OrderPreviewDto) {
+    const offerings = await this.prisma.courseOffering.findMany({
+      where: {
+        id: { in: input.offeringIds },
+        status: OfferingStatus.PUBLISHED,
+      },
+    });
+
+    if (offerings.length !== input.offeringIds.length) {
+      throw new BadRequestException('Some offerings are not available');
+    }
+
+    const subTotal = offerings.reduce(
+      (sum, o) => sum + Number(o.originalPrice),
+      0,
+    );
+    let discountTotal = 0;
+    let couponId: string | undefined;
+
+    if (input.couponCode) {
+      const coupon = await this.couponService.validateCoupon(
+        input.couponCode,
+        userId,
+        subTotal,
+        input.offeringIds,
+      );
+      discountTotal = await this.couponService.calculateDiscount(
+        coupon.id,
+        subTotal,
+      );
+      couponId = coupon.id;
+    }
+
+    const grandTotal = Math.max(0, subTotal - discountTotal);
+
+    return {
+      subTotal,
+      discountTotal,
+      grandTotal,
+      offerings,
+      couponId,
+    };
+  }
+
+  async checkout(userId: string, input: OrderCheckoutDto) {
+    const preview = await this.preview(userId, input);
+
+    // Generate readable code: ORD-YYYYMMDD-XXXX
+    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const orderCode = `ORD-${dateStr}-${randomStr}`;
+
+    const order = await this.prisma.order.create({
+      data: {
+        code: orderCode,
+        userId,
+        status: OrderStatus.PENDING,
+        subTotal: new Prisma.Decimal(preview.subTotal),
+        discountTotal: new Prisma.Decimal(preview.discountTotal),
+        grandTotal: new Prisma.Decimal(preview.grandTotal),
+        currency: preview.offerings[0]?.currency || 'VND',
+        couponCode: input.couponCode,
+        couponId: preview.couponId,
+        paymentMethod: input.paymentMethod,
+        items: {
+          create: preview.offerings.map((o) => ({
+            offeringId: o.id,
+            price: o.originalPrice,
+            offeringSnapshot: {
+              title: o.title,
+              code: o.code,
+            } as any,
+          })),
+        },
+      },
+    });
+
+    await this.audit.log({
+      userId: userId,
+      action: 'order.create',
+      entity: 'Order',
+      entityId: order.id,
+      description: `User created order ${order.code} for ${preview.grandTotal} ${order.currency}`,
+      metadata: { orderCode: order.code, grandTotal: preview.grandTotal },
+    });
+
+    if (input.paymentMethod === PaymentMethod.PAYOS) {
+      const numericOrderCode =
+        Number(Date.now().toString().slice(-9)) +
+        Math.floor(Math.random() * 1000);
+
+      const webLearnerUrl = this.appConfig.identity.webLearnerUrl;
+
+      const paymentLink = await this.payOS.createPaymentLink({
+        orderCode: numericOrderCode,
+        amount: preview.grandTotal,
+        description: `Thanh toán đơn hàng ${order.code}`,
+        cancelUrl: `${webLearnerUrl}/payment/cancel?orderCode=${order.code}`,
+        returnUrl: `${webLearnerUrl}/payment/success?orderCode=${order.code}`,
+        items: preview.offerings.map((o) => ({
+          name: o.title,
+          quantity: 1,
+          price: Number(o.originalPrice),
+        })),
+      });
+
+      await this.prisma.order.update({
+        where: { id: order.id },
+        data: {
+          metadata: {
+            paymentLinkId: paymentLink.paymentLinkId,
+            numericOrderCode,
+            checkoutUrl: paymentLink.checkoutUrl,
+          } as any,
+        },
+      });
+
+      return {
+        orderCode: order.code,
+        paymentUrl: paymentLink.checkoutUrl,
+      };
+    }
+
+    return {
+      orderCode: order.code,
+      message: 'Order created. Please proceed with manual payment.',
+    };
+  }
+
+  async handlePaymentSuccess(
+    orderCode: string,
+    transactionId?: string,
+    payload?: any,
+  ) {
+    const order = await this.prisma.order.findUnique({
+      where: { code: orderCode },
+      include: { items: true },
+    });
+
+    if (!order) {
+      const numericCode = Number(orderCode);
+      if (!isNaN(numericCode)) {
+        const orderWithMetadata = await this.prisma.order.findFirst({
+          where: {
+            metadata: {
+              path: ['numericOrderCode'],
+              equals: numericCode,
+            },
+          },
+          include: { items: true },
+        });
+        if (orderWithMetadata)
+          return this.processPayment(orderWithMetadata, transactionId, payload);
+      }
+      throw new NotFoundException('Order not found');
+    }
+
+    return this.processPayment(order, transactionId, payload);
+  }
+
+  private async processPayment(
+    order: any,
+    transactionId?: string,
+    payload?: any,
+    requesterId = 'SYSTEM',
+  ) {
+    if (order.status === OrderStatus.PAID) return { ok: true };
+
+    await this.prisma.$transaction(async (tx) => {
+      // Update Order
+      await tx.order.update({
+        where: { id: order.id },
+        data: {
+          status: OrderStatus.PAID,
+          paidAt: new Date(),
+        },
+      });
+
+      await this.audit.log({
+        userId: requesterId,
+        action: 'order.payment_success',
+        entity: 'Order',
+        entityId: order.id,
+        description: `Order ${order.code} marked as PAID. Transaction ID: ${transactionId}`,
+        metadata: { orderCode: order.code, transactionId },
+      });
+
+      // Update Coupon Usage
+      if (order.couponId) {
+        await this.couponService.recordUsage(
+          tx,
+          order.couponId,
+          order.userId,
+          order.id,
+        );
+      }
+
+      // Record Transaction
+      await tx.transaction.create({
+        data: {
+          orderId: order.id,
+          gateway: PaymentGateway.PAYOS,
+          transactionCode: transactionId,
+          amount: order.grandTotal,
+          status: 'SUCCESS',
+          responsePayload: payload || {},
+        },
+      });
+
+      // Fulfillment: Enrollments
+      for (const item of order.items) {
+        const offeringClasses = await tx.courseOfferingClass.findMany({
+          where: { offeringId: item.offeringId },
         });
 
-        if (offerings.length !== input.offeringIds.length) {
-            throw new BadRequestException('Some offerings are not available');
-        }
-
-        const subTotal = offerings.reduce((sum, o) => sum + Number(o.originalPrice), 0);
-        let discountTotal = 0;
-        let couponId: string | undefined;
-
-        if (input.couponCode) {
-            const coupon = await this.couponService.validateCoupon(
-                input.couponCode,
-                userId,
-                subTotal,
-                input.offeringIds,
+        for (const oc of offeringClasses) {
+          try {
+            await this.enrollmentService.create(
+              {
+                userId: order.userId,
+                classId: oc.classId,
+                status: 'ACTIVE',
+                sourceOfferingId: item.offeringId,
+                sourceOrderId: order.id,
+              },
+              requesterId,
+              tx,
             );
-            discountTotal = await this.couponService.calculateDiscount(coupon.id, subTotal);
-            couponId = coupon.id;
+          } catch (err) {
+            this.logger.error(
+              `Fulfillment failed for order ${order.code}, class ${oc.classId}: ${err.message}`,
+            );
+            // Depending on policy, we might want to throw to rollback, or just log and continue.
+            // User prompt says: "Nếu line-item không pass, xử lý theo policy: fail mềm có log/audit + trả trạng thái phù hợp, hoặc fail transaction có thông báo rõ."
+            // I'll throw to ROLLBACK for now to ensure data integrity (no partial fulfillment).
+            throw new BadRequestException(`Fulfillment failed: ${err.message}`);
+          }
         }
+      }
+    });
 
-        const grandTotal = Math.max(0, subTotal - discountTotal);
+    this.logger.log(`Order ${order.code} fulfilled successfully`);
+    return { ok: true };
+  }
 
-        return {
-            subTotal,
-            discountTotal,
-            grandTotal,
-            offerings,
-            couponId,
-        };
+  // --- Admin CRUD ---
+
+  async admin_findAll(query: {
+    userId?: string;
+    status?: OrderStatus;
+    limit?: number;
+    offset?: number;
+  }) {
+    const where: any = {};
+    if (query.userId) where.userId = query.userId;
+    if (query.status) where.status = query.status;
+
+    return this.prisma.order.findMany({
+      where,
+      include: {
+        user: { select: { email: true, displayName: true } },
+        items: { include: { offering: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: query.limit || 20,
+      skip: query.offset || 0,
+    });
+  }
+
+  async admin_findOne(id: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      include: {
+        user: { select: { email: true, displayName: true } },
+        items: { include: { offering: true } },
+        transactions: true,
+      },
+    });
+    if (!order) throw new NotFoundException('Order not found');
+    return order;
+  }
+
+  async admin_updateStatus(
+    id: string,
+    status: OrderStatus,
+    requesterId = 'SYSTEM',
+  ) {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      include: { items: true },
+    });
+
+    if (!order) throw new NotFoundException('Order not found');
+
+    if (status === OrderStatus.PAID && order.status !== OrderStatus.PAID) {
+      return this.processPayment(order, 'MANUAL', null, requesterId);
     }
 
-    async checkout(userId: string, input: OrderCheckoutDto) {
-        const preview = await this.preview(userId, input);
+    const updated = await this.prisma.order.update({
+      where: { id },
+      data: { status },
+    });
 
-        // Generate readable code: ORD-YYYYMMDD-XXXX
-        const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-        const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
-        const orderCode = `ORD-${dateStr}-${randomStr}`;
+    await this.audit.log({
+      userId: requesterId,
+      action: 'order.update_status',
+      entity: 'Order',
+      entityId: id,
+      description: `Admin updated order ${order.code} status from ${order.status} to ${status}`,
+      oldValues: { status: order.status },
+      newValues: { status },
+    });
 
-        const order = await this.prisma.order.create({
-            data: {
-                code: orderCode,
-                userId,
-                status: OrderStatus.PENDING,
-                subTotal: new Prisma.Decimal(preview.subTotal),
-                discountTotal: new Prisma.Decimal(preview.discountTotal),
-                grandTotal: new Prisma.Decimal(preview.grandTotal),
-                currency: preview.offerings[0]?.currency || 'VND',
-                couponCode: input.couponCode,
-                couponId: preview.couponId,
-                paymentMethod: input.paymentMethod as PaymentMethod,
-                items: {
-                    create: preview.offerings.map(o => ({
-                        offeringId: o.id,
-                        price: o.originalPrice,
-                        offeringSnapshot: {
-                            title: o.title,
-                            code: o.code,
-                        } as any,
-                    })),
-                },
+    return updated;
+  }
+
+  async getByCodeForUser(userId: string, orderCode: string) {
+    const order = await this.prisma.order.findFirst({
+      where: { code: orderCode, userId },
+      include: {
+        items: {
+          include: {
+            offering: {
+              select: { id: true, title: true, code: true },
             },
-        });
+          },
+        },
+        enrollments: {
+          select: {
+            classId: true,
+            status: true,
+            sourceOfferingId: true,
+          },
+        },
+      },
+    });
 
-        await this.audit.log({
-            userId: userId,
-            action: 'order.create',
-            entity: 'Order',
-            entityId: order.id,
-            description: `User created order ${order.code} for ${preview.grandTotal} ${order.currency}`,
-            metadata: { orderCode: order.code, grandTotal: preview.grandTotal },
-        });
+    if (!order) throw new NotFoundException('Order not found');
 
-        if (input.paymentMethod === PaymentMethod.PAYOS) {
-            const numericOrderCode = Number(Date.now().toString().slice(-9)) + Math.floor(Math.random() * 1000);
+    const offeringIds = order.items.map((item) => item.offeringId);
+    const offeringClassLinks = await this.prisma.courseOfferingClass.findMany({
+      where: { offeringId: { in: offeringIds } },
+      select: { offeringId: true, classId: true },
+    });
 
-            const webLearnerUrl = this.appConfig.identity.webLearnerUrl;
+    const itemResults = order.items.map((item) => {
+      const expectedClassIds = offeringClassLinks
+        .filter((link) => link.offeringId === item.offeringId)
+        .map((link) => link.classId);
+      const enrolledClassIds = order.enrollments
+        .filter((enrollment) => enrollment.sourceOfferingId === item.offeringId)
+        .map((enrollment) => enrollment.classId);
+      const missingClassIds = expectedClassIds.filter(
+        (classId) => !enrolledClassIds.includes(classId),
+      );
 
-            const paymentLink = await this.payOS.createPaymentLink({
-                orderCode: numericOrderCode,
-                amount: preview.grandTotal,
-                description: `Thanh toán đơn hàng ${order.code}`,
-                cancelUrl: `${webLearnerUrl}/payment/cancel?orderCode=${order.code}`,
-                returnUrl: `${webLearnerUrl}/payment/success?orderCode=${order.code}`,
-                items: preview.offerings.map(o => ({
-                    name: o.title,
-                    quantity: 1,
-                    price: Number(o.originalPrice),
-                })),
-            });
+      return {
+        offeringId: item.offeringId,
+        offeringCode: item.offering.code,
+        offeringTitle: item.offering.title,
+        expectedClassIds,
+        enrolledClassIds,
+        missingClassIds,
+      };
+    });
 
-            await this.prisma.order.update({
-                where: { id: order.id },
-                data: {
-                    metadata: {
-                        paymentLinkId: paymentLink.paymentLinkId,
-                        numericOrderCode,
-                        checkoutUrl: paymentLink.checkoutUrl,
-                    } as any,
-                },
-            });
-
-            return {
-                orderCode: order.code,
-                paymentUrl: paymentLink.checkoutUrl,
-            };
-        }
-
-        return {
-            orderCode: order.code,
-            message: 'Order created. Please proceed with manual payment.',
-        };
-    }
-
-    async handlePaymentSuccess(orderCode: string, transactionId?: string, payload?: any) {
-        const order = await this.prisma.order.findUnique({
-            where: { code: orderCode },
-            include: { items: true },
-        });
-
-        if (!order) {
-            const numericCode = Number(orderCode);
-            if (!isNaN(numericCode)) {
-                const orderWithMetadata = await this.prisma.order.findFirst({
-                    where: {
-                        metadata: {
-                            path: ['numericOrderCode'],
-                            equals: numericCode,
-                        },
-                    },
-                    include: { items: true },
-                });
-                if (orderWithMetadata) return this.processPayment(orderWithMetadata, transactionId, payload);
-            }
-            throw new NotFoundException('Order not found');
-        }
-
-        return this.processPayment(order, transactionId, payload);
-    }
-
-    private async processPayment(order: any, transactionId?: string, payload?: any, requesterId = 'SYSTEM') {
-        if (order.status === OrderStatus.PAID) return { ok: true };
-
-        await this.prisma.$transaction(async (tx) => {
-            // Update Order
-            await tx.order.update({
-                where: { id: order.id },
-                data: {
-                    status: OrderStatus.PAID,
-                    paidAt: new Date(),
-                },
-            });
-
-            await this.audit.log({
-                userId: requesterId,
-                action: 'order.payment_success',
-                entity: 'Order',
-                entityId: order.id,
-                description: `Order ${order.code} marked as PAID. Transaction ID: ${transactionId}`,
-                metadata: { orderCode: order.code, transactionId },
-            });
-
-            // Update Coupon Usage
-            if (order.couponId) {
-                await this.couponService.recordUsage(tx, order.couponId, order.userId, order.id);
-            }
-
-            // Record Transaction
-            await tx.transaction.create({
-                data: {
-                    orderId: order.id,
-                    gateway: PaymentGateway.PAYOS,
-                    transactionCode: transactionId,
-                    amount: order.grandTotal,
-                    status: 'SUCCESS',
-                    responsePayload: payload || {},
-                },
-            });
-
-            // Fulfillment: Enrollments
-            for (const item of order.items) {
-                const offeringClasses = await tx.courseOfferingClass.findMany({
-                    where: { offeringId: item.offeringId },
-                });
-
-                for (const oc of offeringClasses) {
-                    try {
-                        await this.enrollmentService.create({
-                            userId: order.userId,
-                            classId: oc.classId,
-                            status: 'ACTIVE',
-                            sourceOfferingId: item.offeringId,
-                            sourceOrderId: order.id,
-                        }, requesterId, tx);
-                    } catch (err) {
-                        this.logger.error(`Fulfillment failed for order ${order.code}, class ${oc.classId}: ${err.message}`);
-                        // Depending on policy, we might want to throw to rollback, or just log and continue.
-                        // User prompt says: "Nếu line-item không pass, xử lý theo policy: fail mềm có log/audit + trả trạng thái phù hợp, hoặc fail transaction có thông báo rõ."
-                        // I'll throw to ROLLBACK for now to ensure data integrity (no partial fulfillment).
-                        throw new BadRequestException(`Fulfillment failed: ${err.message}`);
-                    }
-                }
-            }
-
-        });
-
-        this.logger.log(`Order ${order.code} fulfilled successfully`);
-        return { ok: true };
-    }
-
-    // --- Admin CRUD ---
-
-    async admin_findAll(query: { userId?: string, status?: OrderStatus, limit?: number, offset?: number }) {
-        const where: any = {};
-        if (query.userId) where.userId = query.userId;
-        if (query.status) where.status = query.status;
-
-        return this.prisma.order.findMany({
-            where,
-            include: {
-                user: { select: { email: true, displayName: true } },
-                items: { include: { offering: true } },
-            },
-            orderBy: { createdAt: 'desc' },
-            take: query.limit || 20,
-            skip: query.offset || 0,
-        });
-    }
-
-    async admin_findOne(id: string) {
-        const order = await this.prisma.order.findUnique({
-            where: { id },
-            include: {
-                user: { select: { email: true, displayName: true } },
-                items: { include: { offering: true } },
-                transactions: true,
-            },
-        });
-        if (!order) throw new NotFoundException('Order not found');
-        return order;
-    }
-
-    async admin_updateStatus(id: string, status: OrderStatus, requesterId = 'SYSTEM') {
-        const order = await this.prisma.order.findUnique({
-            where: { id },
-            include: { items: true },
-        });
-
-        if (!order) throw new NotFoundException('Order not found');
-
-        if (status === OrderStatus.PAID && order.status !== OrderStatus.PAID) {
-            return this.processPayment(order, 'MANUAL', null, requesterId);
-        }
-
-        const updated = await this.prisma.order.update({
-            where: { id },
-            data: { status },
-        });
-
-        await this.audit.log({
-            userId: requesterId,
-            action: 'order.update_status',
-            entity: 'Order',
-            entityId: id,
-            description: `Admin updated order ${order.code} status from ${order.status} to ${status}`,
-            oldValues: { status: order.status },
-            newValues: { status },
-        });
-
-        return updated;
-    }
+    return {
+      id: order.id,
+      code: order.code,
+      status: order.status,
+      paidAt: order.paidAt,
+      grandTotal: order.grandTotal,
+      currency: order.currency,
+      items: itemResults,
+    };
+  }
 }

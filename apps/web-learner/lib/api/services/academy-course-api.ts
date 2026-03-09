@@ -16,17 +16,24 @@ export const academyOfferingApi = {
     type?: string;
     q?: string;
   } = {}): Promise<PaginatedApiResponse<any>> => {
+    const { status: _status, ...restParams } = params;
     const response = await apiClient.get<StandardApiResponse<{ items: any[]; total: number; page: number; limit: number; totalPages: number }>>('/api/academy/course-offerings', {
       params: {
         status: 'PUBLISHED',
-        ...params,
+        ...restParams,
       },
     });
     const data = response.data.data!;
+    const now = new Date();
+    const visibleItems = (data.items ?? []).filter((item: any) => {
+      const fromOk = !item.validFrom || new Date(item.validFrom) <= now;
+      const toOk = !item.validTo || new Date(item.validTo) >= now;
+      return fromOk && toOk;
+    });
     return {
       success: response.data.success,
-      data: data.items ?? [],
-      total: data.total ?? 0,
+      data: visibleItems,
+      total: visibleItems.length,
       page: data.page ?? 1,
       limit: data.limit ?? 10,
       totalPages: data.totalPages ?? 1,

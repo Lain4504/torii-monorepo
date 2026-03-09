@@ -80,11 +80,11 @@ export const academyCourseOfferingsApi = {
   },
 
   async linkClasses(id: string, classIds: string[]) {
-    const res = await apiClient.post<StandardApiResponse<{ ok: boolean }>>(
-      `/api/academy/course-offerings/${id}/link-classes`,
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseOffering }>>(
+      `/api/academy/course-offerings/${id}/set-classes`,
       { classIds },
     )
-    return res.data
+    return res.data.data!.item
   },
   async submitForApproval(id: string) {
     const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseOffering }>>(

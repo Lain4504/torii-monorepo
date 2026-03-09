@@ -10,12 +10,34 @@ import {
 import type { AcademyCourseOfferingUpdateDTO } from "@workspace/schemas"
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert"
 import { AlertCircle } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
+import { useState } from "react"
 
 export default function AcademyCourseOfferingEditPage() {
   const nav = useNavigate()
   const { id } = useParams()
   const { data: item, isLoading } = useAcademyCourseOffering(id)
   const update = useUpdateAcademyCourseOffering()
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [pendingData, setPendingData] = useState<AcademyCourseOfferingUpdateDTO | null>(null)
+
+  const submitUpdate = async (data: AcademyCourseOfferingUpdateDTO) => {
+    await update.mutateAsync({
+      id: item!.id,
+      input: data,
+    })
+    toast.success("Đã cập nhật")
+    nav(`/academy/course-offerings/${item!.id}`)
+  }
 
   return (
     <div className="space-y-6">
@@ -49,18 +71,55 @@ export default function AcademyCourseOfferingEditPage() {
                 submitting={update.isPending}
                 onCancel={() => nav(`/academy/course-offerings/${item.id}`)}
                 onSubmit={async (data) => {
-                  await update.mutateAsync({
-                    id: item.id,
-                    input: data as AcademyCourseOfferingUpdateDTO,
-                  })
-                  toast.success("Đã cập nhật")
-                  nav(`/academy/course-offerings/${item.id}`)
+                  const payload = data as AcademyCourseOfferingUpdateDTO
+                  const currentClassIds = (item.classes || []).map((c: any) => c.classId).sort()
+                  const nextClassIds = (payload.classIds || currentClassIds).slice().sort()
+                  const classIdsChanged =
+                    JSON.stringify(currentClassIds) !== JSON.stringify(nextClassIds)
+                  const priceChanged =
+                    payload.originalPrice !== undefined &&
+                    Number(payload.originalPrice) !== Number((item as any).originalPrice)
+                  const validityChanged =
+                    payload.validFrom !== undefined || payload.validTo !== undefined
+
+                  if (item.status === "PUBLISHED" && (classIdsChanged || priceChanged || validityChanged)) {
+                    setPendingData(payload)
+                    setIsConfirmOpen(true)
+                    return
+                  }
+
+                  await submitUpdate(payload)
                 }}
               />
             </div>
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận cập nhật offering đã publish?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Thay đổi mapping lớp / giá / thời hạn hiệu lực sẽ đưa offering về <strong>PENDING_APPROVAL</strong> và cần duyệt lại.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (pendingData) {
+                  await submitUpdate(pendingData)
+                  setPendingData(null)
+                }
+              }}
+              disabled={update.isPending}
+            >
+              Xác nhận cập nhật
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

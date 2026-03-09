@@ -51,7 +51,7 @@ export const academyClassesApi = {
    */
   findById: async (id: string): Promise<AcademyClassModel> => {
     const response = await apiClient.get<StandardApiResponse<{ item: AcademyClassModel }>>(
-      `/api/academy/classes/\${id}`,
+      `/api/academy/classes/${id}`,
     );
     return response.data.data!.item;
   },
@@ -61,7 +61,7 @@ export const academyClassesApi = {
    */
   getCurriculum: async (id: string): Promise<any> => {
     const response = await apiClient.get<StandardApiResponse<{ curriculum: any }>>(
-      `/api/academy/classes/\${id}/curriculum`
+      `/api/academy/classes/${id}/curriculum`
     );
     const data = response.data.data?.curriculum;
     if (!data) return null;

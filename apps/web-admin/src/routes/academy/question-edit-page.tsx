@@ -1,5 +1,4 @@
 import { useNavigate, useParams } from "react-router-dom"
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { toast } from "@workspace/ui/components/sonner"
 import { PageHeader } from "@/components/common/page-header"
 import { QuestionForm } from "@/components/academy/question-form"
@@ -22,31 +21,26 @@ export default function AcademyQuestionEditPage() {
         subtitle="Chỉnh sửa câu hỏi trong ngân hàng câu hỏi."
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Thông tin</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading || !item ? (
-            <div>Đang tải...</div>
-          ) : (
-            <QuestionForm
-              mode="edit"
-              initial={item}
-              submitting={update.isPending}
-              onCancel={() => nav("/academy/questions")}
-              onSubmit={async (data) => {
-                await update.mutateAsync({
-                  id: item.id,
-                  input: data as AcademyQuestionUpdateDTO,
-                })
-                toast.success("Đã cập nhật")
-                nav("/academy/questions")
-              }}
-            />
-          )}
-        </CardContent>
-      </Card>
+      <div className="pb-8">
+        {isLoading || !item ? (
+          <div>Đang tải...</div>
+        ) : (
+          <QuestionForm
+            mode="edit"
+            initial={item}
+            submitting={update.isPending}
+            onCancel={() => nav("/academy/questions")}
+            onSubmit={async (data) => {
+              await update.mutateAsync({
+                id: item.id,
+                input: data as AcademyQuestionUpdateDTO,
+              })
+              toast.success("Đã cập nhật")
+              nav("/academy/questions")
+            }}
+          />
+        )}
+      </div>
     </div>
   )
 }

@@ -30,6 +30,23 @@ export interface OrderPreviewResponse {
     items: any[];
 }
 
+export interface OrderFulfillmentSummary {
+    id: string;
+    code: string;
+    status: string;
+    paidAt?: string | null;
+    grandTotal: number | string;
+    currency: string;
+    items: Array<{
+        offeringId: string;
+        offeringCode: string;
+        offeringTitle: string;
+        expectedClassIds: string[];
+        enrolledClassIds: string[];
+        missingClassIds: string[];
+    }>;
+}
+
 export const orderApi = {
     /**
      * Get all orders
@@ -56,7 +73,7 @@ export const orderApi = {
      * Get order by ID
      */
     async getOrder(id: string): Promise<OrderResponseDTO> {
-        const response = await apiClient.get<StandardApiResponse<{ item: OrderResponseDTO }>>(`/api/academy/orders/\${id}`);
+        const response = await apiClient.get<StandardApiResponse<{ item: OrderResponseDTO }>>(`/api/academy/orders/${id}`);
         return response.data.data!.item;
     },
 
@@ -77,8 +94,18 @@ export const orderApi = {
      * Confirm order (Legacy/Internal)
      */
     async confirmOrder(orderId: string, data: OrderConfirmDTO): Promise<OrderResponseDTO> {
-        const response = await apiClient.post<StandardApiResponse<{ order: OrderResponseDTO }>>(`/api/academy/orders/\${orderId}/confirm`, data);
+        const response = await apiClient.post<StandardApiResponse<{ order: OrderResponseDTO }>>(`/api/academy/orders/${orderId}/confirm`, data);
         return response.data.data!.order;
+    },
+
+    async getOrderByCode(orderCode: string): Promise<OrderFulfillmentSummary> {
+        const response = await apiClient.get<StandardApiResponse<OrderFulfillmentSummary>>(
+            `/api/academy/orders/by-code/${orderCode}`,
+        );
+        if (!response.data.success || !response.data.data) {
+            throw new Error(response.data.message || 'Failed to fetch order by code');
+        }
+        return response.data.data;
     },
 
     /**

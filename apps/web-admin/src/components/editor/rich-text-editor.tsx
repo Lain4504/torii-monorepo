@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import MDEditor from '@uiw/react-md-editor';
 
 // ─────────────────────────────────────────────────────────────
@@ -21,14 +21,20 @@ export function RichTextEditor({
   readOnly = false,
 }: RichTextEditorProps) {
   const [value, setValue] = useState(initialContent ?? '');
+  const lastPushedValue = useRef(initialContent ?? '');
 
   useEffect(() => {
-    setValue(initialContent ?? '');
+    const newVal = initialContent ?? '';
+    if (newVal !== lastPushedValue.current) {
+      setValue(newVal);
+      lastPushedValue.current = newVal;
+    }
   }, [initialContent]);
 
   const handleChange = (val?: string) => {
     const newValue = val ?? '';
     setValue(newValue);
+    lastPushedValue.current = newValue;
     onUpdate?.(newValue);
   };
 

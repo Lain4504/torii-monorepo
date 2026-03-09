@@ -74,7 +74,7 @@ export function CourseOfferingForm({
   const { data: editionsData = [] } = useAcademyCourseEditions({ status: "PUBLISHED" } as any)
   const editions = Array.isArray(editionsData) ? editionsData : (editionsData as any)?.items || []
 
-  const { handleSubmit, control, watch } = useForm<
+  const { handleSubmit, control, watch, setError } = useForm<
     AcademyCourseOfferingCreateDTO | AcademyCourseOfferingUpdateDTO
   >({
     resolver: zodResolver(
@@ -131,6 +131,15 @@ export function CourseOfferingForm({
     <form
       className="space-y-6"
       onSubmit={handleSubmit(async (data) => {
+        const status = (data as any).status
+        const classIds = ((data as any).classIds || []) as string[]
+        if ((status === "PUBLISHED" || status === "PENDING_APPROVAL") && classIds.length === 0) {
+          setError("classIds" as any, {
+            type: "manual",
+            message: "Phải chọn ít nhất 1 lớp trước khi gửi phê duyệt/publish offering.",
+          })
+          return
+        }
         console.log("Submitting Offering Data:", data)
         await onSubmit(data)
       })}
@@ -282,6 +291,9 @@ export function CourseOfferingForm({
                               </Badge>
                               <Badge variant={c.status === 'ENROLLING' ? 'default' : 'secondary'} className="text-[10px] h-4 px-1 uppercase font-bold">
                                 {c.status}
+                              </Badge>
+                              <Badge variant={c.courseEdition?.status === 'PUBLISHED' ? 'default' : 'secondary'} className="text-[10px] h-4 px-1 uppercase font-bold">
+                                Edition: {c.courseEdition?.status || "UNKNOWN"}
                               </Badge>
                               <span className="text-[10px] text-muted-foreground uppercase border-l pl-2">
                                 {c.mode}

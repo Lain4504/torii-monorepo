@@ -23,6 +23,10 @@ alwaysApply: true
 - **Linting**: Ensure no lint errors remain after modifications.
 - **Standardized Forms**: Use `react-hook-form` with `zod` resolvers and standard `Field`, `FieldLabel`, `FieldDescription`, `FieldGroup`, `FieldSet` components from the UI package.
 
+## Command Safety
+- **Do NOT run `pnpm lint`** at workspace/app scope.
+- If validation is needed, run targeted checks only for changed files (e.g. specific `eslint` file paths or `tsc --noEmit`).
+
 ## Reference Examples
 
 ### Field & Form Layout
