@@ -29,14 +29,19 @@ export class QuestionService {
   }
 
   async create(input: QuestionCreateDto) {
+    await this.validateParentQuestion(input.parentId);
+    this.validateGroupParentPayload(input.questionType, input.parentId);
+
+    const isGroupParent = input.questionType === 'GROUP_PARENT';
+
     return this.prisma.question.create({
       data: {
         parentId: input.parentId,
         content: input.content,
         mediaUrl: input.mediaUrl,
         questionType: input.questionType,
-        options: input.options ?? undefined,
-        correctAnswer: input.correctAnswer ?? undefined,
+        options: isGroupParent ? undefined : input.options ?? undefined,
+        correctAnswer: isGroupParent ? undefined : input.correctAnswer ?? undefined,
         explanation: input.explanation,
         level: input.level,
         category: input.category,
@@ -46,15 +51,20 @@ export class QuestionService {
   }
 
   async update(id: string, input: QuestionUpdateDto) {
-    await this.findById(id);
+    const current = await this.findById(id);
+    const targetQuestionType = input.questionType ?? current.questionType;
+    this.validateGroupParentPayload(targetQuestionType, current.parentId ?? undefined);
+
+    const isGroupParent = targetQuestionType === 'GROUP_PARENT';
+
     return this.prisma.question.update({
       where: { id },
       data: {
         content: input.content,
         mediaUrl: input.mediaUrl,
         questionType: input.questionType,
-        options: input.options ?? undefined,
-        correctAnswer: input.correctAnswer ?? undefined,
+        options: isGroupParent ? undefined : input.options ?? undefined,
+        correctAnswer: isGroupParent ? undefined : input.correctAnswer ?? undefined,
         explanation: input.explanation,
         level: input.level,
         category: input.category,
@@ -122,6 +132,26 @@ export class QuestionService {
 
     await this.prisma.question.delete({ where: { id } });
     return { ok: true };
+  }
+
+  private async validateParentQuestion(parentId?: string) {
+    if (!parentId) return;
+    const parent = await this.prisma.question.findUnique({
+      where: { id: parentId },
+      select: { id: true, questionType: true },
+    });
+    if (!parent) {
+      throw new BadRequestException('Invalid parentId');
+    }
+    if (parent.questionType !== 'GROUP_PARENT') {
+      throw new BadRequestException('parentId must point to a GROUP_PARENT question');
+    }
+  }
+
+  private validateGroupParentPayload(questionType: string, parentId?: string) {
+    if (questionType === 'GROUP_PARENT' && parentId) {
+      throw new BadRequestException('GROUP_PARENT question cannot be a child question');
+    }
   }
 }
 

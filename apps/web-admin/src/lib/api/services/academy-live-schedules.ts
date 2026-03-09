@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { apiClient } from "@/lib/api/api-client"
 import type {
+  AcademyLiveScheduleConflictPreviewDTO,
   AcademyLiveScheduleCreateDTO,
   AcademyLiveScheduleQueryDTO,
   AcademyLiveScheduleUpdateDTO,
@@ -10,6 +11,9 @@ import type {
 export type AcademyLiveSchedule = {
   id: string
   liveClassId: string
+  liveClass?: {
+    classId: string
+  }
   weekday: number
   startTime: string
   endTime: string
@@ -56,14 +60,27 @@ export const academyLiveSchedulesApi = {
     )
     return res.data
   },
+
+  async previewConflict(input: AcademyLiveScheduleConflictPreviewDTO) {
+    const res = await apiClient.post<
+      StandardApiResponse<{
+        hasConflict: boolean
+        inClassConflicts: Array<{ id: string; startTime: string; endTime: string }>
+        teacherConflicts: Array<{ id: string; classCode: string; className: string; startTime: string; endTime: string }>
+      }>
+    >("/api/academy/live-schedules/preview-conflict", input)
+    return res.data.data!
+  },
 }
 
 export function useAcademyLiveSchedules(
   params: AcademyLiveScheduleQueryDTO,
+  options?: { enabled?: boolean },
 ) {
   return useQuery({
     queryKey: ["academy-live-schedules", params],
     queryFn: () => academyLiveSchedulesApi.findAll(params),
+    enabled: options?.enabled ?? true,
   })
 }
 
@@ -105,5 +122,12 @@ export function useDeleteAcademyLiveSchedule() {
     mutationFn: (id: string) => academyLiveSchedulesApi.delete(id),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: ["academy-live-schedules"] }),
+  })
+}
+
+export function usePreviewAcademyLiveScheduleConflict() {
+  return useMutation({
+    mutationFn: (input: AcademyLiveScheduleConflictPreviewDTO) =>
+      academyLiveSchedulesApi.previewConflict(input),
   })
 }

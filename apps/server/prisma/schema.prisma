@@ -112,6 +112,18 @@ enum MinStudentsEnforcement {
   DISABLED
 }
 
+enum LiveScheduleRequestType {
+  LEAVE
+  RESCHEDULE
+}
+
+enum LiveScheduleRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
 
 
 // --- Support ---
@@ -387,6 +399,9 @@ model User {
   academyClassReviews          ClassReview[]
   userAchievements             UserAchievement[]
   academyClassAttendances      ClassAttendance[]
+  liveScheduleRequests         LiveScheduleRequest[] @relation("LiveScheduleRequestRequester")
+  reviewedLiveScheduleRequests LiveScheduleRequest[] @relation("LiveScheduleRequestReviewer")
+  proposedTeacherScheduleRequests LiveScheduleRequest[] @relation("LiveScheduleRequestProposedTeacher")
 
   @@index([email])
   @@index([role])
@@ -1227,9 +1242,44 @@ model LiveSchedule {
 
   liveClass LiveClass @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
   attendances ClassAttendance[]
+  requests LiveScheduleRequest[]
 
   @@index([liveClassId])
   @@map("academy_live_schedules")
+}
+
+model LiveScheduleRequest {
+  id               String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  liveScheduleId   String                    @map("live_schedule_id") @db.Uuid
+  requestedBy      String                    @map("requested_by") @db.Uuid
+  type             LiveScheduleRequestType
+  status           LiveScheduleRequestStatus @default(PENDING)
+  reason           String?                   @db.Text
+  requestedDate    DateTime                  @map("requested_date")
+  originalWeekday  Int                       @map("original_weekday")
+  originalStartTime String                   @map("original_start_time") @db.VarChar(20)
+  originalEndTime  String                    @map("original_end_time") @db.VarChar(20)
+  proposedDate     DateTime?                 @map("proposed_date")
+  proposedStartTime String?                  @map("proposed_start_time") @db.VarChar(20)
+  proposedEndTime  String?                   @map("proposed_end_time") @db.VarChar(20)
+  proposedTeacherId String?                  @map("proposed_teacher_id") @db.Uuid
+  reviewNote       String?                   @map("review_note") @db.Text
+  reviewedBy       String?                   @map("reviewed_by") @db.Uuid
+  reviewedAt       DateTime?                 @map("reviewed_at")
+  metadata         Json?                     @default("{}") @db.JsonB
+  createdAt        DateTime                  @default(now()) @map("created_at")
+  updatedAt        DateTime                  @default(now()) @updatedAt @map("updated_at")
+
+  liveSchedule LiveSchedule @relation(fields: [liveScheduleId], references: [id], onDelete: Cascade)
+  requester    User         @relation("LiveScheduleRequestRequester", fields: [requestedBy], references: [id], onDelete: Cascade)
+  reviewer     User?        @relation("LiveScheduleRequestReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+  proposedTeacher User?     @relation("LiveScheduleRequestProposedTeacher", fields: [proposedTeacherId], references: [id], onDelete: SetNull)
+
+  @@index([liveScheduleId])
+  @@index([requestedBy])
+  @@index([status])
+  @@index([requestedDate])
+  @@map("academy_live_schedule_requests")
 }
 
 

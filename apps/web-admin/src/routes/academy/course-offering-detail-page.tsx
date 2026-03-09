@@ -217,6 +217,7 @@ export default function AcademyCourseOfferingDetailPage() {
               </CardTitle>
               <CardDescription>
                 Học viên mua gói này sẽ được ghi danh vào các lớp học sau.
+                Các đơn đã thanh toán trước khi offering thay đổi sẽ giữ entitlement theo snapshot tại thời điểm mua.
               </CardDescription>
             </CardHeader>
             <CardContent>

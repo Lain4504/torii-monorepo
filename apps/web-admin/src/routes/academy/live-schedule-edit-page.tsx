@@ -34,15 +34,19 @@ export default function AcademyLiveScheduleEditPage() {
               mode="edit"
               initial={item}
               submitting={update.isPending}
-              onCancel={() => item.liveClassId ? nav(`/academy/classes/${item.liveClassId}`) : nav("/academy/classes")}
+              onCancel={() =>
+                item.liveClass?.classId
+                  ? nav(`/academy/classes/${item.liveClass.classId}`)
+                  : nav("/academy/classes")
+              }
               onSubmit={async (data) => {
                 await update.mutateAsync({
                   id: item.id,
                   input: data as AcademyLiveScheduleUpdateDTO,
                 })
                 toast.success("Đã cập nhật")
-                if (item.liveClassId) {
-                  nav(`/academy/classes/${item.liveClassId}`)
+                if (item.liveClass?.classId) {
+                  nav(`/academy/classes/${item.liveClass.classId}`)
                 } else {
                   nav("/academy/classes")
                 }

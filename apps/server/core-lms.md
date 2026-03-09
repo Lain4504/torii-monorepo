@@ -117,6 +117,11 @@
     - `liveClassId` → `LiveClass`
     - `weekday`, `startTime`, `endTime`, `location`
     - `excludedDates` (jsonb, ngày nghỉ lễ), `note`
+  - Rule:
+    - Lịch tuần của LIVE class mặc định là **cố định xuyên suốt** trong khoảng `startDate -> endDate`.
+    - Mỗi lịch là một slot tuần lặp lại (ví dụ 3 buổi/tuần), giữ giờ cố định để learner theo dõi ổn định.
+    - Không cho tạo slot trùng thời gian trong cùng `liveClassId`.
+    - Khi gán `primaryTeacherId`, phải check conflict toàn hệ thống: không được trùng slot với lớp LIVE khác mà giảng viên đó đang dạy.
 
 - **`ClassAssessment`** (instance per class nếu cần override)  
   - Field:
@@ -413,6 +418,12 @@ Nếu bạn muốn bước tiếp theo, tôi có thể:
     - `location` (string/text)
     - `excludedDates` (jsonb, nullable) – danh sách ngày nghỉ (Tết, lễ) không học
     - `note` (text, nullable)
+    - `isFixedWeekly` (bool, default true) – lớp LIVE thông thường giữ lịch cố định hàng tuần
+
+  - Rule:
+    - Unique logic theo business (service-level): `(liveClassId, weekday, startTime, endTime)` không trùng.
+    - Conflict giảng viên (service-level): `primaryTeacherId` không được có 2 slot đè nhau cùng weekday + time range trên các lớp chưa kết thúc.
+    - Nếu cần đổi lịch tạm thời hoặc xin nghỉ, không sửa trực tiếp template tuần; dùng flow request (mục 17.O).
 
 - **`ClassAssessment`**
 
@@ -1197,6 +1208,25 @@ Các rule này nhằm tránh việc dùng `Class` sai cách, đặc biệt với
 - Order fulfillment:
   - Khi `Order` chuyển `PAID`, tạo enrollment theo từng class trong offering **nhưng phải re-check rule enrollment**.
   - Nếu class không còn hợp lệ (đầy chỗ/hết hạn enroll/cancelled), phải fail mềm theo policy (reject line-item hoặc ghi nhận cần xử lý thủ công), không tạo enrollment sai trạng thái.
+
+#### 17.O. Rule vận hành lịch LIVE (fixed timetable + conflict + đổi lịch/nghỉ)
+
+- **Fixed timetable (mặc định):**
+  - Lớp LIVE vận hành theo lịch tuần cố định (`isFixedWeekly = true`) trong toàn bộ thời gian lớp.
+  - Ví dụ lớp có 3 slot/tuần thì 3 slot này lặp lại hằng tuần với giờ cố định.
+- **Teacher conflict check (bắt buộc):**
+  - Khi tạo/sửa `LiveSchedule` hoặc đổi `primaryTeacherId`, phải check trùng lịch theo `weekday + time range` của giảng viên trên các lớp LIVE khác.
+  - Nếu trùng thì reject với thông báo rõ lớp/slot đang conflict.
+- **Instructor schedule request (xin nghỉ / đổi lịch):**
+  - Không chỉnh trực tiếp template tuần nếu lý do là phát sinh tạm thời.
+  - Dùng request workflow:
+    - `LiveScheduleRequest` (`type`: `LEAVE` | `RESCHEDULE`, `status`: `PENDING` | `APPROVED` | `REJECTED` | `CANCELLED`)
+    - `LEAVE`: skip 1 buổi cụ thể (thêm vào `excludedDates` hoặc materialized session status `CANCELLED`)
+    - `RESCHEDULE`: đề xuất `newDate/newStart/newEnd/newTeacher?`; khi approve phải re-check conflict trước khi apply
+  - Quyền approve: Staff/Admin (không tự duyệt bởi lecturer).
+- **Learner-facing consistency:**
+  - Luôn ưu tiên hiển thị “lịch tuần chuẩn” + danh sách ngoại lệ đã duyệt (buổi nghỉ, buổi học bù/đổi).
+  - Mọi thay đổi đã duyệt phải có audit log và notification cho learners đã enroll.
 
 ---
 

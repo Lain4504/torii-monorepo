@@ -78,6 +78,7 @@ export class OrderService {
 
   async checkout(userId: string, input: OrderCheckoutDto) {
     const preview = await this.preview(userId, input);
+    const offeringClassMap = await this.getOfferingClassMap(input.offeringIds);
 
     // Generate readable code: ORD-YYYYMMDD-XXXX
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -103,6 +104,7 @@ export class OrderService {
             offeringSnapshot: {
               title: o.title,
               code: o.code,
+              classIds: offeringClassMap.get(o.id) ?? [],
             } as any,
           })),
         },
@@ -243,16 +245,29 @@ export class OrderService {
 
       // Fulfillment: Enrollments
       for (const item of order.items) {
-        const offeringClasses = await tx.courseOfferingClass.findMany({
-          where: { offeringId: item.offeringId },
-        });
+        const snapshot = (item.offeringSnapshot ?? {}) as {
+          classIds?: string[];
+        };
+        const snapshotClassIds = Array.isArray(snapshot.classIds)
+          ? snapshot.classIds
+          : [];
+        let classIdsToEnroll = [...snapshotClassIds];
 
-        for (const oc of offeringClasses) {
+        if (!classIdsToEnroll.length) {
+          // Backward compatibility for legacy orders without snapshot classIds.
+          const offeringClasses = await tx.courseOfferingClass.findMany({
+            where: { offeringId: item.offeringId },
+            select: { classId: true },
+          });
+          classIdsToEnroll = offeringClasses.map((oc) => oc.classId);
+        }
+
+        for (const classId of classIdsToEnroll) {
           try {
             await this.enrollmentService.create(
               {
                 userId: order.userId,
-                classId: oc.classId,
+                classId,
                 status: 'ACTIVE',
                 sourceOfferingId: item.offeringId,
                 sourceOrderId: order.id,
@@ -262,7 +277,7 @@ export class OrderService {
             );
           } catch (err) {
             this.logger.error(
-              `Fulfillment failed for order ${order.code}, class ${oc.classId}: ${err.message}`,
+              `Fulfillment failed for order ${order.code}, class ${classId}: ${err.message}`,
             );
             // Depending on policy, we might want to throw to rollback, or just log and continue.
             // User prompt says: "Nếu line-item không pass, xử lý theo policy: fail mềm có log/audit + trả trạng thái phù hợp, hoặc fail transaction có thông báo rõ."
@@ -371,16 +386,22 @@ export class OrderService {
 
     if (!order) throw new NotFoundException('Order not found');
 
-    const offeringIds = order.items.map((item) => item.offeringId);
-    const offeringClassLinks = await this.prisma.courseOfferingClass.findMany({
-      where: { offeringId: { in: offeringIds } },
-      select: { offeringId: true, classId: true },
-    });
+    const fallbackOfferingIds = order.items
+      .filter((item) => {
+        const snapshot = (item.offeringSnapshot ?? {}) as { classIds?: string[] };
+        return !Array.isArray(snapshot.classIds);
+      })
+      .map((item) => item.offeringId);
+
+    const fallbackClassMap = fallbackOfferingIds.length
+      ? await this.getOfferingClassMap(fallbackOfferingIds)
+      : new Map<string, string[]>();
 
     const itemResults = order.items.map((item) => {
-      const expectedClassIds = offeringClassLinks
-        .filter((link) => link.offeringId === item.offeringId)
-        .map((link) => link.classId);
+      const snapshot = (item.offeringSnapshot ?? {}) as { classIds?: string[] };
+      const expectedClassIds = Array.isArray(snapshot.classIds)
+        ? snapshot.classIds
+        : fallbackClassMap.get(item.offeringId) ?? [];
       const enrolledClassIds = order.enrollments
         .filter((enrollment) => enrollment.sourceOfferingId === item.offeringId)
         .map((enrollment) => enrollment.classId);
@@ -407,5 +428,27 @@ export class OrderService {
       currency: order.currency,
       items: itemResults,
     };
+  }
+
+  private async getOfferingClassMap(offeringIds: string[]) {
+    if (!offeringIds.length) {
+      return new Map<string, string[]>();
+    }
+
+    const links = await this.prisma.courseOfferingClass.findMany({
+      where: { offeringId: { in: offeringIds } },
+      select: { offeringId: true, classId: true },
+    });
+
+    const map = new Map<string, string[]>();
+    for (const offeringId of offeringIds) {
+      map.set(offeringId, []);
+    }
+    for (const link of links) {
+      const current = map.get(link.offeringId) ?? [];
+      current.push(link.classId);
+      map.set(link.offeringId, current);
+    }
+    return map;
   }
 }

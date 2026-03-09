@@ -20,11 +20,11 @@ Tài liệu này là checklist và kế hoạch triển khai đầy đủ backen
 
 ### Chưa có / thiếu so với spec
 
-- **Schema:** Waitlist, RefundPolicy, RefundRequest. ClassAssessment chưa có lateSubmissionPolicy (và latePenaltyPercentPerDay trong settings).
+- **Schema:** Waitlist, RefundPolicy, RefundRequest. ClassAssessment chưa có lateSubmissionPolicy (và latePenaltyPercentPerDay trong settings). Chưa có entity workflow cho yêu cầu đổi lịch/xin nghỉ của giảng viên LIVE (LiveScheduleRequest/SessionException).
 
-- **Backend:** Cron minStudents (LIVE: sau enrollmentCloseAt nếu < minStudents → cancel/notify). Logic hủy lớp có enrollment (17.A) rõ ràng. Clone edition (POST /editions/:id/clone). **Khóa chỉnh sửa syllabus khi edition đã PUBLISHED**. Waitlist (model + service + API). RefundPolicy / RefundRequest (model + service + API). Late submission cho assignment. **Offering publish validation (class hợp lệ + edition published) và fulfillment không bypass enrollment rule**. Gateway: Question Pools (proxy NATS + pattern academy).
+- **Backend:** Cron minStudents (LIVE: sau enrollmentCloseAt nếu < minStudents → cancel/notify). Logic hủy lớp có enrollment (17.A) rõ ràng. Clone edition (POST /editions/:id/clone). **Khóa chỉnh sửa syllabus khi edition đã PUBLISHED**. Waitlist (model + service + API). RefundPolicy / RefundRequest (model + service + API). Late submission cho assignment. **Offering publish validation (class hợp lệ + edition published) và fulfillment không bypass enrollment rule**. Gateway: Question Pools (proxy NATS + pattern academy). Chưa có conflict check lịch giảng viên theo weekday/time-range và chưa có workflow đổi lịch/xin nghỉ.
 
-- **Frontend admin:** Dashboard số liệu thật (profiles, classes, enrollments). Tab Waitlist + offer slot. Refund (policy + request). Permission ẩn menu theo role (Lecturer vs Staff). Kiểm tra form/filter/validation khớp DTO.
+- **Frontend admin:** Dashboard số liệu thật (profiles, classes, enrollments). Tab Waitlist + offer slot. Refund (policy + request). Permission ẩn menu theo role (Lecturer vs Staff). Kiểm tra form/filter/validation khớp DTO. Chưa có màn request đổi lịch/xin nghỉ và UX hiển thị conflict lịch giảng viên.
 
 - **Frontend learner:** Đảm bảo catalog và mua khóa dùng Offering + Order; flow payment success/cancel ổn.
 
@@ -59,6 +59,7 @@ Giả định: 1 developer, đã quen codebase, làm tuần tự; không tính Q
 |------|------------|
 | **Ngày 7** | **Gateway:** Đảm bảo mọi resource academy đều có controller tương ứng (course-profile, edition, chapter, chapter-item, lesson, quiz-template, assignment-template, class, live-schedule, class-assessment, enrollment, order, exam, exam-attempt, assignment-submission, learning-progress, class-review, **question-pool**, class-attendance, placement, live-session, ticket, blog). Kiểm tra permission (`academy.content.read/write`, `academy.delivery.*`, `academy.commerce.*`) và role Lecturer (filter class theo primaryTeacherId). Thêm endpoint waitlist, refund policy, refund request nếu chưa có. |
 | **Ngày 8** | **API consistency:** So sánh DTO trong `@workspace/schemas` với Prisma model và handler: CourseOffering (price/originalPrice, salesStartAt/salesEndAt vs validFrom/validTo), CourseEdition status enum, Class status enum. Chuẩn hóa query param (filter, pagination) cho list API. Test E2E các luồng: tạo profile → edition → chapter → chapter-item → lesson/template; tạo class VOD/LIVE → schedule (LIVE) → assessment; tạo offering → set classes → order → payment → enrollment. Xác nhận order fulfillment không bypass rule enrollment (status/window/maxStudents). |
+| **Ngày 8.5** | **LIVE schedule governance:** Thêm conflict engine cho giảng viên (`weekday + time range`), API preview conflict khi tạo/sửa schedule hoặc đổi `primaryTeacherId`. Thêm model + service `LiveScheduleRequest` (LEAVE/RESCHEDULE), flow approve/reject, apply exception vào lịch. Audit log + notification hooks khi request được duyệt/từ chối. |
 
 ### Phase 3: Web-admin UI (10–12 ngày)
 
@@ -70,6 +71,8 @@ Giả định: 1 developer, đã quen codebase, làm tuần tự; không tính Q
 | **Ngày 12** | **Lesson, QuizTemplate, AssignmentTemplate:** List theo courseProfileId, CRUD. Quiz template form có chọn Question Pool (questionPoolId). Assignment template: defaultType (TEXT/FILE/BOTH), defaultMaxScore, rubric. Đảm bảo filter và breadcrumb rõ ràng. |
 | **Ngày 13** | **Class:** List filter (mode, status, courseProfileId). Form tạo class **tách VOD vs LIVE** (chung profile, edition, code, name, mode; VOD: enrollmentOpenAt/CloseAt, maxStudents, defaultExpiresMonths; LIVE: term, batch, startDate, endDate, minStudents, maxStudents, minStudentsEnforcement, primaryTeacherId, enrollmentOpenAt/CloseAt). Duplicate class: nút + form (term, batch, startDate, endDate, code, name). Class detail: tab Overview (VOD/LIVE block), **Schedule** (chỉ LIVE), **Assessment**, **Learners**, **Waitlist**, **Attendance** (chỉ LIVE). |
 | **Ngày 14** | **Class detail (tiếp):** Tab Learners: table enrollment, thêm/xóa/sửa status. Tab **Waitlist:** table waitlist, action “Offer slot” (chuyển OFFERED hoặc tạo enrollment). Tab **Attendance** (LIVE): theo LiveSchedule, ghi nhận PRESENT/ABSENT/LATE/EXCUSED. Tab Assessment: list ClassAssessment, thêm/sửa (template, deadline, weight, override), với **lateSubmissionPolicy** và latePenalty trong form. |
+| **Ngày 14.5** | **LIVE timetable UX:** Tab Schedule có trạng thái room active/inactive, action start/join/end room. Thêm block “Lịch tuần chuẩn” + “Ngoại lệ đã duyệt”. Form schedule validate trùng giờ trong lớp + conflict giảng viên. |
+| **Ngày 14.6** | **Lecturer request UI:** Trang/tab “Đổi lịch / Xin nghỉ” cho lớp LIVE: Lecturer tạo request (LEAVE/RESCHEDULE), Staff/Admin duyệt từ chối, hiển thị lịch sử xử lý, reason bắt buộc khi reject. |
 | **Ngày 15** | **Enrollment & Offerings:** Trang enrollments (filter classId, userId, status), CRUD. Offerings: list, CRUD, **map classIds** (pick-list: available classes / selected classes). Form offering khớp DTO (code, title, originalPrice, currency, status, validFrom/validTo, classIds). UI phải thể hiện rule publish validation và cảnh báo/re-approval khi sửa offering đã `PUBLISHED`. |
 | **Ngày 16** | **Question Pool & Question:** Question pools list/detail: CRUD pool, trong detail: add/remove questions (multi-select), sample (nếu API có). Questions list (filter type, level, category), CRUD, “Add to pool”. Form question: content, questionType, options, correctAnswer, explanation, parentId (group). Kiểm tra permission: ẩn “Course Profiles”, “Offerings”, “Question Pools” cho Lecturer; Lecturer chỉ thấy Classes (filter primaryTeacherId). |
 | **Ngày 17** | **Refund & Reports:** Trang RefundPolicy (list, CRUD conditions). Trang RefundRequest (list, filter status), action approve/reject. Reports: trang đơn giản (enrollment theo course/class, tỷ lệ hoàn thành lesson, kết quả exam/assignment) dùng Card + Table. |
@@ -113,6 +116,8 @@ Giả định: 1 developer, đã quen codebase, làm tuần tự; không tính Q
 - [ ] Offering publish validation (class hợp lệ để bán + edition của class phải `PUBLISHED`)
 - [ ] Offering `PUBLISHED` mutate policy (re-approval hoặc clone version)
 - [ ] Cron minStudents (LIVE)
+- [ ] Live schedule conflict check theo primaryTeacherId + weekday/time-range
+- [ ] LiveScheduleRequest workflow (LEAVE/RESCHEDULE, approve/reject, apply exception)
 - [ ] Rule hủy lớp có enrollment (17.A)
 - [ ] Certificate issue logic
 - [ ] requireApprovalForPublish (config)
@@ -122,6 +127,7 @@ Giả định: 1 developer, đã quen codebase, làm tuần tự; không tính Q
 - [ ] Question Pools proxy (NATS + pattern)
 - [ ] API waitlist, refund policy, refund request
 - [ ] Permission và filter Lecturer
+- [ ] API conflict preview cho LiveSchedule + API LiveScheduleRequest
 
 ### Web-admin
 - [ ] Dashboard: số liệu thật (profiles, classes, enrollments)
@@ -130,6 +136,9 @@ Giả định: 1 developer, đã quen codebase, làm tuần tự; không tính Q
 - [ ] Lesson / QuizTemplate / AssignmentTemplate CRUD
 - [ ] Class: form tách VOD vs LIVE, duplicate
 - [ ] Class detail: Overview, Schedule, Assessment, Learners, **Waitlist**, **Attendance**
+- [ ] Schedule: start/join/end meet room + trạng thái room active/inactive
+- [ ] Schedule: validate conflict giảng viên khi tạo/sửa slot
+- [ ] Lecturer request: tạo yêu cầu đổi lịch/xin nghỉ, Staff/Admin approve/reject
 - [ ] Enrollment; Offering + map classIds
 - [ ] Offering form/detail phản ánh publish validation và policy re-approval khi offering đã `PUBLISHED`
 - [ ] Question Pool + Question; Refund policy/request; Reports
@@ -143,6 +152,7 @@ Giả định: 1 developer, đã quen codebase, làm tuần tự; không tính Q
 ### E2E
 - [ ] Order paid → enrollments; refund → revoke
 - [ ] State machine Edition / Class / Offering; LIVE/VOD rules
+- [ ] LIVE: conflict teacher schedule + leave/reschedule request flow end-to-end
 
 ---
 

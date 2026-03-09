@@ -191,7 +191,16 @@ Ba loại đều thuộc **Course Profile** (courseProfileId). List riêng từn
   - Card VOD: enrollmentOpenAt, enrollmentCloseAt, maxStudents, defaultExpiresMonths (chỉ khi mode VOD).
   - Card LIVE: term, batch, startDate, endDate, minStudents, maxStudents, primaryTeacher, enrollment (chỉ khi mode LIVE). Nút Edit → **ClassUpdateForm** (tách form VOD/LIVE tương tự).
 - **Tab Schedule** (chỉ khi `mode === 'LIVE'`):
-  - Table LiveSchedule: weekday, startTime, endTime, location, note. Actions: Add, Edit, Delete. Form: `AcademyLiveScheduleCreateDTO` (liveClassId, weekday, startTime, endTime, location, note, excludedDates, roomId). weekday: 0–6 (Select hoặc number input).
+  - Table LiveSchedule: weekday, startTime, endTime, location, note, trạng thái room (active/inactive). Actions: Add, Edit, Delete, Start/Join room, End room.
+  - Form: `AcademyLiveScheduleCreateDTO` (liveClassId, weekday, startTime, endTime, location, note, excludedDates, roomId). weekday: 0–6 (Select hoặc number input).
+  - Mặc định lịch tuần cố định trong suốt thời gian lớp (`isFixedWeekly = true`).
+  - Validate:
+    - Không cho tạo slot trùng trong cùng lớp (`weekday + time range`).
+    - Check conflict với lịch giảng viên dạy chính trước khi lưu.
+    - Nếu conflict, hiển thị thông báo rõ lớp/khung giờ bị trùng.
+  - UX gợi ý:
+    - Wizard “Tạo lịch tuần”: chọn số buổi/tuần, rồi cấu hình từng slot cố định.
+    - Hiển thị “Lịch chuẩn hàng tuần” và block “Ngoại lệ” (nghỉ lễ/đổi lịch đã duyệt).
 - **Tab Assessment**:
   - Table ClassAssessment: kind (Quiz/Assignment), template title, titleOverride, deadline, weight, status. Add → **ClassAssessmentCreateForm**: classId, kind, quizTemplateId hoặc assignmentTemplateId, titleOverride, deadline, weight, maxAttemptsOverride, timeLimitOverrideMinutes, maxScoreOverride, status. Edit → ClassAssessmentUpdateForm.
 - **Tab Learners**:
@@ -199,6 +208,19 @@ Ba loại đều thuộc **Course Profile** (courseProfileId). List riêng từn
 - **Tab Waitlist**: Table Waitlist (nếu API có); action offer.
 - **Tab Attendance**: Chỉ khi LIVE; danh sách theo LiveSchedule, ghi nhận Present/Absent/Late (API ClassAttendance).
 - **Submission / Quiz attempt**: Từ tab Assessment, mỗi ClassAssessment (quiz/assignment) có link “Xem bài nộp” / “Xem lượt làm bài” → list AssignmentSubmission hoặc QuizAttempt theo classAssessmentId/classId. Lecturer/Staff xem và chấm điểm tại đây; field hiển thị và cập nhật điểm bám DTO `AcademyAssignmentSubmissionUpdateDTO` (status, score, v.v.).
+
+**Lecturer Request – Đổi lịch/Xin nghỉ (LIVE)**
+
+- Cần màn riêng hoặc tab phụ trong Class Detail:
+  - Danh sách request: type (`LEAVE`/`RESCHEDULE`), requestedDate, requestedTimeRange, status, reason, reviewer, reviewedAt.
+  - Lecturer: Create request, Cancel request khi còn `PENDING`.
+  - Staff/Admin: Approve/Reject với reason bắt buộc khi reject.
+- Khi approve `RESCHEDULE`:
+  - Backend phải re-check conflict trước khi apply.
+  - Nếu conflict ở thời điểm duyệt, không apply và trả lỗi nghiệp vụ.
+- Khi approve `LEAVE`:
+  - Đánh dấu ngoại lệ của buổi tương ứng (excludedDates hoặc session exception).
+  - Hiển thị rõ cho learner trong lịch học.
 
 **Duplicate Class**
 

@@ -10,7 +10,8 @@ export default function AcademyLiveScheduleCreatePage() {
   const nav = useNavigate()
   const loc = useLocation()
   const search = new URLSearchParams(loc.search)
-  const liveClassId = search.get("liveClassId") || search.get("classId") || undefined
+  const classId = search.get("classId") || undefined
+  const liveClassId = search.get("liveClassId") || undefined
   const create = useCreateAcademyLiveSchedule()
 
   return (
@@ -29,12 +30,12 @@ export default function AcademyLiveScheduleCreatePage() {
             mode="create"
             submitting={create.isPending}
             defaultLiveClassId={liveClassId}
-            onCancel={() => liveClassId ? nav(`/academy/classes/${liveClassId}`) : nav("/academy/classes")}
+            onCancel={() => classId ? nav(`/academy/classes/${classId}`) : nav("/academy/classes")}
             onSubmit={async (data) => {
               await create.mutateAsync(data as AcademyLiveScheduleCreateDTO)
               toast.success("Đã tạo Live Schedule")
-              if (liveClassId) {
-                nav(`/academy/classes/${liveClassId}`)
+              if (classId) {
+                nav(`/academy/classes/${classId}`)
               } else {
                 nav("/academy/classes")
               }

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { toast } from "@workspace/ui/components/sonner"
 import { PageHeader } from "@/components/common/page-header"
 import { QuestionForm } from "@/components/academy/question-form"
@@ -7,7 +7,9 @@ import type { AcademyQuestionCreateDTO } from "@workspace/schemas"
 
 export default function AcademyQuestionCreatePage() {
   const nav = useNavigate()
+  const [searchParams] = useSearchParams()
   const create = useCreateAcademyQuestion()
+  const parentId = searchParams.get("parentId") ?? undefined
 
   return (
     <div className="space-y-6">
@@ -19,6 +21,7 @@ export default function AcademyQuestionCreatePage() {
       <div className="pb-8">
         <QuestionForm
           mode="create"
+          defaultParentId={parentId}
           submitting={create.isPending}
           onCancel={() => nav("/academy/questions")}
           onSubmit={async (data) => {

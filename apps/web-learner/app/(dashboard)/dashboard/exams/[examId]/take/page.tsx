@@ -28,10 +28,37 @@ import { AlertCircle } from "lucide-react"
 
 // Transform API question to component Question format
 function transformQuestion(apiQuestion: any): Question {
-    const options = apiQuestion.options ? Object.entries(apiQuestion.options).map(([key, value]) => ({
-        id: key,
-        label: value as string,
-    })) : [];
+    const options = (() => {
+        const raw = apiQuestion.options
+        if (!raw) return []
+
+        // New format from admin: [{ value: "A", label: "..." }]
+        if (Array.isArray(raw)) {
+            return raw.map((item: any, index: number) => {
+                if (typeof item === "string") {
+                    const fallback = String.fromCharCode(65 + index)
+                    return { id: fallback, label: item }
+                }
+                if (item && typeof item === "object") {
+                    const id = String(item.value ?? String.fromCharCode(65 + index))
+                    const label = String(item.label ?? `Lựa chọn ${id}`)
+                    return { id, label }
+                }
+                const fallback = String.fromCharCode(65 + index)
+                return { id: fallback, label: `Lựa chọn ${fallback}` }
+            })
+        }
+
+        // Legacy format: { A: "..." }
+        if (typeof raw === "object") {
+            return Object.entries(raw).map(([key, value]) => ({
+                id: key,
+                label: String(value),
+            }))
+        }
+
+        return []
+    })()
 
     return {
         id: apiQuestion.id,

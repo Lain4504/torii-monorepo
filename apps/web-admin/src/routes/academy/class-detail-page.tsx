@@ -1,6 +1,17 @@
 import { useNavigate, useParams, Link } from "react-router-dom"
 import { useAcademyClass, useSubmitClassForApproval, useApproveClass, useRejectClass } from "@/lib/api/services/academy-classes"
-import { useAcademyLiveSchedules } from "@/lib/api/services/academy-live-schedules"
+import { useAcademyLiveSchedules, usePreviewAcademyLiveScheduleConflict } from "@/lib/api/services/academy-live-schedules"
+import {
+   useAcademyLiveScheduleRequests,
+   useApproveAcademyLiveScheduleRequest,
+   useCancelAcademyLiveScheduleRequest,
+   useCreateAcademyLiveScheduleRequest,
+   useRejectAcademyLiveScheduleRequest,
+} from "@/lib/api/services/academy-live-schedule-requests"
+import { useJoinAcademyLiveSessionAsLecturer } from "@/lib/api/services/academy-live-sessions"
+import { roomsApi } from "@/lib/api/services/rooms"
+import { usePermissions } from "@/hooks/use-permissions"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { cn } from "@workspace/ui/lib/utils"
 import { useAcademyClassAssessments } from "@/lib/api/services/academy-class-assessments"
 import { useAcademyEnrollments } from "@/lib/api/services/academy-enrollments"
@@ -11,7 +22,15 @@ import { useAcademyAssignmentSubmissions } from "@/lib/api/services/academy-assi
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
+import { Input } from "@workspace/ui/components/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
+import {
+   Select,
+   SelectContent,
+   SelectItem,
+   SelectTrigger,
+   SelectValue,
+} from "@workspace/ui/components/select"
 import { ClassAttendanceTab } from "@/components/academy/class-attendance-tab"
 import {
    Dialog,
@@ -22,7 +41,7 @@ import {
    DialogTitle,
 } from "@workspace/ui/components/dialog"
 import { Textarea } from "@workspace/ui/components/textarea"
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert"
 import {
@@ -33,6 +52,8 @@ import {
    TableHeader,
    TableRow
 } from "@workspace/ui/components/table"
+import { useAppSelector } from "@/hooks/hooks.ts"
+import { selectAuthUser } from "@/store/slices/auth-slice.ts"
 import { LearnerList } from "@/components/academy/learner-list"
 import { DuplicateClassDialog } from "@/components/academy/duplicate-class-dialog"
 import {
@@ -52,12 +73,21 @@ import {
 } from "lucide-react"
 
 export default function ClassDetailPage() {
+   const MEET_URL = import.meta.env.VITE_MEET_URL || "https://meet.torii.sbs"
    const { id } = useParams<{ id: string }>()
    const navigate = useNavigate()
    const { data: cls, isLoading: isLoadingClass } = useAcademyClass(id!)
+   const { can } = usePermissions()
+   const canManageLiveSession = can("academy.delivery.write")
+   const canApproveLiveRequest = can("academy.delivery.approve")
+   const authUser = useAppSelector(selectAuthUser)
    const { data: profile } = useAcademyCourseProfile(cls?.courseProfileId)
    const { data: edition } = useAcademyCourseEdition(cls?.courseEditionId)
-   const { data: schedules = [], isLoading: isLoadingSchedules } = useAcademyLiveSchedules({ liveClassId: id })
+   const liveClassId = cls?.liveClass?.id
+   const { data: schedules = [], isLoading: isLoadingSchedules } = useAcademyLiveSchedules(
+      liveClassId ? { liveClassId } : {},
+      { enabled: !!liveClassId },
+   )
    const { data: assessments = [], isLoading: isLoadingAssessments } = useAcademyClassAssessments({ classId: id })
    const { data: enrollmentsData, isLoading: isLoadingEnrollments } = useAcademyEnrollments({ classId: id, page: 1, limit: 100 })
    const { data: attempts = [], isLoading: isLoadingAttempts } = useAcademyExamAttempts({ classId: id })
@@ -66,10 +96,93 @@ export default function ClassDetailPage() {
    const submitMutation = useSubmitClassForApproval()
    const approveMutation = useApproveClass()
    const rejectMutation = useRejectClass()
+   const joinLiveSessionMutation = useJoinAcademyLiveSessionAsLecturer()
+   const previewConflictMutation = usePreviewAcademyLiveScheduleConflict()
+   const createRequestMutation = useCreateAcademyLiveScheduleRequest()
+   const cancelRequestMutation = useCancelAcademyLiveScheduleRequest()
+   const approveRequestMutation = useApproveAcademyLiveScheduleRequest()
+   const rejectRequestMutation = useRejectAcademyLiveScheduleRequest()
+   const endRoomMutation = useMutation({
+      mutationFn: (roomId: string) => roomsApi.endRoom(roomId),
+   })
+
+   const roomStatusesQuery = useQuery({
+      queryKey: ["academy-live-room-status", schedules.map((s) => s.roomId).filter(Boolean)],
+      enabled: schedules.length > 0,
+      refetchInterval: 10000,
+      queryFn: async () => {
+         const map: Record<string, boolean> = {}
+         await Promise.all(
+            schedules.map(async (schedule) => {
+               if (!schedule.roomId) return
+               try {
+                  map[schedule.roomId] = await roomsApi.isRoomActive(schedule.roomId)
+               } catch {
+                  map[schedule.roomId] = false
+               }
+            }),
+         )
+         return map
+      },
+   })
 
    const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false)
    const [isDuplicateDialogOpen, setIsDuplicateDialogOpen] = useState(false)
+   const [isScheduleRequestDialogOpen, setIsScheduleRequestDialogOpen] = useState(false)
+   const [isApproveRequestDialogOpen, setIsApproveRequestDialogOpen] = useState(false)
+   const [isRejectRequestDialogOpen, setIsRejectRequestDialogOpen] = useState(false)
    const [rejectionReason, setRejectionReason] = useState("")
+   const [requestFilterStatus, setRequestFilterStatus] = useState<string>("ALL")
+   const [requestFilterMineOnly, setRequestFilterMineOnly] = useState(false)
+   const [requestFilterFromDate, setRequestFilterFromDate] = useState("")
+   const [requestFilterToDate, setRequestFilterToDate] = useState("")
+   const [selectedRequestId, setSelectedRequestId] = useState("")
+   const [requestReviewNote, setRequestReviewNote] = useState("")
+   const [requestScheduleId, setRequestScheduleId] = useState("")
+   const [requestType, setRequestType] = useState<"LEAVE" | "RESCHEDULE">("LEAVE")
+   const [requestedDate, setRequestedDate] = useState("")
+   const [requestReason, setRequestReason] = useState("")
+   const [proposedDate, setProposedDate] = useState("")
+   const [proposedStartTime, setProposedStartTime] = useState("19:00")
+   const [proposedEndTime, setProposedEndTime] = useState("21:00")
+
+   const selectedScheduleId = requestScheduleId || schedules[0]?.id || ""
+   const selectedSchedule = useMemo(
+      () => schedules.find((schedule) => schedule.id === selectedScheduleId),
+      [schedules, selectedScheduleId],
+   )
+
+   const requestQuery = useMemo(() => ({
+      ...(selectedScheduleId ? { liveScheduleId: selectedScheduleId } : {}),
+      ...(requestFilterStatus !== "ALL"
+         ? { status: requestFilterStatus as "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED" }
+         : {}),
+      ...(requestFilterMineOnly && authUser?.id ? { requestedBy: authUser.id } : {}),
+      ...(requestFilterFromDate
+         ? { fromDate: new Date(requestFilterFromDate).toISOString() }
+         : {}),
+      ...(requestFilterToDate
+         ? { toDate: new Date(requestFilterToDate).toISOString() }
+         : {}),
+   }), [
+      selectedScheduleId,
+      requestFilterStatus,
+      requestFilterMineOnly,
+      requestFilterFromDate,
+      requestFilterToDate,
+      authUser?.id,
+   ])
+
+   const { data: scheduleRequests = [], isLoading: isLoadingScheduleRequests } = useAcademyLiveScheduleRequests(
+      requestQuery,
+      { enabled: !!selectedScheduleId },
+   )
+
+   useEffect(() => {
+      if (!requestScheduleId && schedules[0]?.id) {
+         setRequestScheduleId(schedules[0].id)
+      }
+   }, [schedules, requestScheduleId])
 
    // Giả sử API trả về structure { items, total } cho enrollments
    const enrollments = Array.isArray(enrollmentsData) ? enrollmentsData : (enrollmentsData as any)?.items || []
@@ -114,6 +227,145 @@ export default function ClassDetailPage() {
          setRejectionReason("")
       } catch (error: any) {
          toast.error(error.response?.data?.message || "Failed to reject")
+      }
+   }
+
+   const startOrJoinLiveRoom = async (scheduleId: string) => {
+      try {
+         const joinData = await joinLiveSessionMutation.mutateAsync(scheduleId)
+         window.open(
+            `${MEET_URL}?access_token=${joinData.token}`,
+            "_blank",
+            "noopener,noreferrer",
+         )
+         toast.success("Đã mở phòng học Meet")
+      } catch (error: any) {
+         toast.error(error?.response?.data?.message || "Không thể vào phòng học, vui lòng thử lại")
+      }
+   }
+
+   const endLiveRoom = async (roomId?: string | null) => {
+      if (!roomId) return
+      try {
+         await endRoomMutation.mutateAsync(roomId)
+         await roomStatusesQuery.refetch()
+         toast.success("Đã kết thúc phòng học")
+      } catch (error: any) {
+         toast.error(error?.response?.data?.message || "Không thể kết thúc phòng học")
+      }
+   }
+
+   const resetScheduleRequestForm = () => {
+      setRequestType("LEAVE")
+      setRequestedDate("")
+      setRequestReason("")
+      setProposedDate("")
+      setProposedStartTime("19:00")
+      setProposedEndTime("21:00")
+   }
+
+   const submitScheduleRequest = async () => {
+      if (!selectedScheduleId) {
+         toast.error("Vui lòng chọn lịch học cần tạo yêu cầu")
+         return
+      }
+      if (!requestedDate) {
+         toast.error("Vui lòng chọn ngày cần xử lý")
+         return
+      }
+
+      if (requestType === "RESCHEDULE") {
+         if (!proposedDate || !proposedStartTime || !proposedEndTime) {
+            toast.error("Vui lòng nhập đầy đủ thông tin lịch đề xuất")
+            return
+         }
+         if (!liveClassId) {
+            toast.error("Không tìm thấy liveClassId để kiểm tra conflict")
+            return
+         }
+         const weekday = new Date(proposedDate).getDay()
+         const preview = await previewConflictMutation.mutateAsync({
+            liveClassId,
+            weekday,
+            startTime: proposedStartTime,
+            endTime: proposedEndTime,
+         })
+         if (preview.hasConflict) {
+            const teacherConflict = preview.teacherConflicts?.[0]
+            if (teacherConflict) {
+               toast.error(
+                  `Lịch đề xuất bị trùng với lớp ${teacherConflict.classCode} (${teacherConflict.startTime}-${teacherConflict.endTime})`,
+               )
+            } else {
+               toast.error("Lịch đề xuất bị trùng trong lớp hiện tại")
+            }
+            return
+         }
+      }
+
+      try {
+         await createRequestMutation.mutateAsync({
+            liveScheduleId: selectedScheduleId,
+            type: requestType,
+            requestedDate: new Date(requestedDate).toISOString(),
+            proposedDate:
+               requestType === "RESCHEDULE" && proposedDate
+                  ? new Date(proposedDate).toISOString()
+                  : undefined,
+            proposedStartTime:
+               requestType === "RESCHEDULE" ? proposedStartTime : undefined,
+            proposedEndTime:
+               requestType === "RESCHEDULE" ? proposedEndTime : undefined,
+            reason: requestReason || undefined,
+         })
+         toast.success("Đã tạo yêu cầu lịch học")
+         setIsScheduleRequestDialogOpen(false)
+         resetScheduleRequestForm()
+      } catch (error: any) {
+         toast.error(error?.response?.data?.message || "Tạo yêu cầu thất bại")
+      }
+   }
+
+   const approveScheduleRequest = async (requestId: string) => {
+      try {
+         await approveRequestMutation.mutateAsync({
+            id: requestId,
+            input: { reviewNote: requestReviewNote || undefined },
+         })
+         toast.success("Đã duyệt yêu cầu")
+         setIsApproveRequestDialogOpen(false)
+         setSelectedRequestId("")
+         setRequestReviewNote("")
+      } catch (error: any) {
+         toast.error(error?.response?.data?.message || "Duyệt yêu cầu thất bại")
+      }
+   }
+
+   const rejectScheduleRequest = async (requestId: string) => {
+      if (!requestReviewNote.trim()) {
+         toast.error("Vui lòng nhập lý do từ chối")
+         return
+      }
+      try {
+         await rejectRequestMutation.mutateAsync({
+            id: requestId,
+            input: { reviewNote: requestReviewNote },
+         })
+         toast.success("Đã từ chối yêu cầu")
+         setIsRejectRequestDialogOpen(false)
+         setSelectedRequestId("")
+         setRequestReviewNote("")
+      } catch (error: any) {
+         toast.error(error?.response?.data?.message || "Từ chối yêu cầu thất bại")
+      }
+   }
+
+   const cancelScheduleRequest = async (requestId: string) => {
+      try {
+         await cancelRequestMutation.mutateAsync(requestId)
+         toast.success("Đã hủy yêu cầu")
+      } catch (error: any) {
+         toast.error(error?.response?.data?.message || "Hủy yêu cầu thất bại")
       }
    }
 
@@ -262,9 +514,10 @@ export default function ClassDetailPage() {
 
             <div className="md:col-span-3">
                <Tabs defaultValue="overview" className="w-full">
-                  <TabsList className={cn("grid w-full mb-6", isLive ? "grid-cols-7" : "grid-cols-5")}>
+                  <TabsList className={cn("grid w-full mb-6", isLive ? "grid-cols-8" : "grid-cols-5")}>
                      <TabsTrigger value="overview">Tổng quan</TabsTrigger>
                      {isLive && <TabsTrigger value="schedule">Lịch học ({schedules.length})</TabsTrigger>}
+                     {isLive && <TabsTrigger value="requests">Yêu cầu ({scheduleRequests.length})</TabsTrigger>}
                      {isLive && <TabsTrigger value="attendance">Điểm danh</TabsTrigger>}
                      <TabsTrigger value="assessments">Bài kiểm tra ({assessments.length})</TabsTrigger>
                      <TabsTrigger value="attempts">Kết quả thi ({attempts.length})</TabsTrigger>
@@ -337,7 +590,7 @@ export default function ClassDetailPage() {
                      </Card>
                   </TabsContent>
 
-                  <TabsContent value="schedule">
+                  <TabsContent value="schedule" className="space-y-6">
                      <Card>
                         <CardHeader className="flex flex-row items-center justify-between">
                            <div>
@@ -345,7 +598,7 @@ export default function ClassDetailPage() {
                               <CardDescription>Các ca học cố định trong tuần cho lớp này</CardDescription>
                            </div>
                            <Button size="sm" asChild className="gap-2">
-                              <Link to={`/academy/live-schedule/new?liveClassId=${id}`}><Plus className="h-4 w-4" /> Thêm lịch</Link>
+                              <Link to={`/academy/live-schedule/new?liveClassId=${liveClassId || ""}&classId=${id}`}><Plus className="h-4 w-4" /> Thêm lịch</Link>
                            </Button>
                         </CardHeader>
                         <CardContent>
@@ -357,12 +610,13 @@ export default function ClassDetailPage() {
                                     <TableHead>Giờ bắt đầu</TableHead>
                                     <TableHead>Giờ kết thúc</TableHead>
                                     <TableHead>Địa điểm / Link</TableHead>
+                                    <TableHead>Phòng Meet</TableHead>
                                     <TableHead className="text-right">Hành động</TableHead>
                                  </TableRow>
                               </TableHeader>
                               <TableBody>
                                  {isLoadingSchedules ? (
-                                    <TableRow><TableCell colSpan={7} className="text-center">Đang tải...</TableCell></TableRow>
+                                    <TableRow><TableCell colSpan={8} className="text-center">Đang tải...</TableCell></TableRow>
                                  ) : schedules.length ? (
                                     schedules.map((s, idx) => (
                                        <TableRow key={s.id}>
@@ -376,16 +630,214 @@ export default function ClassDetailPage() {
                                                 {s.location || "N/A"}
                                              </div>
                                           </TableCell>
+                                          <TableCell>
+                                             {s.roomId ? (
+                                                <Badge
+                                                   variant={roomStatusesQuery.data?.[s.roomId] ? "default" : "secondary"}
+                                                   className="uppercase"
+                                                >
+                                                   {roomStatusesQuery.data?.[s.roomId] ? "Active" : "Inactive"}
+                                                </Badge>
+                                             ) : (
+                                                <Badge variant="outline">No Room</Badge>
+                                             )}
+                                          </TableCell>
                                           <TableCell className="text-right">
-                                             <Button variant="ghost" size="sm" asChild>
-                                                <Link to={`/academy/live-schedule/${s.id}/edit`}><Edit className="h-3.5 w-3.5" /></Link>
-                                             </Button>
+                                             <div className="flex justify-end gap-2">
+                                                {canManageLiveSession && (
+                                                   <Button
+                                                      variant={roomStatusesQuery.data?.[s.roomId || ""] ? "outline" : "default"}
+                                                      size="sm"
+                                                      onClick={() => startOrJoinLiveRoom(s.id)}
+                                                      disabled={joinLiveSessionMutation.isPending}
+                                                   >
+                                                      {roomStatusesQuery.data?.[s.roomId || ""]
+                                                         ? "Vào phòng"
+                                                         : "Khởi tạo / Retry"}
+                                                   </Button>
+                                                )}
+                                                {canManageLiveSession && roomStatusesQuery.data?.[s.roomId || ""] && (
+                                                   <Button
+                                                      variant="outline"
+                                                      size="sm"
+                                                      onClick={() => endLiveRoom(s.roomId)}
+                                                      disabled={endRoomMutation.isPending}
+                                                   >
+                                                      Kết thúc phòng
+                                                   </Button>
+                                                )}
+                                                <Button variant="ghost" size="sm" asChild>
+                                                   <Link to={`/academy/live-schedule/${s.id}/edit`}><Edit className="h-3.5 w-3.5" /></Link>
+                                                </Button>
+                                             </div>
                                           </TableCell>
                                        </TableRow>
                                     ))
                                  ) : (
                                     <TableRow>
-                                       <TableCell colSpan={6} className="text-center py-8 text-muted-foreground italic">Chưa có lịch học nào</TableCell>
+                                       <TableCell colSpan={8} className="text-center py-8 text-muted-foreground italic">Chưa có lịch học nào</TableCell>
+                                    </TableRow>
+                                 )}
+                              </TableBody>
+                           </Table>
+                        </CardContent>
+                     </Card>
+
+                  </TabsContent>
+
+                  <TabsContent value="requests">
+                     <Card>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                           <div>
+                              <CardTitle className="text-lg">Yêu cầu đổi lịch / xin nghỉ</CardTitle>
+                              <CardDescription>
+                                 Giảng viên tạo yêu cầu, staff/admin duyệt để cập nhật ngoại lệ lịch học.
+                              </CardDescription>
+                           </div>
+                           <div className="flex items-center gap-2">
+                              {canManageLiveSession && (
+                                 <Button
+                                    onClick={() => setIsScheduleRequestDialogOpen(true)}
+                                    disabled={!selectedSchedule}
+                                    className="gap-2"
+                                 >
+                                    <Plus className="h-4 w-4" />
+                                    Tạo yêu cầu
+                                 </Button>
+                              )}
+                           </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                           <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
+                              <Select
+                                 value={selectedScheduleId}
+                                 onValueChange={(value) => setRequestScheduleId(value)}
+                              >
+                                 <SelectTrigger>
+                                    <SelectValue placeholder="Chọn lịch học" />
+                                 </SelectTrigger>
+                                 <SelectContent>
+                                    {schedules.map((schedule) => (
+                                       <SelectItem key={schedule.id} value={schedule.id}>
+                                          {formatWeekday(schedule.weekday)} {schedule.startTime}-{schedule.endTime}
+                                       </SelectItem>
+                                    ))}
+                                 </SelectContent>
+                              </Select>
+
+                              <Select
+                                 value={requestFilterStatus}
+                                 onValueChange={setRequestFilterStatus}
+                              >
+                                 <SelectTrigger>
+                                    <SelectValue placeholder="Trạng thái" />
+                                 </SelectTrigger>
+                                 <SelectContent>
+                                    <SelectItem value="ALL">Tất cả trạng thái</SelectItem>
+                                    <SelectItem value="PENDING">Chờ duyệt</SelectItem>
+                                    <SelectItem value="APPROVED">Đã duyệt</SelectItem>
+                                    <SelectItem value="REJECTED">Từ chối</SelectItem>
+                                    <SelectItem value="CANCELLED">Đã hủy</SelectItem>
+                                 </SelectContent>
+                              </Select>
+
+                              <Input
+                                 type="date"
+                                 value={requestFilterFromDate}
+                                 onChange={(e) => setRequestFilterFromDate(e.target.value)}
+                              />
+                              <Input
+                                 type="date"
+                                 value={requestFilterToDate}
+                                 onChange={(e) => setRequestFilterToDate(e.target.value)}
+                              />
+                              <Button
+                                 variant={requestFilterMineOnly ? "default" : "outline"}
+                                 onClick={() => setRequestFilterMineOnly((prev) => !prev)}
+                              >
+                                 {requestFilterMineOnly ? "Đang lọc: của tôi" : "Chỉ yêu cầu của tôi"}
+                              </Button>
+                           </div>
+
+                           <Table>
+                              <TableHeader>
+                                 <TableRow className="bg-muted/50">
+                                    <TableHead>Loại</TableHead>
+                                    <TableHead>Ngày yêu cầu</TableHead>
+                                    <TableHead>Lý do</TableHead>
+                                    <TableHead>Trạng thái</TableHead>
+                                    <TableHead>Người tạo</TableHead>
+                                    <TableHead className="text-right">Hành động</TableHead>
+                                 </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                 {isLoadingScheduleRequests ? (
+                                    <TableRow>
+                                       <TableCell colSpan={6} className="text-center">Đang tải...</TableCell>
+                                    </TableRow>
+                                 ) : scheduleRequests.length ? (
+                                    scheduleRequests.map((request) => (
+                                       <TableRow key={request.id}>
+                                          <TableCell>{formatRequestType(request.type)}</TableCell>
+                                          <TableCell>{new Date(request.requestedDate).toLocaleDateString("vi-VN")}</TableCell>
+                                          <TableCell className="max-w-[280px] truncate">{request.reason || "-"}</TableCell>
+                                          <TableCell>
+                                             <Badge variant={request.status === "APPROVED" ? "default" : request.status === "REJECTED" ? "destructive" : "secondary"}>
+                                                {formatRequestStatus(request.status)}
+                                             </Badge>
+                                          </TableCell>
+                                          <TableCell>{request.requester?.displayName || request.requestedBy}</TableCell>
+                                          <TableCell className="text-right">
+                                             <div className="flex justify-end gap-2">
+                                                {request.status === "PENDING" &&
+                                                   canApproveLiveRequest && (
+                                                      <>
+                                                         <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            onClick={() => {
+                                                               setSelectedRequestId(request.id)
+                                                               setRequestReviewNote("")
+                                                               setIsApproveRequestDialogOpen(true)
+                                                            }}
+                                                            disabled={approveRequestMutation.isPending}
+                                                         >
+                                                            Duyệt
+                                                         </Button>
+                                                         <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            onClick={() => {
+                                                               setSelectedRequestId(request.id)
+                                                               setRequestReviewNote("")
+                                                               setIsRejectRequestDialogOpen(true)
+                                                            }}
+                                                            disabled={rejectRequestMutation.isPending}
+                                                         >
+                                                            Từ chối
+                                                         </Button>
+                                                      </>
+                                                   )}
+                                                {request.status === "PENDING" &&
+                                                   request.requestedBy === authUser?.id && (
+                                                      <Button
+                                                         size="sm"
+                                                         variant="ghost"
+                                                         onClick={() => cancelScheduleRequest(request.id)}
+                                                         disabled={cancelRequestMutation.isPending}
+                                                      >
+                                                         Hủy
+                                                      </Button>
+                                                   )}
+                                             </div>
+                                          </TableCell>
+                                       </TableRow>
+                                    ))
+                                 ) : (
+                                    <TableRow>
+                                       <TableCell colSpan={6} className="text-center py-8 text-muted-foreground italic">
+                                          Chưa có yêu cầu nào cho lịch học này.
+                                       </TableCell>
                                     </TableRow>
                                  )}
                               </TableBody>
@@ -586,6 +1038,197 @@ export default function ClassDetailPage() {
             </div>
          </div>
 
+         <Dialog open={isScheduleRequestDialogOpen} onOpenChange={setIsScheduleRequestDialogOpen}>
+            <DialogContent>
+               <DialogHeader>
+                  <DialogTitle>Tạo yêu cầu đổi lịch / xin nghỉ</DialogTitle>
+                  <DialogDescription>
+                     Yêu cầu sẽ ở trạng thái chờ duyệt cho tới khi staff/admin phê duyệt.
+                  </DialogDescription>
+               </DialogHeader>
+               <div className="space-y-4 py-2">
+                  <div className="space-y-2">
+                     <p className="text-sm font-medium">Lịch học</p>
+                     <Select
+                        value={selectedScheduleId}
+                        onValueChange={(value) => setRequestScheduleId(value)}
+                     >
+                        <SelectTrigger>
+                           <SelectValue placeholder="Chọn lịch học" />
+                        </SelectTrigger>
+                        <SelectContent>
+                           {schedules.map((schedule) => (
+                              <SelectItem key={schedule.id} value={schedule.id}>
+                                 {formatWeekday(schedule.weekday)} {schedule.startTime}-{schedule.endTime}
+                              </SelectItem>
+                           ))}
+                        </SelectContent>
+                     </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                     <p className="text-sm font-medium">Loại yêu cầu</p>
+                     <Select
+                        value={requestType}
+                        onValueChange={(value) => setRequestType(value as "LEAVE" | "RESCHEDULE")}
+                     >
+                        <SelectTrigger>
+                           <SelectValue placeholder="Chọn loại yêu cầu" />
+                        </SelectTrigger>
+                        <SelectContent>
+                           <SelectItem value="LEAVE">Xin nghỉ buổi học</SelectItem>
+                           <SelectItem value="RESCHEDULE">Đề xuất đổi lịch</SelectItem>
+                        </SelectContent>
+                     </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                     <p className="text-sm font-medium">Ngày muốn xử lý</p>
+                     <Input
+                        type="date"
+                        value={requestedDate}
+                        onChange={(e) => setRequestedDate(e.target.value)}
+                     />
+                  </div>
+
+                  {requestType === "RESCHEDULE" && (
+                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                        <div className="space-y-2">
+                           <p className="text-sm font-medium">Ngày đề xuất</p>
+                           <Input
+                              type="date"
+                              value={proposedDate}
+                              onChange={(e) => setProposedDate(e.target.value)}
+                           />
+                        </div>
+                        <div className="space-y-2">
+                           <p className="text-sm font-medium">Giờ bắt đầu</p>
+                           <Input
+                              type="time"
+                              value={proposedStartTime}
+                              onChange={(e) => setProposedStartTime(e.target.value)}
+                           />
+                        </div>
+                        <div className="space-y-2">
+                           <p className="text-sm font-medium">Giờ kết thúc</p>
+                           <Input
+                              type="time"
+                              value={proposedEndTime}
+                              onChange={(e) => setProposedEndTime(e.target.value)}
+                           />
+                        </div>
+                     </div>
+                  )}
+
+                  <div className="space-y-2">
+                     <p className="text-sm font-medium">Lý do</p>
+                     <Textarea
+                        placeholder="Mô tả lý do xin nghỉ/đổi lịch..."
+                        value={requestReason}
+                        onChange={(e) => setRequestReason(e.target.value)}
+                        className="min-h-[90px]"
+                     />
+                  </div>
+               </div>
+               <DialogFooter>
+                  <Button
+                     variant="outline"
+                     onClick={() => {
+                        setIsScheduleRequestDialogOpen(false)
+                        resetScheduleRequestForm()
+                     }}
+                  >
+                     Hủy
+                  </Button>
+                  <Button
+                     onClick={submitScheduleRequest}
+                     disabled={createRequestMutation.isPending || previewConflictMutation.isPending}
+                  >
+                     Gửi yêu cầu
+                  </Button>
+               </DialogFooter>
+            </DialogContent>
+         </Dialog>
+
+         <Dialog
+            open={isApproveRequestDialogOpen}
+            onOpenChange={(open) => {
+               setIsApproveRequestDialogOpen(open)
+               if (!open) {
+                  setSelectedRequestId("")
+                  setRequestReviewNote("")
+               }
+            }}
+         >
+            <DialogContent>
+               <DialogHeader>
+                  <DialogTitle>Duyệt yêu cầu lịch học</DialogTitle>
+                  <DialogDescription>
+                     Xác nhận duyệt yêu cầu này. Bạn có thể thêm ghi chú nội bộ.
+                  </DialogDescription>
+               </DialogHeader>
+               <div className="py-2">
+                  <Textarea
+                     placeholder="Ghi chú duyệt (không bắt buộc)"
+                     value={requestReviewNote}
+                     onChange={(e) => setRequestReviewNote(e.target.value)}
+                     className="min-h-[90px]"
+                  />
+               </div>
+               <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsApproveRequestDialogOpen(false)}>
+                     Hủy
+                  </Button>
+                  <Button
+                     onClick={() => approveScheduleRequest(selectedRequestId)}
+                     disabled={!selectedRequestId || approveRequestMutation.isPending}
+                  >
+                     Xác nhận duyệt
+                  </Button>
+               </DialogFooter>
+            </DialogContent>
+         </Dialog>
+
+         <Dialog
+            open={isRejectRequestDialogOpen}
+            onOpenChange={(open) => {
+               setIsRejectRequestDialogOpen(open)
+               if (!open) {
+                  setSelectedRequestId("")
+                  setRequestReviewNote("")
+               }
+            }}
+         >
+            <DialogContent>
+               <DialogHeader>
+                  <DialogTitle>Từ chối yêu cầu lịch học</DialogTitle>
+                  <DialogDescription>
+                     Nhập lý do từ chối để giảng viên cập nhật lại đề xuất.
+                  </DialogDescription>
+               </DialogHeader>
+               <div className="py-2">
+                  <Textarea
+                     placeholder="Lý do từ chối..."
+                     value={requestReviewNote}
+                     onChange={(e) => setRequestReviewNote(e.target.value)}
+                     className="min-h-[90px]"
+                  />
+               </div>
+               <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsRejectRequestDialogOpen(false)}>
+                     Hủy
+                  </Button>
+                  <Button
+                     variant="destructive"
+                     onClick={() => rejectScheduleRequest(selectedRequestId)}
+                     disabled={!selectedRequestId || rejectRequestMutation.isPending}
+                  >
+                     Xác nhận từ chối
+                  </Button>
+               </DialogFooter>
+            </DialogContent>
+         </Dialog>
+
          <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
             <DialogContent>
                <DialogHeader>
@@ -623,4 +1266,18 @@ export default function ClassDetailPage() {
 function formatWeekday(wd: number) {
    const days = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"]
    return days[wd] || "N/A"
+}
+
+function formatRequestType(type: string) {
+   if (type === "LEAVE") return "Xin nghỉ"
+   if (type === "RESCHEDULE") return "Đổi lịch"
+   return type
+}
+
+function formatRequestStatus(status: string) {
+   if (status === "PENDING") return "Chờ duyệt"
+   if (status === "APPROVED") return "Đã duyệt"
+   if (status === "REJECTED") return "Từ chối"
+   if (status === "CANCELLED") return "Đã hủy"
+   return status
 }

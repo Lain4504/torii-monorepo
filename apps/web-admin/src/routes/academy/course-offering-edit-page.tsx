@@ -62,6 +62,7 @@ export default function AcademyCourseOfferingEditPage() {
                   <AlertDescription className="text-amber-600">
                     Lưu ý: Nếu bạn thay đổi các thông tin quan trọng (Tiêu đề, Giá, Lớp học liên kết),
                     gói bán sẽ <strong>tự động chuyển về trạng thái Chờ phê duyệt</strong> và bị tạm ẩn khỏi trang chủ.
+                    Quyền lợi của học viên đã mua trước đó <strong>không bị hồi tố</strong>.
                   </AlertDescription>
                 </Alert>
               )}
@@ -102,6 +103,7 @@ export default function AcademyCourseOfferingEditPage() {
             <AlertDialogTitle>Xác nhận cập nhật offering đã publish?</AlertDialogTitle>
             <AlertDialogDescription>
               Thay đổi mapping lớp / giá / thời hạn hiệu lực sẽ đưa offering về <strong>PENDING_APPROVAL</strong> và cần duyệt lại.
+              Các đơn đã mua trước thay đổi này vẫn giữ entitlement theo snapshot tại thời điểm thanh toán.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -212,7 +212,7 @@ export class ExamAttemptService {
     if (attempt.status !== 'IN_PROGRESS') return attempt;
 
     const examQuestions = attempt.exam.examQuestions;
-    const draftAnswers = (attempt.draftAnswers as Record<string, any>) || {};
+    const answerMap = this.extractAnswerMap(attempt.draftAnswers);
 
     let rawScore = 0;
     let totalMaxScore = 0;
@@ -221,17 +221,22 @@ export class ExamAttemptService {
     for (const eq of examQuestions) {
       const q = eq.question;
       const weight = Number(eq.points) || 1.0;
-      totalMaxScore += weight;
 
-      if (q.questionType === 'ESSAY' || q.questionType === 'ORAL') {
+      if (q.questionType === 'GROUP_PARENT') {
+        continue;
+      }
+
+      if (q.questionType === 'ESSAY' || q.questionType === 'ORAL' || q.questionType === 'SHORT_ANSWER') {
         hasSubjective = true;
         continue;
       }
 
-      const userAnswer = draftAnswers[q.id];
+      totalMaxScore += weight;
+
+      const userAnswer = answerMap[q.id];
       const correctAnswer = q.correctAnswer;
 
-      if (userAnswer !== undefined && JSON.stringify(userAnswer) === JSON.stringify(correctAnswer)) {
+      if (this.isAnswerCorrect(q.questionType, userAnswer, correctAnswer)) {
         rawScore += weight;
       }
     }
@@ -280,5 +285,58 @@ export class ExamAttemptService {
   }
 
   private readonly logger = new Logger(ExamAttemptService.name);
+
+  private extractAnswerMap(draftAnswers: unknown): Record<string, unknown> {
+    if (!draftAnswers || typeof draftAnswers !== 'object') return {};
+    const parsed = draftAnswers as Record<string, unknown>;
+    if (
+      parsed.answers &&
+      typeof parsed.answers === 'object' &&
+      !Array.isArray(parsed.answers)
+    ) {
+      return parsed.answers as Record<string, unknown>;
+    }
+    return parsed;
+  }
+
+  private normalizeSingleAnswer(value: unknown): string | null {
+    if (value == null) return null;
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      return String(value).trim();
+    }
+    if (typeof value === 'object' && 'value' in (value as any)) {
+      const inner = (value as any).value;
+      if (inner == null) return null;
+      return String(inner).trim();
+    }
+    return null;
+  }
+
+  private normalizeMultiAnswer(value: unknown): string[] {
+    if (!Array.isArray(value)) return [];
+    return value
+      .map((item) => this.normalizeSingleAnswer(item))
+      .filter((item): item is string => Boolean(item))
+      .sort();
+  }
+
+  private isAnswerCorrect(questionType: string, userAnswer: unknown, correctAnswer: unknown): boolean {
+    if (userAnswer === undefined) return false;
+
+    if (questionType === 'MULTIPLE_CHOICE') {
+      const user = this.normalizeMultiAnswer(userAnswer);
+      const correct = this.normalizeMultiAnswer(correctAnswer);
+      if (user.length !== correct.length) return false;
+      return user.every((v, idx) => v === correct[idx]);
+    }
+
+    if (questionType === 'SINGLE_CHOICE' || questionType === 'TRUE_FALSE') {
+      const user = this.normalizeSingleAnswer(userAnswer);
+      const correct = this.normalizeSingleAnswer(correctAnswer);
+      return Boolean(user && correct && user === correct);
+    }
+
+    return JSON.stringify(userAnswer) === JSON.stringify(correctAnswer);
+  }
 }
 

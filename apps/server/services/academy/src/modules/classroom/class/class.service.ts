@@ -169,6 +169,14 @@ export class ClassService {
   async update(id: string, input: ClassUpdateDto, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
 
+    if (
+      classItem.mode === 'LIVE' &&
+      input.primaryTeacherId &&
+      input.primaryTeacherId !== classItem.liveClass?.primaryTeacherId
+    ) {
+      await this.assertPrimaryTeacherScheduleConflicts(id, input.primaryTeacherId);
+    }
+
     return this.prisma.$transaction(async (tx) => {
       const updatedClass = await tx.class.update({
         where: { id },
@@ -619,5 +627,102 @@ export class ClassService {
         },
       });
     });
+  }
+
+  private async assertPrimaryTeacherScheduleConflicts(
+    classId: string,
+    primaryTeacherId: string,
+  ) {
+    const ownLiveClass = await this.prisma.liveClass.findUnique({
+      where: { classId },
+      include: {
+        schedules: {
+          select: {
+            weekday: true,
+            startTime: true,
+            endTime: true,
+          },
+        },
+      },
+    });
+    if (!ownLiveClass) return;
+    if (ownLiveClass.schedules.length === 0) return;
+
+    const candidateSchedules = await this.prisma.liveSchedule.findMany({
+      where: {
+        liveClass: {
+          classId: { not: classId },
+          primaryTeacherId,
+          class: {
+            status: {
+              in: ['DRAFT', 'PENDING_APPROVAL', 'ENROLLING', 'IN_PROGRESS'],
+            },
+          },
+        },
+      },
+      include: {
+        liveClass: {
+          include: {
+            class: {
+              select: {
+                code: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    for (const ownSlot of ownLiveClass.schedules) {
+      for (const candidate of candidateSchedules) {
+        if (candidate.weekday !== ownSlot.weekday) continue;
+        if (
+          this.isTimeOverlap(
+            ownSlot.startTime,
+            ownSlot.endTime,
+            candidate.startTime,
+            candidate.endTime,
+          )
+        ) {
+          throw new BadRequestException(
+            `Teacher schedule conflict with class ${candidate.liveClass.class.code} (${candidate.liveClass.class.name})`,
+          );
+        }
+      }
+    }
+  }
+
+  private isTimeOverlap(
+    startA: string,
+    endA: string,
+    startB: string,
+    endB: string,
+  ) {
+    const aStart = this.toMinutes(startA);
+    const aEnd = this.toMinutes(endA);
+    const bStart = this.toMinutes(startB);
+    const bEnd = this.toMinutes(endB);
+    if (aEnd <= aStart || bEnd <= bStart) {
+      throw new BadRequestException('Invalid schedule time range');
+    }
+    return aStart < bEnd && bStart < aEnd;
+  }
+
+  private toMinutes(time: string) {
+    const [hourText, minuteText] = (time || '').split(':');
+    const hour = Number(hourText);
+    const minute = Number(minuteText);
+    if (
+      Number.isNaN(hour) ||
+      Number.isNaN(minute) ||
+      hour < 0 ||
+      hour > 23 ||
+      minute < 0 ||
+      minute > 59
+    ) {
+      throw new BadRequestException(`Invalid time format: ${time}`);
+    }
+    return hour * 60 + minute;
   }
 }

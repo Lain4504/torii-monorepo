@@ -241,11 +241,12 @@ export class CourseOfferingService {
       input.validFrom !== undefined ||
       input.validTo !== undefined;
 
+    let existingEnrollmentCount = 0;
     if (offering.status === OfferingStatus.PUBLISHED && criticalFieldsChanged) {
       newStatus = OfferingStatus.PENDING_APPROVAL; // Require re-approval
-      console.log(
-        `Offering ${id} critical fields changed, resetting to PENDING_APPROVAL`,
-      );
+      existingEnrollmentCount = await this.prisma.enrollment.count({
+        where: { sourceOfferingId: id },
+      });
     }
 
     if (
@@ -296,6 +297,14 @@ export class CourseOfferingService {
         status: updated.status,
         originalPrice: updated.originalPrice,
       },
+      metadata:
+        offering.status === OfferingStatus.PUBLISHED && criticalFieldsChanged
+          ? {
+              policy: 'NON_RETROACTIVE_ENTITLEMENT',
+              previousBuyersUnaffected: true,
+              existingEnrollmentCount,
+            }
+          : undefined,
     });
 
     return updated;
@@ -418,6 +427,12 @@ export class CourseOfferingService {
       offering.status === OfferingStatus.PUBLISHED
         ? OfferingStatus.PENDING_APPROVAL
         : offering.status;
+    const existingEnrollmentCount =
+      offering.status === OfferingStatus.PUBLISHED
+        ? await this.prisma.enrollment.count({
+            where: { sourceOfferingId: input.offeringId },
+          })
+        : 0;
 
     await this.prisma.$transaction([
       this.prisma.courseOfferingClass.deleteMany({
@@ -446,6 +461,13 @@ export class CourseOfferingService {
         classIds: input.classIds,
         previousStatus: offering.status,
         nextStatus,
+        ...(offering.status === OfferingStatus.PUBLISHED
+          ? {
+              policy: 'NON_RETROACTIVE_ENTITLEMENT',
+              previousBuyersUnaffected: true,
+              existingEnrollmentCount,
+            }
+          : {}),
       },
     });
 

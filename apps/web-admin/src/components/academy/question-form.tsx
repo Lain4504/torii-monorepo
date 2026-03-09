@@ -1,7 +1,7 @@
 import { Controller, useForm } from "react-hook-form"
+import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
-import { Input } from "@workspace/ui/components/input"
 import {
   Field,
   FieldError,
@@ -32,6 +32,7 @@ import { QuestionPicker } from "./question-picker"
 import { StringListEditor } from "@/components/academy/string-list-editor"
 import { KeyValueEditor } from "./key-value-editor"
 import { QuestionOptionsEditor } from "./question-options-editor"
+import { LessonMediaUploader } from "./lesson-media-uploader"
 import { Eye, Save } from "lucide-react"
 import {
   Dialog,
@@ -97,40 +98,192 @@ export function QuestionForm({
   const questionType = watch("questionType" as any)
   const content = watch("content" as any)
   const options = watch("options" as any)
+  const correctAnswer = watch("correctAnswer" as any)
+  const parentId = watch("parentId" as any)
 
-  const PreviewContent = () => (
-    <div className="space-y-6">
-      <div
-        className="prose dark:prose-invert max-w-none min-h-[50px] p-4 bg-muted/5 rounded-lg border border-dashed"
-        dangerouslySetInnerHTML={{ __html: content || "<i>Nội dung câu hỏi sẽ hiển thị tại đây...</i>" }}
-      />
-      <div className="space-y-3">
-        {Array.isArray(options) && options.length > 0 ? (
-          options.map((opt: any, i: number) => (
-            <div
-              key={i}
-              className="flex items-center p-3 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer group"
-            >
-              <div className="size-8 rounded-full border bg-background flex items-center justify-center mr-3 text-sm font-bold group-hover:border-primary group-hover:text-primary transition-colors uppercase">
-                {opt.value}
-              </div>
-              <span className="font-medium text-sm">
-                {opt.label || `Lựa chọn ${opt.value}`}
-              </span>
+  const normalizedOptions = (() => {
+    if (!Array.isArray(options)) return []
+    return options.map((opt: any, index: number) => {
+      if (typeof opt === "string") {
+        return { value: String.fromCharCode(65 + index), label: opt }
+      }
+      if (opt && typeof opt === "object") {
+        if ("value" in opt || "label" in opt) {
+          return {
+            value: String(opt.value ?? String.fromCharCode(65 + index)),
+            label: String(opt.label ?? `Lựa chọn ${String(opt.value ?? String.fromCharCode(65 + index))}`),
+          }
+        }
+        const entries = Object.entries(opt)
+        if (entries.length === 1) {
+          const [key, value] = entries[0]
+          return {
+            value: key,
+            label: typeof value === "string" ? value : JSON.stringify(value),
+          }
+        }
+      }
+      const fallback = String.fromCharCode(65 + index)
+      return { value: fallback, label: `Lựa chọn ${fallback}` }
+    })
+  })()
+
+  const normalizedCorrectValues: string[] = (() => {
+    if (correctAnswer == null) return []
+    if (Array.isArray(correctAnswer)) {
+      return correctAnswer
+        .map((item) => {
+          if (item == null) return null
+          if (typeof item === "string" || typeof item === "number" || typeof item === "boolean") {
+            return String(item)
+          }
+          if (typeof item === "object" && "value" in item) {
+            return String((item as any).value)
+          }
+          return null
+        })
+        .filter((value): value is string => Boolean(value))
+    }
+    if (typeof correctAnswer === "string" || typeof correctAnswer === "number" || typeof correctAnswer === "boolean") {
+      return [String(correctAnswer)]
+    }
+    if (typeof correctAnswer === "object") {
+      if ("value" in (correctAnswer as any)) {
+        return [String((correctAnswer as any).value)]
+      }
+      if ("values" in (correctAnswer as any) && Array.isArray((correctAnswer as any).values)) {
+        return (correctAnswer as any).values.map((item: unknown) => String(item))
+      }
+    }
+    return []
+  })()
+
+  const PreviewContent = () => {
+    const [selectedValues, setSelectedValues] = useState<string[]>([])
+    const [checked, setChecked] = useState(false)
+    const [checkMessage, setCheckMessage] = useState<string | null>(null)
+
+    const supportsAnswerCheck =
+      questionType === "SINGLE_CHOICE" ||
+      questionType === "MULTIPLE_CHOICE" ||
+      questionType === "TRUE_FALSE"
+
+    const isResultCorrect = (() => {
+      if (!checked || !supportsAnswerCheck) return null
+      if (questionType === "MULTIPLE_CHOICE") {
+        const selected = [...selectedValues].sort()
+        const expected = [...normalizedCorrectValues].sort()
+        return (
+          selected.length === expected.length &&
+          selected.every((value, index) => value === expected[index])
+        )
+      }
+      return selectedValues[0] === normalizedCorrectValues[0]
+    })()
+
+    const toggleOption = (value: string) => {
+      if (!supportsAnswerCheck) return
+      setChecked(false)
+      setCheckMessage(null)
+      if (questionType === "MULTIPLE_CHOICE") {
+        setSelectedValues((prev) =>
+          prev.includes(value)
+            ? prev.filter((item) => item !== value)
+            : [...prev, value],
+        )
+        return
+      }
+      setSelectedValues([value])
+    }
+
+    const handleCheckAnswer = () => {
+      if (!supportsAnswerCheck) return
+      if (selectedValues.length === 0) {
+        setCheckMessage("Bạn chưa chọn đáp án để kiểm tra.")
+        setChecked(false)
+        return
+      }
+      if (normalizedCorrectValues.length === 0) {
+        setCheckMessage("Câu hỏi này chưa cấu hình đáp án đúng.")
+        setChecked(false)
+        return
+      }
+      setCheckMessage(null)
+      setChecked(true)
+    }
+
+    return (
+      <div className="space-y-6">
+        <div
+          className="prose dark:prose-invert max-w-none min-h-[50px] p-4 bg-muted/5 rounded-lg border border-dashed"
+          dangerouslySetInnerHTML={{ __html: content || "<i>Nội dung câu hỏi sẽ hiển thị tại đây...</i>" }}
+        />
+        <div className="space-y-3">
+          {normalizedOptions.length > 0 ? (
+            normalizedOptions.map((opt, i) => {
+              const isSelected = selectedValues.includes(opt.value)
+              const isCorrectOption = normalizedCorrectValues.includes(opt.value)
+              const showCorrect = checked && isCorrectOption
+              const showWrong = checked && isSelected && !isCorrectOption
+              return (
+                <div
+                  key={i}
+                  className={`flex items-center p-3 border rounded-lg transition-colors group ${
+                    supportsAnswerCheck ? "cursor-pointer hover:bg-muted/50" : ""
+                  } ${isSelected ? "border-primary bg-muted/30" : ""} ${showCorrect ? "border-green-600 bg-green-50/50" : ""} ${showWrong ? "border-destructive bg-destructive/5" : ""}`}
+                  onClick={() => toggleOption(opt.value)}
+                >
+                  <div className="size-8 rounded-full border bg-background flex items-center justify-center mr-3 text-sm font-bold group-hover:border-primary group-hover:text-primary transition-colors uppercase">
+                    {opt.value}
+                  </div>
+                  <span className="font-medium text-sm">
+                    {opt.label || `Lựa chọn ${opt.value}`}
+                  </span>
+                </div>
+              )
+            })
+          ) : (
+            <div className="text-muted-foreground text-sm italic text-center py-4 bg-muted/20 rounded-lg">
+              Thiết lập lựa chọn để xem preview...
             </div>
-          ))
-        ) : (
-          <div className="text-muted-foreground text-sm italic text-center py-4 bg-muted/20 rounded-lg">
-            Thiết lập lựa chọn để xem preview...
+          )}
+        </div>
+        {checkMessage && (
+          <div className="text-sm rounded-lg border border-amber-500/40 text-amber-700 bg-amber-50/70 px-3 py-2">
+            {checkMessage}
           </div>
         )}
+        {checked && isResultCorrect !== null && !checkMessage && (
+          <div className={`text-sm rounded-lg border px-3 py-2 ${isResultCorrect ? "border-green-600 text-green-700 bg-green-50/60" : "border-destructive text-destructive bg-destructive/5"}`}>
+            {isResultCorrect
+              ? "Chính xác! Bạn đã chọn đúng đáp án."
+              : "Chưa đúng. Bạn có thể thử lại hoặc xem phần giải thích."}
+          </div>
+        )}
+        {!supportsAnswerCheck && (
+          <div className="text-sm text-muted-foreground bg-muted/20 rounded-lg px-3 py-2">
+            Loại câu hỏi này không hỗ trợ kiểm tra đáp án trực tiếp trong preview.
+          </div>
+        )}
+        <div className="pt-4 border-t flex justify-between items-center text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
+          <span>Torii Academy Exam System</span>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="h-8"
+            disabled={
+              !supportsAnswerCheck ||
+              normalizedOptions.length === 0
+            }
+            onClick={handleCheckAnswer}
+          >
+            Kiểm tra đáp án
+          </Button>
+        </div>
       </div>
-      <div className="pt-4 border-t flex justify-between items-center text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
-        <span>Torii Academy Exam System</span>
-        <Button disabled size="sm" variant="outline" className="h-8">Kiểm tra đáp án</Button>
-      </div>
-    </div>
-  )
+    )
+  }
 
   return (
     <form
@@ -172,22 +325,56 @@ export function QuestionForm({
           <FieldLegend>Thông tin cơ bản</FieldLegend>
           <FieldGroup>
             {!isEdit && (
-              <Controller
-                name={"parentId" as any}
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Câu hỏi cha (Parent Question)</FieldLabel>
-                    <QuestionPicker
-                      value={field.value}
-                      onSelect={field.onChange}
-                      placeholder="Chọn câu hỏi cha (nếu có)..."
-                    />
-                    <FieldDescription>Gán vào nhóm câu hỏi nếu cần thiết.</FieldDescription>
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
+              <>
+                <div className="rounded-lg border bg-muted/20 p-3">
+                  <p className="text-sm font-medium">Thiết lập nhanh</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setValue("parentId" as any, undefined)
+                        setValue("questionType" as any, "GROUP_PARENT")
+                      }}
+                    >
+                      Tạo câu đoạn văn (cha)
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setValue("questionType" as any, "SINGLE_CHOICE")}
+                    >
+                      Tạo câu hỏi con trắc nghiệm
+                    </Button>
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {parentId
+                      ? "Bạn đang tạo câu hỏi con thuộc một câu hỏi cha."
+                      : "Nếu là câu đoạn văn, chọn loại GROUP_PARENT và không cần đáp án."}
+                  </p>
+                </div>
+
+                <Controller
+                  name={"parentId" as any}
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <Field>
+                      <FieldLabel>Câu hỏi cha (Parent Question)</FieldLabel>
+                      <QuestionPicker
+                        value={field.value}
+                        onSelect={field.onChange}
+                        placeholder="Chọn câu hỏi cha (nếu có)..."
+                      />
+                      <FieldDescription>
+                        Để trống nếu đây là câu đoạn văn/câu độc lập.
+                      </FieldDescription>
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </Field>
+                  )}
+                />
+              </>
             )}
 
             <div className="grid gap-8 md:grid-cols-2">
@@ -217,12 +404,14 @@ export function QuestionForm({
                 name={"mediaUrl" as any}
                 control={control}
                 render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Media URL</FieldLabel>
-                    <Input placeholder="https://..." {...field} className="h-11" />
-                    <FieldDescription>Ảnh, audio hoặc video đính kèm.</FieldDescription>
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
+                  <LessonMediaUploader
+                    label="Media đính kèm"
+                    description="Chọn ảnh, audio hoặc video. Hệ thống sẽ tự upload và lưu URL."
+                    value={field.value || null}
+                    onChange={(url) => field.onChange(url ?? undefined)}
+                    accept="image/*,audio/*,video/*"
+                    errorMessage={fieldState.error?.message}
+                  />
                 )}
               />
             </div>
