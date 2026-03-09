@@ -180,11 +180,11 @@ export function InteractiveRoleplay() {
         const backgroundDeductAndRefresh = async (topic: string, history: any[]) => {
             try {
                 console.log('[billing] Background session deduction started');
-            await agentApi.sensei.roleplay(topic, "", history, true);
-        } catch (err) {
-            console.error('[billing] Background deduction failed', err);
+                await agentApi.sensei.roleplay(topic, "", history, true);
+            } catch (err) {
+                console.error('[billing] Background deduction failed', err);
+            }
         }
-    }
 
         const triggerFinalCleanup = () => {
             // Only trigger if started, not finished, and has at least one user message
@@ -251,7 +251,6 @@ export function InteractiveRoleplay() {
         const currentId = ttsRequestId.current + 1
         ttsRequestId.current = currentId
 
-        // ... (rest of speak function unchanged)
         // Check if selected voice is a browser voice
         const isBrowserVoice = availableVoices.some(v => v.voiceURI === selectedVoiceURI)
 
@@ -261,23 +260,6 @@ export function InteractiveRoleplay() {
             playBackendAudio(text, currentId, voice)
             return
         }
-        // ...
-        // ...
-        // ...
-        <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-                const newState = !autoPlay
-                setAutoPlay(newState)
-                if (!newState) stopSpeaking()
-            }}
-            className={cn(autoPlay && "text-primary bg-primary/10")}
-            title={autoPlay ? "Tắt âm thanh" : "Bật âm thanh"}
-        >
-            {autoPlay ? <Volume2 className="size-4 mr-2" /> : <VolumeX className="size-4 mr-2" />}
-            {autoPlay ? "Âm thanh: Bật" : "Âm thanh: Tắt"}
-        </Button>
 
         // Try Browser TTS first
         if (typeof window !== 'undefined' && window.speechSynthesis) {
@@ -411,6 +393,10 @@ export function InteractiveRoleplay() {
         try {
             const res = await agentApi.sensei.roleplay(topicValue, "", [])
             addTokenUsage(res.tokenUsage)
+        } catch (error: any) {
+            console.error("Failed to start roleplay", error)
+            toast.error(error.message || "Không thể bắt đầu hội thoại. Vui lòng thử lại.")
+        } finally {
             setIsLoading(false)
         }
     }
@@ -516,21 +502,21 @@ export function InteractiveRoleplay() {
 
         try {
             console.log('[DEBUG] Calling roleplay API with isFinal=true');
-                // Signal backend to finish and generate feedback
-                const data = await agentApi.sensei.roleplay(topicForm.getValues("topic"), "", history, true) // isFinal = true
-                console.log('[DEBUG] Roleplay API response:', data);
-                addTokenUsage(data.tokenUsage)
+            // Signal backend to finish and generate feedback
+            const data = await agentApi.sensei.roleplay(topicForm.getValues("topic"), "", history, true) // isFinal = true
+            console.log('[DEBUG] Roleplay API response:', data);
+            addTokenUsage(data.tokenUsage)
 
-                if (data.isFinished && data.feedback) {
-                    const feedbackMsg: Message = {
-                        id: (Date.now() + 2).toString(),
-                        role: 'assistant',
-                        content: data.feedback,
-                        isFeedback: true
-                    }
-                    setMessages(prev => [...prev, feedbackMsg])
+            if (data.isFinished && data.feedback) {
+                const feedbackMsg: Message = {
+                    id: (Date.now() + 2).toString(),
+                    role: 'assistant',
+                    content: data.feedback,
+                    isFeedback: true
+                }
+                setMessages(prev => [...prev, feedbackMsg])
 
-                    // Final closing message if any
+                // Final closing message if any
                 if (data.response) {
                     const closingMsg: Message = {
                         id: Date.now().toString(),

@@ -30,7 +30,7 @@ export class OrderService {
     private readonly enrollmentService: EnrollmentService,
     private readonly appConfig: AppConfigService,
     private readonly audit: AuditLoggerService,
-  ) {}
+  ) { }
 
   async preview(userId: string, input: OrderPreviewDto) {
     const offeringIds = Array.from(new Set(input.offeringIds ?? []));
@@ -376,23 +376,86 @@ export class OrderService {
   async admin_findAll(query: {
     userId?: string;
     status?: OrderStatus;
-    limit?: number;
-    offset?: number;
+    limit?: any;
+    offset?: any;
+    page?: any;
   }) {
     const where: any = {};
     if (query.userId) where.userId = query.userId;
     if (query.status) where.status = query.status;
 
-    return this.prisma.order.findMany({
-      where,
-      include: {
-        user: { select: { email: true, displayName: true } },
-        items: { include: { offering: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: query.limit || 20,
-      skip: query.offset || 0,
-    });
+    const limit = Math.max(1, Number(query.limit || 20));
+    let skip = 0;
+
+    if (query.offset !== undefined) {
+      skip = Math.max(0, Number(query.offset));
+    } else if (query.page !== undefined) {
+      const page = Math.max(1, Number(query.page));
+      skip = (page - 1) * limit;
+    }
+
+    const [total, items] = await Promise.all([
+      this.prisma.order.count({ where }),
+      this.prisma.order.findMany({
+        where,
+        include: {
+          user: { select: { email: true, displayName: true } },
+          items: { include: { offering: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip: skip,
+      }),
+    ]);
+
+    return {
+      data: items,
+      total,
+      limit,
+      skip,
+      page: query.page ? Number(query.page) : Math.floor(skip / limit) + 1,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+  async admin_getStats(query: {
+    startDate?: string;
+    endDate?: string;
+    status?: OrderStatus;
+  }) {
+    const where: any = {};
+    if (query.status) {
+      where.status = query.status;
+    }
+
+    if (query.startDate || query.endDate) {
+      where.createdAt = {};
+      if (query.startDate) {
+        where.createdAt.gte = new Date(query.startDate);
+      }
+      if (query.endDate) {
+        const end = new Date(query.endDate);
+        end.setHours(23, 59, 59, 999);
+        where.createdAt.lte = end;
+      }
+    }
+
+    const [totalOrders, revenueResult] = await Promise.all([
+      this.prisma.order.count({ where }),
+      this.prisma.order.aggregate({
+        where: {
+          ...where,
+          status: OrderStatus.PAID,
+        },
+        _sum: {
+          grandTotal: true,
+        },
+      }),
+    ]);
+
+    return {
+      totalOrders,
+      totalRevenue: Number(revenueResult._sum.grandTotal || 0),
+    };
   }
 
   async admin_findOne(id: string) {
@@ -520,19 +583,19 @@ export class OrderService {
       status: query.status ? (query.status as OrderStatus) : undefined,
       ...(query.search
         ? {
-            OR: [
-              { code: { contains: query.search, mode: 'insensitive' } },
-              {
-                items: {
-                  some: {
-                    offering: {
-                      title: { contains: query.search, mode: 'insensitive' },
-                    },
+          OR: [
+            { code: { contains: query.search, mode: 'insensitive' } },
+            {
+              items: {
+                some: {
+                  offering: {
+                    title: { contains: query.search, mode: 'insensitive' },
                   },
                 },
               },
-            ],
-          }
+            },
+          ],
+        }
         : {}),
     };
 

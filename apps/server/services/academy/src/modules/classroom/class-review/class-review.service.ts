@@ -48,8 +48,8 @@ export class ClassReviewService {
                     },
                 },
                 orderBy: { createdAt: 'desc' },
-                take: query.limit,
-                skip: query.offset,
+                take: Number(query.limit || 10),
+                skip: Number(query.offset || 0),
             }),
             this.prisma.classReview.count({ where: { classId, status } }),
         ]);
@@ -232,8 +232,8 @@ export class ClassReviewService {
                     class: { select: { id: true, name: true, courseProfileId: true } },
                 },
                 orderBy: { createdAt: 'desc' },
-                take: query.limit,
-                skip: query.offset,
+                take: Number(query.limit || 20),
+                skip: Number(query.offset || 0),
             }),
             this.prisma.classReview.count({ where }),
         ]);

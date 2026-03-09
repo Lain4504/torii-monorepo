@@ -24,7 +24,8 @@ interface OrderDetailSheetProps {
 }
 
 const getStatusVariant = (status: OrderStatus): 'default' | 'secondary' | 'destructive' | 'outline' => {
-    switch (status) {
+    switch (status as any) {
+        case 'PAID':
         case OrderStatus.COMPLETED: return 'default';
         case OrderStatus.PENDING:
         case OrderStatus.PROCESSING: return 'secondary';
@@ -37,7 +38,8 @@ const getStatusVariant = (status: OrderStatus): 'default' | 'secondary' | 'destr
 };
 
 const getStatusLabel = (status: OrderStatus) => {
-    switch (status) {
+    switch (status as any) {
+        case 'PAID':
         case OrderStatus.COMPLETED: return 'Hoàn thành';
         case OrderStatus.PENDING: return 'Chờ xử lý';
         case OrderStatus.PROCESSING: return 'Đang xử lý';
@@ -60,7 +62,7 @@ export function OrderDetailSheet({ order, open, onOpenChange }: OrderDetailSheet
                 <SheetHeader>
                     <SheetTitle>Chi tiết đơn hàng</SheetTitle>
                     <SheetDescription>
-                        Mã đơn hàng: <span className="font-mono">{order.id}</span>
+                        Mã đơn hàng: <span className="font-mono">{(order as any).code || order.id}</span>
                     </SheetDescription>
                 </SheetHeader>
 
@@ -71,7 +73,7 @@ export function OrderDetailSheet({ order, open, onOpenChange }: OrderDetailSheet
                             <Badge variant={getStatusVariant(order.status)} className="text-sm px-3 py-1">
                                 {getStatusLabel(order.status)}
                             </Badge>
-                            <span className="text-2xl font-bold">{formatCurrency(order.amount)}</span>
+                            <span className="text-2xl font-bold">{formatCurrency((order as any).grandTotal || order.amount)}</span>
                         </div>
 
                         <Separator />
@@ -82,7 +84,7 @@ export function OrderDetailSheet({ order, open, onOpenChange }: OrderDetailSheet
                             <div className="space-y-2">
                                 <div className="flex justify-between text-sm">
                                     <span className="text-muted-foreground">Mã đơn</span>
-                                    <span className="font-mono text-xs">{order.id}</span>
+                                    <span className="font-mono text-xs">{(order as any).code || order.id}</span>
                                 </div>
                                 <div className="flex justify-between text-sm">
                                     <span className="text-muted-foreground">Phương thức</span>
@@ -111,11 +113,11 @@ export function OrderDetailSheet({ order, open, onOpenChange }: OrderDetailSheet
                             <div className="space-y-2">
                                 <div className="flex justify-between text-sm">
                                     <span className="text-muted-foreground">Họ tên</span>
-                                    <span className="font-medium">{(order as any).userName || '—'}</span>
+                                    <span className="font-medium">{(order as any).user?.displayName || (order as any).userName || '—'}</span>
                                 </div>
                                 <div className="flex justify-between text-sm">
                                     <span className="text-muted-foreground">Email / ID</span>
-                                    <span className="text-xs font-mono">{(order as any).userEmail || order.userId}</span>
+                                    <span className="text-xs font-mono">{(order as any).user?.email || (order as any).userEmail || order.userId}</span>
                                 </div>
                             </div>
                         </div>
@@ -134,20 +136,35 @@ export function OrderDetailSheet({ order, open, onOpenChange }: OrderDetailSheet
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td className="py-3 px-4">
-                                                <div className="flex flex-col">
-                                                    <span className="font-medium">{(order as any).courseTitle || 'Đăng ký khóa học'}</span>
-                                                    <span className="text-xs text-muted-foreground">Bao gồm giáo trình và tài liệu</span>
-                                                </div>
-                                            </td>
-                                            <td className="py-3 px-4 text-right font-semibold">{formatCurrency(order.amount)}</td>
-                                        </tr>
+                                        {((order as any).items || []).map((item: any) => (
+                                            <tr key={item.id} className="border-b last:border-0">
+                                                <td className="py-3 px-4">
+                                                    <div className="flex flex-col">
+                                                        <span className="font-medium">{item.offeringSnapshot?.title || item.offering?.title || 'Dịch vụ'}</span>
+                                                        <span className="text-xs text-muted-foreground">
+                                                            Mã: {item.offeringSnapshot?.code || item.offering?.code || '—'}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="py-3 px-4 text-right font-semibold">{formatCurrency(item.price)}</td>
+                                            </tr>
+                                        ))}
+                                        {(!(order as any).items || (order as any).items.length === 0) && (
+                                            <tr>
+                                                <td className="py-3 px-4">
+                                                    <div className="flex flex-col">
+                                                        <span className="font-medium">{(order as any).courseTitle || 'Đăng ký khóa học'}</span>
+                                                        <span className="text-xs text-muted-foreground">Bao gồm giáo trình và tài liệu</span>
+                                                    </div>
+                                                </td>
+                                                <td className="py-3 px-4 text-right font-semibold">{formatCurrency(order.amount)}</td>
+                                            </tr>
+                                        )}
                                     </tbody>
                                     <tfoot>
                                         <tr className="border-t">
                                             <td className="py-2 px-4 text-right text-sm text-muted-foreground">Tổng cộng</td>
-                                            <td className="py-2 px-4 text-right font-bold">{formatCurrency(order.amount)}</td>
+                                            <td className="py-2 px-4 text-right font-bold">{formatCurrency((order as any).grandTotal || order.amount)}</td>
                                         </tr>
                                     </tfoot>
                                 </table>

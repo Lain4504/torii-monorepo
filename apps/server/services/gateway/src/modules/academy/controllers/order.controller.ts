@@ -16,6 +16,7 @@ import {
   GatewayAuthGuard,
   ZodValidationPipe,
   successResponse,
+  successPaginatedResponse,
   Permissions,
   PermissionsGuard,
   ReqWithRequester,
@@ -25,7 +26,7 @@ import { orderCheckoutSchema, orderPreviewSchema } from './order.schema';
 @Controller('api/academy/orders')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class OrderController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
   @Post('preview')
   async preview(
@@ -101,8 +102,17 @@ export class OrderController {
     const result = await firstValueFrom(
       this.nats.send({ cmd: 'academy.order.admin.findAll' }, query),
     );
+    return successPaginatedResponse(result);
+  }
+  @Get('stats')
+  @Permissions('academy:order:admin')
+  async admin_getStats(@Query() query: any) {
+    const result = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.order.admin.getStats' }, query),
+    );
     return successResponse(result);
   }
+
 
   @Get('admin/:id')
   @Permissions('academy:order:admin')

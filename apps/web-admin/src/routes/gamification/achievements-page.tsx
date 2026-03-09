@@ -1,7 +1,6 @@
 import { useState, Suspense } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
-import { Card, CardContent } from "@workspace/ui/components/card";
 import { PageHeader } from '@/components/common/page-header';
 import { Can } from '@/lib/guard/can';
 import { useAdminAchievements } from '@/lib/api/services/gamification';
@@ -54,17 +53,13 @@ export default function AchievementsPage() {
                 }
             />
 
-            <div className="space-y-4">
-                <Card className="overflow-hidden">
-                    <CardContent className="p-0">
+            <div className="rounded-md bg-background border overflow-hidden">
                         <AchievementsTable
                             data={achievements}
                             isLoading={isLoading}
                             onEdit={handleEdit}
                             onDelete={handleDelete}
                         />
-                    </CardContent>
-                </Card>
             </div>
 
             {/* Dialogs */}
