@@ -2,12 +2,11 @@ import { Controller, Post, Body, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 
-@Controller('api/webhooks')
+@Controller()
 export class WebhookController {
     constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
-    @Post('payos')
-    async handlePayOS(@Body() body: any) {
+    private async processPayOSWebhook(body: any) {
         const isSuccess = body?.success === true || body?.code === '00';
         if (!isSuccess) {
             return { ok: true, ignored: true, reason: 'PAYMENT_NOT_SUCCESS' };
@@ -26,5 +25,11 @@ export class WebhookController {
             }),
         );
         return result;
+    }
+
+    // Public PayOS callback route (configured on PayOS dashboard)
+    @Post('payos/webhook')
+    async handlePayOSPublic(@Body() body: any) {
+        return this.processPayOSWebhook(body);
     }
 }

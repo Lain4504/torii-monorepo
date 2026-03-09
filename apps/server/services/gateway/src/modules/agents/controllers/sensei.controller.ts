@@ -307,6 +307,9 @@ export class SenseiHandler {
     async getQuotaStatus(@Req() req: ReqWithRequester) {
         const userId = req.requester?.sub;
         try {
+            // Billing/quota check is temporarily disabled.
+            // Keep endpoint contract for frontend compatibility.
+            /*
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'billing.quota.getStatus' },
@@ -317,6 +320,13 @@ export class SenseiHandler {
                 ),
             );
             return successResponse(result);
+            */
+            return successResponse({
+                remainingTrial: 999999,
+                cost: 0,
+                chargedCoins: false,
+                billingDisabled: true,
+            });
         } catch (error: any) {
             this.logger.error(
                 `Failed to get quota status for user ${userId}`,

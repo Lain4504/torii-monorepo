@@ -1,61 +1,73 @@
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Button } from "@workspace/ui/components/button"
-import { Plus, Trash2, Edit2, BookOpen, Video, FileQuestion, FileText, GripVertical, Layers } from "lucide-react"
+import { Plus, Trash2, Edit2, BookOpen, Video, FileQuestion, FileText, GripVertical, Layers, Eye } from "lucide-react"
 import { useAcademyChapterItems, useDeleteAcademyChapterItem } from "@/lib/api/services/academy-chapter-items"
-import { useAcademyChapters, useDeleteAcademyChapter } from "@/lib/api/services/academy-chapters"
+import { useAcademyChapters, useDeleteAcademyChapter, type AcademyChapter } from "@/lib/api/services/academy-chapters"
+import type { AcademyChapterItem } from "@/lib/api/services/academy-chapter-items"
 import { Link } from "react-router-dom"
 import { toast } from "@workspace/ui/components/sonner"
 import { Badge } from "@workspace/ui/components/badge"
 import { Spinner } from "@workspace/ui/components/spinner"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@workspace/ui/components/dialog"
+import { useAcademyLesson } from "@/lib/api/services/academy-lessons"
+import { useAcademyQuizTemplate } from "@/lib/api/services/academy-quiz-templates"
+import { useAcademyAssignmentTemplate } from "@/lib/api/services/academy-assignment-templates"
 
 interface SyllabusBuilderProps {
-   chapter?: any
+   chapter?: AcademyChapter
    editionId?: string
    readOnly?: boolean
 }
 
 export function SyllabusBuilder({ chapter: initialChapter, editionId, readOnly = false }: SyllabusBuilderProps) {
 
-   // If editionId is provided, we fetch all chapters for this edition
+   if (editionId) {
+      return <EditionSyllabus editionId={editionId} readOnly={readOnly} />
+   }
+
+   const chapter = initialChapter
+   if (!chapter) return null
+
+   return <ChapterCard chapter={chapter} readOnly={readOnly} />
+}
+
+function EditionSyllabus({ editionId, readOnly }: { editionId: string; readOnly: boolean }) {
    const { data: chapters = [], isLoading: isLoadingChapters } = useAcademyChapters(
       { courseEditionId: editionId },
-      { enabled: !!editionId }
+      { enabled: !!editionId },
    )
 
-   if (editionId) {
-      if (isLoadingChapters) return <div className="flex justify-center p-8"><Spinner /></div>
-      if (chapters.length === 0) {
-         return (
-            <div className="text-center py-12 bg-muted/20 rounded-lg border-2 border-dashed">
-               <Layers className="h-10 w-10 text-muted-foreground mx-auto mb-4 opacity-50" />
-               <h3 className="font-medium text-muted-foreground">Chưa có chương học nào</h3>
-               <p className="text-sm text-muted-foreground">Hãy bắt đầu bằng cách thêm chương học đầu tiên.</p>
-            </div>
-         )
-      }
-
+   if (isLoadingChapters) return <div className="flex justify-center p-8"><Spinner /></div>
+   if (chapters.length === 0) {
       return (
-         <div className="space-y-6">
-            {chapters
-               .sort((a: any, b: any) => a.orderIndex - b.orderIndex)
-               .map((ch: any) => (
-                  <SyllabusBuilder key={ch.id} chapter={ch} readOnly={readOnly} />
-               ))}
+         <div className="text-center py-12 bg-muted/20 rounded-lg border-2 border-dashed">
+            <Layers className="h-10 w-10 text-muted-foreground mx-auto mb-4 opacity-50" />
+            <h3 className="font-medium text-muted-foreground">Chưa có chương học nào</h3>
+            <p className="text-sm text-muted-foreground">Hãy bắt đầu bằng cách thêm chương học đầu tiên.</p>
          </div>
       )
    }
 
-   // Single chapter logic (the original SyllabusBuilder)
-   const chapter = initialChapter
-   if (!chapter) return null
+   return (
+      <div className="space-y-6">
+         {[...chapters]
+            .sort((a, b) => a.orderIndex - b.orderIndex)
+            .map((chapter) => (
+               <ChapterCard key={chapter.id} chapter={chapter} readOnly={readOnly} />
+            ))}
+      </div>
+   )
+}
 
+function ChapterCard({ chapter, readOnly }: { chapter: AcademyChapter; readOnly: boolean }) {
    const { data: items = [], isLoading: isLoadingItems } = useAcademyChapterItems({
       chapterId: chapter.id,
    })
 
    const delChapter = useDeleteAcademyChapter()
    const delItem = useDeleteAcademyChapterItem()
+   const [previewItem, setPreviewItem] = useState<AcademyChapterItem | null>(null)
 
    const sortedItems = useMemo(() => {
       return [...items].sort((a, b) => a.orderIndex - b.orderIndex)
@@ -103,8 +115,8 @@ export function SyllabusBuilder({ chapter: initialChapter, editionId, readOnly =
                            try {
                               await delChapter.mutateAsync(chapter.id)
                               toast.success("Đã xóa chapter")
-                           } catch (e: any) {
-                              toast.error(e?.message || "Xóa thất bại")
+                           } catch (error: unknown) {
+                              toast.error(error instanceof Error ? error.message : "Xóa thất bại")
                            }
                         }
                      }}
@@ -141,6 +153,14 @@ export function SyllabusBuilder({ chapter: initialChapter, editionId, readOnly =
                         </div>
                         {!readOnly && (
                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Button
+                                 variant="ghost"
+                                 size="icon"
+                                 className="h-8 w-8"
+                                 onClick={() => setPreviewItem(item)}
+                              >
+                                 <Eye className="h-3.5 w-3.5" />
+                              </Button>
                               <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
                                  <Link to={`/academy/chapter-items/${item.id}/edit`}>
                                     <Edit2 className="h-3.5 w-3.5" />
@@ -155,13 +175,25 @@ export function SyllabusBuilder({ chapter: initialChapter, editionId, readOnly =
                                        try {
                                           await delItem.mutateAsync(item.id)
                                           toast.success("Đã xóa nội dung")
-                                       } catch (e: any) {
-                                          toast.error(e?.message || "Xóa thất bại")
+                                       } catch (error: unknown) {
+                                          toast.error(error instanceof Error ? error.message : "Xóa thất bại")
                                        }
                                     }
                                  }}
                               >
                                  <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                           </div>
+                        )}
+                        {readOnly && (
+                           <div className="flex items-center gap-1">
+                              <Button
+                                 variant="ghost"
+                                 size="icon"
+                                 className="h-8 w-8"
+                                 onClick={() => setPreviewItem(item)}
+                              >
+                                 <Eye className="h-3.5 w-3.5" />
                               </Button>
                            </div>
                         )}
@@ -180,6 +212,113 @@ export function SyllabusBuilder({ chapter: initialChapter, editionId, readOnly =
                </div>
             )}
          </CardContent>
+         <ChapterItemPreviewDialog
+            item={previewItem}
+            open={!!previewItem}
+            onOpenChange={(open) => {
+               if (!open) setPreviewItem(null)
+            }}
+         />
       </Card>
    )
+}
+
+function ChapterItemPreviewDialog({
+   item,
+   open,
+   onOpenChange,
+}: {
+   item: AcademyChapterItem | null
+   open: boolean
+   onOpenChange: (open: boolean) => void
+}) {
+   const kind = String(item?.kind || "").toUpperCase()
+   const referenceId = String(item?.referenceId || "")
+   const isLesson = kind === "LESSON"
+   const isQuizTemplate = kind === "QUIZ_TEMPLATE"
+   const isAssignmentTemplate = kind === "ASSIGNMENT_TEMPLATE"
+
+   const { data: lesson, isLoading: loadingLesson } = useAcademyLesson(
+      isLesson && referenceId ? referenceId : undefined,
+   )
+   const { data: quizTemplate, isLoading: loadingQuiz } = useAcademyQuizTemplate(
+      isQuizTemplate && referenceId ? referenceId : undefined,
+   )
+   const { data: assignmentTemplate, isLoading: loadingAssignment } = useAcademyAssignmentTemplate(
+      isAssignmentTemplate && referenceId ? referenceId : undefined,
+   )
+
+   const isLoading = loadingLesson || loadingQuiz || loadingAssignment
+
+   return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+         <DialogContent className="w-full sm:max-w-[800px]">
+            <DialogHeader>
+               <DialogTitle>Preview Chapter Item</DialogTitle>
+               <DialogDescription>
+                  {item?.title || "N/A"} • {item?.kind || "UNKNOWN"}
+               </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+               <div className="rounded-md border p-3 space-y-1 text-sm">
+                  <p><span className="text-muted-foreground">Title:</span> {item?.title || "N/A"}</p>
+                  <p><span className="text-muted-foreground">Kind:</span> {item?.kind || "N/A"}</p>
+                  <p><span className="text-muted-foreground">Reference ID:</span> {referenceId || "N/A"}</p>
+               </div>
+
+               {isLoading ? (
+                  <p className="text-sm text-muted-foreground">Đang tải chi tiết...</p>
+               ) : null}
+
+               {isLesson ? (
+                  <div className="rounded-md border p-4 space-y-2">
+                     <p className="text-sm font-medium">Lesson</p>
+                     <p className="text-sm"><span className="text-muted-foreground">Tên bài:</span> {lesson?.title || "N/A"}</p>
+                     <p className="text-sm"><span className="text-muted-foreground">Loại nội dung:</span> {lesson?.contentType || "N/A"}</p>
+                     <p className="text-sm"><span className="text-muted-foreground">URL:</span> {lesson?.contentUrl || "-"}</p>
+                     <p className="text-sm"><span className="text-muted-foreground">Nội dung:</span> {lesson?.contentBody ? `${lesson.contentBody.slice(0, 300)}...` : "-"}</p>
+                  </div>
+               ) : null}
+
+               {isQuizTemplate ? (
+                  <div className="rounded-md border p-4 space-y-2">
+                     <p className="text-sm font-medium">Quiz Template</p>
+                     <p className="text-sm"><span className="text-muted-foreground">Tên mẫu:</span> {quizTemplate?.title || "N/A"}</p>
+                     <p className="text-sm"><span className="text-muted-foreground">Mô tả:</span> {quizTemplate?.description || "-"}</p>
+                     <p className="text-sm"><span className="text-muted-foreground">Pool:</span> {quizTemplate?.questionPoolId || "-"}</p>
+                     <p className="text-sm"><span className="text-muted-foreground">Default exam:</span> {extractDefaultExamId(quizTemplate?.settings) || "-"}</p>
+                     <p className="text-sm"><span className="text-muted-foreground">Max attempts:</span> {quizTemplate?.defaultMaxAttempts ?? "-"}</p>
+                     <p className="text-sm"><span className="text-muted-foreground">Time limit:</span> {quizTemplate?.defaultTimeLimitMinutes ?? "-"}</p>
+                  </div>
+               ) : null}
+
+               {isAssignmentTemplate ? (
+                  <div className="rounded-md border p-4 space-y-2">
+                     <p className="text-sm font-medium">Assignment Template</p>
+                     <p className="text-sm"><span className="text-muted-foreground">Tên mẫu:</span> {assignmentTemplate?.title || "N/A"}</p>
+                     <p className="text-sm"><span className="text-muted-foreground">Mô tả:</span> {assignmentTemplate?.description || "-"}</p>
+                     <p className="text-sm"><span className="text-muted-foreground">Loại nộp bài:</span> {assignmentTemplate?.defaultType || "-"}</p>
+                     <p className="text-sm"><span className="text-muted-foreground">Điểm tối đa mặc định:</span> {assignmentTemplate?.defaultMaxScore ?? "-"}</p>
+                  </div>
+               ) : null}
+
+               {!isLesson && !isQuizTemplate && !isAssignmentTemplate ? (
+                  <div className="rounded-md border p-4">
+                     <p className="text-sm text-muted-foreground">
+                        Loại chapter item này chưa có renderer preview riêng.
+                     </p>
+                  </div>
+               ) : null}
+            </div>
+         </DialogContent>
+      </Dialog>
+   )
+}
+
+function extractDefaultExamId(settings: unknown): string | null {
+   if (!settings || typeof settings !== "object") return null
+   const value = (settings as Record<string, unknown>).defaultExamId
+   if (typeof value !== "string") return null
+   return value.trim() ? value.trim() : null
 }

@@ -6,7 +6,11 @@ import Link from 'next/link'
 import { Button } from '@workspace/ui/components/button'
 import { Card, CardContent } from '@workspace/ui/components/card'
 import { ArrowLeft, Clock, PlayCircle, AlertTriangle } from 'lucide-react'
-import { useAcademyClassAssessment, extractAssessmentExamId } from '@/lib/api/services/academy-class-assessments'
+import {
+    useAcademyClassAssessment,
+    extractAssessmentExamId,
+    extractTemplateDefaultExamId,
+} from '@/lib/api/services/academy-class-assessments'
 import { useAcademyQuizTemplate } from '@/lib/api/services/academy-quiz-api'
 
 export default function TakeCourseQuizPage() {
@@ -19,8 +23,11 @@ export default function TakeCourseQuizPage() {
     const { data: quizTemplate, isLoading: templateLoading } = useAcademyQuizTemplate(assessment?.quizTemplateId ?? undefined)
 
     const examId = useMemo(
-        () => searchParams.get('examId') || extractAssessmentExamId(assessment?.settings),
-        [searchParams, assessment?.settings],
+        () =>
+            searchParams.get('examId') ||
+            extractAssessmentExamId(assessment?.settings) ||
+            extractTemplateDefaultExamId(quizTemplate?.settings),
+        [searchParams, assessment?.settings, quizTemplate?.settings],
     )
     const loading = assessmentLoading || templateLoading
 

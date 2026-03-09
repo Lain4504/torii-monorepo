@@ -19,6 +19,7 @@ export type AcademyClassAssessment = {
   maxAttemptsOverride?: number | null
   timeLimitOverrideMinutes?: number | null
   maxScoreOverride?: number | null
+  settings?: unknown
   status?: string | null
   createdAt: string
   updatedAt: string

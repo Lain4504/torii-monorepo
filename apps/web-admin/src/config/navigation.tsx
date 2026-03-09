@@ -52,6 +52,7 @@ export const academicNavItems: NavItem[] = [
             { titleKey: "Trung tâm Duyệt", url: "/academy/approvals" },
             { titleKey: "Ngân hàng câu hỏi", url: "/academy/questions" },
             { titleKey: "Question Pools", url: "/academy/question-pools" },
+            { titleKey: "Ngân hàng đề thi (Exams)", url: "/academy/exams" },
         ]
     },
 ];

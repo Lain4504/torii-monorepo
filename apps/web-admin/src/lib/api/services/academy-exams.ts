@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { apiClient } from "@/lib/api/api-client"
 import type {
+  AcademyExamAddQuestionsDTO,
+  AcademyExamAddQuestionsFromPoolDTO,
   AcademyExamCreateDTO,
   AcademyExamQueryDTO,
   AcademyExamUpdateDTO,
@@ -17,8 +19,8 @@ export type AcademyExam = {
   totalTimeLimitMinutes?: number | null
   status?: string | null
   settings?: unknown | null
-  sections?: any[]
-  examQuestions?: any[]
+  sections?: unknown[]
+  examQuestions?: unknown[]
   createdAt: string
   updatedAt: string
 }
@@ -62,15 +64,26 @@ export const academyExamsApi = {
     return res.data
   },
 
-  async addQuestionsFromPool(data: {
-    examId: string
-    sectionId: string
-    poolId: string
-    count: number
-  }) {
+  async addQuestionsFromPool(data: AcademyExamAddQuestionsFromPoolDTO & { examId: string }) {
     const res = await apiClient.post<StandardApiResponse<{ ok: boolean }>>(
       `/api/academy/exams/${data.examId}/questions-from-pool`,
-      data,
+      {
+        sectionId: data.sectionId,
+        poolId: data.poolId,
+        count: data.count,
+      },
+    )
+    return res.data
+  },
+
+  async addQuestions(data: AcademyExamAddQuestionsDTO & { examId: string }) {
+    const res = await apiClient.post<StandardApiResponse<{ ok: boolean }>>(
+      `/api/academy/exams/${data.examId}/questions`,
+      {
+        sectionId: data.sectionId,
+        questionIds: data.questionIds,
+        points: data.points,
+      },
     )
     return res.data
   },
@@ -120,6 +133,16 @@ export function useAddQuestionsFromPool() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: academyExamsApi.addQuestionsFromPool,
+    onSuccess: (_, variables) => {
+      qc.invalidateQueries({ queryKey: ["academy-exam", variables.examId] })
+    },
+  })
+}
+
+export function useAddQuestionsToExam() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: academyExamsApi.addQuestions,
     onSuccess: (_, variables) => {
       qc.invalidateQueries({ queryKey: ["academy-exam", variables.examId] })
     },

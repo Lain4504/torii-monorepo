@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { ExamCreateDto, ExamQueryDto, ExamUpdateDto } from './dto/exam.dto';
 import { AuditLoggerService } from '../../audit-logger.service';
@@ -11,7 +15,7 @@ export class ExamService {
     private readonly prisma: PrismaService,
     private readonly poolService: QuestionPoolService,
     private readonly audit: AuditLoggerService,
-  ) { }
+  ) {}
 
   async findAll(query: ExamQueryDto) {
     return this.prisma.exam.findMany({
@@ -122,7 +126,9 @@ export class ExamService {
 
     // Check if sections and questions are well-defined
     if (exam.sections.length === 0) {
-      throw new BadRequestException('Exam must have at least one section before publishing');
+      throw new BadRequestException(
+        'Exam must have at least one section before publishing',
+      );
     }
 
     return this.prisma.exam.update({
@@ -151,11 +157,15 @@ export class ExamService {
     if (!exam) throw new NotFoundException('Exam not found');
 
     if (exam.status === 'PUBLISHED') {
-      throw new BadRequestException('Cannot delete PUBLISHED exam. Archive it instead.');
+      throw new BadRequestException(
+        'Cannot delete PUBLISHED exam. Archive it instead.',
+      );
     }
 
     if (exam.attempts.length > 0) {
-      throw new BadRequestException('Cannot delete exam with existing attempts');
+      throw new BadRequestException(
+        'Cannot delete exam with existing attempts',
+      );
     }
 
     await this.prisma.exam.delete({ where: { id } });
@@ -214,5 +224,62 @@ export class ExamService {
       data,
     });
   }
-}
 
+  async addQuestions(
+    examId: string,
+    sectionId: string,
+    questionIds: string[],
+    points?: number,
+  ) {
+    const exam = await this.findById(examId);
+    if (exam.status !== 'DRAFT') {
+      throw new BadRequestException('Cannot add questions to non-DRAFT exam');
+    }
+
+    const section = await this.prisma.examSection.findUnique({
+      where: { id: sectionId },
+    });
+    if (!section || section.examId !== examId) {
+      throw new BadRequestException('Invalid sectionId');
+    }
+
+    if (!Array.isArray(questionIds) || questionIds.length === 0) {
+      throw new BadRequestException('questionIds is required');
+    }
+
+    const existing = await this.prisma.examQuestion.findMany({
+      where: {
+        sectionId,
+        questionId: { in: questionIds },
+      },
+      select: { questionId: true },
+    });
+    const existingIds = new Set(existing.map((item) => item.questionId));
+    const uniqueIds = Array.from(new Set(questionIds)).filter(
+      (id) => !existingIds.has(id),
+    );
+
+    if (uniqueIds.length === 0) {
+      return { count: 0 };
+    }
+
+    const lastQuestion = await this.prisma.examQuestion.findFirst({
+      where: { sectionId },
+      orderBy: { orderIndex: 'desc' },
+      select: { orderIndex: true },
+    });
+    let currentOrder = (lastQuestion?.orderIndex ?? -1) + 1;
+
+    const rows = uniqueIds.map((questionId) => ({
+      examId,
+      sectionId,
+      questionId,
+      orderIndex: currentOrder++,
+      points: points ?? 1.0,
+    }));
+
+    return this.prisma.examQuestion.createMany({
+      data: rows,
+    });
+  }
+}

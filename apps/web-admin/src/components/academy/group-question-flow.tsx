@@ -142,7 +142,7 @@ export function GroupQuestionFlow({
                                                 Xem trước toàn bộ
                                             </Button>
                                         </DialogTrigger>
-                                        <DialogContent className="max-w-3xl">
+                                        <DialogContent className="max-w-4xl h-[90vh] flex flex-col">
                                             <DialogHeader>
                                                 <DialogTitle>Xem trước Đoạn văn & Câu con</DialogTitle>
                                             </DialogHeader>

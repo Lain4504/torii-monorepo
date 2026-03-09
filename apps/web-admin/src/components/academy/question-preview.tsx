@@ -14,6 +14,9 @@ interface QuestionPreviewProps {
         content: string
         questionType: string
         level?: string | null
+        options?: any
+        correctAnswer?: any
+        explanation?: string | null
     }>
 }
 
@@ -157,32 +160,27 @@ export function QuestionPreview({
 
             {/* Child Questions (for Group Parent) */}
             {isGroup && childrenQuestions && childrenQuestions.length > 0 && (
-                <div className="space-y-6 pt-8 border-t-2 border-dashed">
+                <div className="space-y-10 pt-8 border-t-2 border-dashed">
                     <div className="flex items-center justify-between">
-                        <h4 className="font-bold text-lg flex items-center gap-2 text-foreground/80">
+                        <h4 className="font-bold text-xl flex items-center gap-3 text-foreground/80">
                             Danh sách câu hỏi con
-                            <Badge className="bg-primary/10 text-primary border-none">{childrenQuestions.length}</Badge>
+                            <Badge className="bg-primary/10 text-primary border-none text-sm px-3">{childrenQuestions.length}</Badge>
                         </h4>
                     </div>
-                    <div className="grid gap-6">
+                    <div className="space-y-12">
                         {childrenQuestions.map((child, idx) => (
-                            <div key={child.id} className="group relative p-6 rounded-2xl border-2 border-muted bg-background hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
-                                <div className="absolute -top-3 left-6 px-3 py-1 rounded-full bg-primary text-primary-foreground text-[10px] font-black uppercase tracking-widest shadow-lg">
-                                    Câu {idx + 1}
+                            <div key={child.id} className="relative pl-8 border-l-4 border-muted/50 hover:border-primary/50 transition-colors pt-2 pb-6">
+                                <div className="absolute -left-[14px] top-0 size-6 rounded-full bg-primary flex items-center justify-center text-[10px] font-black text-white shadow-md">
+                                    {idx + 1}
                                 </div>
-                                <div className="flex items-center justify-between mb-4 mt-2">
-                                    <Badge variant="outline" className="text-[10px] font-bold text-muted-foreground bg-muted/30 border-none">
-                                        {child.questionType.replace('_', ' ')}
-                                    </Badge>
-                                    {child.level && <span className="text-[10px] font-bold text-primary/60">{child.level}</span>}
-                                </div>
-                                <div
-                                    className="prose prose-sm dark:prose-invert max-w-none text-foreground/90 font-medium"
-                                    dangerouslySetInnerHTML={{ __html: child.content }}
+
+                                <QuestionPreview
+                                    content={child.content}
+                                    questionType={child.questionType}
+                                    options={child.options}
+                                    correctAnswer={child.correctAnswer}
+                                    explanation={child.explanation ?? undefined}
                                 />
-                                <div className="mt-4 pt-4 border-t border-muted/50 flex justify-end">
-                                    <div className="text-[10px] text-muted-foreground/60 font-mono italic">ID: {child.id}</div>
-                                </div>
                             </div>
                         ))}
                     </div>

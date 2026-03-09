@@ -26,7 +26,7 @@ export default function AcademyClassAssessmentCreatePage() {
     <div className="space-y-6">
       <PageHeader
         title={isQuiz ? "Tạo Class Quiz" : "Tạo Class Assignment"}
-        subtitle={`Tạo ${isQuiz ? "Quiz" : "Assignment"} cho lớp học.`}
+        subtitle={`Tạo ${isQuiz ? "Quiz" : "Assignment"} cho lớp học theo flow VOD/LIVE.`}
       />
 
       <Card>
@@ -34,6 +34,16 @@ export default function AcademyClassAssessmentCreatePage() {
           <CardTitle>Thông tin {isQuiz ? "Quiz" : "Assignment"}</CardTitle>
         </CardHeader>
         <CardContent>
+          {isQuiz ? (
+            <Alert className="mb-6">
+              <AlertTitle>Flow thao tác cho giảng viên</AlertTitle>
+              <AlertDescription>
+                {klass?.mode === "VOD"
+                  ? "VOD: chỉ cần chọn Quiz Template rồi lưu, hệ thống dùng đề mặc định của template."
+                  : "LIVE: chọn Quiz Template, sau đó chọn cách ra đề (mặc định / exam có sẵn / sinh từ pool) rồi lưu."}
+              </AlertDescription>
+            </Alert>
+          ) : null}
           {isForbiddenVodAssignment ? (
             <Alert variant="destructive">
               <AlertTitle>VOD class không hỗ trợ Assignment</AlertTitle>

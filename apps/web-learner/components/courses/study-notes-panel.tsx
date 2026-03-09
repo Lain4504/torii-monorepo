@@ -3,16 +3,16 @@
 import { useState } from 'react';
 import { useStudyNotes, useCreateStudyNote, useDeleteStudyNote } from '@/lib/api/services/academy-study-note-api';
 import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-    SheetDescription,
-} from '@workspace/ui/components/sheet';
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@workspace/ui/components/dialog';
 import { Button } from '@workspace/ui/components/button';
 import { Textarea } from '@workspace/ui/components/textarea';
-import { Edit3, Trash2, Plus, PenTool } from 'lucide-react';
+import { Edit3, Trash2, PenTool } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface StudyNotesPanelProps {
@@ -48,27 +48,27 @@ export function StudyNotesPanel({ lessonId }: StudyNotesPanelProps) {
     };
 
     return (
-        <Sheet open={open} onOpenChange={setOpen}>
-            <SheetTrigger asChild>
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
                 <button
                     className="fixed bottom-24 right-6 h-14 w-14 bg-amber-500 text-white rounded-full shadow-2xl flex items-center justify-center z-[60] hover:scale-105 active:scale-95 transition-transform"
                     aria-label="Ghi chú học tập"
                 >
                     <PenTool className="h-6 w-6" />
                 </button>
-            </SheetTrigger>
-            <SheetContent className="w-full sm:max-w-md flex flex-col h-full bg-background border-l p-0">
-                <SheetHeader className="p-6 border-b shrink-0">
-                    <SheetTitle className="flex items-center gap-2">
+            </DialogTrigger>
+            <DialogContent className="w-[95vw] sm:max-w-lg max-h-[85vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
                         <PenTool className="size-5 text-amber-500" />
                         Ghi chú bài học
-                    </SheetTitle>
-                    <SheetDescription>
+                    </DialogTitle>
+                    <DialogDescription>
                         Tạo và xem ghi chú cá nhân của bạn cho bài học này.
-                    </SheetDescription>
-                </SheetHeader>
+                    </DialogDescription>
+                </DialogHeader>
 
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                <div className="space-y-6">
                     {/* Create Form */}
                     <div className="space-y-3">
                         <Textarea
@@ -128,7 +128,7 @@ export function StudyNotesPanel({ lessonId }: StudyNotesPanelProps) {
                         )}
                     </div>
                 </div>
-            </SheetContent>
-        </Sheet>
+            </DialogContent>
+        </Dialog>
     );
 }

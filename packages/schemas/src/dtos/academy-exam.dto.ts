@@ -53,3 +53,21 @@ export const academyExamQueryDTOSchema = z.object({
 });
 export type AcademyExamQueryDTO = z.infer<typeof academyExamQueryDTOSchema>;
 
+export const academyExamAddQuestionsFromPoolDTOSchema = z.object({
+  sectionId: z.string().uuid(),
+  poolId: z.string().uuid(),
+  count: z.number().int().min(1),
+});
+export type AcademyExamAddQuestionsFromPoolDTO = z.infer<
+  typeof academyExamAddQuestionsFromPoolDTOSchema
+>;
+
+export const academyExamAddQuestionsDTOSchema = z.object({
+  sectionId: z.string().uuid(),
+  questionIds: z.array(z.string().uuid()).min(1),
+  points: z.number().min(0).optional(),
+});
+export type AcademyExamAddQuestionsDTO = z.infer<
+  typeof academyExamAddQuestionsDTOSchema
+>;
+

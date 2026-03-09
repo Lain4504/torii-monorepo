@@ -23,19 +23,23 @@ export type AcademyClassAssessment = {
   updatedAt: string
 }
 
-export function extractAssessmentExamId(settings: unknown): string | null {
+function readSetting(settings: unknown, key: string): string | null {
   if (!settings || typeof settings !== 'object') return null
   const map = settings as Record<string, unknown>
-
-  const direct = map.examId
-  if (typeof direct === 'string' && direct.trim()) return direct.trim()
-
-  const nested = map.exam
-  if (nested && typeof nested === 'object') {
-    const nestedId = (nested as Record<string, unknown>).id
-    if (typeof nestedId === 'string' && nestedId.trim()) return nestedId.trim()
-  }
+  const value = map[key]
+  if (typeof value === 'string' && value.trim()) return value.trim()
   return null
+}
+
+export function extractAssessmentExamId(settings: unknown): string | null {
+  return (
+    readSetting(settings, 'overrideExamId') ??
+    readSetting(settings, 'examId')
+  )
+}
+
+export function extractTemplateDefaultExamId(settings: unknown): string | null {
+  return readSetting(settings, 'defaultExamId') ?? readSetting(settings, 'examId')
 }
 
 export const academyClassAssessmentsApi = {

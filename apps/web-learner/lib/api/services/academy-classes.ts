@@ -10,7 +10,7 @@ import type {
 export interface CurriculumLesson {
   id: string; // This is the ChapterItemId
   title: string;
-  contentType: 'video' | 'article' | 'assignment' | 'quiz' | string;
+  kind: string; // Backend ChapterItem.kind (e.g. LESSON, QUIZ_TEMPLATE, ASSIGNMENT_TEMPLATE)
   isUnlocked: boolean;
   isPreview: boolean;
   order: number;
@@ -66,9 +66,6 @@ export const academyClassesApi = {
     const data = response.data.data?.curriculum;
     if (!data) return null;
 
-    // Map academy structure (chapters) to UI structure (modules for legacy compatibility if needed)
-    // or just return as is if the UI is updated. 
-    // Keeping mapping for now if UI expects 'modules'
     return {
       courseId: data.classId,
       modules: data.chapters.map((ch: any) => ({
@@ -78,7 +75,7 @@ export const academyClassesApi = {
         lessons: ch.items.map((it: any) => ({
           id: it.id,
           title: it.title,
-          contentType: it.kind.toLowerCase() === 'lesson' ? 'video' : it.kind.toLowerCase(),
+          kind: it.kind,
           isUnlocked: true,
           isPreview: false,
           order: it.orderIndex,

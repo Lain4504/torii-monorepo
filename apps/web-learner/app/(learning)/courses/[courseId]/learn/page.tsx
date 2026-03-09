@@ -60,10 +60,31 @@ function LessonIcon({ lesson, isActive, isCompleted }: {
 }) {
     if (isCompleted) return <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500 shrink-0" />;
     if (!lesson.isUnlocked) return <Lock className="h-4 w-4 text-muted-foreground/40 shrink-0" />;
-    if (lesson.contentType === 'document') return <FileText className={`h-4 w-4 shrink-0 ${isActive ? 'text-primary' : 'text-muted-foreground/60'}`} />;
-    if (lesson.contentType === 'assignment') return <BookOpen className={`h-4 w-4 shrink-0 ${isActive ? 'text-amber-500' : 'text-muted-foreground/60'}`} />;
-    if (lesson.contentType === 'quiz') return <HelpCircle className={`h-4 w-4 shrink-0 ${isActive ? 'text-violet-500' : 'text-muted-foreground/60'}`} />;
+    if (isAssignmentItemKind(lesson.kind)) return <BookOpen className={`h-4 w-4 shrink-0 ${isActive ? 'text-amber-500' : 'text-muted-foreground/60'}`} />;
+    if (isQuizItemKind(lesson.kind)) return <HelpCircle className={`h-4 w-4 shrink-0 ${isActive ? 'text-violet-500' : 'text-muted-foreground/60'}`} />;
     return <PlayCircle className={`h-4 w-4 shrink-0 ${isActive ? 'text-primary' : 'text-muted-foreground/50'}`} />;
+}
+
+function normalizeItemKind(kind?: string) {
+    return (kind || '').toUpperCase();
+}
+
+function isLessonItemKind(kind?: string) {
+    return normalizeItemKind(kind) === 'LESSON';
+}
+
+function isQuizItemKind(kind?: string) {
+    const normalized = normalizeItemKind(kind);
+    return normalized === 'QUIZ' || normalized === 'QUIZ_TEMPLATE';
+}
+
+function isAssignmentItemKind(kind?: string) {
+    const normalized = normalizeItemKind(kind);
+    return normalized === 'ASSIGNMENT' || normalized === 'ASSIGNMENT_TEMPLATE';
+}
+
+function isTrackableLessonKind(kind?: string) {
+    return isLessonItemKind(kind);
 }
 
 // ─── Video Player ─────────────────────────────────────────────────────────────
@@ -281,7 +302,18 @@ function AssignmentPanel({
                             if (submission) {
                                 updateMutation.mutate({ id: submission.id, dto: { content, status: 'DRAFT' } }, { onSuccess: () => toast.success('Đã lưu nháp!') });
                             } else {
-                                submitMutation.mutate({ assignmentTemplateId: templateId, classId, classAssessmentId, content, status: 'DRAFT', userId: actorUserId }, { onSuccess: () => toast.success('Đã lưu nháp!') });
+                                if (!classId || !classAssessmentId) {
+                                    toast.error('Thiếu thông tin lớp/assessment để lưu bài tập.');
+                                    return;
+                                }
+                                submitMutation.mutate({
+                                    assignmentTemplateId: templateId,
+                                    classId,
+                                    classAssessmentId,
+                                    content,
+                                    status: 'DRAFT',
+                                    userId: actorUserId
+                                }, { onSuccess: () => toast.success('Đã lưu nháp!') });
                             }
                         }}
                         disabled={submitMutation.isPending || updateMutation.isPending}
@@ -304,7 +336,18 @@ function AssignmentPanel({
                                     onError: () => toast.error('Lỗi khi nộp bài.')
                                 });
                             } else {
-                                submitMutation.mutate({ assignmentTemplateId: templateId, classId, classAssessmentId, content, status: 'SUBMITTED', userId: actorUserId }, {
+                                if (!classId || !classAssessmentId) {
+                                    toast.error('Thiếu thông tin lớp/assessment để nộp bài.');
+                                    return;
+                                }
+                                submitMutation.mutate({
+                                    assignmentTemplateId: templateId,
+                                    classId,
+                                    classAssessmentId,
+                                    content,
+                                    status: 'SUBMITTED',
+                                    userId: actorUserId
+                                }, {
                                     onSuccess: () => { toast.success('Đã nộp bài!'); onComplete(); },
                                     onError: () => toast.error('Lỗi khi nộp bài.')
                                 });
@@ -452,7 +495,10 @@ function ModuleItem({
     onSelectLesson: (l: CurriculumLesson) => void;
 }) {
     const hasActive = mod.lessons.some(l => l.id === currentLessonId);
-    const doneCount = mod.lessons.filter(l => completedIds.has(l.id)).length;
+    const doneCount = mod.lessons.filter((lesson) => {
+        if (!isTrackableLessonKind(lesson.kind)) return false;
+        return completedIds.has(lesson.referenceId);
+    }).length;
 
     return (
         <div className="border-b border-border last:border-0">
@@ -474,7 +520,9 @@ function ModuleItem({
                 <div className="bg-background/50">
                     {mod.lessons.map(lesson => {
                         const isActive = lesson.id === currentLessonId;
-                        const isDone = completedIds.has(lesson.id);
+                        const isDone = isTrackableLessonKind(lesson.kind)
+                            ? completedIds.has(lesson.referenceId)
+                            : false;
                         return (
                             <button
                                 key={lesson.id}
@@ -545,6 +593,8 @@ export default function CourseLearnPage() {
     }, [enrollmentData, router]);
 
     const completedIds = new Set(completedLessonIds);
+    const currentLessonKind = normalizeItemKind(currentLesson?.kind);
+    const shouldFetchLessonDetail = !!currentLesson?.referenceId && isLessonItemKind(currentLessonKind);
 
     // ── Load curriculum → pick first uncompleted lesson + expand all ───────
     useEffect(() => {
@@ -567,7 +617,10 @@ export default function CourseLearnPage() {
         let pick: CurriculumLesson | null = null;
         for (const mod of curriculum.modules) {
             for (const lesson of mod.lessons) {
-                if (lesson.isUnlocked && !completedIds.has(lesson.id)) {
+                const completed = isTrackableLessonKind(lesson.kind)
+                    ? completedIds.has(lesson.referenceId)
+                    : false;
+                if (lesson.isUnlocked && !completed) {
                     pick = lesson; break;
                 }
             }
@@ -580,15 +633,22 @@ export default function CourseLearnPage() {
     }, [curriculum?.courseId, searchParams]);
 
     // ── Fetch current lesson details (video url, article content etc.) ─────
-    const { data: lessonDetail, isLoading: lessonLoading } = useAcademyLesson(currentLesson?.referenceId ?? '');
+    const { data: lessonDetail, isLoading: lessonLoading } = useAcademyLesson(
+        currentLesson?.referenceId ?? '',
+        { enabled: shouldFetchLessonDetail },
+    );
 
     // ── Progress ───────────────────────────────────────────────────────────
     const markLessonComplete = useCallback(async () => {
         if (!currentLesson) return;
-        if (completedIds.has(currentLesson.id)) { toast.info('Bài học này đã được hoàn thành!'); return; }
+        if (!isTrackableLessonKind(currentLesson.kind)) {
+            toast.info('Loại bài học này không dùng learning-progress theo lesson.');
+            return;
+        }
+        if (completedIds.has(currentLesson.referenceId)) { toast.info('Bài học này đã được hoàn thành!'); return; }
         try {
             await academyLearningProgressApi.trackProgress({
-                lessonId: currentLesson.id,
+                lessonId: currentLesson.referenceId,
                 classId: classId!,
                 status: 'COMPLETED',
                 progressPercent: 100
@@ -620,12 +680,18 @@ export default function CourseLearnPage() {
     });
 
     // ── Computed ───────────────────────────────────────────────────────────
-    const totalLessons = allLessons.length;
-    const completedCount = allLessons.filter(l => completedIds.has(l.id)).length;
+    const progressLessons = allLessons.filter((lesson) => isTrackableLessonKind(lesson.kind));
+    const totalLessons = progressLessons.length || allLessons.length;
+    const completedCount = (progressLessons.length
+        ? progressLessons.filter((lesson) => completedIds.has(lesson.referenceId))
+        : []
+    ).length;
     const progressPct = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
     const radius = 24, circumference = 2 * Math.PI * radius;
     const strokeDashoffset = circumference - (progressPct / 100) * circumference;
-    const isCurrentDone = !!currentLesson && completedIds.has(currentLesson.id);
+    const isCurrentDone = !!currentLesson &&
+        isTrackableLessonKind(currentLesson.kind) &&
+        completedIds.has(currentLesson.referenceId);
 
     // ── Loading ────────────────────────────────────────────────────────────
     if (classLoading || courseLoading || curriculumLoading) {
@@ -660,11 +726,13 @@ export default function CourseLearnPage() {
         );
     }
 
-    const contentType = lessonDetail?.contentType ?? currentLesson?.contentType ?? 'video';
-    const isVideoLesson = contentType === 'video';
-    const isArticleLesson = contentType === 'article';
-    const isAssignmentLesson = contentType === 'assignment';
-    const isQuizLesson = contentType === 'quiz';
+    const contentType = (lessonDetail?.contentType ?? 'video')
+        .toString()
+        .toLowerCase();
+    const isVideoLesson = isLessonItemKind(currentLessonKind) && contentType === 'video';
+    const isArticleLesson = isLessonItemKind(currentLessonKind) && (contentType === 'article' || contentType === 'document');
+    const isAssignmentLesson = isAssignmentItemKind(currentLessonKind);
+    const isQuizLesson = isQuizItemKind(currentLessonKind);
 
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -795,9 +863,11 @@ export default function CourseLearnPage() {
                                                 setSavingNote(true);
                                                 try {
                                                     const { studyNoteApi: StudyNoteApi } = await import('@/lib/api/services/academy-study-note-api');
-                                                    if (currentLesson?.id) {
-                                                        await StudyNoteApi.create({ content: note, lessonId: currentLesson.id });
+                                                    if (lessonDetail?.id) {
+                                                        await StudyNoteApi.create({ content: note, lessonId: lessonDetail.id });
                                                         toast.success('Đã lưu ghi chú!');
+                                                    } else {
+                                                        toast.error('Bài học hiện tại chưa hỗ trợ ghi chú.');
                                                     }
                                                 } catch (e: any) {
                                                     toast.error('Lỗi khi lưu ghi chú');
@@ -978,8 +1048,8 @@ export default function CourseLearnPage() {
             </button>
 
             {/* ── STUDY NOTES PANEL ─────────────────────────────────────────── */}
-            {currentLesson && (
-                <StudyNotesPanel lessonId={currentLesson.id} />
+            {lessonDetail?.id && (
+                <StudyNotesPanel lessonId={lessonDetail.id} />
             )}
         </div>
     );

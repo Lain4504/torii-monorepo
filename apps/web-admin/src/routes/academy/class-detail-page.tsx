@@ -1013,6 +1013,7 @@ export default function ClassDetailPage() {
                                     <TableHead className="w-[80px]">STT</TableHead>
                                     <TableHead>Tiêu đề</TableHead>
                                     <TableHead>Loại</TableHead>
+                                    <TableHead>Nguồn Quiz</TableHead>
                                     <TableHead>Hạn nộp</TableHead>
                                     <TableHead>Trọng số</TableHead>
                                     <TableHead>Trạng thái</TableHead>
@@ -1021,7 +1022,7 @@ export default function ClassDetailPage() {
                               </TableHeader>
                               <TableBody>
                                  {isLoadingAssessments ? (
-                                    <TableRow><TableCell colSpan={7} className="text-center">Đang tải...</TableCell></TableRow>
+                                    <TableRow><TableCell colSpan={8} className="text-center">Đang tải...</TableCell></TableRow>
                                  ) : (isLive ? assessments : quizAssessments).length ? (
                                     (isLive ? assessments : quizAssessments).map((a, idx) => (
                                        <TableRow key={a.id}>
@@ -1030,7 +1031,35 @@ export default function ClassDetailPage() {
                                           <TableCell>
                                              <Badge variant="outline">{a.kind}</Badge>
                                           </TableCell>
-                                          <TableCell>{a.deadline ? new Date(a.deadline).toLocaleString("vi-VN") : "-"}</TableCell>
+                                          <TableCell>
+                                             {a.kind === "QUIZ" ? (
+                                                <div className="space-y-1">
+                                                   {a.quizTemplateId ? (
+                                                      <Link to={`/academy/quiz-templates/${a.quizTemplateId}/edit`} className="text-xs text-primary hover:underline block">
+                                                         Quiz Template
+                                                      </Link>
+                                                   ) : (
+                                                      <span className="text-xs text-muted-foreground block">Chưa có template</span>
+                                                   )}
+                                                   {extractLiveOverrideExamId((a as any).settings) ? (
+                                                      <span className="text-xs text-amber-600 block">
+                                                         LIVE override exam
+                                                      </span>
+                                                   ) : (
+                                                      <span className="text-xs text-muted-foreground block">
+                                                         Dùng đề mặc định template
+                                                      </span>
+                                                   )}
+                                                </div>
+                                             ) : (
+                                                <span className="text-xs text-muted-foreground">N/A</span>
+                                             )}
+                                          </TableCell>
+                                          <TableCell>
+                                             {a.kind === "QUIZ" && !isLive
+                                                ? "VOD - không deadline"
+                                                : (a.deadline ? new Date(a.deadline).toLocaleString("vi-VN") : "-")}
+                                          </TableCell>
                                           <TableCell>{a.weight}%</TableCell>
                                           <TableCell>
                                              <Badge variant={a.status === "PUBLISHED" ? "default" : "secondary"}>{a.status}</Badge>
@@ -1044,7 +1073,7 @@ export default function ClassDetailPage() {
                                     ))
                                  ) : (
                                     <TableRow>
-                                       <TableCell colSpan={7} className="text-center py-8 text-muted-foreground italic">Chưa có Assessment nào</TableCell>
+                                       <TableCell colSpan={8} className="text-center py-8 text-muted-foreground italic">Chưa có Assessment nào</TableCell>
                                     </TableRow>
                                  )}
                               </TableBody>
@@ -1493,4 +1522,11 @@ function formatRequestStatus(status: string) {
    if (status === "REJECTED") return "Từ chối"
    if (status === "CANCELLED") return "Đã hủy"
    return status
+}
+
+function extractLiveOverrideExamId(settings: unknown): string | null {
+   if (!settings || typeof settings !== "object") return null
+   const value = (settings as Record<string, unknown>).overrideExamId
+   if (typeof value !== "string") return null
+   return value.trim() ? value.trim() : null
 }

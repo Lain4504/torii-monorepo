@@ -74,16 +74,16 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
                             <div className="overflow-hidden">
                                 <div className="px-4 pb-4 space-y-3">
                                     {module.lessons.map((lesson) => {
-                                        const isVideo = lesson.contentType === 'video'
-                                        const isQuiz = lesson.contentType === 'quiz'
-                                        const isAssignment = lesson.contentType === 'assignment'
-                                        const isDocument = lesson.contentType === 'document'
+                                        const kind = (lesson.kind || '').toUpperCase()
+                                        const isLesson = kind === 'LESSON'
+                                        const isQuiz = kind === 'QUIZ' || kind === 'QUIZ_TEMPLATE'
+                                        const isAssignment = kind === 'ASSIGNMENT' || kind === 'ASSIGNMENT_TEMPLATE'
 
                                         const TypeIcon = isQuiz
                                             ? HelpCircle
                                             : isAssignment
                                                 ? ClipboardList
-                                                : isVideo
+                                                : isLesson
                                                     ? PlayCircle
                                                     : FileText
 
@@ -91,7 +91,7 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
                                             ? 'Quiz kiểm tra'
                                             : isAssignment
                                                 ? 'Bài tập'
-                                                : isVideo
+                                                : isLesson
                                                     ? 'Video bài giảng'
                                                     : 'Tài liệu'
 
@@ -114,7 +114,7 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
                                                                 ? "text-violet-500"
                                                                 : isAssignment
                                                                     ? "text-amber-500"
-                                                                    : isVideo
+                                                                    : isLesson
                                                                         ? "text-blue-500"
                                                                         : "text-green-500"
                                                         )}

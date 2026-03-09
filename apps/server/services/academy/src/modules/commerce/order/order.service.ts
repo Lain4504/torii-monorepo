@@ -178,11 +178,13 @@ export class OrderService {
         Math.floor(Math.random() * 1000);
 
       const webLearnerUrl = this.appConfig.identity.webLearnerUrl;
+      // PayOS description has a strict max length (25 chars).
+      const payOsDescription = `DH ${order.code}`.slice(0, 25);
 
       const paymentLink = await this.payOS.createPaymentLink({
         orderCode: numericOrderCode,
         amount: preview.grandTotal,
-        description: `Thanh toán đơn hàng ${order.code}`,
+        description: payOsDescription,
         cancelUrl: `${webLearnerUrl}/payment/cancel?orderCode=${order.code}`,
         returnUrl: `${webLearnerUrl}/payment/success?orderCode=${order.code}`,
         items: preview.offerings.map((o) => ({
