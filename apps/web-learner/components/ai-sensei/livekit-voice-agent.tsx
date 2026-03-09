@@ -116,6 +116,13 @@ export function LivekitVoiceAgent() {
                 totalTokens: sessionTokensRef.current.total,
                 durationSec
             }).catch(console.error)
+
+            // Send stop signal to voice agent server to kick the agent immediately
+            fetch(`${VOICE_AGENT_URL}/stop`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ channel_name: liveKitInfo.roomId }),
+            }).catch(err => console.error("[VoiceAgent] Failed to send stop signal:", err))
         }
 
         setConnectionState("idle")
@@ -148,7 +155,13 @@ export function LivekitVoiceAgent() {
                 // Using sendBeacon for reliable delivery during page unload
                 const blob = new Blob([payload], { type: 'application/json' });
                 navigator.sendBeacon('/api/agents/livekit-end', blob);
-                console.log("[VoiceAgent] beforeunload cleanup: Signal sent for room", currentRoomId);
+
+                // Also send stop signal to voice agent server
+                const stopPayload = JSON.stringify({ channel_name: currentRoomId });
+                const stopBlob = new Blob([stopPayload], { type: 'application/json' });
+                navigator.sendBeacon(`${VOICE_AGENT_URL}/stop`, stopBlob);
+
+                console.log("[VoiceAgent] beforeunload cleanup: Signals sent for room", currentRoomId);
             }
         };
 
@@ -166,6 +179,15 @@ export function LivekitVoiceAgent() {
                     totalTokens: sessionTokensRef.current.total,
                     durationSec
                 }).catch(console.error);
+
+                // Send stop signal to voice agent server to kick the agent immediately
+                fetch(`${VOICE_AGENT_URL}/stop`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ channel_name: currentRoomId }),
+                    keepalive: true // Ensure request completes after unmount
+                }).catch(err => console.error("[VoiceAgent] Unmount cleanup failed to send stop signal:", err));
+
                 console.log("[VoiceAgent] Unmount cleanup: Signal sent for room", currentRoomId);
 
                 // Refresh profile to update coins on UI after unmounting navigation
