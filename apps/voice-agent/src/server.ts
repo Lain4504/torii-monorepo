@@ -170,11 +170,44 @@ app.post('/start', async (req, res) => {
 
 /**
  * POST /stop
+ * Proactively kicks any existing agents from the room.
  */
-app.post('/stop', (req, res) => {
+app.post('/stop', async (req, res) => {
     const { channel_name } = req.body;
-    console.log(`[Server] Stop requested for ${channel_name} (actual stop handled by room disconnection)`);
-    return res.json({ success: true, message: 'Stop signal received.' });
+
+    if (!channel_name) {
+        return res.status(400).json({ success: false, message: 'channel_name (room) is required' });
+    }
+
+    console.log(`[Server] Stop requested for room: ${channel_name}. Cleaning up agents...`);
+
+    try {
+        const apiHost = LIVEKIT_URL.replace('wss://', 'https://').replace('ws://', 'http://');
+        const roomService = new RoomServiceClient(apiHost, LIVEKIT_API_KEY, LIVEKIT_API_SECRET);
+
+        // Clear the internal cooldown lock for this room
+        activeRoomJobs.delete(channel_name);
+
+        const participants = await roomService.listParticipants(channel_name);
+        let agentsRemoved = 0;
+
+        for (const p of participants) {
+            if (p.identity.startsWith('agent-')) {
+                console.log(`[Server] [Stop] Removing agent participant ${p.identity} from room ${channel_name}`);
+                await roomService.removeParticipant(channel_name, p.identity);
+                agentsRemoved++;
+            }
+        }
+
+        return res.json({
+            success: true,
+            message: `Stop signal processed. Removed ${agentsRemoved} agent(s).`,
+            channel: channel_name
+        });
+    } catch (err: any) {
+        console.error('[Server] Failed to handle /stop request:', err.message);
+        return res.status(500).json({ success: false, message: err.message });
+    }
 });
 
 /**
