@@ -1,13 +1,5 @@
-import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    Patch,
-    Post,
-    Query,
-} from '@nestjs/common';
+import { Controller } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import {
     AddPoolQuestionsDto,
     QuestionPoolCreateDto,
@@ -17,58 +9,53 @@ import {
 } from './dto/question-pool.dto';
 import { QuestionPoolService } from './question-pool.service';
 
-@Controller('academy/question-pools')
+@Controller()
 export class QuestionPoolHandler {
     constructor(private readonly service: QuestionPoolService) { }
 
-    @Get()
-    async findAll(@Query() query: QuestionPoolQueryDto) {
+    @MessagePattern({ cmd: 'academy.questionPool.findAll' })
+    async findAll(@Payload() query: QuestionPoolQueryDto) {
         return this.service.findAll(query);
     }
 
-    @Get(':id')
-    async findById(@Param('id') id: string) {
-        return this.service.findById(id);
+    @MessagePattern({ cmd: 'academy.questionPool.findById' })
+    async findById(@Payload() data: { id: string }) {
+        return this.service.findById(data.id);
     }
 
-    @Post()
-    async create(@Body() input: QuestionPoolCreateDto) {
+    @MessagePattern({ cmd: 'academy.questionPool.create' })
+    async create(@Payload() input: QuestionPoolCreateDto) {
         return this.service.create(input);
     }
 
-    @Patch(':id')
-    async update(@Param('id') id: string, @Body() input: QuestionPoolUpdateDto) {
-        return this.service.update(id, input);
+    @MessagePattern({ cmd: 'academy.questionPool.update' })
+    async update(@Payload() data: { id: string; input: QuestionPoolUpdateDto }) {
+        return this.service.update(data.id, data.input);
     }
 
-    @Delete(':id')
-    async delete(@Param('id') id: string) {
-        return this.service.delete(id);
+    @MessagePattern({ cmd: 'academy.questionPool.delete' })
+    async delete(@Payload() data: { id: string }) {
+        return this.service.delete(data.id);
     }
 
-    @Get(':id/questions')
-    async getQuestions(@Param('id') id: string) {
-        return this.service.getPoolQuestions(id);
+    @MessagePattern({ cmd: 'academy.questionPool.getQuestions' })
+    async getQuestions(@Payload() data: { id: string }) {
+        return this.service.getPoolQuestions(data.id);
     }
 
-    @Post(':id/questions')
-    async addQuestions(
-        @Param('id') id: string,
-        @Body() input: AddPoolQuestionsDto,
-    ) {
-        return this.service.addQuestions(id, input);
+    @MessagePattern({ cmd: 'academy.questionPool.addQuestions' })
+    async addQuestions(@Payload() data: { id: string; input: AddPoolQuestionsDto }) {
+        return this.service.addQuestions(data.id, data.input);
     }
 
-    @Delete(':id/questions/:questionId')
-    async removeQuestion(
-        @Param('id') id: string,
-        @Param('questionId') questionId: string,
-    ) {
-        return this.service.removeQuestion(id, questionId);
+    @MessagePattern({ cmd: 'academy.questionPool.removeQuestion' })
+    async removeQuestion(@Payload() data: { id: string; questionId: string }) {
+        return this.service.removeQuestion(data.id, data.questionId);
     }
 
-    @Post(':id/sample')
-    async sample(@Param('id') id: string, @Body() input: SampleQuestionsDto) {
-        return this.service.sampleQuestions(id, input);
+    @MessagePattern({ cmd: 'academy.questionPool.sample' })
+    async sample(@Payload() data: { id: string; input: SampleQuestionsDto }) {
+        return this.service.sampleQuestions(data.id, data.input);
     }
 }
+

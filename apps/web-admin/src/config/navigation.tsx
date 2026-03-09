@@ -45,9 +45,11 @@ export const academicNavItems: NavItem[] = [
         icon: GraduationCap,
         anyPermission: ["academy.content.read", "academy.content.write", "academy.delivery.read", "academy.delivery.write"],
         items: [
-            { titleKey: "Kho Khóa học & Nội dung", url: "/academy/course-profiles" },
+            { titleKey: "Kho Khóa học (Profiles)", url: "/academy/course-profiles" },
+            { titleKey: "Phiên bản (Editions)", url: "/academy/course-editions" },
             { titleKey: "Gói bán (Offerings)", url: "/academy/course-offerings" },
             { titleKey: "Quản lý Lớp học", url: "/academy/classes" },
+            { titleKey: "Trung tâm Duyệt", url: "/academy/approvals" },
             { titleKey: "Ngân hàng câu hỏi", url: "/academy/questions" },
             { titleKey: "Question Pools", url: "/academy/question-pools" },
         ]

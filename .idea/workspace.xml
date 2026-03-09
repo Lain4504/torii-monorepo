@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(academy): implement class assignment and quiz forms with validation and UI integration" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat(academy): add clone functionality for course editions and enforce syllabus immutability for published editions" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -66,37 +66,37 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Jest.CourseRunService.executor": "Run",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "update-ui",
-    "go.import.settings.migrated": "true",
-    "javascript.preferred.runtime.type.id": "node",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/lain4504/SEP490/torii-monorepo/apps/server/services/meet",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs.jest.jest_package": "/home/lain4504/SEP490/torii-monorepo/apps/server/node_modules/jest",
-    "nodejs_package_manager_path": "pnpm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "ts.external.directory.path": "/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Jest.CourseRunService.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;update-ui&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/apps/server/services/meet&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs.jest.jest_package&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/apps/server/node_modules/jest&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="CourseRunService" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
       <node-interpreter value="project" />
@@ -319,31 +319,8 @@
       <workItem from="1772979957763" duration="1629000" />
       <workItem from="1772987158766" duration="480000" />
       <workItem from="1772988124145" duration="523000" />
-      <workItem from="1773019000096" duration="338000" />
-    </task>
-    <task id="LOCAL-00948" summary="update create review submit flow for course and course master">
-      <option name="closed" value="true" />
-      <created>1772648347320</created>
-      <option name="number" value="00948" />
-      <option name="presentableId" value="LOCAL-00948" />
-      <option name="project" value="LOCAL" />
-      <updated>1772648347321</updated>
-    </task>
-    <task id="LOCAL-00949" summary="update create review submit flow for course and course master">
-      <option name="closed" value="true" />
-      <created>1772648357610</created>
-      <option name="number" value="00949" />
-      <option name="presentableId" value="LOCAL-00949" />
-      <option name="project" value="LOCAL" />
-      <updated>1772648357611</updated>
-    </task>
-    <task id="LOCAL-00950" summary="update create review submit flow for course and course master">
-      <option name="closed" value="true" />
-      <created>1772648496810</created>
-      <option name="number" value="00950" />
-      <option name="presentableId" value="LOCAL-00950" />
-      <option name="project" value="LOCAL" />
-      <updated>1772648496810</updated>
+      <workItem from="1773019000096" duration="1493000" />
+      <workItem from="1773027267018" duration="427000" />
     </task>
     <task id="LOCAL-00951" summary="update create review submit flow for course and course master">
       <option name="closed" value="true" />
@@ -713,7 +690,31 @@
       <option name="project" value="LOCAL" />
       <updated>1772988183564</updated>
     </task>
-    <option name="localTasksCounter" value="997" />
+    <task id="LOCAL-00997" summary="feat: update LiveKit configuration and add Core LMS implementation checklist">
+      <option name="closed" value="true" />
+      <created>1773019468011</created>
+      <option name="number" value="00997" />
+      <option name="presentableId" value="LOCAL-00997" />
+      <option name="project" value="LOCAL" />
+      <updated>1773019468012</updated>
+    </task>
+    <task id="LOCAL-00998" summary="feat: update LiveKit configuration and add Core LMS implementation checklist">
+      <option name="closed" value="true" />
+      <created>1773019517082</created>
+      <option name="number" value="00998" />
+      <option name="presentableId" value="LOCAL-00998" />
+      <option name="project" value="LOCAL" />
+      <updated>1773019517082</updated>
+    </task>
+    <task id="LOCAL-00999" summary="feat(academy): add clone functionality for course editions and enforce syllabus immutability for published editions">
+      <option name="closed" value="true" />
+      <created>1773027681481</created>
+      <option name="number" value="00999" />
+      <option name="presentableId" value="LOCAL-00999" />
+      <option name="project" value="LOCAL" />
+      <updated>1773027681481</updated>
+    </task>
+    <option name="localTasksCounter" value="1000" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -730,7 +731,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="main" />
+                        <option value="update-ui" />
                       </list>
                     </value>
                   </entry>
@@ -748,8 +749,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="add comment for interface" />
-    <MESSAGE value="update meet to user shadcn ui component" />
     <MESSAGE value="update ui flow course detail" />
     <MESSAGE value="refactor: update course and course run handlers for admin-specific listings" />
     <MESSAGE value="update core lms flow" />
@@ -773,7 +772,9 @@
     <MESSAGE value="feat(academy): enhance DTOs and APIs for course management, including new models and updated query hooks" />
     <MESSAGE value="feat(academy): enhance course management services with improved delete and archive functionalities&#10;&#10;- Updated delete methods in various services to include checks for existing associations, preventing deletion of active records.&#10;- Introduced archive functionality for course offerings and profiles, allowing for better management of course states.&#10;- Enhanced metadata handling in forms with a new Key-Value editor for improved user experience.&#10;- Refactored exam and assignment templates to support structured data input through dedicated editors." />
     <MESSAGE value="feat(academy): implement class assignment and quiz forms with validation and UI integration" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(academy): implement class assignment and quiz forms with validation and UI integration" />
+    <MESSAGE value="feat: update LiveKit configuration and add Core LMS implementation checklist" />
+    <MESSAGE value="feat(academy): add clone functionality for course editions and enforce syllabus immutability for published editions" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(academy): add clone functionality for course editions and enforce syllabus immutability for published editions" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

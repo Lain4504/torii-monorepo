@@ -1,4 +1,4 @@
-import { useNavigate, useParams, Link } from "react-router-dom"
+import { useParams, Link } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@workspace/ui/components/table"
-import { PageHeader } from "@/components/common/page-header"
+import { cn } from "@workspace/ui/lib/utils"
 import {
   useAcademyCourseOffering,
   useApproveCourseOffering,
@@ -18,7 +18,7 @@ import {
   useRejectCourseOffering,
   useSubmitCourseOfferingForApproval,
 } from "@/lib/api/services/academy-course-offerings"
-import { ArrowLeft, Archive, Edit, Package, GraduationCap, Calendar, DollarSign, Send, CheckCircle2, AlertCircle } from "lucide-react"
+import { Archive, Edit, Package, GraduationCap, Calendar, DollarSign, Send, CheckCircle2, AlertCircle } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -34,7 +34,6 @@ import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/al
 
 export default function AcademyCourseOfferingDetailPage() {
   const { id } = useParams()
-  const nav = useNavigate()
   const { data: item, isLoading } = useAcademyCourseOffering(id)
   const submitMutation = useSubmitCourseOfferingForApproval()
   const approveMutation = useApproveCourseOffering()
@@ -55,105 +54,128 @@ export default function AcademyCourseOfferingDetailPage() {
   const handleSubmit = async () => {
     try {
       await submitMutation.mutateAsync(id!)
-      toast.success("Submitted for approval")
+      toast.success("Đã gửi phê duyệt")
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to submit")
+      toast.error(error.response?.data?.message || "Gửi thất bại")
     }
   }
 
   const handleApprove = async () => {
     try {
       await approveMutation.mutateAsync(id!)
-      toast.success("Approved successfully")
+      toast.success("Đã phê duyệt")
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to approve")
+      toast.error(error.response?.data?.message || "Phê duyệt thất bại")
     }
   }
 
   const handleReject = async () => {
     if (!rejectionReason.trim()) {
-      toast.error("Please provide a reason for rejection")
+      toast.error("Vui lòng nhập lý do từ chối")
       return
     }
     try {
       await rejectMutation.mutateAsync({ id: id!, reason: rejectionReason })
-      toast.success("Rejected successfully")
+      toast.success("Đã từ chối")
       setIsRejectDialogOpen(false)
       setRejectionReason("")
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to reject")
+      toast.error(error.response?.data?.message || "Từ chối thất bại")
     }
   }
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => nav("/academy/course-offerings")}>
-          <ArrowLeft className="w-4 h-4" />
-        </Button>
-        <PageHeader
-          title={item.title}
-          subtitle={`Mã gói: ${item.code}`}
-          actions={
-            <div className="flex gap-2">
-              {item.status === "DRAFT" && (
-                <Button onClick={handleSubmit} disabled={submitMutation.isPending}>
-                  <Send className="h-4 w-4 mr-2" />
-                  Gửi phê duyệt
-                </Button>
-              )}
-
-              {item.status === "PENDING_APPROVAL" && (
-                <>
-                  <Button
-                    variant="outline"
-                    className="text-destructive hover:bg-destructive/10"
-                    onClick={() => setIsRejectDialogOpen(true)}
-                  >
-                    Từ chối
-                  </Button>
-                  <Button onClick={handleApprove} disabled={approveMutation.isPending}>
-                    <CheckCircle2 className="h-4 w-4 mr-2" />
-                    Phê duyệt
-                  </Button>
-                </>
-              )}
-
-              <Button asChild variant="outline">
-                <Link to={`/academy/course-offerings/${item.id}/edit`}>
-                  <Edit className="w-4 h-4 mr-2" />
-                  Chỉnh sửa
-                </Link>
-              </Button>
-
-              {["PUBLISHED", "HIDDEN"].includes(item.status || "") && (
-                <Button
-                  variant="outline"
-                  onClick={async () => {
-                    try {
-                      await archiveMutation.mutateAsync(id!)
-                      toast.success("Đã lưu trữ gói bán")
-                    } catch (error: any) {
-                      toast.error(error?.response?.data?.message || "Lưu trữ thất bại")
-                    }
-                  }}
-                  disabled={archiveMutation.isPending}
-                >
-                  <Archive className="w-4 h-4 mr-2" />
-                  Lưu trữ
-                </Button>
-              )}
+      <div className="bg-background border rounded-xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-3">
+            <Package className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-extrabold tracking-tight">{item.title}</h1>
+            <Badge variant={
+              item.status === "PUBLISHED" ? "default" :
+                item.status === "PENDING_APPROVAL" ? "secondary" : "outline"
+            } className={cn(
+              "px-3 py-1 text-xs uppercase font-bold tracking-widest",
+              item.status === "PUBLISHED" && "bg-emerald-600 hover:bg-emerald-700"
+            )}>
+              {item.status === "DRAFT" ? "Bản thảo" :
+                item.status === "PENDING_APPROVAL" ? "Chờ phê duyệt" :
+                  item.status === "PUBLISHED" ? "Đang bán" :
+                    item.status === "HIDDEN" ? "Đang ẩn" :
+                      item.status === "ARCHIVED" ? "Đã lưu trữ" : item.status}
+            </Badge>
+          </div>
+          <div className="flex flex-wrap items-center gap-4 mt-1 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1.5 font-medium px-2 py-0.5 rounded-md bg-muted text-foreground">
+              Mã: <span className="font-mono">{item.code}</span>
+            </span>
+            <div className="flex items-center gap-1 border-l pl-4">
+              <DollarSign className="h-4 w-4" />
+              <span className="font-semibold text-foreground">
+                {Intl.NumberFormat("vi-VN").format(item.price || 0)} {item.currency}
+              </span>
             </div>
-          }
-        />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 self-end md:self-auto">
+          {item.status === "DRAFT" && (
+            <Button onClick={handleSubmit} disabled={submitMutation.isPending} className="gap-2 shadow-sm">
+              <Send className="h-4 w-4" />
+              Gửi phê duyệt
+            </Button>
+          )}
+
+          {item.status === "PENDING_APPROVAL" && (
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="text-destructive hover:bg-destructive/10 border-destructive/20"
+                onClick={() => setIsRejectDialogOpen(true)}
+              >
+                Từ chối
+              </Button>
+              <Button onClick={handleApprove} disabled={approveMutation.isPending} className="gap-2 bg-emerald-600 hover:bg-emerald-700">
+                <CheckCircle2 className="h-4 w-4" />
+                Phê duyệt
+              </Button>
+            </div>
+          )}
+
+          <Button asChild variant="outline" className="gap-2 shadow-sm">
+            <Link to={`/academy/course-offerings/${item.id}/edit`}>
+              <Edit className="h-4 w-4" />
+              Chỉnh sửa
+            </Link>
+          </Button>
+
+          {["PUBLISHED", "HIDDEN"].includes(item.status || "") && (
+            <Button
+              variant="outline"
+              className="gap-2 shadow-sm"
+              onClick={async () => {
+                try {
+                  await archiveMutation.mutateAsync(id!)
+                  toast.success("Đã lưu trữ gói bán")
+                } catch (error: any) {
+                  toast.error(error?.response?.data?.message || "Lưu trữ thất bại")
+                }
+              }}
+              disabled={archiveMutation.isPending}
+            >
+              <Archive className="h-4 w-4" />
+              Lưu trữ
+            </Button>
+          )}
+        </div>
       </div>
 
       {item.status === "DRAFT" && item.rejectionReason && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="bg-destructive/5 border-destructive/20">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Gói bán bị từ chối</AlertTitle>
-          <AlertDescription>
-            Lý do: {item.rejectionReason}
+          <AlertTitle className="font-bold">Gói bán bị từ chối</AlertTitle>
+          <AlertDescription className="mt-1">
+            Lý do: <span className="font-semibold italic">{item.rejectionReason}</span>. Vui lòng cập nhật lại thông tin và gửi lại phê duyệt.
           </AlertDescription>
         </Alert>
       )}
@@ -264,7 +286,7 @@ export default function AcademyCourseOfferingDetailPage() {
                 <div className="flex items-center gap-2 text-sm mt-1">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
                   <span>
-                    {item.salesStartAt ? new Date(item.salesStartAt).toLocaleDateString("vi-VN") : "Bất đầu"}
+                    {item.salesStartAt ? new Date(item.salesStartAt).toLocaleDateString("vi-VN") : "Bắt đầu"}
                     {" - "}
                     {item.salesEndAt ? new Date(item.salesEndAt).toLocaleDateString("vi-VN") : "Kết thúc"}
                   </span>
@@ -285,6 +307,7 @@ export default function AcademyCourseOfferingDetailPage() {
           </Card>
         </div>
       </div>
+
       <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
         <DialogContent>
           <DialogHeader>

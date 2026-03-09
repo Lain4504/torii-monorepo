@@ -9,6 +9,9 @@ import {
   FieldLabel,
   FieldDescription,
   FieldGroup,
+  FieldSeparator,
+  FieldSet,
+  FieldLegend,
 } from "@workspace/ui/components/field"
 import {
   Select,
@@ -34,7 +37,7 @@ import type { AcademyQuestionCreateDTO, AcademyQuestionUpdateDTO } from "@worksp
 import type { AcademyQuestion } from "@/lib/api/services/academy-questions"
 import { QuestionPicker } from "./question-picker"
 import { StringListEditor } from "@/components/academy/string-list-editor"
-import  { Tabs, TabsList, TabsTrigger, TabsContent } from "@workspace/ui/components/tabs"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@workspace/ui/components/tabs"
 import { KeyValueEditor } from "./key-value-editor"
 import { QuestionOptionsEditor } from "./question-options-editor"
 
@@ -246,8 +249,8 @@ export function QuestionForm({
                 <div className="space-y-6">
                   {(questionType === "SINGLE_CHOICE" || questionType === "MULTIPLE_CHOICE" || questionType === "TRUE_FALSE") ? (
                     <div className="space-y-2">
-                       <FieldLabel>Cấu hình lựa chọn & Đáp án đúng</FieldLabel>
-                       <QuestionOptionsEditor
+                      <FieldLabel>Cấu hình lựa chọn & Đáp án đúng</FieldLabel>
+                      <QuestionOptionsEditor
                         type={questionType}
                         options={options}
                         correctAnswer={watch("correctAnswer" as any)}
@@ -266,10 +269,10 @@ export function QuestionForm({
                           <Field>
                             <FieldLabel>Các câu trả lời chấp nhận được</FieldLabel>
                             <StringListEditor
-                                value={field.value || []}
-                                onChange={field.onChange}
-                                placeholder="Nhập đáp án đúng..."
-                                addButtonLabel="Thêm đáp án chấp nhận"
+                              value={field.value || []}
+                              onChange={field.onChange}
+                              placeholder="Nhập đáp án đúng..."
+                              addButtonLabel="Thêm đáp án chấp nhận"
                             />
                             <FieldDescription>Danh sách các câu trả lời được tính là đúng (không phân biệt hoa thường).</FieldDescription>
                             <FieldError>{fieldState.error?.message}</FieldError>
@@ -279,7 +282,7 @@ export function QuestionForm({
                     </div>
                   ) : questionType === "GROUP_PARENT" ? (
                     <div className="p-4 border rounded-md bg-muted/50 text-sm text-muted-foreground text-center italic">
-                        Câu hỏi nhóm đóng vai trò chứa các câu hỏi con. Không cần cấu hình đáp án tại đây.
+                      Câu hỏi nhóm đóng vai trò chứa các câu hỏi con. Không cần cấu hình đáp án tại đây.
                     </div>
                   ) : (
                     <div className="grid gap-6 md:grid-cols-2">
@@ -402,24 +405,24 @@ export function QuestionForm({
             </CardHeader>
             <CardContent className="min-h-[400px] flex items-center justify-center border-2 border-dashed rounded-lg bg-muted/20">
               <div className="w-full max-w-2xl bg-background p-8 rounded-xl shadow-lg border">
-                 <div className="space-y-6">
-                    <div className="prose dark:prose-invert max-w-none min-h-[50px]" dangerouslySetInnerHTML={{ __html: content || "<i>Nội dung câu hỏi sẽ hiển thị tại đây...</i>" }} />
-                    <div className="space-y-3">
-                        {Array.isArray(options) && options.length > 0 ? options.map((opt: any, i: number) => (
-                            <div key={i} className="flex items-center p-3 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
-                                <div className="size-8 rounded-full border flex items-center justify-center mr-3 text-sm font-medium">
-                                    {String.fromCharCode(65 + i)}
-                                </div>
-                                <span>{opt.label || `Lựa chọn ${String.fromCharCode(65 + i)}`}</span>
-                            </div>
-                        )) : (
-                          <div className="text-muted-foreground text-sm italic">Thiết lập lựa chọn để xem preview...</div>
-                        )}
-                    </div>
-                    <div className="pt-6 border-t flex justify-end">
-                        <Button disabled>Nộp bài</Button>
-                    </div>
-                 </div>
+                <div className="space-y-6">
+                  <div className="prose dark:prose-invert max-w-none min-h-[50px]" dangerouslySetInnerHTML={{ __html: content || "<i>Nội dung câu hỏi sẽ hiển thị tại đây...</i>" }} />
+                  <div className="space-y-3">
+                    {Array.isArray(options) && options.length > 0 ? options.map((opt: any, i: number) => (
+                      <div key={i} className="flex items-center p-3 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                        <div className="size-8 rounded-full border flex items-center justify-center mr-3 text-sm font-medium">
+                          {String.fromCharCode(65 + i)}
+                        </div>
+                        <span>{opt.label || `Lựa chọn ${String.fromCharCode(65 + i)}`}</span>
+                      </div>
+                    )) : (
+                      <div className="text-muted-foreground text-sm italic">Thiết lập lựa chọn để xem preview...</div>
+                    )}
+                  </div>
+                  <div className="pt-6 border-t flex justify-end">
+                    <Button disabled>Nộp bài</Button>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>

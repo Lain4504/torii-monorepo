@@ -152,7 +152,7 @@ export function QuizTemplateForm({
                                             value={field.value || {}}
                                             onChange={field.onChange}
                                             presets={[
-                                                { key: "maxAttemptsPerUser", label: "Số lần làm tối đa", defaultValue: "1" },
+                                                { key: "summary", label: "Tóm tắt bài tập (Summary)", defaultValue: "Mô tả ngắn..." },
                                                 { key: "shuffleQuestions", label: "Trộn câu hỏi", defaultValue: "true" },
                                                 { key: "showResultType", label: "Hiển thị kết quả", defaultValue: "DETAILED" },
                                                 { key: "passingScore", label: "Điểm đạt", defaultValue: "50" },

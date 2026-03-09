@@ -8,7 +8,6 @@ import { useAcademyCourseProfile } from "@/lib/api/services/academy-course-profi
 import { useAcademyCourseEdition } from "@/lib/api/services/academy-course-editions"
 import { useAcademyExamAttempts } from "@/lib/api/services/academy-exam-attempts"
 import { useAcademyAssignmentSubmissions } from "@/lib/api/services/academy-assignment-submissions"
-import { PageHeader } from "@/components/common/page-header"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
@@ -60,7 +59,7 @@ export default function ClassDetailPage() {
    const { data: edition } = useAcademyCourseEdition(cls?.courseEditionId)
    const { data: schedules = [], isLoading: isLoadingSchedules } = useAcademyLiveSchedules({ liveClassId: id })
    const { data: assessments = [], isLoading: isLoadingAssessments } = useAcademyClassAssessments({ classId: id })
-   const { data: enrollmentsData, isLoading: isLoadingEnrollments } = useAcademyEnrollments({ classId: id, page: 1, limit: 1000 })
+   const { data: enrollmentsData, isLoading: isLoadingEnrollments } = useAcademyEnrollments({ classId: id, page: 1, limit: 100 })
    const { data: attempts = [], isLoading: isLoadingAttempts } = useAcademyExamAttempts({ classId: id })
    const { data: submissions = [], isLoading: isLoadingSubmissions } = useAcademyAssignmentSubmissions({ classId: id })
 
@@ -135,67 +134,86 @@ export default function ClassDetailPage() {
             </Button>
          </div>
 
-         <PageHeader
-            title={cls.name}
-            subtitle={
-               <div className="flex items-center gap-4 mt-1">
-                  <span className="text-sm text-muted-foreground">Mã lớp: <span className="text-foreground font-medium">{cls.code}</span></span>
-                  <span className="text-sm text-muted-foreground">Mode: <span className="text-foreground font-medium">{cls.mode}</span></span>
-                  <Badge variant={
-                     cls.status === "ENROLLING" ? "default" :
-                        cls.status === "PENDING_APPROVAL" ? "secondary" : "outline"
-                  }>
-                     {cls.status}
-                  </Badge>
-               </div>
-            }
-            actions={
-               <div className="flex gap-2">
-                  {cls.status === "DRAFT" && (
-                     <Button onClick={handleSubmit} disabled={submitMutation.isPending}>
-                        <Send className="h-4 w-4 mr-2" />
-                        Gửi phê duyệt
-                     </Button>
-                  )}
-
-                  {cls.status === "PENDING_APPROVAL" && (
-                     <>
-                        <Button
+         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b">
+            <div className="flex flex-col gap-4">
+               <div className="flex items-center gap-3">
+                  <div className={cn(
+                     "p-3 rounded-xl shadow-sm border",
+                     isLive ? "bg-blue-500/10 text-blue-600 border-blue-200/50" : "bg-purple-500/10 text-purple-600 border-purple-200/50"
+                  )}>
+                     <Calendar className="h-6 w-6" />
+                  </div>
+                  <div className="flex flex-col">
+                     <div className="flex items-center gap-3">
+                        <h1 className="text-2xl font-bold tracking-tight">{cls.name}</h1>
+                        <Badge
                            variant="outline"
-                           className="text-destructive hover:bg-destructive/10"
-                           onClick={() => setIsRejectDialogOpen(true)}
+                           className={cn(
+                              "font-bold uppercase tracking-wider text-[10px] px-2 py-0.5 shadow-none",
+                              cls.status === "ENROLLING" && "bg-blue-500/10 text-blue-600 border-blue-200",
+                              cls.status === "IN_PROGRESS" && "bg-emerald-500/10 text-emerald-600 border-emerald-200",
+                              cls.status === "PENDING_APPROVAL" && "bg-amber-500/10 text-amber-600 border-amber-200",
+                              cls.status === "DRAFT" && "bg-muted text-muted-foreground border-transparent",
+                              cls.status === "COMPLETED" && "bg-zinc-500/10 text-zinc-600 border-zinc-200"
+                           )}
                         >
-                           Từ chối
-                        </Button>
-                        <Button onClick={handleApprove} disabled={approveMutation.isPending}>
-                           <CheckCircle2 className="h-4 w-4 mr-2" />
-                           Phê duyệt
-                        </Button>
-                     </>
-                  )}
-
-                  <Button variant="outline" className="gap-2 shadow-sm" onClick={() => setIsDuplicateDialogOpen(true)}>
-                     <Copy className="h-4 w-4" /> Nhân bản
-                  </Button>
-
-                  <Button asChild variant="outline" className="gap-2 shadow-sm">
-                     <Link to={`/academy/classes/${id}/edit`}>
-                        <Edit className="h-4 w-4" /> Chỉnh sửa lớp học
-                     </Link>
-                  </Button>
+                           {cls.status}
+                        </Badge>
+                     </div>
+                     <div className="flex items-center gap-4 mt-1">
+                        <span className="text-xs text-muted-foreground">ID: <span className="font-mono text-foreground font-medium">{cls.code}</span></span>
+                        <span className="text-xs border-l pl-3 text-muted-foreground uppercase tracking-widest font-bold">MODE: {cls.mode}</span>
+                     </div>
+                  </div>
                </div>
-            }
-         />
+            </div>
+
+            <div className="flex items-center gap-2">
+               {cls.status === "DRAFT" && (
+                  <Button onClick={handleSubmit} disabled={submitMutation.isPending} className="gap-2 shadow-md">
+                     <Send className="h-4 w-4" />
+                     Gửi phê duyệt
+                  </Button>
+               )}
+
+               {cls.status === "PENDING_APPROVAL" && (
+                  <div className="flex gap-2">
+                     <Button
+                        variant="outline"
+                        className="text-destructive hover:bg-destructive/10 border-destructive/20 shadow-sm"
+                        onClick={() => setIsRejectDialogOpen(true)}
+                     >
+                        Từ chối
+                     </Button>
+                     <Button onClick={handleApprove} disabled={approveMutation.isPending} className="gap-2 bg-emerald-600 hover:bg-emerald-700 shadow-md">
+                        <CheckCircle2 className="h-4 w-4" />
+                        Phê duyệt
+                     </Button>
+                  </div>
+               )}
+
+               <Button variant="outline" size="sm" className="gap-2 shadow-sm" onClick={() => setIsDuplicateDialogOpen(true)}>
+                  <Copy className="h-4 w-4" /> Nhân bản
+               </Button>
+
+               <Button variant="outline" size="sm" asChild className="shadow-sm">
+                  <Link to={`/academy/classes/${id}/edit`}>
+                     <Edit className="h-4 w-4" />
+                  </Link>
+               </Button>
+            </div>
+         </div>
 
          {cls.status === "DRAFT" && cls.rejectionReason && (
-            <Alert variant="destructive">
+            <Alert variant="destructive" className="bg-destructive/5 border-destructive/20">
                <AlertCircle className="h-4 w-4" />
-               <AlertTitle>Lớp học bị từ chối</AlertTitle>
-               <AlertDescription>
-                  Lý do: {cls.rejectionReason}
+               <AlertTitle className="font-bold">Lớp học bị từ chối</AlertTitle>
+               <AlertDescription className="mt-1">
+                  Lý do: <span className="font-semibold italic">{cls.rejectionReason}</span>. Vui lòng cập nhật lại thông tin và gửi lại phê duyệt.
                </AlertDescription>
             </Alert>
          )}
+
 
          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <Card className="md:col-span-1 shadow-sm">
@@ -265,14 +283,17 @@ export default function ClassDetailPage() {
                                  <p className="text-sm font-medium text-muted-foreground">Mô tả kỳ học (Term/Batch)</p>
                                  <p className="text-sm font-semibold">{term} / {batch}</p>
                               </div>
-                              <div className="space-y-1">
-                                 <p className="text-sm font-medium text-muted-foreground">Thời gian mở đăng ký</p>
-                                 <p className="text-sm">
-                                    {enrollmentOpenAt ? new Date(enrollmentOpenAt).toLocaleString("vi-VN") : "N/A"}
-                                    {" → "}
-                                    {enrollmentCloseAt ? new Date(enrollmentCloseAt).toLocaleString("vi-VN") : "N/A"}
-                                 </p>
-                              </div>
+                              {enrollmentOpenAt && (
+                                 <div className="space-y-1">
+                                    <p className="text-sm font-medium text-muted-foreground">Thời gian mở đăng ký</p>
+                                    <p className="text-sm">
+                                       {new Date(enrollmentOpenAt).toLocaleString("vi-VN")}
+                                       {" → "}
+                                       {enrollmentCloseAt ? new Date(enrollmentCloseAt).toLocaleString("vi-VN") : "Vĩnh viễn"}
+                                    </p>
+                                 </div>
+                              )}
+
                               {!isLive && cls.vodClass?.defaultExpiresMonths && (
                                  <div className="space-y-1">
                                     <p className="text-sm font-medium text-muted-foreground">Thời hạn mặc định</p>
@@ -595,7 +616,7 @@ export default function ClassDetailPage() {
             open={isDuplicateDialogOpen}
             onOpenChange={setIsDuplicateDialogOpen}
          />
-      </div>
+      </div >
    )
 }
 

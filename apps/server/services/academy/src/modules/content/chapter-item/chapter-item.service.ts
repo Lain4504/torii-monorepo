@@ -60,9 +60,13 @@ export class ChapterItemService {
   async create(input: ChapterItemCreateDto, requesterId = 'SYSTEM') {
     const chapter = await this.prisma.chapter.findUnique({
       where: { id: input.chapterId },
-      select: { id: true },
+      include: { courseEdition: { select: { status: true } } },
     });
     if (!chapter) throw new BadRequestException('Invalid chapterId');
+
+    if (chapter.courseEdition.status === 'PUBLISHED') {
+      throw new BadRequestException('Cannot modify syllabus of a PUBLISHED edition. Clone edition to make changes.');
+    }
 
     await this.validateReference(input.kind, input.referenceId);
 
@@ -90,7 +94,19 @@ export class ChapterItemService {
   }
 
   async update(id: string, input: ChapterItemUpdateDto, requesterId = 'SYSTEM') {
-    const oldItem = await this.findById(id);
+    const oldItem = await this.prisma.chapterItem.findUnique({
+      where: { id },
+      include: {
+        chapter: {
+          include: { courseEdition: { select: { status: true } } },
+        },
+      },
+    });
+    if (!oldItem) throw new NotFoundException('ChapterItem not found');
+
+    if (oldItem.chapter.courseEdition.status === 'PUBLISHED') {
+      throw new BadRequestException('Cannot modify syllabus of a PUBLISHED edition. Clone edition to make changes.');
+    }
     const updated = await this.prisma.chapterItem.update({
       where: { id },
       data: {
@@ -114,6 +130,14 @@ export class ChapterItemService {
   }
 
   async reorderItems(input: ChapterItemReorderDto, requesterId = 'SYSTEM') {
+    const chapter = await this.prisma.chapter.findUnique({
+      where: { id: input.chapterId },
+      include: { courseEdition: { select: { status: true } } },
+    });
+    if (chapter?.courseEdition.status === 'PUBLISHED') {
+      throw new BadRequestException('Cannot modify syllabus of a PUBLISHED edition. Clone edition to make changes.');
+    }
+
     await this.prisma.$transaction(
       input.orderedIds.map((id, index) =>
         this.prisma.chapterItem.update({
@@ -152,13 +176,8 @@ export class ChapterItemService {
     });
     if (!item) throw new NotFoundException('ChapterItem not found');
 
-    if (
-      item.chapter.courseEdition.status === 'PUBLISHED' &&
-      item.chapter.courseEdition.classes.length > 0
-    ) {
-      throw new BadRequestException(
-        'Cannot delete item from a PUBLISHED edition with active classes',
-      );
+    if (item.chapter.courseEdition.status === 'PUBLISHED') {
+      throw new BadRequestException('Cannot modify syllabus of a PUBLISHED edition. Clone edition to make changes.');
     }
 
     await this.prisma.chapterItem.delete({ where: { id } });

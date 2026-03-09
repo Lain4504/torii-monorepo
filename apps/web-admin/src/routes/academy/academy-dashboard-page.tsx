@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Button } from "@workspace/ui/components/button"
+import { Badge } from "@workspace/ui/components/badge"
 import { PageHeader } from "@/components/common/page-header"
 import {
   BookOpen,
@@ -59,36 +60,59 @@ export default function AcademyDashboardPage() {
         <Card className={totalPending > 0 ? "bg-amber-500/10 border-amber-500/50" : ""}>
           <CardHeader className="pb-2">
             <CardDescription className="flex items-center gap-1">
-              Chờ phê duyệt
+              Trung tâm phê duyệt
               {totalPending > 0 && <AlertCircle className="h-3 w-3 text-amber-500" />}
             </CardDescription>
             <CardTitle className={`text-3xl font-bold ${totalPending > 0 ? "text-amber-600" : ""}`}>
               {totalPending}
             </CardTitle>
             {totalPending > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
+              <div className="flex flex-col gap-2 mt-3">
                 {pendingEditions.length > 0 && (
-                  <Button asChild variant="outline" size="sm" className="h-7 text-xs">
-                    <Link to="/academy/course-profiles">
-                      {pendingEditions.length} Edition{pendingEditions.length > 1 ? "s" : ""}
+                  <Button asChild variant="outline" size="sm" className="justify-between h-9 text-xs border-amber-200 hover:bg-amber-50 shadow-sm">
+                    <Link to="/academy/approvals?tab=editions">
+                      <div className="flex items-center gap-2">
+                        <History className="h-3 w-3 text-amber-600" />
+                        <span>Phiên bản khóa học</span>
+                      </div>
+                      <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-100 font-bold ml-2">
+                        {pendingEditions.length}
+                      </Badge>
                     </Link>
                   </Button>
                 )}
                 {pendingClasses.length > 0 && (
-                  <Button asChild variant="outline" size="sm" className="h-7 text-xs">
-                    <Link to="/academy/classes?status=PENDING_APPROVAL">
-                      {pendingClasses.length} Lớp
+                  <Button asChild variant="outline" size="sm" className="justify-between h-9 text-xs border-amber-200 hover:bg-amber-50 shadow-sm">
+                    <Link to="/academy/approvals?tab=classes">
+                      <div className="flex items-center gap-2">
+                        <GraduationCap className="h-3 w-3 text-amber-600" />
+                        <span>Lớp học mới</span>
+                      </div>
+                      <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-100 font-bold ml-2">
+                        {pendingClasses.length}
+                      </Badge>
                     </Link>
                   </Button>
                 )}
                 {pendingOfferings.length > 0 && (
-                  <Button asChild variant="outline" size="sm" className="h-7 text-xs">
-                    <Link to="/academy/course-offerings?status=PENDING_APPROVAL">
-                      {pendingOfferings.length} Gói bán
+                  <Button asChild variant="outline" size="sm" className="justify-between h-9 text-xs border-amber-200 hover:bg-amber-50 shadow-sm">
+                    <Link to="/academy/approvals?tab=offerings">
+                      <div className="flex items-center gap-2">
+                        <ShoppingBag className="h-3 w-3 text-amber-600" />
+                        <span>Gói bán mới</span>
+                      </div>
+                      <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-100 font-bold ml-2">
+                        {pendingOfferings.length}
+                      </Badge>
                     </Link>
                   </Button>
                 )}
               </div>
+            )}
+            {totalPending === 0 && (
+              <Button asChild variant="ghost" size="sm" className="mt-2 w-full text-xs text-muted-foreground">
+                <Link to="/academy/approvals">Đi đến trung tâm phê duyệt</Link>
+              </Button>
             )}
           </CardHeader>
         </Card>
@@ -111,8 +135,8 @@ export default function AcademyDashboardPage() {
               </Link>
             </Button>
             <Button asChild variant="outline" className="justify-start gap-2">
-              <Link to="/academy/course-profiles">
-                <History className="h-4 w-4" /> Course Editions (trong Profile)
+              <Link to="/academy/course-editions">
+                <History className="h-4 w-4" /> Toàn bộ Course Editions
               </Link>
             </Button>
             <Button asChild variant="outline" className="justify-start gap-2">

@@ -10,6 +10,8 @@ import {
   FieldDescription,
   FieldGroup,
   FieldSeparator,
+  FieldSet,
+  FieldLegend,
 } from "@workspace/ui/components/field"
 import { Checkbox } from "@workspace/ui/components/checkbox"
 import {
@@ -27,13 +29,7 @@ import {
   ComboboxItem,
   ComboboxEmpty,
 } from "@workspace/ui/components/combobox"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@workspace/ui/components/card"
+
 import {
   Tabs,
   TabsContent,
@@ -46,6 +42,7 @@ import {
   academyCourseOfferingUpdateDTOSchema,
   type AcademyCourseOfferingCreateDTO,
   type AcademyCourseOfferingUpdateDTO,
+  COURSE_OFFERING_METADATA,
 } from "@workspace/schemas"
 import type { AcademyCourseOffering } from "@/lib/api/services/academy-course-offerings"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
@@ -74,7 +71,7 @@ export function CourseOfferingForm({
   const { data: profilesData = [] } = useAcademyCourseProfiles({})
   const profiles = Array.isArray(profilesData) ? profilesData : (profilesData as any)?.items || []
 
-  const { data: editionsData = [] } = useAcademyCourseEditions({})
+  const { data: editionsData = [] } = useAcademyCourseEditions({ status: "PUBLISHED" } as any)
   const editions = Array.isArray(editionsData) ? editionsData : (editionsData as any)?.items || []
 
   const { handleSubmit, control, watch } = useForm<
@@ -139,14 +136,12 @@ export function CourseOfferingForm({
       })}
       noValidate
     >
-      <Card>
-        <CardHeader>
-          <CardTitle>Thông tin định danh</CardTitle>
-          <CardDescription>
+      <FieldGroup>
+        <FieldSet>
+          <FieldLegend>Thông tin định danh</FieldLegend>
+          <FieldDescription>
             Xác định mã và tiêu đề cho gói khóa học (Offering).
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </FieldDescription>
           <FieldGroup>
             {!isEdit && (
               <Controller
@@ -252,7 +247,7 @@ export function CourseOfferingForm({
                       <span className="text-destructive ml-1">*</span>
                     )}
                   </FieldLabel>
-                  <div className="grid gap-3 sm:grid-cols-2 mt-2 border rounded-md p-4">
+                  <div className="grid gap-3 sm:grid-cols-2 mt-2 border rounded-md p-4 bg-muted/5">
                     {classes.length === 0 ? (
                       <div className="text-sm text-muted-foreground italic col-span-full">
                         {selectedEditionId
@@ -285,9 +280,13 @@ export function CourseOfferingForm({
                               <Badge variant="outline" className="text-[10px] h-4 px-1">
                                 {c.code}
                               </Badge>
-                              <span className="text-[10px] text-muted-foreground uppercase">
+                              <Badge variant={c.status === 'ENROLLING' ? 'default' : 'secondary'} className="text-[10px] h-4 px-1 uppercase font-bold">
+                                {c.status}
+                              </Badge>
+                              <span className="text-[10px] text-muted-foreground uppercase border-l pl-2">
                                 {c.mode}
                               </span>
+
                             </div>
                           </div>
                         </div>
@@ -304,23 +303,19 @@ export function CourseOfferingForm({
               )}
             />
           </FieldGroup>
-        </CardContent>
-      </Card>
+        </FieldSet>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Nội dung & Quyền lợi</CardTitle>
-          <CardDescription>
+        <FieldSet>
+          <FieldLegend>Nội dung & Quyền lợi</FieldLegend>
+          <FieldDescription>
             Mô tả chi tiết những gì người học nhận được từ gói này.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </FieldDescription>
           <Controller
             name={"description" as any}
             control={control}
             render={({ field, fieldState }) => (
               <Field>
-                <Tabs defaultValue="edit">
+                <Tabs defaultValue="edit" className="mt-2">
                   <TabsList className="mb-4">
                     <TabsTrigger value="edit">Chỉnh sửa</TabsTrigger>
                     <TabsTrigger value="preview">Xem trước</TabsTrigger>
@@ -333,7 +328,7 @@ export function CourseOfferingForm({
                   </TabsContent>
                   <TabsContent value="preview">
                     <div
-                      className="border rounded-md p-4 min-h-[150px] prose prose-sm dark:prose-invert max-w-none"
+                      className="border rounded-md p-4 min-h-[200px] prose prose-sm dark:prose-invert max-w-none bg-muted/20"
                       dangerouslySetInnerHTML={{
                         __html: field.value || "<em>Chưa có nội dung.</em>",
                       }}
@@ -344,84 +339,80 @@ export function CourseOfferingForm({
               </Field>
             )}
           />
-        </CardContent>
-      </Card>
+        </FieldSet>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Giá & Trạng thái</CardTitle>
-          <CardDescription>Cấu hình chi phí và quyền truy cập gói.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Controller
-              name={"originalPrice" as any}
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Giá gốc</FieldLabel>
-                  <Input
-                    type="number"
-                    min={0}
-                    step={1000}
-                    {...field}
-                    onChange={(e) => field.onChange(Number(e.target.value || 0))}
-                  />
-                  <FieldDescription>Đơn vị tính theo tiền tệ.</FieldDescription>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
+        <FieldSet>
+          <FieldLegend>Giá & Trạng thái</FieldLegend>
+          <FieldDescription>Cấu hình chi phí và quyền truy cập gói.</FieldDescription>
+          <FieldGroup>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <Controller
+                name={"originalPrice" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Giá niêm yết (Price)</FieldLabel>
+                    <Input
+                      type="number"
+                      min={0}
+                      step={1000}
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value || 0))}
+                    />
+                    <FieldDescription>Được hiển thị là giá chưa giảm.</FieldDescription>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
 
-            <Controller
-              name={"currency" as any}
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Tiền tệ</FieldLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn đơn vị" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="VND">VND</SelectItem>
-                      <SelectItem value="USD">USD</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
+              <Controller
+                name={"currency" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Tiền tệ</FieldLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn đơn vị" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="VND">VND</SelectItem>
+                        <SelectItem value="USD">USD</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
 
-            <Controller
-              name={"type" as any}
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Loại gói</FieldLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn loại" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="COURSE">Khóa học đơn lẻ</SelectItem>
-                      <SelectItem value="BUNDLE">Combo (Bundle)</SelectItem>
-                      <SelectItem value="SUBSCRIPTION">Thuê bao (Sub)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
+              <Controller
+                name={"type" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Loại gói</FieldLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn loại" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="COURSE">Khóa học đơn lẻ</SelectItem>
+                        <SelectItem value="BUNDLE">Combo (Bundle)</SelectItem>
+                        <SelectItem value="SUBSCRIPTION">Thuê bao (Sub)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
 
-            <Controller
-              name={"status" as any}
-              control={control}
-              render={({ field }) => (
-                <Field>
-                  <FieldLabel>Trạng thái</FieldLabel>
-                  {isEdit ? (
-                    <div className="flex items-center gap-2">
+              <Controller
+                name={"status" as any}
+                control={control}
+                render={({ field }) => (
+                  <Field>
+                    <FieldLabel>Trạng thái</FieldLabel>
+                    <div className="flex items-center gap-2 mt-1">
                       <Badge
                         variant={
                           field.value === "PUBLISHED"
@@ -438,100 +429,92 @@ export function CourseOfferingForm({
                         {field.value === "ARCHIVED" && "Lưu trữ"}
                         {!["DRAFT", "PENDING_APPROVAL", "PUBLISHED", "HIDDEN", "ARCHIVED"].includes(field.value || "") && field.value}
                       </Badge>
-                      <span className="text-xs text-muted-foreground">
-                        {field.value === "DRAFT" && "→ Vào trang chi tiết để Gửi phê duyệt"}
-                        {field.value === "PENDING_APPROVAL" && "→ Admin phê duyệt hoặc từ chối"}
-                        {field.value === "PUBLISHED" && "→ Đã công bố"}
-                      </span>
+                      {isEdit && field.value === "DRAFT" && (
+                        <span className="text-[10px] text-muted-foreground uppercase">
+                          Cần gửi phê duyệt
+                        </span>
+                      )}
                     </div>
-                  ) : (
-                    <Badge variant="outline">Draft (Nháp) — tạo xong vào trang chi tiết để Gửi phê duyệt</Badge>
-                  )}
-                  <FieldDescription>
-                    Luồng: DRAFT → Gửi phê duyệt → PENDING_APPROVAL → Admin Approve → PUBLISHED
-                  </FieldDescription>
-                </Field>
-              )}
-            />
-          </div>
+                  </Field>
+                )}
+              />
+            </div>
 
-          <FieldSeparator />
+            <FieldSeparator />
 
-          <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Controller
+                name={"validFrom" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Ngày bắt đầu bán</FieldLabel>
+                    <Input type="date" {...field} />
+                    <FieldDescription>
+                      Thời điểm gói này bắt đầu được phép đăng ký. Để trống nếu bán ngay.
+                    </FieldDescription>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+
+              <Controller
+                name={"validTo" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Ngày kết thúc bán</FieldLabel>
+                    <Input type="date" {...field} />
+                    <FieldDescription>
+                      Thời điểm gói này ngừng bán. Để trống nếu bán vĩnh viễn (Evergreen).
+                    </FieldDescription>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+            </div>
+          </FieldGroup>
+        </FieldSet>
+
+        <FieldSet>
+          <FieldLegend>Hình ảnh & Metadata</FieldLegend>
+          <FieldDescription>Các thông tin hiển thị bổ sung cho gói bán này.</FieldDescription>
+          <FieldGroup>
             <Controller
-              name={"validFrom" as any}
+              name="metadata"
               control={control}
-              render={({ field, fieldState }) => (
+              render={({ field }) => (
                 <Field>
-                  <FieldLabel>Ngày bắt đầu bán</FieldLabel>
-                  <Input type="date" {...field} />
+                  <FieldLabel>Cấu hình bổ sung (Metadata)</FieldLabel>
+                  <KeyValueEditor
+                    value={field.value || {}}
+                    onChange={field.onChange}
+                    presets={COURSE_OFFERING_METADATA}
+                  />
                   <FieldDescription>
-                    Thời điểm gói này bắt đầu hiển thị cho học viên.
+                    Giá trị metadata giúp tùy biến trải nghiệm hiển thị tại trang bán hàng.
                   </FieldDescription>
-                  <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
             />
+          </FieldGroup>
+        </FieldSet>
 
-            <Controller
-              name={"validTo" as any}
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Ngày kết thúc bán</FieldLabel>
-                  <Input type="date" {...field} />
-                  <FieldDescription>
-                    Thời điểm gói này ngừng hiển thị.
-                  </FieldDescription>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Cấu hình bổ sung (Metadata)</CardTitle>
-          <CardDescription>Các thông tin hiển thị thêm cho gói này.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Controller
-            name="metadata"
-            control={control}
-            render={({ field }) => (
-              <Field>
-                <KeyValueEditor
-                  value={field.value || {}}
-                  onChange={field.onChange}
-                  presets={[
-                    { key: "discount", label: "Giảm giá (%)", defaultValue: "0" },
-                    { key: "oldPrice", label: "Giá cũ", defaultValue: "0" },
-                    { key: "lessonsCount", label: "Số lượng bài học", defaultValue: "50" },
-                    { key: "hoursCount", label: "Số giờ học", defaultValue: "20" },
-                  ]}
-                />
-              </Field>
-            )}
-          />
-        </CardContent>
-      </Card>
-
-      <div className="flex justify-end gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-          disabled={submitting}
-        >
-          Hủy
-        </Button>
-        <Button type="submit" disabled={submitting}>
-          {submitting ? <Spinner className="mr-2" /> : null}
-          {isEdit ? "Lưu thay đổi" : "Tạo Course Offering"}
-        </Button>
-      </div>
+        <Field orientation="horizontal" className="justify-end pt-6 border-t">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onCancel}
+            disabled={submitting}
+          >
+            Hủy bỏ
+          </Button>
+          <Button type="submit" disabled={submitting} className="min-w-[120px]">
+            {submitting ? <Spinner className="mr-2 h-4 w-4" /> : null}
+            {isEdit ? "Lưu thay đổi" : "Tạo Offering"}
+          </Button>
+        </Field>
+      </FieldGroup>
     </form>
   )
 }

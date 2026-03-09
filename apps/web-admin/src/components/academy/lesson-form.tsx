@@ -69,7 +69,7 @@ export function LessonForm({
   // And content body is markdown.
   // We keep the editor visible for VIDEO and MARKDOWN.
   const showContentEditor = contentType === "VIDEO" || contentType === "MARKDOWN" || contentType === "HTML" || contentType === "RICH_TEXT"
-  
+
   const isMediaUrlType =
     contentType === "VIDEO" ||
     contentType === "PDF" ||
@@ -203,34 +203,34 @@ export function LessonForm({
           </CardHeader>
           <CardContent>
             <FieldGroup>
-                <Controller
-                  name="contentUrl"
-                  control={control}
-                  render={({ field, fieldState }) => (
-                    <LessonMediaUploader
-                      value={field.value || null}
-                      onChange={field.onChange}
-                      label={
-                        contentType === "EXTERNAL_LINK"
-                          ? "Liên kết nội dung"
-                          : "File nội dung (Video/PDF/Media)"
-                      }
-                      description={
-                        contentType === "EXTERNAL_LINK"
-                          ? "Liên kết đến trang hoặc tài nguyên bên ngoài."
-                          : "Chọn file video hoặc tài liệu, hệ thống sẽ tự động upload lên storage."
-                      }
-                      accept={
-                        contentType === "VIDEO"
-                          ? "video/*"
-                          : contentType === "PDF"
-                            ? "application/pdf"
-                            : undefined
-                      }
-                      errorMessage={fieldState.error?.message}
-                    />
-                  )}
-                />
+              <Controller
+                name="contentUrl"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <LessonMediaUploader
+                    value={field.value || null}
+                    onChange={field.onChange}
+                    label={
+                      contentType === "EXTERNAL_LINK"
+                        ? "Liên kết nội dung"
+                        : "File nội dung (Video/PDF/Media)"
+                    }
+                    description={
+                      contentType === "EXTERNAL_LINK"
+                        ? "Liên kết đến trang hoặc tài nguyên bên ngoài."
+                        : "Chọn file video hoặc tài liệu, hệ thống sẽ tự động upload lên storage."
+                    }
+                    accept={
+                      contentType === "VIDEO"
+                        ? "video/*"
+                        : contentType === "PDF"
+                          ? "application/pdf"
+                          : undefined
+                    }
+                    errorMessage={fieldState.error?.message}
+                  />
+                )}
+              />
             </FieldGroup>
           </CardContent>
         </Card>
@@ -275,9 +275,10 @@ export function LessonForm({
                     value={field.value || {}}
                     onChange={field.onChange}
                     presets={[
+                      { key: "summary", label: "Tóm tắt ngắn (Summary)", defaultValue: "Tóm tắt bài học..." },
+                      { key: "estimatedMinutes", label: "Thời gian ước tính (phút)", defaultValue: "15" },
                       { key: "tags", label: "Thẻ (Tags)", defaultValue: "jlpt,n5" },
                       { key: "difficulty", label: "Độ khó", defaultValue: "medium" },
-                      { key: "estimatedReadingTime", label: "Thời gian đọc (phút)", defaultValue: "5" },
                     ]}
                   />
                 </Field>

@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/generated';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { EnrollmentCreateDto, EnrollmentQueryDto } from './dto/enrollment.dto';
 import { AuditLoggerService } from '../../audit-logger.service';
@@ -110,8 +111,10 @@ export class EnrollmentService {
     return item;
   }
 
-  async create(input: EnrollmentCreateDto, requesterId = 'SYSTEM') {
-    const klass = await this.prisma.class.findUnique({
+  async create(input: EnrollmentCreateDto, requesterId = 'SYSTEM', tx?: Prisma.TransactionClient) {
+    const prisma = tx || this.prisma;
+
+    const klass = await prisma.class.findUnique({
       where: { id: input.classId },
       include: {
         vodClass: true,
@@ -120,38 +123,66 @@ export class EnrollmentService {
     });
     if (!klass) throw new BadRequestException('Invalid classId');
 
+    // Rule: Trạng thái hợp lệ để enroll
     if (klass.status !== 'ENROLLING' && klass.status !== 'IN_PROGRESS') {
       throw new BadRequestException('Can only enroll in ENROLLING or IN_PROGRESS classes');
     }
 
-    const user = await this.prisma.user.findUnique({
+    // Rule: Enrollment window
+    const enrollmentOpenAt = klass.mode === 'VOD' ? klass.vodClass?.enrollmentOpenAt : klass.liveClass?.enrollmentOpenAt;
+    const enrollmentCloseAt = klass.mode === 'VOD' ? klass.vodClass?.enrollmentCloseAt : klass.liveClass?.enrollmentCloseAt;
+
+    const now = new Date();
+    if (enrollmentOpenAt && now < enrollmentOpenAt) {
+      throw new BadRequestException(
+        `Enrollment for class ${klass.code} has not opened yet (Opening at ${enrollmentOpenAt.toISOString()})`,
+      );
+    }
+    if (enrollmentCloseAt && now > enrollmentCloseAt) {
+      throw new BadRequestException(
+        `Enrollment for class ${klass.code} has closed (Closed at ${enrollmentCloseAt.toISOString()})`,
+      );
+    }
+
+    const user = await prisma.user.findUnique({
       where: { id: input.userId },
       select: { id: true },
     });
     if (!user) throw new BadRequestException('Invalid userId');
 
-    const existing = await this.prisma.enrollment.findFirst({
-      where: { classId: input.classId, userId: input.userId },
+    const existing = await prisma.enrollment.findFirst({
+      where: { classId: input.classId, userId: input.userId, status: 'ACTIVE' },
       select: { id: true },
     });
-    if (existing) return this.findById(existing.id);
+    if (existing) {
+      // Return existing if already active
+      const item = await prisma.enrollment.findUnique({ where: { id: existing.id } });
+      return item;
+    }
 
     const maxStudents = klass.mode === 'VOD' ? klass.vodClass?.maxStudents : klass.liveClass?.maxStudents;
 
     if (maxStudents) {
-      const currentCount = await this.prisma.enrollment.count({
+      const currentCount = await prisma.enrollment.count({
         where: { classId: input.classId, status: 'ACTIVE' },
       });
       if (currentCount >= maxStudents) {
-        throw new BadRequestException('Class is full');
+        throw new BadRequestException(`Class ${klass.code} is full (${currentCount}/${maxStudents})`);
       }
     }
 
-    const result = await this.prisma.enrollment.create({
+    let expiresAt = input.expiresAt;
+    if (!expiresAt && klass.mode === 'VOD' && klass.vodClass?.defaultExpiresMonths) {
+      const date = new Date();
+      date.setMonth(date.getMonth() + klass.vodClass.defaultExpiresMonths);
+      expiresAt = date;
+    }
+
+    const result = await prisma.enrollment.create({
       data: {
         classId: input.classId,
         userId: input.userId,
-        expiresAt: input.expiresAt,
+        expiresAt: expiresAt,
         status: input.status ?? 'ACTIVE',
         sourceOfferingId: input.sourceOfferingId,
         sourceOrderId: input.sourceOrderId,
@@ -166,11 +197,12 @@ export class EnrollmentService {
       entity: 'Enrollment',
       entityId: result.id,
       description: `Created enrollment for user ${input.userId} in class ${input.classId}`,
-      metadata: { classId: input.classId },
+      metadata: { classId: input.classId, sourceOrderId: input.sourceOrderId },
     });
 
     return result;
   }
+
 
   async updateStatus(id: string, status: string, requesterId = 'SYSTEM') {
     const old = await this.findById(id);

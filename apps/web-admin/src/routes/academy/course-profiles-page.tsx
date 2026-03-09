@@ -80,12 +80,12 @@ export default function AcademyCourseProfilesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Academy · Course Profiles"
-        subtitle="Định nghĩa các khung khóa học tổng quát (ví dụ: Tiếng Nhật N5, Luyện thi SAT)."
+        title="Course Profiles"
+        subtitle="Quản lý các khung chương trình đào tạo tổng quát và tài nguyên gốc."
         actions={
-          <Button asChild className="gap-2">
+          <Button asChild className="gap-2 shadow-sm">
             <Link to="/academy/course-profiles/new">
-              <Plus className="h-4 w-4" /> Tạo mới Profile
+              <Plus className="h-4 w-4" /> Tạo Profile mới
             </Link>
           </Button>
         }
@@ -184,18 +184,25 @@ export default function AcademyCourseProfilesPage() {
                       {it.code}
                     </code>
                   </TableCell>
-                  <TableCell className="font-semibold">
-                    <Link to={`/academy/course-profiles/${it.id}`} className="hover:text-primary transition-colors">
-                      {it.title}
-                    </Link>
+                  <TableCell>
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                        <Link to={`/academy/course-profiles/${it.id}`}>
+                          {it.title}
+                        </Link>
+                      </span>
+                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">{it.shortTitle || "No short title"}</span>
+                    </div>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm text-muted-foreground">{it.subject || "N/A"}</span>
+                    <Badge variant="outline" className="font-normal bg-muted/30">
+                      {it.subject || "N/A"}
+                    </Badge>
                   </TableCell>
                   <TableCell>
                     {it.level ? (
-                      <Badge variant="secondary" className="font-medium bg-primary/5 text-primary border-primary/10">
-                        Level: {it.level}
+                      <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 shadow-none font-bold">
+                        {it.level}
                       </Badge>
                     ) : (
                       <span className="text-muted-foreground text-xs">—</span>

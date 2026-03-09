@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 import { Button } from "@workspace/ui/components/button"
+import { cn } from "@workspace/ui/lib/utils"
 import {
   Table,
   TableBody,
@@ -19,7 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import { MoreVertical, Search, Filter, Layout, BookOpen, Calendar } from "lucide-react"
+import { MoreVertical, Search, Filter, Layout, BookOpen, Calendar, Plus } from "lucide-react"
 import { Badge } from "@workspace/ui/components/badge"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import {
@@ -87,11 +88,13 @@ export default function AcademyClassesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Academy · Quản lý lớp học"
-        subtitle="Quản lý các lớp học, hình thức học và lộ trình đào tạo."
+        title="Quản lý lớp học"
+        subtitle="Quản lý vận hành các lớp học VOD và Live trong hệ thống."
         actions={
-          <Button asChild>
-            <Link to="/academy/classes/new">Mở lớp mới</Link>
+          <Button asChild className="gap-2 shadow-sm">
+            <Link to="/academy/classes/new">
+              <Plus className="h-4 w-4" /> Mở lớp mới
+            </Link>
           </Button>
         }
       />
@@ -218,21 +221,35 @@ export default function AcademyClassesPage() {
                     </Link>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="font-normal shadow-none">
+                    <Badge variant="secondary" className={cn(
+                      "font-bold shadow-none border-transparent",
+                      it.mode === "LIVE" ? "bg-blue-500/10 text-blue-600" : "bg-purple-500/10 text-purple-600"
+                    )}>
                       {it.mode}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {it.liveClass?.term ?? "-"} / {it.liveClass?.batch ?? "-"}
+                  <TableCell className="text-sm font-medium">
+                    {it.liveClass?.term ? (
+                      <div className="flex flex-col">
+                        <span>{it.liveClass.term}</span>
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-tighter">Batch: {it.liveClass.batch}</span>
+                      </div>
+                    ) : "-"}
                   </TableCell>
                   <TableCell>
-                    {it.status === "ENROLLING" ? (
-                      <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20 shadow-none">ENROLLING</Badge>
-                    ) : it.status === "IN_PROGRESS" ? (
-                      <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-none">IN PROGRESS</Badge>
-                    ) : (
-                      <Badge variant="secondary" className="shadow-none">{it.status}</Badge>
-                    )}
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        "font-bold uppercase tracking-wider text-[10px] px-2 py-0.5 shadow-none",
+                        it.status === "ENROLLING" && "bg-blue-500/10 text-blue-600 border-blue-200",
+                        it.status === "IN_PROGRESS" && "bg-emerald-500/10 text-emerald-600 border-emerald-200",
+                        it.status === "PENDING_APPROVAL" && "bg-amber-500/10 text-amber-600 border-amber-200",
+                        it.status === "DRAFT" && "bg-muted text-muted-foreground border-transparent",
+                        it.status === "COMPLETED" && "bg-zinc-500/10 text-zinc-600 border-zinc-200"
+                      )}
+                    >
+                      {it.status}
+                    </Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>

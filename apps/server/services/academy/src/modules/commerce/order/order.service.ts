@@ -212,27 +212,24 @@ export class OrderService {
                 });
 
                 for (const oc of offeringClasses) {
-                    const existing = await tx.enrollment.findFirst({
-                        where: {
+                    try {
+                        await this.enrollmentService.create({
                             userId: order.userId,
                             classId: oc.classId,
                             status: 'ACTIVE',
-                        },
-                    });
-
-                    if (!existing) {
-                        await tx.enrollment.create({
-                            data: {
-                                userId: order.userId,
-                                classId: oc.classId,
-                                status: 'ACTIVE',
-                                sourceOfferingId: item.offeringId,
-                                sourceOrderId: order.id,
-                            },
-                        });
+                            sourceOfferingId: item.offeringId,
+                            sourceOrderId: order.id,
+                        }, requesterId, tx);
+                    } catch (err) {
+                        this.logger.error(`Fulfillment failed for order ${order.code}, class ${oc.classId}: ${err.message}`);
+                        // Depending on policy, we might want to throw to rollback, or just log and continue.
+                        // User prompt says: "Nếu line-item không pass, xử lý theo policy: fail mềm có log/audit + trả trạng thái phù hợp, hoặc fail transaction có thông báo rõ."
+                        // I'll throw to ROLLBACK for now to ensure data integrity (no partial fulfillment).
+                        throw new BadRequestException(`Fulfillment failed: ${err.message}`);
                     }
                 }
             }
+
         });
 
         this.logger.log(`Order ${order.code} fulfilled successfully`);

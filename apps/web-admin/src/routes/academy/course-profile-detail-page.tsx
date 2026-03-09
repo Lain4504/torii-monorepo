@@ -22,7 +22,6 @@ import {
   Plus,
   Eye,
   Archive,
-  Settings,
   Layers,
   CheckCircle2,
   ArrowLeft,
@@ -55,6 +54,9 @@ import {
 import { Link } from "react-router-dom"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { RichTextRenderer } from "@/components/editor/rich-text-editor"
+import {
+  FieldSeparator,
+} from "@workspace/ui/components/field"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { format } from "date-fns"
 import { useState } from "react"
@@ -67,7 +69,7 @@ export default function CourseProfileDetailPage() {
 
   const { data: profile, isLoading: isLoadingProfile } = useAcademyCourseProfile(id!)
   const { data: editions = [], isLoading: isLoadingEditions } = useAcademyCourseEditions({ courseProfileId: id })
-  
+
   // Resources queries
   const { data: lessons = [], isLoading: isLoadingLessons } = useAcademyLessons({ courseProfileId: id })
   const { data: quizzes = [], isLoading: isLoadingQuizzes } = useAcademyQuizTemplates({ courseProfileId: id })
@@ -125,43 +127,133 @@ export default function CourseProfileDetailPage() {
       </div>
 
       <PageHeader
-        title={`${profile.title}`}
-        subtitle={`Mã: ${profile.code} | Chủ đề: ${profile.subject || "N/A"} | Cấp độ: ${profile.level || "N/A"}`}
+        title={profile.title}
+        subtitle={profile.shortTitle || profile.code}
         actions={
           <div className="flex gap-2">
-            <Button asChild variant="outline" className="gap-2">
+            <Button asChild variant="outline" size="sm" className="gap-2">
               <Link to={`/academy/course-profiles/${id}/edit`}>
-                <Edit className="h-4 w-4" /> Chỉnh sửa Profile
+                <Edit className="h-4 w-4" /> Sửa Profile
               </Link>
             </Button>
-            {!((profile as any)?.metadata as any)?.isArchived && editions.length > 0 && (
-              <Button
-                variant="outline"
-                className="gap-2"
-                onClick={async () => {
-                  try {
-                    await archiveMutation.mutateAsync(id!)
-                    toast.success("Đã lưu trữ profile và tất cả editions")
-                  } catch (error: any) {
-                    toast.error(error?.response?.data?.message || "Lưu trữ thất bại")
-                  }
-                }}
-                disabled={archiveMutation.isPending}
-              >
-                <Archive className="h-4 w-4" /> Lưu trữ
-              </Button>
-            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <MoreVertical className="h-4 w-4" /> Thao tác
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem asChild>
+                  <Link to={`/academy/course-editions/new?courseProfileId=${id}`}>
+                    <Plus className="h-4 w-4 mr-2" /> Tạo Edition mới
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to={`/academy/course-offerings/new?courseProfileId=${id}`}>
+                    <Layers className="h-4 w-4 mr-2" /> Tạo gói bán (Offering)
+                  </Link>
+                </DropdownMenuItem>
+                <FieldSeparator className="my-1" />
+                {!((profile as any)?.metadata as any)?.isArchived && (
+                  <DropdownMenuItem
+                    className="text-warning"
+                    onClick={async () => {
+                      try {
+                        await archiveMutation.mutateAsync(id!)
+                        toast.success("Đã lưu trữ profile")
+                      } catch (error: any) {
+                        toast.error("Lưu trữ thất bại")
+                      }
+                    }}
+                  >
+                    <Archive className="h-4 w-4 mr-2" /> Lưu trữ Profile
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         }
       />
 
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="bg-primary/5 border-primary/10">
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="p-2 bg-primary/10 rounded-lg text-primary">
+              <Layers className="size-5" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground font-medium uppercase text-[10px]">Phiên bản</p>
+              <p className="text-2xl font-bold">{editions.length}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-blue-500/5 border-blue-500/10">
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="p-2 bg-blue-500/10 rounded-lg text-blue-600">
+              <BookOpen className="size-5" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground font-medium uppercase text-[10px]">Bài học</p>
+              <p className="text-2xl font-bold">{lessons.length}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-amber-500/5 border-amber-500/10">
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="p-2 bg-amber-500/10 rounded-lg text-amber-600">
+              <HelpCircle className="size-5" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground font-medium uppercase text-[10px]">Trắc nghiệm</p>
+              <p className="text-2xl font-bold">{quizzes.length}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-green-500/5 border-green-500/10">
+          <CardContent className="p-4 flex items-center gap-4">
+            <div className="p-2 bg-green-500/10 rounded-lg text-green-600">
+              <FileText className="size-5" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground font-medium uppercase text-[10px]">Bài tập</p>
+              <p className="text-2xl font-bold">{assignments.length}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       <Tabs value={activeTab} onValueChange={setTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5 lg:w-[800px]">
-          <TabsTrigger value="editions">Editions</TabsTrigger>
-          <TabsTrigger value="lessons">Lessons</TabsTrigger>
-          <TabsTrigger value="quizzes">Quizzes</TabsTrigger>
-          <TabsTrigger value="assignments">Assignments</TabsTrigger>
-          <TabsTrigger value="info">Thông tin</TabsTrigger>
+        <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent space-x-6">
+          <TabsTrigger
+            value="editions"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-2 py-3"
+          >
+            Phiên bản (Editions)
+          </TabsTrigger>
+          <TabsTrigger
+            value="lessons"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-2 py-3"
+          >
+            Bài học (Lessons)
+          </TabsTrigger>
+          <TabsTrigger
+            value="quizzes"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-2 py-3"
+          >
+            Quiz Templates
+          </TabsTrigger>
+          <TabsTrigger
+            value="assignments"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-2 py-3"
+          >
+            Assignments
+          </TabsTrigger>
+          <TabsTrigger
+            value="info"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-2 py-3"
+          >
+            Tổng quan & Metadata
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="editions" className="mt-6">
@@ -312,7 +404,7 @@ export default function CourseProfileDetailPage() {
                               <DropdownMenuItem asChild>
                                 <Link to={`/academy/lessons/${item.id}/edit`}>Sửa bài học</Link>
                               </DropdownMenuItem>
-                              <DropdownMenuItem 
+                              <DropdownMenuItem
                                 className="text-destructive"
                                 onClick={() => setDeleteItem({ type: 'lesson', id: item.id })}
                               >
@@ -396,7 +488,7 @@ export default function CourseProfileDetailPage() {
                               <DropdownMenuItem asChild>
                                 <Link to={`/academy/quiz-templates/${item.id}/edit`}>Sửa mẫu</Link>
                               </DropdownMenuItem>
-                              <DropdownMenuItem 
+                              <DropdownMenuItem
                                 className="text-destructive"
                                 onClick={() => setDeleteItem({ type: 'quiz', id: item.id })}
                               >
@@ -465,7 +557,7 @@ export default function CourseProfileDetailPage() {
                               <DropdownMenuItem asChild>
                                 <Link to={`/academy/assignment-templates/${item.id}/edit`}>Sửa mẫu</Link>
                               </DropdownMenuItem>
-                              <DropdownMenuItem 
+                              <DropdownMenuItem
                                 className="text-destructive"
                                 onClick={() => setDeleteItem({ type: 'assignment', id: item.id })}
                               >
@@ -486,33 +578,78 @@ export default function CourseProfileDetailPage() {
         </TabsContent>
 
         <TabsContent value="info" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Settings className="h-5 w-5 text-muted-foreground" /> Thông tin chi tiết Profile
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Mô tả</label>
-                  <div className="border rounded-md bg-muted/20 p-4">
-                    <RichTextRenderer content={profile.description} />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="md:col-span-2">
+              <CardHeader>
+                <CardTitle>Mô tả & Giới thiệu</CardTitle>
+                <CardDescription>Thông tin chi tiết về nội dung và mục tiêu của khóa học.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {profile.description ? (
+                  <RichTextRenderer content={profile.description} />
+                ) : (
+                  <p className="text-muted-foreground italic">Chưa có mô tả chi tiết cho khóa học này.</p>
+                )}
+              </CardContent>
+            </Card>
+
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                    <BookOpen className="size-4" /> Chi tiết Profile
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground font-bold">Mã khóa học</p>
+                    <p className="font-mono font-medium">{profile.code}</p>
                   </div>
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Ngôn ngữ mặc định</label>
-                    <p className="text-sm">{profile.defaultLanguage || "N/A"}</p>
+                  <FieldSeparator />
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground font-bold">Chủ đề</p>
+                    <p className="font-medium capitalize">{profile.subject || "N/A"}</p>
                   </div>
-                  <div>
-                    <label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Mã định danh</label>
-                    <p className="text-sm font-mono">{profile.code}</p>
+                  <FieldSeparator />
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground font-bold">Trình độ</p>
+                    <Badge variant="secondary" className="mt-1">
+                      {profile.level || "N/A"}
+                    </Badge>
                   </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                  <FieldSeparator />
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground font-bold">Ngôn ngữ mặc định</p>
+                    <p className="font-medium">{profile.defaultLanguage === "vi" ? "Tiếng Việt" : profile.defaultLanguage === "ja" ? "Tiếng Nhật" : profile.defaultLanguage === "en" ? "Tiếng Anh" : profile.defaultLanguage || "N/A"}</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                    <Layers className="size-4" /> Metadata Presets
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground font-bold">Các trường Metadata mặc định:</p>
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {profile.metadata && Object.entries(profile.metadata).length > 0 ? (
+                        Object.entries(profile.metadata).map(([key, value]) => (
+                          <Badge key={key} variant="outline" className="font-normal bg-muted/50">
+                            {key}: {String(value)}
+                          </Badge>
+                        ))
+                      ) : (
+                        <span className="text-sm text-muted-foreground italic">Chưa cấu hình metadata mặc định.</span>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
 

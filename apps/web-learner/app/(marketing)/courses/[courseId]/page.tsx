@@ -18,13 +18,16 @@ import {
     Award,
     Headphones,
     Facebook,
-    Twitter
+    Twitter,
+    Info,
 } from "lucide-react"
 import Link from "next/link"
 import React from "react"
 import { useParams } from "next/navigation"
 import { useAcademyOffering as useCourseOffering } from "@/lib/api/services/academy-course-api"
 import { StudentReviewsSection } from "@/components/class-reviews/student-reviews-section"
+import { getMetadataLabel } from "@workspace/schemas"
+
 
 const UserGroup = Users
 const Tick = Check
@@ -161,6 +164,29 @@ export default function CourseDetail() {
                                 ))}
                             </div>
                         </section>
+
+                        {/* Thông tin chi tiết (Dynamic Metadata) */}
+                        {offering.metadata && Object.entries(offering.metadata as Record<string, any>).filter(([k]) => !['rating', 'reviewsCount', 'studentsCount', 'learningPoints', 'shortDescription', 'oldPrice', 'discount', 'video_demo_url'].includes(k)).length > 0 && (
+                            <section className="bg-white rounded-2xl p-8 border border-zinc-100 shadow-sm">
+                                <h2 className="text-2xl font-bold text-zinc-900 mb-6 flex items-center gap-2">
+                                    <Info className="size-6 text-[#E63946]" />
+                                    Thông tin bổ sung
+                                </h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {Object.entries(offering.metadata as Record<string, any>)
+                                        .filter(([k]) => !['rating', 'reviewsCount', 'studentsCount', 'learningPoints', 'shortDescription', 'oldPrice', 'discount', 'video_demo_url'].includes(k))
+                                        .map(([key, value]) => (
+                                            <div key={key} className="flex flex-col gap-1 border-b border-zinc-50 pb-3 h-full">
+                                                <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">{getMetadataLabel(key)}</span>
+                                                <span className="text-zinc-800 font-medium">
+                                                    {typeof value === 'boolean' ? (value ? 'Có' : 'Không') : String(value)}
+                                                </span>
+                                            </div>
+                                        ))
+                                    }
+                                </div>
+                            </section>
+                        )}
 
                         {/* Nội dung khóa học (Curriculum) */}
                         <section>

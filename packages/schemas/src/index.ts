@@ -59,5 +59,8 @@ export * from './dtos/academy-learning-progress.dto';
 export * from './enums/live-session.enum';
 export * from './enums/academy.enum';
 
+// Constants
+export * from './constants/academy-metadata';
+
 // Interfaces (only internal/utility types)
 export * from './interfaces/auth.interface';

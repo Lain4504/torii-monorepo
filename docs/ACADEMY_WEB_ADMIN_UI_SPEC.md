@@ -20,6 +20,8 @@ Spec triển khai giao diện quản trị Academy cho **web-admin**, phục v�
 - **Không hardcode** label, option, filter (subject, level, status…). Dùng constant/enum từ schema hoặc config; option select lấy từ API khi có (ví dụ danh sách Course Profile, Teacher).
 - **Điều hướng rõ ràng**: breadcrumb, nút “Quay lại”, link từ list → detail → sub-resource (ví dụ Course Profile → Editions → Chapter → Chapter Items).
 - **Hành động có xác nhận** khi xóa hoặc chuyển trạng thái quan trọng (publish, cancel class); dùng `AlertDialog` của shadcn.
+- **Rule immutable cho Edition đã publish**: khi `CourseEdition.status === 'PUBLISHED'`, toàn bộ form chỉnh sửa syllabus phải ở chế độ read-only; CTA chính là **Clone Edition** để tạo bản `DRAFT` mới.
+- **Rule governance cho Offering đã publish**: khi `CourseOffering.status === 'PUBLISHED'`, thay đổi `classIds` hoặc chính sách bán quan trọng phải đi qua re-approval (hoặc clone version mới theo policy backend).
 
 ---
 
@@ -39,9 +41,9 @@ Permission (gateway): `academy.content.read` / `academy.content.write`, `academy
 ### 3.1. Staff-LMS – Content (Syllabus)
 
 1. **Course Profile** → List (filter subject, level) → Create/Edit/Archive.
-2. **Course Edition** → Từ Profile detail: list edition → Create (hoặc Clone) → Edit → Submit for approval / Publish / Set current.
-3. **Chapter** → Từ Edition: list chapter (orderIndex) → Create/Edit/Delete → Kéo thứ tự (optional).
-4. **Chapter Item** → Từ Chapter: list items (lesson, quiz_template, assignment_template…) → Add (chọn kind + referenceId) → Edit order/ title.
+2. **Course Edition** → Từ Profile detail: list edition → Create (hoặc Clone) → Edit (chỉ `DRAFT`/`PENDING_APPROVAL`) → Submit for approval / Publish / Set current.
+3. **Chapter** → Từ Edition: list chapter (orderIndex) → Create/Edit/Delete (chỉ khi edition chưa publish) → Kéo thứ tự (optional).
+4. **Chapter Item** → Từ Chapter: list items (lesson, quiz_template, assignment_template…) → Add/Edit/Delete (chỉ khi edition chưa publish).
 5. **Lesson / QuizTemplate / AssignmentTemplate** → Gắn với **Course Profile** (courseProfileId). List theo profile → Create/Edit. Khi thêm Chapter Item, chọn referenceId từ list Lesson hoặc Template đã tạo của cùng profile.
 
 ### 3.2. Staff-LMS – Delivery (Class)
@@ -128,6 +130,7 @@ Menu sidebar ẩn theo role: Lecturer không thấy “Course Profiles”, “Of
 **Edition detail** (`/academy/course-profiles/:profileId/editions/:editionId`)
 
 - Hiển thị thông tin edition (editionTag, status, isCurrent, changelog). Actions: Edit, Set current, Submit for approval, Approve/Reject (nếu có quyền).
+- Nếu `status = PUBLISHED`: ẩn/disable action Edit chapter/item; hiển thị badge “Read-only (Published)” và nút **Clone Edition**.
 - **Chapters**: Table chapters (title, orderIndex, estimatedMinutes, status). Nút “Thêm chapter” → **ChapterCreateForm** (courseEditionId = editionId). Mỗi row có “Items” → link đến section Chapter Items.
 - **Chapter Items** (trong chapter hoặc sub-route): Table items (title, kind, referenceId, orderIndex). Nút “Thêm item” → chọn `kind` (LESSON, QUIZ_TEMPLATE, ASSIGNMENT_TEMPLATE, …) → chọn referenceId từ list Lesson/Template **cùng courseProfileId**. DTO: `AcademyChapterItemCreateDTO`.
 
@@ -248,6 +251,12 @@ Ba loại đều thuộc **Course Profile** (courseProfileId). List riêng từn
 **Create/Edit Offering**
 
 - DTO: `AcademyCourseOfferingCreateDTO` / Update: code, title, description, type, originalPrice, currency, status, validFrom, validTo, metadata, **classIds** (array). Form: section “Classes” dùng pick-list (available classes / selected classes) để set classIds. Submit gọi API create/update; có thể có API set classes riêng: `AcademyCourseOfferingSetClassesDTO`.
+- Validation nghiệp vụ khi publish/approve:
+  - Offering phải có ít nhất 1 class.
+  - Class được chọn phải ở trạng thái hợp lệ để bán (ví dụ `ENROLLING`/`IN_PROGRESS`) và edition của class phải `PUBLISHED`.
+- Với offering `PUBLISHED`:
+  - UI hiển thị cảnh báo khi sửa classIds/price/validity.
+  - Theo policy: disable trực tiếp hoặc yêu cầu “Submit lại phê duyệt”.
 
 ---
 
@@ -256,7 +265,7 @@ Ba loại đều thuộc **Course Profile** (courseProfileId). List riêng từn
 | Resource | List | Get | Create | Update | Delete | Actions đặc biệt |
 |----------|------|-----|--------|--------|--------|------------------|
 | Course Profile | GET `/api/academy/course-profiles` query | GET `/:id` | POST | PUT `/:id` | - | - |
-| Course Edition | GET `/api/academy/course-editions` by-course-profile/:id | GET `/:id` | POST | PUT `/:id` | DELETE `/:id` | set-current, submit-for-approval, approve, reject |
+| Course Edition | GET `/api/academy/course-editions` by-course-profile/:id | GET `/:id` | POST | PUT `/:id` | DELETE `/:id` | set-current, submit-for-approval, approve, reject, clone |
 | Chapter | GET `/api/academy/chapters` query courseEditionId | GET `/:id` | POST | PUT `/:id` | DELETE `/:id` | - |
 | Chapter Item | GET `/api/academy/chapter-items` query chapterId | GET `/:id` | POST | PUT `/:id` | DELETE `/:id` | - |
 | Lesson | GET `/api/academy/lessons` | GET `/:id` | POST | PUT `/:id` | DELETE `/:id` | - |
@@ -269,6 +278,7 @@ Ba loại đều thuộc **Course Profile** (courseProfileId). List riêng từn
 | Question Pool | GET (nếu có route) question-pools | GET `/:id` | POST | PATCH `/:id` | DELETE `/:id` | POST `/:id/questions` (body questionIds), DELETE questions |
 | Question | GET (nếu có) questions | GET `/:id` | POST | PUT `/:id` | DELETE `/:id` | - |
 | Course Offering | GET `/api/academy/offerings` | GET `/:id` | POST | PUT `/:id` | - | set-classes (nếu có) |
+| Commerce Fulfillment | - | - | - | - | - | Order `PAID` phải tạo Enrollment với đầy đủ validation enrollment (không bypass rule) |
 
 Base path gateway có thể là `/api/academy` hoặc `/api/v1/academy` tùy project. DTO và query param bám đúng schema trong `packages/schemas`.
 
@@ -346,6 +356,7 @@ Mỗi form nên nhận `defaultValues` và `onSubmit`; không gộp create+edit 
 - [ ] Dashboard: thống kê, link pending approval (CourseEdition, Class, Offering).
 - [ ] Course Profile: list, create, edit, detail với tab Editions.
 - [ ] Course Edition: create (từ profile), list theo profile, detail với Chapters + Chapter Items; actions set-current, submit, approve, reject.
+- [ ] Rule immutable cho edition đã publish: khóa edit chapter/item + hiển thị CTA clone edition.
 - [ ] Chapter: CRUD trong edition; Chapter Item CRUD với kind + referenceId (load Lesson/Template theo profile).
 - [ ] Lesson / QuizTemplate / AssignmentTemplate: list theo courseProfileId, CRUD form riêng.
 - [ ] Class: list (filter mode, status); form tạo tách VOD vs LIVE; duplicate.
@@ -354,6 +365,8 @@ Mỗi form nên nhận `defaultValues` và `onSubmit`; không gộp create+edit 
 - [ ] Question Pool: list, CRUD, detail với add/remove questions.
 - [ ] Question: list, CRUD; optional “add to pool”.
 - [ ] Course Offering: list, CRUD, map classIds.
+- [ ] Offering publish validation: classIds không rỗng, class hợp lệ để bán, edition của class phải `PUBLISHED`.
+- [ ] Offering `PUBLISHED`: update classIds/price theo policy re-approval hoặc clone version.
 - [ ] Permission: ẩn menu/action theo role Staff vs Lecturer.
 - [ ] Không hardcode option; dùng constant/enum/API.
 - [ ] Form validate bằng zod schema trùng với DTO backend.

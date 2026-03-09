@@ -144,6 +144,23 @@ export class CourseEditionController {
     return successResponse({ item });
   }
 
+  @Post(':id/clone')
+  @Permissions('academy.content.write')
+  async clone(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() body: { newTag: string },
+    @Req() req: ReqWithRequester,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.courseEdition.clone' },
+        { id, newTag: body.newTag, requesterId: req.requester?.sub },
+      ),
+    );
+    return successResponse({ item });
+  }
+
+
   @Delete(':id')
   @Permissions('academy.content.write')
   async delete(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {

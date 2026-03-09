@@ -102,15 +102,47 @@ export class CourseOfferingService {
     return item as any;
   }
 
+  private async validateOfferingForPublish(id: string) {
+    const offering = await this.prisma.courseOffering.findUnique({
+      where: { id },
+      include: {
+        classes: {
+          include: {
+            class: {
+              include: {
+                courseEdition: {
+                  select: { status: true }
+                }
+              }
+            }
+          }
+        },
+      },
+    });
+
+    if (!offering) throw new NotFoundException('Offering not found');
+
+    if (!offering.classes || offering.classes.length === 0) {
+      throw new BadRequestException('Course offering must have at least one class to be published');
+    }
+
+    for (const oc of offering.classes) {
+      const cls = oc.class;
+      // Trạng thái hợp lệ để bán (theo policy: ENROLLING hoặc IN_PROGRESS)
+      const validStatuses = ['ENROLLING', 'IN_PROGRESS'];
+      if (!validStatuses.includes(cls.status)) {
+        throw new BadRequestException(`Class ${cls.code} is in status ${cls.status}, which is not valid for enrollment`);
+      }
+      // Edition phải ở trạng thái PUBLISHED
+      if (cls.courseEdition.status !== 'PUBLISHED') {
+        throw new BadRequestException(`Class ${cls.code} uses course edition ${cls.courseEditionId}, which is not PUBLISHED`);
+      }
+    }
+  }
+
   async create(input: CourseOfferingCreateDto, requesterId = 'SYSTEM') {
     if (input.status === OfferingStatus.PUBLISHED) {
-      if (!input.classIds?.length) {
-        throw new BadRequestException('Active offering must have at least one class');
-      }
-      // Check sales dates
-      if (input.validFrom && input.validTo && input.validFrom > input.validTo) {
-        throw new BadRequestException('validFrom cannot be after validTo');
-      }
+      throw new BadRequestException('Cannot create offering directly in PUBLISHED status. Use approval workflow.');
     }
 
     if (input.classIds?.length) {
@@ -158,14 +190,7 @@ export class CourseOfferingService {
     const offering = await this.findById(id) as any;
 
     if (input.status === OfferingStatus.PUBLISHED) {
-      if (!offering.classes || offering.classes.length === 0) {
-        throw new BadRequestException('Cannot activate offering with no classes');
-      }
-      const start = input.validFrom || offering.validFrom;
-      const end = input.validTo || offering.validTo;
-      if (start && end && start > end) {
-        throw new BadRequestException('validFrom cannot be after validTo');
-      }
+      throw new BadRequestException('Cannot update offering status to PUBLISHED directly. Use approval workflow.');
     }
 
     if (input.classIds?.length) {
@@ -177,6 +202,20 @@ export class CourseOfferingService {
       }
     }
 
+    // Governance: If PUBLISHED, any change to critical fields resets status to PENDING_APPROVAL (or DRAFT)
+    let newStatus = input.status as OfferingStatus || offering.status;
+    const criticalFieldsChanged =
+      (input.classIds !== undefined) ||
+      (input.originalPrice !== undefined && Number(input.originalPrice) !== Number(offering.originalPrice)) ||
+      (input.title !== undefined && input.title !== offering.title) ||
+      (input.validFrom !== undefined) ||
+      (input.validTo !== undefined);
+
+    if (offering.status === OfferingStatus.PUBLISHED && criticalFieldsChanged) {
+      newStatus = OfferingStatus.PENDING_APPROVAL; // Require re-approval
+      console.log(`Offering ${id} critical fields changed, resetting to PENDING_APPROVAL`);
+    }
+
     const updated = await this.prisma.courseOffering.update({
       where: { id },
       data: {
@@ -184,7 +223,7 @@ export class CourseOfferingService {
         description: input.description,
         originalPrice: input.originalPrice !== undefined ? new Prisma.Decimal(input.originalPrice) : undefined,
         currency: input.currency,
-        status: input.status as OfferingStatus,
+        status: newStatus,
         type: input.type as OrderType,
         validFrom: input.validFrom,
         validTo: input.validTo,
@@ -213,8 +252,8 @@ export class CourseOfferingService {
 
   async submitForApproval(id: string, requesterId: string) {
     const offering = await this.findById(id);
-    if (offering.status !== OfferingStatus.DRAFT) {
-      throw new BadRequestException('Only DRAFT offerings can be submitted for approval');
+    if (offering.status !== OfferingStatus.DRAFT && offering.status !== OfferingStatus.PUBLISHED) {
+      throw new BadRequestException('Only DRAFT or PUBLISHED offerings can be submitted for approval');
     }
 
     const updated = await this.prisma.courseOffering.update({
@@ -243,9 +282,7 @@ export class CourseOfferingService {
       throw new BadRequestException('Only PENDING_APPROVAL offerings can be approved');
     }
 
-    if (!offering.classes || offering.classes.length === 0) {
-      throw new BadRequestException('Cannot approve offering with no classes');
-    }
+    await this.validateOfferingForPublish(id);
 
     const updated = await this.prisma.courseOffering.update({
       where: { id },
@@ -266,6 +303,7 @@ export class CourseOfferingService {
 
     return updated;
   }
+
 
   async reject(id: string, reason: string, requesterId: string) {
     const offering = await this.findById(id);

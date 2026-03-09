@@ -107,7 +107,15 @@ export const academyCourseEditionsApi = {
     )
     return res.data.data!.item
   },
+  async clone(id: string, newTag: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseEdition }>>(
+      `/api/academy/course-editions/${id}/clone`,
+      { newTag },
+    )
+    return res.data.data!.item
+  },
 }
+
 
 export function useAcademyCourseEditions(params: AcademyCourseEditionQueryDTO) {
   return useQuery({
@@ -192,6 +200,17 @@ export function useRejectCourseEdition() {
     onSuccess: (_, { id }) => {
       qc.invalidateQueries({ queryKey: ["academy-course-editions"] })
       qc.invalidateQueries({ queryKey: ["academy-course-edition", id] })
+    },
+  })
+}
+
+export function useCloneCourseEdition() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, newTag }: { id: string; newTag: string }) =>
+      academyCourseEditionsApi.clone(id, newTag),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["academy-course-editions"] })
     },
   })
 }

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { Button } from "@workspace/ui/components/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
+import { Plus, MoreVertical, Search, Filter, Layers, Tag as TagIcon } from "lucide-react"
 import { Input } from "@workspace/ui/components/input"
 import {
   Table,
@@ -19,7 +19,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import { MoreVertical, Search, Filter, Layers, Tag as TagIcon } from "lucide-react"
 import { Badge } from "@workspace/ui/components/badge"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import {
@@ -65,143 +64,138 @@ export default function AcademyQuestionsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Academy · Ngân hàng câu hỏi"
+        title="Ngân hàng câu hỏi"
         subtitle="Quản lý và tổ chức câu hỏi cho các bài kiểm tra."
         actions={
-          <Button asChild>
-            <Link to="/academy/questions/new">Tạo câu hỏi</Link>
+          <Button asChild className="gap-2 shadow-sm">
+            <Link to="/academy/questions/new">
+              <Plus className="h-4 w-4" /> Tạo câu hỏi
+            </Link>
           </Button>
         }
       />
 
-      <Card>
-        <CardHeader className="space-y-4">
-          <div className="flex items-center justify-between">
-            <CardTitle>Danh sách Câu hỏi</CardTitle>
-          </div>
-          <div className="flex flex-col gap-3 md:flex-row md:items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-              <Input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Tìm nội dung câu hỏi..."
-                className="pl-9"
-              />
-            </div>
-            <div className="w-full md:w-[200px]">
-              <Select value={questionType} onValueChange={setQuestionType}>
-                <SelectTrigger>
-                  <div className="flex items-center gap-2">
-                    <Filter className="size-4 text-muted-foreground" />
-                    <SelectValue placeholder="Loại câu hỏi" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả loại</SelectItem>
-                  <SelectItem value="SINGLE_CHOICE">Single Choice</SelectItem>
-                  <SelectItem value="MULTIPLE_CHOICE">Multiple Choice</SelectItem>
-                  <SelectItem value="TRUE_FALSE">True/False</SelectItem>
-                  <SelectItem value="SHORT_ANSWER">Short Answer</SelectItem>
-                  <SelectItem value="FILL_IN_BLANK">Fill in Blank</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[80px]">STT</TableHead>
-                <TableHead>Nội dung câu hỏi</TableHead>
-                <TableHead>Phân loại</TableHead>
-                <TableHead>Cấp độ / Category</TableHead>
-                <TableHead className="text-right">Thao tác</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                Array.from({ length: 5 }).map((_, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell><Skeleton className="h-5 w-8" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-full max-w-[400px]" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-32" /></TableCell>
-                    <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto rounded-full" /></TableCell>
-                  </TableRow>
-                ))
-              ) : data.length ? (
-                data.map((it, idx) => (
-                  <TableRow key={it.id}>
-                    <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
-                    <TableCell className="max-w-xl">
-                      <div className="line-clamp-2 font-medium">
-                        {it.content}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className="font-normal capitalize shadow-none">
-                        {it.questionType.toLowerCase().replace('_', ' ')}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
-                        {it.level && (
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                            <Layers className="size-3" />
-                            {it.level}
-                          </div>
-                        )}
-                        {it.category && (
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                            <TagIcon className="size-3" />
-                            {it.category}
-                          </div>
-                        )}
-                        {!it.level && !it.category && "-"}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="h-8 w-8 p-0"
-                            size="icon"
-                          >
-                            <span className="sr-only">Mở menu thao tác</span>
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-44">
-                          <DropdownMenuItem asChild>
-                            <Link to={`/academy/questions/${it.id}/edit`}>
-                              Sửa câu hỏi
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-destructive focus:text-destructive"
-                            onClick={() => setDeleteId(it.id)}
-                          >
-                            Xoá
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                    Chưa có câu hỏi nào trong ngân hàng.
+      <div className="flex flex-col gap-3 md:flex-row md:items-center">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Tìm nội dung câu hỏi..."
+            className="pl-9"
+          />
+        </div>
+        <div className="w-full md:w-[200px]">
+          <Select value={questionType} onValueChange={setQuestionType}>
+            <SelectTrigger>
+              <div className="flex items-center gap-2">
+                <Filter className="size-4 text-muted-foreground" />
+                <SelectValue placeholder="Loại câu hỏi" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả loại</SelectItem>
+              <SelectItem value="SINGLE_CHOICE">Single Choice</SelectItem>
+              <SelectItem value="MULTIPLE_CHOICE">Multiple Choice</SelectItem>
+              <SelectItem value="TRUE_FALSE">True/False</SelectItem>
+              <SelectItem value="SHORT_ANSWER">Short Answer</SelectItem>
+              <SelectItem value="FILL_IN_BLANK">Fill in Blank</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className="rounded-md bg-background border overflow-hidden">
+        <Table>
+          <TableHeader className="bg-muted/50">
+            <TableRow>
+              <TableHead className="w-[60px] text-center">STT</TableHead>
+              <TableHead>Nội dung câu hỏi</TableHead>
+              <TableHead>Phân loại</TableHead>
+              <TableHead>Cấp độ / Category</TableHead>
+              <TableHead className="text-right">Thao tác</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, idx) => (
+                <TableRow key={idx}>
+                  <TableCell><Skeleton className="h-5 w-8" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-full max-w-[400px]" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-32" /></TableCell>
+                  <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto rounded-full" /></TableCell>
+                </TableRow>
+              ))
+            ) : data.length ? (
+              data.map((it, idx) => (
+                <TableRow key={it.id} className="group">
+                  <TableCell className="text-center text-muted-foreground font-mono text-xs">{idx + 1}</TableCell>
+                  <TableCell className="max-w-xl">
+                    <div className="line-clamp-2 font-medium text-foreground group-hover:text-primary transition-colors">
+                      {it.content}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="secondary" className="font-bold uppercase tracking-tighter text-[10px] bg-muted shadow-none">
+                      {it.questionType.replace('_', ' ')}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-1">
+                      {it.level && (
+                        <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
+                          <Layers className="size-3 text-primary/60" />
+                          {it.level}
+                        </div>
+                      )}
+                      {it.category && (
+                        <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
+                          <TagIcon className="size-3 text-amber-500/60" />
+                          {it.category}
+                        </div>
+                      )}
+                      {!it.level && !it.category && <span className="text-muted-foreground text-xs">—</span>}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          size="icon"
+                        >
+                          <span className="sr-only">Mở menu thao tác</span>
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-44">
+                        <DropdownMenuItem asChild>
+                          <Link to={`/academy/questions/${it.id}/edit`}>
+                            Sửa câu hỏi
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={() => setDeleteId(it.id)}
+                        >
+                          Xoá
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                  Chưa có câu hỏi nào trong ngân hàng.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
       <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
         <AlertDialogContent>

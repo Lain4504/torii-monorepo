@@ -28,6 +28,7 @@ import { StudySetController } from './controllers/study-set.controller';
 import { PlacementController } from './controllers/placement.controller';
 import { LiveSessionController } from './controllers/live-session.controller';
 import { ClassAttendanceController } from './controllers/class-attendance.controller';
+import { QuestionPoolController } from './controllers/question-pool.controller';
 
 
 @Module({
@@ -41,6 +42,7 @@ import { ClassAttendanceController } from './controllers/class-attendance.contro
     QuizTemplateController,
     AssignmentTemplateController,
     TicketController,
+    QuestionPoolController,
     ClassController,
     LiveScheduleController,
     ClassAssessmentController,
