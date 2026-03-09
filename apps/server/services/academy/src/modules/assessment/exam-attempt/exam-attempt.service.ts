@@ -63,9 +63,17 @@ export class ExamAttemptService {
     }
     const exam = await this.prisma.exam.findUnique({
       where: { id: input.examId },
-      include: { sections: true },
+      include: { 
+        sections: true,
+        _count: {
+          select: { examQuestions: true }
+        }
+      },
     });
     if (!exam) throw new BadRequestException('Invalid examId');
+    if (exam._count.examQuestions === 0) {
+      throw new BadRequestException('Đề thi này chưa có câu hỏi nào, vui lòng liên hệ giảng viên.');
+    }
 
     let resolvedClassId = input.classId;
     if (input.classAssessmentId && !resolvedClassId) {
@@ -113,7 +121,7 @@ export class ExamAttemptService {
         where: {
           classId: resolvedClassId,
           userId: input.userId,
-          status: 'ACTIVE',
+          status: { in: ['ACTIVE', 'COMPLETED'] },
         },
         select: { id: true },
       });
@@ -123,15 +131,23 @@ export class ExamAttemptService {
     }
 
     if (maxAttempts) {
-      const attemptCount = await this.prisma.examAttempt.count({
-        where: {
-          examId: input.examId,
-          userId: input.userId,
-          classAssessmentId: input.classAssessmentId,
-        },
+      // Logic mới: Lớp VOD không giới hạn số lần làm bài
+      const klass = await this.prisma.class.findUnique({
+        where: { id: resolvedClassId },
+        select: { mode: true },
       });
-      if (attemptCount >= maxAttempts) {
-        throw new BadRequestException('Maximum attempts reached for this assessment');
+
+      if (klass?.mode !== 'VOD') {
+        const attemptCount = await this.prisma.examAttempt.count({
+          where: {
+            examId: input.examId,
+            userId: input.userId,
+            classAssessmentId: input.classAssessmentId,
+          },
+        });
+        if (attemptCount >= maxAttempts) {
+          throw new BadRequestException('Maximum attempts reached for this assessment');
+        }
       }
     }
 
@@ -275,7 +291,7 @@ export class ExamAttemptService {
         where: {
           classId: attempt.classId,
           userId: attempt.userId,
-          status: 'ACTIVE',
+          status: { in: ['ACTIVE', 'COMPLETED'] },
         },
         select: { id: true },
       });

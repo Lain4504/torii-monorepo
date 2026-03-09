@@ -94,7 +94,7 @@ export default function ExamDetailPage() {
                         <Button
                             size="lg"
                             className="flex-1 h-16 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-[0.2em] text-xs shadow-xl shadow-primary/20 transition-all hover:-translate-y-1 hover:shadow-primary/40"
-                            onClick={() => router.push(`/dashboard/exams/${examId}/take`)}
+                            onClick={() => router.push(`/exams/${examId}/take`)}
                         >
                             <Play className="mr-3 w-5 h-5" />
                             Bắt đầu làm bài
@@ -104,7 +104,7 @@ export default function ExamDetailPage() {
                                 variant="outline"
                                 size="lg"
                                 className="h-16 px-8 rounded-2xl border-white/10 bg-background/50 hover:bg-white/5 font-black uppercase tracking-[0.2em] text-xs hover:text-primary transition-all"
-                                onClick={() => router.push(`/dashboard/exams/${examId}/history`)}
+                                onClick={() => router.push(`/exams/${examId}/history`)}
                             >
                                 <History className="mr-3 w-5 h-5" />
                                 Lịch sử
@@ -156,7 +156,7 @@ export default function ExamDetailPage() {
                                                 <div
                                                     key={session.id}
                                                     className="flex items-center justify-between p-4 hover:bg-white/5 transition-colors group cursor-pointer"
-                                                    onClick={() => router.push(`/dashboard/exams/${examId}/review/${session.id}`)}
+                                                    onClick={() => router.push(`/exams/${examId}/review/${session.id}`)}
                                                 >
                                                     <div>
                                                         <div className="flex items-center gap-2">

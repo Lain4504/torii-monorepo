@@ -88,7 +88,7 @@ export default function TakeCourseQuizPage() {
                                     disabled={!examId}
                                     onClick={() =>
                                         router.push(
-                                            `/dashboard/exams/${examId}/take?classId=${classId}&classAssessmentId=${quizId}`,
+                                            `/exams/${examId}/take?classId=${classId}&classAssessmentId=${quizId}`,
                                         )
                                     }
                                 >

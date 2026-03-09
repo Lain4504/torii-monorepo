@@ -3,7 +3,6 @@ import { z } from 'zod';
 export const createStudySetSchema = z.object({
     title: z.string().min(1),
     description: z.string().optional(),
-    tags: z.array(z.string()).optional(),
     isPublic: z.boolean().optional(),
     settings: z.record(z.any()).optional(),
 });
