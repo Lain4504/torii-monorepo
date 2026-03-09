@@ -20,6 +20,13 @@ export const LIVE_SESSION_JOIN_CLOSE_AFTER_END_HOURS = 4;
 
 export type LiveSessionUiState = 'scheduled' | 'joinable' | 'live' | 'ended';
 
+function extractScheduleId(sessionId: string): string {
+    // Session id in UI is built as `${scheduleId}-${YYYY-MM-DD}`.
+    // Since scheduleId is a UUID (contains "-"), strip only trailing date segment.
+    const dateSuffixPattern = /-\d{4}-\d{2}-\d{2}$/;
+    return sessionId.replace(dateSuffixPattern, "");
+}
+
 function parseHHmmToMinutes(time: string): number {
     const [h, m] = time.split(':').map(Number);
     return (h || 0) * 60 + (m || 0);
@@ -193,7 +200,7 @@ export const liveSessionApi = {
 
     // POST /api/live-sessions/:id/join (id = liveScheduleId)
     async joinSession(id: string): Promise<LiveSessionJoinResponseDTO> {
-        const scheduleId = id.includes('-') ? id.split('-')[0] : id;
+        const scheduleId = extractScheduleId(id);
         const response = await apiClient.post<StandardApiResponse<LiveSessionJoinResponseDTO>>(`/api/live-sessions/${scheduleId}/join`);
         return response.data.data!;
     },

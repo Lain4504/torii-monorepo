@@ -62,8 +62,8 @@ export class CourseOfferingController {
     return successResponse({ item });
   }
 
-  @Public()
   @Get()
+  @Permissions('academy.commerce.read')
   async findAll(
     @Query(new ZodValidationPipe(academyCourseOfferingQueryDTOSchema))
     query: AcademyCourseOfferingQueryDTO,
@@ -74,8 +74,8 @@ export class CourseOfferingController {
     return successResponse({ items });
   }
 
-  @Public()
   @Get(':id')
+  @Permissions('academy.commerce.read')
   async findById(@Param('id', new ParseUUIDPipe()) id: string) {
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.courseOffering.findById' }, { id }),

@@ -41,6 +41,8 @@ import type {
     AcademyAssignmentTemplateModel
 } from '@workspace/schemas';
 import { StudyNotesPanel } from '@/components/courses/study-notes-panel';
+import { useAppSelector } from '@/hooks/hooks';
+import { RootState } from '@/store/store';
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -156,6 +158,7 @@ function ArticleViewer({ lesson, onComplete }: { lesson: AcademyLessonModel; onC
 function AssignmentPanel({
     lessonId, templateId, classId, classAssessmentId, onComplete
 }: { lessonId: string; templateId: string; classId?: string; classAssessmentId?: string; onComplete: () => void; }) {
+    const userId = useAppSelector((state: RootState) => state.auth.user?.id);
     const { data: assignment, isLoading: assignmentLoading } = useAcademyAssignmentTemplate(templateId);
 
     const { data: submissions } = useAcademyAssignmentSubmissions({
@@ -269,11 +272,16 @@ function AssignmentPanel({
                 <div className="flex flex-col sm:flex-row gap-3">
                     <button
                         onClick={() => {
+                            const actorUserId = userId;
+                            if (!actorUserId) {
+                                toast.error('Phiên đăng nhập không hợp lệ');
+                                return;
+                            }
                             const content = { textAnswer, fileUrls };
                             if (submission) {
                                 updateMutation.mutate({ id: submission.id, dto: { content, status: 'DRAFT' } }, { onSuccess: () => toast.success('Đã lưu nháp!') });
                             } else {
-                                submitMutation.mutate({ assignmentTemplateId: templateId, classId, classAssessmentId, content, status: 'DRAFT', userId: 'me' }, { onSuccess: () => toast.success('Đã lưu nháp!') });
+                                submitMutation.mutate({ assignmentTemplateId: templateId, classId, classAssessmentId, content, status: 'DRAFT', userId: actorUserId }, { onSuccess: () => toast.success('Đã lưu nháp!') });
                             }
                         }}
                         disabled={submitMutation.isPending || updateMutation.isPending}
@@ -284,6 +292,11 @@ function AssignmentPanel({
                     </button>
                     <button
                         onClick={() => {
+                            const actorUserId = userId;
+                            if (!actorUserId) {
+                                toast.error('Phiên đăng nhập không hợp lệ');
+                                return;
+                            }
                             const content = { textAnswer, fileUrls };
                             if (submission) {
                                 updateMutation.mutate({ id: submission.id, dto: { content, status: 'SUBMITTED' } }, {
@@ -291,7 +304,7 @@ function AssignmentPanel({
                                     onError: () => toast.error('Lỗi khi nộp bài.')
                                 });
                             } else {
-                                submitMutation.mutate({ assignmentTemplateId: templateId, classId, classAssessmentId, content, status: 'SUBMITTED', userId: 'me' }, {
+                                submitMutation.mutate({ assignmentTemplateId: templateId, classId, classAssessmentId, content, status: 'SUBMITTED', userId: actorUserId }, {
                                     onSuccess: () => { toast.success('Đã nộp bài!'); onComplete(); },
                                     onError: () => toast.error('Lỗi khi nộp bài.')
                                 });

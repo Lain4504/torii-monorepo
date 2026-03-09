@@ -16,8 +16,9 @@ export class ExamAttemptStartDto {
   @IsUUID()
   classId?: string;
 
+  @IsOptional()
   @IsUUID()
-  userId!: string;
+  userId?: string;
 
   @IsOptional()
   @IsUUID()

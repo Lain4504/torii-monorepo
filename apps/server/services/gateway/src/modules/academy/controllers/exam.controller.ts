@@ -95,5 +95,23 @@ export class ExamController {
     );
     return successResponse(result);
   }
+
+  @Post(':id/publish')
+  @Permissions('exam.manage')
+  async publish(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.exam.publish' }, { id, requesterId: req.requester?.sub }),
+    );
+    return successResponse({ item });
+  }
+
+  @Post(':id/archive')
+  @Permissions('exam.manage')
+  async archive(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.exam.archive' }, { id, requesterId: req.requester?.sub }),
+    );
+    return successResponse({ item });
+  }
 }
 

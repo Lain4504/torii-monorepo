@@ -111,10 +111,10 @@ export default function LecturerDashboardPage() {
                   <CardDescription>Các liên kết nhanh cho hoạt động thường ngày.</CardDescription>
                </CardHeader>
                <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <Button variant="outline" className="justify-start gap-2" onClick={() => navigate('/academy/assignment-submissions')}>
+                  <Button variant="outline" className="justify-start gap-2" onClick={() => navigate('/academy/classes?tab=submissions')}>
                      <Trophy className="h-4 w-4" /> Chấm bài tập
                   </Button>
-                  <Button variant="outline" className="justify-start gap-2" onClick={() => navigate('/academy/exam-attempts')}>
+                  <Button variant="outline" className="justify-start gap-2" onClick={() => navigate('/academy/classes?tab=attempts')}>
                      <FileCheck className="h-4 w-4" /> Xem kết quả thi
                   </Button>
                   <Button variant="outline" className="justify-start gap-2" onClick={() => navigate('/academy/questions')}>

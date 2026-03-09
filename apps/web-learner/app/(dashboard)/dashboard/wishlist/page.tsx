@@ -197,7 +197,7 @@ export default function WishlistPage() {
                                             Chi tiết
                                         </Button>
                                     </Link>
-                                    <Link href={`/checkout?courseMasterId=${courseMaster.id}`} className="flex-1 md:flex-none">
+                                    <Link href={`/checkout/${courseMaster.id}`} className="flex-1 md:flex-none">
                                         <Button size="sm" className="w-full md:w-auto">
                                             Mua ngay
                                         </Button>

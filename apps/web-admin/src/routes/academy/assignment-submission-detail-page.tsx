@@ -45,7 +45,7 @@ export default function AcademyAssignmentSubmissionDetailPage() {
   const search = new URLSearchParams(location.search)
   const classId = search.get("classId") || undefined
   const returnTab = search.get("tab") || "submissions"
-  const backToClass = classId ? `/academy/classes/${classId}?tab=${returnTab}` : "/academy/assignment-submissions"
+  const backToClass = classId ? `/academy/classes/${classId}?tab=${returnTab}` : "/academy/classes"
   const { data: item, isLoading } = useAcademyAssignmentSubmission(id)
   const update = useUpdateAcademyAssignmentSubmission()
 

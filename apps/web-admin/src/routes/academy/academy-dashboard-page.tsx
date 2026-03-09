@@ -140,12 +140,12 @@ export default function AcademyDashboardPage() {
               </Link>
             </Button>
             <Button asChild variant="outline" className="justify-start gap-2">
-              <Link to="/academy/chapters">
+              <Link to="/academy/course-editions">
                 <FolderTree className="h-4 w-4" /> Chapters
               </Link>
             </Button>
             <Button asChild variant="outline" className="justify-start gap-2">
-              <Link to="/academy/chapter-items">
+              <Link to="/academy/course-editions">
                 <ListChecks className="h-4 w-4" /> Chapter Items
               </Link>
             </Button>
@@ -168,7 +168,7 @@ export default function AcademyDashboardPage() {
               </Link>
             </Button>
             <Button asChild variant="outline" className="justify-start gap-2">
-              <Link to="/academy/class-schedules">
+              <Link to="/academy/classes">
                 <Calendar className="h-4 w-4" /> Lịch học (Schedules)
               </Link>
             </Button>

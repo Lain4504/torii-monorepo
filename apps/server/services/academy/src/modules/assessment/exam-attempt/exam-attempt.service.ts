@@ -42,16 +42,25 @@ export class ExamAttemptService {
     return Array.from(latestMap.values());
   }
 
-  async findById(id: string) {
+  async findById(id: string, requesterId?: string, isExamManager = false) {
     const item = await this.prisma.examAttempt.findUnique({
       where: { id },
       include: { sections: true, details: true },
     });
     if (!item) throw new NotFoundException('ExamAttempt not found');
+    if (!isExamManager && requesterId && item.userId !== requesterId) {
+      throw new BadRequestException('You can only access your own exam attempts');
+    }
     return item;
   }
 
-  async start(input: ExamAttemptStartDto) {
+  async start(input: ExamAttemptStartDto, requesterId?: string, isExamManager = false) {
+    if (!input.userId) {
+      throw new BadRequestException('Missing userId for exam attempt');
+    }
+    if (!isExamManager && requesterId && input.userId !== requesterId) {
+      throw new BadRequestException('You can only start exam attempts for yourself');
+    }
     const exam = await this.prisma.exam.findUnique({
       where: { id: input.examId },
       include: { sections: true },
@@ -190,8 +199,11 @@ export class ExamAttemptService {
     return result;
   }
 
-  async saveAnswers(input: ExamAttemptSaveAnswersDto) {
-    await this.findById(input.attemptId);
+  async saveAnswers(input: ExamAttemptSaveAnswersDto, requesterId?: string, isExamManager = false) {
+    const attempt = await this.findById(input.attemptId, requesterId, isExamManager);
+    if (attempt.status !== 'IN_PROGRESS') {
+      throw new BadRequestException('Can only save answers for IN_PROGRESS attempts');
+    }
     return this.prisma.examAttempt.update({
       where: { id: input.attemptId },
       data: {
@@ -236,7 +248,7 @@ export class ExamAttemptService {
     }
   }
 
-  async submit(input: ExamAttemptSubmitDto) {
+  async submit(input: ExamAttemptSubmitDto, requesterId?: string, isExamManager = false) {
     const attempt = await this.prisma.examAttempt.findUnique({
       where: { id: input.attemptId },
       include: {
@@ -251,6 +263,9 @@ export class ExamAttemptService {
       },
     });
     if (!attempt) throw new NotFoundException('ExamAttempt not found');
+    if (!isExamManager && requesterId && attempt.userId !== requesterId) {
+      throw new BadRequestException('You can only submit your own exam attempts');
+    }
     if (attempt.status !== 'IN_PROGRESS') return attempt;
     if (attempt.classAssessmentId && attempt.classAssessment?.classId !== attempt.classId) {
       throw new BadRequestException('ExamAttempt has invalid classAssessment relation');

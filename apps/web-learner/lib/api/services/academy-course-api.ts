@@ -17,7 +17,7 @@ export const academyOfferingApi = {
     q?: string;
   } = {}): Promise<PaginatedApiResponse<any>> => {
     const { status: _status, ...restParams } = params;
-    const response = await apiClient.get<StandardApiResponse<{ items: any[]; total: number; page: number; limit: number; totalPages: number }>>('/api/academy/course-offerings', {
+    const response = await apiClient.get<StandardApiResponse<{ items: any[]; total: number; page: number; limit: number; totalPages: number }>>('/api/academy/course-offerings/public', {
       params: {
         status: 'PUBLISHED',
         ...restParams,
@@ -78,7 +78,7 @@ export const academyOfferingApi = {
    * Get offering by id (includes curriculum)
    */
   getById: async (id: string): Promise<any | null> => {
-    const response = await apiClient.get<StandardApiResponse<{ item: any }>>(`/api/academy/course-offerings/${id}`);
+    const response = await apiClient.get<StandardApiResponse<{ item: any }>>(`/api/academy/course-offerings/public/${id}`);
     return response.data.data!.item;
   },
 

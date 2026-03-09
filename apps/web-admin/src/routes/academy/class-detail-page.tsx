@@ -1,5 +1,14 @@
 import { useLocation, useNavigate, useParams, Link } from "react-router-dom"
-import { useAcademyClass, useSubmitClassForApproval, useApproveClass, useRejectClass } from "@/lib/api/services/academy-classes"
+import {
+   useAcademyClass,
+   useSubmitClassForApproval,
+   useApproveClass,
+   useRejectClass,
+   usePublishClass,
+   useStartClass,
+   useCompleteClass,
+   useCancelClass,
+} from "@/lib/api/services/academy-classes"
 import { useAcademyLiveSchedules, usePreviewAcademyLiveScheduleConflict } from "@/lib/api/services/academy-live-schedules"
 import {
    useAcademyLiveScheduleRequests,
@@ -85,6 +94,8 @@ export default function ClassDetailPage() {
    const { can } = usePermissions()
    const canManageLiveSession = can("academy.delivery.write")
    const canApproveLiveRequest = can("academy.delivery.approve")
+   const canDeliveryWrite = can("academy.delivery.write")
+   const canDeliveryApprove = can("academy.delivery.approve")
    const authUser = useAppSelector(selectAuthUser)
    const { data: profile } = useAcademyCourseProfile(cls?.courseProfileId)
    const { data: edition } = useAcademyCourseEdition(cls?.courseEditionId)
@@ -120,6 +131,10 @@ export default function ClassDetailPage() {
    const submitMutation = useSubmitClassForApproval()
    const approveMutation = useApproveClass()
    const rejectMutation = useRejectClass()
+   const publishMutation = usePublishClass()
+   const startMutation = useStartClass()
+   const completeMutation = useCompleteClass()
+   const cancelMutation = useCancelClass()
    const joinLiveSessionMutation = useJoinAcademyLiveSessionAsLecturer()
    const previewConflictMutation = usePreviewAcademyLiveScheduleConflict()
    const createRequestMutation = useCreateAcademyLiveScheduleRequest()
@@ -269,6 +284,42 @@ export default function ClassDetailPage() {
          setRejectionReason("")
       } catch (error: any) {
          toast.error(error.response?.data?.message || "Failed to reject")
+      }
+   }
+
+   const handlePublish = async () => {
+      try {
+         await publishMutation.mutateAsync(id!)
+         toast.success("Đã publish lớp học")
+      } catch (error: any) {
+         toast.error(error.response?.data?.message || "Publish thất bại")
+      }
+   }
+
+   const handleStart = async () => {
+      try {
+         await startMutation.mutateAsync(id!)
+         toast.success("Đã chuyển lớp sang IN_PROGRESS")
+      } catch (error: any) {
+         toast.error(error.response?.data?.message || "Start lớp thất bại")
+      }
+   }
+
+   const handleComplete = async () => {
+      try {
+         await completeMutation.mutateAsync(id!)
+         toast.success("Đã hoàn tất lớp học")
+      } catch (error: any) {
+         toast.error(error.response?.data?.message || "Complete lớp thất bại")
+      }
+   }
+
+   const handleCancelClass = async () => {
+      try {
+         await cancelMutation.mutateAsync(id!)
+         toast.success("Đã hủy lớp học")
+      } catch (error: any) {
+         toast.error(error.response?.data?.message || "Hủy lớp thất bại")
       }
    }
 
@@ -463,14 +514,25 @@ export default function ClassDetailPage() {
             </div>
 
             <div className="flex items-center gap-2">
-               {cls.status === "DRAFT" && (
+               {canDeliveryWrite && cls.status === "DRAFT" && (
+                  <Button
+                     variant="outline"
+                     className="gap-2 shadow-sm"
+                     onClick={handlePublish}
+                     disabled={publishMutation.isPending}
+                  >
+                     Publish
+                  </Button>
+               )}
+
+               {canDeliveryWrite && cls.status === "DRAFT" && (
                   <Button onClick={handleSubmit} disabled={submitMutation.isPending} className="gap-2 shadow-md">
                      <Send className="h-4 w-4" />
                      Gửi phê duyệt
                   </Button>
                )}
 
-               {cls.status === "PENDING_APPROVAL" && (
+               {canDeliveryApprove && cls.status === "PENDING_APPROVAL" && (
                   <div className="flex gap-2">
                      <Button
                         variant="outline"
@@ -484,6 +546,37 @@ export default function ClassDetailPage() {
                         Phê duyệt
                      </Button>
                   </div>
+               )}
+
+               {canDeliveryWrite && (cls.status === "ENROLLING" || cls.status === "IN_PROGRESS") && (
+                  <Button
+                     variant="outline"
+                     className="text-destructive hover:bg-destructive/10 border-destructive/20 shadow-sm"
+                     onClick={handleCancelClass}
+                     disabled={cancelMutation.isPending}
+                  >
+                     Hủy lớp
+                  </Button>
+               )}
+
+               {canDeliveryWrite && cls.status === "ENROLLING" && (
+                  <Button
+                     onClick={handleStart}
+                     disabled={startMutation.isPending}
+                     className="gap-2 shadow-md"
+                  >
+                     Bắt đầu lớp
+                  </Button>
+               )}
+
+               {canDeliveryWrite && cls.status === "IN_PROGRESS" && (
+                  <Button
+                     onClick={handleComplete}
+                     disabled={completeMutation.isPending}
+                     className="gap-2 shadow-md bg-emerald-600 hover:bg-emerald-700"
+                  >
+                     Hoàn tất lớp
+                  </Button>
                )}
 
                <Button variant="outline" size="sm" className="gap-2 shadow-sm" onClick={() => setIsDuplicateDialogOpen(true)}>

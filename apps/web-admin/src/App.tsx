@@ -144,7 +144,7 @@ function App() {
                   </Route>
 
                   {/* Academy - Core Grouping */}
-                  <Route element={<RoutePermissionGuard anyPermission={["academy.content.read", "academy.content.write", "academy.commerce.read", "academy.commerce.write", "academy.delivery.read", "academy.delivery.write", "exam.manage"]} />}>
+                  <Route element={<RoutePermissionGuard anyPermission={["academy.content.read", "academy.content.write", "academy.content.approve", "academy.commerce.read", "academy.commerce.write", "academy.commerce.approve", "academy.delivery.read", "academy.delivery.write", "academy.delivery.approve", "exam.manage"]} />}>
                     <Route path="academy" element={<AcademyDashboardPage />} />
                     <Route path="academy/approvals" element={<AcademyApprovalsPage />} />
 

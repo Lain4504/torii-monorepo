@@ -29,8 +29,8 @@ export function Footer() {
                     <h4 className="text-white font-bold text-lg">Liên kết nhanh</h4>
                     <ul className="space-y-3 text-sm">
                         <li><Link href="#" className="hover:text-white transition-colors text-zinc-400">Về chúng tôi</Link></li>
-                        <li><Link href="/khoa-hoc" className="hover:text-white transition-colors text-zinc-400">Thư viện VOD JLPT</Link></li>
-                        <li><Link href="/khoa-hoc-live" className="hover:text-white transition-colors text-zinc-400">Lịch khai giảng Live</Link></li>
+                        <li><Link href="/courses" className="hover:text-white transition-colors text-zinc-400">Thư viện VOD JLPT</Link></li>
+                        <li><Link href="/live-courses" className="hover:text-white transition-colors text-zinc-400">Lịch khai giảng Live</Link></li>
                         <li><Link href="#" className="hover:text-white transition-colors text-zinc-400">Tuyển dụng</Link></li>
                     </ul>
                 </div>

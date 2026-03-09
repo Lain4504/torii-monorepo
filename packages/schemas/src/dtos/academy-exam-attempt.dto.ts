@@ -3,7 +3,9 @@ import { z } from 'zod';
 export const academyExamAttemptStartDTOSchema = z.object({
   examId: z.string().uuid(),
   classId: z.string().uuid().optional(),
-  userId: z.string().uuid(),
+  // For learner flows, userId is derived from requester token at gateway.
+  // exam.manage callers may still provide userId explicitly.
+  userId: z.string().uuid().optional(),
   classAssessmentId: z.string().uuid().optional(),
 });
 export type AcademyExamAttemptStartDTO = z.infer<

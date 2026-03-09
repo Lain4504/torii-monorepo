@@ -15,24 +15,34 @@ export class AssignmentSubmissionService {
     private readonly audit: AuditLoggerService,
   ) { }
 
-  async findAll(query: AssignmentSubmissionQueryDto) {
+  async findAll(query: AssignmentSubmissionQueryDto, requesterId?: string, isExamManager = false) {
+    const effectiveUserId = isExamManager ? query.userId : requesterId ?? query.userId;
     return this.prisma.assignmentSubmission.findMany({
       where: {
         classId: query.classId ?? undefined,
         classAssessmentId: query.classAssessmentId ?? undefined,
-        userId: query.userId ?? undefined,
+        userId: effectiveUserId ?? undefined,
       },
       orderBy: [{ createdAt: 'desc' }],
     });
   }
 
-  async findById(id: string) {
+  async findById(id: string, requesterId?: string, isExamManager = false) {
     const item = await this.prisma.assignmentSubmission.findUnique({ where: { id } });
     if (!item) throw new NotFoundException('AssignmentSubmission not found');
+    if (!isExamManager && requesterId && requesterId !== 'SYSTEM' && item.userId !== requesterId) {
+      throw new BadRequestException('You can only access your own submissions');
+    }
     return item;
   }
 
-  async create(input: AssignmentSubmissionCreateDto, requesterId = 'SYSTEM') {
+  async create(input: AssignmentSubmissionCreateDto, requesterId = 'SYSTEM', isExamManager = false) {
+    if (!input.userId) {
+      throw new BadRequestException('Missing userId for assignment submission');
+    }
+    if (!isExamManager && requesterId && requesterId !== 'SYSTEM' && input.userId !== requesterId) {
+      throw new BadRequestException('You can only create submissions for yourself');
+    }
     const klass = await this.prisma.class.findUnique({
       where: { id: input.classId },
       select: { id: true, mode: true },
@@ -106,8 +116,8 @@ export class AssignmentSubmissionService {
     return result;
   }
 
-  async update(id: string, input: AssignmentSubmissionUpdateDto, requesterId = 'SYSTEM') {
-    const oldSubmission = await this.findById(id);
+  async update(id: string, input: AssignmentSubmissionUpdateDto, requesterId = 'SYSTEM', isExamManager = false) {
+    const oldSubmission = await this.findById(id, requesterId, isExamManager);
     const updated = await this.prisma.assignmentSubmission.update({
       where: { id },
       data: {
@@ -134,9 +144,8 @@ export class AssignmentSubmissionService {
     return updated;
   }
 
-  async delete(id: string, requesterId = 'SYSTEM') {
-    await this.findById(id);
-    const submission = await this.findById(id);
+  async delete(id: string, requesterId = 'SYSTEM', isExamManager = false) {
+    const submission = await this.findById(id, requesterId, isExamManager);
     await this.prisma.assignmentSubmission.delete({ where: { id } });
 
     await this.audit.log({

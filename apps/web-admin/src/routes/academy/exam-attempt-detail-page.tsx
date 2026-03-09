@@ -21,7 +21,7 @@ export default function AcademyExamAttemptDetailPage() {
   const classId = search.get("classId") || undefined
   const classAssessmentId = search.get("classAssessmentId") || undefined
   const returnTab = search.get("tab") || "attempts"
-  const backToClass = classId ? `/academy/classes/${classId}?tab=${returnTab}` : "/academy/exam-attempts"
+  const backToClass = classId ? `/academy/classes/${classId}?tab=${returnTab}` : "/academy/classes"
   const { data: item, isLoading } = useAcademyExamAttempt(id)
   const { data: enrichedAttempt } = useAcademyClassAssessmentAttemptQuestionDetail(
     classAssessmentId,

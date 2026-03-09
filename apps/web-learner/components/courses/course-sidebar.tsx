@@ -113,7 +113,7 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
                                     : (
                                         <Button
                                             className="w-full h-12 font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20"
-                                            onClick={() => router.push(`/courses/${course.slug}/learn`)}
+                                            onClick={() => router.push(`/courses/${course.id}/learn`)}
                                         >
                                             Tiếp tục học tập
                                         </Button>

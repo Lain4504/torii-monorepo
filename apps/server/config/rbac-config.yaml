@@ -56,6 +56,9 @@ permissions:
   - code: academy.content.write
     description: Create and manage academic content
     category: Academy Content
+  - code: academy.content.approve
+    description: Approve or reject academic content publishing
+    category: Academy Content
 
   # Academy Delivery (Classes, Schedules, Attendance)
   - code: academy.delivery.read
@@ -64,6 +67,9 @@ permissions:
   - code: academy.delivery.write
     description: Manage classes, schedules and marking attendance
     category: Academy Delivery
+  - code: academy.delivery.approve
+    description: Approve or reject delivery lifecycle requests
+    category: Academy Delivery
 
   # Academy Commerce (Offerings, Orders, Coupons)
   - code: academy.commerce.read
@@ -71,6 +77,9 @@ permissions:
     category: Academy Commerce
   - code: academy.commerce.write
     description: Manage course offerings and pricing
+    category: Academy Commerce
+  - code: academy.commerce.approve
+    description: Approve or reject offering publishing
     category: Academy Commerce
   - code: academy:order:admin
     description: Full access to order management and billing
@@ -152,8 +161,11 @@ default_role_permissions:
     - user.view
     - academy.content.read
     - academy.content.write
+    - academy.content.approve
     - academy.delivery.read
     - academy.delivery.write
+    - academy.delivery.approve
+    - academy.commerce.approve
     - exam.manage
     - report.view
     - blog.manage
@@ -198,5 +210,7 @@ default_role_permissions:
     - exam.manage
     - submission.grade
     
-  # Learner: No initial admin permissions
-  learner: []
+  # Learner: access learner-facing academy flows
+  learner:
+    - academy.content.read
+    - academy.delivery.read

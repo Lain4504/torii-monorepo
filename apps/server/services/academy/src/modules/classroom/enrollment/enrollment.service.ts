@@ -191,18 +191,32 @@ export class EnrollmentService {
       expiresAt = date;
     }
 
-    const result = await prisma.enrollment.create({
-      data: {
-        classId: input.classId,
-        userId: input.userId,
-        expiresAt: expiresAt,
-        status: input.status ?? 'ACTIVE',
-        sourceOfferingId: input.sourceOfferingId,
-        sourceOrderId: input.sourceOrderId,
-        companyId: input.companyId,
-        metadata: input.metadata ?? undefined,
-      },
-    });
+    let result;
+    try {
+      result = await prisma.enrollment.create({
+        data: {
+          classId: input.classId,
+          userId: input.userId,
+          expiresAt: expiresAt,
+          status: input.status ?? 'ACTIVE',
+          sourceOfferingId: input.sourceOfferingId,
+          sourceOrderId: input.sourceOrderId,
+          companyId: input.companyId,
+          metadata: input.metadata ?? undefined,
+        },
+      });
+    } catch (error: any) {
+      // Handles race condition when two concurrent requests create the same ACTIVE enrollment.
+      if (error?.code === 'P2002') {
+        const concurrentExisting = await prisma.enrollment.findFirst({
+          where: { classId: input.classId, userId: input.userId, status: 'ACTIVE' },
+        });
+        if (concurrentExisting) {
+          return concurrentExisting;
+        }
+      }
+      throw error;
+    }
 
     await this.audit.log({
       userId: requesterId,
