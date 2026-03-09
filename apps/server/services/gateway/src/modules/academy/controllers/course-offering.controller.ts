@@ -42,7 +42,28 @@ export class CourseOfferingController {
   constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
 
   @Public()
+  @Get('public')
+  async findAllPublic(
+    @Query(new ZodValidationPipe(academyCourseOfferingQueryDTOSchema))
+    query: AcademyCourseOfferingQueryDTO,
+  ) {
+    const items = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.courseOffering.findAll' }, { ...query, status: 'PUBLISHED' }),
+    );
+    return successResponse({ items });
+  }
+
+  @Public()
+  @Get('public/:id')
+  async findPublicById(@Param('id', new ParseUUIDPipe()) id: string) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.courseOffering.findPublicById' }, { id }),
+    );
+    return successResponse({ item });
+  }
+
   @Get()
+  @Permissions('academy.commerce.read')
   async findAll(
     @Query(new ZodValidationPipe(academyCourseOfferingQueryDTOSchema))
     query: AcademyCourseOfferingQueryDTO,
@@ -53,8 +74,8 @@ export class CourseOfferingController {
     return successResponse({ items });
   }
 
-  @Public()
   @Get(':id')
+  @Permissions('academy.commerce.read')
   async findById(@Param('id', new ParseUUIDPipe()) id: string) {
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.courseOffering.findById' }, { id }),

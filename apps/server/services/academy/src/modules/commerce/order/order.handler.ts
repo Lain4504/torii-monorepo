@@ -5,37 +5,74 @@ import { OrderCheckoutDto, OrderPreviewDto } from './dto/order.dto';
 
 @Controller()
 export class OrderHandler {
-    constructor(private readonly orderService: OrderService) { }
+  constructor(private readonly orderService: OrderService) {}
 
-    @MessagePattern({ cmd: 'academy.order.preview' })
-    preview(@Payload() data: { userId: string; input: OrderPreviewDto }) {
-        return this.orderService.preview(data.userId, data.input);
-    }
+  @MessagePattern({ cmd: 'academy.order.preview' })
+  preview(@Payload() data: { userId: string; input: OrderPreviewDto }) {
+    return this.orderService.preview(data.userId, data.input);
+  }
 
-    @MessagePattern({ cmd: 'academy.order.checkout' })
-    checkout(@Payload() data: { userId: string; input: OrderCheckoutDto }) {
-        return this.orderService.checkout(data.userId, data.input);
-    }
+  @MessagePattern({ cmd: 'academy.order.checkout' })
+  checkout(@Payload() data: { userId: string; input: OrderCheckoutDto }) {
+    return this.orderService.checkout(data.userId, data.input);
+  }
 
-    @MessagePattern({ cmd: 'academy.order.handlePaymentSuccess' })
-    handlePaymentSuccess(@Payload() data: { orderCode: string; transactionId?: string; payload?: any }) {
-        return this.orderService.handlePaymentSuccess(data.orderCode, data.transactionId, data.payload);
-    }
+  @MessagePattern({ cmd: 'academy.order.handlePaymentSuccess' })
+  handlePaymentSuccess(
+    @Payload()
+    data: {
+      orderCode: string;
+      transactionId?: string;
+      payload?: any;
+    },
+  ) {
+    return this.orderService.handlePaymentSuccess(
+      data.orderCode,
+      data.transactionId,
+      data.payload,
+    );
+  }
 
-    // --- Admin CRUD ---
+  // --- Admin CRUD ---
 
-    @MessagePattern({ cmd: 'academy.order.admin.findAll' })
-    admin_findAll(@Payload() query: any) {
-        return this.orderService.admin_findAll(query);
-    }
+  @MessagePattern({ cmd: 'academy.order.admin.findAll' })
+  admin_findAll(@Payload() query: any) {
+    return this.orderService.admin_findAll(query);
+  }
 
-    @MessagePattern({ cmd: 'academy.order.admin.findOne' })
-    admin_findOne(@Payload() data: { id: string }) {
-        return this.orderService.admin_findOne(data.id);
-    }
+  @MessagePattern({ cmd: 'academy.order.admin.findOne' })
+  admin_findOne(@Payload() data: { id: string }) {
+    return this.orderService.admin_findOne(data.id);
+  }
 
-    @MessagePattern({ cmd: 'academy.order.admin.updateStatus' })
-    admin_updateStatus(@Payload() data: { id: string; status: any; requesterId?: string }) {
-        return this.orderService.admin_updateStatus(data.id, data.status, data.requesterId);
-    }
+  @MessagePattern({ cmd: 'academy.order.admin.updateStatus' })
+  admin_updateStatus(
+    @Payload() data: { id: string; status: any; requesterId?: string },
+  ) {
+    return this.orderService.admin_updateStatus(
+      data.id,
+      data.status,
+      data.requesterId,
+    );
+  }
+
+  @MessagePattern({ cmd: 'academy.order.findByCodeForUser' })
+  findByCodeForUser(@Payload() data: { userId: string; orderCode: string }) {
+    return this.orderService.getByCodeForUser(data.userId, data.orderCode);
+  }
+
+  @MessagePattern({ cmd: 'academy.order.findAllForUser' })
+  findAllForUser(
+    @Payload() data: {
+      userId: string;
+      query: { page?: number; limit?: number; status?: string; search?: string };
+    },
+  ) {
+    return this.orderService.findAllForUser(data.userId, data.query ?? {});
+  }
+
+  @MessagePattern({ cmd: 'academy.order.findOneForUser' })
+  findOneForUser(@Payload() data: { userId: string; id: string }) {
+    return this.orderService.findOneForUser(data.userId, data.id);
+  }
 }

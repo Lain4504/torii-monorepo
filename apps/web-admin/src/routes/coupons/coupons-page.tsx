@@ -20,7 +20,6 @@ import { SmartPagination } from '@/components/common/smart-pagination';
 import { DeleteCouponDialog } from '@/components/coupons/delete-coupon-dialog';
 
 import { PageHeader } from '@/components/common/page-header';
-import { Card, CardContent } from "@workspace/ui/components/card";
 
 export default function CouponsPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -122,23 +121,20 @@ export default function CouponsPage() {
                 />
 
                 {/* Table */}
-                <Card className="overflow-hidden">
-                <CardContent className="p-0">
+                <div className="rounded-md bg-background border overflow-hidden">
 
-                                    <CouponsTable
-                                        data={coupons}
-                                        isLoading={isLoading}
-                                        page={page}
-                                        limit={limit}
-                                        onEdit={handleEdit}
-                                        onDelete={handleDelete}
-                                    />
-                                
-                </CardContent>
-                </Card>
+                    <CouponsTable
+                        data={coupons}
+                        isLoading={isLoading}
+                        page={page}
+                        limit={limit}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                    />
 
-                {/* Pagination */}
-                <SmartPagination
+                </div>
+            {/* Pagination */}
+            <SmartPagination
                     page={page}
                     totalPages={totalPages}
                     totalItems={data?.total || 0}

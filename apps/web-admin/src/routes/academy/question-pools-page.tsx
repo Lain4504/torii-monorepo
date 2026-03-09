@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Button } from "@workspace/ui/components/button"
+import { cn } from "@workspace/ui/lib/utils"
 import { Input } from "@workspace/ui/components/input"
 import {
     Table,
@@ -46,12 +47,12 @@ export default function QuestionPoolsPage() {
     return (
         <div className="space-y-6">
             <PageHeader
-                title="Academy · Nhóm câu hỏi"
+                title="Nhóm câu hỏi"
                 subtitle="Quản lý các nhóm câu hỏi (Pools) dùng để tổ chức ngân hàng câu hỏi cho Exams và Quizzes."
                 actions={
-                    <Button asChild>
+                    <Button asChild className="gap-2 shadow-sm">
                         <Link to="/academy/question-pools/new">
-                            <Plus className="mr-2 h-4 w-4" /> Tạo Pool mới
+                            <Plus className="h-4 w-4" /> Tạo Pool mới
                         </Link>
                     </Button>
                 }
@@ -131,13 +132,17 @@ export default function QuestionPoolsPage() {
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        {it.status === "ACTIVE" ? (
-                                            <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-none">ACTIVE</Badge>
-                                        ) : it.status === "ARCHIVED" ? (
-                                            <Badge variant="secondary" className="shadow-none opacity-60">ARCHIVED</Badge>
-                                        ) : (
-                                            <Badge variant="outline" className="shadow-none">{it.status}</Badge>
-                                        )}
+                                        <Badge
+                                            variant="outline"
+                                            className={cn(
+                                                "font-bold uppercase tracking-wider text-[10px] px-2 py-0.5 shadow-none",
+                                                it.status === "ACTIVE" && "bg-emerald-500/10 text-emerald-600 border-emerald-200",
+                                                it.status === "ARCHIVED" && "bg-zinc-500/10 text-zinc-600 border-zinc-200",
+                                                it.status === "DRAFT" && "bg-muted text-muted-foreground border-transparent"
+                                            )}
+                                        >
+                                            {it.status}
+                                        </Badge>
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>

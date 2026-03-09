@@ -150,8 +150,8 @@ function CourseGrid({ courses, type }: any) {
                                 {course.oldPrice && <span className="text-xs text-muted-foreground line-through">{formatNumber(course.oldPrice)} đ</span>}
                             </div>
                             <Button size="sm" asChild>
-                                <Link href={`/checkout/\${course.id}`}>
-                                    Mua ngay
+                                <Link href={`/dashboard/available-courses/${course.id}`}>
+                                    Xem chi tiết
                                 </Link>
                             </Button>
                         </div>

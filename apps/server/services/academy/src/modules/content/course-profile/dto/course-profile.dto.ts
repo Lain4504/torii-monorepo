@@ -11,27 +11,12 @@ export class CourseProfileCreateDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(100)
-  shortTitle?: string;
-
-  @IsOptional()
-  @IsString()
   description?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  subject?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(50)
   level?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(20)
-  defaultLanguage?: string;
 
   @IsOptional()
   @IsUrl({ require_tld: false })
@@ -46,27 +31,12 @@ export class CourseProfileUpdateDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(100)
-  shortTitle?: string;
-
-  @IsOptional()
-  @IsString()
   description?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  subject?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(50)
   level?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(20)
-  defaultLanguage?: string;
 
   @IsOptional()
   @IsUrl({ require_tld: false })
@@ -77,10 +47,6 @@ export class CourseProfileQueryDto {
   @IsOptional()
   @IsString()
   q?: string;
-
-  @IsOptional()
-  @IsString()
-  subject?: string;
 
   @IsOptional()
   @IsString()

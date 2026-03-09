@@ -42,6 +42,11 @@ export class CourseEditionHandler {
     return this.editions.publishEdition(data.id, data.requesterId);
   }
 
+  @MessagePattern({ cmd: 'academy.courseEdition.clone' })
+  clone(@Payload() data: { id: string; newTag: string; requesterId?: string }) {
+    return this.editions.clone(data.id, data.newTag, data.requesterId);
+  }
+
   @MessagePattern({ cmd: 'academy.courseEdition.submitForApproval' })
   submitForApproval(@Payload() data: { id: string; requesterId: string }) {
     return this.editions.submitForApproval(data.id, data.requesterId);

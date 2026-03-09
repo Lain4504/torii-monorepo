@@ -9,6 +9,7 @@ export const storageApi = {
     // POST /api/storage/upload-url
     async generateUploadUrl(data: StoragePresignedUrlRequestDTO): Promise<StoragePresignedUrlResponseDTO> {
         const response = await apiClient.post<StandardApiResponse<StoragePresignedUrlResponseDTO>>('/api/storage/upload-url', data);
+        if (!response.data.success) throw new Error(response.data.message || 'Failed to generate upload URL');
         return response.data.data!;
     },
 

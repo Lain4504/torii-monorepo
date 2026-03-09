@@ -22,6 +22,13 @@ export type AcademyExamAttempt = {
   maxScore?: number | null
   percentage?: number | null
   isPassed?: boolean | null
+  details?: Array<{
+    id: string
+    questionId: string
+    userAnswer?: any
+    isCorrect?: boolean | null
+    pointsEarned?: number | null
+  }> | null
   createdAt: string
   updatedAt: string
 }

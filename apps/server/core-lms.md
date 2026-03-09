@@ -3,15 +3,13 @@
 Đây là “chương trình học” không phụ thuộc live/VOD.
 
 - **`CourseProfile`**  
-  - Ý nghĩa: 1 “khóa học” trừu tượng (VD: “JLPT N5”, “IELTS 6.5+”, “Web Backend”).  
-  - Field chính:
-    - `id`
-    - `code` (unique, ví dụ: `JP_N5`)
-    - `title`, `shortTitle`
-    - `description`
-    - `subject` (japanese / english / programming / …)
-    - `level` (N5, Beginner, Intermediate, …)
-    - `defaultLanguage`
+   - Ý nghĩa: 1 “khóa học” trừu tượng (VD: “JLPT N5”, “IELTS 6.5+”, “Web Backend”).  
+   - Field chính:
+     - `id`
+     - `code` (unique, ví dụ: `JP_N5`)
+     - `title`
+     - `level` (N5, Beginner, Intermediate, …)
+     - `description`
 
 - **`CourseEdition`** (version chương trình)  
   - Field:
@@ -25,6 +23,9 @@
   - Quan hệ:
     - 1 `CourseProfile` có nhiều `CourseEdition`.
     - Mọi **Class** (run) sẽ trỏ tới **1 `CourseEdition`**.
+  - Rule:
+    - Khi `status = PUBLISHED`, edition được coi là **immutable** cho phần syllabus (không sửa trực tiếp chapter/item/reference).
+    - Muốn đổi nội dung cho tương lai: **clone/tạo `CourseEdition` mới** từ bản đã publish, chỉnh trên bản mới rồi publish lại.
 
 - **`Chapter`** (thay cho module)  
   - Field:
@@ -114,6 +115,11 @@
     - `liveClassId` → `LiveClass`
     - `weekday`, `startTime`, `endTime`, `location`
     - `excludedDates` (jsonb, ngày nghỉ lễ), `note`
+  - Rule:
+    - Lịch tuần của LIVE class mặc định là **cố định xuyên suốt** trong khoảng `startDate -> endDate`.
+    - Mỗi lịch là một slot tuần lặp lại (ví dụ 3 buổi/tuần), giữ giờ cố định để learner theo dõi ổn định.
+    - Không cho tạo slot trùng thời gian trong cùng `liveClassId`.
+    - Khi gán `primaryTeacherId`, phải check conflict toàn hệ thống: không được trùng slot với lớp LIVE khác mà giảng viên đó đang dạy.
 
 - **`ClassAssessment`** (instance per class nếu cần override)  
   - Field:
@@ -172,6 +178,10 @@ Tách hẳn ra, không dính vào nội dung/delivery.
     - `status` (draft / pending_approval / published / hidden)
     - `salesStartAt`, `salesEndAt`
     - `metadata` (JSON: marketing tags, banner, …)
+  - Rule:
+    - Chỉ được publish/approve nếu có ít nhất 1 class hợp lệ để bán.
+    - Class hợp lệ để bán: `Class.status` phù hợp mở bán (thường `ENROLLING`/`IN_PROGRESS`) và `Class.courseEdition.status = PUBLISHED`.
+    - Không cho mutate trực tiếp class list khi offering đã `PUBLISHED` (hoặc bắt buộc đưa về flow re-approval tùy policy).
 
 - **`CourseOfferingClass`** (nhiều–nhiều giữa Offering và Class)  
   - Field:
@@ -187,6 +197,11 @@ Tách hẳn ra, không dính vào nội dung/delivery.
   - Khi học viên mua:
     - `OrderItem.offeringId`
     - Sau khi thanh toán ok → tạo `Enrollment` tương ứng cho **tất cả `Class` gắn với offering đó**.
+  - Rule:
+    - Fulfillment không được bypass rule enrollment; phải enforce cùng điều kiện như enroll thủ công:
+      - class mở enroll (`ENROLLING`/`IN_PROGRESS` theo policy),
+      - còn slot (`maxStudents`),
+      - trong cửa sổ `enrollmentOpenAt`/`enrollmentCloseAt` nếu có.
 
 > **Tóm tắt COMMERCE:**  
 > `CourseOffering` (gói bán) → nhiều `Class` qua `CourseOfferingClass`.  
@@ -261,11 +276,7 @@ Nếu bạn muốn bước tiếp theo, tôi có thể:
     - `id` (UUID, PK)
     - `code` (string, unique, index)
     - `title` (string)
-    - `shortTitle` (string, nullable)
     - `description` (text, nullable)
-    - `subject` (string, index) – ví dụ: `japanese`, `english`, `programming`
-    - `level` (string, nullable) – ví dụ: `N5`, `A2`, `Beginner`
-    - `defaultLanguage` (string, nullable)
     - `thumbnailUrl` (text, nullable)
     - `metadata` (jsonb, default `{}`)
     - `createdAt`, `updatedAt`
@@ -285,6 +296,9 @@ Nếu bạn muốn bước tiếp theo, tôi có thể:
   - Constraint:
     - Unique `(courseProfileId, editionTag)`
     - Chỉ 1 `isCurrent = true` trên mỗi `courseProfileId`.
+  - Rule:
+    - `PUBLISHED` là snapshot đã phát hành, chỉ cho phép cập nhật metadata nhẹ (nếu có policy), không sửa trực tiếp cấu trúc syllabus.
+    - Mọi thay đổi syllabus phải thực hiện bằng cách tạo edition mới (`DRAFT`) rồi publish.
 
 - **`Chapter`**
 
@@ -398,6 +412,12 @@ Nếu bạn muốn bước tiếp theo, tôi có thể:
     - `location` (string/text)
     - `excludedDates` (jsonb, nullable) – danh sách ngày nghỉ (Tết, lễ) không học
     - `note` (text, nullable)
+    - `isFixedWeekly` (bool, default true) – lớp LIVE thông thường giữ lịch cố định hàng tuần
+
+  - Rule:
+    - Unique logic theo business (service-level): `(liveClassId, weekday, startTime, endTime)` không trùng.
+    - Conflict giảng viên (service-level): `primaryTeacherId` không được có 2 slot đè nhau cùng weekday + time range trên các lớp chưa kết thúc.
+    - Nếu cần đổi lịch tạm thời hoặc xin nghỉ, không sửa trực tiếp template tuần; dùng flow request (mục 17.O).
 
 - **`ClassAssessment`**
 
@@ -566,6 +586,9 @@ Trung tâm có thể bật/tắt luồng approval. Mặc định: **có thể t�
 - Luồng có approval (approval ON):
   - `DRAFT` → `PENDING_APPROVAL` → `PUBLISHED` hoặc `DRAFT` (reject)
   - Chỉ `PUBLISHED` mới được chọn bởi `Class`.
+  - Khi đã `PUBLISHED`:
+    - Không cho sửa trực tiếp nội dung edition (chapter/chapter item/reference và các field syllabus chính).
+    - UI/backend phải chuyển sang chế độ read-only cho bản publish; muốn thay đổi phải dùng `clone edition` để tạo bản `DRAFT` mới.
   - Khi publish:
     - Set tất cả edition khác `isCurrent = false`.
     - Set edition này `isCurrent = true`, `publishedAt = now()`.
@@ -595,6 +618,11 @@ Trung tâm có thể bật/tắt luồng approval. Mặc định: **có thể t�
   - `DRAFT` → `PUBLISHED` / `HIDDEN`
 - Luồng có approval (approval ON):
   - `DRAFT` → `PENDING_APPROVAL` → `PUBLISHED` (approve) hoặc `DRAFT` (reject)
+- Rule publish/approve:
+  - Chỉ cho phép khi offering có ít nhất một class hợp lệ để bán.
+  - Không cho phép offering `PUBLISHED` chứa class có edition chưa publish.
+- Rule update sau publish:
+  - Nếu thay đổi class mapping/price/chính sách bán của offering đã `PUBLISHED`, nên đi qua re-approval hoặc clone offering version mới (tùy policy tổ chức).
 
 #### 9.4. Enrollment
 
@@ -606,6 +634,7 @@ Trung tâm có thể bật/tắt luồng approval. Mặc định: **có thể t�
     - `Class.status` ∈ {`ENROLLING`, `IN_PROGRESS`} (tùy policy).
     - `enrollmentOpenAt <= now <= enrollmentCloseAt` (nếu có).
     - `currentActiveEnrollments < maxStudents` (nếu có max).
+  - Enroll qua commerce (sau payment) phải dùng cùng bộ validation như enroll trực tiếp; không tạo record thẳng nếu chưa pass rule.
 
 ---
 
@@ -733,9 +762,10 @@ Trung tâm có thể bật/tắt luồng approval. Mặc định: **có thể t�
 ### 12. Checklist để review logic nghiệp vụ (tránh sai sót)
 
 - **Content:**
-  - [ ] Một `CourseProfile` có thể dùng cho nhiều subject/cấp độ? (yes – subject/level là field mềm).
+  - [ ] Một `CourseProfile` có dùng metadata mở rộng để phân nhóm nội dung khi cần? (yes).
   - [ ] Một `CourseEdition` chỉ dùng cho các `Class` được tạo sau khi publish? (nên enforce).
   - [ ] Thay đổi syllabus cho tương lai → tạo edition mới, không phá edition cũ? (yes).
+  - [ ] Edition đã `PUBLISHED` phải immutable ở mức syllabus (không edit trực tiếp, bắt buộc clone để thay đổi)?
 
 - **Delivery:**
   - [ ] `Class` có thể sử dụng chung `CourseEdition`? (yes – các đợt live & vod).
@@ -745,10 +775,12 @@ Trung tâm có thể bật/tắt luồng approval. Mặc định: **có thể t�
 - **Commerce:**
   - [ ] Một `CourseOffering` có thể chứa nhiều `Class`? (yes – bundle live + vod).
   - [ ] Hủy đơn hàng có rollback Enrollment? (phụ thuộc chính sách; cần rule riêng).
+  - [ ] Offering chỉ publish khi toàn bộ class liên kết hợp lệ để mở bán?
+  - [ ] Fulfillment sau thanh toán có enforce cùng rule enrollment như flow enroll thủ công?
 
 - **Mở rộng các mảng khác (English, Programming, …):**
-  - [ ] Có field nào hard-code tiếng Nhật? (không, chỉ có `subject`, `level` dạng text).
-  - [ ] Có logic nào dựa vào JLPT-level? (nên đưa vào `metadata` thay vì field cứng).
+  - [ ] Có field nào hard-code tiếng Nhật? (không).
+  - [ ] Có logic nào dựa vào JLPT-level? (nên đưa vào `metadata`).
 
 - **Approval:**
   - [ ] Có bật `requireApprovalForPublish`? Nếu có: Staff submit → Admin approve.
@@ -1159,6 +1191,37 @@ Các rule này nhằm tránh việc dùng `Class` sai cách, đặc biệt với
   - Option 2: Bảng `HolidayCalendar` (companyId, date, reason) – LiveSchedule skip các ngày trong calendar.
   - UI: Staff nhập danh sách ngày nghỉ khi tạo/sửa class.
 
+#### 17.N. Rule publish/fulfillment cho CourseOffering
+
+- Publish/Approve offering:
+  - Bắt buộc có ít nhất 1 class liên kết.
+  - Mọi class liên kết phải hợp lệ để mở bán (edition đã publish + class ở trạng thái cho phép enroll theo policy).
+- Offering đã `PUBLISHED`:
+  - Không chỉnh trực tiếp class mapping nếu policy immutable commerce bật.
+  - Nếu cần đổi mapping lớn, tạo offering version mới hoặc đưa về `PENDING_APPROVAL`.
+- Order fulfillment:
+  - Khi `Order` chuyển `PAID`, tạo enrollment theo từng class trong offering **nhưng phải re-check rule enrollment**.
+  - Nếu class không còn hợp lệ (đầy chỗ/hết hạn enroll/cancelled), phải fail mềm theo policy (reject line-item hoặc ghi nhận cần xử lý thủ công), không tạo enrollment sai trạng thái.
+
+#### 17.O. Rule vận hành lịch LIVE (fixed timetable + conflict + đổi lịch/nghỉ)
+
+- **Fixed timetable (mặc định):**
+  - Lớp LIVE vận hành theo lịch tuần cố định (`isFixedWeekly = true`) trong toàn bộ thời gian lớp.
+  - Ví dụ lớp có 3 slot/tuần thì 3 slot này lặp lại hằng tuần với giờ cố định.
+- **Teacher conflict check (bắt buộc):**
+  - Khi tạo/sửa `LiveSchedule` hoặc đổi `primaryTeacherId`, phải check trùng lịch theo `weekday + time range` của giảng viên trên các lớp LIVE khác.
+  - Nếu trùng thì reject với thông báo rõ lớp/slot đang conflict.
+- **Instructor schedule request (xin nghỉ / đổi lịch):**
+  - Không chỉnh trực tiếp template tuần nếu lý do là phát sinh tạm thời.
+  - Dùng request workflow:
+    - `LiveScheduleRequest` (`type`: `LEAVE` | `RESCHEDULE`, `status`: `PENDING` | `APPROVED` | `REJECTED` | `CANCELLED`)
+    - `LEAVE`: skip 1 buổi cụ thể (thêm vào `excludedDates` hoặc materialized session status `CANCELLED`)
+    - `RESCHEDULE`: đề xuất `newDate/newStart/newEnd/newTeacher?`; khi approve phải re-check conflict trước khi apply
+  - Quyền approve: Staff/Admin (không tự duyệt bởi lecturer).
+- **Learner-facing consistency:**
+  - Luôn ưu tiên hiển thị “lịch tuần chuẩn” + danh sách ngoại lệ đã duyệt (buổi nghỉ, buổi học bù/đổi).
+  - Mọi thay đổi đã duyệt phải có audit log và notification cho learners đã enroll.
+
 ---
 
 ### 18. Ghi chú frontend cho admin/staff – `academy` admin UI
@@ -1216,18 +1279,19 @@ UI cần đọc permission từ hệ thống role/permission hiện tại để:
 2. **Course Profiles**
    - Đường dẫn: `/academy/course-profiles`.
    - Chức năng:
-     - List tất cả `CourseProfile` (search, filter theo subject, level).
+     - List tất cả `CourseProfile` (search theo code/title).
      - CRUD (create/update/archive).
    - UI:
-     - List view dùng `Table` + `Input` + `Select`.
+     - List view dùng `Table` + `Input`.
      - Form dùng `Card` + `Field` components + `Tabs` (General / Metadata).
 
 3. **Course Edition & Syllabus Builder**
    - Đường dẫn: `/academy/course-profiles/:id/editions`.
-   - Chức năng:
+  - Chức năng:
      - Xem danh sách edition của một course profile.
      - Tạo draft edition mới từ current (hoặc clone từ edition khác).
-     - Submit for approval / Publish edition (set `isCurrent`). Khi status = PENDING_APPROVAL: Admin thấy nút Approve/Reject.
+    - Submit for approval / Publish edition (set `isCurrent`). Khi status = PENDING_APPROVAL: Admin thấy nút Approve/Reject.
+    - **Edition đã `PUBLISHED` hiển thị read-only** cho phần syllabus; thao tác chính là `Clone` để tạo bản `DRAFT` mới rồi chỉnh sửa.
      - Syllabus builder cho edition:
        - List `Chapter` (draggable order).
        - Bên trong chapter: list `ChapterItem` (lesson, quiz template, assignment template).
@@ -1242,7 +1306,7 @@ UI cần đọc permission từ hệ thống role/permission hiện tại để:
    - Chức năng:
      - Tìm kiếm và quản lý `Lesson` (video, markdown, external link).
    - UI:
-     - List view + filter theo subject/level.
+    - List view + filter theo nhu cầu nghiệp vụ hiện tại.
      - Form chi tiết lesson dùng `Card` + `Tabs` (Content / Attachments / Metadata).
 
 5. **Question Bank & Exams**
@@ -1265,7 +1329,7 @@ UI cần đọc permission từ hệ thống role/permission hiện tại để:
        - Với VOD: form VodClass (enrollmentOpenAt, enrollmentCloseAt, maxStudents, defaultExpiresMonths).
        - Với LIVE: form LiveClass (term, batch, startDate, endDate, minStudents, maxStudents, primaryTeacherId – 1 giảng viên dạy chính xuyên suốt) + thêm LiveSchedule.
      - Xem chi tiết class:
-       - Tab `Overview`: info cơ bản, subject, edition, stats.
+      - Tab `Overview`: info cơ bản, edition, stats.
        - Tab `Schedule`: danh sách LiveSchedule – chỉ hiển thị khi class mode = LIVE.
        - Tab `Attendance`: điểm danh theo LiveSchedule – **chỉ hiển thị khi class mode = LIVE** (VOD không có).
        - Tab `Assessment`: `ClassAssessment` (quiz/assignment instance).

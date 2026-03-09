@@ -24,6 +24,8 @@ interface QuestionPickerProps {
     placeholder?: string
     label?: string
     disabled?: boolean
+    questionTypeFilter?: string
+    allowClear?: boolean
 }
 
 export function QuestionPicker({
@@ -31,11 +33,16 @@ export function QuestionPicker({
     onSelect,
     placeholder = "Chọn câu hỏi...",
     disabled = false,
+    questionTypeFilter,
+    allowClear = true,
 }: QuestionPickerProps) {
     const [open, setOpen] = useState(false)
-    const { data: questions = [], isLoading } = useAcademyQuestions({})
+    const { data: questions = [], isLoading } = useAcademyQuestions({
+        questionType: questionTypeFilter || undefined,
+    })
 
     const selectedQuestion = questions.find((q) => q.id === value)
+    const stripHtml = (html: string) => html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -49,7 +56,7 @@ export function QuestionPicker({
                 >
                     {selectedQuestion ? (
                         <span className="truncate max-w-[300px]">
-                            {selectedQuestion.content.substring(0, 100)}...
+                            {stripHtml(selectedQuestion.content).substring(0, 100)}...
                         </span>
                     ) : (
                         <span className="text-muted-foreground">{placeholder}</span>
@@ -63,13 +70,25 @@ export function QuestionPicker({
                     <CommandList>
                         <CommandEmpty>Không tìm thấy câu hỏi nào.</CommandEmpty>
                         <CommandGroup>
+                            {allowClear && (
+                                <CommandItem
+                                    value="__none__"
+                                    onSelect={() => {
+                                        onSelect("")
+                                        setOpen(false)
+                                    }}
+                                >
+                                    <Check className={cn("mr-2 h-4 w-4", !value ? "opacity-100" : "opacity-0")} />
+                                    <span className="text-muted-foreground">Không chọn câu hỏi cha</span>
+                                </CommandItem>
+                            )}
                             {isLoading ? (
                                 <CommandItem disabled>Đang tải...</CommandItem>
                             ) : (
                                 questions.map((q) => (
                                     <CommandItem
                                         key={q.id}
-                                        value={q.content}
+                                        value={`${stripHtml(q.content)} ${q.id}`}
                                         onSelect={() => {
                                             onSelect(q.id)
                                             setOpen(false)
@@ -82,7 +101,7 @@ export function QuestionPicker({
                                             )}
                                         />
                                         <div className="flex flex-col gap-1 overflow-hidden">
-                                            <span className="truncate font-medium">{q.content}</span>
+                                            <span className="truncate font-medium">{stripHtml(q.content)}</span>
                                             <span className="text-xs text-muted-foreground">
                                                 ID: {q.id.substring(0, 8)} | Loai: {q.questionType} | Level: {q.level || "N/A"}
                                             </span>

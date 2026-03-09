@@ -26,6 +26,11 @@ export type AcademyClass = {
   submittedBy: string | null
   approvedAt: string | null
   approvedBy: string | null
+  courseEdition?: {
+    id: string
+    editionTag: string
+    status: string
+  } | null
 
   // TPT Relations
   vodClass?: {
@@ -121,6 +126,34 @@ export const academyClassesApi = {
     )
     return res.data.data!.item
   },
+  async publish(id: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyClass }>>(
+      `/api/academy/classes/${id}/publish`,
+      {},
+    )
+    return res.data.data!.item
+  },
+  async start(id: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyClass }>>(
+      `/api/academy/classes/${id}/start`,
+      {},
+    )
+    return res.data.data!.item
+  },
+  async complete(id: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyClass }>>(
+      `/api/academy/classes/${id}/complete`,
+      {},
+    )
+    return res.data.data!.item
+  },
+  async cancel(id: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyClass }>>(
+      `/api/academy/classes/${id}/cancel`,
+      {},
+    )
+    return res.data.data!.item
+  },
 }
 
 export function useAcademyClasses(params: AcademyClassQueryDTO) {
@@ -203,5 +236,42 @@ export function useDuplicateAcademyClass() {
     mutationFn: ({ id, input }: { id: string; input: AcademyClassDuplicateDTO }) =>
       academyClassesApi.duplicate(id, input),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-classes"] }),
+  })
+}
+
+function invalidateClassQueries(qc: ReturnType<typeof useQueryClient>, id: string) {
+  qc.invalidateQueries({ queryKey: ["academy-classes"] })
+  qc.invalidateQueries({ queryKey: ["academy-class", id] })
+}
+
+export function usePublishClass() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => academyClassesApi.publish(id),
+    onSuccess: (_, id) => invalidateClassQueries(qc, id),
+  })
+}
+
+export function useStartClass() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => academyClassesApi.start(id),
+    onSuccess: (_, id) => invalidateClassQueries(qc, id),
+  })
+}
+
+export function useCompleteClass() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => academyClassesApi.complete(id),
+    onSuccess: (_, id) => invalidateClassQueries(qc, id),
+  })
+}
+
+export function useCancelClass() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => academyClassesApi.cancel(id),
+    onSuccess: (_, id) => invalidateClassQueries(qc, id),
   })
 }

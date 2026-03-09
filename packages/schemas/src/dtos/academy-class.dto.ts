@@ -28,6 +28,25 @@ export const academyClassCreateDTOSchema = z.object({
 
   // VOD-only fields
   defaultExpiresMonths: z.number().int().min(0).optional(),
+}).superRefine((data, ctx) => {
+  if (data.mode === 'LIVE' && data.startDate && data.endDate) {
+    if (data.endDate < data.startDate) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'End date must be after or equal to start date',
+        path: ['endDate'],
+      });
+    }
+  }
+  if (data.enrollmentOpenAt && data.enrollmentCloseAt) {
+    if (data.enrollmentCloseAt < data.enrollmentOpenAt) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Enrollment close date must be after or equal to open date',
+        path: ['enrollmentCloseAt'],
+      });
+    }
+  }
 });
 export type AcademyClassCreateDTO = z.infer<typeof academyClassCreateDTOSchema>;
 
@@ -55,7 +74,28 @@ export const academyClassUpdateDTOSchema = z.object({
   status: z.string().max(20).optional(),
   companyId: z.string().uuid().optional(),
   settings: z.unknown().optional(),
+}).superRefine((data, ctx) => {
+  // Only validate if both present in update
+  if (data.startDate && data.endDate) {
+    if (data.endDate < data.startDate) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'End date must be after or equal to start date',
+        path: ['endDate'],
+      });
+    }
+  }
+  if (data.enrollmentOpenAt && data.enrollmentCloseAt) {
+    if (data.enrollmentCloseAt < data.enrollmentOpenAt) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Enrollment close date must be after or equal to open date',
+        path: ['enrollmentCloseAt'],
+      });
+    }
+  }
 });
+
 export type AcademyClassUpdateDTO = z.infer<typeof academyClassUpdateDTOSchema>;
 
 export const academyClassQueryDTOSchema = z.object({

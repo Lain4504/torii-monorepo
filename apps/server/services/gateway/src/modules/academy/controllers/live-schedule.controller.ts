@@ -25,11 +25,21 @@ import {
   successResponse,
 } from '@server/shared';
 import {
+  AcademyLiveScheduleConflictPreviewDTO,
   AcademyLiveScheduleCreateDTO,
   AcademyLiveScheduleQueryDTO,
+  AcademyLiveScheduleRequestApproveDTO,
+  AcademyLiveScheduleRequestCreateDTO,
+  AcademyLiveScheduleRequestQueryDTO,
+  AcademyLiveScheduleRequestRejectDTO,
   AcademyLiveScheduleUpdateDTO,
+  academyLiveScheduleConflictPreviewDTOSchema,
   academyLiveScheduleCreateDTOSchema,
   academyLiveScheduleQueryDTOSchema,
+  academyLiveScheduleRequestApproveDTOSchema,
+  academyLiveScheduleRequestCreateDTOSchema,
+  academyLiveScheduleRequestQueryDTOSchema,
+  academyLiveScheduleRequestRejectDTOSchema,
   academyLiveScheduleUpdateDTOSchema,
 } from '@workspace/schemas';
 
@@ -106,5 +116,97 @@ export class LiveScheduleController {
       }),
     );
     return successResponse(result);
+  }
+
+  @Post('preview-conflict')
+  @Permissions('academy.delivery.write')
+  async previewConflict(
+    @Body(new ZodValidationPipe(academyLiveScheduleConflictPreviewDTOSchema))
+    dto: AcademyLiveScheduleConflictPreviewDTO,
+  ) {
+    const result = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.liveSchedule.previewConflict' }, dto),
+    );
+    return successResponse(result);
+  }
+
+  @Get('/requests/list')
+  @Permissions('academy.delivery.read')
+  async findAllRequests(
+    @Query(new ZodValidationPipe(academyLiveScheduleRequestQueryDTOSchema))
+    query: AcademyLiveScheduleRequestQueryDTO,
+  ) {
+    const items = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.liveScheduleRequest.findAll' }, query),
+    );
+    return successResponse({ items });
+  }
+
+  @Post('/requests')
+  @Permissions('academy.delivery.write')
+  @HttpCode(HttpStatus.CREATED)
+  async createRequest(
+    @Req() req: ReqWithRequester,
+    @Body(new ZodValidationPipe(academyLiveScheduleRequestCreateDTOSchema))
+    dto: AcademyLiveScheduleRequestCreateDTO,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.liveScheduleRequest.create' }, {
+        ...dto,
+        requesterId: req.requester.sub,
+      }),
+    );
+    return successResponse({ item });
+  }
+
+  @Post('/requests/:id/cancel')
+  @Permissions('academy.delivery.write')
+  async cancelRequest(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.liveScheduleRequest.cancel' }, {
+        id,
+        requesterId: req.requester.sub,
+      }),
+    );
+    return successResponse({ item });
+  }
+
+  @Post('/requests/:id/approve')
+  @Permissions('academy.delivery.approve')
+  async approveRequest(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+    @Body(new ZodValidationPipe(academyLiveScheduleRequestApproveDTOSchema))
+    dto: AcademyLiveScheduleRequestApproveDTO,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.liveScheduleRequest.approve' }, {
+        id,
+        input: dto,
+        reviewerId: req.requester.sub,
+      }),
+    );
+    return successResponse({ item });
+  }
+
+  @Post('/requests/:id/reject')
+  @Permissions('academy.delivery.approve')
+  async rejectRequest(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+    @Body(new ZodValidationPipe(academyLiveScheduleRequestRejectDTOSchema))
+    dto: AcademyLiveScheduleRequestRejectDTO,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.liveScheduleRequest.reject' }, {
+        id,
+        input: dto,
+        reviewerId: req.requester.sub,
+      }),
+    );
+    return successResponse({ item });
   }
 }

@@ -18,7 +18,6 @@ export class CourseProfileService {
     const q = query.q?.trim();
     return this.prisma.courseProfile.findMany({
       where: {
-        subject: query.subject ?? undefined,
         level: query.level ?? undefined,
         ...(q
           ? {
@@ -49,11 +48,8 @@ export class CourseProfileService {
       data: {
         code: input.code,
         title: input.title,
-        shortTitle: input.shortTitle,
         description: input.description,
-        subject: input.subject,
         level: input.level,
-        defaultLanguage: input.defaultLanguage,
         thumbnailUrl: input.thumbnailUrl,
       },
     });
@@ -63,7 +59,7 @@ export class CourseProfileService {
       entity: 'CourseProfile',
       entityId: profile.id,
       description: `Created course profile: ${profile.title} (${profile.code})`,
-      newValues: { code: profile.code, title: profile.title, subject: profile.subject, level: profile.level },
+      newValues: { code: profile.code, title: profile.title, level: profile.level },
     });
     return profile;
   }
@@ -74,11 +70,8 @@ export class CourseProfileService {
       where: { id },
       data: {
         title: input.title,
-        shortTitle: input.shortTitle,
         description: input.description,
-        subject: input.subject,
         level: input.level,
-        defaultLanguage: input.defaultLanguage,
         thumbnailUrl: input.thumbnailUrl,
       },
     });
@@ -88,8 +81,8 @@ export class CourseProfileService {
       entity: 'CourseProfile',
       entityId: id,
       description: `Updated course profile: ${old.title} (${old.code})`,
-      oldValues: { title: old.title, subject: old.subject, level: old.level },
-      newValues: { title: updated.title, subject: updated.subject, level: updated.level },
+      oldValues: { title: old.title, level: old.level },
+      newValues: { title: updated.title, level: updated.level },
     });
     return updated;
   }

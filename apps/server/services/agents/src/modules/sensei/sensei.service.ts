@@ -325,7 +325,7 @@ export class SenseiService implements OnModuleInit {
             id: true,
             title: true,
             courseProfile: {
-              select: { id: true, title: true },
+              select: { id: true, title: true, level: true },
             },
           },
         });
@@ -341,7 +341,7 @@ export class SenseiService implements OnModuleInit {
           ...lessons.map((l) => ({
             title: l.title,
             type: 'Lesson',
-            level: level || 'N/A',
+            level: l.courseProfile?.level || 'N/A',
             url: `/learning/${l.courseProfile.id}/lesson/${l.id}`,
             description: `Lesson in course: ${l.courseProfile.title}`,
           })),

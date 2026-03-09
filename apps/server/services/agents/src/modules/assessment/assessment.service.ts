@@ -74,7 +74,7 @@ export class AssessmentService implements OnModuleInit {
             questions: dbQuestions.map((q) => ({
               id: q.id,
               type: q.questionType,
-              level: (q.metadata as any)?.jlptLevel || level,
+              level: (q.metadata as any)?.level || level,
               question: q.content,
               options: (() => {
                 const o = q.options;

@@ -25,7 +25,7 @@ export default function ExamReviewPage() {
             <div className="space-y-8 animate-in fade-in duration-700">
                 <div className="flex flex-col gap-6">
                     <div className="flex items-center gap-4">
-                        <Link href={`/dashboard/exams/${examId}`}>
+                        <Link href={`/dashboard/exams`}>
                             <Button variant="ghost" size="icon" className="rounded-xl size-10 bg-background/50 backdrop-blur-md border border-white/5 hover:bg-white/10 hover:text-primary transition-all">
                                 <ArrowLeft className="w-5 h-5" />
                             </Button>
@@ -53,7 +53,7 @@ export default function ExamReviewPage() {
             {/* Header */}
             <div className="flex flex-col gap-6">
                 <div className="flex items-center gap-4">
-                    <Link href={`/dashboard/exams/${examId}`}>
+                    <Link href={`/dashboard/exams`}>
                         <Button variant="ghost" size="icon" className="rounded-xl size-10 bg-background/50 backdrop-blur-md border border-white/5 hover:bg-white/10 hover:text-primary transition-all">
                             <ArrowLeft className="w-5 h-5" />
                         </Button>
@@ -227,14 +227,14 @@ export default function ExamReviewPage() {
             {/* Actions */}
             <div className="flex gap-4">
                 <Button
-                    onClick={() => router.push(`/dashboard/exams/${examId}`)}
+                    onClick={() => router.push(`/dashboard/exams`)}
                     className="rounded-xl px-8 uppercase font-black tracking-widest"
                 >
                     Quay lại trang bài thi
                 </Button>
                 <Button
                     variant="outline"
-                    onClick={() => router.push(`/dashboard/exams/${examId}/history`)}
+                    onClick={() => router.push(`/exams/${examId}/history`)}
                     className="rounded-xl px-8 uppercase font-black tracking-widest"
                 >
                     Xem tất cả lịch sử

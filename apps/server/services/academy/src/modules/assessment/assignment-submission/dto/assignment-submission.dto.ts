@@ -10,8 +10,9 @@ export class AssignmentSubmissionCreateDto {
   @IsUUID()
   assignmentTemplateId!: string;
 
+  @IsOptional()
   @IsUUID()
-  userId!: string;
+  userId?: string;
 
   @IsOptional()
   @IsString()

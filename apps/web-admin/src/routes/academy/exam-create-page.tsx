@@ -14,7 +14,7 @@ export default function AcademyExamCreatePage() {
     <div className="space-y-6">
       <PageHeader
         title="Tạo Exam"
-        subtitle="Tạo đề thi mới."
+        subtitle="Bước 1: Tạo khung đề. Bước 2: Thêm câu hỏi ở màn chi tiết đề thi."
       />
 
       <Card>
@@ -27,9 +27,9 @@ export default function AcademyExamCreatePage() {
             submitting={create.isPending}
             onCancel={() => nav("/academy/exams")}
             onSubmit={async (data) => {
-              await create.mutateAsync(data as AcademyExamCreateDTO)
+              const created = await create.mutateAsync(data as AcademyExamCreateDTO)
               toast.success("Đã tạo Exam")
-              nav("/academy/exams")
+              nav(`/academy/exams/${created.id}`)
             }}
           />
         </CardContent>

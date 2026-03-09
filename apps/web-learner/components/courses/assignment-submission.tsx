@@ -35,6 +35,8 @@ import { formatDate, formatDateTime } from '@/utils/format-utils';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useAppSelector } from '@/hooks/hooks';
+import { RootState } from '@/store/store';
 import { Input } from "@workspace/ui/components/input"
 import {
   Item,
@@ -57,6 +59,7 @@ interface AssignmentSubmissionProps {
 }
 
 export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps) {
+  const userId = useAppSelector((state: RootState) => state.auth.user?.id);
   const { data: assignment, isLoading: loadingAssignment } = useAssignment(assignmentId);
   const { data: submission, isLoading: loadingSubmission } = useMySubmission(assignmentId);
   const submitMutation = useSubmitAssignment();
@@ -144,9 +147,11 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
       } else {
         await submitMutation.mutateAsync({ 
           assignmentTemplateId: assignmentId, 
+          classId: (assignment as any)?.classId,
+          classAssessmentId: (assignment as any)?.classAssessmentId,
           content, 
           status: 'DRAFT',
-          userId: 'me' // Backend usually handles 'me' or gets from token
+          userId,
         });
       }
       toast.success('Đã lưu bản nháp');
@@ -167,9 +172,11 @@ export function AssignmentSubmission({ assignmentId }: AssignmentSubmissionProps
       } else {
         await submitMutation.mutateAsync({ 
           assignmentTemplateId: assignmentId, 
+          classId: (assignment as any)?.classId,
+          classAssessmentId: (assignment as any)?.classAssessmentId,
           content, 
           status: 'SUBMITTED',
-          userId: 'me'
+          userId,
         });
       }
       toast.success('Đã nộp bài thành công!');

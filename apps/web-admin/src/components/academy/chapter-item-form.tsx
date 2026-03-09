@@ -8,6 +8,8 @@ import {
   FieldLabel,
   FieldDescription,
   FieldGroup,
+  FieldSet,
+  FieldLegend,
 } from "@workspace/ui/components/field"
 import {
   Select,
@@ -16,13 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@workspace/ui/components/card"
+
 import { Spinner } from "@workspace/ui/components/spinner"
 import {
   academyChapterItemCreateDTOSchema,
@@ -88,18 +84,16 @@ export function ChapterItemForm({
       },
   })
 
-  const kind = watch("kind") as "LESSON" | "QUIZ" | "ASSIGNMENT" | "EXAM"
+  const kind = watch("kind") as "LESSON" | "QUIZ_TEMPLATE" | "ASSIGNMENT_TEMPLATE" | "EXAM"
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
-      <Card>
-        <CardHeader>
-          <CardTitle>Vị trí & Loại nội dung</CardTitle>
-          <CardDescription>
+      <FieldGroup>
+        <FieldSet>
+          <FieldLegend>Vị trí & Loại nội dung</FieldLegend>
+          <FieldDescription>
             Chọn chương học và loại bài học tương ứng.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </FieldDescription>
           <FieldGroup>
             {!isEdit && !chapterId && (
               <Controller
@@ -146,35 +140,33 @@ export function ChapterItemForm({
                   <Select
                     value={field.value}
                     onValueChange={field.onChange}
-                    disabled={isEdit} // Usually changing kind in edit is risky, but let's see if allowed. Assuming no for now or yes? The original code didn't disable it.
-                  // Wait, original code: {!isEdit && ( ... )} around kind select. So it was disabled/hidden in edit mode.
+                    disabled={isEdit}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Chọn loại..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="LESSON">Lesson</SelectItem>
-                      <SelectItem value="QUIZ">Quiz</SelectItem>
-                      <SelectItem value="ASSIGNMENT">Assignment</SelectItem>
-                      <SelectItem value="EXAM">Exam</SelectItem>
+                      <SelectItem value="LESSON">Bài học (Lesson)</SelectItem>
+                      <SelectItem value="QUIZ_TEMPLATE">Mẫu trắc nghiệm (Quiz Template)</SelectItem>
+                      <SelectItem value="ASSIGNMENT_TEMPLATE">Mẫu bài tập (Assignment Template)</SelectItem>
+                      <SelectItem value="EXAM">Kỳ thi (Exam)</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FieldDescription>
+                    {isEdit ? "Không thể thay đổi loại nội dung sau khi tạo." : "Chọn loại tài nguyên sẽ hiển thị cho học viên."}
+                  </FieldDescription>
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
             />
           </FieldGroup>
-        </CardContent>
-      </Card>
+        </FieldSet>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Chi tiết bài học</CardTitle>
-          <CardDescription>
+        <FieldSet>
+          <FieldLegend>Chi tiết bài học</FieldLegend>
+          <FieldDescription>
             Tiêu đề hiển thị và liên kết tới tài nguyên.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </FieldDescription>
           <FieldGroup>
             <Controller
               name={"title" as any}
@@ -194,25 +186,20 @@ export function ChapterItemForm({
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel>Tài nguyên gốc</FieldLabel>
-                  {/* Use ResourcePicker here */}
                   <ResourcePicker
                     kind={kind}
                     courseProfileId={courseProfileId}
                     value={field.value}
                     onChange={field.onChange}
-                    disabled={isEdit} // Should we allow changing reference in edit? Original code: {!isEdit && ( ... )} around referenceId.
-                  // If original code hid referenceId in edit, then we should probably respect that or check why.
-                  // The original code:
-                  // {!isEdit && ( ... referenceId input ... )}
-                  // So it was NOT editable in edit mode.
+                    disabled={isEdit}
                   />
                   {isEdit && (
-                    <div className="mt-2 text-sm text-muted-foreground">
-                      Reference ID: {field.value} (Không thể thay đổi)
+                    <div className="mt-2 text-xs text-muted-foreground italic">
+                      ID tài nguyên: {field.value} (Không thể thay đổi)
                     </div>
                   )}
                   <FieldDescription>
-                    Chọn tài nguyên từ thư viện nội dung.
+                    Liên kết với nội dung cụ thể từ thư viện.
                   </FieldDescription>
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
@@ -224,12 +211,13 @@ export function ChapterItemForm({
               control={control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel>Thứ tự</FieldLabel>
+                  <FieldLabel>Thứ tự hiển thị</FieldLabel>
                   <Input
                     type="number"
                     {...field}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   />
+                  <FieldDescription>Số càng nhỏ sẽ hiển thị lên trước.</FieldDescription>
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
@@ -245,33 +233,34 @@ export function ChapterItemForm({
                     value={field.value || {}}
                     onChange={field.onChange}
                     presets={[
-                      { key: "isOptional", label: "Tùy chọn (Optional)", defaultValue: "false" },
-                      { key: "previewable", label: "Cho phép xem trước", defaultValue: "false" },
-                      { key: "estimatedMinutes", label: "Số phút ước tính", defaultValue: "15" },
+                      { key: "estimated_duration", label: "Thời lượng ước tính (phút)", defaultValue: "15" },
+                      { key: "is_optional", label: "Bài học tùy chọn", defaultValue: "false" },
+                      { key: "is_preview", label: "Cho phép xem thử", defaultValue: "false" },
+                      { key: "points", label: "Điểm thưởng", defaultValue: "0" },
                     ]}
                   />
-                  <FieldDescription>Cấu hình bổ sung cho bài học (vd: cho phép xem trước, bài học tùy chọn).</FieldDescription>
+                  <FieldDescription>Các thông số bổ sung cho bài học/kỳ thi này.</FieldDescription>
                 </Field>
               )}
             />
           </FieldGroup>
-        </CardContent>
-      </Card>
+        </FieldSet>
 
-      <div className="flex justify-end gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-          disabled={submitting}
-        >
-          Hủy
-        </Button>
-        <Button type="submit" disabled={submitting}>
-          {submitting ? <Spinner className="mr-2" /> : null}
-          {isEdit ? "Lưu thay đổi" : "Tạo Chapter Item"}
-        </Button>
-      </div>
+        <Field orientation="horizontal" className="justify-end pt-6 border-t">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onCancel}
+            disabled={submitting}
+          >
+            Hủy bỏ
+          </Button>
+          <Button type="submit" disabled={submitting} className="min-w-[120px]">
+            {submitting ? <Spinner className="mr-2 h-4 w-4" /> : null}
+            {isEdit ? "Cập nhật" : "Tạo mới"}
+          </Button>
+        </Field>
+      </FieldGroup>
     </form>
   )
 }

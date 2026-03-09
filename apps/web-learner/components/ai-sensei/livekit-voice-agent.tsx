@@ -13,8 +13,6 @@ import {
 } from "@livekit/components-react"
 import { Track, ConnectionState as LiveKitConnectionState, RoomEvent } from "livekit-client"
 import { agentApi } from "@/lib/api/services/agent-api"
-import { useAppDispatch } from "@/hooks/hooks"
-import { fetchProfile } from "@/store/slices/authSlice"
 import { Button } from "@workspace/ui/components/button"
 import { cn } from "@workspace/ui/lib/utils"
 
@@ -31,7 +29,6 @@ interface LiveKitInfo {
 }
 
 export function LivekitVoiceAgent() {
-    const dispatch = useAppDispatch()
     const [connectionState, setConnectionState] = useState<LocalConnectionState>("idle")
     const [liveKitInfo, setLiveKitInfo] = useState<LiveKitInfo | null>(null)
     const [sessionTokens, setSessionTokens] = useState({ prompt: 0, completion: 0, total: 0 })
@@ -129,9 +126,7 @@ export function LivekitVoiceAgent() {
         setLiveKitInfo(null)
         liveKitInfoRef.current = null
         startTimeRef.current = null
-        // Refresh profile to update coins after session ends
-        setTimeout(() => dispatch(fetchProfile()), 1500)
-    }, [dispatch, liveKitInfo])
+    }, [liveKitInfo])
 
     // ─── Cleanup on Unmount & Page Navigation ────────────────────────────────────
     useEffect(() => {
@@ -189,9 +184,6 @@ export function LivekitVoiceAgent() {
                 }).catch(err => console.error("[VoiceAgent] Unmount cleanup failed to send stop signal:", err));
 
                 console.log("[VoiceAgent] Unmount cleanup: Signal sent for room", currentRoomId);
-
-                // Refresh profile to update coins on UI after unmounting navigation
-                setTimeout(() => dispatch(fetchProfile()), 1500);
             }
         };
     }, []);
@@ -228,9 +220,6 @@ export function LivekitVoiceAgent() {
                         <Mic className="mr-2 size-3.5" />
                         Bắt đầu bài học
                     </Button>
-                    <p className="text-[10px] text-muted-foreground italic text-center w-full">
-                        * Tính năng này tiêu tốn Coins/phiên hội thoại.
-                    </p>
                 </div>
             )}
 
@@ -261,8 +250,6 @@ export function LivekitVoiceAgent() {
                                 sessionTokensRef.current = newTokens;
                                 return newTokens;
                             })
-                            // Refresh profile balance when usage is recorded
-                            dispatch(fetchProfile())
                         }} />
 
                         <div className="w-full flex flex-col items-center gap-8">
@@ -275,10 +262,6 @@ export function LivekitVoiceAgent() {
                                         <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider">
                                             <Zap className="size-3 text-yellow-500 shrink-0" />
                                             <span className="text-muted-foreground">{sessionTokens.total.toLocaleString()} tokens</span>
-                                            <span className="text-muted-foreground/40">·</span>
-                                            <span className="text-blue-500">
-                                                ≈ {Math.ceil((sessionTokens.prompt * 0.075) + (sessionTokens.completion * 0.3)).toLocaleString()} Coins
-                                            </span>
                                         </div>
                                     </div>
                                 )}

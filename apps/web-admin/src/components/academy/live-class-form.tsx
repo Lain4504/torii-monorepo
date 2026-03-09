@@ -9,6 +9,8 @@ import {
     FieldLabel,
     FieldGroup,
     FieldDescription,
+    FieldSet,
+    FieldLegend,
 } from "@workspace/ui/components/field"
 import {
     Select,
@@ -20,9 +22,6 @@ import {
 import {
     Card,
     CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
 } from "@workspace/ui/components/card"
 import { Spinner } from "@workspace/ui/components/spinner"
 import {
@@ -30,6 +29,7 @@ import {
     academyClassUpdateDTOSchema,
     type AcademyClassCreateDTO,
     type AcademyClassUpdateDTO,
+    LIVE_CLASS_METADATA,
 } from "@workspace/schemas"
 import type { AcademyClass } from "@/lib/api/services/academy-classes"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
@@ -68,7 +68,7 @@ export function LiveClassForm({
     const { data: profilesData = [] } = useAcademyCourseProfiles(profilesParams)
     const profiles = Array.isArray(profilesData) ? profilesData : (profilesData as any)?.items || []
 
-    const editionsParams = useMemo(() => ({}), [])
+    const editionsParams = useMemo(() => ({ status: "PUBLISHED" }), [])
     const { data: editionsData = [] } = useAcademyCourseEditions(editionsParams)
     const editions = Array.isArray(editionsData) ? editionsData : (editionsData as any)?.items || []
 
@@ -130,356 +130,355 @@ export function LiveClassForm({
 
     return (
         <form
-            className="space-y-6"
+            className="space-y-8"
             onSubmit={handleSubmit(async (data) => onSubmit(data))}
             noValidate
         >
-            <Card>
-                <CardHeader>
-                    <CardTitle>Liên kết khóa học</CardTitle>
-                    <CardDescription>Xác định Course Profile và Edition cho lớp học LIVE.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <FieldGroup>
-                        {!isEdit && (
-                            <div className="grid gap-4 md:grid-cols-2">
-                                <Controller
-                                    name={"courseProfileId" as any}
-                                    control={control}
-                                    render={({ field, fieldState }) => (
+            <div className="space-y-6">
+                {/* 1. Liên kết khóa học */}
+                <Card>
+                    <CardContent className="p-6">
+                        <FieldSet>
+                            <FieldLegend>Liên kết khóa học</FieldLegend>
+                            <FieldDescription>Xác định Course Profile và Edition cho lớp học LIVE.</FieldDescription>
+                            <FieldGroup>
+                                {!isEdit ? (
+                                    <div className="grid gap-4 md:grid-cols-2">
+                                        <Controller
+                                            name={"courseProfileId" as any}
+                                            control={control}
+                                            render={({ field, fieldState }) => (
+                                                <Field>
+                                                    <FieldLabel>Course Profile</FieldLabel>
+                                                    <Select value={field.value} onValueChange={field.onChange}>
+                                                        <SelectTrigger className="h-10">
+                                                            <SelectValue placeholder="Chọn Profile..." />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {profiles.map((p: any) => (
+                                                                <SelectItem key={p.id} value={p.id}>
+                                                                    {p.code} - {p.title}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <FieldError>{fieldState.error?.message}</FieldError>
+                                                </Field>
+                                            )}
+                                        />
+                                        <Controller
+                                            name={"courseEditionId" as any}
+                                            control={control}
+                                            render={({ field, fieldState }) => (
+                                                <Field>
+                                                    <FieldLabel>Course Edition</FieldLabel>
+                                                    <Select value={field.value} onValueChange={field.onChange}>
+                                                        <SelectTrigger className="h-10">
+                                                            <SelectValue placeholder="Chọn Edition..." />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {filteredEditions.map((e: any) => (
+                                                                <SelectItem key={e.id} value={e.id}>
+                                                                    {e.editionTag} ({e.status})
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <FieldError>{fieldState.error?.message}</FieldError>
+                                                </Field>
+                                            )}
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="grid gap-4 md:grid-cols-2">
                                         <Field>
                                             <FieldLabel>Course Profile</FieldLabel>
-                                            <Select value={field.value} onValueChange={field.onChange}>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Chọn Profile..." />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {profiles.map((p: any) => (
-                                                        <SelectItem key={p.id} value={p.id}>
-                                                            {p.code} - {p.title}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            <FieldError>{fieldState.error?.message}</FieldError>
+                                            <Input disabled value={(initial as any)?.courseProfile?.title || "N/A"} className="h-10" />
+                                        </Field>
+                                        <Field>
+                                            <FieldLabel>Course Edition</FieldLabel>
+                                            <Input disabled value={(initial as any)?.courseEdition?.editionTag || "N/A"} className="h-10" />
+                                        </Field>
+                                    </div>
+                                )}
+                            </FieldGroup>
+                        </FieldSet>
+                    </CardContent>
+                </Card>
+
+                {/* 2. Thông tin lớp LIVE */}
+                <Card>
+                    <CardContent className="p-6">
+                        <FieldSet>
+                            <FieldLegend>Thông tin lớp LIVE</FieldLegend>
+                            <FieldDescription>Thiết lập định danh và tên hiển thị cho lớp học.</FieldDescription>
+                            <FieldGroup>
+                                <div className="grid gap-4 md:grid-cols-2">
+                                    {!isEdit && (
+                                        <Controller
+                                            name={"code" as any}
+                                            control={control}
+                                            render={({ field, fieldState }) => (
+                                                <Field>
+                                                    <FieldLabel>Mã lớp (code)</FieldLabel>
+                                                    <Input placeholder="JLPT_N5_2026_LIVE_K01" {...field} className="h-10 uppercase font-mono" />
+                                                    <FieldError>{fieldState.error?.message}</FieldError>
+                                                </Field>
+                                            )}
+                                        />
+                                    )}
+                                    <Controller
+                                        name={"name" as any}
+                                        control={control}
+                                        render={({ field, fieldState }) => (
+                                            <Field className={!isEdit ? "" : "col-span-2"}>
+                                                <FieldLabel>Tên lớp</FieldLabel>
+                                                <Input placeholder="JLPT N5 - LIVE - Khoá 01/2026" {...field} className="h-10" />
+                                                <FieldError>{fieldState.error?.message}</FieldError>
+                                            </Field>
+                                        )}
+                                    />
+                                </div>
+
+                                <Controller
+                                    name={"status" as any}
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Field>
+                                            <FieldLabel>Trạng thái vận hành</FieldLabel>
+                                            {isEdit ? (
+                                                <div className="flex flex-col gap-1">
+                                                    <span
+                                                        className={`inline-flex w-fit items-center rounded-md px-2 py-1 text-xs font-medium ${field.value === "ENROLLING" || field.value === "IN_PROGRESS"
+                                                            ? "bg-primary/10 text-primary"
+                                                            : field.value === "PENDING_APPROVAL"
+                                                                ? "bg-amber-500/10 text-amber-600"
+                                                                : "bg-muted text-muted-foreground"
+                                                            }`}
+                                                    >
+                                                        {field.value === "DRAFT" && "Bản nháp"}
+                                                        {field.value === "PENDING_APPROVAL" && "Chờ phê duyệt"}
+                                                        {field.value === "ENROLLING" && "Đang nhận học viên"}
+                                                        {field.value === "IN_PROGRESS" && "Đang học"}
+                                                        {field.value === "COMPLETED" && "Đã kết thúc"}
+                                                        {field.value === "CANCELLED" && "Đã hủy"}
+                                                    </span>
+                                                </div>
+                                            ) : (
+                                                <span className="text-sm text-muted-foreground italic">Bản nháp (DRAFT) — Sẽ được gửi phê duyệt sau khi tạo</span>
+                                            )}
                                         </Field>
                                     )}
                                 />
+                            </FieldGroup>
+                        </FieldSet>
+                    </CardContent>
+                </Card>
+
+                {/* 3. Thời gian & Tuyển sinh */}
+                <Card>
+                    <CardContent className="p-6">
+                        <FieldSet>
+                            <FieldLegend>Thời gian & Tuyển sinh</FieldLegend>
+                            <FieldDescription>Lịch trình khai giảng và giới hạn quy mô lớp học.</FieldDescription>
+                            <FieldGroup>
+                                <div className="grid gap-4 md:grid-cols-2">
+                                    <Controller
+                                        name={"term" as any}
+                                        control={control}
+                                        render={({ field, fieldState }) => (
+                                            <Field>
+                                                <FieldLabel>Kỳ học (Term)</FieldLabel>
+                                                <Input placeholder="2026-Q1" {...field} className="h-10" />
+                                                <FieldError>{fieldState.error?.message}</FieldError>
+                                            </Field>
+                                        )}
+                                    />
+                                    <Controller
+                                        name={"batch" as any}
+                                        control={control}
+                                        render={({ field, fieldState }) => (
+                                            <Field>
+                                                <FieldLabel>Đợt (Batch)</FieldLabel>
+                                                <Input placeholder="K01" {...field} className="h-10" />
+                                                <FieldError>{fieldState.error?.message}</FieldError>
+                                            </Field>
+                                        )}
+                                    />
+                                </div>
+                                <div className="grid gap-4 md:grid-cols-2">
+                                    <Controller
+                                        name={"startDate" as any}
+                                        control={control}
+                                        render={({ field, fieldState }) => (
+                                            <Field>
+                                                <FieldLabel>Ngày khai giảng (Dự kiến)</FieldLabel>
+                                                <Input
+                                                    type="date"
+                                                    className="h-10"
+                                                    value={field.value instanceof Date && !Number.isNaN(field.value.getTime()) ? field.value.toISOString().slice(0, 10) : ""}
+                                                    onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
+                                                />
+                                                <FieldError>{fieldState.error?.message}</FieldError>
+                                            </Field>
+                                        )}
+                                    />
+                                    <Controller
+                                        name={"endDate" as any}
+                                        control={control}
+                                        render={({ field, fieldState }) => (
+                                            <Field>
+                                                <FieldLabel>Ngày bế giảng (Dự kiến)</FieldLabel>
+                                                <Input
+                                                    type="date"
+                                                    className="h-10"
+                                                    value={field.value instanceof Date && !Number.isNaN(field.value.getTime()) ? field.value.toISOString().slice(0, 10) : ""}
+                                                    onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
+                                                />
+                                                <FieldError>{fieldState.error?.message}</FieldError>
+                                            </Field>
+                                        )}
+                                    />
+                                </div>
+                                <div className="grid gap-4 md:grid-cols-2">
+                                    <Controller
+                                        name={"enrollmentOpenAt" as any}
+                                        control={control}
+                                        render={({ field, fieldState }) => (
+                                            <Field>
+                                                <FieldLabel>Mở đăng ký</FieldLabel>
+                                                <Input
+                                                    type="datetime-local"
+                                                    className="h-10"
+                                                    value={field.value instanceof Date && !Number.isNaN(field.value.getTime()) ? new Date(field.value.getTime() - field.value.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ""}
+                                                    onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
+                                                />
+                                                <FieldError>{fieldState.error?.message}</FieldError>
+                                            </Field>
+                                        )}
+                                    />
+                                    <Controller
+                                        name={"enrollmentCloseAt" as any}
+                                        control={control}
+                                        render={({ field, fieldState }) => (
+                                            <Field>
+                                                <FieldLabel>Đóng đăng ký</FieldLabel>
+                                                <Input
+                                                    type="datetime-local"
+                                                    className="h-10"
+                                                    value={field.value instanceof Date && !Number.isNaN(field.value.getTime()) ? new Date(field.value.getTime() - field.value.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ""}
+                                                    onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
+                                                />
+                                                <FieldError>{fieldState.error?.message}</FieldError>
+                                            </Field>
+                                        )}
+                                    />
+                                </div>
+                                <div className="grid gap-4 md:grid-cols-3">
+                                    <Controller
+                                        name={"minStudents" as any}
+                                        control={control}
+                                        render={({ field, fieldState }) => (
+                                            <Field>
+                                                <FieldLabel>HV tối thiểu</FieldLabel>
+                                                <Input type="number" className="h-10" {...field} onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)} />
+                                                <FieldError>{fieldState.error?.message}</FieldError>
+                                            </Field>
+                                        )}
+                                    />
+                                    <Controller
+                                        name={"maxStudents" as any}
+                                        control={control}
+                                        render={({ field, fieldState }) => (
+                                            <Field>
+                                                <FieldLabel>HV tối đa</FieldLabel>
+                                                <Input type="number" className="h-10" {...field} onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)} />
+                                                <FieldError>{fieldState.error?.message}</FieldError>
+                                            </Field>
+                                        )}
+                                    />
+                                    <Controller
+                                        name={"minStudentsEnforcement" as any}
+                                        control={control}
+                                        render={({ field, fieldState }) => (
+                                            <Field>
+                                                <FieldLabel>Ràng buộc (Enforcement)</FieldLabel>
+                                                <Select value={field.value} onValueChange={field.onChange}>
+                                                    <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="DISABLED">Không áp dụng</SelectItem>
+                                                        <SelectItem value="NOTIFY">Cảnh báo</SelectItem>
+                                                        <SelectItem value="STRICT">Bắt buộc</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FieldError>{fieldState.error?.message}</FieldError>
+                                            </Field>
+                                        )}
+                                    />
+                                </div>
+                            </FieldGroup>
+                        </FieldSet>
+                    </CardContent>
+                </Card>
+
+                {/* 4. Giảng viên & Cấu hình */}
+                <Card>
+                    <CardContent className="p-6">
+                        <FieldSet>
+                            <FieldLegend>Giảng viên & Cấu hình</FieldLegend>
+                            <FieldDescription>Phụ trách học thuật và các thông tin bổ sung.</FieldDescription>
+                            <FieldGroup>
                                 <Controller
-                                    name={"courseEditionId" as any}
+                                    name={"primaryTeacherId" as any}
                                     control={control}
                                     render={({ field, fieldState }) => (
                                         <Field>
-                                            <FieldLabel>Course Edition</FieldLabel>
-                                            <Select value={field.value} onValueChange={field.onChange}>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Chọn Edition..." />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {filteredEditions.map((e: any) => (
-                                                        <SelectItem key={e.id} value={e.id}>
-                                                            {e.editionTag} ({e.status})
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
+                                            <FieldLabel>Giảng viên dạy chính</FieldLabel>
+                                            <Combobox value={field.value} onValueChange={field.onChange}>
+                                                <ComboboxInput placeholder="Tìm kiếm giảng viên..." showClear className="h-10" />
+                                                <ComboboxContent>
+                                                    <ComboboxList>
+                                                        {teachers.map((t: any) => (
+                                                            <ComboboxItem key={t.id} value={t.id}>
+                                                                {t.displayName || t.name} ({t.email})
+                                                            </ComboboxItem>
+                                                        ))}
+                                                        <ComboboxEmpty>Không thấy giảng viên.</ComboboxEmpty>
+                                                    </ComboboxList>
+                                                </ComboboxContent>
+                                            </Combobox>
                                             <FieldError>{fieldState.error?.message}</FieldError>
                                         </Field>
                                     )}
                                 />
-                            </div>
-                        )}
-                        {isEdit && (
-                            <div className="grid gap-4 md:grid-cols-2">
-                                <Field>
-                                    <FieldLabel>Course Profile</FieldLabel>
-                                    <Input disabled value={(initial as any)?.courseProfile?.title || "N/A"} />
-                                </Field>
-                                <Field>
-                                    <FieldLabel>Course Edition</FieldLabel>
-                                    <Input disabled value={(initial as any)?.courseEdition?.editionTag || "N/A"} />
-                                </Field>
-                            </div>
-                        )}
-                    </FieldGroup>
-                </CardContent>
-            </Card>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Thông tin lớp LIVE</CardTitle>
-                    <CardDescription>Thiết lập định danh, giảng viên và trạng thái.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <FieldGroup>
-                        {!isEdit && (
-                            <Controller
-                                name={"code" as any}
-                                control={control}
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>Mã lớp (code)</FieldLabel>
-                                        <Input placeholder="JLPT_N5_2026_LIVE_K01" {...field} />
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-                        )}
-                        <Controller
-                            name={"name" as any}
-                            control={control}
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel>Tên lớp</FieldLabel>
-                                    <Input placeholder="JLPT N5 - LIVE - Khoá 01/2026" {...field} />
-                                    <FieldError>{fieldState.error?.message}</FieldError>
-                                </Field>
-                            )}
-                        />
-                        <Controller
-                            name={"primaryTeacherId" as any}
-                            control={control}
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel>Giảng viên dạy chính xuyên suốt</FieldLabel>
-                                    <Combobox value={field.value} onValueChange={field.onChange}>
-                                        <ComboboxInput placeholder="Tìm kiếm giảng viên..." showClear />
-                                        <ComboboxContent>
-                                            <ComboboxList>
-                                                {teachers.map((t: any) => (
-                                                    <ComboboxItem key={t.id} value={t.id}>
-                                                        {t.displayName || t.name} ({t.email})
-                                                    </ComboboxItem>
-                                                ))}
-                                                <ComboboxEmpty>Không tìm thấy giảng viên.</ComboboxEmpty>
-                                            </ComboboxList>
-                                        </ComboboxContent>
-                                    </Combobox>
-                                    <FieldError>{fieldState.error?.message}</FieldError>
-                                </Field>
-                            )}
-                        />
-                        <Controller
-                            name={"status" as any}
-                            control={control}
-                            render={({ field }) => (
-                                <Field>
-                                    <FieldLabel>Trạng thái</FieldLabel>
-                                    {isEdit ? (
-                                        <div className="flex flex-col gap-1">
-                                            <span
-                                                className={`inline-flex w-fit items-center rounded-md px-2 py-1 text-xs font-medium ${field.value === "ENROLLING" || field.value === "IN_PROGRESS"
-                                                    ? "bg-primary/10 text-primary"
-                                                    : field.value === "PENDING_APPROVAL"
-                                                        ? "bg-amber-500/10 text-amber-600"
-                                                        : "bg-muted text-muted-foreground"
-                                                    }`}
-                                            >
-                                                {field.value === "DRAFT" && "Bản nháp"}
-                                                {field.value === "PENDING_APPROVAL" && "Chờ phê duyệt"}
-                                                {field.value === "ENROLLING" && "Đang nhận học viên"}
-                                                {field.value === "IN_PROGRESS" && "Đang học"}
-                                                {field.value === "COMPLETED" && "Đã kết thúc"}
-                                                {field.value === "CANCELLED" && "Đã hủy"}
-                                                {!["DRAFT", "PENDING_APPROVAL", "ENROLLING", "IN_PROGRESS", "COMPLETED", "CANCELLED"].includes(field.value || "") && field.value}
-                                            </span>
-                                            <span className="text-xs text-muted-foreground">
-                                                {field.value === "DRAFT" && "→ Vào trang chi tiết để Gửi phê duyệt"}
-                                                {field.value === "PENDING_APPROVAL" && "→ Admin phê duyệt hoặc từ chối"}
-                                                {field.value === "ENROLLING" && "→ Đã mở tuyển sinh"}
-                                            </span>
-                                        </div>
-                                    ) : (
-                                        <span className="text-sm text-muted-foreground">Draft — tạo xong vào trang chi tiết để Gửi phê duyệt</span>
+                                <Controller
+                                    name={"settings" as any}
+                                    control={control}
+                                    render={({ field, fieldState }) => (
+                                        <Field>
+                                            <FieldLabel>Settings & Metadata</FieldLabel>
+                                            <KeyValueEditor
+                                                value={field.value || {}}
+                                                onChange={field.onChange}
+                                                presets={LIVE_CLASS_METADATA}
+                                            />
+                                            <FieldError>{fieldState.error?.message}</FieldError>
+                                        </Field>
                                     )}
-                                    <FieldDescription>
-                                        Luồng: DRAFT → Gửi phê duyệt → PENDING_APPROVAL → Admin Approve → ENROLLING
-                                    </FieldDescription>
-                                </Field>
-                            )}
-                        />
-                    </FieldGroup>
-                </CardContent>
-            </Card>
+                                />
+                            </FieldGroup>
+                        </FieldSet>
+                    </CardContent>
+                </Card>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Thời gian & Quy mô</CardTitle>
-                    <CardDescription>Thiết lập kỳ học và thời gian dự kiến.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <FieldGroup>
-                        <div className="grid gap-4 md:grid-cols-2">
-                            <Controller
-                                name={"term" as any}
-                                control={control}
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>Kỳ học (Term)</FieldLabel>
-                                        <Input placeholder="2026-Q1" {...field} />
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-                            <Controller
-                                name={"batch" as any}
-                                control={control}
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>Đợt (Batch)</FieldLabel>
-                                        <Input placeholder="K01" {...field} />
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-                        </div>
-                        <div className="grid gap-4 md:grid-cols-2">
-                            <Controller
-                                name={"startDate" as any}
-                                control={control}
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>Ngày khai giảng (Dự kiến)</FieldLabel>
-                                        <Input
-                                            type="date"
-                                            value={field.value instanceof Date && !Number.isNaN(field.value.getTime()) ? field.value.toISOString().slice(0, 10) : ""}
-                                            onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
-                                        />
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-                            <Controller
-                                name={"endDate" as any}
-                                control={control}
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>Ngày bế giảng (Dự kiến)</FieldLabel>
-                                        <Input
-                                            type="date"
-                                            value={field.value instanceof Date && !Number.isNaN(field.value.getTime()) ? field.value.toISOString().slice(0, 10) : ""}
-                                            onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
-                                        />
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-                        </div>
-                        <div className="grid gap-4 md:grid-cols-3">
-                            <Controller
-                                name={"minStudents" as any}
-                                control={control}
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>HV tối thiểu</FieldLabel>
-                                        <Input type="number" {...field} onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)} />
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-                            <Controller
-                                name={"maxStudents" as any}
-                                control={control}
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>HV tối đa</FieldLabel>
-                                        <Input type="number" {...field} onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)} />
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-                            <Controller
-                                name={"minStudentsEnforcement" as any}
-                                control={control}
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>Enforcement</FieldLabel>
-                                        <Select value={field.value} onValueChange={field.onChange}>
-                                            <SelectTrigger><SelectValue /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="DISABLED">Không</SelectItem>
-                                                <SelectItem value="NOTIFY">Thông báo</SelectItem>
-                                                <SelectItem value="STRICT">Bắt buộc</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-                        </div>
-                    </FieldGroup>
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>Tuyển sinh & Cấu hình</CardTitle>
-                    <CardDescription>Thời gian đăng ký và settings.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <FieldGroup>
-                        <div className="grid gap-4 md:grid-cols-2">
-                            <Controller
-                                name={"enrollmentOpenAt" as any}
-                                control={control}
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>Mở đăng ký</FieldLabel>
-                                        <Input
-                                            type="datetime-local"
-                                            value={field.value instanceof Date && !Number.isNaN(field.value.getTime()) ? new Date(field.value.getTime() - field.value.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ""}
-                                            onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
-                                        />
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-                            <Controller
-                                name={"enrollmentCloseAt" as any}
-                                control={control}
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>Đóng đăng ký</FieldLabel>
-                                        <Input
-                                            type="datetime-local"
-                                            value={field.value instanceof Date && !Number.isNaN(field.value.getTime()) ? new Date(field.value.getTime() - field.value.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ""}
-                                            onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
-                                        />
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-                        </div>
-                        <Controller
-                            name={"settings" as any}
-                            control={control}
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel>Settings (Key-Value)</FieldLabel>
-                                    <KeyValueEditor
-                                        value={field.value || {}}
-                                        onChange={field.onChange}
-                                        presets={[
-                                            { key: "allowTrial", label: "Cho phép học thử", defaultValue: "false" },
-                                            { key: "trialSessionsCount", label: "Số buổi học thử", defaultValue: "2" },
-                                            { key: "autoApprove", label: "Tự động duyệt", defaultValue: "false" },
-                                            { key: "requirePhone", label: "Yêu cầu SĐT", defaultValue: "true" },
-                                        ]}
-                                    />
-                                    <FieldError>{fieldState.error?.message}</FieldError>
-                                </Field>
-                            )}
-                        />
-                    </FieldGroup>
-                </CardContent>
-            </Card>
-
-            <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={onCancel} disabled={submitting}>Hủy</Button>
-                <Button type="submit" disabled={submitting}>
-                    {submitting && <Spinner className="mr-2" />}
-                    {isEdit ? "Lưu thay đổi" : "Tạo Lớp LIVE"}
-                </Button>
+                <div className="flex justify-end gap-3 pt-4">
+                    <Button type="button" variant="ghost" onClick={onCancel} disabled={submitting}>Hủy</Button>
+                    <Button type="submit" size="lg" disabled={submitting} className="min-w-[150px] shadow-lg">
+                        {submitting && <Spinner className="mr-2" />}
+                        {isEdit ? "Cập nhật lớp LIVE" : "Tạo Lớp LIVE"}
+                    </Button>
+                </div>
             </div>
         </form>
     )

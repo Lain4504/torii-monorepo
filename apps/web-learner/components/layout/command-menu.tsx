@@ -141,10 +141,6 @@ export function CommandMenu() {
                             <User className="mr-2 h-4 w-4" />
                             <span>Hồ sơ cá nhân</span>
                         </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/wallet"))}>
-                            <Wallet className="mr-2 h-4 w-4" />
-                            <span>Ví & Điểm thưởng</span>
-                        </CommandItem>
                         <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/settings"))}>
                             <Settings className="mr-2 h-4 w-4" />
                             <span>Cài đặt</span>

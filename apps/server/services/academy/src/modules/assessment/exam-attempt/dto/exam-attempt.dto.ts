@@ -1,5 +1,12 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsOptional, IsString, IsUUID, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsOptional,
+  IsString,
+  IsUUID,
+  ValidateNested,
+} from 'class-validator';
 
 export class ExamAttemptStartDto {
   @IsUUID()
@@ -9,8 +16,9 @@ export class ExamAttemptStartDto {
   @IsUUID()
   classId?: string;
 
+  @IsOptional()
   @IsUUID()
-  userId!: string;
+  userId?: string;
 
   @IsOptional()
   @IsUUID()
@@ -53,5 +61,13 @@ export class ExamAttemptQueryDto {
   @IsOptional()
   @IsString()
   status?: string;
+
+  @IsOptional()
+  @IsUUID()
+  classAssessmentId?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  latestOnly?: boolean;
 }
 

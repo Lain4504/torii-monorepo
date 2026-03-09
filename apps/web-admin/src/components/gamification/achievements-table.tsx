@@ -51,7 +51,7 @@ export function AchievementsTable({ data, isLoading, onEdit, onDelete }: Achieve
     return (
         <div className="rounded-md border">
             <Table>
-                <TableHeader>
+                <TableHeader className="bg-muted/50">
                     <TableRow>
                         <TableHead className="w-[80px]">Icon</TableHead>
                         <TableHead>Tên & Code</TableHead>

@@ -1,6 +1,7 @@
 import {
   Controller,
   Inject,
+  UnauthorizedException,
   Param,
   ParseUUIDPipe,
   Post,
@@ -30,7 +31,7 @@ export class LiveSessionController {
   ) {
     const userId = req.requester?.sub;
     if (!userId) {
-      throw new Error('User ID not found in request');
+      throw new UnauthorizedException('User ID not found in request');
     }
     const result = await firstValueFrom(
       this.nats.send(
@@ -49,7 +50,7 @@ export class LiveSessionController {
   ) {
     const userId = req.requester?.sub;
     if (!userId) {
-      throw new Error('User ID not found in request');
+      throw new UnauthorizedException('User ID not found in request');
     }
     const result = await firstValueFrom(
       this.nats.send(

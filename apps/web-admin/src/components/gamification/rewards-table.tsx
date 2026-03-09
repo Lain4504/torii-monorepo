@@ -77,7 +77,7 @@ export function RewardsTable({ data, isLoading, onEdit, onDelete }: RewardsTable
 
     return (
         <Table>
-            <TableHeader>
+           <TableHeader className="bg-muted/50">
                 <TableRow>
                     <TableHead className="w-[80px]">STT</TableHead>
                     <TableHead>Tên phần thưởng</TableHead>

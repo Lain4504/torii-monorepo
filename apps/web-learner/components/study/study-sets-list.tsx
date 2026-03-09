@@ -23,7 +23,7 @@ export function StudySetsList() {
     const handleCreate = async () => {
         if (!title.trim()) return;
         try {
-            await createSet.mutateAsync({ title, description, tags: [] });
+            await createSet.mutateAsync({ title, description });
             toast.success('Đã tạo bộ thẻ thành công!');
             setOpenDialog(false);
             setTitle('');

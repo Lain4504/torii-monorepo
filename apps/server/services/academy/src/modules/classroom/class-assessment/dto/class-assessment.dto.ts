@@ -1,4 +1,12 @@
-import { IsOptional, IsString, IsUUID, MaxLength, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsDateString,
+  IsOptional,
+  IsString,
+  IsUUID,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 export class ClassAssessmentCreateDto {
   @IsUUID()
@@ -83,5 +91,28 @@ export class ClassAssessmentQueryDto {
   @IsOptional()
   @IsUUID()
   classId?: string;
+}
+
+export class ClassAssessmentAttemptQueryDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  status?: string;
+
+  @IsOptional()
+  @IsUUID()
+  userId?: string;
+
+  @IsOptional()
+  @IsDateString()
+  fromDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  toDate?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  latestOnly?: boolean;
 }
 

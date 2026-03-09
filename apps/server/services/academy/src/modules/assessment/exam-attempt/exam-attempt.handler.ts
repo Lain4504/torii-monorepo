@@ -18,23 +18,23 @@ export class ExamAttemptHandler {
   }
 
   @MessagePattern({ cmd: 'academy.examAttempt.findById' })
-  findById(@Payload() data: { id: string }) {
-    return this.attempts.findById(data.id);
+  findById(@Payload() data: { id: string; requesterId?: string; isExamManager?: boolean }) {
+    return this.attempts.findById(data.id, data.requesterId, data.isExamManager);
   }
 
   @MessagePattern({ cmd: 'academy.examAttempt.start' })
-  start(@Payload() input: ExamAttemptStartDto) {
-    return this.attempts.start(input);
+  start(@Payload() input: ExamAttemptStartDto & { requesterId?: string; isExamManager?: boolean }) {
+    return this.attempts.start(input, input.requesterId, input.isExamManager);
   }
 
   @MessagePattern({ cmd: 'academy.examAttempt.saveAnswers' })
-  saveAnswers(@Payload() input: ExamAttemptSaveAnswersDto) {
-    return this.attempts.saveAnswers(input);
+  saveAnswers(@Payload() input: ExamAttemptSaveAnswersDto & { requesterId?: string; isExamManager?: boolean }) {
+    return this.attempts.saveAnswers(input, input.requesterId, input.isExamManager);
   }
 
   @MessagePattern({ cmd: 'academy.examAttempt.submit' })
-  submit(@Payload() input: ExamAttemptSubmitDto) {
-    return this.attempts.submit(input);
+  submit(@Payload() input: ExamAttemptSubmitDto & { requesterId?: string; isExamManager?: boolean }) {
+    return this.attempts.submit(input, input.requesterId, input.isExamManager);
   }
 }
 

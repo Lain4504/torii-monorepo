@@ -33,6 +33,7 @@ export default function HistoryPage() {
         lessonTitle: item.lessonTitle || "Bài học",
         timestamp: format(new Date(item.timestamp || item.lastAccessedAt), "d MMM, yyyy HH:mm", { locale: vi }),
         duration: "Bản ghi học tập",
+        classId: item.classId,
         slug: item.slug,
         isExpired: false // History items don't expire directly
     })) || []
@@ -93,7 +94,11 @@ export default function HistoryPage() {
                         <ItemActions>
                             <Button asChild variant="ghost" size="icon" className="rounded-full">
                                 <Link
-                                    href={item.isExpired ? `/dashboard/available-courses/${item.slug}` : `/dashboard/courses/${item.slug}/learn`}
+                                    href={
+                                        item.isExpired
+                                            ? `/dashboard/available-courses/${item.slug}`
+                                            : `/courses/${item.classId || item.slug}/learn`
+                                    }
                                 >
                                     {item.isExpired ? <ArrowRight className="size-4" /> : <ChevronRight className="size-4" />}
                                 </Link>

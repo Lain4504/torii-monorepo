@@ -31,9 +31,13 @@ export class ChapterService {
   async create(input: ChapterCreateDto, requesterId = 'SYSTEM') {
     const edition = await this.prisma.courseEdition.findUnique({
       where: { id: input.courseEditionId },
-      select: { id: true },
+      select: { id: true, status: true },
     });
     if (!edition) throw new BadRequestException('Invalid courseEditionId');
+
+    if (edition.status === 'PUBLISHED') {
+      throw new BadRequestException('Cannot modify syllabus of a PUBLISHED edition. Clone edition to make changes.');
+    }
 
     const result = await this.prisma.chapter.create({
       data: {
@@ -59,7 +63,15 @@ export class ChapterService {
   }
 
   async update(id: string, input: ChapterUpdateDto, requesterId = 'SYSTEM') {
-    const oldChapter = await this.findById(id);
+    const oldChapter = await this.prisma.chapter.findUnique({
+      where: { id },
+      include: { courseEdition: { select: { status: true } } },
+    });
+    if (!oldChapter) throw new NotFoundException('Chapter not found');
+
+    if (oldChapter.courseEdition.status === 'PUBLISHED') {
+      throw new BadRequestException('Cannot modify syllabus of a PUBLISHED edition. Clone edition to make changes.');
+    }
     const updated = await this.prisma.chapter.update({
       where: { id },
       data: {
@@ -85,6 +97,14 @@ export class ChapterService {
   }
 
   async reorderChapters(input: ChapterReorderDto, requesterId = 'SYSTEM') {
+    const edition = await this.prisma.courseEdition.findUnique({
+      where: { id: input.courseEditionId },
+      select: { status: true },
+    });
+    if (edition?.status === 'PUBLISHED') {
+      throw new BadRequestException('Cannot modify syllabus of a PUBLISHED edition. Clone edition to make changes.');
+    }
+
     // Transactional update of orderIndex
     await this.prisma.$transaction(
       input.orderedIds.map((id, index) =>
@@ -120,13 +140,8 @@ export class ChapterService {
     });
     if (!chapter) throw new NotFoundException('Chapter not found');
 
-    if (
-      chapter.courseEdition.status === 'PUBLISHED' &&
-      chapter.courseEdition.classes.length > 0
-    ) {
-      throw new BadRequestException(
-        'Cannot delete chapter from a PUBLISHED edition with active classes',
-      );
+    if (chapter.courseEdition.status === 'PUBLISHED') {
+      throw new BadRequestException('Cannot modify syllabus of a PUBLISHED edition. Clone edition to make changes.');
     }
 
     await this.prisma.chapter.delete({ where: { id } });

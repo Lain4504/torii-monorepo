@@ -6,7 +6,6 @@ import { type AuditLog, useAuditLogs } from "@/lib/api/services/audit-logs.ts";
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { SmartPagination } from '@/components/common/smart-pagination';
 import { PageHeader } from '@/components/common/page-header';
-import { Card } from "@workspace/ui/components/card";
 import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from "@workspace/ui/components/empty";
 import { AuditLogDetailsSheet } from '@/components/audit/audit-log-details-sheet';
 import { AuditLogsToolbar } from '@/components/audit/audit-logs-toolbar';
@@ -90,7 +89,7 @@ export function AuditLogsPage() {
                 />
 
                 {/* Table container */}
-                <Card>
+                <div className="rounded-md bg-background border overflow-hidden">
                     <AuditLogsTable
                         data={data?.data || []}
                         onViewDetails={handleViewDetails}
@@ -98,7 +97,7 @@ export function AuditLogsPage() {
                         limit={10}
                         isLoading={isLoading}
                     />
-                </Card>
+                </div>
 
                 <SmartPagination
                     page={page}

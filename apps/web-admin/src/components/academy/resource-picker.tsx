@@ -12,7 +12,7 @@ import { useAcademyAssignmentTemplates } from "@/lib/api/services/academy-assign
 import { useAcademyExams } from "@/lib/api/services/academy-exams"
 
 interface ResourcePickerProps {
-  kind: "LESSON" | "QUIZ" | "ASSIGNMENT" | "EXAM"
+  kind: "LESSON" | "QUIZ_TEMPLATE" | "ASSIGNMENT_TEMPLATE" | "EXAM"
   courseProfileId?: string
   value?: string
   onChange: (value: string) => void
@@ -47,12 +47,14 @@ export function ResourcePicker({
           data: lessonsQuery.data?.map((l) => ({ id: l.id, title: l.title })),
           isLoading: lessonsQuery.isLoading,
         }
-      case "QUIZ":
+      case "QUIZ_TEMPLATE" as any:
+      case "QUIZ" as any:
         return {
           data: quizzesQuery.data?.map((q) => ({ id: q.id, title: q.title })),
           isLoading: quizzesQuery.isLoading,
         }
-      case "ASSIGNMENT":
+      case "ASSIGNMENT_TEMPLATE" as any:
+      case "ASSIGNMENT" as any:
         return {
           data: assignmentsQuery.data?.map((a) => ({ id: a.id, title: a.title })),
           isLoading: assignmentsQuery.isLoading,

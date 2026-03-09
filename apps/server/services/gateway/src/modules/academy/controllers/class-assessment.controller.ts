@@ -23,9 +23,11 @@ import {
   successResponse,
 } from '@server/shared';
 import {
+  AcademyClassAssessmentAttemptQueryDTO,
   AcademyClassAssessmentCreateDTO,
   AcademyClassAssessmentQueryDTO,
   AcademyClassAssessmentUpdateDTO,
+  academyClassAssessmentAttemptQueryDTOSchema,
   academyClassAssessmentCreateDTOSchema,
   academyClassAssessmentQueryDTOSchema,
   academyClassAssessmentUpdateDTOSchema,
@@ -93,6 +95,50 @@ export class ClassAssessmentController {
       this.nats.send({ cmd: 'academy.classAssessment.delete' }, { id }),
     );
     return successResponse(result);
+  }
+
+  @Get(':id/attempts')
+  @Permissions('academy.delivery.read')
+  async findAttempts(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Query(new ZodValidationPipe(academyClassAssessmentAttemptQueryDTOSchema))
+    query: AcademyClassAssessmentAttemptQueryDTO,
+  ) {
+    const items = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.classAssessment.findAttempts' }, { id, query }),
+    );
+    return successResponse({ items });
+  }
+
+  @Get(':id/attempts/:attemptId/detail')
+  @Permissions('academy.delivery.read')
+  async findAttemptQuestionDetail(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Param('attemptId', new ParseUUIDPipe()) attemptId: string,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.classAssessment.findAttemptQuestionDetail' },
+        { id, attemptId },
+      ),
+    );
+    return successResponse({ item });
+  }
+
+  @Get(':id/wrong-question-analytics')
+  @Permissions('academy.delivery.read')
+  async findWrongQuestionAnalytics(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Query(new ZodValidationPipe(academyClassAssessmentAttemptQueryDTOSchema))
+    query: AcademyClassAssessmentAttemptQueryDTO,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.classAssessment.findWrongQuestionAnalytics' },
+        { id, query },
+      ),
+    );
+    return successResponse({ item });
   }
 }
 

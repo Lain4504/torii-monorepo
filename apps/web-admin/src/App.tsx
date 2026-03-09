@@ -87,6 +87,9 @@ import AcademyCourseProfileDetailPage from '@/routes/academy/course-profile-deta
 import AcademyCourseEditionDetailPage from '@/routes/academy/course-edition-detail-page.tsx'
 import AcademyLessonCreatePage from '@/routes/academy/lesson-create-page.tsx'
 import AcademyLessonEditPage from '@/routes/academy/lesson-edit-page.tsx'
+import AcademyDashboardPage from '@/routes/academy/academy-dashboard-page.tsx'
+import AcademyApprovalsPage from '@/routes/academy/approvals-page.tsx'
+import AcademyCourseEditionsPage from '@/routes/academy/course-editions-page.tsx'
 
 
 import RewardsPage from '@/routes/gamification/rewards-page.tsx'
@@ -141,11 +144,10 @@ function App() {
                   </Route>
 
                   {/* Academy - Core Grouping */}
-                  <Route element={<RoutePermissionGuard anyPermission={["academy.content.read", "academy.content.write", "academy.commerce.read", "academy.commerce.write", "academy.delivery.read", "academy.delivery.write", "exam.manage"]} />}>
-                    {/* <Route path="academy" element={<AcademyDashboardPage />} /> */}
+                  <Route element={<RoutePermissionGuard anyPermission={["academy.content.read", "academy.content.write", "academy.content.approve", "academy.commerce.read", "academy.commerce.write", "academy.commerce.approve", "academy.delivery.read", "academy.delivery.write", "academy.delivery.approve", "exam.manage"]} />}>
+                    <Route path="academy" element={<AcademyDashboardPage />} />
+                    <Route path="academy/approvals" element={<AcademyApprovalsPage />} />
 
-
-                    {/* 1. CONTENT LAYER: Profiles, Lessons, Quizzes, Assignments, Question Bank */}
                     <Route path="academy/course-profiles" element={<AcademyCourseProfilesPage />} />
                     <Route path="academy/course-profiles/new" element={<AcademyCourseProfileCreatePage />} />
                     <Route path="academy/course-profiles/:id" element={<AcademyCourseProfileDetailPage />} />
@@ -174,6 +176,7 @@ function App() {
                     <Route path="academy/exams/:id/edit" element={<AcademyExamEditPage />} />
 
                     {/* 2. DELIVERY LAYER: Editions & Syllabus */}
+                    <Route path="academy/course-editions" element={<AcademyCourseEditionsPage />} />
                     <Route path="academy/course-editions/new" element={<AcademyCourseEditionCreatePage />} />
                     <Route path="academy/course-editions/:id" element={<AcademyCourseEditionDetailPage />} />
                     <Route path="academy/course-editions/:id/edit" element={<AcademyCourseEditionEditPage />} />

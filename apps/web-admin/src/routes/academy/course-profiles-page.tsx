@@ -12,13 +12,6 @@ import {
 import { Input } from "@workspace/ui/components/input"
 import { PageHeader } from "@/components/common/page-header"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@workspace/ui/components/select"
-import {
   Empty,
   EmptyContent,
   EmptyMedia,
@@ -52,7 +45,6 @@ import {
   FolderKey,
   Flag,
   BookOpen,
-  Layers,
   Eye,
   SlidersHorizontal,
   Sparkles,
@@ -80,12 +72,12 @@ export default function AcademyCourseProfilesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Academy · Course Profiles"
-        subtitle="Định nghĩa các khung khóa học tổng quát (ví dụ: Tiếng Nhật N5, Luyện thi SAT)."
+        title="Course Profiles"
+        subtitle="Quản lý các khung chương trình đào tạo tổng quát và tài nguyên gốc."
         actions={
-          <Button asChild className="gap-2">
+          <Button asChild className="gap-2 shadow-sm">
             <Link to="/academy/course-profiles/new">
-              <Plus className="h-4 w-4" /> Tạo mới Profile
+              <Plus className="h-4 w-4" /> Tạo Profile mới
             </Link>
           </Button>
         }
@@ -103,18 +95,6 @@ export default function AcademyCourseProfilesPage() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <Select defaultValue="all">
-            <SelectTrigger className="w-full sm:w-[160px]">
-              <div className="flex items-center gap-2">
-                <Layers className="size-3.5 text-muted-foreground" />
-                <SelectValue placeholder="Chủ đề" />
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tất cả chủ đề</SelectItem>
-            </SelectContent>
-          </Select>
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="gap-2">
@@ -152,11 +132,6 @@ export default function AcademyCourseProfilesPage() {
               </TableHead>
               <TableHead>
                 <div className="flex items-center gap-2 font-semibold">
-                  <Layers className="h-4 w-4" /> Chủ đề
-                </div>
-              </TableHead>
-              <TableHead>
-                <div className="flex items-center gap-2 font-semibold">
                   <Flag className="h-4 w-4" /> Cấp độ
                 </div>
               </TableHead>
@@ -170,7 +145,6 @@ export default function AcademyCourseProfilesPage() {
                   <TableCell><Skeleton className="h-5 w-8" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-48" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-20" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                   <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto rounded-full" /></TableCell>
                 </TableRow>
@@ -184,18 +158,19 @@ export default function AcademyCourseProfilesPage() {
                       {it.code}
                     </code>
                   </TableCell>
-                  <TableCell className="font-semibold">
-                    <Link to={`/academy/course-profiles/${it.id}`} className="hover:text-primary transition-colors">
-                      {it.title}
-                    </Link>
-                  </TableCell>
                   <TableCell>
-                    <span className="text-sm text-muted-foreground">{it.subject || "N/A"}</span>
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                        <Link to={`/academy/course-profiles/${it.id}`}>
+                          {it.title}
+                        </Link>
+                      </span>
+                    </div>
                   </TableCell>
                   <TableCell>
                     {it.level ? (
-                      <Badge variant="secondary" className="font-medium bg-primary/5 text-primary border-primary/10">
-                        Level: {it.level}
+                      <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 shadow-none font-bold">
+                        {it.level}
                       </Badge>
                     ) : (
                       <span className="text-muted-foreground text-xs">—</span>
@@ -249,7 +224,7 @@ export default function AcademyCourseProfilesPage() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="h-[300px] text-center">
+                <TableCell colSpan={5} className="h-[300px] text-center">
                   <Empty>
                     <EmptyMedia>
                       <BookMarked className="size-10 text-muted-foreground/50" />

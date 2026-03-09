@@ -38,7 +38,7 @@ export default function AcademyExamEditPage() {
                   input: data as AcademyExamUpdateDTO,
                 })
                 toast.success("Đã cập nhật")
-                nav("/academy/exams")
+                nav(`/academy/exams/${item.id}`)
               }}
             />
           )}

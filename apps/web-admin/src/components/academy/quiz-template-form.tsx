@@ -33,14 +33,17 @@ import {
 import type { AcademyQuizTemplate } from "@/lib/api/services/academy-quiz-templates"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
 import { useAcademyQuestionPools } from "@/lib/api/services/academy-question-pools"
+import { useAcademyExams } from "@/lib/api/services/academy-exams"
 import { RichTextEditor } from "@/components/editor/rich-text-editor"
 import { Info, Settings2 } from "lucide-react"
 import { useState } from "react"
+import { Link } from "react-router-dom"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@workspace/ui/components/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@workspace/ui/components/popover"
 import { cn } from "@workspace/ui/lib/utils"
 import { Check, ChevronsUpDown } from "lucide-react"
 import { KeyValueEditor } from "@/components/academy/key-value-editor"
+import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert"
 
 export function QuizTemplateForm({
     mode,
@@ -88,12 +91,26 @@ export function QuizTemplateForm({
             },
     })
 
+    const selectedCourseProfileId = watch("courseProfileId" as any) || initial?.courseProfileId
     const selectedPoolId = watch("questionPoolId" as any)
     const selectedPool = pools.find(p => p.id === selectedPoolId)
+    const selectedDefaultExamId = watch("settings.defaultExamId" as any)
+    const { data: exams = [] } = useAcademyExams(
+        selectedCourseProfileId
+            ? { courseProfileId: selectedCourseProfileId, status: "PUBLISHED" }
+            : {}
+    )
     const [poolOpen, setPoolOpen] = useState(false)
 
     return (
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
+            <Alert>
+                <AlertTitle>Flow thao tác gợi ý</AlertTitle>
+                <AlertDescription>
+                    Tạo Quiz Template trước. Sau đó có thể gắn đề mặc định ngay hoặc để sau. Khi tạo Class Quiz:
+                    VOD dùng đề mặc định này, LIVE có thể override theo lớp.
+                </AlertDescription>
+            </Alert>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-6">
                     <Card>
@@ -152,7 +169,7 @@ export function QuizTemplateForm({
                                             value={field.value || {}}
                                             onChange={field.onChange}
                                             presets={[
-                                                { key: "maxAttemptsPerUser", label: "Số lần làm tối đa", defaultValue: "1" },
+                                                { key: "summary", label: "Tóm tắt bài tập (Summary)", defaultValue: "Mô tả ngắn..." },
                                                 { key: "shuffleQuestions", label: "Trộn câu hỏi", defaultValue: "true" },
                                                 { key: "showResultType", label: "Hiển thị kết quả", defaultValue: "DETAILED" },
                                                 { key: "passingScore", label: "Điểm đạt", defaultValue: "50" },
@@ -269,6 +286,57 @@ export function QuizTemplateForm({
                                     </Field>
                                 )}
                             />
+                            <Controller
+                                name={"settings.defaultExamId" as any}
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <Field>
+                                        <FieldLabel>Đề mặc định cho Quiz Template (khuyên dùng cho VOD)</FieldLabel>
+                                        <Select
+                                            value={field.value ?? "NONE"}
+                                            onValueChange={(value) =>
+                                                field.onChange(value === "NONE" ? undefined : value)
+                                            }
+                                        >
+                                            <SelectTrigger className="bg-background">
+                                                <SelectValue placeholder="Chưa chọn đề mặc định" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="NONE">Chưa gắn đề (chọn sau)</SelectItem>
+                                                {exams.map((exam) => (
+                                                    <SelectItem key={exam.id} value={exam.id}>
+                                                        {exam.title}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FieldDescription>
+                                            Không bắt buộc ở bước tạo template. Bạn có thể tạo template trước, rồi gắn đề sau.
+                                        </FieldDescription>
+                                        <FieldDescription>
+                                            Nếu cần tạo đề mới, vào{" "}
+                                            <Link to="/academy/exams/new" className="text-primary hover:underline">
+                                                Academy Exams
+                                            </Link>
+                                            .
+                                        </FieldDescription>
+                                        <div className="flex items-center gap-2">
+                                            <Button variant="outline" size="sm" asChild>
+                                                <Link to="/academy/exams/new">Tạo đề mới</Link>
+                                            </Button>
+                                            <Button variant="outline" size="sm" asChild>
+                                                <Link to="/academy/exams">Mở danh sách đề</Link>
+                                            </Button>
+                                        </div>
+                                        <FieldError>{fieldState.error?.message}</FieldError>
+                                    </Field>
+                                )}
+                            />
+                            {selectedDefaultExamId ? (
+                                <FieldDescription>
+                                    Đề mặc định đã chọn: <span className="font-medium">{selectedDefaultExamId}</span>
+                                </FieldDescription>
+                            ) : null}
                         </CardContent>
                     </Card>
 

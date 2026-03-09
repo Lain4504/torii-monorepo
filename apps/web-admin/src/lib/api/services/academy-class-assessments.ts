@@ -19,9 +19,48 @@ export type AcademyClassAssessment = {
   maxAttemptsOverride?: number | null
   timeLimitOverrideMinutes?: number | null
   maxScoreOverride?: number | null
+  settings?: unknown
   status?: string | null
   createdAt: string
   updatedAt: string
+}
+
+export type AcademyClassAssessmentAttempt = {
+  id: string
+  examId: string
+  classId?: string | null
+  userId: string
+  classAssessmentId?: string | null
+  status: string
+  rawScore?: number | null
+  maxScore?: number | null
+  percentage?: number | null
+  isPassed?: boolean | null
+  submittedAt?: string | null
+  createdAt: string
+  updatedAt: string
+  user?: { id: string; displayName?: string | null; email?: string | null } | null
+}
+
+export type AcademyWrongQuestionAnalytics = {
+  totalAttempts: number
+  totalWrongAnswers: number
+  questions: Array<{
+    questionId: string
+    questionContent: string
+    questionType: string
+    attempts: number
+    wrongCount: number
+    wrongRatePercent: number
+  }>
+}
+
+export type AcademyClassAssessmentAttemptQueryDTO = {
+  status?: string
+  userId?: string
+  fromDate?: Date
+  toDate?: Date
+  latestOnly?: boolean
 }
 
 export const academyClassAssessmentsApi = {
@@ -60,6 +99,27 @@ export const academyClassAssessmentsApi = {
       `/api/academy/class-assessments/${id}`,
     )
     return res.data
+  },
+
+  async findAttemptsByAssessment(id: string, params: AcademyClassAssessmentAttemptQueryDTO) {
+    const res = await apiClient.get<
+      StandardApiResponse<{ items: AcademyClassAssessmentAttempt[] }>
+    >(`/api/academy/class-assessments/${id}/attempts`, { params })
+    return res.data.data!.items
+  },
+
+  async findAttemptQuestionDetail(id: string, attemptId: string) {
+    const res = await apiClient.get<StandardApiResponse<{ item: any }>>(
+      `/api/academy/class-assessments/${id}/attempts/${attemptId}/detail`,
+    )
+    return res.data.data!.item
+  },
+
+  async findWrongQuestionAnalytics(id: string, params: AcademyClassAssessmentAttemptQueryDTO) {
+    const res = await apiClient.get<
+      StandardApiResponse<{ item: AcademyWrongQuestionAnalytics }>
+    >(`/api/academy/class-assessments/${id}/wrong-question-analytics`, { params })
+    return res.data.data!.item
   },
 }
 
@@ -110,6 +170,39 @@ export function useDeleteAcademyClassAssessment() {
     mutationFn: (id: string) => academyClassAssessmentsApi.delete(id),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: ["academy-class-assessments"] }),
+  })
+}
+
+export function useAcademyClassAssessmentAttempts(
+  id?: string,
+  params: AcademyClassAssessmentAttemptQueryDTO = {},
+) {
+  return useQuery({
+    enabled: !!id,
+    queryKey: ["academy-class-assessment-attempts", id, params],
+    queryFn: () => academyClassAssessmentsApi.findAttemptsByAssessment(id!, params),
+  })
+}
+
+export function useAcademyClassAssessmentAttemptQuestionDetail(
+  id?: string,
+  attemptId?: string,
+) {
+  return useQuery({
+    enabled: !!id && !!attemptId,
+    queryKey: ["academy-class-assessment-attempt-detail", id, attemptId],
+    queryFn: () => academyClassAssessmentsApi.findAttemptQuestionDetail(id!, attemptId!),
+  })
+}
+
+export function useAcademyWrongQuestionAnalytics(
+  id?: string,
+  params: AcademyClassAssessmentAttemptQueryDTO = {},
+) {
+  return useQuery({
+    enabled: !!id,
+    queryKey: ["academy-class-assessment-wrong-question-analytics", id, params],
+    queryFn: () => academyClassAssessmentsApi.findWrongQuestionAnalytics(id!, params),
   })
 }
 

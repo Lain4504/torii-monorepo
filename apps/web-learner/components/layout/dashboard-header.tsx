@@ -1,4 +1,4 @@
-import { LogOut, BadgeCheck, Bell, Heart, Coins, Flame, Snowflake, Star, Zap, Gem } from 'lucide-react'
+import { LogOut, BadgeCheck, Bell, Heart, Flame, Snowflake, Star, Zap, Gem } from 'lucide-react'
 import { UserRole } from '@workspace/schemas'
 import { SidebarTrigger } from '@workspace/ui/components/sidebar'
 import { NotificationsDropdown } from '../dashboard/notifications-dropdown'
@@ -170,23 +170,6 @@ export function DashboardHeader() {
                                 <TooltipContent>
                                     <p className="text-xs font-bold">Điểm tích lũy (Points)</p>
                                     <p className="text-[10px] text-muted-foreground">Dùng để đổi quà và mua vật phẩm.</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Link href="/dashboard/wallet">
-                                        <Badge variant="outline" className="flex items-center gap-1.5 px-3 py-1 font-bold bg-primary/5 border-primary/20 text-primary hover:bg-primary/10 transition-colors">
-                                            <Coins className="size-3 fill-primary" />
-                                            <span>{formatNumber((user as any)?.balance || 0)}</span>
-                                        </Badge>
-                                    </Link>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p className="text-xs font-bold">Số dư ví</p>
-                                    <p className="text-[10px] text-muted-foreground">Dùng để mua khóa học.</p>
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>

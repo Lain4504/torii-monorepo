@@ -9,6 +9,9 @@ import {
     FieldLabel,
     FieldGroup,
     FieldDescription,
+    FieldSet,
+    FieldLegend,
+    FieldSeparator,
 } from "@workspace/ui/components/field"
 import {
     Select,
@@ -30,6 +33,7 @@ import {
     academyQuestionPoolUpdateDTOSchema,
     type AcademyQuestionPoolCreateDTO,
     type AcademyQuestionPoolUpdateDTO,
+    QUESTION_POOL_METADATA,
 } from "@workspace/schemas"
 import type { AcademyQuestionPool } from "@/lib/api/services/academy-question-pools"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
@@ -82,168 +86,196 @@ export function QuestionPoolForm({
             },
     })
 
+    const hSubmit = async (values: any) => {
+        // Clean data: convert empty strings to null or undefined
+        const cleaned = { ...values };
+        if (!cleaned.code?.trim()) cleaned.code = null;
+        if (!cleaned.description?.trim()) cleaned.description = null;
+        if (!cleaned.level || cleaned.level === "NONE") cleaned.level = null;
+        if (!cleaned.category || cleaned.category === "NONE") cleaned.category = null;
+        if (!cleaned.courseProfileId || cleaned.courseProfileId === "NONE") cleaned.courseProfileId = null;
+
+        await onSubmit(cleaned);
+    }
+
     return (
         <form
-            className="space-y-6"
-            onSubmit={handleSubmit(async (data) => onSubmit(data))}
+            className="space-y-6 max-w-4xl mx-auto"
+            onSubmit={handleSubmit(hSubmit)}
             noValidate
         >
-            <Card>
-                <CardHeader>
-                    <CardTitle>Thông tin Question Pool</CardTitle>
+            <Card className="border-none shadow-md overflow-hidden">
+                <CardHeader className="bg-muted/50 pb-6">
+                    <CardTitle className="text-xl">Thông tin Question Pool</CardTitle>
                     <CardDescription>Pool giúp nhóm các câu hỏi theo trình độ, danh mục hoặc course profile.</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-6">
                     <FieldGroup>
-                        <div className="grid gap-6 md:grid-cols-2">
-                            <Controller
-                                name={"code" as any}
-                                control={control}
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>Mã định danh (Code)</FieldLabel>
-                                        <Input placeholder="Ví dụ: POOL_VOCAB_N5" {...field} className="font-mono uppercase" />
-                                        <FieldDescription>Mã duy nhất để phân biệt các pool.</FieldDescription>
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-                            <Controller
-                                name={"name" as any}
-                                control={control}
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>Tên Pool</FieldLabel>
-                                        <Input placeholder="Ví dụ: Pool Từ vựng N5" {...field} />
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-                        </div>
-
-                        <Controller
-                            name={"description" as any}
-                            control={control}
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel>Mô tả chi tiết</FieldLabel>
-                                    <Textarea placeholder="Mô tả mục đích của pool này..." {...field} rows={3} />
-                                    <FieldError>{fieldState.error?.message}</FieldError>
-                                </Field>
-                            )}
-                        />
-
-                        <div className="grid gap-6 md:grid-cols-3">
-                            <Controller
-                                name={"level" as any}
-                                control={control}
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>Cấp độ (Level)</FieldLabel>
-                                        <Select value={field.value} onValueChange={field.onChange}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Chọn Level..." />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="N1">JLPT N1</SelectItem>
-                                                <SelectItem value="N2">JLPT N2</SelectItem>
-                                                <SelectItem value="N3">JLPT N3</SelectItem>
-                                                <SelectItem value="N4">JLPT N4</SelectItem>
-                                                <SelectItem value="N5">JLPT N5</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-                            <Controller
-                                name={"category" as any}
-                                control={control}
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>Danh mục (Category)</FieldLabel>
-                                        <Select value={field.value} onValueChange={field.onChange}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Chọn Danh mục..." />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="VOCABULARY">Từ vựng</SelectItem>
-                                                <SelectItem value="GRAMMAR">Ngữ pháp</SelectItem>
-                                                <SelectItem value="KANJI">Hán tự</SelectItem>
-                                                <SelectItem value="READING">Đọc hiểu</SelectItem>
-                                                <SelectItem value="LISTENING">Nghe hiểu</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-                            <Controller
-                                name={"status" as any}
-                                control={control}
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel>Trạng thái</FieldLabel>
-                                        <Select value={field.value} onValueChange={field.onChange}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Trạng thái..." />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="DRAFT">Nháp (Draft)</SelectItem>
-                                                <SelectItem value="PUBLISHED">Công khai (Published)</SelectItem>
-                                                <SelectItem value="ARCHIVED">Lưu trữ (Archived)</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <FieldError>{fieldState.error?.message}</FieldError>
-                                    </Field>
-                                )}
-                            />
-                        </div>
-
-                        <Controller
-                            name={"metadata" as any}
-                            control={control}
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel>Metadata (Key-Value)</FieldLabel>
-                                    <KeyValueEditor
-                                        value={field.value || {}}
-                                        onChange={field.onChange}
-                                        presets={[
-                                            { key: "tags", label: "Thẻ (Tags)", defaultValue: "jlpt,n5" },
-                                            { key: "difficulty", label: "Độ khó", defaultValue: "medium" },
-                                            { key: "source", label: "Nguồn câu hỏi", defaultValue: "manual" },
-                                        ]}
+                        <FieldSet>
+                            <FieldLegend>Thông tin cơ bản</FieldLegend>
+                            <FieldGroup>
+                                <div className="grid gap-6 md:grid-cols-2">
+                                    <Controller
+                                        name={"code" as any}
+                                        control={control}
+                                        render={({ field, fieldState }) => (
+                                            <Field>
+                                                <FieldLabel>Mã định danh (Code)</FieldLabel>
+                                                <Input placeholder="Ví dụ: POOL_VOCAB_N5" {...field} className="font-mono uppercase h-10" />
+                                                <FieldDescription>Mã duy nhất để phân biệt các pool.</FieldDescription>
+                                                <FieldError>{fieldState.error?.message}</FieldError>
+                                            </Field>
+                                        )}
                                     />
-                                    <FieldDescription>Thông tin bổ sung cho pool.</FieldDescription>
-                                    <FieldError>{fieldState.error?.message}</FieldError>
-                                </Field>
-                            )}
-                        />
+                                    <Controller
+                                        name={"name" as any}
+                                        control={control}
+                                        render={({ field, fieldState }) => (
+                                            <Field>
+                                                <FieldLabel>Tên Pool</FieldLabel>
+                                                <Input placeholder="Ví dụ: Pool Từ vựng N5" {...field} className="h-10" />
+                                                <FieldError>{fieldState.error?.message}</FieldError>
+                                            </Field>
+                                        )}
+                                    />
+                                </div>
 
-                        <Controller
-                            name={"courseProfileId" as any}
-                            control={control}
-                            render={({ field, fieldState }) => (
-                                <Field>
-                                    <FieldLabel>Gắn với Course Profile (Tùy chọn)</FieldLabel>
-                                    <Select value={field.value} onValueChange={field.onChange}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Chọn Profile (optional)..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {profiles.map((p: any) => (
-                                                <SelectItem key={p.id} value={p.id}>
-                                                    {p.title}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FieldDescription>Nếu chọn, pool này chỉ hiển thị cho khóa học đó.</FieldDescription>
-                                    <FieldError>{fieldState.error?.message}</FieldError>
-                                </Field>
-                            )}
-                        />
+                                <Controller
+                                    name={"description" as any}
+                                    control={control}
+                                    render={({ field, fieldState }) => (
+                                        <Field>
+                                            <FieldLabel>Mô tả chi tiết</FieldLabel>
+                                            <Textarea placeholder="Mô tả mục đích của pool này..." {...field} rows={3} className="resize-none" />
+                                            <FieldError>{fieldState.error?.message}</FieldError>
+                                        </Field>
+                                    )}
+                                />
+                            </FieldGroup>
+                        </FieldSet>
+
+                        <FieldSeparator />
+
+                        <FieldSet>
+                            <FieldLegend>Phân loại & Trạng thái</FieldLegend>
+                            <FieldGroup>
+                                <div className="grid gap-6 md:grid-cols-3">
+                                    <Controller
+                                        name={"level" as any}
+                                        control={control}
+                                        render={({ field, fieldState }) => (
+                                            <Field>
+                                                <FieldLabel>Cấp độ (Level)</FieldLabel>
+                                                <Select value={field.value || "NONE"} onValueChange={(val) => field.onChange(val === "NONE" ? "" : val)}>
+                                                    <SelectTrigger className="h-10">
+                                                        <SelectValue placeholder="Chọn Level..." />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="NONE">Không chọn</SelectItem>
+                                                        <SelectItem value="N1">JLPT N1</SelectItem>
+                                                        <SelectItem value="N2">JLPT N2</SelectItem>
+                                                        <SelectItem value="N3">JLPT N3</SelectItem>
+                                                        <SelectItem value="N4">JLPT N4</SelectItem>
+                                                        <SelectItem value="N5">JLPT N5</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FieldError>{fieldState.error?.message}</FieldError>
+                                            </Field>
+                                        )}
+                                    />
+                                    <Controller
+                                        name={"category" as any}
+                                        control={control}
+                                        render={({ field, fieldState }) => (
+                                            <Field>
+                                                <FieldLabel>Danh mục (Category)</FieldLabel>
+                                                <Select value={field.value || "NONE"} onValueChange={(val) => field.onChange(val === "NONE" ? "" : val)}>
+                                                    <SelectTrigger className="h-10">
+                                                        <SelectValue placeholder="Chọn Danh mục..." />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="NONE">Không chọn</SelectItem>
+                                                        <SelectItem value="VOCABULARY">Từ vựng</SelectItem>
+                                                        <SelectItem value="GRAMMAR">Ngữ pháp</SelectItem>
+                                                        <SelectItem value="KANJI">Hán tự</SelectItem>
+                                                        <SelectItem value="READING">Đọc hiểu</SelectItem>
+                                                        <SelectItem value="LISTENING">Nghe hiểu</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FieldError>{fieldState.error?.message}</FieldError>
+                                            </Field>
+                                        )}
+                                    />
+                                    <Controller
+                                        name={"status" as any}
+                                        control={control}
+                                        render={({ field, fieldState }) => (
+                                            <Field>
+                                                <FieldLabel>Trạng thái</FieldLabel>
+                                                <Select value={field.value} onValueChange={field.onChange}>
+                                                    <SelectTrigger className="h-10">
+                                                        <SelectValue placeholder="Trạng thái..." />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="DRAFT">Nháp (Draft)</SelectItem>
+                                                        <SelectItem value="ACTIVE">Công khai (Active)</SelectItem>
+                                                        <SelectItem value="ARCHIVED">Lưu trữ (Archived)</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FieldError>{fieldState.error?.message}</FieldError>
+                                            </Field>
+                                        )}
+                                    />
+                                </div>
+
+                                <Controller
+                                    name={"courseProfileId" as any}
+                                    control={control}
+                                    render={({ field, fieldState }) => (
+                                        <Field>
+                                            <FieldLabel>Gắn với Course Profile (Tùy chọn)</FieldLabel>
+                                            <Select value={field.value || "NONE"} onValueChange={(val) => field.onChange(val === "NONE" ? undefined : val)}>
+                                                <SelectTrigger className="h-10">
+                                                    <SelectValue placeholder="Chọn Profile (optional)..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="NONE">Không liên kết</SelectItem>
+                                                    {profiles.map((p: any) => (
+                                                        <SelectItem key={p.id} value={p.id}>
+                                                            {p.code} - {p.title}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            <FieldDescription>Nếu chọn, pool này chỉ hiển thị cho khóa học đó.</FieldDescription>
+                                            <FieldError>{fieldState.error?.message}</FieldError>
+                                        </Field>
+                                    )}
+                                />
+                            </FieldGroup>
+                        </FieldSet>
+
+                        <FieldSeparator />
+
+                        <FieldSet className="border-t pt-6">
+                            <FieldLegend>Thông tin bổ sung (Metadata)</FieldLegend>
+                            <FieldDescription>Các thẻ và thuộc tính tìm kiếm cho pool.</FieldDescription>
+                            <FieldGroup>
+                                <Controller
+                                    name={"metadata" as any}
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Field>
+                                            <KeyValueEditor
+                                                value={field.value || {}}
+                                                onChange={field.onChange}
+                                                presets={QUESTION_POOL_METADATA}
+                                            />
+                                        </Field>
+                                    )}
+                                />
+                            </FieldGroup>
+                        </FieldSet>
                     </FieldGroup>
                 </CardContent>
             </Card>
@@ -252,8 +284,8 @@ export function QuestionPoolForm({
                 <Button type="button" variant="ghost" onClick={onCancel} disabled={submitting}>
                     Hủy bỏ
                 </Button>
-                <Button type="submit" disabled={submitting} className="px-8">
-                    {submitting ? <Spinner className="mr-2" /> : null}
+                <Button type="submit" disabled={submitting} className="px-8 h-10 shadow-sm">
+                    {submitting ? <Spinner className="mr-2 h-4 w-4" /> : null}
                     {isEdit ? "Cập nhật Pool" : "Tạo Pool"}
                 </Button>
             </div>

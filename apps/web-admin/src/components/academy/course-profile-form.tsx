@@ -8,20 +8,16 @@ import {
   FieldLabel,
   FieldDescription,
   FieldGroup,
+  FieldSet,
+  FieldLegend,
 } from "@workspace/ui/components/field"
 import { Spinner } from "@workspace/ui/components/spinner"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@workspace/ui/components/card"
 import {
   academyCourseProfileCreateDTOSchema,
   academyCourseProfileUpdateDTOSchema,
   type AcademyCourseProfileCreateDTO,
   type AcademyCourseProfileUpdateDTO,
+  COURSE_PROFILE_METADATA,
 } from "@workspace/schemas"
 import type { AcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
 import { LessonMediaUploader } from "./lesson-media-uploader"
@@ -33,6 +29,14 @@ import {
   TabsList,
   TabsTrigger,
 } from "@workspace/ui/components/tabs"
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
 
 export function CourseProfileForm({
   mode,
@@ -61,22 +65,16 @@ export function CourseProfileForm({
     defaultValues: isEdit
       ? {
         title: initial?.title ?? "",
-        shortTitle: initial?.shortTitle ?? undefined,
         description: initial?.description ?? undefined,
-        subject: initial?.subject ?? undefined,
         level: initial?.level ?? undefined,
-        defaultLanguage: initial?.defaultLanguage ?? undefined,
         thumbnailUrl: initial?.thumbnailUrl ?? undefined,
         metadata: initial?.metadata ?? undefined,
       }
       : {
         code: "",
         title: "",
-        shortTitle: undefined,
         description: undefined,
-        subject: undefined,
-        level: undefined,
-        defaultLanguage: undefined,
+        level: "N5",
         thumbnailUrl: undefined,
         metadata: undefined,
       },
@@ -88,14 +86,12 @@ export function CourseProfileForm({
       onSubmit={handleSubmit(async (data) => onSubmit(data))}
       noValidate
     >
-      <Card>
-        <CardHeader>
-          <CardTitle>Thông tin cơ bản</CardTitle>
-          <CardDescription>
+      <FieldGroup>
+        <FieldSet>
+          <FieldLegend>Thông tin cơ bản</FieldLegend>
+          <FieldDescription>
             Các thông tin định danh chính của Course Profile.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </FieldDescription>
           <FieldGroup>
             {!isEdit && (
               <Controller
@@ -120,126 +116,81 @@ export function CourseProfileForm({
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel>Tiêu đề</FieldLabel>
-                  <Input placeholder="JLPT N5" {...field} />
+                  <Input placeholder="Tiếng Nhật N5" {...field} />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
             />
 
             <Controller
-              name={"shortTitle" as any}
+              name={"level" as any}
               control={control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel>Tên ngắn</FieldLabel>
-                  <Input placeholder="N5" {...field} />
+                  <FieldLabel>Cấp độ (Level)</FieldLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn cấp độ" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="N5">N5 (Sơ cấp 1)</SelectItem>
+                      <SelectItem value="N4">N4 (Sơ cấp 2)</SelectItem>
+                      <SelectItem value="N3">N3 (Trung cấp)</SelectItem>
+                      <SelectItem value="N2">N2 (Thượng cấp 1)</SelectItem>
+                      <SelectItem value="N1">N1 (Thượng cấp 2)</SelectItem>
+                      <SelectItem value="Beginner">Cơ bản (Beginner)</SelectItem>
+                      <SelectItem value="Intermediate">Trung bình (Intermediate)</SelectItem>
+                      <SelectItem value="Advanced">Nâng cao (Advanced)</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
             />
           </FieldGroup>
-        </CardContent>
-      </Card>
+        </FieldSet>
 
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-lg font-semibold">Mô tả chi tiết</h3>
-          <p className="text-sm text-muted-foreground">
-            Nội dung mô tả chi tiết về Course Profile.
-          </p>
-        </div>
-        <Controller
-          name={"description" as any}
-          control={control}
-          render={({ field, fieldState }) => (
-            <Field>
-              <Tabs defaultValue="edit">
-                <TabsList className="mb-4">
-                  <TabsTrigger value="edit">Chỉnh sửa</TabsTrigger>
-                  <TabsTrigger value="preview">Xem trước</TabsTrigger>
-                </TabsList>
-                <TabsContent value="edit">
-                  <RichTextEditor
-                    initialContent={field.value || ""}
-                    onUpdate={(data: string) => field.onChange(data)}
-                  />
-                </TabsContent>
-                <TabsContent value="preview">
-                  <div
-                    className="border rounded-md p-4 min-h-[150px] prose prose-sm dark:prose-invert max-w-none"
-                    dangerouslySetInnerHTML={{
-                      __html: field.value || "<em>Chưa có mô tả.</em>",
-                    }}
-                  />
-                </TabsContent>
-              </Tabs>
-              <FieldError>{fieldState.error?.message}</FieldError>
-            </Field>
-          )}
-        />
-      </div>
+        <FieldSet>
+          <FieldLegend>Mô tả chi tiết</FieldLegend>
+          <FieldDescription>
+            Nội dung mô tả chi tiết về chương trình học này.
+          </FieldDescription>
+          <Controller
+            name={"description" as any}
+            control={control}
+            render={({ field, fieldState }) => (
+              <Field>
+                <Tabs defaultValue="edit" className="mt-2">
+                  <TabsList className="mb-4">
+                    <TabsTrigger value="edit">Chỉnh sửa</TabsTrigger>
+                    <TabsTrigger value="preview">Xem trước</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="edit">
+                    <RichTextEditor
+                      initialContent={field.value || ""}
+                      onUpdate={(data: string) => field.onChange(data)}
+                    />
+                  </TabsContent>
+                  <TabsContent value="preview">
+                    <div
+                      className="border rounded-md p-4 min-h-[200px] prose prose-sm dark:prose-invert max-w-none bg-muted/20"
+                      dangerouslySetInnerHTML={{
+                        __html: field.value || "<em>Chưa có mô tả.</em>",
+                      }}
+                    />
+                  </TabsContent>
+                </Tabs>
+                <FieldError>{fieldState.error?.message}</FieldError>
+              </Field>
+            )}
+          />
+        </FieldSet>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Phân loại & Ngôn ngữ</CardTitle>
-          <CardDescription>
-            Thiết lập môn học, cấp độ và ngôn ngữ hiển thị mặc định.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <FieldGroup>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Controller
-                name={"subject" as any}
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Môn</FieldLabel>
-                    <Input placeholder="Japanese" {...field} />
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-
-              <Controller
-                name={"level" as any}
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Level</FieldLabel>
-                    <Input placeholder="N5" {...field} />
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-            </div>
-
-            <Controller
-              name={"defaultLanguage" as any}
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Ngôn ngữ mặc định</FieldLabel>
-                  <Input placeholder="vi" {...field} />
-                  <FieldDescription>
-                    Mã ngôn ngữ (vd: vi, ja, en).
-                  </FieldDescription>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-          </FieldGroup>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Hình ảnh & Trình bày</CardTitle>
-          <CardDescription>
-            Tải lên hình ảnh đại diện cho course profile.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+        <FieldSet>
+          <FieldLegend>Hình ảnh & Metadata</FieldLegend>
+          <FieldDescription>
+            Tải lên hình ảnh đại diện và các thông số bổ trợ khác.
+          </FieldDescription>
           <FieldGroup>
             <Controller
               name={"thumbnailUrl" as any}
@@ -255,52 +206,42 @@ export function CourseProfileForm({
                 />
               )}
             />
+
+            <Controller
+              name={"metadata" as any}
+              control={control}
+              render={({ field }) => (
+                <Field>
+                  <FieldLabel>Cấu hình bổ sung (Metadata)</FieldLabel>
+                  <KeyValueEditor
+                    value={field.value || {}}
+                    onChange={field.onChange}
+                    presets={COURSE_PROFILE_METADATA}
+                  />
+                  <FieldDescription>
+                    Dùng để hiển thị các thông tin nhanh trên trang chi tiết khóa học.
+                  </FieldDescription>
+                </Field>
+              )}
+            />
           </FieldGroup>
-        </CardContent>
-      </Card>
+        </FieldSet>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Cấu hình nâng cao (Metadata)</CardTitle>
-          <CardDescription>
-            Thiết lập các thông số bổ sung cho Course Profile.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Controller
-            name={"metadata" as any}
-            control={control}
-            render={({ field }) => (
-              <Field>
-                <KeyValueEditor
-                  value={field.value || {}}
-                  onChange={field.onChange}
-                  presets={[
-                    { key: "duration", label: "Thời lượng", defaultValue: "20 hours" },
-                    { key: "lessonsCount", label: "Số bài học", defaultValue: "50" },
-                    { key: "difficulty", label: "Độ khó", defaultValue: "Beginner" },
-                  ]}
-                />
-              </Field>
-            )}
-          />
-        </CardContent>
-      </Card>
-
-      <div className="flex justify-end gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-          disabled={submitting}
-        >
-          Hủy
-        </Button>
-        <Button type="submit" disabled={submitting}>
-          {submitting ? <Spinner className="mr-2" /> : null}
-          {isEdit ? "Lưu thay đổi" : "Tạo Course Profile"}
-        </Button>
-      </div>
+        <Field orientation="horizontal" className="justify-end pt-6 border-t">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onCancel}
+            disabled={submitting}
+          >
+            Hủy bỏ
+          </Button>
+          <Button type="submit" disabled={submitting} className="min-w-[120px]">
+            {submitting ? <Spinner className="mr-2 h-4 w-4" /> : null}
+            {isEdit ? "Cập nhật Profile" : "Tạo Profile"}
+          </Button>
+        </Field>
+      </FieldGroup>
     </form>
   )
 }

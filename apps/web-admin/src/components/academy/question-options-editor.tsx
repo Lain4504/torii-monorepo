@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { Plus, Trash2, CheckCircle2 } from "lucide-react"
@@ -26,32 +26,102 @@ export function QuestionOptionsEditor({
     const [localOptions, setLocalOptions] = useState<Option[]>([])
     const [localCorrect, setLocalCorrect] = useState<any>(null)
 
+    const lastPushedOptionsRef = useRef<string>("")
+    const lastPushedCorrectRef = useRef<string>("")
+    const prevTypeRef = useRef<string>(type)
+    const initializedRef = useRef<boolean>(false)
+
     useEffect(() => {
-        if (Array.isArray(options)) {
-            setLocalOptions(options.map((o, i) => ({
-                id: o.id || Math.random().toString(36).substr(2, 9),
-                label: o.label || "",
-                value: o.value || String.fromCharCode(65 + i) // A, B, C...
-            })))
-        } else if (type === "TRUE_FALSE") {
-            setLocalOptions([
-                { id: "true", label: "Đúng (True)", value: "true" },
-                { id: "false", label: "Sai (False)", value: "false" }
-            ])
+        // If type changed, reset completely
+        if (type !== prevTypeRef.current) {
+            prevTypeRef.current = type
+            let newOpts: Option[] = []
+            if (type === "TRUE_FALSE") {
+                newOpts = [
+                    { id: "true", label: "Đúng (True)", value: "true" },
+                    { id: "false", label: "Sai (False)", value: "false" }
+                ]
+            } else {
+                // For other types, maybe we keep options or clear. We clear to be safe.
+                newOpts = [
+                    { id: Math.random().toString(36).substr(2, 9), label: "", value: "A" }
+                ]
+            }
+            setLocalOptions(newOpts)
+            setLocalCorrect(null)
+
+            const strippedOpts = newOpts.map(({ id, ...rest }) => ({ ...rest }))
+            lastPushedOptionsRef.current = JSON.stringify(strippedOpts)
+            lastPushedCorrectRef.current = "null"
+            onChange(strippedOpts, null)
+            return
         }
 
-        if (correctAnswer) {
-            setLocalCorrect(correctAnswer)
+        // Initialize on mount
+        if (!initializedRef.current) {
+            initializedRef.current = true
+            let newOpts: Option[] = []
+            if (Array.isArray(options) && options.length > 0) {
+                newOpts = options.map((o, i) => ({
+                    id: o.id || Math.random().toString(36).substr(2, 9),
+                    label: o.label || "",
+                    value: o.value || String.fromCharCode(65 + i)
+                }))
+            } else if (type === "TRUE_FALSE") {
+                newOpts = [
+                    { id: "true", label: "Đúng (True)", value: "true" },
+                    { id: "false", label: "Sai (False)", value: "false" }
+                ]
+            }
+
+            setLocalOptions(newOpts)
+            if (correctAnswer !== undefined) {
+                setLocalCorrect(correctAnswer)
+            }
+
+            const strippedOpts = newOpts.map(({ id, ...rest }) => ({ ...rest }))
+            lastPushedOptionsRef.current = JSON.stringify(strippedOpts)
+            lastPushedCorrectRef.current = JSON.stringify(correctAnswer || null)
         }
-    }, [options, type, correctAnswer])
+    }, [type])
 
     const updateAll = (newOpts: Option[], newCorrect: any) => {
-        setLocalOptions(newOpts)
-        setLocalCorrect(newCorrect)
-        onChange(
-            newOpts.map(({ id, ...rest }) => ({ ...rest })),
-            newCorrect
-        )
+        // Auto re-index A, B, C... for choice types
+        let reIndexedOpts = newOpts
+        let reMappedCorrect = newCorrect
+
+        if (type === "SINGLE_CHOICE" || type === "MULTIPLE_CHOICE") {
+            // Store old values to remap correct answer
+            const oldToNew = new Map<string, string>()
+
+            reIndexedOpts = newOpts.map((opt, idx) => {
+                const newValue = String.fromCharCode(65 + idx)
+                oldToNew.set(opt.value, newValue)
+                return { ...opt, value: newValue }
+            })
+
+            // Remap single choice
+            if (type === "SINGLE_CHOICE" && newCorrect?.value) {
+                const newValue = oldToNew.get(newCorrect.value)
+                reMappedCorrect = newValue ? { value: newValue } : null
+            }
+
+            // Remap multiple choice
+            if (type === "MULTIPLE_CHOICE" && Array.isArray(newCorrect)) {
+                reMappedCorrect = newCorrect
+                    .map(v => oldToNew.get(v))
+                    .filter(Boolean) as string[]
+            }
+        }
+
+        setLocalOptions(reIndexedOpts)
+        setLocalCorrect(reMappedCorrect)
+
+        const strippedOpts = reIndexedOpts.map(({ id, ...rest }) => ({ ...rest }))
+        lastPushedOptionsRef.current = JSON.stringify(strippedOpts)
+        lastPushedCorrectRef.current = JSON.stringify(reMappedCorrect || null)
+
+        onChange(strippedOpts, reMappedCorrect)
     }
 
     const addOption = () => {
@@ -64,17 +134,8 @@ export function QuestionOptionsEditor({
     }
 
     const removeOption = (id: string) => {
-        const optToRemove = localOptions.find(o => o.id === id)
         const newOpts = localOptions.filter(o => o.id !== id)
-        
-        let newCorrect = localCorrect
-        if (type === "SINGLE_CHOICE" && localCorrect?.value === optToRemove?.value) {
-            newCorrect = null
-        } else if (type === "MULTIPLE_CHOICE" && Array.isArray(localCorrect)) {
-            newCorrect = localCorrect.filter(val => val !== optToRemove?.value)
-        }
-        
-        updateAll(newOpts, newCorrect)
+        updateAll(newOpts, localCorrect)
     }
 
     const toggleCorrect = (value: string) => {
@@ -125,21 +186,25 @@ export function QuestionOptionsEditor({
                             size="icon"
                             className={cn(
                                 "shrink-0 rounded-full",
-                                isCorrect(opt.value) ? "text-green-600 bg-green-50" : "text-muted-foreground"
+                                isCorrect(opt.value) ? "text-green-600 bg-green-50" : "text-muted-foreground hover:bg-muted"
                             )}
                             onClick={() => toggleCorrect(opt.value)}
                         >
                             <CheckCircle2 className="size-5" />
                         </Button>
-                        <Input
-                            placeholder={`Lựa chọn ${opt.value}...`}
-                            value={opt.label}
-                            onChange={(e) => {
-                                const newOpts = [...localOptions]
-                                newOpts[idx].label = e.target.value
-                                updateAll(newOpts, localCorrect)
-                            }}
-                        />
+                        <div className="flex items-center flex-1 gap-2">
+                            <span className="font-bold text-muted-foreground w-6 text-center">{opt.value}.</span>
+                            <Input
+                                placeholder={`Nhập nội dung lựa chọn ${opt.value}...`}
+                                value={opt.label}
+                                className="flex-1"
+                                onChange={(e) => {
+                                    const newOpts = [...localOptions]
+                                    newOpts[idx].label = e.target.value
+                                    updateAll(newOpts, localCorrect)
+                                }}
+                            />
+                        </div>
                         {(type === "SINGLE_CHOICE" || type === "MULTIPLE_CHOICE") && (
                             <Button
                                 type="button"

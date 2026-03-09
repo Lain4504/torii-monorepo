@@ -45,13 +45,18 @@ export class PayOSService {
         }
     }
 
-    verifyPaymentWebhookData(webhookData: any): any {
+    verifyPaymentWebhookData(webhookData: any): boolean {
         if (!this.payOS) {
             throw new BadRequestException('PayOS is not configured');
         }
-        // Verify signature
-        const isValid = this.payOS.webhooks.verify(webhookData);
-
-        return isValid;
+        try {
+            return Boolean(this.payOS.webhooks.verify(webhookData));
+        } catch (error: any) {
+            this.logger.error(
+                `Error verifying PayOS webhook payload: ${error.message}`,
+                error.stack,
+            );
+            return false;
+        }
     }
 }

@@ -39,3 +39,14 @@ export type AcademyClassAssessmentQueryDTO = z.infer<
   typeof academyClassAssessmentQueryDTOSchema
 >;
 
+export const academyClassAssessmentAttemptQueryDTOSchema = z.object({
+  status: z.string().max(20).optional(),
+  userId: z.string().uuid().optional(),
+  fromDate: z.coerce.date().optional(),
+  toDate: z.coerce.date().optional(),
+  latestOnly: z.coerce.boolean().optional(),
+});
+export type AcademyClassAssessmentAttemptQueryDTO = z.infer<
+  typeof academyClassAssessmentAttemptQueryDTOSchema
+>;
+

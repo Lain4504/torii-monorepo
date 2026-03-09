@@ -3,7 +3,6 @@ import { z } from "zod"
 export const academyStudySetCreateDTOSchema = z.object({
     title: z.string().min(1),
     description: z.string().optional(),
-    tags: z.array(z.string()).optional(),
     isPublic: z.boolean().optional(),
     settings: z.record(z.any()).optional(),
 })
@@ -34,8 +33,7 @@ export type AcademyStudySetModel = {
     userId: string
     title: string
     description?: string | null
-    tags: string[]
-    isPublic: boolean
+    isPublic: boolean,
     settings?: Record<string, any> | null
     createdAt: string
     updatedAt: string

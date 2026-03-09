@@ -38,6 +38,7 @@ export * from './dtos/balance.dto';
 export * from './dtos/academy-class.dto';
 export * from './dtos/academy-class-assessment.dto';
 export * from './dtos/academy-live-schedule.dto';
+export * from './dtos/academy-live-schedule-request.dto';
 export * from './dtos/academy-question.dto';
 export * from './dtos/academy-exam.dto';
 export * from './dtos/academy-exam-attempt.dto';
@@ -58,6 +59,9 @@ export * from './dtos/academy-learning-progress.dto';
 // Enums
 export * from './enums/live-session.enum';
 export * from './enums/academy.enum';
+
+// Constants
+export * from './constants/academy-metadata';
 
 // Interfaces (only internal/utility types)
 export * from './interfaces/auth.interface';

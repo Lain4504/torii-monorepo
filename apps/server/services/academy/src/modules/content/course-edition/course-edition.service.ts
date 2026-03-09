@@ -70,6 +70,16 @@ export class CourseEditionService {
   async update(id: string, input: CourseEditionUpdateDto, requesterId = 'SYSTEM') {
     const old = await this.findById(id);
 
+    // Enforce immutable syllabus for PUBLISHED status
+    if (old.status === 'PUBLISHED') {
+      if (input.editionTag && input.editionTag !== old.editionTag) {
+        throw new BadRequestException('Cannot modify syllabus (editionTag) of a PUBLISHED edition. Clone edition to make changes.');
+      }
+      if (input.syllabusSnapshot) {
+        throw new BadRequestException('Cannot modify syllabus (snapshot) of a PUBLISHED edition. Clone edition to make changes.');
+      }
+    }
+
     if (input.isCurrent === true) {
       // ensure only 1 current per CourseProfile
       const edition = await this.prisma.courseEdition.findUnique({
@@ -107,6 +117,76 @@ export class CourseEditionService {
 
     return updated;
   }
+
+  async clone(id: string, newTag: string, requesterId = 'SYSTEM') {
+    const source = await this.prisma.courseEdition.findUnique({
+      where: { id },
+      include: {
+        chapters: {
+          include: {
+            items: true,
+          },
+          orderBy: { orderIndex: 'asc' },
+        },
+      },
+    });
+
+    if (!source) throw new NotFoundException('Source CourseEdition not found');
+
+    const newEdition = await this.prisma.$transaction(async (tx) => {
+      // 1. Create new DRAFT edition
+      const edition = await tx.courseEdition.create({
+        data: {
+          courseProfileId: source.courseProfileId,
+          editionTag: newTag,
+          status: 'DRAFT',
+          changelog: `Cloned from ${source.editionTag}`,
+          syllabusSnapshot: source.syllabusSnapshot ?? undefined,
+        },
+      });
+
+      // 2. Copy chapters and items
+      for (const chapter of source.chapters) {
+        const newChapter = await tx.chapter.create({
+          data: {
+            courseEditionId: edition.id,
+            title: chapter.title,
+            description: chapter.description,
+            orderIndex: chapter.orderIndex,
+            estimatedMinutes: chapter.estimatedMinutes,
+            status: 'DRAFT',
+          },
+        });
+
+        if (chapter.items.length > 0) {
+          await tx.chapterItem.createMany({
+            data: chapter.items.map((item) => ({
+              chapterId: newChapter.id,
+              title: item.title,
+              kind: item.kind,
+              referenceId: item.referenceId,
+              orderIndex: item.orderIndex,
+              metadata: item.metadata ?? undefined,
+            })),
+          });
+        }
+      }
+
+      return edition;
+    });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'edition.clone',
+      entity: 'CourseEdition',
+      entityId: newEdition.id,
+      description: `Cloned edition ${source.editionTag} to new edition ${newEdition.editionTag}`,
+      metadata: { sourceId: id, sourceTag: source.editionTag },
+    });
+
+    return newEdition;
+  }
+
 
   async setCurrent(id: string, requesterId = 'SYSTEM') {
     const edition = await this.findById(id);

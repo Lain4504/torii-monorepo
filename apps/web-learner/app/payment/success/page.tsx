@@ -5,10 +5,28 @@ import { Button } from '@workspace/ui/components/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@workspace/ui/components/card'
 import { CheckCircle2 } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { orderApi, type OrderFulfillmentSummary } from '@/lib/api/services/order-api'
+import { Spinner } from '@workspace/ui/components/spinner'
 
 export default function PaymentSuccessPage() {
     const searchParams = useSearchParams()
     const orderCode = searchParams.get('orderCode')
+    const [summary, setSummary] = useState<OrderFulfillmentSummary | null>(null)
+    const [loading, setLoading] = useState(false)
+    const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+    useEffect(() => {
+        if (!orderCode) return
+        setLoading(true)
+        orderApi
+            .getOrderByCode(orderCode)
+            .then((data) => setSummary(data))
+            .catch((error: any) =>
+                setErrorMessage(error?.response?.data?.message || error?.message || 'Không tải được trạng thái ghi danh'),
+            )
+            .finally(() => setLoading(false))
+    }, [orderCode])
 
     return (
         <div className="container flex items-center justify-center py-20">
@@ -28,9 +46,38 @@ export default function PaymentSuccessPage() {
                             Mã đơn hàng: <span className="font-mono">{orderCode}</span>
                         </div>
                     )}
-                    <p className="text-sm text-muted-foreground">
-                        Hệ thống đang kích hoạt khóa học cho bạn. Bạn có thể bắt đầu học ngay bây giờ.
-                    </p>
+                    {loading ? (
+                        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                            <Spinner className="h-4 w-4" />
+                            Đang kiểm tra kết quả ghi danh...
+                        </div>
+                    ) : null}
+                    {!loading && summary ? (
+                        <div className="space-y-2 text-left text-sm">
+                            {summary.items.map((item) => (
+                                <div key={item.offeringId} className="rounded border p-2">
+                                    <div className="font-semibold">{item.offeringTitle}</div>
+                                    {item.missingClassIds.length === 0 ? (
+                                        <div className="text-emerald-600">
+                                            Ghi danh thành công ({item.enrolledClassIds.length}/{item.expectedClassIds.length} lớp).
+                                        </div>
+                                    ) : (
+                                        <div className="text-amber-600">
+                                            Một số lớp chưa ghi danh ({item.enrolledClassIds.length}/{item.expectedClassIds.length} lớp). Vui lòng liên hệ hỗ trợ.
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    ) : null}
+                    {!loading && !summary && !errorMessage ? (
+                        <p className="text-sm text-muted-foreground">
+                            Hệ thống đang kích hoạt khóa học cho bạn. Bạn có thể bắt đầu học ngay bây giờ.
+                        </p>
+                    ) : null}
+                    {errorMessage ? (
+                        <p className="text-sm text-amber-600">{errorMessage}</p>
+                    ) : null}
                 </CardContent>
                 <CardFooter className="flex flex-col gap-2">
                     <Button asChild className="w-full">

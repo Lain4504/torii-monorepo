@@ -5,7 +5,7 @@ import { ExamCreateDto, ExamQueryDto, ExamUpdateDto } from './dto/exam.dto';
 
 @Controller()
 export class ExamHandler {
-  constructor(private readonly exams: ExamService) { }
+  constructor(private readonly exams: ExamService) {}
 
   @MessagePattern({ cmd: 'academy.exam.findAll' })
   findAll(@Payload() query: ExamQueryDto) {
@@ -24,7 +24,9 @@ export class ExamHandler {
   }
 
   @MessagePattern({ cmd: 'academy.exam.update' })
-  update(@Payload() data: { id: string; input: ExamUpdateDto; requesterId?: string }) {
+  update(
+    @Payload() data: { id: string; input: ExamUpdateDto; requesterId?: string },
+  ) {
     return this.exams.update(data.id, data.input, data.requesterId);
   }
 
@@ -45,9 +47,37 @@ export class ExamHandler {
 
   @MessagePattern({ cmd: 'academy.exam.addQuestionsFromPool' })
   addQuestionsFromPool(
-    @Payload() data: { examId: string; sectionId: string; poolId: string; count: number },
+    @Payload()
+    data: {
+      examId: string;
+      sectionId: string;
+      poolId: string;
+      count: number;
+    },
   ) {
-    return this.exams.addQuestionsFromPool(data.examId, data.sectionId, data.poolId, data.count);
+    return this.exams.addQuestionsFromPool(
+      data.examId,
+      data.sectionId,
+      data.poolId,
+      data.count,
+    );
+  }
+
+  @MessagePattern({ cmd: 'academy.exam.addQuestions' })
+  addQuestions(
+    @Payload()
+    data: {
+      examId: string;
+      sectionId: string;
+      questionIds: string[];
+      points?: number;
+    },
+  ) {
+    return this.exams.addQuestions(
+      data.examId,
+      data.sectionId,
+      data.questionIds,
+      data.points,
+    );
   }
 }
-

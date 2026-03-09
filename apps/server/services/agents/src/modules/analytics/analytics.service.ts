@@ -47,6 +47,10 @@ export class AnalyticsService implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   private async deductCoins(userId: string, taskType: string, usage: any) {
+    // Billing is temporarily disabled for Agents analytics.
+    // Keep this method as a stable extension point so we can re-enable
+    // token-based deduction later without touching business flow callsites.
+    /*
     // Only deduct coins for roleplay
     if (taskType !== 'roleplay') {
       return;
@@ -64,6 +68,8 @@ export class AnalyticsService implements OnModuleInit, OnModuleDestroy {
         },
       },
     );
+    */
+    return;
   }
 
   async onModuleInit() {

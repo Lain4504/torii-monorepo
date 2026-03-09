@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useAcademyCourseById } from '@/lib/api/services/academy-course-api';
 import { useAcademyClass, useCurriculum } from '@/lib/api/services/academy-classes';
 import { useAcademyEnrollmentCheck } from '@/lib/api/services/academy-enrollment-api';
@@ -17,6 +17,11 @@ import {
 import {
     useStartAcademyExamAttempt, useSaveAcademyExamAnswers, useSubmitAcademyExamAttempt
 } from '@/lib/api/services/academy-exam-api';
+import {
+    extractAssessmentExamId,
+    useAcademyClassAssessment,
+    useAcademyClassAssessments,
+} from '@/lib/api/services/academy-class-assessments';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from '@workspace/ui/components/sonner';
 import { Skeleton } from '@workspace/ui/components/skeleton';
@@ -36,6 +41,8 @@ import type {
     AcademyAssignmentTemplateModel
 } from '@workspace/schemas';
 import { StudyNotesPanel } from '@/components/courses/study-notes-panel';
+import { useAppSelector } from '@/hooks/hooks';
+import { RootState } from '@/store/store';
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -53,10 +60,31 @@ function LessonIcon({ lesson, isActive, isCompleted }: {
 }) {
     if (isCompleted) return <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500 shrink-0" />;
     if (!lesson.isUnlocked) return <Lock className="h-4 w-4 text-muted-foreground/40 shrink-0" />;
-    if (lesson.contentType === 'document') return <FileText className={`h-4 w-4 shrink-0 ${isActive ? 'text-primary' : 'text-muted-foreground/60'}`} />;
-    if (lesson.contentType === 'assignment') return <BookOpen className={`h-4 w-4 shrink-0 ${isActive ? 'text-amber-500' : 'text-muted-foreground/60'}`} />;
-    if (lesson.contentType === 'quiz') return <HelpCircle className={`h-4 w-4 shrink-0 ${isActive ? 'text-violet-500' : 'text-muted-foreground/60'}`} />;
+    if (isAssignmentItemKind(lesson.kind)) return <BookOpen className={`h-4 w-4 shrink-0 ${isActive ? 'text-amber-500' : 'text-muted-foreground/60'}`} />;
+    if (isQuizItemKind(lesson.kind)) return <HelpCircle className={`h-4 w-4 shrink-0 ${isActive ? 'text-violet-500' : 'text-muted-foreground/60'}`} />;
     return <PlayCircle className={`h-4 w-4 shrink-0 ${isActive ? 'text-primary' : 'text-muted-foreground/50'}`} />;
+}
+
+function normalizeItemKind(kind?: string) {
+    return (kind || '').toUpperCase();
+}
+
+function isLessonItemKind(kind?: string) {
+    return normalizeItemKind(kind) === 'LESSON';
+}
+
+function isQuizItemKind(kind?: string) {
+    const normalized = normalizeItemKind(kind);
+    return normalized === 'QUIZ' || normalized === 'QUIZ_TEMPLATE';
+}
+
+function isAssignmentItemKind(kind?: string) {
+    const normalized = normalizeItemKind(kind);
+    return normalized === 'ASSIGNMENT' || normalized === 'ASSIGNMENT_TEMPLATE';
+}
+
+function isTrackableLessonKind(kind?: string) {
+    return isLessonItemKind(kind);
 }
 
 // ─── Video Player ─────────────────────────────────────────────────────────────
@@ -151,6 +179,7 @@ function ArticleViewer({ lesson, onComplete }: { lesson: AcademyLessonModel; onC
 function AssignmentPanel({
     lessonId, templateId, classId, classAssessmentId, onComplete
 }: { lessonId: string; templateId: string; classId?: string; classAssessmentId?: string; onComplete: () => void; }) {
+    const userId = useAppSelector((state: RootState) => state.auth.user?.id);
     const { data: assignment, isLoading: assignmentLoading } = useAcademyAssignmentTemplate(templateId);
 
     const { data: submissions } = useAcademyAssignmentSubmissions({
@@ -264,11 +293,27 @@ function AssignmentPanel({
                 <div className="flex flex-col sm:flex-row gap-3">
                     <button
                         onClick={() => {
+                            const actorUserId = userId;
+                            if (!actorUserId) {
+                                toast.error('Phiên đăng nhập không hợp lệ');
+                                return;
+                            }
                             const content = { textAnswer, fileUrls };
                             if (submission) {
                                 updateMutation.mutate({ id: submission.id, dto: { content, status: 'DRAFT' } }, { onSuccess: () => toast.success('Đã lưu nháp!') });
                             } else {
-                                submitMutation.mutate({ assignmentTemplateId: templateId, classId, classAssessmentId, content, status: 'DRAFT', userId: 'me' }, { onSuccess: () => toast.success('Đã lưu nháp!') });
+                                if (!classId || !classAssessmentId) {
+                                    toast.error('Thiếu thông tin lớp/assessment để lưu bài tập.');
+                                    return;
+                                }
+                                submitMutation.mutate({
+                                    assignmentTemplateId: templateId,
+                                    classId,
+                                    classAssessmentId,
+                                    content,
+                                    status: 'DRAFT',
+                                    userId: actorUserId
+                                }, { onSuccess: () => toast.success('Đã lưu nháp!') });
                             }
                         }}
                         disabled={submitMutation.isPending || updateMutation.isPending}
@@ -279,6 +324,11 @@ function AssignmentPanel({
                     </button>
                     <button
                         onClick={() => {
+                            const actorUserId = userId;
+                            if (!actorUserId) {
+                                toast.error('Phiên đăng nhập không hợp lệ');
+                                return;
+                            }
                             const content = { textAnswer, fileUrls };
                             if (submission) {
                                 updateMutation.mutate({ id: submission.id, dto: { content, status: 'SUBMITTED' } }, {
@@ -286,7 +336,18 @@ function AssignmentPanel({
                                     onError: () => toast.error('Lỗi khi nộp bài.')
                                 });
                             } else {
-                                submitMutation.mutate({ assignmentTemplateId: templateId, classId, classAssessmentId, content, status: 'SUBMITTED', userId: 'me' }, {
+                                if (!classId || !classAssessmentId) {
+                                    toast.error('Thiếu thông tin lớp/assessment để nộp bài.');
+                                    return;
+                                }
+                                submitMutation.mutate({
+                                    assignmentTemplateId: templateId,
+                                    classId,
+                                    classAssessmentId,
+                                    content,
+                                    status: 'SUBMITTED',
+                                    userId: actorUserId
+                                }, {
                                     onSuccess: () => { toast.success('Đã nộp bài!'); onComplete(); },
                                     onError: () => toast.error('Lỗi khi nộp bài.')
                                 });
@@ -321,9 +382,15 @@ const SectionTypeMap: Record<string, string> = {
 };
 
 function QuizPanel({
-    lessonId, templateId, classId, onComplete
-}: { lessonId: string; templateId: string; classId?: string; onComplete: () => void; }) {
+    lessonId, templateId, classId, classAssessmentId, onComplete
+}: { lessonId: string; templateId: string; classId?: string; classAssessmentId?: string; onComplete: () => void; }) {
+    const router = useRouter();
     const { data: quiz, isLoading: quizLoading } = useAcademyQuizTemplate(templateId);
+    const { data: classAssessment } = useAcademyClassAssessment(classAssessmentId);
+    const examId = useMemo(
+        () => extractAssessmentExamId(classAssessment?.settings),
+        [classAssessment?.settings],
+    );
 
     // We will just show the info and a "Mark Complete" button for now
     // until the Quiz taking UI is fully integrated with Exam attempts.
@@ -385,13 +452,31 @@ function QuizPanel({
 
             <div className="space-y-4 bg-muted/30 border border-border rounded-xl p-6 text-center">
                 <p className="text-sm text-foreground font-medium">
-                    Hệ thống làm bài thi đang được nâng cấp.
+                    Bài kiểm tra đã sẵn sàng. Bạn có thể bắt đầu làm bài ngay.
                 </p>
                 <button
-                    onClick={onComplete}
+                    onClick={() => {
+                        if (!classId || !classAssessmentId) {
+                            toast.error('Không tìm thấy assessment của quiz này.');
+                            return;
+                        }
+                        const query = examId ? `?examId=${examId}` : '';
+                        router.push(`/courses/${classId}/quizzes/${classAssessmentId}${query}`);
+                    }}
                     className="w-full py-4 bg-violet-500 hover:bg-violet-600 text-white rounded-2xl font-bold text-base transition flex items-center justify-center gap-2 shadow-lg shadow-violet-500/25"
                 >
-                    <CheckCircle2 className="h-5 w-5" /> Đánh dấu hoàn thành
+                    <PlayCircle className="h-5 w-5" /> Bắt đầu làm bài
+                </button>
+                {!examId && (
+                    <p className="text-xs text-muted-foreground">
+                        Quiz này chưa liên kết đề thi. Vui lòng liên hệ giảng viên.
+                    </p>
+                )}
+                <button
+                    onClick={onComplete}
+                    className="w-full py-3 border border-border rounded-xl font-semibold text-sm hover:bg-muted transition"
+                >
+                    Đánh dấu hoàn thành bài học
                 </button>
             </div>
         </div>
@@ -410,7 +495,10 @@ function ModuleItem({
     onSelectLesson: (l: CurriculumLesson) => void;
 }) {
     const hasActive = mod.lessons.some(l => l.id === currentLessonId);
-    const doneCount = mod.lessons.filter(l => completedIds.has(l.id)).length;
+    const doneCount = mod.lessons.filter((lesson) => {
+        if (!isTrackableLessonKind(lesson.kind)) return false;
+        return completedIds.has(lesson.referenceId);
+    }).length;
 
     return (
         <div className="border-b border-border last:border-0">
@@ -432,7 +520,9 @@ function ModuleItem({
                 <div className="bg-background/50">
                     {mod.lessons.map(lesson => {
                         const isActive = lesson.id === currentLessonId;
-                        const isDone = completedIds.has(lesson.id);
+                        const isDone = isTrackableLessonKind(lesson.kind)
+                            ? completedIds.has(lesson.referenceId)
+                            : false;
                         return (
                             <button
                                 key={lesson.id}
@@ -471,6 +561,7 @@ export default function CourseLearnPage() {
     const params = useParams<{ courseId: string }>();
     const classId = params.courseId;
     const router = useRouter();
+    const searchParams = useSearchParams();
     const queryClient = useQueryClient();
 
     // ── API ────────────────────────────────────────────────────────────────
@@ -481,6 +572,7 @@ export default function CourseLearnPage() {
     // 2. Fetch other details using courseProfileId
     const { data: course, isLoading: courseLoading } = useAcademyCourseById(courseProfileId ?? '');
     const { data: curriculum, isLoading: curriculumLoading } = useCurriculum(classId);
+    const { data: classAssessments = [] } = useAcademyClassAssessments({ classId });
     const { data: enrollmentData } = useAcademyEnrollmentCheck(classId);
     const { data: completedLessonIds = [] } = useAcademyCompletedLessonIds(classId ?? '');
 
@@ -493,7 +585,16 @@ export default function CourseLearnPage() {
     const [note, setNote] = useState('');
     const [savingNote, setSavingNote] = useState(false);
 
+    useEffect(() => {
+        if (enrollmentData && !enrollmentData.isEnrolled) {
+            toast.error('Bạn chưa được ghi danh vào lớp học này.');
+            router.replace('/dashboard/my-courses');
+        }
+    }, [enrollmentData, router]);
+
     const completedIds = new Set(completedLessonIds);
+    const currentLessonKind = normalizeItemKind(currentLesson?.kind);
+    const shouldFetchLessonDetail = !!currentLesson?.referenceId && isLessonItemKind(currentLessonKind);
 
     // ── Load curriculum → pick first uncompleted lesson + expand all ───────
     useEffect(() => {
@@ -503,10 +604,23 @@ export default function CourseLearnPage() {
 
         // Pick first unlocked uncompleted lesson
         if (currentLesson) return; // already selected
+        const requestedLessonId = searchParams.get('lesson');
+        if (requestedLessonId) {
+            for (const mod of curriculum.modules) {
+                const requested = mod.lessons.find((lesson: CurriculumLesson) => lesson.id === requestedLessonId);
+                if (requested?.isUnlocked) {
+                    setCurrentLesson(requested);
+                    return;
+                }
+            }
+        }
         let pick: CurriculumLesson | null = null;
         for (const mod of curriculum.modules) {
             for (const lesson of mod.lessons) {
-                if (lesson.isUnlocked && !completedIds.has(lesson.id)) {
+                const completed = isTrackableLessonKind(lesson.kind)
+                    ? completedIds.has(lesson.referenceId)
+                    : false;
+                if (lesson.isUnlocked && !completed) {
                     pick = lesson; break;
                 }
             }
@@ -516,18 +630,25 @@ export default function CourseLearnPage() {
         if (!pick) pick = curriculum.modules[0]?.lessons[0] ?? null;
         setCurrentLesson(pick);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [curriculum?.courseId]);
+    }, [curriculum?.courseId, searchParams]);
 
     // ── Fetch current lesson details (video url, article content etc.) ─────
-    const { data: lessonDetail, isLoading: lessonLoading } = useAcademyLesson(currentLesson?.referenceId ?? '');
+    const { data: lessonDetail, isLoading: lessonLoading } = useAcademyLesson(
+        currentLesson?.referenceId ?? '',
+        { enabled: shouldFetchLessonDetail },
+    );
 
     // ── Progress ───────────────────────────────────────────────────────────
     const markLessonComplete = useCallback(async () => {
         if (!currentLesson) return;
-        if (completedIds.has(currentLesson.id)) { toast.info('Bài học này đã được hoàn thành!'); return; }
+        if (!isTrackableLessonKind(currentLesson.kind)) {
+            toast.info('Loại bài học này không dùng learning-progress theo lesson.');
+            return;
+        }
+        if (completedIds.has(currentLesson.referenceId)) { toast.info('Bài học này đã được hoàn thành!'); return; }
         try {
             await academyLearningProgressApi.trackProgress({
-                lessonId: currentLesson.id,
+                lessonId: currentLesson.referenceId,
                 classId: classId!,
                 status: 'COMPLETED',
                 progressPercent: 100
@@ -559,12 +680,18 @@ export default function CourseLearnPage() {
     });
 
     // ── Computed ───────────────────────────────────────────────────────────
-    const totalLessons = allLessons.length;
-    const completedCount = allLessons.filter(l => completedIds.has(l.id)).length;
+    const progressLessons = allLessons.filter((lesson) => isTrackableLessonKind(lesson.kind));
+    const totalLessons = progressLessons.length || allLessons.length;
+    const completedCount = (progressLessons.length
+        ? progressLessons.filter((lesson) => completedIds.has(lesson.referenceId))
+        : []
+    ).length;
     const progressPct = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
     const radius = 24, circumference = 2 * Math.PI * radius;
     const strokeDashoffset = circumference - (progressPct / 100) * circumference;
-    const isCurrentDone = !!currentLesson && completedIds.has(currentLesson.id);
+    const isCurrentDone = !!currentLesson &&
+        isTrackableLessonKind(currentLesson.kind) &&
+        completedIds.has(currentLesson.referenceId);
 
     // ── Loading ────────────────────────────────────────────────────────────
     if (classLoading || courseLoading || curriculumLoading) {
@@ -599,11 +726,13 @@ export default function CourseLearnPage() {
         );
     }
 
-    const contentType = lessonDetail?.contentType ?? currentLesson?.contentType ?? 'video';
-    const isVideoLesson = contentType === 'video';
-    const isArticleLesson = contentType === 'article';
-    const isAssignmentLesson = contentType === 'assignment';
-    const isQuizLesson = contentType === 'quiz';
+    const contentType = (lessonDetail?.contentType ?? 'video')
+        .toString()
+        .toLowerCase();
+    const isVideoLesson = isLessonItemKind(currentLessonKind) && contentType === 'video';
+    const isArticleLesson = isLessonItemKind(currentLessonKind) && (contentType === 'article' || contentType === 'document');
+    const isAssignmentLesson = isAssignmentItemKind(currentLessonKind);
+    const isQuizLesson = isQuizItemKind(currentLessonKind);
 
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -734,9 +863,11 @@ export default function CourseLearnPage() {
                                                 setSavingNote(true);
                                                 try {
                                                     const { studyNoteApi: StudyNoteApi } = await import('@/lib/api/services/academy-study-note-api');
-                                                    if (currentLesson?.id) {
-                                                        await StudyNoteApi.create({ content: note, lessonId: currentLesson.id });
+                                                    if (lessonDetail?.id) {
+                                                        await StudyNoteApi.create({ content: note, lessonId: lessonDetail.id });
                                                         toast.success('Đã lưu ghi chú!');
+                                                    } else {
+                                                        toast.error('Bài học hiện tại chưa hỗ trợ ghi chú.');
                                                     }
                                                 } catch (e: any) {
                                                     toast.error('Lỗi khi lưu ghi chú');
@@ -795,6 +926,14 @@ export default function CourseLearnPage() {
                                 lessonId={currentLesson.id}
                                 templateId={currentLesson.referenceId!}
                                 classId={classId}
+                                classAssessmentId={
+                                    classAssessments.find(
+                                        (a) =>
+                                            a.classId === classId &&
+                                            a.kind === 'ASSIGNMENT' &&
+                                            a.assignmentTemplateId === currentLesson.referenceId,
+                                    )?.id
+                                }
                                 onComplete={markLessonComplete}
                             />
                         </>
@@ -817,6 +956,14 @@ export default function CourseLearnPage() {
                                 lessonId={currentLesson.id}
                                 templateId={currentLesson.referenceId!}
                                 classId={classId}
+                                classAssessmentId={
+                                    classAssessments.find(
+                                        (a) =>
+                                            a.classId === classId &&
+                                            a.kind === 'QUIZ' &&
+                                            a.quizTemplateId === currentLesson.referenceId,
+                                    )?.id
+                                }
                                 onComplete={markLessonComplete}
                             />
                         </>
@@ -901,8 +1048,8 @@ export default function CourseLearnPage() {
             </button>
 
             {/* ── STUDY NOTES PANEL ─────────────────────────────────────────── */}
-            {currentLesson && (
-                <StudyNotesPanel lessonId={currentLesson.id} />
+            {lessonDetail?.id && (
+                <StudyNotesPanel lessonId={lessonDetail.id} />
             )}
         </div>
     );

@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/generated';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { EnrollmentCreateDto, EnrollmentQueryDto } from './dto/enrollment.dto';
 import { AuditLoggerService } from '../../audit-logger.service';
@@ -87,15 +88,28 @@ export class EnrollmentService {
             enrolledAt: e.enrolledAt,
             expiresAt: e.expiresAt,
             courseId: e.class.courseProfileId,
+            classId: e.classId,
             courseRunId: e.classId,
             courseTitle: e.class.courseProfile.title,
             slug: e.class.courseProfile.code,
             thumbnailUrl: e.class.courseProfile.thumbnailUrl,
             instructorName: primaryTeacher?.displayName ?? 'Academy Instructor',
             instructorAvatar: primaryTeacher?.avatarUrl,
+            mode: e.class.mode,
+            type: e.class.mode === 'LIVE' ? 'live' : 'vod',
             progress: totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0,
             completedLessons: completedCount,
             totalLessons: totalLessons,
+            class: {
+              id: e.class.id,
+              mode: e.class.mode,
+              status: e.class.status,
+              courseProfile: {
+                title: e.class.courseProfile.title,
+                code: e.class.courseProfile.code,
+                thumbnailUrl: e.class.courseProfile.thumbnailUrl,
+              },
+            },
           };
         }),
       );
@@ -110,8 +124,10 @@ export class EnrollmentService {
     return item;
   }
 
-  async create(input: EnrollmentCreateDto, requesterId = 'SYSTEM') {
-    const klass = await this.prisma.class.findUnique({
+  async create(input: EnrollmentCreateDto, requesterId = 'SYSTEM', tx?: Prisma.TransactionClient) {
+    const prisma = tx || this.prisma;
+
+    const klass = await prisma.class.findUnique({
       where: { id: input.classId },
       include: {
         vodClass: true,
@@ -120,45 +136,87 @@ export class EnrollmentService {
     });
     if (!klass) throw new BadRequestException('Invalid classId');
 
+    // Rule: Trạng thái hợp lệ để enroll
     if (klass.status !== 'ENROLLING' && klass.status !== 'IN_PROGRESS') {
       throw new BadRequestException('Can only enroll in ENROLLING or IN_PROGRESS classes');
     }
 
-    const user = await this.prisma.user.findUnique({
+    // Rule: Enrollment window
+    const enrollmentOpenAt = klass.mode === 'VOD' ? klass.vodClass?.enrollmentOpenAt : klass.liveClass?.enrollmentOpenAt;
+    const enrollmentCloseAt = klass.mode === 'VOD' ? klass.vodClass?.enrollmentCloseAt : klass.liveClass?.enrollmentCloseAt;
+
+    const now = new Date();
+    if (enrollmentOpenAt && now < enrollmentOpenAt) {
+      throw new BadRequestException(
+        `Enrollment for class ${klass.code} has not opened yet (Opening at ${enrollmentOpenAt.toISOString()})`,
+      );
+    }
+    if (enrollmentCloseAt && now > enrollmentCloseAt) {
+      throw new BadRequestException(
+        `Enrollment for class ${klass.code} has closed (Closed at ${enrollmentCloseAt.toISOString()})`,
+      );
+    }
+
+    const user = await prisma.user.findUnique({
       where: { id: input.userId },
       select: { id: true },
     });
     if (!user) throw new BadRequestException('Invalid userId');
 
-    const existing = await this.prisma.enrollment.findFirst({
-      where: { classId: input.classId, userId: input.userId },
+    const existing = await prisma.enrollment.findFirst({
+      where: { classId: input.classId, userId: input.userId, status: 'ACTIVE' },
       select: { id: true },
     });
-    if (existing) return this.findById(existing.id);
+    if (existing) {
+      // Return existing if already active
+      const item = await prisma.enrollment.findUnique({ where: { id: existing.id } });
+      return item;
+    }
 
     const maxStudents = klass.mode === 'VOD' ? klass.vodClass?.maxStudents : klass.liveClass?.maxStudents;
 
     if (maxStudents) {
-      const currentCount = await this.prisma.enrollment.count({
+      const currentCount = await prisma.enrollment.count({
         where: { classId: input.classId, status: 'ACTIVE' },
       });
       if (currentCount >= maxStudents) {
-        throw new BadRequestException('Class is full');
+        throw new BadRequestException(`Class ${klass.code} is full (${currentCount}/${maxStudents})`);
       }
     }
 
-    const result = await this.prisma.enrollment.create({
-      data: {
-        classId: input.classId,
-        userId: input.userId,
-        expiresAt: input.expiresAt,
-        status: input.status ?? 'ACTIVE',
-        sourceOfferingId: input.sourceOfferingId,
-        sourceOrderId: input.sourceOrderId,
-        companyId: input.companyId,
-        metadata: input.metadata ?? undefined,
-      },
-    });
+    let expiresAt = input.expiresAt;
+    if (!expiresAt && klass.mode === 'VOD' && klass.vodClass?.defaultExpiresMonths) {
+      const date = new Date();
+      date.setMonth(date.getMonth() + klass.vodClass.defaultExpiresMonths);
+      expiresAt = date;
+    }
+
+    let result;
+    try {
+      result = await prisma.enrollment.create({
+        data: {
+          classId: input.classId,
+          userId: input.userId,
+          expiresAt: expiresAt,
+          status: input.status ?? 'ACTIVE',
+          sourceOfferingId: input.sourceOfferingId,
+          sourceOrderId: input.sourceOrderId,
+          companyId: input.companyId,
+          metadata: input.metadata ?? undefined,
+        },
+      });
+    } catch (error: any) {
+      // Handles race condition when two concurrent requests create the same ACTIVE enrollment.
+      if (error?.code === 'P2002') {
+        const concurrentExisting = await prisma.enrollment.findFirst({
+          where: { classId: input.classId, userId: input.userId, status: 'ACTIVE' },
+        });
+        if (concurrentExisting) {
+          return concurrentExisting;
+        }
+      }
+      throw error;
+    }
 
     await this.audit.log({
       userId: requesterId,
@@ -166,11 +224,12 @@ export class EnrollmentService {
       entity: 'Enrollment',
       entityId: result.id,
       description: `Created enrollment for user ${input.userId} in class ${input.classId}`,
-      metadata: { classId: input.classId },
+      metadata: { classId: input.classId, sourceOrderId: input.sourceOrderId },
     });
 
     return result;
   }
+
 
   async updateStatus(id: string, status: string, requesterId = 'SYSTEM') {
     const old = await this.findById(id);

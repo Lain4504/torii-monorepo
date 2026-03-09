@@ -22,6 +22,11 @@ export class CourseOfferingHandler {
     return this.offerings.findById(data.id);
   }
 
+  @MessagePattern({ cmd: 'academy.courseOffering.findPublicById' })
+  findPublicById(@Payload() data: { id: string }) {
+    return this.offerings.findPublicById(data.id);
+  }
+
   @MessagePattern({ cmd: 'academy.courseOffering.create' })
   create(@Payload() data: CourseOfferingCreateDto & { requesterId?: string }) {
     const { requesterId, ...input } = data;

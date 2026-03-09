@@ -6,10 +6,11 @@ export const metadata: Metadata = {
     description: 'Quản lý thẻ ghi nhớ trong bộ này',
 };
 
-export default function StudySetDetailPage({ params }: { params: { setId: string } }) {
+export default async function StudySetDetailPage({ params }: { params: Promise<{ setId: string }> }) {
+    const { setId } = await params;
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
-            <StudySetEditor setId={params.setId} />
+            <StudySetEditor setId={setId} />
         </div>
     );
 }

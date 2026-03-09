@@ -27,7 +27,8 @@ interface OrdersColumnsProps {
 }
 
 const getStatusVariant = (status: OrderStatus): 'default' | 'secondary' | 'destructive' | 'outline' => {
-    switch (status) {
+    switch (status as any) {
+        case 'PAID':
         case OrderStatus.COMPLETED:
             return 'default';
         case OrderStatus.PENDING:
@@ -45,7 +46,8 @@ const getStatusVariant = (status: OrderStatus): 'default' | 'secondary' | 'destr
 };
 
 const getStatusLabel = (status: OrderStatus) => {
-    switch (status) {
+    switch (status as any) {
+        case 'PAID':
         case OrderStatus.COMPLETED: return 'Hoàn thành';
         case OrderStatus.PENDING: return 'Chờ xử lý';
         case OrderStatus.PROCESSING: return 'Đang xử lý';
@@ -70,35 +72,40 @@ export const getOrdersColumns = ({ onView, onCancel, onExport, page, limit }: Or
         id: 'order',
         header: 'Đơn hàng',
         cell: ({ row }) => {
-            const order = row.original;
+            const order = row.original as any;
+            const user = order.user;
             return (
                 <div className="flex flex-col gap-0.5">
-                    <span className="font-medium text-sm font-mono">{order.id.slice(0, 8)}...</span>
+                    <span className="font-medium text-sm font-mono">{order.code || (order.id.slice(0, 8) + '...')}</span>
                     <span className="text-xs text-muted-foreground">
-                        {(order as any).userName || (order as any).userEmail || order.userId}
+                        {user?.displayName || order.userName || user?.email || order.userEmail || order.userId}
                     </span>
                 </div>
             );
         }
     },
     {
-        accessorKey: 'amount',
+        accessorKey: 'grandTotal',
         header: 'Số tiền',
         cell: ({ row }) => (
-            <span className="font-semibold text-sm">{formatCurrency(row.getValue('amount'))}</span>
+            <span className="font-semibold text-sm">{formatCurrency(row.getValue('grandTotal'))}</span>
         ),
     },
     {
         id: 'service',
         header: 'Dịch vụ',
         cell: ({ row }) => {
-            const order = row.original;
+            const order = row.original as any;
+            const item = order.items?.[0];
+            const serviceName = item?.offeringSnapshot?.title || item?.offering?.title || order.orderType || 'N/A';
             return (
                 <div className="flex flex-col gap-1">
                     <Badge variant="outline" className="w-fit text-xs">
                         {order.paymentMethod}
                     </Badge>
-                    <span className="text-xs text-muted-foreground">{order.orderType}</span>
+                    <span className="text-xs text-muted-foreground truncate max-w-[150px]" title={serviceName}>
+                        {serviceName}
+                    </span>
                 </div>
             );
         }
@@ -128,7 +135,7 @@ export const getOrdersColumns = ({ onView, onCancel, onExport, page, limit }: Or
         accessorKey: 'completedAt',
         header: 'Hoàn thành',
         cell: ({ row }) => {
-            const completedAt = row.original.completedAt;
+            const completedAt = (row.original as any).paidAt || row.original.completedAt;
             if (!completedAt) return <span className="text-sm text-muted-foreground">—</span>;
             return (
                 <span className="text-sm text-muted-foreground">

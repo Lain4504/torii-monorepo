@@ -47,7 +47,7 @@ const formatSchedule = (schedules: any[]) => {
 };
 
 export default function CourseList() {
-    const { data: offerings, isLoading } = useCourses({ status: 'ACTIVE' });
+    const { data: offerings, isLoading } = useCourses({ status: 'PUBLISHED' });
 
     const vodCourses = useMemo(() => {
         if (!offerings?.data) return [];

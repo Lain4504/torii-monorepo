@@ -225,7 +225,7 @@ export default function MyCoursesPage() {
 
                             {course.type === 'live' && (
                                 <div className="rounded-xl border border-border bg-muted/20 p-3">
-                                    <LiveSessionBlock courseId={course.id} compact maxSessions={2} />
+                                    <LiveSessionBlock courseId={course.classId || course.courseRunId} compact maxSessions={2} />
                                 </div>
                             )}
 
@@ -245,7 +245,7 @@ export default function MyCoursesPage() {
                                 ) : (
                                     <div className="flex gap-2">
                                         <Link
-                                            href={`/dashboard/courses/${course.courseRunId}/learn`}
+                                            href={`/courses/${course.classId || course.courseRunId}/learn`}
                                             className="w-full flex-1"
                                             onClick={(e) => e.stopPropagation()}
                                         >

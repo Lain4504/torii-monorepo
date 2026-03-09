@@ -222,6 +222,7 @@ export function AssignmentTemplateForm({
                                         value={field.value || {}}
                                         onChange={field.onChange}
                                         presets={[
+                                            { key: "summary", label: "Tóm tắt (Summary)", defaultValue: "Tóm tắt bài tập..." },
                                             { key: "maxFileSize", label: "File tối đa (MB)", defaultValue: "10" },
                                             { key: "allowedExtensions", label: "Đuôi file", defaultValue: ".pdf,.docx,.zip" },
                                             { key: "maxWordCount", label: "Giới hạn từ", defaultValue: "5000" },
