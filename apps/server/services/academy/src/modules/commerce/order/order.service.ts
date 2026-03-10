@@ -60,11 +60,7 @@ export class OrderService {
                 id: true,
                 code: true,
                 status: true,
-                courseEdition: {
-                  select: {
-                    status: true,
-                  },
-                },
+                mode: true,
               },
             },
           },
@@ -86,11 +82,6 @@ export class OrderService {
         if (klass.status !== 'ENROLLING' && klass.status !== 'IN_PROGRESS') {
           throw new BadRequestException(
             `Class ${klass.code} is in status ${klass.status}, not sellable`,
-          );
-        }
-        if (klass.courseEdition.status !== 'PUBLISHED') {
-          throw new BadRequestException(
-            `Class ${klass.code} uses unpublished course edition`,
           );
         }
       }

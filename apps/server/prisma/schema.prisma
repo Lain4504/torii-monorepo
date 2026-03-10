@@ -402,7 +402,7 @@ model User {
   academyLearningProgresses    LearningProgress[]
   academyExamAttempts          ExamAttempt[]
   academyAssignmentSubmissions AssignmentSubmission[]
-  academyLiveClassesTaught     LiveClass[]            @relation("AcademyClassTeacher")
+  academyClassesTaught         Class[]                @relation("AcademyClassTeacher")
   academyClassReviews          ClassReview[]
   userAchievements             UserAchievement[]
   academyClassAttendances      ClassAttendance[]
@@ -561,6 +561,7 @@ model Order {
   transactions Transaction[]
   usages       CouponUsage[]
   enrollments  Enrollment[]
+  tickets      Ticket[]
 
   @@index([userId])
   @@index([status])
@@ -1011,84 +1012,13 @@ model CourseProfile {
   updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  editions            CourseEdition[]
-  lessons             Lesson[]
-  quizTemplates       QuizTemplate[]
-  assignmentTemplates AssignmentTemplate[]
   classes             Class[]
+  lessons             Lesson[]
   exams               Exam[]
   questionPools       QuestionPool[]
 
   @@index([level])
   @@map("academy_course_profiles")
-}
-
-model CourseEdition {
-  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseProfileId  String    @map("course_profile_id") @db.Uuid
-  editionTag       String    @map("edition_tag") @db.VarChar(50)
-  isCurrent        Boolean   @default(false) @map("is_current")
-  status           String    @default("DRAFT") @db.VarChar(20)
-  syllabusSnapshot Json?     @map("syllabus_snapshot") @db.JsonB
-  changelog        String?   @db.Text
-  
-  submittedForApprovalAt DateTime? @map("submitted_for_approval_at")
-  submittedBy            String?   @map("submitted_by") @db.Uuid
-  approvedAt            DateTime? @map("approved_at")
-  approvedBy            String?   @map("approved_by") @db.Uuid
-  rejectedAt            DateTime? @map("rejected_at")
-  rejectedBy            String?   @map("rejected_by") @db.Uuid
-  rejectionReason       String?   @map("rejection_reason") @db.Text
-
-  publishedAt DateTime? @map("published_at")
-  createdAt        DateTime  @default(now()) @map("created_at")
-  updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  courseProfile CourseProfile @relation(fields: [courseProfileId], references: [id], onDelete: Cascade)
-  chapters      Chapter[]
-  classes       Class[]
-
-  @@unique([courseProfileId, editionTag])
-  @@index([courseProfileId])
-  @@index([isCurrent])
-  @@map("academy_course_editions")
-}
-
-model Chapter {
-  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseEditionId  String   @map("course_edition_id") @db.Uuid
-  title            String   @db.VarChar(255)
-  description      String?  @db.Text
-  orderIndex       Int      @map("order_index")
-  estimatedMinutes Int?     @map("estimated_minutes")
-  status           String   @default("DRAFT") @db.VarChar(20)
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  courseEdition CourseEdition @relation(fields: [courseEditionId], references: [id], onDelete: Cascade)
-  items         ChapterItem[]
-
-  @@index([courseEditionId, orderIndex])
-  @@map("academy_chapters")
-}
-
-model ChapterItem {
-  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  chapterId   String @map("chapter_id") @db.Uuid
-  title       String @db.VarChar(255)
-  kind        String @db.VarChar(50) // LESSON, QUIZ_TEMPLATE, ASSIGNMENT_TEMPLATE, READING, PROJECT, ...
-  referenceId String @map("reference_id") @db.Uuid
-  orderIndex  Int    @map("order_index")
-  metadata    Json?  @default("{}") @db.JsonB
-
-  // Relations
-  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-
-  @@index([chapterId, orderIndex])
-  @@index([referenceId])
-  @@map("academy_chapter_items")
 }
 
 model Lesson {
@@ -1105,68 +1035,28 @@ model Lesson {
 
   // Relations
   courseProfile    CourseProfile      @relation(fields: [courseProfileId], references: [id], onDelete: Cascade)
-  learningProgress LearningProgress[]
   studyNotes       StudyNote[]
 
   @@index([courseProfileId])
   @@map("academy_lessons")
 }
 
-model QuizTemplate {
-  id                         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseProfileId            String   @map("course_profile_id") @db.Uuid
-  title                      String   @db.VarChar(255)
-  description                String?  @db.Text
-  questionPoolId             String?  @map("question_pool_id") @db.Uuid
-  defaultTimeLimitMinutes    Int?     @map("default_time_limit_minutes")
-  defaultMaxAttempts         Int      @map("default_max_attempts")
-  defaultPassingScorePercent Decimal? @map("default_passing_score_percent") @db.Decimal(5, 2)
-  settings                   Json?    @default("{}") @db.JsonB
-  createdAt                  DateTime @default(now()) @map("created_at")
-  updatedAt                  DateTime @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  courseProfile    CourseProfile @relation(fields: [courseProfileId], references: [id], onDelete: Cascade)
-  questionPool     QuestionPool? @relation(fields: [questionPoolId], references: [id], onDelete: SetNull)
-  classAssessments ClassAssessment[]
-
-  @@index([courseProfileId])
-  @@index([questionPoolId])
-  @@map("academy_quiz_templates")
-}
-
-model AssignmentTemplate {
-  id                        String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  courseProfileId           String         @map("course_profile_id") @db.Uuid
-  title                     String         @db.VarChar(255)
-  description               String?        @db.Text
-  defaultType               AssignmentType @map("default_type")
-  defaultMaxScore           Decimal?       @map("default_max_score") @db.Decimal(7, 2)
-  defaultRubric             Json?          @default("{}") @map("default_rubric") @db.JsonB
-  defaultSubmissionSettings Json?          @default("{}") @map("default_submission_settings") @db.JsonB
-  createdAt                 DateTime       @default(now()) @map("created_at")
-  updatedAt                 DateTime       @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  courseProfile    CourseProfile          @relation(fields: [courseProfileId], references: [id], onDelete: Cascade)
-  classAssessments ClassAssessment[]
-  submissions      AssignmentSubmission[]
-
-  @@index([courseProfileId])
-  @@map("academy_assignment_templates")
-}
 
 // --- Delivery layer ---
 
 model Class {
   id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   courseProfileId String      @map("course_profile_id") @db.Uuid
-  courseEditionId String      @map("course_edition_id") @db.Uuid
   code            String      @unique @db.VarChar(150)
   name            String      @db.VarChar(255)
   mode            ClassMode
   status          ClassStatus @default(DRAFT)
   settings        Json?       @default("{}") @db.JsonB
+  
+  defaultExpiresMonths Int?      @map("default_expires_months") // VOD
+  openingDate          DateTime? @map("opening_date")           // LIVE
+  closingDate          DateTime? @map("closing_date")           // LIVE
+  instructorId         String?   @map("instructor_id") @db.Uuid // LIVE
 
   submittedForApprovalAt DateTime? @map("submitted_for_approval_at")
   submittedBy            String?   @map("submitted_by") @db.Uuid
@@ -1181,64 +1071,64 @@ model Class {
 
   // Relations
   courseProfile         CourseProfile          @relation(fields: [courseProfileId], references: [id], onDelete: Cascade)
-  courseEdition         CourseEdition          @relation(fields: [courseEditionId], references: [id], onDelete: Cascade)
-  vodClass              VodClass?
-  liveClass             LiveClass?
+  instructor            User?                  @relation("AcademyClassTeacher", fields: [instructorId], references: [id], onDelete: SetNull)
+  modules               ClassModule[]
   enrollments           Enrollment[]
-  assessments           ClassAssessment[]
   learningProgress      LearningProgress[]
   examAttempts          ExamAttempt[]
   tickets               Ticket[]
   certificates          Certificate[]
-  assignmentSubmissions AssignmentSubmission[]
+  assignments           Assignment[]
   offeringLinks         CourseOfferingClass[]
   reviews               ClassReview[]
   liveSchedules         LiveSchedule[]
 
   @@index([courseProfileId])
-  @@index([courseEditionId])
   @@index([mode])
   @@index([status])
   @@map("academy_classes")
 }
 
-model VodClass {
-  id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  classId              String    @unique @map("class_id") @db.Uuid
-  enrollmentOpenAt     DateTime? @map("enrollment_open_at")
-  enrollmentCloseAt    DateTime? @map("enrollment_close_at")
-  maxStudents          Int?      @map("max_students")
-  defaultExpiresMonths Int?      @map("default_expires_months")
+model ClassModule {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  classId    String   @map("class_id") @db.Uuid
+  title      String   @db.VarChar(255)
+  orderIndex Int      @map("order_index")
 
+  // Relations
   class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+  items ClassContentItem[]
 
-  @@map("academy_vod_classes")
+  @@index([classId, orderIndex])
+  @@map("academy_class_modules")
 }
 
-model LiveClass {
-  id                     String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  classId                String                  @unique @map("class_id") @db.Uuid
-  term                   String?                 @db.VarChar(100)
-  batch                  String?                 @db.VarChar(100)
-  startDate              DateTime                @map("start_date")
-  endDate                DateTime                @map("end_date")
-  enrollmentOpenAt       DateTime                @map("enrollment_open_at")
-  enrollmentCloseAt      DateTime                @map("enrollment_close_at")
-  minStudents            Int                     @map("min_students")
-  maxStudents            Int                     @map("max_students")
-  minStudentsEnforcement MinStudentsEnforcement? @map("min_students_enforcement")
-  primaryTeacherId       String?                 @map("primary_teacher_id") @db.Uuid
+model ClassContentItem {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  moduleId       String   @map("module_id") @db.Uuid
+  kind           String   @db.VarChar(20) // 'VIDEO' | 'MATERIAL' | 'EXAM' | 'ASSIGNMENT' | 'TOPIC'
+  referenceId    String?  @map("reference_id") @db.Uuid
+  orderIndex     Int      @map("order_index")
+  status         String   @default("PUBLISHED") @db.VarChar(20)
+  availableFrom  DateTime? @map("available_from")
+  deadline       DateTime?
+  isPrerequisite Boolean  @default(false) @map("is_prerequisite")
+  settings       Json?    @default("{}") @db.JsonB
 
-  class          Class              @relation(fields: [classId], references: [id], onDelete: Cascade)
-  primaryTeacher User?              @relation("AcademyClassTeacher", fields: [primaryTeacherId], references: [id], onDelete: SetNull)
-  schedules      LiveSchedule[]
+  // Relations
+  module                ClassModule        @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  learningProgresses    LearningProgress[]
+  examAttempts          ExamAttempt[]
 
-  @@map("academy_live_classes")
+  @@index([moduleId, orderIndex])
+  @@index([referenceId])
+  @@map("academy_class_content_items")
 }
+
+
 
 model LiveSchedule {
   id            String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  liveClassId   String  @map("live_class_id") @db.Uuid
   classId       String  @map("class_id") @db.Uuid
   weekday       Int // 0-6
   startTime     String  @map("start_time") @db.VarChar(20)
@@ -1248,12 +1138,10 @@ model LiveSchedule {
   note          String? @db.Text
   roomId        String? @map("room_id") @db.VarChar(64)
 
-  liveClass LiveClass @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
   class     Class     @relation(fields: [classId], references: [id], onDelete: Cascade)
   attendances ClassAttendance[]
   requests LiveScheduleRequest[]
 
-  @@index([liveClassId])
   @@index([classId])
   @@map("academy_live_schedules")
 }
@@ -1295,34 +1183,6 @@ model LiveScheduleRequest {
 
 
 
-model ClassAssessment {
-  id                       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  classId                  String    @map("class_id") @db.Uuid
-  kind                     String    @db.VarChar(20) // QUIZ, ASSIGNMENT
-  quizTemplateId           String?   @map("quiz_template_id") @db.Uuid
-  assignmentTemplateId     String?   @map("assignment_template_id") @db.Uuid
-  titleOverride            String?   @map("title_override") @db.VarChar(255)
-  deadline                 DateTime? @db.Timestamp(6)
-  weight                   Decimal?  @db.Decimal(5, 2)
-  maxAttemptsOverride      Int?      @map("max_attempts_override")
-  timeLimitOverrideMinutes Int?      @map("time_limit_override_minutes")
-  maxScoreOverride         Decimal?  @map("max_score_override") @db.Decimal(7, 2)
-  settings                 Json?     @default("{}") @db.JsonB
-  status                   String    @default("DRAFT") @db.VarChar(20) // DRAFT, PUBLISHED, CLOSED
-  createdAt                DateTime  @default(now()) @map("created_at")
-  updatedAt                DateTime  @default(now()) @updatedAt @map("updated_at")
-
-  // Relations
-  class                 Class                  @relation(fields: [classId], references: [id], onDelete: Cascade)
-  quizTemplate          QuizTemplate?          @relation(fields: [quizTemplateId], references: [id], onDelete: SetNull)
-  assignmentTemplate    AssignmentTemplate?    @relation(fields: [assignmentTemplateId], references: [id], onDelete: SetNull)
-  examAttempts          ExamAttempt[]
-  assignmentSubmissions AssignmentSubmission[]
-
-  @@index([classId])
-  @@index([status])
-  @@map("academy_class_assessments")
-}
 
 model Enrollment {
   id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -1354,17 +1214,17 @@ model LearningProgress {
   id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   classId         String    @map("class_id") @db.Uuid
   userId          String    @map("user_id") @db.Uuid
-  lessonId        String    @map("lesson_id") @db.Uuid
+  contentItemId   String    @map("content_item_id") @db.Uuid
   status          String    @default("NOT_STARTED") @db.VarChar(20) // NOT_STARTED, IN_PROGRESS, COMPLETED
   lastAccessedAt  DateTime? @map("last_accessed_at")
   progressPercent Int       @default(0) @map("progress_percent")
 
   // Relations
-  class  Class  @relation(fields: [classId], references: [id], onDelete: Cascade)
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  class       Class            @relation(fields: [classId], references: [id], onDelete: Cascade)
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contentItem ClassContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
 
-  @@unique([classId, userId, lessonId])
+  @@unique([userId, contentItemId])
   @@index([classId])
   @@index([userId])
   @@map("academy_learning_progress")
@@ -1497,7 +1357,7 @@ model ExamAttempt {
   examId            String    @map("exam_id") @db.Uuid
   classId           String?   @map("class_id") @db.Uuid
   userId            String    @map("user_id") @db.Uuid
-  classAssessmentId String?   @map("class_assessment_id") @db.Uuid
+  contentItemId     String?   @map("content_item_id") @db.Uuid
   status            String    @default("IN_PROGRESS") @db.VarChar(20) // IN_PROGRESS, SUBMITTED, COMPLETED, ABANDONED
   startedAt         DateTime  @default(now()) @map("started_at")
   submittedAt       DateTime? @map("submitted_at")
@@ -1513,12 +1373,12 @@ model ExamAttempt {
   updatedAt         DateTime  @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  exam            Exam                      @relation(fields: [examId], references: [id], onDelete: Cascade)
-  class           Class?                    @relation(fields: [classId], references: [id], onDelete: SetNull)
-  user            User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  classAssessment ClassAssessment?          @relation(fields: [classAssessmentId], references: [id], onDelete: SetNull)
-  sections        ExamAttemptSectionState[]
-  details         ExamAttemptDetail[]
+  exam        Exam                      @relation(fields: [examId], references: [id], onDelete: Cascade)
+  class       Class?                    @relation(fields: [classId], references: [id], onDelete: SetNull)
+  user        User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contentItem ClassContentItem?         @relation(fields: [contentItemId], references: [id], onDelete: SetNull)
+  sections    ExamAttemptSectionState[]
+  details     ExamAttemptDetail[]
 
   @@index([examId])
   @@index([classId])
@@ -1542,7 +1402,6 @@ model QuestionPool {
 
   courseProfile CourseProfile? @relation(fields: [courseProfileId], references: [id], onDelete: SetNull)
   poolQuestions PoolQuestion[]
-  quizTemplates QuizTemplate[]
 
   @@index([courseProfileId])
   @@index([level])
@@ -1607,29 +1466,44 @@ model ExamAttemptDetail {
   @@map("academy_exam_attempt_details")
 }
 
+model Assignment {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  classId     String   @map("class_id") @db.Uuid
+  title       String   @db.VarChar(255)
+  instruction String?  @db.Text
+  attachments String[] @map("attachments")
+  maxScore    Decimal? @map("max_score") @db.Decimal(5, 2)
+  status      String   @default("DRAFT") @db.VarChar(20)
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  class       Class                  @relation(fields: [classId], references: [id], onDelete: Cascade)
+  submissions AssignmentSubmission[]
+  
+  @@index([classId])
+  @@map("academy_assignments")
+}
+
 model AssignmentSubmission {
   id                   String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  classId              String           @map("class_id") @db.Uuid
-  classAssessmentId    String           @map("class_assessment_id") @db.Uuid
-  assignmentTemplateId String           @map("assignment_template_id") @db.Uuid
+  assignmentId         String           @map("assignment_id") @db.Uuid
   userId               String           @map("user_id") @db.Uuid
   status               SubmissionStatus @default(DRAFT)
-  score                Decimal?         @db.Decimal(7, 2)
-  submittedAt          DateTime?        @map("submitted_at")
+  grade                Decimal?         @db.Decimal(5, 2)
+  feedback             String?          @db.Text
+  content              String?          @db.Text
+  fileUrls             String[]         @map("file_urls")
+  submittedAt          DateTime?        @default(now()) @map("submitted_at")
   gradedAt             DateTime?        @map("graded_at")
-  content              Json?            @db.JsonB
   createdAt            DateTime         @default(now()) @map("created_at")
   updatedAt            DateTime         @default(now()) @updatedAt @map("updated_at")
 
   // Relations
-  class              Class              @relation(fields: [classId], references: [id], onDelete: Cascade)
-  classAssessment    ClassAssessment    @relation(fields: [classAssessmentId], references: [id], onDelete: Cascade)
-  assignmentTemplate AssignmentTemplate @relation(fields: [assignmentTemplateId], references: [id], onDelete: Cascade)
+  assignment         Assignment         @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
   user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([classId])
-  @@index([classAssessmentId])
-  @@index([assignmentTemplateId])
+  @@index([assignmentId])
   @@index([userId])
   @@map("academy_assignment_submissions")
 }

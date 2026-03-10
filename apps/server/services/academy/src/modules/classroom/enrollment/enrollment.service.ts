@@ -23,15 +23,10 @@ export class EnrollmentService {
       include: {
         class: {
           include: {
-            vodClass: true,
-            liveClass: {
-              include: {
-                primaryTeacher: {
-                  select: {
-                    displayName: true,
-                    avatarUrl: true,
-                  },
-                },
+            instructor: {
+              select: {
+                displayName: true,
+                avatarUrl: true,
               },
             },
             courseProfile: {
@@ -41,16 +36,9 @@ export class EnrollmentService {
                 thumbnailUrl: true,
               },
             },
-            courseEdition: {
-              select: {
-                chapters: {
-                  select: {
-                    items: {
-                      where: { kind: 'LESSON' },
-                      select: { referenceId: true },
-                    },
-                  },
-                },
+            modules: {
+              include: {
+                items: true,
               },
             },
           },
@@ -63,10 +51,8 @@ export class EnrollmentService {
       // Logic for Learner Portal (rich mapping)
       return Promise.all(
         enrollmentRecords.map(async (e) => {
-          const allLessonIds = e.class.courseEdition.chapters.flatMap((c) =>
-            c.items.map((i) => i.referenceId),
-          );
-          const totalLessons = allLessonIds.length;
+          const allContentItems = e.class.modules.flatMap((m) => m.items);
+          const totalLessons = allContentItems.length;
 
           let completedCount = 0;
           if (totalLessons > 0) {
@@ -75,12 +61,12 @@ export class EnrollmentService {
                 userId: e.userId,
                 classId: e.classId,
                 status: 'COMPLETED',
-                lessonId: { in: allLessonIds },
+                contentItemId: { in: allContentItems.map((i) => i.id) },
               },
             });
           }
 
-          const primaryTeacher = e.class.liveClass?.primaryTeacher;
+          const instructor = e.class.instructor;
 
           return {
             id: e.id,
@@ -93,11 +79,14 @@ export class EnrollmentService {
             courseTitle: e.class.courseProfile.title,
             slug: e.class.courseProfile.code,
             thumbnailUrl: e.class.courseProfile.thumbnailUrl,
-            instructorName: primaryTeacher?.displayName ?? 'Academy Instructor',
-            instructorAvatar: primaryTeacher?.avatarUrl,
+            instructorName: instructor?.displayName ?? 'Academy Instructor',
+            instructorAvatar: instructor?.avatarUrl,
             mode: e.class.mode,
             type: e.class.mode === 'LIVE' ? 'live' : 'vod',
-            progress: totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0,
+            progress:
+              totalLessons > 0
+                ? Math.round((completedCount / totalLessons) * 100)
+                : 0,
             completedLessons: completedCount,
             totalLessons: totalLessons,
             class: {
@@ -129,31 +118,31 @@ export class EnrollmentService {
 
     const klass = await prisma.class.findUnique({
       where: { id: input.classId },
-      include: {
-        vodClass: true,
-        liveClass: true,
-      },
     });
     if (!klass) throw new BadRequestException('Invalid classId');
 
     // Rule: Trạng thái hợp lệ để enroll
     if (klass.status !== 'ENROLLING' && klass.status !== 'IN_PROGRESS') {
-      throw new BadRequestException('Can only enroll in ENROLLING or IN_PROGRESS classes');
+      throw new BadRequestException(
+        'Can only enroll in ENROLLING or IN_PROGRESS classes',
+      );
     }
 
     // Rule: Enrollment window
-    const enrollmentOpenAt = klass.mode === 'VOD' ? klass.vodClass?.enrollmentOpenAt : klass.liveClass?.enrollmentOpenAt;
-    const enrollmentCloseAt = klass.mode === 'VOD' ? klass.vodClass?.enrollmentCloseAt : klass.liveClass?.enrollmentCloseAt;
+    const enrollmentOpenAt = klass.openingDate; // Based on Class model directly now
+    const enrollmentCloseAt = klass.closingDate;
 
     const now = new Date();
     if (enrollmentOpenAt && now < enrollmentOpenAt) {
       throw new BadRequestException(
-        `Enrollment for class ${klass.code} has not opened yet (Opening at ${enrollmentOpenAt.toISOString()})`,
+        `Enrollment for class ${klass.code
+        } has not opened yet (Opening at ${enrollmentOpenAt.toISOString()})`,
       );
     }
     if (enrollmentCloseAt && now > enrollmentCloseAt) {
       throw new BadRequestException(
-        `Enrollment for class ${klass.code} has closed (Closed at ${enrollmentCloseAt.toISOString()})`,
+        `Enrollment for class ${klass.code
+        } has closed (Closed at ${enrollmentCloseAt.toISOString()})`,
       );
     }
 
@@ -169,25 +158,29 @@ export class EnrollmentService {
     });
     if (existing) {
       // Return existing if already active
-      const item = await prisma.enrollment.findUnique({ where: { id: existing.id } });
+      const item = await prisma.enrollment.findUnique({
+        where: { id: existing.id },
+      });
       return item;
     }
 
-    const maxStudents = klass.mode === 'VOD' ? klass.vodClass?.maxStudents : klass.liveClass?.maxStudents;
+    const maxStudents = klass.settings ? (klass.settings as any).maxStudents : undefined;
 
     if (maxStudents) {
       const currentCount = await prisma.enrollment.count({
         where: { classId: input.classId, status: 'ACTIVE' },
       });
       if (currentCount >= maxStudents) {
-        throw new BadRequestException(`Class ${klass.code} is full (${currentCount}/${maxStudents})`);
+        throw new BadRequestException(
+          `Class ${klass.code} is full (${currentCount}/${maxStudents})`,
+        );
       }
     }
 
     let expiresAt = input.expiresAt;
-    if (!expiresAt && klass.mode === 'VOD' && klass.vodClass?.defaultExpiresMonths) {
+    if (!expiresAt && klass.mode === 'VOD' && klass.defaultExpiresMonths) {
       const date = new Date();
-      date.setMonth(date.getMonth() + klass.vodClass.defaultExpiresMonths);
+      date.setMonth(date.getMonth() + klass.defaultExpiresMonths);
       expiresAt = date;
     }
 
@@ -255,17 +248,19 @@ export class EnrollmentService {
     const enrollment = await this.findById(id);
     const targetClass = await this.prisma.class.findUnique({
       where: { id: targetClassId },
-      select: { id: true, courseEditionId: true },
+      select: { id: true, courseProfileId: true },
     });
     if (!targetClass) throw new BadRequestException('Target class not found');
 
     const sourceClass = await this.prisma.class.findUnique({
       where: { id: enrollment.classId },
-      select: { id: true, courseEditionId: true },
+      select: { id: true, courseProfileId: true },
     });
 
-    if (sourceClass?.courseEditionId !== targetClass.courseEditionId) {
-      throw new BadRequestException('Can only move enrollment between classes of the same edition');
+    if (sourceClass?.courseProfileId !== targetClass.courseProfileId) {
+      throw new BadRequestException(
+        'Can only move enrollment between classes of the same course profile',
+      );
     }
 
     const result = await this.prisma.enrollment.update({
@@ -292,8 +287,8 @@ export class EnrollmentService {
       include: {
         class: {
           include: {
-            courseEdition: {
-              include: { chapters: { include: { items: true } } },
+            modules: {
+              include: { items: true },
             },
           },
         },
@@ -302,22 +297,22 @@ export class EnrollmentService {
     });
     if (!enrollment || enrollment.status !== 'ACTIVE') return;
 
-    // Simplified completion: check if all LESSON chapter items have learning progress COMPLETED
-    const chapterItems = enrollment.class.courseEdition.chapters.flatMap((c) => c.items);
-    const lessons = chapterItems.filter((i) => i.kind === 'LESSON');
+    // Simplified completion: check if all prerequisite content items have learning progress COMPLETED
+    const contentItems = enrollment.class.modules.flatMap((m) => m.items);
+    const prerequisiteItems = contentItems.filter((i) => i.isPrerequisite);
 
-    if (lessons.length === 0) return;
+    if (prerequisiteItems.length === 0) return;
 
-    const completedLessons = await this.prisma.learningProgress.count({
+    const completedPrerequisites = await this.prisma.learningProgress.count({
       where: {
         userId: enrollment.userId,
         classId: enrollment.classId,
         status: 'COMPLETED',
-        lessonId: { in: lessons.map((l) => l.referenceId) },
+        contentItemId: { in: prerequisiteItems.map((l) => l.id) },
       },
     });
 
-    if (completedLessons >= lessons.length) {
+    if (completedPrerequisites >= prerequisiteItems.length) {
       await this.prisma.enrollment.update({
         where: { id: enrollmentId },
         data: { status: 'COMPLETED' },

@@ -22,7 +22,7 @@ export class ExamAttemptStartDto {
 
   @IsOptional()
   @IsUUID()
-  classAssessmentId?: string;
+  contentItemId?: string;
 }
 
 export class ExamAttemptSaveAnswersDto {
@@ -64,7 +64,7 @@ export class ExamAttemptQueryDto {
 
   @IsOptional()
   @IsUUID()
-  classAssessmentId?: string;
+  contentItemId?: string;
 
   @IsOptional()
   @IsBoolean()

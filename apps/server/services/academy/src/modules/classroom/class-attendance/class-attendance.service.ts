@@ -24,7 +24,7 @@ export class ClassAttendanceService {
         if (userId) where.userId = userId;
         if (liveClassId) {
             where.liveSchedule = {
-                liveClassId: liveClassId,
+                classId: liveClassId,
             };
         }
 
@@ -74,20 +74,18 @@ export class ClassAttendanceService {
         const schedule = await this.prisma.liveSchedule.findUnique({
             where: { id: input.liveScheduleId },
             include: {
-                liveClass: {
-                    include: {
-                        class: true,
-                    },
-                },
+                class: true,
             },
         });
 
         if (!schedule) throw new NotFoundException('LiveSchedule not found');
-        if (schedule.liveClass.class.mode !== 'LIVE') {
-            throw new BadRequestException('Attendance can only be recorded for LIVE classes');
+        if (schedule.class.mode !== 'LIVE') {
+            throw new BadRequestException(
+                'Attendance can only be recorded for LIVE classes',
+            );
         }
 
-        const classId = schedule.liveClass.classId;
+        const classId = schedule.classId;
 
         // 2. Validate userId has an ACTIVE enrollment in this class
         const enrollment = await this.prisma.enrollment.findFirst({

@@ -80,7 +80,7 @@ export class LiveScheduleRequestQueryDto {
 
 export class LiveScheduleConflictPreviewDto {
   @IsUUID()
-  liveClassId!: string;
+  classId!: string;
 
   @IsOptional()
   @IsUUID()

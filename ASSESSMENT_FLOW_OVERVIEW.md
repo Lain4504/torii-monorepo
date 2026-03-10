@@ -29,7 +29,10 @@ erDiagram
     %% Content Mapping
     ClassContentItem }o--|| LessonBank : "video/lý thuyết gốc"
     ClassContentItem ||--|| Exam : "đề thi riêng lớp"
-    ClassContentItem ||--|| Assignment : "bài tập riêng lớp"
+    ClassContentItem }o--|| Assignment : "bài tập riêng lớp"
+
+    Class ||--o{ Assignment : "đề bài tập"
+    Assignment ||--o{ AssignmentSubmission : "bài làm của học viên"
 
     Enrollment ||--|| Class : "ghi danh"
     ExamAttempt }o--|| Class : "kết quả thi"
@@ -125,16 +128,44 @@ CREATE TABLE learning_progress (
 - **Đợt 1 (Tháng 3):** Lớp thầy Tanaka dạy. Thầy upload Slide riêng của thầy vào Tab "Tài liệu" của lớp. Điểm danh học viên qua bảng `attendance`.
 - **Đợt 2 (Tháng 6):** Lớp cô Yamada dạy. Cô không dùng Slide của thầy Tanaka mà tự soạn Syllabus mới, tự tạo bộ đề thi mới từ Question Bank.
 
+-- 4. BÀI TẬP TỰ LUẬN (Dành cho Lớp học)
+CREATE TABLE assignments (
+    id UUID PRIMARY KEY,
+    class_id UUID REFERENCES classes(id) ON DELETE CASCADE, -- Thuộc sở hữu của lớp
+    title VARCHAR(255),
+    instruction TEXT,         -- Đề bài, hướng dẫn làm bài
+    attachments TEXT[],       -- Danh sách link file đính kèm (ví dụ đề bài PDF)
+    max_score DECIMAL(5, 2),  -- Thang điểm (thường là 10 hoặc 100)
+    status VARCHAR(20),       -- 'DRAFT', 'PUBLISHED'
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+CREATE TABLE assignment_submissions (
+    id UUID PRIMARY KEY,
+    assignment_id UUID REFERENCES assignments(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    status VARCHAR(20),       -- 'DRAFT', 'SUBMITTED', 'GRADED'
+    content TEXT,             -- Nội dung bài viết của học viên
+    file_urls TEXT[],         -- File bài làm học viên upload (ảnh chụp vở, file word)
+    grade DECIMAL(5, 2),      -- Điểm do giảng viên chấm
+    feedback TEXT,            -- Nhận xét của giảng viên
+    submitted_at TIMESTAMP DEFAULT NOW(),
+    graded_at TIMESTAMP,      -- Ngày chấm điểm
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
 ---
 
 # HƯỚNG DẪN TRIỂN KHAI (IMPLEMENTATION PROMPT)
 
 **LƯU Ý:** Chỉ đọc duy nhất file này, không đọc các file spec khác. KHÔNG giữ backward compatibility. Xóa sạch logic cũ liên quan đến `CourseEdition`. Chỉ chạy lệnh npx prisma generate, còn npx prisma db push hay migration tôi sẽ tự chạy sau. Yêu cầu làm xong phần nào thì update checklist bên dưới file này, bên dưới ##CHECKLIST để các agent khác có thể biết tiến độ.
 
-## GIAI ĐOẠN 1: BACKEND REFACTOR - [ ]
-- [ ] **DB:** Xóa các bảng `CourseEdition`, `Chapter`, `ChapterItem`, `QuizTemplate`, `AssignmentTemplate`.
-- [ ] **Schema:** Nâng cấp bảng `Class` và tạo các bảng `ClassModule`, `ClassContentItem`, `Attendance`, `LearningProgress`.
-- [ ] **Services:** 
+## GIAI ĐOẠN 1: BACKEND REFACTOR - [x]
+- [x] **DB:** Xóa các bảng `CourseEdition`, `Chapter`, `ChapterItem`, `QuizTemplate`, `AssignmentTemplate`.
+- [x] **Schema:** Nâng cấp bảng `Class` và tạo các bảng `ClassModule`, `ClassContentItem`, `Attendance`, `LearningProgress`.
+- [x] **Services:** 
     - Viết logic `Deep Clone Class`: Nhân bản toàn bộ Syllabus + Exams của lớp sang ID mới.
     - API `GET /classes/:id/syllabus`: Trả về cây dữ liệu dựa trên `class_id`.
     - API `Auto-Enroll`: Mua `CourseOffering` -> Tự động tạo `Enrollment` cho danh sách `classIds` gắn kèm.

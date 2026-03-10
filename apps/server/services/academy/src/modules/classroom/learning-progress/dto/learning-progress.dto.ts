@@ -8,7 +8,7 @@ export class LearningProgressUpsertDto {
   userId!: string;
 
   @IsUUID()
-  lessonId!: string;
+  contentItemId!: string;
 
   @IsOptional()
   @IsString()

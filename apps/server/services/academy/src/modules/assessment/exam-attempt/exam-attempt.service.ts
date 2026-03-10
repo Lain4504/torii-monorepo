@@ -25,7 +25,7 @@ export class ExamAttemptService {
         examId: query.examId ?? undefined,
         userId: query.userId ?? undefined,
         classId: query.classId ?? undefined,
-        classAssessmentId: query.classAssessmentId ?? undefined,
+        contentItemId: query.contentItemId ?? undefined,
         status: query.status ?? undefined,
       },
       orderBy: [{ createdAt: 'desc' }],
@@ -34,7 +34,7 @@ export class ExamAttemptService {
     if (!query.latestOnly) return items;
     const latestMap = new Map<string, (typeof items)[number]>();
     for (const item of items) {
-      const key = `${item.classAssessmentId ?? 'none'}:${item.userId}`;
+      const key = `${item.contentItemId ?? 'none'}:${item.userId}`;
       if (!latestMap.has(key)) {
         latestMap.set(key, item);
       }
@@ -63,7 +63,7 @@ export class ExamAttemptService {
     }
     const exam = await this.prisma.exam.findUnique({
       where: { id: input.examId },
-      include: { 
+      include: {
         sections: true,
         _count: {
           select: { examQuestions: true }
@@ -76,13 +76,14 @@ export class ExamAttemptService {
     }
 
     let resolvedClassId = input.classId;
-    if (input.classAssessmentId && !resolvedClassId) {
-      const assessment = await this.prisma.classAssessment.findUnique({
-        where: { id: input.classAssessmentId },
-        select: { classId: true },
+    let resolvedClassId = input.classId;
+    if (input.contentItemId && !resolvedClassId) {
+      const ci = await this.prisma.classContentItem.findUnique({
+        where: { id: input.contentItemId },
+        include: { module: { select: { classId: true } } },
       });
-      if (!assessment) throw new BadRequestException('Invalid classAssessmentId');
-      resolvedClassId = assessment.classId;
+      if (!ci) throw new BadRequestException('Invalid contentItemId');
+      resolvedClassId = ci.module.classId;
     }
 
     if (resolvedClassId) {
@@ -99,21 +100,24 @@ export class ExamAttemptService {
     });
     if (!user) throw new BadRequestException('Invalid userId');
 
-    // Check class assessment relation + max attempts
+    // Check class content item relation + max attempts
     let maxAttempts: number | null | undefined = undefined;
-    if (input.classAssessmentId) {
-      const ca = await this.prisma.classAssessment.findUnique({
-        where: { id: input.classAssessmentId },
-        select: { maxAttemptsOverride: true, classId: true, kind: true },
+    if (input.contentItemId) {
+      const ci = await this.prisma.classContentItem.findUnique({
+        where: { id: input.contentItemId },
+        include: { module: { select: { classId: true } } },
       });
-      if (!ca) throw new BadRequestException('Invalid classAssessmentId');
-      if (ca.kind !== 'QUIZ') {
-        throw new BadRequestException('classAssessmentId must reference QUIZ');
+      if (!ci) throw new BadRequestException('Invalid contentItemId');
+      if (ci.kind !== 'EXAM') {
+        throw new BadRequestException('contentItemId must reference EXAM');
       }
-      if (resolvedClassId && ca.classId !== resolvedClassId) {
-        throw new BadRequestException('classAssessmentId does not belong to classId');
+      if (resolvedClassId && ci.module.classId !== resolvedClassId) {
+        throw new BadRequestException(
+          'contentItemId does not belong to classId',
+        );
       }
-      maxAttempts = ca?.maxAttemptsOverride;
+      const settings = (ci.settings as any) || {};
+      maxAttempts = settings.maxAttemptsOverride;
     }
 
     if (resolvedClassId) {
@@ -142,11 +146,13 @@ export class ExamAttemptService {
           where: {
             examId: input.examId,
             userId: input.userId,
-            classAssessmentId: input.classAssessmentId,
+            contentItemId: input.contentItemId,
           },
         });
         if (attemptCount >= maxAttempts) {
-          throw new BadRequestException('Maximum attempts reached for this assessment');
+          throw new BadRequestException(
+            'Maximum attempts reached for this assessment',
+          );
         }
       }
     }
@@ -187,7 +193,7 @@ export class ExamAttemptService {
         examId: input.examId,
         classId: resolvedClassId,
         userId: input.userId,
-        classAssessmentId: input.classAssessmentId,
+        contentItemId: input.contentItemId,
         status: 'IN_PROGRESS',
         startedAt: now,
         deadlineAt,
@@ -275,7 +281,7 @@ export class ExamAttemptService {
             },
           },
         },
-        classAssessment: true,
+        contentItem: { include: { module: true } },
       },
     });
     if (!attempt) throw new NotFoundException('ExamAttempt not found');
@@ -283,8 +289,11 @@ export class ExamAttemptService {
       throw new BadRequestException('You can only submit your own exam attempts');
     }
     if (attempt.status !== 'IN_PROGRESS') return attempt;
-    if (attempt.classAssessmentId && attempt.classAssessment?.classId !== attempt.classId) {
-      throw new BadRequestException('ExamAttempt has invalid classAssessment relation');
+    if (
+      attempt.contentItemId &&
+      attempt.contentItem?.module.classId !== attempt.classId
+    ) {
+      throw new BadRequestException('ExamAttempt has invalid contentItem relation');
     }
     if (attempt.classId) {
       const enrollment = await this.prisma.enrollment.findFirst({
@@ -354,8 +363,12 @@ export class ExamAttemptService {
 
     // Determine passing threshold
     let passingThreshold = 50;
-    const settings = (attempt.classAssessment?.settings as any) || (attempt.exam?.settings as any) || {};
-    if (settings.passingScorePercent) passingThreshold = settings.passingScorePercent;
+    const settings =
+      (attempt.contentItem?.settings as any) ||
+      (attempt.exam?.settings as any) ||
+      {};
+    if (settings.passingScorePercent)
+      passingThreshold = settings.passingScorePercent;
 
     const isPassed = percentage >= passingThreshold;
 

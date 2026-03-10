@@ -32,7 +32,7 @@ export class LearningProgressHandler {
 
   @MessagePattern({ cmd: 'academy.learningProgress.getCompletedIds' })
   getCompletedIds(@Payload() data: { classId: string; userId: string }) {
-    return this.progress.getCompletedLessonIds(data.classId, data.userId);
+    return this.progress.getCompletedItemIds(data.classId, data.userId);
   }
 }
 

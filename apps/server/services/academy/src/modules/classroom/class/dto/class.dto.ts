@@ -10,9 +10,6 @@ export class ClassCreateDto {
   @IsUUID()
   courseProfileId!: string;
 
-  @IsUUID()
-  courseEditionId!: string;
-
   @IsString()
   @MaxLength(150)
   code!: string;
@@ -50,10 +47,10 @@ export class ClassCreateDto {
   batch?: string;
 
   @IsOptional()
-  startDate?: Date;
+  openingDate?: Date;
 
   @IsOptional()
-  endDate?: Date;
+  closingDate?: Date;
 
   @IsOptional()
   minStudents?: number;
@@ -64,7 +61,7 @@ export class ClassCreateDto {
 
   @IsOptional()
   @IsUUID()
-  primaryTeacherId?: string;
+  instructorId?: string;
 
   // --- Shared enrollment fields ---
   @IsOptional()
@@ -105,10 +102,10 @@ export class ClassUpdateDto {
   batch?: string;
 
   @IsOptional()
-  startDate?: Date;
+  openingDate?: Date;
 
   @IsOptional()
-  endDate?: Date;
+  closingDate?: Date;
 
   @IsOptional()
   minStudents?: number;
@@ -119,7 +116,7 @@ export class ClassUpdateDto {
 
   @IsOptional()
   @IsUUID()
-  primaryTeacherId?: string;
+  instructorId?: string;
 
   // --- Shared enrollment fields ---
   @IsOptional()
@@ -155,10 +152,6 @@ export class ClassQueryDto {
   courseProfileId?: string;
 
   @IsOptional()
-  @IsUUID()
-  courseEditionId?: string;
-
-  @IsOptional()
   @IsString()
   mode?: string;
 
@@ -183,10 +176,10 @@ export class ClassDuplicateDto {
   batch?: string;
 
   @IsOptional()
-  startDate?: Date;
+  openingDate?: Date;
 
   @IsOptional()
-  endDate?: Date;
+  closingDate?: Date;
 
   @IsOptional()
   @IsString()
@@ -197,4 +190,8 @@ export class ClassDuplicateDto {
   @IsString()
   @MaxLength(255)
   name?: string;
+
+  @IsOptional()
+  @IsUUID()
+  instructorId?: string;
 }

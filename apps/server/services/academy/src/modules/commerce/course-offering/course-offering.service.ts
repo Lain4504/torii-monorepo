@@ -46,14 +46,10 @@ export class CourseOfferingService {
                     thumbnailUrl: true,
                   },
                 },
-                liveClass: {
-                  include: {
-                    primaryTeacher: {
-                      select: {
-                        displayName: true,
-                        avatarUrl: true,
-                      },
-                    },
+                instructor: {
+                  select: {
+                    displayName: true,
+                    avatarUrl: true,
                   },
                 },
               },
@@ -73,26 +69,18 @@ export class CourseOfferingService {
             class: {
               include: {
                 courseProfile: true,
-                courseEdition: {
+                modules: {
+                  orderBy: { orderIndex: 'asc' },
                   include: {
-                    chapters: {
+                    items: {
                       orderBy: { orderIndex: 'asc' },
-                      include: {
-                        items: {
-                          orderBy: { orderIndex: 'asc' },
-                        },
-                      },
                     },
                   },
                 },
-                liveClass: {
-                  include: {
-                    primaryTeacher: {
-                      select: {
-                        displayName: true,
-                        avatarUrl: true,
-                      },
-                    },
+                instructor: {
+                  select: {
+                    displayName: true,
+                    avatarUrl: true,
                   },
                 },
               },
@@ -126,11 +114,6 @@ export class CourseOfferingService {
 
     const classes = await this.prisma.class.findMany({
       where: { id: { in: classIds } },
-      include: {
-        courseEdition: {
-          select: { status: true },
-        },
-      },
     });
 
     if (classes.length !== classIds.length) {
@@ -142,11 +125,6 @@ export class CourseOfferingService {
       if (!validStatuses.includes(cls.status)) {
         throw new BadRequestException(
           `Class ${cls.code} is in status ${cls.status}, which is not valid for enrollment`,
-        );
-      }
-      if (cls.courseEdition.status !== 'PUBLISHED') {
-        throw new BadRequestException(
-          `Class ${cls.code} uses course edition ${cls.courseEditionId}, which is not PUBLISHED`,
         );
       }
     }

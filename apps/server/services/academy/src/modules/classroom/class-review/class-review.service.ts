@@ -339,18 +339,17 @@ export class ClassReviewService {
         }
     }
 
-    private async _getProgressPercent(userId: string, classId: string): Promise<number> {
-        // Get all lesson ids for this class via its course edition
+    private async _getProgressPercent(
+        userId: string,
+        classId: string,
+    ): Promise<number> {
+        // Get all prerequisite content item ids for this class
         const klass = await this.prisma.class.findUnique({
             where: { id: classId },
             include: {
-                courseEdition: {
+                modules: {
                     include: {
-                        chapters: {
-                            include: {
-                                items: { where: { kind: 'LESSON' } },
-                            },
-                        },
+                        items: true,
                     },
                 },
             },
@@ -358,21 +357,23 @@ export class ClassReviewService {
 
         if (!klass) return 0;
 
-        const lessonIds = klass.courseEdition.chapters.flatMap((c) =>
-            c.items.map((i) => i.referenceId),
-        );
-        if (lessonIds.length === 0) return 100; // No lessons = eligible
+        const prerequisiteItemIds = klass.modules
+            .flatMap((m) => m.items)
+            .filter((i) => i.isPrerequisite)
+            .map((i) => i.id);
+
+        if (prerequisiteItemIds.length === 0) return 100; // No prerequisites = eligible
 
         const completed = await this.prisma.learningProgress.count({
             where: {
                 userId,
                 classId,
-                lessonId: { in: lessonIds },
+                contentItemId: { in: prerequisiteItemIds },
                 status: 'COMPLETED',
             },
         });
 
-        return Math.round((completed / lessonIds.length) * 100);
+        return Math.round((completed / prerequisiteItemIds.length) * 100);
     }
 
     private _maskAnonymous(review: any) {

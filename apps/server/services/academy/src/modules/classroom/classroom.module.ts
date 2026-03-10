@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ClassModule } from './class/class.module';
-import { ClassAssessmentModule } from './class-assessment/class-assessment.module';
 import { EnrollmentModule } from './enrollment/enrollment.module';
 import { LearningProgressModule } from './learning-progress/learning-progress.module';
 import { ClassroomCronService } from './classroom-cron.service';
@@ -13,7 +12,6 @@ import { ClassAttendanceModule } from './class-attendance/class-attendance.modul
   imports: [
     ClassModule,
     LiveScheduleModule,
-    ClassAssessmentModule,
     EnrollmentModule,
     LearningProgressModule,
     CertificateModule,

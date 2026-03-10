@@ -19,8 +19,7 @@ export class AssignmentSubmissionService {
     const effectiveUserId = isExamManager ? query.userId : requesterId ?? query.userId;
     return this.prisma.assignmentSubmission.findMany({
       where: {
-        classId: query.classId ?? undefined,
-        classAssessmentId: query.classAssessmentId ?? undefined,
+        assignmentId: query.assignmentId ?? undefined,
         userId: effectiveUserId ?? undefined,
       },
       orderBy: [{ createdAt: 'desc' }],
@@ -43,40 +42,15 @@ export class AssignmentSubmissionService {
     if (!isExamManager && requesterId && requesterId !== 'SYSTEM' && input.userId !== requesterId) {
       throw new BadRequestException('You can only create submissions for yourself');
     }
-    const klass = await this.prisma.class.findUnique({
-      where: { id: input.classId },
-      select: { id: true, mode: true },
-    });
-    if (!klass) throw new BadRequestException('Invalid classId');
-    if (klass.mode === 'VOD') {
-      throw new BadRequestException('ASSIGNMENT submission is not supported for VOD classes');
-    }
 
-    const assessment = await this.prisma.classAssessment.findUnique({
-      where: { id: input.classAssessmentId },
-      select: { id: true, classId: true, assignmentTemplateId: true, kind: true, settings: true },
+    const assignment = await this.prisma.assignment.findUnique({
+      where: { id: input.assignmentId },
     });
-    if (!assessment) throw new BadRequestException('Invalid classAssessmentId');
-    if (assessment.classId !== input.classId) {
-      throw new BadRequestException('classAssessmentId does not belong to classId');
-    }
-    if (assessment.kind !== 'ASSIGNMENT') {
-      throw new BadRequestException('classAssessmentId is not an ASSIGNMENT');
-    }
-    if (!assessment.assignmentTemplateId) {
-      throw new BadRequestException('ASSIGNMENT template is missing for classAssessmentId');
-    }
-    if (
-      input.assignmentTemplateId &&
-      assessment.assignmentTemplateId !== input.assignmentTemplateId
-    ) {
-      throw new BadRequestException('assignmentTemplateId does not match classAssessment');
-    }
+    if (!assignment) throw new BadRequestException('Invalid assignmentId');
 
     const existing = await this.prisma.assignmentSubmission.findFirst({
       where: {
-        classId: input.classId,
-        classAssessmentId: input.classAssessmentId,
+        assignmentId: input.assignmentId,
         userId: input.userId,
       },
     });
@@ -86,58 +60,52 @@ export class AssignmentSubmissionService {
         throw new BadRequestException('Cannot resubmit already graded assignment');
       }
 
-      const settings = (assessment.settings as any) || {};
-      if (existing.status === 'SUBMITTED' && !settings.allowResubmission) {
-        throw new BadRequestException('Resubmission not allowed for this assignment');
-      }
-
-      // Update existing instead of create
       return this.update(existing.id, {
         status: input.status,
         content: input.content,
-      }, requesterId);
+        fileUrls: input.fileUrls,
+      }, requesterId, isExamManager);
     }
 
     const result = await this.prisma.assignmentSubmission.create({
       data: {
-        classId: input.classId,
-        classAssessmentId: input.classAssessmentId,
-        assignmentTemplateId: input.assignmentTemplateId,
+        assignmentId: input.assignmentId,
         userId: input.userId,
         status: (input.status as any) ?? 'DRAFT',
         submittedAt: (input.status ?? '').toUpperCase() === 'SUBMITTED' ? new Date() : null,
-        content: input.content ?? undefined,
-      } as any,
+        content: input.content ?? null,
+        fileUrls: input.fileUrls ?? [],
+      },
     });
 
-    // We don't necessarily log student creations as audit log, but if a staff creates it, log it
-    // Or if it's a submission, track it?
-    // Let's focus on administrative actions (like delete and grade)
     return result;
   }
 
   async update(id: string, input: AssignmentSubmissionUpdateDto, requesterId = 'SYSTEM', isExamManager = false) {
     const oldSubmission = await this.findById(id, requesterId, isExamManager);
+
     const updated = await this.prisma.assignmentSubmission.update({
       where: { id },
       data: {
         status: input.status as any,
-        score: input.score !== undefined ? new Prisma.Decimal(input.score) : undefined,
-        gradedAt: input.score !== undefined ? new Date() : undefined,
+        grade: input.grade !== undefined ? new Prisma.Decimal(input.grade) : undefined,
+        feedback: input.feedback ?? undefined,
+        gradedAt: input.grade !== undefined ? new Date() : undefined,
         submittedAt: input.status && input.status.toUpperCase() === 'SUBMITTED' ? new Date() : undefined,
         content: input.content ?? undefined,
-      } as any,
+        fileUrls: input.fileUrls ?? undefined,
+      },
     });
 
-    if (input.score !== undefined) {
+    if (input.grade !== undefined) {
       await this.audit.log({
         userId: requesterId,
         action: 'assignment_submission.grade',
         entity: 'AssignmentSubmission',
         entityId: id,
-        description: `Graded assignment submission for user ${oldSubmission.userId}. Score: ${input.score}`,
-        oldValues: { score: oldSubmission.score?.toString() },
-        newValues: { score: updated.score?.toString(), status: updated.status },
+        description: `Graded assignment submission for user ${oldSubmission.userId}. Grade: ${input.grade}`,
+        oldValues: { grade: oldSubmission.grade?.toString() },
+        newValues: { grade: updated.grade?.toString(), status: updated.status },
       });
     }
 
@@ -154,7 +122,7 @@ export class AssignmentSubmissionService {
       entity: 'AssignmentSubmission',
       entityId: id,
       description: `Deleted assignment submission for user ${submission.userId}`,
-      metadata: { userId: submission.userId, classId: submission.classId },
+      metadata: { userId: submission.userId, assignmentId: submission.assignmentId },
     });
 
     return { ok: true };

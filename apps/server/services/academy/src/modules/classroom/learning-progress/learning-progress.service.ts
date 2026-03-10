@@ -23,37 +23,36 @@ export class LearningProgressService {
         userId: query.userId ?? undefined,
       },
       include: {
-        lesson: {
-          select: {
-            id: true,
-            title: true,
-          },
-        },
+        contentItem: true,
       },
       orderBy: [{ lastAccessedAt: 'desc' }, { id: 'desc' }],
     });
   }
 
-  async getCompletedLessonIds(classId: string, userId: string): Promise<string[]> {
+  async getCompletedItemIds(
+    classId: string,
+    userId: string,
+  ): Promise<string[]> {
     const list = await this.prisma.learningProgress.findMany({
       where: {
         classId,
         userId,
         status: 'COMPLETED',
       },
-      select: { lessonId: true },
+      select: { contentItemId: true },
     });
-    return list.map((p) => p.lessonId);
+    return list.map((p) => p.contentItemId);
   }
 
   async getHistory(userId: string) {
     const history = await this.prisma.learningProgress.findMany({
       where: { userId },
       include: {
-        lesson: {
+        contentItem: {
           select: {
             id: true,
-            title: true,
+            kind: true,
+            referenceId: true,
           },
         },
         class: {
@@ -63,7 +62,7 @@ export class LearningProgressService {
               select: {
                 id: true,
                 title: true,
-                code: true, // Used code instead of slug
+                code: true,
               },
             },
           },
@@ -76,10 +75,10 @@ export class LearningProgressService {
     return history.map((item: any) => ({
       id: item.id,
       courseTitle: item.class.courseProfile.title,
-      lessonTitle: item.lesson.title,
+      itemTitle: `Content (${item.contentItem.kind})`, // Fallback since title is separate
       timestamp: item.lastAccessedAt,
-      slug: item.class.courseProfile.code, // Mapped code to slug for compatibility
-      lessonId: item.lessonId,
+      slug: item.class.courseProfile.code,
+      contentItemId: item.contentItemId,
       courseProfileId: item.class.courseProfile.id,
       classId: item.classId,
       progressPercent: item.progressPercent,
@@ -122,27 +121,22 @@ export class LearningProgressService {
     });
     if (!klass) throw new BadRequestException('Invalid classId');
 
-    const lesson = await this.prisma.lesson.findUnique({
-      where: { id: input.lessonId },
-      select: { id: true, courseProfileId: true },
+    const contentItem = await this.prisma.classContentItem.findUnique({
+      where: { id: input.contentItemId },
     });
-    if (!lesson) throw new BadRequestException('Invalid lessonId');
-    if (lesson.courseProfileId !== klass.courseProfileId) {
-      throw new BadRequestException('Lesson does not belong to class courseProfile');
-    }
+    if (!contentItem) throw new BadRequestException('Invalid contentItemId');
 
     const result = await this.prisma.learningProgress.upsert({
       where: {
-        classId_userId_lessonId: {
-          classId: input.classId,
+        userId_contentItemId: {
           userId: input.userId,
-          lessonId: input.lessonId,
+          contentItemId: input.contentItemId,
         },
       },
       create: {
         classId: input.classId,
         userId: input.userId,
-        lessonId: input.lessonId,
+        contentItemId: input.contentItemId,
         status: input.status ?? 'NOT_STARTED',
         lastAccessedAt: input.lastAccessedAt,
         progressPercent: input.progressPercent ?? 0,
@@ -156,13 +150,15 @@ export class LearningProgressService {
 
     if (input.status === 'COMPLETED') {
       await this.checkClassCompletion(input.classId, input.userId);
-      await this.gamificationService.trackActivity(input.userId, 'LESSON_COMPLETE', {
-        lessonId: input.lessonId,
-        classId: input.classId,
-      }).catch(err => {
-        // Just log the error, don't fail the progress update
-        console.error('Failed to track gamification activity:', err);
-      });
+      await this.gamificationService
+        .trackActivity(input.userId, 'LESSON_COMPLETE', {
+          contentItemId: input.contentItemId,
+          classId: input.classId,
+        })
+        .catch((err) => {
+          // Just log the error, don't fail the progress update
+          console.error('Failed to track gamification activity:', err);
+        });
     }
 
     return result;
@@ -172,34 +168,31 @@ export class LearningProgressService {
     const klass = await this.prisma.class.findUnique({
       where: { id: classId },
       include: {
-        courseEdition: {
-          include: {
-            chapters: {
-              include: { items: { where: { kind: 'LESSON' } } },
-            },
-          },
+        modules: {
+          include: { items: true },
         },
       },
     });
 
     if (!klass) return;
 
-    const allLessonIds = klass.courseEdition.chapters.flatMap((c) =>
-      c.items.map((i) => i.referenceId),
-    );
+    const prerequisiteItemIds = klass.modules
+      .flatMap((m) => m.items)
+      .filter((i) => i.isPrerequisite)
+      .map((i) => i.id);
 
-    if (allLessonIds.length === 0) return;
+    if (prerequisiteItemIds.length === 0) return;
 
     const completedCount = await this.prisma.learningProgress.count({
       where: {
         classId,
         userId,
-        lessonId: { in: allLessonIds },
+        contentItemId: { in: prerequisiteItemIds },
         status: 'COMPLETED',
       },
     });
 
-    if (completedCount >= allLessonIds.length) {
+    if (completedCount >= prerequisiteItemIds.length) {
       const enrollments = await this.prisma.enrollment.findMany({
         where: { classId, userId, status: 'ACTIVE' },
         select: { id: true },
