@@ -7,14 +7,13 @@ export const createTicketDTOSchema = ticketSchema.pick({
     type: true,
     subject: true,
     description: true,
-    courseRunId: true,
+    classId: true,
+    orderId: true,
     metadata: true,
 }).extend({
-    courseRunId: z.string().uuid().optional(),
-    // For REFUND type, we expect originalOrderId in metadata
-    metadata: z.object({
-        orderId: z.string().uuid().optional(),
-    }).catchall(z.any()).optional(),
+    classId: z.string().uuid().optional(),
+    orderId: z.string().uuid().optional(),
+    metadata: z.record(z.any()).optional(),
 });
 
 export type CreateTicketDTO = z.infer<typeof createTicketDTOSchema>;
@@ -32,7 +31,8 @@ export const ticketQueryDTOSchema = paginationOptionsDTOSchema.extend({
     type: z.nativeEnum(TicketType).optional(),
     status: z.nativeEnum(TicketStatus).optional(),
     userId: z.string().uuid().optional(),
-    courseRunId: z.string().uuid().optional(),
+    classId: z.string().uuid().optional(),
+    orderId: z.string().uuid().optional(),
 });
 
 export type TicketQueryDTO = z.infer<typeof ticketQueryDTOSchema>;

@@ -20,7 +20,7 @@ import {
     SidebarGroupLabel,
     SidebarGroupContent,
 } from "@workspace/ui/components/sidebar"
-import { learningNav, progressNav, accountNav, communityNav, aiSenseiNav } from "@/config/navigation"
+import { learningNav, progressNav, accountNav, aiSenseiNav } from "@/config/navigation"
 import { cn } from "@workspace/ui/lib/utils"
 import { useLogo } from "@/hooks/useLogo"
 
@@ -47,10 +47,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             )}
                         >
                             <div className="flex items-center justify-start rounded-lg shrink-0">
-                                <Image src={logo} alt="Torii Nihongo" width={200} height={40} className="h-8 w-auto object-contain" />
+                                <Image src={logo} alt="Torii Nihongo" width={200} height={40} className="h-14 w-auto object-contain" />
                             </div>
                             <div className="grid flex-1 text-left text-sm leading-tight ml-2 group-data-[collapsible=icon]:hidden">
-                                <span className="truncate text-xs font-medium text-muted-foreground">Cổng học viên</span>
+                                <span className="truncate text-xs font-medium text-muted-foreground font-sans">Cổng học viên</span>
                             </div>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -61,7 +61,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <NavMain label="Học tập" items={learningNav as any} />
                 <NavMain label="AI Sensei" items={aiSenseiNav as any} />
                 <NavLearning />
-                <NavMain label="Cộng đồng" items={communityNav as any} />
                 <NavMain label="Tiến độ" items={progressNav as any} />
                 <NavMain label="Tài khoản" items={accountNav as any} />
 

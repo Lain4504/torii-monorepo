@@ -6,6 +6,23 @@
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor(ui): improve roleplay API handling and update rewards page styling">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ASSESSMENT_FLOW_OVERVIEW.md" beforeDir="false" afterPath="$PROJECT_DIR$/ASSESSMENT_FLOW_OVERVIEW.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JLPT_EXAM_SPEC.md" beforeDir="false" afterPath="$PROJECT_DIR$/JLPT_EXAM_SPEC.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-schedule/dto/live-schedule.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-schedule/dto/live-schedule.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-schedule/live-schedule.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-schedule/live-schedule.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/course-offering/course-offering.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/course-offering/course-offering.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/ticket/ticket.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/ticket/ticket.repository.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/ticket/ticket.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/ticket/ticket.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/auth-layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/auth-layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/app-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/app-sidebar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/config/navigation.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/config/navigation.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/config/navigation.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-study-set-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-study-set-api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-live-schedule.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-live-schedule.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/ticket.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/ticket.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/order.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/order.model.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/ticket.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/ticket.model.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,7 +96,7 @@
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "#278 on update-ui",
+    "git-widget-placeholder": "main",
     "go.import.settings.migrated": "true",
     "javascript.preferred.runtime.type.id": "node",
     "kotlin-language-version-configured": "true",
@@ -324,6 +341,7 @@
       <workItem from="1773019000096" duration="1493000" />
       <workItem from="1773027267018" duration="427000" />
       <workItem from="1773077787125" duration="934000" />
+      <workItem from="1773126226922" duration="1835000" />
     </task>
     <task id="LOCAL-00954" summary="gop theo tinh nang">
       <option name="closed" value="true" />

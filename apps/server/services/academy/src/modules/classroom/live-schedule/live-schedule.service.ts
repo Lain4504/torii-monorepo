@@ -40,7 +40,7 @@ export class LiveScheduleService {
     private readonly appConfig: AppConfigService,
     @Inject('NATS_SERVICE') private readonly nats: ClientProxy,
     private readonly audit: AuditLoggerService,
-  ) {}
+  ) { }
 
   async findAll(query: LiveScheduleQueryDto) {
     return this.prisma.liveSchedule.findMany({
@@ -93,6 +93,7 @@ export class LiveScheduleService {
     const schedule = await this.prisma.liveSchedule.create({
       data: {
         liveClassId: input.liveClassId,
+        classId: input.classId,
         weekday: input.weekday,
         startTime: input.startTime,
         endTime: input.endTime,
@@ -167,13 +168,17 @@ export class LiveScheduleService {
       const roomTitle =
         schedule.liveClass.class.courseProfile?.title ||
         schedule.liveClass.class.name;
-      const roomInfo = this.getDefaultRoomInfo(roomId, roomTitle);
+      const roomInfo = this.getDefaultRoomInfo(roomId, roomTitle, {
+        liveClassId: schedule.liveClassId,
+        classId: schedule.liveClass.classId,
+        weekday: schedule.weekday,
+        startTime: schedule.startTime,
+      });
 
       await this.sendNatsWithRetry({ cmd: 'room.create' }, roomInfo, 2).catch(
         (err) => {
           this.logger.error(
-            `Failed to create room ${roomId} for live class ${schedule.liveClassId}: ${
-              err instanceof Error ? err.message : err
+            `Failed to create room ${roomId} for live class ${schedule.liveClassId}: ${err instanceof Error ? err.message : err
             }`,
           );
           throw new BadRequestException(
@@ -359,9 +364,9 @@ export class LiveScheduleService {
         requestedDate:
           fromDate || toDate
             ? {
-                ...(fromDate ? { gte: fromDate } : {}),
-                ...(toDate ? { lte: toDate } : {}),
-              }
+              ...(fromDate ? { gte: fromDate } : {}),
+              ...(toDate ? { lte: toDate } : {}),
+            }
             : undefined,
       },
       include: {
@@ -449,6 +454,7 @@ export class LiveScheduleService {
     const request = await this.prisma.liveScheduleRequest.create({
       data: {
         liveScheduleId: input.liveScheduleId,
+        classId: schedule.liveClass.classId,
         requestedBy: requesterId,
         type: input.type as any,
         status: 'PENDING' as any,
@@ -629,9 +635,22 @@ export class LiveScheduleService {
     return updated;
   }
 
-  private getDefaultRoomInfo(roomId: string | null, roomTitle = 'Lớp học trực tuyến') {
+  private getDefaultRoomInfo(
+    roomId: string | null,
+    roomTitle = 'Lớp học trực tuyến',
+    extra?: {
+      liveClassId?: string;
+      classId?: string;
+      weekday?: number;
+      startTime?: string;
+    },
+  ) {
     return {
       roomId: roomId,
+      liveClassId: extra?.liveClassId,
+      classId: extra?.classId,
+      weekday: extra?.weekday,
+      startTime: extra?.startTime,
       emptyTimeout: 60 * 60 * 2,
       metadata: create(RoomMetadataSchema, {
         roomTitle: roomTitle,

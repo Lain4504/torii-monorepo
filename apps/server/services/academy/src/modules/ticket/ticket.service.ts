@@ -51,11 +51,11 @@ export class TicketService implements ITicketService {
     let ticketMetadata = dto.metadata;
 
     if (dto.type === TicketType.REFUND) {
-      const courseRunId = dto.courseRunId;
+      const classId = dto.classId;
 
-      if (!courseRunId) {
+      if (!classId) {
         throw new BadRequestException(
-          'Course Run ID is required for refund ticket',
+          'Class ID is required for refund ticket',
         );
       }
 
@@ -63,7 +63,7 @@ export class TicketService implements ITicketService {
         const result = await firstValueFrom(
           this.natsClient.send(
             { cmd: 'learning.enrollment.check' },
-            { userId, courseRunId },
+            { userId, classId },
           ),
         );
 
@@ -87,17 +87,17 @@ export class TicketService implements ITicketService {
         const progress = result.enrollment?.completionPercentage || 0;
         if (progress > 20) {
           this.logger.warn(
-            `User ${userId} attempted refund for course run ${courseRunId} with ${progress}% progress.`,
+            `User ${userId} attempted refund for class ${classId} with ${progress}% progress.`,
           );
           throw new BadRequestException(
             'Khóa học không đủ điều kiện hoàn tiền do bạn đã hoàn thành hơn 20% nội dung.',
           );
         }
 
-        const courseRunResult = await firstValueFrom(
+        const classResult = await firstValueFrom(
           this.natsClient.send(
-            { cmd: 'learning.courserun.findById' },
-            { id: courseRunId },
+            { cmd: 'learning.class.findById' },
+            { id: classId },
           ),
         ).catch(() => null);
 
@@ -105,7 +105,7 @@ export class TicketService implements ITicketService {
           ...dto.metadata,
           progress,
           enrollmentDate: result.enrollment.enrollmentDate,
-          courseTitle: courseRunResult?.title || 'Unknown Class',
+          courseTitle: classResult?.title || 'Unknown Class',
         };
       } catch (error) {
         if (error instanceof BadRequestException) throw error;
@@ -170,15 +170,15 @@ export class TicketService implements ITicketService {
       dto.status === TicketStatus.RESOLVED &&
       ticket.type === TicketType.REFUND
     ) {
-      const courseRunId = ticket.courseRunId;
+      const classId = ticket.classId;
       const userId = ticket.userId;
 
-      if (courseRunId && userId) {
+      if (classId && userId) {
         try {
           const result = await firstValueFrom(
             this.natsClient.send(
               { cmd: 'learning.enrollment.check' },
-              { userId, courseRunId },
+              { userId, classId },
             ),
           );
 
@@ -199,16 +199,16 @@ export class TicketService implements ITicketService {
             );
           }
 
-          let orderId = (ticket.metadata as any)?.orderId;
+          let orderId = ticket.orderId;
           if (!orderId) {
             const ordersRes = await firstValueFrom(
               this.natsClient.send(
                 { cmd: 'billing.order.findAll' },
-                { userId, status: OrderStatus.COMPLETED },
+                { userId, status: OrderStatus.PAID },
               ),
             );
             const matchingOrder = ordersRes.data?.find(
-              (o: any) => o.metadata?.courseRunId === courseRunId,
+              (o: any) => o.classId === classId || o.items?.some((i: any) => i.offering?.classId === classId),
             );
             if (matchingOrder) {
               orderId = matchingOrder.id;
@@ -240,7 +240,7 @@ export class TicketService implements ITicketService {
             const deletedEnrollment = await firstValueFrom(
               this.natsClient.send(
                 { cmd: 'learning.enrollment.delete' },
-                { userId, courseRunId },
+                { userId, classId },
               ),
             );
             if (deletedEnrollment && deletedEnrollment.finalPrice > 0) {
@@ -253,20 +253,20 @@ export class TicketService implements ITicketService {
                     amount: refundAmount,
                     reason: `Hoàn tiền xóa thủ công - Ticket #${ticket.id}`,
                     type: 'REFUND',
-                    metadata: { ticketId: ticket.id, courseRunId },
+                    metadata: { ticketId: ticket.id, classId },
                   },
                 ),
               );
             }
           }
 
-          const courseRunResult = await firstValueFrom(
+          const classResult = await firstValueFrom(
             this.natsClient.send(
-              { cmd: 'learning.courserun.findById' },
-              { id: courseRunId },
+              { cmd: 'learning.class.findById' },
+              { id: classId },
             ),
           ).catch(() => null);
-          finalCourseName = courseRunResult?.title || finalCourseName;
+          finalCourseName = classResult?.title || finalCourseName;
 
           const userResult = await firstValueFrom(
             this.natsClient.send(
@@ -306,7 +306,7 @@ export class TicketService implements ITicketService {
           );
           if (error.message?.includes('not found')) {
             this.logger.warn(
-              `Enrollment not found during refund for User ${userId}, Course Run ${courseRunId}. Proceeding with ticket approval.`,
+              `Enrollment not found during refund for User ${userId}, Class ${classId}. Proceeding with ticket approval.`,
             );
           } else {
             throw new BadRequestException(

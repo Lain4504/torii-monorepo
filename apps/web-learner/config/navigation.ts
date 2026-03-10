@@ -45,9 +45,6 @@ export const learningNav: NavItem[] = [
     { name: 'Ghi chú học tập', href: '/dashboard/study-notes', icon: FileText },
 ]
 
-export const communityNav: NavItem[] = [
-]
-
 export const progressNav: NavItem[] = [
     { name: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp },
     { name: 'Thành tích', href: '/dashboard/achievements', icon: Trophy },

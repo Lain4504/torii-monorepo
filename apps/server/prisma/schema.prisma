@@ -195,6 +195,11 @@ model RoomInfo {
   sid                String @unique @map("sid") @db.VarChar(64)
   joinedParticipants Int    @default(0) @map("joined_participants")
 
+  liveClassId String? @map("live_class_id") @db.Uuid
+  classId     String? @map("class_id") @db.Uuid
+  weekday     Int?
+  startTime   String? @map("start_time") @db.VarChar(20)
+
   // Int, 1 for true 2 for false
   isRunning    Int    @default(0) @map("is_running")
   isRecording  Int    @default(0) @map("is_recording")
@@ -214,6 +219,8 @@ model RoomInfo {
   artifacts RoomArtifact[]
 
   @@index([roomId, isRunning], map: "idx_room_id")
+  @@index([liveClassId])
+  @@index([classId])
   @@map("room_info")
 }
 
@@ -938,7 +945,8 @@ model Ticket {
   subject     String       @db.VarChar(255)
   description String       @db.Text
   classId     String?      @map("class_id") @db.Uuid
-  metadata    Json?        @default("{}") // Contains originalOrderId if type is REFUND
+  orderId     String?      @map("order_id") @db.Uuid
+  metadata    Json?        @default("{}") // Additional flexible metadata 
 
   response  String?  @db.Text
   createdAt DateTime @default(now()) @map("created_at")
@@ -948,12 +956,14 @@ model Ticket {
   user    User   @relation("UserTickets", fields: [userId], references: [id], onDelete: Cascade)
   handler User?  @relation("HandlerTickets", fields: [handlerId], references: [id], onDelete: SetNull)
   class   Class? @relation(fields: [classId], references: [id], onDelete: SetNull)
+  order   Order? @relation(fields: [orderId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([handlerId])
   @@index([status])
   @@index([type])
   @@index([classId])
+  @@index([orderId])
   @@map("tickets")
 }
 
@@ -1183,6 +1193,7 @@ model Class {
   assignmentSubmissions AssignmentSubmission[]
   offeringLinks         CourseOfferingClass[]
   reviews               ClassReview[]
+  liveSchedules         LiveSchedule[]
 
   @@index([courseProfileId])
   @@index([courseEditionId])
@@ -1228,6 +1239,7 @@ model LiveClass {
 model LiveSchedule {
   id            String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   liveClassId   String  @map("live_class_id") @db.Uuid
+  classId       String  @map("class_id") @db.Uuid
   weekday       Int // 0-6
   startTime     String  @map("start_time") @db.VarChar(20)
   endTime       String  @map("end_time") @db.VarChar(20)
@@ -1237,16 +1249,19 @@ model LiveSchedule {
   roomId        String? @map("room_id") @db.VarChar(64)
 
   liveClass LiveClass @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
+  class     Class     @relation(fields: [classId], references: [id], onDelete: Cascade)
   attendances ClassAttendance[]
   requests LiveScheduleRequest[]
 
   @@index([liveClassId])
+  @@index([classId])
   @@map("academy_live_schedules")
 }
 
 model LiveScheduleRequest {
   id               String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   liveScheduleId   String                    @map("live_schedule_id") @db.Uuid
+  classId          String?                   @map("class_id") @db.Uuid
   requestedBy      String                    @map("requested_by") @db.Uuid
   type             LiveScheduleRequestType
   status           LiveScheduleRequestStatus @default(PENDING)

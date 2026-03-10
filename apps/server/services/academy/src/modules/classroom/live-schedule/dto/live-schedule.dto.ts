@@ -4,6 +4,9 @@ export class LiveScheduleCreateDto {
   @IsUUID()
   liveClassId!: string;
 
+  @IsUUID()
+  classId!: string;
+
   @IsInt()
   @Min(0)
   weekday!: number; // 0-6

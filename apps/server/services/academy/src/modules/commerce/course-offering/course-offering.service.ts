@@ -18,7 +18,7 @@ export class CourseOfferingService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
-  ) {}
+  ) { }
 
   async findAll(query: CourseOfferingQueryDto) {
     const q = query.q?.trim();
@@ -27,11 +27,11 @@ export class CourseOfferingService {
         status: query.status as OfferingStatus,
         ...(q
           ? {
-              OR: [
-                { code: { contains: q, mode: 'insensitive' } },
-                { title: { contains: q, mode: 'insensitive' } },
-              ],
-            }
+            OR: [
+              { code: { contains: q, mode: 'insensitive' } },
+              { title: { contains: q, mode: 'insensitive' } },
+            ],
+          }
           : {}),
       },
       orderBy: [{ createdAt: 'desc' }],
@@ -207,8 +207,8 @@ export class CourseOfferingService {
         metadata: input.metadata ?? undefined,
         classes: input.classIds?.length
           ? {
-              create: input.classIds.map((classId) => ({ classId })),
-            }
+            create: input.classIds.map((classId) => ({ classId })),
+          }
           : undefined,
       },
     });
@@ -287,9 +287,9 @@ export class CourseOfferingService {
         metadata: input.metadata ?? undefined,
         classes: input.classIds
           ? {
-              deleteMany: {},
-              create: input.classIds.map((classId) => ({ classId })),
-            }
+            deleteMany: {},
+            create: input.classIds.map((classId) => ({ classId })),
+          }
           : undefined,
       },
     });
@@ -311,10 +311,10 @@ export class CourseOfferingService {
       metadata:
         offering.status === OfferingStatus.PUBLISHED && criticalFieldsChanged
           ? {
-              policy: 'NON_RETROACTIVE_ENTITLEMENT',
-              previousBuyersUnaffected: true,
-              existingEnrollmentCount,
-            }
+            policy: 'NON_RETROACTIVE_ENTITLEMENT',
+            previousBuyersUnaffected: true,
+            existingEnrollmentCount,
+          }
           : undefined,
     });
 
@@ -441,8 +441,8 @@ export class CourseOfferingService {
     const existingEnrollmentCount =
       offering.status === OfferingStatus.PUBLISHED
         ? await this.prisma.enrollment.count({
-            where: { sourceOfferingId: input.offeringId },
-          })
+          where: { sourceOfferingId: input.offeringId },
+        })
         : 0;
 
     await this.prisma.$transaction([
@@ -474,10 +474,10 @@ export class CourseOfferingService {
         nextStatus,
         ...(offering.status === OfferingStatus.PUBLISHED
           ? {
-              policy: 'NON_RETROACTIVE_ENTITLEMENT',
-              previousBuyersUnaffected: true,
-              existingEnrollmentCount,
-            }
+            policy: 'NON_RETROACTIVE_ENTITLEMENT',
+            previousBuyersUnaffected: true,
+            existingEnrollmentCount,
+          }
           : {}),
       },
     });
