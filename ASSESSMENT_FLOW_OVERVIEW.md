@@ -1,100 +1,157 @@
 # Spec: Toàn cảnh Hệ thống LMS - Kiến trúc Class-Centric hoàn thiện
 
-## 1. Triết lý thiết kế: Sự tự chủ của Lớp học
+## 1. Triết lý thiết kế: Một bộ khung, Hai thước đo
 
-Hệ thống tách rời hoàn toàn giữa nội dung "nguyên liệu" và lộ trình "thực tế".
-- **Syllabus cũ (Edition/Chapter):** Bị loại bỏ.
-- **Class (VOD/LIVE):** Là trung tâm điều phối toàn bộ nội dung học tập và thi cử.
-- **Exam/Assignment:** Được tạo trực tiếp và thuộc sở hữu của riêng từng Lớp.
+Hệ thống sử dụng chung cấu trúc Syllabus (`class_modules`) nhưng áp dụng logic vận hành và đánh giá khác nhau dựa trên cột `mode` của Lớp học:
+- **VOD:** Đánh giá qua **Tiến độ học tập** (Học viên hoàn thành chuỗi bài học tự động).
+- **LIVE:** Đánh giá qua **Điểm danh (Attendance)** và **Kết quả bài tập (Exam/Assignment)**.
 
 ---
 
-## 2. Sơ đồ Database hoàn chỉnh (ER Diagram)
+## 2. Sơ đồ Database (ER Diagram)
 
 ```mermaid
 erDiagram
-    %% --- LỚP BÁN HÀNG (SALES LAYER) ---
-    CourseProfile ||--o{ CourseOffering : "is sold as"
-    CourseOffering ||--|| Class : "connects to"
+    CourseProfile ||--o{ CourseOffering : "bán"
+    CourseOffering ||--|{ Class : "nối vào"
 
-    %% --- LỚP VẬN HÀNH (EXECUTION LAYER) ---
-    Class ||--|? VodClass : "is"
-    Class ||--|? LiveClass : "is"
+    Class ||--o{ ClassModule : "sở hữu cấu trúc"
+    ClassModule ||--o{ ClassContentItem : "sở hữu nội dung"
+    
+    %% VOD Logic
+    Class ||--o{ LearningProgress : "tracks (VOD)"
+    LearningProgress }o--|| ClassContentItem : "marked for"
 
-    %% VOD: Lộ trình cố định (Path)
-    VodClass ||--o{ VodPathItem : "fixed sequence"
-    VodPathItem }o--|| LessonBank : "picks video"
-    VodPathItem ||--|| Exam : "assigned quiz"
+    %% LIVE Logic
+    Class ||--o{ LiveSchedule : "dates (LIVE)"
+    LiveSchedule ||--o{ Attendance : "điểm danh"
+    
+    %% Content Mapping
+    ClassContentItem }o--|| LessonBank : "video/lý thuyết gốc"
+    ClassContentItem ||--|| Exam : "đề thi riêng lớp"
+    ClassContentItem ||--|| Assignment : "bài tập riêng lớp"
 
-    %% LIVE: Lịch trình & Thư viện (Flexible)
-    LiveClass ||--o{ LiveSchedule : "calendar"
-    LiveClass ||--o{ ClassMaterial : "slides/pdfs"
-    LiveClass ||--o{ ClassAssessment : "exams/assignments"
-
-    %% --- LỚP ĐÁNH GIÁ (ASSESSMENT LAYER - OWNED BY CLASS) ---
-    ClassAssessment ||--|| Exam : "can be"
-    ClassAssessment ||--|| Assignment : "can be"
-
-    Exam ||--|{ ExamSection : "composed of"
-    ExamSection ||--o{ ExamQuestion : "links"
-    ExamQuestion }o--|| QuestionBank : "picks from pool"
-
-    %% --- LỚP KẾT QUẢ (RESULTS LAYER) ---
-    Enrollment ||--|| Class : "joins"
-    ExamAttempt }o--|| Exam : "attempt of"
-    ExamAttempt }o--|| Class : "within class"
-    ExamAttempt }o--|| User : "by user"
+    Enrollment ||--|| Class : "ghi danh"
+    ExamAttempt }o--|| Class : "kết quả thi"
 ```
 
 ---
 
-## 3. Định nghĩa các bảng chính (Schema Definition)
+## 3. Chi tiết Schema Database (SQL DDL)
 
-### 3.1. Nhóm Bán hàng (Sales)
-- **`CourseProfile`**: Đóng vai trò là "Không gian tên" (Namespace) và "Danh mục" môn học. Nó lưu trữ thông tin định danh (Tên, Cấp độ, Mô tả chung) và dùng để phân loại (Scoping) các tài nguyên trong Bank (Video, Câu hỏi) thuộc về môn học đó.
-- **`CourseOffering`**: Gói sản phẩm thương mại cụ thể (Giá tiền, mô tả gói). Mỗi Offering sẽ dẫn lối người dùng vào một `Class` cụ thể.
+### 3.1. Nhóm Bán hàng & Lớp học
+```sql
+CREATE TABLE classes (
+    id UUID PRIMARY KEY,
+    course_profile_id UUID REFERENCES course_profiles(id),
+    name VARCHAR(255),
+    mode VARCHAR(10), -- 'VOD' | 'LIVE'
+    status VARCHAR(20),
+    default_expires_months INT, -- VOD
+    opening_date TIMESTAMP,     -- LIVE
+    closing_date TIMESTAMP,     -- LIVE
+    instructor_id UUID,         -- LIVE
+    created_at TIMESTAMP DEFAULT NOW()
+);
+```
 
-### 3.2. Nhóm Ngân hàng Nội dung (The Banks - Admin quản lý)
-- **`LessonBank`**: Lưu trữ các Video, bài viết lý thuyết mẫu.
-- **`QuestionBank` (`QuestionPool` & `Question`)**: Ngân hàng câu hỏi khổng lồ để các lớp học vào "nhặt" đề.
+### 3.2. Nhóm Syllabus (Sở hữu bởi từng Lớp học)
+Giao diện nhập liệu sẽ thay đổi dựa trên `mode` của Lớp:
+- **Lớp VOD (Picking Mode):** Chọn bài giảng từ `LessonBank`. Mặc định hiển thị trọn bộ Video + Files.
+- **Lớp LIVE (Planning Mode):** 
+    - **Nhặt tài liệu từ Bank:** Admin chọn bài từ `LessonBank` nhưng cấu hình là `kind: 'MATERIAL'`. Hệ thống sẽ **tự động ẩn Video**, chỉ cho phép học viên tải/xem tài liệu đi kèm.
+    - **Soạn giáo án riêng:** Nhập `TOPIC` (tiêu đề buổi học) và upload `MATERIAL` (Slide/PDF lẻ) trực tiếp cho lớp.
 
-### 3.3. Nhóm Vận hành Lớp VOD (Automated Path)
-- **`VodPathItem`**: 
-    - `classId`: ID lớp VOD.
-    - `orderIndex`: Thứ tự bước.
-    - `kind`: `LESSON` | `EXAM`.
-    - `referenceId`: ID của Lesson hoặc Exam tương ứng.
-    - `isPrerequisite`: Bắt buộc xong mới được qua bước sau.
+```sql
+CREATE TABLE class_modules (
+    id UUID PRIMARY KEY,
+    class_id UUID REFERENCES classes(id) ON DELETE CASCADE,
+    title VARCHAR(255),
+    order_index INT
+);
 
-### 3.4. Nhóm Vận hành Lớp LIVE (Flexible & Scheduled)
-- **`LiveSchedule`**: Danh sách ngày/giờ lên lớp, Link Zoom/Meet.
-- **`ClassMaterial`**: Thư viện Slide/PDF/Tài liệu tham khảo của riêng lớp đó.
-- **`ClassAssessment`**: 
-    - `classId`: ID lớp LIVE.
-    - `kind`: `EXAM` | `ASSIGNMENT`.
-    - `referenceId`: ID đề thi/bài tập.
-    - `status`: `DRAFT` | `SCHEDULED` | `PUBLISHED`.
-    - `availableFrom`: Thời điểm tự động mở đề.
-    - `deadline`: Thời điểm đóng link nộp bài.
+CREATE TABLE class_content_items (
+    id UUID PRIMARY KEY,
+    module_id UUID REFERENCES class_modules(id) ON DELETE CASCADE,
+    kind VARCHAR(20), -- 'VIDEO' (từ Bank), 'MATERIAL' (Slide/PDF lẻ), 'EXAM', 'ASSIGNMENT', 'TOPIC'
+    reference_id UUID, -- ID LessonBank, Exam, Assignment hoặc File
+    order_index INT,
+    status VARCHAR(20) DEFAULT 'PUBLISHED', -- 'HIDDEN' | 'PUBLISHED' (Cho LIVE điều phối)
+    available_from TIMESTAMP,               -- Hẹn giờ mở (Cho LIVE)
+    deadline TIMESTAMP,                     -- Hạn nộp (Cho LIVE)
+    is_prerequisite BOOLEAN DEFAULT FALSE   -- Chặn tiến độ (Cho VOD)
+);
+```
 
-### 3.5. Nhóm Đề thi & Kết quả (Exam & Results)
-- **`Exam`**: Bản ghi đề thi được tạo cho Lớp (Sở hữu bởi `classId`).
-- **`ExamSection`**: Các phần thi (Từ vựng, Nghe, Đọc). Lưu `timeLimitSeconds` riêng từng phần.
-- **`ExamQuestion`**: Liên kết giữa Section và Câu hỏi từ Bank.
-- **`ExamAttempt`**: Lưu kết quả làm bài của từng User kèm theo `classId` để phân tách dữ liệu.
+### 3.3. Nhóm Đánh giá & Điểm danh
+```sql
+CREATE TABLE attendance (
+    id UUID PRIMARY KEY,
+    schedule_id UUID REFERENCES live_schedules(id) ON DELETE CASCADE,
+    user_id UUID,
+    status VARCHAR(20), -- 'PRESENT', 'ABSENT', 'LATE'
+    marked_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE learning_progress (
+    id UUID PRIMARY KEY,
+    user_id UUID,
+    class_id UUID REFERENCES classes(id) ON DELETE CASCADE,
+    content_item_id UUID REFERENCES class_content_items(id) ON DELETE CASCADE,
+    completed_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(user_id, content_item_id)
+);
+```
 
 ---
 
-## 4. Danh sách các bảng bị loại bỏ (The Purge)
+## 4. Quản lý Phiên bản và Chỉnh sửa (Versioning)
 
-Để dọn dẹp Database sạch sẽ, các bảng sau sẽ bị **XÓA HOÀN TOÀN**:
-1.  **`CourseEdition`**: Không dùng cơ chế phiên bản cứng nhắc nữa.
-2.  **`Chapter` / `ChapterItem`**: Thứ tự bài học đã được thay thế bằng `VodPathItem` hoặc `LiveActivity`.
-3.  **`QuizTemplate` / `AssignmentTemplate`**: Không dùng bảng mẫu trung gian.
-4.  **`ClassAssessment` (Cũ)**: Thay bằng bảng quản lý hoạt động thực tế của lớp.
-
-## 5. Kết luận
-Kiến trúc này biến Database thành một hệ thống **Dynamic (Động)**. Nội dung không còn bị "chôn chân" trong những bản Edition cố định, mà được linh hoạt lắp ghép theo từng lớp học. Đây là giải pháp tối ưu nhất để xử lý mọi tình huống giảng dạy thực tế cho cả VOD và LIVE.
+1.  **Isolation:** Mỗi lớp học sở hữu Syllabus riêng. Sửa Lớp A không ảnh hưởng Lớp B.
+2.  **Nâng cấp VOD:** Để tạo bản 2026 từ 2025, Admin dùng lệnh **Clone Class**.
+    - Hệ thống nhân bản toàn bộ cấu trúc Syllabus và các bản ghi `Exam`, `Assignment`.
+    - Các mục `kind: VIDEO` vẫn trỏ về Video ID cũ trong `LessonBank` để tiết kiệm dung lượng.
+    - Admin thoải mái xóa bài cũ, thêm bài mới trong bản 2026.
 
 ---
-*Bản spec này là thiết kế Database cuối cùng cho module LMS.*
+
+## 5. Giả lập Quy trình Vận hành Thực tế
+
+### 5.1. Luồng VOD: Đóng gói và Nâng cấp
+- **Năm 2025:** Staff tạo `Class_VOD_2025`. Ráp 50 video từ Bank. Học viên mua và học theo tiến độ tự động.
+- **Năm 2026:** Admin thực hiện **Clone Class** 2025 sang `Class_VOD_2026`. Admin xóa bài số 5, thêm 10 bài mới. Người dùng mua gói 2026 sẽ học lộ trình mới này.
+
+### 5.2. Luồng LIVE: Theo đợt linh hoạt
+- **Đợt 1 (Tháng 3):** Lớp thầy Tanaka dạy. Thầy upload Slide riêng của thầy vào Tab "Tài liệu" của lớp. Điểm danh học viên qua bảng `attendance`.
+- **Đợt 2 (Tháng 6):** Lớp cô Yamada dạy. Cô không dùng Slide của thầy Tanaka mà tự soạn Syllabus mới, tự tạo bộ đề thi mới từ Question Bank.
+
+---
+
+# HƯỚNG DẪN TRIỂN KHAI (IMPLEMENTATION PROMPT)
+
+**LƯU Ý:** Chỉ đọc duy nhất file này, không đọc các file spec khác. KHÔNG giữ backward compatibility. Xóa sạch logic cũ liên quan đến `CourseEdition`. Chỉ chạy lệnh npx prisma generate, còn npx prisma db push hay migration tôi sẽ tự chạy sau. Yêu cầu làm xong phần nào thì update checklist bên dưới file này, bên dưới ##CHECKLIST để các agent khác có thể biết tiến độ.
+
+## GIAI ĐOẠN 1: BACKEND REFACTOR - [ ]
+- [ ] **DB:** Xóa các bảng `CourseEdition`, `Chapter`, `ChapterItem`, `QuizTemplate`, `AssignmentTemplate`.
+- [ ] **Schema:** Nâng cấp bảng `Class` và tạo các bảng `ClassModule`, `ClassContentItem`, `Attendance`, `LearningProgress`.
+- [ ] **Services:** 
+    - Viết logic `Deep Clone Class`: Nhân bản toàn bộ Syllabus + Exams của lớp sang ID mới.
+    - API `GET /classes/:id/syllabus`: Trả về cây dữ liệu dựa trên `class_id`.
+    - API `Auto-Enroll`: Mua `CourseOffering` -> Tự động tạo `Enrollment` cho danh sách `classIds` gắn kèm.
+
+## GIAI ĐOẠN 2: WEB-ADMIN (SYLLABUS BUILDER) - [ ]
+- [ ] **Syllabus Manager:** Tạo UI quản lý chuyên đề (Module) và nội dung (Item).
+    - **Mode VOD:** Ưu tiên nút "Chọn bài giảng từ Bank".
+    - **Mode LIVE:** Ưu tiên nút "Thêm Tiêu đề" và "Upload Slide/PDF".
+- [ ] **Exam Creator:** Tích hợp việc tạo trực tiếp `Exam` ngay tại Syllabus Item (không qua Template).
+
+## GIAI ĐOẠN 3: WEB-LEARNER (STUDENT EXPERIENCE) - [ ]
+- [ ] **Syllabus Sidebar:** 
+    - Lớp VOD: Hiện % tiến độ, mở khóa bài học tuần tự.
+    - Lớp LIVE: Hiện Roadmap kiến thức + Nút tải Tài liệu chuẩn bị bài.
+- [ ] **Live Schedule Tab:** Hiển thị lịch học, link vào Zoom/Meet và trạng thái điểm danh.
+- [ ] **Exam UI New:** Triển khai giao diện thi: **Cuộn dọc toàn bộ câu hỏi** + **Sidebar điều hướng câu hỏi** cố định ở góc. Hỗ trợ đếm ngược theo từng Section (JLPT Style).
+
+
+
+## CHECKLIST 

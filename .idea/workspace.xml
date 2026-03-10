@@ -4,25 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor(ui): improve roleplay API handling and update rewards page styling">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="new">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ASSESSMENT_FLOW_OVERVIEW.md" beforeDir="false" afterPath="$PROJECT_DIR$/ASSESSMENT_FLOW_OVERVIEW.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/JLPT_EXAM_SPEC.md" beforeDir="false" afterPath="$PROJECT_DIR$/JLPT_EXAM_SPEC.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-schedule/dto/live-schedule.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-schedule/dto/live-schedule.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-schedule/live-schedule.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/live-schedule/live-schedule.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/course-offering/course-offering.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/commerce/course-offering/course-offering.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/ticket/ticket.repository.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/ticket/ticket.repository.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/ticket/ticket.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/ticket/ticket.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/auth/auth-layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/auth/auth-layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/app-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/app-sidebar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/config/navigation.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/config/navigation.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/config/navigation.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-study-set-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/lib/api/services/academy-study-set-api.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-live-schedule.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-live-schedule.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/ticket.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/ticket.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/order.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/order.model.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/models/ticket.model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/models/ticket.model.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,6 +51,16 @@
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;git@github.com:Lain4504/torii-monorepo.git&quot;,
     &quot;accountId&quot;: &quot;36ac2fd8-9a60-42a4-b2bf-7fe947db4431&quot;
+  },
+  &quot;recentNewPullRequestHead&quot;: {
+    &quot;server&quot;: {
+      &quot;useHttp&quot;: false,
+      &quot;host&quot;: &quot;github.com&quot;,
+      &quot;port&quot;: null,
+      &quot;suffix&quot;: null
+    },
+    &quot;owner&quot;: &quot;Lain4504&quot;,
+    &quot;repository&quot;: &quot;torii-monorepo&quot;
   }
 }</component>
   <component name="GoLibraries">
@@ -96,7 +90,7 @@
     &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#279 on update-10-3&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
@@ -342,70 +336,8 @@
       <workItem from="1773027267018" duration="427000" />
       <workItem from="1773077787125" duration="934000" />
       <workItem from="1773126226922" duration="1835000" />
-    </task>
-    <task id="LOCAL-00954" summary="gop theo tinh nang">
-      <option name="closed" value="true" />
-      <created>1772649542052</created>
-      <option name="number" value="00954" />
-      <option name="presentableId" value="LOCAL-00954" />
-      <option name="project" value="LOCAL" />
-      <updated>1772649542052</updated>
-    </task>
-    <task id="LOCAL-00955" summary="gop theo tinh nang">
-      <option name="closed" value="true" />
-      <created>1772649551903</created>
-      <option name="number" value="00955" />
-      <option name="presentableId" value="LOCAL-00955" />
-      <option name="project" value="LOCAL" />
-      <updated>1772649551903</updated>
-    </task>
-    <task id="LOCAL-00956" summary="gop theo tinh nang">
-      <option name="closed" value="true" />
-      <created>1772649645022</created>
-      <option name="number" value="00956" />
-      <option name="presentableId" value="LOCAL-00956" />
-      <option name="project" value="LOCAL" />
-      <updated>1772649645022</updated>
-    </task>
-    <task id="LOCAL-00957" summary="gop theo tinh nang">
-      <option name="closed" value="true" />
-      <created>1772649667054</created>
-      <option name="number" value="00957" />
-      <option name="presentableId" value="LOCAL-00957" />
-      <option name="project" value="LOCAL" />
-      <updated>1772649667054</updated>
-    </task>
-    <task id="LOCAL-00958" summary="gop theo tinh nang">
-      <option name="closed" value="true" />
-      <created>1772649847261</created>
-      <option name="number" value="00958" />
-      <option name="presentableId" value="LOCAL-00958" />
-      <option name="project" value="LOCAL" />
-      <updated>1772649847262</updated>
-    </task>
-    <task id="LOCAL-00959" summary="feat: implement header and footer components for improved layout structure">
-      <option name="closed" value="true" />
-      <created>1772678128312</created>
-      <option name="number" value="00959" />
-      <option name="presentableId" value="LOCAL-00959" />
-      <option name="project" value="LOCAL" />
-      <updated>1772678128313</updated>
-    </task>
-    <task id="LOCAL-00960" summary="feat: implement header and footer components for improved layout structure">
-      <option name="closed" value="true" />
-      <created>1772681868858</created>
-      <option name="number" value="00960" />
-      <option name="presentableId" value="LOCAL-00960" />
-      <option name="project" value="LOCAL" />
-      <updated>1772681868858</updated>
-    </task>
-    <task id="LOCAL-00961" summary="feat: implement header and footer components for improved layout structure">
-      <option name="closed" value="true" />
-      <created>1772683959144</created>
-      <option name="number" value="00961" />
-      <option name="presentableId" value="LOCAL-00961" />
-      <option name="project" value="LOCAL" />
-      <updated>1772683959144</updated>
+      <workItem from="1773131920225" duration="3316000" />
+      <workItem from="1773136801222" duration="957000" />
     </task>
     <task id="LOCAL-00962" summary="feat: implement header and footer components for improved layout structure">
       <option name="closed" value="true" />
@@ -735,7 +667,71 @@
       <option name="project" value="LOCAL" />
       <updated>1773078642574</updated>
     </task>
-    <option name="localTasksCounter" value="1003" />
+    <task id="LOCAL-01003" summary="docs: update ASSESSMENT_FLOW_OVERVIEW.md with detailed course schema definitions and improve XML formatting">
+      <option name="closed" value="true" />
+      <created>1773131963335</created>
+      <option name="number" value="01003" />
+      <option name="presentableId" value="LOCAL-01003" />
+      <option name="project" value="LOCAL" />
+      <updated>1773131963335</updated>
+    </task>
+    <task id="LOCAL-01004" summary="new">
+      <option name="closed" value="true" />
+      <created>1773133214280</created>
+      <option name="number" value="01004" />
+      <option name="presentableId" value="LOCAL-01004" />
+      <option name="project" value="LOCAL" />
+      <updated>1773133214280</updated>
+    </task>
+    <task id="LOCAL-01005" summary="new">
+      <option name="closed" value="true" />
+      <created>1773133281450</created>
+      <option name="number" value="01005" />
+      <option name="presentableId" value="LOCAL-01005" />
+      <option name="project" value="LOCAL" />
+      <updated>1773133281450</updated>
+    </task>
+    <task id="LOCAL-01006" summary="new">
+      <option name="closed" value="true" />
+      <created>1773134490587</created>
+      <option name="number" value="01006" />
+      <option name="presentableId" value="LOCAL-01006" />
+      <option name="project" value="LOCAL" />
+      <updated>1773134490587</updated>
+    </task>
+    <task id="LOCAL-01007" summary="new">
+      <option name="closed" value="true" />
+      <created>1773134873644</created>
+      <option name="number" value="01007" />
+      <option name="presentableId" value="LOCAL-01007" />
+      <option name="project" value="LOCAL" />
+      <updated>1773134873644</updated>
+    </task>
+    <task id="LOCAL-01008" summary="new">
+      <option name="closed" value="true" />
+      <created>1773134976915</created>
+      <option name="number" value="01008" />
+      <option name="presentableId" value="LOCAL-01008" />
+      <option name="project" value="LOCAL" />
+      <updated>1773134976915</updated>
+    </task>
+    <task id="LOCAL-01009" summary="new">
+      <option name="closed" value="true" />
+      <created>1773135574427</created>
+      <option name="number" value="01009" />
+      <option name="presentableId" value="LOCAL-01009" />
+      <option name="project" value="LOCAL" />
+      <updated>1773135574427</updated>
+    </task>
+    <task id="LOCAL-01010" summary="new">
+      <option name="closed" value="true" />
+      <created>1773137060054</created>
+      <option name="number" value="01010" />
+      <option name="presentableId" value="LOCAL-01010" />
+      <option name="project" value="LOCAL" />
+      <updated>1773137060055</updated>
+    </task>
+    <option name="localTasksCounter" value="1011" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -770,8 +766,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="update core lms flow" />
-    <MESSAGE value="feat: initialize new marketing web project with Tailwind CSS and Radix UI components" />
     <MESSAGE value="feat: add new UI components including Skeleton, AspectRatio, Spinner, and more" />
     <MESSAGE value="update create review submit flow for course and course master" />
     <MESSAGE value="gop theo tinh nang" />
@@ -795,7 +789,9 @@
     <MESSAGE value="feat(academy): add clone functionality for course editions and enforce syllabus immutability for published editions" />
     <MESSAGE value="fix quiz flow and improve user experience" />
     <MESSAGE value="refactor(ui): improve roleplay API handling and update rewards page styling" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor(ui): improve roleplay API handling and update rewards page styling" />
+    <MESSAGE value="docs: update ASSESSMENT_FLOW_OVERVIEW.md with detailed course schema definitions and improve XML formatting" />
+    <MESSAGE value="new" />
+    <option name="LAST_COMMIT_MESSAGE" value="new" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
