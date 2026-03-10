@@ -1,7 +1,16 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { ClassService } from './class.service';
-import { ClassCreateDto, ClassDuplicateDto, ClassQueryDto, ClassUpdateDto } from './dto/class.dto';
+import {
+  ClassContentItemCreateDto,
+  ClassContentItemUpdateDto,
+  ClassCreateDto,
+  ClassDuplicateDto,
+  ClassModuleCreateDto,
+  ClassModuleUpdateDto,
+  ClassQueryDto,
+  ClassUpdateDto,
+} from './dto/class.dto';
 
 @Controller()
 export class ClassHandler {
@@ -66,6 +75,40 @@ export class ClassHandler {
   @MessagePattern({ cmd: 'academy.class.getCurriculum' })
   getCurriculum(@Payload() data: { id: string }) {
     return this.classes.getCurriculum(data.id);
+  }
+
+  @MessagePattern({ cmd: 'academy.class.addModule' })
+  addModule(@Payload() data: ClassModuleCreateDto) {
+    return this.classes.addModule(data);
+  }
+
+  @MessagePattern({ cmd: 'academy.class.updateModule' })
+  updateModule(
+    @Payload() data: { id: string; input: ClassModuleUpdateDto },
+  ) {
+    return this.classes.updateModule(data.id, data.input);
+  }
+
+  @MessagePattern({ cmd: 'academy.class.deleteModule' })
+  deleteModule(@Payload() data: { id: string }) {
+    return this.classes.deleteModule(data.id);
+  }
+
+  @MessagePattern({ cmd: 'academy.class.addContentItem' })
+  addContentItem(@Payload() data: ClassContentItemCreateDto) {
+    return this.classes.addContentItem(data);
+  }
+
+  @MessagePattern({ cmd: 'academy.class.updateContentItem' })
+  updateContentItem(
+    @Payload() data: { id: string; input: ClassContentItemUpdateDto },
+  ) {
+    return this.classes.updateContentItem(data.id, data.input);
+  }
+
+  @MessagePattern({ cmd: 'academy.class.deleteContentItem' })
+  deleteContentItem(@Payload() data: { id: string }) {
+    return this.classes.deleteContentItem(data.id);
   }
 
   @MessagePattern({ cmd: 'academy.class.delete' })

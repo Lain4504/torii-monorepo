@@ -17,9 +17,10 @@ export const academyLearningProgressApi = {
     },
 
     /**
-     * Track progress for a specific lesson
+     * Track progress for a specific content item
+     * (contentItemId = class_content_items.id)
      */
-    trackProgress: async (payload: { lessonId: string; classId: string; status: string; progressPercent: number }): Promise<any> => {
+    trackProgress: async (payload: { contentItemId: string; classId: string; status: string; progressPercent: number }): Promise<any> => {
         const response = await apiClient.post<StandardApiResponse<any>>('/api/learning-progress/track', payload);
         return response.data.data!;
     },
@@ -33,7 +34,8 @@ export const academyLearningProgressApi = {
     },
 
     /**
-     * Get IDs of completed lessons for a specific class
+     * Get IDs of completed content items for a specific class
+     * (IDs are class_content_items.id)
      */
     getCompletedLessonIds: async (classId: string): Promise<string[]> => {
         const response = await apiClient.get<StandardApiResponse<string[]>>(`/api/learning-progress/completed-lessons/${classId}`);

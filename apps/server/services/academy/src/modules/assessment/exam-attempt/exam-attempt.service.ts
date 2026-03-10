@@ -76,7 +76,6 @@ export class ExamAttemptService {
     }
 
     let resolvedClassId = input.classId;
-    let resolvedClassId = input.classId;
     if (input.contentItemId && !resolvedClassId) {
       const ci = await this.prisma.classContentItem.findUnique({
         where: { id: input.contentItemId },

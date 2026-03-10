@@ -1,27 +1,12 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useAcademyCourseById } from '@/lib/api/services/academy-course-api';
-import { useAcademyClass, useCurriculum } from '@/lib/api/services/academy-classes';
+import { useAcademyClass, useCurriculum, type CurriculumLesson, type CurriculumModule } from '@/lib/api/services/academy-classes';
 import { useAcademyEnrollmentCheck } from '@/lib/api/services/academy-enrollment-api';
 import { useAcademyCompletedLessonIds, academyLearningProgressApi } from '@/lib/api/services/academy-learning-progress-api';
 import { useAcademyLesson } from '@/lib/api/services/academy-lesson-api';
-import {
-    useAcademyAssignmentSubmissions, useCreateAcademyAssignmentSubmission, useUpdateAcademyAssignmentSubmission,
-    useAcademyAssignmentTemplates, useAcademyAssignmentTemplate
-} from '@/lib/api/services/academy-assignment-api';
-import {
-    useAcademyQuizTemplate
-} from '@/lib/api/services/academy-quiz-api';
-import {
-    useStartAcademyExamAttempt, useSaveAcademyExamAnswers, useSubmitAcademyExamAttempt
-} from '@/lib/api/services/academy-exam-api';
-import {
-    extractAssessmentExamId,
-    useAcademyClassAssessment,
-    useAcademyClassAssessments,
-} from '@/lib/api/services/academy-class-assessments';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from '@workspace/ui/components/sonner';
 import { Skeleton } from '@workspace/ui/components/skeleton';
@@ -33,13 +18,7 @@ import {
     AlertCircle, Clock, Trophy, HelpCircle, Timer, RotateCcw,
     Paperclip, PenTool
 } from 'lucide-react';
-import { MultiFileUpload } from '@/components/common/multi-file-upload';
-import type { CurriculumLesson, CurriculumModule } from '@/lib/api/services/academy-classes';
-import { type AcademyQuizTemplateModel } from '@/lib/api/services/academy-quiz-api';
-import type {
-    AcademyLessonModel,
-    AcademyAssignmentTemplateModel
-} from '@workspace/schemas';
+import type { AcademyLessonModel } from '@workspace/schemas';
 import { StudyNotesPanel } from '@/components/courses/study-notes-panel';
 import { useAppSelector } from '@/hooks/hooks';
 import { RootState } from '@/store/store';
@@ -61,7 +40,10 @@ function LessonIcon({ lesson, isActive, isCompleted }: {
     if (isCompleted) return <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500 shrink-0" />;
     if (!lesson.isUnlocked) return <Lock className="h-4 w-4 text-muted-foreground/40 shrink-0" />;
     if (isAssignmentItemKind(lesson.kind)) return <BookOpen className={`h-4 w-4 shrink-0 ${isActive ? 'text-amber-500' : 'text-muted-foreground/60'}`} />;
-    if (isQuizItemKind(lesson.kind)) return <HelpCircle className={`h-4 w-4 shrink-0 ${isActive ? 'text-violet-500' : 'text-muted-foreground/60'}`} />;
+    if (isExamItemKind(lesson.kind)) return <HelpCircle className={`h-4 w-4 shrink-0 ${isActive ? 'text-violet-500' : 'text-muted-foreground/60'}`} />;
+    if (isMaterialItemKind(lesson.kind) || isTopicItemKind(lesson.kind)) {
+        return <FileText className={`h-4 w-4 shrink-0 ${isActive ? 'text-blue-500' : 'text-muted-foreground/60'}`} />;
+    }
     return <PlayCircle className={`h-4 w-4 shrink-0 ${isActive ? 'text-primary' : 'text-muted-foreground/50'}`} />;
 }
 
@@ -69,22 +51,38 @@ function normalizeItemKind(kind?: string) {
     return (kind || '').toUpperCase();
 }
 
-function isLessonItemKind(kind?: string) {
-    return normalizeItemKind(kind) === 'LESSON';
+function isVideoItemKind(kind?: string) {
+    return normalizeItemKind(kind) === 'VIDEO';
 }
 
-function isQuizItemKind(kind?: string) {
-    const normalized = normalizeItemKind(kind);
-    return normalized === 'QUIZ' || normalized === 'QUIZ_TEMPLATE';
+function isExamItemKind(kind?: string) {
+    return normalizeItemKind(kind) === 'EXAM';
 }
 
 function isAssignmentItemKind(kind?: string) {
-    const normalized = normalizeItemKind(kind);
-    return normalized === 'ASSIGNMENT' || normalized === 'ASSIGNMENT_TEMPLATE';
+    return normalizeItemKind(kind) === 'ASSIGNMENT';
+}
+
+function isMaterialItemKind(kind?: string) {
+    return normalizeItemKind(kind) === 'MATERIAL';
+}
+
+function isTopicItemKind(kind?: string) {
+    return normalizeItemKind(kind) === 'TOPIC';
+}
+
+function isTrackableItemKind(kind?: string) {
+    // chỉ track tiến độ cho VIDEO
+    return isVideoItemKind(kind);
+}
+
+function isLessonItemKind(kind?: string) {
+    const k = normalizeItemKind(kind);
+    return k === 'VIDEO' || k === 'MATERIAL' || k === 'TOPIC';
 }
 
 function isTrackableLessonKind(kind?: string) {
-    return isLessonItemKind(kind);
+    return isTrackableItemKind(kind);
 }
 
 // ─── Video Player ─────────────────────────────────────────────────────────────
@@ -174,314 +172,6 @@ function ArticleViewer({ lesson, onComplete }: { lesson: AcademyLessonModel; onC
     );
 }
 
-// ─── Assignment Panel ─────────────────────────────────────────────────────────
-
-function AssignmentPanel({
-    lessonId, templateId, classId, classAssessmentId, onComplete
-}: { lessonId: string; templateId: string; classId?: string; classAssessmentId?: string; onComplete: () => void; }) {
-    const userId = useAppSelector((state: RootState) => state.auth.user?.id);
-    const { data: assignment, isLoading: assignmentLoading } = useAcademyAssignmentTemplate(templateId);
-
-    const { data: submissions } = useAcademyAssignmentSubmissions({
-        assignmentTemplateId: templateId,
-        ...(classId ? { classId: classId } : {}),
-        ...(classAssessmentId ? { classAssessmentId: classAssessmentId } : {})
-    }, { enabled: !!templateId });
-    const submission = submissions?.[0];
-
-    const submitMutation = useCreateAcademyAssignmentSubmission();
-    const updateMutation = useUpdateAcademyAssignmentSubmission();
-
-    const [textAnswer, setTextAnswer] = useState('');
-    const [fileUrls, setFileUrls] = useState<string[]>([]);
-
-    useEffect(() => {
-        if (submission?.content) {
-            const content = typeof submission.content === 'string' ? JSON.parse(submission.content) : submission.content;
-            if (content?.textAnswer) setTextAnswer(content.textAnswer);
-            if (content?.fileUrls) setFileUrls(content.fileUrls);
-        }
-    }, [submission?.content]);
-
-    if (assignmentLoading) {
-        return (
-            <div className="p-8 space-y-4 max-w-3xl mx-auto">
-                <Skeleton className="h-8 w-2/3" />
-                <Skeleton className="h-32 w-full" />
-            </div>
-        );
-    }
-
-    if (!assignment) {
-        return (
-            <div className="p-8 text-center text-muted-foreground">
-                <BookOpen className="h-12 w-12 mx-auto mb-3 opacity-40" />
-                <p>Bài tập đang được chuẩn bị.</p>
-            </div>
-        );
-    }
-
-    const isSubmitted = submission?.status === 'SUBMITTED' || submission?.status === 'GRADED';
-    const isGraded = submission?.status === 'GRADED';
-
-    return (
-        <div className="p-6 sm:p-10 max-w-3xl mx-auto space-y-6">
-            {/* Header */}
-            <div className="flex items-start gap-4 pb-6 border-b border-border">
-                <div className="p-3 rounded-xl bg-amber-500/10 shrink-0">
-                    <BookOpen className="h-6 w-6 text-amber-500" />
-                </div>
-                <div className="flex-1">
-                    <h2 className="text-xl font-bold text-foreground">{assignment.title}</h2>
-                    <div className="flex flex-wrap gap-3 mt-2 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1"><Trophy className="h-3.5 w-3.5" /> {assignment.defaultMaxScore} điểm</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Description / Instructions */}
-            {assignment.description && (
-                <div className="bg-muted/40 rounded-xl p-5 border border-border">
-                    <h3 className="font-bold text-foreground mb-2 text-sm uppercase tracking-wider">Hướng dẫn</h3>
-                    <p className="text-foreground/80 leading-relaxed whitespace-pre-wrap">
-                        {assignment.description}
-                    </p>
-                </div>
-            )}
-
-            {/* Graded result */}
-            {isGraded && submission && (
-                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-5">
-                    <div className="flex items-center gap-2 mb-2">
-                        <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-                        <span className="font-bold text-emerald-600 dark:text-emerald-400">Đã chấm điểm</span>
-                    </div>
-                    <p className="text-3xl font-black text-foreground">{submission.score ?? 0} <span className="text-lg font-normal text-muted-foreground">/ {assignment.defaultMaxScore}</span></p>
-                </div>
-            )}
-
-            {/* Submission form */}
-            {(assignment.defaultType === 'TEXT' || assignment.defaultType === 'BOTH') && (
-                <div>
-                    <label className="block font-semibold text-foreground mb-3 text-sm uppercase tracking-widest">Câu trả lời bài viết</label>
-                    <textarea
-                        className="w-full h-48 p-4 bg-background border border-border rounded-xl text-foreground text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none resize-none transition"
-                        placeholder="Nhập nội dung bài làm của bạn tại đây..."
-                        value={textAnswer}
-                        onChange={e => setTextAnswer(e.target.value)}
-                        disabled={isSubmitted}
-                        readOnly={isSubmitted}
-                    />
-                </div>
-            )}
-
-            {(assignment.defaultType === 'FILE' || assignment.defaultType === 'BOTH') && (
-                <div className="space-y-3">
-                    <label className="block font-semibold text-foreground text-sm uppercase tracking-widest">Tệp đính kèm bài làm</label>
-                    <MultiFileUpload
-                        currentUrls={fileUrls}
-                        onUploadChange={setFileUrls}
-                        disabled={isSubmitted}
-                        maxFiles={5}
-                        label="Tải lên tệp bài làm của bạn"
-                    />
-                </div>
-            )}
-
-            {/* Action buttons */}
-            {!isSubmitted ? (
-                <div className="flex flex-col sm:flex-row gap-3">
-                    <button
-                        onClick={() => {
-                            const actorUserId = userId;
-                            if (!actorUserId) {
-                                toast.error('Phiên đăng nhập không hợp lệ');
-                                return;
-                            }
-                            const content = { textAnswer, fileUrls };
-                            if (submission) {
-                                updateMutation.mutate({ id: submission.id, dto: { content, status: 'DRAFT' } }, { onSuccess: () => toast.success('Đã lưu nháp!') });
-                            } else {
-                                if (!classId || !classAssessmentId) {
-                                    toast.error('Thiếu thông tin lớp/assessment để lưu bài tập.');
-                                    return;
-                                }
-                                submitMutation.mutate({
-                                    assignmentTemplateId: templateId,
-                                    classId,
-                                    classAssessmentId,
-                                    content,
-                                    status: 'DRAFT',
-                                    userId: actorUserId
-                                }, { onSuccess: () => toast.success('Đã lưu nháp!') });
-                            }
-                        }}
-                        disabled={submitMutation.isPending || updateMutation.isPending}
-                        className="flex-1 sm:flex-none px-6 py-3 border border-border rounded-xl font-semibold text-sm hover:bg-muted/50 transition flex items-center justify-center gap-2"
-                    >
-                        <Save className="h-4 w-4" />
-                        {submitMutation.isPending || updateMutation.isPending ? 'Đang lưu...' : 'Lưu nháp'}
-                    </button>
-                    <button
-                        onClick={() => {
-                            const actorUserId = userId;
-                            if (!actorUserId) {
-                                toast.error('Phiên đăng nhập không hợp lệ');
-                                return;
-                            }
-                            const content = { textAnswer, fileUrls };
-                            if (submission) {
-                                updateMutation.mutate({ id: submission.id, dto: { content, status: 'SUBMITTED' } }, {
-                                    onSuccess: () => { toast.success('Đã nộp bài!'); onComplete(); },
-                                    onError: () => toast.error('Lỗi khi nộp bài.')
-                                });
-                            } else {
-                                if (!classId || !classAssessmentId) {
-                                    toast.error('Thiếu thông tin lớp/assessment để nộp bài.');
-                                    return;
-                                }
-                                submitMutation.mutate({
-                                    assignmentTemplateId: templateId,
-                                    classId,
-                                    classAssessmentId,
-                                    content,
-                                    status: 'SUBMITTED',
-                                    userId: actorUserId
-                                }, {
-                                    onSuccess: () => { toast.success('Đã nộp bài!'); onComplete(); },
-                                    onError: () => toast.error('Lỗi khi nộp bài.')
-                                });
-                            }
-                        }}
-                        disabled={submitMutation.isPending || updateMutation.isPending || (assignment.defaultType !== 'FILE' && !textAnswer.trim()) || (assignment.defaultType === 'FILE' && fileUrls.length === 0)}
-                        className="flex-1 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:bg-primary/90 transition flex items-center justify-center gap-2 disabled:opacity-60"
-                    >
-                        <Send className="h-4 w-4" />
-                        {submitMutation.isPending || updateMutation.isPending ? 'Đang nộp...' : 'Nộp bài'}
-                    </button>
-                </div>
-            ) : (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/40 rounded-xl p-4">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                    Đã nộp vào {submission.submittedAt ? new Date(submission.submittedAt).toLocaleString('vi-VN') : ''}
-                </div>
-            )}
-        </div>
-    );
-}
-
-// ─── Quiz Panel ───────────────────────────────────────────────────────────────
-
-type QuizPanelState = 'intro' | 'in_progress' | 'result';
-
-const SectionTypeMap: Record<string, string> = {
-    'vocab': 'Từ vựng',
-    'grammar': 'Ngữ pháp',
-    'reading': 'Đọc hiểu',
-    'listening': 'Nghe hiểu'
-};
-
-function QuizPanel({
-    lessonId, templateId, classId, classAssessmentId, onComplete
-}: { lessonId: string; templateId: string; classId?: string; classAssessmentId?: string; onComplete: () => void; }) {
-    const router = useRouter();
-    const { data: quiz, isLoading: quizLoading } = useAcademyQuizTemplate(templateId);
-    const { data: classAssessment } = useAcademyClassAssessment(classAssessmentId);
-    const examId = useMemo(
-        () => extractAssessmentExamId(classAssessment?.settings),
-        [classAssessment?.settings],
-    );
-
-    // We will just show the info and a "Mark Complete" button for now
-    // until the Quiz taking UI is fully integrated with Exam attempts.
-
-    if (quizLoading) {
-        return (
-            <div className="p-8 space-y-4 max-w-3xl mx-auto">
-                <Skeleton className="h-10 w-1/2" />
-                <Skeleton className="h-32 w-full" />
-            </div>
-        );
-    }
-
-    if (!quiz) {
-        return (
-            <div className="p-8 text-center text-muted-foreground max-w-3xl mx-auto">
-                <HelpCircle className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                <p className="font-semibold">Quiz chưa được thiết lập cho bài học này.</p>
-                <p className="text-sm mt-1">Vui lòng liên hệ giảng viên.</p>
-            </div>
-        );
-    }
-
-    return (
-        <div className="p-6 sm:p-10 max-w-2xl mx-auto">
-            {/* Header */}
-            <div className="flex items-start gap-4 pb-6 border-b border-border mb-8">
-                <div className="p-4 rounded-2xl bg-violet-500/10 shrink-0">
-                    <HelpCircle className="h-8 w-8 text-violet-500" />
-                </div>
-                <div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-violet-500 mb-1">Quiz</p>
-                    <h2 className="text-2xl font-bold text-foreground">{quiz.title}</h2>
-                    {quiz.description && <p className="text-sm text-muted-foreground mt-1">{quiz.description}</p>}
-                </div>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-4 mb-8">
-                <div className="bg-muted/40 rounded-xl p-4 text-center border border-border">
-                    <p className="text-2xl font-black text-foreground">{'?'}</p>
-                    <p className="text-xs text-muted-foreground mt-1">Câu hỏi</p>
-                </div>
-                <div className="bg-muted/40 rounded-xl p-4 text-center border border-border">
-                    <p className="text-2xl font-black text-foreground">{quiz.timeLimit ?? '∞'}</p>
-                    <p className="text-xs text-muted-foreground mt-1">Phút</p>
-                </div>
-                <div className="bg-muted/40 rounded-xl p-4 text-center border border-border">
-                    <p className="text-2xl font-black text-foreground">{quiz.passingScore ?? 60}%</p>
-                    <p className="text-xs text-muted-foreground mt-1">Đạt</p>
-                </div>
-            </div>
-
-            {quiz.maxAttempts > 0 && (
-                <p className="text-sm text-muted-foreground mb-6">
-                    Số lần làm tối đa: <strong>{quiz.maxAttempts}</strong>
-                </p>
-            )}
-
-            <div className="space-y-4 bg-muted/30 border border-border rounded-xl p-6 text-center">
-                <p className="text-sm text-foreground font-medium">
-                    Bài kiểm tra đã sẵn sàng. Bạn có thể bắt đầu làm bài ngay.
-                </p>
-                <button
-                    onClick={() => {
-                        if (!classId || !classAssessmentId) {
-                            toast.error('Không tìm thấy assessment của quiz này.');
-                            return;
-                        }
-                        const query = examId ? `?examId=${examId}` : '';
-                        router.push(`/courses/${classId}/quizzes/${classAssessmentId}${query}`);
-                    }}
-                    className="w-full py-4 bg-violet-500 hover:bg-violet-600 text-white rounded-2xl font-bold text-base transition flex items-center justify-center gap-2 shadow-lg shadow-violet-500/25"
-                >
-                    <PlayCircle className="h-5 w-5" /> Bắt đầu làm bài
-                </button>
-                {!examId && (
-                    <p className="text-xs text-muted-foreground">
-                        Quiz này chưa liên kết đề thi. Vui lòng liên hệ giảng viên.
-                    </p>
-                )}
-                <button
-                    onClick={onComplete}
-                    className="w-full py-3 border border-border rounded-xl font-semibold text-sm hover:bg-muted transition"
-                >
-                    Đánh dấu hoàn thành bài học
-                </button>
-            </div>
-        </div>
-    );
-}
 
 
 function ModuleItem({
@@ -497,7 +187,8 @@ function ModuleItem({
     const hasActive = mod.lessons.some(l => l.id === currentLessonId);
     const doneCount = mod.lessons.filter((lesson) => {
         if (!isTrackableLessonKind(lesson.kind)) return false;
-        return completedIds.has(lesson.referenceId);
+        const trackId = lesson.referenceId ?? lesson.id;
+        return completedIds.has(trackId);
     }).length;
 
     return (
@@ -521,7 +212,7 @@ function ModuleItem({
                     {mod.lessons.map(lesson => {
                         const isActive = lesson.id === currentLessonId;
                         const isDone = isTrackableLessonKind(lesson.kind)
-                            ? completedIds.has(lesson.referenceId)
+                            ? completedIds.has(lesson.referenceId ?? lesson.id)
                             : false;
                         return (
                             <button
@@ -572,9 +263,8 @@ export default function CourseLearnPage() {
     // 2. Fetch other details using courseProfileId
     const { data: course, isLoading: courseLoading } = useAcademyCourseById(courseProfileId ?? '');
     const { data: curriculum, isLoading: curriculumLoading } = useCurriculum(classId);
-    const { data: classAssessments = [] } = useAcademyClassAssessments({ classId });
     const { data: enrollmentData } = useAcademyEnrollmentCheck(classId);
-    const { data: completedLessonIds = [] } = useAcademyCompletedLessonIds(classId ?? '');
+    const { data: completedContentItemIds = [] } = useAcademyCompletedLessonIds(classId ?? '');
 
     // ── State ──────────────────────────────────────────────────────────────
     const [currentLesson, setCurrentLesson] = useState<CurriculumLesson | null>(null);
@@ -592,9 +282,9 @@ export default function CourseLearnPage() {
         }
     }, [enrollmentData, router]);
 
-    const completedIds = new Set(completedLessonIds);
+    const completedIds = new Set(completedContentItemIds);
     const currentLessonKind = normalizeItemKind(currentLesson?.kind);
-    const shouldFetchLessonDetail = !!currentLesson?.referenceId && isLessonItemKind(currentLessonKind);
+    const shouldFetchLessonDetail = !!currentLesson?.referenceId && isVideoItemKind(currentLessonKind);
 
     // ── Load curriculum → pick first uncompleted lesson + expand all ───────
     useEffect(() => {
@@ -617,8 +307,8 @@ export default function CourseLearnPage() {
         let pick: CurriculumLesson | null = null;
         for (const mod of curriculum.modules) {
             for (const lesson of mod.lessons) {
-                const completed = isTrackableLessonKind(lesson.kind)
-                    ? completedIds.has(lesson.referenceId)
+                const completed = isTrackableItemKind(lesson.kind)
+                    ? completedIds.has(lesson.id)
                     : false;
                 if (lesson.isUnlocked && !completed) {
                     pick = lesson; break;
@@ -641,20 +331,20 @@ export default function CourseLearnPage() {
     // ── Progress ───────────────────────────────────────────────────────────
     const markLessonComplete = useCallback(async () => {
         if (!currentLesson) return;
-        if (!isTrackableLessonKind(currentLesson.kind)) {
-            toast.info('Loại bài học này không dùng learning-progress theo lesson.');
+        if (!isTrackableItemKind(currentLesson.kind)) {
+            toast.info('Loại nội dung này không được tính vào tiến độ học.');
             return;
         }
-        if (completedIds.has(currentLesson.referenceId)) { toast.info('Bài học này đã được hoàn thành!'); return; }
+        if (completedIds.has(currentLesson.id)) { toast.info('Nội dung này đã được hoàn thành!'); return; }
         try {
             await academyLearningProgressApi.trackProgress({
-                lessonId: currentLesson.referenceId,
+                contentItemId: currentLesson.id,
                 classId: classId!,
                 status: 'COMPLETED',
                 progressPercent: 100
             });
             queryClient.invalidateQueries({ queryKey: ['academy-learning', 'completed-lessons', classId] });
-            toast.success('Đã hoàn thành bài học! 🎉');
+            toast.success('Đã hoàn thành nội dung! 🎉');
         } catch {
             toast.error('Không thể cập nhật tiến độ.');
         }
@@ -680,18 +370,18 @@ export default function CourseLearnPage() {
     });
 
     // ── Computed ───────────────────────────────────────────────────────────
-    const progressLessons = allLessons.filter((lesson) => isTrackableLessonKind(lesson.kind));
+    const progressLessons = allLessons.filter((lesson) => isTrackableItemKind(lesson.kind));
     const totalLessons = progressLessons.length || allLessons.length;
     const completedCount = (progressLessons.length
-        ? progressLessons.filter((lesson) => completedIds.has(lesson.referenceId))
+        ? progressLessons.filter((lesson) => completedIds.has(lesson.id))
         : []
     ).length;
     const progressPct = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
     const radius = 24, circumference = 2 * Math.PI * radius;
     const strokeDashoffset = circumference - (progressPct / 100) * circumference;
     const isCurrentDone = !!currentLesson &&
-        isTrackableLessonKind(currentLesson.kind) &&
-        completedIds.has(currentLesson.referenceId);
+        isTrackableItemKind(currentLesson.kind) &&
+        completedIds.has(currentLesson.id);
 
     // ── Loading ────────────────────────────────────────────────────────────
     if (classLoading || courseLoading || curriculumLoading) {
@@ -731,8 +421,6 @@ export default function CourseLearnPage() {
         .toLowerCase();
     const isVideoLesson = isLessonItemKind(currentLessonKind) && contentType === 'video';
     const isArticleLesson = isLessonItemKind(currentLessonKind) && (contentType === 'article' || contentType === 'document');
-    const isAssignmentLesson = isAssignmentItemKind(currentLessonKind);
-    const isQuizLesson = isQuizItemKind(currentLessonKind);
 
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -780,8 +468,8 @@ export default function CourseLearnPage() {
                         <VideoPlayer lesson={lessonDetail} onComplete={markLessonComplete} />
                     )}
 
-                    {/* Lesson details below video (or full page for article/assignment) */}
-                    {(isVideoLesson || !currentLesson) && (
+                    {/* Lesson details & meta */}
+                    {(
                         <section className="p-5 sm:p-8 lg:p-10 max-w-5xl mx-auto">
                             {/* Title + nav */}
                             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
@@ -906,66 +594,6 @@ export default function CourseLearnPage() {
                                 </button>
                             </div>
                             <ArticleViewer lesson={lessonDetail!} onComplete={markLessonComplete} />
-                        </>
-                    )}
-
-                    {/* Assignment lesson */}
-                    {isAssignmentLesson && currentLesson && !lessonLoading && (
-                        <>
-                            <div className="px-5 sm:px-10 pt-8 max-w-3xl mx-auto flex flex-wrap gap-2">
-                                <button onClick={() => goTo(prevLesson)} disabled={!prevLesson?.isUnlocked}
-                                    className="px-4 py-2 border border-border rounded-lg font-semibold text-sm hover:bg-muted transition disabled:opacity-40 flex items-center gap-1">
-                                    <ChevronLeft className="h-4 w-4" /> Bài trước
-                                </button>
-                                <button onClick={() => goTo(nextLesson)} disabled={!nextLesson?.isUnlocked}
-                                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold text-sm hover:bg-primary/90 transition disabled:opacity-40 flex items-center gap-1">
-                                    Bài tiếp theo <ChevronRight className="h-4 w-4" />
-                                </button>
-                            </div>
-                            <AssignmentPanel
-                                lessonId={currentLesson.id}
-                                templateId={currentLesson.referenceId!}
-                                classId={classId}
-                                classAssessmentId={
-                                    classAssessments.find(
-                                        (a) =>
-                                            a.classId === classId &&
-                                            a.kind === 'ASSIGNMENT' &&
-                                            a.assignmentTemplateId === currentLesson.referenceId,
-                                    )?.id
-                                }
-                                onComplete={markLessonComplete}
-                            />
-                        </>
-                    )}
-
-                    {/* Quiz lesson */}
-                    {isQuizLesson && currentLesson && !lessonLoading && (
-                        <>
-                            <div className="px-5 sm:px-10 pt-8 max-w-3xl mx-auto flex flex-wrap gap-2">
-                                <button onClick={() => goTo(prevLesson)} disabled={!prevLesson?.isUnlocked}
-                                    className="px-4 py-2 border border-border rounded-lg font-semibold text-sm hover:bg-muted transition disabled:opacity-40 flex items-center gap-1">
-                                    <ChevronLeft className="h-4 w-4" /> Bài trước
-                                </button>
-                                <button onClick={() => goTo(nextLesson)} disabled={!nextLesson?.isUnlocked}
-                                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold text-sm hover:bg-primary/90 transition disabled:opacity-40 flex items-center gap-1">
-                                    Bài tiếp theo <ChevronRight className="h-4 w-4" />
-                                </button>
-                            </div>
-                            <QuizPanel
-                                lessonId={currentLesson.id}
-                                templateId={currentLesson.referenceId!}
-                                classId={classId}
-                                classAssessmentId={
-                                    classAssessments.find(
-                                        (a) =>
-                                            a.classId === classId &&
-                                            a.kind === 'QUIZ' &&
-                                            a.quizTemplateId === currentLesson.referenceId,
-                                    )?.id
-                                }
-                                onComplete={markLessonComplete}
-                            />
                         </>
                     )}
 

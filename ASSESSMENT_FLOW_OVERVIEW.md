@@ -170,18 +170,18 @@ CREATE TABLE assignment_submissions (
     - API `GET /classes/:id/syllabus`: Trả về cây dữ liệu dựa trên `class_id`.
     - API `Auto-Enroll`: Mua `CourseOffering` -> Tự động tạo `Enrollment` cho danh sách `classIds` gắn kèm.
 
-## GIAI ĐOẠN 2: WEB-ADMIN (SYLLABUS BUILDER) - [ ]
-- [ ] **Syllabus Manager:** Tạo UI quản lý chuyên đề (Module) và nội dung (Item).
+## GIAI ĐOẠN 2: WEB-ADMIN (SYLLABUS BUILDER) - [x]
+- [x] **Syllabus Manager:** Tạo UI quản lý chuyên đề (Module) và nội dung (Item).
     - **Mode VOD:** Ưu tiên nút "Chọn bài giảng từ Bank".
     - **Mode LIVE:** Ưu tiên nút "Thêm Tiêu đề" và "Upload Slide/PDF".
-- [ ] **Exam Creator:** Tích hợp việc tạo trực tiếp `Exam` ngay tại Syllabus Item (không qua Template).
+- [x] **Exam Creator:** Tích hợp việc tạo trực tiếp `Exam` ngay tại Syllabus Item (không qua Template).
 
-## GIAI ĐOẠN 3: WEB-LEARNER (STUDENT EXPERIENCE) - [ ]
-- [ ] **Syllabus Sidebar:** 
+## GIAI ĐOẠN 3: WEB-LEARNER (STUDENT EXPERIENCE) - [x]
+- [x] **Syllabus Sidebar:** 
     - Lớp VOD: Hiện % tiến độ, mở khóa bài học tuần tự.
     - Lớp LIVE: Hiện Roadmap kiến thức + Nút tải Tài liệu chuẩn bị bài.
-- [ ] **Live Schedule Tab:** Hiển thị lịch học, link vào Zoom/Meet và trạng thái điểm danh.
-- [ ] **Exam UI New:** Triển khai giao diện thi: **Cuộn dọc toàn bộ câu hỏi** + **Sidebar điều hướng câu hỏi** cố định ở góc. Hỗ trợ đếm ngược theo từng Section (JLPT Style).
+- [x] **Live Schedule Tab:** Hiển thị lịch học, link vào Zoom/Meet và trạng thái điểm danh.
+- [x] **Exam UI New:** Triển khai giao diện thi: **Cuộn dọc toàn bộ câu hỏi** + **Sidebar điều hướng câu hỏi** cố định ở góc. Hỗ trợ đếm ngược theo từng Section (JLPT Style).
 
 
 

@@ -20,7 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
-import { MoreVertical, Search, Filter, Layout, BookOpen, Calendar, Plus } from "lucide-react"
+import { MoreVertical, Search, Filter, Layout, Calendar, Plus } from "lucide-react"
 import { Badge } from "@workspace/ui/components/badge"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import {
@@ -46,14 +46,12 @@ import {
   type AcademyClass,
 } from "@/lib/api/services/academy-classes"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
-import { useAcademyCourseEditions } from "@/lib/api/services/academy-course-editions"
 import { DuplicateClassDialog } from "@/components/academy/duplicate-class-dialog"
 
 export default function AcademyClassesPage() {
   const [searchParams] = useSearchParams()
   const statusFromUrl = searchParams.get("status")
   const [courseProfileId, setCourseProfileId] = useState("_all")
-  const [courseEditionId, setCourseEditionId] = useState("_all")
   const [mode, setMode] = useState("_all")
   const [status, setStatus] = useState(statusFromUrl || "_all")
   useEffect(() => {
@@ -64,22 +62,15 @@ export default function AcademyClassesPage() {
   const [duplicateClass, setDuplicateClass] = useState<AcademyClass | null>(null)
 
   const { data: profiles = [] } = useAcademyCourseProfiles({})
-  const { data: editions = [] } = useAcademyCourseEditions({})
-
-  const filteredEditions = useMemo(() => {
-    if (!courseProfileId || courseProfileId === "_all") return editions
-    return editions.filter((e: any) => e.courseProfileId === courseProfileId)
-  }, [courseProfileId, editions])
 
   const query = useMemo(
     () => ({
       courseProfileId: courseProfileId && courseProfileId !== "_all" ? courseProfileId : undefined,
-      courseEditionId: courseEditionId && courseEditionId !== "_all" ? courseEditionId : undefined,
       mode: mode && mode !== "_all" ? mode : undefined,
       status: status && status !== "_all" ? status : undefined,
       q: q || undefined,
     }),
-    [courseProfileId, courseEditionId, mode, status, q],
+    [courseProfileId, mode, status, q],
   )
 
   const { data = [], isLoading } = useAcademyClasses(query)
@@ -111,7 +102,7 @@ export default function AcademyClassesPage() {
             />
           </div>
           <div className="w-full md:w-[220px]">
-            <Select value={courseProfileId} onValueChange={(v) => { setCourseProfileId(v); setCourseEditionId("_all") }}>
+            <Select value={courseProfileId} onValueChange={(v) => { setCourseProfileId(v) }}>
               <SelectTrigger>
                 <div className="flex items-center gap-2">
                   <Layout className="size-4 text-muted-foreground" />
@@ -122,22 +113,6 @@ export default function AcademyClassesPage() {
                 <SelectItem value="_all">Tất cả Profile</SelectItem>
                 {profiles.map((p: any) => (
                   <SelectItem key={p.id} value={p.id}>{p.code} - {p.title}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="w-full md:w-[220px]">
-            <Select value={courseEditionId} onValueChange={setCourseEditionId}>
-              <SelectTrigger disabled={courseProfileId === "_all" && editions.length === 0}>
-                <div className="flex items-center gap-2">
-                  <BookOpen className="size-4 text-muted-foreground" />
-                  <SelectValue placeholder="Lọc theo Edition" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="_all">Tất cả Edition</SelectItem>
-                {filteredEditions.map((e: any) => (
-                  <SelectItem key={e.id} value={e.id}>{e.editionTag}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

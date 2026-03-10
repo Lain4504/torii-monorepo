@@ -9,6 +9,10 @@ import {
   ClassDuplicateDto,
   ClassQueryDto,
   ClassUpdateDto,
+  ClassModuleCreateDto,
+  ClassModuleUpdateDto,
+  ClassContentItemCreateDto,
+  ClassContentItemUpdateDto,
 } from './dto/class.dto';
 import { AuditLoggerService } from '../../audit-logger.service';
 
@@ -366,6 +370,117 @@ export class ClassService {
         })),
       })),
     };
+  }
+
+  async addModule(input: ClassModuleCreateDto) {
+    const klass = await this.prisma.class.findUnique({
+      where: { id: input.classId },
+      select: { id: true },
+    });
+    if (!klass) throw new NotFoundException('Class not found');
+
+    const nextOrder =
+      input.orderIndex ??
+      ((await this.prisma.classModule.count({
+        where: { classId: input.classId },
+      })) + 1);
+
+    return this.prisma.classModule.create({
+      data: {
+        classId: input.classId,
+        title: input.title,
+        orderIndex: nextOrder,
+      },
+    });
+  }
+
+  async updateModule(id: string, input: ClassModuleUpdateDto) {
+    const module = await this.prisma.classModule.findUnique({
+      where: { id },
+    });
+    if (!module) throw new NotFoundException('ClassModule not found');
+
+    return this.prisma.classModule.update({
+      where: { id },
+      data: {
+        title: input.title ?? undefined,
+        orderIndex: input.orderIndex ?? undefined,
+      },
+    });
+  }
+
+  async deleteModule(id: string) {
+    const module = await this.prisma.classModule.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (!module) throw new NotFoundException('ClassModule not found');
+
+    await this.prisma.classModule.delete({ where: { id } });
+    return { ok: true };
+  }
+
+  async addContentItem(input: ClassContentItemCreateDto) {
+    const module = await this.prisma.classModule.findUnique({
+      where: { id: input.moduleId },
+      select: { id: true },
+    });
+    if (!module) throw new NotFoundException('ClassModule not found');
+
+    const nextOrder =
+      input.orderIndex ??
+      ((await this.prisma.classContentItem.count({
+        where: { moduleId: input.moduleId },
+      })) + 1);
+
+    return this.prisma.classContentItem.create({
+      data: {
+        moduleId: input.moduleId,
+        kind: input.kind,
+        referenceId: input.referenceId ?? null,
+        orderIndex: nextOrder,
+        status: input.status ?? 'PUBLISHED',
+        availableFrom: input.availableFrom ?? null,
+        deadline: input.deadline ?? null,
+        isPrerequisite: input.isPrerequisite ?? false,
+        settings: input.settings ?? {},
+      },
+    });
+  }
+
+  async updateContentItem(id: string, input: ClassContentItemUpdateDto) {
+    const item = await this.prisma.classContentItem.findUnique({
+      where: { id },
+    });
+    if (!item) throw new NotFoundException('ClassContentItem not found');
+
+    return this.prisma.classContentItem.update({
+      where: { id },
+      data: {
+        kind: input.kind ?? undefined,
+        referenceId:
+          input.referenceId !== undefined ? input.referenceId : undefined,
+        orderIndex: input.orderIndex ?? undefined,
+        status: input.status ?? undefined,
+        availableFrom:
+          input.availableFrom !== undefined ? input.availableFrom : undefined,
+        deadline: input.deadline !== undefined ? input.deadline : undefined,
+        isPrerequisite:
+          input.isPrerequisite !== undefined ? input.isPrerequisite : undefined,
+        settings: input.settings ?? undefined,
+      },
+    });
+  }
+
+  async deleteContentItem(id: string) {
+    const item = await this.prisma.classContentItem.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (!item) throw new NotFoundException('ClassContentItem not found');
+
+    await this.prisma.classContentItem.delete({ where: { id } });
+    return { ok: true };
   }
 
   async delete(id: string, requesterId = 'SYSTEM') {

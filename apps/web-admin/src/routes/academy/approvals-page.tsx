@@ -37,16 +37,10 @@ import {
     Eye,
     MoreVertical,
     Clock,
-    BookOpen,
     GraduationCap,
     ShoppingBag,
     Inbox
 } from "lucide-react"
-import {
-    useAcademyCourseEditions,
-    useApproveCourseEdition,
-    useRejectCourseEdition
-} from "@/lib/api/services/academy-course-editions"
 import {
     useAcademyClasses,
     useApproveClass,
@@ -62,27 +56,23 @@ import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Empty, EmptyContent, EmptyDescription, EmptyMedia, EmptyTitle } from "@workspace/ui/components/empty"
 
 export default function AcademyApprovalsPage() {
-    const [activeTab, setActiveTab] = useState("editions")
-    const [rejectItem, setRejectItem] = useState<{ id: string; type: "edition" | "class" | "offering" } | null>(null)
+    const [activeTab, setActiveTab] = useState("classes")
+    const [rejectItem, setRejectItem] = useState<{ id: string; type: "class" | "offering" } | null>(null)
     const [reason, setReason] = useState("")
 
     // Queries
-    const { data: editions = [], isLoading: loadingEditions } = useAcademyCourseEditions({ status: "PENDING_APPROVAL" } as any)
     const { data: classes = [], isLoading: loadingClasses } = useAcademyClasses({ status: "PENDING_APPROVAL" } as any)
     const { data: offerings = [], isLoading: loadingOfferings } = useAcademyCourseOfferings({ status: "PENDING_APPROVAL" } as any)
 
     // Mutations
-    const approveEdition = useApproveCourseEdition()
-    const rejectEdition = useRejectCourseEdition()
     const approveClass = useApproveClass()
     const rejectClass = useRejectClass()
     const approveOffering = useApproveCourseOffering()
     const rejectOffering = useRejectCourseOffering()
 
-    const handleApprove = async (id: string, type: "edition" | "class" | "offering") => {
+    const handleApprove = async (id: string, type: "class" | "offering") => {
         try {
-            if (type === "edition") await approveEdition.mutateAsync(id)
-            else if (type === "class") await approveClass.mutateAsync(id)
+            if (type === "class") await approveClass.mutateAsync(id)
             else if (type === "offering") await approveOffering.mutateAsync(id)
             toast.success("Đã phê duyệt thành công")
         } catch (e: any) {
@@ -93,8 +83,7 @@ export default function AcademyApprovalsPage() {
     const handleReject = async () => {
         if (!rejectItem || !reason) return
         try {
-            if (rejectItem.type === "edition") await rejectEdition.mutateAsync({ id: rejectItem.id, reason })
-            else if (rejectItem.type === "class") await rejectClass.mutateAsync({ id: rejectItem.id, reason })
+            if (rejectItem.type === "class") await rejectClass.mutateAsync({ id: rejectItem.id, reason })
             else if (rejectItem.type === "offering") await rejectOffering.mutateAsync({ id: rejectItem.id, reason })
             toast.success("Đã từ chối phê duyệt")
             setRejectItem(null)
@@ -112,11 +101,7 @@ export default function AcademyApprovalsPage() {
             />
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-3 lg:w-[600px]">
-                    <TabsTrigger value="editions" className="gap-2">
-                        <BookOpen className="h-4 w-4" />
-                        Phiên bản ({loadingEditions ? "..." : editions.length})
-                    </TabsTrigger>
+                <TabsList className="grid w-full grid-cols-2 lg:w-[500px]">
                     <TabsTrigger value="classes" className="gap-2">
                         <GraduationCap className="h-4 w-4" />
                         Lớp học ({loadingClasses ? "..." : classes.length})
@@ -126,67 +111,6 @@ export default function AcademyApprovalsPage() {
                         Gói bán ({loadingOfferings ? "..." : offerings.length})
                     </TabsTrigger>
                 </TabsList>
-
-                <TabsContent value="editions" className="mt-6 space-y-4">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-lg">Phiên bản khóa học chờ duyệt</CardTitle>
-                            <CardDescription>Các chương trình học đã hoàn thiện nội dung và gửi yêu cầu thẩm định.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Khóa học</TableHead>
-                                        <TableHead>Tag Phiên bản</TableHead>
-                                        <TableHead>Người gửi</TableHead>
-                                        <TableHead>Thời gian gửi</TableHead>
-                                        <TableHead className="text-right">Thao tác</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {loadingEditions ? (
-                                        <TableSkeleton cols={5} />
-                                    ) : editions.length > 0 ? (
-                                        editions.map((item) => (
-                                            <TableRow key={item.id}>
-                                                <TableCell>
-                                                    <div className="font-medium">{item.courseProfile?.title}</div>
-                                                    <div className="text-xs text-muted-foreground">{item.courseProfile?.code}</div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge variant="outline" className="font-mono">{item.editionTag}</Badge>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div className="text-sm">{(item as any).submittedByUser?.displayName || "—"}</div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    {item.submittedForApprovalAt ? (
-                                                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                                            <Clock className="h-3 w-3" />
-                                                            {format(new Date(item.submittedForApprovalAt), "dd/MM/yyyy HH:mm")}
-                                                        </div>
-                                                    ) : "—"}
-                                                </TableCell>
-                                                <TableCell className="text-right">
-                                                    <ApprovalActions
-                                                        id={item.id}
-                                                        type="edition"
-                                                        detailUrl={`/academy/course-editions/${item.id}`}
-                                                        onApprove={() => handleApprove(item.id, "edition")}
-                                                        onReject={() => setRejectItem({ id: item.id, type: "edition" })}
-                                                    />
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
-                                    ) : (
-                                        <EmptyTableRow colSpan={5} message="Không có phiên bản nào đang chờ phê duyệt." />
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
 
                 <TabsContent value="classes" className="mt-6 space-y-4">
                     <Card>

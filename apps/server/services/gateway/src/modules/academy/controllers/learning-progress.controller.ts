@@ -43,7 +43,7 @@ export class LearningProgressController {
   @Post('track')
   async trackProgress(
     @Req() req: ReqWithRequester,
-    @Body() body: { lessonId: string; classId: string; status: string; progressPercent: number },
+    @Body() body: { contentItemId: string; classId: string; status: string; progressPercent: number },
   ) {
     try {
       const requester = req.requester;
@@ -53,7 +53,7 @@ export class LearningProgressController {
           {
             userId: requester.sub,
             classId: body.classId,
-            lessonId: body.lessonId,
+            contentItemId: body.contentItemId,
             status: body.status,
             progressPercent: body.progressPercent,
             lastAccessedAt: new Date(),

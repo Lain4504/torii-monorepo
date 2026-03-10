@@ -15,7 +15,6 @@ export default function AcademyClassCreatePage() {
   const loc = useLocation()
   const search = new URLSearchParams(loc.search)
   const courseProfileId = search.get("courseProfileId") ?? undefined
-  const courseEditionId = search.get("courseEditionId") ?? undefined
 
   const [mode, setMode] = useState<"VOD" | "LIVE">("VOD")
   const create = useCreateAcademyClass()
@@ -106,7 +105,6 @@ export default function AcademyClassCreatePage() {
               mode="create"
               submitting={create.isPending}
               defaultCourseProfileId={courseProfileId}
-              defaultCourseEditionId={courseEditionId}
               onCancel={() => nav("/academy/classes")}
               onSubmit={handleCreate}
             />
@@ -121,7 +119,6 @@ export default function AcademyClassCreatePage() {
               mode="create"
               submitting={create.isPending}
               defaultCourseProfileId={courseProfileId}
-              defaultCourseEditionId={courseEditionId}
               onCancel={() => nav("/academy/classes")}
               onSubmit={handleCreate}
             />

@@ -90,18 +90,18 @@ export class QuestionPoolService {
             where: { id },
             include: {
                 _count: {
-                    select: { quizTemplates: true },
+          select: { poolQuestions: true },
                 },
             },
         });
 
         if (!pool) throw new NotFoundException('Question pool not found');
 
-        if (pool._count.quizTemplates > 0) {
-            throw new BadRequestException('Cannot delete question pool used in quiz templates');
-        }
+    if (pool._count.poolQuestions > 0) {
+      throw new BadRequestException('Cannot delete question pool that still contains questions');
+    }
 
-        return this.prisma.questionPool.delete({ where: { id } });
+    return this.prisma.questionPool.delete({ where: { id } });
     }
 
     async getPoolQuestions(poolId: string) {

@@ -6,29 +6,24 @@ import { PageHeader } from "@/components/common/page-header"
 import {
   BookOpen,
   Layers,
-  FolderTree,
-  ListChecks,
   Users,
   Calendar,
   ClipboardCheck,
   CircleHelp,
   GraduationCap,
-  History,
   FileCheck,
   ShoppingBag,
   Search,
   AlertCircle
 } from "lucide-react"
-import { useAcademyCourseEditions } from "@/lib/api/services/academy-course-editions"
 import { useAcademyClasses } from "@/lib/api/services/academy-classes"
 import { useAcademyCourseOfferings } from "@/lib/api/services/academy-course-offerings"
 
 export default function AcademyDashboardPage() {
-  const { data: pendingEditions = [] } = useAcademyCourseEditions({ status: "PENDING_APPROVAL" } as any)
   const { data: pendingClasses = [] } = useAcademyClasses({ status: "PENDING_APPROVAL" } as any)
   const { data: pendingOfferings = [] } = useAcademyCourseOfferings({ status: "PENDING_APPROVAL" } as any)
 
-  const totalPending = pendingEditions.length + pendingClasses.length + pendingOfferings.length
+  const totalPending = pendingClasses.length + pendingOfferings.length
 
   return (
     <div className="space-y-8">
@@ -68,19 +63,6 @@ export default function AcademyDashboardPage() {
             </CardTitle>
             {totalPending > 0 && (
               <div className="flex flex-col gap-2 mt-3">
-                {pendingEditions.length > 0 && (
-                  <Button asChild variant="outline" size="sm" className="justify-between h-9 text-xs border-amber-200 hover:bg-amber-50 shadow-sm">
-                    <Link to="/academy/approvals?tab=editions">
-                      <div className="flex items-center gap-2">
-                        <History className="h-3 w-3 text-amber-600" />
-                        <span>Phiên bản khóa học</span>
-                      </div>
-                      <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-100 font-bold ml-2">
-                        {pendingEditions.length}
-                      </Badge>
-                    </Link>
-                  </Button>
-                )}
                 {pendingClasses.length > 0 && (
                   <Button asChild variant="outline" size="sm" className="justify-between h-9 text-xs border-amber-200 hover:bg-amber-50 shadow-sm">
                     <Link to="/academy/approvals?tab=classes">
@@ -132,21 +114,6 @@ export default function AcademyDashboardPage() {
             <Button asChild variant="outline" className="justify-start gap-2">
               <Link to="/academy/course-profiles">
                 <Layers className="h-4 w-4" /> Course Profiles
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="justify-start gap-2">
-              <Link to="/academy/course-editions">
-                <History className="h-4 w-4" /> Toàn bộ Course Editions
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="justify-start gap-2">
-              <Link to="/academy/course-editions">
-                <FolderTree className="h-4 w-4" /> Chapters
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="justify-start gap-2">
-              <Link to="/academy/course-editions">
-                <ListChecks className="h-4 w-4" /> Chapter Items
               </Link>
             </Button>
           </CardContent>

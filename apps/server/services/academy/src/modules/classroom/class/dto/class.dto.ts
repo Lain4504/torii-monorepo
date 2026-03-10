@@ -1,4 +1,7 @@
 import {
+  IsBoolean,
+  IsDate,
+  IsEnum,
   IsInt,
   IsOptional,
   IsString,
@@ -194,4 +197,100 @@ export class ClassDuplicateDto {
   @IsOptional()
   @IsUUID()
   instructorId?: string;
+}
+
+export class ClassModuleCreateDto {
+  @IsUUID()
+  classId!: string;
+
+  @IsString()
+  @MaxLength(255)
+  title!: string;
+
+  @IsOptional()
+  @IsInt()
+  orderIndex?: number;
+}
+
+export class ClassModuleUpdateDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  title?: string;
+
+  @IsOptional()
+  @IsInt()
+  orderIndex?: number;
+}
+
+export class ClassContentItemCreateDto {
+  @IsUUID()
+  moduleId!: string;
+
+  @IsString()
+  @MaxLength(20)
+  kind!: string; // 'VIDEO' | 'MATERIAL' | 'EXAM' | 'ASSIGNMENT' | 'TOPIC'
+
+  @IsOptional()
+  @IsUUID()
+  referenceId?: string;
+
+  @IsOptional()
+  @IsInt()
+  orderIndex?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  status?: string;
+
+  @IsOptional()
+  @IsDate()
+  availableFrom?: Date;
+
+  @IsOptional()
+  @IsDate()
+  deadline?: Date;
+
+  @IsOptional()
+  @IsBoolean()
+  isPrerequisite?: boolean;
+
+  @IsOptional()
+  settings?: unknown;
+}
+
+export class ClassContentItemUpdateDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  kind?: string;
+
+  @IsOptional()
+  @IsUUID()
+  referenceId?: string;
+
+  @IsOptional()
+  @IsInt()
+  orderIndex?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  status?: string;
+
+  @IsOptional()
+  @IsDate()
+  availableFrom?: Date;
+
+  @IsOptional()
+  @IsDate()
+  deadline?: Date;
+
+  @IsOptional()
+  @IsBoolean()
+  isPrerequisite?: boolean;
+
+  @IsOptional()
+  settings?: unknown;
 }

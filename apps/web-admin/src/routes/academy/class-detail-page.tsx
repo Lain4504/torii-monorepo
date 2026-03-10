@@ -29,7 +29,6 @@ import {
 } from "@/lib/api/services/academy-class-assessments"
 import { useAcademyEnrollments } from "@/lib/api/services/academy-enrollments"
 import { useAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
-import { useAcademyCourseEdition } from "@/lib/api/services/academy-course-editions"
 import { useAcademyAssignmentSubmissions } from "@/lib/api/services/academy-assignment-submissions"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
@@ -81,7 +80,8 @@ import {
    AlertCircle,
    CheckCircle2,
    Send,
-   Copy
+   Copy,
+   BookOpen,
 } from "lucide-react"
 
 export default function ClassDetailPage() {
@@ -98,7 +98,6 @@ export default function ClassDetailPage() {
    const canDeliveryApprove = can("academy.delivery.approve")
    const authUser = useAppSelector(selectAuthUser)
    const { data: profile } = useAcademyCourseProfile(cls?.courseProfileId)
-   const { data: edition } = useAcademyCourseEdition(cls?.courseEditionId)
    const liveClassId = cls?.liveClass?.id
    const { data: schedules = [], isLoading: isLoadingSchedules } = useAcademyLiveSchedules(
       liveClassId ? { liveClassId } : {},
@@ -588,6 +587,12 @@ export default function ClassDetailPage() {
                      <Edit className="h-4 w-4" />
                   </Link>
                </Button>
+               <Button variant="outline" size="sm" asChild className="shadow-sm">
+                  <Link to={`/academy/classes/${id}/syllabus`}>
+                     <BookOpen className="h-4 w-4" />
+                     <span className="ml-1">Syllabus</span>
+                  </Link>
+               </Button>
             </div>
          </div>
 
@@ -618,11 +623,10 @@ export default function ClassDetailPage() {
                      </Link>
                   </div>
                   <div className="space-y-1">
-                     <p className="text-xs text-muted-foreground">Course Edition (Syllabus)</p>
-                     <Link to={`/academy/course-editions/${cls.courseEditionId}`} className="text-sm font-medium hover:underline text-primary break-all flex items-center gap-1">
-                        {edition?.editionTag || cls.courseEditionId}
-                        <LinkIcon className="h-3 w-3" />
-                     </Link>
+                     <p className="text-xs text-muted-foreground">Syllabus</p>
+                     <span className="text-xs text-muted-foreground">
+                        Syllabus của lớp được quản lý tại màn <span className="font-medium">Syllabus</span> của lớp này.
+                     </span>
                   </div>
                   <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                      <div className="space-y-1">

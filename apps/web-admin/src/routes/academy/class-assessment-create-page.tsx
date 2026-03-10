@@ -1,14 +1,8 @@
 import { useLocation, useNavigate } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
-import { toast } from "@workspace/ui/components/sonner"
 import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert"
 import { Button } from "@workspace/ui/components/button"
 import { PageHeader } from "@/components/common/page-header"
-import { ClassQuizForm } from "@/components/academy/class-quiz-form"
-import { ClassAssignmentForm } from "@/components/academy/class-assignment-form"
-import { useCreateAcademyClassAssessment } from "@/lib/api/services/academy-class-assessments"
-import { useAcademyClass } from "@/lib/api/services/academy-classes"
-import type { AcademyClassAssessmentCreateDTO } from "@workspace/schemas"
 
 export default function AcademyClassAssessmentCreatePage() {
   const nav = useNavigate()
@@ -16,11 +10,7 @@ export default function AcademyClassAssessmentCreatePage() {
   const search = new URLSearchParams(loc.search)
   const classId = search.get("classId") ?? undefined
   const kind = search.get("kind") || "QUIZ"
-  const create = useCreateAcademyClassAssessment()
-  const { data: klass } = useAcademyClass(classId || "")
-
   const isQuiz = kind === "QUIZ"
-  const isForbiddenVodAssignment = kind === "ASSIGNMENT" && klass?.mode === "VOD"
 
   return (
     <div className="space-y-6">
@@ -31,55 +21,21 @@ export default function AcademyClassAssessmentCreatePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Thông tin {isQuiz ? "Quiz" : "Assignment"}</CardTitle>
+          <CardTitle>Đường dẫn tạo Assessment cũ</CardTitle>
         </CardHeader>
         <CardContent>
-          {isQuiz ? (
-            <Alert className="mb-6">
-              <AlertTitle>Flow thao tác cho giảng viên</AlertTitle>
-              <AlertDescription>
-                {klass?.mode === "VOD"
-                  ? "VOD: chỉ cần chọn Quiz Template rồi lưu, hệ thống dùng đề mặc định của template."
-                  : "LIVE: chọn Quiz Template, sau đó chọn cách ra đề (mặc định / exam có sẵn / sinh từ pool) rồi lưu."}
-              </AlertDescription>
-            </Alert>
-          ) : null}
-          {isForbiddenVodAssignment ? (
-            <Alert variant="destructive">
-              <AlertTitle>VOD class không hỗ trợ Assignment</AlertTitle>
-              <AlertDescription className="space-y-4">
-                <p>Chỉ lớp LIVE mới có thể tạo Assignment.</p>
-                <Button variant="outline" onClick={() => nav(`/academy/classes/${classId}`)}>
-                  Quay lại chi tiết lớp
-                </Button>
-              </AlertDescription>
-            </Alert>
-          ) : null}
-          {isQuiz ? (
-            <ClassQuizForm
-              mode="create"
-              submitting={create.isPending}
-              defaultClassId={classId}
-              onCancel={() => nav(`/academy/classes/${classId}`)}
-              onSubmit={async (data) => {
-                await create.mutateAsync(data as AcademyClassAssessmentCreateDTO)
-                toast.success("Đã tạo Class Quiz")
-                nav(`/academy/classes/${classId}`)
-              }}
-            />
-          ) : isForbiddenVodAssignment ? null : (
-            <ClassAssignmentForm
-              mode="create"
-              submitting={create.isPending}
-              defaultClassId={classId}
-              onCancel={() => nav(`/academy/classes/${classId}`)}
-              onSubmit={async (data) => {
-                await create.mutateAsync(data as AcademyClassAssessmentCreateDTO)
-                toast.success("Đã tạo Class Assignment")
-                nav(`/academy/classes/${classId}`)
-              }}
-            />
-          )}
+          <Alert>
+            <AlertTitle>Flow này đã được thay thế</AlertTitle>
+            <AlertDescription className="space-y-2">
+              <p>
+                Tạo Quiz/Assignment cho lớp học hiện được thực hiện trực tiếp trong trang chi tiết lớp và syllabus,
+                dựa trên mô hình Exam/Assignment mới.
+              </p>
+              <Button variant="outline" onClick={() => nav(`/academy/classes/${classId}`)}>
+                Quay lại chi tiết lớp
+              </Button>
+            </AlertDescription>
+          </Alert>
         </CardContent>
       </Card>
     </div>

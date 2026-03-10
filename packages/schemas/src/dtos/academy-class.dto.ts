@@ -150,3 +150,41 @@ export const academyClassModelSchema = z.object({
   }).nullable().optional(),
 });
 export type AcademyClassModel = z.infer<typeof academyClassModelSchema>;
+
+export const academyClassModuleCreateDTOSchema = z.object({
+  title: z.string().min(1).max(255),
+  orderIndex: z.number().int().min(0).optional(),
+});
+export type AcademyClassModuleCreateDTO = z.infer<
+  typeof academyClassModuleCreateDTOSchema
+>;
+
+export const academyClassModuleUpdateDTOSchema = z.object({
+  title: z.string().max(255).optional(),
+  orderIndex: z.number().int().min(0).optional(),
+});
+export type AcademyClassModuleUpdateDTO = z.infer<
+  typeof academyClassModuleUpdateDTOSchema
+>;
+
+export const academyClassContentItemCreateDTOSchema = z.object({
+  kind: z
+    .enum(['VIDEO', 'MATERIAL', 'EXAM', 'ASSIGNMENT', 'TOPIC'])
+    .or(z.string().min(1).max(20)),
+  referenceId: z.string().uuid().optional(),
+  orderIndex: z.number().int().min(0).optional(),
+  status: z.string().max(20).optional(),
+  availableFrom: z.coerce.date().optional(),
+  deadline: z.coerce.date().optional(),
+  isPrerequisite: z.boolean().optional(),
+  settings: z.unknown().optional(),
+});
+export type AcademyClassContentItemCreateDTO = z.infer<
+  typeof academyClassContentItemCreateDTOSchema
+>;
+
+export const academyClassContentItemUpdateDTOSchema =
+  academyClassContentItemCreateDTOSchema.partial();
+export type AcademyClassContentItemUpdateDTO = z.infer<
+  typeof academyClassContentItemUpdateDTOSchema
+>;
