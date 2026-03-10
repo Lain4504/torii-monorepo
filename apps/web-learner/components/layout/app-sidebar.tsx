@@ -47,10 +47,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             )}
                         >
                             <div className="flex items-center justify-start rounded-lg shrink-0">
-                                <Image src={logo} alt="Torii Nihongo" width={200} height={40} className="h-14 w-auto object-contain" />
+                                <Image
+                                    src={logo}
+                                    alt="Torii Nihongo"
+                                    width={220}
+                                    height={48}
+                                    className="h-16 w-auto object-contain"
+                                />
                             </div>
                             <div className="grid flex-1 text-left text-sm leading-tight ml-2 group-data-[collapsible=icon]:hidden">
-                                <span className="truncate text-xs font-medium text-muted-foreground font-sans">Cổng học viên</span>
+                                <span className="truncate text-sm md:text-base font-semibold text-muted-foreground font-sans">
+                                    Cổng học viên
+                                </span>
                             </div>
                         </SidebarMenuButton>
                     </SidebarMenuItem>

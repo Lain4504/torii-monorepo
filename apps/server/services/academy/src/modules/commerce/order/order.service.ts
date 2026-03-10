@@ -3,6 +3,7 @@ import {
   Logger,
   BadRequestException,
   NotFoundException,
+  Inject,
 } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import {
@@ -18,6 +19,7 @@ import { AuditLoggerService } from '../../audit-logger.service';
 import { OrderCheckoutDto, OrderPreviewDto } from './dto/order.dto';
 import { Prisma } from '@prisma/generated';
 import { AppConfigService } from '@server/shared';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class OrderService {
@@ -30,6 +32,7 @@ export class OrderService {
     private readonly enrollmentService: EnrollmentService,
     private readonly appConfig: AppConfigService,
     private readonly audit: AuditLoggerService,
+    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) { }
 
   async preview(userId: string, input: OrderPreviewDto) {
@@ -359,6 +362,46 @@ export class OrderService {
     });
 
     this.logger.log(`Order ${order.code} fulfilled successfully`);
+
+    // Emit notification via NATS (identity service will create in-app notification)
+    try {
+      const firstItem = order.items[0];
+      const snapshot = (firstItem?.offeringSnapshot ?? {}) as {
+        title?: string;
+      };
+      const courseTitle = snapshot.title || 'khóa học';
+      const itemCount = order.items.length;
+
+      const title = 'Thanh toán & ghi danh thành công 🎉';
+      const message =
+        itemCount === 1
+          ? `Bạn đã thanh toán và ghi danh thành công vào "${courseTitle}". Bắt đầu học ngay nhé!`
+          : `Bạn đã thanh toán và ghi danh thành công vào ${itemCount} khóa học. Bắt đầu học ngay nhé!`;
+
+      this.natsClient.emit(
+        { cmd: 'send_notification' },
+        {
+          recipientId: order.userId,
+          type: 'system',
+          payload: {
+            title,
+            body: message,
+            metadata: {
+              orderId: order.id,
+              orderCode: order.code,
+              itemCount,
+              currency: order.currency,
+              amount: order.grandTotal,
+            },
+          },
+        },
+      );
+    } catch (error: any) {
+      this.logger.error(
+        `Failed to emit notification for order ${order.code}: ${error.message}`,
+      );
+    }
+
     return { ok: true };
   }
 

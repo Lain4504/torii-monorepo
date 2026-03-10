@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const academyLiveScheduleConflictPreviewDTOSchema = z.object({
-  liveClassId: z.string().uuid(),
+  classId: z.string().uuid(),
   excludeScheduleId: z.string().uuid().optional(),
   weekday: z.number().int().min(0).max(6),
   startTime: z.string().min(1).max(20),

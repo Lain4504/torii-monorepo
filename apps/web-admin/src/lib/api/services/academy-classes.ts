@@ -15,7 +15,6 @@ import type {
 export type AcademyClass = {
   id: string
   courseProfileId: string
-  courseEditionId: string
   code: string
   name: string
   mode: "VOD" | "LIVE"
@@ -48,19 +47,14 @@ export type AcademyClass = {
     id: string
     term?: string | null
     batch?: string | null
-    startDate?: string | null
-    endDate?: string | null
+    openingDate?: string | null
+    closingDate?: string | null
     enrollmentOpenAt?: string | null
     enrollmentCloseAt?: string | null
     minStudents?: number | null
     maxStudents?: number | null
     minStudentsEnforcement?: string | null
-    primaryTeacherId?: string | null
-    primaryTeacher?: {
-      id: string
-      displayName: string
-      avatarUrl?: string | null
-    } | null
+    instructorId?: string | null
   } | null
 }
 

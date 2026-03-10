@@ -1,11 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { AuditLoggerService } from '../audit-logger.service';
 import {
     AchievementDTO,
     UserAchievementDTO,
-    AchievementUnlockedEvent,
-    GamificationTransactionType
+    GamificationTransactionType,
 } from '@workspace/schemas';
 
 @Injectable()
@@ -15,6 +15,7 @@ export class AchievementService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly audit: AuditLoggerService,
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
 
     async getAchievementsForUser(userId: string): Promise<UserAchievementDTO[]> {
@@ -198,8 +199,33 @@ export class AchievementService {
 
             // 3. (Optional) In-app notification could be added here
         });
-
         this.logger.log(`User ${userId} unlocked achievement: ${achievement.code}`);
+
+        // Emit notification via NATS (identity service will create in-app notification)
+        try {
+            this.natsClient.emit(
+                { cmd: 'send_notification' },
+                {
+                    recipientId: userId,
+                    type: 'system',
+                    payload: {
+                        title: 'Bạn vừa mở khóa thành tựu mới 🎉',
+                        body: `Bạn đã đạt được thành tựu "${achievement.title}". Tiếp tục cố gắng nhé!`,
+                        metadata: {
+                            achievementId: achievement.id,
+                            achievementCode: achievement.code,
+                            category: (achievement as any).category,
+                            progress,
+                            rewards: achievement.rewards,
+                        },
+                    },
+                },
+            );
+        } catch (error: any) {
+            this.logger.error(
+                `Failed to emit notification for unlocked achievement ${achievement.id} of user ${userId}: ${error.message}`,
+            );
+        }
     }
 
     // --- Admin CRUD ---

@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@workspace/ui/components/select"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
+import { useAcademyClasses } from "@/lib/api/services/academy-classes"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,13 +40,37 @@ import {
 } from "@workspace/ui/components/alert-dialog"
 import { useAcademyExams, useDeleteAcademyExam } from "@/lib/api/services/academy-exams"
 import { toast } from "sonner"
+import { useAuth } from "@/hooks/use-auth"
+import { UserRole } from "@workspace/schemas"
 
 export default function AcademyExamsPage() {
   const [courseProfileId, setCourseProfileId] = useState("all")
   const [status, setStatus] = useState("all")
   const [deleteId, setDeleteId] = useState<string | null>(null)
 
+  const { user } = useAuth()
+  const isLecturer = user?.role === UserRole.LECTURER
+
   const { data: profiles = [] } = useAcademyCourseProfiles({})
+  const { data: classes = [] } = useAcademyClasses({})
+
+  const allowedCourseProfileIdSet = useMemo(() => {
+    if (!isLecturer) return null
+    if (!user?.id) return new Set<string>()
+
+    const ids = new Set<string>()
+    for (const c of classes) {
+      if (c.mode !== "LIVE") continue
+      if (c.liveClass?.instructorId !== user.id) continue
+      if (c.courseProfileId) ids.add(c.courseProfileId)
+    }
+    return ids
+  }, [classes, isLecturer, user?.id])
+
+  const scopedProfiles = useMemo(() => {
+    if (!allowedCourseProfileIdSet) return profiles
+    return profiles.filter((p) => allowedCourseProfileIdSet.has(p.id))
+  }, [allowedCourseProfileIdSet, profiles])
 
   const query = useMemo(
     () => ({
@@ -57,6 +82,11 @@ export default function AcademyExamsPage() {
 
   const { data = [], isLoading } = useAcademyExams(query)
   const del = useDeleteAcademyExam()
+
+  const scopedData = useMemo(() => {
+    if (!allowedCourseProfileIdSet) return data
+    return data.filter((it) => !!it.courseProfileId && allowedCourseProfileIdSet.has(it.courseProfileId))
+  }, [allowedCourseProfileIdSet, data])
 
   return (
     <div className="space-y-6">
@@ -81,7 +111,7 @@ export default function AcademyExamsPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tất cả Course Profile</SelectItem>
-              {profiles.map((p) => (
+              {scopedProfiles.map((p) => (
                 <SelectItem key={p.id} value={p.id}>
                   {p.code} - {p.title}
                 </SelectItem>
@@ -131,8 +161,8 @@ export default function AcademyExamsPage() {
                   <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto rounded-full" /></TableCell>
                 </TableRow>
               ))
-            ) : data.length ? (
-              data.map((it, idx) => (
+            ) : scopedData.length ? (
+              scopedData.map((it, idx) => (
                 <TableRow key={it.id}>
                   <TableCell className="text-muted-foreground font-medium">{idx + 1}</TableCell>
                   <TableCell className="font-semibold">{it.title}</TableCell>

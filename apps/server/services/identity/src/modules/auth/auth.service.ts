@@ -39,7 +39,7 @@ import {
   TWO_FACTOR_AUTH_SERVICE_TOKEN,
 } from '@server/identity/interfaces/services';
 
-import { UserRole } from '@workspace/schemas';
+import { NotificationType, UserRole } from '@workspace/schemas';
 import type {
   UserRegistrationDTO,
   UserLoginDTO,
@@ -56,6 +56,8 @@ import type {
 } from '@workspace/schemas';
 import type { User, Prisma } from '@prisma/generated';
 import type { TwoFactorTempTokenPayload } from '@server/shared';
+import type { INotificationService } from '@server/identity/interfaces/services';
+import { NOTIFICATION_SERVICE_TOKEN } from '@server/identity/interfaces/services';
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -78,6 +80,8 @@ export class AuthService implements IAuthService {
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     private readonly blacklistService: BlacklistService,
+    @Inject(NOTIFICATION_SERVICE_TOKEN)
+    private readonly notificationService: INotificationService,
   ) { }
 
   /**
@@ -163,6 +167,30 @@ export class AuthService implements IAuthService {
 
     // Exclude password from response
     const { password, ...user } = fullUser;
+
+    // Create welcome notification (non-blocking)
+    try {
+      await this.notificationService.create({
+        userId: user.id,
+        title: 'Chào mừng bạn đến với Torii 🎉',
+        message:
+          'Tài khoản của bạn đã được tạo thành công. Hãy xác minh email và bắt đầu hành trình luyện JLPT nhé!',
+        notificationType: NotificationType.SYSTEM,
+        metadata: {
+          email: user.email,
+          displayName: user.displayName,
+          source: dto.platform || 'web',
+        },
+      });
+    } catch (error) {
+      // Không chặn flow đăng ký nếu tạo notification thất bại
+      // eslint-disable-next-line no-console
+      console.error(
+        '[AuthService] Failed to create welcome notification for user',
+        user.id,
+        error,
+      );
+    }
 
     // Generate Verification token or OTP
     if (dto.platform === 'mobile') {
@@ -1159,6 +1187,30 @@ export class AuthService implements IAuthService {
       userMetadata:
         googleUser as unknown as UserMetadata as unknown as Prisma.InputJsonValue,
     });
+
+    // Create welcome notification for new Google user (non-blocking)
+    try {
+      await this.notificationService.create({
+        userId: newUser.id,
+        title: 'Chào mừng bạn đến với Torii 🎉',
+        message:
+          'Bạn đã đăng ký thành công bằng Google. Bắt đầu khám phá các khóa học JLPT ngay nào!',
+        notificationType: NotificationType.SYSTEM,
+        metadata: {
+          email: newUser.email,
+          displayName: newUser.displayName,
+          source: 'google_oauth',
+        },
+      });
+    } catch (error) {
+      // Không chặn flow đăng ký nếu tạo notification thất bại
+      // eslint-disable-next-line no-console
+      console.error(
+        '[AuthService] Failed to create welcome notification for Google user',
+        newUser.id,
+        error,
+      );
+    }
 
     // Create Google identity
     await this.userIdentityRepository.create({

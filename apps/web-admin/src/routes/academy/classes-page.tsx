@@ -83,8 +83,8 @@ export default function AcademyClassesPage() {
         subtitle="Quản lý vận hành các lớp học VOD và Live trong hệ thống."
         actions={
           <Button asChild className="gap-2 shadow-sm">
-            <Link to="/academy/classes/new">
-              <Plus className="h-4 w-4" /> Mở lớp mới
+            <Link to="/academy/course-profiles">
+              <Plus className="h-4 w-4" /> Mở lớp mới từ Course Profile
             </Link>
           </Button>
         }

@@ -15,7 +15,7 @@ interface ClassAttendanceTabProps {
 }
 
 export function ClassAttendanceTab({ classId, liveClassId }: ClassAttendanceTabProps) {
-    const { data: schedules = [], isLoading: isLoadingSchedules } = useAcademyLiveSchedules({ liveClassId })
+    const { data: schedules = [], isLoading: isLoadingSchedules } = useAcademyLiveSchedules({ classId })
     const { data: enrollmentsData, isLoading: isLoadingEnrollments } = useAcademyEnrollments({ classId, page: 1, limit: 1000 })
 
     const [selectedScheduleId, setSelectedScheduleId] = useState<string | null>(null)

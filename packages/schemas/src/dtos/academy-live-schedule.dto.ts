@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 export const academyLiveScheduleCreateDTOSchema = z.object({
-  liveClassId: z.string().uuid(),
   classId: z.string().uuid(),
   weekday: z.number().int().min(0),
   startTime: z.string().min(1).max(20),
@@ -29,7 +28,7 @@ export type AcademyLiveScheduleUpdateDTO = z.infer<
 >;
 
 export const academyLiveScheduleQueryDTOSchema = z.object({
-  liveClassId: z.string().uuid().optional(),
+  classId: z.string().uuid().optional(),
 });
 export type AcademyLiveScheduleQueryDTO = z.infer<
   typeof academyLiveScheduleQueryDTOSchema
@@ -37,7 +36,6 @@ export type AcademyLiveScheduleQueryDTO = z.infer<
 
 export type AcademyLiveScheduleModel = {
   id: string;
-  liveClassId: string;
   classId: string;
   weekday: number;
   startTime: string;

@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom"
+import { useLocation, useNavigate, useParams } from "react-router-dom"
 import { useState } from "react"
 import { toast } from "@workspace/ui/components/sonner"
 import { PageHeader } from "@/components/common/page-header"
@@ -13,8 +13,11 @@ import { cn } from "@workspace/ui/lib/utils"
 export default function AcademyClassCreatePage() {
   const nav = useNavigate()
   const loc = useLocation()
+  const params = useParams()
   const search = new URLSearchParams(loc.search)
-  const courseProfileId = search.get("courseProfileId") ?? undefined
+  const courseProfileIdFromParam = params.courseProfileId
+  const courseProfileIdFromQuery = search.get("courseProfileId") ?? undefined
+  const courseProfileId = courseProfileIdFromParam ?? courseProfileIdFromQuery ?? undefined
 
   const [mode, setMode] = useState<"VOD" | "LIVE">("VOD")
   const create = useCreateAcademyClass()

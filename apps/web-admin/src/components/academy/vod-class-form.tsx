@@ -1,8 +1,9 @@
 import { Controller, useForm } from "react-hook-form"
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
+import { toast } from "@workspace/ui/components/sonner"
 import {
     Field,
     FieldError,
@@ -32,7 +33,7 @@ import {
     VOD_CLASS_METADATA,
 } from "@workspace/schemas"
 import type { AcademyClass } from "@/lib/api/services/academy-classes"
-import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
+import { useAcademyCourseProfiles, useAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
 import { KeyValueEditor } from "@/components/academy/key-value-editor"
 
 export function VodClassForm({
@@ -51,12 +52,15 @@ export function VodClassForm({
     defaultCourseProfileId?: string
 }) {
     const isEdit = mode === "edit"
+    const courseProfileFromRoute = !!defaultCourseProfileId
 
     const profilesParams = useMemo(() => ({}), [])
     const { data: profilesData = [] } = useAcademyCourseProfiles(profilesParams)
     const profiles = Array.isArray(profilesData) ? profilesData : (profilesData as any)?.items || []
 
-    const { handleSubmit, control } = useForm<
+    const { data: singleProfile } = useAcademyCourseProfile(courseProfileFromRoute ? defaultCourseProfileId : undefined)
+
+    const { handleSubmit, control, register, setValue, formState } = useForm<
         AcademyClassCreateDTO | AcademyClassUpdateDTO
     >({
         resolver: zodResolver(
@@ -80,10 +84,31 @@ export function VodClassForm({
             }) as any,
     })
 
+    useEffect(() => {
+        if (!isEdit && defaultCourseProfileId) {
+            setValue("courseProfileId" as any, defaultCourseProfileId, {
+                shouldValidate: true,
+                shouldDirty: false,
+            })
+        }
+    }, [defaultCourseProfileId, isEdit, setValue])
+
     return (
         <form
             className="space-y-6"
-            onSubmit={handleSubmit(async (data) => onSubmit(data))}
+            onSubmit={handleSubmit(
+                async (data) => onSubmit(data),
+                (errors) => {
+                    const firstKey = Object.keys(errors ?? {})[0]
+                    const firstMessage =
+                        firstKey && (errors as any)[firstKey]?.message
+                            ? String((errors as any)[firstKey].message)
+                            : "Vui lòng kiểm tra lại các trường bắt buộc."
+                    toast.error(firstMessage)
+                    // eslint-disable-next-line no-console
+                    console.error("[VodClassForm] validation errors", errors)
+                },
+            )}
             noValidate
         >
             <Card>
@@ -94,26 +119,39 @@ export function VodClassForm({
                             <FieldDescription>Xác định nguồn học liệu từ Course Profile.</FieldDescription>
                             <FieldGroup>
                                 {!isEdit ? (
-                                    <div className="grid gap-4 md:grid-cols-2">
-                                        <Controller
-                                            name={"courseProfileId" as any}
-                                            control={control}
-                                            render={({ field, fieldState }) => (
-                                                <Field>
-                                                    <FieldLabel>Course Profile</FieldLabel>
-                                                    <Select value={field.value} onValueChange={field.onChange}>
-                                                        <SelectTrigger><SelectValue placeholder="Chọn Profile..." /></SelectTrigger>
-                                                        <SelectContent>
-                                                            {profiles.map((p: any) => (
-                                                                <SelectItem key={p.id} value={p.id}>{p.code} - {p.title}</SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FieldError>{fieldState.error?.message}</FieldError>
-                                                </Field>
-                                            )}
-                                        />
-                                    </div>
+                                    courseProfileFromRoute ? (
+                                        <Field>
+                                            <FieldLabel>Course Profile</FieldLabel>
+                                            <Input
+                                                disabled
+                                                value={singleProfile ? `${singleProfile.code} - ${singleProfile.title}` : defaultCourseProfileId}
+                                                readOnly
+                                            />
+                                            <input type="hidden" {...register("courseProfileId" as any)} />
+                                            <FieldError>{(formState.errors as any)?.courseProfileId?.message}</FieldError>
+                                        </Field>
+                                    ) : (
+                                        <div className="grid gap-4 md:grid-cols-2">
+                                            <Controller
+                                                name={"courseProfileId" as any}
+                                                control={control}
+                                                render={({ field, fieldState }) => (
+                                                    <Field>
+                                                        <FieldLabel>Course Profile</FieldLabel>
+                                                        <Select value={field.value} onValueChange={field.onChange}>
+                                                            <SelectTrigger><SelectValue placeholder="Chọn Profile..." /></SelectTrigger>
+                                                            <SelectContent>
+                                                                {profiles.map((p: any) => (
+                                                                    <SelectItem key={p.id} value={p.id}>{p.code} - {p.title}</SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                        <FieldError>{fieldState.error?.message}</FieldError>
+                                                    </Field>
+                                                )}
+                                            />
+                                        </div>
+                                    )
                                 ) : (
                                     <div className="grid gap-4 md:grid-cols-2">
                                         <Field>

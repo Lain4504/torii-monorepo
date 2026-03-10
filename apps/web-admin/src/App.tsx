@@ -77,6 +77,7 @@ import AcademyLessonCreatePage from '@/routes/academy/lesson-create-page.tsx'
 import AcademyLessonEditPage from '@/routes/academy/lesson-edit-page.tsx'
 import AcademyDashboardPage from '@/routes/academy/academy-dashboard-page.tsx'
 import AcademyApprovalsPage from '@/routes/academy/approvals-page.tsx'
+import MyClassesPage from '@/routes/academy/my-classes-page.tsx'
 
 
 import RewardsPage from '@/routes/gamification/rewards-page.tsx'
@@ -134,6 +135,7 @@ function App() {
                   <Route element={<RoutePermissionGuard anyPermission={["academy.content.read", "academy.content.write", "academy.content.approve", "academy.commerce.read", "academy.commerce.write", "academy.commerce.approve", "academy.delivery.read", "academy.delivery.write", "academy.delivery.approve", "exam.manage"]} />}>
                     <Route path="academy" element={<AcademyDashboardPage />} />
                     <Route path="academy/approvals" element={<AcademyApprovalsPage />} />
+                    <Route path="my-classes" element={<MyClassesPage />} />
 
                     <Route path="academy/course-profiles" element={<AcademyCourseProfilesPage />} />
                     <Route path="academy/course-profiles/:id" element={<AcademyCourseProfileDetailPage />} />
@@ -162,7 +164,8 @@ function App() {
 
                     {/* 4. OPERATION LAYER: Classes, Enrollments, Attendance, Grading */}
                     <Route path="academy/classes" element={<AcademyClassesPage />} />
-                    <Route path="academy/classes/new" element={<AcademyClassCreatePage />} />
+                    {/* Canonical route: create class under specific Course Profile */}
+                    <Route path="academy/:courseProfileId/classes/new" element={<AcademyClassCreatePage />} />
                     <Route path="academy/classes/:id" element={<AcademyClassDetailPage />} />
                     <Route path="academy/classes/:id/edit" element={<AcademyClassEditPage />} />
                     <Route path="academy/classes/:id/syllabus" element={<AcademyClassSyllabusPage />} />

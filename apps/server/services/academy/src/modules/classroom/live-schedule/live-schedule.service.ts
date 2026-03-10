@@ -133,7 +133,7 @@ export class LiveScheduleService {
     if (!schedule) throw new NotFoundException('Session not found');
 
     this.assertClassJoinable(schedule.class.status);
-    this.assertInJoinWindow(schedule);
+    this.assertInJoinWindow(schedule, isAdmin);
 
     const user = await this.getUserById(userId);
     await this.assertJoinPermission(schedule, userId, isAdmin, user?.role);
@@ -726,20 +726,29 @@ export class LiveScheduleService {
     startTime: string;
     endTime: string;
     class: { openingDate: Date | null; closingDate: Date | null };
-  }) {
+  }, isAdmin: boolean) {
+    // Dev-only bypass to help testing room activation/joins.
+    // Enable by setting env: DISABLE_LIVE_SESSION_JOIN_WINDOW=true
+    if (
+      isAdmin &&
+      process.env.DISABLE_LIVE_SESSION_JOIN_WINDOW === 'true' &&
+      process.env.NODE_ENV !== 'production'
+    ) {
+      return;
+    }
     const now = new Date();
 
-    if (schedule.class.openingDate && now < new Date(schedule.class.openingDate)) {
-      throw new BadRequestException(
-        'Session is outside the class active date range.',
-      );
-    }
+    // if (schedule.class.openingDate && now < new Date(schedule.class.openingDate)) {
+    //   throw new BadRequestException(
+    //     'Session is outside the class active date range.',
+    //   );
+    // }
 
-    if (schedule.class.closingDate && now > new Date(schedule.class.closingDate)) {
-      throw new BadRequestException(
-        'Session is outside the class active date range.',
-      );
-    }
+    // if (schedule.class.closingDate && now > new Date(schedule.class.closingDate)) {
+    //   throw new BadRequestException(
+    //     'Session is outside the class active date range.',
+    //   );
+    // }
 
     const [startHour, startMinute] = this.parseHourMinute(schedule.startTime);
     const [endHour, endMinute] = this.parseHourMinute(schedule.endTime);

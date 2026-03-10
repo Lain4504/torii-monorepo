@@ -11,7 +11,6 @@ export default function AcademyLiveScheduleCreatePage() {
   const loc = useLocation()
   const search = new URLSearchParams(loc.search)
   const classId = search.get("classId") || undefined
-  const liveClassId = search.get("liveClassId") || undefined
   const create = useCreateAcademyLiveSchedule()
 
   return (
@@ -29,7 +28,7 @@ export default function AcademyLiveScheduleCreatePage() {
           <LiveScheduleForm
             mode="create"
             submitting={create.isPending}
-            defaultLiveClassId={liveClassId}
+            defaultClassId={classId}
             onCancel={() => classId ? nav(`/academy/classes/${classId}`) : nav("/academy/classes")}
             onSubmit={async (data) => {
               await create.mutateAsync(data as AcademyLiveScheduleCreateDTO)

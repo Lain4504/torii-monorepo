@@ -1,4 +1,5 @@
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { ActivityType, GamificationTransactionType, GamificationCurrency } from '@prisma/generated';
 import { AchievementService } from './achievement.service';
@@ -12,6 +13,7 @@ export class GamificationService {
         private readonly prisma: PrismaService,
         private readonly achievementService: AchievementService,
         private readonly audit: AuditLoggerService,
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
 
     private readonly EARNING_RULES: Record<string, { xp: number; points: number }> = {
@@ -336,7 +338,7 @@ export class GamificationService {
     }
 
     async redeemReward(userId: string, rewardId: string) {
-        return this.prisma.$transaction(async (tx) => {
+        const result = await this.prisma.$transaction(async (tx) => {
             const reward = await tx.pointReward.findUnique({
                 where: { id: rewardId }
             });
@@ -394,8 +396,39 @@ export class GamificationService {
                 success: true,
                 message: "Reward redeemed successfully",
                 couponCode: coupon.code,
+                rewardName: reward.name,
             };
         });
+
+        // Emit notification via NATS (identity service will create in-app notification)
+        try {
+            this.natsClient.emit(
+                { cmd: 'send_notification' },
+                {
+                    recipientId: userId,
+                    type: 'system',
+                    payload: {
+                        title: 'Bạn vừa đổi quà thành công 🎁',
+                        body: `Bạn đã dùng điểm để đổi phần thưởng "${result.rewardName}". Mã coupon của bạn là ${result.couponCode}.`,
+                        metadata: {
+                            rewardId,
+                            rewardName: result.rewardName,
+                            couponCode: result.couponCode,
+                        },
+                    },
+                },
+            );
+        } catch (error: any) {
+            this.logger.error(
+                `Failed to emit notification for redeemReward user=${userId}, reward=${rewardId}: ${error.message}`,
+            );
+        }
+
+        return {
+            success: result.success,
+            message: result.message,
+            couponCode: result.couponCode,
+        };
     }
 
     // --- Admin CRUD ---

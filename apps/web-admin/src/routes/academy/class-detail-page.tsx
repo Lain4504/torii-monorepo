@@ -100,8 +100,8 @@ export default function ClassDetailPage() {
    const { data: profile } = useAcademyCourseProfile(cls?.courseProfileId)
    const liveClassId = cls?.liveClass?.id
    const { data: schedules = [], isLoading: isLoadingSchedules } = useAcademyLiveSchedules(
-      liveClassId ? { liveClassId } : {},
-      { enabled: !!liveClassId },
+      id ? { classId: id } : {},
+      { enabled: !!id && isLive },
    )
    const { data: assessments = [], isLoading: isLoadingAssessments } = useAcademyClassAssessments({ classId: id })
    const { data: enrollmentsData, isLoading: isLoadingEnrollments } = useAcademyEnrollments({ classId: id, page: 1, limit: 100 })
@@ -371,13 +371,9 @@ export default function ClassDetailPage() {
             toast.error("Vui lòng nhập đầy đủ thông tin lịch đề xuất")
             return
          }
-         if (!liveClassId) {
-            toast.error("Không tìm thấy liveClassId để kiểm tra conflict")
-            return
-         }
          const weekday = new Date(proposedDate).getDay()
          const preview = await previewConflictMutation.mutateAsync({
-            liveClassId,
+            classId: id!,
             weekday,
             startTime: proposedStartTime,
             endTime: proposedEndTime,
@@ -744,7 +740,7 @@ export default function ClassDetailPage() {
                               <CardDescription>Các ca học cố định trong tuần cho lớp này</CardDescription>
                            </div>
                            <Button size="sm" asChild className="gap-2">
-                              <Link to={`/academy/live-schedule/new?liveClassId=${liveClassId || ""}&classId=${id}`}><Plus className="h-4 w-4" /> Thêm lịch</Link>
+                              <Link to={`/academy/live-schedule/new?classId=${id}`}><Plus className="h-4 w-4" /> Thêm lịch</Link>
                            </Button>
                         </CardHeader>
                         <CardContent>

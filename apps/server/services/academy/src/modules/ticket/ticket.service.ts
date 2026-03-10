@@ -15,16 +15,9 @@ import {
   PaginatedResponseDTO,
   TicketType,
   TicketStatus,
-  NotificationType,
   OrderStatus,
 } from '@workspace/schemas';
-import {
-  ITicketService,
-} from '@server/academy/interfaces/services';
-import {
-  INotificationService,
-  NOTIFICATION_SERVICE_TOKEN,
-} from '@server/identity/interfaces/services';
+import { ITicketService } from '@server/academy/interfaces/services';
 import {
   ITicketRepository,
   TICKET_REPOSITORY_TOKEN,
@@ -39,8 +32,6 @@ export class TicketService implements ITicketService {
   constructor(
     @Inject(TICKET_REPOSITORY_TOKEN)
     private readonly ticketRepository: ITicketRepository,
-    @Inject(NOTIFICATION_SERVICE_TOKEN)
-    private readonly notificationService: INotificationService,
     @Inject('NATS_SERVICE')
     private readonly natsClient: ClientProxy,
     private readonly emailService: EmailService,
@@ -357,20 +348,22 @@ export class TicketService implements ITicketService {
       }
 
       if (title && message) {
-        await this.notificationService.create({
-          userId: ticket.userId,
-          title,
-          message,
-          notificationType:
-            ticket.type === TicketType.REFUND
-              ? NotificationType.PAYMENT
-              : NotificationType.SYSTEM,
-          metadata: {
-            ticketId: ticket.id,
-            status: dto.status,
-            type: ticket.type,
+        this.natsClient.emit(
+          { cmd: 'send_notification' },
+          {
+            recipientId: ticket.userId,
+            type: 'system',
+            payload: {
+              title,
+              body: message,
+              metadata: {
+                ticketId: ticket.id,
+                status: dto.status,
+                type: ticket.type,
+              },
+            },
           },
-        });
+        );
       }
     } catch (error) {
       this.logger.error(

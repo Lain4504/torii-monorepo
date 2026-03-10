@@ -128,7 +128,7 @@ export default function CourseProfileDetailPage() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuItem asChild>
-                  <Link to={`/academy/classes/new?courseProfileId=${id}`}>
+                  <Link to={`/academy/${id}/classes/new`}>
                     <Plus className="h-4 w-4 mr-2" /> Mở lớp mới
                   </Link>
                 </DropdownMenuItem>
@@ -402,7 +402,7 @@ export default function CourseProfileDetailPage() {
                 </CardDescription>
               </div>
               <Button asChild size="sm" className="gap-2">
-                <Link to={`/academy/classes/new?courseProfileId=${id}`}>
+                <Link to={`/academy/${id}/classes/new`}>
                   <Plus className="h-4 w-4" /> Mở lớp mới
                 </Link>
               </Button>
