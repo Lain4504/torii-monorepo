@@ -25,7 +25,6 @@ export const academyLessonCreateDTOSchema = z.object({
   contentBody: z.string().optional(),
   attachments: z.any().optional(),
   description: z.string().optional(),
-  metadata: z.any().optional(),
 });
 
 export type AcademyLessonCreateDTO = z.infer<typeof academyLessonCreateDTOSchema>;
@@ -37,7 +36,6 @@ export const academyLessonUpdateDTOSchema = z.object({
   contentBody: z.string().optional(),
   attachments: z.any().optional(),
   description: z.string().optional(),
-  metadata: z.any().optional(),
 });
 
 export type AcademyLessonUpdateDTO = z.infer<typeof academyLessonUpdateDTOSchema>;

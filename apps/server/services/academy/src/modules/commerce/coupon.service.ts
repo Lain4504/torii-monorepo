@@ -76,6 +76,29 @@ export class CouponService {
         return coupon;
     }
 
+    async getMyCoupons(userId: string) {
+        const usages = await this.prisma.couponUsage.findMany({
+            where: { userId },
+            include: { coupon: true },
+            orderBy: { usedAt: 'desc' },
+        });
+
+        // Return a simple list for client consumption.
+        // We currently treat "owned coupons" as coupons the user has interacted with (used) in orders,
+        // since a separate redemption table is not modeled in DB yet.
+        const seen = new Set<string>();
+        const result: any[] = [];
+        for (const usage of usages) {
+            if (!usage.coupon || seen.has(usage.couponId)) continue;
+            seen.add(usage.couponId);
+            result.push({
+                ...usage.coupon,
+                lastUsedAt: usage.usedAt,
+            });
+        }
+        return result;
+    }
+
     async calculateDiscount(couponId: string, orderValue: number) {
         const coupon = await this.prisma.coupon.findUnique({ where: { id: couponId } });
         if (!coupon) return 0;

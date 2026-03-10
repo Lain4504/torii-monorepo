@@ -1,7 +1,7 @@
-"use client";
+\"use client\";
 
 import { useEffect, useState } from 'react';
-import { useStreak, useRecordActivity, useMarkToastShown } from '@/lib/api/services/gamification-api';
+import { useStreak } from '@/lib/api/services/gamification-api';
 import { Dialog, DialogContent, DialogTitle } from '@workspace/ui/components/dialog';
 import { motion } from 'framer-motion';
 import { Flame, Snowflake, Sparkles, Trophy, Target, Calendar as CalendarIcon } from 'lucide-react';
@@ -10,8 +10,6 @@ import { cn } from '@workspace/ui/lib/utils';
 
 export function StreakWelcomeModal() {
   const { data: streak } = useStreak();
-  const { mutate: recordActivity } = useRecordActivity();
-  const { mutate: markToastShown } = useMarkToastShown();
 
   const [isOpen, setIsOpen] = useState(false);
   const [sessionShown, setSessionShown] = useState(false);
@@ -19,30 +17,23 @@ export function StreakWelcomeModal() {
   useEffect(() => {
     if (!streak || sessionShown) return;
 
-    const { isActiveToday, shouldShowToast } = streak;
+    // Với logic mới, streak chỉ cập nhật khi có activity học.
+    // Modal chỉ cần hiển thị 1 lần mỗi session khi user đã có profile streak.
+    const timer = setTimeout(() => {
+      setIsOpen(true);
+      setSessionShown(true);
+    }, 800);
 
-    // 1. Auto check-in if not active today
-    if (!isActiveToday) {
-      console.log('Auto check-in triggered...');
-      recordActivity({ type: 'LOGIN' });
-      return;
-    }
-
-    // 2. Show modal only if backend says we should and hasn't shown this session
-    if (shouldShowToast && !isOpen) {
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-        setSessionShown(true);
-        // Mark as shown immediately so refresh doesn't trigger it again
-        markToastShown();
-      }, 800);
-      return () => clearTimeout(timer);
-    }
-  }, [streak, isOpen, sessionShown, recordActivity, markToastShown]);
+    return () => clearTimeout(timer);
+  }, [streak, sessionShown]);
 
   if (!streak) return null;
 
-  const { currentStreak, isActiveToday, freezeCount, lastActiveDate, recentActiveDates } = streak;
+  const { currentStreak, freezeCount, lastActiveDate, recentActiveDates } = streak as any;
+
+  // Tự tính xem hôm nay đã active chưa dựa trên lastActiveDate
+  const todayStr = new Date().toISOString().split('T')[0];
+  const isActiveToday = lastActiveDate === todayStr;
 
   // Build 7-day calendar
   const buildCalendar = () => {

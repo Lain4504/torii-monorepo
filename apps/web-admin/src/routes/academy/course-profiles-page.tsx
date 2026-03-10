@@ -58,11 +58,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
+import { CreateCourseProfileDialog, EditCourseProfileDialog } from "@/components/academy/course-profile-dialog"
 
 export default function AcademyCourseProfilesPage() {
   const [q, setQ] = useState("")
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [archiveId, setArchiveId] = useState<string | null>(null)
+  const [createOpen, setCreateOpen] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
 
   const query = useMemo(() => ({ q: q || undefined }), [q])
   const { data = [], isLoading } = useAcademyCourseProfiles(query)
@@ -75,10 +78,11 @@ export default function AcademyCourseProfilesPage() {
         title="Course Profiles"
         subtitle="Quản lý các khung chương trình đào tạo tổng quát và tài nguyên gốc."
         actions={
-          <Button asChild className="gap-2 shadow-sm">
-            <Link to="/academy/course-profiles/new">
-              <Plus className="h-4 w-4" /> Tạo Profile mới
-            </Link>
+          <Button
+            className="gap-2 shadow-sm"
+            onClick={() => setCreateOpen(true)}
+          >
+            <Plus className="h-4 w-4" /> Tạo Profile mới
           </Button>
         }
       />
@@ -161,9 +165,7 @@ export default function AcademyCourseProfilesPage() {
                   <TableCell>
                     <div className="flex flex-col gap-0.5">
                       <span className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                        <Link to={`/academy/course-profiles/${it.id}`}>
-                          {it.title}
-                        </Link>
+                        {it.title}
                       </span>
                     </div>
                   </TableCell>
@@ -193,29 +195,31 @@ export default function AcademyCourseProfilesPage() {
                           <DropdownMenuItem asChild>
                             <Link to={`/academy/course-profiles/${it.id}`}>
                               <Eye className="h-4 w-4 mr-2" />
-                              <span>Chi tiết</span>
+                              <span>Xem chi tiết</span>
                             </Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link to={`/academy/course-profiles/${it.id}/edit`}>
-                              <Edit2 className="h-4 w-4 mr-2" />
-                              <span>Chỉnh sửa</span>
-                            </Link>
+                          <DropdownMenuItem className="pointer-events-none opacity-50">
+                            <span className="text-[11px]">
+                              Điều hướng sang trang chi tiết để mở lớp, cấu hình Syllabus và gói bán.
+                            </span>
                           </DropdownMenuItem>
-                          {((it as any)._count?.editions > 0 || (it as any)._count?.classes > 0) ? (
-                            <DropdownMenuItem onClick={() => setArchiveId(it.id)}>
-                              <Archive className="h-4 w-4 mr-2" />
-                              <span>Lưu trữ</span>
-                            </DropdownMenuItem>
-                          ) : (
-                            <DropdownMenuItem
-                              className="text-destructive focus:text-destructive"
-                              onClick={() => setDeleteId(it.id)}
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              <span>Xoá</span>
-                            </DropdownMenuItem>
-                          )}
+                          <DropdownMenuGroup>
+                          </DropdownMenuGroup>
+                          <DropdownMenuItem onClick={() => setEditingId(it.id)}>
+                            <Edit2 className="h-4 w-4 mr-2" />
+                            <span>Chỉnh sửa</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setArchiveId(it.id)}>
+                            <Archive className="h-4 w-4 mr-2" />
+                            <span>Lưu trữ</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
+                            onClick={() => setDeleteId(it.id)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            <span>Xoá</span>
+                          </DropdownMenuItem>
                         </DropdownMenuGroup>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -248,7 +252,7 @@ export default function AcademyCourseProfilesPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Xoá Course Profile</AlertDialogTitle>
             <AlertDialogDescription>
-              Chỉ xoá được khi profile chưa có editions hoặc classes. Nếu đã có, dùng Lưu trữ thay vì Xoá.
+              Chỉ xoá được khi profile chưa có lớp, bài học hoặc dữ liệu liên quan. Nếu đã có, hãy dùng Lưu trữ thay vì Xoá.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -277,7 +281,7 @@ export default function AcademyCourseProfilesPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Lưu trữ Course Profile</AlertDialogTitle>
             <AlertDialogDescription>
-              Profile và tất cả editions sẽ được lưu trữ, ẩn khỏi danh sách nhưng giữ nguyên dữ liệu.
+              Profile sẽ được lưu trữ, ẩn khỏi danh sách chính nhưng vẫn giữ nguyên dữ liệu để tra cứu.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -300,6 +304,18 @@ export default function AcademyCourseProfilesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <CreateCourseProfileDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+      />
+      <EditCourseProfileDialog
+        id={editingId ?? undefined}
+        open={!!editingId}
+        onOpenChange={(open) => {
+          if (!open) setEditingId(null)
+        }}
+      />
     </div >
   )
 }

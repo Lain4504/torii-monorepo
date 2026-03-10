@@ -40,6 +40,11 @@ export class OrderHandler {
     return this.orderService.admin_findAll(query);
   }
 
+  @MessagePattern({ cmd: 'academy.order.admin.getStats' })
+  admin_getStats(@Payload() query: any) {
+    return this.orderService.admin_getStats(query);
+  }
+
   @MessagePattern({ cmd: 'academy.order.admin.findOne' })
   admin_findOne(@Payload() data: { id: string }) {
     return this.orderService.admin_findOne(data.id);

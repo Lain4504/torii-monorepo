@@ -234,14 +234,9 @@ export class AssessmentService implements OnModuleInit {
 
         const userContext = await this.fastMcpService.getUserContext(userId);
 
-        // Fetch available enrolling course runs to provide real recommendations
+        // Fetch available enrolling classes (simplified, legacy relations removed)
         const enrollingCourses = await this.prisma.class.findMany({
           where: { status: 'ENROLLING' },
-          include: {
-            courseProfile: true,
-            liveClass: true,
-            vodClass: true,
-          },
           take: 10,
         });
 
@@ -253,9 +248,12 @@ export class AssessmentService implements OnModuleInit {
           score: result.rawScore,
           availableCourses: enrollingCourses.map((c) => ({
             id: c.id,
-            title: c.courseProfile.title,
-            level: c.courseProfile.level,
-            startDate: c.mode === 'LIVE' ? c.liveClass?.startDate : c.vodClass?.enrollmentOpenAt,
+            // Use class name as title in new schema
+            title: c.name,
+            // Use assessed level from exam as fallback
+            level: result.exam.level,
+            // Start date information not available in new schema
+            startDate: null,
           })),
           userContext,
           timestamp: new Date().toISOString(),

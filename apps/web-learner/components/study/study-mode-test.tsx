@@ -14,6 +14,7 @@ interface Question {
     question: string;
     options: string[];
     answer: string;
+    displayedAnswer?: string;
 }
 
 export function StudyModeTest({ setId }: { setId: string }) {
@@ -25,7 +26,32 @@ export function StudyModeTest({ setId }: { setId: string }) {
     const [score, setScore] = useState(0);
     const [testFinished, setTestFinished] = useState(false);
 
-    const { data: questions, isLoading, isError, refetch } = useTestQuiz(setId, 10);
+    const { data: rawQuestions, isLoading, isError, refetch } = useTestQuiz(setId, 10);
+
+    const questions: Question[] = useMemo(() => {
+        if (!rawQuestions) return [];
+        return rawQuestions.map((q: any) => {
+            if (q.type === 'multiple_choice') {
+                return {
+                    id: q.id,
+                    type: q.type,
+                    question: q.question,
+                    options: q.options ?? [],
+                    answer: q.correctAnswer,
+                } as Question;
+            }
+
+            // true_false
+            return {
+                id: q.id,
+                type: q.type,
+                question: q.question,
+                options: ['Đúng', 'Sai'],
+                answer: q.correctAnswer ? 'Đúng' : 'Sai',
+                displayedAnswer: q.displayedAnswer,
+            } as Question;
+        });
+    }, [rawQuestions]);
 
     const currentQuestion = useMemo(() => {
         return questions?.[currentIndex] as Question | undefined;
@@ -152,6 +178,11 @@ export function StudyModeTest({ setId }: { setId: string }) {
                         <h3 className="text-3xl md:text-5xl font-bold leading-tight balance animate-in fade-in slide-in-from-bottom-4 duration-700">
                             {currentQuestion?.question}
                         </h3>
+                        {currentQuestion?.type === 'true_false' && currentQuestion.displayedAnswer && (
+                            <p className="mt-4 text-lg text-muted-foreground">
+                                Đáp án hiển thị: <span className="font-semibold text-foreground">{currentQuestion.displayedAnswer}</span>
+                            </p>
+                        )}
                     </CardHeader>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-8 duration-900">

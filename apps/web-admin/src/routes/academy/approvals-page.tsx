@@ -1,8 +1,8 @@
 import { useState } from "react"
+import { useQueryClient } from "@tanstack/react-query"
 import { Link } from "react-router-dom"
 import { PageHeader } from "@/components/common/page-header"
 import { Button } from "@workspace/ui/components/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { Badge } from "@workspace/ui/components/badge"
 import {
@@ -39,7 +39,9 @@ import {
     Clock,
     GraduationCap,
     ShoppingBag,
-    Inbox
+    Inbox,
+    ShieldCheck,
+    RefreshCw
 } from "lucide-react"
 import {
     useAcademyClasses,
@@ -54,21 +56,29 @@ import {
 import { format } from "date-fns"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Empty, EmptyContent, EmptyDescription, EmptyMedia, EmptyTitle } from "@workspace/ui/components/empty"
+import { formatNumber } from "@/lib/format-utils"
 
 export default function AcademyApprovalsPage() {
     const [activeTab, setActiveTab] = useState("classes")
     const [rejectItem, setRejectItem] = useState<{ id: string; type: "class" | "offering" } | null>(null)
     const [reason, setReason] = useState("")
+    const qc = useQueryClient()
 
     // Queries
-    const { data: classes = [], isLoading: loadingClasses } = useAcademyClasses({ status: "PENDING_APPROVAL" } as any)
-    const { data: offerings = [], isLoading: loadingOfferings } = useAcademyCourseOfferings({ status: "PENDING_APPROVAL" } as any)
+    const { data: classes = [], isLoading: loadingClasses, error: errorClasses } = useAcademyClasses({ status: "PENDING_APPROVAL" } as any)
+    const { data: offerings = [], isLoading: loadingOfferings, error: errorOfferings } = useAcademyCourseOfferings({ status: "PENDING_APPROVAL" } as any)
 
     // Mutations
     const approveClass = useApproveClass()
     const rejectClass = useRejectClass()
     const approveOffering = useApproveCourseOffering()
     const rejectOffering = useRejectCourseOffering()
+
+    const handleRefresh = () => {
+        qc.invalidateQueries({ queryKey: ["academy-classes"] })
+        qc.invalidateQueries({ queryKey: ["academy-course-offerings"] })
+        toast.info("Đang cập nhật dữ liệu...")
+    }
 
     const handleApprove = async (id: string, type: "class" | "offering") => {
         try {
@@ -93,35 +103,67 @@ export default function AcademyApprovalsPage() {
         }
     }
 
+    const error = errorClasses || errorOfferings
+
+    if (error) {
+        return (
+            <div className="flex h-[450px] items-center justify-center p-8">
+                <div className="max-w-md w-full">
+                    <div className="flex flex-col items-center text-center space-y-4">
+                        <div className="size-12 rounded-full flex items-center justify-center bg-destructive/10 text-destructive">
+                            <ShieldCheck className="size-6" />
+                        </div>
+                        <div className="space-y-2">
+                            <h3 className="text-lg font-semibold">Truy cập bị hạn chế</h3>
+                            <p className="text-sm text-muted-foreground">{error.message}</p>
+                        </div>
+                        <Button
+                            variant="outline"
+                            onClick={() => window.location.reload()}
+                        >
+                            Thử kết nối lại
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     return (
-        <div className="space-y-6">
+        <div className="flex flex-col gap-8">
             <PageHeader
                 title="Trung tâm phê duyệt"
                 subtitle="Quản lý các yêu cầu phê duyệt nội dung, lớp học và gói bán."
+                stats={[
+                    { label: "Lớp học chờ", value: formatNumber(classes.length) },
+                    { label: "Gói bán chờ", value: formatNumber(offerings.length) }
+                ]}
+                actions={
+                    <Button variant="outline" onClick={handleRefresh} className="gap-2">
+                        <RefreshCw className={`size-4 ${loadingClasses || loadingOfferings ? "animate-spin" : ""}`} />
+                        Làm mới
+                    </Button>
+                }
             />
 
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 lg:w-[500px]">
-                    <TabsTrigger value="classes" className="gap-2">
-                        <GraduationCap className="h-4 w-4" />
-                        Lớp học ({loadingClasses ? "..." : classes.length})
-                    </TabsTrigger>
-                    <TabsTrigger value="offerings" className="gap-2">
-                        <ShoppingBag className="h-4 w-4" />
-                        Gói bán ({loadingOfferings ? "..." : offerings.length})
-                    </TabsTrigger>
-                </TabsList>
+            <div className="space-y-4">
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 lg:w-[500px] h-12">
+                        <TabsTrigger value="classes" className="gap-2">
+                            <GraduationCap className="h-4 w-4" />
+                            Lớp học ({loadingClasses ? "..." : classes.length})
+                        </TabsTrigger>
+                        <TabsTrigger value="offerings" className="gap-2">
+                            <ShoppingBag className="h-4 w-4" />
+                            Gói bán ({loadingOfferings ? "..." : offerings.length})
+                        </TabsTrigger>
+                    </TabsList>
 
-                <TabsContent value="classes" className="mt-6 space-y-4">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-lg">Lớp học mới chờ duyệt</CardTitle>
-                            <CardDescription>Yêu cầu mở lớp học mới với các cấu hình về giảng viên, lịch học và quy mô.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
+                    <TabsContent value="classes" className="mt-6">
+                        <div className="rounded-md bg-background border overflow-hidden">
                             <Table>
                                 <TableHeader>
-                                    <TableRow>
+                                    <TableRow className="bg-muted/50">
                                         <TableHead>Tên lớp / Mã lớp</TableHead>
                                         <TableHead>Hình thức</TableHead>
                                         <TableHead>Người gửi</TableHead>
@@ -134,13 +176,13 @@ export default function AcademyApprovalsPage() {
                                         <TableSkeleton cols={5} />
                                     ) : classes.length > 0 ? (
                                         classes.map((item) => (
-                                            <TableRow key={item.id}>
-                                                <TableCell>
+                                            <TableRow key={item.id} className="hover:bg-muted/30">
+                                                <TableCell className="py-4">
                                                     <div className="font-medium">{item.name}</div>
-                                                    <div className="text-xs text-muted-foreground font-mono">{item.code}</div>
+                                                    <div className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{item.code}</div>
                                                 </TableCell>
                                                 <TableCell>
-                                                    <Badge variant="secondary">{item.mode}</Badge>
+                                                    <Badge variant="secondary" className="font-normal">{item.mode}</Badge>
                                                 </TableCell>
                                                 <TableCell>
                                                     <div className="text-sm">{(item as any).submittedByUser?.displayName || "—"}</div>
@@ -169,20 +211,14 @@ export default function AcademyApprovalsPage() {
                                     )}
                                 </TableBody>
                             </Table>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
+                        </div>
+                    </TabsContent>
 
-                <TabsContent value="offerings" className="mt-6 space-y-4">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-lg">Gói bán chờ duyệt</CardTitle>
-                            <CardDescription>Các gói sản phẩm khóa học được cấu hình giá, thời gian bán và các lớp đi kèm.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
+                    <TabsContent value="offerings" className="mt-6">
+                        <div className="rounded-md bg-background border overflow-hidden">
                             <Table>
                                 <TableHeader>
-                                    <TableRow>
+                                    <TableRow className="bg-muted/50">
                                         <TableHead>Tên gói / Mã</TableHead>
                                         <TableHead>Giá bán</TableHead>
                                         <TableHead>Người gửi</TableHead>
@@ -195,10 +231,10 @@ export default function AcademyApprovalsPage() {
                                         <TableSkeleton cols={5} />
                                     ) : offerings.length > 0 ? (
                                         offerings.map((item) => (
-                                            <TableRow key={item.id}>
-                                                <TableCell>
+                                            <TableRow key={item.id} className="hover:bg-muted/30">
+                                                <TableCell className="py-4">
                                                     <div className="font-medium">{item.title}</div>
-                                                    <div className="text-xs text-muted-foreground font-mono">{item.code}</div>
+                                                    <div className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{item.code}</div>
                                                 </TableCell>
                                                 <TableCell>
                                                     <div className="font-bold text-primary">
@@ -232,10 +268,10 @@ export default function AcademyApprovalsPage() {
                                     )}
                                 </TableBody>
                             </Table>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-            </Tabs>
+                        </div>
+                    </TabsContent>
+                </Tabs>
+            </div>
 
             <AlertDialog open={!!rejectItem} onOpenChange={(o) => { !o && setRejectItem(null); setReason("") }}>
                 <AlertDialogContent>
@@ -273,22 +309,22 @@ export default function AcademyApprovalsPage() {
 function ApprovalActions({ detailUrl, onApprove, onReject }: any) {
     return (
         <div className="flex justify-end items-center gap-2">
-            <Button asChild variant="outline" size="sm" className="h-8">
+            <Button asChild variant="outline" size="sm" className="h-8 shadow-none gap-1.5 px-3">
                 <Link to={detailUrl}>
-                    <Eye className="h-3.5 w-3.5 mr-1" /> Chi tiết
+                    <Eye className="h-3.5 w-3.5" /> <span>Chi tiết</span>
                 </Link>
             </Button>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted/50">
                         <MoreVertical className="h-4 w-4" />
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={onApprove} className="text-green-600 focus:text-green-600 focus:bg-green-50">
+                <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem onClick={onApprove} className="text-green-600 focus:text-green-600 focus:bg-green-50 py-2.5">
                         <CheckCircle2 className="h-4 w-4 mr-2" /> Duyệt yêu cầu
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={onReject} className="text-destructive focus:text-destructive focus:bg-destructive/5">
+                    <DropdownMenuItem onClick={onReject} className="text-destructive focus:text-destructive focus:bg-destructive/5 py-2.5">
                         <XCircle className="h-4 w-4 mr-2" /> Từ chối duyệt
                     </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -300,10 +336,12 @@ function ApprovalActions({ detailUrl, onApprove, onReject }: any) {
 function TableSkeleton({ cols }: { cols: number }) {
     return (
         <>
-            {Array.from({ length: 3 }).map((_, i) => (
+            {Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={i}>
                     {Array.from({ length: cols }).map((_, j) => (
-                        <TableCell key={j}><Skeleton className="h-5 w-full" /></TableCell>
+                        <TableCell key={j} className="py-4">
+                            <Skeleton className="h-5 w-full bg-muted/30" />
+                        </TableCell>
                     ))}
                 </TableRow>
             ))}
@@ -314,14 +352,14 @@ function TableSkeleton({ cols }: { cols: number }) {
 function EmptyTableRow({ colSpan, message }: { colSpan: number; message: string }) {
     return (
         <TableRow>
-            <TableCell colSpan={colSpan} className="h-[300px] text-center">
+            <TableCell colSpan={colSpan} className="h-[400px] text-center bg-muted/5">
                 <Empty>
                     <EmptyMedia>
-                        <Inbox className="size-10 text-muted-foreground/30" />
+                        <Inbox className="size-12 text-muted-foreground/20" />
                     </EmptyMedia>
                     <EmptyContent>
-                        <EmptyTitle className="text-muted-foreground">Tất cả đã xong!</EmptyTitle>
-                        <EmptyDescription>{message}</EmptyDescription>
+                        <EmptyTitle className="text-muted-foreground font-medium">Tất cả đã xong!</EmptyTitle>
+                        <EmptyDescription className="text-xs text-muted-foreground/60">{message}</EmptyDescription>
                     </EmptyContent>
                 </Empty>
             </TableCell>

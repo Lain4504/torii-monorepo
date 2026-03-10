@@ -42,8 +42,6 @@ import ServiceUnavailablePage from '@/routes/error/service-unavailable-page.tsx'
 import NotImplementedPage from '@/routes/error/not-implemented-page.tsx'
 import UnauthorizedPage from '@/routes/error/unauthorized-page.tsx'
 import AcademyCourseProfilesPage from '@/routes/academy/course-profiles-page.tsx'
-import AcademyCourseProfileCreatePage from '@/routes/academy/course-profile-create-page.tsx'
-import AcademyCourseProfileEditPage from '@/routes/academy/course-profile-edit-page.tsx'
 import AcademyCourseOfferingsPage from '@/routes/academy/course-offerings-page.tsx'
 import AcademyCourseOfferingCreatePage from '@/routes/academy/course-offering-create-page.tsx'
 import AcademyCourseOfferingEditPage from '@/routes/academy/course-offering-edit-page.tsx'
@@ -138,9 +136,7 @@ function App() {
                     <Route path="academy/approvals" element={<AcademyApprovalsPage />} />
 
                     <Route path="academy/course-profiles" element={<AcademyCourseProfilesPage />} />
-                    <Route path="academy/course-profiles/new" element={<AcademyCourseProfileCreatePage />} />
                     <Route path="academy/course-profiles/:id" element={<AcademyCourseProfileDetailPage />} />
-                    <Route path="academy/course-profiles/:id/edit" element={<AcademyCourseProfileEditPage />} />
 
                     <Route path="academy/lessons/new" element={<AcademyLessonCreatePage />} />
                     <Route path="academy/lessons/:id/edit" element={<AcademyLessonEditPage />} />

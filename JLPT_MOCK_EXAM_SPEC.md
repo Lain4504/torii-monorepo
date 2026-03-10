@@ -1,5 +1,5 @@
 # Spec: Unified Exam & JLPT Module (N5–N1, Lesson Quiz, Format 2024)
-
+Lưu ý: - Remove toàn bộ code legacy của luồng Exam cũ hiện tại trong dự án, thay thế hoàn toàn bằng code mới của spec này nhé 
 ## 1. Mục tiêu & Phạm vi
 
 - **Mục đích**:

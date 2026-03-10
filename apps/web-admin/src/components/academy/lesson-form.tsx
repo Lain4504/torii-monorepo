@@ -29,7 +29,6 @@ import { LessonMediaUploader } from "@/components/academy/lesson-media-uploader"
 import type { AcademyLessonCreateDTO } from "@workspace/schemas"
 import { academyLessonCreateDTOSchema } from "@workspace/schemas"
 import { RichTextEditor } from "@/components/editor/rich-text-editor"
-import { KeyValueEditor } from "@/components/academy/key-value-editor"
 import { AttachmentListEditor } from "@/components/academy/attachment-list-editor"
 
 interface LessonFormProps {
@@ -59,21 +58,16 @@ export function LessonForm({
       contentUrl: "",
       contentBody: "",
       attachments: undefined,
-      metadata: undefined,
       ...defaultValues,
     },
   })
 
   const contentType = watch("contentType")
-  // User requests: Video content can still have content body.
-  // And content body is markdown.
-  // We keep the editor visible for VIDEO and MARKDOWN.
-  const showContentEditor = contentType === "VIDEO" || contentType === "MARKDOWN" || contentType === "HTML" || contentType === "RICH_TEXT"
+  const showContentEditor = contentType === "VIDEO" || contentType === "MATERIAL"
 
   const isMediaUrlType =
     contentType === "VIDEO" ||
-    contentType === "PDF" ||
-    contentType === "EXTERNAL_LINK"
+    contentType === "MATERIAL"
 
   const { data: profiles = [] } = useAcademyCourseProfiles({})
 
@@ -83,7 +77,7 @@ export function LessonForm({
         <CardHeader>
           <CardTitle>Thông tin chung</CardTitle>
           <CardDescription>
-            Chọn course profile và thiết lập loại nội dung cho bài học.
+            Tạo bài học gốc trong Lesson Bank để dùng lại khi ráp Syllabus cho từng lớp (VOD/LIVE).
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -135,22 +129,18 @@ export function LessonForm({
               control={control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel>Loại nội dung</FieldLabel>
+                  <FieldLabel>Loại bài học (Lesson type)</FieldLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger>
                       <SelectValue placeholder="Chọn loại nội dung" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="VIDEO">Video</SelectItem>
-                      {/* Removed HTML option as requested */}
-                      <SelectItem value="MARKDOWN">Markdown</SelectItem>
-                      {/* Kept EXTERNAL_LINK and PDF as they are distinct from just "content" */}
-                      <SelectItem value="EXTERNAL_LINK">External Link</SelectItem>
-                      <SelectItem value="PDF">PDF</SelectItem>
+                      <SelectItem value="VIDEO">VIDEO · Bài giảng có video</SelectItem>
+                      <SelectItem value="MATERIAL">MATERIAL · Slide / PDF / Tài liệu</SelectItem>
                     </SelectContent>
                   </Select>
                   <FieldDescription>
-                    Chọn định dạng chính cho nội dung bài học.
+                    Lesson Bank dùng để map vào Syllabus của Class. Với lớp LIVE, hệ thống có thể chỉ dùng phần tài liệu (ẩn video) tuỳ cấu hình Syllabus Item.
                   </FieldDescription>
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
@@ -162,9 +152,9 @@ export function LessonForm({
 
       <Card>
         <CardHeader>
-          <CardTitle>Nội dung bài học (Markdown)</CardTitle>
+          <CardTitle>Nội dung bài học</CardTitle>
           <CardDescription>
-            Soạn nội dung chi tiết và xem trước hiển thị.
+            Ghi chú / lý thuyết kèm theo bài học (tuỳ chọn).
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -187,7 +177,7 @@ export function LessonForm({
             />
           ) : (
             <FieldDescription>
-              Nội dung văn bản chỉ áp dụng cho loại Video hoặc Markdown.
+              Nội dung văn bản chỉ áp dụng cho loại VIDEO hoặc MATERIAL.
             </FieldDescription>
           )}
         </CardContent>
@@ -198,7 +188,7 @@ export function LessonForm({
           <CardHeader>
             <CardTitle>Media & liên kết</CardTitle>
             <CardDescription>
-              Thiết lập link video, file, hoặc external link cho bài học.
+              Upload file nội dung chính cho bài học.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -211,21 +201,19 @@ export function LessonForm({
                     value={field.value || null}
                     onChange={field.onChange}
                     label={
-                      contentType === "EXTERNAL_LINK"
-                        ? "Liên kết nội dung"
-                        : "File nội dung (Video/PDF/Media)"
+                      contentType === "VIDEO"
+                        ? "Video bài giảng"
+                        : "Tài liệu (Slide/PDF)"
                     }
                     description={
-                      contentType === "EXTERNAL_LINK"
-                        ? "Liên kết đến trang hoặc tài nguyên bên ngoài."
-                        : "Chọn file video hoặc tài liệu, hệ thống sẽ tự động upload lên storage."
+                      contentType === "VIDEO"
+                        ? "Chọn file video, hệ thống sẽ tự động upload lên storage."
+                        : "Chọn file tài liệu (PDF), hệ thống sẽ tự động upload lên storage."
                     }
                     accept={
                       contentType === "VIDEO"
                         ? "video/*"
-                        : contentType === "PDF"
-                          ? "application/pdf"
-                          : undefined
+                        : "application/pdf"
                     }
                     errorMessage={fieldState.error?.message}
                   />
@@ -254,37 +242,6 @@ export function LessonForm({
               />
             )}
           />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Metadata nâng cao</CardTitle>
-          <CardDescription>
-            Thêm thông tin bổ sung cho bài học (key-value).
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <FieldGroup>
-            <Controller
-              name="metadata"
-              control={control}
-              render={({ field }) => (
-                <Field>
-                  <KeyValueEditor
-                    value={field.value || {}}
-                    onChange={field.onChange}
-                    presets={[
-                      { key: "summary", label: "Tóm tắt ngắn (Summary)", defaultValue: "Tóm tắt bài học..." },
-                      { key: "estimatedMinutes", label: "Thời gian ước tính (phút)", defaultValue: "15" },
-                      { key: "tags", label: "Thẻ (Tags)", defaultValue: "jlpt,n5" },
-                      { key: "difficulty", label: "Độ khó", defaultValue: "medium" },
-                    ]}
-                  />
-                </Field>
-              )}
-            />
-          </FieldGroup>
         </CardContent>
       </Card>
 

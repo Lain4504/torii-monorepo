@@ -30,6 +30,7 @@ export class GamificationService {
 
     /**
      * Track a user learning activity and reward them.
+     * Also updates streak based on real learning activities instead of simple logins.
      */
     async trackActivity(userId: string, activityType: ActivityType, metadata: any = {}) {
         const rule = this.EARNING_RULES[activityType];
@@ -173,10 +174,13 @@ export class GamificationService {
                 newLevel: updatedProfile.level,
             };
 
-            // Trigger achievement evaluation asynchronously
-            this.achievementService.evaluateForUser(userId).catch(err =>
-                this.logger.error(`Failed to evaluate achievements for user ${userId}:`, err)
-            );
+            // Update streak & evaluate achievements asynchronously based on this activity
+            // Note: we don't await to keep the main transaction fast
+            this.checkAndGetStreak(userId)
+                .then(() => this.achievementService.evaluateForUser(userId))
+                .catch(err =>
+                    this.logger.error(`Failed to update streak/achievements for user ${userId}:`, err),
+                );
 
             return result;
         });
@@ -205,18 +209,18 @@ export class GamificationService {
         // Zero out time
         today.setHours(0, 0, 0, 0);
 
+        const todayStr = today.toISOString().split('T')[0];
+
         if (!profile.lastActiveDate) {
-            // First time
-            const updated = await this.prisma.userGamification.update({
+            // First time streak
+            return this.prisma.userGamification.update({
                 where: { userId },
                 data: {
                     currentStreak: 1,
                     longestStreak: 1,
-                    lastActiveDate: today.toISOString().split('T')[0],
+                    lastActiveDate: todayStr,
                 }
             });
-            this.achievementService.evaluateForUser(userId).catch(e => this.logger.error(e));
-            return updated;
         }
 
         const lastActive = new Date(profile.lastActiveDate);
@@ -225,8 +229,9 @@ export class GamificationService {
         const diffTime = Math.abs(today.getTime() - lastActive.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        if (diffDays === 0) {
-            return profile; // Already active today
+        if (diffDays === 0 || profile.lastActiveDate === todayStr) {
+            // Already active today, do not change streak on repeated calls
+            return profile;
         }
 
         if (diffDays === 1) {
@@ -237,10 +242,9 @@ export class GamificationService {
                 data: {
                     currentStreak: newStreak,
                     longestStreak: Math.max(profile.longestStreak, newStreak),
-                    lastActiveDate: today.toISOString().split('T')[0],
+                    lastActiveDate: todayStr,
                 }
             });
-            this.achievementService.evaluateForUser(userId).catch(e => this.logger.error(e));
             return updated;
         }
 
@@ -256,10 +260,9 @@ export class GamificationService {
                     freezeCount: { decrement: missingDaysToCover },
                     currentStreak: newStreak,
                     longestStreak: Math.max(profile.longestStreak, newStreak),
-                    lastActiveDate: today.toISOString().split('T')[0],
+                    lastActiveDate: todayStr,
                 }
             });
-            this.achievementService.evaluateForUser(userId).catch(e => this.logger.error(e));
             return updated;
         }
 
@@ -268,27 +271,53 @@ export class GamificationService {
             where: { userId },
             data: {
                 currentStreak: 1, // Start anew today
-                lastActiveDate: today.toISOString().split('T')[0],
+                lastActiveDate: todayStr,
             }
         });
-
-        // Trigger evaluation after streak update
-        this.achievementService.evaluateForUser(userId).catch(err =>
-            this.logger.error(`Failed to evaluate achievements for user ${userId} after streak reset:`, err)
-        );
 
         return updated;
     }
 
+    /**
+     * Get gamification profile WITHOUT mutating streak or tracking login.
+     * Streak is now updated only when real learning activities are recorded.
+     */
     async getProfile(userId: string) {
-        // Track login activity automatically when profile is fetched (Daily Check-in)
-        // trackActivity handles points and daily check-in logic
-        this.trackActivity(userId, ActivityType.LOGIN).catch(err =>
-            this.logger.error(`Failed to track daily login for user ${userId}:`, err.stack)
-        );
+        let profile = await this.prisma.userGamification.findUnique({ where: { userId } });
+        if (!profile) {
+            profile = await this.prisma.userGamification.create({
+                data: {
+                    userId,
+                    currentXp: 0,
+                    totalXp: 0,
+                    points: 0,
+                    level: 1,
+                },
+            });
+        }
+        return profile;
+    }
 
-        // Enforce eager streak validation as part of profile retrieval
-        return this.checkAndGetStreak(userId);
+    /**
+     * Read-only streak status for APIs that just need to display it.
+     * Does NOT change streak counters.
+     */
+    async getStreakStatus(userId: string) {
+        let profile = await this.prisma.userGamification.findUnique({ where: { userId } });
+
+        if (!profile) {
+            profile = await this.prisma.userGamification.create({
+                data: {
+                    userId,
+                    currentXp: 0,
+                    totalXp: 0,
+                    points: 0,
+                    level: 1,
+                },
+            });
+        }
+
+        return profile;
     }
 
     async getHistory(userId: string, limit: number = 20, offset: number = 0) {

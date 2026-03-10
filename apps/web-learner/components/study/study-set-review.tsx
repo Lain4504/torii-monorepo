@@ -76,8 +76,8 @@ export function StudySetReview({ setId }: { setId: string }) {
                 <p className="text-muted-foreground text-lg max-w-md text-center">
                     Bạn đã hoàn thành tất cả các thẻ cần ôn trong lúc này. Hãy quay lại sau nhé!
                 </p>
-                <Button className="mt-8" size="lg" onClick={() => router.push(`/dashboard/study-sets`)}>
-                    <ChevronLeft className="mr-2 h-4 w-4" /> Trở về Danh sách
+                <Button className="mt-8" size="lg" onClick={() => router.push(`/dashboard/study-sets/${setId}`)}>
+                    <ChevronLeft className="mr-2 h-4 w-4" /> Trở về bộ thẻ
                 </Button>
             </div>
         );
@@ -86,8 +86,8 @@ export function StudySetReview({ setId }: { setId: string }) {
     return (
         <div className="flex-1 flex flex-col pb-10">
             <div className="mb-4 flex justify-between items-center max-w-4xl mx-auto w-full px-4">
-                <Button variant="ghost" onClick={() => router.push(`/dashboard/study-sets`)}>
-                    <ChevronLeft className="mr-2 h-4 w-4" /> Thoát
+                <Button variant="ghost" onClick={() => router.push(`/dashboard/study-sets/${setId}`)}>
+                    <ChevronLeft className="mr-2 h-4 w-4" /> Quay lại bộ thẻ
                 </Button>
                 <div className="text-sm font-medium text-muted-foreground">
                     Thẻ {currentIndex + 1} / {cards.length}
@@ -96,32 +96,38 @@ export function StudySetReview({ setId }: { setId: string }) {
 
             <div className="flex-1 flex flex-col items-center justify-center max-w-2xl mx-auto w-full space-y-8">
                 {/* Flashcard Area */}
-                <div className="w-full relative perspective-1000 min-h-[400px]">
-                    <div className={`w-full h-full min-h-[400px] transition-all duration-500 transform-style-preserve-3d ${showAnswer ? 'rotate-y-180' : ''}`}>
-
-                        {/* Front Side */}
-                        <Card className={`absolute inset-0 backface-hidden bg-card border-none shadow-xl flex items-center justify-center p-8 cursor-pointer ${showAnswer ? 'hidden' : 'flex'}`} onClick={() => setShowAnswer(true)}>
+                <div className="w-full min-h-[400px]">
+                    <Card
+                        className="w-full h-full min-h-[400px] flex items-center justify-center p-8 shadow-xl cursor-pointer border"
+                        onClick={() => setShowAnswer((prev) => !prev)}
+                    >
+                        {showAnswer ? (
+                            <CardContent className="text-center p-0 space-y-6 w-full overflow-y-auto">
+                                <span className="text-primary/70 uppercase tracking-widest text-sm font-semibold block mb-6">
+                                    Gốc: {currentCard?.term}
+                                </span>
+                                <div className="h-px bg-primary/10 w-1/2 mx-auto my-6" />
+                                <h3 className="text-3xl md:text-4xl leading-relaxed whitespace-pre-wrap font-medium text-foreground">
+                                    {currentCard?.definition}
+                                </h3>
+                            </CardContent>
+                        ) : (
                             <CardContent className="text-center p-0 space-y-6 w-full">
-                                <span className="text-muted-foreground uppercase tracking-widest text-sm font-semibold opacity-50 block mb-6">Câu hỏi</span>
-                                <h3 className="text-4xl md:text-5xl font-bold leading-tight whitespace-pre-wrap">{currentCard?.term}</h3>
+                                <span className="text-muted-foreground uppercase tracking-widest text-sm font-semibold opacity-50 block mb-6">
+                                    Câu hỏi
+                                </span>
+                                <h3 className="text-4xl md:text-5xl font-bold leading-tight whitespace-pre-wrap">
+                                    {currentCard?.term}
+                                </h3>
                                 {currentCard?.hint && (
                                     <p className="text-muted-foreground text-sm italic mt-2">Gợi ý: {currentCard.hint}</p>
                                 )}
-                                <p className="text-muted-foreground mt-8 text-sm opacity-50 animate-pulse">Nhấn để xem đáp án</p>
+                                <p className="text-muted-foreground mt-8 text-sm opacity-50 animate-pulse">
+                                    Nhấn để xem đáp án
+                                </p>
                             </CardContent>
-                        </Card>
-
-                        {/* Back Side */}
-                        <Card className={`absolute inset-0 backface-hidden rotate-y-180 bg-primary/5 border-primary/20 shadow-xl flex items-center justify-center p-8 ${!showAnswer ? 'hidden' : 'flex'}`}>
-                            {currentCard && (
-                                <CardContent className="text-center p-0 space-y-6 w-full overflow-y-auto">
-                                    <span className="text-primary/70 uppercase tracking-widest text-sm font-semibold block mb-6">Gốc: {currentCard.term}</span>
-                                    <div className="h-px bg-primary/10 w-1/2 mx-auto my-6" />
-                                    <h3 className="text-3xl md:text-4xl leading-relaxed whitespace-pre-wrap font-medium">{currentCard.definition}</h3>
-                                </CardContent>
-                            )}
-                        </Card>
-                    </div>
+                        )}
+                    </Card>
                 </div>
 
                 {/* Controls */}
