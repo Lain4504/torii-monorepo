@@ -51,8 +51,8 @@ erDiagram
 ## 3. Định nghĩa các bảng chính (Schema Definition)
 
 ### 3.1. Nhóm Bán hàng (Sales)
-- **`CourseProfile`**: Thông tin định danh khóa học (ví dụ: "Tiếng Nhật N5").
-- **`CourseOffering`**: Gói sản phẩm (ví dụ: "N5 Cấp tốc - 2.000.000đ"). Trỏ tới một `ClassId`.
+- **`CourseProfile`**: Đóng vai trò là "Không gian tên" (Namespace) và "Danh mục" môn học. Nó lưu trữ thông tin định danh (Tên, Cấp độ, Mô tả chung) và dùng để phân loại (Scoping) các tài nguyên trong Bank (Video, Câu hỏi) thuộc về môn học đó.
+- **`CourseOffering`**: Gói sản phẩm thương mại cụ thể (Giá tiền, mô tả gói). Mỗi Offering sẽ dẫn lối người dùng vào một `Class` cụ thể.
 
 ### 3.2. Nhóm Ngân hàng Nội dung (The Banks - Admin quản lý)
 - **`LessonBank`**: Lưu trữ các Video, bài viết lý thuyết mẫu.
