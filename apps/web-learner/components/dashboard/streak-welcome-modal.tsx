@@ -1,4 +1,4 @@
-\"use client\";
+"use client";
 
 import { useEffect, useState } from 'react';
 import { useStreak } from '@/lib/api/services/gamification-api';

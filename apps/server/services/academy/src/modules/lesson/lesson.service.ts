@@ -12,54 +12,69 @@ export class LessonService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
-  ) { }
+  ) { } // V2 Strictly Typed
 
   async findAll(query: AcademyLessonQueryDTO) {
     const q = query.q?.trim();
 
     return this.prisma.lesson.findMany({
       where: {
-        courseProfileId: query.courseProfileId ?? undefined,
+        syllabusId: query.syllabusId ?? undefined,
         ...(q
           ? {
             title: { contains: q, mode: 'insensitive' },
           }
           : {}),
       },
-      orderBy: [{ createdAt: 'desc' }],
+      include: {
+        quiz: true,
+        exam: true,
+        assignment: true,
+      },
+      orderBy: [{ orderIndex: 'asc' }],
     });
   }
 
   async findById(id: string) {
-    const item = await this.prisma.lesson.findUnique({ where: { id } });
+    const item = await this.prisma.lesson.findUnique({
+      where: { id },
+      include: {
+        quiz: true,
+        exam: true,
+        assignment: true,
+      }
+    });
     if (!item) throw new NotFoundException('Lesson not found');
     return item;
   }
 
   async create(input: AcademyLessonCreateDTO, requesterId?: string) {
-    if (!input.courseProfileId) {
-      throw new BadRequestException('courseProfileId is required');
+    if (!input.syllabusId) {
+      throw new BadRequestException('syllabusId is required');
     }
 
     const item = await this.prisma.lesson.create({
       data: {
-        courseProfileId: input.courseProfileId,
+        syllabusId: input.syllabusId,
         title: input.title,
-        contentType: input.contentType,
+        orderIndex: input.orderIndex ?? 0,
+        type: input.type as any,
+        quizId: input.quizId ?? null,
+        examId: input.examId ?? null,
+        assignmentId: input.assignmentId ?? null,
         contentUrl: input.contentUrl ?? null,
         contentBody: input.contentBody ?? null,
         attachments: input.attachments ?? [],
-        metadata: {},
       },
     });
 
     if (requesterId) {
       await this.audit.log({
         userId: requesterId,
-        action: 'CREATE',
+        action: 'lesson.create',
         entity: 'Lesson',
         entityId: item.id,
-        description: `Create lesson "${item.title}"`,
+        description: `Create lesson "${item.title}" in syllabus ${item.syllabusId}`,
         newValues: item,
       });
     }
@@ -68,14 +83,17 @@ export class LessonService {
   }
 
   async update(id: string, input: AcademyLessonUpdateDTO, requesterId?: string) {
-    const before = await this.prisma.lesson.findUnique({ where: { id } });
-    if (!before) throw new NotFoundException('Lesson not found');
+    const before = await this.findById(id);
 
     const item = await this.prisma.lesson.update({
       where: { id },
       data: {
         title: input.title ?? undefined,
-        contentType: input.contentType ?? undefined,
+        orderIndex: input.orderIndex ?? undefined,
+        type: (input.type as any) ?? undefined,
+        quizId: input.quizId !== undefined ? input.quizId : undefined,
+        examId: input.examId !== undefined ? input.examId : undefined,
+        assignmentId: input.assignmentId !== undefined ? input.assignmentId : undefined,
         contentUrl: input.contentUrl ?? undefined,
         contentBody: input.contentBody ?? undefined,
         attachments: input.attachments ?? undefined,
@@ -85,7 +103,7 @@ export class LessonService {
     if (requesterId) {
       await this.audit.log({
         userId: requesterId,
-        action: 'UPDATE',
+        action: 'lesson.update',
         entity: 'Lesson',
         entityId: id,
         description: `Update lesson "${before.title}"`,
@@ -98,16 +116,14 @@ export class LessonService {
   }
 
   async delete(id: string, requesterId?: string) {
-    const before = await this.prisma.lesson.findUnique({ where: { id } });
-    if (!before) throw new NotFoundException('Lesson not found');
+    const before = await this.findById(id);
 
-    // Rely on DB FKs to prevent deletion when referenced by other data
     await this.prisma.lesson.delete({ where: { id } });
 
     if (requesterId) {
       await this.audit.log({
         userId: requesterId,
-        action: 'DELETE',
+        action: 'lesson.delete',
         entity: 'Lesson',
         entityId: id,
         description: `Delete lesson "${before.title}"`,

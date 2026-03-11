@@ -48,8 +48,8 @@ export function DuplicateClassDialog({
             name: `${sourceClass.name} (Bản sao)`,
             term: sourceClass.liveClass?.term ?? "",
             batch: sourceClass.liveClass?.batch ?? "",
-            startDate: sourceClass.liveClass?.startDate ? new Date(sourceClass.liveClass.startDate) : undefined,
-            endDate: sourceClass.liveClass?.endDate ? new Date(sourceClass.liveClass.endDate) : undefined,
+            openingDate: sourceClass.liveClass?.openingDate ? new Date(sourceClass.liveClass.openingDate) : undefined,
+            closingDate: sourceClass.liveClass?.closingDate ? new Date(sourceClass.liveClass.closingDate) : undefined,
         },
     })
 
@@ -133,11 +133,11 @@ export function DuplicateClassDialog({
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <Controller
-                                            name="startDate"
+                                            name="openingDate"
                                             control={control}
                                             render={({ field, fieldState }) => (
                                                 <Field>
-                                                    <FieldLabel>Ngày bắt đầu</FieldLabel>
+                                                    <FieldLabel>Ngày khai giảng (Mở lớp)</FieldLabel>
                                                     <Input
                                                         type="date"
                                                         value={field.value instanceof Date && !Number.isNaN(field.value.getTime()) ? field.value.toISOString().slice(0, 10) : ""}
@@ -148,11 +148,11 @@ export function DuplicateClassDialog({
                                             )}
                                         />
                                         <Controller
-                                            name="endDate"
+                                            name="closingDate"
                                             control={control}
                                             render={({ field, fieldState }) => (
                                                 <Field>
-                                                    <FieldLabel>Ngày kết thúc</FieldLabel>
+                                                    <FieldLabel>Ngày bế giảng (Kết thúc)</FieldLabel>
                                                     <Input
                                                         type="date"
                                                         value={field.value instanceof Date && !Number.isNaN(field.value.getTime()) ? field.value.toISOString().slice(0, 10) : ""}

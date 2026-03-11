@@ -221,15 +221,3 @@ function formatDateLabel(d: string) {
     if (Number.isNaN(date.getTime())) return d
     return date.toLocaleDateString("vi-VN", { weekday: "long", year: "numeric", month: "2-digit", day: "2-digit" })
 }
-
-function Badge({ children, variant = "default", className }: { children: React.ReactNode, variant?: string, className?: string }) {
-    const variants: any = {
-        default: "bg-primary text-primary-foreground",
-        outline: "border border-input bg-background"
-    }
-    return (
-        <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors", variants[variant], className)}>
-            {children}
-        </span>
-    )
-}

@@ -46,7 +46,7 @@ export function CourseProfileForm({
   mode: "create" | "edit"
   initial?: AcademyCourseProfile
   onSubmit: (
-    data: AcademyCourseProfileCreateDTO | AcademyCourseProfileUpdateDTO
+    data: any
   ) => Promise<void>
   onCancel: () => void
   submitting?: boolean

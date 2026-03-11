@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
+import { ClassStatus, Prisma } from '@prisma/generated';
 import {
   ClassCreateDto,
   ClassDuplicateDto,
@@ -11,8 +12,8 @@ import {
   ClassUpdateDto,
   ClassModuleCreateDto,
   ClassModuleUpdateDto,
-  ClassContentItemCreateDto,
-  ClassContentItemUpdateDto,
+  ClassContentCreateDto,
+  ClassContentUpdateDto,
 } from './dto/class.dto';
 import { AuditLoggerService } from '../../audit-logger.service';
 
@@ -28,8 +29,8 @@ export class ClassService {
     return this.prisma.class.findMany({
       where: {
         courseProfileId: query.courseProfileId ?? undefined,
-        mode: (query.mode as any) ?? undefined,
-        status: (query.status as any) ?? undefined, ...(q
+        mode: query.mode as any,
+        status: query.status as any, ...(q
           ? {
             OR: [
               { code: { contains: q, mode: 'insensitive' } },
@@ -86,20 +87,32 @@ export class ClassService {
     });
     if (!profile) throw new BadRequestException('Invalid courseProfileId');
 
+    const syllabus = await this.prisma.syllabus.findUnique({
+      where: { id: input.syllabusId },
+    });
+    if (!syllabus) throw new BadRequestException('Invalid syllabusId');
+
     return this.prisma.$transaction(async (tx) => {
       const classItem = await tx.class.create({
         data: {
           courseProfileId: input.courseProfileId,
+          syllabusId: input.syllabusId,
           code: input.code,
           name: input.name,
           mode: input.mode as any,
-          status: (input.status as any) ?? 'DRAFT',
+          status: (input.status as ClassStatus) ?? 'DRAFT',
           settings: input.settings ?? undefined,
           defaultExpiresMonths: input.defaultExpiresMonths,
           openingDate: input.openingDate,
           closingDate: input.closingDate,
           instructorId: input.instructorId,
-        } as any, // Cast to any because of transition state of types if needed
+        },
+      });
+
+      // Lock the syllabus
+      await tx.syllabus.update({
+        where: { id: input.syllabusId },
+        data: { isLocked: true },
       });
 
       await this.audit.log({
@@ -108,7 +121,7 @@ export class ClassService {
         entity: 'Class',
         entityId: classItem.id,
         description: `Created ${input.mode} class ${input.code}`,
-        metadata: { code: input.code, mode: input.mode },
+        metadata: { code: input.code, mode: input.mode, syllabusId: input.syllabusId },
       });
 
       return classItem;
@@ -131,14 +144,23 @@ export class ClassService {
         where: { id },
         data: {
           name: input.name,
-          status: input.status as any,
+          status: input.status as ClassStatus,
           settings: input.settings ?? undefined,
           openingDate: input.openingDate,
           closingDate: input.closingDate,
           instructorId: input.instructorId,
           defaultExpiresMonths: input.defaultExpiresMonths,
-        } as any,
+          syllabusId: input.syllabusId,
+        },
       });
+
+      // If syllabus was changed or set for the first time, lock it
+      if (input.syllabusId && input.syllabusId !== classItem.syllabusId) {
+        await tx.syllabus.update({
+          where: { id: input.syllabusId },
+          data: { isLocked: true },
+        });
+      }
 
       await this.audit.log({
         userId: requesterId,
@@ -146,8 +168,8 @@ export class ClassService {
         entity: 'Class',
         entityId: id,
         description: `Updated class ${classItem.code}`,
-        oldValues: { name: classItem.name, status: classItem.status },
-        newValues: { name: updatedClass.name, status: updatedClass.status },
+        oldValues: { name: classItem.name, status: classItem.status, syllabusId: classItem.syllabusId },
+        newValues: { name: updatedClass.name, status: updatedClass.status, syllabusId: updatedClass.syllabusId },
       });
 
       return updatedClass;
@@ -345,6 +367,12 @@ export class ClassService {
       where: { classId: id },
       include: {
         items: {
+          include: {
+            lesson: true,
+            overrideQuiz: true,
+            overrideExam: true,
+            overrideAssignment: true,
+          },
           orderBy: { orderIndex: 'asc' },
         },
       },
@@ -360,13 +388,17 @@ export class ClassService {
         orderIndex: m.orderIndex,
         items: m.items.map((it) => ({
           id: it.id,
-          kind: it.kind,
-          referenceId: it.referenceId,
+          lessonId: it.lessonId,
+          lesson: it.lesson,
           orderIndex: it.orderIndex,
-          status: it.status,
-          availableFrom: it.availableFrom,
+          openAt: it.openAt,
           deadline: it.deadline,
-          isPrerequisite: it.isPrerequisite,
+          overrideQuizId: it.overrideQuizId,
+          overrideExamId: it.overrideExamId,
+          overrideAssignmentId: it.overrideAssignmentId,
+          overrideQuiz: it.overrideQuiz,
+          overrideExam: it.overrideExam,
+          overrideAssignment: it.overrideAssignment,
         })),
       })),
     };
@@ -420,66 +452,61 @@ export class ClassService {
     return { ok: true };
   }
 
-  async addContentItem(input: ClassContentItemCreateDto) {
+  async addContent(input: ClassContentCreateDto) {
     const module = await this.prisma.classModule.findUnique({
       where: { id: input.moduleId },
-      select: { id: true },
+      select: { id: true, classId: true },
     });
     if (!module) throw new NotFoundException('ClassModule not found');
 
     const nextOrder =
       input.orderIndex ??
-      ((await this.prisma.classContentItem.count({
+      ((await this.prisma.classContent.count({
         where: { moduleId: input.moduleId },
       })) + 1);
 
-    return this.prisma.classContentItem.create({
+    return this.prisma.classContent.create({
       data: {
+        classId: module.classId,
         moduleId: input.moduleId,
-        kind: input.kind,
-        referenceId: input.referenceId ?? null,
+        lessonId: input.lessonId,
         orderIndex: nextOrder,
-        status: input.status ?? 'PUBLISHED',
-        availableFrom: input.availableFrom ?? null,
+        openAt: input.openAt ?? null,
         deadline: input.deadline ?? null,
-        isPrerequisite: input.isPrerequisite ?? false,
-        settings: input.settings ?? {},
+        overrideQuizId: input.overrideQuizId ?? null,
+        overrideExamId: input.overrideExamId ?? null,
+        overrideAssignmentId: input.overrideAssignmentId ?? null,
       },
     });
   }
 
-  async updateContentItem(id: string, input: ClassContentItemUpdateDto) {
-    const item = await this.prisma.classContentItem.findUnique({
+  async updateContent(id: string, input: ClassContentUpdateDto) {
+    const item = await this.prisma.classContent.findUnique({
       where: { id },
     });
-    if (!item) throw new NotFoundException('ClassContentItem not found');
+    if (!item) throw new NotFoundException('ClassContent not found');
 
-    return this.prisma.classContentItem.update({
+    return this.prisma.classContent.update({
       where: { id },
       data: {
-        kind: input.kind ?? undefined,
-        referenceId:
-          input.referenceId !== undefined ? input.referenceId : undefined,
         orderIndex: input.orderIndex ?? undefined,
-        status: input.status ?? undefined,
-        availableFrom:
-          input.availableFrom !== undefined ? input.availableFrom : undefined,
-        deadline: input.deadline !== undefined ? input.deadline : undefined,
-        isPrerequisite:
-          input.isPrerequisite !== undefined ? input.isPrerequisite : undefined,
-        settings: input.settings ?? undefined,
+        openAt: input.openAt ?? undefined,
+        deadline: input.deadline ?? undefined,
+        overrideQuizId: input.overrideQuizId !== undefined ? input.overrideQuizId : undefined,
+        overrideExamId: input.overrideExamId !== undefined ? input.overrideExamId : undefined,
+        overrideAssignmentId: input.overrideAssignmentId !== undefined ? input.overrideAssignmentId : undefined,
       },
     });
   }
 
-  async deleteContentItem(id: string) {
-    const item = await this.prisma.classContentItem.findUnique({
+  async deleteContent(id: string) {
+    const item = await this.prisma.classContent.findUnique({
       where: { id },
       select: { id: true },
     });
-    if (!item) throw new NotFoundException('ClassContentItem not found');
+    if (!item) throw new NotFoundException('ClassContent not found');
 
-    await this.prisma.classContentItem.delete({ where: { id } });
+    await this.prisma.classContent.delete({ where: { id } });
     return { ok: true };
   }
 
@@ -527,7 +554,6 @@ export class ClassService {
             items: true,
           },
         },
-        assignments: true,
         liveSchedules: true,
       },
     });
@@ -548,6 +574,7 @@ export class ClassService {
       const newClass = await tx.class.create({
         data: {
           courseProfileId: source.courseProfileId,
+          syllabusId: source.syllabusId,
           code: targetCode,
           name: targetName,
           mode: source.mode,
@@ -559,21 +586,6 @@ export class ClassService {
           instructorId: input?.instructorId || source.instructorId,
         },
       });
-
-      const assignmentMap = new Map<string, string>();
-      for (const assignment of source.assignments) {
-        const newAssignment = await tx.assignment.create({
-          data: {
-            classId: newClass.id,
-            title: assignment.title,
-            instruction: assignment.instruction,
-            attachments: assignment.attachments,
-            maxScore: assignment.maxScore,
-            status: 'DRAFT',
-          },
-        });
-        assignmentMap.set(assignment.id, newAssignment.id);
-      }
 
       if (source.mode === 'LIVE' && source.liveSchedules.length > 0) {
         await tx.liveSchedule.createMany({
@@ -600,25 +612,17 @@ export class ClassService {
         });
 
         for (const item of module.items) {
-          let newReferenceId = item.referenceId;
-
-          if (item.kind === 'ASSIGNMENT' && item.referenceId) {
-            newReferenceId =
-              assignmentMap.get(item.referenceId) || item.referenceId;
-          } else if (item.kind === 'EXAM' && item.referenceId) {
-            newReferenceId = await this.duplicateExam(tx, item.referenceId);
-          }
-
-          await tx.classContentItem.create({
+          await tx.classContent.create({
             data: {
+              classId: newClass.id,
               moduleId: newModule.id,
-              kind: item.kind,
-              referenceId: newReferenceId,
+              lessonId: item.lessonId,
               orderIndex: item.orderIndex,
-              status: item.status,
-              availableFrom: item.availableFrom,
+              openAt: item.openAt,
               deadline: item.deadline,
-              isPrerequisite: item.isPrerequisite,
+              overrideQuizId: item.overrideQuizId,
+              overrideExamId: item.overrideExamId,
+              overrideAssignmentId: item.overrideAssignmentId,
             },
           });
         }
@@ -636,7 +640,13 @@ export class ClassService {
       return tx.class.findUnique({
         where: { id: newClass.id },
         include: {
-          modules: { include: { items: true } },
+          modules: {
+            include: {
+              items: {
+                include: { lesson: true }
+              }
+            }
+          },
           instructor: {
             select: {
               id: true,

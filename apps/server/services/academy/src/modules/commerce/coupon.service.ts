@@ -174,10 +174,6 @@ export class CouponService {
         const {
             discountType,
             status,
-            applicableCourseMasterIds,
-            excludedCourseMasterIds,
-            applicableRunIds,
-            excludedRunIds,
             ...rest
         } = data ?? {};
 
@@ -207,10 +203,6 @@ export class CouponService {
         const {
             discountType,
             status,
-            applicableCourseMasterIds,
-            excludedCourseMasterIds,
-            applicableRunIds,
-            excludedRunIds,
             ...rest
         } = data ?? {};
 

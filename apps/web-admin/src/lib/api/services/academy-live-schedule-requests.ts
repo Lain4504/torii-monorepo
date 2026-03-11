@@ -5,6 +5,7 @@ import type {
   AcademyLiveScheduleRequestCreateDTO,
   AcademyLiveScheduleRequestQueryDTO,
   AcademyLiveScheduleRequestRejectDTO,
+  AcademyLiveScheduleConflictPreviewDTO,
   StandardApiResponse,
 } from "@workspace/schemas"
 

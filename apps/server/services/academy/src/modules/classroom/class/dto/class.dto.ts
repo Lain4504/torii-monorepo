@@ -13,6 +13,9 @@ export class ClassCreateDto {
   @IsUUID()
   courseProfileId!: string;
 
+  @IsUUID()
+  syllabusId!: string;
+
   @IsString()
   @MaxLength(150)
   code!: string;
@@ -137,6 +140,10 @@ export class ClassUpdateDto {
   defaultExpiresMonths?: number;
 
   @IsOptional()
+  @IsUUID()
+  syllabusId?: string;
+
+  @IsOptional()
   @IsString()
   @MaxLength(20)
   status?: string;
@@ -223,74 +230,60 @@ export class ClassModuleUpdateDto {
   orderIndex?: number;
 }
 
-export class ClassContentItemCreateDto {
+export class ClassContentCreateDto {
   @IsUUID()
   moduleId!: string;
 
-  @IsString()
-  @MaxLength(20)
-  kind!: string; // 'VIDEO' | 'MATERIAL' | 'EXAM' | 'ASSIGNMENT' | 'TOPIC'
-
-  @IsOptional()
   @IsUUID()
-  referenceId?: string;
+  lessonId!: string;
 
   @IsOptional()
   @IsInt()
   orderIndex?: number;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(20)
-  status?: string;
-
-  @IsOptional()
   @IsDate()
-  availableFrom?: Date;
+  openAt?: Date;
 
   @IsOptional()
   @IsDate()
   deadline?: Date;
 
   @IsOptional()
-  @IsBoolean()
-  isPrerequisite?: boolean;
+  @IsUUID()
+  overrideQuizId?: string;
 
   @IsOptional()
-  settings?: unknown;
+  @IsUUID()
+  overrideExamId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  overrideAssignmentId?: string;
 }
 
-export class ClassContentItemUpdateDto {
-  @IsOptional()
-  @IsString()
-  @MaxLength(20)
-  kind?: string;
-
-  @IsOptional()
-  @IsUUID()
-  referenceId?: string;
-
+export class ClassContentUpdateDto {
   @IsOptional()
   @IsInt()
   orderIndex?: number;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(20)
-  status?: string;
-
-  @IsOptional()
   @IsDate()
-  availableFrom?: Date;
+  openAt?: Date;
 
   @IsOptional()
   @IsDate()
   deadline?: Date;
 
   @IsOptional()
-  @IsBoolean()
-  isPrerequisite?: boolean;
+  @IsUUID()
+  overrideQuizId?: string;
 
   @IsOptional()
-  settings?: unknown;
+  @IsUUID()
+  overrideExamId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  overrideAssignmentId?: string;
 }

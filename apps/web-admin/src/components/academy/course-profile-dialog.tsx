@@ -1,4 +1,4 @@
-import { useState } from "react"
+
 import { toast } from "@workspace/ui/components/sonner"
 import {
   Dialog,
@@ -75,7 +75,6 @@ interface EditCourseProfileDialogProps extends BaseDialogProps {
 export function EditCourseProfileDialog({ id, open, onOpenChange }: EditCourseProfileDialogProps) {
   const { data: profile, isLoading } = useAcademyCourseProfile(id)
   const update = useUpdateAcademyCourseProfile()
-  const [hasSubmitted, setHasSubmitted] = useState(false)
 
   const handleClose = () => {
     if (!update.isPending) {
@@ -86,14 +85,11 @@ export function EditCourseProfileDialog({ id, open, onOpenChange }: EditCoursePr
   const handleSubmit = async (input: AcademyCourseProfileUpdateDTO) => {
     if (!id) return
     try {
-      setHasSubmitted(true)
       await update.mutateAsync({ id, input })
       toast.success("Đã cập nhật Course Profile")
       onOpenChange(false)
     } catch (e: any) {
       toast.error(e?.response?.data?.message || e?.message || "Không thể cập nhật Course Profile")
-    } finally {
-      setHasSubmitted(false)
     }
   }
 

@@ -41,5 +41,37 @@ export class CourseProfileHandler {
   delete(@Payload() data: { id: string; requesterId?: string }) {
     return this.courseProfiles.delete(data.id, data.requesterId);
   }
+
+  // --- Syllabus management ---
+
+  @MessagePattern({ cmd: 'academy.syllabus.findAll' })
+  findAllSyllabi(@Payload() data: { courseProfileId: string }) {
+    return this.courseProfiles.findAllSyllabi(data.courseProfileId);
+  }
+
+  @MessagePattern({ cmd: 'academy.syllabus.findById' })
+  findSyllabusById(@Payload() data: { id: string }) {
+    return this.courseProfiles.findSyllabusById(data.id);
+  }
+
+  @MessagePattern({ cmd: 'academy.syllabus.create' })
+  createSyllabus(@Payload() data: { courseProfileId: string; version: string; name?: string; requesterId?: string }) {
+    return this.courseProfiles.createSyllabus(data);
+  }
+
+  @MessagePattern({ cmd: 'academy.syllabus.clone' })
+  cloneSyllabus(@Payload() data: { sourceSyllabusId: string; newVersion: string; newName?: string; requesterId?: string }) {
+    return this.courseProfiles.cloneSyllabus(data);
+  }
+
+  @MessagePattern({ cmd: 'academy.syllabus.publish' })
+  publishSyllabus(@Payload() data: { id: string; requesterId?: string }) {
+    return this.courseProfiles.publishSyllabus(data.id, data.requesterId);
+  }
+
+  @MessagePattern({ cmd: 'academy.syllabus.lock' })
+  lockSyllabus(@Payload() data: { id: string; requesterId?: string }) {
+    return this.courseProfiles.lockSyllabus(data.id, data.requesterId);
+  }
 }
 

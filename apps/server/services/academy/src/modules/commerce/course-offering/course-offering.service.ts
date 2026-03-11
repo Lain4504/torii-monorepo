@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, OfferingStatus, OrderType } from '@prisma/generated';
+import { Prisma, OfferingStatus, OrderType, ClassStatus } from '@prisma/generated';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { AuditLoggerService } from '../../audit-logger.service';
 import {
@@ -90,7 +90,7 @@ export class CourseOfferingService {
       },
     });
     if (!item) throw new NotFoundException('CourseOffering not found');
-    return item as any;
+    return item;
   }
 
   async findPublicById(id: string) {
@@ -120,9 +120,9 @@ export class CourseOfferingService {
       throw new BadRequestException('Some classIds do not exist');
     }
 
-    const validStatuses = ['ENROLLING', 'IN_PROGRESS'];
+    const validStatuses: ClassStatus[] = [ClassStatus.ENROLLING, ClassStatus.IN_PROGRESS];
     for (const cls of classes) {
-      if (!validStatuses.includes(cls.status)) {
+      if (!validStatuses.includes(cls.status as ClassStatus)) {
         throw new BadRequestException(
           `Class ${cls.code} is in status ${cls.status}, which is not valid for enrollment`,
         );

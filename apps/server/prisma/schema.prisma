@@ -1003,6 +1003,15 @@ model Certificate {
 // NOTE: Các model dưới đây là core schema mới cho service `academy`.
 // Chúng không dùng lại CourseMaster/CourseRun cũ, mà tạo domain mới sạch hơn.
 
+enum LessonType {
+  VIDEO
+  READING
+  HTML
+  QUIZ
+  EXAM
+  ASSIGNMENT
+}
+
 // --- Content layer ---
 
 model CourseProfile {
@@ -1018,7 +1027,7 @@ model CourseProfile {
 
   // Relations
   classes             Class[]
-  lessons             Lesson[]
+  syllabuses          Syllabus[]
   exams               Exam[]
   questionPools       QuestionPool[]
 
@@ -1026,26 +1035,101 @@ model CourseProfile {
   @@map("academy_course_profiles")
 }
 
-model Lesson {
+model Syllabus {
   id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   courseProfileId String   @map("course_profile_id") @db.Uuid
-  title           String   @db.VarChar(255)
-  contentType     String   @map("content_type") @db.VarChar(50) // VIDEO, HTML, MARKDOWN, EXTERNAL_LINK, ...
-  contentUrl      String?  @map("content_url") @db.Text
-  contentBody     String?  @map("content_body") @db.Text
-  attachments     Json?    @default("[]") @db.JsonB
-  metadata        Json?    @default("{}") @db.JsonB
+  version         String   @db.VarChar(50)
+  isPublished     Boolean  @default(false) @map("is_published")
+  isLocked        Boolean  @default(false) @map("is_locked")
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
 
-  // Relations
-  courseProfile    CourseProfile      @relation(fields: [courseProfileId], references: [id], onDelete: Cascade)
-  studyNotes       StudyNote[]
+  courseProfile   CourseProfile @relation(fields: [courseProfileId], references: [id], onDelete: Cascade)
+  lessons         Lesson[]
+  classes         Class[]
 
   @@index([courseProfileId])
+  @@map("academy_syllabuses")
+}
+
+model Lesson {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  syllabusId      String   @map("syllabus_id") @db.Uuid
+  title           String   @db.VarChar(255)
+  orderIndex      Int      @map("order_index")
+  type            LessonType
+  
+  // FKs cho nội dung Master
+  quizId          String?  @map("quiz_id") @db.Uuid
+  examId          String?  @map("exam_id") @db.Uuid
+  assignmentId    String?  @map("assignment_id") @db.Uuid
+  
+  // Dành cho loại nội dung đơn giản 
+  contentUrl      String?  @map("content_url") @db.Text
+  contentBody     String?  @map("content_body") @db.Text
+  attachments     Json?    @default("[]") @db.JsonB
+  
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
+
+  syllabus        Syllabus       @relation(fields: [syllabusId], references: [id], onDelete: Cascade)
+  quiz            Quiz?          @relation(fields: [quizId], references: [id], onDelete: SetNull)
+  exam            Exam?          @relation(fields: [examId], references: [id], onDelete: SetNull)
+  assignment      Assignment?    @relation(fields: [assignmentId], references: [id], onDelete: SetNull)
+  classContents   ClassContent[]
+  studyNotes      StudyNote[]
+
+  @@index([syllabusId, orderIndex])
   @@map("academy_lessons")
 }
 
+model Quiz {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String   @db.VarChar(255)
+  description String?  @db.Text
+  status      String   @default("DRAFT") @db.VarChar(20) // DRAFT, ACTIVE, ARCHIVED, READ_ONLY
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  questions   QuizQuestion[]
+  lessons     Lesson[]
+  classOverrides ClassContent[]
+
+  @@map("academy_quizzes")
+}
+
+model QuizQuestion {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  quizId      String   @map("quiz_id") @db.Uuid
+  content     String   @db.Text
+  options     Json     @db.JsonB // Array of { id, text, isCorrect }
+  explanation String?  @db.Text
+  orderIndex  Int      @map("order_index")
+
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@index([quizId])
+  @@map("academy_quiz_questions")
+}
+
+model QuizAttempt {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  quizId          String   @map("quiz_id") @db.Uuid
+  classContentId  String   @map("class_content_id") @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  
+  score           Decimal? @db.Decimal(5, 2)
+  status          String   @default("IN_PROGRESS") // IN_PROGRESS, COMPLETED
+  answers         Json?    @db.JsonB
+  
+  startedAt       DateTime @default(now()) @map("started_at")
+  completedAt     DateTime? @map("completed_at")
+
+  @@index([quizId])
+  @@index([classContentId])
+  @@index([userId])
+  @@map("academy_quiz_attempts")
+}
 
 // --- Delivery layer ---
 
@@ -1076,20 +1160,23 @@ model Class {
 
   // Relations
   courseProfile         CourseProfile          @relation(fields: [courseProfileId], references: [id], onDelete: Cascade)
+  syllabus              Syllabus?              @relation(fields: [syllabusId], references: [id])
+  syllabusId            String?                @map("syllabus_id") @db.Uuid
   instructor            User?                  @relation("AcademyClassTeacher", fields: [instructorId], references: [id], onDelete: SetNull)
   modules               ClassModule[]
+  classContents         ClassContent[]
   enrollments           Enrollment[]
   learningProgress      LearningProgress[]
   examAttempts          ExamAttempt[]
   tickets               Ticket[]
   certificates          Certificate[]
-  assignments           Assignment[]
   offeringLinks         CourseOfferingClass[]
   reviews               ClassReview[]
   liveSchedules         LiveSchedule[]
   liveScheduleSessions  LiveScheduleSession[]
 
   @@index([courseProfileId])
+  @@index([syllabusId])
   @@index([mode])
   @@index([status])
   @@map("academy_classes")
@@ -1103,32 +1190,42 @@ model ClassModule {
 
   // Relations
   class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
-  items ClassContentItem[]
+  items ClassContent[]
 
   @@index([classId, orderIndex])
   @@map("academy_class_modules")
 }
 
-model ClassContentItem {
-  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  moduleId       String   @map("module_id") @db.Uuid
-  kind           String   @db.VarChar(20) // 'VIDEO' | 'MATERIAL' | 'EXAM' | 'ASSIGNMENT' | 'TOPIC'
-  referenceId    String?  @map("reference_id") @db.Uuid
-  orderIndex     Int      @map("order_index")
-  status         String   @default("PUBLISHED") @db.VarChar(20)
-  availableFrom  DateTime? @map("available_from")
-  deadline       DateTime?
-  isPrerequisite Boolean  @default(false) @map("is_prerequisite")
-  settings       Json?    @default("{}") @db.JsonB
+model ClassContent {
+  id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  classId              String    @map("class_id") @db.Uuid
+  moduleId             String    @map("module_id") @db.Uuid
+  lessonId             String    @map("lesson_id") @db.Uuid
+  
+  orderIndex           Int       @map("order_index")
+  openAt               DateTime? @map("open_at")
+  deadline             DateTime?
+  
+  overrideQuizId       String?   @map("override_quiz_id") @db.Uuid
+  overrideExamId       String?   @map("override_exam_id") @db.Uuid
+  overrideAssignmentId String?   @map("override_assignment_id") @db.Uuid
 
-  // Relations
-  module                ClassModule        @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  learningProgresses    LearningProgress[]
-  examAttempts          ExamAttempt[]
+  class                Class       @relation(fields: [classId], references: [id], onDelete: Cascade)
+  module               ClassModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  lesson               Lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  
+  overrideQuiz         Quiz?       @relation(fields: [overrideQuizId], references: [id], onDelete: SetNull)
+  overrideExam         Exam?       @relation(fields: [overrideExamId], references: [id], onDelete: SetNull)
+  overrideAssignment   Assignment? @relation(fields: [overrideAssignmentId], references: [id], onDelete: SetNull)
+  
+  learningProgresses   LearningProgress[]
+  examAttempts         ExamAttempt[]
+  assignmentSubmissions AssignmentSubmission[]
 
+  @@index([classId])
   @@index([moduleId, orderIndex])
-  @@index([referenceId])
-  @@map("academy_class_content_items")
+  @@index([lessonId])
+  @@map("academy_class_contents")
 }
 
 
@@ -1261,20 +1358,20 @@ model Enrollment {
 }
 
 model LearningProgress {
-  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  classId         String    @map("class_id") @db.Uuid
-  userId          String    @map("user_id") @db.Uuid
-  contentItemId   String    @map("content_item_id") @db.Uuid
-  status          String    @default("NOT_STARTED") @db.VarChar(20) // NOT_STARTED, IN_PROGRESS, COMPLETED
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  classId         String   @map("class_id") @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  classContentId  String   @map("class_content_id") @db.Uuid
+  status          String   @default("NOT_STARTED") @db.VarChar(20) // NOT_STARTED, IN_PROGRESS, COMPLETED
   lastAccessedAt  DateTime? @map("last_accessed_at")
-  progressPercent Int       @default(0) @map("progress_percent")
+  progressPercent Int      @default(0) @map("progress_percent")
 
   // Relations
-  class       Class            @relation(fields: [classId], references: [id], onDelete: Cascade)
-  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  contentItem ClassContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  class          Class        @relation(fields: [classId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  classContent   ClassContent @relation(fields: [classContentId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, contentItemId])
+  @@unique([userId, classContentId])
   @@index([classId])
   @@index([userId])
   @@map("academy_learning_progress")
@@ -1328,6 +1425,8 @@ model Exam {
   sections      ExamSection[]
   examQuestions ExamQuestion[]
   attempts      ExamAttempt[]
+  lessons             Lesson[]
+  classOverrides      ClassContent[]
 
   @@index([courseProfileId])
   @@index([status])
@@ -1407,7 +1506,7 @@ model ExamAttempt {
   examId            String    @map("exam_id") @db.Uuid
   classId           String?   @map("class_id") @db.Uuid
   userId            String    @map("user_id") @db.Uuid
-  contentItemId     String?   @map("content_item_id") @db.Uuid
+  classContentId    String?   @map("class_content_id") @db.Uuid
   status            String    @default("IN_PROGRESS") @db.VarChar(20) // IN_PROGRESS, SUBMITTED, COMPLETED, ABANDONED
   startedAt         DateTime  @default(now()) @map("started_at")
   submittedAt       DateTime? @map("submitted_at")
@@ -1426,7 +1525,7 @@ model ExamAttempt {
   exam        Exam                      @relation(fields: [examId], references: [id], onDelete: Cascade)
   class       Class?                    @relation(fields: [classId], references: [id], onDelete: SetNull)
   user        User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  contentItem ClassContentItem?         @relation(fields: [contentItemId], references: [id], onDelete: SetNull)
+  classContent ClassContent?            @relation(fields: [classContentId], references: [id], onDelete: SetNull)
   sections    ExamAttemptSectionState[]
   details     ExamAttemptDetail[]
 
@@ -1518,7 +1617,6 @@ model ExamAttemptDetail {
 
 model Assignment {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  classId     String   @map("class_id") @db.Uuid
   title       String   @db.VarChar(255)
   instruction String?  @db.Text
   attachments String[] @map("attachments")
@@ -1528,16 +1626,17 @@ model Assignment {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
-  class       Class                  @relation(fields: [classId], references: [id], onDelete: Cascade)
   submissions AssignmentSubmission[]
+  lessons     Lesson[]
+  classOverrides ClassContent[]
   
-  @@index([classId])
   @@map("academy_assignments")
 }
 
 model AssignmentSubmission {
   id                   String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   assignmentId         String           @map("assignment_id") @db.Uuid
+  classContentId       String           @map("class_content_id") @db.Uuid
   userId               String           @map("user_id") @db.Uuid
   status               SubmissionStatus @default(DRAFT)
   grade                Decimal?         @db.Decimal(5, 2)
@@ -1551,9 +1650,11 @@ model AssignmentSubmission {
 
   // Relations
   assignment         Assignment         @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  classContent       ClassContent       @relation(fields: [classContentId], references: [id], onDelete: Cascade)
   user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([assignmentId])
+  @@index([classContentId])
   @@index([userId])
   @@map("academy_assignment_submissions")
 }

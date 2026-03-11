@@ -11,7 +11,7 @@ import { UserRole } from "@workspace/schemas"
 import AdminDashboard from "@/components/dashboard/admin-dashboard"
 import StaffDashboard from "@/components/dashboard/staff-dashboard"
 import LecturerDashboard from "@/components/dashboard/lecturer-dashboard"
-import AcademyDashboardPage from "@/routes/academy/academy-dashboard-page"
+import AcademyManagementMock from "@/routes/academy/management-mock"
 
 export default function DashboardPage() {
   const user = useAppSelector(selectUser)
@@ -26,7 +26,7 @@ export default function DashboardPage() {
 
   // Redirect staff-lms to Academy Dashboard as per requirement
   if (role === UserRole.STAFF_LMS || role === 'staff-lms') {
-    return <AcademyDashboardPage />
+    return <AcademyManagementMock />
   }
 
   return (

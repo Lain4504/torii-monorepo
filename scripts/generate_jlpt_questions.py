@@ -38,6 +38,7 @@ Script này chỉ dùng thư viện chuẩn (urllib) để tránh thêm dependen
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import random
 import sys
@@ -272,6 +273,116 @@ def build_grammar_questions(
     return questions
 
 
+def build_n1_grammar_questions_from_csv(
+    csv_path: str,
+    level: str = "N1",
+    num_options: int = 4,
+) -> list[dict]:
+    """
+    Parse file mondai1kyu1_1400.csv (đề N1) thành danh sách câu hỏi.
+
+    Định dạng (2 dòng / câu, rút gọn):
+    - Dòng 1: id, <câu tiếng Nhật có chỗ trống>, ...
+    - Dòng 2: '', '1)<option1>', '2)<option2>', '3)<option3>', '4)<option4>', correct_index
+    - Sau đó thường có 1 dòng trống.
+    """
+    questions: list[dict] = []
+
+    try:
+        with open(csv_path, "r", encoding="cp932", newline="") as f:
+            reader = csv.reader(f)
+            pending_stem: str | None = None
+            q_index = 0
+
+            for row in reader:
+                if not row:
+                    continue
+
+                # Dòng stem: có id ở cột 0 và text ở cột 1
+                if row[0].strip():
+                    # Bắt đầu câu hỏi mới
+                    stem = row[1].strip() if len(row) > 1 else ""
+                    if not stem:
+                        continue
+                    pending_stem = stem
+                    continue
+
+                # Nếu đã có stem, dòng tiếp theo chứa options + correct index
+                if pending_stem is not None:
+                    # Lấy options từ cột 1..4 (nếu có)
+                    raw_options = row[1:1 + num_options]
+                    opts_clean: list[str] = []
+                    for opt in raw_options:
+                        text = opt.strip()
+                        if not text:
+                            continue
+                        # Loại prefix "1)" / "2)" ...
+                        if len(text) > 2 and text[1] == ")":
+                            text = text[2:].strip()
+                        opts_clean.append(text)
+
+                    if len(opts_clean) < 2:
+                        pending_stem = None
+                        continue
+
+                    # Cột cuối là chỉ số đáp án đúng (1-based)
+                    correct_raw = row[-1].strip() if row[-1] else ""
+                    try:
+                        correct_idx = int(correct_raw)
+                    except ValueError:
+                        pending_stem = None
+                        continue
+
+                    if not (1 <= correct_idx <= len(opts_clean)):
+                        pending_stem = None
+                        continue
+
+                    option_keys = ["A", "B", "C", "D"][: len(opts_clean)]
+                    options: list[QuestionOption] = []
+                    correct_key = None
+
+                    for i, (key, text) in enumerate(zip(option_keys, opts_clean), start=1):
+                        is_correct = i == correct_idx
+                        if is_correct:
+                            correct_key = key
+                        options.append(QuestionOption(key=key, content_text=text, is_correct=is_correct))
+
+                    if correct_key is None:
+                        pending_stem = None
+                        continue
+
+                    q_index += 1
+                    question = {
+                        "level": level.upper(),
+                        "question_type": "GRAMMAR",
+                        "section_code": "LANGUAGE_GRAMMAR_READING",
+                        "group_code": "GRAMMAR_SENTENCE_1",
+                        "question_index": q_index,
+                        "stem_text": pending_stem,
+                        "context_text": None,
+                        "difficulty": "HARD",
+                        "options": [
+                            {
+                                "key": opt.key,
+                                "content_text": opt.content_text,
+                                "is_correct": opt.is_correct,
+                            }
+                            for opt in options
+                        ],
+                        "correct_option_key": correct_key,
+                        "source": {
+                            "provider": "csv-mondai1kyu1",
+                            "csv_path": csv_path,
+                        },
+                    }
+                    questions.append(question)
+                    pending_stem = None
+    except OSError as e:
+        print(f"Lỗi khi đọc CSV mondai N1 từ {csv_path}: {e}", file=sys.stderr)
+
+    return questions
+
+
 def _jlpt_section_config(level: str) -> list[dict]:
     """
     Trả về cấu hình 3 section của đề JLPT mock theo level.
@@ -439,6 +550,12 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         help="Giới hạn số câu / loại (0 = dùng toàn bộ dữ liệu từ API).",
     )
     parser.add_argument(
+        "--n1-mondai-csv",
+        type=str,
+        default="",
+        help="(Optional) Đường dẫn CSV mondai N1 (vd: dataset/mondai1kyu1_1400.csv) để sinh thêm câu hỏi N1.",
+    )
+    parser.add_argument(
         "--format",
         type=str,
         default="flat",
@@ -473,23 +590,43 @@ def main(argv: list[str]) -> int:
     vocab_questions: list[dict] = []
     grammar_questions: list[dict] = []
 
-    try:
-        if "vocab" in types:
-            vocab_items = fetch_vocabulary(level)
-            if args.limit and args.limit > 0:
-                vocab_items = vocab_items[: args.limit]
-            vocab_questions = build_vocab_questions(level, vocab_items, num_options=args.num_options)
+    api_supported_levels = {"N5", "N4"}
 
-        if "grammar" in types:
-            grammar_items = fetch_grammar(level)
-            if args.limit and args.limit > 0:
-                grammar_items = grammar_items[: args.limit]
-            grammar_questions = build_grammar_questions(level, grammar_items, num_options=args.num_options)
+    # Lấy dữ liệu từ API nếu level được hỗ trợ
+    try:
+        if level in api_supported_levels:
+            if "vocab" in types:
+                vocab_items = fetch_vocabulary(level)
+                if args.limit and args.limit > 0:
+                    vocab_items = vocab_items[: args.limit]
+                vocab_questions = build_vocab_questions(level, vocab_items, num_options=args.num_options)
+
+            if "grammar" in types:
+                grammar_items = fetch_grammar(level)
+                if args.limit and args.limit > 0:
+                    grammar_items = grammar_items[: args.limit]
+                grammar_questions = build_grammar_questions(level, grammar_items, num_options=args.num_options)
+        else:
+            if "vocab" in types or "grammar" in types:
+                print(
+                    f"Cảnh báo: JLPT API chỉ hỗ trợ N5/N4. Bỏ qua fetch API cho level {level}.",
+                    file=sys.stderr,
+                )
     except RuntimeError as e:
         print(f"Lỗi khi lấy dữ liệu từ JLPT API: {e}", file=sys.stderr)
         return 1
 
-    all_questions: list[dict] = [*vocab_questions, *grammar_questions]
+    # Nếu có CSV mondai N1, parse thêm
+    csv_n1_questions: list[dict] = []
+    if args.n1_mondai_csv:
+        if level != "N1":
+            print(
+                "Cảnh báo: --n1-mondai-csv được cung cấp nhưng level khác N1, vẫn parse nhưng level câu hỏi sẽ là N1.",
+                file=sys.stderr,
+            )
+        csv_n1_questions = build_n1_grammar_questions_from_csv(args.n1_mondai_csv, level="N1")
+
+    all_questions: list[dict] = [*vocab_questions, *grammar_questions, *csv_n1_questions]
 
     if not all_questions:
         print("Không sinh được câu hỏi nào từ dữ liệu API. Vui lòng kiểm tra lại cấu hình / level.", file=sys.stderr)
@@ -506,9 +643,9 @@ def main(argv: list[str]) -> int:
         for sec in sections_cfg:
             code = sec["code"]
             if code == "LANGUAGE_VOCAB":
-                qs = [q for q in vocab_questions if q.get("section_code") == "LANGUAGE_VOCAB"]
+                qs = [q for q in all_questions if q.get("section_code") == "LANGUAGE_VOCAB"]
             elif code == "LANGUAGE_GRAMMAR_READING":
-                qs = [q for q in grammar_questions if q.get("section_code") == "LANGUAGE_GRAMMAR_READING"]
+                qs = [q for q in all_questions if q.get("section_code") == "LANGUAGE_GRAMMAR_READING"]
             else:
                 # LISTENING / EXTRA: hiện chưa có nguồn câu hỏi nghe → để trống
                 qs = []
@@ -543,7 +680,8 @@ def main(argv: list[str]) -> int:
     else:
         print(
             f"Đã sinh đề JLPT mock ({level}) với "
-            f"{len(vocab_questions)} câu vocab, {len(grammar_questions)} câu grammar và lưu vào: {output_path}"
+            f"{len(vocab_questions)} câu vocab, {len(grammar_questions)} câu grammar, "
+            f"{len(csv_n1_questions)} câu từ CSV mondai và lưu vào: {output_path}"
         )
     return 0
 

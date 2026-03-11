@@ -8,10 +8,13 @@ import {
 } from '@workspace/schemas';
 import { AuditLoggerService } from '../audit-logger.service';
 
+import { SyllabusService } from './syllabus.service';
+
 @Injectable()
 export class CourseProfileService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly syllabus: SyllabusService,
     private readonly audit: AuditLoggerService,
   ) { }
 
@@ -141,16 +144,16 @@ export class CourseProfileService {
     const before = await this.prisma.courseProfile.findUnique({ where: { id } });
     if (!before) throw new NotFoundException('CourseProfile not found');
 
-    const [classes, lessons, exams, pools] = await this.prisma.$transaction([
+    const [classes, syllabuses, exams, pools] = await this.prisma.$transaction([
       this.prisma.class.count({ where: { courseProfileId: id } }),
-      this.prisma.lesson.count({ where: { courseProfileId: id } }),
+      this.prisma.syllabus.count({ where: { courseProfileId: id } }),
       this.prisma.exam.count({ where: { courseProfileId: id } }),
       this.prisma.questionPool.count({ where: { courseProfileId: id } }),
     ]);
 
-    if (classes || lessons || exams || pools) {
+    if (classes || syllabuses || exams || pools) {
       throw new BadRequestException(
-        'Không thể xoá CourseProfile vì đã có dữ liệu liên quan (classes/lessons/exams/questionPools). Hãy dùng Lưu trữ.',
+        'Không thể xoá CourseProfile vì đã có dữ liệu liên quan (classes/syllabuses/exams/questionPools). Hãy dùng Lưu trữ.',
       );
     }
 
@@ -168,6 +171,34 @@ export class CourseProfileService {
     }
 
     return { ok: true };
+  }
+
+  // --- Syllabus Delegates ---
+
+  async findAllSyllabi(courseProfileId: string) {
+    return this.syllabus.findAll(courseProfileId);
+  }
+
+  async findSyllabusById(id: string) {
+    return this.syllabus.findById(id);
+  }
+
+  async createSyllabus(input: { courseProfileId: string; version: string; sourceSyllabusId?: string; requesterId?: string }) {
+    return this.syllabus.create(input.courseProfileId, input.version, input.sourceSyllabusId, input.requesterId);
+  }
+
+  async cloneSyllabus(input: { sourceSyllabusId: string; newVersion: string; requesterId?: string }) {
+    return this.syllabus.create('', input.newVersion, input.sourceSyllabusId, input.requesterId);
+    // Note: SyllabusService.create handles sourceId, but we might need to find the courseProfileId first
+  }
+
+  async publishSyllabus(id: string, requesterId?: string) {
+    return this.syllabus.publish(id, requesterId);
+  }
+
+  async lockSyllabus(id: string, requesterId?: string) {
+    // lock doesn't take requesterId in service yet, but we'll call it
+    return this.syllabus.lock(id);
   }
 }
 

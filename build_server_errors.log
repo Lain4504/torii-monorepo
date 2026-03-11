@@ -1,0 +1,339 @@
+• Packages in scope: server
+• Running build in 1 packages
+• Remote caching disabled
+@workspace/protocol:build: cache hit, replaying logs 4089a99ae94aa8dd
+@workspace/protocol:build: 
+@workspace/protocol:build: 
+@workspace/protocol:build: > @workspace/protocol@0.0.1 build /home/lain4504/SEP490/torii-monorepo/packages/protocol
+@workspace/protocol:build: > tsc && tsc -p tsconfig.esm.json && node -e "require('fs').writeFileSync('dist/esm/package.json', '{\"type\": \"module\"}')"
+@workspace/protocol:build: 
+@workspace/schemas:build: cache hit, replaying logs 3ce0384b5c96ad6a
+@workspace/schemas:build: 
+@workspace/schemas:build: 
+@workspace/schemas:build: > @workspace/schemas@0.0.1 build /home/lain4504/SEP490/torii-monorepo/packages/schemas
+@workspace/schemas:build: > tsc && tsc -p tsconfig.esm.json && node -e "require('fs').writeFileSync('./dist/esm/package.json', '{\"type\": \"module\"}')"
+@workspace/schemas:build: 
+server:build: cache miss, executing 7903d0af1dcd9a8d
+server:build: 
+server:build: > server@0.0.1 build /home/lain4504/SEP490/torii-monorepo/apps/server
+server:build: > cd ../../packages/protocol && npm run build && cd ../../packages/schemas && pnpm run build && cd ../../apps/server && rm -rf dist && npx prisma generate && nest build gateway && nest build identity && nest build meet && nest build academy && nest build agents
+server:build: 
+server:build: npm warn Unknown env config "verify-deps-before-run". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+server:build: 
+server:build: > @workspace/protocol@0.0.1 build
+server:build: > tsc && tsc -p tsconfig.esm.json && node -e "require('fs').writeFileSync('dist/esm/package.json', '{\"type\": \"module\"}')"
+server:build: 
+server:build: 
+server:build: > @workspace/schemas@0.0.1 build /home/lain4504/SEP490/torii-monorepo/packages/schemas
+server:build: > tsc && tsc -p tsconfig.esm.json && node -e "require('fs').writeFileSync('./dist/esm/package.json', '{\"type\": \"module\"}')"
+server:build: 
+server:build: npm warn Unknown env config "verify-deps-before-run". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+server:build: [dotenv@17.2.3] injecting env (8) from ../../.env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+server:build: Loaded Prisma config from prisma.config.ts.
+server:build: 
+server:build: Prisma schema loaded from prisma/schema.prisma.
+server:build: 
+server:build: ✔ Generated Prisma Client (7.3.0) to ./generated/prisma in 326ms
+server:build: 
+server:build: [96mservices/academy/src/modules/assessment/assignment-submission/assignment-submission.service.ts[0m:[93m71[0m:[93m7[0m - [91merror[0m[90m TS2322: [0mType '{ assignmentId: string; userId: string; status: any; submittedAt: Date | null; content: string | null; fileUrls: string[]; }' is not assignable to type '(Without<AssignmentSubmissionCreateInput, AssignmentSubmissionUncheckedCreateInput> & AssignmentSubmissionUncheckedCreateInput) | (Without<...> & AssignmentSubmissionCreateInput)'.
+server:build:   Type '{ assignmentId: string; userId: string; status: any; submittedAt: Date | null; content: string | null; fileUrls: string[]; }' is not assignable to type 'Without<AssignmentSubmissionCreateInput, AssignmentSubmissionUncheckedCreateInput> & AssignmentSubmissionUncheckedCreateInput'.
+server:build:     Property 'classContentId' is missing in type '{ assignmentId: string; userId: string; status: any; submittedAt: Date | null; content: string | null; fileUrls: string[]; }' but required in type 'AssignmentSubmissionUncheckedCreateInput'.
+server:build: 
+server:build: [7m71[0m       data: {
+server:build: [7m  [0m [91m      ~~~~[0m
+server:build: 
+server:build:   [96mgenerated/prisma/models/AssignmentSubmission.ts[0m:[93m384[0m:[93m3[0m
+server:build:     [7m384[0m   classContentId: string
+server:build:     [7m   [0m [96m  ~~~~~~~~~~~~~~[0m
+server:build:     'classContentId' is declared here.
+server:build:   [96mgenerated/prisma/models/AssignmentSubmission.ts[0m:[93m1814[0m:[93m3[0m
+server:build:     [7m1814[0m   data: Prisma.XOR<Prisma.AssignmentSubmissionCreateInput, Prisma.AssignmentSubmissionUncheckedCreateInput>
+server:build:     [7m    [0m [96m  ~~~~[0m
+server:build:     The expected type comes from property 'data' which is declared here on type '{ select?: AssignmentSubmissionSelect<DefaultArgs> | null | undefined; omit?: AssignmentSubmissionOmit<DefaultArgs> | null | undefined; include?: AssignmentSubmissionInclude<...> | ... 1 more ... | undefined; data: (Without<...> & AssignmentSubmissionUncheckedCreateInput) | (Without<...> & AssignmentSubmissionCreate...'
+server:build: [96mservices/academy/src/modules/assessment/exam-attempt/exam-attempt.service.ts[0m:[93m28[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'contentItemId' does not exist in type 'ExamAttemptWhereInput'.
+server:build: 
+server:build: [7m28[0m         contentItemId: query.contentItemId ?? undefined,
+server:build: [7m  [0m [91m        ~~~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/assessment/exam-attempt/exam-attempt.service.ts[0m:[93m37[0m:[93m27[0m - [91merror[0m[90m TS2339: [0mProperty 'contentItemId' does not exist on type '{ status: string; id: string; metadata: JsonValue; userId: string; createdAt: Date; startedAt: Date; classId: string | null; updatedAt: Date; maxScore: Decimal | null; ... 8 more ...; draftAnswers: JsonValue; }'.
+server:build: 
+server:build: [7m37[0m       const key = `${item.contentItemId ?? 'none'}:${item.userId}`;
+server:build: [7m  [0m [91m                          ~~~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/assessment/exam-attempt/exam-attempt.service.ts[0m:[93m80[0m:[93m36[0m - [91merror[0m[90m TS2551: [0mProperty 'classContentItem' does not exist on type 'PrismaService'. Did you mean 'classContent'?
+server:build: 
+server:build: [7m80[0m       const ci = await this.prisma.classContentItem.findUnique({
+server:build: [7m  [0m [91m                                   ~~~~~~~~~~~~~~~~[0m
+server:build: 
+server:build:   [96mgenerated/prisma/internal/class.ts[0m:[93m577[0m:[93m7[0m
+server:build:     [7m577[0m   get classContent(): Prisma.ClassContentDelegate<ExtArgs, { omit: OmitOpts }>;
+server:build:     [7m   [0m [96m      ~~~~~~~~~~~~[0m
+server:build:     'classContent' is declared here.
+server:build: [96mservices/academy/src/modules/assessment/exam-attempt/exam-attempt.service.ts[0m:[93m105[0m:[93m36[0m - [91merror[0m[90m TS2551: [0mProperty 'classContentItem' does not exist on type 'PrismaService'. Did you mean 'classContent'?
+server:build: 
+server:build: [7m105[0m       const ci = await this.prisma.classContentItem.findUnique({
+server:build: [7m   [0m [91m                                   ~~~~~~~~~~~~~~~~[0m
+server:build: 
+server:build:   [96mgenerated/prisma/internal/class.ts[0m:[93m577[0m:[93m7[0m
+server:build:     [7m577[0m   get classContent(): Prisma.ClassContentDelegate<ExtArgs, { omit: OmitOpts }>;
+server:build:     [7m   [0m [96m      ~~~~~~~~~~~~[0m
+server:build:     'classContent' is declared here.
+server:build: [96mservices/academy/src/modules/assessment/exam-attempt/exam-attempt.service.ts[0m:[93m148[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'contentItemId' does not exist in type 'ExamAttemptWhereInput'.
+server:build: 
+server:build: [7m148[0m             contentItemId: input.contentItemId,
+server:build: [7m   [0m [91m            ~~~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/assessment/exam-attempt/exam-attempt.service.ts[0m:[93m195[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'contentItemId' does not exist in type 'Without<ExamAttemptCreateInput, ExamAttemptUncheckedCreateInput> & ExamAttemptUncheckedCreateInput'.
+server:build: 
+server:build: [7m195[0m         contentItemId: input.contentItemId,
+server:build: [7m   [0m [91m        ~~~~~~~~~~~~~[0m
+server:build: 
+server:build:   [96mgenerated/prisma/models/ExamAttempt.ts[0m:[93m2579[0m:[93m3[0m
+server:build:     [7m2579[0m   data: Prisma.XOR<Prisma.ExamAttemptCreateInput, Prisma.ExamAttemptUncheckedCreateInput>
+server:build:     [7m    [0m [96m  ~~~~[0m
+server:build:     The expected type comes from property 'data' which is declared here on type '{ select?: ExamAttemptSelect<DefaultArgs> | null | undefined; omit?: ExamAttemptOmit<DefaultArgs> | null | undefined; include?: ExamAttemptInclude<...> | ... 1 more ... | undefined; data: (Without<...> & ExamAttemptUncheckedCreateInput) | (Without<...> & ExamAttemptCreateInput); }'
+server:build: [96mservices/academy/src/modules/assessment/exam-attempt/exam-attempt.service.ts[0m:[93m283[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'contentItem' does not exist in type 'ExamAttemptInclude<DefaultArgs>'.
+server:build: 
+server:build: [7m283[0m         contentItem: { include: { module: true } },
+server:build: [7m   [0m [91m        ~~~~~~~~~~~[0m
+server:build: 
+server:build:   [96mgenerated/prisma/models/ExamAttempt.ts[0m:[93m2380[0m:[93m3[0m
+server:build:     [7m2380[0m   include?: Prisma.ExamAttemptInclude<ExtArgs> | null
+server:build:     [7m    [0m [96m  ~~~~~~~[0m
+server:build:     The expected type comes from property 'include' which is declared here on type '{ select?: ExamAttemptSelect<DefaultArgs> | null | undefined; omit?: ExamAttemptOmit<DefaultArgs> | null | undefined; include?: ExamAttemptInclude<...> | ... 1 more ... | undefined; where: ExamAttemptWhereUniqueInput; }'
+server:build: [96mservices/academy/src/modules/assessment/exam-attempt/exam-attempt.service.ts[0m:[93m292[0m:[93m15[0m - [91merror[0m[90m TS2339: [0mProperty 'contentItemId' does not exist on type '{ status: string; id: string; metadata: JsonValue; userId: string; createdAt: Date; startedAt: Date; classId: string | null; updatedAt: Date; maxScore: Decimal | null; ... 8 more ...; draftAnswers: JsonValue; }'.
+server:build: 
+server:build: [7m292[0m       attempt.contentItemId &&
+server:build: [7m   [0m [91m              ~~~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/assessment/exam-attempt/exam-attempt.service.ts[0m:[93m293[0m:[93m15[0m - [91merror[0m[90m TS2339: [0mProperty 'contentItem' does not exist on type '{ status: string; id: string; metadata: JsonValue; userId: string; createdAt: Date; startedAt: Date; classId: string | null; updatedAt: Date; maxScore: Decimal | null; ... 8 more ...; draftAnswers: JsonValue; }'.
+server:build: 
+server:build: [7m293[0m       attempt.contentItem?.module.classId !== attempt.classId
+server:build: [7m   [0m [91m              ~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/assessment/exam-attempt/exam-attempt.service.ts[0m:[93m311[0m:[93m35[0m - [91merror[0m[90m TS2339: [0mProperty 'exam' does not exist on type '{ status: string; id: string; metadata: JsonValue; userId: string; createdAt: Date; startedAt: Date; classId: string | null; updatedAt: Date; maxScore: Decimal | null; ... 8 more ...; draftAnswers: JsonValue; }'.
+server:build: 
+server:build: [7m311[0m     const examQuestions = attempt.exam.examQuestions;
+server:build: [7m   [0m [91m                                  ~~~~[0m
+server:build: [96mservices/academy/src/modules/assessment/exam-attempt/exam-attempt.service.ts[0m:[93m366[0m:[93m16[0m - [91merror[0m[90m TS2339: [0mProperty 'contentItem' does not exist on type '{ status: string; id: string; metadata: JsonValue; userId: string; createdAt: Date; startedAt: Date; classId: string | null; updatedAt: Date; maxScore: Decimal | null; ... 8 more ...; draftAnswers: JsonValue; }'.
+server:build: 
+server:build: [7m366[0m       (attempt.contentItem?.settings as any) ||
+server:build: [7m   [0m [91m               ~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/assessment/exam-attempt/exam-attempt.service.ts[0m:[93m367[0m:[93m16[0m - [91merror[0m[90m TS2339: [0mProperty 'exam' does not exist on type '{ status: string; id: string; metadata: JsonValue; userId: string; createdAt: Date; startedAt: Date; classId: string | null; updatedAt: Date; maxScore: Decimal | null; ... 8 more ...; draftAnswers: JsonValue; }'.
+server:build: 
+server:build: [7m367[0m       (attempt.exam?.settings as any) ||
+server:build: [7m   [0m [91m               ~~~~[0m
+server:build: [96mservices/academy/src/modules/classroom/class-review/class-review.service.ts[0m:[93m362[0m:[93m30[0m - [91merror[0m[90m TS2339: [0mProperty 'isPrerequisite' does not exist on type '{ id: string; classId: string; orderIndex: number; moduleId: string; deadline: Date | null; lessonId: string; openAt: Date | null; overrideQuizId: string | null; overrideExamId: string | null; overrideAssignmentId: string | null; }'.
+server:build: 
+server:build: [7m362[0m             .filter((i) => i.isPrerequisite)
+server:build: [7m   [0m [91m                             ~~~~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/classroom/class-review/class-review.service.ts[0m:[93m371[0m:[93m17[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'contentItemId' does not exist in type 'LearningProgressWhereInput'.
+server:build: 
+server:build: [7m371[0m                 contentItemId: { in: prerequisiteItemIds },
+server:build: [7m   [0m [91m                ~~~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/classroom/class/class.service.ts[0m:[93m363[0m:[93m20[0m - [91merror[0m[90m TS2339: [0mProperty 'kind' does not exist on type '{ id: string; classId: string; orderIndex: number; moduleId: string; deadline: Date | null; lessonId: string; openAt: Date | null; overrideQuizId: string | null; overrideExamId: string | null; overrideAssignmentId: string | null; }'.
+server:build: 
+server:build: [7m363[0m           kind: it.kind,
+server:build: [7m   [0m [91m                   ~~~~[0m
+server:build: [96mservices/academy/src/modules/classroom/class/class.service.ts[0m:[93m364[0m:[93m27[0m - [91merror[0m[90m TS2339: [0mProperty 'referenceId' does not exist on type '{ id: string; classId: string; orderIndex: number; moduleId: string; deadline: Date | null; lessonId: string; openAt: Date | null; overrideQuizId: string | null; overrideExamId: string | null; overrideAssignmentId: string | null; }'.
+server:build: 
+server:build: [7m364[0m           referenceId: it.referenceId,
+server:build: [7m   [0m [91m                          ~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/classroom/class/class.service.ts[0m:[93m366[0m:[93m22[0m - [91merror[0m[90m TS2339: [0mProperty 'status' does not exist on type '{ id: string; classId: string; orderIndex: number; moduleId: string; deadline: Date | null; lessonId: string; openAt: Date | null; overrideQuizId: string | null; overrideExamId: string | null; overrideAssignmentId: string | null; }'.
+server:build: 
+server:build: [7m366[0m           status: it.status,
+server:build: [7m   [0m [91m                     ~~~~~~[0m
+server:build: [96mservices/academy/src/modules/classroom/class/class.service.ts[0m:[93m367[0m:[93m29[0m - [91merror[0m[90m TS2339: [0mProperty 'availableFrom' does not exist on type '{ id: string; classId: string; orderIndex: number; moduleId: string; deadline: Date | null; lessonId: string; openAt: Date | null; overrideQuizId: string | null; overrideExamId: string | null; overrideAssignmentId: string | null; }'.
+server:build: 
+server:build: [7m367[0m           availableFrom: it.availableFrom,
+server:build: [7m   [0m [91m                            ~~~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/classroom/class/class.service.ts[0m:[93m369[0m:[93m30[0m - [91merror[0m[90m TS2339: [0mProperty 'isPrerequisite' does not exist on type '{ id: string; classId: string; orderIndex: number; moduleId: string; deadline: Date | null; lessonId: string; openAt: Date | null; overrideQuizId: string | null; overrideExamId: string | null; overrideAssignmentId: string | null; }'.
+server:build: 
+server:build: [7m369[0m           isPrerequisite: it.isPrerequisite,
+server:build: [7m   [0m [91m                             ~~~~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/classroom/class/class.service.ts[0m:[93m432[0m:[93m27[0m - [91merror[0m[90m TS2551: [0mProperty 'classContentItem' does not exist on type 'PrismaService'. Did you mean 'classContent'?
+server:build: 
+server:build: [7m432[0m       ((await this.prisma.classContentItem.count({
+server:build: [7m   [0m [91m                          ~~~~~~~~~~~~~~~~[0m
+server:build: 
+server:build:   [96mgenerated/prisma/internal/class.ts[0m:[93m577[0m:[93m7[0m
+server:build:     [7m577[0m   get classContent(): Prisma.ClassContentDelegate<ExtArgs, { omit: OmitOpts }>;
+server:build:     [7m   [0m [96m      ~~~~~~~~~~~~[0m
+server:build:     'classContent' is declared here.
+server:build: [96mservices/academy/src/modules/classroom/class/class.service.ts[0m:[93m436[0m:[93m24[0m - [91merror[0m[90m TS2551: [0mProperty 'classContentItem' does not exist on type 'PrismaService'. Did you mean 'classContent'?
+server:build: 
+server:build: [7m436[0m     return this.prisma.classContentItem.create({
+server:build: [7m   [0m [91m                       ~~~~~~~~~~~~~~~~[0m
+server:build: 
+server:build:   [96mgenerated/prisma/internal/class.ts[0m:[93m577[0m:[93m7[0m
+server:build:     [7m577[0m   get classContent(): Prisma.ClassContentDelegate<ExtArgs, { omit: OmitOpts }>;
+server:build:     [7m   [0m [96m      ~~~~~~~~~~~~[0m
+server:build:     'classContent' is declared here.
+server:build: [96mservices/academy/src/modules/classroom/class/class.service.ts[0m:[93m452[0m:[93m36[0m - [91merror[0m[90m TS2551: [0mProperty 'classContentItem' does not exist on type 'PrismaService'. Did you mean 'classContent'?
+server:build: 
+server:build: [7m452[0m     const item = await this.prisma.classContentItem.findUnique({
+server:build: [7m   [0m [91m                                   ~~~~~~~~~~~~~~~~[0m
+server:build: 
+server:build:   [96mgenerated/prisma/internal/class.ts[0m:[93m577[0m:[93m7[0m
+server:build:     [7m577[0m   get classContent(): Prisma.ClassContentDelegate<ExtArgs, { omit: OmitOpts }>;
+server:build:     [7m   [0m [96m      ~~~~~~~~~~~~[0m
+server:build:     'classContent' is declared here.
+server:build: [96mservices/academy/src/modules/classroom/class/class.service.ts[0m:[93m457[0m:[93m24[0m - [91merror[0m[90m TS2551: [0mProperty 'classContentItem' does not exist on type 'PrismaService'. Did you mean 'classContent'?
+server:build: 
+server:build: [7m457[0m     return this.prisma.classContentItem.update({
+server:build: [7m   [0m [91m                       ~~~~~~~~~~~~~~~~[0m
+server:build: 
+server:build:   [96mgenerated/prisma/internal/class.ts[0m:[93m577[0m:[93m7[0m
+server:build:     [7m577[0m   get classContent(): Prisma.ClassContentDelegate<ExtArgs, { omit: OmitOpts }>;
+server:build:     [7m   [0m [96m      ~~~~~~~~~~~~[0m
+server:build:     'classContent' is declared here.
+server:build: [96mservices/academy/src/modules/classroom/class/class.service.ts[0m:[93m476[0m:[93m36[0m - [91merror[0m[90m TS2551: [0mProperty 'classContentItem' does not exist on type 'PrismaService'. Did you mean 'classContent'?
+server:build: 
+server:build: [7m476[0m     const item = await this.prisma.classContentItem.findUnique({
+server:build: [7m   [0m [91m                                   ~~~~~~~~~~~~~~~~[0m
+server:build: 
+server:build:   [96mgenerated/prisma/internal/class.ts[0m:[93m577[0m:[93m7[0m
+server:build:     [7m577[0m   get classContent(): Prisma.ClassContentDelegate<ExtArgs, { omit: OmitOpts }>;
+server:build:     [7m   [0m [96m      ~~~~~~~~~~~~[0m
+server:build:     'classContent' is declared here.
+server:build: [96mservices/academy/src/modules/classroom/class/class.service.ts[0m:[93m482[0m:[93m23[0m - [91merror[0m[90m TS2551: [0mProperty 'classContentItem' does not exist on type 'PrismaService'. Did you mean 'classContent'?
+server:build: 
+server:build: [7m482[0m     await this.prisma.classContentItem.delete({ where: { id } });
+server:build: [7m   [0m [91m                      ~~~~~~~~~~~~~~~~[0m
+server:build: 
+server:build:   [96mgenerated/prisma/internal/class.ts[0m:[93m577[0m:[93m7[0m
+server:build:     [7m577[0m   get classContent(): Prisma.ClassContentDelegate<ExtArgs, { omit: OmitOpts }>;
+server:build:     [7m   [0m [96m      ~~~~~~~~~~~~[0m
+server:build:     'classContent' is declared here.
+server:build: [96mservices/academy/src/modules/classroom/class/class.service.ts[0m:[93m530[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'assignments' does not exist in type 'ClassInclude<DefaultArgs>'.
+server:build: 
+server:build: [7m530[0m         assignments: true,
+server:build: [7m   [0m [91m        ~~~~~~~~~~~[0m
+server:build: 
+server:build:   [96mgenerated/prisma/models/Class.ts[0m:[93m4200[0m:[93m3[0m
+server:build:     [7m4200[0m   include?: Prisma.ClassInclude<ExtArgs> | null
+server:build:     [7m    [0m [96m  ~~~~~~~[0m
+server:build:     The expected type comes from property 'include' which is declared here on type '{ select?: ClassSelect<DefaultArgs> | null | undefined; omit?: ClassOmit<DefaultArgs> | null | undefined; include?: ClassInclude<DefaultArgs> | null | undefined; where: ClassWhereUniqueInput; }'
+server:build: [96mservices/academy/src/modules/classroom/class/class.service.ts[0m:[93m564[0m:[93m39[0m - [91merror[0m[90m TS2339: [0mProperty 'assignments' does not exist on type '{ code: string; status: ClassStatus; id: string; name: string; createdAt: Date; courseProfileId: string; mode: ClassMode; settings: JsonValue; openingDate: Date | null; ... 11 more ...; syllabusId: string | null; }'.
+server:build: 
+server:build: [7m564[0m       for (const assignment of source.assignments) {
+server:build: [7m   [0m [91m                                      ~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/classroom/class/class.service.ts[0m:[93m567[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'classId' does not exist in type '(Without<AssignmentCreateInput, AssignmentUncheckedCreateInput> & AssignmentUncheckedCreateInput) | (Without<...> & AssignmentCreateInput)'.
+server:build: 
+server:build: [7m567[0m             classId: newClass.id,
+server:build: [7m   [0m [91m            ~~~~~~~[0m
+server:build: 
+server:build:   [96mgenerated/prisma/models/Assignment.ts[0m:[93m1477[0m:[93m3[0m
+server:build:     [7m1477[0m   data: Prisma.XOR<Prisma.AssignmentCreateInput, Prisma.AssignmentUncheckedCreateInput>
+server:build:     [7m    [0m [96m  ~~~~[0m
+server:build:     The expected type comes from property 'data' which is declared here on type '{ select?: AssignmentSelect<DefaultArgs> | null | undefined; omit?: AssignmentOmit<DefaultArgs> | null | undefined; include?: AssignmentInclude<...> | ... 1 more ... | undefined; data: (Without<...> & AssignmentUncheckedCreateInput) | (Without<...> & AssignmentCreateInput); }'
+server:build: [96mservices/academy/src/modules/classroom/class/class.service.ts[0m:[93m578[0m:[93m44[0m - [91merror[0m[90m TS2339: [0mProperty 'liveSchedules' does not exist on type '{ code: string; status: ClassStatus; id: string; name: string; createdAt: Date; courseProfileId: string; mode: ClassMode; settings: JsonValue; openingDate: Date | null; ... 11 more ...; syllabusId: string | null; }'.
+server:build: 
+server:build: [7m578[0m       if (source.mode === 'LIVE' && source.liveSchedules.length > 0) {
+server:build: [7m   [0m [91m                                           ~~~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/classroom/class/class.service.ts[0m:[93m580[0m:[93m24[0m - [91merror[0m[90m TS2339: [0mProperty 'liveSchedules' does not exist on type '{ code: string; status: ClassStatus; id: string; name: string; createdAt: Date; courseProfileId: string; mode: ClassMode; settings: JsonValue; openingDate: Date | null; ... 11 more ...; syllabusId: string | null; }'.
+server:build: 
+server:build: [7m580[0m           data: source.liveSchedules.map((s) => ({
+server:build: [7m   [0m [91m                       ~~~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/classroom/class/class.service.ts[0m:[93m593[0m:[93m35[0m - [91merror[0m[90m TS2339: [0mProperty 'modules' does not exist on type '{ code: string; status: ClassStatus; id: string; name: string; createdAt: Date; courseProfileId: string; mode: ClassMode; settings: JsonValue; openingDate: Date | null; ... 11 more ...; syllabusId: string | null; }'.
+server:build: 
+server:build: [7m593[0m       for (const module of source.modules) {
+server:build: [7m   [0m [91m                                  ~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/classroom/class/class.service.ts[0m:[93m612[0m:[93m20[0m - [91merror[0m[90m TS2551: [0mProperty 'classContentItem' does not exist on type 'Omit<PrismaClient<never, undefined, DefaultArgs>, "$on" | "$connect" | "$disconnect" | "$transaction" | "$extends">'. Did you mean 'classContent'?
+server:build: 
+server:build: [7m612[0m           await tx.classContentItem.create({
+server:build: [7m   [0m [91m                   ~~~~~~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/classroom/enrollment/enrollment.service.ts[0m:[93m64[0m:[93m17[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'contentItemId' does not exist in type 'LearningProgressWhereInput'.
+server:build: 
+server:build: [7m64[0m                 contentItemId: { in: allContentItems.map((i) => i.id) },
+server:build: [7m  [0m [91m                ~~~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/classroom/enrollment/enrollment.service.ts[0m:[93m302[0m:[93m60[0m - [91merror[0m[90m TS2339: [0mProperty 'isPrerequisite' does not exist on type '{ id: string; classId: string; orderIndex: number; moduleId: string; deadline: Date | null; lessonId: string; openAt: Date | null; overrideQuizId: string | null; overrideExamId: string | null; overrideAssignmentId: string | null; }'.
+server:build: 
+server:build: [7m302[0m     const prerequisiteItems = contentItems.filter((i) => i.isPrerequisite);
+server:build: [7m   [0m [91m                                                           ~~~~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/classroom/enrollment/enrollment.service.ts[0m:[93m311[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'contentItemId' does not exist in type 'LearningProgressWhereInput'.
+server:build: 
+server:build: [7m311[0m         contentItemId: { in: prerequisiteItems.map((l) => l.id) },
+server:build: [7m   [0m [91m        ~~~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/classroom/learning-progress/learning-progress.service.ts[0m:[93m26[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'contentItem' does not exist in type 'LearningProgressInclude<DefaultArgs>'.
+server:build: 
+server:build: [7m26[0m         contentItem: true,
+server:build: [7m  [0m [91m        ~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/classroom/learning-progress/learning-progress.service.ts[0m:[93m42[0m:[93m17[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'contentItemId' does not exist in type 'LearningProgressSelect<DefaultArgs>'.
+server:build: 
+server:build: [7m42[0m       select: { contentItemId: true },
+server:build: [7m  [0m [91m                ~~~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/classroom/learning-progress/learning-progress.service.ts[0m:[93m44[0m:[93m30[0m - [91merror[0m[90m TS2339: [0mProperty 'contentItemId' does not exist on type '{ status: string; id: string; userId: string; classId: string; classContentId: string; lastAccessedAt: Date | null; progressPercent: number; }'.
+server:build: 
+server:build: [7m44[0m     return list.map((p) => p.contentItemId);
+server:build: [7m  [0m [91m                             ~~~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/classroom/learning-progress/learning-progress.service.ts[0m:[93m51[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'contentItem' does not exist in type 'LearningProgressInclude<DefaultArgs>'.
+server:build: 
+server:build: [7m51[0m         contentItem: {
+server:build: [7m  [0m [91m        ~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/classroom/learning-progress/learning-progress.service.ts[0m:[93m124[0m:[93m43[0m - [91merror[0m[90m TS2551: [0mProperty 'classContentItem' does not exist on type 'PrismaService'. Did you mean 'classContent'?
+server:build: 
+server:build: [7m124[0m     const contentItem = await this.prisma.classContentItem.findUnique({
+server:build: [7m   [0m [91m                                          ~~~~~~~~~~~~~~~~[0m
+server:build: 
+server:build:   [96mgenerated/prisma/internal/class.ts[0m:[93m577[0m:[93m7[0m
+server:build:     [7m577[0m   get classContent(): Prisma.ClassContentDelegate<ExtArgs, { omit: OmitOpts }>;
+server:build:     [7m   [0m [96m      ~~~~~~~~~~~~[0m
+server:build:     'classContent' is declared here.
+server:build: [96mservices/academy/src/modules/classroom/learning-progress/learning-progress.service.ts[0m:[93m131[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'userId_contentItemId' does not exist in type 'LearningProgressWhereUniqueInput'.
+server:build: 
+server:build: [7m131[0m         userId_contentItemId: {
+server:build: [7m   [0m [91m        ~~~~~~~~~~~~~~~~~~~~[0m
+server:build: 
+server:build:   [96mgenerated/prisma/models/LearningProgress.ts[0m:[93m1661[0m:[93m3[0m
+server:build:     [7m1661[0m   where: Prisma.LearningProgressWhereUniqueInput
+server:build:     [7m    [0m [96m  ~~~~~[0m
+server:build:     The expected type comes from property 'where' which is declared here on type '{ select?: LearningProgressSelect<DefaultArgs> | null | undefined; omit?: LearningProgressOmit<DefaultArgs> | null | undefined; include?: LearningProgressInclude<...> | ... 1 more ... | undefined; where: LearningProgressWhereUniqueInput; create: (Without<...> & LearningProgressUncheckedCreateInput) | (Without<...> &...'
+server:build: [96mservices/academy/src/modules/classroom/learning-progress/learning-progress.service.ts[0m:[93m139[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'contentItemId' does not exist in type 'Without<LearningProgressCreateInput, LearningProgressUncheckedCreateInput> & LearningProgressUncheckedCreateInput'.
+server:build: 
+server:build: [7m139[0m         contentItemId: input.contentItemId,
+server:build: [7m   [0m [91m        ~~~~~~~~~~~~~[0m
+server:build: 
+server:build:   [96mgenerated/prisma/models/LearningProgress.ts[0m:[93m1665[0m:[93m3[0m
+server:build:     [7m1665[0m   create: Prisma.XOR<Prisma.LearningProgressCreateInput, Prisma.LearningProgressUncheckedCreateInput>
+server:build:     [7m    [0m [96m  ~~~~~~[0m
+server:build:     The expected type comes from property 'create' which is declared here on type '{ select?: LearningProgressSelect<DefaultArgs> | null | undefined; omit?: LearningProgressOmit<DefaultArgs> | null | undefined; include?: LearningProgressInclude<...> | ... 1 more ... | undefined; where: LearningProgressWhereUniqueInput; create: (Without<...> & LearningProgressUncheckedCreateInput) | (Without<...> &...'
+server:build: [96mservices/academy/src/modules/classroom/learning-progress/learning-progress.service.ts[0m:[93m181[0m:[93m24[0m - [91merror[0m[90m TS2339: [0mProperty 'isPrerequisite' does not exist on type '{ id: string; classId: string; orderIndex: number; moduleId: string; deadline: Date | null; lessonId: string; openAt: Date | null; overrideQuizId: string | null; overrideExamId: string | null; overrideAssignmentId: string | null; }'.
+server:build: 
+server:build: [7m181[0m       .filter((i) => i.isPrerequisite)
+server:build: [7m   [0m [91m                       ~~~~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/classroom/learning-progress/learning-progress.service.ts[0m:[93m190[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'contentItemId' does not exist in type 'LearningProgressWhereInput'.
+server:build: 
+server:build: [7m190[0m         contentItemId: { in: prerequisiteItemIds },
+server:build: [7m   [0m [91m        ~~~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/course-profile/course-profile.service.ts[0m:[93m146[0m:[93m43[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'courseProfileId' does not exist in type 'LessonWhereInput'.
+server:build: 
+server:build: [7m146[0m       this.prisma.lesson.count({ where: { courseProfileId: id } }),
+server:build: [7m   [0m [91m                                          ~~~~~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/lesson/lesson.service.ts[0m:[93m22[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'courseProfileId' does not exist in type 'LessonWhereInput'.
+server:build: 
+server:build: [7m22[0m         courseProfileId: query.courseProfileId ?? undefined,
+server:build: [7m  [0m [91m        ~~~~~~~~~~~~~~~[0m
+server:build: [96mservices/academy/src/modules/lesson/lesson.service.ts[0m:[93m46[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'courseProfileId' does not exist in type '(Without<LessonCreateInput, LessonUncheckedCreateInput> & LessonUncheckedCreateInput) | (Without<...> & LessonCreateInput)'.
+server:build: 
+server:build: [7m46[0m         courseProfileId: input.courseProfileId,
+server:build: [7m  [0m [91m        ~~~~~~~~~~~~~~~[0m
+server:build: 
+server:build:   [96mgenerated/prisma/models/Lesson.ts[0m:[93m2275[0m:[93m3[0m
+server:build:     [7m2275[0m   data: Prisma.XOR<Prisma.LessonCreateInput, Prisma.LessonUncheckedCreateInput>
+server:build:     [7m    [0m [96m  ~~~~[0m
+server:build:     The expected type comes from property 'data' which is declared here on type '{ select?: LessonSelect<DefaultArgs> | null | undefined; omit?: LessonOmit<DefaultArgs> | null | undefined; include?: LessonInclude<DefaultArgs> | null | undefined; data: (Without<...> & LessonUncheckedCreateInput) | (Without<...> & LessonCreateInput); }'
+server:build: [96mservices/academy/src/modules/lesson/lesson.service.ts[0m:[93m78[0m:[93m9[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'contentType' does not exist in type '(Without<LessonUpdateInput, LessonUncheckedUpdateInput> & LessonUncheckedUpdateInput) | (Without<...> & LessonUpdateInput)'.
+server:build: 
+server:build: [7m78[0m         contentType: input.contentType ?? undefined,
+server:build: [7m  [0m [91m        ~~~~~~~~~~~[0m
+server:build: 
+server:build:   [96mgenerated/prisma/models/Lesson.ts[0m:[93m2331[0m:[93m3[0m
+server:build:     [7m2331[0m   data: Prisma.XOR<Prisma.LessonUpdateInput, Prisma.LessonUncheckedUpdateInput>
+server:build:     [7m    [0m [96m  ~~~~[0m
+server:build:     The expected type comes from property 'data' which is declared here on type '{ select?: LessonSelect<DefaultArgs> | null | undefined; omit?: LessonOmit<DefaultArgs> | null | undefined; include?: LessonInclude<DefaultArgs> | null | undefined; data: (Without<...> & LessonUncheckedUpdateInput) | (Without<...> & LessonUpdateInput); where: LessonWhereUniqueInput; }'
+server:build: 
+server:build: Found 49 error(s).
+server:build: 
+server:build:  ELIFECYCLE  Command failed with exit code 1.
+
+ Tasks:    2 successful, 3 total
+Cached:    2 cached, 3 total
+  Time:    30.065s 
+Failed:    server#build
+

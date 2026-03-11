@@ -108,8 +108,8 @@ export type AcademyClassQueryDTO = z.infer<typeof academyClassQueryDTOSchema>;
 export const academyClassDuplicateDTOSchema = z.object({
   term: z.string().max(100).optional(),
   batch: z.string().max(100).optional(),
-  startDate: z.coerce.date().optional(),
-  endDate: z.coerce.date().optional(),
+  openingDate: z.coerce.date().optional(),
+  closingDate: z.coerce.date().optional(),
   code: z.string().max(150).optional(),
   name: z.string().max(255).optional(),
 });
