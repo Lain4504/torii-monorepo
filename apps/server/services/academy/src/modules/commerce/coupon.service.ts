@@ -77,17 +77,40 @@ export class CouponService {
     }
 
     async getMyCoupons(userId: string) {
-        const usages = await this.prisma.couponUsage.findMany({
+        // 1) Personal coupons explicitly assigned to this user (e.g. redeemed from gamification rewards)
+        const ownedCouponsPromise = this.prisma.coupon.findMany(
+            // Cast to any to avoid tight coupling to generated Prisma types during schema evolution.
+            {
+                where: {
+                    ownerId: userId,
+                },
+                orderBy: { createdAt: 'desc' },
+            } as any,
+        );
+
+        // 2) Coupons the user has already used in orders (backwards compatibility / history)
+        const usagesPromise = this.prisma.couponUsage.findMany({
             where: { userId },
             include: { coupon: true },
             orderBy: { usedAt: 'desc' },
         });
 
-        // Return a simple list for client consumption.
-        // We currently treat "owned coupons" as coupons the user has interacted with (used) in orders,
-        // since a separate redemption table is not modeled in DB yet.
+        const [ownedCoupons, usages] = await Promise.all([
+            ownedCouponsPromise,
+            usagesPromise,
+        ]);
+
         const seen = new Set<string>();
         const result: any[] = [];
+
+        // Add owned coupons first so they always appear even if never used.
+        for (const coupon of ownedCoupons) {
+            if (seen.has(coupon.id)) continue;
+            seen.add(coupon.id);
+            result.push(coupon);
+        }
+
+        // Then merge in coupons that have been used by the user.
         for (const usage of usages) {
             if (!usage.coupon || seen.has(usage.couponId)) continue;
             seen.add(usage.couponId);
@@ -96,6 +119,7 @@ export class CouponService {
                 lastUsedAt: usage.usedAt,
             });
         }
+
         return result;
     }
 

@@ -42,6 +42,8 @@ export class LiveScheduleService {
     private readonly audit: AuditLoggerService,
   ) { }
 
+  private readonly DEFAULT_GENERATE_HORIZON_DAYS = 28;
+
   async findAll(query: LiveScheduleQueryDto) {
     return this.prisma.liveSchedule.findMany({
       where: { classId: query.classId ?? undefined },
@@ -95,11 +97,22 @@ export class LiveScheduleService {
         startTime: input.startTime,
         endTime: input.endTime,
         location: input.location,
-        excludedDates: input.excludedDates ?? undefined,
         note: input.note,
         roomId: roomId,
       },
     });
+
+    // Hybrid: pre-generate instances for near future so UI có data ngay.
+    // Migration DB sẽ được chạy sau; nếu bảng chưa tồn tại thì bỏ qua để không chặn tạo template.
+    try {
+      const from = this.startOfDay(new Date());
+      const to = this.addDays(from, this.DEFAULT_GENERATE_HORIZON_DAYS);
+      await this.generateInstancesForClassRange(input.classId, from, to, requesterId);
+    } catch (err) {
+      this.logger.warn(
+        `generateInstancesForClassRange skipped after create schedule: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
 
     await this.audit.log({
       userId: requesterId,
@@ -228,6 +241,129 @@ export class LiveScheduleService {
     };
   }
 
+  async joinBySessionId(sessionId: string, userId: string, isAdmin = false) {
+    const session = await this.prisma.liveScheduleSession.findUnique({
+      where: { id: sessionId },
+      include: {
+        class: {
+          include: {
+            courseProfile: { select: { title: true } },
+            instructor: { select: { id: true } },
+          },
+        },
+      },
+    });
+
+    if (!session) throw new NotFoundException('Session not found');
+
+    this.assertClassJoinable(session.class.status);
+    this.assertInJoinWindowForSession(
+      {
+        sessionDate: session.sessionDate,
+        startTime: session.startTime,
+        endTime: session.endTime,
+        class: { openingDate: session.class.openingDate, closingDate: session.class.closingDate },
+      },
+      isAdmin,
+    );
+
+    const user = await this.getUserById(userId);
+    // Reuse existing permission logic (class enrollment/role checks) by faking a schedule-like shape.
+    await this.assertJoinPermission(
+      {
+        id: sessionId,
+        classId: session.classId,
+        class: session.class,
+      } as any,
+      userId,
+      isAdmin,
+      user?.role,
+    );
+
+    const roomId = await this.ensureSessionRoomId(sessionId, session.roomId);
+
+    const roomExists = await this.sendNatsWithRetry(
+      { cmd: 'room.isActive' },
+      { roomId },
+      2,
+    ).catch(() => ({ isActive: false }));
+    const isRoomActive = Boolean(roomExists?.isActive ?? roomExists?.status ?? false);
+
+    if (!isRoomActive) {
+      if (!isAdmin) {
+        throw new BadRequestException('Phòng học chưa được giảng viên khởi tạo.');
+      }
+
+      const roomTitle = session.class.courseProfile?.title || session.class.name;
+      const roomInfo = this.getDefaultRoomInfo(roomId, roomTitle, {
+        classId: session.classId,
+        weekday: new Date(session.sessionDate).getDay(),
+        startTime: session.startTime,
+      });
+
+      await this.sendNatsWithRetry({ cmd: 'room.create' }, roomInfo, 2).catch(
+        (err) => {
+          this.logger.error(
+            `Failed to create room ${roomId} for live session ${sessionId}: ${
+              err instanceof Error ? err.message : err
+            }`,
+          );
+          throw new BadRequestException(
+            'Không thể khởi tạo phòng học. Vui lòng thử lại.',
+          );
+        },
+      );
+
+      await this.audit.log({
+        userId,
+        action: 'live_session.room_create',
+        entity: 'LiveScheduleSession',
+        entityId: sessionId,
+        description: `Created meet room ${roomId} for live session`,
+        metadata: { roomId, classId: session.classId },
+      });
+    }
+
+    const joinReq = create(GenerateTokenReqSchema, {
+      roomId,
+      userInfo: create(UserInfoSchema, {
+        userId: userId,
+        name: user?.displayName || (isAdmin ? 'Lecturer' : 'Student'),
+        isAdmin: isAdmin,
+        userMetadata: create(UserMetadataSchema, {
+          profilePic: user?.avatarUrl || undefined,
+          isAdmin: isAdmin,
+        }),
+      }),
+    });
+
+    const tokenRes = await this.sendNatsWithRetry(
+      { cmd: 'user.generateJoinToken' },
+      joinReq,
+      2,
+    );
+
+    await this.audit.log({
+      userId,
+      action: 'live_session.join',
+      entity: 'LiveScheduleSession',
+      entityId: sessionId,
+      description: `User joined live session ${sessionId} as ${isAdmin ? 'lecturer' : 'student'}`,
+      metadata: {
+        roomId,
+        classId: session.classId,
+        role: isAdmin ? 'lecturer' : 'student',
+      },
+    });
+
+    return {
+      token: tokenRes.token,
+      roomId,
+      userId: userId,
+      roomTitle: session.class.courseProfile?.title || session.class.name,
+    };
+  }
+
   async update(id: string, input: LiveScheduleUpdateDto, requesterId = 'SYSTEM') {
     const oldSchedule = await this.findById(id);
     const klass = await this.prisma.class.findUnique({
@@ -250,11 +386,21 @@ export class LiveScheduleService {
         startTime: input.startTime,
         endTime: input.endTime,
         location: input.location,
-        excludedDates: input.excludedDates ?? undefined,
         note: input.note,
         roomId: input.roomId,
       },
     });
+
+    // Hybrid: re-generate horizon gần để reflect thay đổi template
+    try {
+      const from = this.startOfDay(new Date());
+      const to = this.addDays(from, this.DEFAULT_GENERATE_HORIZON_DAYS);
+      await this.generateInstancesForClassRange(oldSchedule.classId, from, to, requesterId);
+    } catch (err) {
+      this.logger.warn(
+        `generateInstancesForClassRange skipped after update schedule: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
 
     await this.audit.log({
       userId: requesterId,
@@ -273,6 +419,101 @@ export class LiveScheduleService {
     });
 
     return updated;
+  }
+
+  async listSessionsForClassRange(classId: string, from: Date, to: Date) {
+    return this.prisma.liveScheduleSession.findMany({
+      where: {
+        classId,
+        sessionDate: {
+          gte: this.startOfDay(from),
+          lte: this.startOfDay(to),
+        },
+      },
+      orderBy: [{ sessionDate: 'asc' }, { startTime: 'asc' }, { id: 'asc' }],
+    });
+  }
+
+  async generateInstancesForClassRange(
+    classId: string,
+    from: Date,
+    to: Date,
+    requesterId = 'SYSTEM',
+  ) {
+    const klass = await this.prisma.class.findUnique({
+      where: { id: classId },
+      select: { id: true, instructorId: true },
+    });
+    if (!klass) throw new BadRequestException('Invalid classId');
+
+    const templates = await this.prisma.liveSchedule.findMany({
+      where: { classId },
+      select: {
+        id: true,
+        weekday: true,
+        startTime: true,
+        endTime: true,
+        location: true,
+        note: true,
+      },
+      orderBy: [{ weekday: 'asc' }, { startTime: 'asc' }, { id: 'asc' }],
+    });
+
+    const start = this.startOfDay(from);
+    const end = this.startOfDay(to);
+    if (end < start) {
+      throw new BadRequestException('Invalid range: to must be >= from');
+    }
+
+    let cursor = start;
+    const ops: Array<ReturnType<PrismaService['liveScheduleSession']['upsert']>> = [];
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const weekday = cursor.getDay(); // 0-6, align với LiveSchedule.weekday
+      const matches = templates.filter((t) => t.weekday === weekday);
+
+      for (const t of matches) {
+        const sessionDate = this.startOfDay(cursor);
+        ops.push(
+          this.prisma.liveScheduleSession.upsert({
+            where: {
+              classId_sessionDate_startTime_endTime: {
+                classId,
+                sessionDate,
+                startTime: t.startTime,
+                endTime: t.endTime,
+              },
+            },
+            create: {
+              classId,
+              scheduleId: t.id,
+              sessionDate,
+              startTime: t.startTime,
+              endTime: t.endTime,
+              status: 'SCHEDULED',
+              location: t.location ?? undefined,
+              note: t.note ?? undefined,
+              instructorId: klass.instructorId ?? undefined,
+              createdBy: requesterId,
+              updatedBy: requesterId,
+            },
+            update: {
+              scheduleId: t.id,
+              location: t.location ?? undefined,
+              note: t.note ?? undefined,
+              instructorId: klass.instructorId ?? undefined,
+              updatedBy: requesterId,
+            },
+          }),
+        );
+      }
+
+      if (cursor.getTime() >= end.getTime()) break;
+      cursor = this.addDays(cursor, 1);
+    }
+
+    await this.prisma.$transaction(ops);
+    return { ok: true, upserted: ops.length };
   }
 
   async delete(id: string, requesterId = 'SYSTEM') {
@@ -321,14 +562,80 @@ export class LiveScheduleService {
       throw new BadRequestException('Invalid classId');
     }
 
-    const conflict = await this.checkScheduleConflicts({
-      classId: input.classId,
-      weekday: input.weekday,
-      startTime: input.startTime,
-      endTime: input.endTime,
-      instructorId: klass.instructorId,
-      excludeScheduleId: input.excludeScheduleId,
+    const sessionDate = new Date(input.sessionDate);
+    if (Number.isNaN(sessionDate.getTime())) {
+      throw new BadRequestException('Invalid sessionDate');
+    }
+    sessionDate.setHours(0, 0, 0, 0);
+
+    const inClassCandidates = await this.prisma.liveScheduleSession.findMany({
+      where: {
+        classId: input.classId,
+        sessionDate,
+        id: input.excludeSessionId ? { not: input.excludeSessionId } : undefined,
+        status: { in: ['SCHEDULED'] },
+      },
+      select: {
+        id: true,
+        startTime: true,
+        endTime: true,
+        classId: true,
+      },
     });
+    const inClassConflicts = inClassCandidates.filter((candidate) =>
+      this.isTimeOverlap(
+        input.startTime,
+        input.endTime,
+        candidate.startTime,
+        candidate.endTime,
+      ),
+    );
+
+    let teacherConflicts: Array<{
+      id: string;
+      startTime: string;
+      endTime: string;
+      classId: string;
+      classCode: string;
+      className: string;
+    }> = [];
+
+    if (klass.instructorId) {
+      const teacherCandidates = await this.prisma.liveScheduleSession.findMany({
+        where: {
+          sessionDate,
+          id: input.excludeSessionId ? { not: input.excludeSessionId } : undefined,
+          class: {
+            instructorId: klass.instructorId,
+            status: {
+              in: ['DRAFT', 'PENDING_APPROVAL', 'ENROLLING', 'IN_PROGRESS'],
+            },
+          },
+        },
+        select: {
+          id: true,
+          startTime: true,
+          endTime: true,
+          class: { select: { id: true, code: true, name: true } },
+        },
+      });
+
+      teacherConflicts = teacherCandidates
+        .filter((c) => c.class.id !== input.classId)
+        .filter((c) =>
+          this.isTimeOverlap(input.startTime, input.endTime, c.startTime, c.endTime),
+        )
+        .map((c) => ({
+          id: c.id,
+          startTime: c.startTime,
+          endTime: c.endTime,
+          classId: c.class.id,
+          classCode: c.class.code,
+          className: c.class.name,
+        }));
+    }
+
+    const conflict = { inClassConflicts, teacherConflicts };
 
     return {
       hasConflict:
@@ -343,7 +650,7 @@ export class LiveScheduleService {
     const toDate = query.toDate ? new Date(query.toDate) : undefined;
     return this.prisma.liveScheduleRequest.findMany({
       where: {
-        liveScheduleId: query.liveScheduleId,
+        sessionId: query.sessionId,
         status: query.status as any,
         requestedBy: query.requestedBy,
         requestedDate:
@@ -355,13 +662,13 @@ export class LiveScheduleService {
             : undefined,
       },
       include: {
-        liveSchedule: {
+        session: {
           select: {
             id: true,
             classId: true,
-            weekday: true,
             startTime: true,
             endTime: true,
+            sessionDate: true,
             class: {
               select: {
                 id: true,
@@ -389,8 +696,8 @@ export class LiveScheduleService {
   }
 
   async createRequest(input: LiveScheduleRequestCreateDto, requesterId: string) {
-    const schedule = await this.prisma.liveSchedule.findUnique({
-      where: { id: input.liveScheduleId },
+    const session = await this.prisma.liveScheduleSession.findUnique({
+      where: { id: input.sessionId },
       include: {
         class: {
           select: {
@@ -401,17 +708,14 @@ export class LiveScheduleService {
         },
       },
     });
-    if (!schedule) throw new NotFoundException('LiveSchedule not found');
+    if (!session) throw new NotFoundException('LiveScheduleSession not found');
 
     await this.assertCanCreateScheduleRequest(
       requesterId,
-      schedule.class.instructorId,
+      session.class.instructorId,
     );
 
-    const requestedDate = new Date(input.requestedDate);
-    if (Number.isNaN(requestedDate.getTime())) {
-      throw new BadRequestException('Invalid requestedDate');
-    }
+    const requestedDate = new Date(session.sessionDate);
 
     if (input.type === 'RESCHEDULE') {
       if (!input.proposedDate || !input.proposedStartTime || !input.proposedEndTime) {
@@ -421,10 +725,11 @@ export class LiveScheduleService {
       }
 
       const preview = await this.previewConflict({
-        classId: schedule.classId,
-        weekday: new Date(input.proposedDate).getDay(),
+        classId: session.classId,
+        sessionDate: input.proposedDate,
         startTime: input.proposedStartTime,
         endTime: input.proposedEndTime,
+        excludeSessionId: input.sessionId,
       });
       if (preview.hasConflict) {
         throw new BadRequestException(
@@ -435,16 +740,16 @@ export class LiveScheduleService {
 
     const request = await this.prisma.liveScheduleRequest.create({
       data: {
-        liveScheduleId: input.liveScheduleId,
-        classId: schedule.classId,
+        sessionId: input.sessionId,
+        classId: session.classId,
         requestedBy: requesterId,
         type: input.type as any,
         status: 'PENDING' as any,
         reason: input.reason,
-        requestedDate,
-        originalWeekday: schedule.weekday,
-        originalStartTime: schedule.startTime,
-        originalEndTime: schedule.endTime,
+        requestedDate: requestedDate,
+        originalWeekday: requestedDate.getDay(),
+        originalStartTime: session.startTime,
+        originalEndTime: session.endTime,
         proposedDate: input.proposedDate ? new Date(input.proposedDate) : undefined,
         proposedStartTime: input.proposedStartTime,
         proposedEndTime: input.proposedEndTime,
@@ -457,11 +762,11 @@ export class LiveScheduleService {
       action: 'live_schedule_request.create',
       entity: 'LiveScheduleRequest',
       entityId: request.id,
-      description: `Created ${input.type} request for live schedule ${input.liveScheduleId}`,
+      description: `Created ${input.type} request for live session ${input.sessionId}`,
       metadata: {
-        liveScheduleId: input.liveScheduleId,
+        sessionId: input.sessionId,
         type: input.type,
-        requestedDate: input.requestedDate,
+        requestedDate: session.sessionDate,
       },
     });
 
@@ -504,7 +809,7 @@ export class LiveScheduleService {
     const request = await this.prisma.liveScheduleRequest.findUnique({
       where: { id },
       include: {
-        liveSchedule: true,
+        session: true,
       },
     });
     if (!request) throw new NotFoundException('LiveScheduleRequest not found');
@@ -517,10 +822,11 @@ export class LiveScheduleService {
         throw new BadRequestException('RESCHEDULE request is missing proposed slot');
       }
       const preview = await this.previewConflict({
-        classId: request.liveSchedule.classId,
-        weekday: request.proposedDate.getDay(),
+        classId: request.session.classId,
+        sessionDate: request.proposedDate.toISOString().slice(0, 10),
         startTime: request.proposedStartTime,
         endTime: request.proposedEndTime,
+        excludeSessionId: request.sessionId,
       });
       if (preview.hasConflict) {
         throw new BadRequestException(
@@ -530,20 +836,12 @@ export class LiveScheduleService {
     }
 
     await this.prisma.$transaction(async (tx) => {
-      const currentExcluded = Array.isArray(request.liveSchedule.excludedDates)
-        ? (request.liveSchedule.excludedDates as string[])
-        : [];
-      const requestDate = request.requestedDate.toISOString().slice(0, 10);
-      const nextExcluded = currentExcluded.includes(requestDate)
-        ? currentExcluded
-        : [...currentExcluded, requestDate];
-
       const metadata: Record<string, unknown> = {
         ...(request.metadata as Record<string, unknown>),
       };
       if (request.type === 'RESCHEDULE') {
         metadata.reschedule = {
-          requestedDate: requestDate,
+          requestedDate: request.requestedDate?.toISOString(),
           proposedDate: request.proposedDate?.toISOString(),
           proposedStartTime: request.proposedStartTime,
           proposedEndTime: request.proposedEndTime,
@@ -551,12 +849,44 @@ export class LiveScheduleService {
         };
       }
 
-      await tx.liveSchedule.update({
-        where: { id: request.liveScheduleId },
-        data: {
-          excludedDates: nextExcluded,
-        },
-      });
+      if (request.type === 'LEAVE') {
+        await tx.liveScheduleSession.update({
+          where: { id: request.sessionId },
+          data: {
+            status: 'CANCELLED',
+            cancellationReason: request.reason ?? undefined,
+          },
+        });
+      }
+
+      if (request.type === 'RESCHEDULE') {
+        const newSession = await tx.liveScheduleSession.create({
+          data: {
+            classId: request.session.classId,
+            scheduleId: null,
+            sessionDate: request.proposedDate!,
+            startTime: request.proposedStartTime!,
+            endTime: request.proposedEndTime!,
+            status: 'SCHEDULED',
+            instructorId: request.proposedTeacherId ?? request.session.instructorId ?? undefined,
+            createdBy: reviewerId,
+            updatedBy: reviewerId,
+          },
+        });
+
+        await tx.liveScheduleSession.update({
+          where: { id: request.sessionId },
+          data: {
+            status: 'RESCHEDULED',
+            supersededBySessionId: newSession.id,
+          },
+        });
+
+        metadata.reschedule = {
+          ...(metadata.reschedule as any),
+          newSessionId: newSession.id,
+        };
+      }
 
       await tx.liveScheduleRequest.update({
         where: { id },
@@ -771,6 +1101,54 @@ export class LiveScheduleService {
     }
   }
 
+  private assertInJoinWindowForSession(
+    input: {
+      sessionDate: Date;
+      startTime: string;
+      endTime: string;
+      class: { openingDate: Date | null; closingDate: Date | null };
+    },
+    isAdmin: boolean,
+  ) {
+    if (
+      isAdmin &&
+      process.env.DISABLE_LIVE_SESSION_JOIN_WINDOW === 'true' &&
+      process.env.NODE_ENV !== 'production'
+    ) {
+      return;
+    }
+
+    const now = new Date();
+    const sessionDate = new Date(input.sessionDate);
+    sessionDate.setHours(0, 0, 0, 0);
+
+    const [startHour, startMinute] = this.parseHourMinute(input.startTime);
+    const [endHour, endMinute] = this.parseHourMinute(input.endTime);
+
+    const sessionStart = new Date(sessionDate);
+    sessionStart.setHours(startHour, startMinute, 0, 0);
+    const sessionEnd = new Date(sessionDate);
+    sessionEnd.setHours(endHour, endMinute, 0, 0);
+
+    const joinOpenAt = new Date(sessionStart.getTime() - 30 * 60 * 1000);
+    const joinCloseAt = new Date(sessionEnd.getTime() + 4 * 60 * 60 * 1000);
+    if (now < joinOpenAt || now > joinCloseAt) {
+      throw new BadRequestException(
+        'Session join window is closed. You can join 30 minutes before start and up to 4 hours after end.',
+      );
+    }
+  }
+
+  private async ensureSessionRoomId(sessionId: string, existingRoomId: string | null) {
+    if (existingRoomId?.trim()) return existingRoomId.trim();
+    const roomId = `live-sess-${sessionId.substring(0, 8)}`;
+    await this.prisma.liveScheduleSession.update({
+      where: { id: sessionId },
+      data: { roomId },
+    });
+    return roomId;
+  }
+
   private parseHourMinute(time: string) {
     const [hourText, minuteText] = (time || '').split(':');
     const hour = Number(hourText);
@@ -786,6 +1164,18 @@ export class LiveScheduleService {
       throw new BadRequestException(`Invalid time format: ${time}`);
     }
     return [hour, minute] as const;
+  }
+
+  private startOfDay(d: Date) {
+    const x = new Date(d);
+    x.setHours(0, 0, 0, 0);
+    return x;
+  }
+
+  private addDays(d: Date, days: number) {
+    const x = new Date(d);
+    x.setDate(x.getDate() + days);
+    return x;
   }
 
   private isTimeOverlap(

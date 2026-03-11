@@ -51,7 +51,8 @@ import { DuplicateClassDialog } from "@/components/academy/duplicate-class-dialo
 export default function AcademyClassesPage() {
   const [searchParams] = useSearchParams()
   const statusFromUrl = searchParams.get("status")
-  const [courseProfileId, setCourseProfileId] = useState("_all")
+  const courseProfileIdFromUrl = searchParams.get("courseProfileId") || "_all"
+  const [courseProfileId, setCourseProfileId] = useState(courseProfileIdFromUrl)
   const [mode, setMode] = useState("_all")
   const [status, setStatus] = useState(statusFromUrl || "_all")
   useEffect(() => {

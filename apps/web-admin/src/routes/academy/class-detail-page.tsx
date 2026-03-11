@@ -9,15 +9,16 @@ import {
    useCompleteClass,
    useCancelClass,
 } from "@/lib/api/services/academy-classes"
-import { useAcademyLiveSchedules, usePreviewAcademyLiveScheduleConflict } from "@/lib/api/services/academy-live-schedules"
+import { useAcademyLiveSchedules } from "@/lib/api/services/academy-live-schedules"
 import {
    useAcademyLiveScheduleRequests,
    useApproveAcademyLiveScheduleRequest,
    useCancelAcademyLiveScheduleRequest,
    useCreateAcademyLiveScheduleRequest,
    useRejectAcademyLiveScheduleRequest,
+   usePreviewAcademyLiveSessionConflict,
 } from "@/lib/api/services/academy-live-schedule-requests"
-import { useJoinAcademyLiveSessionAsLecturer } from "@/lib/api/services/academy-live-sessions"
+import { useAcademyLiveSessions, useJoinAcademyLiveSessionAsLecturer } from "@/lib/api/services/academy-live-sessions"
 import { roomsApi } from "@/lib/api/services/rooms"
 import { usePermissions } from "@/hooks/use-permissions"
 import { useMutation, useQuery } from "@tanstack/react-query"
@@ -51,6 +52,16 @@ import {
    DialogHeader,
    DialogTitle,
 } from "@workspace/ui/components/dialog"
+import {
+   AlertDialog,
+   AlertDialogAction,
+   AlertDialogCancel,
+   AlertDialogContent,
+   AlertDialogDescription,
+   AlertDialogFooter,
+   AlertDialogHeader,
+   AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
@@ -135,7 +146,7 @@ export default function ClassDetailPage() {
    const completeMutation = useCompleteClass()
    const cancelMutation = useCancelClass()
    const joinLiveSessionMutation = useJoinAcademyLiveSessionAsLecturer()
-   const previewConflictMutation = usePreviewAcademyLiveScheduleConflict()
+   const previewConflictMutation = usePreviewAcademyLiveSessionConflict()
    const createRequestMutation = useCreateAcademyLiveScheduleRequest()
    const cancelRequestMutation = useCancelAcademyLiveScheduleRequest()
    const approveRequestMutation = useApproveAcademyLiveScheduleRequest()
@@ -165,6 +176,12 @@ export default function ClassDetailPage() {
    })
 
    const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false)
+   const [isPublishConfirmOpen, setIsPublishConfirmOpen] = useState(false)
+   const [isSubmitConfirmOpen, setIsSubmitConfirmOpen] = useState(false)
+   const [isApproveConfirmOpen, setIsApproveConfirmOpen] = useState(false)
+   const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false)
+   const [isStartConfirmOpen, setIsStartConfirmOpen] = useState(false)
+   const [isCompleteConfirmOpen, setIsCompleteConfirmOpen] = useState(false)
    const [isDuplicateDialogOpen, setIsDuplicateDialogOpen] = useState(false)
    const [isScheduleRequestDialogOpen, setIsScheduleRequestDialogOpen] = useState(false)
    const [isApproveRequestDialogOpen, setIsApproveRequestDialogOpen] = useState(false)
@@ -176,9 +193,8 @@ export default function ClassDetailPage() {
    const [requestFilterToDate, setRequestFilterToDate] = useState("")
    const [selectedRequestId, setSelectedRequestId] = useState("")
    const [requestReviewNote, setRequestReviewNote] = useState("")
-   const [requestScheduleId, setRequestScheduleId] = useState("")
+   const [requestSessionId, setRequestSessionId] = useState("")
    const [requestType, setRequestType] = useState<"LEAVE" | "RESCHEDULE">("LEAVE")
-   const [requestedDate, setRequestedDate] = useState("")
    const [requestReason, setRequestReason] = useState("")
    const [proposedDate, setProposedDate] = useState("")
    const [proposedStartTime, setProposedStartTime] = useState("19:00")
@@ -186,26 +202,33 @@ export default function ClassDetailPage() {
    const queryTab = new URLSearchParams(location.search).get("tab") || "overview"
    const [activeTab, setActiveTab] = useState(queryTab)
 
-   const selectedScheduleId = requestScheduleId || schedules[0]?.id || ""
-   const selectedSchedule = useMemo(
-      () => schedules.find((schedule) => schedule.id === selectedScheduleId),
-      [schedules, selectedScheduleId],
+   const todayIso = new Date().toISOString().slice(0, 10)
+   const toIso = new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+   const { data: sessions = [] } = useAcademyLiveSessions(
+      id ? { classId: id, from: todayIso, to: toIso } : ({} as any),
+      { enabled: !!id && isLive },
+   )
+
+   const selectedSessionId = requestSessionId || sessions[0]?.id || ""
+   const selectedSession = useMemo(
+      () => sessions.find((s) => s.id === selectedSessionId),
+      [sessions, selectedSessionId],
    )
 
    const requestQuery = useMemo(() => ({
-      ...(selectedScheduleId ? { liveScheduleId: selectedScheduleId } : {}),
+      ...(selectedSessionId ? { sessionId: selectedSessionId } : {}),
       ...(requestFilterStatus !== "ALL"
          ? { status: requestFilterStatus as "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED" }
          : {}),
       ...(requestFilterMineOnly && authUser?.id ? { requestedBy: authUser.id } : {}),
       ...(requestFilterFromDate
-         ? { fromDate: new Date(requestFilterFromDate).toISOString() }
+         ? { fromDate: requestFilterFromDate }
          : {}),
       ...(requestFilterToDate
-         ? { toDate: new Date(requestFilterToDate).toISOString() }
+         ? { toDate: requestFilterToDate }
          : {}),
    }), [
-      selectedScheduleId,
+      selectedSessionId,
       requestFilterStatus,
       requestFilterMineOnly,
       requestFilterFromDate,
@@ -215,14 +238,14 @@ export default function ClassDetailPage() {
 
    const { data: scheduleRequests = [], isLoading: isLoadingScheduleRequests } = useAcademyLiveScheduleRequests(
       requestQuery,
-      { enabled: !!selectedScheduleId },
+      { enabled: !!selectedSessionId },
    )
 
    useEffect(() => {
-      if (!requestScheduleId && schedules[0]?.id) {
-         setRequestScheduleId(schedules[0].id)
+      if (!requestSessionId && sessions[0]?.id) {
+         setRequestSessionId(sessions[0].id)
       }
-   }, [schedules, requestScheduleId])
+   }, [sessions, requestSessionId])
 
    useEffect(() => {
       const nextTab = new URLSearchParams(location.search).get("tab") || "overview"
@@ -349,7 +372,6 @@ export default function ClassDetailPage() {
 
    const resetScheduleRequestForm = () => {
       setRequestType("LEAVE")
-      setRequestedDate("")
       setRequestReason("")
       setProposedDate("")
       setProposedStartTime("19:00")
@@ -357,12 +379,8 @@ export default function ClassDetailPage() {
    }
 
    const submitScheduleRequest = async () => {
-      if (!selectedScheduleId) {
-         toast.error("Vui lòng chọn lịch học cần tạo yêu cầu")
-         return
-      }
-      if (!requestedDate) {
-         toast.error("Vui lòng chọn ngày cần xử lý")
+      if (!selectedSessionId) {
+         toast.error("Vui lòng chọn buổi học cần tạo yêu cầu")
          return
       }
 
@@ -371,12 +389,12 @@ export default function ClassDetailPage() {
             toast.error("Vui lòng nhập đầy đủ thông tin lịch đề xuất")
             return
          }
-         const weekday = new Date(proposedDate).getDay()
          const preview = await previewConflictMutation.mutateAsync({
             classId: id!,
-            weekday,
+            sessionDate: proposedDate,
             startTime: proposedStartTime,
             endTime: proposedEndTime,
+            excludeSessionId: selectedSessionId,
          })
          if (preview.hasConflict) {
             const teacherConflict = preview.teacherConflicts?.[0]
@@ -393,13 +411,9 @@ export default function ClassDetailPage() {
 
       try {
          await createRequestMutation.mutateAsync({
-            liveScheduleId: selectedScheduleId,
+            sessionId: selectedSessionId,
             type: requestType,
-            requestedDate: new Date(requestedDate).toISOString(),
-            proposedDate:
-               requestType === "RESCHEDULE" && proposedDate
-                  ? new Date(proposedDate).toISOString()
-                  : undefined,
+            proposedDate: requestType === "RESCHEDULE" ? proposedDate : undefined,
             proposedStartTime:
                requestType === "RESCHEDULE" ? proposedStartTime : undefined,
             proposedEndTime:
@@ -513,15 +527,17 @@ export default function ClassDetailPage() {
                   <Button
                      variant="outline"
                      className="gap-2 shadow-sm"
-                     onClick={handlePublish}
-                     disabled={publishMutation.isPending}
+                     onClick={() => setIsPublishConfirmOpen(true)}
                   >
                      Publish
                   </Button>
                )}
 
                {canDeliveryWrite && cls.status === "DRAFT" && (
-                  <Button onClick={handleSubmit} disabled={submitMutation.isPending} className="gap-2 shadow-md">
+                  <Button
+                     onClick={() => setIsSubmitConfirmOpen(true)}
+                     className="gap-2 shadow-md"
+                  >
                      <Send className="h-4 w-4" />
                      Gửi phê duyệt
                   </Button>
@@ -536,7 +552,10 @@ export default function ClassDetailPage() {
                      >
                         Từ chối
                      </Button>
-                     <Button onClick={handleApprove} disabled={approveMutation.isPending} className="gap-2 bg-emerald-600 hover:bg-emerald-700 shadow-md">
+                     <Button
+                        onClick={() => setIsApproveConfirmOpen(true)}
+                        className="gap-2 bg-emerald-600 hover:bg-emerald-700 shadow-md"
+                     >
                         <CheckCircle2 className="h-4 w-4" />
                         Phê duyệt
                      </Button>
@@ -547,8 +566,7 @@ export default function ClassDetailPage() {
                   <Button
                      variant="outline"
                      className="text-destructive hover:bg-destructive/10 border-destructive/20 shadow-sm"
-                     onClick={handleCancelClass}
-                     disabled={cancelMutation.isPending}
+                     onClick={() => setIsCancelConfirmOpen(true)}
                   >
                      Hủy lớp
                   </Button>
@@ -556,8 +574,7 @@ export default function ClassDetailPage() {
 
                {canDeliveryWrite && cls.status === "ENROLLING" && (
                   <Button
-                     onClick={handleStart}
-                     disabled={startMutation.isPending}
+                     onClick={() => setIsStartConfirmOpen(true)}
                      className="gap-2 shadow-md"
                   >
                      Bắt đầu lớp
@@ -566,8 +583,7 @@ export default function ClassDetailPage() {
 
                {canDeliveryWrite && cls.status === "IN_PROGRESS" && (
                   <Button
-                     onClick={handleComplete}
-                     disabled={completeMutation.isPending}
+                     onClick={() => setIsCompleteConfirmOpen(true)}
                      className="gap-2 shadow-md bg-emerald-600 hover:bg-emerald-700"
                   >
                      Hoàn tất lớp
@@ -840,7 +856,7 @@ export default function ClassDetailPage() {
                               {canManageLiveSession && (
                                  <Button
                                     onClick={() => setIsScheduleRequestDialogOpen(true)}
-                                    disabled={!selectedSchedule}
+                                    disabled={!selectedSession}
                                     className="gap-2"
                                  >
                                     <Plus className="h-4 w-4" />
@@ -852,16 +868,16 @@ export default function ClassDetailPage() {
                         <CardContent className="space-y-4">
                            <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
                               <Select
-                                 value={selectedScheduleId}
-                                 onValueChange={(value) => setRequestScheduleId(value)}
+                                 value={selectedSessionId}
+                                 onValueChange={(value) => setRequestSessionId(value)}
                               >
                                  <SelectTrigger>
-                                    <SelectValue placeholder="Chọn lịch học" />
+                                    <SelectValue placeholder="Chọn buổi học" />
                                  </SelectTrigger>
                                  <SelectContent>
-                                    {schedules.map((schedule) => (
-                                       <SelectItem key={schedule.id} value={schedule.id}>
-                                          {formatWeekday(schedule.weekday)} {schedule.startTime}-{schedule.endTime}
+                                    {sessions.map((s) => (
+                                       <SelectItem key={s.id} value={s.id}>
+                                          {new Date(s.sessionDate as any).toLocaleDateString("vi-VN")} {s.startTime}-{s.endTime}
                                        </SelectItem>
                                     ))}
                                  </SelectContent>
@@ -921,7 +937,13 @@ export default function ClassDetailPage() {
                                     scheduleRequests.map((request) => (
                                        <TableRow key={request.id}>
                                           <TableCell>{formatRequestType(request.type)}</TableCell>
-                                          <TableCell>{new Date(request.requestedDate).toLocaleDateString("vi-VN")}</TableCell>
+                                          <TableCell>
+                                             {request.session?.sessionDate
+                                                ? new Date(request.session.sessionDate).toLocaleDateString("vi-VN")
+                                                : request.requestedDate
+                                                   ? new Date(request.requestedDate).toLocaleDateString("vi-VN")
+                                                   : "-"}
+                                          </TableCell>
                                           <TableCell className="max-w-[280px] truncate">{request.reason || "-"}</TableCell>
                                           <TableCell>
                                              <Badge variant={request.status === "APPROVED" ? "default" : request.status === "REJECTED" ? "destructive" : "secondary"}>
@@ -1272,7 +1294,6 @@ export default function ClassDetailPage() {
                      <TabsContent value="attendance">
                         <ClassAttendanceTab
                            classId={id!}
-                           liveClassId={cls.liveClass?.id || ""}
                         />
                      </TabsContent>
                   )}
@@ -1290,18 +1311,18 @@ export default function ClassDetailPage() {
                </DialogHeader>
                <div className="space-y-4 py-2">
                   <div className="space-y-2">
-                     <p className="text-sm font-medium">Lịch học</p>
+                     <p className="text-sm font-medium">Buổi học</p>
                      <Select
-                        value={selectedScheduleId}
-                        onValueChange={(value) => setRequestScheduleId(value)}
+                        value={selectedSessionId}
+                        onValueChange={(value) => setRequestSessionId(value)}
                      >
                         <SelectTrigger>
-                           <SelectValue placeholder="Chọn lịch học" />
+                           <SelectValue placeholder="Chọn buổi học" />
                         </SelectTrigger>
                         <SelectContent>
-                           {schedules.map((schedule) => (
-                              <SelectItem key={schedule.id} value={schedule.id}>
-                                 {formatWeekday(schedule.weekday)} {schedule.startTime}-{schedule.endTime}
+                           {sessions.map((s) => (
+                              <SelectItem key={s.id} value={s.id}>
+                                 {new Date(s.sessionDate as any).toLocaleDateString("vi-VN")} {s.startTime}-{s.endTime}
                               </SelectItem>
                            ))}
                         </SelectContent>
@@ -1322,15 +1343,6 @@ export default function ClassDetailPage() {
                            <SelectItem value="RESCHEDULE">Đề xuất đổi lịch</SelectItem>
                         </SelectContent>
                      </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                     <p className="text-sm font-medium">Ngày muốn xử lý</p>
-                     <Input
-                        type="date"
-                        value={requestedDate}
-                        onChange={(e) => setRequestedDate(e.target.value)}
-                     />
                   </div>
 
                   {requestType === "RESCHEDULE" && (
@@ -1495,6 +1507,126 @@ export default function ClassDetailPage() {
                </DialogFooter>
             </DialogContent>
          </Dialog>
+
+         <AlertDialog open={isPublishConfirmOpen} onOpenChange={setIsPublishConfirmOpen}>
+            <AlertDialogContent>
+               <AlertDialogHeader>
+                  <AlertDialogTitle>Publish lớp học này?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                     Lớp sẽ chuyển khỏi trạng thái <strong>DRAFT</strong> và sẵn sàng cho các bước ENROLLING / IN_PROGRESS tuỳ theo quy trình.
+                  </AlertDialogDescription>
+               </AlertDialogHeader>
+               <AlertDialogFooter>
+                  <AlertDialogCancel>Hủy</AlertDialogCancel>
+                  <AlertDialogAction
+                     onClick={handlePublish}
+                     disabled={publishMutation.isPending}
+                  >
+                     Xác nhận publish
+                  </AlertDialogAction>
+               </AlertDialogFooter>
+            </AlertDialogContent>
+         </AlertDialog>
+
+         <AlertDialog open={isSubmitConfirmOpen} onOpenChange={setIsSubmitConfirmOpen}>
+            <AlertDialogContent>
+               <AlertDialogHeader>
+                  <AlertDialogTitle>Gửi lớp học để phê duyệt?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                     Lớp sẽ chuyển sang trạng thái <strong>PENDING_APPROVAL</strong> và chờ duyệt trước khi được mở tuyển sinh.
+                  </AlertDialogDescription>
+               </AlertDialogHeader>
+               <AlertDialogFooter>
+                  <AlertDialogCancel>Hủy</AlertDialogCancel>
+                  <AlertDialogAction
+                     onClick={handleSubmit}
+                     disabled={submitMutation.isPending}
+                  >
+                     Gửi phê duyệt
+                  </AlertDialogAction>
+               </AlertDialogFooter>
+            </AlertDialogContent>
+         </AlertDialog>
+
+         <AlertDialog open={isApproveConfirmOpen} onOpenChange={setIsApproveConfirmOpen}>
+            <AlertDialogContent>
+               <AlertDialogHeader>
+                  <AlertDialogTitle>Phê duyệt lớp học?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                     Sau khi phê duyệt, lớp có thể được chuyển sang trạng thái ENROLLING / IN_PROGRESS theo quy trình vận hành.
+                  </AlertDialogDescription>
+               </AlertDialogHeader>
+               <AlertDialogFooter>
+                  <AlertDialogCancel>Hủy</AlertDialogCancel>
+                  <AlertDialogAction
+                     onClick={handleApprove}
+                     disabled={approveMutation.isPending}
+                  >
+                     Xác nhận phê duyệt
+                  </AlertDialogAction>
+               </AlertDialogFooter>
+            </AlertDialogContent>
+         </AlertDialog>
+
+         <AlertDialog open={isCancelConfirmOpen} onOpenChange={setIsCancelConfirmOpen}>
+            <AlertDialogContent>
+               <AlertDialogHeader>
+                  <AlertDialogTitle>Hủy lớp học?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                     Hành động này có thể ảnh hưởng tới enrollment và lịch học của học viên. Hãy đảm bảo đã thông báo cho các bên liên quan trước khi hủy.
+                  </AlertDialogDescription>
+               </AlertDialogHeader>
+               <AlertDialogFooter>
+                  <AlertDialogCancel>Giữ nguyên</AlertDialogCancel>
+                  <AlertDialogAction
+                     onClick={handleCancelClass}
+                     disabled={cancelMutation.isPending}
+                  >
+                     Xác nhận hủy lớp
+                  </AlertDialogAction>
+               </AlertDialogFooter>
+            </AlertDialogContent>
+         </AlertDialog>
+
+         <AlertDialog open={isStartConfirmOpen} onOpenChange={setIsStartConfirmOpen}>
+            <AlertDialogContent>
+               <AlertDialogHeader>
+                  <AlertDialogTitle>Bắt đầu lớp học?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                     Lớp sẽ chuyển sang trạng thái <strong>IN_PROGRESS</strong>. Hãy chắc chắn lịch học và enrollment đã sẵn sàng.
+                  </AlertDialogDescription>
+               </AlertDialogHeader>
+               <AlertDialogFooter>
+                  <AlertDialogCancel>Hủy</AlertDialogCancel>
+                  <AlertDialogAction
+                     onClick={handleStart}
+                     disabled={startMutation.isPending}
+                  >
+                     Xác nhận bắt đầu
+                  </AlertDialogAction>
+               </AlertDialogFooter>
+            </AlertDialogContent>
+         </AlertDialog>
+
+         <AlertDialog open={isCompleteConfirmOpen} onOpenChange={setIsCompleteConfirmOpen}>
+            <AlertDialogContent>
+               <AlertDialogHeader>
+                  <AlertDialogTitle>Hoàn tất lớp học?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                     Lớp sẽ chuyển sang trạng thái <strong>COMPLETED</strong>. Sau bước này, việc chỉnh sửa lịch/assessment nên được hạn chế theo policy.
+                  </AlertDialogDescription>
+               </AlertDialogHeader>
+               <AlertDialogFooter>
+                  <AlertDialogCancel>Hủy</AlertDialogCancel>
+                  <AlertDialogAction
+                     onClick={handleComplete}
+                     disabled={completeMutation.isPending}
+                  >
+                     Xác nhận hoàn tất
+                  </AlertDialogAction>
+               </AlertDialogFooter>
+            </AlertDialogContent>
+         </AlertDialog>
 
          <DuplicateClassDialog
             sourceClass={cls as any}

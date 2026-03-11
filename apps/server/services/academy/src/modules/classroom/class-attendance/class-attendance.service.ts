@@ -15,18 +15,13 @@ export class ClassAttendanceService {
     ) { }
 
     async findAll(query: ClassAttendanceQueryDto) {
-        const { liveScheduleId, liveClassId, userId, page = 1, limit = 100 } = query;
+        const { sessionId, userId, page = 1, limit = 100 } = query;
         const skip = (Number(page) - 1) * Number(limit);
         const take = Number(limit);
 
         const where: any = {};
-        if (liveScheduleId) where.liveScheduleId = liveScheduleId;
+        if (sessionId) where.sessionId = sessionId;
         if (userId) where.userId = userId;
-        if (liveClassId) {
-            where.liveSchedule = {
-                classId: liveClassId,
-            };
-        }
 
         const [items, total] = await Promise.all([
             this.prisma.classAttendance.findMany({
@@ -39,7 +34,7 @@ export class ClassAttendanceService {
                             avatarUrl: true,
                         },
                     },
-                    liveSchedule: true,
+                    session: true,
                 },
                 orderBy: { recordedAt: 'desc' },
                 skip,
@@ -62,7 +57,7 @@ export class ClassAttendanceService {
                         avatarUrl: true,
                     },
                 },
-                liveSchedule: true,
+                session: true,
             },
         });
         if (!item) throw new NotFoundException('Attendance record not found');
@@ -70,22 +65,22 @@ export class ClassAttendanceService {
     }
 
     async create(input: ClassAttendanceCreateDto, requesterId = 'SYSTEM') {
-        // 1. Validate LiveSchedule exists and is for a LIVE class
-        const schedule = await this.prisma.liveSchedule.findUnique({
-            where: { id: input.liveScheduleId },
+        // 1. Validate session exists and is for a LIVE class
+        const session = await this.prisma.liveScheduleSession.findUnique({
+            where: { id: input.sessionId },
             include: {
                 class: true,
             },
         });
 
-        if (!schedule) throw new NotFoundException('LiveSchedule not found');
-        if (schedule.class.mode !== 'LIVE') {
+        if (!session) throw new NotFoundException('LiveScheduleSession not found');
+        if (session.class.mode !== 'LIVE') {
             throw new BadRequestException(
                 'Attendance can only be recorded for LIVE classes',
             );
         }
 
-        const classId = schedule.classId;
+        const classId = session.classId;
 
         // 2. Validate userId has an ACTIVE enrollment in this class
         const enrollment = await this.prisma.enrollment.findFirst({
@@ -103,13 +98,13 @@ export class ClassAttendanceService {
         // 3. Upsert attendance record
         const attendance = await this.prisma.classAttendance.upsert({
             where: {
-                liveScheduleId_userId: {
-                    liveScheduleId: input.liveScheduleId,
+                sessionId_userId: {
+                    sessionId: input.sessionId,
                     userId: input.userId,
                 },
             },
             create: {
-                liveScheduleId: input.liveScheduleId,
+                sessionId: input.sessionId,
                 userId: input.userId,
                 status: input.status,
             },
@@ -124,8 +119,8 @@ export class ClassAttendanceService {
             action: 'attendance.record',
             entity: 'ClassAttendance',
             entityId: attendance.id,
-            description: `Recorded ${input.status} for user ${input.userId} in schedule ${input.liveScheduleId}`,
-            metadata: { liveScheduleId: input.liveScheduleId, userId: input.userId, status: input.status },
+            description: `Recorded ${input.status} for user ${input.userId} in session ${input.sessionId}`,
+            metadata: { sessionId: input.sessionId, userId: input.userId, status: input.status },
         });
 
         return attendance;

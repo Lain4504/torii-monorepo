@@ -1,7 +1,7 @@
 import { Injectable, Logger, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
-import { ActivityType, GamificationTransactionType, GamificationCurrency } from '@prisma/generated';
+import { ActivityType, GamificationTransactionType, GamificationCurrency, CouponScope } from '@prisma/generated';
 import { AchievementService } from './achievement.service';
 import { AuditLoggerService } from '../audit-logger.service';
 
@@ -381,6 +381,7 @@ export class GamificationService {
             const coupon = await tx.coupon.create({
                 data: {
                     code: generatedCode,
+                    name: reward.name,
                     description: `Redeemed from: ${reward.name}`,
                     discountType: config.discountType || 'FIXED_AMOUNT',
                     discountValue: config.discountValue || 0,
@@ -388,7 +389,16 @@ export class GamificationService {
                     minOrderValue: config.minOrderValue,
                     usageLimit: 1,
                     perUserLimit: 1,
-                    metadata: { source: "GAMIFICATION", ownerId: userId },
+                    // Mark this as a personal coupon owned by the redeemer
+                    scope: CouponScope.GLOBAL,
+                    ownerId: userId,
+                    source: 'GAMIFICATION_REWARD',
+                    metadata: {
+                        ...(reward.config as any),
+                        source: 'GAMIFICATION_REWARD',
+                        rewardId: reward.id,
+                        rewardName: reward.name,
+                    },
                 }
             });
 

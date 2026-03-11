@@ -63,18 +63,28 @@ export default function DashboardCoursesPage() {
                 ) : (
                     <>
                         <TabsContent value="all" className="space-y-10">
-                            <CourseSection
-                                title="Lớp học trực tiếp sắp khai giảng"
-                                description="Học tương tác cùng đội ngũ thầy cô giàu kinh nghiệm"
-                                courses={filteredCourses(liveCourses)}
-                                type="live"
-                            />
-                            <CourseSection
-                                title="Khóa học Video (VOD)"
-                                description="Tự chủ thời gian học tập với kho bài giảng chất lượng cao"
-                                courses={filteredCourses(vodCourses)}
-                                type="vod"
-                            />
+                            {filteredCourses(courses).length === 0 ? (
+                                <div className="text-center py-10 border rounded-xl bg-muted/20">
+                                    <p className="text-muted-foreground">
+                                        Hiện chưa có khóa học nào để hiển thị.
+                                    </p>
+                                </div>
+                            ) : (
+                                <>
+                                    <CourseSection
+                                        title="Lớp học trực tiếp sắp khai giảng"
+                                        description="Học tương tác cùng đội ngũ thầy cô giàu kinh nghiệm"
+                                        courses={filteredCourses(liveCourses)}
+                                        type="live"
+                                    />
+                                    <CourseSection
+                                        title="Khóa học Video (VOD)"
+                                        description="Tự chủ thời gian học tập với kho bài giảng chất lượng cao"
+                                        courses={filteredCourses(vodCourses)}
+                                        type="vod"
+                                    />
+                                </>
+                            )}
                         </TabsContent>
 
                         <TabsContent value="vod">

@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react"
-import { Link } from "react-router-dom"
+import { useMemo, useState, useEffect } from "react"
+import { Link, useSearchParams } from "react-router-dom"
 import { Button } from "@workspace/ui/components/button"
 import {
   Table,
@@ -44,8 +44,16 @@ import { useAuth } from "@/hooks/use-auth"
 import { UserRole } from "@workspace/schemas"
 
 export default function AcademyExamsPage() {
-  const [courseProfileId, setCourseProfileId] = useState("all")
+  const [searchParams] = useSearchParams()
+  const courseProfileIdFromUrl = searchParams.get("courseProfileId") || "all"
+  const [courseProfileId, setCourseProfileId] = useState(courseProfileIdFromUrl)
   const [status, setStatus] = useState("all")
+
+  useEffect(() => {
+    if (courseProfileIdFromUrl) {
+      setCourseProfileId(courseProfileIdFromUrl)
+    }
+  }, [courseProfileIdFromUrl])
   const [deleteId, setDeleteId] = useState<string | null>(null)
 
   const { user } = useAuth()

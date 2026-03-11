@@ -617,10 +617,15 @@ model Coupon {
   usageLimit        Int?               @map("usage_limit")
   usageCount        Int                @default(0) @map("usage_count")
   perUserLimit      Int                @default(1) @map("per_user_limit")
+  /// Scope of applicability: GLOBAL (anyone), SPECIFIC_OFFERING, PERSONAL (assigned to a single user), etc.
   startDate         DateTime?          @map("start_date")
   endDate           DateTime?          @map("end_date")
   status            CouponStatus       @default(ACTIVE)
   scope             CouponScope        @default(GLOBAL)
+  /// Owner of the coupon when scope = PERSONAL (e.g. redeemed from gamification rewards)
+  ownerId           String?            @map("owner_id") @db.Uuid
+  /// Logical source for audit/analytics: MANUAL, CAMPAIGN, GAMIFICATION_REWARD, etc.
+  source            String?            @db.VarChar(50)
   metadata          Json?              @default("{}") @db.JsonB
   createdAt         DateTime           @default(now()) @map("created_at")
   updatedAt         DateTime           @default(now()) @updatedAt @map("updated_at")
@@ -1082,6 +1087,7 @@ model Class {
   offeringLinks         CourseOfferingClass[]
   reviews               ClassReview[]
   liveSchedules         LiveSchedule[]
+  liveScheduleSessions  LiveScheduleSession[]
 
   @@index([courseProfileId])
   @@index([mode])
@@ -1139,22 +1145,66 @@ model LiveSchedule {
   roomId        String? @map("room_id") @db.VarChar(64)
 
   class     Class     @relation(fields: [classId], references: [id], onDelete: Cascade)
-  attendances ClassAttendance[]
-  requests LiveScheduleRequest[]
+  sessions LiveScheduleSession[]
 
   @@index([classId])
   @@map("academy_live_schedules")
 }
 
+/// Live session instance theo ngày cho từng buổi học cụ thể
+model LiveScheduleSession {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  classId   String   @map("class_id") @db.Uuid
+  scheduleId String? @map("schedule_id") @db.Uuid
+
+  /// Ngày diễn ra buổi học (theo timezone vận hành, lưu ở UTC)
+  sessionDate DateTime @map("session_date")
+
+  /// Giờ bắt đầu/kết thúc (HH:mm, text)
+  startTime String @map("start_time") @db.VarChar(20)
+  endTime   String @map("end_time") @db.VarChar(20)
+
+  status String @default("SCHEDULED") @db.VarChar(20) // SCHEDULED, CANCELLED, RESCHEDULED, COMPLETED
+
+  cancellationReason String? @map("cancellation_reason") @db.Text
+
+  roomId     String? @map("room_id") @db.VarChar(64)
+  location   String? @db.VarChar(255)
+  note       String? @db.Text
+  instructorId String? @map("instructor_id") @db.Uuid
+
+  supersededBySessionId String? @map("superseded_by_session_id") @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  createdBy String?  @map("created_by") @db.Uuid
+  updatedBy String?  @map("updated_by") @db.Uuid
+
+  // Relations
+  class    Class        @relation(fields: [classId], references: [id], onDelete: Cascade)
+  schedule LiveSchedule? @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
+
+  supersededBySession LiveScheduleSession? @relation("LiveScheduleSessionSupersede", fields: [supersededBySessionId], references: [id])
+  supersededSessions  LiveScheduleSession[] @relation("LiveScheduleSessionSupersede")
+  requests LiveScheduleRequest[]
+  attendances ClassAttendance[]
+
+  @@index([classId, sessionDate])
+  @@index([scheduleId])
+  @@index([status])
+  @@unique([classId, sessionDate, startTime, endTime])
+  @@map("academy_live_schedule_sessions")
+}
+
 model LiveScheduleRequest {
   id               String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  liveScheduleId   String                    @map("live_schedule_id") @db.Uuid
+  sessionId        String                    @map("session_id") @db.Uuid
   classId          String?                   @map("class_id") @db.Uuid
   requestedBy      String                    @map("requested_by") @db.Uuid
   type             LiveScheduleRequestType
   status           LiveScheduleRequestStatus @default(PENDING)
   reason           String?                   @db.Text
-  requestedDate    DateTime                  @map("requested_date")
+  requestedDate    DateTime?                 @map("requested_date")
   originalWeekday  Int                       @map("original_weekday")
   originalStartTime String                   @map("original_start_time") @db.VarChar(20)
   originalEndTime  String                    @map("original_end_time") @db.VarChar(20)
@@ -1169,12 +1219,12 @@ model LiveScheduleRequest {
   createdAt        DateTime                  @default(now()) @map("created_at")
   updatedAt        DateTime                  @default(now()) @updatedAt @map("updated_at")
 
-  liveSchedule LiveSchedule @relation(fields: [liveScheduleId], references: [id], onDelete: Cascade)
+  session     LiveScheduleSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   requester    User         @relation("LiveScheduleRequestRequester", fields: [requestedBy], references: [id], onDelete: Cascade)
   reviewer     User?        @relation("LiveScheduleRequestReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
   proposedTeacher User?     @relation("LiveScheduleRequestProposedTeacher", fields: [proposedTeacherId], references: [id], onDelete: SetNull)
 
-  @@index([liveScheduleId])
+  @@index([sessionId])
   @@index([requestedBy])
   @@index([status])
   @@index([requestedDate])
@@ -1558,16 +1608,16 @@ model CourseOfferingClass {
 
 model ClassAttendance {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  liveScheduleId String  @map("live_schedule_id") @db.Uuid
+  sessionId      String  @map("session_id") @db.Uuid
   userId         String  @map("user_id") @db.Uuid
   status         String  @db.VarChar(20) // PRESENT, ABSENT, LATE, EXCUSED
   recordedAt     DateTime @default(now()) @map("recorded_at")
 
-  liveSchedule LiveSchedule @relation(fields: [liveScheduleId], references: [id], onDelete: Cascade)
+  session     LiveScheduleSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([liveScheduleId, userId])
-  @@index([liveScheduleId])
+  @@unique([sessionId, userId])
+  @@index([sessionId])
   @@index([userId])
   @@map("academy_class_attendances")
 }

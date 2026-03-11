@@ -299,13 +299,19 @@ export default function AcademyCourseOfferingDetailPage() {
                 </div>
               </div>
               <div>
-                <label className="text-xs text-muted-foreground uppercase font-semibold">Thời hạn hiệu lực</label>
+                <label className="text-xs text-muted-foreground uppercase font-semibold">
+                  Cửa sổ bán trong catalog (không phải thời hạn học)
+                </label>
                 <div className="flex items-center gap-2 text-sm mt-1">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
                   <span>
-                    {displayValidFrom ? new Date(displayValidFrom).toLocaleDateString("vi-VN") : "Bắt đầu"}
-                    {" - "}
-                    {displayValidTo ? new Date(displayValidTo).toLocaleDateString("vi-VN") : "Kết thúc"}
+                    {displayValidFrom
+                      ? new Date(displayValidFrom).toLocaleDateString("vi-VN")
+                      : "Bắt đầu bán ngay"}
+                    {" · "}
+                    {displayValidTo
+                      ? `Ngừng bán: ${new Date(displayValidTo).toLocaleDateString("vi-VN")}`
+                      : "Không giới hạn thời gian bán (Evergreen)"}
                   </span>
                 </div>
               </div>

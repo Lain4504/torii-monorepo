@@ -433,7 +433,10 @@ export function CourseOfferingForm({
                     <FieldLabel>Ngày kết thúc bán</FieldLabel>
                     <Input type="date" {...field} />
                     <FieldDescription>
-                      Thời điểm gói này ngừng bán. Để trống nếu bán vĩnh viễn (Evergreen).
+                      Thời điểm gói này ngừng được hiển thị để đăng ký/mua trong catalog.
+                      Để trống nếu là gói bán dài hạn/evergreen (đặc biệt phù hợp với VOD – thời hạn học sẽ do từng lớp quy định, ví dụ qua
+                      <code className="mx-1 font-mono text-xs">defaultExpiresMonths</code>
+                      của lớp VOD).
                     </FieldDescription>
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>

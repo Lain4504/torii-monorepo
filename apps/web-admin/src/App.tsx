@@ -76,6 +76,7 @@ import AcademyCourseProfileDetailPage from '@/routes/academy/course-profile-deta
 import AcademyLessonCreatePage from '@/routes/academy/lesson-create-page.tsx'
 import AcademyLessonEditPage from '@/routes/academy/lesson-edit-page.tsx'
 import AcademyDashboardPage from '@/routes/academy/academy-dashboard-page.tsx'
+import AcademyManagementMock from '@/routes/academy/management-mock.tsx'
 import AcademyApprovalsPage from '@/routes/academy/approvals-page.tsx'
 import MyClassesPage from '@/routes/academy/my-classes-page.tsx'
 
@@ -182,8 +183,7 @@ function App() {
 
                     <Route path="academy/exam-attempts/:id" element={<AcademyExamAttemptDetailPage />} />
                     <Route path="academy/assignment-submissions/:id" element={<AcademyAssignmentSubmissionDetailPage />} />
-
-
+                    <Route path="academy/management-mock" element={<AcademyManagementMock />} />
                   </Route>
 
                   <Route element={<RoutePermissionGuard permission="coupon.manage" />}>

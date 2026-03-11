@@ -25,6 +25,7 @@ import {
   FileText,
   Video,
   Globe,
+  Layout,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -199,6 +200,12 @@ export default function CourseProfileDetailPage() {
             Bài học (Lesson Bank)
           </TabsTrigger>
           <TabsTrigger
+            value="assessments"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-2 py-3"
+          >
+            Đề thi & Assessments
+          </TabsTrigger>
+          <TabsTrigger
             value="classes"
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-2 py-3"
           >
@@ -312,6 +319,67 @@ export default function CourseProfileDetailPage() {
                 </CardContent>
               </Card>
             </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="assessments" className="mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <FileText className="h-5 w-5 text-muted-foreground" /> Đề thi (Exams) theo chương trình
+                </CardTitle>
+                <CardDescription>
+                  Quản lý đề thi gốc gắn với Course Profile này. Mỗi đề có thể được gắn vào nhiều lớp thông qua ClassAssessment.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Sử dụng màn hình Exams để tạo, chỉnh sửa và lọc đề thi theo Course Profile.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button asChild size="sm" className="gap-2">
+                    <Link to={`/academy/exams/new?courseProfileId=${id}`}>
+                      <Plus className="h-4 w-4" />
+                      Tạo đề thi mới
+                    </Link>
+                  </Button>
+                  <Button asChild size="sm" variant="outline" className="gap-2">
+                    <Link to={`/academy/exams?courseProfileId=${id}`}>
+                      <Layers className="h-4 w-4" />
+                      Xem danh sách đề thi
+                    </Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Layers className="h-5 w-5 text-muted-foreground" /> Assessments theo từng lớp
+                </CardTitle>
+                <CardDescription>
+                  Các bài kiểm tra/bài tập thực tế được cấu hình ở cấp Class (tab Assessments trong màn chi tiết lớp).
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Từ danh sách lớp bên dưới, vào chi tiết từng lớp để cấu hình ClassAssessment (Quiz/Assignment), deadline và trọng số.
+                </p>
+                <Button
+                  asChild
+                  size="sm"
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <Link to={`/academy/classes?courseProfileId=${id}`}>
+                    <Layout className="h-4 w-4" />
+                    Mở danh sách lớp theo Profile
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
 

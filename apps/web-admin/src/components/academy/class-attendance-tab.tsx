@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useAcademyLiveSchedules } from "@/lib/api/services/academy-live-schedules"
+import { useAcademyLiveSessions } from "@/lib/api/services/academy-live-sessions"
 import { useAcademyEnrollments } from "@/lib/api/services/academy-enrollments"
 import { useAcademyClassAttendances, useCreateAcademyClassAttendance } from "@/lib/api/services/academy-class-attendances"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
@@ -11,18 +11,23 @@ import { cn } from "@workspace/ui/lib/utils"
 
 interface ClassAttendanceTabProps {
     classId: string
-    liveClassId: string
 }
 
-export function ClassAttendanceTab({ classId, liveClassId }: ClassAttendanceTabProps) {
-    const { data: schedules = [], isLoading: isLoadingSchedules } = useAcademyLiveSchedules({ classId })
+export function ClassAttendanceTab({ classId }: ClassAttendanceTabProps) {
+    const today = new Date()
+    const from = today.toISOString().slice(0, 10)
+    const to = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+
+    const { data: sessions = [], isLoading: isLoadingSessions } = useAcademyLiveSessions(
+        { classId, from, to },
+        { enabled: !!classId },
+    )
     const { data: enrollmentsData, isLoading: isLoadingEnrollments } = useAcademyEnrollments({ classId, page: 1, limit: 1000 })
 
-    const [selectedScheduleId, setSelectedScheduleId] = useState<string | null>(null)
+    const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null)
 
     const { data: attendancesData } = useAcademyClassAttendances({
-        liveScheduleId: selectedScheduleId || undefined,
-        liveClassId: !selectedScheduleId ? liveClassId : undefined,
+        sessionId: selectedSessionId || undefined,
         page: 1,
         limit: 1000
     })
@@ -33,10 +38,10 @@ export function ClassAttendanceTab({ classId, liveClassId }: ClassAttendanceTabP
 
     const createAttendanceMutation = useCreateAcademyClassAttendance()
 
-    const handleStatusChange = async (userId: string, scheduleId: string, status: string) => {
+    const handleStatusChange = async (userId: string, sessionId: string, status: string) => {
         try {
             await createAttendanceMutation.mutateAsync({
-                liveScheduleId: scheduleId,
+                sessionId: sessionId,
                 userId,
                 status: status as any
             })
@@ -56,11 +61,11 @@ export function ClassAttendanceTab({ classId, liveClassId }: ClassAttendanceTabP
         }
     }
 
-    if (isLoadingSchedules || isLoadingEnrollments) {
+    if (isLoadingSessions || isLoadingEnrollments) {
         return <div className="p-8 text-center text-muted-foreground animate-pulse">Đang tải dữ liệu...</div>
     }
 
-    if (!schedules.length) {
+    if (!sessions.length) {
         return (
             <Card className="border-dashed">
                 <CardContent className="py-12 text-center text-muted-foreground">
@@ -78,25 +83,25 @@ export function ClassAttendanceTab({ classId, liveClassId }: ClassAttendanceTabP
                     <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                         Chọn buổi học
                     </CardTitle>
-                    <CardDescription>Chọn một lịch học trong tuần</CardDescription>
+                    <CardDescription>Chọn một buổi (session) theo ngày</CardDescription>
                 </CardHeader>
                 <CardContent className="p-0 overflow-hidden">
                     <div className="divide-y">
-                        {schedules.map((s: any) => (
+                        {sessions.map((s: any) => (
                             <button
                                 key={s.id}
                                 className={cn(
                                     "w-full text-left p-4 hover:bg-muted/50 transition-colors flex items-center justify-between group",
-                                    selectedScheduleId === s.id && "bg-primary/5 border-l-2 border-primary"
+                                    selectedSessionId === s.id && "bg-primary/5 border-l-2 border-primary"
                                 )}
-                                onClick={() => setSelectedScheduleId(s.id)}
+                                onClick={() => setSelectedSessionId(s.id)}
                             >
                                 <div className="flex flex-col gap-0.5 min-w-0">
                                     <span className={cn(
                                         "font-semibold text-sm",
-                                        selectedScheduleId === s.id ? "text-primary" : "text-foreground"
+                                        selectedSessionId === s.id ? "text-primary" : "text-foreground"
                                     )}>
-                                        {formatWeekday(s.weekday)}
+                                        {formatDateLabel(s.sessionDate)}
                                     </span>
                                     <span className="text-xs text-muted-foreground truncate flex items-center gap-1">
                                         <Clock className="h-3 w-3" /> {s.startTime} - {s.endTime}
@@ -104,7 +109,7 @@ export function ClassAttendanceTab({ classId, liveClassId }: ClassAttendanceTabP
                                 </div>
                                 <ChevronRight className={cn(
                                     "h-4 w-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform",
-                                    selectedScheduleId === s.id && "text-primary opacity-100"
+                                    selectedSessionId === s.id && "text-primary opacity-100"
                                 )} />
                             </button>
                         ))}
@@ -120,20 +125,15 @@ export function ClassAttendanceTab({ classId, liveClassId }: ClassAttendanceTabP
                                 Chi tiết điểm danh
                             </CardTitle>
                             <CardDescription>
-                                {!selectedScheduleId
+                                {!selectedSessionId
                                     ? "Chọn buổi học bên trái"
                                     : `Ghi nhận cho ${activeEnrollments.length} học viên`}
                             </CardDescription>
                         </div>
-                        {selectedScheduleId && (
-                            <Badge variant="outline" className="bg-background">
-                                {formatWeekday(schedules.find((s: any) => s.id === selectedScheduleId)?.weekday ?? 0)}
-                            </Badge>
-                        )}
                     </div>
                 </CardHeader>
                 <CardContent className="p-0">
-                    {!selectedScheduleId ? (
+                    {!selectedSessionId ? (
                         <div className="py-24 text-center text-muted-foreground flex flex-col items-center gap-3">
                             <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
                                 <Calendar className="h-6 w-6 opacity-40" />
@@ -153,7 +153,7 @@ export function ClassAttendanceTab({ classId, liveClassId }: ClassAttendanceTabP
                                 <TableBody>
                                     {activeEnrollments.length ? (
                                         activeEnrollments.map((en: any) => {
-                                            const attendance = attendances.find((a: any) => a.userId === en.userId && a.liveScheduleId === selectedScheduleId)
+                                            const attendance = attendances.find((a: any) => a.userId === en.userId && a.sessionId === selectedSessionId)
                                             return (
                                                 <TableRow key={en.id} className="group hover:bg-muted/30">
                                                     <TableCell className="pl-6">
@@ -174,7 +174,7 @@ export function ClassAttendanceTab({ classId, liveClassId }: ClassAttendanceTabP
                                                     <TableCell>
                                                         <Select
                                                             value={attendance?.status || ""}
-                                                            onValueChange={(val) => handleStatusChange(en.userId, selectedScheduleId, val)}
+                                                            onValueChange={(val) => handleStatusChange(en.userId, selectedSessionId, val)}
                                                             disabled={createAttendanceMutation.isPending}
                                                         >
                                                             <SelectTrigger className={cn(
@@ -216,9 +216,10 @@ export function ClassAttendanceTab({ classId, liveClassId }: ClassAttendanceTabP
     )
 }
 
-function formatWeekday(wd: number) {
-    const days = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"]
-    return days[wd] || "N/A"
+function formatDateLabel(d: string) {
+    const date = new Date(d)
+    if (Number.isNaN(date.getTime())) return d
+    return date.toLocaleDateString("vi-VN", { weekday: "long", year: "numeric", month: "2-digit", day: "2-digit" })
 }
 
 function Badge({ children, variant = "default", className }: { children: React.ReactNode, variant?: string, className?: string }) {

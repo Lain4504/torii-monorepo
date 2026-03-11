@@ -21,7 +21,11 @@ import { ClassReviewController } from './controllers/class-review.controller';
 import { StudyNoteController } from './controllers/study-note.controller';
 import { StudySetController } from './controllers/study-set.controller';
 import { PlacementController } from './controllers/placement.controller';
-import { LiveSessionController } from './controllers/live-session.controller';
+import {
+  AcademyLiveSessionController,
+  LiveSessionJoinController,
+} from './controllers/live-session.controller';
+import { LiveSessionRequestController } from './controllers/live-session-request.controller';
 import { ClassAttendanceController } from './controllers/class-attendance.controller';
 import { QuestionPoolController } from './controllers/question-pool.controller';
 
@@ -51,7 +55,9 @@ import { QuestionPoolController } from './controllers/question-pool.controller';
     StudyNoteController,
     StudySetController,
     PlacementController,
-    LiveSessionController,
+    AcademyLiveSessionController,
+    LiveSessionJoinController,
+    LiveSessionRequestController,
     ClassAttendanceController,
   ],
 })
