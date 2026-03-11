@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const orderCheckoutSchema = z.object({
-    offeringIds: z.array(z.string().uuid()),
+    offeringIds: z.array(z.string()),
     couponCode: z.string().optional(),
     paymentMethod: z.preprocess(
         (value) => (typeof value === 'string' ? value.toUpperCase() : value),
@@ -10,6 +10,6 @@ export const orderCheckoutSchema = z.object({
 });
 
 export const orderPreviewSchema = z.object({
-    offeringIds: z.array(z.string().uuid()),
+    offeringIds: z.array(z.string()),
     couponCode: z.string().optional(),
 });

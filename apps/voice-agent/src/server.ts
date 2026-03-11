@@ -242,7 +242,7 @@ httpServer.listen(PORT, async () => {
 // Graceful shutdown and cleanup for tsx watch
 const shutdown = () => {
     console.log('\n[Server] Shutting down gracefully...');
-    // Immediately stop accepting new HTTP connections to free port 8123
+    // Immediately stop accepting new HTTP connections to free port 8082
     httpServer.close();
 
     // In dev mode (tsx watch), we want to exit quickly so the new process

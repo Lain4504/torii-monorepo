@@ -3,7 +3,7 @@ import { PaymentMethod } from '@prisma/generated';
 
 export class OrderCheckoutDto {
     @IsArray()
-    @IsUUID('4', { each: true })
+    @IsString({ each: true })
     offeringIds!: string[];
 
     @IsOptional()
@@ -16,7 +16,7 @@ export class OrderCheckoutDto {
 
 export class OrderPreviewDto {
     @IsArray()
-    @IsUUID('4', { each: true })
+    @IsString({ each: true })
     offeringIds!: string[];
 
     @IsOptional()

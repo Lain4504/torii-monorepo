@@ -36,6 +36,7 @@ import {
 } from "@workspace/ui/components/tooltip"
 
 import { CommandMenu } from './command-menu'
+import { QuotaIndicator } from '../ai-sensei/quota-indicator'
 
 export function DashboardHeader() {
     const { user } = useAppSelector((state) => state.auth)
@@ -176,6 +177,7 @@ export function DashboardHeader() {
                     </div>
 
                     <div className="flex items-center gap-1">
+                        <QuotaIndicator />
                         <NotificationsDropdown />
                         <ModeToggle />
                     </div>

@@ -16,6 +16,7 @@ export * from './decorators/public.decorator';
 export * from './decorators/permissions.decorator';
 
 export * from './guards/permissions.guard';
+export * from './guards/subscription.guard';
 
 export * from './utils/slug.utils';
 export * from './utils/webhook_verify';

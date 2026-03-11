@@ -12,6 +12,7 @@ import {
   AgentConversationSimulationResponseSchema,
   AgentResourceRecommendationResponseSchema,
   AgentChatResponseSchema,
+  AgentRoleplayResponseSchema,
   Requester,
 } from '@workspace/schemas';
 
@@ -94,8 +95,6 @@ export class SenseiService implements OnModuleInit {
           usage.totalTokenCount,
         );
 
-        await this.deductCoins(userId, 'grammar_check', usage);
-
         return data;
       },
     );
@@ -137,7 +136,7 @@ export class SenseiService implements OnModuleInit {
           usage.totalTokenCount,
         );
 
-        await this.deductCoins(userId, 'translation', usage);
+        // await this.deductCoins(userId, 'translation', usage);
 
         return data;
       },
@@ -178,7 +177,7 @@ export class SenseiService implements OnModuleInit {
           usage.totalTokenCount,
         );
 
-        await this.deductCoins(userId, 'flashcard_creation', usage);
+        // await this.deductCoins(userId, 'flashcard_creation', usage);
 
         return data;
       },
@@ -229,7 +228,7 @@ export class SenseiService implements OnModuleInit {
           usage.totalTokenCount,
         );
 
-        await this.deductCoins(userId, `drill_${type}`, usage);
+        // await this.deductCoins(userId, `drill_${type}`, usage);
 
         return data;
       },
@@ -279,7 +278,7 @@ export class SenseiService implements OnModuleInit {
           usage.totalTokenCount,
         );
 
-        await this.deductCoins(userId, `conversation_${scenario}`, usage);
+        // await this.deductCoins(userId, `conversation_${scenario}`, usage);
 
         return data;
       },
@@ -384,8 +383,6 @@ export class SenseiService implements OnModuleInit {
           usage.totalTokenCount,
         );
 
-        await this.deductCoins(userId, 'resource_recommendation', usage);
-
         return data;
       },
     );
@@ -457,8 +454,12 @@ export class SenseiService implements OnModuleInit {
           userContext,
           timestamp: new Date().toISOString(),
         });
-        const { text: response, usage } =
-          await this.fastMcpService.callGemini(prompt);
+        const { data: responseData, usage } =
+          await this.fastMcpService.callGeminiWithSchema(
+            prompt,
+            AgentRoleplayResponseSchema,
+            { maxRetries: 1 }
+          );
 
         // For roleplay, we use a consistent room ID to group the session
         const roomId = `rp-${userId}`;
@@ -511,9 +512,8 @@ export class SenseiService implements OnModuleInit {
           }, 1000);
         }
 
-        const parsed = this.fastMcpService.cleanJsonResponse(response);
         return {
-          ...parsed,
+          ...responseData,
           tokenUsage: {
             promptTokens: usage.promptTokenCount,
             completionTokens: usage.candidatesTokenCount,

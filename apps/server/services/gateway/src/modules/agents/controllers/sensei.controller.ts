@@ -45,6 +45,8 @@ export class SenseiHandler {
         const requester = req.requester;
         const userId = requester?.sub;
         try {
+
+
             this.logger.log(`📝 Grammar check request from user ${userId}`);
             const result = await firstValueFrom(
                 this.natsClient.send(
@@ -65,6 +67,8 @@ export class SenseiHandler {
         const requester = req.requester;
         const userId = requester?.sub;
         try {
+
+
             this.logger.log(`🌐 Translation request from user ${userId}`);
             const result = await firstValueFrom(
                 this.natsClient.send(
@@ -85,6 +89,8 @@ export class SenseiHandler {
         const requester = req.requester;
         const userId = requester?.sub;
         try {
+
+
             this.logger.log(`📇 Flashcard creation request from user ${userId}`);
             const result = await firstValueFrom(
                 this.natsClient.send(
@@ -131,6 +137,8 @@ export class SenseiHandler {
         const requester = req.requester;
         const userId = requester?.sub;
         try {
+
+
             this.logger.log(`💬 Conversation simulation request from user ${userId}`);
             const result = await firstValueFrom(
                 this.natsClient.send(
@@ -177,6 +185,8 @@ export class SenseiHandler {
         const requester = req.requester;
         const userId = requester?.sub;
         try {
+
+
             this.logger.log(`💬 Chat request from user ${userId}`);
             const result = await firstValueFrom(
                 this.natsClient.send(
@@ -197,6 +207,16 @@ export class SenseiHandler {
         const requester = req.requester;
         const userId = requester?.sub;
         try {
+            // Check Quota (only for the first turn or general turn)
+            if (!body.history || body.history.length === 0) {
+                const quota = await firstValueFrom(
+                    this.natsClient.send({ cmd: 'billing.quota.checkAndConsume' }, { userId, feature: 'ai_turns' })
+                );
+                if (quota.allowed === false) {
+                    return errorResponse(`Bạn đã hết lượt sử dụng AI hôm nay. Vui lòng nâng cấp gói để tiếp tục.`);
+                }
+            }
+
             this.logger.log(`🎭 Roleplay request from user ${userId}`);
 
             const result = await firstValueFrom(
@@ -246,26 +266,23 @@ export class SenseiHandler {
                 `🔑 Fetching LiveKit Token for Roleplay Cloud from user ${userId}`,
             );
 
-            // Check usage and deduct coins (DISABLED)
-            /*
+            // Check usage and deduct quota
             const usageResult = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'billing.quota.checkAndConsume' },
                     {
                         userId,
-                        featureType: 'live',
+                        feature: 'ai_turns',
                     },
                 ),
             );
 
-            if (!usageResult || !usageResult.allowed) {
+            if (!usageResult || usageResult.allowed === false) {
                 return errorResponse(
                     usageResult?.message ||
-                    'Bạn đã hết lượt sử dụng miễn phí và không đủ Coins.',
+                    'Bạn đã hết lượt sử dụng AI hôm nay. Vui lòng nâng cấp gói để tiếp tục.',
                 );
             }
-            */
-            const usageResult = { allowed: true };
 
             const { apiKey, apiSecret, wsUrl } = this.appConfig.livekitRoleplay;
             const tokenValidity = 7200; // 2 hours
@@ -292,6 +309,7 @@ export class SenseiHandler {
                 token,
                 wsUrl,
                 roomId,
+                quota: usageResult.status,
             });
         } catch (error: any) {
             this.logger.error(
@@ -307,26 +325,16 @@ export class SenseiHandler {
     async getQuotaStatus(@Req() req: ReqWithRequester) {
         const userId = req.requester?.sub;
         try {
-            // Billing/quota check is temporarily disabled.
-            // Keep endpoint contract for frontend compatibility.
-            /*
             const result = await firstValueFrom(
                 this.natsClient.send(
                     { cmd: 'billing.quota.getStatus' },
                     {
                         userId,
-                        featureType: 'roleplay',
+                        feature: 'ai_turns',
                     },
                 ),
             );
             return successResponse(result);
-            */
-            return successResponse({
-                remainingTrial: 999999,
-                cost: 0,
-                chargedCoins: false,
-                billingDisabled: true,
-            });
         } catch (error: any) {
             this.logger.error(
                 `Failed to get quota status for user ${userId}`,

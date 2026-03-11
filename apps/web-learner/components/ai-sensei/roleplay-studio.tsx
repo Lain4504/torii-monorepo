@@ -14,8 +14,10 @@ import {
     SelectValue,
 } from "@workspace/ui/components/select"
 import { agentApi } from "@/lib/api/services/agent-api"
+import { extractErrorMessage } from "@/lib/api/api-client"
 import { AgentConversationSimulationResponseDTO as ConversationSimulationResponse } from "@workspace/schemas"
 import { Spinner } from "@workspace/ui/components/spinner"
+import { toast } from "@workspace/ui/components/sonner"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -49,8 +51,9 @@ export function RoleplayStudio() {
         try {
             const res = await agentApi.sensei.simulateConversation(data.scenario, data.level)
             setRoleplayData(res)
-        } catch (error) {
+        } catch (error: any) {
             console.error(error)
+            toast.error(extractErrorMessage(error) || 'Không thể tạo kịch bản. Vui lòng thử lại.')
         } finally {
             setIsLoading(false)
         }
