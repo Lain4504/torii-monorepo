@@ -7,6 +7,7 @@ import { UserIdentityRepository } from '@server/identity/modules/auth/user-ident
 import { AuthorizationModule } from '@server/identity/modules/authorization/authorization.module';
 import { TwoFactorAuthModule } from '@server/identity/modules/two-factor-auth/two-factor-auth.module';
 import { UsersModule } from '@server/identity/modules/users/users.module';
+import { NotificationModule } from '@server/identity/modules/notification/notification.module';
 import {
   AUTH_SERVICE_TOKEN,
   SESSION_SERVICE_TOKEN,
@@ -27,6 +28,7 @@ import { AuthHandler } from '@server/identity/modules/auth/auth.handler';
     AuthorizationModule,
     TwoFactorAuthModule,
     forwardRef(() => UsersModule),
+    NotificationModule,
   ],
   controllers: [AuthHandler],
   providers: [

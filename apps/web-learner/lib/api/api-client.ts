@@ -190,6 +190,14 @@ apiClient.interceptors.request.use(
         if (typeof window !== 'undefined') {
             config.headers['x-platform'] = 'web';
         }
+
+        // Avoid browser ETag caching causing 304 without usable body for XHR/axios
+        // (API responses should be treated as dynamic for the app shell)
+        if (config.method?.toLowerCase() === 'get') {
+            config.headers['Cache-Control'] = 'no-cache';
+            config.headers['Pragma'] = 'no-cache';
+            config.headers['Expires'] = '0';
+        }
         return config;
     },
     (error) => {

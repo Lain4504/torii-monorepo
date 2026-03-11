@@ -56,7 +56,8 @@ export class GamificationController {
     @MessagePattern('gamification.getStreak')
     async getStreak(@Payload() data: { userId: string }) {
         try {
-            return await this.gamificationService.checkAndGetStreak(data.userId);
+            // Read-only streak status; streak is now updated when real activities are tracked
+            return await this.gamificationService.getStreakStatus(data.userId);
         } catch (error) {
             throw new RpcException(error.message);
         }

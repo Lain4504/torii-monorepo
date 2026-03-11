@@ -35,6 +35,10 @@ import type { AcademyExam } from "@/lib/api/services/academy-exams"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
 import { SectionListEditor } from "@/components/academy/section-list-editor"
 import { KeyValueEditor } from "@/components/academy/key-value-editor"
+import { useAuth } from "@/hooks/use-auth"
+import { UserRole } from "@workspace/schemas"
+import { useAcademyClasses } from "@/lib/api/services/academy-classes"
+import { useMemo } from "react"
 
 export function ExamForm({
   mode,
@@ -52,7 +56,37 @@ export function ExamForm({
   defaultCourseProfileId?: string
 }) {
   const isEdit = mode === "edit"
+  const { user } = useAuth()
+  const isLecturer = user?.role === UserRole.LECTURER
+
   const { data: profiles = [] } = useAcademyCourseProfiles({})
+  const { data: classes = [] } = useAcademyClasses({})
+
+  const allowedCourseProfileIdSet = useMemo(() => {
+    if (!isLecturer) return null
+    if (!user?.id) return new Set<string>()
+
+    const ids = new Set<string>()
+    for (const c of classes) {
+      if (c.mode !== "LIVE") continue
+      if (c.liveClass?.instructorId !== user.id) continue
+      if (c.courseProfileId) ids.add(c.courseProfileId)
+    }
+    return ids
+  }, [classes, isLecturer, user?.id])
+
+  const scopedProfiles = useMemo(() => {
+    if (!allowedCourseProfileIdSet) return profiles
+    return profiles.filter((p) => allowedCourseProfileIdSet.has(p.id))
+  }, [allowedCourseProfileIdSet, profiles])
+
+  const scopedDefaultCourseProfileId = useMemo(() => {
+    if (!defaultCourseProfileId) return defaultCourseProfileId
+    if (!allowedCourseProfileIdSet) return defaultCourseProfileId
+    return allowedCourseProfileIdSet.has(defaultCourseProfileId)
+      ? defaultCourseProfileId
+      : undefined
+  }, [allowedCourseProfileIdSet, defaultCourseProfileId])
 
   const { handleSubmit, control } = useForm<
     AcademyExamCreateDTO | AcademyExamUpdateDTO
@@ -71,7 +105,7 @@ export function ExamForm({
         settings: initial?.settings ?? undefined,
       }
       : {
-        courseProfileId: defaultCourseProfileId,
+        courseProfileId: scopedDefaultCourseProfileId,
         title: "",
         description: undefined,
         examType: "COURSE",
@@ -108,7 +142,7 @@ export function ExamForm({
                         <SelectValue placeholder="Chọn Course Profile..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {profiles.map((p) => (
+                        {scopedProfiles.map((p) => (
                           <SelectItem key={p.id} value={p.id}>
                             {p.code} - {p.title}
                           </SelectItem>

@@ -222,7 +222,7 @@ export class NotificationHandler {
         userId: event.userId,
         title: 'Thanh toán thành công! 🎉',
         message,
-        notificationType: NotificationType.ORDER_SUCCESS,
+        notificationType: NotificationType.SYSTEM,
         metadata: {
           orderId: event.orderId,
           courseId: event.courseId,
@@ -272,7 +272,7 @@ export class NotificationHandler {
         userId: event.recipientId,
         title: 'Bạn nhận được món quà kiến thức! 🎁',
         message: `Bạn vừa nhận được khóa học "${event.courseName}" từ ${event.senderName}. Hãy bắt đầu học nào!`,
-        notificationType: NotificationType.COURSE,
+        notificationType: NotificationType.SYSTEM,
         metadata: {
           senderId: event.senderId,
           senderName: event.senderName,
@@ -353,7 +353,7 @@ export class NotificationHandler {
         userId: event.userId,
         title: 'Tham gia khóa học thành công! 🎉',
         message: `Bạn đã tham gia thành công khóa học "${event.courseName}". Bắt đầu học ngay!`,
-        notificationType: NotificationType.COURSE,
+        notificationType: NotificationType.SYSTEM,
         metadata: {
           enrollmentId: event.enrollmentId,
           courseId: event.courseId,

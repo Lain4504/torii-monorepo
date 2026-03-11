@@ -4,7 +4,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
+import { ClassStatus } from '@prisma/generated';
 import {
+  ClassAssignmentCreateDto,
+  ClassAssignmentUpdateDto,
   ClassCreateDto,
   ClassDuplicateDto,
   ClassQueryDto,
@@ -17,40 +20,38 @@ export class ClassService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
-  ) {}
+  ) { }
+
+  // ==============================================================
+  // CLASS CRUD
+  // ==============================================================
 
   async findAll(query: ClassQueryDto) {
     const q = query.q?.trim();
     return this.prisma.class.findMany({
       where: {
         courseProfileId: query.courseProfileId ?? undefined,
-        courseEditionId: query.courseEditionId ?? undefined,
-        mode: (query.mode as any) ?? undefined,
-        status: (query.status as any) ?? undefined,
+        mode: query.mode as any,
+        status: query.status as any,
+        instructorId: query.instructorId ?? undefined,
         ...(q
           ? {
-              OR: [
-                { code: { contains: q, mode: 'insensitive' } },
-                { name: { contains: q, mode: 'insensitive' } },
-              ],
-            }
+            OR: [
+              { code: { contains: q, mode: 'insensitive' } },
+              { name: { contains: q, mode: 'insensitive' } },
+            ],
+          }
           : {}),
       },
       include: {
         _count: {
           select: { enrollments: true },
         },
-        vodClass: true,
-        liveClass: {
-          include: {
-            primaryTeacher: {
-              select: {
-                id: true,
-                displayName: true,
-                avatarUrl: true,
-              },
-            },
-            schedules: true,
+        instructor: {
+          select: {
+            id: true,
+            displayName: true,
+            avatarUrl: true,
           },
         },
         courseProfile: {
@@ -58,12 +59,14 @@ export class ClassService {
             id: true,
             title: true,
             code: true,
+            level: true,
+            thumbnailUrl: true,
           },
         },
-        courseEdition: {
+        syllabus: {
           select: {
             id: true,
-            editionTag: true,
+            versionLabel: true,
             status: true,
           },
         },
@@ -76,18 +79,40 @@ export class ClassService {
     const item = await this.prisma.class.findUnique({
       where: { id },
       include: {
-        vodClass: true,
-        liveClass: {
-          include: {
-            primaryTeacher: {
-              select: {
-                id: true,
-                displayName: true,
-                avatarUrl: true,
-              },
-            },
-            schedules: true,
+        instructor: {
+          select: {
+            id: true,
+            displayName: true,
+            avatarUrl: true,
           },
+        },
+        courseProfile: {
+          select: {
+            id: true,
+            title: true,
+            code: true,
+            level: true,
+            thumbnailUrl: true,
+          },
+        },
+        syllabus: {
+          select: {
+            id: true,
+            versionLabel: true,
+            status: true,
+            modules: {
+              include: {
+                lessons: {
+                  orderBy: { orderIndex: 'asc' },
+                },
+              },
+              orderBy: { orderIndex: 'asc' },
+            },
+          },
+        },
+        liveSchedules: true,
+        _count: {
+          select: { enrollments: true },
         },
       },
     });
@@ -96,60 +121,38 @@ export class ClassService {
   }
 
   async create(input: ClassCreateDto, requesterId = 'SYSTEM') {
-    const edition = await this.prisma.courseEdition.findUnique({
-      where: { id: input.courseEditionId },
-      select: { id: true, courseProfileId: true },
+    const profile = await this.prisma.courseProfile.findUnique({
+      where: { id: input.courseProfileId },
+      select: { id: true },
     });
-    if (!edition) throw new BadRequestException('Invalid courseEditionId');
-    if (edition.courseProfileId !== input.courseProfileId) {
-      throw new BadRequestException(
-        'courseEditionId does not belong to courseProfileId',
-      );
+    if (!profile) throw new BadRequestException('Invalid courseProfileId');
+
+    if (input.syllabusId) {
+      const syllabus = await this.prisma.syllabus.findUnique({
+        where: { id: input.syllabusId },
+        select: { id: true },
+      });
+      if (!syllabus) throw new BadRequestException('Invalid syllabusId');
     }
 
     return this.prisma.$transaction(async (tx) => {
       const classItem = await tx.class.create({
         data: {
           courseProfileId: input.courseProfileId,
-          courseEditionId: input.courseEditionId,
+          syllabusId: input.syllabusId ?? undefined,
           code: input.code,
           name: input.name,
           mode: input.mode as any,
-          status: (input.status as any) ?? 'DRAFT',
-          settings: input.settings ?? undefined,
+          status: (input.status as ClassStatus) ?? 'DRAFT',
+          instructorId: input.instructorId,
         },
       });
 
-      if (input.mode === 'VOD') {
-        await tx.vodClass.create({
-          data: {
-            classId: classItem.id,
-            enrollmentOpenAt: input.enrollmentOpenAt,
-            enrollmentCloseAt: input.enrollmentCloseAt,
-            maxStudents: input.maxStudents,
-            defaultExpiresMonths: input.defaultExpiresMonths,
-          },
-        });
-      } else if (input.mode === 'LIVE') {
-        if (!input.startDate || !input.endDate) {
-          throw new BadRequestException(
-            'LIVE classes must have startDate and endDate',
-          );
-        }
-        await tx.liveClass.create({
-          data: {
-            classId: classItem.id,
-            term: input.term,
-            batch: input.batch,
-            startDate: input.startDate,
-            endDate: input.endDate,
-            enrollmentOpenAt: input.enrollmentOpenAt ?? input.startDate,
-            enrollmentCloseAt: input.enrollmentCloseAt ?? input.startDate,
-            minStudents: input.minStudents ?? 0,
-            maxStudents: input.maxStudents ?? 0,
-            minStudentsEnforcement: input.minStudentsEnforcement as any,
-            primaryTeacherId: input.primaryTeacherId,
-          },
+      // Lock the syllabus when it is linked
+      if (input.syllabusId) {
+        await tx.syllabus.update({
+          where: { id: input.syllabusId },
+          data: { status: 'LOCKED' },
         });
       }
 
@@ -159,7 +162,7 @@ export class ClassService {
         entity: 'Class',
         entityId: classItem.id,
         description: `Created ${input.mode} class ${input.code}`,
-        metadata: { code: input.code, mode: input.mode },
+        metadata: { code: input.code, mode: input.mode, syllabusId: input.syllabusId },
       });
 
       return classItem;
@@ -171,10 +174,10 @@ export class ClassService {
 
     if (
       classItem.mode === 'LIVE' &&
-      input.primaryTeacherId &&
-      input.primaryTeacherId !== classItem.liveClass?.primaryTeacherId
+      input.instructorId &&
+      input.instructorId !== classItem.instructorId
     ) {
-      await this.assertPrimaryTeacherScheduleConflicts(id, input.primaryTeacherId);
+      await this.assertPrimaryTeacherScheduleConflicts(id, input.instructorId);
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -182,36 +185,17 @@ export class ClassService {
         where: { id },
         data: {
           name: input.name,
-          status: input.status as any,
-          settings: input.settings ?? undefined,
+          status: input.status as ClassStatus,
+          instructorId: input.instructorId,
+          syllabusId: input.syllabusId,
         },
       });
 
-      if (classItem.mode === 'VOD') {
-        await tx.vodClass.update({
-          where: { classId: id },
-          data: {
-            enrollmentOpenAt: input.enrollmentOpenAt,
-            enrollmentCloseAt: input.enrollmentCloseAt,
-            maxStudents: input.maxStudents,
-            defaultExpiresMonths: input.defaultExpiresMonths,
-          },
-        });
-      } else if (classItem.mode === 'LIVE') {
-        await tx.liveClass.update({
-          where: { classId: id },
-          data: {
-            term: input.term,
-            batch: input.batch,
-            startDate: input.startDate,
-            endDate: input.endDate,
-            enrollmentOpenAt: input.enrollmentOpenAt,
-            enrollmentCloseAt: input.enrollmentCloseAt,
-            minStudents: input.minStudents,
-            maxStudents: input.maxStudents,
-            minStudentsEnforcement: input.minStudentsEnforcement as any,
-            primaryTeacherId: input.primaryTeacherId,
-          },
+      // Lock the new syllabus if updated
+      if (input.syllabusId && input.syllabusId !== classItem.syllabusId) {
+        await tx.syllabus.update({
+          where: { id: input.syllabusId },
+          data: { status: 'LOCKED' },
         });
       }
 
@@ -221,47 +205,41 @@ export class ClassService {
         entity: 'Class',
         entityId: id,
         description: `Updated class ${classItem.code}`,
-        oldValues: { name: classItem.name, status: classItem.status },
-        newValues: { name: updatedClass.name, status: updatedClass.status },
+        oldValues: { name: classItem.name, status: classItem.status, syllabusId: classItem.syllabusId },
+        newValues: { name: updatedClass.name, status: updatedClass.status, syllabusId: updatedClass.syllabusId },
       });
 
       return updatedClass;
     });
   }
 
+  // ==============================================================
+  // STATUS TRANSITIONS (Status-based, no date logic)
+  // ==============================================================
+
+  /** VOD: DRAFT → PUBLISHED / LIVE: DRAFT → OPENING */
   async publishClass(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.prisma.class.findUnique({
       where: { id },
-      include: {
-        courseEdition: true,
-        liveClass: { include: { schedules: { take: 1 } } },
-      },
+      include: { liveSchedules: { take: 1 } },
     });
     if (!classItem) throw new NotFoundException('Class not found');
-    if (classItem.status !== 'DRAFT' && classItem.status !== 'PENDING_APPROVAL')
-      return classItem;
-
-    if (classItem.courseEdition.status !== 'PUBLISHED') {
-      throw new BadRequestException(
-        'Cannot publish class for a non-PUBLISHED edition',
-      );
-    }
 
     if (classItem.mode === 'LIVE') {
-      if (
-        !classItem.liveClass?.schedules ||
-        classItem.liveClass.schedules.length === 0
-      ) {
-        throw new BadRequestException(
-          'LIVE classes must have at least one LiveSchedule',
-        );
+      if (!classItem.syllabusId) {
+        throw new BadRequestException('LIVE class must have a Syllabus before publishing');
+      }
+      if (!classItem.liveSchedules || classItem.liveSchedules.length === 0) {
+        throw new BadRequestException('LIVE class must have at least one LiveSchedule');
       }
     }
+
+    const newStatus = classItem.mode === 'VOD' ? 'PUBLISHED' : 'OPENING';
 
     const result = await this.prisma.class.update({
       where: { id },
       data: {
-        status: 'ENROLLING',
+        status: newStatus as ClassStatus,
         approvedAt: new Date(),
         approvedBy: requesterId,
       },
@@ -272,37 +250,32 @@ export class ClassService {
       action: 'class.publish',
       entity: 'Class',
       entityId: id,
-      description: `Published (Approved) class ${classItem.code}`,
-      metadata: { code: classItem.code },
+      description: `Approved class ${classItem.code} → ${newStatus}`,
     });
 
     return result;
   }
 
   async submitForApproval(id: string, requesterId: string) {
-    const classItem = await this.findById(id);
+    const classItem = await this.prisma.class.findUnique({
+      where: { id },
+      include: { liveSchedules: { take: 1 } },
+    });
+    if (!classItem) throw new NotFoundException('Class not found');
     if (classItem.status !== 'DRAFT') {
-      throw new BadRequestException(
-        'Only DRAFT classes can be submitted for approval',
-      );
+      throw new BadRequestException('Only DRAFT classes can be submitted for approval');
     }
 
     if (classItem.mode === 'LIVE') {
-      const liveClass = await this.prisma.liveClass.findUnique({
-        where: { classId: id },
-        include: { schedules: { take: 1 } },
-      });
-      if (!liveClass?.schedules || liveClass.schedules.length === 0) {
-        throw new BadRequestException(
-          'LIVE classes must have at least one LiveSchedule before submitting for approval',
-        );
+      if (!classItem.liveSchedules || classItem.liveSchedules.length === 0) {
+        throw new BadRequestException('LIVE class must have a LiveSchedule before submitting');
       }
     }
 
     const updated = await this.prisma.class.update({
       where: { id },
       data: {
-        status: 'PENDING_APPROVAL',
+        status: 'PENDING_APPROVAL' as ClassStatus,
         submittedForApprovalAt: new Date(),
         submittedBy: requesterId,
       },
@@ -320,16 +293,13 @@ export class ClassService {
   }
 
   async approve(id: string, requesterId: string) {
-    // Reuse publishClass logic
     return this.publishClass(id, requesterId);
   }
 
   async reject(id: string, reason: string, requesterId: string) {
     const classItem = await this.findById(id);
-    if (classItem.status !== 'PENDING_APPROVAL') {
-      throw new BadRequestException(
-        'Only PENDING_APPROVAL classes can be rejected',
-      );
+    if (classItem.status !== ('PENDING_APPROVAL' as ClassStatus)) {
+      throw new BadRequestException('Only PENDING_APPROVAL classes can be rejected');
     }
 
     const updated = await this.prisma.class.update({
@@ -347,20 +317,22 @@ export class ClassService {
       action: 'class.reject',
       entity: 'Class',
       entityId: id,
-      description: `Rejected class ${classItem.code} for reason: ${reason}`,
+      description: `Rejected class ${classItem.code}: ${reason}`,
       metadata: { reason },
     });
 
     return updated;
   }
 
+  /** LIVE: OPENING → ONGOING */
   async startClass(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
-    if (classItem.status === 'IN_PROGRESS') return classItem;
+    if (classItem.mode !== 'LIVE') throw new BadRequestException('Only LIVE classes can be started');
+    if (classItem.status === 'ONGOING') return classItem;
 
     const result = await this.prisma.class.update({
       where: { id },
-      data: { status: 'IN_PROGRESS' },
+      data: { status: 'ONGOING' as ClassStatus },
     });
 
     await this.audit.log({
@@ -370,19 +342,20 @@ export class ClassService {
       entityId: id,
       description: `Started class ${classItem.code}`,
       oldValues: { status: classItem.status },
-      newValues: { status: 'IN_PROGRESS' },
+      newValues: { status: 'ONGOING' },
     });
 
     return result;
   }
 
+  /** LIVE: ONGOING → COMPLETED */
   async completeClass(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
     if (classItem.status === 'COMPLETED') return classItem;
 
     const result = await this.prisma.class.update({
       where: { id },
-      data: { status: 'COMPLETED' },
+      data: { status: 'COMPLETED' as ClassStatus },
     });
 
     await this.audit.log({
@@ -391,89 +364,41 @@ export class ClassService {
       entity: 'Class',
       entityId: id,
       description: `Completed class ${classItem.code}`,
-      oldValues: { status: classItem.status },
-      newValues: { status: 'COMPLETED' },
     });
 
     return result;
   }
 
-  async cancelClass(id: string, requesterId = 'SYSTEM') {
+  /** VOD/LIVE: any → ARCHIVED */
+  async archiveClass(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
-    if (classItem.status === 'CANCELLED') return classItem;
+    if (classItem.status === 'ARCHIVED') return classItem;
 
     const result = await this.prisma.class.update({
       where: { id },
-      data: { status: 'CANCELLED' },
+      data: { status: 'ARCHIVED' as ClassStatus },
     });
 
     await this.audit.log({
       userId: requesterId,
-      action: 'class.cancel',
+      action: 'class.archive',
       entity: 'Class',
       entityId: id,
-      description: `Cancelled class ${classItem.code}`,
+      description: `Archived class ${classItem.code}`,
     });
 
     return result;
   }
 
-  async getCurriculum(id: string) {
-    const classItem = await this.prisma.class.findUnique({
-      where: { id },
-      include: {
-        courseEdition: {
-          include: {
-            chapters: {
-              include: {
-                items: true,
-              },
-              orderBy: { orderIndex: 'asc' },
-            },
-          },
-        },
-      },
-    });
-
-    if (!classItem) throw new NotFoundException('Class not found');
-
-    return {
-      classId: classItem.id,
-      courseProfileId: classItem.courseProfileId,
-      courseEditionId: classItem.courseEditionId,
-      chapters: classItem.courseEdition.chapters.map((chapter) => ({
-        id: chapter.id,
-        title: chapter.title,
-        description: chapter.description,
-        orderIndex: chapter.orderIndex,
-        estimatedMinutes: chapter.estimatedMinutes,
-        items: chapter.items.map((item) => ({
-          id: item.id,
-          title: item.title,
-          kind: item.kind,
-          referenceId: item.referenceId,
-          orderIndex: item.orderIndex,
-          metadata: item.metadata,
-        })),
-      })),
-    };
-  }
-
   async delete(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
-    if (classItem.status !== 'DRAFT' && classItem.status !== 'CANCELLED') {
-      throw new BadRequestException(
-        'Can only delete DRAFT or CANCELLED classes',
-      );
+    if (classItem.status !== 'DRAFT' && classItem.status !== 'ARCHIVED') {
+      throw new BadRequestException('Can only delete DRAFT or ARCHIVED classes');
     }
 
-    const enrollCount = await this.prisma.enrollment.count({
-      where: { classId: id },
-    });
+    const enrollCount = await this.prisma.enrollment.count({ where: { classId: id } });
     if (enrollCount > 0) {
-      throw new BadRequestException(
-        'Cannot delete class with existing enrollments',
-      );
+      throw new BadRequestException('Cannot delete class with existing enrollments');
     }
 
     await this.prisma.class.delete({ where: { id } });
@@ -483,229 +408,272 @@ export class ClassService {
       action: 'class.delete',
       entity: 'Class',
       entityId: id,
-      description: `Deleted class ${classItem.code} (status was: ${classItem.status})`,
-      metadata: { code: classItem.code, mode: classItem.mode },
+      description: `Deleted class ${classItem.code}`,
     });
 
     return { ok: true };
   }
 
-  async duplicate(
-    id: string,
-    input?: ClassDuplicateDto,
-    requesterId = 'SYSTEM',
-  ) {
+  /** Duplicate a class (copies liveSchedules, resets status to DRAFT) */
+  async duplicate(id: string, input?: ClassDuplicateDto, requesterId = 'SYSTEM') {
     const source = await this.prisma.class.findUnique({
       where: { id },
-      include: {
-        vodClass: true,
-        liveClass: {
-          include: {
-            schedules: true,
-          },
-        },
-        assessments: true,
-      },
+      include: { liveSchedules: true },
     });
-
     if (!source) throw new NotFoundException('Class not found');
 
-    // Handle code unique
     let targetCode = input?.code || `${source.code}_COPY_${Date.now()}`;
-    const existing = await this.prisma.class.findUnique({
-      where: { code: targetCode },
-    });
-    if (existing) {
-      targetCode = `${targetCode}_${Math.floor(Math.random() * 1000)}`;
-    }
+    const existing = await this.prisma.class.findUnique({ where: { code: targetCode } });
+    if (existing) targetCode = `${targetCode}_${Math.floor(Math.random() * 1000)}`;
 
     const targetName = input?.name || `${source.name} (Bản sao)`;
 
     return this.prisma.$transaction(async (tx) => {
-      // 1. Create base Class
       const newClass = await tx.class.create({
         data: {
           courseProfileId: source.courseProfileId,
-          courseEditionId: source.courseEditionId,
+          syllabusId: source.syllabusId,
           code: targetCode,
           name: targetName,
           mode: source.mode,
           status: 'DRAFT',
-          settings: source.settings ?? undefined,
+          instructorId: input?.instructorId || source.instructorId,
         },
       });
 
-      // 2. Handle specific mode
-      if (source.mode === 'VOD' && source.vodClass) {
-        await tx.vodClass.create({
-          data: {
+      if (source.mode === 'LIVE' && source.liveSchedules.length > 0) {
+        await tx.liveSchedule.createMany({
+          data: source.liveSchedules.map((s) => ({
             classId: newClass.id,
-            enrollmentOpenAt: source.vodClass.enrollmentOpenAt,
-            enrollmentCloseAt: source.vodClass.enrollmentCloseAt,
-            maxStudents: source.vodClass.maxStudents,
-            defaultExpiresMonths: source.vodClass.defaultExpiresMonths,
-          },
-        });
-      } else if (source.mode === 'LIVE' && source.liveClass) {
-        const startDate = input?.startDate || source.liveClass.startDate;
-        const endDate = input?.endDate || source.liveClass.endDate;
-
-        if (!startDate || !endDate) {
-          throw new BadRequestException(
-            'LIVE classes must have startDate and endDate',
-          );
-        }
-
-        const liveClass = await tx.liveClass.create({
-          data: {
-            classId: newClass.id,
-            term: input?.term || source.liveClass.term,
-            batch: input?.batch || source.liveClass.batch,
-            startDate,
-            endDate,
-            enrollmentOpenAt: source.liveClass.enrollmentOpenAt,
-            enrollmentCloseAt: source.liveClass.enrollmentCloseAt,
-            minStudents: source.liveClass.minStudents,
-            maxStudents: source.liveClass.maxStudents,
-            minStudentsEnforcement: source.liveClass.minStudentsEnforcement,
-            primaryTeacherId: source.liveClass.primaryTeacherId,
-          },
-        });
-
-        // Copy schedules
-        if (source.liveClass.schedules.length > 0) {
-          await tx.liveSchedule.createMany({
-            data: source.liveClass.schedules.map((s) => ({
-              liveClassId: liveClass.id,
-              weekday: s.weekday,
-              startTime: s.startTime,
-              endTime: s.endTime,
-              location: s.location,
-              excludedDates: s.excludedDates ?? undefined,
-              note: s.note,
-              roomId: s.roomId,
-            })),
-          });
-        }
-      }
-
-      // 3. Copy Assessments
-      if (source.assessments.length > 0) {
-        await tx.classAssessment.createMany({
-          data: source.assessments.map((a) => ({
-            classId: newClass.id,
-            kind: a.kind,
-            quizTemplateId: a.quizTemplateId,
-            assignmentTemplateId: a.assignmentTemplateId,
-            titleOverride: a.titleOverride,
-            deadline: a.deadline,
-            weight: a.weight,
-            maxAttemptsOverride: a.maxAttemptsOverride,
-            timeLimitOverrideMinutes: a.timeLimitOverrideMinutes,
-            maxScoreOverride: a.maxScoreOverride,
-            settings: a.settings ?? undefined,
-            status: 'DRAFT',
+            weekday: s.weekday,
+            startTime: s.startTime,
+            endTime: s.endTime,
+            location: s.location,
+            excludedDates: s.excludedDates ?? undefined,
+            note: s.note,
+            roomId: s.roomId,
           })),
         });
       }
 
-      // 4. Audit Log
       await this.audit.log({
         userId: requesterId,
         action: 'class.duplicate',
         entity: 'Class',
         entityId: newClass.id,
-        description: `Duplicated class ${source.code} to ${targetCode}`,
+        description: `Duplicated class ${source.code} → ${targetCode}`,
         metadata: { sourceId: id, targetCode },
       });
 
       return tx.class.findUnique({
         where: { id: newClass.id },
         include: {
-          vodClass: true,
-          liveClass: { include: { schedules: true } },
+          instructor: { select: { id: true, displayName: true } },
+          liveSchedules: true,
         },
       });
     });
   }
 
-  private async assertPrimaryTeacherScheduleConflicts(
-    classId: string,
-    primaryTeacherId: string,
-  ) {
-    const ownLiveClass = await this.prisma.liveClass.findUnique({
+  // ==============================================================
+  // CLASS ASSIGNMENTS (LIVE classes only)
+  // ==============================================================
+
+  async getAssignments(classId: string) {
+    return this.prisma.classAssignment.findMany({
       where: { classId },
       include: {
-        schedules: {
-          select: {
-            weekday: true,
-            startTime: true,
-            endTime: true,
-          },
+        assignment: true,
+        _count: { select: { submissions: true } },
+      },
+      orderBy: { openAt: 'asc' },
+    });
+  }
+
+  async addAssignment(input: ClassAssignmentCreateDto, requesterId = 'SYSTEM') {
+    const klass = await this.prisma.class.findUnique({
+      where: { id: input.classId },
+      select: { id: true, mode: true },
+    });
+    if (!klass) throw new NotFoundException('Class not found');
+    if (klass.mode !== 'LIVE') {
+      throw new BadRequestException('Assignments only apply to LIVE classes');
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const assignment = await tx.assignment.create({
+        data: {
+          title: input.title,
+          instructions: input.instructions,
+        },
+      });
+
+      const result = await tx.classAssignment.create({
+        data: {
+          classId: input.classId,
+          assignmentId: assignment.id,
+          titleOverride: input.titleOverride ?? null,
+          openAt: input.openAt ?? null,
+          deadline: input.deadline ?? null,
+        },
+        include: { assignment: true },
+      });
+
+      await this.audit.log({
+        userId: requesterId,
+        action: 'class_assignment.create',
+        entity: 'ClassAssignment',
+        entityId: result.id,
+        description: `Created assignment for class ${input.classId}`,
+      });
+
+      return result;
+    });
+  }
+
+  async updateAssignment(id: string, input: ClassAssignmentUpdateDto) {
+    const item = await this.prisma.classAssignment.findUnique({ where: { id } });
+    if (!item) throw new NotFoundException('ClassAssignment not found');
+
+    return this.prisma.classAssignment.update({
+      where: { id },
+      data: {
+        titleOverride: input.titleOverride,
+        openAt: input.openAt,
+        deadline: input.deadline,
+      },
+      include: { assignment: true },
+    });
+  }
+
+  async removeAssignment(id: string, requesterId = 'SYSTEM') {
+    const item = await this.prisma.classAssignment.findUnique({ where: { id } });
+    if (!item) throw new NotFoundException('ClassAssignment not found');
+
+    await this.prisma.classAssignment.delete({ where: { id } });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'class_assignment.delete',
+      entity: 'ClassAssignment',
+      entityId: id,
+      description: `Removed ClassAssignment ${id} from class ${item.classId}`,
+    });
+
+    return { ok: true };
+  }
+
+  // ==============================================================
+  // USER LESSON PROGRESS
+  // ==============================================================
+
+  /** Get progress for a specific user in a class */
+  async getUserProgress(userId: string, classId: string) {
+    const klass = await this.prisma.class.findUnique({
+      where: { id: classId },
+      select: { id: true, syllabusId: true },
+    });
+    if (!klass) throw new NotFoundException('Class not found');
+    if (!klass.syllabusId) {
+      return {
+        classId,
+        userId,
+        totalLessons: 0,
+        completedLessons: 0,
+        progressPercent: 0,
+        lessons: [],
+      };
+    }
+
+    const allLessons = await this.prisma.lesson.findMany({
+      where: {
+        module: {
+          syllabusId: klass.syllabusId,
         },
       },
+      select: { id: true },
     });
-    if (!ownLiveClass) return;
-    if (ownLiveClass.schedules.length === 0) return;
+
+    const completedProgress = await this.prisma.userLessonProgress.findMany({
+      where: { userId, classId, isCompleted: true },
+      select: { lessonId: true, lastWatchedAt: true },
+    });
+
+    const completedIds = new Set(completedProgress.map((p) => p.lessonId));
+
+    return {
+      classId,
+      userId,
+      totalLessons: allLessons.length,
+      completedLessons: completedIds.size,
+      progressPercent:
+        allLessons.length > 0
+          ? Math.round((completedIds.size / allLessons.length) * 100)
+          : 0,
+      lessons: allLessons.map((l) => ({
+        lessonId: l.id,
+        isCompleted: completedIds.has(l.id),
+      })),
+    };
+  }
+
+  /** Mark a single lesson as complete */
+  async markLessonComplete(userId: string, classId: string, lessonId: string) {
+    return this.prisma.userLessonProgress.upsert({
+      where: { userId_classId_lessonId: { userId, classId, lessonId } },
+      create: {
+        userId,
+        classId,
+        lessonId,
+        isCompleted: true,
+        lastWatchedAt: new Date(),
+      },
+      update: {
+        isCompleted: true,
+        lastWatchedAt: new Date(),
+      },
+    });
+  }
+
+  // ==============================================================
+  // PRIVATE HELPERS
+  // ==============================================================
+
+  private async assertPrimaryTeacherScheduleConflicts(classId: string, instructorId: string) {
+    const ownSchedules = await this.prisma.liveSchedule.findMany({
+      where: { classId },
+      select: { weekday: true, startTime: true, endTime: true },
+    });
+    if (ownSchedules.length === 0) return;
 
     const candidateSchedules = await this.prisma.liveSchedule.findMany({
       where: {
-        liveClass: {
-          classId: { not: classId },
-          primaryTeacherId,
-          class: {
-            status: {
-              in: ['DRAFT', 'PENDING_APPROVAL', 'ENROLLING', 'IN_PROGRESS'],
-            },
-          },
+        classId: { not: classId },
+        class: {
+          instructorId,
+          status: { in: ['DRAFT', 'PENDING_APPROVAL', 'OPENING', 'ONGOING'] as ClassStatus[] },
         },
       },
-      include: {
-        liveClass: {
-          include: {
-            class: {
-              select: {
-                code: true,
-                name: true,
-              },
-            },
-          },
-        },
-      },
+      include: { class: { select: { code: true, name: true } } },
     });
 
-    for (const ownSlot of ownLiveClass.schedules) {
+    for (const ownSlot of ownSchedules) {
       for (const candidate of candidateSchedules) {
         if (candidate.weekday !== ownSlot.weekday) continue;
-        if (
-          this.isTimeOverlap(
-            ownSlot.startTime,
-            ownSlot.endTime,
-            candidate.startTime,
-            candidate.endTime,
-          )
-        ) {
+        if (this.isTimeOverlap(ownSlot.startTime, ownSlot.endTime, candidate.startTime, candidate.endTime)) {
           throw new BadRequestException(
-            `Teacher schedule conflict with class ${candidate.liveClass.class.code} (${candidate.liveClass.class.name})`,
+            `Teacher schedule conflict with class ${candidate.class.code} (${candidate.class.name})`,
           );
         }
       }
     }
   }
 
-  private isTimeOverlap(
-    startA: string,
-    endA: string,
-    startB: string,
-    endB: string,
-  ) {
+  private isTimeOverlap(startA: string, endA: string, startB: string, endB: string) {
     const aStart = this.toMinutes(startA);
     const aEnd = this.toMinutes(endA);
     const bStart = this.toMinutes(startB);
     const bEnd = this.toMinutes(endB);
-    if (aEnd <= aStart || bEnd <= bStart) {
-      throw new BadRequestException('Invalid schedule time range');
-    }
     return aStart < bEnd && bStart < aEnd;
   }
 
@@ -713,14 +681,7 @@ export class ClassService {
     const [hourText, minuteText] = (time || '').split(':');
     const hour = Number(hourText);
     const minute = Number(minuteText);
-    if (
-      Number.isNaN(hour) ||
-      Number.isNaN(minute) ||
-      hour < 0 ||
-      hour > 23 ||
-      minute < 0 ||
-      minute > 59
-    ) {
+    if (Number.isNaN(hour) || Number.isNaN(minute) || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
       throw new BadRequestException(`Invalid time format: ${time}`);
     }
     return hour * 60 + minute;

@@ -20,14 +20,19 @@ import {
     SidebarGroupLabel,
     SidebarGroupContent,
 } from "@workspace/ui/components/sidebar"
-import { learningNav, progressNav, accountNav, communityNav, aiSenseiNav } from "@/config/navigation"
+import { learningNav, progressNav, accountNav, aiSenseiNav } from "@/config/navigation"
 import { cn } from "@workspace/ui/lib/utils"
 import { useLogo } from "@/hooks/useLogo"
+import { useAppSelector } from "@/hooks/hooks"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const pathname = usePathname()
     const isAISenseiPath = pathname?.startsWith('/ai-sensei')
     const logo = useLogo()
+    const { user } = useAppSelector((state) => state.auth)
+    const role = user?.role
+
+    const learningItems = React.useMemo(() => learningNav, [])
 
     return (
         <Sidebar
@@ -47,10 +52,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             )}
                         >
                             <div className="flex items-center justify-start rounded-lg shrink-0">
-                                <Image src={logo} alt="Torii Nihongo" width={200} height={40} className="h-8 w-auto object-contain" />
+                                <Image
+                                    src={logo}
+                                    alt="Torii Nihongo"
+                                    width={220}
+                                    height={48}
+                                    className="h-16 w-auto object-contain"
+                                />
                             </div>
                             <div className="grid flex-1 text-left text-sm leading-tight ml-2 group-data-[collapsible=icon]:hidden">
-                                <span className="truncate text-xs font-medium text-muted-foreground">Cổng học viên</span>
+                                <span className="truncate text-sm md:text-base font-semibold text-muted-foreground font-sans">
+                                    Cổng học viên
+                                </span>
                             </div>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -58,10 +71,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarHeader>
 
             <SidebarContent className="scrollbar-none py-2">
-                <NavMain label="Học tập" items={learningNav as any} />
+                <NavMain label="Học tập" items={learningItems as any} />
                 <NavMain label="AI Sensei" items={aiSenseiNav as any} />
                 <NavLearning />
-                <NavMain label="Cộng đồng" items={communityNav as any} />
                 <NavMain label="Tiến độ" items={progressNav as any} />
                 <NavMain label="Tài khoản" items={accountNav as any} />
 

@@ -1,8 +1,9 @@
 import { Controller, useForm } from "react-hook-form"
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
+import { toast } from "@workspace/ui/components/sonner"
 import {
     Field,
     FieldError,
@@ -32,8 +33,7 @@ import {
     LIVE_CLASS_METADATA,
 } from "@workspace/schemas"
 import type { AcademyClass } from "@/lib/api/services/academy-classes"
-import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
-import { useAcademyCourseEditions } from "@/lib/api/services/academy-course-editions"
+import { useAcademyCourseProfiles, useAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
 import { useUsers } from "@/lib/api/services/users"
 import {
     Combobox,
@@ -52,7 +52,6 @@ export function LiveClassForm({
     onCancel,
     submitting,
     defaultCourseProfileId,
-    defaultCourseEditionId,
 }: {
     mode: "create" | "edit"
     initial?: AcademyClass
@@ -60,23 +59,21 @@ export function LiveClassForm({
     onCancel: () => void
     submitting?: boolean
     defaultCourseProfileId?: string
-    defaultCourseEditionId?: string
 }) {
     const isEdit = mode === "edit"
+    const courseProfileFromRoute = !!defaultCourseProfileId
 
     const profilesParams = useMemo(() => ({}), [])
     const { data: profilesData = [] } = useAcademyCourseProfiles(profilesParams)
     const profiles = Array.isArray(profilesData) ? profilesData : (profilesData as any)?.items || []
 
-    const editionsParams = useMemo(() => ({ status: "PUBLISHED" }), [])
-    const { data: editionsData = [] } = useAcademyCourseEditions(editionsParams)
-    const editions = Array.isArray(editionsData) ? editionsData : (editionsData as any)?.items || []
+    const { data: singleProfile } = useAcademyCourseProfile(courseProfileFromRoute ? defaultCourseProfileId : undefined)
 
     const teacherParams = useMemo(() => ({ role: "lecturer", limit: 100 }), [])
     const { data: teachersData } = useUsers(teacherParams)
     const teachers = (teachersData as any)?.data || []
 
-    const { handleSubmit, control, watch } = useForm<
+    const { handleSubmit, control, register, setValue, formState } = useForm<
         AcademyClassCreateDTO | AcademyClassUpdateDTO
     >({
         resolver: zodResolver(
@@ -88,8 +85,8 @@ export function LiveClassForm({
                 mode: "LIVE",
                 term: initial?.liveClass?.term ?? "",
                 batch: initial?.liveClass?.batch ?? "",
-                startDate: initial?.liveClass?.startDate ? new Date(initial.liveClass.startDate) : undefined,
-                endDate: initial?.liveClass?.endDate ? new Date(initial.liveClass.endDate) : undefined,
+                openingDate: initial?.liveClass?.openingDate ? new Date(initial.liveClass.openingDate) : undefined,
+                closingDate: initial?.liveClass?.closingDate ? new Date(initial.liveClass.closingDate) : undefined,
                 enrollmentOpenAt: initial?.liveClass?.enrollmentOpenAt
                     ? new Date(initial.liveClass.enrollmentOpenAt)
                     : undefined,
@@ -100,19 +97,18 @@ export function LiveClassForm({
                 minStudentsEnforcement: (initial?.liveClass?.minStudentsEnforcement as any) ?? "DISABLED",
                 maxStudents: initial?.liveClass?.maxStudents ?? 0,
                 status: initial?.status ?? "DRAFT",
-                primaryTeacherId: initial?.liveClass?.primaryTeacherId ?? undefined,
+                instructorId: initial?.liveClass?.instructorId ?? undefined,
                 settings: initial?.settings ?? undefined,
             }
             : {
                 courseProfileId: defaultCourseProfileId ?? "",
-                courseEditionId: defaultCourseEditionId ?? "",
                 code: "",
                 name: "",
                 mode: "LIVE",
                 term: "",
                 batch: "",
-                startDate: undefined,
-                endDate: undefined,
+                openingDate: undefined,
+                closingDate: undefined,
                 enrollmentOpenAt: undefined,
                 enrollmentCloseAt: undefined,
                 minStudents: 0,
@@ -122,16 +118,31 @@ export function LiveClassForm({
             }) as any,
     })
 
-    const selectedProfileId = watch("courseProfileId" as any)
-    const filteredEditions = useMemo(() => {
-        if (!selectedProfileId) return editions
-        return editions.filter((e: any) => e.courseProfileId === selectedProfileId)
-    }, [selectedProfileId, editions])
+    useEffect(() => {
+        if (!isEdit && defaultCourseProfileId) {
+            setValue("courseProfileId" as any, defaultCourseProfileId, {
+                shouldValidate: true,
+                shouldDirty: false,
+            })
+        }
+    }, [defaultCourseProfileId, isEdit, setValue])
 
     return (
         <form
             className="space-y-8"
-            onSubmit={handleSubmit(async (data) => onSubmit(data))}
+            onSubmit={handleSubmit(
+                async (data) => onSubmit(data),
+                (errors) => {
+                    const firstKey = Object.keys(errors ?? {})[0]
+                    const firstMessage =
+                        firstKey && (errors as any)[firstKey]?.message
+                            ? String((errors as any)[firstKey].message)
+                            : "Vui lòng kiểm tra lại các trường bắt buộc."
+                    toast.error(firstMessage)
+                    // eslint-disable-next-line no-console
+                    console.error("[LiveClassForm] validation errors", errors)
+                },
+            )}
             noValidate
         >
             <div className="space-y-6">
@@ -140,64 +151,52 @@ export function LiveClassForm({
                     <CardContent className="p-6">
                         <FieldSet>
                             <FieldLegend>Liên kết khóa học</FieldLegend>
-                            <FieldDescription>Xác định Course Profile và Edition cho lớp học LIVE.</FieldDescription>
+                            <FieldDescription>Xác định Course Profile cho lớp học LIVE.</FieldDescription>
                             <FieldGroup>
                                 {!isEdit ? (
-                                    <div className="grid gap-4 md:grid-cols-2">
-                                        <Controller
-                                            name={"courseProfileId" as any}
-                                            control={control}
-                                            render={({ field, fieldState }) => (
-                                                <Field>
-                                                    <FieldLabel>Course Profile</FieldLabel>
-                                                    <Select value={field.value} onValueChange={field.onChange}>
-                                                        <SelectTrigger className="h-10">
-                                                            <SelectValue placeholder="Chọn Profile..." />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {profiles.map((p: any) => (
-                                                                <SelectItem key={p.id} value={p.id}>
-                                                                    {p.code} - {p.title}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FieldError>{fieldState.error?.message}</FieldError>
-                                                </Field>
-                                            )}
-                                        />
-                                        <Controller
-                                            name={"courseEditionId" as any}
-                                            control={control}
-                                            render={({ field, fieldState }) => (
-                                                <Field>
-                                                    <FieldLabel>Course Edition</FieldLabel>
-                                                    <Select value={field.value} onValueChange={field.onChange}>
-                                                        <SelectTrigger className="h-10">
-                                                            <SelectValue placeholder="Chọn Edition..." />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {filteredEditions.map((e: any) => (
-                                                                <SelectItem key={e.id} value={e.id}>
-                                                                    {e.editionTag} ({e.status})
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FieldError>{fieldState.error?.message}</FieldError>
-                                                </Field>
-                                            )}
-                                        />
-                                    </div>
+                                    courseProfileFromRoute ? (
+                                        <Field>
+                                            <FieldLabel>Course Profile</FieldLabel>
+                                            <Input
+                                                disabled
+                                                value={singleProfile ? `${singleProfile.code} - ${singleProfile.title}` : defaultCourseProfileId}
+                                                readOnly
+                                                className="h-10"
+                                            />
+                                            <input type="hidden" {...register("courseProfileId" as any)} />
+                                            <FieldError>{(formState.errors as any)?.courseProfileId?.message}</FieldError>
+                                        </Field>
+                                    ) : (
+                                        <div className="grid gap-4 md:grid-cols-2">
+                                            <Controller
+                                                name={"courseProfileId" as any}
+                                                control={control}
+                                                render={({ field, fieldState }) => (
+                                                    <Field>
+                                                        <FieldLabel>Course Profile</FieldLabel>
+                                                        <Select value={field.value} onValueChange={field.onChange}>
+                                                            <SelectTrigger className="h-10">
+                                                                <SelectValue placeholder="Chọn Profile..." />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {profiles.map((p: any) => (
+                                                                    <SelectItem key={p.id} value={p.id}>
+                                                                        {p.code} - {p.title}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                        <FieldError>{fieldState.error?.message}</FieldError>
+                                                    </Field>
+                                                )}
+                                            />
+                                        </div>
+                                    )
                                 ) : (
                                     <div className="grid gap-4 md:grid-cols-2">
                                         <Field>
                                             <FieldLabel>Course Profile</FieldLabel>
                                             <Input disabled value={(initial as any)?.courseProfile?.title || "N/A"} className="h-10" />
-                                        </Field>
-                                        <Field>
-                                            <FieldLabel>Course Edition</FieldLabel>
-                                            <Input disabled value={(initial as any)?.courseEdition?.editionTag || "N/A"} className="h-10" />
                                         </Field>
                                     </div>
                                 )}
@@ -308,7 +307,7 @@ export function LiveClassForm({
                                 </div>
                                 <div className="grid gap-4 md:grid-cols-2">
                                     <Controller
-                                        name={"startDate" as any}
+                                        name={"openingDate" as any}
                                         control={control}
                                         render={({ field, fieldState }) => (
                                             <Field>
@@ -324,7 +323,7 @@ export function LiveClassForm({
                                         )}
                                     />
                                     <Controller
-                                        name={"endDate" as any}
+                                        name={"closingDate" as any}
                                         control={control}
                                         render={({ field, fieldState }) => (
                                             <Field>
@@ -429,7 +428,7 @@ export function LiveClassForm({
                             <FieldDescription>Phụ trách học thuật và các thông tin bổ sung.</FieldDescription>
                             <FieldGroup>
                                 <Controller
-                                    name={"primaryTeacherId" as any}
+                                    name={"instructorId" as any}
                                     control={control}
                                     render={({ field, fieldState }) => (
                                         <Field>

@@ -77,6 +77,8 @@ export default function DashboardClientPage() {
 
     const jlptTarget = (user?.userMetadata as Record<string, string>)?.jlptTarget || 'N3';
     const firstName = user?.displayName?.split(' ').at(-1) || 'Học viên';
+    const role = user?.role as string | undefined;
+    const isStaffOrAdmin = role === 'admin' || role === 'staff-lms' || role === 'staff_lms' || role === 'staff';
 
     return (
         <div className="bg-background text-foreground font-sans antialiased min-h-screen">
@@ -167,7 +169,7 @@ export default function DashboardClientPage() {
                                                 </div>
                                             </div>
                                             <Link
-                                                href={`/courses/${mainCourse.classId || mainCourse.courseRunId}/learn`}
+                                                href={`/courses/${mainCourse.classId}/learn`}
                                                 className="mt-6 w-full md:max-w-max px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl transition-all shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] text-center text-sm"
                                             >
                                                 Tiếp tục học tập
@@ -295,8 +297,8 @@ export default function DashboardClientPage() {
                             </div>
                         </section>
 
-                        {/* My Courses List */}
-                        {otherCourses.length > 0 && (
+                        {/* My Courses List - ẩn cho staff-lms/admin */}
+                        {otherCourses.length > 0 && !isStaffOrAdmin && (
                             <section className="space-y-4" data-purpose="course-list">
                                 <div className="flex justify-between items-center">
                                     <h3 className="text-lg font-bold">Khóa học của tôi</h3>
@@ -308,7 +310,7 @@ export default function DashboardClientPage() {
                                         return (
                                             <Link
                                                 key={course.id}
-                                                href={`/courses/${course.classId || course.courseRunId}/learn`}
+                                                href={`/courses/${course.classId}/learn`}
                                                 className="bg-card p-4 rounded-2xl border border-border flex items-center justify-between hover-lift block"
                                             >
                                                 <div className="flex items-center gap-4">
@@ -400,7 +402,7 @@ export default function DashboardClientPage() {
                                                     <td className="px-5 py-4 text-right">
                                                         {session.status === LiveSessionStatus.LIVE ? (
                                                             <Link
-                                                                href={`/courses/${session.courseRunId}/learn`}
+                                                                href={`/courses/${session.classId}/learn`}
                                                                 className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg text-xs transition-colors"
                                                             >
                                                                 Tham gia ngay

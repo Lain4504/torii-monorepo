@@ -76,6 +76,53 @@ export class CouponService {
         return coupon;
     }
 
+    async getMyCoupons(userId: string) {
+        // 1) Personal coupons explicitly assigned to this user (e.g. redeemed from gamification rewards)
+        const ownedCouponsPromise = this.prisma.coupon.findMany(
+            // Cast to any to avoid tight coupling to generated Prisma types during schema evolution.
+            {
+                where: {
+                    ownerId: userId,
+                },
+                orderBy: { createdAt: 'desc' },
+            } as any,
+        );
+
+        // 2) Coupons the user has already used in orders (backwards compatibility / history)
+        const usagesPromise = this.prisma.couponUsage.findMany({
+            where: { userId },
+            include: { coupon: true },
+            orderBy: { usedAt: 'desc' },
+        });
+
+        const [ownedCoupons, usages] = await Promise.all([
+            ownedCouponsPromise,
+            usagesPromise,
+        ]);
+
+        const seen = new Set<string>();
+        const result: any[] = [];
+
+        // Add owned coupons first so they always appear even if never used.
+        for (const coupon of ownedCoupons) {
+            if (seen.has(coupon.id)) continue;
+            seen.add(coupon.id);
+            result.push(coupon);
+        }
+
+        // Then merge in coupons that have been used by the user.
+        for (const usage of usages) {
+            if (!usage.coupon || seen.has(usage.couponId)) continue;
+            seen.add(usage.couponId);
+            result.push({
+                ...usage.coupon,
+                lastUsedAt: usage.usedAt,
+            });
+        }
+
+        return result;
+    }
+
     async calculateDiscount(couponId: string, orderValue: number) {
         const coupon = await this.prisma.coupon.findUnique({ where: { id: couponId } });
         if (!coupon) return 0;
@@ -127,6 +174,7 @@ export class CouponService {
         const {
             discountType,
             status,
+            // Legacy fields from V1 schema (course_master / run based scoping) — no longer exist in V2
             applicableCourseMasterIds,
             excludedCourseMasterIds,
             applicableRunIds,
@@ -160,6 +208,7 @@ export class CouponService {
         const {
             discountType,
             status,
+            // Legacy fields from V1 schema (course_master / run based scoping) — no longer exist in V2
             applicableCourseMasterIds,
             excludedCourseMasterIds,
             applicableRunIds,

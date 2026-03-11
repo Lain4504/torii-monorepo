@@ -3,7 +3,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, OfferingStatus, OrderType } from '@prisma/generated';
+import {
+  Prisma,
+  OfferingStatus,
+  OrderType,
+  ClassStatus,
+  ClassMode,
+} from '@prisma/generated';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { AuditLoggerService } from '../../audit-logger.service';
 import {
@@ -18,7 +24,7 @@ export class CourseOfferingService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
-  ) {}
+  ) { }
 
   async findAll(query: CourseOfferingQueryDto) {
     const q = query.q?.trim();
@@ -27,11 +33,11 @@ export class CourseOfferingService {
         status: query.status as OfferingStatus,
         ...(q
           ? {
-              OR: [
-                { code: { contains: q, mode: 'insensitive' } },
-                { title: { contains: q, mode: 'insensitive' } },
-              ],
-            }
+            OR: [
+              { code: { contains: q, mode: 'insensitive' } },
+              { title: { contains: q, mode: 'insensitive' } },
+            ],
+          }
           : {}),
       },
       orderBy: [{ createdAt: 'desc' }],
@@ -46,14 +52,10 @@ export class CourseOfferingService {
                     thumbnailUrl: true,
                   },
                 },
-                liveClass: {
-                  include: {
-                    primaryTeacher: {
-                      select: {
-                        displayName: true,
-                        avatarUrl: true,
-                      },
-                    },
+                instructor: {
+                  select: {
+                    displayName: true,
+                    avatarUrl: true,
                   },
                 },
               },
@@ -68,31 +70,39 @@ export class CourseOfferingService {
     const item = await this.prisma.courseOffering.findUnique({
       where: { id },
       include: {
+        syllabus: {
+          include: {
+            modules: {
+              orderBy: { orderIndex: 'asc' },
+              include: {
+                lessons: {
+                  orderBy: { orderIndex: 'asc' },
+                },
+              },
+            },
+          },
+        },
         classes: {
           include: {
             class: {
               include: {
                 courseProfile: true,
-                courseEdition: {
+                syllabus: {
                   include: {
-                    chapters: {
+                    modules: {
                       orderBy: { orderIndex: 'asc' },
                       include: {
-                        items: {
+                        lessons: {
                           orderBy: { orderIndex: 'asc' },
                         },
                       },
                     },
                   },
                 },
-                liveClass: {
-                  include: {
-                    primaryTeacher: {
-                      select: {
-                        displayName: true,
-                        avatarUrl: true,
-                      },
-                    },
+                instructor: {
+                  select: {
+                    displayName: true,
+                    avatarUrl: true,
                   },
                 },
               },
@@ -102,18 +112,22 @@ export class CourseOfferingService {
       },
     });
     if (!item) throw new NotFoundException('CourseOffering not found');
-    return item as any;
+    return item;
   }
 
   async findPublicById(id: string) {
     const item = await this.findById(id);
-    if (item.status !== OfferingStatus.PUBLISHED) {
+    const isVodAndPublished =
+      item.mode === ClassMode.VOD && item.status === OfferingStatus.PUBLISHED;
+    const isLiveAndOpeningOrPublished =
+      item.mode === ClassMode.LIVE &&
+      (item.status === OfferingStatus.OPENING ||
+        item.status === OfferingStatus.PUBLISHED);
+
+    if (!isVodAndPublished && !isLiveAndOpeningOrPublished) {
       throw new NotFoundException('CourseOffering not found');
     }
-    const now = new Date();
-    if ((item.validFrom && new Date(item.validFrom) > now) || (item.validTo && new Date(item.validTo) < now)) {
-      throw new NotFoundException('CourseOffering not found');
-    }
+
     return item;
   }
 
@@ -126,27 +140,17 @@ export class CourseOfferingService {
 
     const classes = await this.prisma.class.findMany({
       where: { id: { in: classIds } },
-      include: {
-        courseEdition: {
-          select: { status: true },
-        },
-      },
     });
 
     if (classes.length !== classIds.length) {
       throw new BadRequestException('Some classIds do not exist');
     }
 
-    const validStatuses = ['ENROLLING', 'IN_PROGRESS'];
+    const validStatuses: ClassStatus[] = [ClassStatus.OPENING, ClassStatus.ONGOING];
     for (const cls of classes) {
-      if (!validStatuses.includes(cls.status)) {
+      if (!validStatuses.includes(cls.status as ClassStatus)) {
         throw new BadRequestException(
           `Class ${cls.code} is in status ${cls.status}, which is not valid for enrollment`,
-        );
-      }
-      if (cls.courseEdition.status !== 'PUBLISHED') {
-        throw new BadRequestException(
-          `Class ${cls.code} uses course edition ${cls.courseEditionId}, which is not PUBLISHED`,
         );
       }
     }
@@ -198,17 +202,17 @@ export class CourseOfferingService {
         code: input.code,
         title: input.title,
         description: input.description,
-        originalPrice: new Prisma.Decimal(input.originalPrice),
+        price: new Prisma.Decimal(input.price),
+        salePrice: input.salePrice ? new Prisma.Decimal(input.salePrice) : null,
         currency: input.currency,
+        mode: input.mode as ClassMode,
+        syllabusId: input.syllabusId,
         status: (input.status as OfferingStatus) || OfferingStatus.DRAFT,
         type: (input.type as OrderType) || OrderType.COURSE,
-        validFrom: input.validFrom,
-        validTo: input.validTo,
-        metadata: input.metadata ?? undefined,
         classes: input.classIds?.length
           ? {
-              create: input.classIds.map((classId) => ({ classId })),
-            }
+            create: input.classIds.map((classId) => ({ classId })),
+          }
           : undefined,
       },
     });
@@ -222,7 +226,8 @@ export class CourseOfferingService {
       newValues: {
         code: offering.code,
         status: offering.status,
-        originalPrice: offering.originalPrice,
+        price: offering.price,
+        mode: offering.mode,
       },
     });
 
@@ -246,17 +251,19 @@ export class CourseOfferingService {
     let newStatus = (input.status as OfferingStatus) || offering.status;
     const criticalFieldsChanged =
       input.classIds !== undefined ||
-      (input.originalPrice !== undefined &&
-        Number(input.originalPrice) !== Number(offering.originalPrice)) ||
+      (input.price !== undefined &&
+        Number(input.price) !== Number(offering.price)) ||
+      (input.salePrice !== undefined &&
+        Number(input.salePrice) !== Number(offering.salePrice)) ||
       (input.title !== undefined && input.title !== offering.title) ||
-      input.validFrom !== undefined ||
-      input.validTo !== undefined;
+      (input.mode !== undefined && input.mode !== offering.mode) ||
+      (input.syllabusId !== undefined && input.syllabusId !== offering.syllabusId);
 
     let existingEnrollmentCount = 0;
     if (offering.status === OfferingStatus.PUBLISHED && criticalFieldsChanged) {
       newStatus = OfferingStatus.PENDING_APPROVAL; // Require re-approval
       existingEnrollmentCount = await this.prisma.enrollment.count({
-        where: { sourceOfferingId: id },
+        where: { offeringId: id },
       });
     }
 
@@ -275,21 +282,24 @@ export class CourseOfferingService {
       data: {
         title: input.title,
         description: input.description,
-        originalPrice:
-          input.originalPrice !== undefined
-            ? new Prisma.Decimal(input.originalPrice)
+        price:
+          input.price !== undefined
+            ? new Prisma.Decimal(input.price)
+            : undefined,
+        salePrice:
+          input.salePrice !== undefined
+            ? new Prisma.Decimal(input.salePrice)
             : undefined,
         currency: input.currency,
+        mode: (input.mode as ClassMode) || undefined,
+        syllabusId: input.syllabusId || undefined,
         status: newStatus,
         type: input.type as OrderType,
-        validFrom: input.validFrom,
-        validTo: input.validTo,
-        metadata: input.metadata ?? undefined,
         classes: input.classIds
           ? {
-              deleteMany: {},
-              create: input.classIds.map((classId) => ({ classId })),
-            }
+            deleteMany: {},
+            create: input.classIds.map((classId) => ({ classId })),
+          }
           : undefined,
       },
     });
@@ -302,19 +312,21 @@ export class CourseOfferingService {
       description: `Updated course offering: ${offering.title} (${offering.code})`,
       oldValues: {
         status: offering.status,
-        originalPrice: offering.originalPrice,
+        price: offering.price,
+        mode: offering.mode,
       },
       newValues: {
         status: updated.status,
-        originalPrice: updated.originalPrice,
+        price: updated.price,
+        mode: updated.mode,
       },
       metadata:
         offering.status === OfferingStatus.PUBLISHED && criticalFieldsChanged
           ? {
-              policy: 'NON_RETROACTIVE_ENTITLEMENT',
-              previousBuyersUnaffected: true,
-              existingEnrollmentCount,
-            }
+            policy: 'NON_RETROACTIVE_ENTITLEMENT',
+            previousBuyersUnaffected: true,
+            existingEnrollmentCount,
+          }
           : undefined,
     });
 
@@ -441,8 +453,8 @@ export class CourseOfferingService {
     const existingEnrollmentCount =
       offering.status === OfferingStatus.PUBLISHED
         ? await this.prisma.enrollment.count({
-            where: { sourceOfferingId: input.offeringId },
-          })
+          where: { offeringId: input.offeringId },
+        })
         : 0;
 
     await this.prisma.$transaction([
@@ -474,10 +486,10 @@ export class CourseOfferingService {
         nextStatus,
         ...(offering.status === OfferingStatus.PUBLISHED
           ? {
-              policy: 'NON_RETROACTIVE_ENTITLEMENT',
-              previousBuyersUnaffected: true,
-              existingEnrollmentCount,
-            }
+            policy: 'NON_RETROACTIVE_ENTITLEMENT',
+            previousBuyersUnaffected: true,
+            existingEnrollmentCount,
+          }
           : {}),
       },
     });

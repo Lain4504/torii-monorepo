@@ -315,16 +315,26 @@ export class SenseiService implements OnModuleInit {
         const lessons = await this.prisma.lesson.findMany({
           where: {
             title: { contains: topic, mode: 'insensitive' },
-            courseProfile: {
-              ...(level ? { level } : {}),
+            module: {
+              syllabus: {
+                courseProfile: {
+                  ...(level ? { level } : {}),
+                },
+              },
             },
           },
           take: 5,
           select: {
             id: true,
             title: true,
-            courseProfile: {
-              select: { id: true, title: true, level: true },
+            module: {
+              select: {
+                syllabus: {
+                  select: {
+                    courseProfile: { select: { id: true, title: true, level: true } },
+                  },
+                },
+              },
             },
           },
         });
@@ -340,9 +350,9 @@ export class SenseiService implements OnModuleInit {
           ...lessons.map((l) => ({
             title: l.title,
             type: 'Lesson',
-            level: l.courseProfile?.level || 'N/A',
-            url: `/learning/${l.courseProfile.id}/lesson/${l.id}`,
-            description: `Lesson in course: ${l.courseProfile.title}`,
+            level: l.module.syllabus.courseProfile?.level || 'N/A',
+            url: `/learning/${l.module.syllabus.courseProfile?.id}/lesson/${l.id}`,
+            description: `Lesson in course: ${l.module.syllabus.courseProfile?.title}`,
           })),
         ];
 

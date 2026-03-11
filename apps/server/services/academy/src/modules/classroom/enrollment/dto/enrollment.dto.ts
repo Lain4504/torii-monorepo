@@ -2,10 +2,14 @@ import { IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
 
 export class EnrollmentCreateDto {
   @IsUUID()
-  classId!: string;
+  userId!: string;
 
   @IsUUID()
-  userId!: string;
+  classId!: string;
+
+  @IsOptional()
+  @IsUUID()
+  offeringId?: string;
 
   @IsOptional()
   expiresAt?: Date;
@@ -17,18 +21,7 @@ export class EnrollmentCreateDto {
 
   @IsOptional()
   @IsUUID()
-  sourceOfferingId?: string;
-
-  @IsOptional()
-  @IsUUID()
   sourceOrderId?: string;
-
-  @IsOptional()
-  @IsUUID()
-  companyId?: string;
-
-  @IsOptional()
-  metadata?: unknown;
 }
 
 export class EnrollmentQueryDto {
@@ -38,10 +31,13 @@ export class EnrollmentQueryDto {
 
   @IsOptional()
   @IsUUID()
+  offeringId?: string;
+
+  @IsOptional()
+  @IsUUID()
   userId?: string;
 
   @IsOptional()
   @IsString()
   status?: string;
 }
-

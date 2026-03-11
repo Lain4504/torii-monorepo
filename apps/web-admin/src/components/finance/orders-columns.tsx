@@ -28,15 +28,13 @@ interface OrdersColumnsProps {
 
 const getStatusVariant = (status: OrderStatus): 'default' | 'secondary' | 'destructive' | 'outline' => {
     switch (status as any) {
-        case 'PAID':
-        case OrderStatus.COMPLETED:
+        case OrderStatus.PAID:
             return 'default';
         case OrderStatus.PENDING:
         case OrderStatus.PROCESSING:
             return 'secondary';
         case OrderStatus.FAILED:
         case OrderStatus.CANCELLED:
-        case OrderStatus.TIMED_OUT:
             return 'destructive';
         case OrderStatus.REFUNDED:
             return 'outline';
@@ -47,13 +45,11 @@ const getStatusVariant = (status: OrderStatus): 'default' | 'secondary' | 'destr
 
 const getStatusLabel = (status: OrderStatus) => {
     switch (status as any) {
-        case 'PAID':
-        case OrderStatus.COMPLETED: return 'Hoàn thành';
+        case OrderStatus.PAID: return 'Hoàn thành';
         case OrderStatus.PENDING: return 'Chờ xử lý';
         case OrderStatus.PROCESSING: return 'Đang xử lý';
         case OrderStatus.FAILED: return 'Thất bại';
         case OrderStatus.CANCELLED: return 'Đã hủy';
-        case OrderStatus.TIMED_OUT: return 'Hết hạn';
         case OrderStatus.REFUNDED: return 'Hoàn tiền';
         default: return status;
     }

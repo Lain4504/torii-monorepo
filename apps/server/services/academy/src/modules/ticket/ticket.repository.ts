@@ -10,7 +10,7 @@ import { ITicketRepository } from '@server/academy/interfaces/repositories';
 
 @Injectable()
 export class TicketRepository implements ITicketRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(data: CreateTicketDTO & { userId: string }): Promise<Ticket> {
     return this.prisma.ticket.create({
@@ -19,7 +19,8 @@ export class TicketRepository implements ITicketRepository {
         type: data.type as any,
         subject: data.subject,
         description: data.description,
-        classId: (data as any).classId ?? (data as any).courseRunId ?? null,
+        classId: data.classId || null,
+        orderId: data.orderId || null,
         metadata: data.metadata || {},
         status: TicketStatus.PENDING as any,
       },
@@ -53,8 +54,7 @@ export class TicketRepository implements ITicketRepository {
   ): Promise<{ data: any[]; total: number }> {
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 10;
-    const { type, status, userId, courseRunId, search } = query as any;
-    const classId = (query as any).classId as string | undefined;
+    const { type, status, userId, classId, orderId, search } = query as TicketQueryDTO & { search?: string };
     const skip = (page - 1) * limit;
 
     const where: any = {};
@@ -62,7 +62,7 @@ export class TicketRepository implements ITicketRepository {
     if (status) where.status = status;
     if (userId) where.userId = userId;
     if (classId) where.classId = classId;
-    else if (courseRunId) where.classId = courseRunId;
+    if (orderId) where.orderId = orderId;
     if (search) {
       where.OR = [
         { subject: { contains: search, mode: 'insensitive' } },

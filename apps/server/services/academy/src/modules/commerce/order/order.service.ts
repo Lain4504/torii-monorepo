@@ -3,6 +3,7 @@ import {
   Logger,
   BadRequestException,
   NotFoundException,
+  Inject,
 } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import {
@@ -10,6 +11,7 @@ import {
   PaymentMethod,
   PaymentGateway,
   OfferingStatus,
+  ClassStatus,
 } from '@prisma/generated';
 import { CouponService } from '../coupon.service';
 import { PayOSService } from '../payos.service';
@@ -18,6 +20,7 @@ import { AuditLoggerService } from '../../audit-logger.service';
 import { OrderCheckoutDto, OrderPreviewDto } from './dto/order.dto';
 import { Prisma } from '@prisma/generated';
 import { AppConfigService } from '@server/shared';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class OrderService {
@@ -30,6 +33,7 @@ export class OrderService {
     private readonly enrollmentService: EnrollmentService,
     private readonly appConfig: AppConfigService,
     private readonly audit: AuditLoggerService,
+    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) { }
 
   async preview(userId: string, input: OrderPreviewDto) {
@@ -37,37 +41,10 @@ export class OrderService {
     if (!offeringIds.length) {
       throw new BadRequestException('offeringIds must not be empty');
     }
-
-    const isUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
-    const codeFilters = offeringIds.filter(o => !isUUID(o));
-    if (codeFilters.length > 0) {
-      const resolvedOfferings = await this.prisma.courseOffering.findMany({
-        where: { code: { in: codeFilters } },
-        select: { id: true, code: true }
-      });
-      offeringIds = offeringIds.map(o => {
-        const resolved = resolvedOfferings.find(ro => ro.code === o);
-        return resolved ? resolved.id : o;
-      });
-      if (offeringIds.some(o => !isUUID(o))) {
-        throw new BadRequestException('Some offering codes could not be resolved');
-      }
-    }
-
-    const now = new Date();
-
     const offerings = await this.prisma.courseOffering.findMany({
       where: {
         id: { in: offeringIds },
-        status: OfferingStatus.PUBLISHED,
-        AND: [
-          {
-            OR: [{ validFrom: null }, { validFrom: { lte: now } }],
-          },
-          {
-            OR: [{ validTo: null }, { validTo: { gte: now } }],
-          },
-        ],
+        status: { in: [OfferingStatus.PUBLISHED, OfferingStatus.OPENING] },
       },
       include: {
         classes: {
@@ -77,11 +54,7 @@ export class OrderService {
                 id: true,
                 code: true,
                 status: true,
-                courseEdition: {
-                  select: {
-                    status: true,
-                  },
-                },
+                mode: true,
               },
             },
           },
@@ -100,23 +73,21 @@ export class OrderService {
       }
       for (const offeringClass of offering.classes) {
         const klass = offeringClass.class;
-        if (klass.status !== 'ENROLLING' && klass.status !== 'IN_PROGRESS') {
+        if (
+          klass.status !== ClassStatus.OPENING &&
+          klass.status !== ClassStatus.ONGOING
+        ) {
           throw new BadRequestException(
             `Class ${klass.code} is in status ${klass.status}, not sellable`,
-          );
-        }
-        if (klass.courseEdition.status !== 'PUBLISHED') {
-          throw new BadRequestException(
-            `Class ${klass.code} uses unpublished course edition`,
           );
         }
       }
     }
 
-    const subTotal = offerings.reduce(
-      (sum, o) => sum + Number(o.originalPrice),
-      0,
-    );
+    const subTotal = offerings.reduce((sum, o) => {
+      const unitPrice = o.salePrice ?? o.price;
+      return sum + Number(unitPrice);
+    }, 0);
     let discountTotal = 0;
     let couponId: string | undefined;
 
@@ -170,7 +141,7 @@ export class OrderService {
         items: {
           create: preview.offerings.map((o) => ({
             offeringId: o.id,
-            price: o.originalPrice,
+            price: o.salePrice ?? o.price,
             offeringSnapshot: {
               title: o.title,
               code: o.code,
@@ -205,11 +176,14 @@ export class OrderService {
         description: payOsDescription,
         cancelUrl: `${webLearnerUrl}/payment/cancel?orderCode=${order.code}`,
         returnUrl: `${webLearnerUrl}/payment/success?orderCode=${order.code}`,
-        items: preview.offerings.map((o) => ({
-          name: o.title,
-          quantity: 1,
-          price: Number(o.originalPrice),
-        })),
+        items: preview.offerings.map((o) => {
+          const unitPrice = o.salePrice ?? o.price;
+          return {
+            name: o.title,
+            quantity: 1,
+            price: Number(unitPrice),
+          };
+        }),
       });
 
       await this.prisma.order.update({
@@ -364,9 +338,9 @@ export class OrderService {
             await this.enrollmentService.create(
               {
                 userId: order.userId,
+                offeringId: item.offeringId,
                 classId,
                 status: 'ACTIVE',
-                sourceOfferingId: item.offeringId,
                 sourceOrderId: order.id,
               },
               requesterId,
@@ -386,6 +360,46 @@ export class OrderService {
     });
 
     this.logger.log(`Order ${order.code} fulfilled successfully`);
+
+    // Emit notification via NATS (identity service will create in-app notification)
+    try {
+      const firstItem = order.items[0];
+      const snapshot = (firstItem?.offeringSnapshot ?? {}) as {
+        title?: string;
+      };
+      const courseTitle = snapshot.title || 'khóa học';
+      const itemCount = order.items.length;
+
+      const title = 'Thanh toán & ghi danh thành công 🎉';
+      const message =
+        itemCount === 1
+          ? `Bạn đã thanh toán và ghi danh thành công vào "${courseTitle}". Bắt đầu học ngay nhé!`
+          : `Bạn đã thanh toán và ghi danh thành công vào ${itemCount} khóa học. Bắt đầu học ngay nhé!`;
+
+      this.natsClient.emit(
+        { cmd: 'send_notification' },
+        {
+          recipientId: order.userId,
+          type: 'system',
+          payload: {
+            title,
+            body: message,
+            metadata: {
+              orderId: order.id,
+              orderCode: order.code,
+              itemCount,
+              currency: order.currency,
+              amount: order.grandTotal,
+            },
+          },
+        },
+      );
+    } catch (error: any) {
+      this.logger.error(
+        `Failed to emit notification for order ${order.code}: ${error.message}`,
+      );
+    }
+
     return { ok: true };
   }
 
@@ -538,7 +552,7 @@ export class OrderService {
           select: {
             classId: true,
             status: true,
-            sourceOfferingId: true,
+            offeringId: true,
           },
         },
       },
@@ -563,7 +577,7 @@ export class OrderService {
         ? snapshot.classIds
         : fallbackClassMap.get(item.offeringId) ?? [];
       const enrolledClassIds = order.enrollments
-        .filter((enrollment) => enrollment.sourceOfferingId === item.offeringId)
+        .filter((enrollment) => enrollment.offeringId === item.offeringId)
         .map((enrollment) => enrollment.classId);
       const missingClassIds = expectedClassIds.filter(
         (classId) => !enrolledClassIds.includes(classId),

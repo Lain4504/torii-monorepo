@@ -4,7 +4,6 @@ import { AutomapperModule } from '@automapper/nestjs';
 import { pojos } from '@automapper/pojos';
 import { ScheduleModule } from '@nestjs/schedule';
 import { GlobalRpcExceptionFilter, SharedModule } from '@server/shared';
-import { ContentModule } from '@server/academy/modules/content/content.module';
 import { ClassroomModule } from '@server/academy/modules/classroom/classroom.module';
 import { AssessmentModule } from '@server/academy/modules/assessment/assessment.module';
 import { CommerceModule } from '@server/academy/modules/commerce/commerce.module';
@@ -12,10 +11,12 @@ import { TicketModule } from '@server/academy/modules/ticket/ticket.module';
 import { StorageModule } from '@server/academy/modules/storage/storage.module';
 import { BlogModule } from '@server/academy/modules/blog/blog.module';
 import { GamificationModule } from '@server/academy/modules/gamification/gamification.module';
+import { CourseProfileModule } from '@server/academy/modules/course-profile/course-profile.module';
 import { InfrastructureModule } from './infrastructure/infrastructure.module';
 import { AuditModule } from './modules/audit.module';
 import { StudyNoteModule } from './modules/study-note/study-note.module';
 import { StudySetModule } from './modules/study-set/study-set.module';
+import { LessonModule } from './modules/lesson/lesson.module';
 
 @Module({
   imports: [
@@ -25,7 +26,6 @@ import { StudySetModule } from './modules/study-set/study-set.module';
     ScheduleModule.forRoot(),
     SharedModule,
     AuditModule,
-    ContentModule,
     ClassroomModule,
     AssessmentModule,
     CommerceModule,
@@ -33,9 +33,11 @@ import { StudySetModule } from './modules/study-set/study-set.module';
     StorageModule,
     BlogModule,
     GamificationModule,
+    CourseProfileModule,
     InfrastructureModule,
     StudyNoteModule,
     StudySetModule,
+    LessonModule,
   ],
   providers: [
     {

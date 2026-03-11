@@ -11,22 +11,16 @@ import { UserRole } from "@workspace/schemas"
 import AdminDashboard from "@/components/dashboard/admin-dashboard"
 import StaffDashboard from "@/components/dashboard/staff-dashboard"
 import LecturerDashboard from "@/components/dashboard/lecturer-dashboard"
-import AcademyDashboardPage from "@/routes/academy/academy-dashboard-page"
 
 export default function DashboardPage() {
   const user = useAppSelector(selectUser)
-  const role = user?.role as any // Use any to avoid the "no overlap" error for now if it persists
+  const role = user?.role as any
 
   const getGreeting = () => {
     const hour = new Date().getHours()
     if (hour < 12) return "Chào buổi sáng"
     if (hour < 18) return "Chào buổi chiều"
     return "Chào buổi tối"
-  }
-
-  // Redirect staff-lms to Academy Dashboard as per requirement
-  if (role === UserRole.STAFF_LMS || role === 'staff-lms') {
-    return <AcademyDashboardPage />
   }
 
   return (
@@ -59,7 +53,7 @@ export default function DashboardPage() {
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/40 to-transparent -translate-y-8" />
 
         {role === UserRole.ADMIN && <AdminDashboard />}
-        {(role === UserRole.STAFF || (role && role.toString().startsWith('staff-'))) && role !== UserRole.STAFF_LMS && <StaffDashboard />}
+        {(role === UserRole.STAFF || role === UserRole.STAFF_LMS || (role && role.toString().startsWith('staff-'))) && <StaffDashboard />}
         {role === UserRole.LECTURER && <LecturerDashboard />}
 
         {!role || (![UserRole.ADMIN, UserRole.STAFF, UserRole.LECTURER, UserRole.STAFF_LMS].includes(role) && !role.toString().startsWith('staff-')) && (

@@ -11,7 +11,7 @@ export const academyClassAttendanceStatusSchema = z.enum([
 export type AcademyClassAttendanceStatus = z.infer<typeof academyClassAttendanceStatusSchema>;
 
 export const academyClassAttendanceCreateDTOSchema = z.object({
-    liveScheduleId: z.string().uuid(),
+    sessionId: z.string().uuid(),
     userId: z.string().uuid(),
     status: academyClassAttendanceStatusSchema,
 });
@@ -25,8 +25,7 @@ export const academyClassAttendanceUpdateDTOSchema = z.object({
 export type AcademyClassAttendanceUpdateDTO = z.infer<typeof academyClassAttendanceUpdateDTOSchema>;
 
 export const academyClassAttendanceQueryDTOSchema = paginationQuerySchema.extend({
-    liveScheduleId: z.string().uuid().optional(),
-    liveClassId: z.string().uuid().optional(),
+    sessionId: z.string().uuid().optional(),
     userId: z.string().uuid().optional(),
 });
 

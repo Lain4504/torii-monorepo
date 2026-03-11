@@ -32,12 +32,11 @@ import { Search, Download, CalendarIcon, Filter, RotateCcw } from 'lucide-react'
 
 const getStatusLabel = (status: OrderStatus) => {
   switch (status) {
-    case OrderStatus.COMPLETED: return 'Hoàn thành';
+    case OrderStatus.PAID: return 'Hoàn thành';
     case OrderStatus.PENDING:
     case OrderStatus.PROCESSING: return 'Đang xử lý';
     case OrderStatus.FAILED: return 'Thất bại';
     case OrderStatus.CANCELLED: return 'Đã hủy';
-    case OrderStatus.TIMED_OUT: return 'Hết hạn';
     case OrderStatus.REFUNDED: return 'Hoàn tiền';
     default: return status;
   }

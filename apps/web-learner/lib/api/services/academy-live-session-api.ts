@@ -4,14 +4,9 @@ import type {
     LiveSessionResponseDTO,
     LiveSessionJoinResponseDTO,
     StandardApiResponse,
-    AcademyLiveScheduleModel,
+    AcademyLiveScheduleSessionModel,
 } from '@workspace/schemas';
-import { academyClassesApi } from './academy-classes';
 import { academyEnrollmentApi } from './academy-enrollment-api';
-
-type LiveScheduleWithClass = AcademyLiveScheduleModel & {
-    liveClass?: { classId?: string } | null;
-};
 
 const SCHEDULE_WINDOW_PAST_WEEKS = 2;
 const SCHEDULE_WINDOW_FUTURE_WEEKS = 12;
@@ -19,13 +14,6 @@ export const LIVE_SESSION_JOIN_OPEN_BEFORE_MINUTES = 30;
 export const LIVE_SESSION_JOIN_CLOSE_AFTER_END_HOURS = 4;
 
 export type LiveSessionUiState = 'scheduled' | 'joinable' | 'live' | 'ended';
-
-function extractScheduleId(sessionId: string): string {
-    // Session id in UI is built as `${scheduleId}-${YYYY-MM-DD}`.
-    // Since scheduleId is a UUID (contains "-"), strip only trailing date segment.
-    const dateSuffixPattern = /-\d{4}-\d{2}-\d{2}$/;
-    return sessionId.replace(dateSuffixPattern, "");
-}
 
 function parseHHmmToMinutes(time: string): number {
     const [h, m] = time.split(':').map(Number);
@@ -80,85 +68,40 @@ export function canJoinLiveSessionNow(
     return now >= joinOpenAt && now <= joinCloseAt;
 }
 
-function toWeeklyOccurrences(
-    schedule: LiveScheduleWithClass,
+function toSessionResponse(
+    session: AcademyLiveScheduleSessionModel,
     classId: string,
     now: Date,
-    options?: {
-        startDate?: Date | null;
-        endDate?: Date | null;
-    },
-): LiveSessionResponseDTO[] {
-    const result: LiveSessionResponseDTO[] = [];
-    const weekday = schedule.weekday;
-    const startMinutes = parseHHmmToMinutes(schedule.startTime);
-    const endMinutes = parseHHmmToMinutes(schedule.endTime);
-    const duration = computeDurationMinutes(schedule.startTime, schedule.endTime);
+): LiveSessionResponseDTO {
+    const sessionDate = new Date(session.sessionDate as any);
+    sessionDate.setHours(0, 0, 0, 0);
+    const startMinutes = parseHHmmToMinutes(session.startTime);
+    const endMinutes = parseHHmmToMinutes(session.endTime);
+    const scheduledAt = withMinutes(sessionDate, startMinutes);
+    const endAt = withMinutes(sessionDate, endMinutes);
+    const duration = computeDurationMinutes(session.startTime, session.endTime);
 
-    const excludedDateSet = new Set(
-        Array.isArray(schedule.excludedDates)
-            ? schedule.excludedDates.map((v) => String(v).slice(0, 10))
-            : [],
-    );
-    const classStart = options?.startDate ? new Date(options.startDate) : null;
-    const classEnd = options?.endDate ? new Date(options.endDate) : null;
+    const status =
+        now >= scheduledAt && now <= endAt
+            ? 'live'
+            : now > endAt
+                ? 'ended'
+                : 'scheduled';
 
-    for (
-        let weekOffset = -SCHEDULE_WINDOW_PAST_WEEKS;
-        weekOffset <= SCHEDULE_WINDOW_FUTURE_WEEKS;
-        weekOffset += 1
-    ) {
-        const base = new Date(now);
-        const dayDelta = weekday - base.getDay() + weekOffset * 7;
-        base.setDate(base.getDate() + dayDelta);
-        base.setHours(0, 0, 0, 0);
-
-        const scheduledAt = withMinutes(base, startMinutes);
-        const endAt = withMinutes(base, endMinutes);
-        const sessionDateKey = scheduledAt.toISOString().slice(0, 10);
-
-        if (excludedDateSet.has(sessionDateKey)) {
-            continue;
-        }
-        if (classStart) {
-            const startBoundary = new Date(classStart);
-            startBoundary.setHours(0, 0, 0, 0);
-            if (scheduledAt < startBoundary) {
-                continue;
-            }
-        }
-        if (classEnd) {
-            const endBoundary = new Date(classEnd);
-            endBoundary.setHours(23, 59, 59, 999);
-            if (scheduledAt > endBoundary) {
-                continue;
-            }
-        }
-
-        const status =
-            now >= scheduledAt && now <= endAt
-                ? 'live'
-                : now > endAt
-                    ? 'ended'
-                    : 'scheduled';
-
-        result.push({
-            id: `${schedule.id}-${sessionDateKey}`,
-            courseRunId: classId,
-            lecturerId: null,
-            title: schedule.note?.trim() ? schedule.note : 'Buoi hoc truc tuyen',
-            description: schedule.location ?? null,
-            scheduledAt,
-            duration,
-            status,
-            meetingId: schedule.roomId ?? null,
-            scheduleId: schedule.id,
-            createdAt: new Date(schedule.createdAt),
-            updatedAt: new Date(schedule.updatedAt),
-        });
-    }
-
-    return result;
+    return {
+        id: session.id,
+        classId: classId,
+        lecturerId: null,
+        title: session.note?.trim() ? session.note : 'Buoi hoc truc tuyen',
+        description: session.location ?? null,
+        scheduledAt,
+        duration,
+        status,
+        meetingId: session.roomId ?? null,
+        scheduleId: session.scheduleId ?? null,
+        createdAt: new Date(session.createdAt as any),
+        updatedAt: new Date(session.updatedAt as any),
+    };
 }
 
 export const liveSessionApi = {
@@ -173,35 +116,37 @@ export const liveSessionApi = {
         }
     },
 
-    // Build session-like occurrences from /api/academy/live-schedules
+    // List session instances from /api/academy/live-sessions
     async getSessions(classId: string): Promise<LiveSessionResponseDTO[]> {
         if (!classId) return [];
 
-        const classData = await academyClassesApi.findById(classId);
-        const liveClassId = classData?.liveClass?.id;
-        if (!liveClassId) return [];
-
-        const response = await apiClient.get<StandardApiResponse<{ items: LiveScheduleWithClass[] }>>(
-            '/api/academy/live-schedules',
-            { params: { liveClassId } },
-        );
-
-        const schedules = response.data.data?.items ?? [];
         const now = new Date();
-        return schedules
-            .flatMap((schedule) =>
-                toWeeklyOccurrences(schedule, classId, now, {
-                    startDate: classData.liveClass?.startDate ?? null,
-                    endDate: classData.liveClass?.endDate ?? null,
-                }),
-            )
+        const from = new Date(now);
+        from.setDate(from.getDate() - SCHEDULE_WINDOW_PAST_WEEKS * 7);
+        const to = new Date(now);
+        to.setDate(to.getDate() + SCHEDULE_WINDOW_FUTURE_WEEKS * 7);
+
+        const response = await apiClient.get<
+            StandardApiResponse<{ items: AcademyLiveScheduleSessionModel[] }>
+        >('/api/academy/live-sessions', {
+            params: {
+                classId,
+                from: from.toISOString().slice(0, 10),
+                to: to.toISOString().slice(0, 10),
+            },
+        });
+
+        const sessions = response.data.data?.items ?? [];
+        return sessions
+            .map((s) => toSessionResponse(s, classId, now))
             .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
     },
 
-    // POST /api/live-sessions/:id/join (id = liveScheduleId)
+    // POST /api/live-sessions/:sessionId/join/student
     async joinSession(id: string): Promise<LiveSessionJoinResponseDTO> {
-        const scheduleId = extractScheduleId(id);
-        const response = await apiClient.post<StandardApiResponse<LiveSessionJoinResponseDTO>>(`/api/live-sessions/${scheduleId}/join`);
+        const response = await apiClient.post<
+            StandardApiResponse<LiveSessionJoinResponseDTO>
+        >(`/api/live-sessions/${id}/join/student`);
         return response.data.data!;
     },
 
@@ -217,7 +162,7 @@ export const liveSessionApi = {
         const sessionArrays = await Promise.allSettled(
             liveEnrollments.map((enrollment: any) =>
                 liveSessionApi
-                    .getSessions(enrollment.classId || enrollment.courseRunId)
+                    .getSessions(enrollment.classId)
                     .then((sessions) =>
                         sessions.map((s) => ({
                             ...s,

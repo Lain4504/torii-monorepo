@@ -1,11 +1,21 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { ClassService } from './class.service';
-import { ClassCreateDto, ClassDuplicateDto, ClassQueryDto, ClassUpdateDto } from './dto/class.dto';
+import {
+  ClassAssignmentCreateDto,
+  ClassAssignmentUpdateDto,
+  ClassCreateDto,
+  ClassDuplicateDto,
+  ClassQueryDto,
+  ClassUpdateDto,
+  MarkLessonCompleteDto,
+} from './dto/class.dto';
 
 @Controller()
 export class ClassHandler {
   constructor(private readonly classes: ClassService) { }
+
+  // ==== Class CRUD ====
 
   @MessagePattern({ cmd: 'academy.class.findAll' })
   findAll(@Payload() query: ClassQueryDto) {
@@ -58,14 +68,9 @@ export class ClassHandler {
     return this.classes.completeClass(data.id, data.requesterId);
   }
 
-  @MessagePattern({ cmd: 'academy.class.cancel' })
-  cancel(@Payload() data: { id: string; requesterId?: string }) {
-    return this.classes.cancelClass(data.id, data.requesterId);
-  }
-
-  @MessagePattern({ cmd: 'academy.class.getCurriculum' })
-  getCurriculum(@Payload() data: { id: string }) {
-    return this.classes.getCurriculum(data.id);
+  @MessagePattern({ cmd: 'academy.class.archive' })
+  archive(@Payload() data: { id: string; requesterId?: string }) {
+    return this.classes.archiveClass(data.id, data.requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.class.delete' })
@@ -77,5 +82,39 @@ export class ClassHandler {
   duplicate(@Payload() data: { id: string; input?: ClassDuplicateDto; requesterId?: string }) {
     return this.classes.duplicate(data.id, data.input, data.requesterId);
   }
-}
 
+  // ==== Class Assignments ====
+
+  @MessagePattern({ cmd: 'academy.class.getAssignments' })
+  getAssignments(@Payload() data: { classId: string }) {
+    return this.classes.getAssignments(data.classId);
+  }
+
+  @MessagePattern({ cmd: 'academy.class.addAssignment' })
+  addAssignment(@Payload() data: ClassAssignmentCreateDto & { requesterId?: string }) {
+    const { requesterId, ...input } = data;
+    return this.classes.addAssignment(input, requesterId);
+  }
+
+  @MessagePattern({ cmd: 'academy.class.updateAssignment' })
+  updateAssignment(@Payload() data: { id: string; input: ClassAssignmentUpdateDto }) {
+    return this.classes.updateAssignment(data.id, data.input);
+  }
+
+  @MessagePattern({ cmd: 'academy.class.removeAssignment' })
+  removeAssignment(@Payload() data: { id: string; requesterId?: string }) {
+    return this.classes.removeAssignment(data.id, data.requesterId);
+  }
+
+  // ==== Lesson Progress ====
+
+  @MessagePattern({ cmd: 'academy.class.getUserProgress' })
+  getUserProgress(@Payload() data: { userId: string; classId: string }) {
+    return this.classes.getUserProgress(data.userId, data.classId);
+  }
+
+  @MessagePattern({ cmd: 'academy.class.markLessonComplete' })
+  markLessonComplete(@Payload() data: MarkLessonCompleteDto) {
+    return this.classes.markLessonComplete(data.userId, data.classId, data.lessonId);
+  }
+}

@@ -1,8 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { apiClient } from "@/lib/api/api-client"
 import type {
+  AcademyClassContentItemCreateDTO,
+  AcademyClassContentItemUpdateDTO,
   AcademyClassCreateDTO,
   AcademyClassDuplicateDTO,
+  AcademyClassModuleCreateDTO,
+  AcademyClassModuleUpdateDTO,
   AcademyClassQueryDTO,
   AcademyClassUpdateDTO,
   StandardApiResponse,
@@ -11,7 +15,6 @@ import type {
 export type AcademyClass = {
   id: string
   courseProfileId: string
-  courseEditionId: string
   code: string
   name: string
   mode: "VOD" | "LIVE"
@@ -44,19 +47,14 @@ export type AcademyClass = {
     id: string
     term?: string | null
     batch?: string | null
-    startDate?: string | null
-    endDate?: string | null
+    openingDate?: string | null
+    closingDate?: string | null
     enrollmentOpenAt?: string | null
     enrollmentCloseAt?: string | null
     minStudents?: number | null
     maxStudents?: number | null
     minStudentsEnforcement?: string | null
-    primaryTeacherId?: string | null
-    primaryTeacher?: {
-      id: string
-      displayName: string
-      avatarUrl?: string | null
-    } | null
+    instructorId?: string | null
   } | null
 }
 
@@ -74,6 +72,84 @@ export const academyClassesApi = {
       `/api/academy/classes/${id}`,
     )
     return res.data.data!.item
+  },
+
+  async getCurriculum(id: string) {
+    const res = await apiClient.get<
+      StandardApiResponse<{
+        curriculum: {
+          classId: string
+          courseProfileId: string
+          modules: {
+            id: string
+            title: string
+            orderIndex: number
+            items: {
+              id: string
+              kind: string
+              referenceId?: string | null
+              orderIndex: number
+              status: string
+              availableFrom?: string | null
+              deadline?: string | null
+              isPrerequisite: boolean
+            }[]
+          }[]
+        }
+      }>
+    >(`/api/academy/classes/${id}/curriculum`)
+    return res.data.data!.curriculum
+  },
+
+  async addModule(classId: string, input: AcademyClassModuleCreateDTO) {
+    const res = await apiClient.post<
+      StandardApiResponse<{ module: { id: string } }>
+    >(`/api/academy/classes/${classId}/modules`, input)
+    return res.data.data!.module
+  },
+
+  async updateModule(
+    moduleId: string,
+    input: AcademyClassModuleUpdateDTO,
+  ) {
+    const res = await apiClient.put<
+      StandardApiResponse<{ module: { id: string } }>
+    >(`/api/academy/classes/modules/${moduleId}`, input)
+    return res.data.data!.module
+  },
+
+  async deleteModule(moduleId: string) {
+    const res = await apiClient.delete<
+      StandardApiResponse<{ ok: boolean }>
+    >(`/api/academy/classes/modules/${moduleId}`)
+    return res.data.data
+  },
+
+  async addContentItem(
+    moduleId: string,
+    input: AcademyClassContentItemCreateDTO,
+  ) {
+    const res = await apiClient.post<
+      StandardApiResponse<{ item: { id: string } }>
+    >(`/api/academy/classes/modules/${moduleId}/items`, input)
+    return res.data.data!.item
+  },
+
+  async updateContentItem(
+    itemId: string,
+    input: AcademyClassContentItemUpdateDTO,
+  ) {
+    const res = await apiClient.put<
+      StandardApiResponse<{ item: { id: string } }>
+    >(`/api/academy/classes/items/${itemId}`, input)
+    return res.data.data!.item
+  },
+
+  async deleteContentItem(itemId: string) {
+    const res = await apiClient.delete<
+      StandardApiResponse<{ ok: boolean }>
+    >(`/api/academy/classes/items/${itemId}`)
+    return res.data.data
   },
 
   async create(input: AcademyClassCreateDTO) {
@@ -168,6 +244,14 @@ export function useAcademyClass(id?: string) {
     enabled: !!id,
     queryKey: ["academy-class", id],
     queryFn: () => academyClassesApi.findById(id!),
+  })
+}
+
+export function useAcademyClassCurriculum(classId?: string) {
+  return useQuery({
+    enabled: !!classId,
+    queryKey: ["academy-class-curriculum", classId],
+    queryFn: () => academyClassesApi.getCurriculum(classId!),
   })
 }
 

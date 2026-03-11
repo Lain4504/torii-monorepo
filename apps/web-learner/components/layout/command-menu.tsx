@@ -33,10 +33,14 @@ import {
     CommandSeparator,
     CommandShortcut,
 } from "@workspace/ui/components/command"
+import { useAppSelector } from "@/hooks/hooks"
 
 export function CommandMenu() {
     const [open, setOpen] = React.useState(false)
     const router = useRouter()
+    const { user } = useAppSelector((state) => state.auth)
+    const role = user?.role
+    const isStaffOrAdmin = role === 'admin' || role === 'staff-lms' || role === 'staff'
 
     React.useEffect(() => {
         const down = (e: KeyboardEvent) => {
@@ -78,10 +82,12 @@ export function CommandMenu() {
                             <LayoutDashboard className="mr-2 h-4 w-4" />
                             <span>Trang chủ</span>
                         </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/my-courses"))}>
-                            <BookOpen className="mr-2 h-4 w-4" />
-                            <span>Khóa học của tôi</span>
-                        </CommandItem>
+                        {!isStaffOrAdmin && (
+                            <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/my-courses"))}>
+                                <BookOpen className="mr-2 h-4 w-4" />
+                                <span>Khóa học của tôi</span>
+                            </CommandItem>
+                        )}
                         <CommandItem onSelect={() => runCommand(() => router.push("/dashboard/flashcards"))}>
                             <BrainCircuit className="mr-2 h-4 w-4" />
                             <span>Kho Thẻ Nhớ</span>

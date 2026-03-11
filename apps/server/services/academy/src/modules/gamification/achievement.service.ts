@@ -1,11 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { AuditLoggerService } from '../audit-logger.service';
 import {
     AchievementDTO,
     UserAchievementDTO,
-    AchievementUnlockedEvent,
-    GamificationTransactionType
+    GamificationTransactionType,
 } from '@workspace/schemas';
 
 @Injectable()
@@ -15,6 +15,7 @@ export class AchievementService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly audit: AuditLoggerService,
+        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     ) { }
 
     async getAchievementsForUser(userId: string): Promise<UserAchievementDTO[]> {
@@ -111,19 +112,17 @@ export class AchievementService {
                 return gamification?.totalActiveDays || 0;
             }
             case 'LESSONS_COMPLETED': {
-                return await this.prisma.learningProgress.count({
-                    where: { userId, status: 'COMPLETED' },
+                return await this.prisma.userLessonProgress.count({
+                    where: { userId, isCompleted: true },
                 });
             }
             case 'EXAM_PASSED_COUNT': {
-                return await this.prisma.examAttempt.count({
-                    where: { userId, status: { in: ['COMPLETED', 'SUBMITTED'] }, isPassed: true },
-                });
+                // V2: exam flow removed
+                return 0;
             }
             case 'EXAM_ATTEMPT_COUNT': {
-                return await this.prisma.examAttempt.count({
-                    where: { userId, status: { in: ['COMPLETED', 'SUBMITTED'] } },
-                });
+                // V2: exam flow removed
+                return 0;
             }
             case 'REVIEWS_PUBLISHED': {
                 return await this.prisma.classReview.count({
@@ -198,8 +197,33 @@ export class AchievementService {
 
             // 3. (Optional) In-app notification could be added here
         });
-
         this.logger.log(`User ${userId} unlocked achievement: ${achievement.code}`);
+
+        // Emit notification via NATS (identity service will create in-app notification)
+        try {
+            this.natsClient.emit(
+                { cmd: 'send_notification' },
+                {
+                    recipientId: userId,
+                    type: 'system',
+                    payload: {
+                        title: 'Bạn vừa mở khóa thành tựu mới 🎉',
+                        body: `Bạn đã đạt được thành tựu "${achievement.title}". Tiếp tục cố gắng nhé!`,
+                        metadata: {
+                            achievementId: achievement.id,
+                            achievementCode: achievement.code,
+                            category: (achievement as any).category,
+                            progress,
+                            rewards: achievement.rewards,
+                        },
+                    },
+                },
+            );
+        } catch (error: any) {
+            this.logger.error(
+                `Failed to emit notification for unlocked achievement ${achievement.id} of user ${userId}: ${error.message}`,
+            );
+        }
     }
 
     // --- Admin CRUD ---

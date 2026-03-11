@@ -1,8 +1,9 @@
 import { IsInt, IsOptional, IsString, IsUUID, MaxLength, Min } from 'class-validator';
 
 export class LiveScheduleCreateDto {
+
   @IsUUID()
-  liveClassId!: string;
+  classId!: string;
 
   @IsInt()
   @Min(0)
@@ -71,5 +72,5 @@ export class LiveScheduleUpdateDto {
 export class LiveScheduleQueryDto {
   @IsOptional()
   @IsUUID()
-  liveClassId?: string;
+  classId?: string;
 }

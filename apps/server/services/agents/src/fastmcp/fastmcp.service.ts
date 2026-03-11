@@ -283,7 +283,6 @@ export class FastMcpService {
                 select: {
                   id: true,
                   title: true,
-                  metadata: true,
                 },
               },
             },
@@ -291,9 +290,6 @@ export class FastMcpService {
         },
       });
 
-      const courseMetadata = (enrollments as any[])
-        .map((e) => e.class?.courseProfile?.metadata)
-        .filter(Boolean);
       const courseTitles = (enrollments as any[])
         .map((e) => e.class?.courseProfile?.title)
         .filter(Boolean);
@@ -310,24 +306,17 @@ export class FastMcpService {
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
       // 1. Lessons Completed
-      const completedLessons = await this.prisma.learningProgress.findMany({
+      const completedLessons = await this.prisma.userLessonProgress.findMany({
         where: {
           userId,
-          lastAccessedAt: { gte: thirtyDaysAgo },
-          status: 'COMPLETED',
+          updatedAt: { gte: thirtyDaysAgo },
+          isCompleted: true,
         },
-        select: { lastAccessedAt: true },
+        select: { updatedAt: true },
       });
 
-      // 2. Quiz/Test Scores (Mapped to ExamAttempts in new schema)
-      const completedQuizzes = await this.prisma.examAttempt.findMany({
-        where: {
-          userId,
-          completedAt: { gte: thirtyDaysAgo },
-          status: 'COMPLETED',
-        },
-        select: { completedAt: true, percentage: true },
-      });
+      // 2. Quiz/Test Scores (V2: exam flow removed)
+      const completedQuizzes: Array<{ completedAt: Date | null; percentage: number | null }> = [];
 
       // 3. Aggregate by Date
       const activityMap = new Map<
@@ -339,8 +328,7 @@ export class FastMcpService {
       const getDateKey = (date: Date) => date.toISOString().split('T')[0]; // YYYY-MM-DD
 
       completedLessons.forEach((l) => {
-        if (!l.lastAccessedAt) return;
-        const dateKey = getDateKey(l.lastAccessedAt);
+        const dateKey = getDateKey(l.updatedAt);
         if (!activityMap.has(dateKey)) {
           activityMap.set(dateKey, { lessons: 0, scores: [], date: dateKey });
         }
@@ -379,26 +367,8 @@ export class FastMcpService {
 
       // --- NEW DATA FETCHING ---
 
-      // 1. Common Errors (Top 10 recently missed questions)
-      const recentWrongDetails = await this.prisma.examAttemptDetail.findMany({
-        where: {
-          attempt: { userId },
-          isCorrect: false,
-        },
-        include: {
-          question: {
-            select: { content: true, metadata: true },
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 20,
-      });
-
-      const commonErrors = recentWrongDetails.map((d) => ({
-        question: d.question.content,
-        category: (d.question.metadata as any)?.category,
-        subcategory: (d.question.metadata as any)?.subcategory,
-      }));
+      // 1. Common Errors (V2: exam flow removed)
+      const commonErrors: Array<{ question: string; category?: string; subcategory?: string }> = [];
 
       // 2. Recent Vocabulary (Flashcards reviewed/added)
       const recentFlashcards = await this.prisma.setCard.findMany({
@@ -423,7 +393,6 @@ export class FastMcpService {
         userId,
         enrolledCourses: courseTitles,
         jlptLevels,
-        aiMetadata: courseMetadata,
         recentActivity: conciseActivity,
         commonErrors,
         recentVocabulary,

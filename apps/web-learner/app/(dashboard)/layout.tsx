@@ -47,16 +47,25 @@ export default function DashboardLayout({
     }
 
     return (
-        <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
-                <DashboardHeader />
-                <main className="flex-1 overflow-y-auto scrollbar-none bg-background">
-                    <div className="container mx-auto p-4 sm:p-6 lg:p-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
-                        {children}
-                    </div>
-                </main>
-            </SidebarInset>
-        </SidebarProvider>
+    <SidebarProvider>
+      {/* <style jsx global>{`
+        .nhai-blueprint-bg {
+          background-color: #dbeafe;
+          background-image:
+            linear-gradient(to right, rgba(0, 132, 255, 0.08) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(0, 132, 255, 0.08) 1px, transparent 1px);
+          background-size: 20px 20px;
+        }
+      `}</style> */}
+      <AppSidebar />
+      <SidebarInset>
+        <DashboardHeader />
+        <main className="flex-1 overflow-y-auto scrollbar-none nhai-blueprint-bg">
+          <div className="container mx-auto p-4 sm:p-6 lg:p-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
+            {children}
+          </div>
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
     )
 }

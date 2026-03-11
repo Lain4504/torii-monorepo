@@ -65,6 +65,14 @@ export class EnrollmentController {
         return successResponse(result);
     }
 
+    @Get('stats')
+    async getStats(@Req() req: ReqWithRequester) {
+        const result = await firstValueFrom(
+            this.nats.send({ cmd: 'academy.enrollment.getStats' }, { userId: req.requester?.sub }),
+        );
+        return successResponse(result);
+    }
+
     @Get(':id')
     @Permissions('academy.delivery.read')
     async findById(@Param('id', new ParseUUIDPipe()) id: string) {

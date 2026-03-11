@@ -14,29 +14,32 @@ export class CourseOfferingCreateDto {
   description?: string;
 
   @Min(0)
-  originalPrice!: number;
+  price!: number;
+
+  @IsOptional()
+  @Min(0)
+  salePrice?: number;
 
   @IsString()
   @MaxLength(10)
   currency!: string;
 
+  @IsString()
+  mode!: string; // VOD, LIVE
+
+  @IsOptional()
+  @IsUUID()
+  syllabusId?: string;
+
   @IsOptional()
   @IsString()
   @MaxLength(20)
-  status?: string; // DRAFT, ACTIVE, ARCHIVED
+  status?: string; // DRAFT, PUBLISHED, OPENING, ARCHIVED
 
+  @IsOptional()
   @IsString()
   @MaxLength(20)
   type?: string; // COURSE, BUNDLE, SUBSCRIPTION
-
-  @IsOptional()
-  validFrom?: Date;
-
-  @IsOptional()
-  validTo?: Date;
-
-  @IsOptional()
-  metadata?: unknown;
 
   @IsOptional()
   @IsArray()
@@ -55,12 +58,24 @@ export class CourseOfferingUpdateDto {
 
   @IsOptional()
   @Min(0)
-  originalPrice?: number;
+  price?: number;
+
+  @IsOptional()
+  @Min(0)
+  salePrice?: number;
 
   @IsOptional()
   @IsString()
   @MaxLength(10)
   currency?: string;
+
+  @IsOptional()
+  @IsString()
+  mode?: string;
+
+  @IsOptional()
+  @IsUUID()
+  syllabusId?: string;
 
   @IsOptional()
   @IsString()
@@ -70,15 +85,6 @@ export class CourseOfferingUpdateDto {
   @IsOptional()
   @IsString()
   type?: string;
-
-  @IsOptional()
-  validFrom?: Date;
-
-  @IsOptional()
-  validTo?: Date;
-
-  @IsOptional()
-  metadata?: unknown;
 
   @IsOptional()
   @IsArray()

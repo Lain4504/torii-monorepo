@@ -9,7 +9,7 @@ import type {
 
 export type AcademyClassAttendance = {
     id: string
-    liveScheduleId: string
+    sessionId: string
     userId: string
     status: "PRESENT" | "ABSENT" | "LATE" | "EXCUSED"
     recordedAt: string

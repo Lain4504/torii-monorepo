@@ -1,3 +1,5 @@
+"use client"
+
 import { TranslatorView } from "@/components/ai-sensei/translator-view"
 import { SenseiPageHeader } from "@/components/ai-sensei/sensei-page-header"
 import { Languages } from "lucide-react"

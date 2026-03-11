@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { SharedModule } from '@server/shared';
 import {
   SenseiModule,
-  AssessmentModule,
   AnalyticsModule,
 } from '@server/agents/modules';
 
@@ -13,6 +12,6 @@ import {
  * Gateway → NATS → Feature Handlers → Domain Services → FastMCP → Gemini
  */
 @Module({
-  imports: [SharedModule, SenseiModule, AssessmentModule, AnalyticsModule],
+  imports: [SharedModule, SenseiModule, AnalyticsModule],
 })
 export class AgentsModule {}

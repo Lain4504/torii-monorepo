@@ -94,19 +94,19 @@ export const academyStudySetApi = {
 
     // Extra Study Modes
     async getTestQuiz(setId: string, count?: number) {
-        const res = await apiClient.get<StandardApiResponse<any[]>>(
+        const res = await apiClient.get<StandardApiResponse<{ items: any[] }>>(
             `/api/academy/study-sets/${setId}/study-modes/test`,
             { params: { count } },
         )
-        return res.data.data!
+        return res.data.data!.items
     },
 
     async getMatchGame(setId: string, count?: number) {
-        const res = await apiClient.get<StandardApiResponse<any[]>>(
+        const res = await apiClient.get<StandardApiResponse<{ items: any[] }>>(
             `/api/academy/study-sets/${setId}/study-modes/match`,
             { params: { count } },
         )
-        return res.data.data!
+        return res.data.data!.items
     },
 }
 
