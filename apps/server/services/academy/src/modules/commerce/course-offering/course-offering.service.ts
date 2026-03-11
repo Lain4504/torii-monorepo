@@ -70,11 +70,35 @@ export class CourseOfferingService {
     const item = await this.prisma.courseOffering.findUnique({
       where: { id },
       include: {
+        syllabus: {
+          include: {
+            modules: {
+              orderBy: { orderIndex: 'asc' },
+              include: {
+                lessons: {
+                  orderBy: { orderIndex: 'asc' },
+                },
+              },
+            },
+          },
+        },
         classes: {
           include: {
             class: {
               include: {
                 courseProfile: true,
+                syllabus: {
+                  include: {
+                    modules: {
+                      orderBy: { orderIndex: 'asc' },
+                      include: {
+                        lessons: {
+                          orderBy: { orderIndex: 'asc' },
+                        },
+                      },
+                    },
+                  },
+                },
                 instructor: {
                   select: {
                     displayName: true,

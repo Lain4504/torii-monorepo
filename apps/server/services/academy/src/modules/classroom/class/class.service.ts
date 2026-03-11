@@ -476,7 +476,7 @@ export class ClassService {
   }
 
   // ==============================================================
-  // CLASS ASSIGNMENTS
+  // CLASS ASSIGNMENTS (LIVE classes only)
   // ==============================================================
 
   async getAssignments(classId: string) {
@@ -496,19 +496,22 @@ export class ClassService {
       select: { id: true, mode: true },
     });
     if (!klass) throw new NotFoundException('Class not found');
-    if (klass.mode !== 'LIVE') throw new BadRequestException('Assignments only apply to LIVE classes');
+    if (klass.mode !== 'LIVE') {
+      throw new BadRequestException('Assignments only apply to LIVE classes');
+    }
 
-    const assignment = await this.prisma.assignment.findUnique({
-      where: { id: input.assignmentId },
-      select: { id: true },
-    });
-    if (!assignment) throw new NotFoundException('Assignment not found');
+    return this.prisma.$transaction(async (tx) => {
+      const assignment = await tx.assignment.create({
+        data: {
+          title: input.title,
+          instructions: input.instructions,
+        },
+      });
 
-    try {
-      const result = await this.prisma.classAssignment.create({
+      const result = await tx.classAssignment.create({
         data: {
           classId: input.classId,
-          assignmentId: input.assignmentId,
+          assignmentId: assignment.id,
           titleOverride: input.titleOverride ?? null,
           openAt: input.openAt ?? null,
           deadline: input.deadline ?? null,
@@ -521,16 +524,11 @@ export class ClassService {
         action: 'class_assignment.create',
         entity: 'ClassAssignment',
         entityId: result.id,
-        description: `Added assignment ${input.assignmentId} to class ${input.classId}`,
+        description: `Created assignment for class ${input.classId}`,
       });
 
       return result;
-    } catch (err: any) {
-      if (err?.code === 'P2002') {
-        throw new BadRequestException('This assignment is already added to this class');
-      }
-      throw err;
-    }
+    });
   }
 
   async updateAssignment(id: string, input: ClassAssignmentUpdateDto) {

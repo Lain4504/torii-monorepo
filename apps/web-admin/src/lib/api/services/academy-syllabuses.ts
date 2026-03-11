@@ -81,3 +81,15 @@ export function useCreateAcademySyllabus() {
         onSuccess: (_, variables) => qc.invalidateQueries({ queryKey: ["academy-syllabuses", variables.courseProfileId] }),
     })
 }
+
+export function useCloneAcademySyllabus() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: ({ id, input }: { id: string; input: { newVersion: string; newName?: string } }) =>
+            academySyllabusesApi.clone(id, input),
+        onSuccess: (_, { id }) => {
+            qc.invalidateQueries({ queryKey: ["academy-syllabuses"] })
+            qc.invalidateQueries({ queryKey: ["academy-syllabus", id] })
+        },
+    })
+}

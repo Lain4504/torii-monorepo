@@ -11,9 +11,6 @@ import {
     AgentTestGenerationResponseDTO,
     AgentTestEvaluationResponseDTO,
     AgentReadinessProfileResponseDTO,
-    AcademyPlacementInfoResponseDTO,
-    AcademyPlacementStartResponseDTO,
-    AcademyPlacementSubmitResponseDTO,
 } from '@workspace/schemas';
 
 export interface AnalyticsSnapshot {
@@ -226,21 +223,21 @@ export const agentApi = {
         },
     },
     placement: {
-        getInfo: async (): Promise<AcademyPlacementInfoResponseDTO> => {
-            const response = await apiClient.get<{ success: boolean; data: AcademyPlacementInfoResponseDTO; message?: string }>('/api/academy/placement/info');
+        getInfo: async (): Promise<any> => {
+            const response = await apiClient.get<{ success: boolean; data: any; message?: string }>('/api/academy/placement/info');
             if (!response.data.success || !response.data.data) {
                 throw new Error(response.data.message || 'Failed to load placement info');
             }
             return response.data.data;
         },
-        start: async (): Promise<AcademyPlacementStartResponseDTO> => {
-            const response = await apiClient.post<{ success: boolean; data: AcademyPlacementStartResponseDTO; message?: string }>('/api/academy/placement/start', {});
+        start: async (): Promise<any> => {
+            const response = await apiClient.post<{ success: boolean; data: any; message?: string }>('/api/academy/placement/start', {});
             if (!response.data.success || !response.data.data) {
                 throw new Error(response.data.message || 'Failed to start placement test');
             }
             return response.data.data;
         },
-        submit: async (attemptId: string, answers: Record<string, unknown>): Promise<AcademyPlacementSubmitResponseDTO & { analysis?: string; strengths?: string[]; weaknesses?: string[]; studyPlan?: string; recommendations?: any[] }> => {
+        submit: async (attemptId: string, answers: Record<string, unknown>): Promise<any> => {
             const response = await apiClient.post<{ success: boolean; data: any; message?: string }>('/api/academy/placement/submit', {
                 attemptId,
                 answers

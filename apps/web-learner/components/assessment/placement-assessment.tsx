@@ -6,9 +6,6 @@ import { Button } from "@workspace/ui/components/button"
 import { Spinner } from "@workspace/ui/components/spinner"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { agentApi } from "@/lib/api/services/agent-api"
-import {
-    AcademyPlacementInfoResponseDTO,
-} from "@workspace/schemas"
 import { cn } from "@workspace/ui/lib/utils"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -27,7 +24,7 @@ export function PlacementAssessment() {
     const [step, setStep] = React.useState<"intro" | "test" | "result">("intro")
     const [isLoading, setIsLoading] = React.useState(false)
     const [attemptId, setAttemptId] = React.useState<string | null>(null)
-    const [info, setInfo] = React.useState<AcademyPlacementInfoResponseDTO | null>(null)
+    const [info, setInfo] = React.useState<any | null>(null)
     const [quizData, setQuizData] = React.useState<QuizData | null>(null)
     const [result, setResult] = React.useState<any | null>(null)
 
@@ -56,8 +53,8 @@ export function PlacementAssessment() {
             const mappedQuizData: QuizData = {
                 title: "Bài Thi Xác Định Trình Độ",
                 description: "Bài thi gồm các câu từ N5 đến N1. Kết quả dùng để gợi ý lộ trình học phù hợp.",
-                questions: data.questions.map((q) => {
-                    const optionObjects = (q.options || []).map(opt => ({
+                questions: data.questions.map((q: any) => {
+                    const optionObjects = (q.options || []).map((opt: string) => ({
                         id: nanoid(),
                         label: opt
                     }))

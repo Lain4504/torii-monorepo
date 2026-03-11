@@ -1,4 +1,9 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom'
+
+function NavigateToClassTab({ tab }: { tab: string }) {
+  const { classId } = useParams<{ classId: string }>()
+  return <Navigate to={`/academy/classes/${classId}/detail?tab=${tab}`} replace />
+}
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Provider as ReduxProvider } from 'react-redux'
@@ -43,8 +48,10 @@ import NotImplementedPage from '@/routes/error/not-implemented-page.tsx'
 import UnauthorizedPage from '@/routes/error/unauthorized-page.tsx'
 import CourseProfilesPage from '@/routes/academy/course-profiles/course-profiles-page.tsx'
 import ClassesPage from '@/routes/academy/classes/classes-page.tsx'
+import ClassStudentsPage from '@/routes/academy/classes/class-students-page.tsx'
 import SyllabusBuilderPage from '@/routes/academy/syllabuses/syllabus-builder-page.tsx'
 import OfferingsPage from '@/routes/academy/offerings/offerings-page.tsx'
+import ApprovalsPage from '@/routes/academy/approvals/approvals-page.tsx'
 import AssignmentGradingPage from '@/routes/academy/classes/assignment-grading-page.tsx'
 import RewardsPage from '@/routes/gamification/rewards-page.tsx'
 import AchievementsPage from '@/routes/gamification/achievements-page.tsx'
@@ -99,8 +106,12 @@ function App() {
                   <Route element={<RoutePermissionGuard anyPermission={["academy.content.read", "academy.content.write", "academy.delivery.read", "academy.delivery.write"]} />}>
                     <Route path="academy/course-profiles" element={<CourseProfilesPage />} />
                     <Route path="academy/classes" element={<ClassesPage />} />
+                    <Route path="academy/classes/:classId/detail" element={<ClassStudentsPage />} />
+                    <Route path="academy/classes/:classId/schedule" element={<NavigateToClassTab tab="schedule" />} />
+                    <Route path="academy/classes/:classId/assessments" element={<NavigateToClassTab tab="assignments" />} />
                     <Route path="academy/syllabuses/:id" element={<SyllabusBuilderPage />} />
                     <Route path="academy/course-offerings" element={<OfferingsPage />} />
+                    <Route path="academy/approvals" element={<ApprovalsPage />} />
                     <Route path="academy/classes/:classId/assignments/:assessmentId/submissions" element={<AssignmentGradingPage />} />
                   </Route>
 

@@ -27,13 +27,13 @@ import {
     DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu";
 import { MoreHorizontal, FileEdit, Settings, Layers } from 'lucide-react';
-import { CourseProfileSheet } from './components/course-profile-sheet';
+import { CourseProfileDialog } from './components/course-profile-dialog';
 
 export default function CourseProfilesPage() {
     const navigate = useNavigate();
     const [search, setSearch] = useState('');
     const [debouncedSearch] = useDebounceValue(search, 500);
-    const [sheetOpen, setSheetOpen] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
     const [selectedProfile, setSelectedProfile] = useState<AcademyCourseProfile | null>(null);
 
     const { data: profiles, isLoading } = useAcademyCourseProfiles({
@@ -42,12 +42,12 @@ export default function CourseProfilesPage() {
 
     const handleCreate = () => {
         setSelectedProfile(null);
-        setSheetOpen(true);
+        setDialogOpen(true);
     };
 
     const handleEdit = (profile: AcademyCourseProfile) => {
         setSelectedProfile(profile);
-        setSheetOpen(true);
+        setDialogOpen(true);
     };
 
     return (
@@ -155,9 +155,9 @@ export default function CourseProfilesPage() {
                 </div>
             </div>
 
-            <CourseProfileSheet
-                open={sheetOpen}
-                onOpenChange={setSheetOpen}
+            <CourseProfileDialog
+                open={dialogOpen}
+                onOpenChange={setDialogOpen}
                 profile={selectedProfile}
             />
         </div>

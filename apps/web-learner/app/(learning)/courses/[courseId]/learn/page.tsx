@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { useAcademyCourseById } from '@/lib/api/services/academy-course-api';
 import { useAcademyClass, useCurriculum, type CurriculumLesson, type CurriculumModule } from '@/lib/api/services/academy-classes';
 import { useAcademyEnrollmentCheck } from '@/lib/api/services/academy-enrollment-api';
 import { useAcademyCompletedLessonIds, academyLearningProgressApi } from '@/lib/api/services/academy-learning-progress-api';
@@ -99,7 +98,7 @@ function VideoPlayer({ lesson, onComplete }: { lesson: AcademyLessonModel | unde
         );
     }
 
-    if (!lesson.contentUrl) {
+    if (!lesson.videoUrl) {
         return (
             <div className="aspect-video bg-black flex items-center justify-center">
                 <div className="text-white/50 flex flex-col items-center gap-3">
@@ -120,7 +119,7 @@ function VideoPlayer({ lesson, onComplete }: { lesson: AcademyLessonModel | unde
         <div className="aspect-video bg-black w-full">
             <video
                 key={lesson.id}
-                src={lesson.contentUrl}
+                src={lesson.videoUrl ?? undefined}
                 controls
                 controlsList="nodownload"
                 className="w-full h-full"
@@ -147,17 +146,10 @@ function ArticleViewer({ lesson, onComplete }: { lesson: AcademyLessonModel; onC
                 </div>
             </div>
 
-            {lesson.contentBody ? (
-                <div
-                    className="prose prose-sm sm:prose dark:prose-invert max-w-none text-foreground leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: lesson.contentBody }}
-                />
-            ) : (
-                <div className="bg-muted/40 rounded-xl p-8 text-center text-muted-foreground border border-border">
-                    <FileText className="h-10 w-10 mx-auto mb-3 opacity-40" />
-                    <p>Nội dung bài đọc chưa được cập nhật.</p>
-                </div>
-            )}
+            <div className="bg-muted/40 rounded-xl p-8 text-center text-muted-foreground border border-border">
+                <FileText className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                <p>Nội dung bài đọc chưa được cập nhật.</p>
+            </div>
 
             <div className="mt-10 pt-8 border-t border-border">
                 <button
@@ -256,12 +248,10 @@ export default function CourseLearnPage() {
     const queryClient = useQueryClient();
 
     // ── API ────────────────────────────────────────────────────────────────
-    // 1. Fetch the class first
+    // 1. Fetch the class (V2 Class model)
     const { data: classData, isLoading: classLoading } = useAcademyClass(classId);
-    const courseProfileId = classData?.courseProfileId;
 
-    // 2. Fetch other details using courseProfileId
-    const { data: course, isLoading: courseLoading } = useAcademyCourseById(courseProfileId ?? '');
+    // 2. Fetch curriculum & enrollment / progress based on classId
     const { data: curriculum, isLoading: curriculumLoading } = useCurriculum(classId);
     const { data: enrollmentData } = useAcademyEnrollmentCheck(classId);
     const { data: completedContentItemIds = [] } = useAcademyCompletedLessonIds(classId ?? '');
@@ -338,10 +328,8 @@ export default function CourseLearnPage() {
         if (completedIds.has(currentLesson.id)) { toast.info('Nội dung này đã được hoàn thành!'); return; }
         try {
             await academyLearningProgressApi.trackProgress({
-                contentItemId: currentLesson.id,
+                lessonId: currentLesson.id,
                 classId: classId!,
-                status: 'COMPLETED',
-                progressPercent: 100
             });
             queryClient.invalidateQueries({ queryKey: ['academy-learning', 'completed-lessons', classId] });
             toast.success('Đã hoàn thành nội dung! 🎉');
@@ -384,7 +372,7 @@ export default function CourseLearnPage() {
         completedIds.has(currentLesson.id);
 
     // ── Loading ────────────────────────────────────────────────────────────
-    if (classLoading || courseLoading || curriculumLoading) {
+    if (classLoading || curriculumLoading) {
         return (
             <div className="bg-background h-screen flex flex-col">
                 <div className="h-16 border-b border-border bg-card flex items-center px-6 gap-4">
@@ -416,11 +404,8 @@ export default function CourseLearnPage() {
         );
     }
 
-    const contentType = (lessonDetail?.contentType ?? 'video')
-        .toString()
-        .toLowerCase();
-    const isVideoLesson = isLessonItemKind(currentLessonKind) && contentType === 'video';
-    const isArticleLesson = isLessonItemKind(currentLessonKind) && (contentType === 'article' || contentType === 'document');
+    const isVideoLesson = isLessonItemKind(currentLessonKind) && lessonDetail?.type === 'VIDEO';
+    const isArticleLesson = isLessonItemKind(currentLessonKind) && lessonDetail?.type === 'READING';
 
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -437,10 +422,10 @@ export default function CourseLearnPage() {
                     <button onClick={() => router.back()} className="p-2 hover:bg-muted rounded-full transition-colors shrink-0" title="Quay lại">
                         <ChevronLeft className="h-5 w-5 text-foreground" />
                     </button>
-                    <div className="hidden sm:block min-w-0">
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider truncate">
-                            {course?.title ?? classData?.name}
-                        </p>
+                            <div className="hidden sm:block min-w-0">
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider truncate">
+                                    {classData?.name}
+                                </p>
                         {currentLesson && <p className="text-sm font-bold text-foreground truncate">{currentLesson.title}</p>}
                     </div>
                 </div>
@@ -452,7 +437,7 @@ export default function CourseLearnPage() {
                         </div>
                     </div>
                     <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm shrink-0">
-                        {(course?.title ?? classData?.name)?.[0] ?? 'T'}
+                        {(classData?.name ?? 'T')[0] ?? 'T'}
                     </div>
                 </div>
             </header>
@@ -525,21 +510,9 @@ export default function CourseLearnPage() {
                                         <h3 className="text-xl font-bold text-foreground">Tổng quan bài học</h3>
                                         <p className="text-muted-foreground leading-relaxed">
                                             {(lessonDetail as any)?.description || (currentLesson
-                                                ? `Bài học "${currentLesson.title}" thuộc khóa học ${course?.title ?? classData?.name}.`
+                                                ? `Bài học "${currentLesson.title}" thuộc khóa học ${classData?.name}.`
                                                 : 'Chọn một bài học để bắt đầu.')}
                                         </p>
-                                        {(course as any)?.learningOutcomes && Array.isArray((course as any).learningOutcomes) && ((course as any).learningOutcomes as string[]).length > 0 && (
-                                            <div className="bg-primary/5 border-l-4 border-primary p-6 rounded-r-xl">
-                                                <h4 className="text-primary font-bold mb-3 uppercase text-sm tracking-widest">Mục tiêu khóa học</h4>
-                                                <ul className="space-y-2">
-                                                    {((course as any).learningOutcomes as string[]).slice(0, 4).map((item, i) => (
-                                                        <li key={i} className="flex items-start gap-2 text-foreground/80 text-sm">
-                                                            <span className="text-primary mt-0.5 shrink-0">•</span><span>{item}</span>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        )}
                                     </div>
                                     {/* Quick notes */}
                                     <div className="bg-muted/40 p-6 rounded-xl border border-border">

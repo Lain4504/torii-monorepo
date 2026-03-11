@@ -93,8 +93,12 @@ export class ClassAssignmentCreateDto {
   @IsUUID()
   classId!: string;
 
-  @IsUUID()
-  assignmentId!: string;
+  @IsString()
+  @MaxLength(255)
+  title!: string;
+
+  @IsString()
+  instructions!: string;
 
   @IsOptional()
   @IsString()

@@ -25,6 +25,7 @@ import {
   ReqWithRequester,
 } from '@server/shared';
 import {
+  AcademyClassAssignmentCreateDTO,
   AcademyClassCreateDTO,
   AcademyClassContentItemCreateDTO,
   AcademyClassContentItemUpdateDTO,
@@ -33,6 +34,7 @@ import {
   AcademyClassModuleUpdateDTO,
   AcademyClassQueryDTO,
   AcademyClassUpdateDTO,
+  academyClassAssignmentCreateDTOSchema,
   academyClassCreateDTOSchema,
   academyClassContentItemCreateDTOSchema,
   academyClassContentItemUpdateDTOSchema,
@@ -93,6 +95,34 @@ export class ClassController {
   ) {
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.class.update' }, { id, input: dto, requesterId: req.requester?.sub }),
+    );
+    return successResponse({ item });
+  }
+
+  @Get(':id/assignments')
+  @Permissions('academy.delivery.read')
+  async getAssignments(@Param('id', new ParseUUIDPipe()) id: string) {
+    const items = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.getAssignments' }, { classId: id }),
+    );
+    return successResponse({ items });
+  }
+
+  @Post(':id/assignments')
+  @Permissions('academy.delivery.write')
+  @HttpCode(HttpStatus.CREATED)
+  async addAssignment(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body(new ZodValidationPipe(academyClassAssignmentCreateDTOSchema))
+    dto: AcademyClassAssignmentCreateDTO,
+    @Req() req: ReqWithRequester,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.addAssignment' }, {
+        ...dto,
+        classId: id,
+        requesterId: req.requester?.sub,
+      }),
     );
     return successResponse({ item });
   }

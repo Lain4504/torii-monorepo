@@ -12,9 +12,10 @@ import {
     MoreVertical,
     Lock,
     Save,
-    LayoutTemplate
+    LayoutTemplate,
+    Copy,
 } from 'lucide-react';
-import { useAcademySyllabuses, useCreateAcademySyllabus } from '@/lib/api/services/academy-syllabuses';
+import { useAcademySyllabuses, useCreateAcademySyllabus, useCloneAcademySyllabus } from '@/lib/api/services/academy-syllabuses';
 import { useCreateAcademyLesson } from '@/lib/api/services/academy-lessons';
 import { toast } from '@workspace/ui/components/sonner';
 import { Badge } from '@workspace/ui/components/badge';
@@ -53,6 +54,7 @@ export default function SyllabusBuilderPage() {
     const selectedSyllabus = syllabuses?.find((s) => s.id === selectedSyllabusId) ?? syllabuses?.[0];
     const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({});
     const createSyllabusMutation = useCreateAcademySyllabus();
+    const cloneSyllabusMutation = useCloneAcademySyllabus();
     const queryClient = useQueryClient();
 
     // Dialog state: tạo syllabus đầu tiên
@@ -76,6 +78,11 @@ export default function SyllabusBuilderPage() {
     // Dialog state: xem chi tiết bài học
     const [viewLessonOpen, setViewLessonOpen] = useState(false);
     const [viewLesson, setViewLesson] = useState<any | null>(null);
+
+    // Dialog state: clone giáo trình
+    const [cloneDialogOpen, setCloneDialogOpen] = useState(false);
+    const [cloneNewVersion, setCloneNewVersion] = useState('');
+    const [cloneNewName, setCloneNewName] = useState('');
 
     // Load "current syllabus" từ localStorage để ưu tiên chọn
     useEffect(() => {
@@ -267,7 +274,22 @@ export default function SyllabusBuilderPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0">
                 {/* Syllabus List (theo Course Profile) */}
                 <div className="space-y-3">
-                    <h2 className="text-lg font-semibold italic">Danh sách phiên bản Syllabus</h2>
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-lg font-semibold italic">Danh sách phiên bản Syllabus</h2>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={!selectedSyllabus}
+                            onClick={() => {
+                                setCloneNewVersion('');
+                                setCloneNewName(selectedSyllabus?.name ?? '');
+                                setCloneDialogOpen(true);
+                            }}
+                        >
+                            <Copy className="mr-1 h-3 w-3" />
+                            Clone giáo trình
+                        </Button>
+                    </div>
                     <div className="flex gap-2 flex-wrap">
                         {syllabuses.map((s) => (
                             <Button
@@ -447,6 +469,80 @@ export default function SyllabusBuilderPage() {
                             disabled={createModuleMutation.isPending || !newModuleTitle.trim()}
                         >
                             Tạo Module
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Dialog: clone giáo trình */}
+            <Dialog open={cloneDialogOpen} onOpenChange={setCloneDialogOpen}>
+                <DialogContent className="sm:max-w-[480px]">
+                    <DialogHeader>
+                        <DialogTitle>Clone giáo trình</DialogTitle>
+                        <DialogDescription>
+                            Tạo bản sao của <strong>{selectedSyllabus?.name || selectedSyllabus?.versionLabel}</strong> với phiên bản mới.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <FieldGroup>
+                            <Field>
+                                <FieldLabel>Phiên bản mới *</FieldLabel>
+                                <Input
+                                    placeholder="Ví dụ: v1.1.0"
+                                    value={cloneNewVersion}
+                                    onChange={(e) => setCloneNewVersion(e.target.value)}
+                                />
+                            </Field>
+                            <Field>
+                                <FieldLabel>Tên (tuỳ chọn)</FieldLabel>
+                                <Input
+                                    placeholder="Ví dụ: Bản sao giáo trình"
+                                    value={cloneNewName}
+                                    onChange={(e) => setCloneNewName(e.target.value)}
+                                />
+                            </Field>
+                        </FieldGroup>
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            type="button"
+                            onClick={() => {
+                                if (!cloneSyllabusMutation.isPending) {
+                                    setCloneDialogOpen(false);
+                                }
+                            }}
+                            disabled={cloneSyllabusMutation.isPending}
+                        >
+                            Hủy
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={async () => {
+                                if (!selectedSyllabus || !cloneNewVersion.trim()) return;
+                                try {
+                                    const item = await cloneSyllabusMutation.mutateAsync({
+                                        id: selectedSyllabus.id,
+                                        input: {
+                                            newVersion: cloneNewVersion.trim(),
+                                            newName: cloneNewName.trim() || undefined,
+                                        },
+                                    });
+                                    await queryClient.invalidateQueries({
+                                        queryKey: ['academy-syllabuses', courseProfileId],
+                                    });
+                                    toast.success('Đã clone giáo trình');
+                                    setCloneDialogOpen(false);
+                                    setCloneNewVersion('');
+                                    setCloneNewName('');
+                                    setSelectedSyllabusId(item.id);
+                                } catch (error: any) {
+                                    toast.error(error?.response?.data?.message || 'Không thể clone giáo trình');
+                                }
+                            }}
+                            disabled={cloneSyllabusMutation.isPending || !cloneNewVersion.trim()}
+                        >
+                            Tạo bản sao
                         </Button>
                     </DialogFooter>
                 </DialogContent>

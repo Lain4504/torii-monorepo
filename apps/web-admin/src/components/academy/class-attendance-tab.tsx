@@ -3,17 +3,20 @@ import { useAcademyLiveSessions } from "@/lib/api/services/academy-live-sessions
 import { useAcademyEnrollments } from "@/lib/api/services/academy-enrollments"
 import { useAcademyClassAttendances, useCreateAcademyClassAttendance } from "@/lib/api/services/academy-class-attendances"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
+import { Badge } from "@workspace/ui/components/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@workspace/ui/components/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
 import { toast } from "sonner"
-import { User, CheckCircle2, XCircle, Clock, AlertCircle, ChevronRight, Calendar } from "lucide-react"
+import { User, CheckCircle2, XCircle, Clock, AlertCircle, ChevronRight, Calendar, BookOpen, Video } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
+import type { AcademyClass } from "@/lib/api/services/academy-classes"
 
 interface ClassAttendanceTabProps {
     classId: string
+    academyClass?: AcademyClass | null
 }
 
-export function ClassAttendanceTab({ classId }: ClassAttendanceTabProps) {
+export function ClassAttendanceTab({ classId, academyClass }: ClassAttendanceTabProps) {
     const today = new Date()
     const from = today.toISOString().slice(0, 10)
     const to = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
@@ -67,17 +70,78 @@ export function ClassAttendanceTab({ classId }: ClassAttendanceTabProps) {
 
     if (!sessions.length) {
         return (
-            <Card className="border-dashed">
-                <CardContent className="py-12 text-center text-muted-foreground">
-                    <Calendar className="mx-auto h-12 w-12 opacity-10 mb-2" />
-                    <p>Lớp học hiện chưa có lịch học cố định nào để điểm danh.</p>
-                </CardContent>
-            </Card>
+            <div className="space-y-6">
+                {academyClass && (
+                    <Card className="border-muted/50">
+                        <CardContent className="p-4">
+                            <div className="flex flex-wrap items-center gap-4 text-sm">
+                                <div className="flex items-center gap-2">
+                                    <BookOpen className="size-4 text-muted-foreground" />
+                                    <span className="font-medium">{academyClass.name}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-muted-foreground">
+                                    <span className="font-mono text-xs">{academyClass.code}</span>
+                                    <span>•</span>
+                                    <span className="flex items-center gap-1">
+                                        <Video className="size-3" />
+                                        {academyClass.mode === "LIVE" ? "LIVE" : "VOD"}
+                                    </span>
+                                </div>
+                                {academyClass.liveClass?.term && (
+                                    <span className="text-muted-foreground">
+                                        Kỳ: {academyClass.liveClass.term}
+                                        {academyClass.liveClass.batch && ` • Batch: ${academyClass.liveClass.batch}`}
+                                    </span>
+                                )}
+                                <Badge variant="outline" className="ml-auto">
+                                    {academyClass.status}
+                                </Badge>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+                <Card className="border-dashed">
+                    <CardContent className="py-12 text-center text-muted-foreground">
+                        <Calendar className="mx-auto h-12 w-12 opacity-10 mb-2" />
+                        <p>Lớp học hiện chưa có lịch học cố định nào để điểm danh.</p>
+                    </CardContent>
+                </Card>
+            </div>
         )
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="space-y-6">
+            {academyClass && (
+                <Card className="border-muted/50">
+                    <CardContent className="p-4">
+                        <div className="flex flex-wrap items-center gap-4 text-sm">
+                            <div className="flex items-center gap-2">
+                                <BookOpen className="size-4 text-muted-foreground" />
+                                <span className="font-medium">{academyClass.name}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                                <span className="font-mono text-xs">{academyClass.code}</span>
+                                <span>•</span>
+                                <span className="flex items-center gap-1">
+                                    <Video className="size-3" />
+                                    {academyClass.mode === "LIVE" ? "LIVE" : "VOD"}
+                                </span>
+                            </div>
+                            {academyClass.liveClass?.term && (
+                                <span className="text-muted-foreground">
+                                    Kỳ: {academyClass.liveClass.term}
+                                    {academyClass.liveClass.batch && ` • Batch: ${academyClass.liveClass.batch}`}
+                                </span>
+                            )}
+                            <Badge variant="outline" className="ml-auto">
+                                {academyClass.status}
+                            </Badge>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="md:col-span-1 shadow-sm">
                 <CardHeader className="pb-3 border-b bg-muted/30">
                     <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
@@ -212,6 +276,7 @@ export function ClassAttendanceTab({ classId }: ClassAttendanceTabProps) {
                     )}
                 </CardContent>
             </Card>
+            </div>
         </div>
     )
 }

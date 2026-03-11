@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const academyClassCreateDTOSchema = z.object({
   courseProfileId: z.string().uuid(),
+  syllabusId: z.string().uuid().optional(),
   code: z.string().min(1).max(150),
   name: z.string().min(1).max(255),
   mode: z.enum(['VOD', 'LIVE']),

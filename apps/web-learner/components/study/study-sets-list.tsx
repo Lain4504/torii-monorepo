@@ -6,6 +6,7 @@ import {
     useCreateAcademyStudySet as useCreateStudySet,
     useDeleteAcademyStudySet as useDeleteStudySet,
     useAcademyStudySet,
+    useCreateAcademySetCard,
 } from '@/lib/api/services/academy-study-set-api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
@@ -28,6 +29,7 @@ export function StudySetsList() {
     const { data: studySets, isLoading } = useStudySets();
     const createSet = useCreateStudySet();
     const deleteSet = useDeleteStudySet();
+    const createCard = useCreateAcademySetCard();
 
     const [openDialog, setOpenDialog] = useState(false);
     const [title, setTitle] = useState('');
@@ -73,17 +75,31 @@ export function StudySetsList() {
 
     const selectedCount = selectedSet?.setCards?.length ?? 0;
 
+    // New card state (tạo thẻ ngay trên trang danh sách)
+    const [newTerm, setNewTerm] = useState('');
+    const [newDefinition, setNewDefinition] = useState('');
+
+    const handleCreateCard = async () => {
+        if (!selectedSetId) {
+            toast.error('Hãy chọn một bộ thẻ trước khi thêm thẻ mới.');
+            return;
+        }
+        if (!newTerm.trim() || !newDefinition.trim()) return;
+        try {
+            await createCard.mutateAsync({
+                setId: selectedSetId,
+                payload: { term: newTerm, definition: newDefinition },
+            });
+            setNewTerm('');
+            setNewDefinition('');
+            toast.success('Đã thêm thẻ mới!');
+        } catch (e: any) {
+            toast.error(e.message || 'Lỗi khi thêm thẻ');
+        }
+    };
+
     return (
         <div className="min-h-[calc(100vh-6rem)] rounded-3xl bg-[#f0f4f8] p-6 md:p-8">
-            <style>{`
-        .nhai-blueprint-bg {
-          background-color: #dbeafe;
-          background-image:
-            linear-gradient(to right, rgba(0, 132, 255, 0.08) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(0, 132, 255, 0.08) 1px, transparent 1px);
-          background-size: 20px 20px;
-        }
-      `}</style>
             <div className="mx-auto max-w-5xl space-y-8 rounded-2xl bg-white/60 p-4 shadow-sm ring-1 ring-slate-200 nhai-blueprint-bg">
                 {/* Page header */}
                 <div className="flex items-start justify-between gap-4">
@@ -260,21 +276,9 @@ export function StudySetsList() {
                                 Danh sách thẻ ({selectedCount})
                             </CardTitle>
                             <CardDescription className="mt-1 text-xs text-slate-500">
-                                Xem nhanh các thẻ trong bộ được chọn. Sửa chi tiết tại màn hình chỉnh sửa bộ thẻ.
+                                Xem nhanh và chỉnh sửa nhanh các thẻ trong bộ được chọn.
                             </CardDescription>
                         </div>
-                        {selectedSetId && (
-                            <Button
-                                asChild
-                                size="sm"
-                                variant="outline"
-                                className="rounded-lg border-slate-200 text-xs font-medium text-slate-700"
-                            >
-                                <Link href={`/dashboard/study-sets/${selectedSetId}`}>
-                                    Chỉnh sửa bộ thẻ
-                                </Link>
-                            </Button>
-                        )}
                     </CardHeader>
                     <CardContent>
                         {!selectedSetId ? (
@@ -299,21 +303,9 @@ export function StudySetsList() {
                                 <div>
                                     <p className="text-sm font-semibold text-slate-900">Bộ thẻ này chưa có thẻ nào</p>
                                     <p className="mt-1 text-xs text-slate-500">
-                                        Thêm thẻ mới tại màn hình chỉnh sửa bộ thẻ để bắt đầu học.
+                                        Thêm thẻ mới ngay bên dưới bằng form “Thêm thuật ngữ mới”.
                                     </p>
                                 </div>
-                                {selectedSetId && (
-                                    <Button
-                                        asChild
-                                        size="sm"
-                                        className="mt-1"
-                                    >
-                                        <Link href={`/dashboard/study-sets/${selectedSetId}`}>
-                                            <PlusCircle className="mr-2 h-4 w-4" />
-                                            Thêm thẻ mới
-                                        </Link>
-                                    </Button>
-                                )}
                             </div>
                         ) : (
                             <div className="overflow-x-auto">
@@ -346,21 +338,54 @@ export function StudySetsList() {
                                                     {card.hint || '—'}
                                                 </td>
                                                 <td className="py-3 text-right text-xs">
-                                                    <Button
-                                                        asChild
-                                                        size="icon"
-                                                        variant="ghost"
-                                                        className="h-8 w-8 text-slate-400 hover:text-blue-600"
-                                                    >
-                                                        <Link href={`/dashboard/study-sets/${selectedSet.id}`}>
-                                                            <Layers className="h-4 w-4" />
-                                                        </Link>
-                                                    </Button>
+                                                    {/* Hành động chi tiết được xử lý ngay tại đây bằng click trên dòng */}
                                                 </td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
+                            </div>
+                        )}
+
+                        {selectedSetId && (
+                            <div className="mt-4 border-t border-slate-100 pt-4">
+                                <div className="grid md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
+                                            Thêm thuật ngữ mới
+                                        </label>
+                                        <Input
+                                            placeholder="Mặt trước..."
+                                            value={newTerm}
+                                            onChange={e => setNewTerm(e.target.value)}
+                                            onKeyDown={e => {
+                                                if (e.key === 'Enter') handleCreateCard();
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
+                                            Thêm định nghĩa
+                                        </label>
+                                        <Input
+                                            placeholder="Mặt sau..."
+                                            value={newDefinition}
+                                            onChange={e => setNewDefinition(e.target.value)}
+                                            onKeyDown={e => {
+                                                if (e.key === 'Enter') handleCreateCard();
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="mt-3 flex justify-end">
+                                    <Button
+                                        onClick={handleCreateCard}
+                                        disabled={createCard.isPending || !newTerm.trim() || !newDefinition.trim()}
+                                        className="w-full md:w-auto text-xs"
+                                    >
+                                        <PlusCircle className="mr-2 h-3 w-3" /> Thêm thẻ
+                                    </Button>
+                                </div>
                             </div>
                         )}
                     </CardContent>

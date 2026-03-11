@@ -23,6 +23,7 @@ import { LiveSessionRequestController } from './controllers/live-session-request
 import { ClassAttendanceController } from './controllers/class-attendance.controller';
 import { SyllabusController } from './controllers/syllabus.controller';
 import { ModuleController } from './controllers/module.controller';
+import { ClassAssignmentController } from './controllers/class-assignment.controller';
 
 @Module({
   imports: [NatsClientModule],
@@ -48,6 +49,7 @@ import { ModuleController } from './controllers/module.controller';
     ClassAttendanceController,
     SyllabusController,
     ModuleController,
+    ClassAssignmentController,
   ],
 })
 export class AcademyModule { }

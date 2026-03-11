@@ -8,8 +8,7 @@ import { PlayCircle, BookOpen, Clock, Heart, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { wishlistApi } from '@/lib/api/services/wishlist-api'
-import { academyCourseApi as courseApi } from '@/lib/api/services/academy-course-api'
-import { academyClassesApi } from '@/lib/api/services/academy-classes'
+import { academyOfferingApi } from '@/lib/api/services/academy-course-api'
 import type { AcademyCourseProfileCreateDTO } from '@workspace/schemas'
 import { toast } from '@workspace/ui/components/sonner'
 import { Spinner } from '@workspace/ui/components/spinner'
@@ -47,25 +46,19 @@ export default function WishlistPage() {
                 return
             }
 
-            // Fetch course details for each wishlist item
+            // Fetch offering details for each wishlist item (map thẳng sang offering public)
             const courseDetails = await Promise.all(
                 wishlistItems.map(async (item) => {
                     try {
-                        // Fetch both course profile and class details
-                        const [classData, courseProfile] = await Promise.all([
-                            academyClassesApi.findById(item.offeringId),
-                            courseApi.getCourseById(item.offeringId)
-                        ]);
+                        // Lấy thông tin offering public (đã normalize, có thumbnail, jlptLevel, price, slug,...)
+                        const offering = await academyOfferingApi.getPublicById(item.offeringId)
+                        if (!offering) return null
 
-                        if (courseProfile) {
-                            return {
-                                ...courseProfile,
-                                wishlistId: item.id,
-                                price: (classData as any)?.price,
-                                discountPrice: (classData as any)?.discountPrice
-                            } as WishlistCourse
-                        }
-                        return null
+                        return {
+                            ...offering,
+                            wishlistId: item.id,
+                            discountPrice: offering.salePrice ?? undefined,
+                        } as WishlistCourse
                     } catch (error) {
                         console.error(`Failed to fetch course ${item.offeringId}`, error)
                         return null

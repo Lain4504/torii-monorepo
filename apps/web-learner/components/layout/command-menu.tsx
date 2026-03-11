@@ -40,7 +40,7 @@ export function CommandMenu() {
     const router = useRouter()
     const { user } = useAppSelector((state) => state.auth)
     const role = user?.role
-    const isStaffOrAdmin = role === 'admin' || role === 'staff-lms' || role === 'staff_lms' || role === 'staff'
+    const isStaffOrAdmin = role === 'admin' || role === 'staff-lms' || role === 'staff'
 
     React.useEffect(() => {
         const down = (e: KeyboardEvent) => {

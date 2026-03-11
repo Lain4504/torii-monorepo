@@ -31,15 +31,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const logo = useLogo()
     const { user } = useAppSelector((state) => state.auth)
     const role = user?.role
-    const isStaffOrAdmin = role === 'admin' || role === 'staff-lms' || role === 'staff_lms' || role === 'staff'
 
-    const learningItems = React.useMemo(
-        () =>
-            isStaffOrAdmin
-                ? learningNav.filter((item) => item.href !== '/dashboard/my-courses')
-                : learningNav,
-        [isStaffOrAdmin],
-    )
+    const learningItems = React.useMemo(() => learningNav, [])
 
     return (
         <Sidebar

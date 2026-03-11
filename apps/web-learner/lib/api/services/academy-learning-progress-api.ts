@@ -2,8 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api-client';
 import type {
     StandardApiResponse,
-    AcademyLearningStats,
-    AcademyLearningProgressModel,
     AcademyEnrollmentModel
 } from '@workspace/schemas';
 import { academyEnrollmentApi } from './academy-enrollment-api';
@@ -32,8 +30,8 @@ export const academyLearningProgressApi = {
     /**
      * Get learning statistics for current user
      */
-    getStats: async (): Promise<AcademyLearningStats> => {
-        const response = await apiClient.get<StandardApiResponse<AcademyLearningStats>>('/api/academy/enrollments/stats');
+    getStats: async (): Promise<any> => {
+        const response = await apiClient.get<StandardApiResponse<any>>('/api/academy/enrollments/stats');
         return response.data.data!;
     },
 
@@ -56,7 +54,7 @@ export const academyLearningProgressApi = {
     /**
      * Get user's learning history
      */
-    getHistory: async (): Promise<AcademyLearningProgressModel[]> => {
+    getHistory: async (): Promise<any[]> => {
         // Redirection to gamification history as a fallback or if unified
         const response = await apiClient.get<StandardApiResponse<any>>('/api/gamification/history');
         return (response.data.data?.items ?? []).map((it: any) => ({

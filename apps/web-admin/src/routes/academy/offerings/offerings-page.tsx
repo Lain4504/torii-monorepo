@@ -40,12 +40,12 @@ import {
     useArchiveAcademyCourseOffering
 } from "@/lib/api/services/academy-course-offerings"
 import { useDebounceValue } from "@workspace/ui/hooks/use-debounce-value"
-import { OfferingSheet } from "./components/offering-sheet"
+import { OfferingDialog } from "./components/offering-dialog"
 
 export default function OfferingsPage() {
     const [searchTerm, setSearchTerm] = useState("")
     const [debouncedSearch] = useDebounceValue(searchTerm, 500)
-    const [sheetOpen, setSheetOpen] = useState(false)
+    const [dialogOpen, setDialogOpen] = useState(false)
     const [selectedOffering, setSelectedOffering] = useState<AcademyCourseOffering | null>(null)
 
     const { data: offerings, isLoading } = useAcademyCourseOfferings({
@@ -59,12 +59,12 @@ export default function OfferingsPage() {
 
     const handleCreate = () => {
         setSelectedOffering(null)
-        setSheetOpen(true)
+        setDialogOpen(true)
     }
 
     const handleEdit = (offering: AcademyCourseOffering) => {
         setSelectedOffering(offering)
-        setSheetOpen(true)
+        setDialogOpen(true)
     }
 
     const stats = [
@@ -215,9 +215,9 @@ export default function OfferingsPage() {
                 </Table>
             </div>
 
-            <OfferingSheet
-                open={sheetOpen}
-                onOpenChange={setSheetOpen}
+            <OfferingDialog
+                open={dialogOpen}
+                onOpenChange={setDialogOpen}
                 offering={selectedOffering}
             />
         </div>
