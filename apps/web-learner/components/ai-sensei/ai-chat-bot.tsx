@@ -4,6 +4,7 @@ import { useCallback, useState, useMemo } from "react"
 import { nanoid } from "nanoid"
 import { toast } from "sonner"
 import { CheckIcon, GlobeIcon, MicIcon } from "lucide-react"
+import { extractErrorMessage } from "@/lib/api/api-client"
 import { agentApi } from "@/lib/api/services/agent-api"
 
 import {
@@ -232,10 +233,11 @@ export function AiChatBot() {
             }
         } catch (error: any) {
             console.error("Chat error:", error)
-            toast.error("Lỗi kết nối tới Sensei")
+            const errorMessage = extractErrorMessage(error) || "Lỗi kết nối tới Sensei";
+            toast.error(errorMessage)
             setMessages(prev => prev.map(m =>
                 (m.from === "assistant" && m.versions.some(v => v.content === "..."))
-                    ? { ...m, versions: m.versions.map(v => v.content === "..." ? { ...v, content: "Xin lỗi, mình đang gặp chút trục trặc. Bạn có thể thử lại sau giây lát nhé!" } : v) }
+                    ? { ...m, versions: m.versions.map(v => v.content === "..." ? { ...v, content: errorMessage } : v) }
                     : m
             ))
             setStatus("ready")

@@ -33,10 +33,27 @@ export class OrderService {
   ) { }
 
   async preview(userId: string, input: OrderPreviewDto) {
-    const offeringIds = Array.from(new Set(input.offeringIds ?? []));
+    let offeringIds = Array.from(new Set(input.offeringIds ?? []));
     if (!offeringIds.length) {
       throw new BadRequestException('offeringIds must not be empty');
     }
+
+    const isUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+    const codeFilters = offeringIds.filter(o => !isUUID(o));
+    if (codeFilters.length > 0) {
+      const resolvedOfferings = await this.prisma.courseOffering.findMany({
+        where: { code: { in: codeFilters } },
+        select: { id: true, code: true }
+      });
+      offeringIds = offeringIds.map(o => {
+        const resolved = resolvedOfferings.find(ro => ro.code === o);
+        return resolved ? resolved.id : o;
+      });
+      if (offeringIds.some(o => !isUUID(o))) {
+        throw new BadRequestException('Some offering codes could not be resolved');
+      }
+    }
+
     const now = new Date();
 
     const offerings = await this.prisma.courseOffering.findMany({
@@ -130,7 +147,8 @@ export class OrderService {
 
   async checkout(userId: string, input: OrderCheckoutDto) {
     const preview = await this.preview(userId, input);
-    const offeringClassMap = await this.getOfferingClassMap(input.offeringIds);
+    const resolvedOfferingIds = preview.offerings.map(o => o.id);
+    const offeringClassMap = await this.getOfferingClassMap(resolvedOfferingIds);
 
     // Generate readable code: ORD-YYYYMMDD-XXXX
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');

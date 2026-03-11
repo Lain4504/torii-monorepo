@@ -1,3 +1,4 @@
+import type * as React from "react"
 import {
     Home,
     BookOpen,
@@ -68,4 +69,5 @@ export const aiSenseiNav: NavItem[] = [
     { name: 'Đánh giá & Luyện tập', href: '/dashboard/assessment', icon: Award },
     { name: 'Hội thoại nhập vai', href: '/ai-sensei/roleplay', icon: MessagesSquare },
     { name: 'Dịch thuật & Ngữ pháp', href: '/ai-sensei/translate', icon: Languages },
+    { name: 'Gói dịch vụ AI', href: '/dashboard/payment/subscriptions', icon: CreditCard },
 ]

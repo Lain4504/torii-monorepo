@@ -12,12 +12,13 @@ import {
     useRoomContext
 } from "@livekit/components-react"
 import { Track, ConnectionState as LiveKitConnectionState, RoomEvent } from "livekit-client"
+import { useQueryClient } from "@tanstack/react-query"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { Button } from "@workspace/ui/components/button"
 import { cn } from "@workspace/ui/lib/utils"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const VOICE_AGENT_URL = process.env.NEXT_PUBLIC_VOICE_AGENT_URL || "http://localhost:8123"
+const VOICE_AGENT_URL = process.env.NEXT_PUBLIC_VOICE_AGENT_URL || "http://localhost:8082"
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type LocalConnectionState = "idle" | "connecting" | "connected" | "error"
@@ -37,6 +38,7 @@ export function LivekitVoiceAgent() {
     const startTimeRef = useRef<number | null>(null)
     const liveKitInfoRef = useRef<LiveKitInfo | null>(null)
     const abortControllerRef = useRef<AbortController | null>(null)
+    const queryClient = useQueryClient()
 
     // ─── Connect ─────────────────────────────────────────────────────────────────
     const connect = useCallback(async () => {
@@ -112,6 +114,9 @@ export function LivekitVoiceAgent() {
                 outputTokens: sessionTokensRef.current.completion,
                 totalTokens: sessionTokensRef.current.total,
                 durationSec
+            }).then(() => {
+                // Invalidate quota status to trigger UI update
+                queryClient.invalidateQueries({ queryKey: ["quota-status"] })
             }).catch(console.error)
 
             // Send stop signal to voice agent server to kick the agent immediately
