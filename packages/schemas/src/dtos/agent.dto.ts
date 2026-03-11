@@ -177,3 +177,12 @@ export type AgentReadinessProfileResponseDTO = z.infer<typeof AgentReadinessProf
 export type AgentStudyPathResponseDTO = z.infer<typeof AgentStudyPathResponseSchema>;
 export type AgentTestGenerationResponseDTO = z.infer<typeof AgentTestGenerationResponseSchema>;
 export type AgentTestEvaluationResponseDTO = z.infer<typeof AgentTestEvaluationResponseSchema>;
+
+export const AgentRoleplayResponseSchema = z.object({
+    response: z.string(),
+    romaji: z.string().nullable().optional(),
+    vietnamese: z.string().nullable().optional(),
+    feedback: z.string().nullable().optional(),
+    isFinished: z.boolean().nullable().optional(),
+});
+export type AgentRoleplayResponseDTO = z.infer<typeof AgentRoleplayResponseSchema>;

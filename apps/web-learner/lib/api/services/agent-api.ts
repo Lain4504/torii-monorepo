@@ -176,8 +176,8 @@ export const agentApi = {
             });
             return response.data.data;
         },
-        getQuotaStatus: async (): Promise<{ remainingTrial: number; cost: number; chargedCoins: boolean }> => {
-            const response = await apiClient.get<{ success: boolean; data: { remainingTrial: number; cost: number; chargedCoins: boolean } }>('/api/agents/sensei/quota-status');
+        getQuotaStatus: async (): Promise<{ limit: number; used: number; remaining: number; tier: string; resetAt: string }> => {
+            const response = await apiClient.get<{ success: boolean; data: { limit: number; used: number; remaining: number; tier: string; resetAt: string } }>('/api/agents/sensei/quota-status');
             return response.data.data;
         },
         getLivekitToken: async (graphName?: string): Promise<{ token: string; wsUrl: string; roomId: string }> => {

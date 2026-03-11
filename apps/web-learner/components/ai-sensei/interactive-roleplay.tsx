@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useQueryClient } from "@tanstack/react-query"
 import { Send, User, Sparkles, RefreshCcw, CheckCircle, AlertCircle, Mic, MicOff, Volume2, VolumeX, Settings, Play, Zap } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
@@ -92,6 +93,7 @@ export function InteractiveRoleplay() {
     const [isListening, setIsListening] = React.useState(false)
     const [isSpeaking, setIsSpeaking] = React.useState(false)
     const [autoPlay, setAutoPlay] = React.useState(true) // Auto-play AI responses
+    const queryClient = useQueryClient()
     const recognitionRef = React.useRef<any>(null)
     const [voiceError, setVoiceError] = React.useState<string | null>(null)
     const [isSpeechSupported, setIsSpeechSupported] = React.useState(false)
@@ -393,9 +395,26 @@ export function InteractiveRoleplay() {
         try {
             const res = await agentApi.sensei.roleplay(topicValue, "", [])
             addTokenUsage(res.tokenUsage)
+
+            // Add the initial AI greeting
+            const aiMsg: Message = {
+                id: Date.now().toString(),
+                role: 'assistant',
+                content: res.response,
+                romaji: res.romaji,
+                vietnamese: res.vietnamese
+            }
+            setMessages([aiMsg])
+            setHistory([{ role: 'model', content: JSON.stringify(res) }])
+            queryClient.invalidateQueries({ queryKey: ["quota-status"] })
+
+            if (res.response && autoPlay) {
+                speak(res.response)
+            }
         } catch (error: any) {
             console.error("Failed to start roleplay", error)
             toast.error(error.message || "Không thể bắt đầu hội thoại. Vui lòng thử lại.")
+            setIsStarted(false)
         } finally {
             setIsLoading(false)
         }
@@ -439,6 +458,7 @@ export function InteractiveRoleplay() {
 
             setMessages(prev => [...prev, aiMsg])
             setHistory([...nextHistory, { role: 'model', content: JSON.stringify(data) }])
+            queryClient.invalidateQueries({ queryKey: ["quota-status"] })
 
             if (data.response && autoPlay) {
                 speak(data.response)

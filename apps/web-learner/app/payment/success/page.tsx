@@ -6,12 +6,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { CheckCircle2 } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { orderApi, type OrderFulfillmentSummary } from '@/lib/api/services/order-api'
 import { Spinner } from '@workspace/ui/components/spinner'
 
 export default function PaymentSuccessPage() {
     const searchParams = useSearchParams()
     const orderCode = searchParams.get('orderCode')
+    const queryClient = useQueryClient()
     const [summary, setSummary] = useState<OrderFulfillmentSummary | null>(null)
     const [loading, setLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -21,7 +23,10 @@ export default function PaymentSuccessPage() {
         setLoading(true)
         orderApi
             .getOrderByCode(orderCode)
-            .then((data) => setSummary(data))
+            .then((data) => {
+                setSummary(data);
+                queryClient.invalidateQueries({ queryKey: ['quota-status'] });
+            })
             .catch((error: any) =>
                 setErrorMessage(error?.response?.data?.message || error?.message || 'Không tải được trạng thái ghi danh'),
             )

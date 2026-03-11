@@ -248,7 +248,7 @@ services:
       - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
     ports:
-      - "8123:8082" # Maps host 8123 to container 8082
+      - "8082:8082" # Maps host 8082 to container 8082
     depends_on:
       - livekit
 
