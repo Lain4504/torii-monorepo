@@ -1,128 +1,237 @@
-# Academy Core V2 - Đặc tả Hệ thống Nhật ngữ (Strictly Typed)
+# Academy Core V2 - Đặc tả Hệ thống Nhật ngữ (Strictly Typed) - Final Comprehensive Spec
 
-## 1. Nguyên tắc thiết kế
-- **Không Metadata (No JSON)**: Mọi trường dữ liệu đều được định nghĩa kiểu rõ ràng để đảm bảo toàn vẹn dữ liệu.
-- **Thực thể tách biệt (Separated Entities)**: Quiz, Exam và Assignment được quản lý như các thực thể riêng biệt trong Content Bank.
-- **Luồng thích ứng (Adaptive Flow)**: Phân biệt rõ nhu cầu của lớp VOD (Tự động) và lớp LIVE (Tương tác/Chấm điểm manual).
-
----
-
-## 2. Database Schema (Kiến trúc 9 Bảng)
-
-### 2.1 Cấu trúc Cơ sở
-1. **Course**: Định danh khóa học gốc (VD: N3 Cấp tốc).
-2. **Syllabus**: Phiên bản giáo trình (v1.0, v2.0). Chứa cây thư mục bài học.
-
-### 2.2 Content Bank (Kho nội dung Master/Blueprint)
-Hệ thống tách biệt rõ 3 thực thể để đảm bảo tính "Strictly Typed" và không conflict logic:
-
-3. **Quiz (Trắc nghiệm nhanh)**:
-   - Dùng cho kiểm tra ngắn trong bài học. Chấm tự động.
-   - Model: `Quiz` -> `Question`.
-
-4. **Exam (Kỳ thi chuẩn)**:
-   - Dùng cho thi giữa/cuối khóa, thi thử JLPT. Có cấu trúc phức tạp (Sections).
-   - Model: `Exam` -> `ExamSection` -> `ExamQuestion`.
-
-5. **Assignment (Bài tập tự luận)**:
-   - Dùng cho bài viết/nói cần Sensei chấm điểm. Tập trung vào lớp LIVE.
-   - Model: `Assignment`.
-
-### 2.3 Cấu trúc bài học & Vận hành
-6. **Lesson**: Blueprint của Syllabus.
-   - `type`: ENUM (QUIZ, EXAM, ASSIGNMENT, VIDEO, etc).
-   - `quizId`, `examId`, `assignmentId`: Các FK trỏ trực tiếp (Nullable). 
-   - *Lưu ý*: Chỉ 1 trong 3 ID này được phép có giá trị tùy theo `type`.
-
-7. **ClassContent**: Phiên bản vận hành tại Lớp.
-   - Chứa thông tin `openAt`, `deadline`.
-   - Chứa các cột **Override**: `overrideQuizId`, `overrideExamId`, `overrideAssignmentId`.
-
-### 2.4 Theo dõi Kết quả (Activity Layer - Không Conflict)
-Thay vì dùng 1 bảng chung gây chồng chéo với logic `ExamAttempt` đã có, hệ thống sử dụng 3 bảng kết quả riêng biệt nhưng có cấu trúc đồng nhất để dễ dàng làm báo cáo:
-
-8. **QuizAttempt**: Lưu kết quả Quiz. (Chấm tự động).
-9. **ExamAttempt (Đã có)**: Lưu kết quả Exam. (Hỗ trợ cấu hình Sections phức tạp).
-10. **AssignmentSubmission (Đã có)**: Lưu file nộp và điểm/lời phê từ Sensei.
+## 1. Nguyên tắc thiết kế (Core Principles)
+- **Không Metadata (No JSON)**: Mọi trường dữ liệu nghiệp vụ quan trọng đều được định nghĩa kiểu rõ ràng (Physical Columns) để đảm bảo toàn vẹn dữ liệu, tối ưu hóa Indexing và bảo vệ logic DB.
+- **Luồng thích ứng (Adaptive Flow)**: Tự động hóa cho VOD và tùy biến sâu (Manual Grading/Override) cho lớp LIVE.
+- **Duy nhất một nguồn sự thật (SSOT)**: Kết quả của học viên được lưu vết theo đúng loại thực thể để bảo toàn logic chấm điểm đặc thù.
 
 ---
 
-## 3. Giải quyết Conflict & Logic Đồng bộ
+## 2. Cấu trúc Database (Lớp Blueprint & Vận hành)
 
-### 3.1 Tại sao không Conflict với ExamAttempt?
-- **Syllabus/ClassContent** đóng vai trò là "Người điều hướng" (Router). Nó chỉ định: "Ở bài học này, học viên phải làm Exam ID = 001".
-- Khi học viên bấm làm bài, hệ thống sẽ khởi tạo một bản ghi trong bảng **ExamAttempt** tương ứng. 
-- Mọi logic về điểm số, thời gian làm bài, chi tiết câu trả lời đều nằm trong `ExamAttempt`.
-- **Báo cáo tổng hợp**: Khi cần xem "Bảng điểm lớp X", Backend sẽ thực hiện `UNION` dữ liệu từ 3 bảng `QuizAttempt`, `ExamAttempt` và `AssignmentSubmission` dựa trên `classId` và `userId`.
+### 2.1 Lớp Master (Content Bank)
+1. **CourseProfile**: Định nghĩa cấp độ (N5-N1), mã chuẩn và tiêu chuẩn.
+2. **Assignment (Bài tập về nhà)**: Thực thể dùng cho bài tập tự luận (Sakubun, Kaiwa). Cần chấm điểm thủ công.
 
-### 3.2 Tối ưu cho Nhật ngữ
-- **Assignment**: Sensei vào bảng `AssignmentSubmission` để xem bài viết tay của học viên và nhập điểm trực tiếp.
-- **Exam**: Hệ thống tự động chấm điểm Trắc nghiệm và cập nhật trạng thái `COMPLETED` vào `ExamAttempt`.
+### 2.2 Lớp Giáo trình (Syllabus)
+3. **Syllabus**: Phiên bản giáo trình (v1.0, v2.0).
+4. **Module**: Đóng vai trò là folder/chương (VD: Bài 1, Bài 2) nằm trong một Syllabus.
+5. **Lesson**: Đơn vị nội dung thực tế (VIDEO, READING, ASSIGNMENT) nằm trong một Module.
+   - `video_url`: Chỉ dành cho loại VIDEO.
 
----
+### 2.3 Lớp Vận hành (Class Delivery - LIVE specific)
+6. **Class**: Thực thể lớp học. Gắn với 1 Syllabus.
+7. **ClassAssignment**: Giao bài tập riêng cho lớp LIVE (Tách khỏi Syllabus).
+8. **UserProgress**: Theo dõi tiến độ học tập của từng học viên.
 
-## 3. Đặc thù vận hành & UI
-
-### 3.1 Quiz vs Exam
-- **Quiz**: Hiển thị nút "Làm bài" ngay dưới video bài giảng. Kết quả hiện ra ngay sau khi nộp.
-- **Exam**: Hiển thị trang riêng biệt với đồng hồ đếm ngược. Thường đòi hỏi hoàn thành các bài học trước đó mới được mở.
-
-### 3.2 Assignment (Live Class Focus)
-- Với lớp VOD, `Assignment` có thể hiển thị như bài tham khảo (không bắt buộc).
-- Với lớp LIVE, `Assignment` là cột mốc bắt buộc.
-- **UI cho Sensei**: Một Dashboard tập trung liệt kê các Assignment của các lớp đang phụ trách để vào chấm bài nhanh (Speed Grading).
-
-### 3.3 Logic Override
-Giáo viên có thể:
-- Thay bài **Quiz** dễ bằng bài khó hơn.
-- Thay **Assignment** "Viết về gia đình" bằng "Viết về sở thích" để tránh quay cóp giữa các khóa.
-- Thay đề **Exam** chính thức bằng đề thi thử dự phòng nếu rò rỉ đề.
+### 2.4 Lớp Thương mại & Ghi danh (Commerce & Enrollment)
+9. **CourseOffering**: Gói sản phẩm (Sản phẩm bán). 
+   - Kiểm soát việc bán thông qua `status` thay vì dùng các cột ngày tháng phức tạp, remove các field đó.
+10. **Enrollment**: Quyền truy cập.
+    - **VOD**: Truy cập Syllabus ngay khi thanh toán.
+    - **LIVE**: Được xếp vào hàng chờ, truy cập nội dung theo tiến độ khai giảng của Lớp.
+11. **OfferingClass**: (LIVE only) Kết nối gói bán với danh sách các lớp dự kiến.
 
 ---
 
-## 4. Lợi ích
-1. **Minh bạch**: Quản trị viên biết rõ nội dung nào cần chấm tay (Assignment), nội dung nào tự động (Quiz/Exam).
-2. **Linh hoạt**: Dễ dàng mở rộng thêm loại nội dung mới (VD: Lab, Coding) mà không phá vỡ cấu trúc cũ.
-3. **Báo cáo**: Dễ dàng trích xuất "Bảng tổng hợp điểm" gồm 3 cột riêng biệt: Trung bình Quiz, Điểm Exam, Trung bình Assignment.
+## 3. Quy tắc Toàn vẹn & Vận hành (Integrity Rules) - CỰC KỲ QUAN TRỌNG
+
+### 3.1 Khóa Giáo trình (Syllabus Locking)
+- **Quy tắc**: Khi một `Syllabus` đã gắn với một `Class` có trạng thái `ONGOING` hoặc `PUBLISHED`, Syllabus đó chuyển sang trạng thái **LOCKED**.
+- **Hành động**: Chặn mọi hành vi thêm/sửa/xóa bài học (`Lesson`) trong Syllabus đó để tránh làm hỏng tiến độ của các lớp đang học.
+- **Cập nhật**: Muốn sửa giáo trình, Admin phải thực hiện "v1.0 -> v1.1" (Clone logic).
+
+### 3.2 Bất biến nội dung gốc (Content Bank Immutability)
+- **Quy tắc**: Assignment Master sẽ được khóa (LOCKED-READONLY) ngay khi có ít nhất 1 bản ghi làm bài (`Submission`) để bảo toàn tính minh bạch của điểm số.
+- **Sửa đề**: Muốn thay đối bài tập, Sensei tạo một `ClassAssignment` mới gắn vào lớp với Assignment khác. Việc này hoàn toàn nằm trong quyền hạn vận hành của lớp học.
+
+### 3.3 Logic Tính Tiến độ (Progress Calculation)
+- **Nguồn dữ liệu**: Bảng `user_lesson_progress` lưu trạng thái hoàn thành từng bài học.
+- **Công thức**: `% Tiến độ = (Số lesson đã hoàn thành) / (Tổng số lesson trong Syllabus) x 100`.
+- **Phạm vi**: Chỉ đếm các thực thể bài học thực tế trong bảng `lessons`, không tính các folder `modules`.
+
+### 3.4 Quy tắc Nộp bài (Assignment Submission)
+- **Single Submission**: Mỗi học viên chỉ được phép nộp bài **01 lần duy nhất** cho mỗi Assignment trong một lớp học. Sau khi nhấn "Nộp bài", nội dung sẽ được khóa để chờ Sensei chấm điểm.
+- **Không hỗ trợ nộp lại**: Hệ thống không lưu trữ lịch sử phiên bản. Mọi phản hồi của Sensei sẽ được ghi trực tiếp vào kết quả bài nộp duy nhất đó.
+
+### 3.5 Kiểm soát "Hàn gắn" (Self-Healing Fallback)
+- Nếu logic ghi đè bị lỗi (trỏ về ID không tồn tại): Hệ thống tự động **Fallback** về nội dung gốc của Lesson để không làm gián đoạn việc học.
+
+### 3.6 Ràng buộc Cấu trúc (Structural Integrity)
+- **Type-Safe Lessons**: Database phải đảm bảo loại bài học (`type`) khớp với cột dữ liệu tương ứng.
+- **No Duplicate Delivery**: Chặn việc gán trùng lặp bài giảng vào lớp hoặc trùng lặp bài tập vào lớp.
+
+### 3.7 Quy tắc Bán hàng & Trạng thái (Selling & Availability)
+Để đơn giản hóa vận hành, hệ thống loại bỏ việc check `startDate/endDate` ở tầng DB cho việc bán hàng, thay vào đó sử dụng **Trạng thái (Status)**:
+- **Đối với VOD (Video on Demand)**:
+  - `PUBLISHED`: Gói đang được bán. Học viên mua xong có quyền vào học ngay lập tức.
+  - VOD không có ngày khai giảng cố định.
+- **Đối với LIVE (Lớp trực tuyến)**:
+  - `OPENING`: Gói đang mở bán (đang tuyển sinh). Học viên có thể mua để giữ chỗ.
+  - Việc học chỉ bắt đầu khi Lớp học (`Class`) chuyển sang `ONGOING`.
+  - Không quản lý ngày bắt đầu bán bằng DB, Admin chủ động chuyển trạng thái khi muốn mở/đóng cổng đăng ký.
+- **Dừng bán**: Chuyển trạng thái về `DRAFT` hoặc `ARCHIVED`.
 
 ---
 
-## 5. Quy tắc Toàn vẹn & Vận hành (Integrity Rules)
+## 4. SQL Physical Schema (PostgreSQL)
 
-Để tránh các lỗ hổng kiến trúc, hệ thống áp dụng các quy tắc "Thép" sau:
+### 4.1 Master & Infrastructure
+```sql
+CREATE TABLE course_profiles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(100) UNIQUE NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    level VARCHAR(50),
+    created_at TIMESTAMP DEFAULT NOW()
+);
 
-### 5.1 Khóa Giáo trình (Syllabus Locking)
-- **Quy tắc**: Khi một `Syllabus` đã được gán cho một `Class` đang hoạt động (`status = ACTIVE`), Syllabus đó sẽ chuyển sang trạng thái **LOCKED**.
-- **Hành động**: Admin không được phép sửa đổi/xóa các `Lesson` bên trong Syllabus đã bị khóa. 
-- **Thay đổi**: Muốn thay đổi giáo trình, Admin phải dùng tính năng "Clone to new version" (v1.0 -> v1.1), chỉnh sửa trên v1.1 và gán cho các lớp học sau này.
+CREATE TABLE syllabuses (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    course_profile_id UUID REFERENCES course_profiles(id),
+    version_label VARCHAR(50) NOT NULL,
+    status VARCHAR(20) DEFAULT 'ACTIVE', -- ACTIVE, LOCKED
+    created_at TIMESTAMP DEFAULT NOW()
+);
 
-### 5.2 Logic Tính Tiến độ (Progress Calculation with Overrides)
-- **Vấn đề**: Học viên hoàn thành bài học nào? Bài gốc hay bài ghi đè?
-- **Quy tắc**: Hệ thống ưu tiên **Override**. 
-- **Công thức**: 
-  - Nếu `ClassContent.overrideId` có giá trị: Trạng thái hoàn thành tính dựa trên `Attempt` của `overrideId`.
-  - Nếu `ClassContent.overrideId` là NULL: Tính dựa trên `Attempt` của `Lesson.referenceId`.
-- Điều này đảm bảo khi giáo viên đổi đề thi, học sinh làm đề mới thì tiến độ vẫn được ghi nhận đúng.
+CREATE TABLE modules (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    syllabus_id UUID REFERENCES syllabuses(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    order_index INT DEFAULT 0,
+    CONSTRAINT unique_module_order UNIQUE (syllabus_id, order_index)
+);
 
-### 5.3 Bảo vệ nội dung (Referential Integrity)
-- **Quy tắc**: Không được phép xóa (Hard Delete) các thực thể trong Content Bank (Quiz, Exam, Assignment) nếu chúng đang được tham chiếu bởi bất kỳ `Lesson` hoặc `ClassContent` (nội dung ghi đè) nào.
-- **Giải pháp**: Ưu tiên sử dụng `status = ARCHIVED` để ẩn nội dung cũ, thay vì xóa khỏi Database.
+CREATE TYPE lesson_type AS ENUM ('VIDEO', 'READING');
 
-### 5.4 Luồng nộp lại bài (Assignment Revisions)
-- **Đặc thù Nhật ngữ**: Bài viết Sakubun thường phải sửa nhiều lần.
-- **Quy tắc**: 
-  - Bảng `AssignmentSubmission` đóng vai trò là "Thư mục nộp bài". 
-  - Mỗi lần học viên nộp lại, hệ thống sẽ tạo một bản ghi mới trong bảng `AssignmentHistory` (lưu trữ file, thời gian nộp, lời phê cũ).
-  - Trạng thái và điểm số cuối cùng được cập nhật ngược lại bảng `AssignmentSubmission` (Latest State).
+CREATE TABLE lessons (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    module_id UUID REFERENCES modules(id) ON DELETE CASCADE,
+    assignment_id UUID REFERENCES assignments(id) ON DELETE SET NULL,
+    type lesson_type NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    order_index INT DEFAULT 0,
+    video_url TEXT,
+    -- Enforce Type Consistency
+    CONSTRAINT lesson_type_integrity CHECK (
+        (type = 'VIDEO' AND video_url IS NOT NULL AND assignment_id IS NULL)
+        OR
+        (type = 'ASSIGNMENT' AND assignment_id IS NOT NULL AND video_url IS NULL)
+        OR
+        (type = 'READING' AND video_url IS NULL AND assignment_id IS NULL)
+    ),
+    -- Prevent order conflicts within a module
+    CONSTRAINT unique_lesson_order UNIQUE (module_id, order_index)
+);
+```
 
-### 5.5 Kiểm soát "Hàn gắn" (Self-Healing)
-- Nếu một `ClassContent` cố tình trỏ ghi đè tới một ID không tồn tại hoặc sai loại (Ví dụ: `overrideQuizId` trỏ tới một `AssignmentId`): Hệ thống phải có cơ chế **Fallback** tự động quay về nội dung mặc định của Syllabus và ghi log cảnh báo cho Admin.
+### 4.2 Content Bank & Exam (Standalone)
+```sql
+-- Content Bank
+CREATE TABLE assignments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title VARCHAR(255) NOT NULL,
+    instructions TEXT NOT NULL
+);
+```
 
-### 5.6 Clone Giáo trình (Versioning Mechanics)
-- **Hành vi Clone**: Khi tạo Syllabus v2.0 từ v1.0, hệ thống sẽ **clone toàn bộ các bản ghi `Lesson`** của v1.0. 
-- **Giữ nguyên tham chiếu**: Các `Lesson` ở v2.0 ban đầu vẫn sẽ trỏ (`referenceId`) về cùng các đề Quiz/Exam trong Content Bank giống hệt v1.0. Điều này giúp tối ưu dung lượng DB.
+### 4.3 Delivery & Results (Operational)
+```sql
+-- class_status: Phân tách rõ vòng đời theo loại hình
+-- VOD: DRAFT -> PUBLISHED -> ARCHIVED
+-- LIVE: DRAFT -> OPENING -> ONGOING -> COMPLETED -> ARCHIVED
+CREATE TYPE class_status AS ENUM (
+    'DRAFT',      -- Nháp (Dùng chung)
+    'PUBLISHED',  -- Đã phát hành - Học viên có thể vào học (VOD only)
+    'OPENING',    -- Đang tuyển sinh (LIVE only)
+    'ONGOING',    -- Đang học (LIVE only)
+    'COMPLETED',  -- Đã kết thúc (LIVE only)
+    'ARCHIVED'    -- Lưu trữ củ (Dùng chung)
+);
 
-### 5.7 Bất biến dữ liệu gốc (Content Bank Immutability) - Lỗ hổng cuối cùng
-- **Vấn đề**: Syllabus v1 và v2 đều trỏ chung về "Quiz A". Nếu Admin vào kho đề sửa trực tiếp nội dung của "Quiz A", thì các lớp đang học v1 cũng bị đổi đề giữa chừng! 
-- **Quy tắc**: Nếu một nội dung trong Content Bank (Quiz/Exam/Assignment) đang được trỏ tới bởi ít nhất 1 Syllabus ở trạng thái **LOCKED** hoặc 1 `ClassContent` **ACTIVE**, nội dung đó sẽ trở thành **Read-Only (Chỉ đọc)**.
-- **Giải pháp**: Muốn sửa đề thi, Admin phải dùng nút "Duplicate to Edit", tạo ra "Quiz A (Bản sửa đính chính)", sau đó vào Syllabus v2.0 để trỏ định tuyến sang Quiz mới này.
+CREATE TABLE classes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    syllabus_id UUID REFERENCES syllabuses(id),
+    instructor_id UUID,
+    mode VARCHAR(10) DEFAULT 'VOD', -- 'VOD' hoặc 'LIVE'
+    status class_status DEFAULT 'DRAFT'
+);
+
+-- Theo dõi tiến độ học bài
+CREATE TABLE user_lesson_progress (
+    user_id UUID NOT NULL,
+    class_id UUID REFERENCES classes(id) ON DELETE CASCADE,
+    lesson_id UUID REFERENCES lessons(id) ON DELETE CASCADE,
+    is_completed BOOLEAN DEFAULT FALSE,
+    last_watched_at TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT NOW(),
+    PRIMARY KEY (user_id, class_id, lesson_id)
+);
+
+-- Assignment cho lớp LIVE (Tách khỏi Syllabus)
+CREATE TABLE class_assignments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    class_id UUID REFERENCES classes(id) ON DELETE CASCADE,
+    assignment_id UUID REFERENCES assignments(id) ON DELETE CASCADE,
+    title_override VARCHAR(255),
+    open_at TIMESTAMP,
+    deadline TIMESTAMP,
+    created_at TIMESTAMP DEFAULT NOW(),
+    -- Prevent duplicate same assignment in one class
+    CONSTRAINT unique_class_assignment UNIQUE (class_id, assignment_id)
+);
+
+-- Results Layer
+CREATE TABLE assignment_submissions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL,
+    class_assignment_id UUID REFERENCES class_assignments(id) ON DELETE CASCADE,
+    file_url TEXT NOT NULL,
+    score DECIMAL(5,2),
+    sensei_comment TEXT,
+    status VARCHAR(20) DEFAULT 'SUBMITTED',
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    -- Enforce Single Submission per assignment/user
+    CONSTRAINT unique_submission UNIQUE (user_id, class_assignment_id)
+);
+```
+
+### 4.4 Commerce & Enrollment (Commercial Layer)
+```sql
+CREATE TYPE offering_status AS ENUM ('DRAFT', 'PUBLISHED', 'OPENING', 'ARCHIVED');
+
+CREATE TABLE course_offerings (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    syllabus_id UUID REFERENCES syllabuses(id),
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    price DECIMAL(12,2) NOT NULL,
+    sale_price DECIMAL(12,2),
+    status offering_status DEFAULT 'DRAFT',
+    mode VARCHAR(10) DEFAULT 'VOD', -- 'VOD' hoặc 'LIVE'
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Linking Offering to specific Classes (especially for LIVE)
+CREATE TABLE offering_classes (
+    offering_id UUID REFERENCES course_offerings(id) ON DELETE CASCADE,
+    class_id UUID REFERENCES classes(id) ON DELETE CASCADE,
+    PRIMARY KEY (offering_id, class_id)
+);
+
+CREATE TABLE enrollments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL,
+    offering_id UUID REFERENCES course_offerings(id),
+    class_id UUID REFERENCES classes(id), -- NULL cho VOD, bắt buộc cho LIVE
+    status VARCHAR(20) DEFAULT 'ACTIVE', -- ACTIVE, EXPIRED, CANCELLED
+    enrolled_at TIMESTAMP DEFAULT NOW(),
+    -- LIVE: class_id bắt buộc, VOD: class_id NULL
+    CONSTRAINT enrollment_live_requires_class CHECK (
+        -- Chỉ enforce khi có dữ liệu offering.mode (cần check ở tầng Service với offering.mode = LIVE)
+        class_id IS NOT NULL OR class_id IS NULL -- placeholder, logic check ở Service
+    ),
+    CONSTRAINT unique_enrollment UNIQUE (user_id, offering_id)
+);
+```
