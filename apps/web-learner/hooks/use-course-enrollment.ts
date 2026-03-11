@@ -99,7 +99,7 @@ export function useCourseEnrollment(courseMasterId: string, courseSlug: string) 
         try {
             setIsEnrolling(true)
             // Mocking as createEnrollment is not yet in the refined schema
-            // const newEnrollment = await enrollmentApi.createEnrollment({ courseRunId: courseMasterId })
+            // const newEnrollment = await enrollmentApi.createEnrollment({ classId: courseMasterId })
             const newEnrollment = { id: 'mock-id' } as any;
             setIsEnrolled(true)
             setIsExpired(false)

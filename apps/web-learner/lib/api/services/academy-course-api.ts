@@ -177,6 +177,7 @@ export function useAcademyOffering(id?: string) {
     queryKey: ['academy-course-offerings', 'id', id],
     queryFn: () => academyOfferingApi.getPublicById(id!),
     enabled: !!id,
+    retry: false,
   });
 }
 
@@ -188,5 +189,6 @@ export function useAcademyCourseById(courseId?: string) {
     queryKey: ['academy-course-profiles', 'id', courseId],
     queryFn: () => academyCourseApi.getCourseById(courseId!),
     enabled: !!courseId,
+    retry: false,
   });
 }

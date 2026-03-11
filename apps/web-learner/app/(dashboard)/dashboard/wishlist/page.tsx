@@ -53,8 +53,8 @@ export default function WishlistPage() {
                     try {
                         // Fetch both course profile and class details
                         const [classData, courseProfile] = await Promise.all([
-                            academyClassesApi.findById(item.courseRunId),
-                            courseApi.getCourseById(item.courseRunId)
+                            academyClassesApi.findById(item.offeringId),
+                            courseApi.getCourseById(item.offeringId)
                         ]);
 
                         if (courseProfile) {
@@ -67,7 +67,7 @@ export default function WishlistPage() {
                         }
                         return null
                     } catch (error) {
-                        console.error(`Failed to fetch course ${item.courseRunId}`, error)
+                        console.error(`Failed to fetch course ${item.offeringId}`, error)
                         return null
                     }
                 })

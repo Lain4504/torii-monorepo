@@ -21,6 +21,12 @@ export class SyllabusService {
             where: { courseProfileId },
             orderBy: { createdAt: 'desc' },
             include: {
+        modules: {
+          include: {
+            lessons: { orderBy: { orderIndex: 'asc' } },
+          },
+          orderBy: { orderIndex: 'asc' },
+        },
                 _count: { select: { modules: true, classes: true } },
             },
         });

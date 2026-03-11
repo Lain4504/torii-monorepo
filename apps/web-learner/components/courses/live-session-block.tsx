@@ -19,7 +19,7 @@ import {
 const MEET_URL = (typeof process !== 'undefined' ? (process.env.NEXT_PUBLIC_MEET_URL || 'https://meet.torii.com') : 'https://meet.torii.com')
 
 interface LiveSessionBlockProps {
-    courseId: string
+    classId: string
     /** Compact style for cards/sidebar */
     compact?: boolean
     /** Max sessions to show */
@@ -27,7 +27,7 @@ interface LiveSessionBlockProps {
     className?: string
 }
 
-export function LiveSessionBlock({ courseId, compact = false, maxSessions = 3, className }: LiveSessionBlockProps) {
+export function LiveSessionBlock({ classId, compact = false, maxSessions = 3, className }: LiveSessionBlockProps) {
     const [sessions, setSessions] = useState<LiveSessionResponseDTO[]>([])
     const [loading, setLoading] = useState(true)
     const [joiningId, setJoiningId] = useState<string | null>(null)
@@ -40,7 +40,7 @@ export function LiveSessionBlock({ courseId, compact = false, maxSessions = 3, c
 
     useEffect(() => {
         let cancelled = false
-        liveSessionApi.getSessions(courseId).then((data) => {
+        liveSessionApi.getSessions(classId).then((data) => {
             if (!cancelled)
                 setSessions(data ?? [])
         }).catch(() => {
@@ -53,7 +53,7 @@ export function LiveSessionBlock({ courseId, compact = false, maxSessions = 3, c
         return () => {
             cancelled = true
         }
-    }, [courseId])
+    }, [classId])
 
     const upcomingOrLive = sessions
         .filter((s) => getLiveSessionUiState(s, now) !== 'ended')

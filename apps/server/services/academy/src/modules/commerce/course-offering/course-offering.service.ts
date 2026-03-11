@@ -95,10 +95,12 @@ export class CourseOfferingService {
     const item = await this.findById(id);
     const isVodAndPublished =
       item.mode === ClassMode.VOD && item.status === OfferingStatus.PUBLISHED;
-    const isLiveAndOpening =
-      item.mode === ClassMode.LIVE && item.status === OfferingStatus.OPENING;
+    const isLiveAndOpeningOrPublished =
+      item.mode === ClassMode.LIVE &&
+      (item.status === OfferingStatus.OPENING ||
+        item.status === OfferingStatus.PUBLISHED);
 
-    if (!isVodAndPublished && !isLiveAndOpening) {
+    if (!isVodAndPublished && !isLiveAndOpeningOrPublished) {
       throw new NotFoundException('CourseOffering not found');
     }
 

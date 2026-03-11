@@ -407,6 +407,246 @@ VALUES (
     )
 ON CONFLICT DO NOTHING;
 
+-- 14. Extra lessons to make N3 syllabus richer
+INSERT INTO
+    "academy_lessons" (
+        id,
+        module_id,
+        type,
+        title,
+        order_index,
+        video_url,
+        created_at,
+        updated_at
+    )
+VALUES
+    -- Thêm 5 bài VIDEO/READING cho module Kanji & Vocabulary
+    (
+        '44444444-4444-4444-4444-444444444456',
+        '33333333-3333-3333-3333-333333333331',
+        'VIDEO',
+        'Kanji chủ đề Gia đình',
+        6,
+        'https://vimeo.com/test-kanji-4',
+        NOW(),
+        NOW()
+    ),
+    (
+        '44444444-4444-4444-4444-444444444457',
+        '33333333-3333-3333-3333-333333333331',
+        'VIDEO',
+        'Kanji chủ đề Công việc',
+        7,
+        'https://vimeo.com/test-kanji-5',
+        NOW(),
+        NOW()
+    ),
+    (
+        '44444444-4444-4444-4444-444444444458',
+        '33333333-3333-3333-3333-333333333331',
+        'READING',
+        'Đọc đoạn văn ngắn dùng Kanji N3 (1)',
+        8,
+        NULL,
+        NOW(),
+        NOW()
+    ),
+    (
+        '44444444-4444-4444-4444-444444444459',
+        '33333333-3333-3333-3333-333333333331',
+        'READING',
+        'Đọc đoạn văn ngắn dùng Kanji N3 (2)',
+        9,
+        NULL,
+        NOW(),
+        NOW()
+    ),
+    (
+        '44444444-4444-4444-4444-444444444460',
+        '33333333-3333-3333-3333-333333333331',
+        'VIDEO',
+        'Mini quiz Kanji N3',
+        10,
+        'https://vimeo.com/test-kanji-quiz',
+        NOW(),
+        NOW()
+    ),
+    -- Thêm 5 bài cho module Grammar Patterns
+    (
+        '44444444-4444-4444-4444-444444444461',
+        '33333333-3333-3333-3333-333333333332',
+        'VIDEO',
+        'Mẫu câu ～わけではない',
+        6,
+        'https://vimeo.com/test-gram-4',
+        NOW(),
+        NOW()
+    ),
+    (
+        '44444444-4444-4444-4444-444444444462',
+        '33333333-3333-3333-3333-333333333332',
+        'VIDEO',
+        'Mẫu câu ～ことから',
+        7,
+        'https://vimeo.com/test-gram-5',
+        NOW(),
+        NOW()
+    ),
+    (
+        '44444444-4444-4444-4444-444444444463',
+        '33333333-3333-3333-3333-333333333332',
+        'READING',
+        'Bài đọc áp dụng mẫu ～わけではない',
+        8,
+        NULL,
+        NOW(),
+        NOW()
+    ),
+    (
+        '44444444-4444-4444-4444-444444444464',
+        '33333333-3333-3333-3333-333333333332',
+        'READING',
+        'Bài tập điền mẫu câu N3 tổng hợp',
+        9,
+        NULL,
+        NOW(),
+        NOW()
+    ),
+    (
+        '44444444-4444-4444-4444-444444444465',
+        '33333333-3333-3333-3333-333333333332',
+        'VIDEO',
+        'Mini quiz Ngữ pháp N3',
+        10,
+        'https://vimeo.com/test-gram-quiz',
+        NOW(),
+        NOW()
+    )
+ON CONFLICT (id) DO NOTHING;
+
+-- 15. Enrollments for real admin/dev account so dashboard luôn có dữ liệu
+INSERT INTO
+    "academy_enrollments" (
+        id,
+        user_id,
+        class_id,
+        offering_id,
+        status,
+        enrolled_at
+    )
+VALUES (
+        gen_random_uuid (),
+        'fcfbe38a-8c9e-432e-8f51-268b7838b119',
+        '77777777-7777-7777-7777-777777777701',
+        '88888888-8888-8888-8888-888888888801',
+        'ACTIVE',
+        NOW() - INTERVAL '2 days'
+    ),
+    (
+        gen_random_uuid (),
+        'fcfbe38a-8c9e-432e-8f51-268b7838b119',
+        '77777777-7777-7777-7777-777777777702',
+        '88888888-8888-8888-8888-888888888802',
+        'ACTIVE',
+        NOW() - INTERVAL '1 days'
+    )
+ON CONFLICT DO NOTHING;
+
+-- 16. Lesson progress for real admin/dev account (fill dashboard & course detail)
+INSERT INTO
+    "academy_user_lesson_progress" (
+        user_id,
+        class_id,
+        lesson_id,
+        is_completed,
+        last_watched_at,
+        updated_at
+    )
+VALUES
+    -- VOD class
+    (
+        'fcfbe38a-8c9e-432e-8f51-268b7838b119',
+        '77777777-7777-7777-7777-777777777701',
+        '44444444-4444-4444-4444-444444444441',
+        true,
+        NOW() - INTERVAL '2 days',
+        NOW()
+    ),
+    (
+        'fcfbe38a-8c9e-432e-8f51-268b7838b119',
+        '77777777-7777-7777-7777-777777777701',
+        '44444444-4444-4444-4444-444444444442',
+        true,
+        NOW() - INTERVAL '1 days',
+        NOW()
+    ),
+    (
+        'fcfbe38a-8c9e-432e-8f51-268b7838b119',
+        '77777777-7777-7777-7777-777777777701',
+        '44444444-4444-4444-4444-444444444443',
+        true,
+        NOW() - INTERVAL '20 hours',
+        NOW()
+    ),
+    (
+        'fcfbe38a-8c9e-432e-8f51-268b7838b119',
+        '77777777-7777-7777-7777-777777777701',
+        '44444444-4444-4444-4444-444444444444',
+        false,
+        NOW() - INTERVAL '10 hours',
+        NOW()
+    ),
+    (
+        'fcfbe38a-8c9e-432e-8f51-268b7838b119',
+        '77777777-7777-7777-7777-777777777701',
+        '44444444-4444-4444-4444-444444444445',
+        false,
+        NOW() - INTERVAL '6 hours',
+        NOW()
+    ),
+    -- Extra lessons in N3 syllabus (Kanji & Grammar)
+    (
+        'fcfbe38a-8c9e-432e-8f51-268b7838b119',
+        '77777777-7777-7777-7777-777777777701',
+        '44444444-4444-4444-4444-444444444456',
+        false,
+        NOW() - INTERVAL '3 hours',
+        NOW()
+    ),
+    (
+        'fcfbe38a-8c9e-432e-8f51-268b7838b119',
+        '77777777-7777-7777-7777-777777777701',
+        '44444444-4444-4444-4444-444444444457',
+        false,
+        NOW() - INTERVAL '2 hours',
+        NOW()
+    ),
+    (
+        'fcfbe38a-8c9e-432e-8f51-268b7838b119',
+        '77777777-7777-7777-7777-777777777701',
+        '44444444-4444-4444-4444-444444444458',
+        false,
+        NOW() - INTERVAL '90 minutes',
+        NOW()
+    ),
+    (
+        'fcfbe38a-8c9e-432e-8f51-268b7838b119',
+        '77777777-7777-7777-7777-777777777701',
+        '44444444-4444-4444-4444-444444444459',
+        false,
+        NOW() - INTERVAL '45 minutes',
+        NOW()
+    ),
+    (
+        'fcfbe38a-8c9e-432e-8f51-268b7838b119',
+        '77777777-7777-7777-7777-777777777701',
+        '44444444-4444-4444-4444-444444444460',
+        false,
+        NOW() - INTERVAL '20 minutes',
+        NOW()
+    )
+ON CONFLICT DO NOTHING;
+
 -- 10. Enrollments
 INSERT INTO
     "academy_enrollments" (

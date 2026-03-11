@@ -28,6 +28,7 @@ import {
     DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu";
 import { ClassSheet } from './components/class-sheet';
+import { toast } from '@workspace/ui/components/sonner';
 
 export default function ClassesPage() {
     const navigate = useNavigate();
@@ -51,6 +52,11 @@ export default function ClassesPage() {
     };
 
     const handleEdit = (cls: AcademyClass) => {
+        setSelectedClass(cls);
+        setSheetOpen(true);
+    };
+
+    const handleViewDetails = (cls: AcademyClass) => {
         setSelectedClass(cls);
         setSheetOpen(true);
     };
@@ -157,26 +163,55 @@ export default function ClassesPage() {
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon">
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem>Xem chi tiết</DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => handleEdit(cls)}>Quản lý & Chỉnh sửa</DropdownMenuItem>
-                                                    <DropdownMenuItem>Quản lý Học viên</DropdownMenuItem>
-                                                    {cls.mode === 'LIVE' && <DropdownMenuItem>Lịch học & Điểm danh</DropdownMenuItem>}
-                                                    <DropdownMenuItem onClick={() => navigate(`/academy/classes/${cls.id}/assignments/some-id/submissions`)}>
-                                                        Bài tập & Chấm điểm
-                                                    </DropdownMenuItem>
-                                                    {isStaff && (
-                                                        <>
-                                                            <DropdownMenuSeparator />
-                                                            <DropdownMenuItem className="text-destructive">Xóa lớp</DropdownMenuItem>
-                                                        </>
-                                                    )}
-                                                </DropdownMenuContent>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="ghost" size="icon">
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuItem onClick={() => handleViewDetails(cls)}>
+                                                            Xem chi tiết
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => handleEdit(cls)}>
+                                                            Quản lý & Chỉnh sửa
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem
+                                                            onClick={() => toast.info("Màn hình Quản lý Học viên cho lớp này sẽ được bổ sung ở phiên bản sau.")}
+                                                        >
+                                                            Quản lý Học viên
+                                                        </DropdownMenuItem>
+                                                        {cls.mode === 'LIVE' && (
+                                                            <DropdownMenuItem
+                                                                onClick={() => toast.info("Lịch học & Điểm danh cho lớp LIVE sẽ được cấu hình ở màn Live Schedule riêng.")}
+                                                            >
+                                                                Lịch học & Điểm danh
+                                                            </DropdownMenuItem>
+                                                        )}
+                                                        <DropdownMenuItem
+                                                            onClick={() =>
+                                                                toast.info(
+                                                                    "Để chấm điểm, hãy vào màn 'Bài tập lớp học' để chọn cụ thể một bài đánh giá rồi dùng trang Chấm điểm.",
+                                                                )
+                                                            }
+                                                        >
+                                                            Bài tập & Chấm điểm
+                                                        </DropdownMenuItem>
+                                                        {isStaff && (
+                                                            <>
+                                                                <DropdownMenuSeparator />
+                                                                <DropdownMenuItem
+                                                                    className="text-destructive"
+                                                                    onClick={() =>
+                                                                        toast.info(
+                                                                            "Xóa lớp sẽ được kích hoạt sau khi hoàn thiện luồng an toàn (soft delete + kiểm tra enrollment).",
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    Xóa lớp
+                                                                </DropdownMenuItem>
+                                                            </>
+                                                        )}
+                                                    </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
                                     </TableRow>

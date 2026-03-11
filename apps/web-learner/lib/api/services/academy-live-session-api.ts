@@ -90,7 +90,7 @@ function toSessionResponse(
 
     return {
         id: session.id,
-        courseRunId: classId,
+        classId: classId,
         lecturerId: null,
         title: session.note?.trim() ? session.note : 'Buoi hoc truc tuyen',
         description: session.location ?? null,
@@ -162,7 +162,7 @@ export const liveSessionApi = {
         const sessionArrays = await Promise.allSettled(
             liveEnrollments.map((enrollment: any) =>
                 liveSessionApi
-                    .getSessions(enrollment.classId || enrollment.courseRunId)
+                    .getSessions(enrollment.classId)
                     .then((sessions) =>
                         sessions.map((s) => ({
                             ...s,

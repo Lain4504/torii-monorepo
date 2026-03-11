@@ -174,6 +174,11 @@ export class CouponService {
         const {
             discountType,
             status,
+            // Legacy fields from V1 schema (course_master / run based scoping) — no longer exist in V2
+            applicableCourseMasterIds,
+            excludedCourseMasterIds,
+            applicableRunIds,
+            excludedRunIds,
             ...rest
         } = data ?? {};
 
@@ -203,6 +208,11 @@ export class CouponService {
         const {
             discountType,
             status,
+            // Legacy fields from V1 schema (course_master / run based scoping) — no longer exist in V2
+            applicableCourseMasterIds,
+            excludedCourseMasterIds,
+            applicableRunIds,
+            excludedRunIds,
             ...rest
         } = data ?? {};
 

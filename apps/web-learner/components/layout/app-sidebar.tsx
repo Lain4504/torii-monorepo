@@ -23,11 +23,23 @@ import {
 import { learningNav, progressNav, accountNav, aiSenseiNav } from "@/config/navigation"
 import { cn } from "@workspace/ui/lib/utils"
 import { useLogo } from "@/hooks/useLogo"
+import { useAppSelector } from "@/hooks/hooks"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const pathname = usePathname()
     const isAISenseiPath = pathname?.startsWith('/ai-sensei')
     const logo = useLogo()
+    const { user } = useAppSelector((state) => state.auth)
+    const role = user?.role
+    const isStaffOrAdmin = role === 'admin' || role === 'staff-lms' || role === 'staff_lms' || role === 'staff'
+
+    const learningItems = React.useMemo(
+        () =>
+            isStaffOrAdmin
+                ? learningNav.filter((item) => item.href !== '/dashboard/my-courses')
+                : learningNav,
+        [isStaffOrAdmin],
+    )
 
     return (
         <Sidebar
@@ -66,7 +78,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarHeader>
 
             <SidebarContent className="scrollbar-none py-2">
-                <NavMain label="Học tập" items={learningNav as any} />
+                <NavMain label="Học tập" items={learningItems as any} />
                 <NavMain label="AI Sensei" items={aiSenseiNav as any} />
                 <NavLearning />
                 <NavMain label="Tiến độ" items={progressNav as any} />

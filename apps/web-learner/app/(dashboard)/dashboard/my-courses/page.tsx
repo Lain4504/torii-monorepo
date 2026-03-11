@@ -225,7 +225,7 @@ export default function MyCoursesPage() {
 
                             {course.type === 'live' && (
                                 <div className="rounded-xl border border-border bg-muted/20 p-3">
-                                    <LiveSessionBlock courseId={course.classId || course.courseRunId} compact maxSessions={2} />
+                                    <LiveSessionBlock classId={course.classId} compact maxSessions={2} />
                                 </div>
                             )}
 
@@ -245,7 +245,7 @@ export default function MyCoursesPage() {
                                 ) : (
                                     <div className="flex gap-2">
                                         <Link
-                                            href={`/courses/${course.classId || course.courseRunId}/learn`}
+                                            href={`/courses/${course.classId}/learn`}
                                             className="w-full flex-1"
                                             onClick={(e) => e.stopPropagation()}
                                         >
@@ -255,7 +255,7 @@ export default function MyCoursesPage() {
                                             </Button>
                                         </Link>
                                         {course.progress >= 100 && (() => {
-                                            const existingReview = myReviews.find((r: any) => r.class?.id === course.courseRunId);
+                                            const existingReview = myReviews.find((r: any) => r.class?.id === course.classId);
                                             return (
                                                 <Button
                                                     className={`text-xs shrink-0 flex-1 ${!existingReview && "bg-amber-500 hover:bg-amber-600 text-white"}`}
@@ -264,7 +264,7 @@ export default function MyCoursesPage() {
                                                         e.stopPropagation();
                                                         setReviewDialogProps({
                                                             isOpen: true,
-                                                            classId: course.courseRunId,
+                                                            classId: course.classId,
                                                             enrollmentId: course.id,
                                                             courseTitle: course.courseTitle || "",
                                                             existingReview
