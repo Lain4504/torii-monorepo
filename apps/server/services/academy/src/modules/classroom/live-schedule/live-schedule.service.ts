@@ -146,7 +146,14 @@ export class LiveScheduleService {
     if (!schedule) throw new NotFoundException('Session not found');
 
     this.assertClassJoinable(schedule.class.status);
-    this.assertInJoinWindow(schedule, isAdmin);
+    this.assertInJoinWindow(
+      {
+        weekday: schedule.weekday,
+        startTime: schedule.startTime,
+        endTime: schedule.endTime,
+      },
+      isAdmin,
+    );
 
     const user = await this.getUserById(userId);
     await this.assertJoinPermission(schedule, userId, isAdmin, user?.role);
@@ -262,7 +269,6 @@ export class LiveScheduleService {
         sessionDate: session.sessionDate,
         startTime: session.startTime,
         endTime: session.endTime,
-        class: { openingDate: session.class.openingDate, closingDate: session.class.closingDate },
       },
       isAdmin,
     );
@@ -608,7 +614,7 @@ export class LiveScheduleService {
           class: {
             instructorId: klass.instructorId,
             status: {
-              in: ['DRAFT', 'PENDING_APPROVAL', 'ENROLLING', 'IN_PROGRESS'],
+              in: ['DRAFT', 'PUBLISHED', 'OPENING', 'ONGOING'],
             },
           },
         },
@@ -836,18 +842,6 @@ export class LiveScheduleService {
     }
 
     await this.prisma.$transaction(async (tx) => {
-      const metadata: Record<string, unknown> = {
-        ...(request.metadata as Record<string, unknown>),
-      };
-      if (request.type === 'RESCHEDULE') {
-        metadata.reschedule = {
-          requestedDate: request.requestedDate?.toISOString(),
-          proposedDate: request.proposedDate?.toISOString(),
-          proposedStartTime: request.proposedStartTime,
-          proposedEndTime: request.proposedEndTime,
-          proposedTeacherId: request.proposedTeacherId,
-        };
-      }
 
       if (request.type === 'LEAVE') {
         await tx.liveScheduleSession.update({
@@ -882,10 +876,6 @@ export class LiveScheduleService {
           },
         });
 
-        metadata.reschedule = {
-          ...(metadata.reschedule as any),
-          newSessionId: newSession.id,
-        };
       }
 
       await tx.liveScheduleRequest.update({
@@ -895,7 +885,6 @@ export class LiveScheduleService {
           reviewedBy: reviewerId,
           reviewedAt: new Date(),
           reviewNote: input.reviewNote,
-          metadata: metadata as any,
         },
       });
     });
@@ -1044,7 +1033,7 @@ export class LiveScheduleService {
   }
 
   private assertClassJoinable(classStatus: string) {
-    if (classStatus !== 'ENROLLING' && classStatus !== 'IN_PROGRESS') {
+    if (classStatus !== 'OPENING' && classStatus !== 'ONGOING') {
       throw new BadRequestException(
         'Class is not available for live sessions in current status.',
       );
@@ -1055,7 +1044,6 @@ export class LiveScheduleService {
     weekday: number;
     startTime: string;
     endTime: string;
-    class: { openingDate: Date | null; closingDate: Date | null };
   }, isAdmin: boolean) {
     // Dev-only bypass to help testing room activation/joins.
     // Enable by setting env: DISABLE_LIVE_SESSION_JOIN_WINDOW=true
@@ -1067,18 +1055,6 @@ export class LiveScheduleService {
       return;
     }
     const now = new Date();
-
-    // if (schedule.class.openingDate && now < new Date(schedule.class.openingDate)) {
-    //   throw new BadRequestException(
-    //     'Session is outside the class active date range.',
-    //   );
-    // }
-
-    // if (schedule.class.closingDate && now > new Date(schedule.class.closingDate)) {
-    //   throw new BadRequestException(
-    //     'Session is outside the class active date range.',
-    //   );
-    // }
 
     const [startHour, startMinute] = this.parseHourMinute(schedule.startTime);
     const [endHour, endMinute] = this.parseHourMinute(schedule.endTime);
@@ -1106,7 +1082,6 @@ export class LiveScheduleService {
       sessionDate: Date;
       startTime: string;
       endTime: string;
-      class: { openingDate: Date | null; closingDate: Date | null };
     },
     isAdmin: boolean,
   ) {
@@ -1271,7 +1246,7 @@ export class LiveScheduleService {
           class: {
             instructorId: input.instructorId,
             status: {
-              in: ['DRAFT', 'PENDING_APPROVAL', 'ENROLLING', 'IN_PROGRESS'],
+              in: ['DRAFT', 'PUBLISHED', 'OPENING', 'ONGOING'],
             },
           },
         },

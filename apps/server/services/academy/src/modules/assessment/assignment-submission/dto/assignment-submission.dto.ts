@@ -2,7 +2,7 @@ import { IsOptional, IsString, IsUUID, MaxLength, Min } from 'class-validator';
 
 export class AssignmentSubmissionCreateDto {
   @IsUUID()
-  assignmentId!: string;
+  classAssessmentId!: string;
 
   @IsOptional()
   @IsUUID()
@@ -30,7 +30,7 @@ export class AssignmentSubmissionUpdateDto {
 
   @IsOptional()
   @Min(0)
-  grade?: number;
+  score?: number;
 
   @IsOptional()
   @IsString()
@@ -48,7 +48,7 @@ export class AssignmentSubmissionUpdateDto {
 export class AssignmentSubmissionQueryDto {
   @IsOptional()
   @IsUUID()
-  assignmentId?: string;
+  classAssessmentId?: string;
 
   @IsOptional()
   @IsUUID()

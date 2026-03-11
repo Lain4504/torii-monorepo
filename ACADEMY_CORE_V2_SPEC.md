@@ -24,13 +24,15 @@
 7. **ClassAssignment**: Giao bài tập riêng cho lớp LIVE (Tách khỏi Syllabus).
 8. **UserProgress**: Theo dõi tiến độ học tập của từng học viên.
 
-### 2.4 Lớp Thương mại & Ghi danh (Commerce & Enrollment)
+### 2.4 Lớp Thương mại & Ghi danh (Commerce & Enrollment - CLASS-CENTRIC)
 9. **CourseOffering**: Gói sản phẩm (Sản phẩm bán). 
-   - Kiểm soát việc bán thông qua `status` thay vì dùng các cột ngày tháng phức tạp, remove các field đó.
-10. **Enrollment**: Quyền truy cập.
-    - **VOD**: Truy cập Syllabus ngay khi thanh toán.
-    - **LIVE**: Được xếp vào hàng chờ, truy cập nội dung theo tiến độ khai giảng của Lớp.
-11. **OfferingClass**: (LIVE only) Kết nối gói bán với danh sách các lớp dự kiến.
+   - Kiểm soát việc bán thông qua `status`. 
+   - Một Offering có thể trỏ tới một hoặc nhiều Class (Combo).
+10. **Enrollment**: Quyền truy cập nội dung học tập thông qua **Class**.
+    - **SSOT cho Tiến độ**: Tiến độ học viên (UserProgress) luôn gắn với `userId` và `classId`.
+    - **VOD**: Mỗi Syllabus dùng cho VOD sẽ có một "VOD Class" tương ứng. Mua xong sẽ Enroll vào Class này.
+    - **LIVE**: Enroll vào Class được chỉ định hoặc hàng chờ (nếu chưa có Class).
+11. **OfferingClass**: Kết nối gói bán với danh sách các lớp cụ thể.
 
 ---
 
@@ -64,13 +66,20 @@
 ### 3.7 Quy tắc Bán hàng & Trạng thái (Selling & Availability)
 Để đơn giản hóa vận hành, hệ thống loại bỏ việc check `startDate/endDate` ở tầng DB cho việc bán hàng, thay vào đó sử dụng **Trạng thái (Status)**:
 - **Đối với VOD (Video on Demand)**:
-  - `PUBLISHED`: Gói đang được bán. Học viên mua xong có quyền vào học ngay lập tức.
+  - `PUBLISHED`: Gói đang được bán. Học viên mua xong có quyền vào học ngay lập tức qua VOD Class.
   - VOD không có ngày khai giảng cố định.
 - **Đối với LIVE (Lớp trực tuyến)**:
   - `OPENING`: Gói đang mở bán (đang tuyển sinh). Học viên có thể mua để giữ chỗ.
   - Việc học chỉ bắt đầu khi Lớp học (`Class`) chuyển sang `ONGOING`.
   - Không quản lý ngày bắt đầu bán bằng DB, Admin chủ động chuyển trạng thái khi muốn mở/đóng cổng đăng ký.
 - **Dừng bán**: Chuyển trạng thái về `DRAFT` hoặc `ARCHIVED`.
+
+### 3.8 Mô hình "Class-Centric Enrollment" (NEW)
+Hệ thống coi mọi thực thể học tập là **Class**.
+- **VOD = Forever Class**: Một Syllabus dành cho VOD sẽ trỏ tới một `Class` (mode: VOD). Enrollment sẽ trỏ trực tiếp vào `class_id` này.
+- **LIVE = Scheduled Class**: Enrollment sẽ trỏ vào `class_id` của lớp theo lịch.
+- **Audit Trace**: `offering_id` trong bảng Enrollment dùng để truy vết nguồn gốc thanh toán (mua gói nào), không dùng cho logic lấy nội dung.
+- **Tiến độ tập trung**: Mọi progress tracking luôn dựa trên `(user_id, class_id)`.
 
 ---
 
@@ -135,40 +144,68 @@ CREATE TABLE assignments (
 );
 ```
 
-### 4.3 Delivery & Results (Operational)
+### 4.3 Operational & Learning Layer (THE CENTER)
 ```sql
 -- class_status: Phân tách rõ vòng đời theo loại hình
 -- VOD: DRAFT -> PUBLISHED -> ARCHIVED
 -- LIVE: DRAFT -> OPENING -> ONGOING -> COMPLETED -> ARCHIVED
 CREATE TYPE class_status AS ENUM (
-    'DRAFT',      -- Nháp (Dùng chung)
-    'PUBLISHED',  -- Đã phát hành - Học viên có thể vào học (VOD only)
-    'OPENING',    -- Đang tuyển sinh (LIVE only)
-    'ONGOING',    -- Đang học (LIVE only)
-    'COMPLETED',  -- Đã kết thúc (LIVE only)
-    'ARCHIVED'    -- Lưu trữ củ (Dùng chung)
+    'DRAFT',      -- Nháp
+    'PENDING_APPROVAL', -- Chờ duyệt
+    'PUBLISHED',  -- Đã phát hành (VOD)
+    'OPENING',    -- Đang tuyển sinh (LIVE)
+    'ONGOING',    -- Đang học (LIVE)
+    'COMPLETED',  -- Đã kết thúc (LIVE)
+    'ARCHIVED'    -- Lưu trữ
 );
 
 CREATE TABLE classes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     syllabus_id UUID REFERENCES syllabuses(id),
-    instructor_id UUID,
+    instructor_id UUID REFERENCES users(id),
+    code VARCHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(255) NOT NULL,
     mode VARCHAR(10) DEFAULT 'VOD', -- 'VOD' hoặc 'LIVE'
-    status class_status DEFAULT 'DRAFT'
+    status class_status DEFAULT 'DRAFT',
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- Theo dõi tiến độ học bài
+-- Ghi danh (Class-Centric)
+CREATE TABLE enrollments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id),
+    class_id UUID NOT NULL REFERENCES classes(id), -- BẮT BUỘC
+    offering_id UUID REFERENCES course_offerings(id), -- Tracking
+    status VARCHAR(20) DEFAULT 'ACTIVE', -- ACTIVE, EXPIRED, CANCELLED
+    enrolled_at TIMESTAMP DEFAULT NOW(),
+    expires_at TIMESTAMP,
+    source_order_id UUID,
+    
+    -- Constraints
+    UNIQUE(user_id, class_id), -- Một user chỉ được vào 1 lớp 1 lần
+    UNIQUE(user_id, offering_id) -- Tránh mua trùng gói
+);
+
+-- Tiến độ học tập (Tied to Class)
 CREATE TABLE user_lesson_progress (
-    user_id UUID NOT NULL,
-    class_id UUID REFERENCES classes(id) ON DELETE CASCADE,
-    lesson_id UUID REFERENCES lessons(id) ON DELETE CASCADE,
-    is_completed BOOLEAN DEFAULT FALSE,
-    last_watched_at TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT NOW(),
-    PRIMARY KEY (user_id, class_id, lesson_id)
+  user_id UUID NOT NULL REFERENCES users(id),
+  class_id UUID NOT NULL REFERENCES classes(id),
+  lesson_id UUID NOT NULL REFERENCES lessons(id),
+  is_completed BOOLEAN DEFAULT FALSE,
+  last_watched_at TIMESTAMP,
+  PRIMARY KEY (user_id, class_id, lesson_id)
 );
 
--- Assignment cho lớp LIVE (Tách khỏi Syllabus)
+-- 4.4 Content Bank & Assignments
+CREATE TABLE assignments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title VARCHAR(255) NOT NULL,
+    instructions TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- 4.5 Delivery & Submissions (LIVE specific results)
 CREATE TABLE class_assignments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     class_id UUID REFERENCES classes(id) ON DELETE CASCADE,
@@ -181,57 +218,44 @@ CREATE TABLE class_assignments (
     CONSTRAINT unique_class_assignment UNIQUE (class_id, assignment_id)
 );
 
--- Results Layer
 CREATE TABLE assignment_submissions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL,
+    user_id UUID NOT NULL REFERENCES users(id),
     class_assignment_id UUID REFERENCES class_assignments(id) ON DELETE CASCADE,
     file_url TEXT NOT NULL,
     score DECIMAL(5,2),
     sensei_comment TEXT,
-    status VARCHAR(20) DEFAULT 'SUBMITTED',
+    status VARCHAR(20) DEFAULT 'SUBMITTED', -- SUBMITTED, GRADED, REJECTED
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(),
-    -- Enforce Single Submission per assignment/user
+    -- Single Submission per assignment/user/class instance
     CONSTRAINT unique_submission UNIQUE (user_id, class_assignment_id)
 );
 ```
 
-### 4.4 Commerce & Enrollment (Commercial Layer)
+### 4.4 Commerce Layer
 ```sql
-CREATE TYPE offering_status AS ENUM ('DRAFT', 'PUBLISHED', 'OPENING', 'ARCHIVED');
+CREATE TYPE offering_status AS ENUM ('DRAFT', 'PENDING_APPROVAL', 'PUBLISHED', 'OPENING', 'ARCHIVED');
 
 CREATE TABLE course_offerings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     syllabus_id UUID REFERENCES syllabuses(id),
+    code VARCHAR(50) UNIQUE NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT,
     price DECIMAL(12,2) NOT NULL,
     sale_price DECIMAL(12,2),
     status offering_status DEFAULT 'DRAFT',
-    mode VARCHAR(10) DEFAULT 'VOD', -- 'VOD' hoặc 'LIVE'
-    created_at TIMESTAMP DEFAULT NOW()
+    mode VARCHAR(10) DEFAULT 'VOD',
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- Linking Offering to specific Classes (especially for LIVE)
+-- Linking Offering to specific Classes
 CREATE TABLE offering_classes (
     offering_id UUID REFERENCES course_offerings(id) ON DELETE CASCADE,
     class_id UUID REFERENCES classes(id) ON DELETE CASCADE,
     PRIMARY KEY (offering_id, class_id)
 );
-
-CREATE TABLE enrollments (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL,
-    offering_id UUID REFERENCES course_offerings(id),
-    class_id UUID REFERENCES classes(id), -- NULL cho VOD, bắt buộc cho LIVE
-    status VARCHAR(20) DEFAULT 'ACTIVE', -- ACTIVE, EXPIRED, CANCELLED
-    enrolled_at TIMESTAMP DEFAULT NOW(),
-    -- LIVE: class_id bắt buộc, VOD: class_id NULL
-    CONSTRAINT enrollment_live_requires_class CHECK (
-        -- Chỉ enforce khi có dữ liệu offering.mode (cần check ở tầng Service với offering.mode = LIVE)
-        class_id IS NOT NULL OR class_id IS NULL -- placeholder, logic check ở Service
-    ),
-    CONSTRAINT unique_enrollment UNIQUE (user_id, offering_id)
-);
 ```
+

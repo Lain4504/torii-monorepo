@@ -1,37 +1,53 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
-import {
-  type AcademyLessonCreateDTO,
-  type AcademyLessonQueryDTO,
-  type AcademyLessonUpdateDTO,
-} from '@workspace/schemas';
+import { LessonType } from '@prisma/generated';
 import { AuditLoggerService } from '../audit-logger.service';
+
+export interface LessonCreateDto {
+  moduleId: string;
+  type: 'VIDEO' | 'READING';
+  title: string;
+  orderIndex?: number;
+  videoUrl?: string;
+}
+
+export interface LessonUpdateDto {
+  title?: string;
+  type?: 'VIDEO' | 'READING';
+  orderIndex?: number;
+  videoUrl?: string;
+}
+
+export interface LessonQueryDto {
+  moduleId?: string;
+  syllabusId?: string;
+  q?: string;
+}
 
 @Injectable()
 export class LessonService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
-  ) { } // V2 Strictly Typed
+  ) { }
 
-  async findAll(query: AcademyLessonQueryDTO) {
+  async findAll(query: LessonQueryDto) {
     const q = query.q?.trim();
 
     return this.prisma.lesson.findMany({
       where: {
-        syllabusId: query.syllabusId ?? undefined,
-        ...(q
-          ? {
-            title: { contains: q, mode: 'insensitive' },
-          }
-          : {}),
+        moduleId: query.moduleId ?? undefined,
+        module: query.syllabusId
+          ? { syllabusId: query.syllabusId }
+          : undefined,
+        ...(q ? { title: { contains: q, mode: 'insensitive' } } : {}),
       },
       include: {
-        quiz: true,
-        exam: true,
-        assignment: true,
+        module: {
+          select: { id: true, title: true, syllabusId: true, orderIndex: true },
+        },
       },
-      orderBy: [{ orderIndex: 'asc' }],
+      orderBy: [{ module: { orderIndex: 'asc' } }, { orderIndex: 'asc' }],
     });
   }
 
@@ -39,32 +55,38 @@ export class LessonService {
     const item = await this.prisma.lesson.findUnique({
       where: { id },
       include: {
-        quiz: true,
-        exam: true,
-        assignment: true,
-      }
+        module: {
+          select: { id: true, title: true, syllabusId: true },
+        },
+      },
     });
     if (!item) throw new NotFoundException('Lesson not found');
     return item;
   }
 
-  async create(input: AcademyLessonCreateDTO, requesterId?: string) {
-    if (!input.syllabusId) {
-      throw new BadRequestException('syllabusId is required');
+  async create(input: LessonCreateDto, requesterId?: string) {
+    // Validate module exists
+    const module = await this.prisma.module.findUnique({
+      where: { id: input.moduleId },
+      select: { id: true, syllabus: { select: { status: true } } },
+    });
+    if (!module) throw new BadRequestException('Invalid moduleId');
+
+    if (module.syllabus.status === 'LOCKED') {
+      throw new BadRequestException('Cannot modify lessons in a LOCKED syllabus');
     }
+
+    const nextOrder =
+      input.orderIndex ??
+      ((await this.prisma.lesson.count({ where: { moduleId: input.moduleId } })) + 1);
 
     const item = await this.prisma.lesson.create({
       data: {
-        syllabusId: input.syllabusId,
+        moduleId: input.moduleId,
+        type: input.type as LessonType,
         title: input.title,
-        orderIndex: input.orderIndex ?? 0,
-        type: input.type as any,
-        quizId: input.quizId ?? null,
-        examId: input.examId ?? null,
-        assignmentId: input.assignmentId ?? null,
-        contentUrl: input.contentUrl ?? null,
-        contentBody: input.contentBody ?? null,
-        attachments: input.attachments ?? [],
+        orderIndex: nextOrder,
+        videoUrl: input.videoUrl ?? null,
       },
     });
 
@@ -74,7 +96,7 @@ export class LessonService {
         action: 'lesson.create',
         entity: 'Lesson',
         entityId: item.id,
-        description: `Create lesson "${item.title}" in syllabus ${item.syllabusId}`,
+        description: `Created ${item.type} lesson "${item.title}" in module ${input.moduleId}`,
         newValues: item,
       });
     }
@@ -82,21 +104,25 @@ export class LessonService {
     return item;
   }
 
-  async update(id: string, input: AcademyLessonUpdateDTO, requesterId?: string) {
+  async update(id: string, input: LessonUpdateDto, requesterId?: string) {
     const before = await this.findById(id);
+
+    // Guard locked syllabus
+    const module = await this.prisma.module.findUnique({
+      where: { id: before.moduleId },
+      select: { syllabus: { select: { status: true } } },
+    });
+    if (module?.syllabus.status === 'LOCKED') {
+      throw new BadRequestException('Cannot modify lessons in a LOCKED syllabus');
+    }
 
     const item = await this.prisma.lesson.update({
       where: { id },
       data: {
         title: input.title ?? undefined,
+        type: (input.type as LessonType) ?? undefined,
         orderIndex: input.orderIndex ?? undefined,
-        type: (input.type as any) ?? undefined,
-        quizId: input.quizId !== undefined ? input.quizId : undefined,
-        examId: input.examId !== undefined ? input.examId : undefined,
-        assignmentId: input.assignmentId !== undefined ? input.assignmentId : undefined,
-        contentUrl: input.contentUrl ?? undefined,
-        contentBody: input.contentBody ?? undefined,
-        attachments: input.attachments ?? undefined,
+        videoUrl: input.videoUrl !== undefined ? input.videoUrl : undefined,
       },
     });
 
@@ -106,7 +132,7 @@ export class LessonService {
         action: 'lesson.update',
         entity: 'Lesson',
         entityId: id,
-        description: `Update lesson "${before.title}"`,
+        description: `Updated lesson "${before.title}"`,
         oldValues: before,
         newValues: item,
       });
@@ -118,6 +144,15 @@ export class LessonService {
   async delete(id: string, requesterId?: string) {
     const before = await this.findById(id);
 
+    // Guard locked syllabus
+    const module = await this.prisma.module.findUnique({
+      where: { id: before.moduleId },
+      select: { syllabus: { select: { status: true } } },
+    });
+    if (module?.syllabus.status === 'LOCKED') {
+      throw new BadRequestException('Cannot delete lessons from a LOCKED syllabus');
+    }
+
     await this.prisma.lesson.delete({ where: { id } });
 
     if (requesterId) {
@@ -126,7 +161,7 @@ export class LessonService {
         action: 'lesson.delete',
         entity: 'Lesson',
         entityId: id,
-        description: `Delete lesson "${before.title}"`,
+        description: `Deleted lesson "${before.title}"`,
         oldValues: before,
       });
     }
@@ -134,4 +169,3 @@ export class LessonService {
     return { ok: true };
   }
 }
-

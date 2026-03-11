@@ -101,6 +101,7 @@ export const academyClassQueryDTOSchema = z.object({
   courseProfileId: z.string().uuid().optional(),
   mode: z.string().optional(),
   status: z.string().optional(),
+  instructorId: z.string().uuid().optional(),
   q: z.string().optional(),
 });
 export type AcademyClassQueryDTO = z.infer<typeof academyClassQueryDTOSchema>;

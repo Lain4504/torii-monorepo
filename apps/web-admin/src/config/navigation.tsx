@@ -41,18 +41,14 @@ export const academicNavItems: NavItem[] = [
     },
     {
         titleKey: "Academy (LMS)",
-        url: "/",
+        url: "/academy/classes",
         icon: GraduationCap,
         anyPermission: ["academy.content.read", "academy.content.write", "academy.delivery.read", "academy.delivery.write"],
         items: [
-            { titleKey: "Lớp của tôi", url: "/my-classes", roles: ["lecturer"] },
-            { titleKey: "Kho Khóa học (Profiles)", url: "/academy/course-profiles" },
-            { titleKey: "Gói bán (Offerings)", url: "/academy/course-offerings" },
-            { titleKey: "Quản lý Lớp học", url: "/academy/classes" },
-            { titleKey: "Trung tâm Duyệt", url: "/academy/approvals" },
-            { titleKey: "Ngân hàng câu hỏi", url: "/academy/questions" },
-            { titleKey: "Question Pools", url: "/academy/question-pools" },
-            { titleKey: "Ngân hàng đề thi (Exams)", url: "/academy/exams" },
+            { titleKey: "Lớp học", url: "/academy/classes" },
+            { titleKey: "Kho Khóa học (Profiles)", url: "/academy/course-profiles", roles: ["admin", "staff-lms"] },
+            { titleKey: "Gói bán (Offerings)", url: "/academy/course-offerings", roles: ["admin", "staff-lms"] },
+            { titleKey: "Trung tâm Duyệt", url: "/academy/approvals", roles: ["admin", "staff-lms"] },
         ]
     },
 ];

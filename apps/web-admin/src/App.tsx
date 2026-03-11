@@ -41,7 +41,11 @@ import AccessDeniedPage from '@/routes/error/access-denied-page.tsx'
 import ServiceUnavailablePage from '@/routes/error/service-unavailable-page.tsx'
 import NotImplementedPage from '@/routes/error/not-implemented-page.tsx'
 import UnauthorizedPage from '@/routes/error/unauthorized-page.tsx'
-import AcademyManagementMock from '@/routes/academy/management-mock.tsx'
+import CourseProfilesPage from '@/routes/academy/course-profiles/course-profiles-page.tsx'
+import ClassesPage from '@/routes/academy/classes/classes-page.tsx'
+import SyllabusBuilderPage from '@/routes/academy/syllabuses/syllabus-builder-page.tsx'
+import OfferingsPage from '@/routes/academy/offerings/offerings-page.tsx'
+import AssignmentGradingPage from '@/routes/academy/classes/assignment-grading-page.tsx'
 import RewardsPage from '@/routes/gamification/rewards-page.tsx'
 import AchievementsPage from '@/routes/gamification/achievements-page.tsx'
 
@@ -92,8 +96,12 @@ function App() {
                   </Route>
 
                   {/* Academy - Core Grouping */}
-                  <Route element={<RoutePermissionGuard anyPermission={["academy.content.read", "academy.content.write", "academy.content.approve", "academy.commerce.read", "academy.commerce.write", "academy.commerce.approve", "academy.delivery.read", "academy.delivery.write", "academy.delivery.approve", "exam.manage"]} />}>
-                    <Route path="academy/management-mock" element={<AcademyManagementMock />} />
+                  <Route element={<RoutePermissionGuard anyPermission={["academy.content.read", "academy.content.write", "academy.delivery.read", "academy.delivery.write"]} />}>
+                    <Route path="academy/course-profiles" element={<CourseProfilesPage />} />
+                    <Route path="academy/classes" element={<ClassesPage />} />
+                    <Route path="academy/syllabuses/:id" element={<SyllabusBuilderPage />} />
+                    <Route path="academy/course-offerings" element={<OfferingsPage />} />
+                    <Route path="academy/classes/:classId/assignments/:assessmentId/submissions" element={<AssignmentGradingPage />} />
                   </Route>
 
                   <Route element={<RoutePermissionGuard permission="coupon.manage" />}>

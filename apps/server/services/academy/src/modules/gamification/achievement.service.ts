@@ -112,19 +112,17 @@ export class AchievementService {
                 return gamification?.totalActiveDays || 0;
             }
             case 'LESSONS_COMPLETED': {
-                return await this.prisma.learningProgress.count({
-                    where: { userId, status: 'COMPLETED' },
+                return await this.prisma.userLessonProgress.count({
+                    where: { userId, isCompleted: true },
                 });
             }
             case 'EXAM_PASSED_COUNT': {
-                return await this.prisma.examAttempt.count({
-                    where: { userId, status: { in: ['COMPLETED', 'SUBMITTED'] }, isPassed: true },
-                });
+                // V2: exam flow removed
+                return 0;
             }
             case 'EXAM_ATTEMPT_COUNT': {
-                return await this.prisma.examAttempt.count({
-                    where: { userId, status: { in: ['COMPLETED', 'SUBMITTED'] } },
-                });
+                // V2: exam flow removed
+                return 0;
             }
             case 'REVIEWS_PUBLISHED': {
                 return await this.prisma.classReview.count({

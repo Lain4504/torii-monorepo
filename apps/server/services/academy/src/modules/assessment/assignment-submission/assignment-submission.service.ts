@@ -19,7 +19,7 @@ export class AssignmentSubmissionService {
     const effectiveUserId = isExamManager ? query.userId : requesterId ?? query.userId;
     return this.prisma.assignmentSubmission.findMany({
       where: {
-        assignmentId: query.assignmentId ?? undefined,
+        classAssignmentId: query.classAssessmentId ?? undefined,
         userId: effectiveUserId ?? undefined,
       },
       orderBy: [{ createdAt: 'desc' }],
@@ -43,36 +43,36 @@ export class AssignmentSubmissionService {
       throw new BadRequestException('You can only create submissions for yourself');
     }
 
-    const assignment = await this.prisma.assignment.findUnique({
-      where: { id: input.assignmentId },
+    if (!input.classAssessmentId) {
+      throw new BadRequestException('Missing classAssessmentId for assignment submission');
+    }
+
+    const classAssignment = await this.prisma.classAssignment.findUnique({
+      where: { id: input.classAssessmentId },
+      select: { id: true },
     });
-    if (!assignment) throw new BadRequestException('Invalid assignmentId');
+    if (!classAssignment) {
+      throw new BadRequestException('Invalid classAssessmentId');
+    }
 
     const existing = await this.prisma.assignmentSubmission.findFirst({
       where: {
-        assignmentId: input.assignmentId,
+        classAssignmentId: input.classAssessmentId,
         userId: input.userId,
       },
+      select: { id: true },
     });
 
     if (existing) {
-      if (existing.status === 'GRADED') {
-        throw new BadRequestException('Cannot resubmit already graded assignment');
-      }
-
-      return this.update(existing.id, {
-        status: input.status,
-        content: input.content,
-        fileUrls: input.fileUrls,
-      }, requesterId, isExamManager);
+      throw new BadRequestException('You have already submitted this assignment');
     }
 
     const result = await this.prisma.assignmentSubmission.create({
       data: {
-        assignmentId: input.assignmentId,
+        classAssignmentId: input.classAssessmentId,
         userId: input.userId,
-        status: (input.status as any) ?? 'DRAFT',
-        submittedAt: (input.status ?? '').toUpperCase() === 'SUBMITTED' ? new Date() : null,
+        status: (input.status as any) ?? 'SUBMITTED',
+        submittedAt: ((input.status ?? 'SUBMITTED').toUpperCase() === 'SUBMITTED') ? new Date() : null,
         content: input.content ?? null,
         fileUrls: input.fileUrls ?? [],
       },
@@ -88,22 +88,22 @@ export class AssignmentSubmissionService {
       where: { id },
       data: {
         status: input.status as any,
-        grade: input.grade !== undefined ? new Prisma.Decimal(input.grade) : undefined,
+        grade: input.score !== undefined ? new Prisma.Decimal(input.score) : undefined,
         feedback: input.feedback ?? undefined,
-        gradedAt: input.grade !== undefined ? new Date() : undefined,
+        gradedAt: input.score !== undefined ? new Date() : undefined,
         submittedAt: input.status && input.status.toUpperCase() === 'SUBMITTED' ? new Date() : undefined,
         content: input.content ?? undefined,
         fileUrls: input.fileUrls ?? undefined,
       },
     });
 
-    if (input.grade !== undefined) {
+    if (input.score !== undefined) {
       await this.audit.log({
         userId: requesterId,
         action: 'assignment_submission.grade',
         entity: 'AssignmentSubmission',
         entityId: id,
-        description: `Graded assignment submission for user ${oldSubmission.userId}. Grade: ${input.grade}`,
+        description: `Graded assignment submission for user ${oldSubmission.userId}. Score: ${input.score}`,
         oldValues: { grade: oldSubmission.grade?.toString() },
         newValues: { grade: updated.grade?.toString(), status: updated.status },
       });
@@ -122,7 +122,7 @@ export class AssignmentSubmissionService {
       entity: 'AssignmentSubmission',
       entityId: id,
       description: `Deleted assignment submission for user ${submission.userId}`,
-      metadata: { userId: submission.userId, assignmentId: submission.assignmentId },
+        metadata: { userId: submission.userId, classAssignmentId: submission.classAssignmentId },
     });
 
     return { ok: true };

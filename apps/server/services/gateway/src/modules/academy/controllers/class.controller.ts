@@ -293,5 +293,43 @@ export class ClassController {
     );
     return successResponse(result);
   }
+
+  // ==============================================================
+  // LEARNER PROGRESS
+  // ==============================================================
+
+  @Get(':id/progress')
+  @UseGuards(GatewayAuthGuard)
+  async getUserProgress(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const userId = req.requester.sub;
+    const progress = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.class.getUserProgress' },
+        { userId, classId: id },
+      ),
+    );
+    return successResponse(progress);
+  }
+
+  @Post(':id/lessons/:lessonId/complete')
+  @UseGuards(GatewayAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async markLessonComplete(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Param('lessonId', new ParseUUIDPipe()) lessonId: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const userId = req.requester.sub;
+    const result = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.class.markLessonComplete' },
+        { userId, classId: id, lessonId },
+      ),
+    );
+    return successResponse(result);
+  }
 }
 

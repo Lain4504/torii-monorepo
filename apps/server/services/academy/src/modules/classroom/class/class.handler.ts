@@ -2,19 +2,20 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { ClassService } from './class.service';
 import {
-  ClassContentItemCreateDto,
-  ClassContentItemUpdateDto,
+  ClassAssignmentCreateDto,
+  ClassAssignmentUpdateDto,
   ClassCreateDto,
   ClassDuplicateDto,
-  ClassModuleCreateDto,
-  ClassModuleUpdateDto,
   ClassQueryDto,
   ClassUpdateDto,
+  MarkLessonCompleteDto,
 } from './dto/class.dto';
 
 @Controller()
 export class ClassHandler {
   constructor(private readonly classes: ClassService) { }
+
+  // ==== Class CRUD ====
 
   @MessagePattern({ cmd: 'academy.class.findAll' })
   findAll(@Payload() query: ClassQueryDto) {
@@ -67,48 +68,9 @@ export class ClassHandler {
     return this.classes.completeClass(data.id, data.requesterId);
   }
 
-  @MessagePattern({ cmd: 'academy.class.cancel' })
-  cancel(@Payload() data: { id: string; requesterId?: string }) {
-    return this.classes.cancelClass(data.id, data.requesterId);
-  }
-
-  @MessagePattern({ cmd: 'academy.class.getCurriculum' })
-  getCurriculum(@Payload() data: { id: string }) {
-    return this.classes.getCurriculum(data.id);
-  }
-
-  @MessagePattern({ cmd: 'academy.class.addModule' })
-  addModule(@Payload() data: ClassModuleCreateDto) {
-    return this.classes.addModule(data);
-  }
-
-  @MessagePattern({ cmd: 'academy.class.updateModule' })
-  updateModule(
-    @Payload() data: { id: string; input: ClassModuleUpdateDto },
-  ) {
-    return this.classes.updateModule(data.id, data.input);
-  }
-
-  @MessagePattern({ cmd: 'academy.class.deleteModule' })
-  deleteModule(@Payload() data: { id: string }) {
-    return this.classes.deleteModule(data.id);
-  }
-
-  @MessagePattern({ cmd: 'academy.class.addContentItem' })
-  addContentItem(@Payload() data: ClassContentItemCreateDto) {
-    return this.classes.addContentItem(data);
-  }
-
-  @MessagePattern({ cmd: 'academy.class.updateContentItem' })
-  updateContentItem(
-    @Payload() data: { id: string; input: ClassContentItemUpdateDto },
-  ) {
-    return this.classes.updateContentItem(data.id, data.input);
-  }
-
-  @MessagePattern({ cmd: 'academy.class.deleteContentItem' })
-  deleteContentItem(@Payload() data: { id: string }) {
-    return this.classes.deleteContentItem(data.id);
+  @MessagePattern({ cmd: 'academy.class.archive' })
+  archive(@Payload() data: { id: string; requesterId?: string }) {
+    return this.classes.archiveClass(data.id, data.requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.class.delete' })
@@ -120,5 +82,39 @@ export class ClassHandler {
   duplicate(@Payload() data: { id: string; input?: ClassDuplicateDto; requesterId?: string }) {
     return this.classes.duplicate(data.id, data.input, data.requesterId);
   }
-}
 
+  // ==== Class Assignments ====
+
+  @MessagePattern({ cmd: 'academy.class.getAssignments' })
+  getAssignments(@Payload() data: { classId: string }) {
+    return this.classes.getAssignments(data.classId);
+  }
+
+  @MessagePattern({ cmd: 'academy.class.addAssignment' })
+  addAssignment(@Payload() data: ClassAssignmentCreateDto & { requesterId?: string }) {
+    const { requesterId, ...input } = data;
+    return this.classes.addAssignment(input, requesterId);
+  }
+
+  @MessagePattern({ cmd: 'academy.class.updateAssignment' })
+  updateAssignment(@Payload() data: { id: string; input: ClassAssignmentUpdateDto }) {
+    return this.classes.updateAssignment(data.id, data.input);
+  }
+
+  @MessagePattern({ cmd: 'academy.class.removeAssignment' })
+  removeAssignment(@Payload() data: { id: string; requesterId?: string }) {
+    return this.classes.removeAssignment(data.id, data.requesterId);
+  }
+
+  // ==== Lesson Progress ====
+
+  @MessagePattern({ cmd: 'academy.class.getUserProgress' })
+  getUserProgress(@Payload() data: { userId: string; classId: string }) {
+    return this.classes.getUserProgress(data.userId, data.classId);
+  }
+
+  @MessagePattern({ cmd: 'academy.class.markLessonComplete' })
+  markLessonComplete(@Payload() data: MarkLessonCompleteDto) {
+    return this.classes.markLessonComplete(data.userId, data.classId, data.lessonId);
+  }
+}

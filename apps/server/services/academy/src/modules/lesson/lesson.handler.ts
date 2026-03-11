@@ -1,18 +1,13 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import {
-  type AcademyLessonCreateDTO,
-  type AcademyLessonQueryDTO,
-  type AcademyLessonUpdateDTO,
-} from '@workspace/schemas';
-import { LessonService } from './lesson.service';
+import { LessonService, LessonCreateDto, LessonUpdateDto, LessonQueryDto } from './lesson.service';
 
 @Controller()
 export class LessonHandler {
   constructor(private readonly lessons: LessonService) { }
 
   @MessagePattern({ cmd: 'academy.lesson.findAll' })
-  findAll(@Payload() query: AcademyLessonQueryDTO) {
+  findAll(@Payload() query: LessonQueryDto) {
     return this.lessons.findAll(query);
   }
 
@@ -22,16 +17,13 @@ export class LessonHandler {
   }
 
   @MessagePattern({ cmd: 'academy.lesson.create' })
-  create(@Payload() data: AcademyLessonCreateDTO & { requesterId?: string }) {
+  create(@Payload() data: LessonCreateDto & { requesterId?: string }) {
     const { requesterId, ...input } = data;
     return this.lessons.create(input, requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.lesson.update' })
-  update(
-    @Payload()
-    data: { id: string; input: AcademyLessonUpdateDTO; requesterId?: string },
-  ) {
+  update(@Payload() data: { id: string; input: LessonUpdateDto; requesterId?: string }) {
     return this.lessons.update(data.id, data.input, data.requesterId);
   }
 
@@ -40,4 +32,3 @@ export class LessonHandler {
     return this.lessons.delete(data.id, data.requesterId);
   }
 }
-

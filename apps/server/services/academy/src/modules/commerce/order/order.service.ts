@@ -11,6 +11,7 @@ import {
   PaymentMethod,
   PaymentGateway,
   OfferingStatus,
+  ClassStatus,
 } from '@prisma/generated';
 import { CouponService } from '../coupon.service';
 import { PayOSService } from '../payos.service';
@@ -40,20 +41,10 @@ export class OrderService {
     if (!offeringIds.length) {
       throw new BadRequestException('offeringIds must not be empty');
     }
-    const now = new Date();
-
     const offerings = await this.prisma.courseOffering.findMany({
       where: {
         id: { in: offeringIds },
-        status: OfferingStatus.PUBLISHED,
-        AND: [
-          {
-            OR: [{ validFrom: null }, { validFrom: { lte: now } }],
-          },
-          {
-            OR: [{ validTo: null }, { validTo: { gte: now } }],
-          },
-        ],
+        status: { in: [OfferingStatus.PUBLISHED, OfferingStatus.OPENING] },
       },
       include: {
         classes: {
@@ -82,7 +73,10 @@ export class OrderService {
       }
       for (const offeringClass of offering.classes) {
         const klass = offeringClass.class;
-        if (klass.status !== 'ENROLLING' && klass.status !== 'IN_PROGRESS') {
+        if (
+          klass.status !== ClassStatus.OPENING &&
+          klass.status !== ClassStatus.ONGOING
+        ) {
           throw new BadRequestException(
             `Class ${klass.code} is in status ${klass.status}, not sellable`,
           );
@@ -90,10 +84,10 @@ export class OrderService {
       }
     }
 
-    const subTotal = offerings.reduce(
-      (sum, o) => sum + Number(o.originalPrice),
-      0,
-    );
+    const subTotal = offerings.reduce((sum, o) => {
+      const unitPrice = o.salePrice ?? o.price;
+      return sum + Number(unitPrice);
+    }, 0);
     let discountTotal = 0;
     let couponId: string | undefined;
 
@@ -146,7 +140,7 @@ export class OrderService {
         items: {
           create: preview.offerings.map((o) => ({
             offeringId: o.id,
-            price: o.originalPrice,
+            price: o.salePrice ?? o.price,
             offeringSnapshot: {
               title: o.title,
               code: o.code,
@@ -181,11 +175,14 @@ export class OrderService {
         description: payOsDescription,
         cancelUrl: `${webLearnerUrl}/payment/cancel?orderCode=${order.code}`,
         returnUrl: `${webLearnerUrl}/payment/success?orderCode=${order.code}`,
-        items: preview.offerings.map((o) => ({
-          name: o.title,
-          quantity: 1,
-          price: Number(o.originalPrice),
-        })),
+        items: preview.offerings.map((o) => {
+          const unitPrice = o.salePrice ?? o.price;
+          return {
+            name: o.title,
+            quantity: 1,
+            price: Number(unitPrice),
+          };
+        }),
       });
 
       await this.prisma.order.update({
@@ -340,9 +337,9 @@ export class OrderService {
             await this.enrollmentService.create(
               {
                 userId: order.userId,
+                offeringId: item.offeringId,
                 classId,
                 status: 'ACTIVE',
-                sourceOfferingId: item.offeringId,
                 sourceOrderId: order.id,
               },
               requesterId,
@@ -554,7 +551,7 @@ export class OrderService {
           select: {
             classId: true,
             status: true,
-            sourceOfferingId: true,
+            offeringId: true,
           },
         },
       },
@@ -579,7 +576,7 @@ export class OrderService {
         ? snapshot.classIds
         : fallbackClassMap.get(item.offeringId) ?? [];
       const enrolledClassIds = order.enrollments
-        .filter((enrollment) => enrollment.sourceOfferingId === item.offeringId)
+        .filter((enrollment) => enrollment.offeringId === item.offeringId)
         .map((enrollment) => enrollment.classId);
       const missingClassIds = expectedClassIds.filter(
         (classId) => !enrolledClassIds.includes(classId),

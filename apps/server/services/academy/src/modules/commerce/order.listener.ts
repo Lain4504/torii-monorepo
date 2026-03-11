@@ -3,6 +3,7 @@ import { EventPattern, Payload } from '@nestjs/microservices';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { EnrollmentService } from '../classroom/enrollment/enrollment.service';
 import { AuditLoggerService } from '../audit-logger.service';
+import { ClassStatus } from '@prisma/generated';
 
 @Controller()
 export class OrderListener {
@@ -47,20 +48,20 @@ export class OrderListener {
             for (const occ of item.offering.classes) {
                 const klass = occ.class;
 
-                // Rule: Enroll unconditionally if status is ENROLLING or IN_PROGRESS
-                if (klass.status !== 'ENROLLING' && klass.status !== 'IN_PROGRESS') {
+                    // Rule: Enroll only when LIVE class is OPENING or ONGOING
+                    if (klass.status !== ClassStatus.OPENING && klass.status !== ClassStatus.ONGOING) {
                     console.log(`[Academy] Skip enroll: Class ${klass.id} is ${klass.status}`);
                     continue;
                 }
 
                 try {
                     await this.enrollments.create({
-                        classId: klass.id,
                         userId: order.userId,
-                        sourceOfferingId: item.offeringId,
-                        sourceOrderId: order.id,
+                        offeringId: item.offeringId,
+                        classId: klass.id,
                         status: 'ACTIVE',
-                    });
+                        sourceOrderId: order.id,
+                    }, 'SYSTEM');
                     enrolledCount++;
                 } catch (err: any) {
                     // Ignore duplicate enrollment error or full class silently or log

@@ -3,7 +3,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, OfferingStatus, OrderType, ClassStatus } from '@prisma/generated';
+import {
+  Prisma,
+  OfferingStatus,
+  OrderType,
+  ClassStatus,
+  ClassMode,
+} from '@prisma/generated';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { AuditLoggerService } from '../../audit-logger.service';
 import {
@@ -69,14 +75,6 @@ export class CourseOfferingService {
             class: {
               include: {
                 courseProfile: true,
-                modules: {
-                  orderBy: { orderIndex: 'asc' },
-                  include: {
-                    items: {
-                      orderBy: { orderIndex: 'asc' },
-                    },
-                  },
-                },
                 instructor: {
                   select: {
                     displayName: true,
@@ -95,13 +93,15 @@ export class CourseOfferingService {
 
   async findPublicById(id: string) {
     const item = await this.findById(id);
-    if (item.status !== OfferingStatus.PUBLISHED) {
+    const isVodAndPublished =
+      item.mode === ClassMode.VOD && item.status === OfferingStatus.PUBLISHED;
+    const isLiveAndOpening =
+      item.mode === ClassMode.LIVE && item.status === OfferingStatus.OPENING;
+
+    if (!isVodAndPublished && !isLiveAndOpening) {
       throw new NotFoundException('CourseOffering not found');
     }
-    const now = new Date();
-    if ((item.validFrom && new Date(item.validFrom) > now) || (item.validTo && new Date(item.validTo) < now)) {
-      throw new NotFoundException('CourseOffering not found');
-    }
+
     return item;
   }
 
@@ -120,7 +120,7 @@ export class CourseOfferingService {
       throw new BadRequestException('Some classIds do not exist');
     }
 
-    const validStatuses: ClassStatus[] = [ClassStatus.ENROLLING, ClassStatus.IN_PROGRESS];
+    const validStatuses: ClassStatus[] = [ClassStatus.OPENING, ClassStatus.ONGOING];
     for (const cls of classes) {
       if (!validStatuses.includes(cls.status as ClassStatus)) {
         throw new BadRequestException(
@@ -176,13 +176,13 @@ export class CourseOfferingService {
         code: input.code,
         title: input.title,
         description: input.description,
-        originalPrice: new Prisma.Decimal(input.originalPrice),
+        price: new Prisma.Decimal(input.price),
+        salePrice: input.salePrice ? new Prisma.Decimal(input.salePrice) : null,
         currency: input.currency,
+        mode: input.mode as ClassMode,
+        syllabusId: input.syllabusId,
         status: (input.status as OfferingStatus) || OfferingStatus.DRAFT,
         type: (input.type as OrderType) || OrderType.COURSE,
-        validFrom: input.validFrom,
-        validTo: input.validTo,
-        metadata: input.metadata ?? undefined,
         classes: input.classIds?.length
           ? {
             create: input.classIds.map((classId) => ({ classId })),
@@ -200,7 +200,8 @@ export class CourseOfferingService {
       newValues: {
         code: offering.code,
         status: offering.status,
-        originalPrice: offering.originalPrice,
+        price: offering.price,
+        mode: offering.mode,
       },
     });
 
@@ -224,17 +225,19 @@ export class CourseOfferingService {
     let newStatus = (input.status as OfferingStatus) || offering.status;
     const criticalFieldsChanged =
       input.classIds !== undefined ||
-      (input.originalPrice !== undefined &&
-        Number(input.originalPrice) !== Number(offering.originalPrice)) ||
+      (input.price !== undefined &&
+        Number(input.price) !== Number(offering.price)) ||
+      (input.salePrice !== undefined &&
+        Number(input.salePrice) !== Number(offering.salePrice)) ||
       (input.title !== undefined && input.title !== offering.title) ||
-      input.validFrom !== undefined ||
-      input.validTo !== undefined;
+      (input.mode !== undefined && input.mode !== offering.mode) ||
+      (input.syllabusId !== undefined && input.syllabusId !== offering.syllabusId);
 
     let existingEnrollmentCount = 0;
     if (offering.status === OfferingStatus.PUBLISHED && criticalFieldsChanged) {
       newStatus = OfferingStatus.PENDING_APPROVAL; // Require re-approval
       existingEnrollmentCount = await this.prisma.enrollment.count({
-        where: { sourceOfferingId: id },
+        where: { offeringId: id },
       });
     }
 
@@ -253,16 +256,19 @@ export class CourseOfferingService {
       data: {
         title: input.title,
         description: input.description,
-        originalPrice:
-          input.originalPrice !== undefined
-            ? new Prisma.Decimal(input.originalPrice)
+        price:
+          input.price !== undefined
+            ? new Prisma.Decimal(input.price)
+            : undefined,
+        salePrice:
+          input.salePrice !== undefined
+            ? new Prisma.Decimal(input.salePrice)
             : undefined,
         currency: input.currency,
+        mode: (input.mode as ClassMode) || undefined,
+        syllabusId: input.syllabusId || undefined,
         status: newStatus,
         type: input.type as OrderType,
-        validFrom: input.validFrom,
-        validTo: input.validTo,
-        metadata: input.metadata ?? undefined,
         classes: input.classIds
           ? {
             deleteMany: {},
@@ -280,11 +286,13 @@ export class CourseOfferingService {
       description: `Updated course offering: ${offering.title} (${offering.code})`,
       oldValues: {
         status: offering.status,
-        originalPrice: offering.originalPrice,
+        price: offering.price,
+        mode: offering.mode,
       },
       newValues: {
         status: updated.status,
-        originalPrice: updated.originalPrice,
+        price: updated.price,
+        mode: updated.mode,
       },
       metadata:
         offering.status === OfferingStatus.PUBLISHED && criticalFieldsChanged
@@ -419,7 +427,7 @@ export class CourseOfferingService {
     const existingEnrollmentCount =
       offering.status === OfferingStatus.PUBLISHED
         ? await this.prisma.enrollment.count({
-          where: { sourceOfferingId: input.offeringId },
+          where: { offeringId: input.offeringId },
         })
         : 0;
 

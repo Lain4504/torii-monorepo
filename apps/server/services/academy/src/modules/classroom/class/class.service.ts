@@ -4,16 +4,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
-import { ClassStatus, Prisma } from '@prisma/generated';
+import { ClassStatus } from '@prisma/generated';
 import {
+  ClassAssignmentCreateDto,
+  ClassAssignmentUpdateDto,
   ClassCreateDto,
   ClassDuplicateDto,
   ClassQueryDto,
   ClassUpdateDto,
-  ClassModuleCreateDto,
-  ClassModuleUpdateDto,
-  ClassContentCreateDto,
-  ClassContentUpdateDto,
 } from './dto/class.dto';
 import { AuditLoggerService } from '../../audit-logger.service';
 
@@ -24,13 +22,19 @@ export class ClassService {
     private readonly audit: AuditLoggerService,
   ) { }
 
+  // ==============================================================
+  // CLASS CRUD
+  // ==============================================================
+
   async findAll(query: ClassQueryDto) {
     const q = query.q?.trim();
     return this.prisma.class.findMany({
       where: {
         courseProfileId: query.courseProfileId ?? undefined,
         mode: query.mode as any,
-        status: query.status as any, ...(q
+        status: query.status as any,
+        instructorId: query.instructorId ?? undefined,
+        ...(q
           ? {
             OR: [
               { code: { contains: q, mode: 'insensitive' } },
@@ -55,6 +59,15 @@ export class ClassService {
             id: true,
             title: true,
             code: true,
+            level: true,
+            thumbnailUrl: true,
+          },
+        },
+        syllabus: {
+          select: {
+            id: true,
+            versionLabel: true,
+            status: true,
           },
         },
       },
@@ -73,7 +86,34 @@ export class ClassService {
             avatarUrl: true,
           },
         },
+        courseProfile: {
+          select: {
+            id: true,
+            title: true,
+            code: true,
+            level: true,
+            thumbnailUrl: true,
+          },
+        },
+        syllabus: {
+          select: {
+            id: true,
+            versionLabel: true,
+            status: true,
+            modules: {
+              include: {
+                lessons: {
+                  orderBy: { orderIndex: 'asc' },
+                },
+              },
+              orderBy: { orderIndex: 'asc' },
+            },
+          },
+        },
         liveSchedules: true,
+        _count: {
+          select: { enrollments: true },
+        },
       },
     });
     if (!item) throw new NotFoundException('Class not found');
@@ -87,33 +127,34 @@ export class ClassService {
     });
     if (!profile) throw new BadRequestException('Invalid courseProfileId');
 
-    const syllabus = await this.prisma.syllabus.findUnique({
-      where: { id: input.syllabusId },
-    });
-    if (!syllabus) throw new BadRequestException('Invalid syllabusId');
+    if (input.syllabusId) {
+      const syllabus = await this.prisma.syllabus.findUnique({
+        where: { id: input.syllabusId },
+        select: { id: true },
+      });
+      if (!syllabus) throw new BadRequestException('Invalid syllabusId');
+    }
 
     return this.prisma.$transaction(async (tx) => {
       const classItem = await tx.class.create({
         data: {
           courseProfileId: input.courseProfileId,
-          syllabusId: input.syllabusId,
+          syllabusId: input.syllabusId ?? undefined,
           code: input.code,
           name: input.name,
           mode: input.mode as any,
           status: (input.status as ClassStatus) ?? 'DRAFT',
-          settings: input.settings ?? undefined,
-          defaultExpiresMonths: input.defaultExpiresMonths,
-          openingDate: input.openingDate,
-          closingDate: input.closingDate,
           instructorId: input.instructorId,
         },
       });
 
-      // Lock the syllabus
-      await tx.syllabus.update({
-        where: { id: input.syllabusId },
-        data: { isLocked: true },
-      });
+      // Lock the syllabus when it is linked
+      if (input.syllabusId) {
+        await tx.syllabus.update({
+          where: { id: input.syllabusId },
+          data: { status: 'LOCKED' },
+        });
+      }
 
       await this.audit.log({
         userId: requesterId,
@@ -145,20 +186,16 @@ export class ClassService {
         data: {
           name: input.name,
           status: input.status as ClassStatus,
-          settings: input.settings ?? undefined,
-          openingDate: input.openingDate,
-          closingDate: input.closingDate,
           instructorId: input.instructorId,
-          defaultExpiresMonths: input.defaultExpiresMonths,
           syllabusId: input.syllabusId,
         },
       });
 
-      // If syllabus was changed or set for the first time, lock it
+      // Lock the new syllabus if updated
       if (input.syllabusId && input.syllabusId !== classItem.syllabusId) {
         await tx.syllabus.update({
           where: { id: input.syllabusId },
-          data: { isLocked: true },
+          data: { status: 'LOCKED' },
         });
       }
 
@@ -176,29 +213,33 @@ export class ClassService {
     });
   }
 
+  // ==============================================================
+  // STATUS TRANSITIONS (Status-based, no date logic)
+  // ==============================================================
+
+  /** VOD: DRAFT → PUBLISHED / LIVE: DRAFT → OPENING */
   async publishClass(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.prisma.class.findUnique({
       where: { id },
-      include: {
-        liveSchedules: { take: 1 },
-      },
+      include: { liveSchedules: { take: 1 } },
     });
     if (!classItem) throw new NotFoundException('Class not found');
-    if (classItem.status !== 'DRAFT' && classItem.status !== 'PENDING_APPROVAL')
-      return classItem;
 
     if (classItem.mode === 'LIVE') {
+      if (!classItem.syllabusId) {
+        throw new BadRequestException('LIVE class must have a Syllabus before publishing');
+      }
       if (!classItem.liveSchedules || classItem.liveSchedules.length === 0) {
-        throw new BadRequestException(
-          'LIVE classes must have at least one LiveSchedule',
-        );
+        throw new BadRequestException('LIVE class must have at least one LiveSchedule');
       }
     }
+
+    const newStatus = classItem.mode === 'VOD' ? 'PUBLISHED' : 'OPENING';
 
     const result = await this.prisma.class.update({
       where: { id },
       data: {
-        status: 'ENROLLING',
+        status: newStatus as ClassStatus,
         approvedAt: new Date(),
         approvedBy: requesterId,
       },
@@ -209,8 +250,7 @@ export class ClassService {
       action: 'class.publish',
       entity: 'Class',
       entityId: id,
-      description: `Published (Approved) class ${classItem.code}`,
-      metadata: { code: classItem.code },
+      description: `Approved class ${classItem.code} → ${newStatus}`,
     });
 
     return result;
@@ -223,23 +263,19 @@ export class ClassService {
     });
     if (!classItem) throw new NotFoundException('Class not found');
     if (classItem.status !== 'DRAFT') {
-      throw new BadRequestException(
-        'Only DRAFT classes can be submitted for approval',
-      );
+      throw new BadRequestException('Only DRAFT classes can be submitted for approval');
     }
 
     if (classItem.mode === 'LIVE') {
       if (!classItem.liveSchedules || classItem.liveSchedules.length === 0) {
-        throw new BadRequestException(
-          'LIVE classes must have at least one LiveSchedule before submitting for approval',
-        );
+        throw new BadRequestException('LIVE class must have a LiveSchedule before submitting');
       }
     }
 
     const updated = await this.prisma.class.update({
       where: { id },
       data: {
-        status: 'PENDING_APPROVAL',
+        status: 'PENDING_APPROVAL' as ClassStatus,
         submittedForApprovalAt: new Date(),
         submittedBy: requesterId,
       },
@@ -257,16 +293,13 @@ export class ClassService {
   }
 
   async approve(id: string, requesterId: string) {
-    // Reuse publishClass logic
     return this.publishClass(id, requesterId);
   }
 
   async reject(id: string, reason: string, requesterId: string) {
     const classItem = await this.findById(id);
-    if (classItem.status !== 'PENDING_APPROVAL') {
-      throw new BadRequestException(
-        'Only PENDING_APPROVAL classes can be rejected',
-      );
+    if (classItem.status !== ('PENDING_APPROVAL' as ClassStatus)) {
+      throw new BadRequestException('Only PENDING_APPROVAL classes can be rejected');
     }
 
     const updated = await this.prisma.class.update({
@@ -284,20 +317,22 @@ export class ClassService {
       action: 'class.reject',
       entity: 'Class',
       entityId: id,
-      description: `Rejected class ${classItem.code} for reason: ${reason}`,
+      description: `Rejected class ${classItem.code}: ${reason}`,
       metadata: { reason },
     });
 
     return updated;
   }
 
+  /** LIVE: OPENING → ONGOING */
   async startClass(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
-    if (classItem.status === 'IN_PROGRESS') return classItem;
+    if (classItem.mode !== 'LIVE') throw new BadRequestException('Only LIVE classes can be started');
+    if (classItem.status === 'ONGOING') return classItem;
 
     const result = await this.prisma.class.update({
       where: { id },
-      data: { status: 'IN_PROGRESS' },
+      data: { status: 'ONGOING' as ClassStatus },
     });
 
     await this.audit.log({
@@ -307,19 +342,20 @@ export class ClassService {
       entityId: id,
       description: `Started class ${classItem.code}`,
       oldValues: { status: classItem.status },
-      newValues: { status: 'IN_PROGRESS' },
+      newValues: { status: 'ONGOING' },
     });
 
     return result;
   }
 
+  /** LIVE: ONGOING → COMPLETED */
   async completeClass(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
     if (classItem.status === 'COMPLETED') return classItem;
 
     const result = await this.prisma.class.update({
       where: { id },
-      data: { status: 'COMPLETED' },
+      data: { status: 'COMPLETED' as ClassStatus },
     });
 
     await this.audit.log({
@@ -328,203 +364,41 @@ export class ClassService {
       entity: 'Class',
       entityId: id,
       description: `Completed class ${classItem.code}`,
-      oldValues: { status: classItem.status },
-      newValues: { status: 'COMPLETED' },
     });
 
     return result;
   }
 
-  async cancelClass(id: string, requesterId = 'SYSTEM') {
+  /** VOD/LIVE: any → ARCHIVED */
+  async archiveClass(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
-    if (classItem.status === 'CANCELLED') return classItem;
+    if (classItem.status === 'ARCHIVED') return classItem;
 
     const result = await this.prisma.class.update({
       where: { id },
-      data: { status: 'CANCELLED' },
+      data: { status: 'ARCHIVED' as ClassStatus },
     });
 
     await this.audit.log({
       userId: requesterId,
-      action: 'class.cancel',
+      action: 'class.archive',
       entity: 'Class',
       entityId: id,
-      description: `Cancelled class ${classItem.code}`,
+      description: `Archived class ${classItem.code}`,
     });
 
     return result;
   }
 
-  async getCurriculum(id: string) {
-    const classItem = await this.prisma.class.findUnique({
-      where: { id },
-      select: { id: true, courseProfileId: true },
-    });
-
-    if (!classItem) throw new NotFoundException('Class not found');
-
-    const modules = await this.prisma.classModule.findMany({
-      where: { classId: id },
-      include: {
-        items: {
-          include: {
-            lesson: true,
-            overrideQuiz: true,
-            overrideExam: true,
-            overrideAssignment: true,
-          },
-          orderBy: { orderIndex: 'asc' },
-        },
-      },
-      orderBy: { orderIndex: 'asc' },
-    });
-
-    return {
-      classId: classItem.id,
-      courseProfileId: classItem.courseProfileId,
-      modules: modules.map((m) => ({
-        id: m.id,
-        title: m.title,
-        orderIndex: m.orderIndex,
-        items: m.items.map((it) => ({
-          id: it.id,
-          lessonId: it.lessonId,
-          lesson: it.lesson,
-          orderIndex: it.orderIndex,
-          openAt: it.openAt,
-          deadline: it.deadline,
-          overrideQuizId: it.overrideQuizId,
-          overrideExamId: it.overrideExamId,
-          overrideAssignmentId: it.overrideAssignmentId,
-          overrideQuiz: it.overrideQuiz,
-          overrideExam: it.overrideExam,
-          overrideAssignment: it.overrideAssignment,
-        })),
-      })),
-    };
-  }
-
-  async addModule(input: ClassModuleCreateDto) {
-    const klass = await this.prisma.class.findUnique({
-      where: { id: input.classId },
-      select: { id: true },
-    });
-    if (!klass) throw new NotFoundException('Class not found');
-
-    const nextOrder =
-      input.orderIndex ??
-      ((await this.prisma.classModule.count({
-        where: { classId: input.classId },
-      })) + 1);
-
-    return this.prisma.classModule.create({
-      data: {
-        classId: input.classId,
-        title: input.title,
-        orderIndex: nextOrder,
-      },
-    });
-  }
-
-  async updateModule(id: string, input: ClassModuleUpdateDto) {
-    const module = await this.prisma.classModule.findUnique({
-      where: { id },
-    });
-    if (!module) throw new NotFoundException('ClassModule not found');
-
-    return this.prisma.classModule.update({
-      where: { id },
-      data: {
-        title: input.title ?? undefined,
-        orderIndex: input.orderIndex ?? undefined,
-      },
-    });
-  }
-
-  async deleteModule(id: string) {
-    const module = await this.prisma.classModule.findUnique({
-      where: { id },
-      select: { id: true },
-    });
-    if (!module) throw new NotFoundException('ClassModule not found');
-
-    await this.prisma.classModule.delete({ where: { id } });
-    return { ok: true };
-  }
-
-  async addContent(input: ClassContentCreateDto) {
-    const module = await this.prisma.classModule.findUnique({
-      where: { id: input.moduleId },
-      select: { id: true, classId: true },
-    });
-    if (!module) throw new NotFoundException('ClassModule not found');
-
-    const nextOrder =
-      input.orderIndex ??
-      ((await this.prisma.classContent.count({
-        where: { moduleId: input.moduleId },
-      })) + 1);
-
-    return this.prisma.classContent.create({
-      data: {
-        classId: module.classId,
-        moduleId: input.moduleId,
-        lessonId: input.lessonId,
-        orderIndex: nextOrder,
-        openAt: input.openAt ?? null,
-        deadline: input.deadline ?? null,
-        overrideQuizId: input.overrideQuizId ?? null,
-        overrideExamId: input.overrideExamId ?? null,
-        overrideAssignmentId: input.overrideAssignmentId ?? null,
-      },
-    });
-  }
-
-  async updateContent(id: string, input: ClassContentUpdateDto) {
-    const item = await this.prisma.classContent.findUnique({
-      where: { id },
-    });
-    if (!item) throw new NotFoundException('ClassContent not found');
-
-    return this.prisma.classContent.update({
-      where: { id },
-      data: {
-        orderIndex: input.orderIndex ?? undefined,
-        openAt: input.openAt ?? undefined,
-        deadline: input.deadline ?? undefined,
-        overrideQuizId: input.overrideQuizId !== undefined ? input.overrideQuizId : undefined,
-        overrideExamId: input.overrideExamId !== undefined ? input.overrideExamId : undefined,
-        overrideAssignmentId: input.overrideAssignmentId !== undefined ? input.overrideAssignmentId : undefined,
-      },
-    });
-  }
-
-  async deleteContent(id: string) {
-    const item = await this.prisma.classContent.findUnique({
-      where: { id },
-      select: { id: true },
-    });
-    if (!item) throw new NotFoundException('ClassContent not found');
-
-    await this.prisma.classContent.delete({ where: { id } });
-    return { ok: true };
-  }
-
   async delete(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
-    if (classItem.status !== 'DRAFT' && classItem.status !== 'CANCELLED') {
-      throw new BadRequestException(
-        'Can only delete DRAFT or CANCELLED classes',
-      );
+    if (classItem.status !== 'DRAFT' && classItem.status !== 'ARCHIVED') {
+      throw new BadRequestException('Can only delete DRAFT or ARCHIVED classes');
     }
 
-    const enrollCount = await this.prisma.enrollment.count({
-      where: { classId: id },
-    });
+    const enrollCount = await this.prisma.enrollment.count({ where: { classId: id } });
     if (enrollCount > 0) {
-      throw new BadRequestException(
-        'Cannot delete class with existing enrollments',
-      );
+      throw new BadRequestException('Cannot delete class with existing enrollments');
     }
 
     await this.prisma.class.delete({ where: { id } });
@@ -534,39 +408,23 @@ export class ClassService {
       action: 'class.delete',
       entity: 'Class',
       entityId: id,
-      description: `Deleted class ${classItem.code} (status was: ${classItem.status})`,
-      metadata: { code: classItem.code, mode: classItem.mode },
+      description: `Deleted class ${classItem.code}`,
     });
 
     return { ok: true };
   }
 
-  async duplicate(
-    id: string,
-    input?: ClassDuplicateDto,
-    requesterId = 'SYSTEM',
-  ) {
+  /** Duplicate a class (copies liveSchedules, resets status to DRAFT) */
+  async duplicate(id: string, input?: ClassDuplicateDto, requesterId = 'SYSTEM') {
     const source = await this.prisma.class.findUnique({
       where: { id },
-      include: {
-        modules: {
-          include: {
-            items: true,
-          },
-        },
-        liveSchedules: true,
-      },
+      include: { liveSchedules: true },
     });
-
     if (!source) throw new NotFoundException('Class not found');
 
     let targetCode = input?.code || `${source.code}_COPY_${Date.now()}`;
-    const existing = await this.prisma.class.findUnique({
-      where: { code: targetCode },
-    });
-    if (existing) {
-      targetCode = `${targetCode}_${Math.floor(Math.random() * 1000)}`;
-    }
+    const existing = await this.prisma.class.findUnique({ where: { code: targetCode } });
+    if (existing) targetCode = `${targetCode}_${Math.floor(Math.random() * 1000)}`;
 
     const targetName = input?.name || `${source.name} (Bản sao)`;
 
@@ -579,10 +437,6 @@ export class ClassService {
           name: targetName,
           mode: source.mode,
           status: 'DRAFT',
-          settings: source.settings ?? undefined,
-          defaultExpiresMonths: source.defaultExpiresMonths,
-          openingDate: input?.openingDate || source.openingDate,
-          closingDate: input?.closingDate || source.closingDate,
           instructorId: input?.instructorId || source.instructorId,
         },
       });
@@ -602,125 +456,195 @@ export class ClassService {
         });
       }
 
-      for (const module of source.modules) {
-        const newModule = await tx.classModule.create({
-          data: {
-            classId: newClass.id,
-            title: module.title,
-            orderIndex: module.orderIndex,
-          },
-        });
-
-        for (const item of module.items) {
-          await tx.classContent.create({
-            data: {
-              classId: newClass.id,
-              moduleId: newModule.id,
-              lessonId: item.lessonId,
-              orderIndex: item.orderIndex,
-              openAt: item.openAt,
-              deadline: item.deadline,
-              overrideQuizId: item.overrideQuizId,
-              overrideExamId: item.overrideExamId,
-              overrideAssignmentId: item.overrideAssignmentId,
-            },
-          });
-        }
-      }
-
       await this.audit.log({
         userId: requesterId,
         action: 'class.duplicate',
         entity: 'Class',
         entityId: newClass.id,
-        description: `Duplicated class ${source.code} to ${targetCode}`,
+        description: `Duplicated class ${source.code} → ${targetCode}`,
         metadata: { sourceId: id, targetCode },
       });
 
       return tx.class.findUnique({
         where: { id: newClass.id },
         include: {
-          modules: {
-            include: {
-              items: {
-                include: { lesson: true }
-              }
-            }
-          },
-          instructor: {
-            select: {
-              id: true,
-              displayName: true,
-            },
-          },
+          instructor: { select: { id: true, displayName: true } },
+          liveSchedules: true,
         },
       });
     });
   }
 
-  private async duplicateExam(tx: any, examId: string) {
-    const sourceExam = await tx.exam.findUnique({
-      where: { id: examId },
+  // ==============================================================
+  // CLASS ASSIGNMENTS
+  // ==============================================================
+
+  async getAssignments(classId: string) {
+    return this.prisma.classAssignment.findMany({
+      where: { classId },
       include: {
-        sections: { include: { examQuestions: true } },
+        assignment: true,
+        _count: { select: { submissions: true } },
       },
+      orderBy: { openAt: 'asc' },
     });
-    if (!sourceExam) return examId;
+  }
 
-    const newExam = await tx.exam.create({
-      data: {
-        courseProfileId: sourceExam.courseProfileId,
-        title: `${sourceExam.title} (Bản sao)`,
-        description: sourceExam.description,
-        examType: sourceExam.examType,
-        level: sourceExam.level,
-        totalTimeLimitMinutes: sourceExam.totalTimeLimitMinutes,
-        status: 'DRAFT',
-        settings: sourceExam.settings ?? undefined,
-      },
+  async addAssignment(input: ClassAssignmentCreateDto, requesterId = 'SYSTEM') {
+    const klass = await this.prisma.class.findUnique({
+      where: { id: input.classId },
+      select: { id: true, mode: true },
     });
+    if (!klass) throw new NotFoundException('Class not found');
+    if (klass.mode !== 'LIVE') throw new BadRequestException('Assignments only apply to LIVE classes');
 
-    for (const section of sourceExam.sections) {
-      const newSection = await tx.examSection.create({
+    const assignment = await this.prisma.assignment.findUnique({
+      where: { id: input.assignmentId },
+      select: { id: true },
+    });
+    if (!assignment) throw new NotFoundException('Assignment not found');
+
+    try {
+      const result = await this.prisma.classAssignment.create({
         data: {
-          examId: newExam.id,
-          title: section.title,
-          instruction: section.instruction,
-          timeLimitSeconds: section.timeLimitSeconds,
-          orderIndex: section.orderIndex,
-          sectionType: section.sectionType,
-          metadata: section.metadata ?? undefined,
+          classId: input.classId,
+          assignmentId: input.assignmentId,
+          titleOverride: input.titleOverride ?? null,
+          openAt: input.openAt ?? null,
+          deadline: input.deadline ?? null,
         },
+        include: { assignment: true },
       });
 
-      if (section.examQuestions.length > 0) {
-        await tx.examQuestion.createMany({
-          data: section.examQuestions.map((q) => ({
-            examId: newExam.id,
-            sectionId: newSection.id,
-            questionId: q.questionId,
-            orderIndex: q.orderIndex,
-            points: q.points,
-            metadata: q.metadata ?? undefined,
-          })),
-        });
+      await this.audit.log({
+        userId: requesterId,
+        action: 'class_assignment.create',
+        entity: 'ClassAssignment',
+        entityId: result.id,
+        description: `Added assignment ${input.assignmentId} to class ${input.classId}`,
+      });
+
+      return result;
+    } catch (err: any) {
+      if (err?.code === 'P2002') {
+        throw new BadRequestException('This assignment is already added to this class');
       }
+      throw err;
+    }
+  }
+
+  async updateAssignment(id: string, input: ClassAssignmentUpdateDto) {
+    const item = await this.prisma.classAssignment.findUnique({ where: { id } });
+    if (!item) throw new NotFoundException('ClassAssignment not found');
+
+    return this.prisma.classAssignment.update({
+      where: { id },
+      data: {
+        titleOverride: input.titleOverride,
+        openAt: input.openAt,
+        deadline: input.deadline,
+      },
+      include: { assignment: true },
+    });
+  }
+
+  async removeAssignment(id: string, requesterId = 'SYSTEM') {
+    const item = await this.prisma.classAssignment.findUnique({ where: { id } });
+    if (!item) throw new NotFoundException('ClassAssignment not found');
+
+    await this.prisma.classAssignment.delete({ where: { id } });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'class_assignment.delete',
+      entity: 'ClassAssignment',
+      entityId: id,
+      description: `Removed ClassAssignment ${id} from class ${item.classId}`,
+    });
+
+    return { ok: true };
+  }
+
+  // ==============================================================
+  // USER LESSON PROGRESS
+  // ==============================================================
+
+  /** Get progress for a specific user in a class */
+  async getUserProgress(userId: string, classId: string) {
+    const klass = await this.prisma.class.findUnique({
+      where: { id: classId },
+      select: { id: true, syllabusId: true },
+    });
+    if (!klass) throw new NotFoundException('Class not found');
+    if (!klass.syllabusId) {
+      return {
+        classId,
+        userId,
+        totalLessons: 0,
+        completedLessons: 0,
+        progressPercent: 0,
+        lessons: [],
+      };
     }
 
-    return newExam.id;
+    const allLessons = await this.prisma.lesson.findMany({
+      where: {
+        module: {
+          syllabusId: klass.syllabusId,
+        },
+      },
+      select: { id: true },
+    });
+
+    const completedProgress = await this.prisma.userLessonProgress.findMany({
+      where: { userId, classId, isCompleted: true },
+      select: { lessonId: true, lastWatchedAt: true },
+    });
+
+    const completedIds = new Set(completedProgress.map((p) => p.lessonId));
+
+    return {
+      classId,
+      userId,
+      totalLessons: allLessons.length,
+      completedLessons: completedIds.size,
+      progressPercent:
+        allLessons.length > 0
+          ? Math.round((completedIds.size / allLessons.length) * 100)
+          : 0,
+      lessons: allLessons.map((l) => ({
+        lessonId: l.id,
+        isCompleted: completedIds.has(l.id),
+      })),
+    };
   }
 
-  private async assertPrimaryTeacherScheduleConflicts(
-    classId: string,
-    instructorId: string,
-  ) {
+  /** Mark a single lesson as complete */
+  async markLessonComplete(userId: string, classId: string, lessonId: string) {
+    return this.prisma.userLessonProgress.upsert({
+      where: { userId_classId_lessonId: { userId, classId, lessonId } },
+      create: {
+        userId,
+        classId,
+        lessonId,
+        isCompleted: true,
+        lastWatchedAt: new Date(),
+      },
+      update: {
+        isCompleted: true,
+        lastWatchedAt: new Date(),
+      },
+    });
+  }
+
+  // ==============================================================
+  // PRIVATE HELPERS
+  // ==============================================================
+
+  private async assertPrimaryTeacherScheduleConflicts(classId: string, instructorId: string) {
     const ownSchedules = await this.prisma.liveSchedule.findMany({
       where: { classId },
-      select: {
-        weekday: true,
-        startTime: true,
-        endTime: true,
-      },
+      select: { weekday: true, startTime: true, endTime: true },
     });
     if (ownSchedules.length === 0) return;
 
@@ -729,32 +653,16 @@ export class ClassService {
         classId: { not: classId },
         class: {
           instructorId,
-          status: {
-            in: ['DRAFT', 'PENDING_APPROVAL', 'ENROLLING', 'IN_PROGRESS'],
-          },
+          status: { in: ['DRAFT', 'PENDING_APPROVAL', 'OPENING', 'ONGOING'] as ClassStatus[] },
         },
       },
-      include: {
-        class: {
-          select: {
-            code: true,
-            name: true,
-          },
-        },
-      },
+      include: { class: { select: { code: true, name: true } } },
     });
 
     for (const ownSlot of ownSchedules) {
       for (const candidate of candidateSchedules) {
         if (candidate.weekday !== ownSlot.weekday) continue;
-        if (
-          this.isTimeOverlap(
-            ownSlot.startTime,
-            ownSlot.endTime,
-            candidate.startTime,
-            candidate.endTime,
-          )
-        ) {
+        if (this.isTimeOverlap(ownSlot.startTime, ownSlot.endTime, candidate.startTime, candidate.endTime)) {
           throw new BadRequestException(
             `Teacher schedule conflict with class ${candidate.class.code} (${candidate.class.name})`,
           );
@@ -763,19 +671,11 @@ export class ClassService {
     }
   }
 
-  private isTimeOverlap(
-    startA: string,
-    endA: string,
-    startB: string,
-    endB: string,
-  ) {
+  private isTimeOverlap(startA: string, endA: string, startB: string, endB: string) {
     const aStart = this.toMinutes(startA);
     const aEnd = this.toMinutes(endA);
     const bStart = this.toMinutes(startB);
     const bEnd = this.toMinutes(endB);
-    if (aEnd <= aStart || bEnd <= bStart) {
-      throw new BadRequestException('Invalid schedule time range');
-    }
     return aStart < bEnd && bStart < aEnd;
   }
 
@@ -783,14 +683,7 @@ export class ClassService {
     const [hourText, minuteText] = (time || '').split(':');
     const hour = Number(hourText);
     const minute = Number(minuteText);
-    if (
-      Number.isNaN(hour) ||
-      Number.isNaN(minute) ||
-      hour < 0 ||
-      hour > 23 ||
-      minute < 0 ||
-      minute > 59
-    ) {
+    if (Number.isNaN(hour) || Number.isNaN(minute) || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
       throw new BadRequestException(`Invalid time format: ${time}`);
     }
     return hour * 60 + minute;

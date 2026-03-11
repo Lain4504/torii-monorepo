@@ -1,20 +1,14 @@
-import {
-  IsBoolean,
-  IsDate,
-  IsEnum,
-  IsInt,
-  IsOptional,
-  IsString,
-  IsUUID,
-  MaxLength,
-} from 'class-validator';
+import { IsInt, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
+
+// --- Class DTOs ---
 
 export class ClassCreateDto {
   @IsUUID()
   courseProfileId!: string;
 
+  @IsOptional()
   @IsUUID()
-  syllabusId!: string;
+  syllabusId?: string;
 
   @IsString()
   @MaxLength(150)
@@ -25,64 +19,15 @@ export class ClassCreateDto {
   name!: string;
 
   @IsString()
-  @MaxLength(20)
   mode!: 'VOD' | 'LIVE';
 
-  // --- Common optional ---
   @IsOptional()
   @IsString()
-  @MaxLength(20)
   status?: string;
 
   @IsOptional()
   @IsUUID()
-  companyId?: string;
-
-  @IsOptional()
-  settings?: unknown;
-
-  // --- Live-only fields ---
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  term?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  batch?: string;
-
-  @IsOptional()
-  openingDate?: Date;
-
-  @IsOptional()
-  closingDate?: Date;
-
-  @IsOptional()
-  minStudents?: number;
-
-  @IsOptional()
-  @IsString()
-  minStudentsEnforcement?: 'STRICT' | 'NOTIFY' | 'DISABLED';
-
-  @IsOptional()
-  @IsUUID()
   instructorId?: string;
-
-  // --- Shared enrollment fields ---
-  @IsOptional()
-  enrollmentOpenAt?: Date;
-
-  @IsOptional()
-  enrollmentCloseAt?: Date;
-
-  @IsOptional()
-  maxStudents?: number;
-
-  // --- VOD-only fields ---
-  @IsOptional()
-  @IsInt()
-  defaultExpiresMonths?: number;
 }
 
 export class ClassUpdateDto {
@@ -93,67 +38,15 @@ export class ClassUpdateDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(20)
-  mode?: 'VOD' | 'LIVE';
-
-  // --- Live fields ---
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  term?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  batch?: string;
-
-  @IsOptional()
-  openingDate?: Date;
-
-  @IsOptional()
-  closingDate?: Date;
-
-  @IsOptional()
-  minStudents?: number;
-
-  @IsOptional()
-  @IsString()
-  minStudentsEnforcement?: 'STRICT' | 'NOTIFY' | 'DISABLED';
-
-  @IsOptional()
-  @IsUUID()
-  instructorId?: string;
-
-  // --- Shared enrollment fields ---
-  @IsOptional()
-  enrollmentOpenAt?: Date;
-
-  @IsOptional()
-  enrollmentCloseAt?: Date;
-
-  @IsOptional()
-  maxStudents?: number;
-
-  // --- VOD-only fields ---
-  @IsOptional()
-  @IsInt()
-  defaultExpiresMonths?: number;
+  status?: string;
 
   @IsOptional()
   @IsUUID()
   syllabusId?: string;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(20)
-  status?: string;
-
-  @IsOptional()
   @IsUUID()
-  companyId?: string;
-
-  @IsOptional()
-  settings?: unknown;
+  instructorId?: string;
 }
 
 export class ClassQueryDto {
@@ -170,27 +63,15 @@ export class ClassQueryDto {
   status?: string;
 
   @IsOptional()
+  @IsUUID()
+  instructorId?: string;
+
+  @IsOptional()
   @IsString()
   q?: string;
 }
 
 export class ClassDuplicateDto {
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  term?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  batch?: string;
-
-  @IsOptional()
-  openingDate?: Date;
-
-  @IsOptional()
-  closingDate?: Date;
-
   @IsOptional()
   @IsString()
   @MaxLength(150)
@@ -206,84 +87,49 @@ export class ClassDuplicateDto {
   instructorId?: string;
 }
 
-export class ClassModuleCreateDto {
+// --- ClassAssignment DTOs ---
+
+export class ClassAssignmentCreateDto {
   @IsUUID()
   classId!: string;
 
-  @IsString()
-  @MaxLength(255)
-  title!: string;
-
-  @IsOptional()
-  @IsInt()
-  orderIndex?: number;
-}
-
-export class ClassModuleUpdateDto {
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  title?: string;
-
-  @IsOptional()
-  @IsInt()
-  orderIndex?: number;
-}
-
-export class ClassContentCreateDto {
   @IsUUID()
-  moduleId!: string;
+  assignmentId!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  titleOverride?: string;
+
+  @IsOptional()
+  openAt?: Date;
+
+  @IsOptional()
+  deadline?: Date;
+}
+
+export class ClassAssignmentUpdateDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  titleOverride?: string;
+
+  @IsOptional()
+  openAt?: Date;
+
+  @IsOptional()
+  deadline?: Date;
+}
+
+// --- UserLessonProgress DTOs ---
+
+export class MarkLessonCompleteDto {
+  @IsUUID()
+  userId!: string;
+
+  @IsUUID()
+  classId!: string;
 
   @IsUUID()
   lessonId!: string;
-
-  @IsOptional()
-  @IsInt()
-  orderIndex?: number;
-
-  @IsOptional()
-  @IsDate()
-  openAt?: Date;
-
-  @IsOptional()
-  @IsDate()
-  deadline?: Date;
-
-  @IsOptional()
-  @IsUUID()
-  overrideQuizId?: string;
-
-  @IsOptional()
-  @IsUUID()
-  overrideExamId?: string;
-
-  @IsOptional()
-  @IsUUID()
-  overrideAssignmentId?: string;
-}
-
-export class ClassContentUpdateDto {
-  @IsOptional()
-  @IsInt()
-  orderIndex?: number;
-
-  @IsOptional()
-  @IsDate()
-  openAt?: Date;
-
-  @IsOptional()
-  @IsDate()
-  deadline?: Date;
-
-  @IsOptional()
-  @IsUUID()
-  overrideQuizId?: string;
-
-  @IsOptional()
-  @IsUUID()
-  overrideExamId?: string;
-
-  @IsOptional()
-  @IsUUID()
-  overrideAssignmentId?: string;
 }

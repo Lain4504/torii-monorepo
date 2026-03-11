@@ -63,7 +63,6 @@ export class CourseProfileService {
         description: input.description ?? null,
         level: input.level ?? null,
         thumbnailUrl: input.thumbnailUrl ?? null,
-        metadata: {},
       },
     });
 
@@ -111,49 +110,23 @@ export class CourseProfileService {
   }
 
   async archive(id: string, requesterId?: string) {
-    const before = await this.prisma.courseProfile.findUnique({ where: { id } });
-    if (!before) throw new NotFoundException('CourseProfile not found');
-
-    const merged = {
-      ...(typeof before.metadata === 'object' && before.metadata ? (before.metadata as any) : {}),
-      isArchived: true,
-      archivedAt: new Date().toISOString(),
-    };
-
-    const item = await this.prisma.courseProfile.update({
-      where: { id },
-      data: { metadata: merged as any },
-    });
-
-    if (requesterId) {
-      await this.audit.log({
-        userId: requesterId,
-        action: 'ARCHIVE',
-        entity: 'CourseProfile',
-        entityId: id,
-        description: `Archive course profile ${before.code}`,
-        oldValues: before,
-        newValues: item,
-      });
-    }
-
-    return item;
+    // V2: CourseProfile no longer has metadata/status for archiving.
+    // Keep endpoint for backward compatibility, but explicitly block usage.
+    throw new BadRequestException('Archive is not supported in Academy V2. Use delete instead.');
   }
 
   async delete(id: string, requesterId?: string) {
     const before = await this.prisma.courseProfile.findUnique({ where: { id } });
     if (!before) throw new NotFoundException('CourseProfile not found');
 
-    const [classes, syllabuses, exams, pools] = await this.prisma.$transaction([
+    const [classes, syllabuses] = await this.prisma.$transaction([
       this.prisma.class.count({ where: { courseProfileId: id } }),
       this.prisma.syllabus.count({ where: { courseProfileId: id } }),
-      this.prisma.exam.count({ where: { courseProfileId: id } }),
-      this.prisma.questionPool.count({ where: { courseProfileId: id } }),
     ]);
 
-    if (classes || syllabuses || exams || pools) {
+    if (classes || syllabuses) {
       throw new BadRequestException(
-        'Không thể xoá CourseProfile vì đã có dữ liệu liên quan (classes/syllabuses/exams/questionPools). Hãy dùng Lưu trữ.',
+        'Không thể xoá CourseProfile vì đã có dữ liệu liên quan (classes/syllabuses).',
       );
     }
 
@@ -184,21 +157,39 @@ export class CourseProfileService {
   }
 
   async createSyllabus(input: { courseProfileId: string; version: string; sourceSyllabusId?: string; requesterId?: string }) {
-    return this.syllabus.create(input.courseProfileId, input.version, input.sourceSyllabusId, input.requesterId);
+    return this.syllabus.create(
+      {
+        courseProfileId: input.courseProfileId,
+        versionLabel: input.version,
+        sourceSyllabusId: input.sourceSyllabusId,
+      },
+      input.requesterId,
+    );
   }
 
   async cloneSyllabus(input: { sourceSyllabusId: string; newVersion: string; requesterId?: string }) {
-    return this.syllabus.create('', input.newVersion, input.sourceSyllabusId, input.requesterId);
-    // Note: SyllabusService.create handles sourceId, but we might need to find the courseProfileId first
+    const source = await this.prisma.syllabus.findUnique({
+      where: { id: input.sourceSyllabusId },
+      select: { courseProfileId: true },
+    });
+    if (!source) throw new NotFoundException('Syllabus not found');
+    return this.syllabus.create(
+      {
+        courseProfileId: source.courseProfileId,
+        versionLabel: input.newVersion,
+        sourceSyllabusId: input.sourceSyllabusId,
+      },
+      input.requesterId,
+    );
   }
 
   async publishSyllabus(id: string, requesterId?: string) {
-    return this.syllabus.publish(id, requesterId);
+    throw new BadRequestException('Publish syllabus is not supported in Academy V2.');
   }
 
   async lockSyllabus(id: string, requesterId?: string) {
     // lock doesn't take requesterId in service yet, but we'll call it
-    return this.syllabus.lock(id);
+    return this.syllabus.lock(id, requesterId);
   }
 }
 

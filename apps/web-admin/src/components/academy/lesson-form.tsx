@@ -24,12 +24,9 @@ import {
   SelectValue,
 } from "@workspace/ui/components/select"
 
-import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
 import { LessonMediaUploader } from "@/components/academy/lesson-media-uploader"
 import type { AcademyLessonCreateDTO } from "@workspace/schemas"
 import { academyLessonCreateDTOSchema } from "@workspace/schemas"
-import { RichTextEditor } from "@/components/editor/rich-text-editor"
-import { AttachmentListEditor } from "@/components/academy/attachment-list-editor"
 
 interface LessonFormProps {
   defaultValues?: Partial<AcademyLessonCreateDTO>
@@ -54,22 +51,14 @@ export function LessonForm({
     resolver: zodResolver(academyLessonCreateDTOSchema),
     defaultValues: {
       title: "",
-      contentType: "VIDEO",
-      contentUrl: "",
-      contentBody: "",
-      attachments: undefined,
+      type: "VIDEO",
+      videoUrl: "",
       ...defaultValues,
     },
   })
 
-  const contentType = watch("contentType")
-  const showContentEditor = contentType === "VIDEO" || contentType === "MATERIAL"
-
-  const isMediaUrlType =
-    contentType === "VIDEO" ||
-    contentType === "MATERIAL"
-
-  const { data: profiles = [] } = useAcademyCourseProfiles({})
+  const contentType = watch("type")
+  const isMediaUrlType = contentType === "VIDEO"
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -83,36 +72,6 @@ export function LessonForm({
         <CardContent>
           <FieldGroup>
             <Controller
-              name="courseProfileId"
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Course Profile</FieldLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    disabled={mode === "edit"}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn Course Profile" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {profiles.map((p) => (
-                        <SelectItem key={p.id} value={p.id}>
-                          {p.code} - {p.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FieldDescription>
-                    Liên kết bài học với Course Profile tương ứng.
-                  </FieldDescription>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-
-            <Controller
               name="title"
               control={control}
               render={({ field, fieldState }) => (
@@ -125,7 +84,7 @@ export function LessonForm({
             />
 
             <Controller
-              name="contentType"
+              name="type"
               control={control}
               render={({ field, fieldState }) => (
                 <Field>
@@ -136,50 +95,17 @@ export function LessonForm({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="VIDEO">VIDEO · Bài giảng có video</SelectItem>
-                      <SelectItem value="MATERIAL">MATERIAL · Slide / PDF / Tài liệu</SelectItem>
+                      <SelectItem value="READING">READING · Bài đọc / tài liệu</SelectItem>
                     </SelectContent>
                   </Select>
                   <FieldDescription>
-                    Lesson Bank dùng để map vào Syllabus của Class. Với lớp LIVE, hệ thống có thể chỉ dùng phần tài liệu (ẩn video) tuỳ cấu hình Syllabus Item.
+                    Lesson dùng để map vào Module trong Syllabus (VIDEO/READING) theo schema V2.
                   </FieldDescription>
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </Field>
               )}
             />
           </FieldGroup>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Nội dung bài học</CardTitle>
-          <CardDescription>
-            Ghi chú / lý thuyết kèm theo bài học (tuỳ chọn).
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {showContentEditor ? (
-            <Controller
-              name="contentBody"
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Nội dung</FieldLabel>
-                  <RichTextEditor
-                    initialContent={field.value || ""}
-                    onUpdate={(data: string) =>
-                      field.onChange(data)
-                    }
-                  />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-          ) : (
-            <FieldDescription>
-              Nội dung văn bản chỉ áp dụng cho loại VIDEO hoặc MATERIAL.
-            </FieldDescription>
-          )}
         </CardContent>
       </Card>
 
@@ -194,7 +120,7 @@ export function LessonForm({
           <CardContent>
             <FieldGroup>
               <Controller
-                name="contentUrl"
+                name="videoUrl"
                 control={control}
                 render={({ field, fieldState }) => (
                   <LessonMediaUploader
@@ -211,9 +137,7 @@ export function LessonForm({
                         : "Chọn file tài liệu (PDF), hệ thống sẽ tự động upload lên storage."
                     }
                     accept={
-                      contentType === "VIDEO"
-                        ? "video/*"
-                        : "application/pdf"
+                      "video/*"
                     }
                     errorMessage={fieldState.error?.message}
                   />
@@ -223,27 +147,6 @@ export function LessonForm({
           </CardContent>
         </Card>
       )}
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Tài liệu đính kèm</CardTitle>
-          <CardDescription>
-            Thêm tài liệu tham khảo cho bài học.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Controller
-            name="attachments"
-            control={control}
-            render={({ field }) => (
-              <AttachmentListEditor
-                value={field.value || []}
-                onChange={field.onChange}
-              />
-            )}
-          />
-        </CardContent>
-      </Card>
 
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onCancel}>

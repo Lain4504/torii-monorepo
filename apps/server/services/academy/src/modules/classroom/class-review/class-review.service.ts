@@ -97,6 +97,9 @@ export class ClassReviewService {
         });
 
         if (!enrollment) throw new NotFoundException('Enrollment not found');
+        if (!enrollment.classId || !enrollment.class) {
+            throw new BadRequestException('Enrollment is not attached to a class');
+        }
         if (enrollment.userId !== userId) {
             throw new ForbiddenException('Enrollment does not belong to you');
         }
@@ -107,7 +110,12 @@ export class ClassReviewService {
         }
 
         // 2. Validate enrollment status eligibility
-        await this._validateEligibility(enrollment);
+        await this._validateEligibility({
+            status: enrollment.status,
+            classId: enrollment.classId,
+            userId: enrollment.userId,
+            class: enrollment.class,
+        });
 
         // 3. Ensure no existing review for this enrollment
         const existing = await this.prisma.classReview.findUnique({
@@ -271,9 +279,6 @@ export class ClassReviewService {
             data: {
                 status: newStatus,
                 publishedAt,
-                metadata: dto.reason
-                    ? { ...((review.metadata as Record<string, unknown>) ?? {}), moderationReason: dto.reason }
-                    : (review.metadata ?? undefined),
             },
         });
 
@@ -343,37 +348,20 @@ export class ClassReviewService {
         userId: string,
         classId: string,
     ): Promise<number> {
-        // Get all prerequisite content item ids for this class
-        const klass = await this.prisma.class.findUnique({
-            where: { id: classId },
-            include: {
-                modules: {
-                    include: {
-                        items: true,
-                    },
+        const totalLessons = await this.prisma.lesson.count({
+            where: {
+                module: {
+                    syllabus: { classes: { some: { id: classId } } },
                 },
             },
         });
+        if (totalLessons === 0) return 0;
 
-        if (!klass) return 0;
-
-        const prerequisiteItemIds = klass.modules
-            .flatMap((m) => m.items)
-            .filter((i) => i.isPrerequisite)
-            .map((i) => i.id);
-
-        if (prerequisiteItemIds.length === 0) return 100; // No prerequisites = eligible
-
-        const completed = await this.prisma.learningProgress.count({
-            where: {
-                userId,
-                classId,
-                contentItemId: { in: prerequisiteItemIds },
-                status: 'COMPLETED',
-            },
+        const completedLessons = await this.prisma.userLessonProgress.count({
+            where: { userId, classId, isCompleted: true },
         });
 
-        return Math.round((completed / prerequisiteItemIds.length) * 100);
+        return Math.round((completedLessons / totalLessons) * 100);
     }
 
     private _maskAnonymous(review: any) {

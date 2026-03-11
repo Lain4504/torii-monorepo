@@ -68,7 +68,10 @@ export class LessonController {
     @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.lesson.create' }, { ...dto, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.lesson.create' },
+        { ...dto, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse({ item });
   }

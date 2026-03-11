@@ -32,5 +32,10 @@ export class EnrollmentHandler {
   delete(@Payload() data: { id: string; requesterId?: string }) {
     return this.enrollments.delete(data.id, data.requesterId);
   }
+
+  @MessagePattern({ cmd: 'academy.enrollment.getStats' })
+  getStats(@Payload() data: { userId: string }) {
+    return this.enrollments.getLearnerStats(data.userId);
+  }
 }
 

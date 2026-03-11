@@ -1,6 +1,13 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
+import { SyllabusStatus } from '@prisma/generated';
 import { AuditLoggerService } from '../audit-logger.service';
+
+export interface SyllabusCreateDto {
+    courseProfileId: string;
+    versionLabel: string;
+    sourceSyllabusId?: string;
+}
 
 @Injectable()
 export class SyllabusService {
@@ -12,12 +19,10 @@ export class SyllabusService {
     async findAll(courseProfileId: string) {
         return this.prisma.syllabus.findMany({
             where: { courseProfileId },
-            orderBy: { version: 'desc' },
+            orderBy: { createdAt: 'desc' },
             include: {
-                _count: {
-                    select: { lessons: true, classes: true }
-                }
-            }
+                _count: { select: { modules: true, classes: true } },
+            },
         });
     }
 
@@ -25,10 +30,13 @@ export class SyllabusService {
         const item = await this.prisma.syllabus.findUnique({
             where: { id },
             include: {
-                lessons: {
-                    orderBy: { orderIndex: 'asc' }
-                }
-            }
+                modules: {
+                    include: {
+                        lessons: { orderBy: { orderIndex: 'asc' } },
+                    },
+                    orderBy: { orderIndex: 'asc' },
+                },
+            },
         });
         if (!item) throw new NotFoundException('Syllabus not found');
         return item;
@@ -36,46 +44,53 @@ export class SyllabusService {
 
     /**
      * Create a new Syllabus version.
-     * If sourceSyllabusId is provided, clones all lessons from it.
+     * If sourceSyllabusId is provided, clones all modules+lessons from it.
      */
-    async create(courseProfileId: string, version: string, sourceSyllabusId?: string, requesterId?: string) {
-        // Check if version already exists for this course
+    async create(input: SyllabusCreateDto, requesterId?: string) {
         const exists = await this.prisma.syllabus.findFirst({
-            where: { courseProfileId, version },
+            where: { courseProfileId: input.courseProfileId, versionLabel: input.versionLabel },
         });
-        if (exists) throw new BadRequestException(`Version ${version} already exists for this course.`);
+        if (exists) {
+            throw new BadRequestException(`Version "${input.versionLabel}" already exists for this course.`);
+        }
 
         return this.prisma.$transaction(async (tx) => {
             const syllabus = await tx.syllabus.create({
                 data: {
-                    courseProfileId,
-                    version,
-                    isPublished: false,
-                    isLocked: false,
+                    courseProfileId: input.courseProfileId,
+                    versionLabel: input.versionLabel,
+                    status: 'ACTIVE' as SyllabusStatus,
                 },
             });
 
-            if (sourceSyllabusId) {
-                const sourceLessons = await tx.lesson.findMany({
-                    where: { syllabusId: sourceSyllabusId },
+            // Clone from source if provided
+            if (input.sourceSyllabusId) {
+                const sourceModules = await tx.module.findMany({
+                    where: { syllabusId: input.sourceSyllabusId },
+                    include: { lessons: { orderBy: { orderIndex: 'asc' } } },
                     orderBy: { orderIndex: 'asc' },
                 });
 
-                for (const lesson of sourceLessons) {
-                    await tx.lesson.create({
+                for (const mod of sourceModules) {
+                    const newModule = await tx.module.create({
                         data: {
                             syllabusId: syllabus.id,
-                            title: lesson.title,
-                            type: lesson.type,
-                            orderIndex: lesson.orderIndex,
-                            quizId: lesson.quizId,
-                            examId: lesson.examId,
-                            assignmentId: lesson.assignmentId,
-                            contentUrl: lesson.contentUrl,
-                            contentBody: lesson.contentBody,
-                            attachments: lesson.attachments ?? undefined,
+                            title: mod.title,
+                            orderIndex: mod.orderIndex,
                         },
                     });
+
+                    for (const lesson of mod.lessons) {
+                        await tx.lesson.create({
+                            data: {
+                                moduleId: newModule.id,
+                                title: lesson.title,
+                                type: lesson.type,
+                                orderIndex: lesson.orderIndex,
+                                videoUrl: lesson.videoUrl ?? null,
+                            },
+                        });
+                    }
                 }
             }
 
@@ -85,8 +100,7 @@ export class SyllabusService {
                     action: 'syllabus.create',
                     entity: 'Syllabus',
                     entityId: syllabus.id,
-                    description: `Created syllabus version ${version} for course ${courseProfileId}${sourceSyllabusId ? ` cloned from ${sourceSyllabusId}` : ''}`,
-                    metadata: { version, sourceSyllabusId },
+                    description: `Created syllabus "${input.versionLabel}"${input.sourceSyllabusId ? ` (cloned from ${input.sourceSyllabusId})` : ''}`,
                 });
             }
 
@@ -94,70 +108,52 @@ export class SyllabusService {
         });
     }
 
-    async publish(id: string, requesterId?: string) {
+    /** Manually lock a syllabus */
+    async lock(id: string, requesterId?: string) {
         const syllabus = await this.prisma.syllabus.findUnique({ where: { id } });
         if (!syllabus) throw new NotFoundException('Syllabus not found');
 
-        const updated = await this.prisma.syllabus.update({
+        const result = await this.prisma.syllabus.update({
             where: { id },
-            data: { isPublished: true },
+            data: { status: 'LOCKED' as SyllabusStatus },
         });
 
         if (requesterId) {
             await this.audit.log({
                 userId: requesterId,
-                action: 'syllabus.publish',
+                action: 'syllabus.lock',
                 entity: 'Syllabus',
                 entityId: id,
-                description: `Published syllabus version ${syllabus.version}`,
+                description: `Locked syllabus "${syllabus.versionLabel}"`,
             });
         }
 
-        return updated;
-    }
-
-    /**
-     * Lock a syllabus (prevent lesson modifications).
-     * Usually called automatically when a Class links to this syllabus.
-     */
-    async lock(id: string) {
-        return this.prisma.syllabus.update({
-            where: { id },
-            data: { isLocked: true },
-        });
+        return result;
     }
 
     async delete(id: string, requesterId?: string) {
         const syllabus = await this.prisma.syllabus.findUnique({
             where: { id },
-            include: {
-                _count: {
-                    select: { classes: true }
-                }
-            }
+            include: { _count: { select: { classes: true } } },
         });
-
         if (!syllabus) throw new NotFoundException('Syllabus not found');
-        if (syllabus.isLocked || syllabus._count.classes > 0) {
-            throw new BadRequestException('Cannot delete a locked syllabus or a syllabus linked to active classes.');
+
+        if (syllabus.status === 'LOCKED' || syllabus._count.classes > 0) {
+            throw new BadRequestException('Cannot delete a locked syllabus or one linked to classes.');
         }
 
-        return this.prisma.$transaction(async (tx) => {
-            // Delete all lessons first
-            await tx.lesson.deleteMany({ where: { syllabusId: id } });
-            await tx.syllabus.delete({ where: { id } });
+        await this.prisma.syllabus.delete({ where: { id } });
 
-            if (requesterId) {
-                await this.audit.log({
-                    userId: requesterId,
-                    action: 'syllabus.delete',
-                    entity: 'Syllabus',
-                    entityId: id,
-                    description: `Deleted syllabus version ${syllabus.version}`,
-                });
-            }
+        if (requesterId) {
+            await this.audit.log({
+                userId: requesterId,
+                action: 'syllabus.delete',
+                entity: 'Syllabus',
+                entityId: id,
+                description: `Deleted syllabus "${syllabus.versionLabel}"`,
+            });
+        }
 
-            return { ok: true };
-        });
+        return { ok: true };
     }
 }

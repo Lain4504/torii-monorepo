@@ -6,48 +6,69 @@ import type {
     AcademyLearningProgressModel,
     AcademyEnrollmentModel
 } from '@workspace/schemas';
+import { academyEnrollmentApi } from './academy-enrollment-api';
 
 export const academyLearningProgressApi = {
     /**
      * Get current user's enrolled courses with progress
+     * Re-routed to enrollments/me which now includes progress data in V2
      */
     getMyCourses: async (): Promise<AcademyEnrollmentModel[]> => {
-        const response = await apiClient.get<StandardApiResponse<AcademyEnrollmentModel[]>>('/api/learning-progress/my-courses');
-        return response.data.data!;
+        const response = await academyEnrollmentApi.getMyEnrollments({ page: 1, limit: 100, status: 'ACTIVE' });
+        return response.data ?? [];
     },
 
     /**
-     * Track progress for a specific content item
-     * (contentItemId = class_content_items.id)
+     * Track progress for a specific lesson
+     * Maps to new class lesson completion endpoint
      */
-    trackProgress: async (payload: { contentItemId: string; classId: string; status: string; progressPercent: number }): Promise<any> => {
-        const response = await apiClient.post<StandardApiResponse<any>>('/api/learning-progress/track', payload);
+    trackProgress: async (payload: { lessonId: string; classId: string }): Promise<any> => {
+        const response = await apiClient.post<StandardApiResponse<any>>(
+            `/api/academy/classes/${payload.classId}/lessons/${payload.lessonId}/complete`
+        );
         return response.data.data!;
     },
 
     /**
-     * Get learning statistics for the current user
+     * Get learning statistics for current user
      */
     getStats: async (): Promise<AcademyLearningStats> => {
-        const response = await apiClient.get<StandardApiResponse<AcademyLearningStats>>('/api/learning-progress/stats');
+        const response = await apiClient.get<StandardApiResponse<AcademyLearningStats>>('/api/academy/enrollments/stats');
+        return response.data.data!;
+    },
+
+    /**
+     * Get progress detail for a specific class
+     */
+    getClassProgress: async (classId: string): Promise<any> => {
+        const response = await apiClient.get<StandardApiResponse<any>>(`/api/academy/classes/${classId}/progress`);
         return response.data.data!;
     },
 
     /**
      * Get IDs of completed content items for a specific class
-     * (IDs are class_content_items.id)
      */
     getCompletedLessonIds: async (classId: string): Promise<string[]> => {
-        const response = await apiClient.get<StandardApiResponse<string[]>>(`/api/learning-progress/completed-lessons/${classId}`);
-        return response.data.data!;
+        const data = await academyLearningProgressApi.getClassProgress(classId);
+        return data.lessons.filter((l: any) => l.isCompleted).map((l: any) => l.lessonId);
     },
 
     /**
      * Get user's learning history
      */
     getHistory: async (): Promise<AcademyLearningProgressModel[]> => {
-        const response = await apiClient.get<StandardApiResponse<AcademyLearningProgressModel[]>>('/api/learning-progress/history');
-        return response.data.data!;
+        // Redirection to gamification history as a fallback or if unified
+        const response = await apiClient.get<StandardApiResponse<any>>('/api/gamification/history');
+        return (response.data.data?.items ?? []).map((it: any) => ({
+            id: it.id,
+            userId: it.userId,
+            classId: it.metadata?.classId,
+            lessonId: it.metadata?.lessonId,
+            lessonTitle: it.description,
+            courseTitle: it.metadata?.courseTitle ?? 'Khóa học',
+            progressPercent: 100,
+            timestamp: it.createdAt,
+        }));
     }
 }
 
