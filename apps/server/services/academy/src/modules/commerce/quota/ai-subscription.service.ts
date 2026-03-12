@@ -52,16 +52,14 @@ export class AiSubscriptionService {
             where: { id: planId },
         });
 
-        const expiresAt = plan.billingCycle === 'LIFETIME'
-            ? null
-            : plan.billingCycle === 'YEARLY'
-                ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
-                : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days for MONTHLY
+        // Simplified: Fixed 30 days for all plans (Monthly only)
+        const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
         return this.prisma.aiUserSubscription.create({
             data: {
                 userId,
                 planId,
+                planCode: plan.code, // Redundant for fast lookups
                 status: 'ACTIVE',
                 startedAt: new Date(),
                 expiresAt,

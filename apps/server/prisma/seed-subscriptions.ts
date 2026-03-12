@@ -38,7 +38,7 @@ const plans = [
         name: 'Free',
         description: 'Dành cho người mới bắt đầu khám phá AI Sensei.',
         price: 0,
-        billingCycle: 'LIFETIME' as const,
+        billingCycle: 'MONTHLY' as const,
         quotas: { ai_turns: 10 },
         features: [
             '10 lượt check ngữ pháp/ngày',

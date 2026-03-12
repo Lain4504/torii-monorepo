@@ -80,7 +80,7 @@ export class QuotaService {
         }
 
         return {
-            tier: subscription.plan.code,
+            tier: subscription.planCode, // Fast lookup from simplified schema
             quotas: (subscription.plan.quotas as object) ?? {},
         };
     }

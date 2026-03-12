@@ -45,25 +45,7 @@ export class OrderService {
       throw new BadRequestException('offeringIds must not be empty');
     }
 
-    const isUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
-    const codeFilters = offeringIds.filter(o => !isUUID(o));
-    if (codeFilters.length > 0) {
-      const resolvedOfferings = await this.prisma.courseOffering.findMany({
-        where: { code: { in: codeFilters } },
-        select: { id: true, code: true }
-      });
-      offeringIds = offeringIds.map(o => {
-        const resolved = resolvedOfferings.find(ro => ro.code === o);
-        return resolved ? resolved.id : o;
-      });
-      if (offeringIds.some(o => !isUUID(o))) {
-        throw new BadRequestException('Some offering codes could not be resolved');
-      }
-    }
-
-    const now = new Date();
-
-    // 1. Fetch CourseOfferings
+    // 1. Fetch CourseOfferings (Strictly by ID as before)
     const courseOfferings = await this.prisma.courseOffering.findMany({
       where: {
         id: { in: offeringIds },
@@ -190,6 +172,7 @@ export class OrderService {
         code: orderCode,
         userId,
         status: OrderStatus.PENDING,
+        type: preview.offerings.some(o => o.type === 'SUBSCRIPTION') ? OrderType.SUBSCRIPTION : OrderType.COURSE,
         subTotal: new Prisma.Decimal(preview.subTotal),
         discountTotal: new Prisma.Decimal(preview.discountTotal),
         grandTotal: new Prisma.Decimal(preview.grandTotal),
@@ -433,28 +416,8 @@ export class OrderService {
         if (planCode) {
           const plan = await tx.aiSubscriptionPlan.findUnique({ where: { code: planCode } });
           if (plan) {
-            // Expire existing subscriptions
-            await tx.aiUserSubscription.updateMany({
-              where: { userId: order.userId, status: 'ACTIVE' },
-              data: { status: 'EXPIRED' },
-            });
-            // Activate new subscription
-            const expiresAt = plan.billingCycle === 'LIFETIME'
-              ? null
-              : plan.billingCycle === 'YEARLY'
-                ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
-                : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-            await tx.aiUserSubscription.create({
-              data: {
-                userId: order.userId,
-                planId: plan.id,
-                status: 'ACTIVE',
-                startedAt: new Date(),
-                expiresAt,
-                sourceOrderId: order.id,
-              },
-            });
-            this.logger.log(`AI subscription ${plan.code} activated for user ${order.userId}`);
+            // Use specialized service for activation (handles planCode and expiry)
+            await this.aiSubscriptionService.activateSubscription(order.userId, plan.id, order.id);
           }
         }
       }

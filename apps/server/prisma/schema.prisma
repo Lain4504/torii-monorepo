@@ -102,8 +102,6 @@ enum SubscriptionStatus {
 
 enum BillingCycle {
   MONTHLY
-  YEARLY
-  LIFETIME
 }
 
 enum ClassMode {
@@ -118,11 +116,6 @@ enum ClassStatus {
   ONGOING            // Đang học (LIVE only)
   COMPLETED          // Đã kết thúc (LIVE only)
   ARCHIVED           // Lưu trữ (VOD + LIVE)
-  // Legacy values kept for backward compatibility with existing DB data
-  PENDING_APPROVAL
-  ENROLLING
-  IN_PROGRESS
-  CANCELLED
 }
 
 enum MinStudentsEnforcement {
@@ -582,6 +575,7 @@ model Order {
   enrollments  Enrollment[]
   tickets      Ticket[]
   aiUserSubscriptions AiUserSubscription[]
+  type                OrderType            @default(COURSE)
 
   @@index([userId])
   @@index([status])
@@ -1479,11 +1473,10 @@ model AiUserSubscription {
   id            String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId        String             @map("user_id") @db.Uuid
   planId        String             @map("plan_id") @db.Uuid
+  planCode      String             @map("plan_code") @db.VarChar(50)
   status        SubscriptionStatus @default(ACTIVE)
   startedAt     DateTime           @default(now()) @map("started_at")
   expiresAt     DateTime?          @map("expires_at")
-  autoRenew     Boolean            @default(false) @map("auto_renew")
-  cancelledAt   DateTime?          @map("cancelled_at")
   sourceOrderId String?            @map("source_order_id") @db.Uuid
 
   user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
