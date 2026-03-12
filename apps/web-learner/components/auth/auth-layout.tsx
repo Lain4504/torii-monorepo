@@ -128,8 +128,7 @@ export function AuthLayout({
                         {/* Mobile logo */}
                         <div className="md:hidden flex justify-center mb-6">
                             <Link href="/" className="flex items-center gap-3">
-                                <Image src="/logo.png" alt="Torii Nihongo Logo" width={48} height={48} className="h-10 w-auto object-contain" priority />
-                                <div className="flex flex-col text-left">
+                                <Image src="/logo.png" alt="Torii Nihongo Logo" width={48} height={48} className="h-10 w-auto object-contain" priority />                                <div className="flex flex-col text-left">
                                     <span className="text-foreground text-xl font-black tracking-widest leading-none">TORII</span>
                                     <span className="text-muted-foreground text-[10px] font-bold tracking-[0.4em] leading-none mt-0.5">NIHONGO</span>
                                 </div>

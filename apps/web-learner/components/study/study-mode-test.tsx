@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAcademyTestQuiz as useTestQuiz } from '@/lib/api/services/academy-study-set-api';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
-import { ChevronLeft, Check, X, RefreshCw, Trophy, ArrowRight } from 'lucide-react';
-import { Progress } from '@workspace/ui/components/progress';
+import { ChevronLeft, RefreshCw, Trophy, ArrowRight, AlertCircle, Settings, ExternalLink } from 'lucide-react';
+import { toast } from 'sonner';
+import { StudyModeSelection } from './study-mode-selection';
+import confetti from 'canvas-confetti';
 
 interface Question {
     id: string;
@@ -15,6 +16,8 @@ interface Question {
     options: string[];
     answer: string;
     displayedAnswer?: string;
+    hint?: string;
+    phonetic?: string;
 }
 
 export function StudyModeTest({ setId }: { setId: string }) {
@@ -30,27 +33,16 @@ export function StudyModeTest({ setId }: { setId: string }) {
 
     const questions: Question[] = useMemo(() => {
         if (!rawQuestions) return [];
-        return rawQuestions.map((q: any) => {
-            if (q.type === 'multiple_choice') {
-                return {
-                    id: q.id,
-                    type: q.type,
-                    question: q.question,
-                    options: q.options ?? [],
-                    answer: q.correctAnswer,
-                } as Question;
-            }
-
-            // true_false
-            return {
-                id: q.id,
-                type: q.type,
-                question: q.question,
-                options: ['Đúng', 'Sai'],
-                answer: q.correctAnswer ? 'Đúng' : 'Sai',
-                displayedAnswer: q.displayedAnswer,
-            } as Question;
-        });
+        return rawQuestions.map((q: any) => ({
+            id: q.id,
+            type: q.type,
+            question: q.type === 'true_false' ? `${q.question} có nghĩa là "${q.displayedAnswer}"?` : q.question,
+            options: q.type === 'true_false' ? ['Đúng', 'Sai'] : (q.options ?? []),
+            answer: q.type === 'true_false' ? (q.correctAnswer ? 'Đúng' : 'Sai') : q.correctAnswer,
+            displayedAnswer: q.displayedAnswer,
+            hint: q.hint,
+            phonetic: q.phonetic || (q.type !== 'true_false' ? q.displayedAnswer : ''),
+        } as Question));
     }, [rawQuestions]);
 
     const currentQuestion = useMemo(() => {
@@ -86,173 +78,368 @@ export function StudyModeTest({ setId }: { setId: string }) {
         refetch();
     };
 
+    // Keyboard shortcuts
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (isLoading || testFinished || !currentQuestion) return;
+
+            if (!isAnswered) {
+                const key = e.key;
+                if (key >= '1' && key <= '4') {
+                    const idx = parseInt(key) - 1;
+                    if (currentQuestion.options[idx]) {
+                        handleOptionSelect(currentQuestion.options[idx]);
+                    }
+                }
+            } else if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                nextQuestion();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isLoading, testFinished, currentQuestion, isAnswered]);
+
     if (isLoading) {
         return (
-            <div className="flex-1 flex flex-col items-center justify-center space-y-4">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                <p className="text-muted-foreground animate-pulse">Đang chuẩn bị bài thi...</p>
+            <div 
+                className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 w-full bg-[#eef4ff] font-['Inter',_'Noto_Sans_JP',_sans-serif]" 
+                style={{ 
+                    backgroundImage: 'linear-gradient(#dde8f5 1px, transparent 1px), linear-gradient(90deg, #dde8f5 1px, transparent 1px)',
+                    backgroundSize: '25px 25px'
+                }}
+            >
+                <div className="flex flex-col items-center space-y-4">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-600"></div>
+                    <p className="text-slate-500 animate-pulse font-medium">Đang chuẩn bị bài thi...</p>
+                </div>
             </div>
         );
     }
 
     if (isError || !questions || questions.length === 0) {
         return (
-            <div className="flex-1 flex flex-col items-center justify-center space-y-4 h-[60vh]">
-                <div className="w-20 h-20 bg-destructive/10 text-destructive rounded-full flex items-center justify-center mb-4">
-                    <X className="size-10" />
-                </div>
-                <h2 className="text-2xl font-bold">Lỗi tải dữ liệu</h2>
-                <p className="text-muted-foreground text-center max-w-sm">
-                    Không thể chuẩn bị bài kiểm tra vào lúc này. Vui lòng đảm bảo bộ thẻ có ít nhất 4 thẻ.
-                </p>
-                <Button className="mt-4" onClick={() => router.push(`/dashboard/study-sets/${setId}`)}>
-                    <ChevronLeft className="mr-2 h-4 w-4" /> Về bộ thẻ
-                </Button>
-            </div>
-        );
-    }
-
-    if (testFinished) {
-        const percentage = Math.round((score / questions.length) * 100);
-        return (
-            <div className="flex-1 flex flex-col items-center justify-center max-w-2xl mx-auto w-full px-4 text-center">
-                <Card className="w-full border-primary/10 shadow-xl overflow-hidden">
-                    <div className="bg-primary/5 py-12 flex flex-col items-center border-b border-primary/10">
-                        <div className="w-24 h-24 bg-primary/20 text-primary rounded-full flex items-center justify-center mb-6 ring-4 ring-primary/5">
-                            <Trophy className="size-12" />
-                        </div>
-                        <h2 className="text-4xl font-bold mb-2">Hoàn thành!</h2>
-                        <div className="flex items-baseline gap-1 mt-2">
-                            <span className="text-5xl font-extrabold text-primary">{score}</span>
-                            <span className="text-xl text-muted-foreground">/ {questions.length}</span>
-                        </div>
-                        <p className="text-muted-foreground mt-2 font-medium">Bạn đạt {percentage}% câu trả lời đúng</p>
+            <div 
+                className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 w-full bg-[#eef4ff] font-['Inter',_'Noto_Sans_JP',_sans-serif]" 
+                style={{ 
+                    backgroundImage: 'linear-gradient(#dde8f5 1px, transparent 1px), linear-gradient(90deg, #dde8f5 1px, transparent 1px)',
+                    backgroundSize: '25px 25px'
+                }}
+            >
+                <div className="flex flex-col items-center space-y-4 max-w-sm text-center">
+                    <div className="w-20 h-20 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-4">
+                        <AlertCircle className="size-10" />
                     </div>
-                    <CardContent className="p-8 space-y-6">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="p-4 bg-muted/50 rounded-xl space-y-1">
-                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Đã trả lời đúng</p>
-                                <p className="text-2xl font-bold text-green-600">{score}</p>
-                            </div>
-                            <div className="p-4 bg-muted/50 rounded-xl space-y-1">
-                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Đã trả lời sai</p>
-                                <p className="text-2xl font-bold text-red-500">{questions.length - score}</p>
-                            </div>
-                        </div>
-                    </CardContent>
-                    <CardFooter className="p-8 pt-0 flex flex-col gap-3">
-                        <Button className="w-full h-12 text-lg font-bold" onClick={restart}>
-                            <RefreshCw className="mr-2 size-5" /> Làm bài lại
-                        </Button>
-                        <Button variant="outline" className="w-full h-12 text-lg" onClick={() => router.push(`/dashboard/study-sets/${setId}`)}>
-                            <ChevronLeft className="mr-2 size-5" /> Kết thúc
-                        </Button>
-                    </CardFooter>
-                </Card>
+                    <h2 className="text-2xl font-bold text-slate-800">Không thể tải bài thi</h2>
+                    <p className="text-slate-500">
+                        Vui lòng đảm bảo bộ thẻ của bạn có ít nhất 4 thẻ để tạo bài trắc nghiệm.
+                    </p>
+                    <Button className="mt-4 bg-[#00d26a] hover:bg-[#00b35a] text-white" onClick={() => router.push(`/dashboard/study-sets/${setId}`)}>
+                        <ChevronLeft className="mr-2 h-4 w-4" /> Quay lại bộ thẻ
+                    </Button>
+                </div>
             </div>
         );
     }
 
-    const progress = ((currentIndex) / questions.length) * 100;
+const TestResultScreen = ({ score, total, restart, setId, router }: { score: number, total: number, restart: () => void, setId: string, router: any }) => {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const percentage = Math.round((score / total) * 100);
+
+    useEffect(() => {
+        if (!canvasRef.current) return;
+        
+        const myConfetti = confetti.create(canvasRef.current, {
+            resize: true,
+            useWorker: true
+        });
+
+        const timer = setTimeout(() => {
+            // Play sound
+            const audio = new Audio('/freesound_community-piglevelwin2mp3-14800.mp3');
+            audio.volume = 0.5;
+            audio.play().catch(e => console.error("Audio playback failed:", e));
+
+            // Confetti effect
+            const duration = 3000;
+            const end = Date.now() + duration;
+
+            const frame = () => {
+                myConfetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0, y: 0.5 },
+                    colors: ['#00e676', '#3b82f6', '#f59e0b']
+                });
+                myConfetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1, y: 0.5 },
+                    colors: ['#00e676', '#3b82f6', '#f59e0b']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            };
+            frame();
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     return (
-        <div className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 py-6">
-            <div className="flex justify-between items-center mb-8">
-                <Button variant="ghost" onClick={() => router.push(`/dashboard/study-sets/${setId}`)}>
-                    <ChevronLeft className="mr-2 h-4 w-4" /> Thoát
-                </Button>
-                <div className="flex-1 max-w-[200px] mx-8">
-                    <Progress value={progress} className="h-2" />
-                </div>
-                <div className="text-sm font-bold text-muted-foreground bg-muted px-3 py-1 rounded-full">
-                    {currentIndex + 1} / {questions.length}
-                </div>
+        <div 
+            className="min-h-screen flex flex-col p-4 md:p-8 w-full overflow-x-hidden bg-[#eef4ff] font-['Inter',_'Noto_Sans_JP',_sans-serif]" 
+            style={{ 
+                backgroundImage: 'linear-gradient(#dde8f5 1px, transparent 1px), linear-gradient(90deg, #dde8f5 1px, transparent 1px)',
+                backgroundSize: '25px 25px'
+            }}
+        >
+            <div className="w-full max-w-4xl mx-auto space-y-12 pb-20 mt-4 md:mt-12 flex-1 flex flex-col justify-start">
+                <section className="w-full bg-[#242c42] rounded-3xl shadow-2xl overflow-hidden flex flex-col p-10 md:p-14 text-white relative border border-white/5">
+                    
+                    {/* Local Canvas for Confetti */}
+                    <canvas 
+                        ref={canvasRef} 
+                        className="absolute inset-0 w-full h-full pointer-events-none"
+                    />
+
+                    <div className="flex justify-between items-start mb-16 relative z-10 w-full">
+                        <h2 className="text-3xl md:text-[2.5rem] font-bold tracking-wide text-white">
+                            Tuyệt vời! Bạn đã hoàn thành bài kiểm tra.
+                        </h2>
+                        <span className="text-5xl ml-4 drop-shadow-lg">🏆</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10">
+                        {/* Left Col: Stats */}
+                        <div className="space-y-6">
+                            <h3 className="text-slate-400 font-medium tracking-tight">Kết quả của bạn</h3>
+                            
+                            <div className="flex items-center space-x-6 bg-white/5 p-6 rounded-2xl border border-white/5">
+                                {/* Circular Progress */}
+                                <div className="relative w-28 h-28 flex items-center justify-center shrink-0">
+                                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                        <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-white/10" />
+                                        <circle 
+                                            cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="8" fill="transparent" 
+                                            strokeDasharray="251.2" 
+                                            strokeDashoffset={251.2 * (1 - percentage / 100)} 
+                                            className="text-[#00e676] transition-all duration-1000 ease-out" 
+                                        />
+                                    </svg>
+                                    <span className="absolute text-2xl font-black tracking-tight text-white">{percentage}%</span>
+                                </div>
+                                
+                                <div className="space-y-3 flex-1">
+                                    <div className="flex justify-between items-center bg-[#00e676]/10 px-4 py-2 rounded-lg">
+                                        <span className="text-quiz-green font-bold">Chính xác</span>
+                                        <span className="font-bold text-xl text-white">{score} / {total}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center px-4 py-2 opacity-60">
+                                        <span className="text-slate-300 font-medium tracking-wide">Trạng thái</span>
+                                        <span className="font-bold text-white uppercase text-xs text-right">Hoàn tất</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Right Col: Actions */}
+                        <div className="space-y-6">
+                            <h3 className="text-slate-400 font-medium">Bước tiếp theo</h3>
+                            <div className="flex flex-col gap-4">
+                                <Button className="h-14 text-lg font-bold rounded-xl bg-[#00d26a] hover:bg-[#00b35a] text-white shadow-xl shadow-[#00d26a]/10" onClick={restart}>
+                                    <RefreshCw className="mr-3 size-5" /> THỬ LẠI
+                                </Button>
+                                <Button variant="outline" className="h-14 text-lg font-bold rounded-xl border-white/10 text-slate-300 hover:bg-white/5 hover:text-white" onClick={() => router.push(`/dashboard/study-sets/${setId}`)}>
+                                    <ChevronLeft className="mr-3 size-5" /> KẾT THÚC
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <StudyModeSelection selectedSetId={setId} selectedCount={total} activeMode="test" />
             </div>
+        </div>
+    );
+};
 
-            <div className="flex-1 flex flex-col">
-                <Card className="border-none shadow-none bg-transparent flex-1 mb-10 overflow-visible">
-                    <CardHeader className="text-center pb-12 px-0">
-                        <span className="text-primary font-semibold uppercase tracking-[0.2em] text-xs mb-4 block animate-in fade-in slide-in-from-bottom-2 duration-500">
-                            {currentQuestion?.type === 'multiple_choice' ? 'Câu hỏi trắc nghiệm' : 'Đúng hay Sai?'}
-                        </span>
-                        <h3 className="text-3xl md:text-5xl font-bold leading-tight balance animate-in fade-in slide-in-from-bottom-4 duration-700">
+if (testFinished) {
+    return (
+        <TestResultScreen 
+            score={score} 
+            total={questions.length} 
+            restart={restart} 
+            setId={setId} 
+            router={router} 
+        />
+    );
+}
+
+    const progress = ((currentIndex + 1) / questions.length) * 100;
+
+    return (
+        <div 
+            className="min-h-screen flex flex-col items-center p-4 md:p-8 w-full overflow-x-hidden bg-[#eef4ff] font-['Inter',_'Noto_Sans_JP',_sans-serif]" 
+            style={{ 
+                backgroundImage: 'linear-gradient(#dde8f5 1px, transparent 1px), linear-gradient(90deg, #dde8f5 1px, transparent 1px)',
+                backgroundSize: '25px 25px'
+            }}
+            data-purpose="quiz-page"
+        >
+            <div className="w-full max-w-5xl mx-auto flex flex-col space-y-4">
+                
+                {/* Top Navigation (Outside Card) */}
+                <div className="flex justify-between items-center text-slate-500 font-medium px-2">
+                    <button 
+                        onClick={() => router.push(`/dashboard/study-sets/${setId}`)}
+                        className="flex items-center gap-2 hover:text-slate-800 transition-colors"
+                    >
+                        <ChevronLeft className="h-5 w-5" />
+                        <span>Quay lại</span>
+                    </button>
+                    <div className="text-sm font-semibold">
+                        {currentIndex + 1} / {questions.length}
+                    </div>
+                </div>
+
+                {/* Progress Bar (Outside Card, Above Header) */}
+                <div className="w-full h-2.5 bg-slate-200/50 rounded-full overflow-hidden mb-2">
+                    <div 
+                        className="h-full bg-quiz-green transition-all duration-500 rounded-full"
+                        style={{ width: `${progress}%` }}
+                    />
+                </div>
+
+                {/* BEGIN: MainQuizCard */}
+                <main className="w-full bg-[#2c3652] rounded-[2rem] shadow-2xl p-8 md:p-12 relative overflow-hidden flex flex-col min-h-[600px] text-white" data-purpose="quiz-card">
+                    {/* BEGIN: Card Header */}
+                    <header className="flex justify-between items-center mb-16 relative z-10 w-full px-2">
+                        {/* Left side: Label */}
+                        <div className="flex items-center space-x-3 bg-white/5 px-4 py-2 rounded-xl border border-white/5" data-purpose="quiz-label">
+                            <span className="text-xl">🎯</span>
+                            <span className="text-[#00e676] font-bold text-lg tracking-wide">Trắc nghiệm</span>
+                        </div>
+                    </header>
+                    {/* END: Card Header */}
+
+                    {/* Question Section */}
+                    <section className="text-center mb-16 flex-1 flex flex-col justify-center animate-in fade-in zoom-in duration-500 relative z-10 w-full" data-purpose="question-display">
+                        <h1 className="text-4xl md:text-5xl font-medium mb-6 tracking-wide text-white px-4 leading-snug max-w-4xl mx-auto">
                             {currentQuestion?.question}
-                        </h3>
-                        {currentQuestion?.type === 'true_false' && currentQuestion.displayedAnswer && (
-                            <p className="mt-4 text-lg text-muted-foreground">
-                                Đáp án hiển thị: <span className="font-semibold text-foreground">{currentQuestion.displayedAnswer}</span>
-                            </p>
-                        )}
-                    </CardHeader>
+                        </h1>
+                        <div className="flex flex-col items-center">
+                            {currentQuestion?.phonetic && (
+                                <span className="text-blue-400 font-medium text-[15px] uppercase tracking-widest mb-2">
+                                    {currentQuestion.phonetic}
+                                </span>
+                            )}
+                            {currentQuestion?.hint && (
+                                <span className="text-slate-400 text-[15px]">
+                                    {currentQuestion.hint}
+                                </span>
+                            )}
+                        </div>
+                    </section>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-8 duration-900">
+                    {/* BEGIN: AnswerOptions */}
+                    <section className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 relative z-10 w-full px-4" data-purpose="answer-options">
                         {currentQuestion?.options.map((option, idx) => {
                             const isSelected = selectedOption === option;
                             const isCorrectAnswer = isAnswered && option === currentQuestion.answer;
                             const isWrongSelection = isAnswered && isSelected && !isCorrect;
 
-                            let variant: "outline" | "default" = "outline";
-                            let className = "relative h-24 text-lg font-medium transition-all group overflow-hidden ";
-
+                            let cardStyle = "p-6 rounded-[1rem] flex items-center group transition-all duration-200 text-left w-full h-[88px] border ";
+                            
                             if (isAnswered) {
                                 if (isCorrectAnswer) {
-                                    className += "border-green-500 bg-green-500/10 text-green-700 ring-4 ring-green-500/10";
+                                    cardStyle += "bg-quiz-green/20 border-quiz-green ring-2 ring-quiz-green/20";
                                 } else if (isWrongSelection) {
-                                    className += "border-red-500 bg-red-500/10 text-red-600 ring-4 ring-red-500/10";
+                                    cardStyle += "bg-red-500/20 border-red-500 ring-2 ring-red-500/20";
                                 } else {
-                                    className += "opacity-40 grayscale-[0.5]";
+                                    cardStyle += "bg-white/5 border-white/10 opacity-40";
                                 }
                             } else {
-                                className += "hover:border-primary hover:bg-primary/5 hover:translate-y-[-2px] hover:shadow-md";
+                                cardStyle += "bg-transparent border-white/10 hover:bg-white/5 hover:border-white/20 active:scale-[0.99]";
                             }
 
                             return (
-                                <Button
+                                <button
                                     key={idx}
-                                    variant={variant}
-                                    className={className}
                                     onClick={() => handleOptionSelect(option)}
                                     disabled={isAnswered}
+                                    className={cardStyle}
                                 >
-                                    <span className="z-10">{option}</span>
-                                    {isCorrectAnswer && (
-                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 bg-green-500 text-white p-1 rounded-full">
-                                            <Check className="size-4" />
-                                        </div>
-                                    )}
-                                    {isWrongSelection && (
-                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 bg-red-500 text-white p-1 rounded-full">
-                                            <X className="size-4" />
-                                        </div>
-                                    )}
-                                    <div className="absolute left-0 top-0 w-1 h-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-                                </Button>
+                                    <span className={`font-bold mr-6 transition-colors text-lg ${
+                                        isAnswered && (isCorrectAnswer || isWrongSelection) ? 'text-white' : 'text-slate-500 group-hover:text-white'
+                                    }`}>
+                                        {idx + 1}
+                                    </span>
+                                    <span className={`text-2xl font-normal tracking-wide flex-1 ${
+                                        isAnswered && isCorrectAnswer ? 'text-[#00d26a] font-bold' : isAnswered && isWrongSelection ? 'text-red-400 font-bold' : 'text-white drop-shadow-sm'
+                                    }`}>
+                                        {option}
+                                    </span>
+                                </button>
                             );
                         })}
-                    </div>
-                </Card>
+                    </section>
+                    {/* END: AnswerOptions */}
 
-                <div className="mt-auto pt-8 border-t flex justify-center sticky bottom-6 bg-background/80 flex-col gap-4">
-                    {isAnswered && (
-                        <div className={`p-4 rounded-xl flex items-center gap-4 animate-in zoom-in-95 duration-300 ${isCorrect ? 'bg-green-500/10 border border-green-500/20' : 'bg-red-500/10 border border-red-500/20'}`}>
-                            <div className={`size-10 rounded-full flex items-center justify-center shrink-0 ${isCorrect ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
-                                {isCorrect ? <Check className="size-6" /> : <X className="size-6" />}
-                            </div>
-                            <div className="flex-1">
-                                <p className={`font-bold text-lg ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
-                                    {isCorrect ? 'Chính xác!' : 'Rất tiếc, chưa đúng'}
-                                </p>
-                                {!isCorrect && (
-                                    <p className="text-sm text-red-600/80">Đáp án đúng là: <span className="font-bold underline">{currentQuestion?.answer}</span></p>
-                                )}
-                            </div>
-                            <Button size="lg" className="h-12 px-8 font-bold text-lg" onClick={nextQuestion}>
-                                {currentIndex === questions.length - 1 ? 'Xem kết quả' : 'Tiếp theo'} <ArrowRight className="ml-2 size-5" />
-                            </Button>
+                    {/* BEGIN: FooterActions */}
+                    <footer className="flex justify-between items-center mt-auto pt-6 relative z-10 w-full px-4 min-h-[50px]">
+                        <div className="flex-1">
+                            {isAnswered && (
+                                <div className="flex items-center gap-3 animate-in fade-in slide-in-from-left-4">
+                                    <span className={`font-bold uppercase tracking-widest text-sm ${isCorrect ? 'text-quiz-green' : 'text-red-400'}`}>
+                                        {isCorrect ? 'Chính xác!' : `Đáp án: ${currentQuestion?.answer}`}
+                                    </span>
+                                </div>
+                            )}
                         </div>
-                    )}
+
+                        <div className="flex items-center">
+                            {!isAnswered ? (
+                                <button className="flex items-center text-slate-400 hover:text-white transition text-sm font-medium group">
+                                    <ExternalLink className="h-4 w-4 mr-2 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                                    <span>Bạn không biết?</span>
+                                </button>
+                            ) : (
+                                <Button 
+                                    onClick={nextQuestion}
+                                    className="bg-quiz-green hover:bg-[#00b35a] text-white font-bold px-8 py-5 rounded-xl flex items-center gap-2 group shadow-xl transition-all"
+                                >
+                                    {currentIndex === questions.length - 1 ? 'XEM KẾT QUẢ' : 'TIẾP THEO'}
+                                    <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                                </Button>
+                            )}
+                        </div>
+                    </footer>
+                    {/* END: FooterActions */}
+                </main>
+                {/* END: MainQuizCard */}
+
+                {/* Keyboard Shortcut Info - Styled outside the card */}
+                <div className="mt-6 text-center text-slate-500 text-sm font-medium tracking-tight">
+                    Nhấn <span className="bg-white/60 px-2 py-1 rounded-sm text-slate-600 font-mono text-[11px] mx-1 border border-slate-200 shadow-sm">1-4</span> để chọn, 
+                    <span className="bg-white/60 px-2 py-1 rounded-sm text-slate-600 font-mono text-[11px] mx-1 border border-slate-200 shadow-sm">Space</span> để tiếp tục
                 </div>
+
+                {/* Reusable Mode Selection */}
+                <div className="pt-8 max-w-4xl mx-auto w-full">
+                    <StudyModeSelection selectedSetId={setId} selectedCount={questions.length} activeMode="test" />
+                </div>
+                
+                <footer className="py-8 text-center text-slate-400 text-[10px] font-bold tracking-[0.3em] uppercase opacity-60">
+                    © 2026 TORII LEARNING SYSTEM
+                </footer>
             </div>
         </div>
     );
 }
+
