@@ -161,9 +161,7 @@ export default function SubscriptionsPage() {
                                     <div className="py-4 border-y border-border/50">
                                         <div className="flex items-baseline gap-1">
                                             <span className="text-4xl font-black">{plan.price === 0 ? "0đ" : formatCurrency(plan.price)}</span>
-                                            <span className="text-muted-foreground font-bold text-sm">
-                                                {plan.billingCycle === 'LIFETIME' ? '' : plan.billingCycle === 'YEARLY' ? '/năm' : '/tháng'}
-                                            </span>
+                                            <span className="text-muted-foreground font-bold text-sm">/tháng</span>
                                         </div>
                                         <div className="mt-2 flex items-center gap-2 text-primary font-black text-sm">
                                             <Zap className="size-3.5 fill-primary" />

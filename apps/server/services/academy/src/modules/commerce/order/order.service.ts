@@ -13,6 +13,7 @@ import {
   PaymentGateway,
   OfferingStatus,
   ClassStatus,
+  OrderType,
 } from '@prisma/generated';
 import { CouponService } from '../coupon.service';
 import { PayOSService } from '../payos.service';
@@ -45,10 +46,13 @@ export class OrderService {
       throw new BadRequestException('offeringIds must not be empty');
     }
 
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const uuidOfferingIds = offeringIds.filter((id) => uuidRegex.test(id));
+
     // 1. Fetch CourseOfferings (Strictly by ID as before)
     const courseOfferings = await this.prisma.courseOffering.findMany({
       where: {
-        id: { in: offeringIds },
+        id: { in: uuidOfferingIds },
         status: { in: [OfferingStatus.PUBLISHED, OfferingStatus.OPENING] },
       },
       include: {
@@ -71,7 +75,7 @@ export class OrderService {
     const subscriptionPlans = await this.prisma.aiSubscriptionPlan.findMany({
       where: {
         OR: [
-          { id: { in: offeringIds } },
+          { id: { in: uuidOfferingIds } },
           { code: { in: offeringIds } }
         ],
         isActive: true,
@@ -172,6 +176,9 @@ export class OrderService {
         code: orderCode,
         userId,
         status: OrderStatus.PENDING,
+        metadata: input.paymentMethod === PaymentMethod.PAYOS ? {
+          numericOrderCode: Number(Date.now().toString().slice(-10)),
+        } : {},
         type: preview.offerings.some(o => o.type === 'SUBSCRIPTION') ? OrderType.SUBSCRIPTION : OrderType.COURSE,
         subTotal: new Prisma.Decimal(preview.subTotal),
         discountTotal: new Prisma.Decimal(preview.discountTotal),
@@ -182,16 +189,19 @@ export class OrderService {
         paymentMethod: input.paymentMethod,
         items: {
           create: preview.offerings.map((o) => ({
-            offeringId: o.id,
+            offering: o.type === 'COURSE' ? { connect: { id: o.id } } : undefined,
             price: o.salePrice ?? o.price,
             offeringSnapshot: {
-              title: o.title,
+              title: o.title || o.name,
               code: o.code,
               type: o.type, // CRITICAL: Identify item type for fulfillment
               classIds: offeringClassMap.get(o.id) ?? [],
             } as any,
           })),
         },
+      },
+      include: {
+        items: true,
       },
     });
 
@@ -207,44 +217,24 @@ export class OrderService {
     }
 
     if (input.paymentMethod === PaymentMethod.PAYOS) {
-      const numericOrderCode =
-        Number(Date.now().toString().slice(-9)) +
-        Math.floor(Math.random() * 1000);
-
-      const webLearnerUrl = this.appConfig.identity.webLearnerUrl;
-      // PayOS description has a strict max length (25 chars).
-      const payOsDescription = `DH ${order.code}`.slice(0, 25);
-
       const paymentLink = await this.payOS.createPaymentLink({
-        orderCode: numericOrderCode,
-        amount: preview.grandTotal,
-        description: payOsDescription,
-        cancelUrl: `${webLearnerUrl}/payment/cancel?orderCode=${order.code}`,
-        returnUrl: `${webLearnerUrl}/payment/success?orderCode=${order.code}`,
-        items: preview.offerings.map((o) => {
-          const unitPrice = o.salePrice ?? o.price;
-          return {
-            name: o.title,
-            quantity: 1,
-            price: Number(unitPrice),
-          };
-        }),
-      });
-
-      await this.prisma.order.update({
-        where: { id: order.id },
-        data: {
-          metadata: {
-            paymentLinkId: paymentLink.paymentLinkId,
-            numericOrderCode,
-            checkoutUrl: paymentLink.checkoutUrl,
-          } as any,
-        },
+        orderCode: (order.metadata as any).numericOrderCode,
+        amount: Number(preview.grandTotal),
+        description: `Thanh toan don hang ${order.code}`,
+        cancelUrl: `${this.appConfig.identity.webLearnerUrl}/dashboard/payment/subscriptions`,
+        returnUrl: `${this.appConfig.identity.webLearnerUrl}/dashboard/payment/subscriptions?status=success&orderCode=${order.code}`,
+        items: preview.offerings.map(o => ({
+          name: o.title || o.name,
+          quantity: 1,
+          price: Number(o.salePrice ?? o.price),
+        })),
       });
 
       return {
         orderCode: order.code,
+        id: order.id,
         paymentUrl: paymentLink.checkoutUrl,
+        status: OrderStatus.PENDING,
       };
     }
 
@@ -359,8 +349,10 @@ export class OrderService {
         },
       });
 
-      // Fulfillment: Enrollments
-      for (const item of order.items) {
+      // Fulfillment: Enrollments - only for items with an offeringId (COURSES)
+      for (const item of (order.items ?? [])) {
+        if (!item.offeringId) continue;
+
         const snapshot = (item.offeringSnapshot ?? {}) as {
           classIds?: string[];
         };
@@ -427,12 +419,12 @@ export class OrderService {
 
     // Emit notification via NATS (identity service will create in-app notification)
     try {
-      const firstItem = order.items[0];
+      const firstItem = order.items?.[0];
       const snapshot = (firstItem?.offeringSnapshot ?? {}) as {
         title?: string;
       };
       const courseTitle = snapshot.title || 'khóa học';
-      const itemCount = order.items.length;
+      const itemCount = order.items?.length || 0;
 
       const title = 'Thanh toán & ghi danh thành công 🎉';
       const message =
@@ -629,7 +621,8 @@ export class OrderService {
         const snapshot = (item.offeringSnapshot ?? {}) as { classIds?: string[] };
         return !Array.isArray(snapshot.classIds);
       })
-      .map((item) => item.offeringId);
+      .map((item) => item.offeringId)
+      .filter((id): id is string => id !== null);
 
     const fallbackClassMap = fallbackOfferingIds.length
       ? await this.getOfferingClassMap(fallbackOfferingIds)
@@ -639,7 +632,7 @@ export class OrderService {
       const snapshot = (item.offeringSnapshot ?? {}) as { classIds?: string[] };
       const expectedClassIds = Array.isArray(snapshot.classIds)
         ? snapshot.classIds
-        : fallbackClassMap.get(item.offeringId) ?? [];
+        : (item.offeringId ? fallbackClassMap.get(item.offeringId) : []) ?? [];
       const enrolledClassIds = order.enrollments
         .filter((enrollment) => enrollment.offeringId === item.offeringId)
         .map((enrollment) => enrollment.classId);
@@ -649,8 +642,8 @@ export class OrderService {
 
       return {
         offeringId: item.offeringId,
-        offeringCode: item.offering.code,
-        offeringTitle: item.offering.title,
+        offeringCode: item.offering?.code ?? (item.offeringSnapshot as any)?.code,
+        offeringTitle: item.offering?.title ?? (item.offeringSnapshot as any)?.title,
         expectedClassIds,
         enrolledClassIds,
         missingClassIds,

@@ -5,9 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider     = "prisma-client"
+  provider     = "prisma-client-js"
   output       = "../generated/prisma"
-  moduleFormat = "cjs"
 }
 
 datasource db {
@@ -95,9 +94,7 @@ enum OfferingStatus {
 
 enum SubscriptionStatus {
   ACTIVE
-  CANCELLED
   EXPIRED
-  PAUSED
 }
 
 enum BillingCycle {
@@ -586,13 +583,13 @@ model Order {
 model OrderItem {
   id               String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   orderId          String  @map("order_id") @db.Uuid
-  offeringId       String  @map("offering_id") @db.Uuid
+  offeringId       String? @map("offering_id") @db.Uuid
   price            Decimal @db.Decimal(12, 2)
   offeringSnapshot Json    @map("offering_snapshot") @db.JsonB
 
   // Relations
-  order    Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  offering CourseOffering @relation(fields: [offeringId], references: [id], onDelete: Cascade)
+  order    Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  offering CourseOffering? @relation(fields: [offeringId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
   @@index([offeringId])
