@@ -17,12 +17,10 @@ import {
   academyCourseProfileUpdateDTOSchema,
   type AcademyCourseProfileCreateDTO,
   type AcademyCourseProfileUpdateDTO,
-  COURSE_PROFILE_METADATA,
 } from "@workspace/schemas"
 import type { AcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
 import { LessonMediaUploader } from "./lesson-media-uploader"
 import { RichTextEditor } from "@/components/editor/rich-text-editor"
-import { KeyValueEditor } from "./key-value-editor"
 import {
   Tabs,
   TabsContent,
@@ -48,7 +46,7 @@ export function CourseProfileForm({
   mode: "create" | "edit"
   initial?: AcademyCourseProfile
   onSubmit: (
-    data: AcademyCourseProfileCreateDTO | AcademyCourseProfileUpdateDTO
+    data: any
   ) => Promise<void>
   onCancel: () => void
   submitting?: boolean
@@ -68,7 +66,6 @@ export function CourseProfileForm({
         description: initial?.description ?? undefined,
         level: initial?.level ?? undefined,
         thumbnailUrl: initial?.thumbnailUrl ?? undefined,
-        metadata: initial?.metadata ?? undefined,
       }
       : {
         code: "",
@@ -76,7 +73,6 @@ export function CourseProfileForm({
         description: undefined,
         level: "N5",
         thumbnailUrl: undefined,
-        metadata: undefined,
       },
   })
 
@@ -187,9 +183,9 @@ export function CourseProfileForm({
         </FieldSet>
 
         <FieldSet>
-          <FieldLegend>Hình ảnh & Metadata</FieldLegend>
+          <FieldLegend>Hình ảnh</FieldLegend>
           <FieldDescription>
-            Tải lên hình ảnh đại diện và các thông số bổ trợ khác.
+            Tải lên hình ảnh đại diện của khóa học.
           </FieldDescription>
           <FieldGroup>
             <Controller
@@ -204,24 +200,6 @@ export function CourseProfileForm({
                   accept="image/*"
                   errorMessage={fieldState.error?.message}
                 />
-              )}
-            />
-
-            <Controller
-              name={"metadata" as any}
-              control={control}
-              render={({ field }) => (
-                <Field>
-                  <FieldLabel>Cấu hình bổ sung (Metadata)</FieldLabel>
-                  <KeyValueEditor
-                    value={field.value || {}}
-                    onChange={field.onChange}
-                    presets={COURSE_PROFILE_METADATA}
-                  />
-                  <FieldDescription>
-                    Dùng để hiển thị các thông tin nhanh trên trang chi tiết khóa học.
-                  </FieldDescription>
-                </Field>
               )}
             />
           </FieldGroup>

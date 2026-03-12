@@ -38,7 +38,7 @@ export type LiveSessionUpdateDTO = z.infer<typeof liveSessionUpdateDTOSchema>;
 
 export interface LiveSessionResponseDTO {
     id: string;
-    courseRunId: string;
+    classId: string;
     lecturerId: string | null;
     title: string;
     description: string | null;

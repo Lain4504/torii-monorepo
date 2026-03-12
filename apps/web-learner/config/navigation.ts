@@ -42,11 +42,9 @@ export const learningNav: NavItem[] = [
     { name: 'Khám phá khóa học', href: '/dashboard/available-courses', icon: BookOpen },
     { name: 'Khóa học của tôi', href: '/dashboard/my-courses', icon: Clock },
     { name: 'Thời khóa biểu', href: '/dashboard/schedule', icon: CalendarDays },
+    { name: 'Thi thử JLPT', href: '/dashboard/jlpt-list-exam', icon: Languages },
     { name: 'Thẻ ghi nhớ', href: '/dashboard/study-sets', icon: BrainCircuit },
     { name: 'Ghi chú học tập', href: '/dashboard/study-notes', icon: FileText },
-]
-
-export const communityNav: NavItem[] = [
 ]
 
 export const progressNav: NavItem[] = [

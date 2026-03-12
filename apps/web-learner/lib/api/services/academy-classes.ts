@@ -8,18 +8,22 @@ import type {
 } from '@workspace/schemas';
 
 export interface CurriculumLesson {
-  id: string; // This is the ChapterItemId
+  id: string; // class_content_items.id
   title: string;
-  kind: string; // Backend ChapterItem.kind (e.g. LESSON, QUIZ_TEMPLATE, ASSIGNMENT_TEMPLATE)
+  kind: string; // 'VIDEO' | 'MATERIAL' | 'EXAM' | 'ASSIGNMENT' | 'TOPIC'
   isUnlocked: boolean;
   isPreview: boolean;
   order: number;
   videoDuration?: number;
-  referenceId: string; // The ID of the actual Lesson (video/article), AssignmentTemplate, or QuizTemplate
+  referenceId?: string | null; // ID của LessonBank / Exam / Assignment
+  status?: string | null;
+  availableFrom?: string | null;
+  deadline?: string | null;
+  isPrerequisite?: boolean;
 }
 
 export interface CurriculumModule {
-  id: string; // Chapter ID
+  id: string; // class_modules.id
   title: string;
   order: number;
   durationMinutes?: number;
@@ -57,9 +61,9 @@ export const academyClassesApi = {
   },
 
   /**
-   * Get curriculum for a class
+   * Get curriculum for a class (ClassModule/ClassContentItem)
    */
-  getCurriculum: async (id: string): Promise<any> => {
+  getCurriculum: async (id: string): Promise<{ courseId: string; modules: CurriculumModule[] } | null> => {
     const response = await apiClient.get<StandardApiResponse<{ curriculum: any }>>(
       `/api/academy/classes/${id}/curriculum`
     );
@@ -68,18 +72,24 @@ export const academyClassesApi = {
 
     return {
       courseId: data.classId,
-      modules: data.chapters.map((ch: any) => ({
-        id: ch.id,
-        title: ch.title,
-        order: ch.orderIndex,
-        lessons: ch.items.map((it: any) => ({
+      modules: (data.modules ?? []).map((m: any): CurriculumModule => ({
+        id: m.id,
+        title: m.title,
+        order: m.orderIndex,
+        durationMinutes: m.durationMinutes,
+        lessons: (m.items ?? []).map((it: any): CurriculumLesson => ({
           id: it.id,
-          title: it.title,
+          title: it.title ?? `${it.kind} #${it.orderIndex}`,
           kind: it.kind,
-          isUnlocked: true,
-          isPreview: false,
+          isUnlocked: it.isUnlocked ?? true,
+          isPreview: it.isPreview ?? false,
           order: it.orderIndex,
-          referenceId: it.referenceId,
+          videoDuration: it.videoDurationSeconds,
+          referenceId: it.referenceId ?? null,
+          status: it.status ?? null,
+          availableFrom: it.availableFrom ?? null,
+          deadline: it.deadline ?? null,
+          isPrerequisite: it.isPrerequisite ?? false,
         })),
       })),
     };

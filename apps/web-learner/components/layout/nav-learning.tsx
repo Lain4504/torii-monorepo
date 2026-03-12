@@ -31,7 +31,7 @@ export function NavLearning() {
                         if (isExpired) {
                             setShowExpiredModal(true)
                         } else {
-                            window.location.href = `/courses/${activeCourse.classId || activeCourse.courseRunId}/learn`
+                            window.location.href = `/courses/${activeCourse.classId}/learn`
                         }
                     }}
                     className={cn(

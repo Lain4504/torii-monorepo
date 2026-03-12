@@ -1,6 +1,5 @@
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMemo } from "react"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import {
@@ -46,7 +45,6 @@ import {
 } from "@workspace/schemas"
 import type { AcademyCourseOffering } from "@/lib/api/services/academy-course-offerings"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
-import { useAcademyCourseEditions } from "@/lib/api/services/academy-course-editions"
 import { useAcademyClasses } from "@/lib/api/services/academy-classes"
 import { RichTextEditor } from "@/components/editor/rich-text-editor"
 import { Badge } from "@workspace/ui/components/badge"
@@ -71,9 +69,6 @@ export function CourseOfferingForm({
   const { data: profilesData = [] } = useAcademyCourseProfiles({})
   const profiles = Array.isArray(profilesData) ? profilesData : (profilesData as any)?.items || []
 
-  const { data: editionsData = [] } = useAcademyCourseEditions({ status: "PUBLISHED" } as any)
-  const editions = Array.isArray(editionsData) ? editionsData : (editionsData as any)?.items || []
-
   const { handleSubmit, control, watch, setError } = useForm<
     AcademyCourseOfferingCreateDTO | AcademyCourseOfferingUpdateDTO
   >({
@@ -86,7 +81,6 @@ export function CourseOfferingForm({
       ? {
         title: initial?.title ?? "",
         courseProfileId: (initial as any)?.courseProfileId ?? undefined,
-        courseEditionId: (initial as any)?.courseEditionId ?? undefined,
         description: initial?.description ?? undefined,
         originalPrice: (initial as any)?.originalPrice ?? (initial as any)?.price ?? 0,
         currency: initial?.currency ?? "VND",
@@ -102,7 +96,6 @@ export function CourseOfferingForm({
         code: "",
         title: "",
         courseProfileId: undefined,
-        courseEditionId: undefined,
         description: undefined,
         originalPrice: 0,
         currency: "VND",
@@ -116,16 +109,11 @@ export function CourseOfferingForm({
   })
 
   const selectedProfileId = watch("courseProfileId" as any)
-  const selectedEditionId = watch("courseEditionId" as any)
   const offeringStatus = watch("status" as any)
 
-  const { data: classes = [] } = useAcademyClasses({
-    courseEditionId: selectedEditionId,
-  })
-  const filteredEditions = useMemo(() => {
-    if (!selectedProfileId) return editions
-    return editions.filter((e: any) => e.courseProfileId === selectedProfileId)
-  }, [selectedProfileId, editions])
+  const { data: classes = [] } = useAcademyClasses(
+    selectedProfileId ? { courseProfileId: selectedProfileId } as any : {} as any,
+  )
 
   return (
     <form
@@ -211,36 +199,6 @@ export function CourseOfferingForm({
                 )}
               />
 
-              <Controller
-                name={"courseEditionId" as any}
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Course Edition (Link)</FieldLabel>
-                    <Combobox
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      disabled={!selectedProfileId}
-                    >
-                      <ComboboxInput
-                        placeholder={selectedProfileId ? "Tìm Edition..." : "Chọn Profile trước..."}
-                      />
-                      <ComboboxContent>
-                        <ComboboxList>
-                          {filteredEditions.map((e: any) => (
-                            <ComboboxItem key={e.id} value={e.id}>
-                              {e.editionTag} ({e.status})
-                            </ComboboxItem>
-                          ))}
-                        </ComboboxList>
-                        <ComboboxEmpty>Không tìm thấy Edition nào.</ComboboxEmpty>
-                      </ComboboxContent>
-                    </Combobox>
-                    <FieldDescription>Gói này sẽ cấp quyền truy cập vào Edition này.</FieldDescription>
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
             </div>
 
             <FieldSeparator />
@@ -259,9 +217,9 @@ export function CourseOfferingForm({
                   <div className="grid gap-3 sm:grid-cols-2 mt-2 border rounded-md p-4 bg-muted/5">
                     {classes.length === 0 ? (
                       <div className="text-sm text-muted-foreground italic col-span-full">
-                        {selectedEditionId
-                          ? "Không tìm thấy lớp học nào cho Edition này."
-                          : "Vui lòng chọn Edition để xem danh sách lớp."}
+                        {selectedProfileId
+                          ? "Không tìm thấy lớp học nào cho Course Profile này."
+                          : "Vui lòng chọn Course Profile để xem danh sách lớp."}
                       </div>
                     ) : (
                       classes.map((c: any) => (
@@ -291,9 +249,6 @@ export function CourseOfferingForm({
                               </Badge>
                               <Badge variant={c.status === 'ENROLLING' ? 'default' : 'secondary'} className="text-[10px] h-4 px-1 uppercase font-bold">
                                 {c.status}
-                              </Badge>
-                              <Badge variant={c.courseEdition?.status === 'PUBLISHED' ? 'default' : 'secondary'} className="text-[10px] h-4 px-1 uppercase font-bold">
-                                Edition: {c.courseEdition?.status || "UNKNOWN"}
                               </Badge>
                               <span className="text-[10px] text-muted-foreground uppercase border-l pl-2">
                                 {c.mode}
@@ -478,7 +433,10 @@ export function CourseOfferingForm({
                     <FieldLabel>Ngày kết thúc bán</FieldLabel>
                     <Input type="date" {...field} />
                     <FieldDescription>
-                      Thời điểm gói này ngừng bán. Để trống nếu bán vĩnh viễn (Evergreen).
+                      Thời điểm gói này ngừng được hiển thị để đăng ký/mua trong catalog.
+                      Để trống nếu là gói bán dài hạn/evergreen (đặc biệt phù hợp với VOD – thời hạn học sẽ do từng lớp quy định, ví dụ qua
+                      <code className="mx-1 font-mono text-xs">defaultExpiresMonths</code>
+                      của lớp VOD).
                     </FieldDescription>
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>

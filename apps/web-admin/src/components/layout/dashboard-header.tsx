@@ -56,11 +56,9 @@ export function DashboardHeader() {
               const labels: Record<string, string> = {
                 'academy': 'Học viện',
                 'course-profiles': 'Hồ sơ khóa học',
-                'course-editions': 'Phiên bản',
                 'course-offerings': 'Gói bán',
                 'classes': 'Lớp học',
                 'lessons': 'Bài học',
-                'chapters': 'Chương',
                 'quizzes': 'Trắc nghiệm',
                 'assignments': 'Bài tập',
                 'exams': 'Kỳ thi',

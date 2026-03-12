@@ -7,7 +7,8 @@ import type {
 
 function normalizeOfferingForLearner(item: any) {
   const classes = Array.isArray(item?.classes) ? item.classes : [];
-  const firstClass = classes[0]?.class;
+  const firstClassLink = classes[0];
+  const firstClass = firstClassLink?.class;
   const profile = firstClass?.courseProfile;
   const classModes = classes
     .map((entry: any) => entry?.class?.mode)
@@ -17,8 +18,51 @@ function normalizeOfferingForLearner(item: any) {
   const rawPrice = item?.originalPrice ?? item?.price ?? 0;
   const parsedPrice = Number(rawPrice);
 
+  // Map V2 syllabus (modules/lessons) to legacy courseEdition.chapters structure
+  const syllabus =
+    firstClass?.syllabus ??
+    item?.syllabus ??
+    null;
+
+  let courseEdition = firstClass?.courseEdition;
+  if (!courseEdition && syllabus && Array.isArray(syllabus.modules)) {
+    const chapters = syllabus.modules.map((mod: any) => {
+      const lessons = Array.isArray(mod.lessons) ? mod.lessons : [];
+      return {
+        id: mod.id,
+        title: mod.title,
+        description: null,
+        // UI expects `items` with at least `id`, `title`, `kind`
+        items: lessons.map((lesson: any) => ({
+          id: lesson.id,
+          title: lesson.title,
+          kind: lesson.type || 'VIDEO',
+        })),
+        // No duration in schema yet
+        estimatedMinutes: null,
+      };
+    });
+    courseEdition = { chapters };
+  }
+
+  // Attach courseEdition back to primary class so existing UI can read it
+  const normalizedClasses = classes.map((link: any) => {
+    if (!link?.class) return link;
+    if (link === firstClassLink && courseEdition) {
+      return {
+        ...link,
+        class: {
+          ...link.class,
+          courseEdition,
+        },
+      };
+    }
+    return link;
+  });
+
   return {
     ...item,
+    classes: normalizedClasses,
     price: Number.isFinite(parsedPrice) ? parsedPrice : 0,
     thumbnailUrl:
       item?.thumbnailUrl ||
@@ -177,6 +221,7 @@ export function useAcademyOffering(id?: string) {
     queryKey: ['academy-course-offerings', 'id', id],
     queryFn: () => academyOfferingApi.getPublicById(id!),
     enabled: !!id,
+    retry: false,
   });
 }
 
@@ -188,5 +233,6 @@ export function useAcademyCourseById(courseId?: string) {
     queryKey: ['academy-course-profiles', 'id', courseId],
     queryFn: () => academyCourseApi.getCourseById(courseId!),
     enabled: !!courseId,
+    retry: false,
   });
 }

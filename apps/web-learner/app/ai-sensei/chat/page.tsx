@@ -1,3 +1,5 @@
+"use client"
+
 import { AiChatBot } from "@/components/ai-sensei/ai-chat-bot"
 import { SenseiPageHeader } from "@/components/ai-sensei/sensei-page-header"
 import { MessageSquare } from "lucide-react"

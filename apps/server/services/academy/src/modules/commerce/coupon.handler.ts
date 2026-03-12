@@ -18,6 +18,11 @@ export class CouponHandler {
         }
     }
 
+    @MessagePattern({ cmd: 'academy.coupon.getMyCoupons' })
+    getMyCoupons(@Payload() data: { userId: string }) {
+        return this.couponService.getMyCoupons(data.userId);
+    }
+
     // --- Admin CRUD ---
 
     @MessagePattern({ cmd: 'academy.coupon.admin.findAll' })

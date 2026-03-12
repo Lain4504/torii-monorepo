@@ -1,6 +1,8 @@
+"use client"
 import Link from 'next/link'
 import Image from 'next/image'
 import { type ReactNode } from 'react'
+import { useLogo } from '@/hooks/useLogo'
 
 interface AuthLayoutProps {
     /** Nội dung panel bên trái (desktop only) */
@@ -22,6 +24,7 @@ export function AuthLayout({
     children,
     footerText,
 }: AuthLayoutProps) {
+    const logo = useLogo();
     return (
         <main className="min-h-screen flex flex-col md:flex-row font-sans">
             <style>{`
@@ -61,7 +64,7 @@ export function AuthLayout({
                 {/* Top Branding */}
                 <div className="relative z-10">
                     <Link href="/" className="flex items-center gap-3 group transition-opacity hover:opacity-90">
-                        <Image src="/logo.png" alt="Torii Nihongo Logo" width={48} height={48} className="h-10 w-auto object-contain" priority />
+                        <Image src={logo} alt="Torii Nihongo Logo" width={64} height={64} className="invert h-12 w-auto object-contain" priority />
                         <div className="flex flex-col">
                             <span className="text-white text-xl font-black tracking-widest leading-none drop-shadow-md">TORII</span>
                             <span className="text-white text-[10px] font-bold tracking-[0.4em] leading-none opacity-90 mt-0.5">NIHONGO</span>

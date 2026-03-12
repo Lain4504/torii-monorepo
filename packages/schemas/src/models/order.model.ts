@@ -1,13 +1,12 @@
 import { z } from 'zod';
 
 export enum OrderStatus {
-    PENDING = 'pending',
-    PROCESSING = 'processing',
-    COMPLETED = 'completed',
-    FAILED = 'failed',
-    REFUNDED = 'refunded',
-    CANCELLED = 'cancelled',
-    TIMED_OUT = 'timed_out',
+    PENDING = 'PENDING',
+    PROCESSING = 'PROCESSING',
+    PAID = 'PAID',
+    CANCELLED = 'CANCELLED',
+    REFUNDED = 'REFUNDED',
+    FAILED = 'FAILED',
 }
 
 export enum PaymentMethod {

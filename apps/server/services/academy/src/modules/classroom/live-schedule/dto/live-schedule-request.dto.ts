@@ -12,14 +12,15 @@ import {
 
 export class LiveScheduleRequestCreateDto {
   @IsUUID()
-  liveScheduleId!: string;
+  sessionId!: string;
 
   @IsString()
   @IsIn(['LEAVE', 'RESCHEDULE'])
   type!: 'LEAVE' | 'RESCHEDULE';
 
+  @IsOptional()
   @IsDateString()
-  requestedDate!: string;
+  requestedDate?: string;
 
   @IsOptional()
   @IsDateString()
@@ -58,7 +59,7 @@ export class LiveScheduleRequestRejectDto {
 export class LiveScheduleRequestQueryDto {
   @IsOptional()
   @IsUUID()
-  liveScheduleId?: string;
+  sessionId?: string;
 
   @IsOptional()
   @IsString()
@@ -80,16 +81,14 @@ export class LiveScheduleRequestQueryDto {
 
 export class LiveScheduleConflictPreviewDto {
   @IsUUID()
-  liveClassId!: string;
+  classId!: string;
 
   @IsOptional()
   @IsUUID()
-  excludeScheduleId?: string;
+  excludeSessionId?: string;
 
-  @IsInt()
-  @Min(0)
-  @Max(6)
-  weekday!: number;
+  @IsDateString()
+  sessionDate!: string;
 
   @IsString()
   @MaxLength(20)

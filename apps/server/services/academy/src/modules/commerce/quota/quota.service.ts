@@ -113,9 +113,11 @@ export class QuotaService {
         const offering = activeSubscription.class.offeringLinks
             .find(oc => oc.offering.type === 'SUBSCRIPTION')?.offering;
 
+        const offeringMetadata = (offering as any)?.metadata;
+
         return {
             tier: offering?.code || 'free',
-            metadata: offering?.metadata || {},
+            metadata: offeringMetadata || {},
         };
     }
 

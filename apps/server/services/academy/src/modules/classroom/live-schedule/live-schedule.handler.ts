@@ -45,9 +45,24 @@ export class LiveScheduleHandler {
     return this.schedules.delete(data.id, data.requesterId);
   }
 
-  @MessagePattern({ cmd: 'academy.liveSession.join' })
-  join(@Payload() data: LiveSessionJoinDto & { isAdmin?: boolean }) {
-    return this.schedules.join(data.id, data.userId, data.isAdmin);
+  @MessagePattern({ cmd: 'academy.liveSession.joinBySessionId' })
+  joinBySessionId(@Payload() data: { sessionId: string; userId: string; isAdmin?: boolean }) {
+    return this.schedules.joinBySessionId(data.sessionId, data.userId, data.isAdmin);
+  }
+
+  @MessagePattern({ cmd: 'academy.liveSession.findAllByClassAndRange' })
+  async findAllSessionsByClassAndRange(
+    @Payload() data: { classId: string; from: string; to: string; requesterId?: string },
+  ) {
+    const fromDate = new Date(data.from);
+    const toDate = new Date(data.to);
+    await this.schedules.generateInstancesForClassRange(
+      data.classId,
+      fromDate,
+      toDate,
+      data.requesterId ?? 'SYSTEM',
+    );
+    return this.schedules.listSessionsForClassRange(data.classId, fromDate, toDate);
   }
 
   @MessagePattern({ cmd: 'academy.liveSchedule.previewConflict' })
@@ -55,12 +70,12 @@ export class LiveScheduleHandler {
     return this.schedules.previewConflict(input);
   }
 
-  @MessagePattern({ cmd: 'academy.liveScheduleRequest.findAll' })
+  @MessagePattern({ cmd: 'academy.liveSessionRequest.findAll' })
   findAllRequests(@Payload() query: LiveScheduleRequestQueryDto) {
     return this.schedules.findAllRequests(query);
   }
 
-  @MessagePattern({ cmd: 'academy.liveScheduleRequest.create' })
+  @MessagePattern({ cmd: 'academy.liveSessionRequest.create' })
   createRequest(
     @Payload() data: LiveScheduleRequestCreateDto & { requesterId: string },
   ) {
@@ -68,12 +83,12 @@ export class LiveScheduleHandler {
     return this.schedules.createRequest(input, requesterId);
   }
 
-  @MessagePattern({ cmd: 'academy.liveScheduleRequest.cancel' })
+  @MessagePattern({ cmd: 'academy.liveSessionRequest.cancel' })
   cancelRequest(@Payload() data: { id: string; requesterId: string }) {
     return this.schedules.cancelRequest(data.id, data.requesterId);
   }
 
-  @MessagePattern({ cmd: 'academy.liveScheduleRequest.approve' })
+  @MessagePattern({ cmd: 'academy.liveSessionRequest.approve' })
   approveRequest(
     @Payload()
     data: { id: string; input: LiveScheduleRequestApproveDto; reviewerId: string },
@@ -81,11 +96,16 @@ export class LiveScheduleHandler {
     return this.schedules.approveRequest(data.id, data.input, data.reviewerId);
   }
 
-  @MessagePattern({ cmd: 'academy.liveScheduleRequest.reject' })
+  @MessagePattern({ cmd: 'academy.liveSessionRequest.reject' })
   rejectRequest(
     @Payload()
     data: { id: string; input: LiveScheduleRequestRejectDto; reviewerId: string },
   ) {
     return this.schedules.rejectRequest(data.id, data.input, data.reviewerId);
+  }
+
+  @MessagePattern({ cmd: 'academy.liveSession.previewConflict' })
+  previewSessionConflict(@Payload() input: LiveScheduleConflictPreviewDto) {
+    return this.schedules.previewConflict(input);
   }
 }

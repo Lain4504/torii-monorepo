@@ -10,9 +10,9 @@ import type {
 
 export type AcademyLiveSchedule = {
   id: string
-  liveClassId: string
-  liveClass?: {
-    classId: string
+  classId: string
+  class?: {
+    id: string
   }
   weekday: number
   startTime: string

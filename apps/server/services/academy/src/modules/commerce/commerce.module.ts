@@ -7,9 +7,10 @@ import { CouponService } from './coupon.service';
 import { CouponHandler } from './coupon.handler';
 import { PayOSService } from './payos.service';
 import { EnrollmentModule } from '../classroom/enrollment/enrollment.module';
+import { NatsClientModule } from '@server/shared';
 
 @Module({
-  imports: [CourseOfferingModule, EnrollmentModule, QuotaModule],
+  imports: [CourseOfferingModule, EnrollmentModule, NatsClientModule, QuotaModule],
   controllers: [OrderHandler, CouponHandler],
   providers: [OrderService, CouponService, PayOSService],
   exports: [OrderService, CourseOfferingModule, CouponService, QuotaModule],

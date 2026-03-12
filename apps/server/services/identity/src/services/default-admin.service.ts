@@ -25,26 +25,28 @@ export class DefaultAdminService implements OnModuleInit {
 
   /**
    * Ensures a default admin user exists
-   * Only creates if no users exist in the database
+   * Only creates if the configured default admin does not exist yet
    */
   private async ensureDefaultAdmin(): Promise<void> {
     try {
-      // Check if any users exist
-      const userCount = await this.prisma.user.count();
-
-      if (userCount > 0) {
-        this.logger.log(
-          '✅ Users already exist. Skipping default admin creation.',
-        );
-        return;
-      }
-
       // Get default admin credentials from configuration
       const {
         email: adminEmail,
         password: adminPassword,
         displayName: adminDisplayName,
       } = this.appConfig.identity.defaultAdmin;
+
+      // Check if default admin already exists by email
+      const existingAdmin = await this.prisma.user.findUnique({
+        where: { email: adminEmail },
+      });
+
+      if (existingAdmin) {
+        this.logger.log(
+          `✅ Default admin already exists with email ${adminEmail}. Skipping creation.`,
+        );
+        return;
+      }
 
       // Hash the password
       const hashedPassword = await argon2.hash(adminPassword);

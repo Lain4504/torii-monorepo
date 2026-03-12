@@ -355,22 +355,30 @@ export default function TakeExamPage() {
     const currentQuestion = questions[currentQuestionIndex]
 
     return (
-        <div className="flex flex-col h-screen overflow-hidden">
+        <div className="flex flex-col h-screen overflow-hidden bg-background">
             {/* Header */}
-            <header className="h-16 border-b bg-background flex items-center justify-between px-4 sm:px-6 shrink-0 z-20">
-                <div className="flex items-center gap-4">
-                    <Link href="/dashboard/exams" className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-                        <X className="w-6 h-6" />
+            <header className="bg-card border-b border-border px-4 sm:px-6 py-3 flex items-center justify-between gap-4 shrink-0 z-20">
+                <div className="flex items-center gap-3">
+                    <Link
+                        href="/dashboard/exams"
+                        className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                    >
+                        <X className="w-5 h-5" />
                     </Link>
-                    <div className="hidden sm:block font-bold text-lg text-foreground">
-                        {examTitle}
+                    <div className="flex flex-col">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                            Bài kiểm tra / Quiz
+                        </p>
+                        <p className="text-sm md:text-base font-bold text-foreground line-clamp-1">
+                            {examTitle}
+                        </p>
                     </div>
                 </div>
 
                 {timeLimit > 0 && (
                     <ExamTimer
                         durationMinutes={Math.ceil(timeLimit / 60)}
-                        initialSeconds={typeof timeRemaining === 'number' ? timeRemaining : timeLimit}
+                        initialSeconds={typeof timeRemaining === "number" ? timeRemaining : timeLimit}
                         onTimeUp={handleTimeUp}
                         onTimeUpdate={handleTimeUpdate}
                     />
@@ -380,6 +388,7 @@ export default function TakeExamPage() {
                     onClick={handleSubmit}
                     variant="outline"
                     className="border-primary text-primary hover:bg-primary/10"
+                    disabled={isSubmitting}
                 >
                     Nộp bài
                 </Button>
@@ -395,44 +404,50 @@ export default function TakeExamPage() {
                                 <Menu className="w-6 h-6" />
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="right" className="!w-full sm:!max-w-[800px] flex flex-col p-0 border-l">
-                            <QuestionNavigator
-                                questions={questions}
-                                currentIndex={currentQuestionIndex}
-                                answers={answers}
-                                flags={flags}
-                                onSelect={setCurrentQuestionIndex}
-                            />
+                        <SheetContent side="left" className="w-full sm:max-w-[320px] p-0">
+                            <div className="h-full flex flex-col rounded-2xl border bg-card overflow-hidden">
+                                <QuestionNavigator
+                                    questions={questions}
+                                    currentIndex={currentQuestionIndex}
+                                    answers={answers}
+                                    flags={flags}
+                                    onSelect={setCurrentQuestionIndex}
+                                />
+                            </div>
                         </SheetContent>
                     </Sheet>
                 </div>
 
                 {/* Desktop Sidebar */}
-                <aside className="hidden lg:block w-80 border-r bg-muted/50">
-                    <QuestionNavigator
-                        questions={questions}
-                        currentIndex={currentQuestionIndex}
-                        answers={answers}
-                        flags={flags}
-                        onSelect={setCurrentQuestionIndex}
-                    />
+                <aside className="hidden lg:block w-[280px] shrink-0 px-4 py-4 bg-muted">
+                    <div className="h-full flex flex-col rounded-2xl border bg-card overflow-hidden">
+                        <QuestionNavigator
+                            questions={questions}
+                            currentIndex={currentQuestionIndex}
+                            answers={answers}
+                            flags={flags}
+                            onSelect={setCurrentQuestionIndex}
+                        />
+                    </div>
                 </aside>
 
                 {/* Content Area */}
-                <main className="flex-1 overflow-y-auto p-4 sm:p-8 md:p-12 pb-24 lg:pb-12 bg-background">
-                    {currentQuestion && (
-                        <QuestionArea
-                            question={currentQuestion}
-                            selectedOption={answers[currentQuestion.id]}
-                            isFlagged={flags.has(currentQuestion.id)}
-                            onAnswer={handleAnswer}
-                            onFlag={handleFlag}
-                            onNext={handleNext}
-                            onPrev={handlePrev}
-                            isFirst={currentQuestionIndex === 0}
-                            isLast={currentQuestionIndex === questions.length - 1}
-                        />
-                    )}
+                <main className="flex-1 overflow-y-auto bg-muted px-4 py-6 md:p-8 relative">
+                    <div className="max-w-4xl mx-auto pb-24">
+                        {currentQuestion && (
+                            <QuestionArea
+                                question={currentQuestion}
+                                selectedOption={answers[currentQuestion.id]}
+                                isFlagged={flags.has(currentQuestion.id)}
+                                onAnswer={handleAnswer}
+                                onFlag={handleFlag}
+                                onNext={handleNext}
+                                onPrev={handlePrev}
+                                isFirst={currentQuestionIndex === 0}
+                                isLast={currentQuestionIndex === questions.length - 1}
+                            />
+                        )}
+                    </div>
                 </main>
             </div>
 

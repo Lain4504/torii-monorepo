@@ -2,7 +2,7 @@ import { IsEnum, IsOptional, IsUUID, IsInt } from 'class-validator';
 
 export class ClassAttendanceCreateDto {
     @IsUUID()
-    liveScheduleId!: string;
+    sessionId!: string;
 
     @IsUUID()
     userId!: string;
@@ -20,11 +20,7 @@ export class ClassAttendanceUpdateDto {
 export class ClassAttendanceQueryDto {
     @IsOptional()
     @IsUUID()
-    liveScheduleId?: string;
-
-    @IsOptional()
-    @IsUUID()
-    liveClassId?: string;
+    sessionId?: string;
 
     @IsOptional()
     @IsUUID()

@@ -25,12 +25,22 @@ import {
   ReqWithRequester,
 } from '@server/shared';
 import {
+  AcademyClassAssignmentCreateDTO,
   AcademyClassCreateDTO,
+  AcademyClassContentItemCreateDTO,
+  AcademyClassContentItemUpdateDTO,
   AcademyClassDuplicateDTO,
+  AcademyClassModuleCreateDTO,
+  AcademyClassModuleUpdateDTO,
   AcademyClassQueryDTO,
   AcademyClassUpdateDTO,
+  academyClassAssignmentCreateDTOSchema,
   academyClassCreateDTOSchema,
+  academyClassContentItemCreateDTOSchema,
+  academyClassContentItemUpdateDTOSchema,
   academyClassDuplicateDTOSchema,
+  academyClassModuleCreateDTOSchema,
+  academyClassModuleUpdateDTOSchema,
   academyClassQueryDTOSchema,
   academyClassUpdateDTOSchema,
 } from '@workspace/schemas';
@@ -85,6 +95,34 @@ export class ClassController {
   ) {
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.class.update' }, { id, input: dto, requesterId: req.requester?.sub }),
+    );
+    return successResponse({ item });
+  }
+
+  @Get(':id/assignments')
+  @Permissions('academy.delivery.read')
+  async getAssignments(@Param('id', new ParseUUIDPipe()) id: string) {
+    const items = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.getAssignments' }, { classId: id }),
+    );
+    return successResponse({ items });
+  }
+
+  @Post(':id/assignments')
+  @Permissions('academy.delivery.write')
+  @HttpCode(HttpStatus.CREATED)
+  async addAssignment(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body(new ZodValidationPipe(academyClassAssignmentCreateDTOSchema))
+    dto: AcademyClassAssignmentCreateDTO,
+    @Req() req: ReqWithRequester,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.addAssignment' }, {
+        ...dto,
+        classId: id,
+        requesterId: req.requester?.sub,
+      }),
     );
     return successResponse({ item });
   }
@@ -192,6 +230,136 @@ export class ClassController {
       ),
     );
     return successResponse({ item });
+  }
+
+  @Post(':id/modules')
+  @Permissions('academy.delivery.write')
+  async addModule(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body(new ZodValidationPipe(academyClassModuleCreateDTOSchema))
+    dto: AcademyClassModuleCreateDTO,
+  ) {
+    const module = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.class.addModule' },
+        { classId: id, ...dto },
+      ),
+    );
+    return successResponse({ module });
+  }
+
+  @Put('modules/:moduleId')
+  @Permissions('academy.delivery.write')
+  async updateModule(
+    @Param('moduleId', new ParseUUIDPipe()) moduleId: string,
+    @Body(new ZodValidationPipe(academyClassModuleUpdateDTOSchema))
+    dto: AcademyClassModuleUpdateDTO,
+  ) {
+    const module = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.class.updateModule' },
+        { id: moduleId, input: dto },
+      ),
+    );
+    return successResponse({ module });
+  }
+
+  @Delete('modules/:moduleId')
+  @Permissions('academy.delivery.write')
+  async deleteModule(
+    @Param('moduleId', new ParseUUIDPipe()) moduleId: string,
+  ) {
+    const result = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.class.deleteModule' },
+        { id: moduleId },
+      ),
+    );
+    return successResponse(result);
+  }
+
+  @Post('modules/:moduleId/items')
+  @Permissions('academy.delivery.write')
+  async addContentItem(
+    @Param('moduleId', new ParseUUIDPipe()) moduleId: string,
+    @Body(new ZodValidationPipe(academyClassContentItemCreateDTOSchema))
+    dto: AcademyClassContentItemCreateDTO,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.class.addContentItem' },
+        { moduleId, ...dto },
+      ),
+    );
+    return successResponse({ item });
+  }
+
+  @Put('items/:itemId')
+  @Permissions('academy.delivery.write')
+  async updateContentItem(
+    @Param('itemId', new ParseUUIDPipe()) itemId: string,
+    @Body(new ZodValidationPipe(academyClassContentItemUpdateDTOSchema))
+    dto: AcademyClassContentItemUpdateDTO,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.class.updateContentItem' },
+        { id: itemId, input: dto },
+      ),
+    );
+    return successResponse({ item });
+  }
+
+  @Delete('items/:itemId')
+  @Permissions('academy.delivery.write')
+  async deleteContentItem(
+    @Param('itemId', new ParseUUIDPipe()) itemId: string,
+  ) {
+    const result = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.class.deleteContentItem' },
+        { id: itemId },
+      ),
+    );
+    return successResponse(result);
+  }
+
+  // ==============================================================
+  // LEARNER PROGRESS
+  // ==============================================================
+
+  @Get(':id/progress')
+  @UseGuards(GatewayAuthGuard)
+  async getUserProgress(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const userId = req.requester.sub;
+    const progress = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.class.getUserProgress' },
+        { userId, classId: id },
+      ),
+    );
+    return successResponse(progress);
+  }
+
+  @Post(':id/lessons/:lessonId/complete')
+  @UseGuards(GatewayAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async markLessonComplete(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Param('lessonId', new ParseUUIDPipe()) lessonId: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const userId = req.requester.sub;
+    const result = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.class.markLessonComplete' },
+        { userId, classId: id, lessonId },
+      ),
+    );
+    return successResponse(result);
   }
 }
 

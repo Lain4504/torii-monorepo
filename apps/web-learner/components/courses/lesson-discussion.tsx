@@ -30,7 +30,7 @@ import { vi } from 'date-fns/locale'
 import { cn } from '@workspace/ui/lib/utils'
 
 interface LessonDiscussionProps {
-    courseRunId: string
+    classId: string
     moduleId?: string
     lessonId: string
 }
@@ -49,7 +49,7 @@ function useCreateDiscussion() {
     const { user } = useAppSelector(state => state.auth)
 
     return useMutation({
-        mutationFn: (data: { title: string, content: string, courseRunId: string, moduleId?: string, lessonId: string, category: string }) => {
+        mutationFn: (data: { title: string, content: string, classId: string, moduleId?: string, lessonId: string, category: string }) => {
             return commentApi.create({
                 discussionId: data.lessonId,
                 userId: user?.id || '',
@@ -62,7 +62,7 @@ function useCreateDiscussion() {
     })
 }
 
-export function LessonDiscussion({ courseRunId, moduleId, lessonId }: LessonDiscussionProps) {
+export function LessonDiscussion({ classId, moduleId, lessonId }: LessonDiscussionProps) {
     const { isAuthenticated, user } = useAppSelector(state => state.auth)
     const { data: discussions, isLoading, isError } = useDiscussions(lessonId)
     const createDiscussion = useCreateDiscussion()
@@ -87,7 +87,7 @@ export function LessonDiscussion({ courseRunId, moduleId, lessonId }: LessonDisc
             await createDiscussion.mutateAsync({
                 title: title.trim(),
                 content: content.trim(),
-                courseRunId,
+                classId,
                 moduleId,
                 lessonId,
                 category: 'QUESTION'

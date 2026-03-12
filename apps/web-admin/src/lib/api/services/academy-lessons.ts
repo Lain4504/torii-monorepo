@@ -9,13 +9,11 @@ import type {
 
 export type AcademyLesson = {
   id: string
-  courseProfileId: string
+  moduleId: string
   title: string
-  contentType: string
-  contentUrl?: string | null
-  contentBody?: string | null
-  attachments?: any | null
-  metadata?: any | null
+  type: "VIDEO" | "READING"
+  orderIndex: number
+  videoUrl?: string | null
   createdAt: string
   updatedAt: string
 }

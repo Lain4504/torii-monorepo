@@ -2,13 +2,7 @@ import { IsOptional, IsString, IsUUID, MaxLength, Min } from 'class-validator';
 
 export class AssignmentSubmissionCreateDto {
   @IsUUID()
-  classId!: string;
-
-  @IsUUID()
   classAssessmentId!: string;
-
-  @IsUUID()
-  assignmentTemplateId!: string;
 
   @IsOptional()
   @IsUUID()
@@ -20,7 +14,12 @@ export class AssignmentSubmissionCreateDto {
   status?: string;
 
   @IsOptional()
-  content?: unknown;
+  @IsString()
+  content?: string;
+
+  @IsOptional()
+  @IsString({ each: true })
+  fileUrls?: string[];
 }
 
 export class AssignmentSubmissionUpdateDto {
@@ -34,14 +33,19 @@ export class AssignmentSubmissionUpdateDto {
   score?: number;
 
   @IsOptional()
-  content?: unknown;
+  @IsString()
+  feedback?: string;
+
+  @IsOptional()
+  @IsString()
+  content?: string;
+
+  @IsOptional()
+  @IsString({ each: true })
+  fileUrls?: string[];
 }
 
 export class AssignmentSubmissionQueryDto {
-  @IsOptional()
-  @IsUUID()
-  classId?: string;
-
   @IsOptional()
   @IsUUID()
   classAssessmentId?: string;

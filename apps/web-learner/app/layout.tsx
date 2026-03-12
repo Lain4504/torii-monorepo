@@ -1,13 +1,13 @@
-import { Nunito, Noto_Sans_JP, Noto_Serif_JP, Space_Grotesk } from "next/font/google"
+import { Andika, Nunito, Noto_Sans_JP, Noto_Serif_JP, Space_Grotesk } from "next/font/google"
 
 import "@workspace/ui/styles/globals.css"
 import { Providers } from "@/lib/providers/providers"
 import { Toaster } from "@workspace/ui/components/sonner"
 
-const fontSans = Nunito({
+const fontSans = Andika({
   subsets: ["latin", "vietnamese"],
   variable: "--font-sans",
-  weight: ["200", "300", "400", "500", "600", "700", "800", "900"],
+  weight: ["400", "700"],
 })
 
 const fontHeading = Nunito({

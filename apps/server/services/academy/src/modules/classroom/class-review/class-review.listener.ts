@@ -22,6 +22,7 @@ export class ClassReviewListener {
             });
 
             if (!enrollment) return;
+            if (!enrollment.class) return;
 
             // Check if a review already exists
             const existingReview = await this.prisma.classReview.findUnique({

@@ -48,8 +48,8 @@ export const academyEnrollmentModelSchema = z.object({
     user: z.any().optional(),
 
     // Learner View Rich Fields (Calculated by backend for learner portal)
-    courseId: z.string().uuid().optional(),
-    courseRunId: z.string().uuid().optional(),
+    courseProfileId: z.string().uuid().optional(),
+    courseCode: z.string().optional(),
     courseTitle: z.string().optional(),
     slug: z.string().optional(),
     thumbnailUrl: z.string().nullable().optional(),
