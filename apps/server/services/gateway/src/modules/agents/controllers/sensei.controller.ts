@@ -39,6 +39,19 @@ export class SenseiHandler {
         private readonly appConfig: AppConfigService,
     ) { }
 
+    @Get('subscription/plans')
+    async getSubscriptionPlans() {
+        try {
+            const plans = await firstValueFrom(
+                this.natsClient.send({ cmd: 'billing.subscription.getPlans' }, {}),
+            );
+            return successResponse(plans);
+        } catch (error: any) {
+            this.logger.error('Failed to fetch subscription plans', error.stack);
+            return errorResponse(error.message || 'Failed to fetch subscription plans');
+        }
+    }
+
     @Post('grammar-check')
     @UseGuards(GatewayAuthGuard)
     async grammarCheck(@Req() req: ReqWithRequester, @Body() body: any) {

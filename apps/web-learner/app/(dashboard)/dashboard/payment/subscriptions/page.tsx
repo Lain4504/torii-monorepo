@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, Zap, Star, Crown, ArrowRight, BadgeCheck } from "lucide-react"
+import { Check, Zap, Star, Crown, ArrowRight, BadgeCheck, Loader2 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
@@ -10,76 +10,25 @@ import { formatCurrency } from "@/utils/format-utils"
 import { useRouter } from "next/navigation"
 import { toast } from "@workspace/ui/components/sonner"
 import { orderApi } from "@/lib/api/services/order-api"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { agentApi, useSubscriptionPlans, AiSubscriptionPlan } from "@/lib/api/services/agent-api"
 
-interface Tier {
-    id: string
-    code: string
-    name: string
-    price: number
-    quota: string
-    description: string
-    features: string[]
-    icon: React.ReactNode
-    popular?: boolean
-    color: string
-}
-
-const tiers: Tier[] = [
-    {
-        id: "free",
-        code: "free",
-        name: "Free",
-        price: 0,
-        quota: "10 lượt/ngày",
-        description: "Dành cho người mới bắt đầu khám phá AI Sensei.",
-        features: [
-            "10 lượt check ngữ pháp/ngày",
-            "10 lượt dịch thuật/ngày",
-            "Truy cập cơ bản AI Sensei Chat",
-            "Hỗ trợ qua cộng đồng"
-        ],
+// Map plan code to display config (icon, color, popular)
+const PLAN_DISPLAY_CONFIG: Record<string, { icon: React.ReactNode; color: string; popular?: boolean }> = {
+    free: {
         icon: <Zap className="size-6" />,
-        color: "text-slate-500 bg-slate-500/10 border-slate-500/20"
+        color: "text-slate-500 bg-slate-500/10 border-slate-500/20",
     },
-    {
-        id: "plus",
-        code: "plus",
-        name: "Plus",
-        price: 50000,
-        quota: "100 lượt/ngày",
-        description: "Gói phổ biến nhất cho người học nghiêm túc.",
-        features: [
-            "100 lượt sử dụng AI mỗi ngày",
-            "Không giới hạn dịch thuật",
-            "Truy cập đầy đủ Roleplay & Voice",
-            "Ưu tiên phản hồi từ AI",
-            "Hỗ trợ ưu tiên"
-        ],
-        popular: true,
+    plus: {
         icon: <Star className="size-6 text-amber-500 fill-amber-500" />,
-        color: "text-amber-600 bg-amber-500/10 border-amber-500/30 ring-2 ring-amber-500/20"
+        color: "text-amber-600 bg-amber-500/10 border-amber-500/30 ring-2 ring-amber-500/20",
+        popular: true,
     },
-    {
-        id: "premium",
-        code: "premium",
-        name: "Premium",
-        price: 125000,
-        quota: "5000 lượt/ngày",
-        description: "Trải nghiệm không giới hạn cùng AI Sensei.",
-        features: [
-            "5000 lượt (Gần như vô hạn) mỗi ngày",
-            "Mọi tính năng AI Sensei mới nhất",
-            "Giao diện không quảng cáo",
-            "Tùy chỉnh giọng nói AI",
-            "Hỗ trợ 1-1 chuyên sâu"
-        ],
+    premium: {
         icon: <Crown className="size-6 text-purple-600 fill-purple-600" />,
-        color: "text-purple-600 bg-purple-500/10 border-purple-500/30"
-    }
-]
-
-import { useQuery } from "@tanstack/react-query"
-import { agentApi } from "@/lib/api/services/agent-api"
+        color: "text-purple-600 bg-purple-500/10 border-purple-500/30",
+    },
+}
 
 export default function SubscriptionsPage() {
     const router = useRouter()
@@ -90,42 +39,56 @@ export default function SubscriptionsPage() {
         queryFn: () => agentApi.sensei.getQuotaStatus(),
     })
 
-    const currentTier = quota?.tier?.toLowerCase() || 'free'
-    const currentTierIndex = tiers.findIndex(t => t.id === currentTier)
+    const { data: plans = [], isLoading: plansLoading } = useSubscriptionPlans()
 
-    const handleSubscribe = async (tier: Tier) => {
-        const targetTierIndex = tiers.findIndex(t => t.id === tier.id)
+    const queryClient = useQueryClient()
+    const currentTier = quota?.tier?.toLowerCase() || 'free'
+    const currentTierIndex = plans.findIndex(p => p.code === currentTier)
+
+    const handleSubscribe = async (plan: AiSubscriptionPlan) => {
+        const targetTierIndex = plans.findIndex(p => p.code === plan.code)
 
         if (targetTierIndex < currentTierIndex) {
             toast.info("Bạn không thể mua gói này vì đang dùng gói tiện ích cao hơn.")
             return
         }
 
-        if (tier.id === currentTier) {
+        if (plan.code === currentTier) {
             toast.info("Bạn đang sử dụng gói này.")
             return
         }
 
-        if (tier.price === 0) {
+        if (plan.price === 0) {
             toast.info("Gói Free đã được kích hoạt mặc định cho bạn.")
             return
         }
 
-        setLoadingTier(tier.id)
+        setLoadingTier(plan.code)
         try {
             const response = await orderApi.createOrder({
-                offeringIds: [tier.id],
-                description: `Đăng ký gói ${tier.name} - Torii AI Sensei`,
+                offeringIds: [plan.code],
+                description: `Đăng ký gói ${plan.name} - Torii AI Sensei`,
                 couponCode: "",
-                paymentMethod: "PAYOS" // Defaulting to PayOS for now as it's the primary integration
+                paymentMethod: "PAYOS"
             })
 
             if (response.paymentUrl) {
                 toast.success("Đang chuyển hướng đến trang thanh toán...")
                 window.location.href = response.paymentUrl
             } else {
-                router.push(`/dashboard/payment?orderId=${response.id}`)
-                toast.success("Đã tạo đơn hàng thành công!")
+                // For fast-path/instant activation
+                if (response.status === 'PAID') {
+                    // CRITICAL: Invalidate quota so the header QuotaIndicator updates immediately
+                    await Promise.all([
+                        queryClient.invalidateQueries({ queryKey: ['quota-status'] }),
+                        queryClient.invalidateQueries({ queryKey: ['subscription-plans'] })
+                    ])
+                    toast.success(`Chúc mừng! Gói ${plan.name} đã được kích hoạt.`)
+                    router.push('/dashboard/payment')
+                } else {
+                    router.push(`/dashboard/payment?orderId=${response.id}`)
+                    toast.success("Đã tạo đơn hàng thành công!")
+                }
             }
         } catch (error: any) {
             toast.error(error.message || "Không thể khởi tạo thanh toán. Vui lòng thử lại sau.")
@@ -148,95 +111,109 @@ export default function SubscriptionsPage() {
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 pt-10">
-                {tiers.map((tier, index) => {
-                    const isCurrent = tier.id === currentTier
-                    const isDowngrade = index < currentTierIndex
-                    return (
-                        <Card key={tier.id} className={cn(
-                            "relative flex flex-col h-full border-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 overflow-visible",
-                            tier.popular ? "border-amber-500 shadow-amber-500/10" : "border-border hover:border-primary/50",
-                            isCurrent && "border-primary shadow-lg shadow-primary/5 bg-primary/5"
-                        )}>
-                            {isCurrent ? (
-                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] font-black px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 uppercase tracking-wider z-20 whitespace-nowrap">
-                                    <BadgeCheck className="size-3 fill-white" /> Kế hoạch hiện tại
-                                </div>
-                            ) : tier.popular ? (
-                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-amber-500 text-white text-[10px] font-black px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 uppercase tracking-wider z-20 whitespace-nowrap">
-                                    <Star className="size-3 fill-white" /> Phổ biến nhất
-                                </div>
-                            ) : null}
+            {plansLoading ? (
+                <div className="flex items-center justify-center py-20">
+                    <Loader2 className="size-8 animate-spin text-muted-foreground" />
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-10 pt-10">
+                    {plans.map((plan, index) => {
+                        const isCurrent = plan.code === currentTier
+                        const isDowngrade = index < currentTierIndex
+                        const displayConfig = PLAN_DISPLAY_CONFIG[plan.code] ?? {
+                            icon: <Zap className="size-6" />,
+                            color: "text-slate-500 bg-slate-500/10 border-slate-500/20",
+                        }
+                        const aiTurns = plan.quotas?.ai_turns ?? 0
 
-                            <CardHeader className="space-y-4 pt-8">
-                                <div className={cn(
-                                    "size-12 rounded-2xl flex items-center justify-center mb-2",
-                                    tier.color
-                                )}>
-                                    {tier.icon}
-                                </div>
-                                <div>
-                                    <div className="flex items-center justify-between">
-                                        <CardTitle className="text-2xl font-black">{tier.name}</CardTitle>
-                                        {isCurrent && <Badge variant="secondary" className="bg-primary/20 text-primary border-none font-black text-[10px]">CURRENT</Badge>}
+                        return (
+                            <Card key={plan.id} className={cn(
+                                "relative flex flex-col h-full border-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 overflow-visible",
+                                displayConfig.popular ? "border-amber-500 shadow-amber-500/10" : "border-border hover:border-primary/50",
+                                isCurrent && "border-primary shadow-lg shadow-primary/5 bg-primary/5"
+                            )}>
+                                {isCurrent ? (
+                                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] font-black px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 uppercase tracking-wider z-20 whitespace-nowrap">
+                                        <BadgeCheck className="size-3 fill-white" /> Kế hoạch hiện tại
                                     </div>
-                                    <CardDescription className="text-sm font-medium h-10 mt-2">
-                                        {tier.description}
-                                    </CardDescription>
-                                </div>
-                                <div className="py-4 border-y border-border/50">
-                                    <div className="flex items-baseline gap-1">
-                                        <span className="text-4xl font-black">{tier.price === 0 ? "0đ" : formatCurrency(tier.price)}</span>
-                                        <span className="text-muted-foreground font-bold text-sm">/tháng</span>
+                                ) : displayConfig.popular ? (
+                                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-amber-500 text-white text-[10px] font-black px-4 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 uppercase tracking-wider z-20 whitespace-nowrap">
+                                        <Star className="size-3 fill-white" /> Phổ biến nhất
                                     </div>
-                                    <div className="mt-2 flex items-center gap-2 text-primary font-black text-sm">
-                                        <Zap className="size-3.5 fill-primary" />
-                                        {tier.quota}
-                                    </div>
-                                </div>
-                            </CardHeader>
+                                ) : null}
 
-                            <CardContent className="flex-1">
-                                <ul className="space-y-3">
-                                    {tier.features.map((feature, idx) => (
-                                        <li key={idx} className="flex items-start gap-3 text-sm font-medium">
-                                            <div className="mt-0.5 rounded-full bg-emerald-500/10 p-0.5">
-                                                <Check className="size-3.5 text-emerald-600" />
-                                            </div>
-                                            {feature}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </CardContent>
+                                <CardHeader className="space-y-4 pt-8">
+                                    <div className={cn(
+                                        "size-12 rounded-2xl flex items-center justify-center mb-2",
+                                        displayConfig.color
+                                    )}>
+                                        {displayConfig.icon}
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center justify-between">
+                                            <CardTitle className="text-2xl font-black">{plan.name}</CardTitle>
+                                            {isCurrent && <Badge variant="secondary" className="bg-primary/20 text-primary border-none font-black text-[10px]">CURRENT</Badge>}
+                                        </div>
+                                        <CardDescription className="text-sm font-medium h-10 mt-2">
+                                            {plan.description}
+                                        </CardDescription>
+                                    </div>
+                                    <div className="py-4 border-y border-border/50">
+                                        <div className="flex items-baseline gap-1">
+                                            <span className="text-4xl font-black">{plan.price === 0 ? "0đ" : formatCurrency(plan.price)}</span>
+                                            <span className="text-muted-foreground font-bold text-sm">
+                                                {plan.billingCycle === 'LIFETIME' ? '' : plan.billingCycle === 'YEARLY' ? '/năm' : '/tháng'}
+                                            </span>
+                                        </div>
+                                        <div className="mt-2 flex items-center gap-2 text-primary font-black text-sm">
+                                            <Zap className="size-3.5 fill-primary" />
+                                            {aiTurns >= 5000 ? `${aiTurns.toLocaleString()} lượt/ngày` : `${aiTurns} lượt/ngày`}
+                                        </div>
+                                    </div>
+                                </CardHeader>
 
-                            <CardFooter className="pt-8">
-                                <Button
-                                    className={cn(
-                                        "w-full h-12 rounded-xl font-bold text-base transition-all group",
-                                        tier.popular ? "bg-amber-500 hover:bg-amber-600 shadow-lg shadow-amber-500/20" : "bg-primary hover:bg-primary/90",
-                                        (isCurrent || isDowngrade) && "bg-muted text-muted-foreground hover:bg-muted cursor-default border-none shadow-none"
-                                    )}
-                                    onClick={() => handleSubscribe(tier)}
-                                    disabled={loadingTier === tier.id || isCurrent || isDowngrade}
-                                >
-                                    {loadingTier === tier.id ? (
-                                        "Đang xử lý..."
-                                    ) : isCurrent ? (
-                                        "Gói hiện tại"
-                                    ) : isDowngrade ? (
-                                        "Đã vượt qua gói này"
-                                    ) : (
-                                        <>
-                                            {tier.price === 0 ? "Bắt đầu ngay" : "Nâng cấp ngay"}
-                                            <ArrowRight className="ml-2 size-4 group-hover:translate-x-1 transition-transform" />
-                                        </>
-                                    )}
-                                </Button>
-                            </CardFooter>
-                        </Card>
-                    )
-                })}
-            </div>
+                                <CardContent className="flex-1">
+                                    <ul className="space-y-3">
+                                        {(plan.features as string[]).map((feature, idx) => (
+                                            <li key={idx} className="flex items-start gap-3 text-sm font-medium">
+                                                <div className="mt-0.5 rounded-full bg-emerald-500/10 p-0.5">
+                                                    <Check className="size-3.5 text-emerald-600" />
+                                                </div>
+                                                {feature}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </CardContent>
+
+                                <CardFooter className="pt-8">
+                                    <Button
+                                        className={cn(
+                                            "w-full h-12 rounded-xl font-bold text-base transition-all group",
+                                            displayConfig.popular ? "bg-amber-500 hover:bg-amber-600 shadow-lg shadow-amber-500/20" : "bg-primary hover:bg-primary/90",
+                                            (isCurrent || isDowngrade) && "bg-muted text-muted-foreground hover:bg-muted cursor-default border-none shadow-none"
+                                        )}
+                                        onClick={() => handleSubscribe(plan)}
+                                        disabled={loadingTier === plan.code || isCurrent || isDowngrade}
+                                    >
+                                        {loadingTier === plan.code ? (
+                                            <><Loader2 className="size-4 mr-2 animate-spin" /> Đang xử lý...</>
+                                        ) : isCurrent ? (
+                                            "Gói hiện tại"
+                                        ) : isDowngrade ? (
+                                            "Đã vượt qua gói này"
+                                        ) : (
+                                            <>
+                                                {plan.price === 0 ? "Bắt đầu ngay" : "Nâng cấp ngay"}
+                                                <ArrowRight className="ml-2 size-4 group-hover:translate-x-1 transition-transform" />
+                                            </>
+                                        )}
+                                    </Button>
+                                </CardFooter>
+                            </Card>
+                        )
+                    })}
+                </div>
+            )}
 
             <div className="text-center bg-muted/30 p-8 rounded-3xl border border-border/50 max-w-3xl mx-auto mt-12">
                 <h3 className="text-lg font-bold mb-2">Câu hỏi thường gặp?</h3>

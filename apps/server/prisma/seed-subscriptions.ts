@@ -1,7 +1,7 @@
 /**
  * SUBSCRIPTION PRICING SEED SCRIPT
  * ==================================
- * Mục đích: Khởi tạo các gói đăng ký AI Sensei vào database.
+ * Mục đích: Khởi tạo các gói đăng ký AI Sensei vào bảng `ai_subscription_plans`.
  *
  * Chạy lệnh sau để seed (hoặc cập nhật) giá gói:
  *   cd apps/server
@@ -11,22 +11,20 @@
  * Giá gói được lưu ở 2 chỗ và phải cập nhật ĐỒNG BỘ cả 2:
  *
  *  1. DATABASE (file này) — nguồn thật:
- *     Dùng khi checkout, tính tiền, ghi vào lịch sử giao dịch.
+ *     Bảng `ai_subscription_plans` - dùng khi checkout, tính tiền, ghi vào lịch sử giao dịch.
  *
- *  2. FRONTEND UI — chỉ để hiển thị:
+ *  2. FRONTEND UI — chỉ để hiển thị (sẽ fetch từ API sau khi hoàn chỉnh):
  *     apps/web-learner/app/(dashboard)/dashboard/payment/subscriptions/page.tsx
- *     const tiers = [{ id: 'plus', price: 50000, ... }, ...]
  *
  * BẢNG GIÁ HIỆN TẠI:
- *   free    = 0đ     (10 lượt/ngày)
- *   plus    = 50,000đ  ~$2  (100 lượt/ngày)
- *   premium = 125,000đ ~$5  (5000 lượt/ngày)
+ *   free    = 0đ          (10 lượt/ngày)
+ *   plus    = 50,000đ ~$2  (100 lượt/ngày)
+ *   premium = 125,000đ ~$5 (5000 lượt/ngày)
  */
 
-import { PrismaClient, OrderType, OfferingStatus } from '@prisma/generated';
+import { PrismaClient } from '@prisma/generated';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { loadConfig } from '../libs/shared/src/config/app.config';
-
 
 const config = loadConfig();
 const adapter = new PrismaPg({
@@ -34,108 +32,86 @@ const adapter = new PrismaPg({
 });
 const prisma = new PrismaClient({ adapter });
 
+const plans = [
+    {
+        code: 'free',
+        name: 'Free',
+        description: 'Dành cho người mới bắt đầu khám phá AI Sensei.',
+        price: 0,
+        billingCycle: 'LIFETIME' as const,
+        quotas: { ai_turns: 10 },
+        features: [
+            '10 lượt check ngữ pháp/ngày',
+            '10 lượt dịch thuật/ngày',
+            'Truy cập cơ bản AI Sensei Chat',
+            'Hỗ trợ qua cộng đồng',
+        ],
+        sortOrder: 0,
+    },
+    {
+        code: 'plus',
+        name: 'Plus',
+        description: 'Gói phổ biến nhất cho người học nghiêm túc.',
+        price: 50000,
+        billingCycle: 'MONTHLY' as const,
+        quotas: { ai_turns: 100 },
+        features: [
+            '100 lượt sử dụng AI mỗi ngày',
+            'Không giới hạn dịch thuật',
+            'Truy cập đầy đủ Roleplay & Voice',
+            'Ưu tiên phản hồi từ AI',
+            'Hỗ trợ ưu tiên',
+        ],
+        sortOrder: 1,
+    },
+    {
+        code: 'premium',
+        name: 'Premium',
+        description: 'Trải nghiệm không giới hạn cùng AI Sensei.',
+        price: 125000,
+        billingCycle: 'MONTHLY' as const,
+        quotas: { ai_turns: 5000 },
+        features: [
+            '5000 lượt (Gần như vô hạn) mỗi ngày',
+            'Mọi tính năng AI Sensei mới nhất',
+            'Giao diện không quảng cáo',
+            'Tùy chỉnh giọng nói AI',
+            'Hỗ trợ 1-1 chuyên sâu',
+        ],
+        sortOrder: 2,
+    },
+];
+
 async function main() {
-    console.log('🌱 Seeding subscription offerings...');
+    console.log('🌱 Seeding AI subscription plans...');
 
-    // 1. Create a Course Profile and Edition for Subscriptions
-    const courseProfile = await prisma.courseProfile.upsert({
-        where: { code: 'subscriptions' },
-        update: {},
-        create: {
-            code: 'subscriptions',
-            title: 'AI Sensei Subscriptions',
-            description: 'Tiered access to AI Sensei features',
-        },
-    });
-
-    const courseEdition = await prisma.courseEdition.upsert({
-        where: {
-            courseProfileId_editionTag: {
-                courseProfileId: courseProfile.id,
-                editionTag: 'v1',
+    for (const plan of plans) {
+        await prisma.aiSubscriptionPlan.upsert({
+            where: { code: plan.code },
+            create: {
+                code: plan.code,
+                name: plan.name,
+                description: plan.description,
+                price: plan.price,
+                billingCycle: plan.billingCycle,
+                quotas: plan.quotas,
+                features: plan.features,
+                sortOrder: plan.sortOrder,
+                isActive: true,
             },
-        },
-        update: {},
-        create: {
-            editionTag: 'v1',
-            courseProfileId: courseProfile.id,
-            isCurrent: true,
-            status: 'PUBLISHED',
-        },
-    });
-
-    const tiers = [
-        {
-            code: 'free',
-            title: 'Free Tier',
-            price: 0,
-            quota: 10,
-        },
-        {
-            code: 'plus',
-            title: 'Plus Tier ($2)',
-            price: 50000,
-            quota: 100,
-        },
-        {
-            code: 'premium',
-            title: 'Premium Tier ($5)',
-            price: 125000,
-            quota: 5000,
-        },
-    ];
-
-    for (const tier of tiers) {
-        // Create Offering
-        const offering = await prisma.courseOffering.upsert({
-            where: { code: tier.code },
             update: {
-                type: OrderType.SUBSCRIPTION,
-                status: OfferingStatus.PUBLISHED,
-                metadata: { quotas: { ai_turns: tier.quota } },
-                originalPrice: tier.price,
-            },
-            create: {
-                code: tier.code,
-                title: tier.title,
-                type: OrderType.SUBSCRIPTION,
-                status: OfferingStatus.PUBLISHED,
-                originalPrice: tier.price,
-                metadata: { quotas: { ai_turns: tier.quota } },
+                name: plan.name,
+                description: plan.description,
+                price: plan.price,
+                billingCycle: plan.billingCycle,
+                quotas: plan.quotas,
+                features: plan.features,
+                sortOrder: plan.sortOrder,
+                isActive: true,
             },
         });
 
-        // Create Class for this tier
-        const classObj = await prisma.class.upsert({
-            where: { code: `class-${tier.code}` },
-            update: {},
-            create: {
-                code: `class-${tier.code}`,
-                name: `${tier.title} Access`,
-                courseProfileId: courseProfile.id,
-                courseEditionId: courseEdition.id,
-                mode: 'VOD',
-                status: 'ENROLLING',
-            },
-        });
-
-        // Link Offering to Class
-        await prisma.courseOfferingClass.upsert({
-            where: {
-                offeringId_classId: {
-                    offeringId: offering.id,
-                    classId: classObj.id,
-                }
-            },
-            update: {},
-            create: {
-                offeringId: offering.id,
-                classId: classObj.id,
-                isPrimary: true,
-            }
-        });
-
-        console.log(`✅ Tier [${tier.code}] created/updated.`);
+        console.log(`✅ Plan [${plan.code}] upserted (${plan.price}đ)`);
     }
 
     console.log('✨ Seeding completed.');

@@ -4,6 +4,7 @@ import {
   BadRequestException,
   NotFoundException,
   Inject,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import {
@@ -17,6 +18,7 @@ import { CouponService } from '../coupon.service';
 import { PayOSService } from '../payos.service';
 import { EnrollmentService } from '../../classroom/enrollment/enrollment.service';
 import { AuditLoggerService } from '../../audit-logger.service';
+import { AiSubscriptionService } from '../quota/ai-subscription.service';
 import { OrderCheckoutDto, OrderPreviewDto } from './dto/order.dto';
 import { Prisma } from '@prisma/generated';
 import { AppConfigService } from '@server/shared';
@@ -31,6 +33,7 @@ export class OrderService {
     private readonly couponService: CouponService,
     private readonly payOS: PayOSService,
     private readonly enrollmentService: EnrollmentService,
+    private readonly aiSubscriptionService: AiSubscriptionService,
     private readonly appConfig: AppConfigService,
     private readonly audit: AuditLoggerService,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
@@ -60,7 +63,8 @@ export class OrderService {
 
     const now = new Date();
 
-    const offerings = await this.prisma.courseOffering.findMany({
+    // 1. Fetch CourseOfferings
+    const courseOfferings = await this.prisma.courseOffering.findMany({
       where: {
         id: { in: offeringIds },
         status: { in: [OfferingStatus.PUBLISHED, OfferingStatus.OPENING] },
@@ -81,29 +85,64 @@ export class OrderService {
       },
     });
 
-    if (offerings.length !== offeringIds.length) {
-      throw new BadRequestException('Some offerings are not available');
-    }
-    for (const offering of offerings) {
-      if (!offering.classes.length) {
-        throw new BadRequestException(
-          `Offering ${offering.code} has no class mapped for enrollment`,
-        );
+    // 2. Fetch AiSubscriptionPlans
+    const subscriptionPlans = await this.prisma.aiSubscriptionPlan.findMany({
+      where: {
+        OR: [
+          { id: { in: offeringIds } },
+          { code: { in: offeringIds } }
+        ],
+        isActive: true,
       }
-      for (const offeringClass of offering.classes) {
-        const klass = offeringClass.class;
-        if (
-          klass.status !== ClassStatus.OPENING &&
-          klass.status !== ClassStatus.ONGOING
-        ) {
+    });
+
+    // 3. Combine and validate
+    // Normalize subscription plans to match CourseOffering-like structure for the preview
+    const normalizedSubs = subscriptionPlans.map(p => ({
+      ...p,
+      type: 'SUBSCRIPTION', // Marker for frontend and downstream logic
+      classes: [], // Subscriptions don't have classes
+    }));
+
+    const allItems = [
+      ...courseOfferings.map(o => ({ ...o, type: 'COURSE' })),
+      ...normalizedSubs
+    ] as any[];
+
+    if (allItems.length !== offeringIds.length) {
+      // Some IDs match neither or are duplicates? 
+      // Actually, if a code was passed, subscriptionPlans will catch it. 
+      // If a UUID was passed, either courseOfferings or subscriptionPlans will catch it.
+      // We check if we found as many items as requested (unique IDs).
+      const foundCount = allItems.length;
+      if (foundCount < offeringIds.length) {
+        throw new BadRequestException('Some offerings or plans are not available');
+      }
+    }
+
+    // 4. Validate classes for COURSE items only
+    for (const item of allItems) {
+      if (item.type === 'COURSE') {
+        if (!item.classes?.length) {
           throw new BadRequestException(
-            `Class ${klass.code} is in status ${klass.status}, not sellable`,
+            `Offering ${item.code} has no class mapped for enrollment`,
           );
+        }
+        for (const offeringClass of item.classes) {
+          const klass = offeringClass.class;
+          if (
+            klass.status !== ClassStatus.OPENING &&
+            klass.status !== ClassStatus.ONGOING
+          ) {
+            throw new BadRequestException(
+              `Class ${klass.code} is in status ${klass.status}, not sellable`,
+            );
+          }
         }
       }
     }
 
-    const subTotal = offerings.reduce((sum, o) => {
+    const subTotal = allItems.reduce((sum, o) => {
       const unitPrice = o.salePrice ?? o.price;
       return sum + Number(unitPrice);
     }, 0);
@@ -130,12 +169,13 @@ export class OrderService {
       subTotal,
       discountTotal,
       grandTotal,
-      offerings,
+      offerings: allItems,
       couponId,
     };
   }
 
   async checkout(userId: string, input: OrderCheckoutDto) {
+    this.logger.log(`[DEBUG] Checkout starting for user ${userId}, offerings: ${JSON.stringify(input.offeringIds)}`);
     const preview = await this.preview(userId, input);
     const resolvedOfferingIds = preview.offerings.map(o => o.id);
     const offeringClassMap = await this.getOfferingClassMap(resolvedOfferingIds);
@@ -164,6 +204,7 @@ export class OrderService {
             offeringSnapshot: {
               title: o.title,
               code: o.code,
+              type: o.type, // CRITICAL: Identify item type for fulfillment
               classIds: offeringClassMap.get(o.id) ?? [],
             } as any,
           })),
@@ -171,14 +212,16 @@ export class OrderService {
       },
     });
 
-    await this.audit.log({
-      userId: userId,
-      action: 'order.create',
-      entity: 'Order',
-      entityId: order.id,
-      description: `User created order ${order.code} for ${preview.grandTotal} ${order.currency}`,
-      metadata: { orderCode: order.code, grandTotal: preview.grandTotal },
-    });
+    if (preview.grandTotal === 0) {
+      this.logger.log(`Order ${order.code} is FREE (grandTotal=0). Activating immediately.`);
+      await this.processPayment(order, 'INTERNAL_FREE', null, userId);
+      return {
+        orderCode: order.code,
+        id: order.id,
+        message: 'Order activated successfully.',
+        status: OrderStatus.PAID,
+      };
+    }
 
     if (input.paymentMethod === PaymentMethod.PAYOS) {
       const numericOrderCode =
@@ -373,6 +416,45 @@ export class OrderService {
             // User prompt says: "Nếu line-item không pass, xử lý theo policy: fail mềm có log/audit + trả trạng thái phù hợp, hoặc fail transaction có thông báo rõ."
             // I'll throw to ROLLBACK for now to ensure data integrity (no partial fulfillment).
             throw new BadRequestException(`Fulfillment failed: ${err.message}`);
+          }
+        }
+      }
+
+      // Fulfillment: AI Subscription (for SUBSCRIPTION order type)
+      const subscriptionItems = order.items?.filter((item: any) => {
+        const snapshot = (item.offeringSnapshot ?? {}) as any;
+        return snapshot?.type === 'SUBSCRIPTION' || item.offering?.type === 'SUBSCRIPTION';
+      }) ?? [];
+
+      for (const item of subscriptionItems) {
+        // Find AiSubscriptionPlan by code
+        const snapshot = (item.offeringSnapshot ?? {}) as any;
+        const planCode = snapshot?.code;
+        if (planCode) {
+          const plan = await tx.aiSubscriptionPlan.findUnique({ where: { code: planCode } });
+          if (plan) {
+            // Expire existing subscriptions
+            await tx.aiUserSubscription.updateMany({
+              where: { userId: order.userId, status: 'ACTIVE' },
+              data: { status: 'EXPIRED' },
+            });
+            // Activate new subscription
+            const expiresAt = plan.billingCycle === 'LIFETIME'
+              ? null
+              : plan.billingCycle === 'YEARLY'
+                ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+                : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+            await tx.aiUserSubscription.create({
+              data: {
+                userId: order.userId,
+                planId: plan.id,
+                status: 'ACTIVE',
+                startedAt: new Date(),
+                expiresAt,
+                sourceOrderId: order.id,
+              },
+            });
+            this.logger.log(`AI subscription ${plan.code} activated for user ${order.userId}`);
           }
         }
       }

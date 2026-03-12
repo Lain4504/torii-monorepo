@@ -346,3 +346,35 @@ export function useGenerateAnalyticsSnapshot() {
         },
     });
 }
+
+// --- Subscription Plans ---
+
+export interface AiSubscriptionPlan {
+    id: string;
+    code: string;
+    name: string;
+    description: string | null;
+    price: number;
+    billingCycle: 'MONTHLY' | 'YEARLY' | 'LIFETIME';
+    quotas: Record<string, number>;
+    features: string[];
+    sortOrder: number;
+}
+
+export const subscriptionApi = {
+    getPlans: async (): Promise<AiSubscriptionPlan[]> => {
+        const response = await apiClient.get<{ success: boolean; data: AiSubscriptionPlan[]; message?: string }>('/api/agents/subscription/plans');
+        if (!response.data.success) {
+            throw new Error(response.data.message || 'Failed to fetch plans');
+        }
+        return response.data.data ?? [];
+    },
+};
+
+export function useSubscriptionPlans() {
+    return useQuery({
+        queryKey: ['subscription-plans'],
+        queryFn: () => subscriptionApi.getPlans(),
+        staleTime: 5 * 60 * 1000, // 5 minutes
+    });
+}
