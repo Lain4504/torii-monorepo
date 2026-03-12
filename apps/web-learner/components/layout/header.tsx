@@ -16,14 +16,9 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
-import { cn } from "@workspace/ui/lib/utils"
 import { useAppSelector, useAppDispatch } from "@/hooks/hooks"
 import { logout } from "@/store/slices/authSlice"
 import { useLogo } from "@/hooks/useLogo"
-
-const TORII_RED = "text-[#E63946]"
-const BG_TORII_RED = "bg-[#E63946] hover:bg-[#D62828]"
-
 export function Header() {
     const pathname = usePathname()
     const router = useRouter()
@@ -46,9 +41,9 @@ export function Header() {
                 </Link>
 
                 <nav className="hidden md:flex items-center gap-8 text-md font-medium text-zinc-600">
-                    <Link href="/courses" className="hover:text-[#E63946] transition-colors">Khóa học</Link>
-                    <Link href="/blogs" className="hover:text-[#E63946] transition-colors">Blog</Link>
-                    <Link href="/faq" className="hover:text-[#E63946] transition-colors">FAQ</Link>
+                    <Link href="/courses" className="hover:text-primary transition-colors">Khóa học</Link>
+                    <Link href="/blogs" className="hover:text-primary transition-colors">Blog</Link>
+                    <Link href="/faq" className="hover:text-primary transition-colors">FAQ</Link>
                 </nav>
 
                 <div className="flex items-center gap-4">
@@ -57,7 +52,7 @@ export function Header() {
                             <DropdownMenuTrigger asChild>
                                 <Avatar className="h-10 w-10 cursor-pointer hover:opacity-80 transition-opacity">
                                     {user.avatarUrl && <AvatarImage src={user.avatarUrl} />}
-                                    <AvatarFallback className="bg-[#E63946] text-white">
+                                    <AvatarFallback className="bg-primary text-primary-foreground">
                                         {user.displayName?.substring(0, 2).toUpperCase() || 'U'}
                                     </AvatarFallback>
                                 </Avatar>
@@ -100,10 +95,10 @@ export function Header() {
                         </DropdownMenu>
                     ) : (
                         <>
-                            <Button variant="ghost" className="hidden sm:flex font-semibold text-zinc-600 hover:text-[#E63946]" asChild>
+                            <Button variant="ghost" className="hidden sm:flex font-semibold text-zinc-600 hover:text-primary" asChild>
                                 <Link href="/login">Đăng nhập</Link>
                             </Button>
-                            <Button className={`${BG_TORII_RED} text-white font-semibold rounded-full px-6 transition-transform hover:scale-105`} asChild>
+                            <Button className="bg-primary hover:bg-primary/90 text-white font-semibold rounded-full px-6 transition-transform hover:scale-105" asChild>
                                 <Link href="/register">Đăng ký</Link>
                             </Button>
                         </>

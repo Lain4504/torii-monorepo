@@ -7,8 +7,8 @@ import Link from "next/link"
 import Image from "next/image"
 import { useLogo } from "@/hooks/useLogo"
 
-const TORII_RED = "text-[#E63946]"
-const BG_TORII_RED = "bg-[#E63946] hover:bg-[#D62828]"
+const TORII_RED = "text-primary"
+const BG_TORII_RED = "bg-primary hover:bg-primary/90"
 
 export function Footer() {
     const logo = useLogo()
@@ -48,8 +48,8 @@ export function Footer() {
                     <h4 className="text-white font-bold text-lg">Đăng ký nhận bảng tin</h4>
                     <p className="text-sm text-zinc-400">Nhận lịch khai giảng ưu đãi, tài liệu JLPT miễn phí hàng tuần.</p>
                     <div className="flex gap-2">
-                        <Input placeholder="Email của bạn..." className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus-visible:ring-[#E63946]" />
-                        <Button className={`${BG_TORII_RED} text-white`}>Gửi</Button>
+                        <Input placeholder="Email của bạn..." className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 focus-visible:ring-primary" />
+                        <Button className={`${BG_TORII_RED} text-primary-foreground`}>Gửi</Button>
                     </div>
                 </div>
             </div>

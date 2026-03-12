@@ -99,7 +99,7 @@ export function StudySetsList() {
     };
 
     return (
-        <div className="min-h-[calc(100vh-6rem)] rounded-3xl bg-[#f0f4f8] p-6 md:p-8">
+        <div className="min-h-[calc(100vh-6rem)] rounded-3xl bg-muted p-6 md:p-8">
             <div className="mx-auto max-w-5xl space-y-8 rounded-2xl bg-white/60 p-4 shadow-sm ring-1 ring-slate-200 nhai-blueprint-bg">
                 {/* Page header */}
                 <div className="flex items-start justify-between gap-4">
@@ -421,7 +421,7 @@ export function StudySetsList() {
                                     <Button
                                         asChild
                                         disabled={!selectedSetId || selectedCount === 0}
-                                        className="mt-4 w-full rounded-xl bg-[#0084ff] text-white hover:bg-blue-600"
+                                        className="mt-4 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
                                     >
                                         <Link href={selectedSetId ? `/dashboard/study-sets/${selectedSetId}/review` : '#'}>
                                             <Play className="mr-2 h-4 w-4" />

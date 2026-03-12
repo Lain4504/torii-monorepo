@@ -36,8 +36,8 @@ const Fire = Flame
 const VideoCamera = Video
 const Teacher = User
 
-const TORII_RED = "text-[#E63946]"
-const BG_TORII_RED = "bg-[#E63946]"
+const TORII_RED = "text-primary"
+const BG_TORII_RED = "bg-primary"
 
 const formatPrice = (price?: number | string) => {
     if (price === undefined || price === null) return "Liên hệ";
@@ -116,9 +116,9 @@ export default function LiveCourseDetail() {
             <div className="bg-white border-b border-zinc-100 py-4">
                 <div className="container mx-auto px-4 lg:px-8 max-w-7xl">
                     <div className="flex items-center gap-2 text-sm text-zinc-500 font-medium">
-                        <Link href="/" className="hover:text-[#E63946] transition-colors">Trang chủ</Link>
+                        <Link href="/" className="hover:text-primary transition-colors">Trang chủ</Link>
                         <span>/</span>
-                        <Link href="/courses" className="hover:text-[#E63946] transition-colors">Khóa học Live</Link>
+                        <Link href="/courses" className="hover:text-primary transition-colors">Khóa học Live</Link>
                         <span>/</span>
                         <span className="text-zinc-900 truncate font-semibold">{offering.title}</span>
                     </div>
@@ -134,10 +134,10 @@ export default function LiveCourseDetail() {
                         {/* Course Header info */}
                         <div className="space-y-4">
                             <div className="flex flex-wrap items-center gap-4 mb-4">
-                                <Badge className="bg-[#E63946] text-white py-1.5 px-3 uppercase font-bold tracking-wider text-xs animate-pulse">
+                                <Badge className="bg-primary text-primary-foreground py-1.5 px-3 uppercase font-bold tracking-wider text-xs animate-pulse">
                                     {getStatusLabel(primaryClass?.status || "UPCOMING")}
                                 </Badge>
-                                <Badge className="bg-red-50 text-[#E63946] hover:bg-red-100 border-[#E63946]/20 border py-1.5 px-3">
+                                <Badge className="bg-red-50 text-primary hover:bg-red-100 border-primary/20 border py-1.5 px-3">
                                     {primaryClass?.mode === 'LIVE' ? 'Live Qua Google Meet' : 'Học qua Video'}
                                 </Badge>
                                 <div className="flex items-center gap-1.5 text-yellow-500 font-bold text-sm">
@@ -178,7 +178,7 @@ export default function LiveCourseDetail() {
                         {/* Class Details Highlight Box */}
                         <div className="bg-zinc-100/60 rounded-2xl p-6 sm:p-8 border border-zinc-200/60">
                             <h3 className="text-lg font-bold text-zinc-900 mb-6 flex items-center gap-2">
-                                <Calendar className="size-5 text-[#E63946]" strokeWidth={2} />
+                                <Calendar className="size-5 text-primary" strokeWidth={2} />
                                 Thông tin khóa học
                             </h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-12">
@@ -222,7 +222,7 @@ export default function LiveCourseDetail() {
                                     "Trao đổi kỹ năng phỏng vấn công ty Nhật"
                                 ]).map((target: string, idx: number) => (
                                     <div key={idx} className="flex items-start gap-3">
-                                        <Tick className="size-5 text-[#E63946] shrink-0 mt-0.5" strokeWidth={2.5} />
+                                        <Tick className="size-5 text-primary shrink-0 mt-0.5" strokeWidth={2.5} />
                                         <span className="text-zinc-700 leading-relaxed font-medium">{target}</span>
                                     </div>
                                 ))}
@@ -255,7 +255,7 @@ export default function LiveCourseDetail() {
                                                     <div key={lIdx} className="flex items-center justify-between py-3 px-4 rounded-lg transition-colors group border-b last:border-0 border-zinc-200/60">
                                                         <div className="flex items-center gap-3">
                                                             {item.kind === 'LESSON' ? (
-                                                                <VideoCamera className="size-5 text-[#E63946]/70" strokeWidth={2} />
+                                                                <VideoCamera className="size-5 text-primary/70" strokeWidth={2} />
                                                             ) : (
                                                                 <FileIcon className="size-5 text-zinc-400" strokeWidth={2} />
                                                             )}
@@ -277,7 +277,7 @@ export default function LiveCourseDetail() {
 
                         {/* Giảng viên (Instructor) */}
                         <section className="bg-white rounded-2xl p-8 border border-zinc-100 shadow-sm relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-[#E63946]/5 rounded-bl-[100px] pointer-events-none"></div>
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-[100px] pointer-events-none"></div>
                             <h2 className="text-2xl font-bold text-zinc-900 mb-8 relative z-10">Giảng viên phụ trách</h2>
                             <div className="flex flex-col md:flex-row gap-8 items-start relative z-10">
                                 <Avatar className="size-32 border-4 border-white shadow-xl flex-shrink-0">
@@ -287,7 +287,7 @@ export default function LiveCourseDetail() {
                                 <div className="space-y-4">
                                     <div>
                                         <h3 className="text-2xl font-bold text-zinc-900 mb-1">{teacher.displayName}</h3>
-                                        <p className="text-[#E63946] font-semibold text-lg">Giảng viên tại Torii Nihongo</p>
+                                        <p className="text-primary font-semibold text-lg">Giảng viên tại Torii Nihongo</p>
                                     </div>
                                     <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-zinc-600">
                                         <div className="flex items-center gap-1.5 bg-zinc-100 px-3 py-1.5 rounded-full">
@@ -312,7 +312,7 @@ export default function LiveCourseDetail() {
                             <div className="bg-white rounded-3xl p-6 shadow-2xl shadow-zinc-200/50 border border-zinc-100 relative overflow-hidden">
 
                                 {((primaryClass?.maxStudents || 30) - (primaryClass?.enrolledCount || 0) <= 5) && (
-                                    <div className="bg-red-50 border border-[#E63946]/30 text-[#E63946] font-bold px-4 py-3 rounded-xl mb-6 flex items-center gap-2 justify-center shadow-sm">
+                                    <div className="bg-red-50 border border-primary/30 text-primary font-bold px-4 py-3 rounded-xl mb-6 flex items-center gap-2 justify-center shadow-sm">
                                         <Fire className="size-5 animate-pulse" strokeWidth={2.5} />
                                         <span>Chỉ còn {(primaryClass?.maxStudents || 30) - (primaryClass?.enrolledCount || 0)} chỗ trống cuối cùng!</span>
                                     </div>
@@ -322,18 +322,18 @@ export default function LiveCourseDetail() {
                                     {(offering.metadata as any)?.oldPrice && (
                                         <div className="text-zinc-400 font-medium line-through mb-1 text-lg">{formatPrice((offering.metadata as any)?.oldPrice)}</div>
                                     )}
-                                    <div className="text-4xl font-extrabold text-[#E63946] flex items-center justify-center gap-2">
+                                    <div className="text-4xl font-extrabold text-primary flex items-center justify-center gap-2">
                                         {formatPrice(offering.originalPrice)}
                                     </div>
                                 </div>
 
                                 <div className="space-y-4 mb-8">
-                                    <Button className="w-full h-14 text-lg font-bold bg-[#E63946] hover:bg-[#D62828] text-white shadow-lg shadow-[#E63946]/30 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2" asChild>
+                                    <Button className="w-full h-14 text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2" asChild>
                                         <Link href={`/checkout/${offering.id}${primaryClass?.id ? `?classId=${primaryClass.id}` : ''}`}>
                                             Giữ chỗ ngay <ArrowRight className="size-5" />
                                         </Link>
                                     </Button>
-                                    <Button variant="outline" className="w-full h-12 text-base font-bold border-2 border-[#E63946]/20 text-[#E63946] hover:bg-[#E63946]/5 hover:border-[#E63946] transition-colors">
+                                    <Button variant="outline" className="w-full h-12 text-base font-bold border-2 border-primary/20 text-primary hover:bg-primary/5 hover:border-primary transition-colors">
                                         Nhận tư vấn lộ trình
                                     </Button>
                                 </div>
@@ -373,7 +373,7 @@ export default function LiveCourseDetail() {
                                         <Button variant="secondary" size="icon" className="rounded-full bg-zinc-100 hover:bg-[#1DA1F2] hover:text-white transition-colors">
                                             <Twitter className="size-5" />
                                         </Button>
-                                        <Button variant="secondary" size="icon" className="rounded-full bg-zinc-100 hover:bg-[#E63946] hover:text-white transition-colors">
+                                        <Button variant="secondary" size="icon" className="rounded-full bg-zinc-100 hover:bg-primary hover:text-primary-foreground transition-colors">
                                             <MessageCircle className="size-5" />
                                         </Button>
                                     </div>
@@ -405,10 +405,10 @@ export default function LiveCourseDetail() {
                                 <Badge className="absolute top-4 left-4 bg-zinc-900/80 text-white backdrop-blur-md">Kaiwa Hội thoại</Badge>
                             </div>
                             <div className="p-6">
-                                <h4 className="text-xl font-bold text-zinc-900 mb-3 group-hover:text-[#E63946] transition-colors line-clamp-2">
+                                <h4 className="text-xl font-bold text-zinc-900 mb-3 group-hover:text-primary transition-colors line-clamp-2">
                                     Luyện Kaiwa (Giao tiếp thực hành) Trình độ Tung cấp
                                 </h4>
-                                <div className="font-bold text-[#E63946] text-lg">1.500.000đ</div>
+                                <div className="font-bold text-primary text-lg">1.500.000đ</div>
                             </div>
                         </div>
 
@@ -420,10 +420,10 @@ export default function LiveCourseDetail() {
                                 <Badge className="absolute top-4 left-4 bg-zinc-900/80 text-white backdrop-blur-md">Phỏng vấn thực chiến</Badge>
                             </div>
                             <div className="p-6">
-                                <h4 className="text-xl font-bold text-zinc-900 mb-3 group-hover:text-[#E63946] transition-colors line-clamp-2">
+                                <h4 className="text-xl font-bold text-zinc-900 mb-3 group-hover:text-primary transition-colors line-clamp-2">
                                     Trọn bộ kỹ năng phỏng vấn trong công ty Nhật Bản
                                 </h4>
-                                <div className="font-bold text-[#E63946] text-lg">900.000đ</div>
+                                <div className="font-bold text-primary text-lg">900.000đ</div>
                             </div>
                         </div>
 
@@ -435,10 +435,10 @@ export default function LiveCourseDetail() {
                                 <Badge className="absolute top-4 left-4 bg-zinc-900/80 text-white backdrop-blur-md">Doanh nghiệp thực tế</Badge>
                             </div>
                             <div className="p-6">
-                                <h4 className="text-xl font-bold text-zinc-900 mb-3 group-hover:text-[#E63946] transition-colors line-clamp-2">
+                                <h4 className="text-xl font-bold text-zinc-900 mb-3 group-hover:text-primary transition-colors line-clamp-2">
                                     Tiếng Nhật thương mại - Viết mail & Báo cáo chuẩn
                                 </h4>
-                                <div className="font-bold text-[#E63946] text-lg">1.200.000đ</div>
+                                <div className="font-bold text-primary text-lg">1.200.000đ</div>
                             </div>
                         </div>
                     </div>

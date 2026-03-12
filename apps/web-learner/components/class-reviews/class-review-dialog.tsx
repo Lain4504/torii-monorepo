@@ -221,7 +221,7 @@ export function ClassReviewDialog({
                             </Button>
                             <Button
                                 type="submit"
-                                className="bg-[#E63946] hover:bg-[#D62828] text-white"
+                                className="bg-primary hover:bg-primary/90 text-primary-foreground"
                                 disabled={createMutation.isPending || updateMutation.isPending || hideMutation.isPending}
                             >
                                 {(createMutation.isPending || updateMutation.isPending) ? "Đang gửi..." : "Gửi đánh giá"}
