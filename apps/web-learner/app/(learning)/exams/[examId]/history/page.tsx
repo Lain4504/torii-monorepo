@@ -20,7 +20,7 @@ export default function ExamHistoryPage() {
     })
 
     if (isLoading) {
-        return <PageLoading text="Retreiving Archives..." className="h-screen" />
+        return <PageLoading className="h-screen" />
     }
 
     return (

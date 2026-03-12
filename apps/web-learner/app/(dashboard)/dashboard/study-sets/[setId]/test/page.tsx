@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 export default async function StudySetTestPage({ params }: { params: Promise<{ setId: string }> }) {
     const { setId } = await params;
     return (
-        <div className="flex-1 flex flex-col min-h-screen bg-background">
+        <div className="flex-1 flex flex-col">
             <StudyModeTest setId={setId} />
         </div>
     );

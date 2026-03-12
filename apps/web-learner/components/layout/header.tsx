@@ -16,14 +16,9 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
-import { cn } from "@workspace/ui/lib/utils"
 import { useAppSelector, useAppDispatch } from "@/hooks/hooks"
 import { logout } from "@/store/slices/authSlice"
 import { useLogo } from "@/hooks/useLogo"
-
-const TORII_RED = "text-[#E63946]"
-const BG_TORII_RED = "bg-[#E63946] hover:bg-[#D62828]"
-
 export function Header() {
     const pathname = usePathname()
     const router = useRouter()
@@ -38,46 +33,49 @@ export function Header() {
     }
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md">
+        <header className="fixed top-0 z-50 w-full border-b border-border/40 bg-background/60 backdrop-blur-xl transition-all">
             <div className="container mx-auto px-4 lg:px-8 h-20 flex items-center justify-between">
-                <Link href="/" className="flex items-center gap-3">
-                    <Image src={logo} alt="Torii Nihongo" width={72} height={72} className="w-16 h-auto object-contain" />
-                    <span className="text-xl font-bold tracking-tight text-foreground">Torii Nihongo</span>
+                <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-90">
+                    <Image src={logo} alt="Torii Nihongo" width={64} height={64} className="w-12 h-auto object-contain" />
+                    <div className="flex flex-col">
+                        <span className="text-xl font-black tracking-tighter text-foreground leading-none font-space">TORII</span>
+                        <span className="text-[10px] font-bold text-muted-foreground tracking-[0.3em] leading-none mt-1 uppercase">Nihongo</span>
+                    </div>
                 </Link>
 
-                <nav className="hidden md:flex items-center gap-8 text-md font-medium text-zinc-600">
-                    <Link href="/courses" className="hover:text-[#E63946] transition-colors">Khóa học</Link>
-                    <Link href="/blogs" className="hover:text-[#E63946] transition-colors">Blog</Link>
-                    <Link href="/faq" className="hover:text-[#E63946] transition-colors">FAQ</Link>
+                <nav className="hidden md:flex items-center gap-10 text-sm font-bold text-muted-foreground uppercase tracking-widest">
+                    <Link href="/courses" className="hover:text-primary transition-colors">Khóa học</Link>
+                    <Link href="/blogs" className="hover:text-primary transition-colors">Blog</Link>
+                    <Link href="/faq" className="hover:text-primary transition-colors">Hỗ trợ</Link>
                 </nav>
 
                 <div className="flex items-center gap-4">
                     {isAuthenticated && user ? (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Avatar className="h-10 w-10 cursor-pointer hover:opacity-80 transition-opacity">
+                                <Avatar className="h-10 w-10 cursor-pointer border-2 border-primary/20 hover:border-primary/50 transition-all shadow-sm">
                                     {user.avatarUrl && <AvatarImage src={user.avatarUrl} />}
-                                    <AvatarFallback className="bg-[#E63946] text-white">
+                                    <AvatarFallback className="bg-primary text-primary-foreground font-black">
                                         {user.displayName?.substring(0, 2).toUpperCase() || 'U'}
                                     </AvatarFallback>
                                 </Avatar>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-56">
-                                <DropdownMenuLabel className="font-medium text-zinc-900">
+                            <DropdownMenuContent align="end" className="w-64 p-2 rounded-2xl shadow-2xl border-border bg-card/90 backdrop-blur-xl">
+                                <DropdownMenuLabel className="font-black text-foreground text-base px-2 pt-2">
                                     {user.displayName}
                                 </DropdownMenuLabel>
-                                <p className="px-1.5 py-1 text-xs text-zinc-500 truncate">
+                                <p className="px-2 pb-2 text-xs text-muted-foreground truncate">
                                     {user.email || 'No email'}
                                 </p>
                                 <DropdownMenuSeparator />
-                                <div className="flex items-center justify-between px-1.5 py-2">
+                                <div className="flex items-center justify-between px-2 py-3">
                                     <div className="flex items-center gap-2">
                                         {theme === "dark" ? (
-                                            <Moon className="size-4 text-zinc-600" />
+                                            <Moon className="size-4 text-primary" />
                                         ) : (
-                                            <Sun className="size-4 text-zinc-600" />
+                                            <Sun className="size-4 text-amber-500" />
                                         )}
-                                        <span className="text-sm font-medium text-zinc-700">{theme === "dark" ? "Dark" : "Light"}</span>
+                                        <span className="text-sm font-bold">{theme === "dark" ? "Chế độ tối" : "Chế độ sáng"}</span>
                                     </div>
                                     <Switch
                                         checked={theme === "dark"}
@@ -85,31 +83,32 @@ export function Header() {
                                     />
                                 </div>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem asChild>
-                                    <Link href="/dashboard" className="flex items-center gap-2 cursor-pointer">
-                                        <LayoutDashboard className="size-4" />
-                                        <span>Dashboard</span>
+                                <DropdownMenuItem asChild className="rounded-xl py-3 cursor-pointer">
+                                    <Link href="/dashboard" className="flex items-center gap-3">
+                                        <LayoutDashboard className="size-4 text-primary" />
+                                        <span className="font-bold">Vào học ngay</span>
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
+                                <DropdownMenuItem onClick={handleLogout} className="rounded-xl py-3 cursor-pointer text-destructive focus:bg-destructive/10">
                                     <LogOut className="size-4" />
-                                    <span>Đăng xuất</span>
+                                    <span className="font-bold">Đăng xuất</span>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     ) : (
-                        <>
-                            <Button variant="ghost" className="hidden sm:flex font-semibold text-zinc-600 hover:text-[#E63946]" asChild>
+                        <div className="flex items-center gap-2">
+                            <Button variant="ghost" className="hidden sm:flex font-black text-xs uppercase tracking-widest text-muted-foreground hover:text-primary" asChild>
                                 <Link href="/login">Đăng nhập</Link>
                             </Button>
-                            <Button className={`${BG_TORII_RED} text-white font-semibold rounded-full px-6 transition-transform hover:scale-105`} asChild>
+                            <Button className="bg-primary hover:bg-primary/90 text-white font-black text-xs uppercase tracking-widest rounded-full px-8 h-12 shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95" asChild>
                                 <Link href="/register">Đăng ký</Link>
                             </Button>
-                        </>
+                        </div>
                     )}
                 </div>
             </div>
         </header>
     )
 }
+

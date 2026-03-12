@@ -17,7 +17,7 @@ export default function ExamReviewPage() {
     const { data: reviewData, isLoading, error } = useAcademyExamAttempt(sessionId)
 
     if (isLoading) {
-        return <PageLoading text="Đang phân tích kết quả bài thi..." className="h-screen" />
+        return <PageLoading className="h-screen" />
     }
 
     if (error || !reviewData) {

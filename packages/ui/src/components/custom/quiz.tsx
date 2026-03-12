@@ -62,6 +62,8 @@ export interface QuizProps {
     quizData: QuizData;
     onComplete?: (result: QuizResult) => void;
     className?: string;
+    /** Nếu true, ẩn màn hình kết quả nội bộ để parent tự render UI kết quả. */
+    hideInternalResult?: boolean;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -72,7 +74,7 @@ function shuffleArray<T>(arr: T[]): T[] {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function Quiz({ quizData, onComplete, className }: QuizProps) {
+export function Quiz({ quizData, onComplete, className, hideInternalResult }: QuizProps) {
     const {
         title,
         description,
@@ -175,6 +177,10 @@ export function Quiz({ quizData, onComplete, className }: QuizProps) {
 
     // ── Results screen ────────────────────────────────────────────────────────
     if (finished && result) {
+        if (hideInternalResult) {
+            // Đã hoàn thành – giao lại cho component cha hiển thị kết quả.
+            return null;
+        }
         return (
             <Card className={cn("w-full max-w-2xl mx-auto", className)}>
                 <CardHeader className="text-center pb-2">
@@ -239,7 +245,12 @@ export function Quiz({ quizData, onComplete, className }: QuizProps) {
                 )}
 
                 <ul
-                    className="space-y-2"
+                    className={cn(
+                        "w-full",
+                        !isMultiple && question.options.length === 4
+                            ? "grid grid-cols-1 sm:grid-cols-2 gap-2"
+                            : "space-y-2",
+                    )}
                     role="listbox"
                     aria-multiselectable={isMultiple}
                 >

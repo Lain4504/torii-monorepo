@@ -7,6 +7,7 @@ import { Card, CardContent } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { ChevronLeft, RefreshCw, Trophy, Timer, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { StudyModeSelection } from './study-mode-selection';
 
 interface MatchItem {
     id: string; // The original card ID
@@ -96,50 +97,63 @@ export function StudyModeMatch({ setId }: { setId: string }) {
 
     if (isLoading) {
         return (
-            <div className="flex-1 flex flex-col items-center justify-center space-y-4">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                <p className="text-muted-foreground animate-pulse">Đang xáo trộn thẻ...</p>
+            <div className="flex-1 flex items-center justify-center">
+                <div className="flex flex-col items-center gap-3">
+                    <div className="h-10 w-10 rounded-full border-2 border-border border-t-primary animate-spin" />
+                    <p className="text-sm text-muted-foreground">Đang xáo trộn thẻ...</p>
+                </div>
             </div>
         );
     }
 
     if (isError || !pairs || pairs.length === 0) {
         return (
-            <div className="flex-1 flex flex-col items-center justify-center space-y-4 h-[60vh]">
-                <div className="w-20 h-20 bg-destructive/10 text-destructive rounded-full flex items-center justify-center mb-4">
-                    <X className="size-10" />
+            <div className="flex-1 flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4 max-w-sm text-center">
+                    <div className="w-16 h-16 bg-destructive/10 text-destructive rounded-full flex items-center justify-center">
+                        <X className="size-8" />
+                    </div>
+                    <h2 className="text-lg font-semibold">Không thể tải dữ liệu</h2>
+                    <p className="text-sm text-muted-foreground">
+                        Bộ thẻ này cần đủ số lượng thẻ để chơi ghép cặp.
+                    </p>
+                    <Button onClick={() => router.push(`/dashboard/study-sets/${setId}`)}>
+                        <ChevronLeft className="mr-2 h-4 w-4" /> Về bộ thẻ
+                    </Button>
                 </div>
-                <h2 className="text-2xl font-bold">Lỗi tải dữ liệu</h2>
-                <p className="text-muted-foreground text-center">Bộ thẻ này cần ít nhất một số lượng thẻ nhất định để chơi ghép cặp.</p>
-                <Button className="mt-4" onClick={() => router.push(`/dashboard/study-sets/${setId}`)}>
-                    <ChevronLeft className="mr-2 h-4 w-4" /> Về bộ thẻ
-                </Button>
             </div>
         );
     }
 
     if (gameFinished && pairs) {
         return (
-            <div className="flex-1 flex flex-col items-center justify-center max-w-2xl mx-auto w-full px-4 text-center">
-                <div className="w-24 h-24 bg-yellow-500/10 text-yellow-500 rounded-full flex items-center justify-center mb-6">
-                    <Trophy className="size-12" />
+            <div className="flex-1 flex flex-col max-w-5xl mx-auto w-full px-4 py-10 space-y-10">
+                <div className="flex flex-col items-center justify-center max-w-2xl mx-auto w-full text-center">
+                    <div className="w-24 h-24 bg-yellow-500/10 text-yellow-500 rounded-full flex items-center justify-center mb-6">
+                        <Trophy className="size-12" />
+                    </div>
+                    <h2 className="text-4xl font-bold mb-2">Thành công!</h2>
+                    <p className="text-muted-foreground text-xl mb-8">Bạn hoàn thành trong {time} giây</p>
+                    <div className="flex gap-4">
+                        <Button size="lg" onClick={initGame}>
+                            <RefreshCw className="mr-2 size-5" /> Chơi lại
+                        </Button>
+                        <Button size="lg" variant="outline" onClick={() => router.push(`/dashboard/study-sets/${setId}`)}>
+                            <ChevronLeft className="mr-2 size-5" /> Về bộ thẻ
+                        </Button>
+                    </div>
                 </div>
-                <h2 className="text-4xl font-bold mb-2">Thành công!</h2>
-                <p className="text-muted-foreground text-xl mb-8">Bạn hoàn thành trong {time} giây</p>
-                <div className="flex gap-4">
-                    <Button size="lg" onClick={initGame}>
-                        <RefreshCw className="mr-2 size-5" /> Chơi lại
-                    </Button>
-                    <Button size="lg" variant="outline" onClick={() => router.push(`/dashboard/study-sets/${setId}`)}>
-                        <ChevronLeft className="mr-2 size-5" /> Về bộ thẻ
-                    </Button>
-                </div>
+                <StudyModeSelection
+                    selectedSetId={setId}
+                    selectedCount={pairs.length}
+                    activeMode="match"
+                />
             </div>
         );
     }
 
     return (
-        <div className="flex-1 flex flex-col max-w-5xl mx-auto w-full px-4 py-10 relative">
+        <div className="flex-1 flex flex-col max-w-5xl mx-auto w-full px-4 py-10 relative space-y-10">
             <div className="flex justify-between items-center mb-10 sticky top-0 bg-background/80 backdrop-blur-md z-20 py-2">
                 <Button variant="ghost" onClick={() => router.push(`/dashboard/study-sets/${setId}`)}>
                     <ChevronLeft className="mr-2 h-4 w-4" /> Thoát game
@@ -185,6 +199,12 @@ export function StudyModeMatch({ setId }: { setId: string }) {
             <p className="mt-12 text-center text-muted-foreground text-sm opacity-50 select-none">
                 Hãy chọn một thuật ngữ và nghĩa tương ứng để chúng biến mất!
             </p>
+
+            <StudyModeSelection
+                selectedSetId={setId}
+                selectedCount={pairs.length}
+                activeMode="match"
+            />
         </div>
     );
 }

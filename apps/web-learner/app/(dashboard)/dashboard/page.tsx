@@ -81,7 +81,7 @@ export default function DashboardClientPage() {
     const isStaffOrAdmin = role === 'admin' || role === 'staff-lms' || role === 'staff_lms' || role === 'staff';
 
     return (
-        <div className="bg-background text-foreground font-sans antialiased min-h-screen">
+        <div className="bg-transparent text-foreground font-sans antialiased min-h-screen">
             <style>{`
     .hover-lift { transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; }
     .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); }

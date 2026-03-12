@@ -125,8 +125,6 @@ CREATE TABLE lessons (
     CONSTRAINT lesson_type_integrity CHECK (
         (type = 'VIDEO' AND video_url IS NOT NULL AND assignment_id IS NULL)
         OR
-        (type = 'ASSIGNMENT' AND assignment_id IS NOT NULL AND video_url IS NULL)
-        OR
         (type = 'READING' AND video_url IS NULL AND assignment_id IS NULL)
     ),
     -- Prevent order conflicts within a module
