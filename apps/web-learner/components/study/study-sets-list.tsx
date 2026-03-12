@@ -21,9 +21,10 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@workspace/ui/components/dialog';
-import { AlertCircle, Bot, BrainCircuit, Layers, LayoutGrid, Play, Target, Trash2, Zap, PlusCircle } from 'lucide-react';
+import { AlertCircle, Bot, BrainCircuit, LayoutGrid, Trash2, PlusCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { StudyModeSelection } from './study-mode-selection';
 
 export function StudySetsList() {
     const { data: studySets, isLoading } = useStudySets();
@@ -392,100 +393,7 @@ export function StudySetsList() {
                 </Card>
 
                 {/* Study modes section */}
-                <section className="space-y-4 pb-2">
-                    <div className="flex items-center gap-3 rounded-2xl border border-orange-100 bg-orange-50/80 px-4 py-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 text-orange-500">
-                            <AlertCircle className="h-4 w-4" />
-                        </div>
-                        <p className="text-xs font-medium text-orange-800">
-                            Nên dùng bộ gõ tiếng Việt hoặc Nhật cho các chế độ luyện gõ để tăng hiệu quả ghi nhớ.
-                        </p>
-                    </div>
-                    <div>
-                        <h2 className="mb-4 text-lg font-bold text-slate-900">Chọn chế độ học</h2>
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                            {/* Flashcard / SRS */}
-                            <Card className="flex h-full flex-col items-center justify-between border-blue-100 bg-white text-center shadow-sm transition-shadow hover:shadow-md">
-                                <CardContent className="flex h-full flex-col items-center justify-between space-y-4 p-6">
-                                    <div className="flex flex-col items-center space-y-4">
-                                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-500">
-                                            <Layers className="h-6 w-6" />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <p className="text-base font-bold text-slate-900">Flashcard</p>
-                                            <p className="text-xs leading-relaxed text-slate-500">
-                                                Lật thẻ theo hệ thống SRS để làm quen và củng cố từ vựng.
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <Button
-                                        asChild
-                                        disabled={!selectedSetId || selectedCount === 0}
-                                        className="mt-4 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
-                                    >
-                                        <Link href={selectedSetId ? `/dashboard/study-sets/${selectedSetId}/review` : '#'}>
-                                            <Play className="mr-2 h-4 w-4" />
-                                            Bắt đầu Flashcard
-                                        </Link>
-                                    </Button>
-                                </CardContent>
-                            </Card>
-
-                            {/* Multiple choice test */}
-                            <Card className="flex h-full flex-col items-center justify-between border-emerald-100 bg-white text-center shadow-sm transition-shadow hover:shadow-md">
-                                <CardContent className="flex h-full flex-col items-center justify-between space-y-4 p-6">
-                                    <div className="flex flex-col items-center space-y-4">
-                                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-500">
-                                            <Target className="h-6 w-6" />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <p className="text-base font-bold text-slate-900">Trắc nghiệm</p>
-                                            <p className="text-xs leading-relaxed text-slate-500">
-                                                Xem thuật ngữ, chọn đáp án đúng. Phù hợp để kiểm tra nhanh.
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <Button
-                                        asChild
-                                        disabled={!selectedSetId || selectedCount === 0}
-                                        className="mt-4 w-full rounded-xl bg-emerald-500 text-white hover:bg-emerald-600"
-                                    >
-                                        <Link href={selectedSetId ? `/dashboard/study-sets/${selectedSetId}/test` : '#'}>
-                                            <Zap className="mr-2 h-4 w-4" />
-                                            Bắt đầu Trắc nghiệm
-                                        </Link>
-                                    </Button>
-                                </CardContent>
-                            </Card>
-
-                            {/* Match / active recall */}
-                            <Card className="flex h-full flex-col items-center justify-between border-orange-100 bg-white text-center shadow-sm transition-shadow hover:shadow-md">
-                                <CardContent className="flex h-full flex-col items-center justify-between space-y-4 p-6">
-                                    <div className="flex flex-col items-center space-y-4">
-                                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 text-orange-500">
-                                            <Zap className="h-6 w-6" />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <p className="text-base font-bold text-slate-900">Nhồi nhét</p>
-                                            <p className="text-xs leading-relaxed text-slate-500">
-                                                Luyện tập chủ động với trò chơi ghép cặp – tăng độ “nhai lại” của vốn từ.
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <Button
-                                        asChild
-                                        disabled={!selectedSetId || selectedCount === 0}
-                                        className="mt-4 w-full rounded-xl bg-orange-500 text-white hover:bg-orange-600"
-                                    >
-                                        <Link href={selectedSetId ? `/dashboard/study-sets/${selectedSetId}/match` : '#'}>
-                                            Bắt đầu Nhồi nhét
-                                        </Link>
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </div>
-                </section>
+                <StudyModeSelection selectedSetId={selectedSetId} selectedCount={selectedCount} />
             </div>
         </div>
     );

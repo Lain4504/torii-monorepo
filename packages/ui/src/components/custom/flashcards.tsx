@@ -44,6 +44,8 @@ export interface FlashcardsProps {
     flashcardsData: FlashcardsData
     onComplete?: (result: FlashcardsResult) => void
     className?: string
+    /** Nếu true, ẩn màn hình tổng kết nội bộ để cho phép parent render UI hoàn thành riêng. */
+    hideInternalCompletion?: boolean
 }
 
 function shuffleArray<T>(arr: T[]): T[] {
@@ -58,7 +60,7 @@ const DIFFICULTY_CONFIG: Record<
     known: { label: "Nhớ", variant: "default" },
 }
 
-export function Flashcards({ flashcardsData, onComplete, className }: FlashcardsProps) {
+export function Flashcards({ flashcardsData, onComplete, className, hideInternalCompletion }: FlashcardsProps) {
     const { title, description, showRatings = true, shuffle = false } = flashcardsData
 
     const cards = React.useMemo(
@@ -98,6 +100,11 @@ export function Flashcards({ flashcardsData, onComplete, className }: Flashcards
 
     // ── Finished ──────────────────────────────────────────────────────────────
     if (finished) {
+        if (hideInternalCompletion) {
+            // Đã hoàn thành – giao lại cho parent hiển thị UI tổng kết (onComplete đã được gọi trong handleRate).
+            return null
+        }
+
         const counts: Record<FlashcardDifficulty, number> = { forgot: 0, known: 0 }
         for (const r of ratings) counts[r.difficulty]++
         return (
@@ -129,7 +136,7 @@ export function Flashcards({ flashcardsData, onComplete, className }: Flashcards
     }
 
     return (
-        <div className={cn("w-full max-w-2xl mx-auto space-y-4", className)}>
+        <div className={cn("w-full mx-auto space-y-4", className)}>
             <div className="flex items-center justify-between">
                 <div>
                     <h2 className="font-semibold text-lg">{title}</h2>

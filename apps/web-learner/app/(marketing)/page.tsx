@@ -108,7 +108,7 @@ export default function Page() {
                         <div className="relative rounded-3xl overflow-hidden border border-border/50 shadow-[0_0_50px_-12px_rgba(0,0,0,0.12)] bg-card/30 backdrop-blur-xl p-2">
                              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent z-10 pointer-events-none" />
                              <img 
-                                src="https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2670&auto=format&fit=crop" 
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCG1lHyVlBZeCLUgxqHg38I0YGvpvFYGrVig35Kko1upPD-vnETZmzyBbBK3A6hCK57I3xnkzaOltJTb18YdOESfkh5E8u-DXu7UNjUK9geKp2TedLxR9s49yKpDR8VOHnNSVdDXRM0ysjKK1-pjZENPHk6BJ8w6hy8vVphcbKTPAbq6dHl3grtu_AOET-Egjo-oq2IlGGuV46679D4T5aqWFQQUbBUaydg23DB162kIhFl02E0QUX6AmznqvrHP2qIIvyvg6KNBpWC" 
                                 alt="Platform Preview" 
                                 className="w-full aspect-[21/9] object-cover rounded-2xl grayscale-[20%] hover:grayscale-0 transition-all duration-700"
                              />
