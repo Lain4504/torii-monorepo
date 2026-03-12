@@ -19,7 +19,7 @@ export default function LeaderboardPage() {
     const { user: currentUser } = useAppSelector((state) => state.auth)
 
     if (isLoading) {
-        return <PageLoading text="Đang tải bảng xếp hạng..." />
+        return <PageLoading />
     }
 
     const topThree = leaderboard?.users?.slice(0, 3) || []

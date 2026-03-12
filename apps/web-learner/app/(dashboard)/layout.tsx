@@ -46,17 +46,8 @@ export default function DashboardLayout({
         return null
     }
 
-    return (
+  return (
     <SidebarProvider>
-      {/* <style jsx global>{`
-        .nhai-blueprint-bg {
-          background-color: #dbeafe;
-          background-image:
-            linear-gradient(to right, rgba(0, 132, 255, 0.08) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(0, 132, 255, 0.08) 1px, transparent 1px);
-          background-size: 20px 20px;
-        }
-      `}</style> */}
       <AppSidebar />
       <SidebarInset>
         <DashboardHeader />

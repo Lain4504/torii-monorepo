@@ -82,7 +82,7 @@ export default function ModernDashboard() {
                 <div className="flex-1 space-y-6">
                     <div className="space-y-2">
                         <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
-                            Xin chào, <span className="text-[#ec5b13]">{user?.displayName?.split(' ')[0] || 'Học viên'}</span>!
+                            Xin chào, <span className="text-primary">{user?.displayName?.split(' ')[0] || 'Học viên'}</span>!
                         </h1>
                         <p className="text-slate-500 dark:text-slate-400 font-medium">
                             Bạn đang tiến bộ rất tốt hướng tới chứng chỉ {jlptLevel}. Đã hoàn thành {progressPercent}% mục tiêu tổng quát.
@@ -104,7 +104,7 @@ export default function ModernDashboard() {
                                     <div className="space-y-2">
                                         <div className="flex justify-between items-start">
                                             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">{mainCourse.courseTitle}</h3>
-                                            <Badge variant="outline" className="bg-[#ec5b13]/10 text-[#ec5b13] border-[#ec5b13]/20 font-bold uppercase tracking-widest text-[10px]">
+                                            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 font-bold uppercase tracking-widest text-[10px]">
                                                 Active Course
                                             </Badge>
                                         </div>
@@ -118,14 +118,14 @@ export default function ModernDashboard() {
                                             <div className="flex-1 overflow-hidden">
                                                 <div className="flex justify-between text-xs font-bold mb-1.5">
                                                     <span className="text-slate-400">COURSE PROGRESS</span>
-                                                    <span className="text-[#ec5b13]">{mainCourse.progress}%</span>
+                                                    <span className="text-primary">{mainCourse.progress}%</span>
                                                 </div>
-                                                <Progress value={mainCourse.progress} className="h-2 bg-slate-100 dark:bg-slate-800" indicatorClassName="bg-[#ec5b13]" />
+                                                <Progress value={mainCourse.progress} className="h-2 bg-slate-100 dark:bg-slate-800" indicatorClassName="bg-primary" />
                                             </div>
                                         </div>
 
                                         <div className="flex flex-wrap gap-3">
-                                            <Button className="bg-[#ec5b13] hover:bg-[#ec5b13]/90 text-white font-bold px-8 rounded-xl" asChild>
+                                            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 rounded-xl" asChild>
                                                 <Link href={`/courses/${mainCourse.classId}/learn`}>Continue Lesson</Link>
                                             </Button>
                                             <Button variant="outline" className="rounded-xl font-bold px-8" asChild>
@@ -141,7 +141,7 @@ export default function ModernDashboard() {
                             <BookOpen className="size-12 text-slate-300 mb-4" />
                             <h3 className="text-xl font-bold mb-2">Bạn chưa bắt đầu khóa học nào</h3>
                             <p className="text-slate-500 mb-6">Khám phá kho khóa học để bắt đầu hành trình chinh phục tiếng Nhật.</p>
-                            <Button className="bg-[#ec5b13] hover:bg-[#ec5b13]/90 rounded-xl font-bold px-10" asChild>
+                            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-bold px-10" asChild>
                                 <Link href="/courses">Browse Courses</Link>
                             </Button>
                         </Card>
@@ -151,7 +151,7 @@ export default function ModernDashboard() {
                 {/* Right Info Column */}
                 <div className="w-full lg:w-80 space-y-6">
                     {/* AI Sensei Card */}
-                    <div className="bg-gradient-to-br from-[#ec5b13] to-[#ff8c42] p-8 rounded-2xl text-white shadow-xl shadow-[#ec5b13]/20 relative overflow-hidden group">
+                    <div className="bg-gradient-to-br from-primary to-primary/80 p-8 rounded-2xl text-primary-foreground shadow-xl relative overflow-hidden group">
                         <Bot className="absolute -right-6 -bottom-6 size-40 opacity-10 rotate-12 group-hover:rotate-0 transition-transform duration-700" />
                         <div className="relative z-10 space-y-4">
                             <h3 className="text-xl font-bold">AI Sensei</h3>
@@ -207,7 +207,7 @@ export default function ModernDashboard() {
                     <Card className="p-8 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm">
                         <div className="flex justify-between items-center mb-10">
                             <h3 className="text-xl font-bold">Progress Summary</h3>
-                            <Button variant="ghost" className="text-xs font-bold text-[#ec5b13] hover:bg-[#ec5b13]/10" asChild>
+                            <Button variant="ghost" className="text-xs font-bold text-primary hover:bg-primary/10" asChild>
                                 <Link href="/analytics">View Detailed Report <ChevronRight className="ml-1 size-3" /></Link>
                             </Button>
                         </div>
@@ -220,7 +220,7 @@ export default function ModernDashboard() {
                                     <svg className="size-full transform -rotate-90">
                                         <circle className="text-slate-100 dark:text-slate-800" cx="80" cy="80" r="74" stroke="currentColor" strokeWidth="12" fill="transparent" />
                                         <circle
-                                            className="text-[#ec5b13] transition-all duration-1000 ease-out"
+                                            className="text-primary transition-all duration-1000 ease-out"
                                             cx="80" cy="80" r="74"
                                             fill="transparent"
                                             stroke="currentColor"
@@ -243,29 +243,29 @@ export default function ModernDashboard() {
                                         <span className="text-slate-500">Vocabulary</span>
                                         <span>{formatNumber(statsData?.averageProgress || 0)} / 100</span>
                                     </div>
-                                    <Progress value={statsData?.averageProgress || 0} className="h-2 bg-slate-100 dark:bg-slate-800" indicatorClassName="bg-[#ec5b13]" />
+                                    <Progress value={statsData?.averageProgress || 0} className="h-2 bg-slate-100 dark:bg-slate-800" indicatorClassName="bg-primary" />
                                 </div>
                                 <div className="space-y-2">
                                     <div className="flex justify-between text-xs font-bold">
                                         <span className="text-slate-500">Grammar</span>
                                         <span>{formatNumber(statsData?.averageProgress || 0)} / 100</span>
                                     </div>
-                                    <Progress value={Math.min(100, (statsData?.averageProgress || 0) + 5)} className="h-2 bg-slate-100 dark:bg-slate-800" indicatorClassName="bg-[#ec5b13]" />
+                                    <Progress value={Math.min(100, (statsData?.averageProgress || 0) + 5)} className="h-2 bg-slate-100 dark:bg-slate-800" indicatorClassName="bg-primary" />
                                 </div>
                                 <div className="space-y-2">
                                     <div className="flex justify-between text-xs font-bold">
                                         <span className="text-slate-500">Kanji Mastery</span>
                                         <span>{formatNumber(statsData?.averageProgress || 0)} / 100</span>
                                     </div>
-                                    <Progress value={Math.max(0, (statsData?.averageProgress || 0) - 10)} className="h-2 bg-slate-100 dark:bg-slate-800" indicatorClassName="bg-[#ec5b13]" />
+                                    <Progress value={Math.max(0, (statsData?.averageProgress || 0) - 10)} className="h-2 bg-slate-100 dark:bg-slate-800" indicatorClassName="bg-primary" />
                                 </div>
                             </div>
 
                             {/* Quick Stats Column */}
                             <div className="md:col-span-3 flex flex-col justify-center gap-4">
-                                <div className="p-4 rounded-2xl bg-[#ec5b13]/5 dark:bg-[#ec5b13]/10 border border-[#ec5b13]/10">
+                                <div className="p-4 rounded-2xl bg-primary/5 dark:bg-primary/10 border border-primary/10">
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Study Time</p>
-                                    <p className="text-2xl font-black text-[#ec5b13]">{statsData?.totalLearningHours || 0} <span className="text-sm font-bold opacity-70">hrs</span></p>
+                                    <p className="text-2xl font-black text-primary">{statsData?.totalLearningHours || 0} <span className="text-sm font-bold opacity-70">hrs</span></p>
                                 </div>
                                 <div className="p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30">
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Points</p>
@@ -304,8 +304,8 @@ export default function ModernDashboard() {
                                         <tr key={session.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors group">
                                             <td className="px-6 py-5">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="size-2 rounded-full bg-[#ec5b13] animate-pulse" />
-                                                    <span className="font-bold text-slate-900 dark:text-white group-hover:text-[#ec5b13] transition-colors">{session.title}</span>
+                                                    <div className="size-2 rounded-full bg-primary animate-pulse" />
+                                                    <span className="font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{session.title}</span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-5">
@@ -318,7 +318,7 @@ export default function ModernDashboard() {
                                                 <span className="text-sm font-bold text-slate-900 dark:text-white">{session.time}</span>
                                             </td>
                                             <td className="px-6 py-5 text-right">
-                                                <Button size="sm" className="bg-[#ec5b13] hover:bg-[#ec5b13]/90 text-white font-bold rounded-lg text-xs px-4">Join Room</Button>
+                                                <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-lg text-xs px-4">Join Room</Button>
                                             </td>
                                         </tr>
                                     ))}
@@ -346,7 +346,7 @@ export default function ModernDashboard() {
                             </div>
 
                             <div className="relative flex gap-5 group">
-                                <div className="size-6 bg-[#ec5b13] rounded-full flex items-center justify-center text-white ring-4 ring-white dark:ring-slate-900 z-10 transition-transform group-hover:scale-110">
+                                <div className="size-6 bg-primary rounded-full flex items-center justify-center text-primary-foreground ring-4 ring-white dark:ring-slate-900 z-10 transition-transform group-hover:scale-110">
                                     <PlayCircle className="size-3.5" />
                                 </div>
                                 <div className="flex-1 space-y-1">

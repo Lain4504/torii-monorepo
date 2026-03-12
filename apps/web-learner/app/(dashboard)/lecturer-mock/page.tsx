@@ -32,9 +32,10 @@ export default function LecturerMockPage() {
     const [activeView, setActiveView] = useState<ViewState>('MY_CLASSES')
 
     return (
-        <div className="flex h-[calc(100vh-64px)] w-full overflow-hidden bg-background">
+        <div className="flex h-[calc(100vh-64px)] w-full overflow-hidden bg-transparent">
             {/* Lecturer Sidebar */}
-            <aside className="w-64 border-r bg-muted/10 flex flex-col shadow-inner">
+            <aside className="w-64 border-r bg-card/50 backdrop-blur-md flex flex-col shadow-inner">
+
                 <div className="p-6 border-b">
                     <h2 className="font-bold text-lg tracking-tight">Sensei Portal</h2>
                     <p className="text-xs text-muted-foreground">Lecturer Workspace</p>
@@ -63,10 +64,11 @@ export default function LecturerMockPage() {
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 flex flex-col overflow-hidden bg-background">
+            <main className="flex-1 flex flex-col overflow-hidden bg-transparent">
                 {activeView === 'MY_CLASSES' && <MyClassesView onSelectClass={() => setActiveView('CLASS_SESSION')} />}
                 {activeView === 'CLASS_SESSION' && <ClassSessionView onBack={() => setActiveView('MY_CLASSES')} />}
             </main>
+
         </div>
     )
 }
@@ -179,8 +181,9 @@ function MyClassesView({ onSelectClass }: { onSelectClass: () => void }) {
 // --------------------------------------------------------------------------------
 function ClassSessionView({ onBack }: { onBack: () => void }) {
     return (
-        <div className="flex flex-col h-full bg-background animate-in slide-in-from-right-4 duration-500">
-            <header className="px-8 py-6 border-b bg-muted/10">
+        <div className="flex flex-col h-full bg-transparent animate-in slide-in-from-right-4 duration-500">
+            <header className="px-8 py-6 border-b bg-card/30 backdrop-blur-md">
+
                 <Button variant="ghost" size="sm" onClick={onBack} className="mb-4 -ml-2 text-muted-foreground">
                     <ChevronRight className="size-4 mr-1 rotate-180" /> Back to My Classes
                 </Button>
