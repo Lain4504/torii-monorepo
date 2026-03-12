@@ -245,7 +245,12 @@ export function Quiz({ quizData, onComplete, className, hideInternalResult }: Qu
                 )}
 
                 <ul
-                    className="space-y-2"
+                    className={cn(
+                        "w-full",
+                        !isMultiple && question.options.length === 4
+                            ? "grid grid-cols-1 sm:grid-cols-2 gap-2"
+                            : "space-y-2",
+                    )}
                     role="listbox"
                     aria-multiselectable={isMultiple}
                 >

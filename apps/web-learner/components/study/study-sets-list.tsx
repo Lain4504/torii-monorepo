@@ -100,19 +100,19 @@ export function StudySetsList() {
     };
 
     return (
-    <div className="min-h-[calc(100vh-6rem)] rounded-3xl bg-transparent p-6 md:p-8">
-            <div className="mx-auto max-w-5xl space-y-8 rounded-2xl bg-white/60 p-4 shadow-sm ring-1 ring-slate-200">
+        <div className="min-h-[calc(100vh-6rem)] rounded-3xl bg-transparent p-4 md:p-6">
+            <div className="mx-auto max-w-5xl space-y-8 rounded-2xl bg-card p-4 shadow-sm ring-1 ring-border">
                 {/* Page header */}
                 <div className="flex items-start justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-slate-900">Học tự chủ</h1>
-                        <p className="mt-1 text-sm text-slate-600">
+                        <h1 className="text-3xl font-bold text-foreground">Học tự chủ</h1>
+                        <p className="mt-1 text-sm text-muted-foreground">
                             Tự tạo bộ thẻ và chọn chế độ học phù hợp với bạn.
                         </p>
                     </div>
                     <Button
                         variant="outline"
-                        className="inline-flex items-center gap-2 rounded-xl border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+                        className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium"
                         asChild
                     >
                         <Link href="/ai-sensei/chat">
