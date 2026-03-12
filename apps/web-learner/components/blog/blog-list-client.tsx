@@ -39,11 +39,21 @@ export function BlogListClient() {
     const totalPages = data?.totalPages || 1;
 
     return (
-        <main className="container mx-auto px-4 lg:px-8 py-10 md:py-16">
-            <div className="max-w-6xl mx-auto">
-                <h3 className="text-2xl font-bold border-l-4 border-primary pl-4 mb-8">
-                    Bài viết mới nhất
-                </h3>
+        <main className="pt-24 pb-16">
+            <div className="container mx-auto px-4 lg:px-8">
+                <div className="max-w-6xl mx-auto space-y-16">
+                    <div className="text-center space-y-4">
+                        <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 rounded-full px-4 py-1 text-[10px] font-black tracking-widest uppercase">
+                            Torii Insight
+                        </Badge>
+                        <h1 className="text-4xl lg:text-7xl font-black tracking-tighter text-foreground font-space">
+                            Bài viết <span className="text-primary italic">mới nhất</span>
+                        </h1>
+                        <p className="text-lg text-muted-foreground font-medium max-w-2xl mx-auto">
+                            Cập nhật tin tức, kinh nghiệm học tập và văn hóa Nhật Bản cùng Torii Nihongo.
+                        </p>
+                    </div>
+
 
                 {error && (
                     <div className="p-6 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive">
@@ -75,45 +85,49 @@ export function BlogListClient() {
                                 {blogs.map((blog) => (
                                     <article
                                         key={blog.id}
-                                        className="bg-card rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all border border-border group flex flex-col"
+                                        className="bg-card/40 backdrop-blur-md rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 border border-border/50 group flex flex-col"
                                     >
-                                        <div className="relative h-56 overflow-hidden">
+                                        <div className="relative h-52 overflow-hidden">
                                             {blog.coverImageUrl ? (
                                                 <img
-                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                                     alt={blog.title}
                                                     src={blog.coverImageUrl}
                                                 />
                                             ) : (
                                                 <div className="w-full h-full bg-muted flex items-center justify-center">
-                                                    <span className="text-muted-foreground">Không có ảnh</span>
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">No Preview</span>
                                                 </div>
                                             )}
                                             {blog.tags && blog.tags.length > 0 && (
-                                                <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground hover:bg-primary/90">
+                                                <Badge className="absolute top-4 left-4 bg-primary/90 backdrop-blur-md border-none text-[10px] font-black uppercase tracking-widest">
                                                     {blog.tags[0]}
                                                 </Badge>
                                             )}
                                         </div>
-                                        <div className="p-6 flex flex-col flex-1 gap-3">
-                                            <h4 className="text-lg font-bold line-clamp-2 group-hover:text-primary transition-colors">
-                                                {blog.title}
-                                            </h4>
-                                            <p className="text-muted-foreground text-xs font-semibold">
-                                                {blog.publishedAt && formatDate(blog.publishedAt.toString())}
-                                                {blog.author && ` | By ${blog.author.displayName}`}
-                                            </p>
+                                        <div className="p-6 flex flex-col flex-1 gap-4">
+                                            <div className="space-y-2">
+                                                <p className="text-primary text-[10px] font-black uppercase tracking-[0.2em]">
+                                                    {blog.publishedAt && formatDate(blog.publishedAt.toString())}
+                                                </p>
+                                                <h4 className="text-xl font-black line-clamp-2 group-hover:text-primary transition-colors font-space tracking-tight leading-tight">
+                                                    {blog.title}
+                                                </h4>
+                                            </div>
+                                            
                                             {blog.excerpt && (
-                                                <p className="text-muted-foreground text-sm line-clamp-2">
+                                                <p className="text-muted-foreground text-sm line-clamp-2 font-medium leading-relaxed">
                                                     {blog.excerpt}
                                                 </p>
                                             )}
                                             <Link
                                                 href={`/blogs/${blog.slug}`}
-                                                className="text-primary text-sm font-bold flex items-center gap-1 mt-auto pt-4 w-fit group/link"
+                                                className="text-foreground text-xs font-black uppercase tracking-widest flex items-center gap-2 mt-auto pt-4 w-fit group/link"
                                             >
-                                                Đọc tiếp{' '}
-                                                <DoubleArrowRight className="size-4 group-hover/link:translate-x-1 transition-transform" strokeWidth={2} />
+                                                Đọc chi tiết
+                                                <div className="p-1 rounded-full bg-primary/10 text-primary group-hover/link:bg-primary group-hover/link:text-white transition-all">
+                                                    <ChevronRight className="size-3" strokeWidth={3} />
+                                                </div>
                                             </Link>
                                         </div>
                                     </article>
@@ -122,15 +136,15 @@ export function BlogListClient() {
 
                             {/* Pagination */}
                             {totalPages > 1 && (
-                                <div className="flex justify-center items-center gap-2 pt-10">
+                                <div className="flex justify-center items-center gap-2 pt-16">
                                     <Button
                                         variant="outline"
                                         size="icon"
-                                        className="size-10 text-muted-foreground"
+                                        className="size-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-md"
                                         onClick={() => setPage(p => Math.max(1, p - 1))}
                                         disabled={page === 1}
                                     >
-                                        <ArrowLeft className="size-4" strokeWidth={2} />
+                                        <ArrowLeft className="size-4" strokeWidth={3} />
                                     </Button>
 
                                     {[...Array(Math.min(totalPages, 5))].map((_, idx) => {
@@ -139,11 +153,11 @@ export function BlogListClient() {
                                             <Button
                                                 key={pageNum}
                                                 variant={page === pageNum ? 'default' : 'outline'}
-                                                className={
+                                                className={`size-12 rounded-xl border-border/50 font-black ${
                                                     page === pageNum
-                                                        ? 'size-10 bg-primary text-primary-foreground hover:bg-primary/90 font-bold'
-                                                        : 'size-10 font-medium'
-                                                }
+                                                        ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                                                        : 'bg-background/50 backdrop-blur-md'
+                                                }`}
                                                 onClick={() => setPage(pageNum)}
                                             >
                                                 {pageNum}
@@ -151,32 +165,20 @@ export function BlogListClient() {
                                         );
                                     })}
 
-                                    {totalPages > 5 && (
-                                        <>
-                                            <span className="px-2 text-muted-foreground">...</span>
-                                            <Button
-                                                variant="outline"
-                                                className="size-10 font-medium"
-                                                onClick={() => setPage(totalPages)}
-                                            >
-                                                {totalPages}
-                                            </Button>
-                                        </>
-                                    )}
-
                                     <Button
                                         variant="outline"
                                         size="icon"
-                                        className="size-10 text-muted-foreground"
+                                        className="size-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-md"
                                         onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                                         disabled={page === totalPages}
                                     >
-                                        <ArrowRight className="size-4" strokeWidth={2} />
+                                        <ArrowRight className="size-4" strokeWidth={3} />
                                     </Button>
                                 </div>
                             )}
                         </>
                     )}
+                </div>
             </div>
         </main>
     );

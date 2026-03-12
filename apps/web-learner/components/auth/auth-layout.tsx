@@ -54,19 +54,19 @@ export function AuthLayout({
                 </Link>
 
                 <div className="max-w-md mt-12 flex-1 flex flex-col justify-center">
-                    <h1 className="text-3xl lg:text-4xl font-black text-foreground leading-tight tracking-tight">
+                    <h1 className="text-4xl lg:text-5xl font-black text-foreground leading-tight tracking-tight">
                         Một nền tảng.
                         <br />
                         <span className="text-primary">Trọn lộ trình JLPT.</span>
                     </h1>
-                    <p className="mt-4 text-muted-foreground text-sm leading-relaxed">
+                    <p className="mt-4 text-muted-foreground text-base leading-relaxed">
                         Học tiếng Nhật bài bản với video, AI trợ lý và lớp live — từ vỡ lòng đến đạt chứng chỉ.
                     </p>
-                    <ul className="mt-8 space-y-4">
+                    <ul className="mt-10 space-y-5">
                         {LEFT_POINTS.map(({ icon: Icon, text }) => (
-                            <li key={text} className="flex items-center gap-3 text-sm">
-                                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                    <Icon className="h-4 w-4" />
+                            <li key={text} className="flex items-center gap-4 text-base">
+                                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                    <Icon className="h-5 w-5" />
                                 </span>
                                 <span className="text-foreground font-medium">{text}</span>
                             </li>
@@ -84,7 +84,7 @@ export function AuthLayout({
                 className="flex-1 flex flex-col justify-center items-center p-6 md:p-10"
                 data-purpose="auth-form"
             >
-                <div className="w-full max-w-[400px] space-y-6 animate-in fade-in slide-in-from-right duration-700">
+                <div className="w-full max-w-[440px] space-y-6 animate-in fade-in slide-in-from-right duration-700">
                     <div className="md:hidden flex justify-center">
                         <Link href="/" className="flex items-center gap-2">
                             <Image src={logo} alt="Torii Nihongo" width={40} height={40} className="h-9 w-auto object-contain" priority />
@@ -95,7 +95,7 @@ export function AuthLayout({
                         </Link>
                     </div>
 
-                    <div className="rounded-3xl border border-border bg-card p-8 shadow-xl ring-1 ring-black/5">
+                    <div className="rounded-3xl border border-border bg-card p-9 md:p-10 shadow-xl ring-1 ring-black/5">
                         <div className="text-center space-y-1.5 mb-8">
                             <h2 className="text-2xl font-extrabold text-foreground tracking-tight">{title}</h2>
                             {description && <p className="text-muted-foreground text-sm">{description}</p>}

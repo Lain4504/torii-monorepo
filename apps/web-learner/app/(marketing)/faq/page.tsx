@@ -44,15 +44,17 @@ const faqs = [
 
 export default function FAQPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-muted to-background">
-      <div className="container mx-auto px-4 lg:px-8 py-16">
+    <div className="pt-24 pb-16">
+      <div className="container mx-auto px-4 lg:px-8">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground mb-4 text-center">
-            Câu Hỏi Thường Gặp
-          </h1>
-          <p className="text-lg text-muted-foreground mb-12 text-center">
-            Tìm câu trả lời cho những câu hỏi phổ biến về Torii Nihongo
-          </p>
+          <div className="text-center space-y-4 mb-12">
+            <h1 className="text-4xl lg:text-6xl font-black tracking-tighter text-foreground font-space">
+              Câu Hỏi Thường Gặp
+            </h1>
+            <p className="text-lg text-muted-foreground font-medium">
+              Tìm câu trả lời cho những thắc mắc về Torii Nihongo
+            </p>
+          </div>
 
           <Accordion type="single" collapsible className="w-full">
             {faqs.map((faq, index) => (

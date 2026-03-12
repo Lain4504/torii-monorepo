@@ -15,6 +15,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@livekit/components-react": "^2.9.20",
     "@livekit/components-styles": "^1.2.0",
+    "@lottiefiles/dotlottie-react": "^0.18.5",
     "@payos/payos-checkout": "^1.0.8",
     "@react-three/fiber": "^9.5.0",
     "@reduxjs/toolkit": "^2.11.2",

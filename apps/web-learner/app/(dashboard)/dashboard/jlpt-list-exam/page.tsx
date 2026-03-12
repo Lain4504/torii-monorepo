@@ -14,8 +14,9 @@ const LEVELS = [
 
 export default function JlptListExamPage() {
     return (
-        <div className="bg-background text-foreground min-h-screen">
+        <div className="bg-transparent text-foreground">
             <div className="max-w-[1200px] mx-auto p-6 md:p-10 space-y-8">
+
                 {/* Header */}
                 <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="space-y-1">
