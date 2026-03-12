@@ -99,8 +99,8 @@ export function StudySetsList() {
     };
 
     return (
-        <div className="min-h-[calc(100vh-6rem)] rounded-3xl bg-muted p-6 md:p-8">
-            <div className="mx-auto max-w-5xl space-y-8 rounded-2xl bg-white/60 p-4 shadow-sm ring-1 ring-slate-200 nhai-blueprint-bg">
+    <div className="min-h-[calc(100vh-6rem)] rounded-3xl bg-transparent p-6 md:p-8">
+            <div className="mx-auto max-w-5xl space-y-8 rounded-2xl bg-white/60 p-4 shadow-sm ring-1 ring-slate-200">
                 {/* Page header */}
                 <div className="flex items-start justify-between gap-4">
                     <div>
