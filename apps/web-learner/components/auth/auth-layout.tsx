@@ -15,6 +15,8 @@ interface AuthLayoutProps {
     children: ReactNode
     /** Footer text - phần "Đã có tài khoản?" */
     footerText?: ReactNode
+    /** Nội dung tuỳ chỉnh cho panel bên trái (nếu cần override mặc định) */
+    leftPanel?: ReactNode
 }
 
 const LEFT_POINTS = [
@@ -28,6 +30,7 @@ export function AuthLayout({
     description,
     children,
     footerText,
+    leftPanel,
 }: AuthLayoutProps) {
     const logo = useLogo()
 
@@ -54,24 +57,30 @@ export function AuthLayout({
                 </Link>
 
                 <div className="max-w-md mt-12 flex-1 flex flex-col justify-center">
-                    <h1 className="text-4xl lg:text-5xl font-black text-foreground leading-tight tracking-tight">
-                        Một nền tảng.
-                        <br />
-                        <span className="text-primary">Trọn lộ trình JLPT.</span>
-                    </h1>
-                    <p className="mt-4 text-muted-foreground text-base leading-relaxed">
-                        Học tiếng Nhật bài bản với video, AI trợ lý và lớp live — từ vỡ lòng đến đạt chứng chỉ.
-                    </p>
-                    <ul className="mt-10 space-y-5">
-                        {LEFT_POINTS.map(({ icon: Icon, text }) => (
-                            <li key={text} className="flex items-center gap-4 text-base">
-                                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                    <Icon className="h-5 w-5" />
-                                </span>
-                                <span className="text-foreground font-medium">{text}</span>
-                            </li>
-                        ))}
-                    </ul>
+                    {leftPanel ? (
+                        leftPanel
+                    ) : (
+                        <>
+                            <h1 className="text-4xl lg:text-5xl font-black text-foreground leading-tight tracking-tight">
+                                Một nền tảng.
+                                <br />
+                                <span className="text-primary">Trọn lộ trình JLPT.</span>
+                            </h1>
+                            <p className="mt-4 text-muted-foreground text-base leading-relaxed">
+                                Học tiếng Nhật bài bản với video, AI trợ lý và lớp live — từ vỡ lòng đến đạt chứng chỉ.
+                            </p>
+                            <ul className="mt-10 space-y-5">
+                                {LEFT_POINTS.map(({ icon: Icon, text }) => (
+                                    <li key={text} className="flex items-center gap-4 text-base">
+                                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                            <Icon className="h-5 w-5" />
+                                        </span>
+                                        <span className="text-foreground font-medium">{text}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </>
+                    )}
                 </div>
 
                 <p className="text-muted-foreground text-xs pt-8">

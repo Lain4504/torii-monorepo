@@ -325,7 +325,7 @@ export default function TakeExamPage() {
     }, [])
 
     if (loading) {
-        return <PageLoading text="Đang tải dữ liệu bài thi..." className="h-screen" />
+        return <PageLoading className="h-screen" />
     }
 
     if (error) {

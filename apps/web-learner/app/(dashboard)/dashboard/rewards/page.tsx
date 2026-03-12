@@ -27,7 +27,7 @@ export default function RewardsPage() {
     const [redeemedCoupon, setRedeemedCoupon] = useState<any>(null)
 
     if (profileLoading || rewardsLoading) {
-        return <PageLoading text="Đang tải cửa hàng quà tặng..." />
+        return <PageLoading />
     }
 
     const handleRedeemClick = (deal: any) => {

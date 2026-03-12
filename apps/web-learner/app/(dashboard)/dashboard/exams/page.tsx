@@ -28,7 +28,7 @@ export default function ExamsPage() {
     }, [exams, searchQuery])
 
     if (isLoading) {
-        return <PageLoading text="Đang tải hệ thống thi cử..." className="h-[60vh]" />
+        return <PageLoading className="h-[60vh]" />
     }
 
     return (

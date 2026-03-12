@@ -51,7 +51,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
     if (!isAuthenticated && !hasVerified) {
         return (
-            <PageLoading text="Verifying Access Permissions..." className="h-screen" />
+            <PageLoading className="h-screen" />
         );
     }
 

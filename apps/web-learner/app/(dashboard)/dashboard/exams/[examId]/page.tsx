@@ -32,7 +32,7 @@ export default function ExamDetailPage() {
     const totalQuestions = exam?.examQuestions?.length || 0
 
     if (isLoading) {
-        return <PageLoading text="Đang tải dữ liệu bài thi..." className="h-[80vh]" />
+        return <PageLoading className="h-[80vh]" />
     }
 
     if (examError || !exam) {
