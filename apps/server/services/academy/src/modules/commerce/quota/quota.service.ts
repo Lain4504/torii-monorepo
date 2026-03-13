@@ -2,6 +2,7 @@ import { Injectable, Logger, Inject } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { REDIS_CLIENT } from '@server/shared/redis/redis.provider';
 import Redis from 'ioredis';
+import { AiSubscriptionService } from './ai-subscription.service';
 
 export interface QuotaStatus {
     tier: string;
@@ -15,7 +16,7 @@ export interface QuotaStatus {
 export class QuotaService {
     private readonly logger = new Logger(QuotaService.name);
 
-    // Default limits if not specified in CourseOffering metadata
+    // Default limits if no active subscription found
     private readonly DEFAULT_LIMITS: Record<string, number> = {
         'free': 10,
         'plus': 100,
@@ -24,6 +25,7 @@ export class QuotaService {
 
     constructor(
         private readonly prisma: PrismaService,
+        private readonly aiSubscriptionService: AiSubscriptionService,
         @Inject(REDIS_CLIENT) private readonly redis: Redis,
     ) { }
 
@@ -51,7 +53,7 @@ export class QuotaService {
 
     async getStatus(userId: string, feature: string = 'ai_turns'): Promise<QuotaStatus> {
         const tierInfo = await this.getUserTier(userId);
-        const limit = tierInfo.metadata?.quotas?.[feature] ?? this.DEFAULT_LIMITS[tierInfo.tier] ?? 10;
+        const limit = (tierInfo.quotas as any)?.[feature] ?? this.DEFAULT_LIMITS[tierInfo.tier] ?? 10;
 
         const key = this.getUsageKey(userId, feature);
         const usedRaw = await this.redis.get(key);
@@ -70,54 +72,16 @@ export class QuotaService {
         };
     }
 
-    private async getUserTier(userId: string): Promise<{ tier: string; metadata: any }> {
-        const now = new Date();
-        const activeSubscription = await this.prisma.enrollment.findFirst({
-            where: {
-                userId,
-                status: 'ACTIVE',
-                OR: [
-                    { expiresAt: null },
-                    { expiresAt: { gt: now } },
-                ],
-                class: {
-                    offeringLinks: {
-                        some: {
-                            offering: {
-                                type: 'SUBSCRIPTION',
-                            },
-                        },
-                    },
-                },
-            },
-            include: {
-                class: {
-                    include: {
-                        offeringLinks: {
-                            include: {
-                                offering: true,
-                            },
-                        },
-                    },
-                },
-            },
-            orderBy: {
-                enrolledAt: 'desc',
-            },
-        });
+    private async getUserTier(userId: string): Promise<{ tier: string; quotas: object }> {
+        const activeSub = await this.aiSubscriptionService.getActiveSubscription(userId);
 
-        if (!activeSubscription) {
-            return { tier: 'free', metadata: {} };
+        if (!activeSub) {
+            return { tier: 'free', quotas: { ai_turns: this.DEFAULT_LIMITS['free'] } };
         }
 
-        const offering = activeSubscription.class.offeringLinks
-            .find(oc => oc.offering.type === 'SUBSCRIPTION')?.offering;
-
-        const offeringMetadata = (offering as any)?.metadata;
-
         return {
-            tier: offering?.code || 'free',
-            metadata: offeringMetadata || {},
+            tier: activeSub.planCode,
+            quotas: (activeSub.plan.quotas as object) ?? {},
         };
     }
 

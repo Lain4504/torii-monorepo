@@ -21,6 +21,7 @@ import { OrderCheckoutDto, OrderPreviewDto } from './dto/order.dto';
 import { Prisma } from '@prisma/generated';
 import { AppConfigService } from '@server/shared';
 import { ClientProxy } from '@nestjs/microservices';
+import { AiSubscriptionService } from '../quota/ai-subscription.service';
 
 @Injectable()
 export class OrderService {
@@ -33,15 +34,19 @@ export class OrderService {
     private readonly enrollmentService: EnrollmentService,
     private readonly appConfig: AppConfigService,
     private readonly audit: AuditLoggerService,
+    private readonly aiSubscriptionService: AiSubscriptionService,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) { }
 
   async preview(userId: string, input: OrderPreviewDto) {
-    let offeringIds = Array.from(new Set(input.offeringIds ?? []));
-    if (!offeringIds.length) {
-      throw new BadRequestException('offeringIds must not be empty');
+    const offeringIds = Array.from(new Set(input.offeringIds ?? []));
+    const subscriptionPlanIds = Array.from(new Set(input.subscriptionPlanIds ?? []));
+
+    if (!offeringIds.length && !subscriptionPlanIds.length) {
+      throw new BadRequestException('At least one offering or subscription plan must be provided');
     }
-    const offerings = await this.prisma.courseOffering.findMany({
+
+    const offerings = offeringIds.length ? await this.prisma.courseOffering.findMany({
       where: {
         id: { in: offeringIds },
         status: { in: [OfferingStatus.PUBLISHED, OfferingStatus.OPENING] },
@@ -60,34 +65,39 @@ export class OrderService {
           },
         },
       },
-    });
+    }) : [];
 
     if (offerings.length !== offeringIds.length) {
       throw new BadRequestException('Some offerings are not available');
     }
+
     for (const offering of offerings) {
       if (!offering.classes.length) {
-        throw new BadRequestException(
-          `Offering ${offering.code} has no class mapped for enrollment`,
-        );
+        throw new BadRequestException(`Offering ${offering.code} has no class mapped`);
       }
       for (const offeringClass of offering.classes) {
         const klass = offeringClass.class;
-        if (
-          klass.status !== ClassStatus.OPENING &&
-          klass.status !== ClassStatus.ONGOING
-        ) {
-          throw new BadRequestException(
-            `Class ${klass.code} is in status ${klass.status}, not sellable`,
-          );
+        if (klass.status !== ClassStatus.OPENING && klass.status !== ClassStatus.ONGOING) {
+          throw new BadRequestException(`Class ${klass.code} is not sellable`);
         }
       }
     }
 
-    const subTotal = offerings.reduce((sum, o) => {
-      const unitPrice = o.salePrice ?? o.price;
-      return sum + Number(unitPrice);
-    }, 0);
+    const subscriptionPlans = subscriptionPlanIds.length ? await this.prisma.aiSubscriptionPlan.findMany({
+      where: {
+        id: { in: subscriptionPlanIds },
+        isActive: true,
+      },
+    }) : [];
+
+    if (subscriptionPlans.length !== subscriptionPlanIds.length) {
+      throw new BadRequestException('Some subscription plans are not available');
+    }
+
+    const subTotal =
+      offerings.reduce((sum, o) => sum + Number(o.salePrice ?? o.price), 0) +
+      subscriptionPlans.reduce((sum, s) => sum + Number(s.price), 0);
+
     let discountTotal = 0;
     let couponId: string | undefined;
 
@@ -112,6 +122,7 @@ export class OrderService {
       discountTotal,
       grandTotal,
       offerings,
+      subscriptionPlans,
       couponId,
     };
   }
@@ -126,6 +137,27 @@ export class OrderService {
     const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
     const orderCode = `ORD-${dateStr}-${randomStr}`;
 
+    const orderItemsData = [
+      ...preview.offerings.map((o) => ({
+        offeringId: o.id,
+        price: o.salePrice ?? o.price,
+        offeringSnapshot: {
+          title: o.title,
+          code: o.code,
+          classIds: offeringClassMap.get(o.id) ?? [],
+        } as any,
+      })),
+      ...(preview.subscriptionPlans ?? []).map((s) => ({
+        subscriptionPlanId: s.id,
+        price: s.price,
+        offeringSnapshot: {
+          title: s.name,
+          code: s.code,
+          isSubscription: true,
+        } as any,
+      }))
+    ];
+
     const order = await this.prisma.order.create({
       data: {
         code: orderCode,
@@ -139,16 +171,11 @@ export class OrderService {
         couponId: preview.couponId,
         paymentMethod: input.paymentMethod,
         items: {
-          create: preview.offerings.map((o) => ({
-            offeringId: o.id,
-            price: o.salePrice ?? o.price,
-            offeringSnapshot: {
-              title: o.title,
-              code: o.code,
-              classIds: offeringClassMap.get(o.id) ?? [],
-            } as any,
-          })),
+          create: orderItemsData,
         },
+      },
+      include: {
+        items: true,
       },
     });
 
@@ -170,13 +197,8 @@ export class OrderService {
       // PayOS description has a strict max length (25 chars).
       const payOsDescription = `DH ${order.code}`.slice(0, 25);
 
-      const paymentLink = await this.payOS.createPaymentLink({
-        orderCode: numericOrderCode,
-        amount: preview.grandTotal,
-        description: payOsDescription,
-        cancelUrl: `${webLearnerUrl}/payment/cancel?orderCode=${order.code}`,
-        returnUrl: `${webLearnerUrl}/payment/success?orderCode=${order.code}`,
-        items: preview.offerings.map((o) => {
+      const payOsItems = [
+        ...preview.offerings.map((o) => {
           const unitPrice = o.salePrice ?? o.price;
           return {
             name: o.title,
@@ -184,6 +206,20 @@ export class OrderService {
             price: Number(unitPrice),
           };
         }),
+        ...(preview.subscriptionPlans ?? []).map((s) => ({
+          name: s.name,
+          quantity: 1,
+          price: Number(s.price),
+        }))
+      ];
+
+      const paymentLink = await this.payOS.createPaymentLink({
+        orderCode: numericOrderCode,
+        amount: preview.grandTotal,
+        description: payOsDescription,
+        cancelUrl: `${webLearnerUrl}/payment/cancel?orderCode=${order.code}`,
+        returnUrl: `${webLearnerUrl}/payment/success?orderCode=${order.code}`,
+        items: payOsItems,
       });
 
       await this.prisma.order.update({
@@ -314,46 +350,77 @@ export class OrderService {
         },
       });
 
-      // Fulfillment: Enrollments
+      // Fulfillment: Enrollments & Subscriptions
       for (const item of order.items) {
-        const snapshot = (item.offeringSnapshot ?? {}) as {
-          classIds?: string[];
-        };
-        const snapshotClassIds = Array.isArray(snapshot.classIds)
-          ? snapshot.classIds
-          : [];
-        let classIdsToEnroll = [...snapshotClassIds];
+        if (item.offeringId) {
+          // Course Enrollment
+          const snapshot = (item.offeringSnapshot ?? {}) as {
+            classIds?: string[];
+          };
+          const snapshotClassIds = Array.isArray(snapshot.classIds)
+            ? snapshot.classIds
+            : [];
+          let classIdsToEnroll = [...snapshotClassIds];
 
-        if (!classIdsToEnroll.length) {
-          // Backward compatibility for legacy orders without snapshot classIds.
-          const offeringClasses = await tx.courseOfferingClass.findMany({
-            where: { offeringId: item.offeringId },
-            select: { classId: true },
-          });
-          classIdsToEnroll = offeringClasses.map((oc) => oc.classId);
-        }
+          if (!classIdsToEnroll.length) {
+            const offeringClasses = await tx.courseOfferingClass.findMany({
+              where: { offeringId: item.offeringId },
+              select: { classId: true },
+            });
+            classIdsToEnroll = offeringClasses.map((oc) => oc.classId);
+          }
 
-        for (const classId of classIdsToEnroll) {
+          for (const classId of classIdsToEnroll) {
+            try {
+              await this.enrollmentService.create(
+                {
+                  userId: order.userId,
+                  offeringId: item.offeringId,
+                  classId,
+                  status: 'ACTIVE',
+                  sourceOrderId: order.id,
+                },
+                requesterId,
+                tx,
+              );
+            } catch (err) {
+              this.logger.error(
+                `Fulfillment failed for order ${order.code}, class ${classId}: ${err.message}`,
+              );
+              throw new BadRequestException(`Fulfillment failed: ${err.message}`);
+            }
+          }
+        } else if (item.subscriptionPlanId) {
+          // AI Subscription Fulfillment
           try {
-            await this.enrollmentService.create(
-              {
+            // We can call activateSubscription directly or do it inline within tx
+            // Better to do it inline to ensure it uses the same transaction 'tx'
+            const expiresAt = new Date();
+            expiresAt.setMonth(expiresAt.getMonth() + 1);
+
+            // Deactivate existing
+            await tx.aiUserSubscription.updateMany({
+              where: { userId: order.userId, status: 'ACTIVE' },
+              data: { status: 'CANCELLED' },
+            });
+
+            await tx.aiUserSubscription.create({
+              data: {
                 userId: order.userId,
-                offeringId: item.offeringId,
-                classId,
+                planId: item.subscriptionPlanId,
+                planCode: (item.offeringSnapshot as any)?.code || 'unknown',
+                startedAt: new Date(),
+                expiresAt,
                 status: 'ACTIVE',
-                sourceOrderId: order.id,
               },
-              requesterId,
-              tx,
-            );
+            });
+
+            this.logger.log(`Subscription activated for user ${order.userId}`);
           } catch (err) {
             this.logger.error(
-              `Fulfillment failed for order ${order.code}, class ${classId}: ${err.message}`,
+              `Subscription fulfillment failed for order ${order.code}: ${err.message}`,
             );
-            // Depending on policy, we might want to throw to rollback, or just log and continue.
-            // User prompt says: "Nếu line-item không pass, xử lý theo policy: fail mềm có log/audit + trả trạng thái phù hợp, hoặc fail transaction có thông báo rõ."
-            // I'll throw to ROLLBACK for now to ensure data integrity (no partial fulfillment).
-            throw new BadRequestException(`Fulfillment failed: ${err.message}`);
+            throw new BadRequestException(`Subscription fulfillment failed: ${err.message}`);
           }
         }
       }
@@ -432,7 +499,7 @@ export class OrderService {
         where,
         include: {
           user: { select: { email: true, displayName: true } },
-          items: { include: { offering: true } },
+          items: { include: { offering: true, subscriptionPlan: true } },
         },
         orderBy: { createdAt: 'desc' },
         take: limit,
@@ -495,7 +562,7 @@ export class OrderService {
       where: { id },
       include: {
         user: { select: { email: true, displayName: true } },
-        items: { include: { offering: true } },
+        items: { include: { offering: true, subscriptionPlan: true } },
         transactions: true,
       },
     });
@@ -541,13 +608,7 @@ export class OrderService {
     const order = await this.prisma.order.findFirst({
       where: { code: orderCode, userId },
       include: {
-        items: {
-          include: {
-            offering: {
-              select: { id: true, title: true, code: true },
-            },
-          },
-        },
+        items: { include: { offering: { select: { id: true, title: true, code: true } }, subscriptionPlan: true } },
         enrollments: {
           select: {
             classId: true,
@@ -560,22 +621,24 @@ export class OrderService {
 
     if (!order) throw new NotFoundException('Order not found');
 
-    const fallbackOfferingIds = order.items
+    const courseItems = order.items.filter((item) => !!item.offeringId && !!item.offering);
+
+    const fallbackOfferingIds = courseItems
       .filter((item) => {
         const snapshot = (item.offeringSnapshot ?? {}) as { classIds?: string[] };
         return !Array.isArray(snapshot.classIds);
       })
-      .map((item) => item.offeringId);
+      .map((item) => item.offeringId as string);
 
     const fallbackClassMap = fallbackOfferingIds.length
       ? await this.getOfferingClassMap(fallbackOfferingIds)
       : new Map<string, string[]>();
 
-    const itemResults = order.items.map((item) => {
+    const itemResults = courseItems.map((item) => {
       const snapshot = (item.offeringSnapshot ?? {}) as { classIds?: string[] };
       const expectedClassIds = Array.isArray(snapshot.classIds)
         ? snapshot.classIds
-        : fallbackClassMap.get(item.offeringId) ?? [];
+        : fallbackClassMap.get(item.offeringId as string) ?? [];
       const enrolledClassIds = order.enrollments
         .filter((enrollment) => enrollment.offeringId === item.offeringId)
         .map((enrollment) => enrollment.classId);
@@ -585,8 +648,8 @@ export class OrderService {
 
       return {
         offeringId: item.offeringId,
-        offeringCode: item.offering.code,
-        offeringTitle: item.offering.title,
+        offeringCode: item.offering!.code,
+        offeringTitle: item.offering!.title,
         expectedClassIds,
         enrolledClassIds,
         missingClassIds,
@@ -641,6 +704,7 @@ export class OrderService {
               offering: {
                 select: { id: true, title: true, code: true },
               },
+              subscriptionPlan: true,
             },
           },
         },
@@ -668,6 +732,7 @@ export class OrderService {
             offering: {
               select: { id: true, title: true, code: true },
             },
+            subscriptionPlan: true,
           },
         },
         transactions: true,

@@ -55,6 +55,8 @@ import ApprovalsPage from '@/routes/academy/approvals/approvals-page.tsx'
 import AssignmentGradingPage from '@/routes/academy/classes/assignment-grading-page.tsx'
 import RewardsPage from '@/routes/gamification/rewards-page.tsx'
 import AchievementsPage from '@/routes/gamification/achievements-page.tsx'
+import SubscriptionPlansPage from '@/routes/academy/ai-subscriptions/plans-page.tsx'
+import UserSubscriptionsPage from '@/routes/academy/ai-subscriptions/user-subscriptions-page.tsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -113,6 +115,10 @@ function App() {
                     <Route path="academy/course-offerings" element={<OfferingsPage />} />
                     <Route path="academy/approvals" element={<ApprovalsPage />} />
                     <Route path="academy/classes/:classId/assignments/:assessmentId/submissions" element={<AssignmentGradingPage />} />
+
+                    {/* AI Subscriptions */}
+                    <Route path="academy/ai-subscriptions/plans" element={<SubscriptionPlansPage />} />
+                    <Route path="academy/ai-subscriptions/users" element={<UserSubscriptionsPage />} />
                   </Route>
 
                   <Route element={<RoutePermissionGuard permission="coupon.manage" />}>
