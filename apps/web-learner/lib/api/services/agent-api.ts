@@ -11,6 +11,7 @@ import {
     AgentTestGenerationResponseDTO,
     AgentTestEvaluationResponseDTO,
     AgentReadinessProfileResponseDTO,
+    StandardApiResponse,
 } from '@workspace/schemas';
 
 export interface AnalyticsSnapshot {
@@ -171,6 +172,13 @@ export const agentApi = {
                 resourceType,
                 level
             });
+            return response.data.data;
+        },
+        getPlans: async (): Promise<any[]> => {
+            const response = await apiClient.get<StandardApiResponse<any[]>>('/api/agents/sensei/subscription-plans');
+            if (!response.data.success || !response.data.data) {
+                return [];
+            }
             return response.data.data;
         },
         getQuotaStatus: async (): Promise<{ limit: number; used: number; remaining: number; tier: string; resetAt: string }> => {

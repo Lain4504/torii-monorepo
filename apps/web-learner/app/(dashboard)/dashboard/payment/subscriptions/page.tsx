@@ -90,18 +90,63 @@ export default function SubscriptionsPage() {
         queryFn: () => agentApi.sensei.getQuotaStatus(),
     })
 
+    const { data: remotePlans, isLoading: isPlansLoading } = useQuery({
+        queryKey: ['ai-subscription-plans'],
+        queryFn: () => agentApi.sensei.getPlans(),
+    })
+
     const currentTier = quota?.tier?.toLowerCase() || 'free'
-    const currentTierIndex = tiers.findIndex(t => t.id === currentTier)
+
+    const getTierConfig = (code: string) => {
+        switch (code.toLowerCase()) {
+            case 'premium':
+                return {
+                    icon: <Crown className="size-6 text-purple-600 fill-purple-600" />,
+                    color: "text-purple-600 bg-purple-500/10 border-purple-500/30",
+                    popular: false
+                }
+            case 'plus':
+                return {
+                    icon: <Star className="size-6 text-amber-500 fill-amber-500" />,
+                    color: "text-amber-600 bg-amber-500/10 border-amber-500/30 ring-2 ring-amber-500/20",
+                    popular: true
+                }
+            default:
+                return {
+                    icon: <Zap className="size-6" />,
+                    color: "text-slate-500 bg-slate-500/10 border-slate-500/20",
+                    popular: false
+                }
+        }
+    }
+
+    const tiers: Tier[] = (remotePlans || []).map(p => {
+        const config = getTierConfig(p.code)
+        return {
+            id: p.id,
+            code: p.code,
+            name: p.name,
+            price: Number(p.price),
+            quota: `${p.quotas?.ai_turns || 10} lượt/ngày`,
+            description: p.description || "Dành cho người dùng AI Sensei.",
+            features: p.features || [],
+            icon: config.icon,
+            color: config.color,
+            popular: config.popular
+        }
+    })
+
+    const currentTierIndex = tiers.findIndex(t => t.code === currentTier)
 
     const handleSubscribe = async (tier: Tier) => {
         const targetTierIndex = tiers.findIndex(t => t.id === tier.id)
 
-        if (targetTierIndex < currentTierIndex) {
+        if (targetTierIndex < currentTierIndex && currentTier !== 'free') {
             toast.info("Bạn không thể mua gói này vì đang dùng gói tiện ích cao hơn.")
             return
         }
 
-        if (tier.id === currentTier) {
+        if (tier.code === currentTier) {
             toast.info("Bạn đang sử dụng gói này.")
             return
         }
@@ -114,10 +159,10 @@ export default function SubscriptionsPage() {
         setLoadingTier(tier.id)
         try {
             const response = await orderApi.createOrder({
-                offeringIds: [tier.id],
+                subscriptionPlanIds: [tier.id], // Fix: use subscriptionPlanIds
                 description: `Đăng ký gói ${tier.name} - Torii AI Sensei`,
                 couponCode: "",
-                paymentMethod: "PAYOS" // Defaulting to PayOS for now as it's the primary integration
+                paymentMethod: "PAYOS"
             })
 
             if (response.paymentUrl) {
@@ -132,6 +177,22 @@ export default function SubscriptionsPage() {
         } finally {
             setLoadingTier(null)
         }
+    }
+
+    if (isPlansLoading) {
+        return (
+            <div className="container max-w-6xl mx-auto py-12 px-4 space-y-12">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="h-8 w-64 bg-muted animate-pulse rounded-lg" />
+                    <div className="h-12 w-96 bg-muted animate-pulse rounded-lg" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="h-[500px] rounded-3xl bg-muted/30 animate-pulse border border-border" />
+                    ))}
+                </div>
+            </div>
+        )
     }
 
     return (
@@ -150,8 +211,8 @@ export default function SubscriptionsPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10 pt-10">
                 {tiers.map((tier, index) => {
-                    const isCurrent = tier.id === currentTier
-                    const isDowngrade = index < currentTierIndex
+                    const isCurrent = tier.code === currentTier
+                    const isDowngrade = index < currentTierIndex && currentTier !== 'free'
                     return (
                         <Card key={tier.id} className={cn(
                             "relative flex flex-col h-full border-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 overflow-visible",

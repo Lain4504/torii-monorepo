@@ -10,12 +10,14 @@ import type {
 } from '@workspace/schemas';
 
 export interface OrderPreviewDTO {
-    offeringIds: string[];
+    offeringIds?: string[];
+    subscriptionPlanIds?: string[];
     couponCode?: string;
 }
 
 export interface OrderCheckoutDTO {
-    offeringIds: string[];
+    offeringIds?: string[];
+    subscriptionPlanIds?: string[];
     couponCode?: string;
     paymentMethod: PaymentMethod | string;
     description?: string;
@@ -149,7 +151,7 @@ export const orderApi = {
      */
     async createOrder(data: OrderCheckoutDTO): Promise<{ orderCode?: string; id?: string; paymentUrl?: string }> {
         const response = await apiClient.post<StandardApiResponse<{ orderCode?: string; id?: string; paymentUrl?: string }>>('/api/academy/orders/checkout', data);
-        
+
         if (!response.data.success || !response.data.data) {
             throw new Error(response.data.message || 'Failed to create order');
         }

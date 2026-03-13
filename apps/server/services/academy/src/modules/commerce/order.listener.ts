@@ -48,8 +48,8 @@ export class OrderListener {
             for (const occ of item.offering.classes) {
                 const klass = occ.class;
 
-                    // Rule: Enroll only when LIVE class is OPENING or ONGOING
-                    if (klass.status !== ClassStatus.OPENING && klass.status !== ClassStatus.ONGOING) {
+                // Rule: Enroll only when LIVE class is OPENING or ONGOING
+                if (klass.status !== ClassStatus.OPENING && klass.status !== ClassStatus.ONGOING) {
                     console.log(`[Academy] Skip enroll: Class ${klass.id} is ${klass.status}`);
                     continue;
                 }
@@ -57,7 +57,7 @@ export class OrderListener {
                 try {
                     await this.enrollments.create({
                         userId: order.userId,
-                        offeringId: item.offeringId,
+                        offeringId: item.offeringId ?? undefined,
                         classId: klass.id,
                         status: 'ACTIVE',
                         sourceOrderId: order.id,

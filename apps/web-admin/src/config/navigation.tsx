@@ -10,6 +10,7 @@ import {
     Gift,
     GraduationCap,
     Trophy,
+    Bot,
 } from "lucide-react";
 
 export interface NavItem {
@@ -49,6 +50,16 @@ export const academicNavItems: NavItem[] = [
             { titleKey: "Kho Khóa học (Profiles)", url: "/academy/course-profiles", roles: ["admin", "staff-lms"] },
             { titleKey: "Gói bán (Offerings)", url: "/academy/course-offerings", roles: ["admin", "staff-lms"] },
             { titleKey: "Trung tâm Duyệt", url: "/academy/approvals", roles: ["admin", "staff-lms"] },
+        ]
+    },
+    {
+        titleKey: "AI Subscription",
+        url: "/academy/ai-subscriptions/plans",
+        icon: Bot,
+        permission: "academy:subscription:admin",
+        items: [
+            { titleKey: "Gói Subscription", url: "/academy/ai-subscriptions/plans" },
+            { titleKey: "Người dùng", url: "/academy/ai-subscriptions/users" },
         ]
     },
 ];
