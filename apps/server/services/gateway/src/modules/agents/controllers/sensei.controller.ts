@@ -11,6 +11,9 @@ import {
     InternalServerErrorException,
     HttpException,
     HttpStatus,
+    Patch,
+    Param,
+    Query,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -21,6 +24,8 @@ import {
     ReqWithRequester,
     AppConfigService,
     generateLivekitAccessToken,
+    PermissionsGuard,
+    Permissions,
 } from '@server/shared';
 import { WajlcTokenClaimsSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
@@ -320,6 +325,20 @@ export class SenseiHandler {
         }
     }
 
+    @Get('sensei/subscription-plans')
+    @UseGuards(GatewayAuthGuard)
+    async getSubscriptionPlans() {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'billing.subscription.getPlans' }, {}),
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Failed to fetch subscription plans`, error.stack);
+            return successResponse([]); // Return empty array instead of error for UI stability
+        }
+    }
+
     @Get('sensei/quota-status')
     @UseGuards(GatewayAuthGuard)
     async getQuotaStatus(@Req() req: ReqWithRequester) {
@@ -341,6 +360,60 @@ export class SenseiHandler {
                 error.stack,
             );
             return errorResponse(error.message || 'Failed to fetch quota status');
+        }
+    }
+
+    // --- Admin CRUD for Subscriptions ---
+
+    @Get('admin/subscriptions/plans')
+    @UseGuards(GatewayAuthGuard, PermissionsGuard)
+    @Permissions('academy:subscription:admin')
+    async admin_getPlans() {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'admin.billing.subscription.getAllPlans' }, {}),
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Failed to fetch all subscription plans`, error.stack);
+            return errorResponse(error.message || 'Failed to fetch plans');
+        }
+    }
+
+    @Patch('admin/subscriptions/plans/:id')
+    @UseGuards(GatewayAuthGuard, PermissionsGuard)
+    @Permissions('academy:subscription:admin')
+    async admin_updatePlan(@Param('id') id: string, @Body() body: any) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send({ cmd: 'admin.billing.subscription.updatePlan' }, { id, plan: body }),
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Failed to update subscription plan ${id}`, error.stack);
+            return errorResponse(error.message || 'Failed to update plan');
+        }
+    }
+
+    @Get('admin/subscriptions/user-subscriptions')
+    @UseGuards(GatewayAuthGuard, PermissionsGuard)
+    @Permissions('academy:subscription:admin')
+    async admin_getUserSubscriptions(@Query() query: any) {
+        try {
+            const result = await firstValueFrom(
+                this.natsClient.send(
+                    { cmd: 'admin.billing.subscription.getUserSubscriptions' },
+                    {
+                        page: parseInt(query.page) || 1,
+                        limit: parseInt(query.limit) || 10,
+                        search: query.search,
+                    },
+                ),
+            );
+            return successResponse(result);
+        } catch (error: any) {
+            this.logger.error(`Failed to fetch user subscriptions`, error.stack);
+            return errorResponse(error.message || 'Failed to fetch user subscriptions');
         }
     }
 

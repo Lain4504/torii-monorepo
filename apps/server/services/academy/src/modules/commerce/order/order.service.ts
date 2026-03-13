@@ -21,6 +21,7 @@ import { OrderCheckoutDto, OrderPreviewDto } from './dto/order.dto';
 import { Prisma } from '@prisma/generated';
 import { AppConfigService } from '@server/shared';
 import { ClientProxy } from '@nestjs/microservices';
+import { AiSubscriptionService } from '../quota/ai-subscription.service';
 
 @Injectable()
 export class OrderService {
@@ -33,15 +34,19 @@ export class OrderService {
     private readonly enrollmentService: EnrollmentService,
     private readonly appConfig: AppConfigService,
     private readonly audit: AuditLoggerService,
+    private readonly aiSubscriptionService: AiSubscriptionService,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) { }
 
   async preview(userId: string, input: OrderPreviewDto) {
-    let offeringIds = Array.from(new Set(input.offeringIds ?? []));
-    if (!offeringIds.length) {
-      throw new BadRequestException('offeringIds must not be empty');
+    const offeringIds = Array.from(new Set(input.offeringIds ?? []));
+    const subscriptionPlanIds = Array.from(new Set(input.subscriptionPlanIds ?? []));
+
+    if (!offeringIds.length && !subscriptionPlanIds.length) {
+      throw new BadRequestException('At least one offering or subscription plan must be provided');
     }
-    const offerings = await this.prisma.courseOffering.findMany({
+
+    const offerings = offeringIds.length ? await this.prisma.courseOffering.findMany({
       where: {
         id: { in: offeringIds },
         status: { in: [OfferingStatus.PUBLISHED, OfferingStatus.OPENING] },
@@ -60,34 +65,39 @@ export class OrderService {
           },
         },
       },
-    });
+    }) : [];
 
     if (offerings.length !== offeringIds.length) {
       throw new BadRequestException('Some offerings are not available');
     }
+
     for (const offering of offerings) {
       if (!offering.classes.length) {
-        throw new BadRequestException(
-          `Offering ${offering.code} has no class mapped for enrollment`,
-        );
+        throw new BadRequestException(`Offering ${offering.code} has no class mapped`);
       }
       for (const offeringClass of offering.classes) {
         const klass = offeringClass.class;
-        if (
-          klass.status !== ClassStatus.OPENING &&
-          klass.status !== ClassStatus.ONGOING
-        ) {
-          throw new BadRequestException(
-            `Class ${klass.code} is in status ${klass.status}, not sellable`,
-          );
+        if (klass.status !== ClassStatus.OPENING && klass.status !== ClassStatus.ONGOING) {
+          throw new BadRequestException(`Class ${klass.code} is not sellable`);
         }
       }
     }
 
-    const subTotal = offerings.reduce((sum, o) => {
-      const unitPrice = o.salePrice ?? o.price;
-      return sum + Number(unitPrice);
-    }, 0);
+    const subscriptionPlans = subscriptionPlanIds.length ? await this.prisma.aiSubscriptionPlan.findMany({
+      where: {
+        id: { in: subscriptionPlanIds },
+        isActive: true,
+      },
+    }) : [];
+
+    if (subscriptionPlans.length !== subscriptionPlanIds.length) {
+      throw new BadRequestException('Some subscription plans are not available');
+    }
+
+    const subTotal =
+      offerings.reduce((sum, o) => sum + Number(o.salePrice ?? o.price), 0) +
+      subscriptionPlans.reduce((sum, s) => sum + Number(s.price), 0);
+
     let discountTotal = 0;
     let couponId: string | undefined;
 
@@ -112,20 +122,72 @@ export class OrderService {
       discountTotal,
       grandTotal,
       offerings,
+      subscriptionPlans,
       couponId,
     };
   }
 
   async checkout(userId: string, input: OrderCheckoutDto) {
-    const preview = await this.preview(userId, input);
-    const resolvedOfferingIds = preview.offerings.map(o => o.id);
+    if (input.subscriptionPlanIds?.length && !input.offeringIds?.length) {
+      return this.checkoutSubscription(userId, input);
+    }
+    return this.checkoutCourse(userId, input);
+  }
+
+  async checkoutCourse(userId: string, input: OrderCheckoutDto) {
+    this.logger.log(`[Academy] Course checkout: ${userId}`);
+    const preview = await this.preview(userId, {
+      ...input,
+      subscriptionPlanIds: [], // Force only courses
+    });
+
+    const resolvedOfferingIds = preview.offerings.map((o) => o.id);
     const offeringClassMap = await this.getOfferingClassMap(resolvedOfferingIds);
 
-    // Generate readable code: ORD-YYYYMMDD-XXXX
+    const orderCode = this.generateOrderCode();
+    const orderItemsData = preview.offerings.map((o) => ({
+      offeringId: o.id,
+      price: o.salePrice ?? o.price,
+      offeringSnapshot: {
+        title: o.title,
+        code: o.code,
+        classIds: offeringClassMap.get(o.id) ?? [],
+      } as any,
+    }));
+
+    const order = await this.createOrderRecord(userId, orderCode, preview, input, orderItemsData);
+    return this.handlePaymentRedirect(order, preview, input);
+  }
+
+  async checkoutSubscription(userId: string, input: OrderCheckoutDto) {
+    this.logger.log(`[Academy] Subscription checkout: ${userId}`);
+    const preview = await this.preview(userId, {
+      ...input,
+      offeringIds: [], // Force only subscriptions
+    });
+
+    const orderCode = this.generateOrderCode();
+    const orderItemsData = (preview.subscriptionPlans ?? []).map((s) => ({
+      subscriptionPlanId: s.id,
+      price: s.price,
+      offeringSnapshot: {
+        title: s.name,
+        code: s.code,
+        isSubscription: true,
+      } as any,
+    }));
+
+    const order = await this.createOrderRecord(userId, orderCode, preview, input, orderItemsData);
+    return this.handlePaymentRedirect(order, preview, input);
+  }
+
+  private generateOrderCode() {
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
-    const orderCode = `ORD-${dateStr}-${randomStr}`;
+    return `ORD-${dateStr}-${randomStr}`;
+  }
 
+  private async createOrderRecord(userId: string, orderCode: string, preview: any, input: any, items: any[]) {
     const order = await this.prisma.order.create({
       data: {
         code: orderCode,
@@ -138,22 +200,13 @@ export class OrderService {
         couponCode: input.couponCode,
         couponId: preview.couponId,
         paymentMethod: input.paymentMethod,
-        items: {
-          create: preview.offerings.map((o) => ({
-            offeringId: o.id,
-            price: o.salePrice ?? o.price,
-            offeringSnapshot: {
-              title: o.title,
-              code: o.code,
-              classIds: offeringClassMap.get(o.id) ?? [],
-            } as any,
-          })),
-        },
+        items: { create: items },
       },
+      include: { items: true },
     });
 
     await this.audit.log({
-      userId: userId,
+      userId,
       action: 'order.create',
       entity: 'Order',
       entityId: order.id,
@@ -161,14 +214,27 @@ export class OrderService {
       metadata: { orderCode: order.code, grandTotal: preview.grandTotal },
     });
 
-    if (input.paymentMethod === PaymentMethod.PAYOS) {
-      const numericOrderCode =
-        Number(Date.now().toString().slice(-9)) +
-        Math.floor(Math.random() * 1000);
+    return order;
+  }
 
+  private async handlePaymentRedirect(order: any, preview: any, input: any) {
+    if (input.paymentMethod === PaymentMethod.PAYOS) {
+      const numericOrderCode = Number(Date.now().toString().slice(-9)) + Math.floor(Math.random() * 1000);
       const webLearnerUrl = this.appConfig.identity.webLearnerUrl;
-      // PayOS description has a strict max length (25 chars).
       const payOsDescription = `DH ${order.code}`.slice(0, 25);
+
+      const payOsItems = [
+        ...preview.offerings.map((o) => ({
+          name: o.title,
+          quantity: 1,
+          price: Number(o.salePrice ?? o.price),
+        })),
+        ...(preview.subscriptionPlans ?? []).map((s) => ({
+          name: s.name,
+          quantity: 1,
+          price: Number(s.price),
+        })),
+      ];
 
       const paymentLink = await this.payOS.createPaymentLink({
         orderCode: numericOrderCode,
@@ -176,14 +242,7 @@ export class OrderService {
         description: payOsDescription,
         cancelUrl: `${webLearnerUrl}/payment/cancel?orderCode=${order.code}`,
         returnUrl: `${webLearnerUrl}/payment/success?orderCode=${order.code}`,
-        items: preview.offerings.map((o) => {
-          const unitPrice = o.salePrice ?? o.price;
-          return {
-            name: o.title,
-            quantity: 1,
-            price: Number(unitPrice),
-          };
-        }),
+        items: payOsItems,
       });
 
       await this.prisma.order.update({
@@ -197,16 +256,10 @@ export class OrderService {
         },
       });
 
-      return {
-        orderCode: order.code,
-        paymentUrl: paymentLink.checkoutUrl,
-      };
+      return { orderCode: order.code, paymentUrl: paymentLink.checkoutUrl };
     }
 
-    return {
-      orderCode: order.code,
-      message: 'Order created. Please proceed with manual payment.',
-    };
+    return { orderCode: order.code, message: 'Order created. Please proceed with manual payment.' };
   }
 
   async handlePaymentSuccess(
@@ -314,67 +367,23 @@ export class OrderService {
         },
       });
 
-      // Fulfillment: Enrollments
+      // Fulfillment: ONLY AI Subscriptions (Courses are handled by OrderListener)
       for (const item of order.items) {
-        const snapshot = (item.offeringSnapshot ?? {}) as {
-          classIds?: string[];
-        };
-        const snapshotClassIds = Array.isArray(snapshot.classIds)
-          ? snapshot.classIds
-          : [];
-        let classIdsToEnroll = [...snapshotClassIds];
-
-        if (!classIdsToEnroll.length) {
-          // Backward compatibility for legacy orders without snapshot classIds.
-          const offeringClasses = await tx.courseOfferingClass.findMany({
-            where: { offeringId: item.offeringId },
-            select: { classId: true },
-          });
-          classIdsToEnroll = offeringClasses.map((oc) => oc.classId);
-        }
-
-        for (const classId of classIdsToEnroll) {
-          try {
-            await this.enrollmentService.create(
-              {
-                userId: order.userId,
-                offeringId: item.offeringId,
-                classId,
-                status: 'ACTIVE',
-                sourceOrderId: order.id,
-              },
-              requesterId,
-              tx,
-            );
-          } catch (err) {
-            this.logger.error(
-              `Fulfillment failed for order ${order.code}, class ${classId}: ${err.message}`,
-            );
-            // Depending on policy, we might want to throw to rollback, or just log and continue.
-            // User prompt says: "Nếu line-item không pass, xử lý theo policy: fail mềm có log/audit + trả trạng thái phù hợp, hoặc fail transaction có thông báo rõ."
-            // I'll throw to ROLLBACK for now to ensure data integrity (no partial fulfillment).
-            throw new BadRequestException(`Fulfillment failed: ${err.message}`);
-          }
+        if (item.subscriptionPlanId) {
+          await this.fulfillAiSubscription(tx, order, item);
         }
       }
     });
 
     this.logger.log(`Order ${order.code} fulfilled successfully`);
 
-    // Emit notification via NATS (identity service will create in-app notification)
+    // Emit notification via NATS
     try {
       const firstItem = order.items[0];
       const snapshot = (firstItem?.offeringSnapshot ?? {}) as {
         title?: string;
       };
-      const courseTitle = snapshot.title || 'khóa học';
-      const itemCount = order.items.length;
-
-      const title = 'Thanh toán & ghi danh thành công 🎉';
-      const message =
-        itemCount === 1
-          ? `Bạn đã thanh toán và ghi danh thành công vào "${courseTitle}". Bắt đầu học ngay nhé!`
-          : `Bạn đã thanh toán và ghi danh thành công vào ${itemCount} khóa học. Bắt đầu học ngay nhé!`;
+      const itemName = snapshot.title || 'mục đã mua';
 
       this.natsClient.emit(
         { cmd: 'send_notification' },
@@ -382,13 +391,11 @@ export class OrderService {
           recipientId: order.userId,
           type: 'system',
           payload: {
-            title,
-            body: message,
+            title: 'Thanh toán thành công 🎉',
+            body: `Bạn đã thanh toán thành công cho "${itemName}".`,
             metadata: {
               orderId: order.id,
               orderCode: order.code,
-              itemCount,
-              currency: order.currency,
               amount: order.grandTotal,
             },
           },
@@ -401,6 +408,36 @@ export class OrderService {
     }
 
     return { ok: true };
+  }
+
+
+  private async fulfillAiSubscription(tx: any, order: any, item: any) {
+    try {
+      const expiresAt = new Date();
+      expiresAt.setMonth(expiresAt.getMonth() + 1);
+
+      // Deactivate existing
+      await tx.aiUserSubscription.updateMany({
+        where: { userId: order.userId, status: 'ACTIVE' },
+        data: { status: 'CANCELLED' },
+      });
+
+      await tx.aiUserSubscription.create({
+        data: {
+          userId: order.userId,
+          planId: item.subscriptionPlanId,
+          planCode: (item.offeringSnapshot as any)?.code || 'unknown',
+          startedAt: new Date(),
+          expiresAt,
+          status: 'ACTIVE',
+        },
+      });
+
+      this.logger.log(`Subscription activated for user ${order.userId}`);
+    } catch (err: any) {
+      this.logger.error(`Subscription fulfillment failed for order ${order.code}: ${err.message}`);
+      throw new BadRequestException(`Subscription fulfillment failed: ${err.message}`);
+    }
   }
 
   // --- Admin CRUD ---
@@ -432,7 +469,8 @@ export class OrderService {
         where,
         include: {
           user: { select: { email: true, displayName: true } },
-          items: { include: { offering: true } },
+          items: { include: { offering: true, subscriptionPlan: true } },
+          transactions: true,
         },
         orderBy: { createdAt: 'desc' },
         take: limit,
@@ -449,6 +487,7 @@ export class OrderService {
       totalPages: Math.ceil(total / limit),
     };
   }
+
   async admin_getStats(query: {
     startDate?: string;
     endDate?: string;
@@ -495,7 +534,7 @@ export class OrderService {
       where: { id },
       include: {
         user: { select: { email: true, displayName: true } },
-        items: { include: { offering: true } },
+        items: { include: { offering: true, subscriptionPlan: true } },
         transactions: true,
       },
     });
@@ -543,9 +582,8 @@ export class OrderService {
       include: {
         items: {
           include: {
-            offering: {
-              select: { id: true, title: true, code: true },
-            },
+            offering: { select: { id: true, title: true, code: true } },
+            subscriptionPlan: true,
           },
         },
         enrollments: {
@@ -560,22 +598,24 @@ export class OrderService {
 
     if (!order) throw new NotFoundException('Order not found');
 
-    const fallbackOfferingIds = order.items
+    const courseItems = order.items.filter((item) => !!item.offeringId && !!item.offering);
+
+    const fallbackOfferingIds = courseItems
       .filter((item) => {
         const snapshot = (item.offeringSnapshot ?? {}) as { classIds?: string[] };
         return !Array.isArray(snapshot.classIds);
       })
-      .map((item) => item.offeringId);
+      .map((item) => item.offeringId as string);
 
     const fallbackClassMap = fallbackOfferingIds.length
       ? await this.getOfferingClassMap(fallbackOfferingIds)
       : new Map<string, string[]>();
 
-    const itemResults = order.items.map((item) => {
+    const itemResults = courseItems.map((item) => {
       const snapshot = (item.offeringSnapshot ?? {}) as { classIds?: string[] };
       const expectedClassIds = Array.isArray(snapshot.classIds)
         ? snapshot.classIds
-        : fallbackClassMap.get(item.offeringId) ?? [];
+        : fallbackClassMap.get(item.offeringId as string) ?? [];
       const enrolledClassIds = order.enrollments
         .filter((enrollment) => enrollment.offeringId === item.offeringId)
         .map((enrollment) => enrollment.classId);
@@ -585,8 +625,8 @@ export class OrderService {
 
       return {
         offeringId: item.offeringId,
-        offeringCode: item.offering.code,
-        offeringTitle: item.offering.title,
+        offeringCode: item.offering!.code,
+        offeringTitle: item.offering!.title,
         expectedClassIds,
         enrolledClassIds,
         missingClassIds,
@@ -641,6 +681,7 @@ export class OrderService {
               offering: {
                 select: { id: true, title: true, code: true },
               },
+              subscriptionPlan: true,
             },
           },
         },
@@ -668,6 +709,7 @@ export class OrderService {
             offering: {
               select: { id: true, title: true, code: true },
             },
+            subscriptionPlan: true,
           },
         },
         transactions: true,
