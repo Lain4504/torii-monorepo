@@ -3,3 +3,9 @@ export enum ExamSessionStatus {
     SUBMITTED = 'SUBMITTED',
     COMPLETED = 'COMPLETED',
 }
+
+export enum RefundStatus {
+    PENDING = 'PENDING',
+    COMPLETED = 'COMPLETED',
+    REJECTED = 'REJECTED',
+}

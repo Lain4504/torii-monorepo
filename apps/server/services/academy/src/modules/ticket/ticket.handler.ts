@@ -57,7 +57,8 @@ export class TicketHandler {
   }
 
   @MessagePattern({ cmd: 'academy.ticket.delete' })
-  async deleteTicket(@Payload() payload: { id: string; userId: string; requesterId?: string }) {
-    return this.ticketService.deleteTicket(payload.id, payload.userId, payload.requesterId);
+  async deleteTicket(@Payload() payload: { id: string; userId?: string; requesterId?: string; isAdmin?: boolean }) {
+    await this.ticketService.deleteTicket(payload.id, payload.userId, payload.requesterId, payload.isAdmin);
+    return { success: true };
   }
 }

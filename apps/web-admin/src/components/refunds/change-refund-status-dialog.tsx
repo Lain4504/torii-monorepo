@@ -23,40 +23,41 @@ import {
     Field,
     FieldLabel,
 } from '@workspace/ui/components/field';
-import type { TicketResponseDTO } from '@workspace/schemas';
-import { TicketStatus, TicketType } from '@workspace/schemas';
+import type { RefundResponseDTO } from '@workspace/schemas';
+import { RefundStatus } from '@workspace/schemas';
 import { toast } from 'sonner';
-import { useUpdateTicketStatus } from "@/lib/api/services/tickets";
+import { useUpdateRefundStatus } from "@/lib/api/services/refunds";
 import { Spinner } from "@workspace/ui/components/spinner";
 import { Textarea } from "@workspace/ui/components/textarea";
 
-interface ChangeTicketStatusDialogProps {
+interface ChangeRefundStatusDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    ticket: TicketResponseDTO | null;
+    refund: RefundResponseDTO | null;
 }
 
-export function ChangeTicketStatusDialog({
+export function ChangeRefundStatusDialog({
     open,
     onOpenChange,
-    ticket,
-}: ChangeTicketStatusDialogProps) {
-    const updateTicketStatus = useUpdateTicketStatus();
-    const [selectedStatus, setSelectedStatus] = useState<TicketStatus>(TicketStatus.PENDING);
-    const [response, setResponse] = useState('');
+    refund,
+}: ChangeRefundStatusDialogProps) {
+    const updateRefundStatus = useUpdateRefundStatus();
+    const [selectedStatus, setSelectedStatus] = useState<RefundStatus>(RefundStatus.PENDING);
+    const [reason, setReason] = useState('');
+    const [adminNote, setAdminNote] = useState('');
     const [showConfirm, setShowConfirm] = useState(false);
 
     useEffect(() => {
-        if (ticket) {
-            setSelectedStatus(ticket.status as TicketStatus);
-            setResponse(ticket.response || '');
+        if (refund) {
+            setSelectedStatus(refund.status as RefundStatus);
+            setAdminNote(refund.adminNote || '');
         }
-    }, [ticket, open]);
+    }, [refund, open]);
 
-    if (!ticket) return null;
+    if (!refund) return null;
 
     const handleUpdateClick = () => {
-        if (selectedStatus === ticket.status) {
+        if (selectedStatus === refund.status && adminNote === refund.adminNote) {
             onOpenChange(false);
             return;
         }
@@ -65,16 +66,18 @@ export function ChangeTicketStatusDialog({
 
     const handleConfirmUpdate = async () => {
         try {
-            await updateTicketStatus.mutateAsync({
-                id: ticket.id,
+            await updateRefundStatus.mutateAsync({
+                id: refund.id,
                 status: selectedStatus,
-                response: response,
+                reason: reason,
+                adminNote: adminNote,
             });
-            toast.success('Đã cập nhật trạng thái ticket', {
-                description: `Trạng thái của ticket đã được thay đổi thành công.`,
+            toast.success('Đã cập nhật trạng thái hoàn tiền', {
+                description: `Trạng thái của yêu cầu đã được thay đổi thành công.`,
             });
             setShowConfirm(false);
             onOpenChange(false);
+            setReason('');
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : 'Không thể cập nhật trạng thái';
             toast.error('Cập nhật thất bại', {
@@ -83,12 +86,11 @@ export function ChangeTicketStatusDialog({
         }
     };
 
-    const getStatusLabel = (status: TicketStatus) => {
+    const getStatusLabel = (status: RefundStatus) => {
         switch (status) {
-            case TicketStatus.PENDING: return 'Đang chờ';
-            case TicketStatus.PROCESSING: return 'Đang xử lý';
-            case TicketStatus.RESOLVED: return 'Đã giải quyết';
-            case TicketStatus.CANCELLED: return 'Đã hủy';
+            case RefundStatus.PENDING: return 'Đang chờ';
+            case RefundStatus.COMPLETED: return 'Hoàn tất';
+            case RefundStatus.REJECTED: return 'Từ chối';
             default: return status;
         }
     }
@@ -98,9 +100,9 @@ export function ChangeTicketStatusDialog({
             <Dialog open={open && !showConfirm} onOpenChange={onOpenChange}>
                 <DialogContent className="sm:max-w-[480px]">
                     <DialogHeader>
-                        <DialogTitle>Thay đổi trạng thái Ticket</DialogTitle>
+                        <DialogTitle>Cập nhật trạng thái Hoàn tiền</DialogTitle>
                         <DialogDescription>
-                            Cập nhật trạng thái cho ticket <strong>#{ticket.id.substring(0, 8)}</strong>.
+                            Cập nhật trạng thái cho yêu cầu <strong>#{refund.id.substring(0, 8)}</strong> của {refund.ticket?.user?.displayName}.
                         </DialogDescription>
                     </DialogHeader>
 
@@ -109,49 +111,40 @@ export function ChangeTicketStatusDialog({
                             <FieldLabel>Trạng thái mới</FieldLabel>
                             <Select
                                 value={selectedStatus}
-                                onValueChange={(value) => setSelectedStatus(value as TicketStatus)}
+                                onValueChange={(value) => setSelectedStatus(value as RefundStatus)}
                             >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Chọn trạng thái" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value={TicketStatus.PENDING} disabled={ticket.status !== TicketStatus.PENDING}>
-                                        {getStatusLabel(TicketStatus.PENDING)}
+                                    <SelectItem value={RefundStatus.PENDING} disabled={refund.status === RefundStatus.COMPLETED || refund.status === RefundStatus.REJECTED}>
+                                        {getStatusLabel(RefundStatus.PENDING)}
                                     </SelectItem>
-                                    <SelectItem value={TicketStatus.PROCESSING} disabled={ticket.status === TicketStatus.CANCELLED || ticket.status === TicketStatus.RESOLVED}>
-                                        {getStatusLabel(TicketStatus.PROCESSING)}
+                                    <SelectItem value={RefundStatus.COMPLETED} disabled={refund.status === RefundStatus.COMPLETED || refund.status === RefundStatus.REJECTED}>
+                                        {getStatusLabel(RefundStatus.COMPLETED)}
                                     </SelectItem>
-                                    <SelectItem
-                                        value={TicketStatus.RESOLVED}
-                                        disabled={
-                                            ticket.type === TicketType.REFUND &&
-                                            (ticket.status === TicketStatus.PENDING || ticket.status === TicketStatus.PROCESSING)
-                                        }
-                                    >
-                                        {getStatusLabel(TicketStatus.RESOLVED)}
-                                    </SelectItem>
-                                    <SelectItem value={TicketStatus.CANCELLED}>
-                                        {getStatusLabel(TicketStatus.CANCELLED)}
+                                    <SelectItem value={RefundStatus.REJECTED} disabled={refund.status === RefundStatus.COMPLETED}>
+                                        {getStatusLabel(RefundStatus.REJECTED)}
                                     </SelectItem>
                                 </SelectContent>
                             </Select>
-                            {ticket.type === TicketType.REFUND && (
-                                <p className="text-[13px] text-muted-foreground mt-2 bg-muted/50 p-2 rounded border border-dashed">
-                                    {ticket.status === TicketStatus.PENDING ? (
-                                        "ℹ️ Ticket Hoàn tiền cần được chuyển sang 'Đang xử lý' để khởi tạo quy trình hoàn trả."
-                                    ) : ticket.status === TicketStatus.PROCESSING ? (
-                                        "ℹ️ Ticket này sẽ tự động chuyển sang 'Đã giải quyết' khi bạn hoàn tất bước cuối trong mục Quản lý hoàn tiền."
-                                    ) : null}
-                                </p>
-                            )}
                         </Field>
                         <Field className="space-y-2">
-                            <FieldLabel>Phản hồi cho người dùng (tùy chọn)</FieldLabel>
+                            <FieldLabel>Lý do thay đổi (để lưu log)</FieldLabel>
                             <Textarea
-                                value={response}
-                                onChange={(e) => setResponse(e.target.value)}
-                                placeholder="Nhập nội dung phản hồi..."
-                                rows={4}
+                                value={reason}
+                                onChange={(e) => setReason(e.target.value)}
+                                placeholder="Ví dụ: Đã xác nhận bank transfer..."
+                                rows={2}
+                            />
+                        </Field>
+                        <Field className="space-y-2">
+                            <FieldLabel>Ghi chú Admin (công khai cho học viên)</FieldLabel>
+                            <Textarea
+                                value={adminNote}
+                                onChange={(e) => setAdminNote(e.target.value)}
+                                placeholder="Ghi chú sẽ hiển thị cho học viên..."
+                                rows={3}
                             />
                         </Field>
                     </div>
@@ -172,29 +165,33 @@ export function ChangeTicketStatusDialog({
                     <AlertDialogHeader>
                         <AlertDialogTitle>Xác nhận thay đổi?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Hành động này sẽ thay đổi trạng thái của ticket từ
-                            <span className="font-medium text-foreground mx-1">{getStatusLabel(ticket.status as TicketStatus)}</span>
+                            Hành động này sẽ thay đổi trạng thái của yêu cầu hoàn tiền từ
+                            <span className="font-medium text-foreground mx-1">{getStatusLabel(refund.status as RefundStatus)}</span>
                             sang
                             <span className="font-medium text-primary mx-1">{getStatusLabel(selectedStatus)}</span>.
-                            Một thông báo sẽ được gửi đến người dùng.
+                            {selectedStatus === RefundStatus.COMPLETED && (
+                                <p className="mt-2 text-red-500 font-bold">
+                                    Lưu ý: Trạng thái COMPLETED sẽ tự động HỦY ENROLLMENT của học viên và ĐÓNG TICKET liên quan.
+                                </p>
+                            )}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel disabled={updateTicketStatus.isPending}>Quay lại</AlertDialogCancel>
+                        <AlertDialogCancel disabled={updateRefundStatus.isPending}>Quay lại</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={(e) => {
                                 e.preventDefault();
                                 handleConfirmUpdate();
                             }}
-                            disabled={updateTicketStatus.isPending}
+                            disabled={updateRefundStatus.isPending}
                         >
-                            {updateTicketStatus.isPending ? (
+                            {updateRefundStatus.isPending ? (
                                 <>
                                     <Spinner className="mr-2 h-4 w-4" />
                                     Đang lưu...
                                 </>
                             ) : (
-                                "Xác nhận thay đổi"
+                                "Xác nhận cập nhật"
                             )}
                         </AlertDialogAction>
                     </AlertDialogFooter>

@@ -24,6 +24,7 @@ import { ClassAttendanceController } from './controllers/class-attendance.contro
 import { SyllabusController } from './controllers/syllabus.controller';
 import { ModuleController } from './controllers/module.controller';
 import { ClassAssignmentController } from './controllers/class-assignment.controller';
+import { RefundController } from './controllers/refund.controller';
 
 @Module({
   imports: [NatsClientModule],
@@ -50,6 +51,7 @@ import { ClassAssignmentController } from './controllers/class-assignment.contro
     SyllabusController,
     ModuleController,
     ClassAssignmentController,
+    RefundController,
   ],
 })
 export class AcademyModule { }

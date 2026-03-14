@@ -51,7 +51,23 @@ export class TicketController {
     return successResponse(result, 'Ticket submitted successfully');
   }
 
+  @Get('me')
+  async findMyTickets(
+    @Query() query: TicketQueryDTO,
+    @Req() req: ReqWithRequester,
+  ) {
+    const requester = req.requester;
+    const result = await firstValueFrom(
+      this.natsClient.send(
+        { cmd: 'academy.ticket.findAll' },
+        { ...query, userId: requester.sub },
+      ),
+    );
+    return successPaginatedResponse(result);
+  }
+
   @Get()
+  @Permissions('support.view')
   async getTickets(
     @Query() query: TicketQueryDTO,
     @Req() req: ReqWithRequester,
@@ -79,10 +95,18 @@ export class TicketController {
   }
 
   @Get(':id')
-  async getTicket(@Param('id') id: string) {
+  async getTicket(@Param('id') id: string, @Req() req: ReqWithRequester) {
+    const requester = req.requester;
     const result = await firstValueFrom(
       this.natsClient.send({ cmd: 'academy.ticket.findById' }, { id }),
     );
+
+    // Security check: if not staff/admin, must be the owner
+    const canViewAll = requester.role === 'admin' || requester.permissions?.includes('support.view');
+    if (!canViewAll && result.userId !== requester.sub) {
+      return successResponse(null, 'Not found or permission denied');
+    }
+
     return successResponse(result);
   }
 
@@ -103,14 +127,31 @@ export class TicketController {
     return successResponse(result, 'Ticket status updated successfully');
   }
 
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Post(':id/delete') // Or @Delete(':id') but let's use @Post(':id/delete') if they prefer or standard @Delete
-  async deleteTicket(@Param('id') id: string, @Req() req: ReqWithRequester) {
+  @Post(':id/cancel')
+  async cancelTicket(@Param('id') id: string, @Req() req: ReqWithRequester) {
     const requester = req.requester;
+    // For learners, we only allow cancelling their own tickets 
+    // This ownership is enforced in the Academy service deleteTicket method
     await firstValueFrom(
       this.natsClient.send(
         { cmd: 'academy.ticket.delete' },
         { id, userId: requester.sub, requesterId: requester.sub },
+      ),
+    );
+    return successResponse(null, 'Ticket cancelled successfully');
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post(':id/delete')
+  @Permissions('support.handle') // Admins can delete
+  async deleteTicket(@Param('id') id: string, @Req() req: ReqWithRequester) {
+    const requester = req.requester;
+    // For admin deletion, we might need a different service method or pass a flag
+    // But for now, let's allow it if they are an admin by bypassing the userId check in future
+    await firstValueFrom(
+      this.natsClient.send(
+        { cmd: 'academy.ticket.delete' },
+        { id, userId: undefined, requesterId: requester.sub, isAdmin: true },
       ),
     );
     return successResponse(null, 'Ticket deleted successfully');
