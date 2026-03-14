@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import type { RefundResponseDTO, RefundQueryDTO } from '@workspace/schemas';
 import { RefundStatus } from '@workspace/schemas';
-import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { PageHeader } from '@/components/common/page-header';
 import { RefundsPrimaryToolbar } from '@/components/refunds/refunds-primary-toolbar';
 import { RefundsTable } from '@/components/refunds/refunds-table';
@@ -15,7 +14,6 @@ import { SmartPagination } from "@/components/common/smart-pagination";
 export default function RefundsPage() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
-    const [debouncedSearch] = useDebounceValue(search, 500);
     const [statusFilter, setStatusFilter] = useState<RefundStatus | ''>('');
 
     const [viewingRefund, setViewingRefund] = useState<RefundResponseDTO | null>(null);
@@ -88,3 +86,4 @@ export default function RefundsPage() {
         </div>
     );
 }
+
