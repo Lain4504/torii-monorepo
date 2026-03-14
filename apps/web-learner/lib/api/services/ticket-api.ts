@@ -6,7 +6,7 @@ export const useTickets = (query: TicketQueryDTO) => {
     return useQuery<PaginatedResponseDTO<TicketResponseDTO>>({
         queryKey: ['tickets', query],
         queryFn: async () => {
-            const { data } = await apiClient.get('/api/tickets', { params: query });
+            const { data } = await apiClient.get('/api/tickets/me', { params: query });
             return data;
         },
     });

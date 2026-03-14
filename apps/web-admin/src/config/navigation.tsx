@@ -87,6 +87,10 @@ export const financeNavItems: NavItem[] = [
         url: "/orders",
         icon: CreditCard,
         anyPermission: ["payment.view", "payment.refund"],
+        items: [
+            { titleKey: "Danh sách đơn hàng", url: "/orders" },
+            { titleKey: "Yêu cầu hoàn tiền", url: "/refunds", permission: "payment.refund" },
+        ]
     },
     {
         titleKey: "Mã giảm giá (Coupons)",

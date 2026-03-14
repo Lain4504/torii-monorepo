@@ -89,16 +89,17 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
 
     const onSubmit = async (values: CreateTicketFormValues) => {
         try {
-            const selectedEnrollment = (enrollments as any[]).find((en: any) => en.course?.id === values.courseMasterId);
-            const orderId = selectedEnrollment?.orderId;
+            const selectedEnrollment = (enrollments as any[]).find((en: any) => en.classId === values.courseMasterId);
+            const orderId = selectedEnrollment?.sourceOrderId;
 
             await createTicketMutation.mutateAsync({
                 type: values.type,
                 subject: values.subject,
                 description: values.description,
+                classId: values.type === TicketType.REFUND ? values.courseMasterId : undefined,
+                orderId: values.type === TicketType.REFUND ? orderId : undefined,
                 metadata: values.type === TicketType.REFUND ? {
-                    courseMasterId: values.courseMasterId,
-                    orderId: orderId
+                    courseTitle: selectedEnrollment?.class?.name || selectedEnrollment?.courseTitle,
                 } : {},
             });
             toast.success('Yêu cầu của bạn đã được gửi thành công.');
@@ -159,8 +160,8 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
                                         </SelectTrigger>
                                         <SelectContent>
                                             {enrollments.map((en: any) => (
-                                                <SelectItem key={en.course?.id} value={en.course?.id}>
-                                                    {en.course?.title}
+                                                <SelectItem key={en.classId} value={en.classId}>
+                                                    {en.class?.name || en.courseTitle || 'Khóa học không tên'}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>

@@ -29,13 +29,19 @@ export class EnrollmentHandler {
   }
 
   @MessagePattern({ cmd: 'academy.enrollment.delete' })
-  delete(@Payload() data: { id: string; requesterId?: string }) {
-    return this.enrollments.delete(data.id, data.requesterId);
+  async delete(@Payload() data: { id: string; requesterId?: string }) {
+    await this.enrollments.delete(data.id, data.requesterId);
+    return { success: true };
   }
 
   @MessagePattern({ cmd: 'academy.enrollment.getStats' })
   getStats(@Payload() data: { userId: string }) {
     return this.enrollments.getLearnerStats(data.userId);
+  }
+
+  @MessagePattern({ cmd: 'academy.enrollment.check' })
+  check(@Payload() data: { userId: string; classId: string }) {
+    return this.enrollments.checkEnrollment(data.userId, data.classId);
   }
 }
 

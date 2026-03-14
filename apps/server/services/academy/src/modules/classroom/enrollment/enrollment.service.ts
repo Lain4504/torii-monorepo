@@ -416,4 +416,44 @@ export class EnrollmentService {
       averageProgress,
     };
   }
+
+  async checkEnrollment(userId: string, classId: string) {
+    const enrollment = await this.prisma.enrollment.findFirst({
+      where: {
+        userId,
+        classId,
+        status: 'ACTIVE',
+      },
+      include: {
+        class: { select: { name: true, mode: true, status: true } },
+      },
+    });
+
+    if (!enrollment) {
+      return { isEnrolled: false, enrollment: null };
+    }
+
+    // Calculate progress
+    const totalLessons = await this.prisma.lesson.count({
+      where: {
+        module: {
+          syllabus: { classes: { some: { id: classId } } },
+        },
+      },
+    });
+    const completedLessons = await this.prisma.userLessonProgress.count({
+      where: { userId, classId, isCompleted: true },
+    });
+    const completionPercentage =
+      totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+
+    return {
+      isEnrolled: true,
+      enrollment: {
+        ...enrollment,
+        enrollmentDate: enrollment.enrolledAt,
+        completionPercentage,
+      },
+    };
+  }
 }

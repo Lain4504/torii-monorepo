@@ -18,12 +18,10 @@ import {
   OrderStatus,
 } from '@workspace/schemas';
 import { ITicketService } from '@server/academy/interfaces/services';
-import {
-  ITicketRepository,
-  TICKET_REPOSITORY_TOKEN,
-} from '@server/academy/interfaces/repositories';
+import { ITicketRepository, TICKET_REPOSITORY_TOKEN } from '@server/academy/interfaces/repositories';
 import { EmailService } from '@server/identity/modules/email/email.service';
 import { AuditLoggerService } from '../audit-logger.service';
+import { RefundService } from './refund.service';
 
 @Injectable()
 export class TicketService implements ITicketService {
@@ -36,6 +34,7 @@ export class TicketService implements ITicketService {
     private readonly natsClient: ClientProxy,
     private readonly emailService: EmailService,
     private readonly audit: AuditLoggerService,
+    private readonly refundService: RefundService,
   ) { }
 
   async createTicket(userId: string, dto: CreateTicketDTO, requesterId?: string): Promise<Ticket> {
@@ -53,7 +52,7 @@ export class TicketService implements ITicketService {
       try {
         const result = await firstValueFrom(
           this.natsClient.send(
-            { cmd: 'learning.enrollment.check' },
+            { cmd: 'academy.enrollment.check' },
             { userId, classId },
           ),
         );
@@ -87,7 +86,7 @@ export class TicketService implements ITicketService {
 
         const classResult = await firstValueFrom(
           this.natsClient.send(
-            { cmd: 'learning.class.findById' },
+            { cmd: 'academy.class.findById' },
             { id: classId },
           ),
         ).catch(() => null);
@@ -96,7 +95,7 @@ export class TicketService implements ITicketService {
           ...dto.metadata,
           progress,
           enrollmentDate: result.enrollment.enrollmentDate,
-          courseTitle: classResult?.title || 'Unknown Class',
+          courseTitle: classResult?.name || 'Unknown Class',
         };
       } catch (error) {
         if (error instanceof BadRequestException) throw error;
@@ -157,8 +156,25 @@ export class TicketService implements ITicketService {
       throw new BadRequestException('Ticket is already finalized');
     }
 
+    // Workflow enforcement for REFUND tickets
+    if (ticket.type === TicketType.REFUND) {
+      // 1. Block direct RESOLVED from PENDING (must go through PROCESSING to create Refund record)
+      if (ticket.status === TicketStatus.PENDING && dto.status === TicketStatus.RESOLVED) {
+        throw new BadRequestException(
+          'Yêu cầu hoàn tiền cần được chuyển sang trạng thái "Đang xử lý" để khởi tạo quy trình hoàn tiền trước khi giải quyết.',
+        );
+      }
+
+      // 2. Block manual RESOLVED from PROCESSING (forcing usage of Refund Management UI for side-effects like enrollment removal)
+      if (ticket.status === TicketStatus.PROCESSING && dto.status === TicketStatus.RESOLVED) {
+        throw new BadRequestException(
+          'Vui lòng xử lý và hoàn tất quy trình trong mục "Quản lý hoàn tiền" để giải quyết ticket này tự động.',
+        );
+      }
+    }
+
     if (
-      dto.status === TicketStatus.RESOLVED &&
+      dto.status === TicketStatus.PROCESSING &&
       ticket.type === TicketType.REFUND
     ) {
       const classId = ticket.classId;
@@ -166,144 +182,49 @@ export class TicketService implements ITicketService {
 
       if (classId && userId) {
         try {
-          const result = await firstValueFrom(
-            this.natsClient.send(
-              { cmd: 'learning.enrollment.check' },
-              { userId, classId },
-            ),
-          );
-
-          if (!result || !result.isEnrolled) {
-            throw new BadRequestException(
-              'Enrollment not found or already processed.',
-            );
-          }
-
-          const enrollmentDate = new Date(result.enrollment.enrollmentDate);
-          const now = new Date();
-          const diffTime = Math.abs(now.getTime() - enrollmentDate.getTime());
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-          if (diffDays > 14) {
-            throw new BadRequestException(
-              'Khóa học này đã quá thời hạn 14 ngày để hoàn tiền.',
-            );
-          }
-
-          let orderId = ticket.orderId;
-          if (!orderId) {
-            const ordersRes = await firstValueFrom(
-              this.natsClient.send(
-                { cmd: 'billing.order.findAll' },
-                { userId, status: OrderStatus.PAID },
-              ),
-            );
-            const matchingOrder = ordersRes.data?.find(
-              (o: any) => o.classId === classId || o.items?.some((i: any) => i.offering?.classId === classId),
-            );
-            if (matchingOrder) {
-              orderId = matchingOrder.id;
-            }
-          }
-
-          this.logger.log(
-            `Refund approved: Processing via Billing Service for Ticket #${ticket.id}. OrderId: ${orderId || 'Not found'}`,
-          );
-
-          let refundAmount = 0;
-          let finalCourseName = 'Khóa học';
-
-          if (orderId) {
-            const refundedOrder = await firstValueFrom(
-              this.natsClient.send(
-                { cmd: 'billing.order.refund' },
-                {
-                  id: orderId,
-                  reason: `Hoàn tiền theo Ticket #${ticket.id}: ${dto.response || ''}`,
-                },
-              ),
-            );
-            refundAmount = Math.round(Number(refundedOrder.amount || 0));
+          // Check if refund already exists
+          const existingRefund = await this.refundService.findAll({ ticketId: id });
+          if (existingRefund.total > 0) {
+            this.logger.warn(`Refund request already exists for ticket ${id}`);
           } else {
-            this.logger.warn(
-              `No associated order found for refund ticket ${ticket.id}. Falling back to manual enrollment deletion.`,
-            );
-            const deletedEnrollment = await firstValueFrom(
+            // Find order for this enrollment if not specified
+            let orderId = ticket.orderId;
+            let amount = 0;
+
+            const result = await firstValueFrom(
               this.natsClient.send(
-                { cmd: 'learning.enrollment.delete' },
+                { cmd: 'academy.enrollment.check' },
                 { userId, classId },
               ),
-            );
-            if (deletedEnrollment && deletedEnrollment.finalPrice > 0) {
-              refundAmount = Math.round(Number(deletedEnrollment.finalPrice));
-              await firstValueFrom(
-                this.natsClient.send(
-                  { cmd: 'billing.user_balance.add' },
-                  {
-                    userId: deletedEnrollment.senderId || userId,
-                    amount: refundAmount,
-                    reason: `Hoàn tiền xóa thủ công - Ticket #${ticket.id}`,
-                    type: 'REFUND',
-                    metadata: { ticketId: ticket.id, classId },
-                  },
-                ),
-              );
+            ).catch(() => null);
+
+            if (result?.isEnrolled && result?.enrollment?.sourceOrderId) {
+              orderId = result.enrollment.sourceOrderId;
             }
-          }
 
-          const classResult = await firstValueFrom(
-            this.natsClient.send(
-              { cmd: 'learning.class.findById' },
-              { id: classId },
-            ),
-          ).catch(() => null);
-          finalCourseName = classResult?.title || finalCourseName;
-
-          const userResult = await firstValueFrom(
-            this.natsClient.send(
-              { cmd: 'identity.users.findById' },
-              { id: userId },
-            ),
-          ).catch(() => null);
-
-          try {
-            if (userResult?.user?.email) {
-              await this.emailService.sendEmail({
-                type: 'refund_status',
-                to: userResult.user.email,
-                data: {
-                  displayName:
-                    userResult.user.displayName ||
-                    userResult.user.username ||
-                    'Học viên',
-                  courseName: finalCourseName,
-                  amount: refundAmount,
-                  currency: 'Coin',
-                  ticketId: ticket.id,
-                  reason: dto.response,
-                  status: 'RESOLVED',
-                },
-              });
+            // Get amount from order or enrollment if possible
+            if (orderId) {
+              const order = await firstValueFrom(
+                this.natsClient.send({ cmd: 'billing.order.findById' }, { id: orderId })
+              ).catch(() => null);
+              if (order) {
+                amount = Number(order.grandTotal || 0);
+              }
             }
-          } catch (emailError) {
-            this.logger.error(
-              `Failed to trigger refund email: ${emailError.message}`,
-            );
+
+            await this.refundService.createRefund({
+              ticketId: id,
+              orderId,
+              amount,
+              reason: ticket.description,
+              adminNote: dto.response,
+            }, requesterId || handlerId);
+
+            this.logger.log(`Refund request initiated for ticket ${id} in PENDING status`);
           }
         } catch (error) {
-          if (error instanceof BadRequestException) throw error;
-          this.logger.error(
-            `Error processing refund cancellation: ${error.message}`,
-          );
-          if (error.message?.includes('not found')) {
-            this.logger.warn(
-              `Enrollment not found during refund for User ${userId}, Class ${classId}. Proceeding with ticket approval.`,
-            );
-          } else {
-            throw new BadRequestException(
-              `Failed to process enrollment cancellation: ${error.message}`,
-            );
-          }
+          this.logger.error(`Failed to initiate refund request: ${error.message}`);
+          // Don't fail the whole ticket update, but log it
         }
       }
     }
@@ -395,13 +316,13 @@ export class TicketService implements ITicketService {
     };
   }
 
-  async deleteTicket(id: string, userId: string, requesterId?: string): Promise<void> {
+  async deleteTicket(id: string, userId?: string, requesterId?: string, isAdmin?: boolean): Promise<void> {
     const ticket = await this.ticketRepository.findById(id);
     if (!ticket) {
       throw new NotFoundException('Ticket not found');
     }
 
-    if (ticket.userId !== userId) {
+    if (!isAdmin && ticket.userId !== userId) {
       throw new BadRequestException('You are not the owner of this ticket');
     }
 
@@ -412,12 +333,12 @@ export class TicketService implements ITicketService {
     await this.ticketRepository.delete(id);
 
     await this.audit.log({
-      userId: requesterId || userId,
+      userId: requesterId || userId || ticket.userId,
       action: 'ticket.delete',
       entity: 'Ticket',
       entityId: id,
-      description: `Deleted ticket: ${ticket.subject}`,
-      metadata: { subject: ticket.subject, type: ticket.type },
+      description: `Deleted ticket: ${ticket.subject}${isAdmin ? ' (Admin force)' : ''}`,
+      metadata: { subject: ticket.subject, type: ticket.type, isAdmin },
     });
   }
 }

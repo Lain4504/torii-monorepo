@@ -39,5 +39,5 @@ export interface ITicketService {
   /**
    * Delete ticket.
    */
-  deleteTicket(id: string, userId: string, requesterId?: string): Promise<void>;
+  deleteTicket(id: string, userId?: string, requesterId?: string, isAdmin?: boolean): Promise<void>;
 }
