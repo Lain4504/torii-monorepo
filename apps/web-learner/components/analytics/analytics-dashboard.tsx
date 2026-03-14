@@ -279,7 +279,7 @@ export function AnalyticsDashboard() {
         <div className="bg-background text-foreground min-h-screen font-sans antialiased">
             {showAIDialog && <AILoadingDialog onClose={() => setShowAIDialog(false)} />}
 
-            <div className="flex flex-col w-full max-w-[1440px] mx-auto p-6 space-y-8">
+            <div className="flex flex-col w-full space-y-8 animate-in fade-in duration-700">
 
                 {/* ── Header ──────────────────────── */}
                 <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -384,7 +384,6 @@ export function AnalyticsDashboard() {
                         />
                     )}
                 </section>
-
             </div>
         </div>
     );

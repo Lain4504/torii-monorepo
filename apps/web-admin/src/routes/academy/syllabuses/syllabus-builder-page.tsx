@@ -15,8 +15,8 @@ import {
     LayoutTemplate,
     Copy,
 } from 'lucide-react';
-import { useAcademySyllabuses, useCreateAcademySyllabus, useCloneAcademySyllabus } from '@/lib/api/services/academy-syllabuses';
-import { useCreateAcademyLesson } from '@/lib/api/services/academy-lessons';
+import { useAcademySyllabuses, useCreateAcademySyllabus, useCloneAcademySyllabus, useLockAcademySyllabus } from '@/lib/api/services/academy-syllabuses';
+import { useCreateAcademyLesson, useUpdateAcademyLesson, useDeleteAcademyLesson } from '@/lib/api/services/academy-lessons';
 import { toast } from '@workspace/ui/components/sonner';
 import { Badge } from '@workspace/ui/components/badge';
 import { Skeleton } from '@workspace/ui/components/skeleton';
@@ -44,7 +44,14 @@ import { Input } from "@workspace/ui/components/input";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api/api-client';
 import type { StandardApiResponse } from '@workspace/schemas';
-import { TiptapEditor } from '@workspace/ui/components/tiptap-editor';
+import { LessonForm } from "@/components/academy/lesson-form";
+import { RichTextRenderer } from "@/components/editor/rich-text-editor";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu";
 
 export default function SyllabusBuilderPage() {
     // Ở route hiện tại, :id chính là courseProfileId
@@ -55,6 +62,7 @@ export default function SyllabusBuilderPage() {
     const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({});
     const createSyllabusMutation = useCreateAcademySyllabus();
     const cloneSyllabusMutation = useCloneAcademySyllabus();
+    const lockSyllabusMutation = useLockAcademySyllabus();
     const queryClient = useQueryClient();
 
     // Dialog state: tạo syllabus đầu tiên
@@ -70,14 +78,14 @@ export default function SyllabusBuilderPage() {
     // Dialog state: tạo bài học mới
     const [createLessonOpen, setCreateLessonOpen] = useState(false);
     const [selectedModuleForLesson, setSelectedModuleForLesson] = useState<any | null>(null);
-    const [newLessonTitle, setNewLessonTitle] = useState('');
-    const [newLessonType, setNewLessonType] = useState<'VIDEO' | 'READING'>('VIDEO');
-    const [newLessonVideoUrl, setNewLessonVideoUrl] = useState('');
-    const [newLessonContent, setNewLessonContent] = useState('');
 
     // Dialog state: xem chi tiết bài học
     const [viewLessonOpen, setViewLessonOpen] = useState(false);
     const [viewLesson, setViewLesson] = useState<any | null>(null);
+
+    // Dialog state: chỉnh sửa bài học
+    const [editLessonOpen, setEditLessonOpen] = useState(false);
+    const [editingLesson, setEditingLesson] = useState<any | null>(null);
 
     // Dialog state: clone giáo trình
     const [cloneDialogOpen, setCloneDialogOpen] = useState(false);
@@ -126,6 +134,8 @@ export default function SyllabusBuilderPage() {
     });
 
     const createLessonMutation = useCreateAcademyLesson();
+    const updateLessonMutation = useUpdateAcademyLesson();
+    const deleteLessonMutation = useDeleteAcademyLesson();
 
     const toggleModule = (moduleId: string) => {
         setExpandedModules(prev => ({
@@ -172,7 +182,7 @@ export default function SyllabusBuilderPage() {
                 `current-syllabus:${courseProfileId}`,
                 selectedSyllabus.id,
             );
-            toast.success('Đã đặt làm giáo trình hiện tại cho Course Profile này');
+            toast.success('Đã đặt làm giáo trình hiện tại cho hồ sơ khóa học này');
         } catch {
             toast.error('Không thể lưu thiết lập giáo trình hiện tại trên trình duyệt');
         } finally {
@@ -189,7 +199,7 @@ export default function SyllabusBuilderPage() {
                 <div className="space-y-1">
                     <h3 className="text-xl font-bold">Chưa có giáo trình (Syllabus)</h3>
                     <p className="text-sm text-muted-foreground max-w-[400px]">
-                        Course Profile này hiện tại chưa có phiên bản giáo trình nào. Hãy tạo phiên bản đầu tiên để bắt đầu xây dựng cấu trúc bài học.
+                        Hồ sơ khóa học này hiện tại chưa có phiên bản giáo trình nào. Hãy tạo phiên bản đầu tiên để bắt đầu xây dựng cấu trúc bài học.
                     </p>
                 </div>
                 <Button
@@ -206,7 +216,7 @@ export default function SyllabusBuilderPage() {
                         <DialogHeader>
                             <DialogTitle>Xác nhận tạo giáo trình đầu tiên</DialogTitle>
                             <DialogDescription>
-                                Hệ thống sẽ tạo phiên bản syllabus mặc định <strong>v1.0.0</strong> cho Course Profile này.
+                                Hệ thống sẽ tạo phiên bản syllabus mặc định <strong>v1.0.0</strong> cho hồ sơ khóa học này.
                                 Bạn có thể clone và chỉnh sửa các phiên bản sau. Bạn có chắc chắn muốn tiếp tục?
                             </DialogDescription>
                         </DialogHeader>
@@ -238,7 +248,7 @@ export default function SyllabusBuilderPage() {
             <PageHeader
                 title={
                     <div className="flex items-center gap-2">
-                        <Link to="/academy/course-profiles" className="hover:underline text-muted-foreground">Course Profiles</Link>
+                        <Link to="/academy/course-profiles" className="hover:underline text-muted-foreground">Hồ sơ khóa học</Link>
                         <ChevronRight className="size-4" />
                         <span>{selectedSyllabus?.name || 'Giáo trình'}</span>
                         {selectedSyllabus && (
@@ -248,7 +258,7 @@ export default function SyllabusBuilderPage() {
                         )}
                     </div>
                 }
-                subtitle="Xây dựng lộ trình học tập, tổ chức các module và bài giảng."
+                subtitle="Xây dựng lộ trình học tập, tổ chức các module và bài giảng. Quản lý nhiều phiên bản giáo trình cho cùng một hồ sơ khóa học."
                 actions={
                     <div className="flex gap-2">
                         <Button
@@ -257,11 +267,31 @@ export default function SyllabusBuilderPage() {
                             onClick={() => setConfirmSetCurrentOpen(true)}
                         >
                             <LayoutTemplate className="mr-2 h-4 w-4" />
-                            Đặt làm giáo trình hiện tại
+                            Đặt làm giáo trình ưu tiên (chỉ trên máy bạn)
                         </Button>
-                        <Button variant="outline">
+                        <Button
+                            variant="outline"
+                            disabled={!selectedSyllabus || selectedSyllabus.status === 'LOCKED' || lockSyllabusMutation.isPending}
+                            onClick={async () => {
+                                if (!selectedSyllabus) return;
+                                if (!window.confirm('Sau khi khóa, giáo trình này sẽ không thể chỉnh sửa Module và Lesson nữa. Bạn có chắc chắn muốn khóa?')) {
+                                    return;
+                                }
+                                try {
+                                    await lockSyllabusMutation.mutateAsync(selectedSyllabus.id);
+                                    if (courseProfileId) {
+                                        await queryClient.invalidateQueries({
+                                            queryKey: ['academy-syllabuses', courseProfileId],
+                                        });
+                                    }
+                                    toast.success('Đã khóa giáo trình');
+                                } catch (error: any) {
+                                    toast.error(error?.response?.data?.message || 'Không thể khóa giáo trình');
+                                }
+                            }}
+                        >
                             <Lock className="mr-2 h-4 w-4" />
-                            Khóa giáo trình
+                            Khóa chỉnh sửa giáo trình
                         </Button>
                         <Button>
                             <Save className="mr-2 h-4 w-4" />
@@ -272,40 +302,7 @@ export default function SyllabusBuilderPage() {
             />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0">
-                {/* Syllabus List (theo Course Profile) */}
-                <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-lg font-semibold italic">Danh sách phiên bản Syllabus</h2>
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={!selectedSyllabus}
-                            onClick={() => {
-                                setCloneNewVersion('');
-                                setCloneNewName(selectedSyllabus?.name ?? '');
-                                setCloneDialogOpen(true);
-                            }}
-                        >
-                            <Copy className="mr-1 h-3 w-3" />
-                            Clone giáo trình
-                        </Button>
-                    </div>
-                    <div className="flex gap-2 flex-wrap">
-                        {syllabuses.map((s) => (
-                            <Button
-                                key={s.id}
-                                variant={s.id === selectedSyllabus?.id ? 'default' : 'outline'}
-                                size="sm"
-                                onClick={() => setSelectedSyllabusId(s.id)}
-                            >
-                                <span className="font-mono mr-2">{s.versionLabel}</span>
-                                {s.name && <span>{s.name}</span>}
-                            </Button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Module List */}
+                {/* Module List (bên trái, chiếm 2 cột) */}
                 <div className="lg:col-span-2 space-y-4">
                     <div className="flex justify-between items-center mb-2">
                         <h2 className="text-lg font-semibold italic">Cấu trúc Module</h2>
@@ -344,10 +341,9 @@ export default function SyllabusBuilderPage() {
                                         <CardContent className="p-0 border-t bg-background/50">
                                             <div className="divide-y divide-muted/50">
                                                 {module.lessons?.map((lesson: any) => (
-                                                    <button
+                                                    <div
                                                         key={lesson.id}
-                                                        type="button"
-                                                        className="w-full flex items-center justify-between p-3 pl-12 hover:bg-accent transition-colors text-left"
+                                                        className="w-full flex items-center justify-between p-3 pl-12 hover:bg-accent transition-colors text-left cursor-pointer"
                                                         onClick={() => {
                                                             setViewLesson(lesson);
                                                             setViewLessonOpen(true);
@@ -361,30 +357,61 @@ export default function SyllabusBuilderPage() {
                                                             )}
                                                             <span className="text-sm">{lesson.title}</span>
                                                         </div>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="size-8"
-                                                            type="button"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                setViewLesson(lesson);
-                                                                setViewLessonOpen(true);
-                                                            }}
-                                                        >
-                                                            <MoreVertical className="size-4" />
-                                                        </Button>
-                                                    </button>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="icon"
+                                                                    className="size-8 border-border/60"
+                                                                    type="button"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                    }}
+                                                                >
+                                                                    <MoreVertical className="size-4" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end" className="w-40">
+                                                                <DropdownMenuItem
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        setEditingLesson(lesson);
+                                                                        setEditLessonOpen(true);
+                                                                    }}
+                                                                >
+                                                                    Chỉnh sửa
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem
+                                                                    className="text-destructive focus:text-destructive"
+                                                                    onClick={async (e) => {
+                                                                        e.stopPropagation();
+                                                                        if (!window.confirm('Bạn có chắc muốn xóa bài học này?')) {
+                                                                            return;
+                                                                        }
+                                                                        try {
+                                                                            await deleteLessonMutation.mutateAsync(lesson.id);
+                                                                            if (courseProfileId) {
+                                                                                await queryClient.invalidateQueries({
+                                                                                    queryKey: ['academy-syllabuses', courseProfileId],
+                                                                                });
+                                                                            }
+                                                                            toast.success('Đã xóa bài học');
+                                                                        } catch (error: any) {
+                                                                            toast.error(error?.response?.data?.message || 'Không thể xóa bài học');
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    Xóa
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </div>
                                                 ))}
                                                 <button
                                                     className="w-full p-3 pl-12 flex items-center gap-2 text-sm text-primary hover:bg-primary/5 transition-colors"
                                                     type="button"
                                                     onClick={() => {
                                                         setSelectedModuleForLesson(module);
-                                                        setNewLessonTitle('');
-                                                        setNewLessonType('VIDEO');
-                                                        setNewLessonVideoUrl('');
-                                                        setNewLessonContent('');
                                                         setCreateLessonOpen(true);
                                                     }}
                                                 >
@@ -400,31 +427,70 @@ export default function SyllabusBuilderPage() {
                     </ScrollArea>
                 </div>
 
-                {/* Properties Pane */}
-                <div className="space-y-4">
-                    <h2 className="text-lg font-semibold italic">Chi tiết</h2>
-                    <Card className="h-fit">
-                        <CardHeader>
-                            <CardTitle className="text-base">Thông tin chung</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="space-y-1">
-                                <label className="text-xs text-muted-foreground uppercase font-bold">Trạng thái</label>
-                                <div>
-                                    <Badge variant={selectedSyllabus?.status === 'LOCKED' ? 'secondary' : 'default'}>
-                                        {selectedSyllabus?.status || 'Bản nháp'}
-                                    </Badge>
+                {/* Cột bên phải: danh sách phiên bản + thông tin chung */}
+                <div className="space-y-4 lg:pl-2">
+                    {/* Danh sách syllabus (theo hồ sơ khóa học) */}
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-lg font-semibold italic">Danh sách phiên bản Syllabus</h2>
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={!selectedSyllabus}
+                                onClick={() => {
+                                    setCloneNewVersion('');
+                                    setCloneNewName(selectedSyllabus?.name ?? '');
+                                    setCloneDialogOpen(true);
+                                }}
+                            >
+                                <Copy className="mr-1 h-3 w-3" />
+                                Clone giáo trình
+                            </Button>
+                        </div>
+                        <div className="flex gap-2 flex-wrap">
+                            {syllabuses.map((s) => (
+                                <Button
+                                    key={s.id}
+                                    variant={s.id === selectedSyllabus?.id ? 'default' : 'outline'}
+                                    size="sm"
+                                    onClick={() => setSelectedSyllabusId(s.id)}
+                                >
+                                    <span className="font-mono mr-2">{s.versionLabel}</span>
+                                    {s.name && <span>{s.name}</span>}
+                                </Button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Properties Pane */}
+                    <div className="space-y-4">
+                        <h2 className="text-lg font-semibold italic">Chi tiết</h2>
+                        <Card className="h-fit">
+                            <CardHeader>
+                                <CardTitle className="text-base">Thông tin chung</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-1">
+                                    <label className="text-xs text-muted-foreground uppercase font-bold">Trạng thái</label>
+                                    <div>
+                                        <Badge variant={selectedSyllabus?.status === 'LOCKED' ? 'secondary' : 'default'}>
+                                            {selectedSyllabus?.status || 'DRAFT'}
+                                        </Badge>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="space-y-1">
-                                <label className="text-xs text-muted-foreground uppercase font-bold">Phiên bản</label>
-                                <div className="font-mono">{selectedSyllabus?.versionLabel || 'N/A'}</div>
-                            </div>
-                            <div className="space-y-1 text-sm text-muted-foreground">
-                                <p>Syllabus này đang được sử dụng ở <strong>{selectedSyllabus?._count?.classes || 0}</strong> lớp học.</p>
-                            </div>
-                        </CardContent>
-                    </Card>
+                                <div className="space-y-1">
+                                    <label className="text-xs text-muted-foreground uppercase font-bold">Phiên bản</label>
+                                    <div className="font-mono">{selectedSyllabus?.versionLabel || 'N/A'}</div>
+                                </div>
+                                <div className="space-y-1 text-sm text-muted-foreground">
+                                    <p>
+                                        Syllabus này đang được sử dụng ở{" "}
+                                        <strong>{selectedSyllabus?._count?.classes || 0}</strong> lớp học.
+                                    </p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
             </div>
 
@@ -555,7 +621,7 @@ export default function SyllabusBuilderPage() {
                         <DialogTitle>Đặt làm giáo trình hiện tại</DialogTitle>
                         <DialogDescription>
                             Giáo trình <strong>{selectedSyllabus?.name || selectedSyllabus?.versionLabel}</strong> sẽ được đánh dấu là
-                            phiên bản đang sử dụng cho Course Profile này (trên thiết bị của bạn). Bạn có chắc chắn muốn tiếp tục?
+                            phiên bản đang sử dụng cho hồ sơ khóa học này (trên thiết bị của bạn). Bạn có chắc chắn muốn tiếp tục?
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
@@ -583,96 +649,25 @@ export default function SyllabusBuilderPage() {
                     <DialogHeader className="p-6 pb-0">
                         <DialogTitle>Tạo bài học mới</DialogTitle>
                         <DialogDescription>
-                            Soạn nội dung bài học cho module{' '}
-                            <strong>{selectedModuleForLesson?.title}</strong>.
+                            Tạo bài học mới cho module <strong>{selectedModuleForLesson?.title}</strong>.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="flex-1 overflow-y-auto">
-                        <div className="space-y-6 p-6">
-                            <FieldGroup>
-                                <Field>
-                                    <FieldLabel>Tiêu đề bài học</FieldLabel>
-                                    <Input
-                                        placeholder="Ví dụ: Từ vựng chủ đề chào hỏi"
-                                        value={newLessonTitle}
-                                        onChange={(e) => setNewLessonTitle(e.target.value)}
-                                    />
-                                </Field>
-                                <Field>
-                                    <FieldLabel>Loại bài học</FieldLabel>
-                                    <div className="flex gap-2">
-                                        <Button
-                                            type="button"
-                                            variant={newLessonType === 'VIDEO' ? 'default' : 'outline'}
-                                            size="sm"
-                                            onClick={() => setNewLessonType('VIDEO')}
-                                        >
-                                            VIDEO
-                                        </Button>
-                                        <Button
-                                            type="button"
-                                            variant={newLessonType === 'READING' ? 'default' : 'outline'}
-                                            size="sm"
-                                            onClick={() => setNewLessonType('READING')}
-                                        >
-                                            READING
-                                        </Button>
-                                    </div>
-                                </Field>
-                                {newLessonType === 'VIDEO' && (
-                                    <Field>
-                                        <FieldLabel>Video URL</FieldLabel>
-                                        <Input
-                                            placeholder="https://..."
-                                            value={newLessonVideoUrl}
-                                            onChange={(e) => setNewLessonVideoUrl(e.target.value)}
-                                        />
-                                    </Field>
-                                )}
-                                <Field>
-                                    <FieldLabel>Nội dung chi tiết</FieldLabel>
-                                    <TiptapEditor
-                                        content={newLessonContent}
-                                        onChange={setNewLessonContent}
-                                        placeholder="Mô tả nội dung bài học, ghi chú cho giảng viên, tài liệu tham khảo..."
-                                        minHeight="220px"
-                                        toolbarConfig={{
-                                            image: false,
-                                        }}
-                                    />
-                                </Field>
-                            </FieldGroup>
-                        </div>
-                    </div>
-                    <DialogFooter className="p-6 pt-0">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => {
+                    <div className="flex-1 overflow-y-auto p-6">
+                        <LessonForm
+                            mode="create"
+                            submitting={createLessonMutation.isPending}
+                            onCancel={() => {
                                 if (!createLessonMutation.isPending) {
                                     setCreateLessonOpen(false);
                                 }
                             }}
-                            disabled={createLessonMutation.isPending}
-                        >
-                            Hủy
-                        </Button>
-                        <Button
-                            type="button"
-                            disabled={
-                                createLessonMutation.isPending ||
-                                !selectedModuleForLesson ||
-                                !newLessonTitle.trim()
-                            }
-                            onClick={async () => {
+                            onSubmit={async (values) => {
                                 if (!selectedModuleForLesson) return;
                                 try {
                                     await createLessonMutation.mutateAsync({
+                                        ...(values as any),
                                         moduleId: selectedModuleForLesson.id,
-                                        title: newLessonTitle.trim(),
-                                        type: newLessonType,
-                                        videoUrl: newLessonType === 'VIDEO' ? newLessonVideoUrl || undefined : undefined,
-                                    } as any);
+                                    });
                                     if (courseProfileId) {
                                         await queryClient.invalidateQueries({
                                             queryKey: ['academy-syllabuses', courseProfileId],
@@ -684,10 +679,8 @@ export default function SyllabusBuilderPage() {
                                     toast.error(error?.response?.data?.message || 'Không thể tạo bài học');
                                 }
                             }}
-                        >
-                            Tạo bài học
-                        </Button>
-                    </DialogFooter>
+                        />
+                    </div>
                 </DialogContent>
             </Dialog>
 
@@ -701,37 +694,91 @@ export default function SyllabusBuilderPage() {
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-2">
-                        <FieldGroup>
-                            <Field>
-                                <FieldLabel>Tiêu đề</FieldLabel>
-                                <div className="text-sm font-medium">
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-1">
+                                <p className="text-xs text-muted-foreground uppercase font-bold">Tiêu đề</p>
+                                <p className="text-sm font-medium">
                                     {viewLesson?.title || '—'}
-                                </div>
-                            </Field>
-                            <Field>
-                                <FieldLabel>Loại bài học</FieldLabel>
+                                </p>
+                            </div>
+                            <div className="space-y-1">
+                                <p className="text-xs text-muted-foreground uppercase font-bold">Loại bài học</p>
                                 <Badge variant="outline" className="uppercase text-[10px] font-bold">
-                                    {viewLesson?.type || 'N/A'}
+                                    {viewLesson?.type === 'VIDEO'
+                                        ? 'Video (VIDEO)'
+                                        : viewLesson?.type === 'READING'
+                                        ? 'Bài đọc / tài liệu (READING)'
+                                        : 'N/A'}
                                 </Badge>
-                            </Field>
+                            </div>
                             {viewLesson?.type === 'VIDEO' && (
-                                <Field>
-                                    <FieldLabel>Video URL</FieldLabel>
+                                <div className="space-y-1 md:col-span-2">
+                                    <p className="text-xs text-muted-foreground uppercase font-bold">Video URL</p>
                                     <div className="text-xs text-muted-foreground break-all">
                                         {viewLesson?.videoUrl || 'Chưa cấu hình'}
                                     </div>
-                                </Field>
+                                </div>
                             )}
-                        </FieldGroup>
-                        <p className="text-xs text-muted-foreground">
-                            Lưu ý: Nội dung rich editor hiện tại mới được sử dụng cho soạn thảo, chưa được lưu trữ chi tiết trong cơ sở dữ liệu.
-                        </p>
+                        </div>
+                        <div className="space-y-1">
+                            <p className="text-xs text-muted-foreground uppercase font-bold">Nội dung</p>
+                            <RichTextRenderer content={viewLesson?.content} />
+                        </div>
                     </div>
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => setViewLessonOpen(false)}>
                             Đóng
                         </Button>
                     </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Dialog: chỉnh sửa bài học */}
+            <Dialog open={editLessonOpen} onOpenChange={setEditLessonOpen}>
+                <DialogContent className="sm:max-w-[800px] max-h-[90vh] p-0 flex flex-col overflow-hidden">
+                    <DialogHeader className="p-6 pb-0">
+                        <DialogTitle>Chỉnh sửa bài học</DialogTitle>
+                        <DialogDescription>
+                            Cập nhật nội dung bài học <strong>{editingLesson?.title}</strong>.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex-1 overflow-y-auto p-6">
+                        {editingLesson && (
+                            <LessonForm
+                                mode="edit"
+                                defaultValues={{
+                                    title: editingLesson.title,
+                                    type: editingLesson.type,
+                                    videoUrl: editingLesson.videoUrl,
+                                    content: editingLesson.content ?? "",
+                                } as any}
+                                submitting={updateLessonMutation.isPending}
+                                onCancel={() => {
+                                    if (!updateLessonMutation.isPending) {
+                                        setEditLessonOpen(false);
+                                    }
+                                }}
+                                onSubmit={async (values) => {
+                                    if (!editingLesson) return;
+                                    try {
+                                        await updateLessonMutation.mutateAsync({
+                                            id: editingLesson.id,
+                                            input: values as any,
+                                        });
+                                        if (courseProfileId) {
+                                            await queryClient.invalidateQueries({
+                                                queryKey: ['academy-syllabuses', courseProfileId],
+                                            });
+                                        }
+                                        toast.success('Đã cập nhật bài học');
+                                        setEditLessonOpen(false);
+                                    } catch (error: any) {
+                                        toast.error(error?.response?.data?.message || 'Không thể cập nhật bài học');
+                                    }
+                                }}
+                            />
+                        )}
+                    </div>
                 </DialogContent>
             </Dialog>
         </div>

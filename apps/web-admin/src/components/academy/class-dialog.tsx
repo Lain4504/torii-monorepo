@@ -13,13 +13,6 @@ import {
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@workspace/ui/components/select"
-import {
   Field,
   FieldGroup,
   FieldLabel,
@@ -27,15 +20,24 @@ import {
   FieldSet,
   FieldLegend,
 } from "@workspace/ui/components/field"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import {
   useCreateAcademyClass,
   useUpdateAcademyClass,
   type AcademyClass,
 } from "@/lib/api/services/academy-classes"
+import { InstructorPicker } from "@/components/academy/instructor-picker"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
 import { useAcademySyllabuses } from "@/lib/api/services/academy-syllabuses"
 import { useUsers } from "@/lib/api/services/users"
+import { UserRole } from "@workspace/schemas"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 
@@ -90,15 +92,16 @@ interface ClassDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   academyClass?: AcademyClass | null
+  initialMode?: "VOD" | "LIVE"
 }
 
-export function ClassDialog({ open, onOpenChange, academyClass }: ClassDialogProps) {
+export function ClassDialog({ open, onOpenChange, academyClass, initialMode = "LIVE" }: ClassDialogProps) {
   const isEditing = !!academyClass
   const createMutation = useCreateAcademyClass()
   const updateMutation = useUpdateAcademyClass()
 
   const { data: profiles } = useAcademyCourseProfiles({})
-  const { data: instructors } = useUsers({ role: "LECTURER", limit: 100 })
+  const { data: instructors } = useUsers({ role: UserRole.LECTURER, limit: 100 })
 
   const {
     control,
@@ -114,7 +117,7 @@ export function ClassDialog({ open, onOpenChange, academyClass }: ClassDialogPro
       syllabusId: null,
       code: "",
       name: "",
-      mode: "LIVE",
+      mode: initialMode,
       instructorId: null,
       status: "DRAFT",
       termKey: "",
@@ -158,7 +161,7 @@ export function ClassDialog({ open, onOpenChange, academyClass }: ClassDialogPro
         syllabusId: null,
         code: "",
         name: "",
-        mode: "LIVE",
+        mode: initialMode,
         instructorId: null,
         status: "DRAFT",
         termKey: "",
@@ -168,19 +171,28 @@ export function ClassDialog({ open, onOpenChange, academyClass }: ClassDialogPro
         enrollmentCloseAt: null,
       })
     }
-  }, [academyClass, reset])
+  }, [academyClass, initialMode, reset])
 
   async function onSubmit(values: ClassFormValues) {
     try {
-      const payload = {
+      const basePayload = {
         ...values,
         syllabusId: values.syllabusId || undefined,
+        instructorId: values.instructorId || undefined,
         termKey: undefined,
         openingDate: values.openingDate ? new Date(values.openingDate) : undefined,
         closingDate: values.closingDate ? new Date(values.closingDate) : undefined,
         enrollmentOpenAt: values.enrollmentOpenAt ? new Date(values.enrollmentOpenAt) : undefined,
         enrollmentCloseAt: values.enrollmentCloseAt ? new Date(values.enrollmentCloseAt) : undefined,
-      }
+      } as any
+
+      // Khi tạo mới, để backend tự default status = DRAFT
+      const payload = isEditing
+        ? basePayload
+        : (() => {
+            const { status, ...rest } = basePayload
+            return rest
+          })()
 
       if (isEditing && academyClass) {
         await updateMutation.mutateAsync({
@@ -327,18 +339,6 @@ export function ClassDialog({ open, onOpenChange, academyClass }: ClassDialogPro
                           <FieldError errors={[errors.code]} />
                         </Field>
                       </div>
-                      <div className="md:col-span-1">
-                        <Field>
-                          <FieldLabel>Trạng thái</FieldLabel>
-                          <Controller
-                            name="status"
-                            control={control}
-                            render={({ field }) => (
-                              <Input placeholder="DRAFT / PUBLISHED / ..." {...field} value={field.value ?? ""} />
-                            )}
-                          />
-                        </Field>
-                      </div>
                     </div>
 
                     <Field>
@@ -361,21 +361,11 @@ export function ClassDialog({ open, onOpenChange, academyClass }: ClassDialogPro
                             name="instructorId"
                             control={control}
                             render={({ field }) => (
-                              <Select
-                                onValueChange={field.onChange}
-                                value={field.value || undefined}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Chọn giảng viên" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {instructors?.data?.map((u: any) => (
-                                    <SelectItem key={u.id} value={u.id}>
-                                      {u.displayName} ({u.email})
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                              <InstructorPicker
+                                value={field.value ?? null}
+                                onSelect={(val) => field.onChange(val)}
+                                instructors={(instructors as any)?.data ?? []}
+                              />
                             )}
                           />
                           <FieldError errors={[errors.instructorId]} />
@@ -438,7 +428,11 @@ export function ClassDialog({ open, onOpenChange, academyClass }: ClassDialogPro
                               name="openingDate"
                               control={control}
                               render={({ field }) => (
-                                <Input type="date" value={field.value || ""} readOnly disabled={!isEditing} />
+                                <Input
+                                  type="date"
+                                  value={field.value || ""}
+                                  onChange={field.onChange}
+                                />
                               )}
                             />
                             <FieldError errors={[errors.openingDate]} />
@@ -449,7 +443,11 @@ export function ClassDialog({ open, onOpenChange, academyClass }: ClassDialogPro
                               name="closingDate"
                               control={control}
                               render={({ field }) => (
-                                <Input type="date" value={field.value || ""} readOnly disabled={!isEditing} />
+                                <Input
+                                  type="date"
+                                  value={field.value || ""}
+                                  onChange={field.onChange}
+                                />
                               )}
                             />
                             <FieldError errors={[errors.closingDate]} />
@@ -460,7 +458,11 @@ export function ClassDialog({ open, onOpenChange, academyClass }: ClassDialogPro
                               name="enrollmentOpenAt"
                               control={control}
                               render={({ field }) => (
-                                <Input type="date" value={field.value || ""} readOnly disabled={!isEditing} />
+                                <Input
+                                  type="date"
+                                  value={field.value || ""}
+                                  onChange={field.onChange}
+                                />
                               )}
                             />
                           </Field>
@@ -470,7 +472,11 @@ export function ClassDialog({ open, onOpenChange, academyClass }: ClassDialogPro
                               name="enrollmentCloseAt"
                               control={control}
                               render={({ field }) => (
-                                <Input type="date" value={field.value || ""} readOnly disabled={!isEditing} />
+                                <Input
+                                  type="date"
+                                  value={field.value || ""}
+                                  onChange={field.onChange}
+                                />
                               )}
                             />
                           </Field>

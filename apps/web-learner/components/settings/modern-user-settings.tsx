@@ -81,7 +81,7 @@ export default function ModernUserSettings() {
     const avatarSrc = useAvatarUrl(user?.avatarUrl || null)
 
     return (
-        <div className="max-w-4xl mx-auto py-6">
+        <div>
             <Tabs defaultValue="profile" className="space-y-6">
                 <div className="overflow-x-auto pb-1">
                     <TabsList>

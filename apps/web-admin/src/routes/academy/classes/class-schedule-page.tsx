@@ -28,13 +28,13 @@ export default function ClassSchedulePage() {
             <span>Lịch học &amp; Điểm danh</span>
           </div>
         }
-        subtitle="Quản lý buổi học LIVE và thực hiện điểm danh cho từng buổi."
+        subtitle="Quản lý buổi học trực tiếp (LIVE) và thực hiện điểm danh cho từng buổi."
         stats={
           isLoading || !academyClass
             ? undefined
             : [
                 { label: "Mã lớp", value: academyClass.code },
-                { label: "Loại hình", value: academyClass.mode === "LIVE" ? "LIVE" : "VOD" },
+                { label: "Loại hình", value: academyClass.mode === "LIVE" ? "Lớp trực tiếp (LIVE)" : "Lớp tự học (VOD)" },
               ]
         }
         actions={

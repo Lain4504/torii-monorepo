@@ -156,7 +156,11 @@ export default function ClassStudentsPage() {
           </TabsList>
           <div className="mt-6">
             <TabsContent value={TAB_INFO}>
-              <ClassInfoTab academyClass={academyClass} />
+              <ClassInfoTab
+                academyClass={academyClass}
+                classId={classId}
+                canManageStatus={isStaffOrAdmin}
+              />
             </TabsContent>
             <TabsContent value={TAB_STUDENTS}>
               <ClassStudentsTab

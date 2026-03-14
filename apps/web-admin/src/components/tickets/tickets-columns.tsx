@@ -100,12 +100,17 @@ export const getTicketsColumns = ({ onView, onChangeStatus, page = 1, limit = 10
         cell: ({ row }) => {
             const ticket = row.original;
             return (
-                <div className="flex items-center justify-end gap-1">
-                    <Button variant="ghost" size="sm" className="h-8 gap-1.5" onClick={() => onView(ticket)}>
+                <div className="flex items-center justify-end gap-2">
+                    <Button variant="outline" size="sm" className="h-8 gap-1.5" onClick={() => onView(ticket)}>
                         <Eye className="h-4 w-4" />
                         Xem
                     </Button>
-                    <Button variant="ghost" size="sm" className="h-8 gap-1.5" onClick={() => onChangeStatus(ticket)}>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 gap-1.5 border-amber-500/40 text-amber-600"
+                        onClick={() => onChangeStatus(ticket)}
+                    >
                         <Edit className="h-4 w-4" />
                         Đổi trạng thái
                     </Button>

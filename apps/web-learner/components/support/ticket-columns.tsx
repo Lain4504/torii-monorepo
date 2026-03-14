@@ -120,7 +120,7 @@ export const getTicketColumns = ({ onView, onCancel, page, limit }: TicketColumn
         cell: ({ row }) => (
             <div className="flex items-center justify-end gap-2">
                 <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     className="h-8"
                     onClick={() => onView(row.original.id)}

@@ -38,7 +38,7 @@ import {
 import { useDebounceValue } from "@workspace/ui/hooks/use-debounce-value"
 import { toast } from "@workspace/ui/components/sonner"
 
-export default function ApprovalsPage() {
+export default function OfferingRequestsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [debouncedSearch] = useDebounceValue(searchTerm, 500)
   const [rejectDialog, setRejectDialog] = useState<{
@@ -109,19 +109,15 @@ export default function ApprovalsPage() {
               Academy
             </Link>
             <ChevronRight className="size-4" />
-            <span>Trung tâm Duyệt</span>
+            <span>Duyệt gói bán</span>
           </div>
         }
-        subtitle="Duyệt gói bán (Course Offering) trước khi công khai lên cổng học viên."
-        stats={[
-          { label: "Chờ duyệt", value: pendingOfferings.length },
-          { label: "Tổng", value: offerings.length },
-        ]}
+        subtitle="Duyệt các yêu cầu mở bán gói học tập mới từ bộ phận nội dung."
       />
 
-      <div className="bg-card border rounded-xl shadow-sm overflow-hidden">
-        <div className="p-4 border-b bg-muted/30 flex items-center justify-between gap-4">
-          <div className="relative w-full max-w-sm">
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
               placeholder="Tìm kiếm mã hoặc tên gói..."
@@ -137,107 +133,109 @@ export default function ApprovalsPage() {
           </Button>
         </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="w-12">STT</TableHead>
-              <TableHead className="w-[120px]">Mã</TableHead>
-              <TableHead>Tên gói bán</TableHead>
-              <TableHead>Giá (VND)</TableHead>
-              <TableHead>Ngày gửi duyệt</TableHead>
-              <TableHead>Lớp liên kết</TableHead>
-              <TableHead className="text-right w-[180px]">Thao tác</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell><Skeleton className="h-4 w-6" /></TableCell>
-                  {Array.from({ length: 6 }).map((_, j) => (
-                    <TableCell key={j}>
-                      <Skeleton className="h-4 w-full" />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : pendingOfferings.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={7}
-                  className="h-32 text-center text-muted-foreground"
-                >
-                  Không có gói bán nào đang chờ duyệt.
-                </TableCell>
+        <div className="bg-card border rounded-xl shadow-sm overflow-hidden">
+          <Table>
+            <TableHeader className="bg-muted/50">
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="w-12">STT</TableHead>
+                <TableHead className="w-[120px]">Mã</TableHead>
+                <TableHead>Tên gói bán</TableHead>
+                <TableHead>Giá (VND)</TableHead>
+                <TableHead>Ngày gửi duyệt</TableHead>
+                <TableHead>Lớp liên kết</TableHead>
+                <TableHead className="text-right w-[180px]">Thao tác</TableHead>
               </TableRow>
-            ) : (
-              pendingOfferings.map((offering, index) => (
-                <TableRow key={offering.id} className="group transition-colors">
-                  <TableCell className="text-muted-foreground tabular-nums">{index + 1}</TableCell>
-                  <TableCell className="font-mono text-xs font-bold">
-                    {offering.code}
-                  </TableCell>
-                  <TableCell className="font-medium">{offering.title}</TableCell>
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <span className="font-bold flex items-center gap-1">
-                        <DollarSign className="size-3.5" />
-                        {Number(offering.price).toLocaleString()}₫
-                      </span>
-                      {offering.originalPrice &&
-                        Number(offering.originalPrice) > Number(offering.price) && (
-                          <span className="text-xs text-muted-foreground line-through">
-                            {Number(offering.originalPrice).toLocaleString()}₫
-                          </span>
-                        )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {offering.submittedForApprovalAt
-                      ? new Date(
-                          offering.submittedForApprovalAt
-                        ).toLocaleDateString("vi-VN", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
-                      : "—"}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="text-[10px]">
-                      {offering.classes?.length ?? 0} lớp
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button
-                        size="sm"
-                        onClick={() => handleApprove(offering)}
-                        disabled={approveMutation.isPending}
-                        className="gap-1"
-                      >
-                        <CheckCircle2 className="size-4" />
-                        Duyệt
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => openRejectDialog(offering)}
-                        disabled={rejectMutation.isPending}
-                        className="gap-1"
-                      >
-                        <XCircle className="size-4" />
-                        Từ chối
-                      </Button>
-                    </div>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell><Skeleton className="h-4 w-6" /></TableCell>
+                    {Array.from({ length: 6 }).map((_, j) => (
+                      <TableCell key={j}>
+                        <Skeleton className="h-4 w-full" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : pendingOfferings.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={7}
+                    className="h-32 text-center text-muted-foreground"
+                  >
+                    Không có gói bán nào đang chờ duyệt.
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                pendingOfferings.map((offering, index) => (
+                  <TableRow key={offering.id} className="group transition-colors">
+                    <TableCell className="text-muted-foreground tabular-nums">{index + 1}</TableCell>
+                    <TableCell className="font-mono text-xs font-bold">
+                      {offering.code}
+                    </TableCell>
+                    <TableCell className="font-medium">{offering.title}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="font-bold flex items-center gap-1">
+                          <DollarSign className="size-3.5" />
+                          {Number(offering.price).toLocaleString()}₫
+                        </span>
+                        {offering.originalPrice &&
+                          Number(offering.originalPrice) > Number(offering.price) && (
+                            <span className="text-xs text-muted-foreground line-through">
+                              {Number(offering.originalPrice).toLocaleString()}₫
+                            </span>
+                          )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {offering.submittedForApprovalAt
+                        ? new Date(
+                            offering.submittedForApprovalAt
+                          ).toLocaleDateString("vi-VN", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : "—"}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-[10px]">
+                        {offering.classes?.length ?? 0} lớp
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleApprove(offering)}
+                          disabled={approveMutation.isPending}
+                          className="gap-1"
+                        >
+                          <CheckCircle2 className="size-4" />
+                          Duyệt
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => openRejectDialog(offering)}
+                          disabled={rejectMutation.isPending}
+                          className="gap-1"
+                        >
+                          <XCircle className="size-4" />
+                          Từ chối
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       <Dialog

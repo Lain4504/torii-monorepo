@@ -133,9 +133,9 @@ export function ExamHistory() {
                                 </TableCell>
                                 <TableCell className="py-8 pr-10 text-right">
                                     <Button
-                                        variant="ghost"
+                                        variant="outline"
                                         size="icon"
-                                        className="h-10 w-10 rounded-lg hover:bg-primary/10 hover:text-primary transition-all cursor-pointer group/btn"
+                                        className="h-10 w-10 rounded-lg hover:bg-primary/10 hover:text-primary border-border/60 transition-all cursor-pointer group/btn"
                                         onClick={() => handleViewDetails(session)}
                                     >
                                         <Eye className="w-4 h-4" />

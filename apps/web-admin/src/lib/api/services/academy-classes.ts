@@ -218,6 +218,13 @@ export const academyClassesApi = {
     )
     return res.data.data!.item
   },
+  async archive(id: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyClass }>>(
+      `/api/academy/classes/${id}/archive`,
+      {},
+    )
+    return res.data.data!.item
+  },
 }
 
 export function useAcademyClasses(params: AcademyClassQueryDTO) {
@@ -344,6 +351,14 @@ export function useCancelClass() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => academyClassesApi.cancel(id),
+    onSuccess: (_, id) => invalidateClassQueries(qc, id),
+  })
+}
+
+export function useArchiveClass() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => academyClassesApi.archive(id),
     onSuccess: (_, id) => invalidateClassQueries(qc, id),
   })
 }

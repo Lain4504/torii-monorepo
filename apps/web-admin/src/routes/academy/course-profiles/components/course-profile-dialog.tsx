@@ -24,6 +24,13 @@ import {
 } from "@workspace/ui/components/field"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
+import {
   useCreateAcademyCourseProfile,
   useUpdateAcademyCourseProfile,
   type AcademyCourseProfile,
@@ -100,7 +107,7 @@ export function CourseProfileDialog({ open, onOpenChange, profile }: CourseProfi
           id: profile.id,
           input: { title: payload.title, description: payload.description, level: payload.level, thumbnailUrl: payload.thumbnailUrl },
         })
-        toast.success("Cập nhật Course Profile thành công")
+        toast.success("Cập nhật hồ sơ khóa học thành công")
       } else {
         await createMutation.mutateAsync({
           code: payload.code,
@@ -109,7 +116,7 @@ export function CourseProfileDialog({ open, onOpenChange, profile }: CourseProfi
           level: payload.level,
           thumbnailUrl: payload.thumbnailUrl,
         })
-        toast.success("Tạo Course Profile thành công")
+        toast.success("Tạo hồ sơ khóa học thành công")
       }
       onOpenChange(false)
     } catch (error: any) {
@@ -123,7 +130,7 @@ export function CourseProfileDialog({ open, onOpenChange, profile }: CourseProfi
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] p-0 flex flex-col overflow-hidden">
         <DialogHeader className="px-6 py-4 border-b shrink-0">
-          <DialogTitle>{isEditing ? "Chỉnh sửa Course Profile" : "Tạo Course Profile mới"}</DialogTitle>
+          <DialogTitle>{isEditing ? "Chỉnh sửa hồ sơ khóa học" : "Tạo hồ sơ khóa học mới"}</DialogTitle>
           <DialogDescription>
             {isEditing
               ? "Cập nhật thông tin định nghĩa cho khóa học này."
@@ -157,7 +164,21 @@ export function CourseProfileDialog({ open, onOpenChange, profile }: CourseProfi
                           name="level"
                           control={control}
                           render={({ field }) => (
-                            <Input placeholder="VD: N5" {...field} />
+                            <Select
+                              value={field.value || ""}
+                              onValueChange={field.onChange}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Chọn cấp độ (N1 - N5)" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="N1">N1</SelectItem>
+                                <SelectItem value="N2">N2</SelectItem>
+                                <SelectItem value="N3">N3</SelectItem>
+                                <SelectItem value="N4">N4</SelectItem>
+                                <SelectItem value="N5">N5</SelectItem>
+                              </SelectContent>
+                            </Select>
                           )}
                         />
                         <FieldDescription>Cấp độ học thuật (JLPT, v.v.)</FieldDescription>

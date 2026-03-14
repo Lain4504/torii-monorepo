@@ -103,12 +103,22 @@ export function AchievementsTable({ data, isLoading, onEdit, onDelete }: Achieve
                                         )}
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <div className="flex items-center justify-end gap-1">
-                                            <Button variant="ghost" size="sm" className="h-8 gap-1.5" onClick={() => onEdit(achievement)}>
+                                        <div className="flex items-center justify-end gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="h-8 gap-1.5"
+                                                onClick={() => onEdit(achievement)}
+                                            >
                                                 <Edit className="h-4 w-4" />
                                                 Sửa
                                             </Button>
-                                            <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => onDelete(achievement)}>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="h-8 gap-1.5 text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5"
+                                                onClick={() => onDelete(achievement)}
+                                            >
                                                 <Trash className="h-4 w-4" />
                                                 Xóa
                                             </Button>

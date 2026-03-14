@@ -56,6 +56,14 @@ export const academySyllabusesApi = {
         )
         return res.data.data!.item
     },
+
+  async lock(id: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademySyllabus }>>(
+      `/api/academy/syllabuses/${id}/lock`,
+      {},
+    )
+    return res.data.data!.item
+  },
 }
 
 export function useAcademySyllabuses(courseProfileId: string) {
@@ -92,4 +100,15 @@ export function useCloneAcademySyllabus() {
             qc.invalidateQueries({ queryKey: ["academy-syllabus", id] })
         },
     })
+}
+
+export function useLockAcademySyllabus() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => academySyllabusesApi.lock(id),
+    onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: ["academy-syllabuses"] })
+      qc.invalidateQueries({ queryKey: ["academy-syllabus", id] })
+    },
+  })
 }

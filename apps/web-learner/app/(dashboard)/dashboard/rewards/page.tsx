@@ -63,7 +63,7 @@ export default function RewardsPage() {
     }
 
     return (
-        <div className="container mx-auto space-y-10 max-w-5xl animate-in fade-in duration-500">
+        <div className="space-y-10 animate-in fade-in duration-500">
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pb-2">
                 <div>

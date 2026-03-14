@@ -1,5 +1,7 @@
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
+import { Button } from "@workspace/ui/components/button"
 import {
   BookOpen,
   Video,
@@ -8,14 +10,75 @@ import {
   Users,
   Hash,
   FileText,
+  Send,
+  Check,
+  X,
+  Play,
+  Square,
+  Archive,
 } from "lucide-react"
+import { Input } from "@workspace/ui/components/input"
+import { Label } from "@workspace/ui/components/label"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@workspace/ui/components/dialog"
+import { toast } from "sonner"
 import type { AcademyClass } from "@/lib/api/services/academy-classes"
+import {
+  useSubmitClassForApproval,
+  useApproveClass,
+  useRejectClass,
+  usePublishClass,
+  useStartClass,
+  useCompleteClass,
+  useArchiveClass,
+} from "@/lib/api/services/academy-classes"
 
 interface ClassInfoTabProps {
   academyClass: AcademyClass | null | undefined
+  classId: string
+  canManageStatus: boolean
 }
 
-export function ClassInfoTab({ academyClass }: ClassInfoTabProps) {
+const STATUS_LABELS: Record<string, string> = {
+  DRAFT: "Bản nháp",
+  PENDING_APPROVAL: "Chờ duyệt",
+  PUBLISHED: "Đã xuất bản",
+  OPENING: "Đang tuyển sinh",
+  ONGOING: "Đang diễn ra",
+  COMPLETED: "Đã hoàn thành",
+  ARCHIVED: "Lưu trữ",
+}
+
+export function ClassInfoTab({ academyClass, classId, canManageStatus }: ClassInfoTabProps) {
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
+  const [rejectReason, setRejectReason] = useState("")
+
+  const submitMutation = useSubmitClassForApproval()
+  const approveMutation = useApproveClass()
+  const rejectMutation = useRejectClass()
+  const publishMutation = usePublishClass()
+  const startMutation = useStartClass()
+  const completeMutation = useCompleteClass()
+  const archiveMutation = useArchiveClass()
+
+  const runMutation = async (
+    fn: () => Promise<unknown>,
+    successMsg: string,
+    errorMsg: string
+  ) => {
+    try {
+      await fn()
+      toast.success(successMsg)
+    } catch (e: unknown) {
+      toast.error(errorMsg + (e instanceof Error ? `: ${e.message}` : ""))
+    }
+  }
   if (!academyClass) {
     return (
       <div className="rounded-md border bg-card p-8 text-center text-muted-foreground">
@@ -65,7 +128,7 @@ export function ClassInfoTab({ academyClass }: ClassInfoTabProps) {
               <div>
                 <p className="text-xs text-muted-foreground">Loại hình</p>
                 <Badge variant="secondary" className="mt-0.5">
-                  {isLive ? "LIVE" : "VOD"}
+                  {isLive ? "Lớp trực tiếp (LIVE)" : "Lớp tự học (VOD)"}
                 </Badge>
               </div>
             </div>
@@ -73,19 +136,219 @@ export function ClassInfoTab({ academyClass }: ClassInfoTabProps) {
               <Calendar className="size-4 text-muted-foreground" />
               <div>
                 <p className="text-xs text-muted-foreground">Trạng thái</p>
-                <Badge variant="outline">{academyClass.status}</Badge>
+                <Badge variant="outline">
+                  {STATUS_LABELS[academyClass.status] ?? academyClass.status}
+                </Badge>
               </div>
             </div>
           </div>
+          {canManageStatus && (
+            <div className="mt-4 pt-4 border-t space-y-2">
+              <p className="text-xs text-muted-foreground font-medium">Thao tác trạng thái (chỉ tiến lên)</p>
+              <div className="flex flex-wrap gap-2">
+                {isLive ? (
+                  <>
+                    {academyClass.status === "DRAFT" && (
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() =>
+                          runMutation(
+                            () => submitMutation.mutateAsync(classId),
+                            "Đã gửi duyệt",
+                            "Lỗi gửi duyệt"
+                          )
+                        }
+                        disabled={submitMutation.isPending}
+                      >
+                        <Send className="size-4 mr-1" /> Gửi duyệt
+                      </Button>
+                    )}
+                    {academyClass.status === "PENDING_APPROVAL" && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="default"
+                          onClick={() =>
+                            runMutation(
+                              () => approveMutation.mutateAsync(classId),
+                              "Đã phê duyệt",
+                              "Lỗi phê duyệt"
+                            )
+                          }
+                          disabled={approveMutation.isPending}
+                        >
+                          <Check className="size-4 mr-1" /> Phê duyệt
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setRejectDialogOpen(true)}
+                          disabled={rejectMutation.isPending}
+                        >
+                          <X className="size-4 mr-1" /> Từ chối
+                        </Button>
+                      </>
+                    )}
+                    {academyClass.status === "OPENING" && (
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() =>
+                          runMutation(
+                            () => startMutation.mutateAsync(classId),
+                            "Đã bắt đầu lớp",
+                            "Lỗi bắt đầu"
+                          )
+                        }
+                        disabled={startMutation.isPending}
+                      >
+                        <Play className="size-4 mr-1" /> Bắt đầu
+                      </Button>
+                    )}
+                    {academyClass.status === "ONGOING" && (
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() =>
+                          runMutation(
+                            () => completeMutation.mutateAsync(classId),
+                            "Đã kết thúc lớp",
+                            "Lỗi kết thúc"
+                          )
+                        }
+                        disabled={completeMutation.isPending}
+                      >
+                        <Square className="size-4 mr-1" /> Kết thúc
+                      </Button>
+                    )}
+                    {academyClass.status === "COMPLETED" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() =>
+                          runMutation(
+                            () => archiveMutation.mutateAsync(classId),
+                            "Đã lưu trữ",
+                            "Lỗi lưu trữ"
+                          )
+                        }
+                        disabled={archiveMutation.isPending}
+                      >
+                        <Archive className="size-4 mr-1" /> Lưu trữ
+                      </Button>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {academyClass.status === "DRAFT" && (
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() =>
+                          runMutation(
+                            () => submitMutation.mutateAsync(classId),
+                            "Đã gửi duyệt",
+                            "Lỗi gửi duyệt"
+                          )
+                        }
+                        disabled={submitMutation.isPending}
+                      >
+                        <Send className="size-4 mr-1" /> Gửi duyệt
+                      </Button>
+                    )}
+                    {academyClass.status === "PENDING_APPROVAL" && (
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() =>
+                          runMutation(
+                            () => publishMutation.mutateAsync(classId),
+                            "Đã xuất bản",
+                            "Lỗi xuất bản"
+                          )
+                        }
+                        disabled={publishMutation.isPending}
+                      >
+                        <Check className="size-4 mr-1" /> Xuất bản
+                      </Button>
+                    )}
+                    {academyClass.status === "PUBLISHED" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() =>
+                          runMutation(
+                            () => archiveMutation.mutateAsync(classId),
+                            "Đã lưu trữ",
+                            "Lỗi lưu trữ"
+                          )
+                        }
+                        disabled={archiveMutation.isPending}
+                      >
+                        <Archive className="size-4 mr-1" /> Lưu trữ
+                      </Button>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Từ chối duyệt lớp</DialogTitle>
+            <DialogDescription>
+              Nhập lý do từ chối. Lớp sẽ chuyển về trạng thái Bản nháp.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="reject-reason">Lý do</Label>
+              <Input
+                id="reject-reason"
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="Ví dụ: Thiếu thông tin lịch học"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>
+              Hủy
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                if (!rejectReason.trim()) {
+                  toast.error("Vui lòng nhập lý do từ chối")
+                  return
+                }
+                await runMutation(
+                  () => rejectMutation.mutateAsync({ id: classId, reason: rejectReason.trim() }),
+                  "Đã từ chối",
+                  "Lỗi từ chối"
+                )
+                setRejectReason("")
+                setRejectDialogOpen(false)
+              }}
+              disabled={rejectMutation.isPending}
+            >
+              Từ chối
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {isLive && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Video className="size-5" />
-              Thông tin lớp LIVE
+              Thông tin lớp học trực tiếp (LIVE)
             </CardTitle>
             <CardDescription>Lịch kỳ học và thời gian mở/đóng đăng ký</CardDescription>
           </CardHeader>
@@ -117,7 +380,7 @@ export function ClassInfoTab({ academyClass }: ClassInfoTabProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <GraduationCap className="size-5" />
-              Thông tin lớp VOD
+              Thông tin lớp học tự học (VOD)
             </CardTitle>
             <CardDescription>Thời gian đăng ký và giới hạn</CardDescription>
           </CardHeader>

@@ -14,6 +14,7 @@ export type AcademyLesson = {
   type: "VIDEO" | "READING"
   orderIndex: number
   videoUrl?: string | null
+  content?: string | null
   createdAt: string
   updatedAt: string
 }

@@ -225,15 +225,25 @@ export const getUsersColumns = ({ onEdit, onChangeStatus, page, limit }: UsersCo
             const user = row.original;
 
             return (
-                <div className="flex items-center justify-center gap-1 flex-wrap">
+                <div className="flex items-center justify-center gap-2">
                     <Can permission="user.manage">
                         {onEdit && (
-                            <Button variant="ghost" size="sm" className="h-8 gap-1.5" onClick={() => onEdit(user)}>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-8 gap-1.5"
+                                onClick={() => onEdit(user)}
+                            >
                                 <Pencil className="h-4 w-4" />
                                 Sửa
                             </Button>
                         )}
-                        <Button variant="ghost" size="sm" className="h-8 gap-1.5" onClick={() => onChangeStatus(user)}>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 gap-1.5 border-amber-500/40 text-amber-600"
+                            onClick={() => onChangeStatus(user)}
+                        >
                             <ShieldAlert className="h-4 w-4" />
                             Đổi trạng thái
                         </Button>

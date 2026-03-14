@@ -183,19 +183,34 @@ export const getBlogColumns = ({ onEdit, onDelete, onScheduleChange, page, limit
             const blog = row.original;
 
             return (
-                <div className="flex items-center justify-center gap-1 flex-wrap">
+                <div className="flex items-center justify-center gap-2">
                     <Can permission="blog.manage">
-                        <Button variant="ghost" size="sm" className="h-8 gap-1.5" onClick={() => onEdit(blog)}>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 gap-1.5"
+                            onClick={() => onEdit(blog)}
+                        >
                             <Pencil className="h-4 w-4" />
                             Sửa
                         </Button>
                         {blog.status === 'scheduled' && (
-                            <Button variant="ghost" size="sm" className="h-8 gap-1.5" onClick={() => onScheduleChange(blog)}>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-8 gap-1.5 text-amber-600 border-amber-500/40"
+                                onClick={() => onScheduleChange(blog)}
+                            >
                                 <ArrowUpDown className="h-4 w-4" />
                                 Đổi lịch
                             </Button>
                         )}
-                        <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => onDelete(blog)}>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 gap-1.5 text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5"
+                            onClick={() => onDelete(blog)}
+                        >
                             <Trash className="h-4 w-4" />
                             Xóa
                         </Button>

@@ -49,7 +49,8 @@ export const academicNavItems: NavItem[] = [
             { titleKey: "Lớp học", url: "/academy/classes" },
             { titleKey: "Kho Khóa học (Profiles)", url: "/academy/course-profiles", roles: ["admin", "staff-lms"] },
             { titleKey: "Gói bán (Offerings)", url: "/academy/course-offerings", roles: ["admin", "staff-lms"] },
-            { titleKey: "Trung tâm Duyệt", url: "/academy/approvals", roles: ["admin", "staff-lms"] },
+            { titleKey: "Duyệt khóa học", url: "/academy/course-requests", roles: ["admin", "staff-lms"] },
+            { titleKey: "Duyệt gói bán", url: "/academy/offering-requests", roles: ["admin", "staff-lms"] },
         ]
     },
     {

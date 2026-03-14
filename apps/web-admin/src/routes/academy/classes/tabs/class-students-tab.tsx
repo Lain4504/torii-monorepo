@@ -94,7 +94,7 @@ export function ClassStudentsTab({
       )}
       <div className="rounded-md border bg-card overflow-hidden">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/50">
             <TableRow>
               <TableHead>Học viên</TableHead>
               <TableHead>Ngày ghi danh</TableHead>
@@ -167,7 +167,11 @@ export function ClassStudentsTab({
                           : "outline"
                       }
                     >
-                      {en.status}
+                      {en.status === "ACTIVE"
+                        ? "Đang học"
+                        : en.status === "COMPLETED"
+                        ? "Hoàn thành"
+                        : "Đã hủy"}
                     </Badge>
                   </TableCell>
                   {canManageEnrollment && (
@@ -184,12 +188,13 @@ export function ClassStudentsTab({
                           </Button>
                         )}
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="icon"
+                          className="text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5"
                           onClick={() => handleDelete(en)}
                           disabled={deleteEnrollment.isPending}
                         >
-                          <Trash2 className="size-4 text-destructive" />
+                          <Trash2 className="size-4" />
                         </Button>
                       </div>
                     </TableCell>

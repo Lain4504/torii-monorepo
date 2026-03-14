@@ -123,20 +123,19 @@ export function CourseProfileForm({
               control={control}
               render={({ field, fieldState }) => (
                 <Field>
-                  <FieldLabel>Cấp độ (Level)</FieldLabel>
+                  <FieldLabel>Cấp độ</FieldLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
                       <SelectValue placeholder="Chọn cấp độ" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="N5">N5 (Sơ cấp 1)</SelectItem>
-                      <SelectItem value="N4">N4 (Sơ cấp 2)</SelectItem>
-                      <SelectItem value="N3">N3 (Trung cấp)</SelectItem>
-                      <SelectItem value="N2">N2 (Thượng cấp 1)</SelectItem>
-                      <SelectItem value="N1">N1 (Thượng cấp 2)</SelectItem>
-                      <SelectItem value="Beginner">Cơ bản (Beginner)</SelectItem>
-                      <SelectItem value="Intermediate">Trung bình (Intermediate)</SelectItem>
-                      <SelectItem value="Advanced">Nâng cao (Advanced)</SelectItem>
+                      <SelectItem value="N5">N5 – Sơ cấp 1</SelectItem>
+                      <SelectItem value="N4">N4 – Sơ cấp 2</SelectItem>
+                      <SelectItem value="N3">N3 – Trung cấp</SelectItem>
+                      <SelectItem value="N2">N2 – Thượng cấp 1</SelectItem>
+                      <SelectItem value="N1">N1 – Thượng cấp 2</SelectItem>
+                      <SelectItem value="Beginner">Cơ bản</SelectItem>
+                      <SelectItem value="Intermediate">Trung cấp</SelectItem>
                     </SelectContent>
                   </Select>
                   <FieldError>{fieldState.error?.message}</FieldError>

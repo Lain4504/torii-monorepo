@@ -142,9 +142,9 @@ export function SessionsTab() {
                                             <TableCell className="text-right">
                                                 {!session.isCurrent && (
                                                     <Button
-                                                        variant="ghost"
+                                                        variant="outline"
                                                         size="sm"
-                                                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8"
+                                                        className="h-8 text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5"
                                                         onClick={() => handleRevoke(session.id)}
                                                         disabled={revokeMutation.isPending}
                                                     >

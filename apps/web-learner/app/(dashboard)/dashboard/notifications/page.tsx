@@ -1,18 +1,12 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Bell, Search, Check, Trash2, Sparkles, Clock, Info, CheckCircle2, AlertTriangle, XCircle, MoreVertical } from 'lucide-react'
+import { Bell, Search, Check, Trash2, Sparkles, Clock, Info, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { Input } from '@workspace/ui/components/input'
 import { Card } from '@workspace/ui/components/card'
 import { cn } from '@workspace/ui/lib/utils'
 import { format, formatDistanceToNow } from 'date-fns'
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@workspace/ui/components/dropdown-menu'
 import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, useDeleteNotification } from '@/lib/api/services/notification-api'
 import type { NotificationResponseDTO, NotificationType } from '@workspace/schemas'
 
@@ -257,33 +251,30 @@ export default function NotificationsPage() {
                                                 </div>
                                             </div>
 
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="rounded-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-muted">
-                                                        <MoreVertical className="w-4 h-4 text-muted-foreground" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="rounded-xl border-border min-w-[160px] p-1">
-                                                    {!notification.read && (
-                                                        <DropdownMenuItem
-                                                            onClick={() => markAsRead(notification.id)}
-                                                            disabled={markAsReadMutation.isPending}
-                                                            className="rounded-lg text-xs font-medium cursor-pointer"
-                                                        >
-                                                            <Check className="w-3.5 h-3.5 mr-2 opacity-70" />
-                                                            {markAsReadMutation.isPending ? 'Đang xử lý...' : 'Đã đọc'}
-                                                        </DropdownMenuItem>
-                                                    )}
-                                                    <DropdownMenuItem
-                                                        onClick={() => deleteNotification(notification.id)}
-                                                        disabled={deleteNotificationMutation.isPending}
-                                                        className="rounded-lg text-xs font-medium cursor-pointer text-destructive focus:text-destructive"
+                                            <div className="flex items-center gap-2">
+                                                {!notification.read && (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8 gap-1.5 text-xs"
+                                                        onClick={() => markAsRead(notification.id)}
+                                                        disabled={markAsReadMutation.isPending}
                                                     >
-                                                        <Trash2 className="w-3.5 h-3.5 mr-2 opacity-70" />
-                                                        {deleteNotificationMutation.isPending ? 'Đang xóa...' : 'Xóa'}
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
+                                                        <Check className="w-3.5 h-3.5" />
+                                                        {markAsReadMutation.isPending ? 'Đang xử lý...' : 'Đã đọc'}
+                                                    </Button>
+                                                )}
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="h-8 gap-1.5 text-xs text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5"
+                                                    onClick={() => deleteNotification(notification.id)}
+                                                    disabled={deleteNotificationMutation.isPending}
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                    {deleteNotificationMutation.isPending ? 'Đang xóa...' : 'Xóa'}
+                                                </Button>
+                                            </div>
                                         </div>
                                         <p className="max-w-3xl text-sm text-foreground/80 leading-relaxed">
                                             {notification.message}

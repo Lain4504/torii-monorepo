@@ -213,10 +213,10 @@ export default function NotificationsPage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1 shrink-0">
+                      <div className="flex items-center gap-2 shrink-0">
                         {!notification.read && (
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
                             className="h-8 gap-1.5 text-xs"
                             onClick={() => markAsReadMutation.mutate(notification.id)}
@@ -227,9 +227,9 @@ export default function NotificationsPage() {
                           </Button>
                         )}
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
-                          className="h-8 gap-1.5 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+                          className="h-8 gap-1.5 text-xs text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5"
                           onClick={() => deleteNotificationMutation.mutate(notification.id)}
                           disabled={deleteNotificationMutation.isPending}
                         >

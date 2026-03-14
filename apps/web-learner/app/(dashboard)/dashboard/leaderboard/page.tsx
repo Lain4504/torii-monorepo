@@ -26,7 +26,7 @@ export default function LeaderboardPage() {
     const others = leaderboard?.users?.slice(3) || []
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-5xl animate-in fade-in duration-500">
+        <div className="animate-in fade-in duration-500">
             <LeaderboardHeader
                 type={leaderboardType}
                 onTypeChange={setLeaderboardType}

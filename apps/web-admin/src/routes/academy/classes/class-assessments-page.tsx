@@ -123,7 +123,7 @@ export default function ClassAssessmentsPage() {
           </div>
         ) : (
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-muted/50">
               <TableRow>
                 <TableHead>Tên / Loại</TableHead>
                 <TableHead>Deadline</TableHead>
@@ -203,15 +203,15 @@ export default function ClassAssessmentsPage() {
                         </Button>
                         <Button
                           size="sm"
-                          variant="ghost"
+                          variant="outline"
                           onClick={() => handleEditClick(asm)}
                         >
                           Chỉnh sửa
                         </Button>
                         <Button
                           size="sm"
-                          variant="ghost"
-                          className="text-destructive"
+                          variant="outline"
+                          className="text-destructive border-destructive/40"
                           onClick={() => handleDeleteClick(asm)}
                         >
                           Xóa

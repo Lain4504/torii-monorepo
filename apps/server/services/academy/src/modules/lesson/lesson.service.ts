@@ -9,6 +9,7 @@ export interface LessonCreateDto {
   title: string;
   orderIndex?: number;
   videoUrl?: string;
+  content?: string;
 }
 
 export interface LessonUpdateDto {
@@ -16,6 +17,7 @@ export interface LessonUpdateDto {
   type?: 'VIDEO' | 'READING';
   orderIndex?: number;
   videoUrl?: string;
+  content?: string | null;
 }
 
 export interface LessonQueryDto {
@@ -87,6 +89,7 @@ export class LessonService {
         title: input.title,
         orderIndex: nextOrder,
         videoUrl: input.videoUrl ?? null,
+        content: input.content ?? null,
       },
     });
 
@@ -123,6 +126,7 @@ export class LessonService {
         type: (input.type as LessonType) ?? undefined,
         orderIndex: input.orderIndex ?? undefined,
         videoUrl: input.videoUrl !== undefined ? input.videoUrl : undefined,
+        content: input.content !== undefined ? input.content : undefined,
       },
     });
 

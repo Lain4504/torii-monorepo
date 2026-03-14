@@ -115,7 +115,7 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
                                         </Button>
                                     )}
 
-                                {enrollment && enrollment.completionPercentage >= 100 && !isExpired && (
+                                {enrollment && enrollment.progress !== undefined && enrollment.progress >= 100 && !isExpired && (
                                     <Button
                                         asChild
                                         variant="outline"

@@ -21,15 +21,6 @@ import {
   SelectValue,
 } from "@workspace/ui/components/select"
 import {
-  Combobox,
-  ComboboxInput,
-  ComboboxContent,
-  ComboboxList,
-  ComboboxItem,
-  ComboboxEmpty,
-} from "@workspace/ui/components/combobox"
-
-import {
   Tabs,
   TabsContent,
   TabsList,
@@ -41,14 +32,11 @@ import {
   academyCourseOfferingUpdateDTOSchema,
   type AcademyCourseOfferingCreateDTO,
   type AcademyCourseOfferingUpdateDTO,
-  COURSE_OFFERING_METADATA,
 } from "@workspace/schemas"
 import type { AcademyCourseOffering } from "@/lib/api/services/academy-course-offerings"
-import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
 import { useAcademyClasses } from "@/lib/api/services/academy-classes"
 import { RichTextEditor } from "@/components/editor/rich-text-editor"
 import { Badge } from "@workspace/ui/components/badge"
-import { KeyValueEditor } from "./key-value-editor"
 
 export function CourseOfferingForm({
   mode,
@@ -66,8 +54,6 @@ export function CourseOfferingForm({
   submitting?: boolean
 }) {
   const isEdit = mode === "edit"
-  const { data: profilesData = [] } = useAcademyCourseProfiles({})
-  const profiles = Array.isArray(profilesData) ? profilesData : (profilesData as any)?.items || []
 
   const { handleSubmit, control, watch, setError } = useForm<
     AcademyCourseOfferingCreateDTO | AcademyCourseOfferingUpdateDTO
@@ -80,40 +66,38 @@ export function CourseOfferingForm({
     defaultValues: (isEdit
       ? {
         title: initial?.title ?? "",
-        courseProfileId: (initial as any)?.courseProfileId ?? undefined,
         description: initial?.description ?? undefined,
-        originalPrice: (initial as any)?.originalPrice ?? (initial as any)?.price ?? 0,
+        price: (initial as any)?.price ?? 0,
+        salePrice: (initial as any)?.salePrice ?? undefined,
         currency: initial?.currency ?? "VND",
         status: initial?.status ?? "DRAFT",
         type: (initial as any)?.type ?? "COURSE",
+        mode: (initial as any)?.mode ?? "VOD",
         classIds: initial?.classes?.map((c: any) => c.classId) || [],
-        validTo: initial?.validTo
-          ? new Date(initial.validTo).toISOString().split("T")[0]
-          : undefined,
         metadata: initial?.metadata ?? undefined,
       }
       : {
         code: "",
         title: "",
-        courseProfileId: undefined,
         description: undefined,
-        originalPrice: 0,
+        price: 0,
+        salePrice: undefined,
         currency: "VND",
         status: "DRAFT",
         type: "COURSE",
+        mode: "VOD",
         classIds: [],
-        validFrom: undefined,
-        validTo: undefined,
         metadata: undefined,
       }) as any,
   })
 
-  const selectedProfileId = watch("courseProfileId" as any)
+  const selectedMode = watch("mode" as any)
   const offeringStatus = watch("status" as any)
 
-  const { data: classes = [] } = useAcademyClasses(
-    selectedProfileId ? { courseProfileId: selectedProfileId } as any : {} as any,
+  const { data: classesData = [] } = useAcademyClasses(
+    selectedMode ? { mode: selectedMode } as any : {} as any,
   )
+  const classes = Array.isArray(classesData) ? classesData : (classesData as any)?.items || []
 
   return (
     <form
@@ -172,33 +156,25 @@ export function CourseOfferingForm({
 
             <div className="grid gap-4 md:grid-cols-2">
               <Controller
-                name={"courseProfileId" as any}
+                name={"mode" as any}
                 control={control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Course Profile (Link)</FieldLabel>
-                    <Combobox
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <ComboboxInput placeholder="Tìm Profile..." />
-                      <ComboboxContent>
-                        <ComboboxList>
-                          {profiles.map((p: any) => (
-                            <ComboboxItem key={p.id} value={p.id}>
-                              {p.title} ({p.code})
-                            </ComboboxItem>
-                          ))}
-                        </ComboboxList>
-                        <ComboboxEmpty>Không tìm thấy Profile nào.</ComboboxEmpty>
-                      </ComboboxContent>
-                    </Combobox>
-                    <FieldDescription>Liên kết gói bán với một Course Profile.</FieldDescription>
+                    <FieldLabel>Chế độ học (Mode)</FieldLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn chế độ" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="VOD">VOD (Video bài giảng)</SelectItem>
+                        <SelectItem value="LIVE">LIVE (Học trực tuyến)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FieldDescription>Quyết định cách thức hiển thị và vận hành của gói.</FieldDescription>
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}
               />
-
             </div>
 
             <FieldSeparator />
@@ -217,9 +193,9 @@ export function CourseOfferingForm({
                   <div className="grid gap-3 sm:grid-cols-2 mt-2 border rounded-md p-4 bg-muted/5">
                     {classes.length === 0 ? (
                       <div className="text-sm text-muted-foreground italic col-span-full">
-                        {selectedProfileId
-                          ? "Không tìm thấy lớp học nào cho Course Profile này."
-                          : "Vui lòng chọn Course Profile để xem danh sách lớp."}
+                        {selectedMode
+                          ? "Không tìm thấy lớp học nào cho chế độ này."
+                          : "Vui lòng chọn chế độ học để xem danh sách lớp."}
                       </div>
                     ) : (
                       classes.map((c: any) => (
@@ -314,11 +290,11 @@ export function CourseOfferingForm({
           <FieldGroup>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Controller
-                name={"originalPrice" as any}
+                name={"price" as any}
                 control={control}
                 render={({ field, fieldState }) => (
                   <Field>
-                    <FieldLabel>Giá niêm yết (Price)</FieldLabel>
+                    <FieldLabel>Giá niêm yết</FieldLabel>
                     <Input
                       type="number"
                       min={0}
@@ -326,7 +302,24 @@ export function CourseOfferingForm({
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value || 0))}
                     />
-                    <FieldDescription>Được hiển thị là giá chưa giảm.</FieldDescription>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
+
+              <Controller
+                name={"salePrice" as any}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Giá khuyến mãi (tuỳ chọn)</FieldLabel>
+                    <Input
+                      type="number"
+                      min={0}
+                      step={1000}
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                    />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}
@@ -409,64 +402,9 @@ export function CourseOfferingForm({
 
             <FieldSeparator />
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <Controller
-                name={"validFrom" as any}
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Ngày bắt đầu bán</FieldLabel>
-                    <Input type="date" {...field} />
-                    <FieldDescription>
-                      Thời điểm gói này bắt đầu được phép đăng ký. Để trống nếu bán ngay.
-                    </FieldDescription>
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-
-              <Controller
-                name={"validTo" as any}
-                control={control}
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <FieldLabel>Ngày kết thúc bán</FieldLabel>
-                    <Input type="date" {...field} />
-                    <FieldDescription>
-                      Thời điểm gói này ngừng được hiển thị để đăng ký/mua trong catalog.
-                      Để trống nếu là gói bán dài hạn/evergreen (đặc biệt phù hợp với VOD – thời hạn học sẽ do từng lớp quy định, ví dụ qua
-                      <code className="mx-1 font-mono text-xs">defaultExpiresMonths</code>
-                      của lớp VOD).
-                    </FieldDescription>
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </Field>
-                )}
-              />
-            </div>
-          </FieldGroup>
-        </FieldSet>
-
-        <FieldSet>
-          <FieldLegend>Hình ảnh & Metadata</FieldLegend>
-          <FieldDescription>Các thông tin hiển thị bổ sung cho gói bán này.</FieldDescription>
-          <FieldGroup>
-            <Controller
-              name="metadata"
-              control={control}
-              render={({ field }) => (
-                <Field>
-                  <FieldLabel>Cấu hình bổ sung (Metadata)</FieldLabel>
-                  <KeyValueEditor
-                    value={field.value || {}}
-                    onChange={field.onChange}
-                    presets={COURSE_OFFERING_METADATA}
-                  />
-                  <FieldDescription>
-                    Giá trị metadata giúp tùy biến trải nghiệm hiển thị tại trang bán hàng.
-                  </FieldDescription>
-                </Field>
-              )}
-            />
+            <p className="text-xs text-muted-foreground italic">
+              Thời hạn của gói được cấu hình tự động dựa trên các lớp được gán.
+            </p>
           </FieldGroup>
         </FieldSet>
 

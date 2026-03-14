@@ -83,7 +83,7 @@ export default function MyCoursesPage() {
     }
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 max-w-7xl animate-in fade-in duration-500">
+        <div className="space-y-8 animate-in fade-in duration-500">
             {/* Header */}
             <div className="space-y-4 pb-2 border-b border-border">
                 <h1 className="text-3xl font-bold text-foreground">

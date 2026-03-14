@@ -9,6 +9,7 @@ export const academyLessonSchema = z.object({
   orderIndex: z.number(),
   type: z.enum(['VIDEO', 'READING']),
   videoUrl: z.string().url().optional().nullable(),
+  content: z.string().optional().nullable(),
   createdAt: z.date().optional(),
   updatedAt: z.date().optional(),
 });
@@ -22,6 +23,7 @@ export const academyLessonCreateDTOSchema = z.object({
   orderIndex: z.number().optional(),
   type: z.enum(['VIDEO', 'READING']),
   videoUrl: z.string().url().optional(),
+  content: z.string().optional(),
 });
 
 export type AcademyLessonCreateDTO = z.infer<typeof academyLessonCreateDTOSchema>;
@@ -31,6 +33,7 @@ export const academyLessonUpdateDTOSchema = z.object({
   orderIndex: z.number().optional(),
   type: z.enum(['VIDEO', 'READING']).optional(),
   videoUrl: z.string().url().optional(),
+  content: z.string().optional().nullable(),
 });
 
 export type AcademyLessonUpdateDTO = z.infer<typeof academyLessonUpdateDTOSchema>;

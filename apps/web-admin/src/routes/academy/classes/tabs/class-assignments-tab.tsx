@@ -121,7 +121,7 @@ export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
       </div>
       <div className="rounded-md border bg-card overflow-hidden">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/50">
             <TableRow>
               <TableHead>Bài tập</TableHead>
               <TableHead>Mở từ</TableHead>
@@ -200,15 +200,15 @@ export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
                       </Button>
                       <Button
                         size="sm"
-                        variant="ghost"
+                        variant="outline"
                         onClick={() => handleEditClick(ca)}
                       >
                         Chỉnh sửa
                       </Button>
                       <Button
                         size="sm"
-                        variant="ghost"
-                        className="text-destructive"
+                        variant="outline"
+                        className="text-destructive border-destructive/40"
                         onClick={() => handleDeleteClick(ca)}
                       >
                         Gỡ

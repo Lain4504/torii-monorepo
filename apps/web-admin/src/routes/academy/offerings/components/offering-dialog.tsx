@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -10,6 +10,14 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@workspace/ui/components/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
+import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { Textarea } from "@workspace/ui/components/textarea"
@@ -30,7 +38,7 @@ import {
 } from "@/lib/api/services/academy-course-offerings"
 import { useAcademyClasses } from "@/lib/api/services/academy-classes"
 import { toast } from "sonner"
-import { Loader2, Check } from "lucide-react"
+import { Loader2, Check, Search } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 
 const offeringSchema = z.object({
@@ -62,6 +70,8 @@ export function OfferingDialog({ open, onOpenChange, offering }: OfferingDialogP
 
   const { data: classes } = useAcademyClasses({ status: "PUBLISHED" })
 
+  const [classSearch, setClassSearch] = useState("")
+
   const {
     control,
     handleSubmit,
@@ -87,6 +97,11 @@ export function OfferingDialog({ open, onOpenChange, offering }: OfferingDialogP
   })
 
   const selectedClassIds = watch("classIds")
+
+  const filteredClasses = classes?.filter(c => 
+    c.name.toLowerCase().includes(classSearch.toLowerCase()) || 
+    c.code.toLowerCase().includes(classSearch.toLowerCase())
+  )
 
   useEffect(() => {
     if (offering) {
@@ -272,10 +287,15 @@ export function OfferingDialog({ open, onOpenChange, offering }: OfferingDialogP
                           name="mode"
                           control={control}
                           render={({ field }) => (
-                            <Input
-                              {...field}
-                              placeholder="LIVE hoặc VOD"
-                            />
+                             <Select value={field.value} onValueChange={field.onChange}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Chọn loại hình" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="LIVE">Lớp trực tiếp (LIVE)</SelectItem>
+                                  <SelectItem value="VOD">Khóa học Video (VOD)</SelectItem>
+                                </SelectContent>
+                             </Select>
                           )}
                         />
                         <FieldError errors={[errors.mode]} />
@@ -287,38 +307,100 @@ export function OfferingDialog({ open, onOpenChange, offering }: OfferingDialogP
                 <FieldSet>
                   <FieldLegend>Lớp học liên kết</FieldLegend>
                   <FieldDescription>
-                    Chọn các lớp học (LIVE/VOD) sẽ được kích hoạt khi mua gói này.
+                    Tìm kiếm và chọn các lớp học sẽ được kích hoạt khi mua gói này.
                   </FieldDescription>
-                  <div className="grid grid-cols-1 gap-2 mt-2">
-                    {classes?.map((cls) => (
-                      <div
-                        key={cls.id}
-                        className={cn(
-                          "flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer hover:border-primary/50",
-                          selectedClassIds.includes(cls.id)
-                            ? "border-primary bg-primary/5 ring-1 ring-primary"
-                            : "border-muted"
-                        )}
-                        onClick={() => toggleClass(cls.id)}
-                      >
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium">{cls.name}</span>
-                          <span className="text-xs text-muted-foreground">
-                            {cls.code} • {cls.mode}
-                          </span>
+                  
+                  <div className="space-y-4 pt-2">
+                    <div className="relative">
+                       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                       <Input 
+                        placeholder="Tìm lớp học theo tên hoặc mã..." 
+                        className="pl-9"
+                        value={classSearch}
+                        onChange={(e) => setClassSearch(e.target.value)}
+                       />
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto pr-2">
+                      {/* Hiển thị các lớp đã chọn trước */}
+                      {selectedClassIds.length > 0 && !classSearch && (
+                        <div className="space-y-2">
+                           <p className="text-xs font-bold text-muted-foreground uppercase">Đã chọn ({selectedClassIds.length})</p>
+                           {classes?.filter(c => selectedClassIds.includes(c.id)).map((cls) => (
+                             <div
+                                key={cls.id}
+                                className="flex items-center justify-between p-3 rounded-lg border border-primary bg-primary/5 ring-1 ring-primary transition-all cursor-pointer"
+                                onClick={() => toggleClass(cls.id)}
+                              >
+                                <div className="flex flex-col gap-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-medium">{cls.name}</span>
+                                    <Badge variant="outline" className={cn(
+                                      "text-[10px] h-4 px-1 uppercase",
+                                      cls.mode === 'LIVE' ? "border-green-500/50 text-green-600 bg-green-50" : "border-blue-500/50 text-blue-600 bg-blue-50"
+                                    )}>
+                                      {cls.mode}
+                                    </Badge>
+                                  </div>
+                                  <span className="text-xs text-muted-foreground font-mono">
+                                    {cls.code}
+                                  </span>
+                                </div>
+                                <div className="size-5 bg-primary rounded-full flex items-center justify-center">
+                                  <Check className="size-3 text-primary-foreground" />
+                                </div>
+                              </div>
+                           ))}
+                           <div className="h-px bg-muted my-2" />
                         </div>
-                        {selectedClassIds.includes(cls.id) && (
-                          <div className="size-5 bg-primary rounded-full flex items-center justify-center">
-                            <Check className="size-3 text-primary-foreground" />
+                      )}
+
+                      {/* Hiển thị kết quả tìm kiếm */}
+                      {classSearch && filteredClasses?.map((cls) => (
+                        <div
+                          key={cls.id}
+                          className={cn(
+                            "flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer hover:border-primary/50",
+                            selectedClassIds.includes(cls.id)
+                              ? "border-primary bg-primary/5 ring-1 ring-primary"
+                              : "border-muted"
+                          )}
+                          onClick={() => toggleClass(cls.id)}
+                        >
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium">{cls.name}</span>
+                              <Badge variant="outline" className={cn(
+                                "text-[10px] h-4 px-1 uppercase",
+                                cls.mode === 'LIVE' ? "border-green-500/50 text-green-600 bg-green-50" : "border-blue-500/50 text-blue-600 bg-blue-50"
+                              )}>
+                                {cls.mode}
+                              </Badge>
+                            </div>
+                            <span className="text-xs text-muted-foreground font-mono">
+                              {cls.code}
+                            </span>
                           </div>
-                        )}
-                      </div>
-                    ))}
-                    {!classes?.length && (
-                      <div className="text-sm text-muted-foreground italic">
-                        Không có lớp học nào khả dụng.
-                      </div>
-                    )}
+                          {selectedClassIds.includes(cls.id) && (
+                            <div className="size-5 bg-primary rounded-full flex items-center justify-center">
+                              <Check className="size-3 text-primary-foreground" />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+
+                      {classSearch && !filteredClasses?.length && (
+                        <div className="text-sm text-center py-8 text-muted-foreground italic">
+                          Không tìm thấy lớp học nào khớp với từ khóa.
+                        </div>
+                      )}
+
+                      {!classSearch && selectedClassIds.length === 0 && (
+                        <div className="text-sm text-center py-8 text-muted-foreground italic">
+                          Nhập tên hoặc mã lớp để tìm kiếm và thêm vào gói.
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </FieldSet>
               </FieldGroup>

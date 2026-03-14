@@ -137,16 +137,26 @@ export const getOrdersColumns = ({ onView, onCancel, onExport, page, limit }: Or
         cell: ({ row }) => {
             const order = row.original;
             return (
-                <div className="flex items-center justify-end gap-1 flex-wrap">
-                    <Button variant="ghost" size="sm" className="h-8 gap-1.5" onClick={() => onView(order)}>
+                <div className="flex items-center justify-end gap-2">
+                    <Button variant="outline" size="sm" className="h-8 gap-1.5" onClick={() => onView(order)}>
                         <Eye className="h-4 w-4" />
                         Xem
                     </Button>
-                    <Button variant="ghost" size="sm" className="h-8 gap-1.5" onClick={() => onExport(order)}>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 gap-1.5 text-blue-600 border-blue-500/40"
+                        onClick={() => onExport(order)}
+                    >
                         <FileText className="h-4 w-4" />
                         Xuất
                     </Button>
-                    <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => onCancel(order)}>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 gap-1.5 text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5"
+                        onClick={() => onCancel(order)}
+                    >
                         <XCircle className="h-4 w-4" />
                         Hủy
                     </Button>

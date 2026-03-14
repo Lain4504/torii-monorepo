@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '@/components/common/page-header';
 import { Button } from '@workspace/ui/components/button';
-import { Plus, BookOpen, Search } from 'lucide-react';
+import { Plus, BookOpen, Search, Pencil, Eye } from 'lucide-react';
 import { useAcademyCourseProfiles, type AcademyCourseProfile } from '@/lib/api/services/academy-course-profiles';
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { Input } from '@workspace/ui/components/input';
@@ -17,8 +18,6 @@ import { Badge } from '@workspace/ui/components/badge';
 import { format } from 'date-fns';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 
-import { useNavigate } from 'react-router-dom';
-import { FileEdit, Settings, Layers } from 'lucide-react';
 import { CourseProfileDialog } from './components/course-profile-dialog';
 
 export default function CourseProfilesPage() {
@@ -45,11 +44,8 @@ export default function CourseProfilesPage() {
     return (
         <div className="flex flex-col gap-8">
             <PageHeader
-                title="Kho Khóa học (Course Profiles)"
+                title="Kho hồ sơ khóa học"
                 subtitle="Quản lý định nghĩa cốt lõi của các khóa học, cấp độ và lộ trình học thuật."
-                stats={[
-                    { label: "Tổng số Course Profile", value: profiles?.length || 0 }
-                ]}
                 actions={
                     <Button size="lg" onClick={handleCreate}>
                         <Plus className="mr-2 h-4 w-4" />
@@ -73,7 +69,7 @@ export default function CourseProfilesPage() {
 
                 <div className="rounded-md border bg-card overflow-hidden text-sm">
                     <Table>
-                        <TableHeader>
+                        <TableHeader className="bg-muted/50">
                             <TableRow className="hover:bg-transparent">
                                 <TableHead className="w-12">STT</TableHead>
                                 <TableHead className="w-[150px]">Mã Code</TableHead>
@@ -121,15 +117,22 @@ export default function CourseProfilesPage() {
                                             {format(new Date(profile.createdAt), 'dd/MM/yyyy')}
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <div className="flex items-center justify-end gap-1 flex-wrap">
-                                                <Button variant="ghost" size="sm" className="h-8 gap-1.5" onClick={() => handleEdit(profile)}>
-                                                    <FileEdit className="size-4" /> Sửa
+                                            <div className="flex items-center justify-end gap-2">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="h-8 gap-1.5"
+                                                    onClick={() => navigate(`/academy/course-profiles/${profile.id}/detail`)}
+                                                >
+                                                    <Eye className="h-4 w-4" /> Chi tiết
                                                 </Button>
-                                                <Button variant="ghost" size="sm" className="h-8 gap-1.5" onClick={() => navigate(`/academy/syllabuses/${profile.id}`)}>
-                                                    <Layers className="size-4" /> Syllabus
-                                                </Button>
-                                                <Button variant="ghost" size="sm" className="h-8 gap-1.5" disabled title="Thiết lập nâng cao">
-                                                    <Settings className="size-4" /> Nâng cao
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="h-8 gap-1.5 text-primary border-primary/40"
+                                                    onClick={() => handleEdit(profile)}
+                                                >
+                                                    <Pencil className="h-4 w-4" /> Chỉnh sửa
                                                 </Button>
                                             </div>
                                         </TableCell>
