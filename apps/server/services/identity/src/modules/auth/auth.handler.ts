@@ -225,6 +225,23 @@ export class AuthHandler {
     return { success: true };
   }
 
+  @MessagePattern({ cmd: 'identity.auth.changePassword' })
+  async changePassword(
+    @Payload()
+    data: {
+      userId: string;
+      oldPassword: string;
+      newPassword: string;
+    },
+  ) {
+    await this.authService.changePassword(
+      data.userId,
+      data.oldPassword,
+      data.newPassword,
+    );
+    return { success: true };
+  }
+
   // Invite Management
   @MessagePattern({ cmd: 'identity.auth.verifyInviteToken' })
   async verifyInviteToken(@Payload() data: { token: string }) {

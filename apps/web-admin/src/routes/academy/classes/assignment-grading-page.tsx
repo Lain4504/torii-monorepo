@@ -4,7 +4,6 @@ import { PageHeader } from '@/components/common/page-header';
 import { Button } from '@workspace/ui/components/button';
 import {
     ChevronRight,
-    MoreHorizontal,
     FileEdit,
     Download,
     Search,
@@ -26,12 +25,6 @@ import {
     TableHeader,
     TableRow,
 } from "@workspace/ui/components/table";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@workspace/ui/components/dropdown-menu";
 import { Input } from '@workspace/ui/components/input';
 
 export default function AssignmentGradingPage() {
@@ -163,21 +156,14 @@ export default function AssignmentGradingPage() {
                                         </div>
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon">
-                                                    <MoreHorizontal className="size-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-40">
-                                                <DropdownMenuItem>
-                                                    <FileEdit className="size-4 mr-2" /> Chấm điểm
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem>
-                                                    <Download className="size-4 mr-2" /> Tải bài làm
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                                        <div className="flex items-center justify-end gap-1">
+                                            <Button variant="ghost" size="sm" className="h-8 gap-1.5">
+                                                <FileEdit className="size-4" /> Chấm điểm
+                                            </Button>
+                                            <Button variant="ghost" size="sm" className="h-8 gap-1.5">
+                                                <Download className="size-4" /> Tải bài làm
+                                            </Button>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             ))

@@ -1,4 +1,4 @@
-import { IsInt, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
+import { IsDateString, IsInt, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
 
 // --- Class DTOs ---
 
@@ -28,6 +28,23 @@ export class ClassCreateDto {
   @IsOptional()
   @IsUUID()
   instructorId?: string;
+
+  // LIVE timeline fields (optional for VOD)
+  @IsOptional()
+  @IsDateString()
+  openingDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  closingDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  enrollmentOpenAt?: string;
+
+  @IsOptional()
+  @IsDateString()
+  enrollmentCloseAt?: string;
 }
 
 export class ClassUpdateDto {
@@ -47,6 +64,22 @@ export class ClassUpdateDto {
   @IsOptional()
   @IsUUID()
   instructorId?: string;
+
+  @IsOptional()
+  @IsDateString()
+  openingDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  closingDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  enrollmentOpenAt?: string;
+
+  @IsOptional()
+  @IsDateString()
+  enrollmentCloseAt?: string;
 }
 
 export class ClassQueryDto {

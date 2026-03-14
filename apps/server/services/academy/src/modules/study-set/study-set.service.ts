@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@server/shared';
+import { ActivityType } from '@prisma/generated';
 import {
     CreateStudySetDto,
     UpdateStudySetDto,
@@ -8,10 +9,12 @@ import {
     ReviewSetCardDto,
 } from './study-set.dto';
 import { calculateSrsInterval } from './srs.utils';
+import { GamificationService } from '../gamification/gamification.service';
 @Injectable()
 export class StudySetService {
     constructor(
         private readonly prisma: PrismaService,
+        private readonly gamification: GamificationService,
     ) { }
 
     // --- Study Set Methods ---
@@ -142,13 +145,23 @@ export class StudySetService {
             card.interval,
             data.quality
         );
-
-        return this.prisma.setCard.update({
+        const updated = await this.prisma.setCard.update({
             where: { id: cardId },
             data: {
                 ...srsUpdates,
             },
         });
+
+        // Gamification hook: flashcard review
+        this.gamification.trackActivity(userId, ActivityType.FLASHCARD_REVIEW, {
+            studySetId: card.studySetId,
+            cardId: card.id,
+            quality: data.quality,
+        }).catch(() => {
+            // Ignore gamification errors for core SRS flow
+        });
+
+        return updated;
     }
 
     // --- Extra Study Modes ---

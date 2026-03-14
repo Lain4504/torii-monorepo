@@ -140,6 +140,7 @@ export default function ApprovalsPage() {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
+              <TableHead className="w-12">STT</TableHead>
               <TableHead className="w-[120px]">Mã</TableHead>
               <TableHead>Tên gói bán</TableHead>
               <TableHead>Giá (VND)</TableHead>
@@ -152,6 +153,7 @@ export default function ApprovalsPage() {
             {isLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <TableRow key={i}>
+                  <TableCell><Skeleton className="h-4 w-6" /></TableCell>
                   {Array.from({ length: 6 }).map((_, j) => (
                     <TableCell key={j}>
                       <Skeleton className="h-4 w-full" />
@@ -162,15 +164,16 @@ export default function ApprovalsPage() {
             ) : pendingOfferings.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={7}
                   className="h-32 text-center text-muted-foreground"
                 >
                   Không có gói bán nào đang chờ duyệt.
                 </TableCell>
               </TableRow>
             ) : (
-              pendingOfferings.map((offering) => (
+              pendingOfferings.map((offering, index) => (
                 <TableRow key={offering.id} className="group transition-colors">
+                  <TableCell className="text-muted-foreground tabular-nums">{index + 1}</TableCell>
                   <TableCell className="font-mono text-xs font-bold">
                     {offering.code}
                   </TableCell>

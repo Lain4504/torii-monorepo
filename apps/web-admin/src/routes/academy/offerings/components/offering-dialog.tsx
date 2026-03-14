@@ -37,10 +37,13 @@ const offeringSchema = z.object({
   code: z.string().min(1, "Mã gói không được để trống"),
   title: z.string().min(1, "Tiêu đề không được để trống"),
   description: z.string().optional().nullable(),
-  originalPrice: z.coerce.number().min(0, "Giá không được nhỏ hơn 0"),
+  price: z.coerce.number().min(0, "Giá không được nhỏ hơn 0"),
+  salePrice: z.coerce.number().min(0, "Giá khuyến mãi không được nhỏ hơn 0").optional().nullable(),
   currency: z.string().min(1, "Vui lòng nhập tiền tệ"),
-  validFrom: z.string().optional().nullable(),
-  validTo: z.string().optional().nullable(),
+  mode: z.string().min(1, "Vui lòng chọn loại hình"),
+  syllabusId: z.string().uuid().optional().nullable(),
+  status: z.string().optional(),
+  type: z.string().optional(),
   classIds: z.array(z.string().uuid()),
 })
 
@@ -72,10 +75,13 @@ export function OfferingDialog({ open, onOpenChange, offering }: OfferingDialogP
       code: "",
       title: "",
       description: "",
-      originalPrice: 0,
+      price: 0,
+      salePrice: null,
       currency: "VND",
-      validFrom: null,
-      validTo: null,
+      mode: "LIVE",
+      syllabusId: null,
+      status: "DRAFT",
+      type: "COURSE",
       classIds: [],
     },
   })
@@ -84,26 +90,33 @@ export function OfferingDialog({ open, onOpenChange, offering }: OfferingDialogP
 
   useEffect(() => {
     if (offering) {
-      const priceVal = Number(offering.originalPrice ?? offering.price ?? 0)
+      const priceVal = Number((offering as any).price ?? 0)
+      const salePriceVal = (offering as any).salePrice != null ? Number((offering as any).salePrice) : null
       reset({
         code: offering.code,
         title: offering.title,
         description: offering.description || "",
-        originalPrice: priceVal,
+        price: priceVal,
+        salePrice: salePriceVal,
         currency: offering.currency || "VND",
-        validFrom: offering.validFrom ? new Date(offering.validFrom).toISOString().split("T")[0] : null,
-        validTo: offering.validTo ? new Date(offering.validTo).toISOString().split("T")[0] : null,
-        classIds: offering.classes?.map((c: { id: string }) => c.id) ?? [],
+        mode: (offering as any).mode || "LIVE",
+        syllabusId: (offering as any).syllabusId || null,
+        status: offering.status || "DRAFT",
+        type: (offering as any).type || "COURSE",
+        classIds: offering.classes?.map((c: { classId?: string; id: string }) => c.classId ?? c.id) ?? [],
       })
     } else {
       reset({
         code: "",
         title: "",
         description: "",
-        originalPrice: 0,
+        price: 0,
+        salePrice: null,
         currency: "VND",
-        validFrom: null,
-        validTo: null,
+        mode: "LIVE",
+        syllabusId: null,
+        status: "DRAFT",
+        type: "COURSE",
         classIds: [],
       })
     }
@@ -113,8 +126,8 @@ export function OfferingDialog({ open, onOpenChange, offering }: OfferingDialogP
     try {
       const payload = {
         ...values,
-        validFrom: values.validFrom ? new Date(values.validFrom) : undefined,
-        validTo: values.validTo ? new Date(values.validTo) : undefined,
+        salePrice: values.salePrice == null || Number.isNaN(values.salePrice) ? undefined : values.salePrice,
+        syllabusId: values.syllabusId || undefined,
       }
 
       if (isEditing && offering) {
@@ -149,14 +162,14 @@ export function OfferingDialog({ open, onOpenChange, offering }: OfferingDialogP
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] p-0 flex flex-col overflow-hidden">
-        <DialogHeader className="px-6 py-4 border-b">
+        <DialogHeader className="px-6 py-4 border-b shrink-0">
           <DialogTitle>{isEditing ? "Chỉnh sửa Gói bán" : "Tạo Gói bán mới"}</DialogTitle>
           <DialogDescription>
             Cấu hình sản phẩm thương mại, giá bán và các quyền lợi đi kèm.
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 min-h-0">
           <div className="p-6">
             <form id="offering-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <FieldGroup>
@@ -207,19 +220,19 @@ export function OfferingDialog({ open, onOpenChange, offering }: OfferingDialogP
                 </FieldSet>
 
                 <FieldSet>
-                  <FieldLegend>Giá & Thời hạn</FieldLegend>
+                  <FieldLegend>Giá & cấu hình</FieldLegend>
                   <FieldGroup>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Field>
                         <FieldLabel>Giá bán ({watch("currency")})</FieldLabel>
                         <Controller
-                          name="originalPrice"
+                          name="price"
                           control={control}
                           render={({ field }) => (
-                            <Input type="number" {...field} />
+                            <Input type="number" min={0} {...field} />
                           )}
                         />
-                        <FieldError errors={[errors.originalPrice]} />
+                        <FieldError errors={[errors.price]} />
                       </Field>
                       <Field>
                         <FieldLabel>Tiền tệ</FieldLabel>
@@ -236,24 +249,36 @@ export function OfferingDialog({ open, onOpenChange, offering }: OfferingDialogP
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <Field>
-                        <FieldLabel>Ngày bắt đầu bán</FieldLabel>
+                        <FieldLabel>Giá khuyến mãi ({watch("currency")})</FieldLabel>
                         <Controller
-                          name="validFrom"
+                          name="salePrice"
                           control={control}
                           render={({ field }) => (
-                            <Input type="date" value={field.value ?? ""} onChange={field.onChange} />
+                            <Input
+                              type="number"
+                              min={0}
+                              value={field.value ?? ""}
+                              onChange={(e) =>
+                                field.onChange(e.target.value === "" ? null : Number(e.target.value))
+                              }
+                            />
                           )}
                         />
+                        <FieldError errors={[errors.salePrice]} />
                       </Field>
                       <Field>
-                        <FieldLabel>Ngày kết thúc bán</FieldLabel>
+                        <FieldLabel>Loại hình</FieldLabel>
                         <Controller
-                          name="validTo"
+                          name="mode"
                           control={control}
                           render={({ field }) => (
-                            <Input type="date" value={field.value ?? ""} onChange={field.onChange} />
+                            <Input
+                              {...field}
+                              placeholder="LIVE hoặc VOD"
+                            />
                           )}
                         />
+                        <FieldError errors={[errors.mode]} />
                       </Field>
                     </div>
                   </FieldGroup>
@@ -301,7 +326,7 @@ export function OfferingDialog({ open, onOpenChange, offering }: OfferingDialogP
           </div>
         </ScrollArea>
 
-        <DialogFooter className="px-6 py-4 border-t gap-2 bg-muted/20">
+        <DialogFooter className="px-6 py-4 border-t gap-2 bg-muted/20 shrink-0">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
             Hủy
           </Button>

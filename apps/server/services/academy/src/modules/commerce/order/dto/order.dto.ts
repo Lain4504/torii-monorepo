@@ -1,4 +1,4 @@
-import { IsArray, IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsArray, IsEnum, IsOptional, IsString, IsObject } from 'class-validator';
 import { PaymentMethod } from '@prisma/generated';
 
 export class OrderCheckoutDto {
@@ -11,6 +11,11 @@ export class OrderCheckoutDto {
     @IsArray()
     @IsString({ each: true })
     subscriptionPlanIds?: string[];
+
+    /** For LIVE offerings: map offeringId -> selected classId (one class per offering) */
+    @IsOptional()
+    @IsObject()
+    classIdByOffering?: Record<string, string>;
 
     @IsOptional()
     @IsString()
@@ -37,6 +42,11 @@ export class OrderPreviewDto {
     @IsArray()
     @IsString({ each: true })
     subscriptionPlanIds?: string[];
+
+    /** For LIVE offerings: map offeringId -> selected classId */
+    @IsOptional()
+    @IsObject()
+    classIdByOffering?: Record<string, string>;
 
     @IsOptional()
     @IsString()

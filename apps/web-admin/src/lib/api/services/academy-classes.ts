@@ -15,10 +15,16 @@ import type {
 export type AcademyClass = {
   id: string
   courseProfileId: string
+  syllabusId?: string | null
   code: string
   name: string
   mode: "VOD" | "LIVE"
   status: string
+  openingDate?: string | null
+  closingDate?: string | null
+  enrollmentOpenAt?: string | null
+  enrollmentCloseAt?: string | null
+  instructorId?: string | null
   createdAt: string
   updatedAt: string
   settings?: any
@@ -35,27 +41,9 @@ export type AcademyClass = {
     status: string
   } | null
 
-  // TPT Relations
-  vodClass?: {
-    id: string
-    enrollmentOpenAt?: string | null
-    enrollmentCloseAt?: string | null
-    maxStudents?: number | null
-    defaultExpiresMonths?: number | null
-  } | null
-  liveClass?: {
-    id: string
-    term?: string | null
-    batch?: string | null
-    openingDate?: string | null
-    closingDate?: string | null
-    enrollmentOpenAt?: string | null
-    enrollmentCloseAt?: string | null
-    minStudents?: number | null
-    maxStudents?: number | null
-    minStudentsEnforcement?: string | null
-    instructorId?: string | null
-  } | null
+  // Legacy backward compat (some endpoints might still include these)
+  vodClass?: any | null
+  liveClass?: any | null
 }
 
 export const academyClassesApi = {

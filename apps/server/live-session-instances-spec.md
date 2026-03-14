@@ -310,3 +310,40 @@ Nếu Phase 1 chưa làm attendance theo session, cần chốt rõ:
 - Teacher conflict scope: cùng instructorId across classes hay chỉ trong class?
 - Khi class instructor đổi giữa kỳ, instances cũ có snapshot instructor hay luôn follow class?
 
+---
+
+## Đối chiếu spec vs code hiện tại (Implementation checklist)
+
+> Phần này so sánh spec với code trong `apps/server` (academy service, gateway, prisma). Cập nhật khi triển khai thay đổi.
+
+### Đã triển khai đúng spec
+
+| Hạng mục | Spec | Hiện trạng |
+|----------|------|------------|
+| **Bảng `live_schedule_sessions`** | Instance theo ngày, đủ trường status/roomId/supersededBySessionId | ✅ Prisma model `LiveScheduleSession` có đủ field; unique `(classId, sessionDate, startTime, endTime)`; index `(classId, sessionDate)`. |
+| **Template `live_schedules`** | Giữ nguyên, không dùng cho join/hiển thị | ✅ Template CRUD giữ; `assertTemplateMutable` khóa sửa sau khi class publish. |
+| **List sessions theo range** | `GET /api/academy/live-sessions?classId&from&to` → items | ✅ Gateway `AcademyLiveSessionController` GET với `AcademyLiveSessionQueryDTO` (classId, from, to); backend gọi `findAllByClassAndRange` → lazy generate rồi `listSessionsForClassRange`. |
+| **Lazy generation** | Khi client hỏi range, generate thiếu rồi trả instances | ✅ Handler `academy.liveSession.findAllByClassAndRange` gọi `generateInstancesForClassRange` trước khi `listSessionsForClassRange`. |
+| **Hybrid: generate khi tạo/sửa template** | Tạo/sửa LiveSchedule → generate 2–4 tuần tới | ✅ `create`/`update` schedule gọi `generateInstancesForClassRange(classId, from, to)` với `DEFAULT_GENERATE_HORIZON_DAYS = 28`. |
+| **Join theo instance** | Join theo `sessionId`; roomId per-instance | ✅ Gateway `POST /api/live-sessions/:sessionId/join/student` và `.../join/lecturer`; service `joinBySessionId`; roomId từ session hoặc `ensureSessionRoomId`. |
+| **Request nghỉ/dời theo sessionId** | Create request với `sessionId`; approve LEAVE/RESCHEDULE | ✅ Request create DTO có `sessionId`; approve LEAVE → session CANCELLED; RESCHEDULE → session mới + cũ RESCHEDULED + `supersededBySessionId`. |
+| **Conflict preview** | classId + sessionDate + start/end + excludeSessionId | ✅ `previewConflict` theo session instances, có `excludeSessionId`. |
+| **Attendance theo session** | Attendance gắn `sessionId` (FK live_schedule_sessions) | ✅ Prisma `ClassAttendance` có `sessionId` FK; service create/find theo `sessionId`. |
+
+### Chưa đúng / cần bổ sung
+
+| Hạng mục | Spec | Hiện trạng | Hành động đề xuất |
+|----------|------|------------|-------------------|
+| **Validate join: session.status === SCHEDULED** | Chỉ cho join khi `session.status === SCHEDULED` | `joinBySessionId` chưa kiểm tra `session.status` | Trong `joinBySessionId`, thêm check: nếu `session.status !== 'SCHEDULED'` thì throw BadRequest (không cho join CANCELLED/RESCHEDULED). |
+| **POST generate (admin)** | `POST /api/academy/live-sessions/generate` body classId, from, to → createdCount, updatedCount | Chưa có endpoint riêng; generate chỉ chạy khi gọi GET list | (Tùy chọn) Thêm endpoint POST generate cho admin/cron, trả về `createdCount`/`updatedCount` nếu cần báo cáo hoặc cron job. |
+| **Deprecate join theo scheduleId** | Cutover: join chỉ theo sessionId | Service vẫn có method `join(id)` theo `liveSchedule` id | Không expose `join(scheduleId)` ở gateway (đã đúng). Nên ghi chú trong code rằng `join(scheduleId)` là legacy; hoặc xóa nếu không còn caller. |
+| **Deprecate excludedDates trong logic** | Không dùng `excludedDates` cho join/hiển thị | Cột và DTO vẫn có `excludedDates`; không thấy logic join/list dựa vào nó | Giữ cột cho migration; đảm bảo không thêm logic mới dựa trên `excludedDates`. Ghi chú trong spec/README. |
+| **List sessions response shape** | Trả về đủ thông tin cho UI (class title, instructor…) | `listSessionsForClassRange` trả về session thuần, không include class/courseProfile | (Tùy chọn) Nếu UI lịch cần tên lớp/giảng viên: mở rộng `listSessionsForClassRange` hoặc gateway map thêm include `class: { courseProfile, instructor }`. |
+
+### Tóm tắt hành động ưu tiên
+
+1. **Bắt buộc**: Trong `joinBySessionId`, thêm kiểm tra `session.status === 'SCHEDULED'`; nếu không thì trả lỗi rõ (ví dụ: "Buổi học đã bị hủy hoặc đã được dời.").
+2. **Tùy chọn**: Thêm `POST /api/academy/live-sessions/generate` (body: classId, from, to) cho admin/cron nếu cần trigger generate độc lập.
+3. **Tùy chọn**: Ghi chú hoặc xóa method `join(scheduleId)` nếu không còn sử dụng; giữ nguyên quy ước không dùng `excludedDates` trong logic mới.
+4. **Tùy chọn**: Mở rộng response list sessions (include class/courseProfile/instructor) nếu UI lịch cần hiển thị đầy đủ.
+

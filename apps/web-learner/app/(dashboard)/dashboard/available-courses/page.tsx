@@ -15,11 +15,16 @@ import { formatNumber } from '@/utils/format-utils'
 
 export default function DashboardCoursesPage() {
     const [searchQuery, setSearchQuery] = useState('')
-    const { data: offeringsData, isLoading } = useAcademyOfferings({ limit: 50 })
+    const [activeTab, setActiveTab] = useState<string>('all')
+    const apiParams =
+        activeTab === 'live'
+            ? { limit: 50, mode: 'LIVE' as const, hasEnrollableLiveClass: true }
+            : activeTab === 'vod'
+                ? { limit: 50, mode: 'VOD' as const }
+                : { limit: 50 }
+    const { data: offeringsData, isLoading } = useAcademyOfferings(apiParams)
 
-    const courses = offeringsData?.data || []
-
-    // Sort courses into categories for the UI
+    const courses = offeringsData?.data ?? []
     const liveCourses = courses.filter((c: any) => c.type === 'LIVE' || c.isLive)
     const vodCourses = courses.filter((c: any) => c.type === 'VOD' || !c.isLive)
 
@@ -49,7 +54,7 @@ export default function DashboardCoursesPage() {
                 </div>
             </div>
 
-            <Tabs defaultValue="all" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="mb-6">
                     <TabsTrigger value="all">Tất cả</TabsTrigger>
                     <TabsTrigger value="vod">Học qua Video (VOD)</TabsTrigger>

@@ -79,7 +79,7 @@ export interface IAuthService {
    */
   updateUser(
     userId: string,
-    dto: { displayName?: string },
+    dto: { displayName?: string; userMetadata?: Record<string, any> },
   ): Promise<UserResponseDTO & { permissions: string[] }>;
 
   /**
@@ -171,6 +171,19 @@ export interface IAuthService {
    * @throws NotFoundException if user not found
    */
   resetPassword(token: string, newPassword: string): Promise<void>;
+
+  /**
+   * Change user password (for authenticated users)
+   * @param userId - The user's unique identifier
+   * @param oldPassword - Current password
+   * @param newPassword - New password
+   * @throws UnauthorizedException if old password is incorrect
+   */
+  changePassword(
+    userId: string,
+    oldPassword: string,
+    newPassword: string,
+  ): Promise<void>;
 
   // ===== OAuth / Google Authentication =====
 

@@ -2,19 +2,10 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
 import {
-    MoreHorizontal,
     Eye,
     FileText,
     XCircle,
 } from 'lucide-react';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@workspace/ui/components/dropdown-menu";
 import { OrderStatus, type OrderResponseDTO } from '@workspace/schemas';
 import { formatCurrency, formatDateTime } from '@/lib/format-utils';
 
@@ -142,36 +133,26 @@ export const getOrdersColumns = ({ onView, onCancel, onExport, page, limit }: Or
     },
     {
         id: 'actions',
+        header: () => <div className="text-right">Thao tác</div>,
         cell: ({ row }) => {
             const order = row.original;
             return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => onView(order)}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            Xem chi tiết
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onExport(order)}>
-                            <FileText className="mr-2 h-4 w-4" />
-                            Xuất hóa đơn
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                            className="text-destructive"
-                            onClick={() => onCancel(order)}
-                        >
-                            <XCircle className="mr-2 h-4 w-4" />
-                            Hủy đơn hàng
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <div className="flex items-center justify-end gap-1 flex-wrap">
+                    <Button variant="ghost" size="sm" className="h-8 gap-1.5" onClick={() => onView(order)}>
+                        <Eye className="h-4 w-4" />
+                        Xem
+                    </Button>
+                    <Button variant="ghost" size="sm" className="h-8 gap-1.5" onClick={() => onExport(order)}>
+                        <FileText className="h-4 w-4" />
+                        Xuất
+                    </Button>
+                    <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => onCancel(order)}>
+                        <XCircle className="h-4 w-4" />
+                        Hủy
+                    </Button>
+                </div>
             );
-        }
+        },
+        size: 200,
     }
 ];

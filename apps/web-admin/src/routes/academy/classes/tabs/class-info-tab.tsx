@@ -25,7 +25,6 @@ export function ClassInfoTab({ academyClass }: ClassInfoTabProps) {
   }
 
   const vod = academyClass.vodClass
-  const live = academyClass.liveClass
   const isLive = academyClass.mode === "LIVE"
 
   const formatDate = (d: string | null | undefined) =>
@@ -81,63 +80,33 @@ export function ClassInfoTab({ academyClass }: ClassInfoTabProps) {
         </CardContent>
       </Card>
 
-      {isLive && live && (
+      {isLive && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Video className="size-5" />
               Thông tin lớp LIVE
             </CardTitle>
-            <CardDescription>Kỳ học, thời gian mở/đóng, giới hạn học viên</CardDescription>
+            <CardDescription>Lịch kỳ học và thời gian mở/đóng đăng ký</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {live.term && (
-                <div>
-                  <p className="text-xs text-muted-foreground">Kỳ học</p>
-                  <p className="font-medium">{live.term}</p>
-                </div>
-              )}
-              {live.batch && (
-                <div>
-                  <p className="text-xs text-muted-foreground">Batch</p>
-                  <p className="font-medium">{live.batch}</p>
-                </div>
-              )}
               <div>
                 <p className="text-xs text-muted-foreground">Ngày mở</p>
-                <p className="font-medium">{formatDate(live.openingDate)}</p>
+                <p className="font-medium">{formatDate((academyClass as any).openingDate)}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Ngày đóng</p>
-                <p className="font-medium">{formatDate(live.closingDate)}</p>
+                <p className="font-medium">{formatDate((academyClass as any).closingDate)}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Mở đăng ký</p>
-                <p className="font-medium">{formatDate(live.enrollmentOpenAt)}</p>
+                <p className="font-medium">{formatDate((academyClass as any).enrollmentOpenAt)}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Đóng đăng ký</p>
-                <p className="font-medium">{formatDate(live.enrollmentCloseAt)}</p>
+                <p className="font-medium">{formatDate((academyClass as any).enrollmentCloseAt)}</p>
               </div>
-              {live.minStudents != null && (
-                <div className="flex items-center gap-2">
-                  <Users className="size-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Học viên tối thiểu</p>
-                    <p className="font-medium">{live.minStudents}</p>
-                  </div>
-                </div>
-              )}
-              {live.maxStudents != null && (
-                <div className="flex items-center gap-2">
-                  <Users className="size-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Học viên tối đa</p>
-                    <p className="font-medium">{live.maxStudents}</p>
-                  </div>
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>

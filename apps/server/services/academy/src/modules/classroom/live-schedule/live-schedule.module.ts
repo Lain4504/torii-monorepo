@@ -7,5 +7,6 @@ import { LiveScheduleService } from './live-schedule.service';
   imports: [NatsClientModule],
   providers: [LiveScheduleService],
   controllers: [LiveScheduleHandler],
+  exports: [LiveScheduleService],
 })
 export class LiveScheduleModule { }

@@ -43,6 +43,37 @@ export class LiveScheduleService {
   ) { }
 
   private readonly DEFAULT_GENERATE_HORIZON_DAYS = 28;
+  private readonly PUBLISH_GENERATE_HORIZON_DAYS = 180;
+
+  private buildSessionRoomId(input: {
+    classId: string;
+    sessionDate: Date;
+    startTime: string;
+    endTime: string;
+  }) {
+    const yyyy = input.sessionDate.getUTCFullYear();
+    const mm = String(input.sessionDate.getUTCMonth() + 1).padStart(2, '0');
+    const dd = String(input.sessionDate.getUTCDate()).padStart(2, '0');
+    const start = (input.startTime || '').replace(':', '');
+    const end = (input.endTime || '').replace(':', '');
+    return `live-${input.classId.substring(0, 8)}-${yyyy}${mm}${dd}-${start}-${end}`;
+  }
+
+  private async assertTemplateMutable(classId: string) {
+    const klass = await this.prisma.class.findUnique({
+      where: { id: classId },
+      select: { status: true, mode: true },
+    });
+    if (!klass) throw new BadRequestException('Invalid classId');
+    // After class becomes public, template schedules are frozen; changes must go through session requests.
+    const status = String(klass.status);
+    const allowed = status === 'DRAFT' || status === 'PENDING_APPROVAL';
+    if (!allowed) {
+      throw new BadRequestException(
+        'LiveSchedule is locked after class is published. Please use session change requests.',
+      );
+    }
+  }
 
   async findAll(query: LiveScheduleQueryDto) {
     return this.prisma.liveSchedule.findMany({
@@ -78,6 +109,7 @@ export class LiveScheduleService {
       where: { id: input.classId },
     });
     if (!klass) throw new BadRequestException('Invalid classId');
+    await this.assertTemplateMutable(input.classId);
     await this.assertNoScheduleConflicts({
       classId: input.classId,
       weekday: input.weekday,
@@ -263,6 +295,12 @@ export class LiveScheduleService {
 
     if (!session) throw new NotFoundException('Session not found');
 
+    if (session.status !== 'SCHEDULED') {
+      throw new BadRequestException(
+        'Buổi học đã bị hủy hoặc đã được dời. Chỉ buổi có trạng thái SCHEDULED mới được tham gia.',
+      );
+    }
+
     this.assertClassJoinable(session.class.status);
     this.assertInJoinWindowForSession(
       {
@@ -372,6 +410,7 @@ export class LiveScheduleService {
 
   async update(id: string, input: LiveScheduleUpdateDto, requesterId = 'SYSTEM') {
     const oldSchedule = await this.findById(id);
+    await this.assertTemplateMutable(oldSchedule.classId);
     const klass = await this.prisma.class.findUnique({
       where: { id: oldSchedule.classId },
       select: { instructorId: true, id: true },
@@ -480,6 +519,12 @@ export class LiveScheduleService {
 
       for (const t of matches) {
         const sessionDate = this.startOfDay(cursor);
+        const roomId = this.buildSessionRoomId({
+          classId,
+          sessionDate,
+          startTime: t.startTime,
+          endTime: t.endTime,
+        });
         ops.push(
           this.prisma.liveScheduleSession.upsert({
             where: {
@@ -497,6 +542,7 @@ export class LiveScheduleService {
               startTime: t.startTime,
               endTime: t.endTime,
               status: 'SCHEDULED',
+              roomId,
               location: t.location ?? undefined,
               note: t.note ?? undefined,
               instructorId: klass.instructorId ?? undefined,
@@ -505,6 +551,7 @@ export class LiveScheduleService {
             },
             update: {
               scheduleId: t.id,
+              roomId,
               location: t.location ?? undefined,
               note: t.note ?? undefined,
               instructorId: klass.instructorId ?? undefined,
@@ -537,8 +584,9 @@ export class LiveScheduleService {
     if (!schedule) throw new NotFoundException('LiveSchedule not found');
 
     const { class: klass } = schedule;
+    await this.assertTemplateMutable(schedule.classId);
     const isLastSchedule = klass.liveSchedules.length <= 1;
-    const isActiveClass = ['ENROLLING', 'IN_PROGRESS'].includes(klass.status);
+    const isActiveClass = ['OPENING', 'ONGOING'].includes(String(klass.status));
     if (isLastSchedule && isActiveClass) {
       throw new BadRequestException(
         'Cannot delete the last schedule of an active class. Cancel the class first.',
@@ -854,6 +902,12 @@ export class LiveScheduleService {
       }
 
       if (request.type === 'RESCHEDULE') {
+        const newRoomId = this.buildSessionRoomId({
+          classId: request.session.classId,
+          sessionDate: this.startOfDay(request.proposedDate!),
+          startTime: request.proposedStartTime!,
+          endTime: request.proposedEndTime!,
+        });
         const newSession = await tx.liveScheduleSession.create({
           data: {
             classId: request.session.classId,
@@ -862,6 +916,7 @@ export class LiveScheduleService {
             startTime: request.proposedStartTime!,
             endTime: request.proposedEndTime!,
             status: 'SCHEDULED',
+            roomId: newRoomId,
             instructorId: request.proposedTeacherId ?? request.session.instructorId ?? undefined,
             createdBy: reviewerId,
             updatedBy: reviewerId,

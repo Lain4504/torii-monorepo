@@ -99,6 +99,15 @@ export class CourseOfferingQueryDto {
   @IsOptional()
   @IsString()
   q?: string;
+
+  /** VOD | LIVE */
+  @IsOptional()
+  @IsString()
+  mode?: string;
+
+  /** When true and mode=LIVE, only return offerings with at least one class in enrollment window */
+  @IsOptional()
+  hasEnrollableLiveClass?: boolean;
 }
 
 export class CourseOfferingSetClassesDto {

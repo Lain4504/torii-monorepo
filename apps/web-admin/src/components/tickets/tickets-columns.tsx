@@ -2,7 +2,6 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@workspace/ui/components/badge';
 import { Button } from '@workspace/ui/components/button';
 import {
-    MoreVertical,
     CheckCircle2,
     XCircle,
     Clock,
@@ -10,12 +9,6 @@ import {
     Eye,
     Edit,
 } from 'lucide-react';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger
-} from '@workspace/ui/components/dropdown-menu';
 import type { TicketResponseDTO } from '@workspace/schemas';
 import { TicketStatus, TicketType } from '@workspace/schemas';
 import { cn } from "@workspace/ui/lib/utils";
@@ -107,28 +100,18 @@ export const getTicketsColumns = ({ onView, onChangeStatus, page = 1, limit = 10
         cell: ({ row }) => {
             const ticket = row.original;
             return (
-                <div className="text-right">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <MoreVertical className="h-4 w-4" />
-                                <span className="sr-only">Mở menu</span>
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => onView(ticket)}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                Xem chi tiết
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onChangeStatus(ticket)}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Thay đổi trạng thái
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                <div className="flex items-center justify-end gap-1">
+                    <Button variant="ghost" size="sm" className="h-8 gap-1.5" onClick={() => onView(ticket)}>
+                        <Eye className="h-4 w-4" />
+                        Xem
+                    </Button>
+                    <Button variant="ghost" size="sm" className="h-8 gap-1.5" onClick={() => onChangeStatus(ticket)}>
+                        <Edit className="h-4 w-4" />
+                        Đổi trạng thái
+                    </Button>
                 </div>
             )
         },
-        size: 50,
+        size: 180,
     },
 ];

@@ -60,9 +60,14 @@ function normalizeOfferingForLearner(item: any) {
     return link;
   });
 
+  const enrollableClasses = Array.isArray(item?.enrollableClasses)
+    ? item.enrollableClasses
+    : undefined;
+
   return {
     ...item,
     classes: normalizedClasses,
+    enrollableClasses,
     price: Number.isFinite(parsedPrice) ? parsedPrice : 0,
     thumbnailUrl:
       item?.thumbnailUrl ||
@@ -90,6 +95,8 @@ export const academyOfferingApi = {
     status?: string;
     type?: string;
     q?: string;
+    mode?: 'VOD' | 'LIVE';
+    hasEnrollableLiveClass?: boolean;
   } = {}): Promise<PaginatedApiResponse<any>> => {
     const { status: _status, ...restParams } = params;
     const response = await apiClient.get<StandardApiResponse<{ items: any[]; total: number; page: number; limit: number; totalPages: number }>>('/api/academy/course-offerings/public', {
@@ -125,6 +132,8 @@ export const academyOfferingApi = {
     status?: string;
     type?: string;
     q?: string;
+    mode?: 'VOD' | 'LIVE';
+    hasEnrollableLiveClass?: boolean;
   } = {}): Promise<PaginatedApiResponse<any>> => {
     const { status: _status, ...restParams } = params;
     const response = await apiClient.get<StandardApiResponse<{ items: any[]; total: number; page: number; limit: number; totalPages: number }>>('/api/academy/course-offerings/public', {

@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '@/components/common/page-header';
 import { Button } from '@workspace/ui/components/button';
-import { Plus, Search, Filter, MoreHorizontal, GraduationCap, Video, Users } from 'lucide-react';
+import { Plus, Search, Filter, GraduationCap, Video, Users, Eye, Pencil, UserPlus, Calendar, FileEdit, Trash2 } from 'lucide-react';
 import { useAcademyClasses, type AcademyClass } from '@/lib/api/services/academy-classes';
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { Input } from '@workspace/ui/components/input';
@@ -20,13 +20,6 @@ import { useAppSelector } from "@/hooks/hooks";
 import { selectUser } from "@/store/slices/auth-slice";
 import { UserRole } from "@workspace/schemas";
 import { cn } from "@workspace/ui/lib/utils";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@workspace/ui/components/dropdown-menu";
 import { ClassDialog } from '@/components/academy/class-dialog';
 
 export default function ClassesPage() {
@@ -95,6 +88,7 @@ export default function ClassesPage() {
                     <Table>
                         <TableHeader>
                             <TableRow>
+                                <TableHead className="w-12">STT</TableHead>
                                 <TableHead className="w-[120px]">Mã Lớp</TableHead>
                                 <TableHead>Tên Lớp</TableHead>
                                 <TableHead>Loại hình</TableHead>
@@ -107,6 +101,7 @@ export default function ClassesPage() {
                             {isLoading ? (
                                 Array.from({ length: 5 }).map((_, i) => (
                                     <TableRow key={i}>
+                                        <TableCell><Skeleton className="h-4 w-6" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-16" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-48" /></TableCell>
                                         <TableCell><Skeleton className="h-4 w-12" /></TableCell>
@@ -117,13 +112,14 @@ export default function ClassesPage() {
                                 ))
                             ) : classes?.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="h-24 text-center">
+                                    <TableCell colSpan={7} className="h-24 text-center">
                                         Không tìm thấy lớp học nào.
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                classes?.map((cls: AcademyClass) => (
+                                classes?.map((cls: AcademyClass, index: number) => (
                                     <TableRow key={cls.id}>
+                                        <TableCell className="text-muted-foreground tabular-nums">{index + 1}</TableCell>
                                         <TableCell className="font-mono font-medium">{cls.code}</TableCell>
                                         <TableCell>
                                             <div className="font-medium">{cls.name}</div>
@@ -156,53 +152,32 @@ export default function ClassesPage() {
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="icon">
-                                                            <MoreHorizontal className="h-4 w-4" />
+                                            <div className="flex items-center justify-end gap-1 flex-wrap">
+                                                <Button variant="ghost" size="sm" className="h-8 gap-1.5" onClick={() => navigate(`/academy/classes/${cls.id}/detail`)}>
+                                                    <Eye className="h-4 w-4" /> Xem
+                                                </Button>
+                                                <Button variant="ghost" size="sm" className="h-8 gap-1.5" onClick={() => handleEdit(cls)}>
+                                                    <Pencil className="h-4 w-4" /> Sửa
+                                                </Button>
+                                                <Button variant="ghost" size="sm" className="h-8 gap-1.5" onClick={() => navigate(`/academy/classes/${cls.id}/detail`)}>
+                                                    <UserPlus className="h-4 w-4" /> Học viên
+                                                </Button>
+                                                {cls.mode === 'LIVE' && (
+                                                    <>
+                                                        <Button variant="ghost" size="sm" className="h-8 gap-1.5" onClick={() => navigate(`/academy/classes/${cls.id}/detail?tab=schedule`)}>
+                                                            <Calendar className="h-4 w-4" /> Lịch
                                                         </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        <DropdownMenuItem
-                                                            onClick={() => navigate(`/academy/classes/${cls.id}/detail`)}
-                                                        >
-                                                            Xem chi tiết
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => handleEdit(cls)}>
-                                                            Quản lý & Chỉnh sửa
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem
-                                                            onClick={() => navigate(`/academy/classes/${cls.id}/detail`)}
-                                                        >
-                                                            Quản lý Học viên
-                                                        </DropdownMenuItem>
-                                                        {cls.mode === 'LIVE' && (
-                                                            <>
-                                                                <DropdownMenuItem
-                                                                    onClick={() => navigate(`/academy/classes/${cls.id}/detail?tab=schedule`)}
-                                                                >
-                                                                    Lịch học & Điểm danh
-                                                                </DropdownMenuItem>
-                                                                <DropdownMenuItem
-                                                                    onClick={() => navigate(`/academy/classes/${cls.id}/detail?tab=assignments`)}
-                                                                >
-                                                                    Bài tập & Chấm điểm
-                                                                </DropdownMenuItem>
-                                                            </>
-                                                        )}
-                                                        {isStaff && (
-                                                            <>
-                                                                <DropdownMenuSeparator />
-                                                                <DropdownMenuItem
-                                                                    className="text-destructive"
-                                                                    disabled
-                                                                >
-                                                                    Xóa lớp
-                                                                </DropdownMenuItem>
-                                                            </>
-                                                        )}
-                                                    </DropdownMenuContent>
-                                            </DropdownMenu>
+                                                        <Button variant="ghost" size="sm" className="h-8 gap-1.5" onClick={() => navigate(`/academy/classes/${cls.id}/detail?tab=assignments`)}>
+                                                            <FileEdit className="h-4 w-4" /> Bài tập
+                                                        </Button>
+                                                    </>
+                                                )}
+                                                {isStaff && (
+                                                    <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-destructive opacity-50" disabled title="Xóa lớp">
+                                                        <Trash2 className="h-4 w-4" /> Xóa
+                                                    </Button>
+                                                )}
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))

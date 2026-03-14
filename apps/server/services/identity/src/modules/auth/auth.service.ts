@@ -854,6 +854,38 @@ export class AuthService implements IAuthService {
   }
 
   /**
+   * Change password for currently authenticated user
+   */
+  async changePassword(
+    userId: string,
+    oldPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    const user = await this.usersRepository.findById(userId);
+
+    if (!user || !user.password) {
+      throw new UnauthorizedException('User account not found or has no password');
+    }
+
+    // 1. Verify old password
+    const isOldPasswordCorrect = await argon2.verify(user.password, oldPassword);
+    if (!isOldPasswordCorrect) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    // 2. Hash new password
+    const hashedPassword = await argon2.hash(newPassword);
+
+    // 3. Update password
+    await this.usersRepository.update(user.id, {
+      password: hashedPassword,
+    });
+
+    // 4. Revoke other sessions (optional but recommended for security)
+    // For now we keep current session but could revoke all others if we want.
+  }
+
+  /**
    * Update user information
    */
   async updateUser(

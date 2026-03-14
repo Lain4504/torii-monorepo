@@ -21,6 +21,7 @@ export class GamificationService {
         [ActivityType.LESSON_COMPLETE]: { xp: 10, points: 10 },
         [ActivityType.EXAM_COMPLETE]: { xp: 20, points: 20 },
         [ActivityType.REVIEW]: { xp: 50, points: 50 },
+        [ActivityType.FLASHCARD_REVIEW]: { xp: 5, points: 5 },
     };
 
     private readonly ACTIVITY_WEIGHTS: Record<string, number> = {
@@ -28,6 +29,7 @@ export class GamificationService {
         [ActivityType.LESSON_COMPLETE]: 5,
         [ActivityType.EXAM_COMPLETE]: 10,
         [ActivityType.REVIEW]: 3,
+        [ActivityType.FLASHCARD_REVIEW]: 2,
     };
 
     /**
@@ -77,8 +79,19 @@ export class GamificationService {
             if (existingHistory) {
                 shouldAward = false;
             }
-        } else if (metadata?.lessonId) {
-            // Optional: check if lesson already rewarded
+        } else if (activityType === ActivityType.LESSON_COMPLETE && metadata?.lessonId) {
+            // Ensure each lesson only rewards XP/points once per user
+            const existingLessonHistory = await this.prisma.gamificationHistory.findFirst({
+                where: {
+                    userId,
+                    activityType: ActivityType.LESSON_COMPLETE,
+                    metadata: { path: ['lessonId'], equals: metadata.lessonId },
+                },
+            });
+
+            if (existingLessonHistory) {
+                shouldAward = false;
+            }
         }
 
         const weight = this.ACTIVITY_WEIGHTS[activityType] || 1;
@@ -175,6 +188,32 @@ export class GamificationService {
                 pointsEarned: points,
                 newLevel: updatedProfile.level,
             };
+
+            // Level up notification (only when level actually increases)
+            if (newLevel > profile.level) {
+                try {
+                    this.natsClient.emit(
+                        { cmd: 'send_notification' },
+                        {
+                            recipientId: userId,
+                            type: 'system',
+                            payload: {
+                                title: 'Bạn vừa lên cấp độ mới ⭐',
+                                body: `Chúc mừng! Bạn đã đạt cấp độ ${newLevel}. Tiếp tục học để mở khóa thêm thành tựu và phần thưởng.`,
+                                metadata: {
+                                    previousLevel: profile.level,
+                                    newLevel,
+                                    activityType,
+                                },
+                            },
+                        },
+                    );
+                } catch (error: any) {
+                    this.logger.error(
+                        `Failed to emit level-up notification for user ${userId}: ${error.message}`,
+                    );
+                }
+            }
 
             // Update streak & evaluate achievements asynchronously based on this activity
             // Note: we don't await to keep the main transaction fast

@@ -236,6 +236,41 @@ export class AuthController {
     }
   }
 
+  @Post('change-password')
+  @UseGuards(GatewayAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async changePassword(
+    @Req() req: ReqWithRequester,
+    @Body() dto: { oldPassword?: string; newPassword?: string },
+  ) {
+    if (!dto.oldPassword || !dto.newPassword) {
+      throw new BadRequestException('Current and 8 characters long password are required');
+    }
+    if (dto.newPassword.length < 8) {
+      throw new BadRequestException(
+        'New password must be at least 8 characters long',
+      );
+    }
+    const requester = req.requester;
+    try {
+      await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'identity.auth.changePassword' },
+          {
+            userId: requester.sub,
+            oldPassword: dto.oldPassword,
+            newPassword: dto.newPassword,
+          },
+        ),
+      );
+      return successResponse(null, 'Password changed successfully');
+    } catch (error: unknown) {
+      return errorResponse(
+        error instanceof Error ? error.message : 'Failed to change password',
+      );
+    }
+  }
+
   @Post('admin/login')
   @HttpCode(HttpStatus.OK)
   async adminLogin(

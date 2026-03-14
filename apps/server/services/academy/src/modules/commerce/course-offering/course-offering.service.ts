@@ -28,18 +28,39 @@ export class CourseOfferingService {
 
   async findAll(query: CourseOfferingQueryDto) {
     const q = query.q?.trim();
+    const now = new Date();
+    const modeFilter = query.mode as ClassMode | undefined;
+    const hasEnrollableLiveClass = Boolean(query.hasEnrollableLiveClass);
+
+    const where: Prisma.CourseOfferingWhereInput = {
+      status: query.status as OfferingStatus,
+      ...(q
+        ? {
+          OR: [
+            { code: { contains: q, mode: 'insensitive' } },
+            { title: { contains: q, mode: 'insensitive' } },
+          ],
+        }
+        : {}),
+      ...(modeFilter ? { mode: modeFilter } : {}),
+      ...(modeFilter === ClassMode.LIVE && hasEnrollableLiveClass
+        ? {
+          classes: {
+            some: {
+              class: {
+                mode: ClassMode.LIVE,
+                status: ClassStatus.OPENING,
+                enrollmentOpenAt: { not: null, lte: now },
+                enrollmentCloseAt: { not: null, gte: now },
+              },
+            },
+          },
+        }
+        : {}),
+    };
+
     return this.prisma.courseOffering.findMany({
-      where: {
-        status: query.status as OfferingStatus,
-        ...(q
-          ? {
-            OR: [
-              { code: { contains: q, mode: 'insensitive' } },
-              { title: { contains: q, mode: 'insensitive' } },
-            ],
-          }
-          : {}),
-      },
+      where,
       orderBy: [{ createdAt: 'desc' }],
       include: {
         classes: {
@@ -126,6 +147,25 @@ export class CourseOfferingService {
 
     if (!isVodAndPublished && !isLiveAndOpeningOrPublished) {
       throw new NotFoundException('CourseOffering not found');
+    }
+
+    if (item.mode === ClassMode.LIVE) {
+      const now = new Date();
+      const enrollableClasses = (item.classes ?? [])
+        .map((link: any) => link?.class)
+        .filter(
+          (c: any) =>
+            c?.mode === ClassMode.LIVE &&
+            c?.status === ClassStatus.OPENING &&
+            c?.enrollmentOpenAt &&
+            c?.enrollmentCloseAt &&
+            new Date(c.enrollmentOpenAt) <= now &&
+            new Date(c.enrollmentCloseAt) >= now,
+        );
+      return {
+        ...item,
+        enrollableClasses,
+      };
     }
 
     return item;

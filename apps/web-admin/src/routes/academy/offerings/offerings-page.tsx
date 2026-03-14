@@ -10,20 +10,11 @@ import {
     TableHeader,
     TableRow,
 } from "@workspace/ui/components/table"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@workspace/ui/components/dropdown-menu"
 import { Badge } from "@workspace/ui/components/badge"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import {
     Plus,
     Search,
-    MoreHorizontal,
     FileEdit,
     Archive,
     Layers,
@@ -116,6 +107,7 @@ export default function OfferingsPage() {
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
+                            <TableHead className="w-12">STT</TableHead>
                             <TableHead className="w-[120px]">Mã</TableHead>
                             <TableHead>Tên gói bán</TableHead>
                             <TableHead>Giá (VND)</TableHead>
@@ -128,6 +120,7 @@ export default function OfferingsPage() {
                         {isLoading ? (
                             Array.from({ length: 5 }).map((_, i) => (
                                 <TableRow key={i}>
+                                    <TableCell><Skeleton className="h-4 w-6" /></TableCell>
                                     {Array.from({ length: 6 }).map((_, j) => (
                                         <TableCell key={j}><Skeleton className="h-4 w-full" /></TableCell>
                                     ))}
@@ -135,13 +128,14 @@ export default function OfferingsPage() {
                             ))
                         ) : offerings?.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                                <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
                                     Không tìm thấy gói bán nào.
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            offerings?.map((offering) => (
+                            offerings?.map((offering, index) => (
                                 <TableRow key={offering.id} className="group transition-colors">
+                                    <TableCell className="text-muted-foreground tabular-nums">{index + 1}</TableCell>
                                     <TableCell className="font-mono text-xs font-bold">{offering.code}</TableCell>
                                     <TableCell className="font-medium">{offering.title}</TableCell>
                                     <TableCell>
@@ -166,47 +160,35 @@ export default function OfferingsPage() {
                                         </div>
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="size-8">
-                                                    <MoreHorizontal className="size-4" />
+                                        <div className="flex items-center justify-end gap-1 flex-wrap">
+                                            <Button variant="ghost" size="sm" className="h-8 gap-1.5" onClick={() => handleEdit(offering)}>
+                                                <FileEdit className="h-4 w-4" /> Sửa
+                                            </Button>
+                                            {offering.status === 'DRAFT' && (
+                                                <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-yellow-600" onClick={() => submitForApprovalMutation.mutate(offering.id)}>
+                                                    <CheckCircle2 className="h-4 w-4" /> Gửi duyệt
                                                 </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-48">
-                                                <DropdownMenuLabel>Tùy chọn</DropdownMenuLabel>
-                                                <DropdownMenuItem onClick={() => handleEdit(offering)}>
-                                                    <FileEdit className="mr-2 h-4 w-4" /> Chỉnh sửa
-                                                </DropdownMenuItem>
-                                                {offering.status === 'DRAFT' && (
-                                                    <DropdownMenuItem onClick={() => submitForApprovalMutation.mutate(offering.id)}>
-                                                        <CheckCircle2 className="mr-2 h-4 w-4 text-yellow-500" /> Gửi duyệt
-                                                    </DropdownMenuItem>
-                                                )}
-                                                {offering.status === 'PENDING_APPROVAL' && (
-                                                    <>
-                                                        <DropdownMenuItem onClick={() => approveMutation.mutate(offering.id)}>
-                                                            <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" /> Phê duyệt
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => {
-                                                            const reason = window.prompt("Lý do từ chối:")
-                                                            if (reason) rejectMutation.mutate({ id: offering.id, reason })
-                                                        }}>
-                                                            <Archive className="mr-2 h-4 w-4 text-destructive" /> Từ chối
-                                                        </DropdownMenuItem>
-                                                    </>
-                                                )}
-                                                <DropdownMenuItem>
-                                                    <DollarSign className="mr-2 h-4 w-4" /> Cập nhật giá
-                                                </DropdownMenuItem>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem
-                                                    className="text-destructive"
-                                                    onClick={() => archiveMutation.mutate(offering.id)}
-                                                >
-                                                    <Archive className="mr-2 h-4 w-4" /> Lưu trữ
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                                            )}
+                                            {offering.status === 'PENDING_APPROVAL' && (
+                                                <>
+                                                    <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-green-600" onClick={() => approveMutation.mutate(offering.id)}>
+                                                        <CheckCircle2 className="h-4 w-4" /> Phê duyệt
+                                                    </Button>
+                                                    <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-destructive" onClick={() => {
+                                                        const reason = window.prompt("Lý do từ chối:")
+                                                        if (reason) rejectMutation.mutate({ id: offering.id, reason })
+                                                    }}>
+                                                        <Archive className="h-4 w-4" /> Từ chối
+                                                    </Button>
+                                                </>
+                                            )}
+                                            <Button variant="ghost" size="sm" className="h-8 gap-1.5" disabled title="Cập nhật giá">
+                                                <DollarSign className="h-4 w-4" /> Giá
+                                            </Button>
+                                            <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => archiveMutation.mutate(offering.id)}>
+                                                <Archive className="h-4 w-4" /> Lưu trữ
+                                            </Button>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             ))

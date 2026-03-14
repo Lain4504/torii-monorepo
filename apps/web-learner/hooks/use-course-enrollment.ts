@@ -1,18 +1,15 @@
 import { useState, useEffect } from 'react'
 import { academyEnrollmentApi as enrollmentApi } from '@/lib/api/services/academy-enrollment-api'
-import { wishlistApi } from '@/lib/api/services/wishlist-api'
 import { useAppSelector } from '@/hooks/hooks'
 import { toast } from '@workspace/ui/components/sonner'
 import { useRouter } from 'next/navigation'
 import { type AcademyEnrollmentModel as EnrollmentResponseDTO } from '@workspace/schemas'
 
 export function useCourseEnrollment(courseMasterId: string, courseSlug: string) {
-    const [isInWishlist, setIsInWishlist] = useState(false)
     const [isEnrolled, setIsEnrolled] = useState(false)
     const [isExpired, setIsExpired] = useState(false)
     const [enrollment, setEnrollment] = useState<EnrollmentResponseDTO | null>(null)
     const [hasNewerVersion, setHasNewerVersion] = useState(false)
-    const [isLoadingWishlist, setIsLoadingWishlist] = useState(false)
     const [isLoadingEnrollment, setIsLoadingEnrollment] = useState(false)
     const [isToggling, setIsToggling] = useState(false)
     const [isEnrolling, setIsEnrolling] = useState(false)
@@ -23,22 +20,9 @@ export function useCourseEnrollment(courseMasterId: string, courseSlug: string) 
 
     useEffect(() => {
         if (isAuthenticated && user?.id && courseMasterId) {
-            checkWishlistStatus()
             checkEnrollmentStatus()
         }
     }, [isAuthenticated, user?.id, courseMasterId])
-
-    const checkWishlistStatus = async () => {
-        try {
-            setIsLoadingWishlist(true)
-            const result = await wishlistApi.checkWishlist(courseMasterId)
-            setIsInWishlist(result.isInWishlist)
-        } catch (error) {
-            console.error('Failed to check wishlist status:', error)
-        } finally {
-            setIsLoadingWishlist(false)
-        }
-    }
 
     const checkEnrollmentStatus = async () => {
         try {
@@ -69,26 +53,6 @@ export function useCourseEnrollment(courseMasterId: string, courseSlug: string) 
         }
     }
 
-    const handleToggleWishlist = async () => {
-        if (!isAuthenticated) {
-            toast.error('Vui lòng đăng nhập để thêm vào yêu thích')
-            router.push('/login')
-            return
-        }
-
-        try {
-            setIsToggling(true)
-            const result = await wishlistApi.toggleWishlist(courseMasterId)
-            setIsInWishlist(result.isInWishlist)
-            toast.success(result.isInWishlist ? 'Đã thêm vào yêu thích' : 'Đã xóa khỏi yêu thích')
-        } catch (error: any) {
-            console.error('Failed to toggle wishlist:', error)
-            toast.error(error?.response?.data?.message || 'Không thể cập nhật yêu thích')
-        } finally {
-            setIsToggling(false)
-        }
-    }
-
     const handleEnroll = async () => {
         if (!isAuthenticated) {
             toast.error('Vui lòng đăng nhập để đăng ký khóa học')
@@ -115,17 +79,14 @@ export function useCourseEnrollment(courseMasterId: string, courseSlug: string) 
     }
 
     return {
-        isInWishlist,
         isEnrolled,
         isExpired,
         enrollment,
         hasNewerVersion,
-        isLoadingWishlist,
         isLoadingEnrollment,
         isToggling,
         isEnrolling,
         isAuthenticated,
-        handleToggleWishlist,
         handleEnroll
     }
 }

@@ -136,7 +136,13 @@ export class EnrollmentService {
 
     const klass = await prisma.class.findUnique({
       where: { id: input.classId },
-      select: { id: true, mode: true, status: true },
+      select: {
+        id: true,
+        mode: true,
+        status: true,
+        courseProfileId: true,
+        openingDate: true,
+      },
     });
     if (!klass) throw new BadRequestException('Invalid classId');
 
@@ -145,6 +151,37 @@ export class EnrollmentService {
       throw new BadRequestException(
         `LIVE class is not open for enrollment (status: ${klass.status})`,
       );
+    }
+
+    // LIVE: at most one ACTIVE enrollment per user per courseProfile per term (same quarter of openingDate)
+    if (klass.mode === 'LIVE' && klass.courseProfileId && klass.openingDate) {
+      const openDate = new Date(klass.openingDate);
+      const year = openDate.getFullYear();
+      const month = openDate.getMonth();
+      const termStart = new Date(year, Math.floor(month / 4) * 4, 1); // Q1: 0-3, Q2: 4-7, Q3: 8-11
+      const termEnd = new Date(termStart);
+      termEnd.setMonth(termEnd.getMonth() + 4);
+
+      const existingSameTerm = await prisma.enrollment.findFirst({
+        where: {
+          userId: input.userId,
+          status: { in: ['ACTIVE'] },
+          class: {
+            mode: 'LIVE',
+            courseProfileId: klass.courseProfileId,
+            openingDate: {
+              gte: termStart,
+              lt: termEnd,
+            },
+          },
+        },
+        select: { id: true },
+      });
+      if (existingSameTerm) {
+        throw new BadRequestException(
+          'Bạn đã đăng ký 1 lớp LIVE cho khoá này trong kỳ hiện tại',
+        );
+      }
     }
     // VOD class must be PUBLISHED to accept enrollment
     if (klass.mode === 'VOD' && klass.status !== 'PUBLISHED') {

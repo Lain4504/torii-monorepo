@@ -28,6 +28,7 @@ import {
   useUpdateAcademyCourseProfile,
   type AcademyCourseProfile,
 } from "@/lib/api/services/academy-course-profiles"
+import { LessonMediaUploader } from "@/components/academy/lesson-media-uploader"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 
@@ -36,6 +37,7 @@ const courseProfileSchema = z.object({
   title: z.string().min(3, "Tiêu đề phải có ít nhất 3 ký tự"),
   description: z.string().optional(),
   level: z.string().optional(),
+  thumbnailUrl: z.union([z.string().url(), z.literal("")]).optional(),
 })
 
 type CourseProfileFormValues = z.infer<typeof courseProfileSchema>
@@ -63,6 +65,7 @@ export function CourseProfileDialog({ open, onOpenChange, profile }: CourseProfi
       title: "",
       description: "",
       level: "",
+      thumbnailUrl: "",
     },
   })
 
@@ -73,6 +76,7 @@ export function CourseProfileDialog({ open, onOpenChange, profile }: CourseProfi
         title: profile.title,
         description: profile.description || "",
         level: profile.level || "",
+        thumbnailUrl: profile.thumbnailUrl || "",
       })
     } else {
       reset({
@@ -80,20 +84,31 @@ export function CourseProfileDialog({ open, onOpenChange, profile }: CourseProfi
         title: "",
         description: "",
         level: "",
+        thumbnailUrl: "",
       })
     }
   }, [profile, reset])
 
   async function onSubmit(values: CourseProfileFormValues) {
+    const payload = {
+      ...values,
+      thumbnailUrl: values.thumbnailUrl?.trim() ? values.thumbnailUrl : undefined,
+    }
     try {
       if (isEditing && profile) {
         await updateMutation.mutateAsync({
           id: profile.id,
-          input: values,
+          input: { title: payload.title, description: payload.description, level: payload.level, thumbnailUrl: payload.thumbnailUrl },
         })
         toast.success("Cập nhật Course Profile thành công")
       } else {
-        await createMutation.mutateAsync(values)
+        await createMutation.mutateAsync({
+          code: payload.code,
+          title: payload.title,
+          description: payload.description,
+          level: payload.level,
+          thumbnailUrl: payload.thumbnailUrl,
+        })
         toast.success("Tạo Course Profile thành công")
       }
       onOpenChange(false)
@@ -107,7 +122,7 @@ export function CourseProfileDialog({ open, onOpenChange, profile }: CourseProfi
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] p-0 flex flex-col overflow-hidden">
-        <DialogHeader className="px-6 py-4 border-b">
+        <DialogHeader className="px-6 py-4 border-b shrink-0">
           <DialogTitle>{isEditing ? "Chỉnh sửa Course Profile" : "Tạo Course Profile mới"}</DialogTitle>
           <DialogDescription>
             {isEditing
@@ -116,8 +131,8 @@ export function CourseProfileDialog({ open, onOpenChange, profile }: CourseProfi
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1">
-          <div className="p-6">
+        <ScrollArea className="flex-1 min-h-0">
+          <div className="p-6 space-y-6">
             <form id="course-profile-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <FieldGroup>
                 <FieldSet>
@@ -130,7 +145,7 @@ export function CourseProfileDialog({ open, onOpenChange, profile }: CourseProfi
                           name="code"
                           control={control}
                           render={({ field }) => (
-                            <Input placeholder="VD: N5-PRO" {...field} />
+                            <Input placeholder="VD: N5-PRO" {...field} disabled={isEditing} />
                           )}
                         />
                         <FieldDescription>Mã duy nhất định danh profile.</FieldDescription>
@@ -179,12 +194,33 @@ export function CourseProfileDialog({ open, onOpenChange, profile }: CourseProfi
                     </Field>
                   </FieldGroup>
                 </FieldSet>
+
+                <FieldSet>
+                  <FieldLegend>Hình ảnh</FieldLegend>
+                  <FieldDescription>
+                    Ảnh đại diện (thumbnail) cho khóa học. Hỗ trợ JPG, PNG, WebP.
+                  </FieldDescription>
+                  <Controller
+                    name="thumbnailUrl"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <LessonMediaUploader
+                        value={field.value || null}
+                        onChange={(url) => field.onChange(url ?? "")}
+                        label="Ảnh đại diện (Thumbnail)"
+                        description="Chọn hoặc tải lên ảnh đại diện cho course profile."
+                        accept="image/*"
+                        errorMessage={fieldState.error?.message}
+                      />
+                    )}
+                  />
+                </FieldSet>
               </FieldGroup>
             </form>
           </div>
         </ScrollArea>
 
-        <DialogFooter className="px-6 py-4 border-t gap-2 bg-muted/20">
+        <DialogFooter className="px-6 py-4 border-t gap-2 bg-muted/20 shrink-0">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
             Hủy
           </Button>

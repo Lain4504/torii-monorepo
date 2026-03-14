@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAppSelector } from '@/hooks/hooks'
 import { Button } from '@workspace/ui/components/button'
@@ -45,16 +45,22 @@ import {
 export default function CheckoutPage() {
     const params = useParams()
     const router = useRouter()
+    const searchParams = useSearchParams()
     const courseId = params.courseId as string
+    const classIdFromQuery = searchParams.get('classId') ?? undefined
     const user = useAppSelector((state) => state.auth.user)
 
     const { data: offering, isLoading: isLoadingOffering } = useAcademyOffering(courseId)
     const [isProcessing, setIsProcessing] = useState(false)
+    const isLIVE = offering?.type === 'LIVE'
+    const selectedClassId = isLIVE ? classIdFromQuery : undefined
     const classes = Array.isArray(offering?.classes) ? offering.classes : []
+    const enrollableClasses = Array.isArray(offering?.enrollableClasses) ? offering.enrollableClasses : []
     const selectedClass =
-        classes.find((entry: any) => entry?.isPrimary)?.class ??
-        classes[0]?.class ??
-        null
+        selectedClassId
+            ? enrollableClasses.find((c: any) => c.id === selectedClassId) ??
+              classes.find((entry: any) => entry?.class?.id === selectedClassId)?.class
+            : classes.find((entry: any) => entry?.isPrimary)?.class ?? classes[0]?.class ?? null
     const lessonCount = Array.isArray(selectedClass?.courseEdition?.chapters)
         ? selectedClass.courseEdition.chapters.reduce((acc: number, chapter: any) => {
             const chapterItems = Array.isArray(chapter?.items) ? chapter.items : []
@@ -103,19 +109,24 @@ export default function CheckoutPage() {
         return () => clearTimeout(timer)
     }, [isGift, recipientEmail, courseId])
 
-    // Update Preview whenever selected class or coupon changes
+    // Update Preview whenever offering, selected class (LIVE) or coupon changes
     useEffect(() => {
-        if (offering?.id) {
+        if (offering?.id && (!isLIVE || selectedClassId)) {
             handlePreview()
         }
-    }, [offering?.id, couponCode])
+    }, [offering?.id, isLIVE, selectedClassId, couponCode])
 
     const handlePreview = async () => {
         if (!offering?.id) return
+        if (isLIVE && !selectedClassId) return
         try {
             setIsPreviewing(true)
             const result = await orderApi.previewOrder({
                 offeringIds: [offering.id],
+                classIdByOffering:
+                    isLIVE && selectedClassId
+                        ? { [offering.id]: selectedClassId }
+                        : undefined,
                 couponCode: couponCode.trim() || undefined
             })
             setPreview(result)
@@ -135,10 +146,19 @@ export default function CheckoutPage() {
             if (recipientEmail === user.email) return toast.error('Bạn không thể tự mua tặng chính mình')
         }
 
+        if (isLIVE && !selectedClassId) {
+            toast.error('Vui lòng chọn lớp học tại trang khóa học rồi tiến hành thanh toán.')
+            return
+        }
+
         try {
             setIsProcessing(true)
             const result = await orderApi.createOrder({
                 offeringIds: [offering.id],
+                classIdByOffering:
+                    isLIVE && selectedClassId
+                        ? { [offering.id]: selectedClassId }
+                        : undefined,
                 paymentMethod: PaymentMethod.PAYOS,
                 couponCode: couponCode.trim() || undefined,
                 metadata: {
@@ -266,8 +286,25 @@ export default function CheckoutPage() {
                                     <span className="text-primary">{formatNumber(displayTotal)} đ</span>
                                 </div>
 
+                                {isLIVE && !selectedClassId && (
+                                    <div className="rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 p-3 text-sm text-amber-800 dark:text-amber-200">
+                                        Khóa LIVE yêu cầu chọn lớp.{" "}
+                                        <Link href={`/dashboard/available-courses/${courseId}`} className="font-semibold underline">
+                                            Quay lại chọn lớp
+                                        </Link>
+                                    </div>
+                                )}
                                 <div className="pt-4 space-y-3">
-                                    <Button className="w-full py-6 text-lg" onClick={handlePayment} disabled={isProcessing || isPreviewing || (isGift && recipientStatus === 'enrolled')}>
+                                    <Button
+                                        className="w-full py-6 text-lg"
+                                        onClick={handlePayment}
+                                        disabled={
+                                            isProcessing ||
+                                            isPreviewing ||
+                                            (isGift && recipientStatus === 'enrolled') ||
+                                            (isLIVE && !selectedClassId)
+                                        }
+                                    >
                                         {isProcessing ? 'Đang xử lý...' : 'Thanh toán ngay'}
                                     </Button>
                                 </div>
