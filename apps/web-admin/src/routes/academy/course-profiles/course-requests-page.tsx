@@ -45,6 +45,10 @@ export default function CourseRequestsPage() {
     profile: AcademyCourseProfile | null
     reason: string
   }>({ open: false, profile: null, reason: "" })
+  const [approveDialog, setApproveDialog] = useState<{
+    open: boolean
+    profile: AcademyCourseProfile | null
+  }>({ open: false, profile: null })
 
   const { data: profiles = [], isLoading } = useAcademyCourseProfiles({
     status: "PENDING_APPROVAL",
@@ -58,10 +62,21 @@ export default function CourseRequestsPage() {
     (p) => p.status === "PENDING_APPROVAL"
   )
 
-  const handleApprove = async (profile: AcademyCourseProfile) => {
+  const openApproveDialog = (profile: AcademyCourseProfile) => {
+    setApproveDialog({ open: true, profile })
+  }
+
+  const closeApproveDialog = () => {
+    setApproveDialog({ open: false, profile: null })
+  }
+
+  const handleApprove = async () => {
+    const { profile } = approveDialog
+    if (!profile) return
     try {
       await approveMutation.mutateAsync(profile.id)
       toast.success(`Đã phê duyệt khóa học "${profile.title}"`)
+      closeApproveDialog()
     } catch (err: any) {
       toast.error(
         err?.response?.data?.message || err?.message || "Không thể phê duyệt"
@@ -195,7 +210,7 @@ export default function CourseRequestsPage() {
                       <div className="flex items-center justify-end gap-2">
                         <Button
                           size="sm"
-                          onClick={() => handleApprove(profile)}
+                          onClick={() => openApproveDialog(profile)}
                           disabled={approveMutation.isPending}
                           className="gap-1"
                         >
@@ -258,6 +273,33 @@ export default function CourseRequestsPage() {
               }
             >
               Xác nhận từ chối
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={approveDialog.open}
+        onOpenChange={(open) => !open && closeApproveDialog()}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Xác nhận phê duyệt</DialogTitle>
+            <DialogDescription>
+              {approveDialog.profile
+                ? `Bạn có chắc chắn muốn phê duyệt khóa học "${approveDialog.profile.title}"? Sau khi duyệt, staff có thể bắt đầu tạo các gói bán liên quan.`
+                : ""}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={closeApproveDialog}>
+              Hủy
+            </Button>
+            <Button
+              onClick={handleApprove}
+              disabled={approveMutation.isPending}
+            >
+              Xác nhận duyệt
             </Button>
           </DialogFooter>
         </DialogContent>

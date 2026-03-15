@@ -92,6 +92,23 @@ export default function SyllabusBuilderPage() {
     const [cloneNewVersion, setCloneNewVersion] = useState('');
     const [cloneNewName, setCloneNewName] = useState('');
 
+    // Dialog state: lock syllabus
+    const [lockConfirmOpen, setLockConfirmOpen] = useState(false);
+
+    // Dialog state: delete lesson
+    const [deleteLessonConfirm, setDeleteLessonConfirm] = useState<{ open: boolean, lessonId: string | null, lessonTitle: string | null }>({
+        open: false,
+        lessonId: null,
+        lessonTitle: null
+    });
+
+    // Dialog state: delete module
+    const [deleteModuleConfirm, setDeleteModuleConfirm] = useState<{ open: boolean, moduleId: string | null, moduleTitle: string | null }>({
+        open: false,
+        moduleId: null,
+        moduleTitle: null
+    });
+
     // Load "current syllabus" từ localStorage để ưu tiên chọn
     useEffect(() => {
         if (!courseProfileId || !syllabuses || syllabuses.length === 0) return;
@@ -130,6 +147,27 @@ export default function SyllabusBuilderPage() {
         },
         onError: (error: any) => {
             toast.error(error?.response?.data?.message || 'Không thể tạo Module');
+        },
+    });
+
+    // Mutation: xóa Module trong syllabus
+    const deleteModuleMutation = useMutation({
+        mutationFn: async (moduleId: string) => {
+            if (!selectedSyllabus) throw new Error('Không có syllabus nào được chọn');
+            const res = await apiClient.delete<StandardApiResponse<any>>(
+                `/api/academy/syllabuses/${selectedSyllabus.id}/modules/${moduleId}`
+            );
+            return res.data;
+        },
+        onSuccess: async () => {
+            if (courseProfileId) {
+                await queryClient.invalidateQueries({ queryKey: ['academy-syllabuses', courseProfileId] });
+            }
+            toast.success('Đã xóa Module');
+            setDeleteModuleConfirm({ open: false, moduleId: null, moduleTitle: null });
+        },
+        onError: (error: any) => {
+            toast.error(error?.response?.data?.message || 'Không thể xóa Module');
         },
     });
 
@@ -272,22 +310,9 @@ export default function SyllabusBuilderPage() {
                         <Button
                             variant="outline"
                             disabled={!selectedSyllabus || selectedSyllabus.status === 'LOCKED' || lockSyllabusMutation.isPending}
-                            onClick={async () => {
+                            onClick={() => {
                                 if (!selectedSyllabus) return;
-                                if (!window.confirm('Sau khi khóa, giáo trình này sẽ không thể chỉnh sửa Module và Lesson nữa. Bạn có chắc chắn muốn khóa?')) {
-                                    return;
-                                }
-                                try {
-                                    await lockSyllabusMutation.mutateAsync(selectedSyllabus.id);
-                                    if (courseProfileId) {
-                                        await queryClient.invalidateQueries({
-                                            queryKey: ['academy-syllabuses', courseProfileId],
-                                        });
-                                    }
-                                    toast.success('Đã khóa giáo trình');
-                                } catch (error: any) {
-                                    toast.error(error?.response?.data?.message || 'Không thể khóa giáo trình');
-                                }
+                                setLockConfirmOpen(true);
                             }}
                         >
                             <Lock className="mr-2 h-4 w-4" />
@@ -333,7 +358,45 @@ export default function SyllabusBuilderPage() {
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <span className="text-xs text-muted-foreground">{module.lessons?.length || 0} bài học</span>
-                                            {expandedModules[module.id] ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="size-8"
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                        }}
+                                                    >
+                                                        <MoreVertical className="size-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end" className="w-40">
+                                                    <DropdownMenuItem
+                                                        className="text-destructive focus:text-destructive"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setDeleteModuleConfirm({
+                                                                open: true,
+                                                                moduleId: module.id,
+                                                                moduleTitle: module.title
+                                                            });
+                                                        }}
+                                                    >
+                                                        Xóa Module
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                            <div
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    toggleModule(module.id);
+                                                }}
+                                                className="p-1 hover:bg-muted rounded"
+                                            >
+                                                {expandedModules[module.id] ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+                                            </div>
                                         </div>
                                     </div>
 
@@ -383,22 +446,13 @@ export default function SyllabusBuilderPage() {
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem
                                                                     className="text-destructive focus:text-destructive"
-                                                                    onClick={async (e) => {
+                                                                    onClick={(e) => {
                                                                         e.stopPropagation();
-                                                                        if (!window.confirm('Bạn có chắc muốn xóa bài học này?')) {
-                                                                            return;
-                                                                        }
-                                                                        try {
-                                                                            await deleteLessonMutation.mutateAsync(lesson.id);
-                                                                            if (courseProfileId) {
-                                                                                await queryClient.invalidateQueries({
-                                                                                    queryKey: ['academy-syllabuses', courseProfileId],
-                                                                                });
-                                                                            }
-                                                                            toast.success('Đã xóa bài học');
-                                                                        } catch (error: any) {
-                                                                            toast.error(error?.response?.data?.message || 'Không thể xóa bài học');
-                                                                        }
+                                                                        setDeleteLessonConfirm({
+                                                                            open: true,
+                                                                            lessonId: lesson.id,
+                                                                            lessonTitle: lesson.title
+                                                                        });
                                                                     }}
                                                                 >
                                                                     Xóa
@@ -779,6 +833,110 @@ export default function SyllabusBuilderPage() {
                             />
                         )}
                     </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Dialog: Xác nhận khóa giáo trình */}
+            <Dialog open={lockConfirmOpen} onOpenChange={setLockConfirmOpen}>
+                <DialogContent className="sm:max-w-[480px]">
+                    <DialogHeader>
+                        <DialogTitle>Xác nhận khóa giáo trình</DialogTitle>
+                        <DialogDescription>
+                            Sau khi khóa, giáo trình này sẽ <strong>không thể chỉnh sửa</strong> Module và Lesson nữa. Bạn có chắc chắn muốn khóa?
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setLockConfirmOpen(false)}>Hủy</Button>
+                        <Button 
+                            variant="destructive"
+                            onClick={async () => {
+                                if (!selectedSyllabus) return;
+                                try {
+                                    await lockSyllabusMutation.mutateAsync(selectedSyllabus.id);
+                                    if (courseProfileId) {
+                                        await queryClient.invalidateQueries({
+                                            queryKey: ['academy-syllabuses', courseProfileId],
+                                        });
+                                    }
+                                    toast.success('Đã khóa giáo trình');
+                                    setLockConfirmOpen(false);
+                                } catch (error: any) {
+                                    toast.error(error?.response?.data?.message || 'Không thể khóa giáo trình');
+                                }
+                            }}
+                            disabled={lockSyllabusMutation.isPending}
+                        >
+                            Khóa giáo trình
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Dialog: Xác nhận xóa bài học */}
+            <Dialog 
+                open={deleteLessonConfirm.open} 
+                onOpenChange={(open) => !open && setDeleteLessonConfirm({ open: false, lessonId: null, lessonTitle: null })}
+            >
+                <DialogContent className="sm:max-w-[480px]">
+                    <DialogHeader>
+                        <DialogTitle>Xác nhận xóa bài học</DialogTitle>
+                        <DialogDescription>
+                            Bạn có chắc chắn muốn xóa bài học <strong>{deleteLessonConfirm.lessonTitle}</strong>? Hành động này không thể hoàn tác.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setDeleteLessonConfirm({ open: false, lessonId: null, lessonTitle: null })}>Hủy</Button>
+                        <Button 
+                            variant="destructive"
+                            onClick={async () => {
+                                if (!deleteLessonConfirm.lessonId) return;
+                                try {
+                                    await deleteLessonMutation.mutateAsync(deleteLessonConfirm.lessonId);
+                                    if (courseProfileId) {
+                                        await queryClient.invalidateQueries({
+                                            queryKey: ['academy-syllabuses', courseProfileId],
+                                        });
+                                    }
+                                    toast.success('Đã xóa bài học');
+                                    setDeleteLessonConfirm({ open: false, lessonId: null, lessonTitle: null });
+                                } catch (error: any) {
+                                    toast.error(error?.response?.data?.message || 'Không thể xóa bài học');
+                                }
+                            }}
+                            disabled={deleteLessonMutation.isPending}
+                        >
+                            Xóa bài học
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Dialog: Xác nhận xóa Module */}
+            <Dialog 
+                open={deleteModuleConfirm.open} 
+                onOpenChange={(open) => !open && setDeleteModuleConfirm({ open: false, moduleId: null, moduleTitle: null })}
+            >
+                <DialogContent className="sm:max-w-[480px]">
+                    <DialogHeader>
+                        <DialogTitle>Xác nhận xóa Module</DialogTitle>
+                        <DialogDescription>
+                            Bạn có chắc chắn muốn xóa Module <strong>{deleteModuleConfirm.moduleTitle}</strong>? 
+                            Tất cả các bài học bên trong module này cũng sẽ bị xóa. Hành động này không thể hoàn tác.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setDeleteModuleConfirm({ open: false, moduleId: null, moduleTitle: null })}>Hủy</Button>
+                        <Button 
+                            variant="destructive"
+                            onClick={async () => {
+                                if (!deleteModuleConfirm.moduleId) return;
+                                await deleteModuleMutation.mutateAsync(deleteModuleConfirm.moduleId);
+                            }}
+                            disabled={deleteModuleMutation.isPending}
+                        >
+                            Xóa Module
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>

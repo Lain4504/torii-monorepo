@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { toast } from "@workspace/ui/components/sonner"
 import { apiClient } from "@/lib/api/api-client"
 import type {
   AcademyCourseOfferingCreateDTO,
@@ -119,6 +120,13 @@ export const academyCourseOfferingsApi = {
     )
     return normalizeCourseOffering(res.data.data!.item)
   },
+  async findClassesForSelection(params: { mode?: string; q?: string }) {
+    const res = await apiClient.get<StandardApiResponse<{ items: any[] }>>(
+      "/api/academy/course-offerings/selection/classes",
+      { params },
+    )
+    return res.data.data!.items
+  },
 }
 
 export function useAcademyCourseOfferings(params: AcademyCourseOfferingQueryDTO) {
@@ -189,6 +197,14 @@ export function useSubmitCourseOfferingForApproval() {
     onSuccess: (_, id) => {
       qc.invalidateQueries({ queryKey: ["academy-course-offerings"] })
       qc.invalidateQueries({ queryKey: ["academy-course-offering", id] })
+      toast.success("Đã gửi duyệt gói bán")
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Gửi duyệt thất bại"
+      toast.error(message)
     },
   })
 }
@@ -213,6 +229,13 @@ export function useRejectCourseOffering() {
       qc.invalidateQueries({ queryKey: ["academy-course-offerings"] })
       qc.invalidateQueries({ queryKey: ["academy-course-offering", id] })
     },
+  })
+}
+
+export function useAvailableClassesForOffering(params: { mode?: string; q?: string }) {
+  return useQuery({
+    queryKey: ["academy-course-offering-classes-selection", params],
+    queryFn: () => academyCourseOfferingsApi.findClassesForSelection(params),
   })
 }
 

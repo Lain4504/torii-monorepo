@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
@@ -12,7 +13,6 @@ import {
   FieldSet,
   FieldLegend,
 } from "@workspace/ui/components/field"
-import { Checkbox } from "@workspace/ui/components/checkbox"
 import {
   Select,
   SelectContent,
@@ -33,10 +33,14 @@ import {
   type AcademyCourseOfferingCreateDTO,
   type AcademyCourseOfferingUpdateDTO,
 } from "@workspace/schemas"
-import type { AcademyCourseOffering } from "@/lib/api/services/academy-course-offerings"
-import { useAcademyClasses } from "@/lib/api/services/academy-classes"
+import {
+  useAvailableClassesForOffering,
+  type AcademyCourseOffering,
+} from "@/lib/api/services/academy-course-offerings"
 import { RichTextEditor } from "@/components/editor/rich-text-editor"
 import { Badge } from "@workspace/ui/components/badge"
+import { Checkbox } from "@workspace/ui/components/checkbox"
+import { SearchIcon, XIcon } from "lucide-react"
 
 export function CourseOfferingForm({
   mode,
@@ -93,11 +97,12 @@ export function CourseOfferingForm({
 
   const selectedMode = watch("mode" as any)
   const offeringStatus = watch("status" as any)
+  const [searchTerm, setSearchTerm] = useState("")
 
-  const { data: classesData = [] } = useAcademyClasses(
-    selectedMode ? { mode: selectedMode } as any : {} as any,
-  )
-  const classes = Array.isArray(classesData) ? classesData : (classesData as any)?.items || []
+  const { data: classes = [], isLoading: isLoadingClasses } = useAvailableClassesForOffering({
+    mode: selectedMode,
+    q: searchTerm,
+  })
 
   return (
     <form
@@ -182,68 +187,158 @@ export function CourseOfferingForm({
             <Controller
               name={"classIds" as any}
               control={control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>
-                    Lớp học được kèm theo ({field.value?.length || 0})
-                    {(offeringStatus === "PUBLISHED" || offeringStatus === "PENDING_APPROVAL") && (
-                      <span className="text-destructive ml-1">*</span>
-                    )}
-                  </FieldLabel>
-                  <div className="grid gap-3 sm:grid-cols-2 mt-2 border rounded-md p-4 bg-muted/5">
-                    {classes.length === 0 ? (
-                      <div className="text-sm text-muted-foreground italic col-span-full">
-                        {selectedMode
-                          ? "Không tìm thấy lớp học nào cho chế độ này."
-                          : "Vui lòng chọn chế độ học để xem danh sách lớp."}
-                      </div>
-                    ) : (
-                      classes.map((c: any) => (
-                        <div key={c.id} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={c.id}
-                            checked={field.value?.includes(c.id)}
-                            onCheckedChange={(checked) => {
-                              const current = field.value || []
-                              if (checked) {
-                                field.onChange([...current, c.id])
-                              } else {
-                                field.onChange(current.filter((id: string) => id !== c.id))
-                              }
-                            }}
-                          />
-                          <div className="grid gap-1.5 leading-none">
-                            <label
-                              htmlFor={c.id}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                            >
-                              {c.name}
-                            </label>
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="text-[10px] h-4 px-1">
-                                {c.code}
-                              </Badge>
-                              <Badge variant={c.status === 'ENROLLING' ? 'default' : 'secondary'} className="text-[10px] h-4 px-1 uppercase font-bold">
-                                {c.status}
-                              </Badge>
-                              <span className="text-[10px] text-muted-foreground uppercase border-l pl-2">
-                                {c.mode}
-                              </span>
+              render={({ field, fieldState }) => {
+                const count = field.value?.length || 0
+                const selectedIds = field.value || []
 
+                return (
+                  <Field>
+                    <FieldLabel>
+                      Lớp học được kèm theo ({count})
+                      {(offeringStatus === "PUBLISHED" || offeringStatus === "PENDING_APPROVAL") && (
+                        <span className="text-destructive ml-1">*</span>
+                      )}
+                    </FieldLabel>
+
+                    <div className="space-y-4">
+                      {/* Search Input */}
+                      <div className="relative">
+                        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                        <Input
+                          placeholder="Tìm nhanh theo mã hoặc tên lớp..."
+                          className="pl-9 h-10"
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        {searchTerm && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-1 top-1/2 -translate-y-1/2 size-8 hover:bg-transparent"
+                            onClick={() => setSearchTerm("")}
+                          >
+                            <XIcon className="size-4 text-muted-foreground" />
+                          </Button>
+                        )}
+                      </div>
+
+                      {/* Results Grid - responsive 1 to 3 columns */}
+                      <div className="border rounded-lg bg-card overflow-hidden">
+                        <div className="max-h-[400px] overflow-y-auto p-3">
+                          {isLoadingClasses && (
+                            <div className="p-8 text-center text-sm text-muted-foreground italic flex flex-col items-center gap-2">
+                              <Spinner className="size-4" />
+                              Đang tải danh sách lớp...
                             </div>
+                          )}
+
+                          {!isLoadingClasses && classes.length === 0 && (
+                            <div className="p-8 text-center text-sm text-muted-foreground italic">
+                              {searchTerm
+                                ? "Không tìm thấy kết quả phù hợp."
+                                : selectedMode
+                                  ? "Nhập từ khóa hoặc mã lớp để tìm kiếm."
+                                  : "Vui lòng chọn chế độ học trước."}
+                            </div>
+                          )}
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {classes.map((c: any) => {
+                              const isChecked = selectedIds.includes(c.id)
+                              return (
+                                <div
+                                  key={c.id}
+                                  className={`relative flex flex-col gap-2 p-3 rounded-md border transition-all cursor-pointer group ${
+                                    isChecked 
+                                      ? "border-primary bg-primary/5 ring-1 ring-primary" 
+                                      : "hover:border-primary/50 hover:bg-muted/50"
+                                  }`}
+                                  onClick={() => {
+                                    if (isChecked) {
+                                      field.onChange(selectedIds.filter((id: string) => id !== c.id))
+                                    } else {
+                                      field.onChange([...selectedIds, c.id])
+                                    }
+                                  }}
+                                >
+                                  <div className="flex items-start justify-between gap-2">
+                                    <span className={`text-xs font-bold truncate px-1.5 py-0.5 rounded bg-muted border ${isChecked ? "text-primary border-primary/30" : "text-muted-foreground"}`}>
+                                      {c.code}
+                                    </span>
+                                    <Checkbox
+                                      checked={isChecked}
+                                      className="size-4 pointer-events-none"
+                                    />
+                                  </div>
+                                  
+                                  <div className="min-w-0 flex-1">
+                                    <p className={`text-sm font-medium leading-tight line-clamp-2 ${isChecked ? "text-primary" : ""}`}>
+                                      {c.name}
+                                    </p>
+                                  </div>
+
+                                  <div className="mt-auto pt-2 flex items-center justify-between border-t border-dashed">
+                                     <span className="text-[10px] text-muted-foreground uppercase flex items-center gap-1">
+                                      <span className={`size-1.5 rounded-full ${
+                                        c.status === 'ENROLLING' ? 'bg-green-500' : 'bg-muted-foreground'
+                                      }`} />
+                                      {c.status}
+                                    </span>
+                                    <Badge variant="outline" className="text-[9px] h-3.5 px-1 uppercase opacity-70">
+                                      {c.mode}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              )
+                            })}
                           </div>
                         </div>
-                      ))
-                    )}
-                  </div>
-                  <FieldDescription>
-                    {(offeringStatus === "PUBLISHED" || offeringStatus === "PENDING_APPROVAL")
-                      ? "Bắt buộc chọn ít nhất 1 lớp khi gửi phê duyệt hoặc đang bán."
-                      : "Chọn các lớp học sẽ được mở cho học viên mua gói này."}
-                  </FieldDescription>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
+
+                        {/* Summary Footer */}
+                        {count > 0 && (
+                          <div className="px-4 py-2 bg-muted/30 border-t flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-semibold text-primary uppercase tracking-tight">
+                                Đã chọn {count} lớp
+                              </span>
+                              <div className="flex -space-x-2 overflow-hidden">
+                                {selectedIds.slice(0, 3).map((id: string) => (
+                                  <div key={id} className="inline-block size-5 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-bold">
+                                    L
+                                  </div>
+                                ))}
+                                {count > 3 && (
+                                  <div className="flex size-5 items-center justify-center rounded-full border-2 border-background bg-muted text-[8px] font-bold">
+                                    +{count - 3}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2 text-[11px] text-destructive hover:text-destructive hover:bg-destructive/10"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                field.onChange([])
+                              }}
+                            >
+                              Bỏ chọn hết
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <FieldDescription>
+                      {(offeringStatus === "PUBLISHED" || offeringStatus === "PENDING_APPROVAL")
+                        ? "Bắt buộc chọn ít nhất 1 lớp khi gửi phê duyệt hoặc đang bán."
+                        : "Sử dụng ô tìm kiếm và chọn các lớp học tương ứng ở danh sách trên."}
+                    </FieldDescription>
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )
+              }}
             />
           </FieldGroup>
         </FieldSet>

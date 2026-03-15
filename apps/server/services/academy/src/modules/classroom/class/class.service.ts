@@ -32,11 +32,17 @@ export class ClassService {
 
   async findAll(query: ClassQueryDto) {
     const q = query.q?.trim();
+    const statusFilter =
+      query.status == null
+        ? undefined
+        : query.status.includes(',')
+          ? { in: query.status.split(',').map((s) => s.trim()).filter(Boolean) as ClassStatus[] }
+          : (query.status as ClassStatus);
     return this.prisma.class.findMany({
       where: {
         courseProfileId: query.courseProfileId ?? undefined,
         mode: query.mode as any,
-        status: query.status as any,
+        ...(statusFilter != null ? { status: statusFilter } : {}),
         instructorId: query.instructorId ?? undefined,
         ...(q
           ? {

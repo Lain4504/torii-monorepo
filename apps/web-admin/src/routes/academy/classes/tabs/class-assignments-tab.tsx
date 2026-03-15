@@ -21,6 +21,14 @@ import {
   type AcademyClassAssignment,
 } from "@/lib/api/services/academy-class-assignments"
 import { ClassAssignmentDialog } from "@/components/academy/class-assignment-dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@workspace/ui/components/dialog"
 
 interface ClassAssignmentsTabProps {
   classId: string
@@ -41,6 +49,8 @@ export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingAssignment, setEditingAssignment] =
     useState<AcademyClassAssignment | null>(null)
+  const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false)
+  const [selectedForRemove, setSelectedForRemove] = useState<AcademyClassAssignment | null>(null)
 
   const handleCreateClick = () => {
     setEditingAssignment(null)
@@ -52,10 +62,17 @@ export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
     setDialogOpen(true)
   }
 
-  const handleDeleteClick = async (ca: AcademyClassAssignment) => {
+  const handleRemoveClick = (ca: AcademyClassAssignment) => {
+    setSelectedForRemove(ca)
+    setRemoveConfirmOpen(true)
+  }
+
+  const handleConfirmRemove = async () => {
+    if (!selectedForRemove) return
     try {
-      await removeMutation.mutateAsync(ca.id)
+      await removeMutation.mutateAsync(selectedForRemove.id)
       toast.success("Đã gỡ bài tập khỏi lớp")
+      setRemoveConfirmOpen(false)
     } catch (error: any) {
       toast.error(
         error?.response?.data?.message || error.message || "Không thể gỡ bài tập",
@@ -209,7 +226,7 @@ export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
                         size="sm"
                         variant="outline"
                         className="text-destructive border-destructive/40"
-                        onClick={() => handleDeleteClick(ca)}
+                        onClick={() => handleRemoveClick(ca)}
                       >
                         Gỡ
                       </Button>
@@ -229,6 +246,29 @@ export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
         submitting={addMutation.isPending || updateMutation.isPending}
         onSubmit={handleSubmit}
       />
+
+      {/* Dialog: Xác nhận gỡ bài tập */}
+      <Dialog open={removeConfirmOpen} onOpenChange={setRemoveConfirmOpen}>
+        <DialogContent className="sm:max-w-[480px]">
+          <DialogHeader>
+            <DialogTitle>Xác nhận gỡ bài tập</DialogTitle>
+            <DialogDescription>
+              Bạn có chắc chắn muốn gỡ bài tập <strong>{selectedForRemove?.titleOverride || selectedForRemove?.assignment?.title}</strong> khỏi lớp học này? 
+              Dữ liệu về các bài nộp của học viên cho bài tập này (nếu có) cũng có thể bị ảnh hưởng.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRemoveConfirmOpen(false)}>Hủy</Button>
+            <Button 
+              variant="destructive"
+              onClick={handleConfirmRemove} 
+              disabled={removeMutation.isPending}
+            >
+              Xác nhận gỡ
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

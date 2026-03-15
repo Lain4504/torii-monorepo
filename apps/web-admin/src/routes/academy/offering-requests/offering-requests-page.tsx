@@ -46,6 +46,10 @@ export default function OfferingRequestsPage() {
     offering: AcademyCourseOffering | null
     reason: string
   }>({ open: false, offering: null, reason: "" })
+  const [approveDialog, setApproveDialog] = useState<{
+    open: boolean
+    offering: AcademyCourseOffering | null
+  }>({ open: false, offering: null })
 
   const { data: offerings = [], isLoading } = useAcademyCourseOfferings({
     status: "PENDING_APPROVAL",
@@ -59,10 +63,21 @@ export default function OfferingRequestsPage() {
     (o) => o.status === "PENDING_APPROVAL"
   )
 
-  const handleApprove = async (offering: AcademyCourseOffering) => {
+  const openApproveDialog = (offering: AcademyCourseOffering) => {
+    setApproveDialog({ open: true, offering })
+  }
+
+  const closeApproveDialog = () => {
+    setApproveDialog({ open: false, offering: null })
+  }
+
+  const handleApprove = async () => {
+    const { offering } = approveDialog
+    if (!offering) return
     try {
       await approveMutation.mutateAsync(offering.id)
       toast.success(`Đã phê duyệt gói "${offering.title}"`)
+      closeApproveDialog()
     } catch (err: any) {
       toast.error(
         err?.response?.data?.message || err?.message || "Không thể phê duyệt"
@@ -211,7 +226,7 @@ export default function OfferingRequestsPage() {
                       <div className="flex items-center justify-end gap-2">
                         <Button
                           size="sm"
-                          onClick={() => handleApprove(offering)}
+                          onClick={() => openApproveDialog(offering)}
                           disabled={approveMutation.isPending}
                           className="gap-1"
                         >
@@ -274,6 +289,33 @@ export default function OfferingRequestsPage() {
               }
             >
               Xác nhận từ chối
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={approveDialog.open}
+        onOpenChange={(open) => !open && closeApproveDialog()}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Xác nhận phê duyệt</DialogTitle>
+            <DialogDescription>
+              {approveDialog.offering
+                ? `Bạn có chắc chắn muốn phê duyệt gói "${approveDialog.offering.title}"? Sau khi duyệt, gói này sẽ chính thức được mở bán cho học viên.`
+                : ""}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={closeApproveDialog}>
+              Hủy
+            </Button>
+            <Button
+              onClick={handleApprove}
+              disabled={approveMutation.isPending}
+            >
+              Xác nhận duyệt
             </Button>
           </DialogFooter>
         </DialogContent>

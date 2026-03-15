@@ -186,7 +186,11 @@ export class CourseOfferingService {
       throw new BadRequestException('Some classIds do not exist');
     }
 
-    const validStatuses: ClassStatus[] = [ClassStatus.OPENING, ClassStatus.ONGOING];
+    const validStatuses: ClassStatus[] = [
+      ClassStatus.OPENING,
+      ClassStatus.ONGOING,
+      ClassStatus.PUBLISHED,
+    ];
     for (const cls of classes) {
       if (!validStatuses.includes(cls.status as ClassStatus)) {
         throw new BadRequestException(

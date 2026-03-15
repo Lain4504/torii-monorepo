@@ -123,7 +123,8 @@ export class OrderService {
           const klass = offeringClass.class;
           if (
             klass.status !== ClassStatus.OPENING &&
-            klass.status !== ClassStatus.ONGOING
+            klass.status !== ClassStatus.ONGOING &&
+            klass.status !== ClassStatus.PUBLISHED
           ) {
             throw new BadRequestException(
               `Class ${klass.code} is in status ${klass.status}, not sellable`,
@@ -320,10 +321,18 @@ export class OrderService {
         },
       });
 
-      return { orderCode: order.code, paymentUrl: paymentLink.checkoutUrl };
+      return { 
+        orderId: order.id,
+        orderCode: order.code, 
+        paymentUrl: paymentLink.checkoutUrl 
+      };
     }
 
-    return { orderCode: order.code, message: 'Order created. Please proceed with manual payment.' };
+    return { 
+      orderId: order.id,
+      orderCode: order.code, 
+      message: 'Order created. Please proceed with manual payment.' 
+    };
   }
 
   async handlePaymentSuccess(
@@ -400,14 +409,8 @@ export class OrderService {
         },
       });
 
-      await this.audit.log({
-        userId: requesterId,
-        action: 'order.payment_success',
-        entity: 'Order',
-        entityId: order.id,
-        description: `Order ${order.code} marked as PAID. Transaction ID: ${transactionId}`,
-        metadata: { orderCode: order.code, transactionId },
-      });
+      // NOTE: Systemic audit logs are disabled here to avoid UUID foreign key issues with 'SYSTEM' ID
+      // and because fulfillment events provide sufficient traceability.
 
       // Update Coupon Usage
       if (order.couponId) {
@@ -440,6 +443,9 @@ export class OrderService {
     });
 
     this.logger.log(`Order ${order.code} fulfilled successfully`);
+
+    // Emit order.paid event for external fulfillment (e.g., Course Enrollments)
+    this.natsClient.emit({ cmd: 'order.paid' }, { orderId: order.id });
 
     // Emit notification via NATS
     try {

@@ -48,8 +48,12 @@ export class OrderListener {
             for (const occ of item.offering.classes) {
                 const klass = occ.class;
 
-                // Rule: Enroll only when LIVE class is OPENING or ONGOING
-                if (klass.status !== ClassStatus.OPENING && klass.status !== ClassStatus.ONGOING) {
+                // Rule: Enroll only when LIVE class is OPENING or ONGOING, or VOD class is PUBLISHED
+                if (
+                    klass.status !== ClassStatus.OPENING &&
+                    klass.status !== ClassStatus.ONGOING &&
+                    klass.status !== ClassStatus.PUBLISHED
+                ) {
                     console.log(`[Academy] Skip enroll: Class ${klass.id} is ${klass.status}`);
                     continue;
                 }

@@ -34,12 +34,13 @@ import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import {
   useCreateAcademyCourseOffering,
   useUpdateAcademyCourseOffering,
+  useAvailableClassesForOffering,
   type AcademyCourseOffering,
 } from "@/lib/api/services/academy-course-offerings"
-import { useAcademyClasses } from "@/lib/api/services/academy-classes"
 import { toast } from "sonner"
-import { Loader2, Check, Search } from "lucide-react"
+import { Loader2, Check, Search, X } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
+import { Spinner } from "@workspace/ui/components/spinner"
 
 const offeringSchema = z.object({
   code: z.string().min(1, "Mã gói không được để trống"),
@@ -68,8 +69,6 @@ export function OfferingDialog({ open, onOpenChange, offering }: OfferingDialogP
   const createMutation = useCreateAcademyCourseOffering()
   const updateMutation = useUpdateAcademyCourseOffering()
 
-  const { data: classes } = useAcademyClasses({ status: "PUBLISHED" })
-
   const [classSearch, setClassSearch] = useState("")
 
   const {
@@ -97,11 +96,13 @@ export function OfferingDialog({ open, onOpenChange, offering }: OfferingDialogP
   })
 
   const selectedClassIds = watch("classIds")
+  const selectedMode = watch("mode")
 
-  const filteredClasses = classes?.filter(c => 
-    c.name.toLowerCase().includes(classSearch.toLowerCase()) || 
-    c.code.toLowerCase().includes(classSearch.toLowerCase())
-  )
+  // VOD: PUBLISHED, LIVE: OPENING (đang tuyển sinh) / ONGOING (đang học) – theo live-class-commerce-spec
+  const { data: classes = [], isLoading: isLoadingClasses } = useAvailableClassesForOffering({
+    mode: selectedMode,
+    q: classSearch,
+  })
 
   useEffect(() => {
     if (offering) {
@@ -315,89 +316,110 @@ export function OfferingDialog({ open, onOpenChange, offering }: OfferingDialogP
                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                        <Input 
                         placeholder="Tìm lớp học theo tên hoặc mã..." 
-                        className="pl-9"
+                        className="pl-9 pr-9"
                         value={classSearch}
                         onChange={(e) => setClassSearch(e.target.value)}
                        />
+                       {classSearch && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-1 top-1/2 -translate-y-1/2 size-8 hover:bg-transparent"
+                          onClick={() => setClassSearch("")}
+                        >
+                          <X className="size-4 text-muted-foreground" />
+                        </Button>
+                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto pr-2">
-                      {/* Hiển thị các lớp đã chọn trước */}
-                      {selectedClassIds.length > 0 && !classSearch && (
-                        <div className="space-y-2">
-                           <p className="text-xs font-bold text-muted-foreground uppercase">Đã chọn ({selectedClassIds.length})</p>
-                           {classes?.filter(c => selectedClassIds.includes(c.id)).map((cls) => (
-                             <div
+                    <div className="border rounded-xl bg-card overflow-hidden">
+                      <div className="max-h-[350px] overflow-y-auto p-4">
+                        {isLoadingClasses && (
+                          <div className="py-12 flex flex-col items-center justify-center gap-2 text-muted-foreground italic text-sm">
+                            <Spinner className="size-5" />
+                            Đang tải danh sách lớp học...
+                          </div>
+                        )}
+
+                        {!isLoadingClasses && classes.length === 0 && (
+                          <div className="py-12 text-center text-muted-foreground italic text-sm">
+                            {classSearch 
+                              ? "Không tìm thấy lớp học nào phù hợp." 
+                              : selectedMode 
+                                ? "Nhập tên hoặc mã lớp để tìm kiếm." 
+                                : "Vui lòng chọn loại hình trước."}
+                          </div>
+                        )}
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                          {classes.map((cls : any) => {
+                            const isChecked = selectedClassIds.includes(cls.id)
+                            return (
+                              <div
                                 key={cls.id}
-                                className="flex items-center justify-between p-3 rounded-lg border border-primary bg-primary/5 ring-1 ring-primary transition-all cursor-pointer"
+                                className={cn(
+                                  "relative flex flex-col gap-2 p-3 rounded-xl border transition-all cursor-pointer group",
+                                  isChecked
+                                    ? "border-primary bg-primary/5 ring-1 ring-primary shadow-sm"
+                                    : "border-muted hover:border-primary/50 hover:bg-muted/50"
+                                )}
                                 onClick={() => toggleClass(cls.id)}
                               >
-                                <div className="flex flex-col gap-1">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium">{cls.name}</span>
-                                    <Badge variant="outline" className={cn(
-                                      "text-[10px] h-4 px-1 uppercase",
-                                      cls.mode === 'LIVE' ? "border-green-500/50 text-green-600 bg-green-50" : "border-blue-500/50 text-blue-600 bg-blue-50"
-                                    )}>
-                                      {cls.mode}
-                                    </Badge>
-                                  </div>
-                                  <span className="text-xs text-muted-foreground font-mono">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className={cn(
+                                    "text-[10px] font-bold uppercase px-1.5 py-0.5 rounded border leading-none font-mono",
+                                    isChecked ? "text-primary border-primary/30 bg-primary/5" : "text-muted-foreground bg-muted"
+                                  )}>
                                     {cls.code}
                                   </span>
+                                  <div className={cn(
+                                    "size-4 rounded border transition-colors flex items-center justify-center",
+                                    isChecked ? "bg-primary border-primary" : "border-muted-foreground/30"
+                                  )}>
+                                    {isChecked && <Check className="size-3 text-primary-foreground stroke-[3]" />}
+                                  </div>
                                 </div>
-                                <div className="size-5 bg-primary rounded-full flex items-center justify-center">
-                                  <Check className="size-3 text-primary-foreground" />
+
+                                <div className="space-y-1">
+                                  <p className={cn(
+                                    "text-sm font-semibold leading-snug line-clamp-2",
+                                    isChecked ? "text-primary" : "text-foreground"
+                                  )}>
+                                    {cls.name}
+                                  </p>
+                                </div>
+
+                                <div className="mt-auto pt-2 flex items-center justify-between border-t border-dashed">
+                                  <span className="text-[10px] text-muted-foreground font-medium uppercase truncate">
+                                    {cls.status}
+                                  </span>
+                                  <Badge variant="outline" className="text-[9px] h-3.5 px-1 uppercase opacity-70 scale-90 origin-right">
+                                    {cls.mode}
+                                  </Badge>
                                 </div>
                               </div>
-                           ))}
-                           <div className="h-px bg-muted my-2" />
+                            )
+                          })}
                         </div>
-                      )}
+                      </div>
 
-                      {/* Hiển thị kết quả tìm kiếm */}
-                      {classSearch && filteredClasses?.map((cls) => (
-                        <div
-                          key={cls.id}
-                          className={cn(
-                            "flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer hover:border-primary/50",
-                            selectedClassIds.includes(cls.id)
-                              ? "border-primary bg-primary/5 ring-1 ring-primary"
-                              : "border-muted"
-                          )}
-                          onClick={() => toggleClass(cls.id)}
-                        >
-                          <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium">{cls.name}</span>
-                              <Badge variant="outline" className={cn(
-                                "text-[10px] h-4 px-1 uppercase",
-                                cls.mode === 'LIVE' ? "border-green-500/50 text-green-600 bg-green-50" : "border-blue-500/50 text-blue-600 bg-blue-50"
-                              )}>
-                                {cls.mode}
-                              </Badge>
-                            </div>
-                            <span className="text-xs text-muted-foreground font-mono">
-                              {cls.code}
-                            </span>
+                      {/* Sticky summary inside the section */}
+                      {selectedClassIds.length > 0 && (
+                        <div className="px-4 py-3 bg-muted/30 border-t flex items-center justify-between text-xs">
+                          <div className="font-medium text-primary">
+                            Đã chọn {selectedClassIds.length} lớp học
                           </div>
-                          {selectedClassIds.includes(cls.id) && (
-                            <div className="size-5 bg-primary rounded-full flex items-center justify-center">
-                              <Check className="size-3 text-primary-foreground" />
-                            </div>
-                          )}
-                        </div>
-                      ))}
-
-                      {classSearch && !filteredClasses?.length && (
-                        <div className="text-sm text-center py-8 text-muted-foreground italic">
-                          Không tìm thấy lớp học nào khớp với từ khóa.
-                        </div>
-                      )}
-
-                      {!classSearch && selectedClassIds.length === 0 && (
-                        <div className="text-sm text-center py-8 text-muted-foreground italic">
-                          Nhập tên hoặc mã lớp để tìm kiếm và thêm vào gói.
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-7 text-destructive hover:text-destructive hover:bg-destructive/10 text-[11px] font-medium"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setValue("classIds", []);
+                            }}
+                          >
+                            Bỏ chọn tất cả
+                          </Button>
                         </div>
                       )}
                     </div>

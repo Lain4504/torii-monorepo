@@ -58,6 +58,18 @@ const STATUS_LABELS: Record<string, string> = {
 export function ClassInfoTab({ academyClass, classId, canManageStatus }: ClassInfoTabProps) {
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
   const [rejectReason, setRejectReason] = useState("")
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean
+    title: string
+    description: string
+    action: () => Promise<void>
+    variant?: "default" | "destructive"
+  }>({
+    open: false,
+    title: "",
+    description: "",
+    action: async () => {},
+  })
 
   const submitMutation = useSubmitClassForApproval()
   const approveMutation = useApproveClass()
@@ -152,13 +164,16 @@ export function ClassInfoTab({ academyClass, classId, canManageStatus }: ClassIn
                       <Button
                         size="sm"
                         variant="default"
-                        onClick={() =>
-                          runMutation(
+                        onClick={() => setConfirmDialog({
+                          open: true,
+                          title: "Gửi duyệt lớp học",
+                          description: `Bạn có chắc chắn muốn gửi duyệt lớp "${academyClass.name || academyClass.code}"?`,
+                          action: () => runMutation(
                             () => submitMutation.mutateAsync(classId),
                             "Đã gửi duyệt",
                             "Lỗi gửi duyệt"
                           )
-                        }
+                        })}
                         disabled={submitMutation.isPending}
                       >
                         <Send className="size-4 mr-1" /> Gửi duyệt
@@ -169,13 +184,16 @@ export function ClassInfoTab({ academyClass, classId, canManageStatus }: ClassIn
                         <Button
                           size="sm"
                           variant="default"
-                          onClick={() =>
-                            runMutation(
+                          onClick={() => setConfirmDialog({
+                            open: true,
+                            title: "Phê duyệt lớp học",
+                            description: `Bạn có chắc chắn muốn phê duyệt lớp "${academyClass.name || academyClass.code}"? Sau khi duyệt, lớp sẽ chuyển sang trạng thái tiếp theo (Tuyển sinh).`,
+                            action: () => runMutation(
                               () => approveMutation.mutateAsync(classId),
                               "Đã phê duyệt",
                               "Lỗi phê duyệt"
                             )
-                          }
+                          })}
                           disabled={approveMutation.isPending}
                         >
                           <Check className="size-4 mr-1" /> Phê duyệt
@@ -194,13 +212,16 @@ export function ClassInfoTab({ academyClass, classId, canManageStatus }: ClassIn
                       <Button
                         size="sm"
                         variant="default"
-                        onClick={() =>
-                          runMutation(
+                        onClick={() => setConfirmDialog({
+                          open: true,
+                          title: "Bắt đầu lớp học",
+                          description: `Bạn có chắc chắn muốn bắt đầu lớp "${academyClass.name || academyClass.code}"? Trạng thái lớp sẽ chuyển sang "Đang diễn ra".`,
+                          action: () => runMutation(
                             () => startMutation.mutateAsync(classId),
                             "Đã bắt đầu lớp",
                             "Lỗi bắt đầu"
                           )
-                        }
+                        })}
                         disabled={startMutation.isPending}
                       >
                         <Play className="size-4 mr-1" /> Bắt đầu
@@ -210,13 +231,16 @@ export function ClassInfoTab({ academyClass, classId, canManageStatus }: ClassIn
                       <Button
                         size="sm"
                         variant="default"
-                        onClick={() =>
-                          runMutation(
+                        onClick={() => setConfirmDialog({
+                          open: true,
+                          title: "Kết thúc lớp học",
+                          description: `Bạn có chắc chắn muốn kết thúc lớp "${academyClass.name || academyClass.code}"? Lớp sẽ được đánh dấu là "Đã hoàn thành".`,
+                          action: () => runMutation(
                             () => completeMutation.mutateAsync(classId),
                             "Đã kết thúc lớp",
                             "Lỗi kết thúc"
                           )
-                        }
+                        })}
                         disabled={completeMutation.isPending}
                       >
                         <Square className="size-4 mr-1" /> Kết thúc
@@ -226,13 +250,17 @@ export function ClassInfoTab({ academyClass, classId, canManageStatus }: ClassIn
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() =>
-                          runMutation(
+                        onClick={() => setConfirmDialog({
+                          open: true,
+                          title: "Lưu trữ lớp học",
+                          description: `Bạn có chắc chắn muốn lưu trữ lớp "${academyClass.name || academyClass.code}"? Lớp sẽ không còn hoạt động.`,
+                          variant: "destructive",
+                          action: () => runMutation(
                             () => archiveMutation.mutateAsync(classId),
                             "Đã lưu trữ",
                             "Lỗi lưu trữ"
                           )
-                        }
+                        })}
                         disabled={archiveMutation.isPending}
                       >
                         <Archive className="size-4 mr-1" /> Lưu trữ
@@ -245,45 +273,65 @@ export function ClassInfoTab({ academyClass, classId, canManageStatus }: ClassIn
                       <Button
                         size="sm"
                         variant="default"
-                        onClick={() =>
-                          runMutation(
+                        onClick={() => setConfirmDialog({
+                          open: true,
+                          title: "Gửi duyệt lớp học",
+                          description: `Bạn có chắc chắn muốn gửi duyệt lớp "${academyClass.name || academyClass.code}"?`,
+                          action: () => runMutation(
                             () => submitMutation.mutateAsync(classId),
                             "Đã gửi duyệt",
                             "Lỗi gửi duyệt"
                           )
-                        }
+                        })}
                         disabled={submitMutation.isPending}
                       >
                         <Send className="size-4 mr-1" /> Gửi duyệt
                       </Button>
                     )}
                     {academyClass.status === "PENDING_APPROVAL" && (
-                      <Button
-                        size="sm"
-                        variant="default"
-                        onClick={() =>
-                          runMutation(
-                            () => publishMutation.mutateAsync(classId),
-                            "Đã xuất bản",
-                            "Lỗi xuất bản"
-                          )
-                        }
-                        disabled={publishMutation.isPending}
-                      >
-                        <Check className="size-4 mr-1" /> Xuất bản
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="default"
+                          onClick={() => setConfirmDialog({
+                            open: true,
+                            title: "Xuất bản khóa học VOD",
+                            description: `Bạn có chắc chắn muốn xuất bản lớp "${academyClass.name || academyClass.code}"? Sau khi xuất bản, khóa học sẽ sẵn sàng để bán qua các Offering.`,
+                            action: () => runMutation(
+                              () => publishMutation.mutateAsync(classId),
+                              "Đã xuất bản",
+                              "Lỗi xuất bản"
+                            )
+                          })}
+                          disabled={publishMutation.isPending}
+                        >
+                          <Check className="size-4 mr-1" /> Xuất bản
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setRejectDialogOpen(true)}
+                          disabled={rejectMutation.isPending}
+                        >
+                          <X className="size-4 mr-1" /> Từ chối
+                        </Button>
+                      </div>
                     )}
                     {academyClass.status === "PUBLISHED" && (
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() =>
-                          runMutation(
+                        onClick={() => setConfirmDialog({
+                          open: true,
+                          title: "Lưu trữ khóa học VOD",
+                          description: `Bạn có chắc chắn muốn lưu trữ lớp "${academyClass.name || academyClass.code}"?`,
+                          variant: "destructive",
+                          action: () => runMutation(
                             () => archiveMutation.mutateAsync(classId),
                             "Đã lưu trữ",
                             "Lỗi lưu trữ"
                           )
-                        }
+                        })}
                         disabled={archiveMutation.isPending}
                       >
                         <Archive className="size-4 mr-1" /> Lưu trữ
@@ -338,6 +386,29 @@ export function ClassInfoTab({ academyClass, classId, canManageStatus }: ClassIn
               disabled={rejectMutation.isPending}
             >
               Từ chối
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={confirmDialog.open} onOpenChange={(open) => !open && setConfirmDialog(prev => ({ ...prev, open: false }))}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>{confirmDialog.title}</DialogTitle>
+            <DialogDescription>{confirmDialog.description}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmDialog(prev => ({ ...prev, open: false }))}>
+              Hủy
+            </Button>
+            <Button
+              variant={confirmDialog.variant}
+              onClick={async () => {
+                await confirmDialog.action()
+                setConfirmDialog(prev => ({ ...prev, open: false }))
+              }}
+            >
+              Xác nhận
             </Button>
           </DialogFooter>
         </DialogContent>

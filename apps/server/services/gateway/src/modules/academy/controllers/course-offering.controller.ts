@@ -179,5 +179,20 @@ export class CourseOfferingController {
     );
     return successResponse({ item });
   }
+
+  @Get('selection/classes')
+  @Permissions('academy.commerce.read')
+  async findClassesForSelection(
+    @Query() query: { mode?: string; q?: string },
+  ) {
+    const items = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.findAll' }, {
+        mode: query.mode,
+        q: query.q,
+        status: 'PUBLISHED,OPENING,ENROLLING,ONGOING',
+      }),
+    );
+    return successResponse({ items });
+  }
 }
 

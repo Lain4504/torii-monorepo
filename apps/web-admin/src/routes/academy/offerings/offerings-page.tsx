@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { Link } from "react-router-dom"
 import { PageHeader } from "@/components/common/page-header"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
@@ -13,19 +14,26 @@ import {
 import { Badge } from "@workspace/ui/components/badge"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@workspace/ui/components/dialog"
+import {
     Plus,
     Search,
     FileEdit,
     Archive,
     CheckCircle2,
     Eye,
+    ChevronRight,
 } from "lucide-react"
 import {
     useAcademyCourseOfferings,
     type AcademyCourseOffering,
     useSubmitCourseOfferingForApproval,
-    useApproveCourseOffering,
-    useRejectCourseOffering,
     useArchiveAcademyCourseOffering
 } from "@/lib/api/services/academy-course-offerings"
 import { useDebounceValue } from "@workspace/ui/hooks/use-debounce-value"
@@ -59,9 +67,17 @@ export default function OfferingsPage() {
     })
 
     const submitForApprovalMutation = useSubmitCourseOfferingForApproval()
-    const approveMutation = useApproveCourseOffering()
-    const rejectMutation = useRejectCourseOffering()
     const archiveMutation = useArchiveAcademyCourseOffering()
+
+    const [submitDialog, setSubmitDialog] = useState<{
+        open: boolean
+        offering: AcademyCourseOffering | null
+    }>({ open: false, offering: null })
+
+    const [archiveDialog, setArchiveDialog] = useState<{
+        open: boolean
+        offering: AcademyCourseOffering | null
+    }>({ open: false, offering: null })
 
     const handleCreate = () => {
         setSelectedOffering(null)
@@ -177,38 +193,23 @@ export default function OfferingsPage() {
                                                         variant="outline"
                                                         size="sm"
                                                         className="h-8 gap-1.5 text-yellow-600 border-yellow-500/40"
-                                                        onClick={() => submitForApprovalMutation.mutate(offering.id)}
+                                                        onClick={() => setSubmitDialog({ open: true, offering })}
                                                     >
                                                         <CheckCircle2 className="h-4 w-4" /> Gửi duyệt
                                                     </Button>
                                                 )}
                                                 {offering.status === 'PENDING_APPROVAL' && (
-                                                    <>
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            className="h-8 gap-1.5 text-green-600 border-green-500/40"
-                                                            onClick={() => approveMutation.mutate(offering.id)}
-                                                        >
-                                                            <CheckCircle2 className="h-4 w-4" /> Phê duyệt
-                                                        </Button>
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            className="h-8 gap-1.5 text-destructive border-destructive/40"
-                                                            onClick={() => {
-                                                            const reason = window.prompt("Lý do từ chối:")
-                                                            if (reason) rejectMutation.mutate({ id: offering.id, reason })
-                                                        }}>
-                                                            <Archive className="h-4 w-4" /> Từ chối
-                                                        </Button>
-                                                    </>
+                                                    <Button variant="ghost" size="sm" asChild className="h-8 text-muted-foreground hover:text-primary">
+                                                        <Link to="/academy/offering-requests">
+                                                            Xem yêu cầu duyệt <ChevronRight className="ml-1 size-3" />
+                                                        </Link>
+                                                    </Button>
                                                 )}
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
                                                     className="h-8 gap-1.5 text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5"
-                                                    onClick={() => archiveMutation.mutate(offering.id)}
+                                                    onClick={() => setArchiveDialog({ open: true, offering })}
                                                 >
                                                     <Archive className="h-4 w-4" /> Lưu trữ
                                                 </Button>
@@ -233,6 +234,65 @@ export default function OfferingsPage() {
                 onOpenChange={setDetailDialogOpen}
                 offering={selectedOffering}
             />
+
+            {/* Submit Confirmation Dialog */}
+            <Dialog 
+                open={submitDialog.open} 
+                onOpenChange={(open) => !open && setSubmitDialog({ open: false, offering: null })}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Xác nhận gửi duyệt</DialogTitle>
+                        <DialogDescription>
+                            Bạn có chắc chắn muốn gửi duyệt gói bán "{submitDialog.offering?.title}"? 
+                            Sau khi gửi, bạn sẽ không thể chỉnh sửa cho đến khi có phản hồi từ người duyệt.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setSubmitDialog({ open: false, offering: null })}>Hủy</Button>
+                        <Button 
+                            onClick={() => {
+                                if (submitDialog.offering) {
+                                    submitForApprovalMutation.mutate(submitDialog.offering.id)
+                                    setSubmitDialog({ open: false, offering: null })
+                                }
+                            }}
+                        >
+                            Xác nhận gửi
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Archive Confirmation Dialog */}
+            <Dialog 
+                open={archiveDialog.open} 
+                onOpenChange={(open) => !open && setArchiveDialog({ open: false, offering: null })}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Xác nhận lưu trữ</DialogTitle>
+                        <DialogDescription>
+                            Bạn có chắc chắn muốn lưu trữ gói bán "{archiveDialog.offering?.title}"? 
+                            Gói này sẽ không còn hiển thị cho học viên và không thể hồi phục trạng thái bán trực tiếp.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setArchiveDialog({ open: false, offering: null })}>Hủy</Button>
+                        <Button 
+                            variant="destructive"
+                            onClick={() => {
+                                if (archiveDialog.offering) {
+                                    archiveMutation.mutate(archiveDialog.offering.id)
+                                    setArchiveDialog({ open: false, offering: null })
+                                }
+                            }}
+                        >
+                            Xác nhận lưu trữ
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }

@@ -4,8 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add content field to academy lessons and update layout styles">
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/next-env.d.ts" afterDir="false" />
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="fix conflict">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -89,7 +89,7 @@
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "update-web-admin",
+    "git-widget-placeholder": "#287 on update-web-admin",
     "go.import.settings.migrated": "true",
     "javascript.preferred.runtime.type.id": "node",
     "kotlin-language-version-configured": "true",
@@ -340,22 +340,7 @@
       <workItem from="1773263155001" duration="1633000" />
       <workItem from="1773288495777" duration="14000" />
       <workItem from="1773498697707" duration="301000" />
-    </task>
-    <task id="LOCAL-00965" summary="Update schema.prisma">
-      <option name="closed" value="true" />
-      <created>1772699325414</created>
-      <option name="number" value="00965" />
-      <option name="presentableId" value="LOCAL-00965" />
-      <option name="project" value="LOCAL" />
-      <updated>1772699325427</updated>
-    </task>
-    <task id="LOCAL-00966" summary="Update schema.prisma">
-      <option name="closed" value="true" />
-      <created>1772699850459</created>
-      <option name="number" value="00966" />
-      <option name="presentableId" value="LOCAL-00966" />
-      <option name="project" value="LOCAL" />
-      <updated>1772699850459</updated>
+      <workItem from="1773501761493" duration="231000" />
     </task>
     <task id="LOCAL-00967" summary="Update schema.prisma">
       <option name="closed" value="true" />
@@ -733,7 +718,23 @@
       <option name="project" value="LOCAL" />
       <updated>1773498751058</updated>
     </task>
-    <option name="localTasksCounter" value="1014" />
+    <task id="LOCAL-01014" summary="fix conflict">
+      <option name="closed" value="true" />
+      <created>1773499998120</created>
+      <option name="number" value="01014" />
+      <option name="presentableId" value="LOCAL-01014" />
+      <option name="project" value="LOCAL" />
+      <updated>1773499998120</updated>
+    </task>
+    <task id="LOCAL-01015" summary="fix conflict">
+      <option name="closed" value="true" />
+      <created>1773501001299</created>
+      <option name="number" value="01015" />
+      <option name="presentableId" value="LOCAL-01015" />
+      <option name="project" value="LOCAL" />
+      <updated>1773501001299</updated>
+    </task>
+    <option name="localTasksCounter" value="1016" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -768,8 +769,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="gop theo tinh nang" />
-    <MESSAGE value="update marketing page" />
     <MESSAGE value="feat: implement header and footer components for improved layout structure" />
     <MESSAGE value="Update schema.prisma" />
     <MESSAGE value="refactor: clean up module exports and formatting across various files" />
@@ -793,7 +792,9 @@
     <MESSAGE value="new" />
     <MESSAGE value="style (#281)" />
     <MESSAGE value="feat: add content field to academy lessons and update layout styles" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add content field to academy lessons and update layout styles" />
+    <MESSAGE value="feat: update livekit configuration and clean up unused imports in refunds components" />
+    <MESSAGE value="fix conflict" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix conflict" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
