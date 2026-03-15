@@ -445,7 +445,7 @@ export class OrderService {
     this.logger.log(`Order ${order.code} fulfilled successfully`);
 
     // Emit order.paid event for external fulfillment (e.g., Course Enrollments)
-    this.natsClient.emit({ cmd: 'order.paid' }, { orderId: order.id });
+    this.natsClient.emit('order.paid', { orderId: order.id });
 
     // Emit notification via NATS
     try {

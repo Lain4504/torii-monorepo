@@ -146,10 +146,16 @@ function ArticleViewer({ lesson, onComplete }: { lesson: AcademyLessonModel; onC
                 </div>
             </div>
 
-            <div className="bg-muted/40 rounded-xl p-8 text-center text-muted-foreground border border-border">
-                <FileText className="h-10 w-10 mx-auto mb-3 opacity-40" />
-                <p>Nội dung bài đọc chưa được cập nhật.</p>
-            </div>
+            {lesson.content ? (
+                <div className="prose prose-slate dark:prose-invert max-w-none">
+                    <div dangerouslySetInnerHTML={{ __html: lesson.content }} />
+                </div>
+            ) : (
+                <div className="bg-muted/40 rounded-xl p-8 text-center text-muted-foreground border border-border">
+                    <FileText className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                    <p>Nội dung bài đọc chưa được cập nhật.</p>
+                </div>
+            )}
 
             <div className="mt-10 pt-8 border-t border-border">
                 <button
@@ -274,7 +280,7 @@ export default function CourseLearnPage() {
 
     const completedIds = new Set(completedContentItemIds);
     const currentLessonKind = normalizeItemKind(currentLesson?.kind);
-    const shouldFetchLessonDetail = !!currentLesson?.referenceId && isVideoItemKind(currentLessonKind);
+    const shouldFetchLessonDetail = !!currentLesson?.referenceId && (isVideoItemKind(currentLessonKind) || currentLessonKind === 'READING');
 
     // ── Load curriculum → pick first uncompleted lesson + expand all ───────
     useEffect(() => {

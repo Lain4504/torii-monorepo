@@ -436,6 +436,8 @@ export class LiveScheduleService {
       },
     });
 
+    const actorId = requesterId === 'SYSTEM' ? null : requesterId;
+
     // Hybrid: re-generate horizon gần để reflect thay đổi template
     try {
       const from = this.startOfDay(new Date());
@@ -525,6 +527,9 @@ export class LiveScheduleService {
           startTime: t.startTime,
           endTime: t.endTime,
         });
+
+        const actorId = requesterId === 'SYSTEM' ? null : requesterId;
+
         ops.push(
           this.prisma.liveScheduleSession.upsert({
             where: {
@@ -546,8 +551,8 @@ export class LiveScheduleService {
               location: t.location ?? undefined,
               note: t.note ?? undefined,
               instructorId: klass.instructorId ?? undefined,
-              createdBy: requesterId,
-              updatedBy: requesterId,
+              createdBy: actorId,
+              updatedBy: actorId,
             },
             update: {
               scheduleId: t.id,
@@ -555,7 +560,7 @@ export class LiveScheduleService {
               location: t.location ?? undefined,
               note: t.note ?? undefined,
               instructorId: klass.instructorId ?? undefined,
-              updatedBy: requesterId,
+              updatedBy: actorId,
             },
           }),
         );
