@@ -203,6 +203,8 @@ export interface IAuthService {
    */
   registerWithFacebook(accessToken: string): Promise<AuthResponseDTO>;
 
+  linkProvider(userId: string, provider: string, token: string): Promise<void>;
+
   /**
    * Link Google account to existing user
    * @param userId - The user's unique identifier
@@ -211,15 +213,6 @@ export interface IAuthService {
    * @throws UnauthorizedException if token is invalid
    */
   linkGoogleAccount(userId: string, idToken: string): Promise<void>;
-
-  /**
-   * Link Facebook account to existing user
-   * @param userId - The user's unique identifier
-   * @param accessToken - Facebook access token
-   * @throws ConflictException if Facebook account already linked to another user
-   * @throws UnauthorizedException if token is invalid
-   */
-  linkFacebookAccount(userId: string, accessToken: string): Promise<void>;
 
   /**
    * Logout user

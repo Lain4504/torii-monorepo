@@ -1533,48 +1533,61 @@ export class AuthService implements IAuthService {
   }
 
   /**
-   * Link Facebook account to existing user
+   * Link an OAuth provider to an existing user
    */
-  async linkFacebookAccount(
+  async linkProvider(
     userId: string,
-    accessToken: string,
+    provider: string,
+    token: string,
   ): Promise<void> {
-    // Verify Facebook access token
-    const facebookUser =
-      await this.facebookAuthService.verifyAccessToken(accessToken);
+    let providerUser: GoogleUserInfo | FacebookUserInfo;
 
-    // Check if Facebook account already linked to another user
+    // 1. Verify provider token and get user info
+    if (provider === 'google') {
+      providerUser = await this.googleAuthService.verifyIdToken(token);
+    } else if (provider === 'facebook') {
+      providerUser = await this.facebookAuthService.verifyAccessToken(token);
+    } else {
+      throw new BadRequestException(`Unsupported provider: ${provider}`);
+    }
+
+    const providerId =
+      provider === 'google'
+        ? (providerUser as GoogleUserInfo).sub
+        : (providerUser as FacebookUserInfo).id;
+
+    // 2. Check if this provider account is already linked to another user
     const existingIdentity = await this.userIdentityRepository.findByProvider(
-      'facebook',
-      facebookUser.id,
+      provider,
+      providerId,
     );
 
     if (existingIdentity) {
       throw new ConflictException(
-        'This Facebook account is already linked to another user',
+        `This ${provider} account is already linked to another user`,
       );
     }
 
-    // Check if already linked to this user
-    const hasFacebook = await this.userIdentityRepository.hasProvider(
+    // 3. Check if already linked to this user
+    const hasProvider = await this.userIdentityRepository.hasProvider(
       userId,
-      'facebook',
+      provider,
     );
-    if (hasFacebook) {
+    if (hasProvider) {
       throw new ConflictException(
-        'Facebook account already linked to this user',
+        `${provider} account already linked to this user`,
       );
     }
 
-    // Create Facebook identity
+    // 4. Create identity
     await this.userIdentityRepository.create({
       user: { connect: { id: userId } },
-      provider: 'facebook',
-      providerId: facebookUser.id,
-      providerData: facebookUser as unknown as Prisma.InputJsonValue,
+      provider,
+      providerId,
+      providerData: providerUser as unknown as Prisma.InputJsonValue,
     });
 
-    // Update user metadata
+    // 5. Update user metadata
     const user = await this.usersRepository.findById(userId);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -1589,14 +1602,19 @@ export class AuthService implements IAuthService {
     };
     const providers = currentMetadata.providers || ['email'];
 
+    const avatarUrl =
+      provider === 'facebook'
+        ? (providerUser as FacebookUserInfo).picture?.data.url
+        : undefined;
+
     await this.usersRepository.update(userId, {
-      avatarUrl: user?.avatarUrl || facebookUser.picture?.data.url,
+      avatarUrl: user?.avatarUrl || avatarUrl,
       appMetadata: {
         ...currentMetadata,
-        providers: [...new Set([...providers, 'facebook'])],
+        providers: [...new Set([...providers, provider])],
       } as unknown as Prisma.InputJsonValue,
       userMetadata:
-        facebookUser as unknown as UserMetadata as unknown as Prisma.InputJsonValue,
+        providerUser as unknown as UserMetadata as unknown as Prisma.InputJsonValue,
     });
   }
 

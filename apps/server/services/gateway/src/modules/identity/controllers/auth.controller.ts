@@ -579,8 +579,8 @@ export class AuthController {
     try {
       await firstValueFrom(
         this.natsClient.send(
-          { cmd: 'identity.auth.linkFacebook' },
-          { userId: requester.sub, accessToken },
+          { cmd: 'identity.auth.linkProvider' },
+          { userId: requester.sub, provider: 'facebook', token: accessToken },
         ),
       );
       return successResponse(

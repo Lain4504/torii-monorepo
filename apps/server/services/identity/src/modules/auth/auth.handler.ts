@@ -152,9 +152,15 @@ export class AuthHandler {
     return this.authService.linkGoogleAccount(data.userId, data.idToken);
   }
 
-  @MessagePattern({ cmd: 'identity.auth.linkFacebook' })
-  async linkFacebook(@Payload() data: { userId: string; accessToken: string }) {
-    return this.authService.linkFacebookAccount(data.userId, data.accessToken);
+  @MessagePattern({ cmd: 'identity.auth.linkProvider' })
+  async linkProvider(
+    @Payload() data: { userId: string; provider: string; token: string },
+  ) {
+    return this.authService.linkProvider(
+      data.userId,
+      data.provider,
+      data.token,
+    );
   }
 
   @MessagePattern({ cmd: 'identity.auth.unlinkProvider' })
