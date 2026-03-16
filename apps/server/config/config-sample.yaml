@@ -168,6 +168,9 @@ thirdParty:
   google:
     clientId: ""
     clientSecret: ""
+  facebook:
+    appId: ""
+    appSecret: ""
   gemini:
     apiKey: ""
   payos:

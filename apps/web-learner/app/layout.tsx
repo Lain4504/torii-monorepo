@@ -3,6 +3,7 @@ import { Andika, Nunito, Noto_Sans_JP, Noto_Serif_JP, Space_Grotesk } from "next
 import "@workspace/ui/styles/globals.css"
 import { Providers } from "@/lib/providers/providers"
 import { Toaster } from "@workspace/ui/components/sonner"
+import { FacebookSDK } from "@/components/auth/facebook-sdk"
 
 const fontSans = Andika({
   subsets: ["latin", "vietnamese"],
@@ -46,6 +47,7 @@ export default function RootLayout({
       >
         <Providers>
           {children}
+          <FacebookSDK />
           <Toaster position="top-center" />
         </Providers>
       </body>

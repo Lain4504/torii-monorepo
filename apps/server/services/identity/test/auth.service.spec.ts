@@ -15,8 +15,10 @@ import {
 import {
   SESSION_SERVICE_TOKEN,
   GOOGLE_AUTH_SERVICE_TOKEN,
+  FACEBOOK_AUTH_SERVICE_TOKEN,
   AUTHORIZATION_SERVICE_TOKEN,
   TWO_FACTOR_AUTH_SERVICE_TOKEN,
+  NOTIFICATION_SERVICE_TOKEN,
 } from '../src/interfaces/services';
 import {
   UnauthorizedException,
@@ -40,6 +42,8 @@ describe('AuthService', () => {
   let natsClient: any;
   let blacklistService: any;
   let googleAuthService: any;
+  let facebookAuthService: any;
+  let notificationService: any;
   let userIdentityRepository: any;
 
   const mockUser = {
@@ -105,6 +109,15 @@ describe('AuthService', () => {
       verifyIdToken: jest.fn(),
     };
 
+    const mockFacebookAuthService = {
+      verifyAccessToken: jest.fn(),
+    };
+
+    const mockNotificationService = {
+      send: jest.fn(),
+      sendEmail: jest.fn(),
+    };
+
     const mockRedis = {
       get: jest.fn(),
       set: jest.fn(),
@@ -153,6 +166,14 @@ describe('AuthService', () => {
         },
         { provide: SESSION_SERVICE_TOKEN, useValue: mockSessionService },
         { provide: GOOGLE_AUTH_SERVICE_TOKEN, useValue: mockGoogleAuthService },
+        {
+          provide: FACEBOOK_AUTH_SERVICE_TOKEN,
+          useValue: mockFacebookAuthService,
+        },
+        {
+          provide: NOTIFICATION_SERVICE_TOKEN,
+          useValue: mockNotificationService,
+        },
         { provide: 'REDIS_CLIENT', useValue: mockRedis },
         { provide: 'NATS_SERVICE', useValue: mockNatsClient },
         { provide: BlacklistService, useValue: mockBlacklistService },
@@ -169,6 +190,8 @@ describe('AuthService', () => {
     natsClient = module.get('NATS_SERVICE');
     blacklistService = module.get(BlacklistService);
     googleAuthService = module.get(GOOGLE_AUTH_SERVICE_TOKEN);
+    facebookAuthService = module.get(FACEBOOK_AUTH_SERVICE_TOKEN);
+    notificationService = module.get(NOTIFICATION_SERVICE_TOKEN);
     userIdentityRepository = module.get(USER_IDENTITY_REPOSITORY_TOKEN);
   });
 
@@ -569,6 +592,26 @@ describe('AuthService', () => {
         expect.objectContaining({
           provider: 'google',
           providerId: googleUser.sub,
+        }),
+      );
+    });
+
+    it('should link Facebook account if not already linked', async () => {
+      facebookAuthService.verifyAccessToken.mockResolvedValue({
+        id: 'fb-123',
+        name: 'FB User',
+        picture: { data: { url: 'fb-photo' } },
+      });
+      userIdentityRepository.findByProvider.mockResolvedValue(null);
+      userIdentityRepository.hasProvider.mockResolvedValue(false);
+      usersRepository.findById.mockResolvedValue(mockUser);
+
+      await service.linkProvider(mockUser.id, 'facebook', 'fb-token');
+
+      expect(userIdentityRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          provider: 'facebook',
+          providerId: 'fb-123',
         }),
       );
     });

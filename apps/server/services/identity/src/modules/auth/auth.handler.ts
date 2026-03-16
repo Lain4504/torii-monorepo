@@ -57,6 +57,11 @@ export class AuthHandler {
     return this.authService.registerWithGoogle(data.idToken);
   }
 
+  @MessagePattern({ cmd: 'identity.auth.facebookAuth' })
+  async facebookAuth(@Payload() data: { accessToken: string }) {
+    return this.authService.registerWithFacebook(data.accessToken);
+  }
+
   @MessagePattern({ cmd: 'identity.session.create' })
   async createSession(@Payload() data: { userId: string }) {
     const result = await this.sessionService.createSession(data.userId);
@@ -145,6 +150,17 @@ export class AuthHandler {
   @MessagePattern({ cmd: 'identity.auth.linkGoogle' })
   async linkGoogle(@Payload() data: { userId: string; idToken: string }) {
     return this.authService.linkGoogleAccount(data.userId, data.idToken);
+  }
+
+  @MessagePattern({ cmd: 'identity.auth.linkProvider' })
+  async linkProvider(
+    @Payload() data: { userId: string; provider: string; token: string },
+  ) {
+    return this.authService.linkProvider(
+      data.userId,
+      data.provider,
+      data.token,
+    );
   }
 
   @MessagePattern({ cmd: 'identity.auth.unlinkProvider' })

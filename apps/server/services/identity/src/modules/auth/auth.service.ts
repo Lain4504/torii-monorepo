@@ -25,6 +25,7 @@ import type {
   IAuthService,
   ISessionService,
   IGoogleAuthService,
+  IFacebookAuthService,
   IAuthorizationService,
   ITwoFactorAuthService,
 } from '@server/identity/interfaces/services';
@@ -35,6 +36,7 @@ import {
 import {
   SESSION_SERVICE_TOKEN,
   GOOGLE_AUTH_SERVICE_TOKEN,
+  FACEBOOK_AUTH_SERVICE_TOKEN,
   AUTHORIZATION_SERVICE_TOKEN,
   TWO_FACTOR_AUTH_SERVICE_TOKEN,
 } from '@server/identity/interfaces/services';
@@ -50,6 +52,7 @@ import type {
   ResendOTPDTO,
   ForgotPasswordDTO,
   GoogleUserInfo,
+  FacebookUserInfo,
   AppMetadata,
   UserMetadata,
   UserActivityEvent,
@@ -75,6 +78,8 @@ export class AuthService implements IAuthService {
     private readonly sessionService: ISessionService,
     @Inject(GOOGLE_AUTH_SERVICE_TOKEN)
     private readonly googleAuthService: IGoogleAuthService,
+    @Inject(FACEBOOK_AUTH_SERVICE_TOKEN)
+    private readonly facebookAuthService: IFacebookAuthService,
     @Inject(USER_IDENTITY_REPOSITORY_TOKEN)
     private readonly userIdentityRepository: IUserIdentityRepository,
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
@@ -1291,6 +1296,326 @@ export class AuthService implements IAuthService {
       accessToken,
       refreshToken,
     };
+  }
+
+  /**
+   * Register or login with Facebook OAuth
+   */
+  async registerWithFacebook(accessToken: string): Promise<AuthResponse> {
+    // Verify Facebook access token
+    const facebookUser =
+      await this.facebookAuthService.verifyAccessToken(accessToken);
+
+    // Check if user exists by Facebook provider ID
+    const existingIdentity = await this.userIdentityRepository.findByProvider(
+      'facebook',
+      facebookUser.id,
+    );
+
+    if (existingIdentity) {
+      // User exists - login
+      const user = await this.usersRepository.findById(existingIdentity.userId);
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      // Check if user is banned or deleted
+      this.checkUserStatus(user);
+
+      // Update last sign in
+      await this.usersRepository.update(user.id, { lastSignInAt: new Date() });
+
+      await this.userIdentityRepository.updateLastSignIn(existingIdentity.id);
+
+      const { permissions } =
+        await this.authorizationService.getUserPermissions(user.id, user.role);
+
+      // Create session
+      const { refreshToken, sessionId } =
+        await this.sessionService.createSession(user.id);
+      const access_token = await this.generateAccessToken(
+        user.id,
+        user.role,
+        sessionId,
+        ['oauth'],
+        {
+          user_metadata: { displayName: user.displayName },
+          app_metadata: { provider: 'facebook' },
+        },
+      );
+
+      // Emit activity
+      this.emitLoginActivity(user.id);
+
+      return {
+        user: {
+          id: user.id,
+          email: user.email,
+          displayName: user.displayName,
+          role: user.role as UserRole,
+          xp: (user as any).xp,
+          level: (user as any).level,
+          verifiedAt: user.verifiedAt,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+          permissions,
+        },
+        accessToken: access_token,
+        refreshToken,
+      };
+    }
+
+    // Check if email already exists
+    const existingUser = await this.usersRepository.findByEmail(
+      facebookUser.email,
+    );
+
+    if (existingUser) {
+      // Check if user is banned or deleted
+      this.checkUserStatus(existingUser);
+
+      // Link Facebook to existing account
+      await this.userIdentityRepository.create({
+        user: { connect: { id: existingUser.id } },
+        provider: 'facebook',
+        providerId: facebookUser.id,
+        providerData: facebookUser as unknown as Prisma.InputJsonValue,
+      });
+
+      // Update user metadata
+      const currentMetadata =
+        (existingUser.appMetadata as unknown as AppMetadata) || {
+          provider: 'email',
+          providers: ['email'],
+        };
+      const providers = currentMetadata.providers || ['email'];
+
+      await this.usersRepository.update(existingUser.id, {
+        avatarUrl: existingUser.avatarUrl || facebookUser.picture?.data.url,
+        appMetadata: {
+          ...currentMetadata,
+          providers: [...new Set([...providers, 'facebook'])],
+        } as unknown as Prisma.InputJsonValue,
+        userMetadata:
+          facebookUser as unknown as UserMetadata as unknown as Prisma.InputJsonValue,
+        verifiedAt: existingUser.verifiedAt || new Date(), // Facebook verify is implicit or just trust it
+        lastSignInAt: new Date(),
+      });
+
+      const { permissions } =
+        await this.authorizationService.getUserPermissions(
+          existingUser.id,
+          existingUser.role,
+        );
+
+      // Create session
+      const { refreshToken, sessionId } =
+        await this.sessionService.createSession(existingUser.id);
+      const access_token = await this.generateAccessToken(
+        existingUser.id,
+        existingUser.role,
+        sessionId,
+        ['oauth'],
+        {
+          user_metadata: { displayName: existingUser.displayName },
+          app_metadata: { provider: 'facebook' },
+        },
+      );
+
+      // Emit activity
+      this.emitLoginActivity(existingUser.id);
+
+      return {
+        user: {
+          id: existingUser.id,
+          email: existingUser.email,
+          displayName: existingUser.displayName,
+          role: existingUser.role as UserRole,
+          xp: (existingUser as any).xp,
+          level: (existingUser as any).level,
+          verifiedAt: existingUser.verifiedAt,
+          createdAt: existingUser.createdAt,
+          updatedAt: existingUser.updatedAt,
+          permissions,
+        },
+        accessToken: access_token,
+        refreshToken,
+      };
+    }
+
+    // Create new user
+    const newUser = await this.usersRepository.create({
+      email: facebookUser.email,
+      displayName: facebookUser.name,
+      avatarUrl: facebookUser.picture?.data.url,
+      role: UserRole.LEARNER,
+      verifiedAt: new Date(),
+      lastSignInAt: new Date(),
+      appMetadata: {
+        provider: 'facebook',
+        providers: ['facebook'],
+      } as unknown as Prisma.InputJsonValue,
+      userMetadata:
+        facebookUser as unknown as UserMetadata as unknown as Prisma.InputJsonValue,
+    });
+
+    // Create welcome notification for new Facebook user (non-blocking)
+    try {
+      await this.notificationService.create({
+        userId: newUser.id,
+        title: 'Chào mừng bạn đến với Torii 🎉',
+        message:
+          'Bạn đã đăng ký thành công bằng Facebook. Bắt đầu khám phá các khóa học JLPT ngay nào!',
+        notificationType: NotificationType.SYSTEM,
+        metadata: {
+          email: newUser.email,
+          displayName: newUser.displayName,
+          source: 'facebook_oauth',
+        },
+      });
+    } catch (error) {
+      // Không chặn flow đăng ký nếu tạo notification thất bại
+      console.error(
+        '[AuthService] Failed to create welcome notification for Facebook user',
+        newUser.id,
+        error,
+      );
+    }
+
+    // Create Facebook identity
+    await this.userIdentityRepository.create({
+      user: { connect: { id: newUser.id } },
+      provider: 'facebook',
+      providerId: facebookUser.id,
+      providerData: facebookUser as unknown as Prisma.InputJsonValue,
+    });
+
+    const { permissions } = await this.authorizationService.getUserPermissions(
+      newUser.id,
+      newUser.role,
+    );
+
+    // Create session
+    const { refreshToken, sessionId } = await this.sessionService.createSession(
+      newUser.id,
+    );
+    const access_token = await this.generateAccessToken(
+      newUser.id,
+      newUser.role,
+      sessionId,
+      ['oauth'],
+      {
+        user_metadata: { displayName: newUser.displayName },
+        app_metadata: { provider: 'facebook' },
+      },
+    );
+
+    // Emit activity
+    this.emitLoginActivity(newUser.id);
+
+    return {
+      user: {
+        id: newUser.id,
+        email: newUser.email,
+        displayName: newUser.displayName,
+        role: newUser.role as UserRole,
+        xp: (newUser as any).xp,
+        level: (newUser as any).level,
+        verifiedAt: newUser.verifiedAt,
+        createdAt: newUser.createdAt,
+        updatedAt: newUser.updatedAt,
+        permissions,
+      },
+      accessToken: access_token,
+      refreshToken,
+    };
+  }
+
+  /**
+   * Link an OAuth provider to an existing user
+   */
+  async linkProvider(
+    userId: string,
+    provider: string,
+    token: string,
+  ): Promise<void> {
+    let providerUser: GoogleUserInfo | FacebookUserInfo;
+
+    // 1. Verify provider token and get user info
+    if (provider === 'google') {
+      providerUser = await this.googleAuthService.verifyIdToken(token);
+    } else if (provider === 'facebook') {
+      providerUser = await this.facebookAuthService.verifyAccessToken(token);
+    } else {
+      throw new BadRequestException(`Unsupported provider: ${provider}`);
+    }
+
+    const providerId =
+      provider === 'google'
+        ? (providerUser as GoogleUserInfo).sub
+        : (providerUser as FacebookUserInfo).id;
+
+    // 2. Check if this provider account is already linked to another user
+    const existingIdentity = await this.userIdentityRepository.findByProvider(
+      provider,
+      providerId,
+    );
+
+    if (existingIdentity) {
+      throw new ConflictException(
+        `This ${provider} account is already linked to another user`,
+      );
+    }
+
+    // 3. Check if already linked to this user
+    const hasProvider = await this.userIdentityRepository.hasProvider(
+      userId,
+      provider,
+    );
+    if (hasProvider) {
+      throw new ConflictException(
+        `${provider} account already linked to this user`,
+      );
+    }
+
+    // 4. Create identity
+    await this.userIdentityRepository.create({
+      user: { connect: { id: userId } },
+      provider,
+      providerId,
+      providerData: providerUser as unknown as Prisma.InputJsonValue,
+    });
+
+    // 5. Update user metadata
+    const user = await this.usersRepository.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Block if banned or deleted
+    this.checkUserStatus(user);
+
+    const currentMetadata = (user.appMetadata as unknown as AppMetadata) || {
+      provider: 'email',
+      providers: ['email'],
+    };
+    const providers = currentMetadata.providers || ['email'];
+
+    const avatarUrl =
+      provider === 'facebook'
+        ? (providerUser as FacebookUserInfo).picture?.data.url
+        : undefined;
+
+    await this.usersRepository.update(userId, {
+      avatarUrl: user?.avatarUrl || avatarUrl,
+      appMetadata: {
+        ...currentMetadata,
+        providers: [...new Set([...providers, provider])],
+      } as unknown as Prisma.InputJsonValue,
+      userMetadata:
+        providerUser as unknown as UserMetadata as unknown as Prisma.InputJsonValue,
+    });
   }
 
   /**

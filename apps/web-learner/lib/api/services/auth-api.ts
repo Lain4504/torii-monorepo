@@ -49,9 +49,6 @@ export const authApi = {
         };
     },
 
-    /**
-     * Google OAuth login/register
-     */
     async googleAuth(idToken: string): Promise<{ user: any; accessToken?: string }> {
         const response = await apiClient.post<StandardApiResponse<{ user: any; access_token?: string }>>('/api/auth/google', { idToken });
         if (response.data.success && response.data.data) {
@@ -61,6 +58,20 @@ export const authApi = {
             };
         }
         throw new Error(response.data.message || 'Google authentication failed');
+    },
+
+    /**
+     * Facebook OAuth login/register
+     */
+    async facebookAuth(accessToken: string): Promise<{ user: any; accessToken?: string }> {
+        const response = await apiClient.post<StandardApiResponse<{ user: any; access_token?: string }>>('/api/auth/facebook', { accessToken });
+        if (response.data.success && response.data.data) {
+            return {
+                user: response.data.data.user,
+                accessToken: response.data.data.access_token,
+            };
+        }
+        throw new Error(response.data.message || 'Facebook authentication failed');
     },
 
     async verify2FA(data: { tempToken: string; code: string; backupCode?: boolean }): Promise<{ user: any }> {
@@ -140,5 +151,14 @@ export function useVerifyEmail() {
 export function useGoogleAuth() {
     return useMutation({
         mutationFn: (idToken: string) => authApi.googleAuth(idToken),
+    });
+}
+
+/**
+ * Hook: Facebook OAuth
+ */
+export function useFacebookAuth() {
+    return useMutation({
+        mutationFn: (accessToken: string) => authApi.facebookAuth(accessToken),
     });
 }

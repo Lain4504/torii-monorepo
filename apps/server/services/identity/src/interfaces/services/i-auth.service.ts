@@ -196,6 +196,16 @@ export interface IAuthService {
   registerWithGoogle(idToken: string): Promise<AuthResponseDTO>;
 
   /**
+   * Register or login with Facebook OAuth
+   * @param accessToken - Facebook access token
+   * @returns Complete authentication response with tokens
+   * @throws UnauthorizedException if token is invalid
+   */
+  registerWithFacebook(accessToken: string): Promise<AuthResponseDTO>;
+
+  linkProvider(userId: string, provider: string, token: string): Promise<void>;
+
+  /**
    * Link Google account to existing user
    * @param userId - The user's unique identifier
    * @param idToken - Google ID token

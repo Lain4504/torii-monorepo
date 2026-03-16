@@ -473,6 +473,67 @@ export class AuthController {
     }
   }
 
+  @Post('facebook')
+  @HttpCode(HttpStatus.OK)
+  async facebookAuth(
+    @Body('accessToken') accessToken: string,
+    @Req() req: ReqWithRequester,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    if (!accessToken) {
+      throw new BadRequestException('Facebook access token is required');
+    }
+    try {
+      const { user, accessToken: jwtAccessToken } = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'identity.auth.facebookAuth' },
+          { accessToken },
+        ),
+      );
+
+      const refreshToken = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'identity.session.create' },
+          {
+            userId: user.id,
+          },
+        ),
+      );
+
+      const platform = req.headers['x-platform'];
+      if (platform === 'mobile') {
+        return successResponse({
+          access_token: jwtAccessToken,
+          refresh_token: refreshToken,
+          user: {
+            id: user.id,
+            email: user.email,
+            displayName: user.displayName,
+            role: user.role,
+            verifiedAt: user.verifiedAt,
+          },
+        });
+      } else {
+        this.setAuthCookies(res, jwtAccessToken, refreshToken);
+        return successResponse({
+          user: {
+            id: user.id,
+            email: user.email,
+            displayName: user.displayName,
+            role: user.role,
+            verifiedAt: user.verifiedAt,
+            permissions: user.permissions || [],
+          },
+        });
+      }
+    } catch (error: unknown) {
+      return errorResponse(
+        error instanceof Error
+          ? error.message
+          : 'Facebook authentication failed',
+      );
+    }
+  }
   @Post('link/google')
   @UseGuards(GatewayAuthGuard)
   @HttpCode(HttpStatus.OK)
@@ -500,6 +561,37 @@ export class AuthController {
         error instanceof Error
           ? error.message
           : 'Failed to link Google account',
+      );
+    }
+  }
+
+  @Post('link/facebook')
+  @UseGuards(GatewayAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async linkFacebook(
+    @Req() req: ReqWithRequester,
+    @Body('accessToken') accessToken: string,
+  ) {
+    if (!accessToken) {
+      throw new BadRequestException('Facebook access token is required');
+    }
+    const requester = req.requester;
+    try {
+      await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'identity.auth.linkProvider' },
+          { userId: requester.sub, provider: 'facebook', token: accessToken },
+        ),
+      );
+      return successResponse(
+        { provider: 'facebook' },
+        'Facebook account linked successfully',
+      );
+    } catch (error: unknown) {
+      return errorResponse(
+        error instanceof Error
+          ? error.message
+          : 'Failed to link Facebook account',
       );
     }
   }
