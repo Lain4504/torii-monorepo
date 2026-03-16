@@ -224,6 +224,10 @@ const ConfigSchema = z.object({
       clientId: z.string().optional(),
       clientSecret: z.string().optional(),
     }),
+    facebook: z.object({
+      appId: z.string().optional(),
+      appSecret: z.string().optional(),
+    }),
     gemini: z.object({
       apiKey: z.string().optional(),
     }),

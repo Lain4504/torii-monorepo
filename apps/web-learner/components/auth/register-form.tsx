@@ -14,7 +14,7 @@ import { Eye, EyeOff } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { z } from 'zod'
 import { cn } from '@workspace/ui/lib/utils'
-import { useGoogleAuth } from '@/lib/api/services/auth-api'
+import { useGoogleAuth, useFacebookAuth } from '@/lib/api/services/auth-api'
 import { useEffect as useCleanup } from 'react'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { Badge } from '@workspace/ui/components/badge'
@@ -46,7 +46,9 @@ export function RegisterForm() {
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const googleAuthMutation = useGoogleAuth()
+    const facebookAuthMutation = useFacebookAuth()
     const [googleLoading, setGoogleLoading] = useState(false)
+    const [facebookLoading, setFacebookLoading] = useState(false)
 
     const form = useForm<RegisterFormData>({
         resolver: zodResolver(registerFormSchema),
@@ -68,11 +70,12 @@ export function RegisterForm() {
     }, [dispatch])
 
     useEffect(() => {
-        const script = document.createElement('script')
-        script.src = 'https://accounts.google.com/gsi/client'
-        script.async = true
-        script.defer = true
-        document.body.appendChild(script)
+        // Load Google SDK
+        const googleScript = document.createElement('script')
+        googleScript.src = 'https://accounts.google.com/gsi/client'
+        googleScript.async = true
+        googleScript.defer = true
+        document.body.appendChild(googleScript)
     }, [])
 
     const onSubmit = async (data: RegisterFormData) => {
@@ -135,6 +138,45 @@ export function RegisterForm() {
                 catch { setGoogleLoading(false); toast.error('Không thể khởi tạo Google Sign-In') }
             }
         }, 200)
+    }
+
+    const handleFacebookButtonClick = () => {
+        const facebookAppId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID
+        if (!facebookAppId) {
+            toast.error('Facebook App ID chưa được cấu hình')
+            return
+        }
+
+        if (typeof window === 'undefined' || !(window as any).FB) {
+            toast.error('Facebook SDK chưa tải. Vui lòng tải lại trang.')
+            return
+        }
+
+        setFacebookLoading(true)
+        ; (window as any).FB.login(
+            (response: any) => {
+                if (response.authResponse) {
+                    const { accessToken } = response.authResponse
+                    facebookAuthMutation
+                        .mutateAsync(accessToken)
+                        .then(async (result) => {
+                            await dispatch(checkAuth())
+                            toast.success(`Chào mừng, ${result.user.displayName || 'Người dùng'}!`)
+                            router.push(searchParams.get('from') || '/dashboard')
+                        })
+                        .catch((error: any) => {
+                            toast.error(error?.message || 'Đăng nhập Facebook thất bại')
+                        })
+                        .finally(() => {
+                            setFacebookLoading(false)
+                        })
+                } else {
+                    setFacebookLoading(false)
+                    toast.error('Đăng nhập Facebook bị hủy')
+                }
+            },
+            { scope: 'public_profile,email' }
+        )
     }
 
     return (
@@ -271,6 +313,24 @@ export function RegisterForm() {
                     </svg>
                 )}
                 Đăng ký với Google
+            </Button>
+
+            <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="w-full gap-2 border-[#1877F2] text-[#1877F2] hover:bg-[#1877F2] hover:text-white"
+                onClick={handleFacebookButtonClick}
+                disabled={isLoading || facebookLoading}
+            >
+                {facebookLoading ? (
+                    <Spinner className="size-4" />
+                ) : (
+                    <svg className="size-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                    </svg>
+                )}
+                Đăng ký với Facebook
             </Button>
         </div>
     )

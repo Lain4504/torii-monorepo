@@ -11,12 +11,22 @@ export const googleAuthDTOSchema = z.object({
 export type GoogleAuthDTO = z.infer<typeof googleAuthDTOSchema>;
 
 /**
+ * Facebook OAuth Authentication DTO
+ * Used for Facebook OAuth login/register
+ */
+export const facebookAuthDTOSchema = z.object({
+    accessToken: z.string().min(1, 'Facebook access token is required'),
+});
+
+export type FacebookAuthDTO = z.infer<typeof facebookAuthDTOSchema>;
+
+/**
  * Link Provider DTO
  * Used to link an OAuth provider to existing account
  */
 export const linkProviderDTOSchema = z.object({
-    provider: z.enum(['google'], {
-        errorMap: () => ({ message: 'Provider must be google' }),
+    provider: z.enum(['google', 'facebook'], {
+        errorMap: () => ({ message: 'Provider must be google or facebook' }),
     }),
     token: z.string().min(1, 'OAuth token is required'),
 });
@@ -28,8 +38,8 @@ export type LinkProviderDTO = z.infer<typeof linkProviderDTOSchema>;
  * Used to unlink an OAuth provider from account
  */
 export const unlinkProviderDTOSchema = z.object({
-    provider: z.enum(['google', 'email'], {
-        errorMap: () => ({ message: 'Provider must be google or email' }),
+    provider: z.enum(['google', 'facebook', 'email'], {
+        errorMap: () => ({ message: 'Provider must be google, facebook or email' }),
     }),
 });
 
@@ -53,6 +63,22 @@ export const googleUserInfoSchema = z.object({
 });
 
 export type GoogleUserInfo = z.infer<typeof googleUserInfoSchema>;
+
+/**
+ * Facebook User Information from OAuth
+ */
+export const facebookUserInfoSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    email: z.string().email(),
+    picture: z.object({
+        data: z.object({
+            url: z.string(),
+        }),
+    }).optional(),
+});
+
+export type FacebookUserInfo = z.infer<typeof facebookUserInfoSchema>;
 
 /**
  * Linked Provider Information
