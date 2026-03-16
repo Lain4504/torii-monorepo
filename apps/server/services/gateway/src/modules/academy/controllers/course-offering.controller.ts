@@ -62,6 +62,15 @@ export class CourseOfferingController {
     return successResponse({ item });
   }
 
+  @Public()
+  @Get('public/category/:category')
+  async findPublicByCategory(@Param('category') category: string) {
+    const items = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.courseOffering.findPublicByCategory' }, { category }),
+    );
+    return successResponse({ items });
+  }
+
   @Get()
   @Permissions('academy.commerce.read')
   async findAll(
@@ -178,6 +187,21 @@ export class CourseOfferingController {
       ),
     );
     return successResponse({ item });
+  }
+
+  @Get('selection/classes')
+  @Permissions('academy.commerce.read')
+  async findClassesForSelection(
+    @Query() query: { mode?: string; q?: string },
+  ) {
+    const items = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.findAll' }, {
+        mode: query.mode,
+        q: query.q,
+        status: 'PUBLISHED,OPENING,ENROLLING,ONGOING',
+      }),
+    );
+    return successResponse({ items });
   }
 }
 

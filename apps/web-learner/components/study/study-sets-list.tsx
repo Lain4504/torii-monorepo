@@ -100,8 +100,8 @@ export function StudySetsList() {
     };
 
     return (
-        <div className="min-h-[calc(100vh-6rem)] rounded-3xl bg-transparent p-4 md:p-6">
-            <div className="mx-auto max-w-5xl space-y-8 rounded-2xl bg-card p-4 shadow-sm ring-1 ring-border">
+        <div className="min-h-[calc(100vh-6rem)] bg-transparent">
+            <div className="mx-auto max-w-5xl space-y-8">
                 {/* Page header */}
                 <div className="flex items-start justify-between gap-4">
                     <div>
@@ -116,7 +116,7 @@ export function StudySetsList() {
                         asChild
                     >
                         <Link href="/ai-sensei/chat">
-                            <span className="rounded-md bg-blue-100 p-1 text-blue-600">
+                            <span className="rounded-md bg-primary/10 p-1 text-primary">
                                 <Bot className="h-4 w-4" />
                             </span>
                             Hướng dẫn
@@ -125,18 +125,18 @@ export function StudySetsList() {
                 </div>
 
                 {/* Study sets list (Danh sách bài) */}
-                <Card className="border-slate-200 bg-white/90 shadow-sm">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                <Card className="border-border bg-card/90 shadow-sm overflow-hidden">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b">
                         <div className="space-y-1">
-                            <CardTitle className="text-base font-semibold text-slate-900">Danh sách bài</CardTitle>
-                            <CardDescription className="text-xs text-slate-500">
+                            <CardTitle className="text-base font-semibold">Danh sách bài</CardTitle>
+                            <CardDescription className="text-xs">
                                 Mỗi bộ thẻ tương ứng với một bài học/tập từ vựng riêng.
                             </CardDescription>
                         </div>
                         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
                             <DialogTrigger asChild>
-                                <Button className="inline-flex items-center gap-1 rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm ring-1 ring-slate-200 hover:bg-slate-50">
-                                    <PlusCircle className="h-4 w-4" />
+                                <Button variant="outline" size="sm" className="h-8 gap-1">
+                                    <PlusCircle className="h-3.5 w-3.5" />
                                     Tạo bài mới
                                 </Button>
                             </DialogTrigger>
@@ -151,9 +151,9 @@ export function StudySetsList() {
                                     <div className="space-y-2">
                                         <label
                                             htmlFor="title"
-                                            className="text-sm font-medium leading-none text-slate-800 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                         >
-                                            Tên bộ thẻ <span className="text-red-500">*</span>
+                                            Tên bộ thẻ <span className="text-destructive">*</span>
                                         </label>
                                         <Input
                                             id="title"
@@ -165,7 +165,7 @@ export function StudySetsList() {
                                     <div className="space-y-2">
                                         <label
                                             htmlFor="description"
-                                            className="text-sm font-medium leading-none text-slate-800 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                         >
                                             Mô tả
                                         </label>
@@ -189,24 +189,24 @@ export function StudySetsList() {
                             </DialogContent>
                         </Dialog>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-6">
                         {isLoading ? (
                             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                                 {[1, 2, 3].map((i) => (
                                     <div
                                         key={i}
-                                        className="h-20 animate-pulse rounded-xl bg-slate-100"
+                                        className="h-20 animate-pulse rounded-xl bg-muted"
                                     />
                                 ))}
                             </div>
                         ) : !(studySets && studySets.length) ? (
-                            <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-200 bg-slate-50/60 px-6 py-10 text-center">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-500">
+                            <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-muted/30 px-6 py-10 text-center">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
                                     <BrainCircuit className="h-6 w-6" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-semibold text-slate-900">Chưa có bộ thẻ nào</p>
-                                    <p className="mt-1 text-xs text-slate-500">
+                                    <p className="text-sm font-semibold">Chưa có bộ thẻ nào</p>
+                                    <p className="mt-1 text-xs text-muted-foreground">
                                         Tạo bộ thẻ đầu tiên để bắt đầu xây dựng bộ từ vựng riêng của bạn.
                                     </p>
                                 </div>
@@ -228,8 +228,8 @@ export function StudySetsList() {
                                             onClick={() => setSelectedSetId(set.id)}
                                             className={`flex h-full flex-col items-start rounded-xl border p-4 text-left transition-all ${
                                                 isActive
-                                                    ? 'border-blue-500 bg-blue-50 shadow-sm'
-                                                    : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-slate-50'
+                                                    ? 'border-primary bg-primary/5 shadow-sm ring-1 ring-primary/20'
+                                                    : 'border-border bg-background hover:border-primary/50 hover:bg-muted/50'
                                             }`}
                                         >
                                             <div className="mb-2 flex w-full items-start justify-between gap-2">
@@ -237,13 +237,13 @@ export function StudySetsList() {
                                                     <div
                                                         className={`mb-1 inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${
                                                             isActive
-                                                                ? 'bg-blue-100 text-blue-700'
-                                                                : 'bg-slate-100 text-slate-600'
+                                                                ? 'bg-primary/20 text-primary'
+                                                                : 'bg-muted text-muted-foreground'
                                                         }`}
                                                     >
                                                         Bài {studySets.indexOf(set) + 1}
                                                     </div>
-                                                    <p className={`line-clamp-2 text-sm font-semibold ${isActive ? 'text-blue-800' : 'text-slate-900'}`}>
+                                                    <p className={`line-clamp-2 text-sm font-semibold ${isActive ? 'text-primary' : 'text-foreground'}`}>
                                                         {set.title}
                                                     </p>
                                                 </div>
@@ -253,12 +253,12 @@ export function StudySetsList() {
                                                         e.stopPropagation();
                                                         handleDelete(set.id);
                                                     }}
-                                                    className="rounded-full p-1 text-slate-400 hover:bg-red-50 hover:text-red-500"
+                                                    className="rounded-full p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </button>
                                             </div>
-                                            <p className={`text-xs ${isActive ? 'text-blue-700' : 'text-slate-500'}`}>
+                                            <p className={`text-xs ${isActive ? 'text-primary/80' : 'text-muted-foreground'}`}>
                                                 {count} thẻ
                                             </p>
                                         </button>
@@ -270,20 +270,20 @@ export function StudySetsList() {
                 </Card>
 
                 {/* Vocabulary list for selected set */}
-                <Card className="border-slate-200 bg-white/95 shadow-sm">
+                <Card className="border-border bg-card/95 shadow-sm">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
                         <div>
-                            <CardTitle className="text-base font-semibold text-slate-900">
+                            <CardTitle className="text-base font-semibold">
                                 Danh sách thẻ ({selectedCount})
                             </CardTitle>
-                            <CardDescription className="mt-1 text-xs text-slate-500">
+                            <CardDescription className="mt-1 text-xs">
                                 Xem nhanh và chỉnh sửa nhanh các thẻ trong bộ được chọn.
                             </CardDescription>
                         </div>
                     </CardHeader>
                     <CardContent>
                         {!selectedSetId ? (
-                            <div className="flex items-center gap-3 rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                            <div className="flex items-center gap-3 rounded-xl bg-muted px-4 py-3 text-sm text-muted-foreground">
                                 <AlertCircle className="h-4 w-4 text-orange-500" />
                                 Hãy chọn một bộ thẻ ở trên để xem danh sách thẻ tương ứng.
                             </div>
@@ -292,18 +292,18 @@ export function StudySetsList() {
                                 {[1, 2, 3].map((row) => (
                                     <div
                                         key={row}
-                                        className="h-10 animate-pulse rounded-lg bg-slate-100"
+                                        className="h-10 animate-pulse rounded-lg bg-muted"
                                     />
                                 ))}
                             </div>
                         ) : !selectedSet?.setCards?.length ? (
-                            <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-slate-200 bg-slate-50/60 px-6 py-10 text-center">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                            <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-muted/30 px-6 py-10 text-center">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
                                     <LayoutGrid className="h-5 w-5" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-semibold text-slate-900">Bộ thẻ này chưa có thẻ nào</p>
-                                    <p className="mt-1 text-xs text-slate-500">
+                                    <p className="text-sm font-semibold">Bộ thẻ này chưa có thẻ nào</p>
+                                    <p className="mt-1 text-xs text-muted-foreground">
                                         Thêm thẻ mới ngay bên dưới bằng form “Thêm thuật ngữ mới”.
                                     </p>
                                 </div>
@@ -312,7 +312,7 @@ export function StudySetsList() {
                             <div className="overflow-x-auto">
                                 <table className="min-w-full text-left text-sm">
                                     <thead>
-                                        <tr className="border-b border-slate-100 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                                        <tr className="border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                                             <th className="pb-2 pr-4">#</th>
                                             <th className="pb-2 pr-4">Thuật ngữ</th>
                                             <th className="pb-2 pr-4">Định nghĩa</th>
@@ -320,22 +320,22 @@ export function StudySetsList() {
                                             <th className="pb-2 text-right">Thao tác</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-100">
+                                    <tbody className="divide-y divide-border">
                                         {selectedSet.setCards.map((card, index) => (
                                             <tr
                                                 key={card.id}
-                                                className="transition-colors hover:bg-slate-50"
+                                                className="transition-colors hover:bg-muted/50"
                                             >
-                                                <td className="py-3 pr-4 text-xs text-slate-500">
+                                                <td className="py-3 pr-4 text-xs text-muted-foreground">
                                                     {index + 1}
                                                 </td>
-                                                <td className="py-3 pr-4 text-base font-medium text-slate-900">
+                                                <td className="py-3 pr-4 text-base font-medium text-foreground">
                                                     {card.term}
                                                 </td>
-                                                <td className="py-3 pr-4 text-sm text-slate-700">
+                                                <td className="py-3 pr-4 text-sm text-foreground/80">
                                                     {card.definition}
                                                 </td>
-                                                <td className="py-3 pr-4 text-xs text-slate-500">
+                                                <td className="py-3 pr-4 text-xs text-muted-foreground">
                                                     {card.hint || '—'}
                                                 </td>
                                                 <td className="py-3 text-right text-xs">
@@ -349,7 +349,7 @@ export function StudySetsList() {
                         )}
 
                         {selectedSetId && (
-                            <div className="mt-4 border-t border-slate-100 pt-4">
+                            <div className="mt-4 border-t border-border pt-4">
                                 <div className="grid md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className="text-xs font-medium text-muted-foreground uppercase tracking-widest">

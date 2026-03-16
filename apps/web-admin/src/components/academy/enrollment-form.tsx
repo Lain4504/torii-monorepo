@@ -15,13 +15,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@workspace/ui/components/select"
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@workspace/ui/components/card"
 import { Spinner } from "@workspace/ui/components/spinner"
 import {
     academyEnrollmentCreateDTOSchema,
@@ -31,7 +24,6 @@ import {
 } from "@workspace/schemas"
 import type { AcademyEnrollment } from "@/lib/api/services/academy-enrollments"
 import { useAcademyClasses } from "@/lib/api/services/academy-classes"
-import { KeyValueEditor } from "@/components/academy/key-value-editor"
 import { useUsers } from "@/lib/api/services/users"
 
 export function EnrollmentForm({
@@ -66,137 +58,111 @@ export function EnrollmentForm({
                 ? academyEnrollmentUpdateDTOSchema
                 : academyEnrollmentCreateDTOSchema) as any
         ) as any,
-        defaultValues: isEdit
+        defaultValues: (isEdit
             ? {
-                expiresAt: initial?.expiresAt ? new Date(initial.expiresAt).toISOString().split('T')[0] : undefined,
+                expiresAt: initial?.expiresAt ? new Date(initial.expiresAt) : undefined,
                 status: initial?.status ?? 'ACTIVE',
-                metadata: initial?.metadata ?? undefined,
             }
             : {
                 classId: defaultClassId ?? "",
                 userId: "",
                 status: "ACTIVE",
-            },
+            }) as any,
     })
 
     return (
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Thông tin ghi danh</CardTitle>
-                    <CardDescription>
-                        Chọn lớp học và học viên để ghi danh.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <FieldGroup>
-                        {!isEdit && (
-                            <>
-                                <Controller
-                                    name={"classId" as any}
-                                    control={control}
-                                    render={({ field, fieldState }) => (
-                                        <Field>
-                                            <FieldLabel>Lớp học</FieldLabel>
-                                            <Select value={field.value} onValueChange={field.onChange}>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Chọn lớp..." />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {classes.map((cls: any) => (
-                                                        <SelectItem key={cls.id} value={cls.id}>
-                                                            {cls.name} ({cls.code})
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            <FieldError>{fieldState.error?.message}</FieldError>
-                                        </Field>
-                                    )}
-                                />
-
-                                <Controller
-                                    name={"userId" as any}
-                                    control={control}
-                                    render={({ field, fieldState }) => (
-                                        <Field>
-                                            <FieldLabel>Học viên</FieldLabel>
-                                            <Select value={field.value} onValueChange={field.onChange}>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Chọn học viên..." />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {learners.map((u: any) => (
-                                                        <SelectItem key={u.id} value={u.id}>
-                                                            {u.name} ({u.email})
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            <FieldError>{fieldState.error?.message}</FieldError>
-                                        </Field>
-                                    )}
-                                />
-                            </>
-                        )}
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-6">
+                <FieldGroup>
+                    {!isEdit && (
+                        <>
+                            {!defaultClassId && (
                             <Controller
-                                name={"status" as any}
+                                name={"classId" as any}
                                 control={control}
                                 render={({ field, fieldState }) => (
                                     <Field>
-                                        <FieldLabel>Trạng thái</FieldLabel>
+                                        <FieldLabel>Lớp học</FieldLabel>
                                         <Select value={field.value} onValueChange={field.onChange}>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Chọn trạng thái..." />
+                                                <SelectValue placeholder="Chọn lớp..." />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="ACTIVE">Hoạt động (ACTIVE)</SelectItem>
-                                                <SelectItem value="COMPLETED">Hoàn thành (COMPLETED)</SelectItem>
-                                                <SelectItem value="CANCELLED">Đã huỷ (CANCELLED)</SelectItem>
-                                                <SelectItem value="EXPIRED">Hết hạn (EXPIRED)</SelectItem>
+                                                {classes.map((cls: any) => (
+                                                    <SelectItem key={cls.id} value={cls.id}>
+                                                        {cls.name} ({cls.code})
+                                                    </SelectItem>
+                                                ))}
                                             </SelectContent>
                                         </Select>
                                         <FieldError>{fieldState.error?.message}</FieldError>
                                     </Field>
                                 )}
                             />
+                            )}
 
                             <Controller
-                                name={"expiresAt" as any}
+                                name={"userId" as any}
                                 control={control}
                                 render={({ field, fieldState }) => (
                                     <Field>
-                                        <FieldLabel>Ngày hết hạn</FieldLabel>
-                                        <Input type="date" {...field} />
+                                        <FieldLabel>Học viên</FieldLabel>
+                                        <Select value={field.value} onValueChange={field.onChange}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Chọn học viên..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {learners.map((u: any) => (
+                                                    <SelectItem key={u.id} value={u.id}>
+                                                        {u.name} ({u.email})
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
                                         <FieldError>{fieldState.error?.message}</FieldError>
                                     </Field>
                                 )}
                             />
-                        </div>
+                        </>
+                    )}
 
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Controller
-                            name={"metadata" as any}
+                            name={"status" as any}
                             control={control}
                             render={({ field, fieldState }) => (
                                 <Field>
-                                    <FieldLabel>Metadata (Key-Value)</FieldLabel>
-                                    <KeyValueEditor
-                                        value={field.value || {}}
-                                        onChange={field.onChange}
-                                        presets={[
-                                            { key: "source", label: "Nguồn", defaultValue: "admin" },
-                                            { key: "notes", label: "Ghi chú", defaultValue: "" },
-                                        ]}
-                                    />
+                                    <FieldLabel>Trạng thái</FieldLabel>
+                                    <Select value={field.value} onValueChange={field.onChange}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Chọn trạng thái..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="ACTIVE">Hoạt động (ACTIVE)</SelectItem>
+                                            <SelectItem value="COMPLETED">Hoàn thành (COMPLETED)</SelectItem>
+                                            <SelectItem value="CANCELLED">Đã huỷ (CANCELLED)</SelectItem>
+                                            <SelectItem value="EXPIRED">Hết hạn (EXPIRED)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                     <FieldError>{fieldState.error?.message}</FieldError>
                                 </Field>
                             )}
                         />
-                    </FieldGroup>
-                </CardContent>
-            </Card>
+
+                        <Controller
+                            name={"expiresAt" as any}
+                            control={control}
+                            render={({ field, fieldState }) => (
+                                <Field>
+                                    <FieldLabel>Ngày hết hạn</FieldLabel>
+                                    <Input type="date" {...field} />
+                                    <FieldError>{fieldState.error?.message}</FieldError>
+                                </Field>
+                            )}
+                        />
+                    </div>
+                </FieldGroup>
+            </div>
 
             <div className="flex justify-end gap-2">
                 <Button

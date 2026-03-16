@@ -41,19 +41,14 @@ export function DuplicateClassDialog({
         handleSubmit,
         control,
         formState: { isSubmitting },
-    } = useForm<AcademyClassDuplicateDTO>({
+    } = useForm<any>({
         resolver: zodResolver(academyClassDuplicateDTOSchema),
         defaultValues: {
             code: "",
             name: `${sourceClass.name} (Bản sao)`,
-            term: sourceClass.liveClass?.term ?? "",
-            batch: sourceClass.liveClass?.batch ?? "",
-            openingDate: sourceClass.liveClass?.openingDate ? new Date(sourceClass.liveClass.openingDate) : undefined,
-            closingDate: sourceClass.liveClass?.closingDate ? new Date(sourceClass.liveClass.closingDate) : undefined,
+            instructorId: (sourceClass as any)?.instructorId ?? sourceClass.liveClass?.instructorId ?? undefined,
         },
     })
-
-    const isLive = sourceClass.mode === "LIVE"
 
     const onSubmit = async (data: AcademyClassDuplicateDTO) => {
         try {
@@ -104,67 +99,17 @@ export function DuplicateClassDialog({
                                     </Field>
                                 )}
                             />
-
-                            {isLive && (
-                                <>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <Controller
-                                            name="term"
-                                            control={control}
-                                            render={({ field, fieldState }) => (
-                                                <Field>
-                                                    <FieldLabel>Kỳ học (Term)</FieldLabel>
-                                                    <Input placeholder="2026-Q1" {...field} />
-                                                    <FieldError>{fieldState.error?.message}</FieldError>
-                                                </Field>
-                                            )}
-                                        />
-                                        <Controller
-                                            name="batch"
-                                            control={control}
-                                            render={({ field, fieldState }) => (
-                                                <Field>
-                                                    <FieldLabel>Đợt (Batch)</FieldLabel>
-                                                    <Input placeholder="K01" {...field} />
-                                                    <FieldError>{fieldState.error?.message}</FieldError>
-                                                </Field>
-                                            )}
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <Controller
-                                            name="openingDate"
-                                            control={control}
-                                            render={({ field, fieldState }) => (
-                                                <Field>
-                                                    <FieldLabel>Ngày khai giảng (Mở lớp)</FieldLabel>
-                                                    <Input
-                                                        type="date"
-                                                        value={field.value instanceof Date && !Number.isNaN(field.value.getTime()) ? field.value.toISOString().slice(0, 10) : ""}
-                                                        onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
-                                                    />
-                                                    <FieldError>{fieldState.error?.message}</FieldError>
-                                                </Field>
-                                            )}
-                                        />
-                                        <Controller
-                                            name="closingDate"
-                                            control={control}
-                                            render={({ field, fieldState }) => (
-                                                <Field>
-                                                    <FieldLabel>Ngày bế giảng (Kết thúc)</FieldLabel>
-                                                    <Input
-                                                        type="date"
-                                                        value={field.value instanceof Date && !Number.isNaN(field.value.getTime()) ? field.value.toISOString().slice(0, 10) : ""}
-                                                        onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
-                                                    />
-                                                    <FieldError>{fieldState.error?.message}</FieldError>
-                                                </Field>
-                                            )}
-                                        />
-                                    </div>
-                                </>
-                            )}
+                            <Controller
+                                name={"instructorId" as any}
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <Field>
+                                        <FieldLabel>Giảng viên (tùy chọn)</FieldLabel>
+                                        <Input placeholder="UUID giảng viên (nếu cần)" {...field} value={field.value ? String(field.value) : ""} />
+                                        <FieldError>{fieldState.error?.message}</FieldError>
+                                    </Field>
+                                )}
+                            />
                         </FieldGroup>
                     </div>
 

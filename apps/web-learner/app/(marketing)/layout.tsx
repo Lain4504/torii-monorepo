@@ -7,7 +7,7 @@ export default function MarketingLayout({
     children: React.ReactNode
 }) {
     return (
-        <div className="min-h-screen nhai-blueprint-bg">
+        <div className="min-h-screen nhai-blueprint-bg bg-background">
             <Header />
             <main>{children}</main>
             <Footer />

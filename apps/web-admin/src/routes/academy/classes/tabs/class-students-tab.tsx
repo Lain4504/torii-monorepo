@@ -20,6 +20,14 @@ import {
   type AcademyEnrollment,
 } from "@/lib/api/services/academy-enrollments"
 import { ClassEnrollmentDialog } from "@/components/academy/class-enrollment-dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@workspace/ui/components/dialog"
 
 interface ClassStudentsTabProps {
   classId: string
@@ -41,6 +49,10 @@ export function ClassStudentsTab({
   const cancelEnrollment = useCancelAcademyEnrollment()
   const deleteEnrollment = useDeleteAcademyEnrollment()
 
+  const [confirmCancelOpen, setConfirmCancelOpen] = useState(false)
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
+  const [selectedEnrollment, setSelectedEnrollment] = useState<AcademyEnrollment | null>(null)
+
   const handleCreateEnrollment = async (data: any) => {
     try {
       await createEnrollment.mutateAsync(data)
@@ -51,19 +63,33 @@ export function ClassStudentsTab({
     }
   }
 
-  const handleCancel = async (enrollment: AcademyEnrollment) => {
+  const handleCancelClick = (enrollment: AcademyEnrollment) => {
+    setSelectedEnrollment(enrollment)
+    setConfirmCancelOpen(true)
+  }
+
+  const handleConfirmCancel = async () => {
+    if (!selectedEnrollment) return
     try {
-      await cancelEnrollment.mutateAsync(enrollment.id)
+      await cancelEnrollment.mutateAsync(selectedEnrollment.id)
       toast.success("Đã cập nhật trạng thái ghi danh thành CANCELLED")
+      setConfirmCancelOpen(false)
     } catch (error: any) {
       toast.error(error?.response?.data?.message || error.message || "Không thể cập nhật trạng thái")
     }
   }
 
-  const handleDelete = async (enrollment: AcademyEnrollment) => {
+  const handleDeleteClick = (enrollment: AcademyEnrollment) => {
+    setSelectedEnrollment(enrollment)
+    setConfirmDeleteOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!selectedEnrollment) return
     try {
-      await deleteEnrollment.mutateAsync(enrollment.id)
+      await deleteEnrollment.mutateAsync(selectedEnrollment.id)
       toast.success("Đã xóa ghi danh khỏi lớp")
+      setConfirmDeleteOpen(false)
     } catch (error: any) {
       toast.error(error?.response?.data?.message || error.message || "Không thể xóa ghi danh")
     }
@@ -94,7 +120,7 @@ export function ClassStudentsTab({
       )}
       <div className="rounded-md border bg-card overflow-hidden">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/50">
             <TableRow>
               <TableHead>Học viên</TableHead>
               <TableHead>Ngày ghi danh</TableHead>
@@ -167,7 +193,11 @@ export function ClassStudentsTab({
                           : "outline"
                       }
                     >
-                      {en.status}
+                      {en.status === "ACTIVE"
+                        ? "Đang học"
+                        : en.status === "COMPLETED"
+                        ? "Hoàn thành"
+                        : "Đã hủy"}
                     </Badge>
                   </TableCell>
                   {canManageEnrollment && (
@@ -177,19 +207,20 @@ export function ClassStudentsTab({
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleCancel(en)}
+                            onClick={() => handleCancelClick(en)}
                             disabled={cancelEnrollment.isPending}
                           >
                             Hủy kích hoạt
                           </Button>
                         )}
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="icon"
-                          onClick={() => handleDelete(en)}
+                          className="text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5"
+                          onClick={() => handleDeleteClick(en)}
                           disabled={deleteEnrollment.isPending}
                         >
-                          <Trash2 className="size-4 text-destructive" />
+                          <Trash2 className="size-4" />
                         </Button>
                       </div>
                     </TableCell>
@@ -208,6 +239,51 @@ export function ClassStudentsTab({
         submitting={createEnrollment.isPending}
         onSubmit={handleCreateEnrollment}
       />
+
+      {/* Dialog: Xác nhận hủy kích hoạt */}
+      <Dialog open={confirmCancelOpen} onOpenChange={setConfirmCancelOpen}>
+        <DialogContent className="sm:max-w-[480px]">
+          <DialogHeader>
+            <DialogTitle>Xác nhận hủy kích hoạt</DialogTitle>
+            <DialogDescription>
+              Bạn có chắc chắn muốn hủy kích hoạt ghi danh của học viên <strong>{selectedEnrollment?.user?.displayName || selectedEnrollment?.userId}</strong>? 
+              Hành động này sẽ thay đổi trạng thái thành CANCELLED.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmCancelOpen(false)}>Hủy</Button>
+            <Button 
+              onClick={handleConfirmCancel} 
+              disabled={cancelEnrollment.isPending}
+            >
+              Xác nhận hủy
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog: Xác nhận xóa ghi danh */}
+      <Dialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
+        <DialogContent className="sm:max-w-[480px]">
+          <DialogHeader>
+            <DialogTitle>Xác nhận xóa ghi danh</DialogTitle>
+            <DialogDescription>
+              Bạn có chắc chắn muốn xóa ghi danh của học viên <strong>{selectedEnrollment?.user?.displayName || selectedEnrollment?.userId}</strong> khỏi lớp học này?
+              Hành động này <strong>không thể hoàn tác</strong>.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmDeleteOpen(false)}>Hủy</Button>
+            <Button 
+              variant="destructive"
+              onClick={handleConfirmDelete} 
+              disabled={deleteEnrollment.isPending}
+            >
+              Xác nhận xóa
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

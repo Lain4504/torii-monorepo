@@ -17,9 +17,6 @@ import { TooltipProvider } from '@workspace/ui/components/tooltip';
 import DashboardLayout from "@/components/layout/dashboard-layout.tsx";
 // Feature imports
 import DashboardPage from '@/routes/dashboard/dashboard-page.tsx'
-import RevenueAnalytics from '@/routes/analytics/revenue-analytics.tsx'
-import LearningAnalytics from '@/routes/analytics/learning-analytics.tsx'
-import UserAnalytics from '@/routes/analytics/user-analytics.tsx'
 
 import UsersManagementPage from '@/routes/users/users-management-page.tsx'
 import CouponsPage from '@/routes/coupons/coupons-page.tsx'
@@ -48,11 +45,14 @@ import ServiceUnavailablePage from '@/routes/error/service-unavailable-page.tsx'
 import NotImplementedPage from '@/routes/error/not-implemented-page.tsx'
 import UnauthorizedPage from '@/routes/error/unauthorized-page.tsx'
 import CourseProfilesPage from '@/routes/academy/course-profiles/course-profiles-page.tsx'
+import CourseProfileDetailPage from '@/routes/academy/course-profiles/course-profile-detail-page.tsx'
 import ClassesPage from '@/routes/academy/classes/classes-page.tsx'
 import ClassStudentsPage from '@/routes/academy/classes/class-students-page.tsx'
+import OfferingRequestsPage from '@/routes/academy/offering-requests/offering-requests-page.tsx'
+import CourseRequestsPage from '@/routes/academy/course-profiles/course-requests-page.tsx'
 import SyllabusBuilderPage from '@/routes/academy/syllabuses/syllabus-builder-page.tsx'
 import OfferingsPage from '@/routes/academy/offerings/offerings-page.tsx'
-import ApprovalsPage from '@/routes/academy/approvals/approvals-page.tsx'
+import OfferingDetailPage from '@/routes/academy/offerings/offering-detail-page.tsx'
 import AssignmentGradingPage from '@/routes/academy/classes/assignment-grading-page.tsx'
 import RewardsPage from '@/routes/gamification/rewards-page.tsx'
 import AchievementsPage from '@/routes/gamification/achievements-page.tsx'
@@ -108,13 +108,16 @@ function App() {
                   {/* Academy - Core Grouping */}
                   <Route element={<RoutePermissionGuard anyPermission={["academy.content.read", "academy.content.write", "academy.delivery.read", "academy.delivery.write"]} />}>
                     <Route path="academy/course-profiles" element={<CourseProfilesPage />} />
+                    <Route path="academy/course-profiles/:profileId/detail" element={<CourseProfileDetailPage />} />
                     <Route path="academy/classes" element={<ClassesPage />} />
                     <Route path="academy/classes/:classId/detail" element={<ClassStudentsPage />} />
                     <Route path="academy/classes/:classId/schedule" element={<NavigateToClassTab tab="schedule" />} />
                     <Route path="academy/classes/:classId/assessments" element={<NavigateToClassTab tab="assignments" />} />
                     <Route path="academy/syllabuses/:id" element={<SyllabusBuilderPage />} />
                     <Route path="academy/course-offerings" element={<OfferingsPage />} />
-                    <Route path="academy/approvals" element={<ApprovalsPage />} />
+                    <Route path="academy/course-offerings/:offeringId/detail" element={<OfferingDetailPage />} />
+                    <Route path="academy/offering-requests" element={<OfferingRequestsPage />} />
+                    <Route path="academy/course-requests" element={<CourseRequestsPage />} />
                     <Route path="academy/classes/:classId/assignments/:assessmentId/submissions" element={<AssignmentGradingPage />} />
 
                     {/* AI Subscriptions */}
@@ -139,14 +142,6 @@ function App() {
                     <Route path="rewards" element={<RewardsPage />} />
                     <Route path="achievements" element={<AchievementsPage />} />
                   </Route>
-
-                  <Route element={<RoutePermissionGuard permission="report.view" />}>
-                    <Route path="analytics/revenue" element={<RevenueAnalytics />} />
-                    <Route path="analytics/learning" element={<LearningAnalytics />} />
-                    <Route path="analytics/users" element={<UserAnalytics />} />
-
-                  </Route>
-
 
                   <Route element={<RoutePermissionGuard permission="audit.view" />}>
                     <Route path="audit-logs" element={<AuditLogsPage />} />

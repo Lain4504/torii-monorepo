@@ -20,6 +20,10 @@ export class AuditLoggerService {
         oldValues?: any;
         newValues?: any;
     }) {
+        if (params.userId === 'SYSTEM') {
+            this.logger.debug(`Skipping audit log for ${params.action} by SYSTEM`);
+            return;
+        }
         try {
             this.natsClient.emit({ cmd: 'identity.audit.log' }, {
                 userId: params.userId,

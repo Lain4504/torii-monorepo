@@ -134,7 +134,7 @@ export function RewardsTable({ data, isLoading, onEdit, onDelete }: RewardsTable
                         <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
                                 <Button
-                                    variant="ghost"
+                                    variant="outline"
                                     size="icon"
                                     onClick={() => onEdit(reward)}
                                     title="Chỉnh sửa"
@@ -142,9 +142,9 @@ export function RewardsTable({ data, isLoading, onEdit, onDelete }: RewardsTable
                                     <Edit2 className="h-4 w-4" />
                                 </Button>
                                 <Button
-                                    variant="ghost"
+                                    variant="outline"
                                     size="icon"
-                                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                    className="text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5"
                                     onClick={() => onDelete(reward)}
                                     title="Xóa"
                                 >

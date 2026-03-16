@@ -71,25 +71,25 @@ export const academyClassesApi = {
     if (!data) return null;
 
     return {
-      courseId: data.classId,
+      courseId: data.id,
       modules: (data.modules ?? []).map((m: any): CurriculumModule => ({
         id: m.id,
         title: m.title,
         order: m.orderIndex,
         durationMinutes: m.durationMinutes,
-        lessons: (m.items ?? []).map((it: any): CurriculumLesson => ({
+        lessons: (m.lessons ?? []).map((it: any): CurriculumLesson => ({
           id: it.id,
-          title: it.title ?? `${it.kind} #${it.orderIndex}`,
-          kind: it.kind,
-          isUnlocked: it.isUnlocked ?? true,
-          isPreview: it.isPreview ?? false,
+          title: it.title,
+          kind: it.type, // Map 'type' to 'kind'
+          isUnlocked: true, // Lessons in syllabus are generally unlocked by default unless otherwise specified
+          isPreview: false,
           order: it.orderIndex,
           videoDuration: it.videoDurationSeconds,
-          referenceId: it.referenceId ?? null,
-          status: it.status ?? null,
-          availableFrom: it.availableFrom ?? null,
-          deadline: it.deadline ?? null,
-          isPrerequisite: it.isPrerequisite ?? false,
+          referenceId: it.id, // In V2, the lesson itself is the reference
+          status: null,
+          availableFrom: null,
+          deadline: null,
+          isPrerequisite: false,
         })),
       })),
     };

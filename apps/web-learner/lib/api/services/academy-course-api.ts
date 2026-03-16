@@ -60,9 +60,14 @@ function normalizeOfferingForLearner(item: any) {
     return link;
   });
 
+  const enrollableClasses = Array.isArray(item?.enrollableClasses)
+    ? item.enrollableClasses
+    : undefined;
+
   return {
     ...item,
     classes: normalizedClasses,
+    enrollableClasses,
     price: Number.isFinite(parsedPrice) ? parsedPrice : 0,
     thumbnailUrl:
       item?.thumbnailUrl ||
@@ -90,6 +95,8 @@ export const academyOfferingApi = {
     status?: string;
     type?: string;
     q?: string;
+    mode?: 'VOD' | 'LIVE';
+    hasEnrollableLiveClass?: boolean;
   } = {}): Promise<PaginatedApiResponse<any>> => {
     const { status: _status, ...restParams } = params;
     const response = await apiClient.get<StandardApiResponse<{ items: any[]; total: number; page: number; limit: number; totalPages: number }>>('/api/academy/course-offerings/public', {
@@ -125,6 +132,8 @@ export const academyOfferingApi = {
     status?: string;
     type?: string;
     q?: string;
+    mode?: 'VOD' | 'LIVE';
+    hasEnrollableLiveClass?: boolean;
   } = {}): Promise<PaginatedApiResponse<any>> => {
     const { status: _status, ...restParams } = params;
     const response = await apiClient.get<StandardApiResponse<{ items: any[]; total: number; page: number; limit: number; totalPages: number }>>('/api/academy/course-offerings/public', {
@@ -165,6 +174,25 @@ export const academyOfferingApi = {
   getPublicById: async (id: string): Promise<any | null> => {
     const response = await apiClient.get<StandardApiResponse<{ item: any }>>(`/api/academy/course-offerings/public/${id}`);
     return normalizeOfferingForLearner(response.data.data!.item);
+  },
+
+  /**
+   * Get public offerings by category (JLPT level)
+   */
+  findByCategory: async (category: string): Promise<PaginatedApiResponse<any>> => {
+    const response = await apiClient.get<StandardApiResponse<{ items: any[] }>>(
+      `/api/academy/course-offerings/public/category/${category}`,
+    );
+    const data = response.data.data!;
+    const normalizedItems = (data.items ?? []).map(normalizeOfferingForLearner);
+    return {
+      success: response.data.success,
+      data: normalizedItems,
+      total: normalizedItems.length,
+      page: 1,
+      limit: Math.max(normalizedItems.length, 1),
+      totalPages: 1,
+    };
   },
 };
 
@@ -210,6 +238,17 @@ export function useAcademyOfferings(params?: any) {
   return useQuery({
     queryKey: ['academy-course-offerings', params],
     queryFn: () => academyOfferingApi.findAllPublic(params),
+  });
+}
+
+/**
+ * Hook: Get course offerings by category (JLPT Level)
+ */
+export function useAcademyOfferingsByCategory(category: string) {
+  return useQuery({
+    queryKey: ['academy-course-offerings', 'category', category],
+    queryFn: () => academyOfferingApi.findByCategory(category),
+    enabled: !!category,
   });
 }
 

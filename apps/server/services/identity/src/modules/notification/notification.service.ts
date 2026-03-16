@@ -25,7 +25,7 @@ export class NotificationService implements INotificationService {
   constructor(
     @Inject(NOTIFICATION_REPOSITORY_TOKEN)
     private readonly notificationRepository: INotificationRepository,
-    private readonly prisma: PrismaService, // Still needed for cross-service queries (blog, user, wishlist)
+    private readonly prisma: PrismaService, // Still needed for cross-service queries (blog, user)
   ) {}
 
   /**
@@ -287,24 +287,8 @@ export class NotificationService implements INotificationService {
           `Using provided user IDs: ${userIdsToNotify.length} users`,
         );
       } else {
-        // Fallback: Query from wishlist
-        try {
-          const wishlistUsers = await this.prisma.$queryRaw<
-            Array<{ user_id: string }>
-          >`
-            SELECT DISTINCT user_id 
-            FROM wishlist 
-            WHERE course_master_id = ${payload.courseMasterId}::uuid
-          `;
-          userIdsToNotify = wishlistUsers.map((w) => w.user_id);
-          this.logger.log(
-            `Found ${userIdsToNotify.length} users from wishlist`,
-          );
-        } catch (error: any) {
-          this.logger.warn(`Failed to query wishlist: ${error?.message}`);
-          // If wishlist query fails, skip notification creation
-          userIdsToNotify = [];
-        }
+        // No user IDs provided; wishlist fallback removed
+        userIdsToNotify = [];
       }
 
       if (userIdsToNotify.length === 0) {

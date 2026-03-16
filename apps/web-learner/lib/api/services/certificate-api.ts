@@ -13,7 +13,7 @@ export const certificateApi = {
      */
     async getAllCertificates(query?: CertificateQueryDTO): Promise<PaginatedApiResponse<CertificateResponseDTO>> {
         const response = await apiClient.get<PaginatedApiResponse<CertificateResponseDTO>>(
-            '/api/certificates',
+            '/api/certificates/me',
             { params: query }
         );
         return response.data;

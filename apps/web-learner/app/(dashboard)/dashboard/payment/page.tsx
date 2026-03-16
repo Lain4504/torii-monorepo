@@ -265,9 +265,9 @@ export default function PaymentHistoryPage() {
                                                     </TableCell>
                                                     <TableCell className="py-3 px-4 text-sm text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 text-right">
                                                         <Button
-                                                            variant="ghost"
+                                                            variant="outline"
                                                             size="sm"
-                                                            className="h-8 w-8 p-0 rounded-lg text-muted-foreground hover:text-foreground"
+                                                            className="h-8 w-8 p-0 rounded-lg text-muted-foreground hover:text-foreground border-border/60"
                                                             onClick={() => handleViewDetail(order.id)}
                                                         >
                                                             <Eye className="w-4 h-4" />

@@ -32,6 +32,16 @@ import { useAppDispatch } from "@/hooks/hooks"
 import { logout } from "@/store/slices/auth-slice"
 import { toast } from "@workspace/ui/components/sonner"
 import { cn } from "@workspace/ui/lib/utils"
+import { UserRole } from "@workspace/schemas"
+
+const ROLE_LABELS: Record<string, string> = {
+    [UserRole.ADMIN]: 'Quản trị viên',
+    [UserRole.LECTURER]: 'Giảng viên',
+    [UserRole.LEARNER]: 'Học viên',
+    [UserRole.STAFF]: 'Nhân viên',
+    [UserRole.STAFF_ACADEMIC]: 'Phụ trách Học thuật',
+    [UserRole.STAFF_OPERATIONS]: 'Phụ trách Vận hành',
+}
 
 export function NavUser({
     user,
@@ -81,7 +91,7 @@ export function NavUser({
                             <div className="grid flex-1 text-left text-sm leading-tight ml-2 group-data-[collapsible=icon]:hidden">
                                 <span className="truncate font-semibold">{user.displayName || 'Người quản trị'}</span>
                                 <div className="flex items-center gap-1.5 text-muted-foreground">
-                                    <span className="truncate text-xs">{user.role || 'Quản trị viên'}</span>
+                                    <span className="truncate text-xs">{(user.role && ROLE_LABELS[user.role]) || user.role || 'Quản trị viên'}</span>
                                 </div>
                             </div>
                             <ChevronsUpDown className="ml-auto size-4 opacity-50 group-data-[collapsible=icon]:hidden" />

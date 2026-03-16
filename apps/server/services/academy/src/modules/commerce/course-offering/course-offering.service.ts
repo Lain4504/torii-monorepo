@@ -28,17 +28,79 @@ export class CourseOfferingService {
 
   async findAll(query: CourseOfferingQueryDto) {
     const q = query.q?.trim();
+    const now = new Date();
+    const modeFilter = query.mode as ClassMode | undefined;
+    const hasEnrollableLiveClass = Boolean(query.hasEnrollableLiveClass);
+
+    const where: Prisma.CourseOfferingWhereInput = {
+      status: query.status as OfferingStatus,
+      ...(q
+        ? {
+          OR: [
+            { code: { contains: q, mode: 'insensitive' } },
+            { title: { contains: q, mode: 'insensitive' } },
+          ],
+        }
+        : {}),
+      ...(modeFilter ? { mode: modeFilter } : {}),
+      ...(modeFilter === ClassMode.LIVE && hasEnrollableLiveClass
+        ? {
+          classes: {
+            some: {
+              class: {
+                mode: ClassMode.LIVE,
+                status: ClassStatus.OPENING,
+                enrollmentOpenAt: { not: null, lte: now },
+                enrollmentCloseAt: { not: null, gte: now },
+              },
+            },
+          },
+        }
+        : {}),
+    };
+
+    return this.prisma.courseOffering.findMany({
+      where,
+      orderBy: [{ createdAt: 'desc' }],
+      include: {
+        classes: {
+          include: {
+            class: {
+              include: {
+                courseProfile: {
+                  select: {
+                    level: true,
+                    thumbnailUrl: true,
+                  },
+                },
+                instructor: {
+                  select: {
+                    displayName: true,
+                    avatarUrl: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async findPublicByCategory(category: string) {
+    const now = new Date();
     return this.prisma.courseOffering.findMany({
       where: {
-        status: query.status as OfferingStatus,
-        ...(q
-          ? {
-            OR: [
-              { code: { contains: q, mode: 'insensitive' } },
-              { title: { contains: q, mode: 'insensitive' } },
-            ],
-          }
-          : {}),
+        status: OfferingStatus.PUBLISHED,
+        classes: {
+          some: {
+            class: {
+              courseProfile: {
+                level: { equals: category, mode: 'insensitive' },
+              },
+            },
+          },
+        },
       },
       orderBy: [{ createdAt: 'desc' }],
       include: {
@@ -50,6 +112,8 @@ export class CourseOfferingService {
                   select: {
                     level: true,
                     thumbnailUrl: true,
+                    title: true,
+                    description: true,
                   },
                 },
                 instructor: {
@@ -128,6 +192,25 @@ export class CourseOfferingService {
       throw new NotFoundException('CourseOffering not found');
     }
 
+    if (item.mode === ClassMode.LIVE) {
+      const now = new Date();
+      const enrollableClasses = (item.classes ?? [])
+        .map((link: any) => link?.class)
+        .filter(
+          (c: any) =>
+            c?.mode === ClassMode.LIVE &&
+            c?.status === ClassStatus.OPENING &&
+            c?.enrollmentOpenAt &&
+            c?.enrollmentCloseAt &&
+            new Date(c.enrollmentOpenAt) <= now &&
+            new Date(c.enrollmentCloseAt) >= now,
+        );
+      return {
+        ...item,
+        enrollableClasses,
+      };
+    }
+
     return item;
   }
 
@@ -146,7 +229,11 @@ export class CourseOfferingService {
       throw new BadRequestException('Some classIds do not exist');
     }
 
-    const validStatuses: ClassStatus[] = [ClassStatus.OPENING, ClassStatus.ONGOING];
+    const validStatuses: ClassStatus[] = [
+      ClassStatus.OPENING,
+      ClassStatus.ONGOING,
+      ClassStatus.PUBLISHED,
+    ];
     for (const cls of classes) {
       if (!validStatuses.includes(cls.status as ClassStatus)) {
         throw new BadRequestException(

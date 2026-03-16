@@ -4,7 +4,6 @@ import {
     BookOpen,
     Award,
     Clock,
-    FileText,
     TrendingUp,
     Trophy,
     User,
@@ -13,16 +12,11 @@ import {
     LifeBuoy,
     BrainCircuit,
     Bot,
-    Users,
     MessageSquare,
-    Wallet,
     Receipt,
     Gift,
-    Sparkles,
     Languages,
     MessagesSquare,
-    Dumbbell,
-    Library,
     CalendarDays,
 } from 'lucide-react'
 
@@ -44,7 +38,6 @@ export const learningNav: NavItem[] = [
     { name: 'Thời khóa biểu', href: '/dashboard/schedule', icon: CalendarDays },
     { name: 'Thi thử JLPT', href: '/dashboard/jlpt-list-exam', icon: Languages },
     { name: 'Thẻ ghi nhớ', href: '/dashboard/study-sets', icon: BrainCircuit },
-    { name: 'Ghi chú học tập', href: '/dashboard/study-notes', icon: FileText },
 ]
 
 export const progressNav: NavItem[] = [
@@ -56,6 +49,7 @@ export const progressNav: NavItem[] = [
 ]
 
 export const accountNav: NavItem[] = [
+    { name: 'Hồ sơ cá nhân', href: '/dashboard/profile', icon: User },
     { name: 'Đánh giá & Phản hồi', href: '/dashboard/reviews', icon: MessageSquare },
     { name: 'Lịch sử thanh toán', href: '/dashboard/payment', icon: Receipt },
     { name: 'Hỗ trợ', href: '/dashboard/support', icon: LifeBuoy },

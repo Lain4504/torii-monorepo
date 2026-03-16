@@ -3,14 +3,7 @@ import type { UserResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
 
-import { ArrowUpDown, Pencil, UserCircle, Mail, Clock, MoreVertical, ShieldAlert } from 'lucide-react';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@workspace/ui/components/dropdown-menu';
+import { ArrowUpDown, Pencil, UserCircle, Mail, Clock, ShieldAlert } from 'lucide-react';
 import { Can } from "@/lib/guard/can";
 import { formatDateTime } from "@/lib/format-utils";
 import { cn } from "@workspace/ui/lib/utils";
@@ -232,48 +225,32 @@ export const getUsersColumns = ({ onEdit, onChangeStatus, page, limit }: UsersCo
             const user = row.original;
 
             return (
-                <div className="flex justify-center">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
+                <div className="flex items-center justify-center gap-2">
+                    <Can permission="user.manage">
+                        {onEdit && (
                             <Button
-                                variant="ghost"
-                                className="h-8 w-8 p-0 rounded-md border-transparent hover:bg-muted transition-all"
+                                variant="outline"
+                                size="sm"
+                                className="h-8 gap-1.5"
+                                onClick={() => onEdit(user)}
                             >
-                                <span className="sr-only">Menu thao tác</span>
-                                <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                                <Pencil className="h-4 w-4" />
+                                Sửa
                             </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                            align="end"
-                            className="w-[180px]"
+                        )}
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 gap-1.5 border-amber-500/40 text-amber-600"
+                            onClick={() => onChangeStatus(user)}
                         >
-                            <Can permission="user.manage">
-                                {onEdit && (
-                                    <>
-                                        <DropdownMenuItem
-                                            onClick={() => onEdit(user)}
-                                            className="flex gap-2"
-                                        >
-                                            <Pencil className="size-3.5 opacity-70" />
-                                            <span>Chỉnh sửa</span>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuSeparator />
-                                    </>
-                                )}
-
-                                <DropdownMenuItem
-                                    onClick={() => onChangeStatus(user)}
-                                    className="flex gap-2"
-                                >
-                                    <ShieldAlert className="size-3.5 opacity-70" />
-                                    <span>Thay đổi trạng thái</span>
-                                </DropdownMenuItem>
-                            </Can>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                            <ShieldAlert className="h-4 w-4" />
+                            Đổi trạng thái
+                        </Button>
+                    </Can>
                 </div>
             );
         },
-        size: 80,
+        size: 180,
     }),
 ];

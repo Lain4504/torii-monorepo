@@ -12,6 +12,7 @@ import {
   PaymentGateway,
   OfferingStatus,
   ClassStatus,
+  ClassMode,
 } from '@prisma/generated';
 import { CouponService } from '../coupon.service';
 import { PayOSService } from '../payos.service';
@@ -41,31 +42,38 @@ export class OrderService {
   async preview(userId: string, input: OrderPreviewDto) {
     const offeringIds = Array.from(new Set(input.offeringIds ?? []));
     const subscriptionPlanIds = Array.from(new Set(input.subscriptionPlanIds ?? []));
+    const classIdByOffering = input.classIdByOffering ?? {};
+    const now = new Date();
 
     if (!offeringIds.length && !subscriptionPlanIds.length) {
       throw new BadRequestException('At least one offering or subscription plan must be provided');
     }
 
-    const offerings = offeringIds.length ? await this.prisma.courseOffering.findMany({
-      where: {
-        id: { in: offeringIds },
-        status: { in: [OfferingStatus.PUBLISHED, OfferingStatus.OPENING] },
-      },
-      include: {
-        classes: {
-          include: {
-            class: {
-              select: {
-                id: true,
-                code: true,
-                status: true,
-                mode: true,
+    const offerings = offeringIds.length
+      ? await this.prisma.courseOffering.findMany({
+        where: {
+          id: { in: offeringIds },
+          status: { in: [OfferingStatus.PUBLISHED, OfferingStatus.OPENING] },
+        },
+        include: {
+          classes: {
+            include: {
+              class: {
+                select: {
+                  id: true,
+                  code: true,
+                  status: true,
+                  mode: true,
+                  courseProfileId: true,
+                  enrollmentOpenAt: true,
+                  enrollmentCloseAt: true,
+                },
               },
             },
           },
         },
-      },
-    }) : [];
+      })
+      : [];
 
     if (offerings.length !== offeringIds.length) {
       throw new BadRequestException('Some offerings are not available');
@@ -73,12 +81,55 @@ export class OrderService {
 
     for (const offering of offerings) {
       if (!offering.classes.length) {
-        throw new BadRequestException(`Offering ${offering.code} has no class mapped`);
+        throw new BadRequestException(`Offering ${offering.code} has no class mapped for enrollment`);
       }
-      for (const offeringClass of offering.classes) {
-        const klass = offeringClass.class;
-        if (klass.status !== ClassStatus.OPENING && klass.status !== ClassStatus.ONGOING) {
-          throw new BadRequestException(`Class ${klass.code} is not sellable`);
+
+      // LIVE: bắt buộc user chọn đúng 1 classId trong cửa sổ đăng ký
+      if (offering.mode === ClassMode.LIVE) {
+        const selectedClassId = classIdByOffering[offering.id];
+        if (!selectedClassId) {
+          throw new BadRequestException(
+            `LIVE offering ${offering.code} requires a selected class (classIdByOffering)`,
+          );
+        }
+
+        const link = offering.classes.find((oc) => oc.class.id === selectedClassId);
+        if (!link) {
+          throw new BadRequestException(
+            `Selected class ${selectedClassId} is not part of offering ${offering.code}`,
+          );
+        }
+
+        const klass = link.class;
+        if (klass.status !== ClassStatus.OPENING) {
+          throw new BadRequestException(
+            `Class ${klass.code} is not open for enrollment (status: ${klass.status})`,
+          );
+        }
+
+        if (
+          !klass.enrollmentOpenAt ||
+          !klass.enrollmentCloseAt ||
+          new Date(klass.enrollmentOpenAt) > now ||
+          new Date(klass.enrollmentCloseAt) < now
+        ) {
+          throw new BadRequestException(
+            `Class ${klass.code} is outside enrollment window`,
+          );
+        }
+      } else {
+        // VOD hoặc mode khác: chấp nhận các class OPENING/ONGOING
+        for (const offeringClass of offering.classes) {
+          const klass = offeringClass.class;
+          if (
+            klass.status !== ClassStatus.OPENING &&
+            klass.status !== ClassStatus.ONGOING &&
+            klass.status !== ClassStatus.PUBLISHED
+          ) {
+            throw new BadRequestException(
+              `Class ${klass.code} is in status ${klass.status}, not sellable`,
+            );
+          }
         }
       }
     }
@@ -144,6 +195,20 @@ export class OrderService {
     const resolvedOfferingIds = preview.offerings.map((o) => o.id);
     const offeringClassMap = await this.getOfferingClassMap(resolvedOfferingIds);
 
+    const classIdByOffering = input.classIdByOffering ?? {};
+
+    // Snapshot classIds theo spec:
+    // - LIVE: chỉ classId user đã chọn
+    // - VOD/khác: tất cả classIds được map với offering
+    const snapshotClassIdsByOffering = new Map<string, string[]>();
+    for (const o of preview.offerings) {
+      if (o.mode === ClassMode.LIVE && classIdByOffering[o.id]) {
+        snapshotClassIdsByOffering.set(o.id, [classIdByOffering[o.id]]);
+      } else {
+        snapshotClassIdsByOffering.set(o.id, offeringClassMap.get(o.id) ?? []);
+      }
+    }
+
     const orderCode = this.generateOrderCode();
     const orderItemsData = preview.offerings.map((o) => ({
       offeringId: o.id,
@@ -151,7 +216,7 @@ export class OrderService {
       offeringSnapshot: {
         title: o.title,
         code: o.code,
-        classIds: offeringClassMap.get(o.id) ?? [],
+        classIds: snapshotClassIdsByOffering.get(o.id) ?? [],
       } as any,
     }));
 
@@ -256,10 +321,18 @@ export class OrderService {
         },
       });
 
-      return { orderCode: order.code, paymentUrl: paymentLink.checkoutUrl };
+      return { 
+        orderId: order.id,
+        orderCode: order.code, 
+        paymentUrl: paymentLink.checkoutUrl 
+      };
     }
 
-    return { orderCode: order.code, message: 'Order created. Please proceed with manual payment.' };
+    return { 
+      orderId: order.id,
+      orderCode: order.code, 
+      message: 'Order created. Please proceed with manual payment.' 
+    };
   }
 
   async handlePaymentSuccess(
@@ -336,14 +409,8 @@ export class OrderService {
         },
       });
 
-      await this.audit.log({
-        userId: requesterId,
-        action: 'order.payment_success',
-        entity: 'Order',
-        entityId: order.id,
-        description: `Order ${order.code} marked as PAID. Transaction ID: ${transactionId}`,
-        metadata: { orderCode: order.code, transactionId },
-      });
+      // NOTE: Systemic audit logs are disabled here to avoid UUID foreign key issues with 'SYSTEM' ID
+      // and because fulfillment events provide sufficient traceability.
 
       // Update Coupon Usage
       if (order.couponId) {
@@ -376,6 +443,9 @@ export class OrderService {
     });
 
     this.logger.log(`Order ${order.code} fulfilled successfully`);
+
+    // Emit order.paid event for external fulfillment (e.g., Course Enrollments)
+    this.natsClient.emit('order.paid', { orderId: order.id });
 
     // Emit notification via NATS
     try {

@@ -172,6 +172,15 @@ export class ClassController {
     return successResponse({ item });
   }
 
+  @Post(':id/archive')
+  @Permissions('academy.delivery.write')
+  async archive(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.archive' }, { id, requesterId: req.requester?.sub }),
+    );
+    return successResponse({ item });
+  }
+
   @Post(':id/submit-for-approval')
   @Permissions('academy.delivery.write')
   async submitForApproval(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {

@@ -5,17 +5,16 @@ import { Button } from "@workspace/ui/components/button"
 import { ChevronRight, GraduationCap, Languages } from "lucide-react"
 
 const LEVELS = [
-    { code: "N5", color: "bg-emerald-50 text-emerald-600", description: "Sơ cấp – N5" },
-    { code: "N4", color: "bg-lime-50 text-lime-600", description: "Sơ trung cấp – N4" },
-    { code: "N3", color: "bg-amber-50 text-amber-600", description: "Trung cấp – N3" },
-    { code: "N2", color: "bg-sky-50 text-sky-600", description: "Thượng trung cấp – N2" },
-    { code: "N1", color: "bg-purple-50 text-purple-600", description: "Cao cấp – N1" },
+    { code: "N5", color: "bg-emerald-500/10 text-emerald-600", description: "Sơ cấp – N5" },
+    { code: "N4", color: "bg-lime-500/10 text-lime-600", description: "Sơ trung cấp – N4" },
+    { code: "N3", color: "bg-amber-500/10 text-amber-600", description: "Trung cấp – N3" },
+    { code: "N2", color: "bg-sky-500/10 text-sky-600", description: "Thượng trung cấp – N2" },
+    { code: "N1", color: "bg-purple-500/10 text-purple-600", description: "Cao cấp – N1" },
 ]
 
 export default function JlptListExamPage() {
     return (
-        <div className="bg-transparent text-foreground">
-            <div className="max-w-[1200px] mx-auto p-6 md:p-10 space-y-8">
+            <div className="space-y-8">
 
                 {/* Header */}
                 <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -65,7 +64,6 @@ export default function JlptListExamPage() {
                     ))}
                 </section>
             </div>
-        </div>
     )
 }
 

@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@workspace/ui/components/dialog"
+import { ScrollArea } from "@workspace/ui/components/scroll-area"
 
 import {
   useAcademyCourseProfile,
@@ -46,14 +47,14 @@ export function CreateCourseProfileDialog({ open, onOpenChange }: BaseDialogProp
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] p-0 flex flex-col overflow-hidden">
-        <DialogHeader className="p-6 pb-0">
+        <DialogHeader className="p-6 pb-0 shrink-0">
           <DialogTitle>Tạo Course Profile mới</DialogTitle>
           <DialogDescription>
             Tạo khung chương trình đào tạo tổng quát (ví dụ: JLPT N5).
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto">
+        <ScrollArea className="flex-1 min-h-0">
           <div className="space-y-6 p-6">
             <CourseProfileForm
               mode="create"
@@ -62,7 +63,7 @@ export function CreateCourseProfileDialog({ open, onOpenChange }: BaseDialogProp
               onSubmit={handleSubmit}
             />
           </div>
-        </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   )
@@ -96,14 +97,14 @@ export function EditCourseProfileDialog({ id, open, onOpenChange }: EditCoursePr
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] p-0 flex flex-col overflow-hidden">
-        <DialogHeader className="p-6 pb-0">
+        <DialogHeader className="p-6 pb-0 shrink-0">
           <DialogTitle>Cập nhật Course Profile</DialogTitle>
           <DialogDescription>
             Chỉnh sửa thông tin khóa học trừu tượng.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto">
+        <ScrollArea className="flex-1 min-h-0">
           <div className="space-y-6 p-6">
             {isLoading || !profile ? (
               <div className="p-6 text-center text-muted-foreground">
@@ -119,7 +120,7 @@ export function EditCourseProfileDialog({ id, open, onOpenChange }: EditCoursePr
               />
             )}
           </div>
-        </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   )

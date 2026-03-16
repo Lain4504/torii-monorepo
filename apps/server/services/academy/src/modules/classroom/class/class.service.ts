@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
-import { ClassStatus } from '@prisma/generated';
+import { ActivityType, ClassStatus } from '@prisma/generated';
 import {
   ClassAssignmentCreateDto,
   ClassAssignmentUpdateDto,
@@ -14,12 +14,16 @@ import {
   ClassUpdateDto,
 } from './dto/class.dto';
 import { AuditLoggerService } from '../../audit-logger.service';
+import { LiveScheduleService } from '../live-schedule/live-schedule.service';
+import { GamificationService } from '../../gamification/gamification.service';
 
 @Injectable()
 export class ClassService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
+    private readonly liveSchedules: LiveScheduleService,
+    private readonly gamification: GamificationService,
   ) { }
 
   // ==============================================================
@@ -28,11 +32,17 @@ export class ClassService {
 
   async findAll(query: ClassQueryDto) {
     const q = query.q?.trim();
+    const statusFilter =
+      query.status == null
+        ? undefined
+        : query.status.includes(',')
+          ? { in: query.status.split(',').map((s) => s.trim()).filter(Boolean) as ClassStatus[] }
+          : (query.status as ClassStatus);
     return this.prisma.class.findMany({
       where: {
         courseProfileId: query.courseProfileId ?? undefined,
         mode: query.mode as any,
-        status: query.status as any,
+        ...(statusFilter != null ? { status: statusFilter } : {}),
         instructorId: query.instructorId ?? undefined,
         ...(q
           ? {
@@ -145,6 +155,10 @@ export class ClassService {
           mode: input.mode as any,
           status: (input.status as ClassStatus) ?? 'DRAFT',
           instructorId: input.instructorId,
+          openingDate: input.openingDate ? new Date(input.openingDate) : undefined,
+          closingDate: input.closingDate ? new Date(input.closingDate) : undefined,
+          enrollmentOpenAt: input.enrollmentOpenAt ? new Date(input.enrollmentOpenAt) : undefined,
+          enrollmentCloseAt: input.enrollmentCloseAt ? new Date(input.enrollmentCloseAt) : undefined,
         },
       });
 
@@ -188,6 +202,10 @@ export class ClassService {
           status: input.status as ClassStatus,
           instructorId: input.instructorId,
           syllabusId: input.syllabusId,
+          openingDate: input.openingDate ? new Date(input.openingDate) : undefined,
+          closingDate: input.closingDate ? new Date(input.closingDate) : undefined,
+          enrollmentOpenAt: input.enrollmentOpenAt ? new Date(input.enrollmentOpenAt) : undefined,
+          enrollmentCloseAt: input.enrollmentCloseAt ? new Date(input.enrollmentCloseAt) : undefined,
         },
       });
 
@@ -232,6 +250,9 @@ export class ClassService {
       if (!classItem.liveSchedules || classItem.liveSchedules.length === 0) {
         throw new BadRequestException('LIVE class must have at least one LiveSchedule');
       }
+      if (!classItem.openingDate || !classItem.closingDate) {
+        throw new BadRequestException('LIVE class must have openingDate and closingDate before publishing');
+      }
     }
 
     const newStatus = classItem.mode === 'VOD' ? 'PUBLISHED' : 'OPENING';
@@ -244,6 +265,28 @@ export class ClassService {
         approvedBy: requesterId,
       },
     });
+
+    // LIVE: generate "full" sessions when class becomes public.
+    if (classItem.mode === 'LIVE') {
+      try {
+        const from = new Date(classItem.openingDate!);
+        from.setHours(0, 0, 0, 0);
+        const to = new Date(classItem.closingDate!);
+        to.setHours(0, 0, 0, 0);
+        await this.liveSchedules.generateInstancesForClassRange(
+          classItem.id,
+          from,
+          to,
+          requesterId,
+        );
+      } catch (err) {
+        // Do not block publish if generation fails; can be regenerated via API on demand.
+        // eslint-disable-next-line no-console
+        console.warn(
+          `[ClassService.publishClass] generateInstancesForClassRange skipped: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
 
     await this.audit.log({
       userId: requesterId,
@@ -619,7 +662,7 @@ export class ClassService {
 
   /** Mark a single lesson as complete */
   async markLessonComplete(userId: string, classId: string, lessonId: string) {
-    return this.prisma.userLessonProgress.upsert({
+    const progress = await this.prisma.userLessonProgress.upsert({
       where: { userId_classId_lessonId: { userId, classId, lessonId } },
       create: {
         userId,
@@ -633,6 +676,16 @@ export class ClassService {
         lastWatchedAt: new Date(),
       },
     });
+
+    // Trigger gamification for lesson completion (XP/points & level/streak/achievements)
+    this.gamification.trackActivity(userId, ActivityType.LESSON_COMPLETE, {
+      lessonId,
+      classId,
+    }).catch(() => {
+      // Gamification failure should not break core learning flow
+    });
+
+    return progress;
   }
 
   // ==============================================================

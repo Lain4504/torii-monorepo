@@ -8,15 +8,7 @@ import {
 } from "@workspace/ui/components/table";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@workspace/ui/components/dropdown-menu";
-import { MoreHorizontal, Edit, Trash, Trophy, Star, Target, Zap, Flame, Award } from "lucide-react";
+import { Edit, Trash, Trophy, Star, Target, Zap, Flame, Award } from "lucide-react";
 import type { AchievementDTO } from "@workspace/schemas";
 import { Skeleton } from "@workspace/ui/components/skeleton";
 
@@ -111,28 +103,26 @@ export function AchievementsTable({ data, isLoading, onEdit, onDelete }: Achieve
                                         )}
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                                    <MoreHorizontal className="h-4 w-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-                                                <DropdownMenuItem onClick={() => onEdit(achievement)}>
-                                                    <Edit className="mr-2 h-4 w-4" />
-                                                    Sửa
-                                                </DropdownMenuItem>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem
-                                                    className="text-destructive focus:text-destructive"
-                                                    onClick={() => onDelete(achievement)}
-                                                >
-                                                    <Trash className="mr-2 h-4 w-4" />
-                                                    Xóa
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                                        <div className="flex items-center justify-end gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="h-8 gap-1.5"
+                                                onClick={() => onEdit(achievement)}
+                                            >
+                                                <Edit className="h-4 w-4" />
+                                                Sửa
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="h-8 gap-1.5 text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5"
+                                                onClick={() => onDelete(achievement)}
+                                            >
+                                                <Trash className="h-4 w-4" />
+                                                Xóa
+                                            </Button>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             );

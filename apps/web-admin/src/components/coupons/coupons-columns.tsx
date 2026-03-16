@@ -9,14 +9,8 @@ import {
     Calendar,
     Percent,
     DollarSign,
-    Users, MoreVertical
+    Users,
 } from 'lucide-react';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@workspace/ui/components/dropdown-menu';
 import { formatCurrency, formatDateTime } from '@/lib/format-utils';
 import { cn } from "@workspace/ui/lib/utils";
 import { Can } from '@/lib/guard/can';
@@ -203,43 +197,25 @@ export const getCouponsColumns = ({ onEdit, onDelete, page, limit }: CouponsColu
             const coupon = row.original;
 
             return (
-                <div className="flex justify-center">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 hover:text-primary transition-all data-[state=open]:bg-primary/10 data-[state=open]:text-primary"
-                            >
-                                <span className="sr-only">Mở menu</span>
-                                <MoreVertical className="h-4 w-4 opacity-50 group-hover:opacity-100" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                            align="end"
-                            className="w-[160px] border-border/40 shadow-xl bg-background/95 backdrop-blur-xl rounded-xl p-1.5"
+                <div className="flex items-center justify-center gap-2">
+                    <Can permission="coupon.manage">
+                        <Button variant="outline" size="sm" className="h-8 gap-1.5" onClick={() => onEdit(coupon)}>
+                            <Pencil className="h-4 w-4" />
+                            Sửa
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 gap-1.5 text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5"
+                            onClick={() => onDelete(coupon)}
                         >
-                            <Can permission="coupon.manage">
-                                <DropdownMenuItem
-                                    onClick={() => onEdit(coupon)}
-                                    className="rounded-lg px-3 py-2.5 text-xs font-medium focus:bg-primary/10 focus:text-primary cursor-pointer flex gap-2.5"
-                                >
-                                    <Pencil className="h-4 w-4 opacity-50" />
-                                    <span>Chỉnh sửa</span>
-                                </DropdownMenuItem>
-
-                                <DropdownMenuItem
-                                    onClick={() => onDelete(coupon)}
-                                    className="rounded-lg px-3 py-2.5 text-xs font-medium text-rose-600 focus:text-rose-700 focus:bg-rose-500/10 cursor-pointer flex gap-2.5"
-                                >
-                                    <Trash className="h-4 w-4 opacity-50" />
-                                    <span>Xóa coupon</span>
-                                </DropdownMenuItem>
-                            </Can>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                            <Trash className="h-4 w-4" />
+                            Xóa
+                        </Button>
+                    </Can>
                 </div>
             );
         },
-        size: 80,
+        size: 140,
     }),
 ];

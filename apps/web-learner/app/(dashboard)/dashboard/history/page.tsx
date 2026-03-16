@@ -40,7 +40,7 @@ export default function HistoryPage() {
 
     if (isLoading) {
         return (
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 max-w-4xl">
+            <div className="space-y-10 max-w-4xl">
                 <div className="space-y-1">
                     <div className="h-8 w-48 bg-muted/20 animate-pulse rounded-md" />
                     <div className="h-4 w-64 bg-muted/20 animate-pulse rounded-md" />
@@ -55,7 +55,7 @@ export default function HistoryPage() {
     }
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 max-w-4xl animate-in fade-in duration-500">
+        <div className="space-y-8 animate-in fade-in duration-500">
             {/* Header */}
             <div className="space-y-2 pb-6 border-b border-border">
                 <h1 className="text-3xl font-bold tracking-tight text-foreground">

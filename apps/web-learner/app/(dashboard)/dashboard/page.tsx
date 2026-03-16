@@ -10,8 +10,9 @@ import Link from 'next/link';
 import { formatDistanceToNow, subDays } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { BookOpen, Clock, Calendar, Video } from 'lucide-react';
-import { LiveSessionStatus } from '@workspace/schemas';
+import { LiveSessionStatus, UserRole } from '@workspace/schemas';
 import Heatmap from '@workspace/ui/components/heatmap';
+import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal';
 
 function formatDuration(seconds: number): string {
     if (!seconds) return '0 phút';
@@ -78,17 +79,15 @@ export default function DashboardClientPage() {
     const jlptTarget = (user?.userMetadata as Record<string, string>)?.jlptTarget || 'N3';
     const firstName = user?.displayName?.split(' ').at(-1) || 'Học viên';
     const role = user?.role as string | undefined;
-    const isStaffOrAdmin = role === 'admin' || role === 'staff-lms' || role === 'staff_lms' || role === 'staff';
+    const isStaffOrAdmin = role === UserRole.ADMIN || role === UserRole.STAFF || role === UserRole.STAFF_ACADEMIC || role === UserRole.STAFF_OPERATIONS;
 
     return (
-        <div className="bg-transparent text-foreground font-sans antialiased min-h-screen">
-            <style>{`
-    .hover-lift { transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; }
-    .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); }
-    .progress-ring-circle { transition: stroke-dashoffset 0.35s; transform: rotate(-90deg); transform-origin: 50% 50%; }
+        <div className="space-y-8 animate-in fade-in duration-700">
+            <style jsx>{`
+                .hover-lift { transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; }
+                .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); }
+                .progress-ring-circle { transition: stroke-dashoffset 0.35s; transform: rotate(-90deg); transform-origin: 50% 50%; }
             `}</style>
-
-            <div className="max-w-[1440px] mx-auto p-6 md:p-10 space-y-8">
 
                 {/* Welcome Header */}
                 <header className="flex flex-col md:flex-row md:items-center justify-between gap-6" data-purpose="welcome-section">
@@ -542,8 +541,7 @@ export default function DashboardClientPage() {
                         </div>
                     )}
                 </section>
-
+                <StreakWelcomeModal />
             </div>
-        </div>
-    );
+        );
 }

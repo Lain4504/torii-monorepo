@@ -15,6 +15,14 @@ export type AcademyCourseProfile = {
   level?: string | null
   thumbnailUrl?: string | null
   metadata?: any | null
+  status?: string | null
+  submittedForApprovalAt?: string | null
+  submittedBy?: string | null
+  approvedAt?: string | null
+  approvedBy?: string | null
+  rejectedAt?: string | null
+  rejectedBy?: string | null
+  rejectionReason?: string | null
   createdAt: string
   updatedAt: string
 }
@@ -64,6 +72,30 @@ export const academyCourseProfilesApi = {
       `/api/academy/course-profiles/${id}`,
     )
     return res.data
+  },
+
+  async submitForApproval(id: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseProfile }>>(
+      `/api/academy/course-profiles/${id}/submit-for-approval`,
+      {},
+    )
+    return res.data.data!.item
+  },
+
+  async approve(id: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseProfile }>>(
+      `/api/academy/course-profiles/${id}/approve`,
+      {},
+    )
+    return res.data.data!.item
+  },
+
+  async reject(id: string, reason: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseProfile }>>(
+      `/api/academy/course-profiles/${id}/reject`,
+      { reason },
+    )
+    return res.data.data!.item
   },
 }
 
@@ -115,6 +147,40 @@ export function useDeleteAcademyCourseProfile() {
   return useMutation({
     mutationFn: (id: string) => academyCourseProfilesApi.delete(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["academy-course-profiles"] }),
+  })
+}
+
+export function useSubmitCourseProfileForApproval() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => academyCourseProfilesApi.submitForApproval(id),
+    onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: ["academy-course-profiles"] })
+      qc.invalidateQueries({ queryKey: ["academy-course-profile", id] })
+    },
+  })
+}
+
+export function useApproveCourseProfile() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => academyCourseProfilesApi.approve(id),
+    onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: ["academy-course-profiles"] })
+      qc.invalidateQueries({ queryKey: ["academy-course-profile", id] })
+    },
+  })
+}
+
+export function useRejectCourseProfile() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
+      academyCourseProfilesApi.reject(id, reason),
+    onSuccess: (_, { id }) => {
+      qc.invalidateQueries({ queryKey: ["academy-course-profiles"] })
+      qc.invalidateQueries({ queryKey: ["academy-course-profile", id] })
+    },
   })
 }
 

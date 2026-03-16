@@ -1,15 +1,8 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import type { BlogResponseDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
-import { ArrowUpDown, Pencil, Trash, FileText, MoreVertical } from 'lucide-react';
+import { ArrowUpDown, Pencil, Trash, FileText } from 'lucide-react';
 import { Badge } from '@workspace/ui/components/badge';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@workspace/ui/components/dropdown-menu';
 import { formatDateTime } from '@/lib/format-utils';
 import { cn } from '@workspace/ui/lib/utils';
 
@@ -190,53 +183,41 @@ export const getBlogColumns = ({ onEdit, onDelete, onScheduleChange, page, limit
             const blog = row.original;
 
             return (
-                <div className="flex justify-center">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                className="h-8 w-8 p-0"
-                            >
-                                <span className="sr-only">Menu Thao tác</span>
-                                <MoreVertical className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                            align="end"
-                            className="w-[220px]"
+                <div className="flex items-center justify-center gap-2">
+                    <Can permission="blog.manage">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 gap-1.5"
+                            onClick={() => onEdit(blog)}
                         >
-                            <Can permission="blog.manage">
-                                <DropdownMenuItem
-                                    onClick={() => onEdit(blog)}
-                                >
-                                    <Pencil className="h-4 w-4 mr-2" />
-                                    <span>Chỉnh sửa Nội dung</span>
-                                </DropdownMenuItem>
-
-                                {blog.status === 'scheduled' && (
-                                    <DropdownMenuItem
-                                        onClick={() => onScheduleChange(blog)}
-                                    >
-                                        <ArrowUpDown className="h-4 w-4 mr-2" />
-                                        <span>Thay đổi lịch đăng</span>
-                                    </DropdownMenuItem>
-                                )}
-
-                                <DropdownMenuSeparator />
-
-                                <DropdownMenuItem
-                                    onClick={() => onDelete(blog)}
-                                    className="text-destructive focus:text-destructive"
-                                >
-                                    <Trash className="h-4 w-4 mr-2" />
-                                    <span>Xóa bài viết</span>
-                                </DropdownMenuItem>
-                            </Can>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                            <Pencil className="h-4 w-4" />
+                            Sửa
+                        </Button>
+                        {blog.status === 'scheduled' && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-8 gap-1.5 text-amber-600 border-amber-500/40"
+                                onClick={() => onScheduleChange(blog)}
+                            >
+                                <ArrowUpDown className="h-4 w-4" />
+                                Đổi lịch
+                            </Button>
+                        )}
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 gap-1.5 text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5"
+                            onClick={() => onDelete(blog)}
+                        >
+                            <Trash className="h-4 w-4" />
+                            Xóa
+                        </Button>
+                    </Can>
                 </div>
             );
         },
-        size: 100,
+        size: 180,
     }),
 ];

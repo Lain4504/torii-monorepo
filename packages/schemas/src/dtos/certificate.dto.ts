@@ -2,7 +2,9 @@ import { z } from 'zod';
 import { certificateSchema } from '../models/certificate.model';
 
 export const certificateResponseDTOSchema = certificateSchema.extend({
-    courseRun: z.any().optional(),
+    class: z.any().optional(),
+    user: z.any().optional(),
+    enrollment: z.any().optional(),
 });
 
 export type CertificateResponseDTO = z.infer<typeof certificateResponseDTOSchema>;
@@ -11,14 +13,14 @@ export const certificateQueryDTOSchema = z.object({
     page: z.string().optional(),
     limit: z.string().optional(),
     userId: z.string().uuid().optional(),
-    courseRunId: z.string().uuid().optional(),
+    classId: z.string().uuid().optional(),
 });
 
 export type CertificateQueryDTO = z.infer<typeof certificateQueryDTOSchema>;
 
 export const certificateIssueDTOSchema = z.object({
     userId: z.string().uuid(),
-    courseRunId: z.string().uuid(),
+    classId: z.string().uuid(),
     enrollmentId: z.string().uuid(),
 });
 

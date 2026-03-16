@@ -1,4 +1,4 @@
-import { LogOut, BadgeCheck, Bell, Heart, Flame, Snowflake, Star, Zap, Gem } from 'lucide-react'
+import { LogOut, BadgeCheck, Bell, Flame, Snowflake, Star, Zap, Gem } from 'lucide-react'
 import { UserRole } from '@workspace/schemas'
 import { SidebarTrigger } from '@workspace/ui/components/sidebar'
 import { NotificationsDropdown } from '../dashboard/notifications-dropdown'
@@ -221,10 +221,6 @@ export function DashboardHeader() {
                                 <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/notifications')}>
                                     <Bell className="mr-3 size-4 text-muted-foreground" />
                                     <span>Thông báo</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/wishlist')}>
-                                    <Heart className="mr-3 size-4 text-destructive" />
-                                    <span>Khóa học yêu thích</span>
                                 </DropdownMenuItem>
                             </DropdownMenuGroup>
                             <DropdownMenuSeparator className="mx-2 my-2" />

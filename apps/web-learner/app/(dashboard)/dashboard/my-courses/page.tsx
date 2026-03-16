@@ -83,7 +83,7 @@ export default function MyCoursesPage() {
     }
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 max-w-7xl animate-in fade-in duration-500">
+        <div className="space-y-8 animate-in fade-in duration-500">
             {/* Header */}
             <div className="space-y-4 pb-2 border-b border-border">
                 <h1 className="text-3xl font-bold text-foreground">
@@ -181,7 +181,7 @@ export default function MyCoursesPage() {
                                     <Award className="w-3 h-3" /> Hoàn thành
                                 </Badge>
                             )}
-                            {course.type === 'live' && (
+                            {course.type?.toLowerCase() === 'live' && (
                                 <Badge className="absolute top-3 left-3 bg-red-500 text-white border-none shadow-sm flex gap-1.5 items-center px-2 py-0.5 text-xs font-bold z-20">
                                     <Video className="w-3 h-3" /> Live
                                 </Badge>
@@ -191,9 +191,11 @@ export default function MyCoursesPage() {
                                     <Clock className="w-3 h-3" /> Hết hạn
                                 </Badge>
                             )}
-                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary/10 z-20">
-                                <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${course.progress}%` }} />
-                            </div>
+                            {course.type?.toLowerCase() !== 'live' && (
+                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary/10 z-20">
+                                    <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${course.progress}%` }} />
+                                </div>
+                            )}
                         </div>
                         <CardContent className="p-5 space-y-4 flex-1 flex flex-col justify-between">
                             <div className="space-y-1.5">
@@ -204,13 +206,15 @@ export default function MyCoursesPage() {
                             </div>
 
                             <div className="space-y-3">
-                                <div className="space-y-2">
-                                    <div className="flex items-center justify-between text-xs font-bold text-muted-foreground">
-                                        <span>Tiến độ</span>
-                                        <span className="text-primary">{course.progress}%</span>
+                                {course.type?.toLowerCase() !== 'live' && (
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between text-xs font-bold text-muted-foreground">
+                                            <span>Tiến độ</span>
+                                            <span className="text-primary">{course.progress}%</span>
+                                        </div>
+                                        <Progress value={course.progress} className="h-2 bg-muted" />
                                     </div>
-                                    <Progress value={course.progress} className="h-2 bg-muted" />
-                                </div>
+                                )}
                                 <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
                                     <span className="flex items-center gap-1">
                                         <BookOpen className="w-3.5 h-3.5" />
@@ -220,10 +224,16 @@ export default function MyCoursesPage() {
                                         <Clock className="w-3.5 h-3.5" />
                                         {course.lastAccessed ? formatDate(course.lastAccessed) : 'Mới'}
                                     </span>
+                                    {course.type?.toLowerCase() === 'live' && (
+                                        <span className="flex items-center gap-1 text-red-500 font-bold">
+                                            <Video className="w-3.5 h-3.5" />
+                                            Live Session
+                                        </span>
+                                    )}
                                 </div>
                             </div>
 
-                            {course.type === 'live' && (
+                            {course.type?.toLowerCase() === 'live' && (
                                 <div className="rounded-xl border border-border bg-muted/20 p-3">
                                     <LiveSessionBlock classId={course.classId} compact maxSessions={2} />
                                 </div>
@@ -245,12 +255,12 @@ export default function MyCoursesPage() {
                                 ) : (
                                     <div className="flex gap-2">
                                         <Link
-                                            href={`/courses/${course.classId}/learn`}
+                                            href={course.type?.toLowerCase() === 'live' ? `/courses/${course.classId}` : `/courses/${course.classId}/learn`}
                                             className="w-full flex-1"
                                             onClick={(e) => e.stopPropagation()}
                                         >
-                                            <Button className="w-full text-xs" variant={course.progress >= 100 ? "outline" : "default"}>
-                                                {course.progress === 0 ? 'Bắt đầu học' : course.progress >= 100 ? 'Xem lại' : 'Tiếp tục học'}
+                                            <Button className="w-full text-xs" variant={course.type?.toLowerCase() === 'live' ? 'destructive' : course.progress >= 100 ? "outline" : "default"}>
+                                                {course.type?.toLowerCase() === 'live' ? 'Vào lớp Live' : course.progress === 0 ? 'Bắt đầu học' : course.progress >= 100 ? 'Xem lại' : 'Tiếp tục học'}
                                                 <ChevronRight className="ml-1.5 w-3.5 h-3.5" />
                                             </Button>
                                         </Link>

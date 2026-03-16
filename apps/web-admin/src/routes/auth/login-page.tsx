@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { userLoginDTOSchema, type UserLoginDTO } from '@workspace/schemas';
+import { userLoginDTOSchema, type UserLoginDTO, UserRole } from '@workspace/schemas';
 import { useAppDispatch, useAppSelector } from '@/hooks/hooks.ts';
 import { login, checkAuth, selectAuthError, selectAuthLoading, setError } from '@/store/slices/auth-slice.ts';
 import { Button } from '@workspace/ui/components/button';
@@ -54,7 +54,7 @@ export default function LoginPage() {
       const fullUser = await dispatch(checkAuth()).unwrap();
 
       // Block learner role
-      if (fullUser.role === 'learner') {
+      if (fullUser.role === UserRole.LEARNER) {
         dispatch(setError('Học viên không thể truy cập bảng quản trị.'));
         toast.error('Từ chối truy cập: Cổng quản trị bị hạn chế.');
         return;

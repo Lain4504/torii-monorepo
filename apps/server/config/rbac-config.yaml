@@ -21,21 +21,13 @@ roles:
     name: System Administrator
     description: Full access to all system resources
     
-  - code: staff-lms
-    name: LMS Staff
+  - code: staff-academic
+    name: Academic Staff
     description: Academic operations, content and delivery management
     
-  - code: staff-support
-    name: Support Staff
-    description: Customer support, ticketing and basic user viewing
-    
-  - code: staff-sales
-    name: Sales Staff
-    description: Sales, marketing, and coupon management
-    
-  - code: staff-finance
-    name: Finance Staff
-    description: Financial operations, orders, and point rewards
+  - code: staff-operations
+    name: Operations Staff
+    description: Business operations, support, finance, and marketing
     
   - code: lecturer
     name: Instructor
@@ -97,9 +89,14 @@ permissions:
     category: Academy Assessment
 
   # Gamification
-  - code: gamification:admin
-    description: Manage reward shop and point point configurations
+  - code: gamification.manage
+    description: Manage reward shop and point configurations
     category: Gamification
+
+  # AI Subscription (Sensei)
+  - code: academy:subscription:admin
+    description: Manage AI sensei subscription plans and users
+    category: Academy Commerce
 
   # Blog Management
   - code: blog.view_restricted
@@ -156,8 +153,8 @@ default_role_permissions:
   admin:
     - "*"
     
-  # Staff-LMS: Academic operations & Content
-  staff-lms:
+  # Staff-Academic: Academic operations & Content
+  staff-academic:
     - user.view
     - academy.content.read
     - academy.content.write
@@ -165,42 +162,32 @@ default_role_permissions:
     - academy.delivery.read
     - academy.delivery.write
     - academy.delivery.approve
-    - academy.commerce.approve
+    - academy.commerce.read # Limited view of packages
     - exam.manage
     - report.view
+    
+  # Staff-Operations: Support, Business, and Finance
+  staff-operations:
+    - user.view
+    - report.view
+    - audit.view
+    - academy.content.read
+    - academy.delivery.read
+    - academy.commerce.read
+    - academy.commerce.write
+    - academy.commerce.approve
+    - academy:order:admin
+    - academy:coupon:admin
+    - academy:subscription:admin
+    - gamification.manage
     - blog.manage
     - blog.create
     - blog.update
     - blog.publish
-    
-  # Staff-Support: Support and basic viewing
-  staff-support:
-    - user.view
-    - audit.view
-    - academy.content.read
-    - academy.delivery.read
+    - blog.delete
+    - blog.view_restricted
     - support.view
     - support.handle
-    
-  # Staff-Finance: Financing, Orders, and Rewards
-  staff-finance:
-    - user.view
-    - report.view
-    - academy.commerce.read
-    - academy.commerce.write
-    - academy:order:admin
-    - academy:coupon:admin
-    - gamification:admin
-    
-  # Staff-Sales: Sales, Marketing and Coupons
-  staff-sales:
-    - user.view
-    - report.view
-    - academy.commerce.read
-    - academy:coupon:admin
-    - blog.create
-    - blog.update
-    - blog.publish
     
   # Lecturer: Managing their own classes and students
   lecturer:

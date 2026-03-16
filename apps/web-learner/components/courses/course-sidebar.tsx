@@ -3,8 +3,7 @@
 import type { AcademyCourseProfileCreateDTO } from '@workspace/schemas'
 import { useRouter } from 'next/navigation'
 import { Button } from '@workspace/ui/components/button'
-import { cn } from '@workspace/ui/lib/utils'
-import { Award, BookOpen, Clock, Sparkles, Heart, ShieldCheck, Signal } from 'lucide-react'
+import { Award, BookOpen, Clock, Sparkles, ShieldCheck, Signal } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from '@workspace/ui/components/sonner'
 import { useCourseEnrollment } from '@/hooks/use-course-enrollment'
@@ -27,16 +26,13 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
     const router = useRouter()
     const isFree = !course.price || course.price === 0
     const {
-        isInWishlist,
         isEnrolled,
         isExpired,
         enrollment,
-        isLoadingWishlist,
         isLoadingEnrollment,
         isToggling,
         isEnrolling,
         isAuthenticated,
-        handleToggleWishlist,
         handleEnroll,
     } = useCourseEnrollment(course.id, course.slug || '')
 
@@ -119,7 +115,7 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
                                         </Button>
                                     )}
 
-                                {enrollment && enrollment.completionPercentage >= 100 && !isExpired && (
+                                {enrollment && enrollment.progress !== undefined && enrollment.progress >= 100 && !isExpired && (
                                     <Button
                                         asChild
                                         variant="outline"
@@ -141,23 +137,6 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
                                 >
                                     {isEnrolling ? 'Đang xử lý...' : isFree ? 'Bắt đầu ngay' : 'Đăng ký ngay'}
                                 </Button>
-
-                                {isAuthenticated && (
-                                    <Button
-                                        variant="outline"
-                                        className="w-full h-12 font-bold"
-                                        onClick={handleToggleWishlist}
-                                        disabled={isToggling || isLoadingWishlist}
-                                    >
-                                        <Heart
-                                            className={cn(
-                                                'mr-2 size-4',
-                                                isInWishlist && 'fill-destructive text-destructive'
-                                            )}
-                                        />
-                                        {isInWishlist ? 'Đã thêm vào yêu thích' : 'Thêm vào yêu thích'}
-                                    </Button>
-                                )}
                             </>
                         )}
                 </div>

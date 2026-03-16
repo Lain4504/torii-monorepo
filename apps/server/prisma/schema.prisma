@@ -98,12 +98,13 @@ enum ClassMode {
 }
 
 enum ClassStatus {
-  DRAFT       // Nháp (VOD + LIVE)
-  PUBLISHED   // Đang bán - học ngay (VOD only)
-  OPENING     // Đang tuyển sinh (LIVE only)
-  ONGOING     // Đang học (LIVE only)
-  COMPLETED   // Đã kết thúc (LIVE only)
-  ARCHIVED    // Lưu trữ (VOD + LIVE)
+  DRAFT            // Nháp (VOD + LIVE)
+  PENDING_APPROVAL // Chờ duyệt (LIVE only)
+  PUBLISHED        // Đang bán - học ngay (VOD only)
+  OPENING          // Đang tuyển sinh (LIVE only)
+  ONGOING          // Đang học (LIVE only)
+  COMPLETED        // Đã kết thúc (LIVE only)
+  ARCHIVED         // Lưu trữ (VOD + LIVE)
 }
 
 enum MinStudentsEnforcement {
@@ -1081,6 +1082,8 @@ model Lesson {
   title      String     @db.VarChar(255)
   orderIndex Int        @map("order_index")
   videoUrl   String?    @map("video_url") @db.Text // Only for VIDEO type
+  /// Nội dung bài học dạng rich text (markdown) từ admin
+  content   String?    @db.Text
   createdAt  DateTime   @default(now()) @map("created_at")
   updatedAt  DateTime   @default(now()) @updatedAt @map("updated_at")
 
@@ -1119,6 +1122,12 @@ model Class {
   mode            ClassMode   // VOD or LIVE
   status          ClassStatus @default(DRAFT)
   instructorId    String?     @map("instructor_id") @db.Uuid // LIVE only
+
+  // LIVE term dates (operational timeline)
+  openingDate        DateTime? @map("opening_date") // Ngày khai giảng / bắt đầu học
+  closingDate        DateTime? @map("closing_date") // Ngày bế giảng / kết thúc học
+  enrollmentOpenAt   DateTime? @map("enrollment_open_at") // Mở đăng ký/bán
+  enrollmentCloseAt  DateTime? @map("enrollment_close_at") // Đóng đăng ký/bán
 
   // Approval workflow
   submittedForApprovalAt DateTime? @map("submitted_for_approval_at")

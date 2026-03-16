@@ -187,3 +187,12 @@ export function useMySchedule() {
         staleTime: 5 * 60 * 1000, // 5 mins
     });
 }
+
+export function useClassSchedule(classId?: string) {
+    return useQuery({
+        queryKey: ['class-schedule', classId],
+        queryFn: () => liveSessionApi.getSessions(classId!),
+        enabled: !!classId,
+        staleTime: 5 * 60 * 1000,
+    });
+}

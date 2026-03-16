@@ -27,7 +27,7 @@ export default function DashboardReviewsPage() {
     }
 
     return (
-        <div className="container mx-auto p-6 space-y-8 max-w-7xl animate-in fade-in duration-500">
+        <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex items-center gap-4 border-b border-border/40 pb-6">
                 <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
                     <MessageSquare className="w-6 h-6" />

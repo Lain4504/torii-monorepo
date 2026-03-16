@@ -15,11 +15,12 @@ import { CommandMenu } from "@/components/layout/command-menu.tsx"
 import { NotificationsDropdown } from "@/components/layout/notifications-dropdown.tsx"
 import { useSelector } from "react-redux"
 import { selectUser } from "@/store/slices/auth-slice"
+import { UserRole } from "@workspace/schemas"
 
 export function DashboardHeader() {
   const location = useLocation()
   const user = useSelector(selectUser)
-  const isLecturer = user?.role === 'lecturer'
+  const isLecturer = user?.role === UserRole.LECTURER
 
   const pathSegments = location.pathname.split('/').filter(Boolean)
 

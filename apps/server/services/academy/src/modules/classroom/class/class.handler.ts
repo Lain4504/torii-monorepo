@@ -106,6 +106,12 @@ export class ClassHandler {
     return this.classes.removeAssignment(data.id, data.requesterId);
   }
 
+  @MessagePattern({ cmd: 'academy.class.getCurriculum' })
+  async getCurriculum(@Payload() data: { id: string }) {
+    const klass = await this.classes.findById(data.id);
+    return klass.syllabus;
+  }
+
   // ==== Lesson Progress ====
 
   @MessagePattern({ cmd: 'academy.class.getUserProgress' })

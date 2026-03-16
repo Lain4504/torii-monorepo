@@ -1,14 +1,8 @@
 import { useState, useMemo } from 'react'
-import { Check, Trash2, Clock, Info, CheckCircle2, AlertTriangle, XCircle, MoreVertical, BellOff } from 'lucide-react'
+import { Check, Trash2, Clock, Info, CheckCircle2, AlertTriangle, XCircle, BellOff } from 'lucide-react'
 import { Button } from '@workspace/ui/components/button'
 import { cn } from '@workspace/ui/lib/utils'
 import { formatDateTime, formatRelativeTime, formatNumber } from '@/lib/format-utils.ts';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@workspace/ui/components/dropdown-menu'
 import {
   Pagination,
   PaginationContent,
@@ -219,33 +213,30 @@ export default function NotificationsPage() {
                         </div>
                       </div>
 
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="shrink-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground">
-                            <MoreVertical className="size-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="rounded-xl min-w-[160px] p-1">
-                          {!notification.read && (
-                            <DropdownMenuItem
-                              onClick={() => markAsReadMutation.mutate(notification.id)}
-                              disabled={markAsReadMutation.isPending}
-                              className="rounded-lg text-xs cursor-pointer px-3 py-2"
-                            >
-                              <Check className="size-3.5 mr-2 opacity-50" />
-                              Đánh dấu đã đọc
-                            </DropdownMenuItem>
-                          )}
-                          <DropdownMenuItem
-                            onClick={() => deleteNotificationMutation.mutate(notification.id)}
-                            disabled={deleteNotificationMutation.isPending}
-                            className="rounded-lg text-xs cursor-pointer px-3 py-2 text-destructive focus:text-destructive focus:bg-destructive/10"
+                      <div className="flex items-center gap-2 shrink-0">
+                        {!notification.read && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 gap-1.5 text-xs"
+                            onClick={() => markAsReadMutation.mutate(notification.id)}
+                            disabled={markAsReadMutation.isPending}
                           >
-                            <Trash2 className="size-3.5 mr-2 opacity-50" />
-                            Xóa thông báo
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                            <Check className="size-3.5" />
+                            Đã đọc
+                          </Button>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 gap-1.5 text-xs text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5"
+                          onClick={() => deleteNotificationMutation.mutate(notification.id)}
+                          disabled={deleteNotificationMutation.isPending}
+                        >
+                          <Trash2 className="size-3.5" />
+                          Xóa
+                        </Button>
+                      </div>
                     </div>
 
                     <p className="text-sm text-muted-foreground/70 leading-relaxed">

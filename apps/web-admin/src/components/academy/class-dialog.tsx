@@ -13,13 +13,6 @@ import {
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@workspace/ui/components/select"
-import {
   Field,
   FieldGroup,
   FieldLabel,
@@ -27,28 +20,70 @@ import {
   FieldSet,
   FieldLegend,
 } from "@workspace/ui/components/field"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@workspace/ui/components/select"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import {
   useCreateAcademyClass,
   useUpdateAcademyClass,
   type AcademyClass,
 } from "@/lib/api/services/academy-classes"
+import { InstructorPicker } from "@/components/academy/instructor-picker"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
 import { useAcademySyllabuses } from "@/lib/api/services/academy-syllabuses"
 import { useUsers } from "@/lib/api/services/users"
+import { UserRole } from "@workspace/schemas"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 
+function startOfDayIso(d: Date) {
+  const x = new Date(d)
+  x.setHours(0, 0, 0, 0)
+  return x
+}
+
+function addDays(d: Date, days: number) {
+  const x = new Date(d)
+  x.setDate(x.getDate() + days)
+  return x
+}
+
+function addMonths(d: Date, months: number) {
+  const x = new Date(d)
+  x.setMonth(x.getMonth() + months)
+  return x
+}
+
 const classSchema = z.object({
   courseProfileId: z.string().uuid("Vui lòng chọn Course Profile"),
-  syllabusId: z.string().uuid("Vui lòng chọn Giáo trình"),
+  syllabusId: z.string().uuid().optional().nullable(),
   code: z.string().min(2, "Mã lớp phải có ít nhất 2 ký tự"),
   name: z.string().min(3, "Tên lớp phải có ít nhất 3 ký tự"),
   mode: z.enum(["VOD", "LIVE"]),
   instructorId: z.string().uuid().optional().nullable(),
+  status: z.string().optional(),
+  termKey: z.string().optional(),
   openingDate: z.string().optional().nullable(),
   closingDate: z.string().optional().nullable(),
-  maxStudents: z.coerce.number().int().min(0).optional(),
+  enrollmentOpenAt: z.string().optional().nullable(),
+  enrollmentCloseAt: z.string().optional().nullable(),
+}).superRefine((data, ctx) => {
+  if (data.mode === "LIVE") {
+    if (!data.syllabusId) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["syllabusId"], message: "LIVE class cần chọn Syllabus" })
+    }
+    if (!data.openingDate) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["openingDate"], message: "LIVE class cần ngày khai giảng" })
+    }
+    if (!data.closingDate) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["closingDate"], message: "LIVE class cần ngày kết thúc học" })
+    }
+  }
 })
 
 type ClassFormValues = z.infer<typeof classSchema>
@@ -57,15 +92,16 @@ interface ClassDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   academyClass?: AcademyClass | null
+  initialMode?: "VOD" | "LIVE"
 }
 
-export function ClassDialog({ open, onOpenChange, academyClass }: ClassDialogProps) {
+export function ClassDialog({ open, onOpenChange, academyClass, initialMode = "LIVE" }: ClassDialogProps) {
   const isEditing = !!academyClass
   const createMutation = useCreateAcademyClass()
   const updateMutation = useUpdateAcademyClass()
 
   const { data: profiles } = useAcademyCourseProfiles({})
-  const { data: instructors } = useUsers({ role: "LECTURER", limit: 100 })
+  const { data: instructors } = useUsers({ role: UserRole.LECTURER, limit: 100 })
 
   const {
     control,
@@ -78,14 +114,17 @@ export function ClassDialog({ open, onOpenChange, academyClass }: ClassDialogPro
     resolver: zodResolver(classSchema),
     defaultValues: {
       courseProfileId: "",
-      syllabusId: "",
+      syllabusId: null,
       code: "",
       name: "",
-      mode: "LIVE",
+      mode: initialMode,
       instructorId: null,
+      status: "DRAFT",
+      termKey: "",
       openingDate: null,
       closingDate: null,
-      maxStudents: 0,
+      enrollmentOpenAt: null,
+      enrollmentCloseAt: null,
     },
   })
 
@@ -97,42 +136,63 @@ export function ClassDialog({ open, onOpenChange, academyClass }: ClassDialogPro
     if (academyClass) {
       reset({
         courseProfileId: academyClass.courseProfileId,
-        syllabusId: (academyClass as any).syllabusId || "",
+        syllabusId: (academyClass as any).syllabusId || null,
         code: academyClass.code,
         name: academyClass.name,
         mode: academyClass.mode,
-        instructorId: academyClass.liveClass?.instructorId || null,
-        openingDate: academyClass.liveClass?.openingDate
-          ? new Date(academyClass.liveClass.openingDate).toISOString().split("T")[0]
+        instructorId: (academyClass as any).instructorId ?? academyClass.liveClass?.instructorId ?? null,
+        status: (academyClass as any).status ?? "DRAFT",
+        openingDate: (academyClass as any).openingDate
+          ? new Date((academyClass as any).openingDate).toISOString().slice(0, 10)
           : null,
-        closingDate: academyClass.liveClass?.closingDate
-          ? new Date(academyClass.liveClass.closingDate).toISOString().split("T")[0]
+        closingDate: (academyClass as any).closingDate
+          ? new Date((academyClass as any).closingDate).toISOString().slice(0, 10)
           : null,
-        maxStudents:
-          (academyClass.liveClass?.maxStudents || academyClass.vodClass?.maxStudents) ?? 0,
+        enrollmentOpenAt: (academyClass as any).enrollmentOpenAt
+          ? new Date((academyClass as any).enrollmentOpenAt).toISOString().slice(0, 10)
+          : null,
+        enrollmentCloseAt: (academyClass as any).enrollmentCloseAt
+          ? new Date((academyClass as any).enrollmentCloseAt).toISOString().slice(0, 10)
+          : null,
       })
     } else {
       reset({
         courseProfileId: "",
-        syllabusId: "",
+        syllabusId: null,
         code: "",
         name: "",
-        mode: "LIVE",
+        mode: initialMode,
         instructorId: null,
+        status: "DRAFT",
+        termKey: "",
         openingDate: null,
         closingDate: null,
-        maxStudents: 0,
+        enrollmentOpenAt: null,
+        enrollmentCloseAt: null,
       })
     }
-  }, [academyClass, reset])
+  }, [academyClass, initialMode, reset])
 
   async function onSubmit(values: ClassFormValues) {
     try {
-      const payload = {
+      const basePayload = {
         ...values,
+        syllabusId: values.syllabusId || undefined,
+        instructorId: values.instructorId || undefined,
+        termKey: undefined,
         openingDate: values.openingDate ? new Date(values.openingDate) : undefined,
         closingDate: values.closingDate ? new Date(values.closingDate) : undefined,
-      }
+        enrollmentOpenAt: values.enrollmentOpenAt ? new Date(values.enrollmentOpenAt) : undefined,
+        enrollmentCloseAt: values.enrollmentCloseAt ? new Date(values.enrollmentCloseAt) : undefined,
+      } as any
+
+      // Khi tạo mới, để backend tự default status = DRAFT
+      const payload = isEditing
+        ? basePayload
+        : (() => {
+            const { status, ...rest } = basePayload
+            return rest
+          })()
 
       if (isEditing && academyClass) {
         await updateMutation.mutateAsync({
@@ -155,7 +215,7 @@ export function ClassDialog({ open, onOpenChange, academyClass }: ClassDialogPro
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] p-0 flex flex-col overflow-hidden">
-        <DialogHeader className="px-6 py-4 border-b">
+        <DialogHeader className="px-6 py-4 border-b shrink-0">
           <DialogTitle>{isEditing ? "Chỉnh sửa Lớp học" : "Tạo Lớp học mới"}</DialogTitle>
           <DialogDescription>
             {isEditing
@@ -164,7 +224,7 @@ export function ClassDialog({ open, onOpenChange, academyClass }: ClassDialogPro
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 min-h-0">
           <div className="p-6">
             <form id="class-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <FieldGroup>
@@ -210,7 +270,7 @@ export function ClassDialog({ open, onOpenChange, academyClass }: ClassDialogPro
                           render={({ field }) => (
                             <Select
                               onValueChange={field.onChange}
-                              value={field.value}
+                              value={field.value ?? ""}
                               disabled={!selectedCourseProfileId || isEditing}
                             >
                               <SelectTrigger>
@@ -279,17 +339,6 @@ export function ClassDialog({ open, onOpenChange, academyClass }: ClassDialogPro
                           <FieldError errors={[errors.code]} />
                         </Field>
                       </div>
-                      <div className="md:col-span-1">
-                        <Field>
-                          <FieldLabel>Số học viên tối đa</FieldLabel>
-                          <Controller
-                            name="maxStudents"
-                            control={control}
-                            render={({ field }) => <Input type="number" {...field} />}
-                          />
-                          <FieldError errors={[errors.maxStudents]} />
-                        </Field>
-                      </div>
                     </div>
 
                     <Field>
@@ -312,29 +361,69 @@ export function ClassDialog({ open, onOpenChange, academyClass }: ClassDialogPro
                             name="instructorId"
                             control={control}
                             render={({ field }) => (
-                              <Select
-                                onValueChange={field.onChange}
-                                value={field.value || undefined}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Chọn giảng viên" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {instructors?.data?.map((u: any) => (
-                                    <SelectItem key={u.id} value={u.id}>
-                                      {u.displayName} ({u.email})
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                              <InstructorPicker
+                                value={field.value ?? null}
+                                onSelect={(val) => field.onChange(val)}
+                                instructors={(instructors as any)?.data ?? []}
+                              />
                             )}
                           />
                           <FieldError errors={[errors.instructorId]} />
                         </Field>
 
+                        {!isEditing && (
+                          <Field>
+                            <FieldLabel>Kỳ học (4 tháng)</FieldLabel>
+                            <Controller
+                              name="termKey"
+                              control={control}
+                              render={({ field }) => {
+                                const now = new Date()
+                                const year = now.getFullYear()
+                                const options = [
+                                  { key: `${year}-T1`, label: `T1/${year} (01/01 → 30/04)`, start: new Date(year, 0, 1) },
+                                  { key: `${year}-T2`, label: `T2/${year} (01/05 → 31/08)`, start: new Date(year, 4, 1) },
+                                  { key: `${year}-T3`, label: `T3/${year} (01/09 → 31/12)`, start: new Date(year, 8, 1) },
+                                  { key: `${year + 1}-T1`, label: `T1/${year + 1} (01/01 → 30/04)`, start: new Date(year + 1, 0, 1) },
+                                ]
+                                return (
+                                  <Select
+                                    value={field.value ?? ""}
+                                    onValueChange={(val) => {
+                                      field.onChange(val)
+                                      const picked = options.find((o) => o.key === val)
+                                      if (!picked) return
+                                      const opening = startOfDayIso(picked.start)
+                                      const closing = startOfDayIso(addDays(addMonths(opening, 4), -1))
+                                      const enrollOpen = startOfDayIso(addDays(opening, -21))
+                                      const enrollClose = opening
+
+                                      setValue("openingDate", opening.toISOString().slice(0, 10))
+                                      setValue("closingDate", closing.toISOString().slice(0, 10))
+                                      setValue("enrollmentOpenAt", enrollOpen.toISOString().slice(0, 10))
+                                      setValue("enrollmentCloseAt", enrollClose.toISOString().slice(0, 10))
+                                    }}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Chọn kỳ học..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {options.map((o) => (
+                                        <SelectItem key={o.key} value={o.key}>
+                                          {o.label}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                )
+                              }}
+                            />
+                          </Field>
+                        )}
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <Field>
-                            <FieldLabel>Ngày khai giảng</FieldLabel>
+                            <FieldLabel>Ngày khai giảng (auto)</FieldLabel>
                             <Controller
                               name="openingDate"
                               control={control}
@@ -346,11 +435,41 @@ export function ClassDialog({ open, onOpenChange, academyClass }: ClassDialogPro
                                 />
                               )}
                             />
+                            <FieldError errors={[errors.openingDate]} />
                           </Field>
                           <Field>
-                            <FieldLabel>Ngày kết thúc (dự kiến)</FieldLabel>
+                            <FieldLabel>Ngày kết thúc học (auto)</FieldLabel>
                             <Controller
                               name="closingDate"
+                              control={control}
+                              render={({ field }) => (
+                                <Input
+                                  type="date"
+                                  value={field.value || ""}
+                                  onChange={field.onChange}
+                                />
+                              )}
+                            />
+                            <FieldError errors={[errors.closingDate]} />
+                          </Field>
+                          <Field>
+                            <FieldLabel>Mở đăng ký (auto: -3 tuần)</FieldLabel>
+                            <Controller
+                              name="enrollmentOpenAt"
+                              control={control}
+                              render={({ field }) => (
+                                <Input
+                                  type="date"
+                                  value={field.value || ""}
+                                  onChange={field.onChange}
+                                />
+                              )}
+                            />
+                          </Field>
+                          <Field>
+                            <FieldLabel>Đóng đăng ký (auto)</FieldLabel>
+                            <Controller
+                              name="enrollmentCloseAt"
                               control={control}
                               render={({ field }) => (
                                 <Input

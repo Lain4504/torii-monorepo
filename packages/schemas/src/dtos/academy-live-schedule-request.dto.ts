@@ -14,6 +14,7 @@ export type AcademyLiveScheduleConflictPreviewDTO = z.infer<
 export const academyLiveScheduleRequestCreateDTOSchema = z.object({
   sessionId: z.string().uuid(),
   type: z.enum(['LEAVE', 'RESCHEDULE']),
+  requestedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'requestedDate must be yyyy-MM-dd').optional(),
   proposedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'proposedDate must be yyyy-MM-dd').optional(),
   proposedStartTime: z.string().max(20).optional(),
   proposedEndTime: z.string().max(20).optional(),

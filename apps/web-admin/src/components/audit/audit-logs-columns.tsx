@@ -81,7 +81,7 @@ export const getAuditLogsColumns = ({
             cell: ({ row }) => (
                 <div className="text-right">
                     <Button
-                        variant="ghost"
+                        variant="outline"
                         size="icon"
                         onClick={() => onViewDetails(row.original)}
                     >

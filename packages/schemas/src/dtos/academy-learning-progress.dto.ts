@@ -1,22 +1,12 @@
 import { z } from 'zod';
 
 export const academyLearningProgressModelSchema = z.object({
-    id: z.string().uuid(),
     userId: z.string().uuid(),
     classId: z.string().uuid(),
     lessonId: z.string().uuid(),
-    status: z.string(),
-    progressPercent: z.number(),
-    lastAccessedAt: z.coerce.date(),
-    createdAt: z.coerce.date(),
+    isCompleted: z.boolean(),
+    lastWatchedAt: z.coerce.date().nullable(),
     updatedAt: z.coerce.date(),
-
-    // Rich Mapping Fields (Learner View)
-    courseTitle: z.string().optional(),
-    lessonTitle: z.string().optional(),
-    timestamp: z.coerce.date().optional(),
-    slug: z.string().optional(),
-    courseProfileId: z.string().uuid().optional(),
 });
 
 export type AcademyLearningProgressModel = z.infer<typeof academyLearningProgressModelSchema>;

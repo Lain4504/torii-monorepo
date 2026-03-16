@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useParams } from "next/navigation"
@@ -16,6 +17,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@workspace/ui/components/accordion"
+import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group"
+import { Label } from "@workspace/ui/components/label"
 import {
   ArrowLeft,
   ArrowRight,
@@ -33,6 +36,7 @@ export default function CourseDetailPage() {
   const params = useParams<{ slug: string }>()
   const offeringId = params?.slug
   const { data: offering, isLoading } = useAcademyOffering(offeringId)
+  const [selectedClassId, setSelectedClassId] = useState<string>("")
 
   if (isLoading) {
     return (
@@ -60,7 +64,9 @@ export default function CourseDetailPage() {
   }
 
   const classes = Array.isArray(offering.classes) ? offering.classes : []
-  const classCount = classes.length
+  const enrollableClasses = Array.isArray(offering.enrollableClasses) ? offering.enrollableClasses : []
+  const isLIVE = offering.type === "LIVE"
+  const classCount = isLIVE ? enrollableClasses.length : classes.length
   const primaryClass = classes.find((entry: any) => entry?.isPrimary)?.class ?? classes[0]?.class
   const chapters = Array.isArray(primaryClass?.courseEdition?.chapters)
     ? primaryClass.courseEdition.chapters
@@ -131,7 +137,11 @@ export default function CourseDetailPage() {
             <div className="flex flex-wrap gap-y-4 gap-x-8 text-sm font-medium text-muted-foreground pt-2">
               <div className="flex items-center gap-2">
                 <Users className="h-5 w-5 text-primary/70" />
-                <span>{classCount} lớp khả dụng</span>
+                <span>
+                  {isLIVE
+                    ? `${classCount} lớp đang mở đăng ký`
+                    : `${classCount} lớp khả dụng`}
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-primary/70" />
@@ -263,8 +273,64 @@ export default function CourseDetailPage() {
             )}
           </section>
 
+          {/* LIVE: Chọn lớp đăng ký */}
+          {isLIVE && enrollableClasses.length > 0 && (
+            <section className="space-y-6">
+              <h2 className="text-2xl font-bold tracking-tight text-foreground border-b pb-4">
+                Chọn lớp học
+              </h2>
+              <p className="text-muted-foreground text-sm">
+                Bạn cần chọn một lớp trong danh sách dưới đây trước khi tiến hành thanh toán.
+              </p>
+              <RadioGroup
+                value={selectedClassId}
+                onValueChange={setSelectedClassId}
+                className="space-y-4"
+              >
+                {enrollableClasses.map((cls: any) => (
+                  <div
+                    key={cls.id}
+                    className="flex items-start space-x-3 rounded-xl border bg-card p-4 shadow-sm hover:border-primary/50 transition-colors"
+                  >
+                    <RadioGroupItem value={cls.id} id={cls.id} />
+                    <Label
+                      htmlFor={cls.id}
+                      className="flex-1 cursor-pointer space-y-2 font-normal"
+                    >
+                      <div className="font-semibold text-base">{cls.name || cls.code}</div>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                        {cls.instructor?.displayName && (
+                          <span>GV: {cls.instructor.displayName}</span>
+                        )}
+                        {cls.openingDate && (
+                          <span>
+                            Khai giảng:{" "}
+                            {new Date(cls.openingDate).toLocaleDateString("vi-VN")}
+                          </span>
+                        )}
+                        {cls.closingDate && (
+                          <span>
+                            Bế giảng:{" "}
+                            {new Date(cls.closingDate).toLocaleDateString("vi-VN")}
+                          </span>
+                        )}
+                        {cls.enrollmentOpenAt && cls.enrollmentCloseAt && (
+                          <span>
+                            Đăng ký:{" "}
+                            {new Date(cls.enrollmentOpenAt).toLocaleDateString("vi-VN")} –{" "}
+                            {new Date(cls.enrollmentCloseAt).toLocaleDateString("vi-VN")}
+                          </span>
+                        )}
+                      </div>
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </section>
+          )}
+
           {/* Class Information (if primaryClass exists) */}
-          {primaryClass && (
+          {primaryClass && !isLIVE && (
             <section className="space-y-6">
               <h2 className="text-2xl font-bold tracking-tight text-foreground border-b pb-4">
                 Thông tin lớp học chính
@@ -312,15 +378,46 @@ export default function CourseDetailPage() {
                 </div>
 
                 <div className="space-y-4 pt-2">
-                  <Button
-                    className="w-full h-14 text-base font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]"
-                    size="lg"
-                    asChild
-                  >
-                    <Link href={`/checkout/${offering.id}`}>
-                      Tiến hành thanh toán <ArrowRight className="ml-2 h-5 w-5" />
-                    </Link>
-                  </Button>
+                  {isLIVE ? (
+                    <>
+                      <Button
+                        className="w-full h-14 text-base font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]"
+                        size="lg"
+                        disabled={enrollableClasses.length === 0 || !selectedClassId}
+                        asChild
+                      >
+                        <Link
+                          href={
+                            selectedClassId
+                              ? `/checkout/${offering.id}?classId=${selectedClassId}`
+                              : "#"
+                          }
+                        >
+                          Tiến hành thanh toán <ArrowRight className="ml-2 h-5 w-5" />
+                        </Link>
+                      </Button>
+                      {enrollableClasses.length === 0 && (
+                        <p className="text-center text-sm text-muted-foreground">
+                          Hiện chưa có lớp nào trong cửa sổ đăng ký.
+                        </p>
+                      )}
+                      {enrollableClasses.length > 0 && !selectedClassId && (
+                        <p className="text-center text-sm text-muted-foreground">
+                          Vui lòng chọn một lớp ở trên.
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <Button
+                      className="w-full h-14 text-base font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]"
+                      size="lg"
+                      asChild
+                    >
+                      <Link href={`/checkout/${offering.id}`}>
+                        Tiến hành thanh toán <ArrowRight className="ml-2 h-5 w-5" />
+                      </Link>
+                    </Button>
+                  )}
 
                   <div className="flex items-center justify-center gap-2 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 py-2 px-3 rounded-lg mx-auto w-max">
                     <ShieldCheck className="h-4 w-4" />

@@ -76,17 +76,21 @@ export function LearnerList({ enrollments, isLoading }: LearnerListProps) {
                   variant={en.status === "ACTIVE" ? "default" : "secondary"}
                   className={en.status === "ACTIVE" ? "bg-emerald-500 hover:bg-emerald-600 border-transparent text-white" : ""}
                 >
-                  {en.status}
+                  {en.status === "ACTIVE"
+                    ? "Đang học"
+                    : en.status === "COMPLETED"
+                    ? "Hoàn thành"
+                    : "Đã hủy"}
                 </Badge>
               </TableCell>
               <TableCell className="text-right">
-                <div className="flex justify-end gap-1">
-                  <Button variant="ghost" size="icon" asChild title="Chỉnh sửa ghi danh">
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" size="icon" asChild title="Chỉnh sửa ghi danh">
                     <Link to={`/academy/enrollments/${en.id}/edit`}>
                       <Edit2 className="h-4 w-4" />
                     </Link>
                   </Button>
-                  <Button variant="ghost" size="icon" asChild title="Xem chi tiết học viên (Coming Soon)">
+                  <Button variant="outline" size="icon" asChild title="Xem chi tiết học viên (Coming Soon)">
                     <Link to={`#`}>
                       <ExternalLink className="h-4 w-4" />
                     </Link>
