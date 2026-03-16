@@ -7,21 +7,16 @@ import { Badge } from "@workspace/ui/components/badge"
 import {
     ChevronRight,
     CheckCircle2,
-    Calendar,
     Star,
     BookOpen,
-    Play,
     Zap,
     Users,
     Trophy,
-    Video,
-    ShieldCheck,
     Globe,
     MessageSquare,
     Bot,
 } from "lucide-react"
 import { motion } from "framer-motion"
-import Image from "next/image"
 import Link from "next/link"
 
 const fadeIn = {
@@ -261,46 +256,58 @@ export default function Page() {
                     </div>
 
                     {/* Overlapping Avatar Stack */}
-                    <div className="flex flex-col items-center gap-12">
-                        <div className="flex -space-x-8 lg:-space-x-12 hover:space-x-2 transition-all duration-500 ease-in-out">
+                    <div className="flex flex-col items-center gap-16">
+                        <div className="flex flex-wrap items-center justify-center gap-8 lg:gap-16">
                             {[
-                                { name: "Xuân Sensei", lvl: "N1", tags: ["12+ năm"], avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500&auto=format&fit=crop&q=60" },
-                                { name: "Minh Sensei", lvl: "N1", tags: ["8+ năm"], avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&auto=format&fit=crop&q=60" },
-                                { name: "Hương Sensei", lvl: "N2", tags: ["6+ năm"], avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&auto=format&fit=crop&q=60" },
-                                { name: "Thắng Sensei", lvl: "N1", tags: ["10+ năm"], avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=60" },
+                                { 
+                                    name: "Xuân Sensei", 
+                                    sc: "Chuyên gia luyện thi N1", 
+                                    tags: ["12+ năm"], 
+                                    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500&auto=format&fit=crop&q=60" 
+                                },
+                                { 
+                                    name: "Minh Sensei", 
+                                    sc: "Kỹ năng Giao tiếp & Business", 
+                                    tags: ["8+ năm"], 
+                                    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&auto=format&fit=crop&q=60" 
+                                },
+                                { 
+                                    name: "Hương Sensei", 
+                                    sc: "Luyện nghe - Đọc hiểu N2", 
+                                    tags: ["6+ năm"], 
+                                    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&auto=format&fit=crop&q=60" 
+                                },
+                                { 
+                                    name: "Thắng Sensei", 
+                                    sc: "Ngữ pháp & Kanji đặc biệt", 
+                                    tags: ["10+ năm"], 
+                                    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=60" 
+                                },
                             ].map((s, idx) => (
                                 <div 
                                     key={idx}
-                                    className="relative group cursor-pointer"
-                                    style={{ zIndex: 10 + idx }}
+                                    className="relative group cursor-pointer flex flex-col items-center text-center space-y-4"
                                 >
-                                    <div className="size-32 lg:size-48 rounded-full border-[6px] border-background bg-muted overflow-hidden shadow-2xl transition-all duration-300 group-hover:scale-110 group-hover:-translate-y-4 group-hover:z-50 ring-1 ring-border">
-                                        <Image 
-                                            src={s.avatar} 
-                                            alt={s.name} 
-                                            fill 
-                                            className="object-cover transition-all duration-500 group-hover:brightness-110"
-                                        />
+                                    <Avatar className="size-32 lg:size-48 border-[6px] border-background shadow-2xl transition-all duration-300 group-hover:scale-110 group-hover:-translate-y-2 ring-1 ring-border">
+                                        <AvatarImage src={s.avatar} alt={s.name} />
+                                        <AvatarFallback>{s.name[0]}</AvatarFallback>
+                                    </Avatar>
+                                    
+                                    <div className="space-y-1">
+                                        <p className="font-bold text-foreground text-sm lg:text-base">{s.name}</p>
+                                        <p className="text-[10px] lg:text-xs text-muted-foreground font-medium uppercase tracking-wider">{s.sc}</p>
+                                        <div className="flex items-center justify-center gap-1 mt-1">
+                                            {s.tags.map((tag, i) => (
+                                                <Badge key={i} variant="secondary" className="text-[8px] px-1.5 py-0">
+                                                    {tag}
+                                                </Badge>
+                                            ))}
+                                        </div>
                                     </div>
-                                    {/* Tooltip-like Info (Hidden by default, shows on hover if we want, or just list below) */}
-                                    <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter whitespace-nowrap shadow-xl">
-                                        {s.name} • {s.tags[0]}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
 
-                        {/* List view for mobile/more detail */}
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl w-full">
-                            {[
-                                { name: "Xuân Sensei", sc: "Chuyên gia luyện thi N1" },
-                                { name: "Minh Sensei", sc: "Kỹ năng Giao tiếp & Business" },
-                                { name: "Hương Sensei", sc: "Luyện nghe - Đọc hiểu N2" },
-                                { name: "Thắng Sensei", sc: "Ngữ pháp & Kanji đặc biệt" },
-                            ].map((s, idx) => (
-                                <div key={idx} className="space-y-1">
-                                    <p className="font-bold text-foreground text-sm lg:text-base">{s.name}</p>
-                                    <p className="text-[10px] lg:text-xs text-muted-foreground font-medium">{s.sc}</p>
+                                    <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-xl z-10">
+                                        Sensei
+                                    </div>
                                 </div>
                             ))}
                         </div>

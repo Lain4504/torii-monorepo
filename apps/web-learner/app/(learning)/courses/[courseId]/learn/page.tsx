@@ -13,7 +13,7 @@ import { Badge } from '@workspace/ui/components/badge';
 import {
     ChevronLeft, ChevronDown, ChevronUp, Menu, X,
     CheckCircle2, PlayCircle, Lock, FileText, BookOpen,
-    MessageSquare, ChevronRight, Save, Download, Send,
+    MessageSquare, ChevronRight, Download, Send,
     AlertCircle, Clock, Trophy, HelpCircle, Timer, RotateCcw,
     Paperclip, PenTool
 } from 'lucide-react';
@@ -268,8 +268,6 @@ export default function CourseLearnPage() {
     const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<'content' | 'discussion'>('content');
-    const [note, setNote] = useState('');
-    const [savingNote, setSavingNote] = useState(false);
 
     useEffect(() => {
         if (enrollmentData && !enrollmentData.isEnrolled) {
@@ -511,42 +509,13 @@ export default function CourseLearnPage() {
                             </div>
 
                             {activeTab === 'content' && (
-                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                    <div className="lg:col-span-2 space-y-5">
-                                        <h3 className="text-xl font-bold text-foreground">Tổng quan bài học</h3>
-                                        <p className="text-muted-foreground leading-relaxed">
-                                            {(lessonDetail as any)?.description || (currentLesson
-                                                ? `Bài học "${currentLesson.title}" thuộc khóa học ${classData?.name}.`
-                                                : 'Chọn một bài học để bắt đầu.')}
-                                        </p>
-                                    </div>
-                                    {/* Quick notes */}
-                                    <div className="bg-muted/40 p-6 rounded-xl border border-border">
-                                        <h3 className="font-bold text-foreground mb-4 text-sm">Ghi chú nhanh</h3>
-                                        <textarea className="w-full h-40 p-3 bg-background border border-border rounded-lg text-sm text-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none resize-none"
-                                            placeholder="Ghi chú cho bài học này..." value={note} onChange={e => setNote(e.target.value)} />
-                                        <button className="mt-3 w-full bg-foreground text-background py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 transition flex items-center justify-center gap-2"
-                                            onClick={async () => {
-                                                setSavingNote(true);
-                                                try {
-                                                    const { studyNoteApi: StudyNoteApi } = await import('@/lib/api/services/academy-study-note-api');
-                                                    if (lessonDetail?.id) {
-                                                        await StudyNoteApi.create({ content: note, lessonId: lessonDetail.id });
-                                                        toast.success('Đã lưu ghi chú!');
-                                                    } else {
-                                                        toast.error('Bài học hiện tại chưa hỗ trợ ghi chú.');
-                                                    }
-                                                } catch (e: any) {
-                                                    toast.error('Lỗi khi lưu ghi chú');
-                                                } finally {
-                                                    setSavingNote(false);
-                                                }
-                                            }}
-                                            disabled={savingNote}
-                                        >
-                                            <Save className="h-4 w-4" /> {savingNote ? 'Đang lưu...' : 'Lưu ghi chú nhanh'}
-                                        </button>
-                                    </div>
+                                <div className="space-y-5">
+                                    <h3 className="text-xl font-bold text-foreground">Tổng quan bài học</h3>
+                                    <p className="text-muted-foreground leading-relaxed">
+                                        {(lessonDetail as any)?.description || (currentLesson
+                                            ? `Bài học "${currentLesson.title}" thuộc khóa học ${classData?.name}.`
+                                            : 'Chọn một bài học để bắt đầu.')}
+                                    </p>
                                 </div>
                             )}
 

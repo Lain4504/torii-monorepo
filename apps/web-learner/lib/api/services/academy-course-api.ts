@@ -175,6 +175,25 @@ export const academyOfferingApi = {
     const response = await apiClient.get<StandardApiResponse<{ item: any }>>(`/api/academy/course-offerings/public/${id}`);
     return normalizeOfferingForLearner(response.data.data!.item);
   },
+
+  /**
+   * Get public offerings by category (JLPT level)
+   */
+  findByCategory: async (category: string): Promise<PaginatedApiResponse<any>> => {
+    const response = await apiClient.get<StandardApiResponse<{ items: any[] }>>(
+      `/api/academy/course-offerings/public/category/${category}`,
+    );
+    const data = response.data.data!;
+    const normalizedItems = (data.items ?? []).map(normalizeOfferingForLearner);
+    return {
+      success: response.data.success,
+      data: normalizedItems,
+      total: normalizedItems.length,
+      page: 1,
+      limit: Math.max(normalizedItems.length, 1),
+      totalPages: 1,
+    };
+  },
 };
 
 export const academyCourseApi = {
@@ -219,6 +238,17 @@ export function useAcademyOfferings(params?: any) {
   return useQuery({
     queryKey: ['academy-course-offerings', params],
     queryFn: () => academyOfferingApi.findAllPublic(params),
+  });
+}
+
+/**
+ * Hook: Get course offerings by category (JLPT Level)
+ */
+export function useAcademyOfferingsByCategory(category: string) {
+  return useQuery({
+    queryKey: ['academy-course-offerings', 'category', category],
+    queryFn: () => academyOfferingApi.findByCategory(category),
+    enabled: !!category,
   });
 }
 

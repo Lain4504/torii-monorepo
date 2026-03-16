@@ -8,7 +8,7 @@ import type { AxiosError } from 'axios';
 export interface User extends UserResponseDTO {
     permissions: string[];
     avatarUrl?: string | null;
-    staffTemplate?: 'sales_staff' | 'academic_staff' | 'support_staff';
+    staffTemplate?: 'operations_staff' | 'academic_staff';
 }
 
 export interface AuthState {

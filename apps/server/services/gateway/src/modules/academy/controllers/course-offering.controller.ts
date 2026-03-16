@@ -62,6 +62,15 @@ export class CourseOfferingController {
     return successResponse({ item });
   }
 
+  @Public()
+  @Get('public/category/:category')
+  async findPublicByCategory(@Param('category') category: string) {
+    const items = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.courseOffering.findPublicByCategory' }, { category }),
+    );
+    return successResponse({ items });
+  }
+
   @Get()
   @Permissions('academy.commerce.read')
   async findAll(

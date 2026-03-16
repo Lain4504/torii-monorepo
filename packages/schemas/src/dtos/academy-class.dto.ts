@@ -83,6 +83,8 @@ export const academyClassModelSchema = z.object({
   // Backward-compat fields (legacy responses may still include)
   vodClass: z.any().optional().nullable(),
   liveClass: z.any().optional().nullable(),
+  courseProfile: z.any().optional(),
+  durationDays: z.number().optional(),
 });
 export type AcademyClassModel = z.infer<typeof academyClassModelSchema>;
 

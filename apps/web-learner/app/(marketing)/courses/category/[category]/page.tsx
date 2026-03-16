@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation"
 import React, { useMemo, useState } from "react"
-import { useAcademyOfferings } from "@/lib/api/services/academy-course-api"
+import { useAcademyOfferingsByCategory } from "@/lib/api/services/academy-course-api"
 import { useAppSelector } from "@/hooks/hooks"
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
@@ -93,8 +93,9 @@ const levelSyllabus: Record<string, {
 }
 
 const formatPrice = (price?: number | string) => {
-    if (price === undefined || price === null) return "Liên hệ";
-    return new Intl.NumberFormat('vi-VN').format(Number(price)) + 'đ';
+    const p = Number(price);
+    if (isNaN(p)) return "0đ";
+    return new Intl.NumberFormat('vi-VN').format(p) + 'đ';
 };
 
 export default function CourseCategoryPage() {
@@ -102,7 +103,7 @@ export default function CourseCategoryPage() {
     const router = useRouter();
     const levelId = (params.category as string).toLowerCase();
     const { isAuthenticated } = useAppSelector((state) => state.auth);
-    const { data: offerings, isLoading } = useAcademyOfferings({ status: 'PUBLISHED' });
+    const { data: offerings, isLoading } = useAcademyOfferingsByCategory(levelId);
 
     const [selectedCourse, setSelectedCourse] = useState<any>(null);
     const [showLoginDialog, setShowLoginDialog] = useState(false);
@@ -116,16 +117,13 @@ export default function CourseCategoryPage() {
     const filteredCourses = useMemo(() => {
         if (!offerings?.data) return { vod: [], live: [] };
 
-        const matched = offerings.data.filter((o: any) =>
-            o.jlptLevel?.toLowerCase() === levelId || 
-            o.classes?.some((c: any) => c.class?.courseProfile?.level?.toLowerCase() === levelId)
-        );
+        const matched = offerings.data;
 
         return {
             vod: matched.filter((o: any) => o.classes?.every((c: any) => c.class?.mode === 'VOD')),
             live: matched.filter((o: any) => o.classes?.some((c: any) => c.class?.mode === 'LIVE'))
         };
-    }, [offerings, levelId]);
+    }, [offerings]);
 
     const handleCourseClick = (course: any) => {
         setSelectedCourse(course);
@@ -236,20 +234,18 @@ export default function CourseCategoryPage() {
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                 {filteredCourses.vod.map((course: any) => (
-                                    <motion.div
+                                    <div
                                         key={course.id}
-                                        whileHover={{ y: -10 }}
-                                        transition={{ duration: 0.3 }}
                                     >
                                         <Card
-                                            className="h-full border border-border hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/5 transition-all overflow-hidden group cursor-pointer"
+                                            className="h-full border border-border hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/5 transition-all overflow-hidden group cursor-pointer pt-0"
                                             onClick={() => handleCourseClick(course)}
                                         >
                                             <div className="relative aspect-video overflow-hidden">
                                                 <img
                                                     src={course.classes?.[0]?.class?.courseProfile?.thumbnailUrl || "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=2070&auto=format&fit=crop"}
                                                     alt={course.title}
-                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                                    className="w-full h-full object-cover"
                                                 />
                                                 <div className="absolute top-4 left-4">
                                                     <Badge className="bg-black/60 backdrop-blur-md text-white border-none font-bold">VOD</Badge>
@@ -278,13 +274,13 @@ export default function CourseCategoryPage() {
                                                 </div>
                                             </CardContent>
                                             <CardFooter className="p-6 pt-0 border-t border-border/40 mt-auto flex justify-between items-center bg-muted/20">
-                                                <div className="font-black text-xl text-primary">{formatPrice(course.originalPrice)}</div>
-                                                <Button size="sm" variant="ghost" className="font-bold group-hover:bg-primary group-hover:text-white transition-all">
+                                                <div className="font-black text-xl text-primary">{formatPrice(course.price)}</div>
+                                                <Button size="lg" className="font-bold shadow-lg shadow-primary/10">
                                                     Chi tiết <ChevronRight className="ml-1 size-4" />
                                                 </Button>
                                             </CardFooter>
                                         </Card>
-                                    </motion.div>
+                                    </div>
                                 ))}
                                 {filteredCourses.vod.length === 0 && (
                                     <div className="col-span-full py-20 text-center bg-muted/20 rounded-3xl border-2 border-dashed border-border">
@@ -336,9 +332,9 @@ export default function CourseCategoryPage() {
                                     </ItemContent>
                                     <ItemActions className="flex flex-col justify-center items-end md:border-l border-border md:pl-8 pt-4 md:pt-0 shrink-0 min-w-[180px]">
                                         <div className="text-2xl font-black text-primary mb-3">
-                                            {formatPrice(course.originalPrice)}
+                                            {formatPrice(course.price)}
                                         </div>
-                                        <Button className="w-full md:w-auto font-bold shadow-lg shadow-primary/10">Xem chi tiết</Button>
+                                        <Button size="lg" className="w-full md:w-auto font-bold shadow-lg shadow-primary/10">Xem chi tiết</Button>
                                     </ItemActions>
                                 </Item>
                             ))}
@@ -439,7 +435,7 @@ export default function CourseCategoryPage() {
                                 <div className="p-8 bg-muted/40 border-t border-border flex flex-col md:flex-row items-center justify-between gap-6">
                                     <div className="flex md:flex-col items-center md:items-start gap-4 md:gap-1">
                                         <span className="text-sm font-bold text-muted-foreground uppercase opacity-70">Giá đăng ký</span>
-                                        <div className="text-3xl font-black text-primary">{formatPrice(selectedCourse.originalPrice)}</div>
+                                        <div className="text-3xl font-black text-primary">{formatPrice(selectedCourse.price)}</div>
                                     </div>
                                     <div className="flex items-center gap-4 w-full md:w-auto">
                                         <Button

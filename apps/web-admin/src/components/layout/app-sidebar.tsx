@@ -1,11 +1,11 @@
 "use client"
 
+
 import { useState, useMemo, useEffect } from "react"
 import {
     Command,
     LayoutGrid,
     BookOpen,
-    CreditCard,
     Users,
 } from "lucide-react"
 
@@ -37,29 +37,20 @@ const WORKSPACES: Workspace[] = [
         name: "Academic Hub",
         logo: BookOpen,
         plan: "Hệ thống Học tập",
-        roles: [UserRole.ADMIN, UserRole.LECTURER, UserRole.STAFF_LMS],
+        roles: [UserRole.ADMIN, UserRole.LECTURER, UserRole.STAFF_ACADEMIC],
         navItems: [
             { labelKey: "Đào tạo", items: academicNavItems }
         ]
     },
     {
         id: "operations",
-        name: "Operation Center",
+        name: "Operations & Business",
         logo: LayoutGrid,
-        plan: "Trung tâm Vận hành",
-        roles: [UserRole.ADMIN, UserRole.STAFF_LMS, UserRole.STAFF_SUPPORT, UserRole.STAFF],
+        plan: "Vận hành & Kinh doanh",
+        roles: [UserRole.ADMIN, UserRole.STAFF_OPERATIONS],
         navItems: [
-            { labelKey: "Vận hành", items: operationsNavItems }
-        ]
-    },
-    {
-        id: "finance",
-        name: "Commercial & Finance",
-        logo: CreditCard,
-        plan: "Kinh doanh & Tài chính",
-        roles: [UserRole.ADMIN, UserRole.STAFF_SALES, UserRole.STAFF_FINANCE],
-        navItems: [
-            { labelKey: "Tài chính", items: financeNavItems }
+            { labelKey: "Vận hành", items: operationsNavItems },
+            { labelKey: "Kinh doanh & Tài chính", items: financeNavItems }
         ]
     },
     {
@@ -67,7 +58,7 @@ const WORKSPACES: Workspace[] = [
         name: "HR & Personnel",
         logo: Users,
         plan: "Quản trị Nhân sự",
-        roles: [UserRole.ADMIN, UserRole.STAFF_LMS],
+        roles: [UserRole.ADMIN, UserRole.STAFF_ACADEMIC, UserRole.STAFF_OPERATIONS],
         navItems: [
             { labelKey: "Nhân sự", items: personnelNavItems }
         ]
@@ -111,20 +102,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             baseWorkspaces = WORKSPACES.filter(ws => ws.roles.includes(userRole));
         }
 
-        // Post-process navigation: Only LECTURER should see "My Courses"
-        return baseWorkspaces.map(ws => ({
-            ...ws,
-            navItems: ws.navItems.map(group => ({
-                ...group,
-                items: group.items.map(item => ({
-                    ...item,
-                    // Hide "My Courses" and "My Classes" sub-items if the user is not a Lecturer
-                    items: userRole === UserRole.LECTURER
-                        ? item.items
-                        : item.items?.filter(subItem => subItem.url !== '/course-master/my' && subItem.url !== '/my-classes')
-                }))
-            }))
-        }));
+        return baseWorkspaces;
     }, [user?.role]);
 
     const [activeWorkspace, setActiveWorkspace] = useState<Workspace | undefined>(undefined);

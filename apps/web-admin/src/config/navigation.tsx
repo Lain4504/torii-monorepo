@@ -44,20 +44,20 @@ export const academicNavItems: NavItem[] = [
         titleKey: "Academy (LMS)",
         url: "/academy/classes",
         icon: GraduationCap,
-        anyPermission: ["academy.content.read", "academy.content.write", "academy.delivery.read", "academy.delivery.write"],
+        anyPermission: ["academy.content.read", "academy.content.write", "academy.delivery.read", "academy.delivery.write", "academy.content.approve", "academy.commerce.approve"],
         items: [
             { titleKey: "Lớp học", url: "/academy/classes" },
-            { titleKey: "Kho Khóa học (Profiles)", url: "/academy/course-profiles", roles: ["admin", "staff-lms"] },
-            { titleKey: "Gói bán (Offerings)", url: "/academy/course-offerings", roles: ["admin", "staff-lms"] },
-            { titleKey: "Duyệt khóa học", url: "/academy/course-requests", roles: ["admin", "staff-lms"] },
-            { titleKey: "Duyệt gói bán", url: "/academy/offering-requests", roles: ["admin", "staff-lms"] },
+            { titleKey: "Kho Khóa học (Profiles)", url: "/academy/course-profiles", anyPermission: ["academy.content.read", "academy.content.write"] },
+            { titleKey: "Gói bán (Offerings)", url: "/academy/course-offerings", anyPermission: ["academy.commerce.read", "academy.commerce.write"] },
+            { titleKey: "Duyệt khóa học", url: "/academy/course-requests", permission: "academy.content.approve" },
+            { titleKey: "Duyệt gói bán", url: "/academy/offering-requests", permission: "academy.commerce.approve" },
         ]
     },
     {
         titleKey: "AI Subscription",
         url: "/academy/ai-subscriptions/plans",
         icon: Bot,
-        permission: "academy:subscription:admin",
+        anyPermission: ["academy:subscription:admin", "academy.commerce.read", "academy.commerce.write"],
         items: [
             { titleKey: "Gói Subscription", url: "/academy/ai-subscriptions/plans" },
             { titleKey: "Người dùng", url: "/academy/ai-subscriptions/users" },
@@ -71,7 +71,7 @@ export const operationsNavItems: NavItem[] = [
         titleKey: "Bài viết & Tin tức",
         url: "/blogs",
         icon: Newspaper,
-        anyPermission: ["blog.manage", "blog.write"],
+        anyPermission: ["blog.manage", "blog.create", "blog.update", "blog.publish"],
     },
     {
         titleKey: "Yêu cầu hỗ trợ",
@@ -87,17 +87,17 @@ export const financeNavItems: NavItem[] = [
         titleKey: "Đơn hàng & Doanh thu",
         url: "/orders",
         icon: CreditCard,
-        anyPermission: ["payment.view", "payment.refund"],
+        anyPermission: ["academy:order:admin", "academy.commerce.read"],
         items: [
             { titleKey: "Danh sách đơn hàng", url: "/orders" },
-            { titleKey: "Yêu cầu hoàn tiền", url: "/refunds", permission: "payment.refund" },
+            { titleKey: "Yêu cầu hoàn tiền", url: "/refunds", permission: "support.handle" },
         ]
     },
     {
         titleKey: "Mã giảm giá (Coupons)",
         url: "/coupons",
         icon: Ticket,
-        permission: "coupon.manage",
+        permission: "academy:coupon:admin",
     },
     {
         titleKey: "Phần thưởng (Rewards)",

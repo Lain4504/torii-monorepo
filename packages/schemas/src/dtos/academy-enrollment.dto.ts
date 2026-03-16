@@ -60,5 +60,7 @@ export const academyEnrollmentModelSchema = z.object({
   progress: z.number().optional(),
   completedLessons: z.number().optional(),
   totalLessons: z.number().optional(),
+  type: z.string().optional(),
+  mode: z.string().optional(),
 });
 export type AcademyEnrollmentModel = z.infer<typeof academyEnrollmentModelSchema>;

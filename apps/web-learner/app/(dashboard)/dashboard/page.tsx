@@ -12,6 +12,7 @@ import { vi } from 'date-fns/locale';
 import { BookOpen, Clock, Calendar, Video } from 'lucide-react';
 import { LiveSessionStatus } from '@workspace/schemas';
 import Heatmap from '@workspace/ui/components/heatmap';
+import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal';
 
 function formatDuration(seconds: number): string {
     if (!seconds) return '0 phút';
@@ -540,6 +541,7 @@ export default function DashboardClientPage() {
                         </div>
                     )}
                 </section>
+                <StreakWelcomeModal />
             </div>
         );
 }

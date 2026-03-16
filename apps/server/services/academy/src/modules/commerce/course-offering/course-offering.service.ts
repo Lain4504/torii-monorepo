@@ -87,6 +87,49 @@ export class CourseOfferingService {
     });
   }
 
+  async findPublicByCategory(category: string) {
+    const now = new Date();
+    return this.prisma.courseOffering.findMany({
+      where: {
+        status: OfferingStatus.PUBLISHED,
+        classes: {
+          some: {
+            class: {
+              courseProfile: {
+                level: { equals: category, mode: 'insensitive' },
+              },
+            },
+          },
+        },
+      },
+      orderBy: [{ createdAt: 'desc' }],
+      include: {
+        classes: {
+          include: {
+            class: {
+              include: {
+                courseProfile: {
+                  select: {
+                    level: true,
+                    thumbnailUrl: true,
+                    title: true,
+                    description: true,
+                  },
+                },
+                instructor: {
+                  select: {
+                    displayName: true,
+                    avatarUrl: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
   async findById(id: string) {
     const item = await this.prisma.courseOffering.findUnique({
       where: { id },
