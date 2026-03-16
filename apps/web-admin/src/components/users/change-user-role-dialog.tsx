@@ -105,11 +105,8 @@ export function ChangeUserRoleDialog({
                                 <SelectContent>
                                     <SelectItem value={UserRole.LEARNER}>Học viên</SelectItem>
                                     <SelectItem value={UserRole.LECTURER}>Giảng viên</SelectItem>
-                                    <SelectItem value={UserRole.STAFF}>Nhân viên (Chung)</SelectItem>
-                                    <SelectItem value={UserRole.STAFF_LMS}>Giáo vụ (LMS)</SelectItem>
-                                    <SelectItem value={UserRole.STAFF_SUPPORT}>Hỗ trợ (Support)</SelectItem>
-                                    <SelectItem value={UserRole.STAFF_SALES}>Kinh doanh (Sales)</SelectItem>
-                                    <SelectItem value={UserRole.STAFF_FINANCE}>Tài chính (Finance)</SelectItem>
+                                    <SelectItem value={UserRole.STAFF_ACADEMIC}>Nhân viên Học vụ (Academic)</SelectItem>
+                                    <SelectItem value={UserRole.STAFF_OPERATIONS}>Nhân viên Vận hành & Kinh doanh</SelectItem>
                                     <SelectItem value={UserRole.ADMIN}>Quản trị viên (Admin)</SelectItem>
                                 </SelectContent>
                             </Select>

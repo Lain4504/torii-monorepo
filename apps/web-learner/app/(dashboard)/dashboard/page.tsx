@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { formatDistanceToNow, subDays } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { BookOpen, Clock, Calendar, Video } from 'lucide-react';
-import { LiveSessionStatus } from '@workspace/schemas';
+import { LiveSessionStatus, UserRole } from '@workspace/schemas';
 import Heatmap from '@workspace/ui/components/heatmap';
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal';
 
@@ -79,7 +79,7 @@ export default function DashboardClientPage() {
     const jlptTarget = (user?.userMetadata as Record<string, string>)?.jlptTarget || 'N3';
     const firstName = user?.displayName?.split(' ').at(-1) || 'Học viên';
     const role = user?.role as string | undefined;
-    const isStaffOrAdmin = role === 'admin' || role === 'staff-lms' || role === 'staff_lms' || role === 'staff';
+    const isStaffOrAdmin = role === UserRole.ADMIN || role === UserRole.STAFF || role === UserRole.STAFF_ACADEMIC || role === UserRole.STAFF_OPERATIONS;
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">

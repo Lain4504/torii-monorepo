@@ -50,16 +50,71 @@ export class CertificateService {
   async findByUserId(userId: string) {
     return this.prisma.certificate.findMany({
       where: { userId },
-      include: { class: true },
+      include: {
+        class: true,
+        enrollment: true,
+      },
+      orderBy: { issueDate: 'desc' },
     });
+  }
+
+  async findAll(query?: {
+    page?: string | number;
+    limit?: string | number;
+    userId?: string;
+    classId?: string;
+  }) {
+    const page = Math.max(1, Number(query?.page ?? 1) || 1);
+    const limit = Math.min(100, Math.max(1, Number(query?.limit ?? 20) || 20));
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+    if (query?.userId) where.userId = query.userId;
+    if (query?.classId) where.classId = query.classId;
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.certificate.findMany({
+        where,
+        include: {
+          class: true,
+          enrollment: true,
+          user: { select: { id: true, displayName: true, avatarUrl: true } },
+        },
+        orderBy: { issueDate: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.certificate.count({ where }),
+    ]);
+
+    return {
+      data: items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit) || 1,
+    };
   }
 
   async findById(id: string) {
     const item = await this.prisma.certificate.findUnique({
       where: { id },
-      include: { class: true, user: true },
+      include: { class: true, user: true, enrollment: true },
     });
     if (!item) throw new NotFoundException('Certificate not found');
     return item;
+  }
+
+  async verifyByCode(code: string) {
+    const item = await this.prisma.certificate.findUnique({
+      where: { certificateCode: code },
+      include: {
+        class: true,
+        user: { select: { id: true, displayName: true, avatarUrl: true } },
+        enrollment: true,
+      },
+    });
+    if (!item) return { valid: false };
+    return { valid: true, certificate: item };
   }
 }

@@ -31,10 +31,7 @@ import {
     GraduationCap,
     Users,
     BookOpen,
-    MessageCircle,
-    TrendingUp,
     ChevronRight,
-    ArrowLeft,
     ShieldCheck,
     BadgeCheck,
     Lock
@@ -54,38 +51,16 @@ const internalRoles = [
         description: 'Quản lý nội dung học tập và tương tác với học viên.',
     },
     {
-        id: UserRole.STAFF,
-        label: 'Nhân viên vận hành',
-        icon: Users,
-        description: 'Xử lý các quy trình hành chính và quản trị hệ thống.',
-        hasVariants: true,
-    },
-];
-
-const staffVariants = [
-    {
-        id: UserRole.STAFF_LMS,
-        label: 'Quản trị viên LMS',
+        id: UserRole.STAFF_ACADEMIC,
+        label: 'Nhân viên Học vụ (Academic)',
         icon: BookOpen,
-        description: 'Giám sát hoạt động học tập và vận hành học thuật.',
+        description: 'Quản lý chương trình học, lớp học và nội dung đào tạo.',
     },
     {
-        id: UserRole.STAFF_SUPPORT,
-        label: 'Chuyên viên Hỗ trợ',
-        icon: MessageCircle,
-        description: 'Quản lý yêu cầu hỗ trợ và giải đáp thắc mắc người dùng.',
-    },
-    {
-        id: UserRole.STAFF_SALES,
-        label: 'Chuyên viên Phát triển',
-        icon: TrendingUp,
-        description: 'Thúc đẩy kinh doanh và mở rộng thị trường.',
-    },
-    {
-        id: UserRole.STAFF_FINANCE,
-        label: 'Chuyên viên Tài chính',
-        icon: TrendingUp, // Or another icon like 'CreditCard' or 'Wallet' if available
-        description: 'Quản lý mã giảm giá và các vấn đề tài chính.',
+        id: UserRole.STAFF_OPERATIONS,
+        label: 'Nhân viên Vận hành & Kinh doanh',
+        icon: Users,
+        description: 'Vận hành hệ thống, tài chính và chăm sóc khách hàng.',
     },
 ];
 
@@ -98,12 +73,13 @@ type FormValues = z.infer<typeof formSchema>;
 interface CreateUserDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    fixedRole?: UserRole.LECTURER | UserRole.STAFF;
+    fixedRole?: UserRole.LECTURER | UserRole.STAFF_ACADEMIC | UserRole.STAFF_OPERATIONS;
 }
 
 export function CreateUserDialog({
     open,
     onOpenChange,
+    fixedRole,
 }: CreateUserDialogProps) {
     // const isLecturerOnly = false;
     // const isStaffOnly = false;
@@ -113,7 +89,6 @@ export function CreateUserDialog({
     // Step 2: Role Selection (Lecturer or Staff types)
     const totalSteps = 2;
 
-    const [showStaffVariants, setShowStaffVariants] = useState(false);
     const [currentStep, { goToNextStep, goToPrevStep, reset }] = useStep(totalSteps);
 
     const form = useForm<FormValues>({
@@ -130,15 +105,22 @@ export function CreateUserDialog({
 
     useEffect(() => {
         if (open) {
-            setShowStaffVariants(false);
             reset();
-            form.reset({
-                displayName: '',
-                email: '',
-                role: UserRole.LECTURER,
-            });
+            form.reset(
+                fixedRole
+                    ? {
+                        displayName: '',
+                        email: '',
+                        role: fixedRole,
+                    }
+                    : {
+                        displayName: '',
+                        email: '',
+                        role: UserRole.LECTURER,
+                    },
+            );
         }
-    }, [open, form, reset]);
+    }, [open, form, reset, fixedRole]);
 
     const [showConfirm, setShowConfirm] = useState(false);
 
@@ -149,7 +131,6 @@ export function CreateUserDialog({
                 description: `Tài khoản ${data.displayName} đã được tạo thành công.`,
             });
             form.reset();
-            setShowStaffVariants(false);
             reset();
             setShowConfirm(false);
             onOpenChange(false);
@@ -172,7 +153,6 @@ export function CreateUserDialog({
     const handleOpenChange = (newOpen: boolean) => {
         if (!newOpen) {
             form.reset();
-            setShowStaffVariants(false);
             reset();
         }
         onOpenChange(newOpen);
@@ -187,26 +167,12 @@ export function CreateUserDialog({
 
     const handleBackToDetails = () => {
         goToPrevStep();
-        setShowStaffVariants(false);
     };
 
     const handleRoleSelect = (roleId: string) => {
-        if (roleId === UserRole.STAFF) {
-            setShowStaffVariants(true);
-            form.setValue('role', UserRole.STAFF, { shouldValidate: false });
-        } else if (roleId === UserRole.LECTURER) {
-            form.setValue('role', UserRole.LECTURER, { shouldValidate: true });
-            setShowStaffVariants(false);
+        if (roleId === UserRole.LECTURER || roleId === UserRole.STAFF_ACADEMIC || roleId === UserRole.STAFF_OPERATIONS) {
+            form.setValue('role', roleId as FormValues['role'], { shouldValidate: true });
         }
-    };
-
-    const handleStaffVariantSelect = (variantId: UserRole) => {
-        form.setValue('role', variantId as UserRole.STAFF_LMS | UserRole.STAFF_SUPPORT | UserRole.STAFF_SALES | UserRole.STAFF_FINANCE, { shouldValidate: true });
-    };
-
-    const handleBackToRoles = () => {
-        setShowStaffVariants(false);
-        form.setValue('role', UserRole.STAFF);
     };
 
     const currentRole = form.watch('role');
@@ -302,101 +268,49 @@ export function CreateUserDialog({
                                 </div>
                             ) : (
                                 <div className="space-y-4">
-                                    {!showStaffVariants ? (
-                                        <div className="space-y-2">
-                                            {internalRoles
-                                                .map((role) => {
-                                                    const Icon = role.icon;
-                                                    const isSelected = currentRole === role.id ||
-                                                        (role.id === UserRole.STAFF && currentRole.toString().startsWith('staff-'));
+                                    <div className="space-y-2">
+                                        {internalRoles.map((role) => {
+                                            const Icon = role.icon;
+                                            const isSelected = currentRole === role.id;
 
-                                                    return (
+                                            return (
+                                                <div
+                                                    key={role.id}
+                                                    onClick={() => handleRoleSelect(role.id)}
+                                                    className={cn(
+                                                        "cursor-pointer rounded-lg border p-4",
+                                                        isSelected
+                                                            ? "border-primary bg-primary/5"
+                                                            : "hover:border-primary/50"
+                                                    )}
+                                                >
+                                                    <div className="flex items-center gap-3">
                                                         <div
-                                                            key={role.id}
-                                                            onClick={() => handleRoleSelect(role.id)}
                                                             className={cn(
-                                                                "cursor-pointer rounded-lg border p-4",
+                                                                "p-2 rounded-md",
                                                                 isSelected
-                                                                    ? "border-primary bg-primary/5"
-                                                                    : "hover:border-primary/50"
+                                                                    ? "bg-primary text-primary-foreground"
+                                                                    : "bg-muted"
                                                             )}
                                                         >
-                                                            <div className="flex items-center gap-3">
-                                                                <div className={cn(
-                                                                    "p-2 rounded-md",
-                                                                    isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
-                                                                )}>
-                                                                    <Icon className="size-5" />
-                                                                </div>
-                                                                <div className="flex-1">
-                                                                    <div className="flex items-center justify-between">
-                                                                        <span className="font-medium">{role.label}</span>
-                                                                        {isSelected && <BadgeCheck className="size-4 text-primary" />}
-                                                                    </div>
-                                                                    <p className="text-sm text-muted-foreground">
-                                                                        {role.description}
-                                                                    </p>
-                                                                </div>
-                                                                {role.hasVariants && <ChevronRight className="size-4 text-muted-foreground" />}
-                                                            </div>
+                                                            <Icon className="size-5" />
                                                         </div>
-                                                    );
-                                                })}
-                                        </div>
-                                    ) : (
-                                        <div className="space-y-4">
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={handleBackToRoles}
-                                            >
-                                                <ArrowLeft className="size-4 mr-2" />
-                                                Quay lại
-                                            </Button>
-
-                                            <div className="grid grid-cols-2 gap-2">
-                                                {staffVariants.map((variant) => {
-                                                    const Icon = variant.icon;
-                                                    const isSelected = currentRole === variant.id;
-
-                                                    return (
-                                                        <div
-                                                            key={variant.id}
-                                                            onClick={() => handleStaffVariantSelect(variant.id)}
-                                                            className={cn(
-                                                                "cursor-pointer rounded-lg border p-3",
-                                                                isSelected
-                                                                    ? "bg-primary text-primary-foreground border-primary"
-                                                                    : "hover:border-primary/50"
-                                                            )}
-                                                        >
-                                                            <div className="flex flex-col gap-2">
-                                                                <div className={cn(
-                                                                    "size-8 rounded-md flex items-center justify-center",
-                                                                    isSelected ? "bg-white/20" : "bg-muted"
-                                                                )}>
-                                                                    <Icon className="size-4" />
-                                                                </div>
-                                                                <div>
-                                                                    <div className="flex items-center gap-1">
-                                                                        <span className="text-sm font-medium">{variant.label}</span>
-                                                                        {isSelected && <ShieldCheck className="size-3" />}
-                                                                    </div>
-                                                                    <p className={cn(
-                                                                        "text-xs",
-                                                                        isSelected ? "text-white/80" : "text-muted-foreground"
-                                                                    )}>
-                                                                        {variant.description}
-                                                                    </p>
-                                                                </div>
+                                                        <div className="flex-1">
+                                                            <div className="flex items-center justify-between">
+                                                                <span className="font-medium">{role.label}</span>
+                                                                {isSelected && (
+                                                                    <BadgeCheck className="size-4 text-primary" />
+                                                                )}
                                                             </div>
+                                                            <p className="text-sm text-muted-foreground">
+                                                                {role.description}
+                                                            </p>
                                                         </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
-                                    )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -436,7 +350,7 @@ export function CreateUserDialog({
                                     </Button>
                                     <Button
                                         type="submit"
-                                        disabled={createInternalUser.isPending || currentRole === UserRole.STAFF}
+                                        disabled={createInternalUser.isPending}
                                     >
                                         {createInternalUser.isPending ? (
                                             <>

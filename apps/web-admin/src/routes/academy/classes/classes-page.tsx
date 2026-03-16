@@ -40,7 +40,7 @@ export default function ClassesPage() {
   const [statusDialogClass, setStatusDialogClass] = useState<AcademyClass | null>(null);
 
     const isLecturer = user?.role === UserRole.LECTURER;
-    const isStaff = user?.role === UserRole.ADMIN || user?.role === UserRole.STAFF_LMS;
+    const isStaff = user?.role === UserRole.ADMIN || user?.role === UserRole.STAFF_ACADEMIC || user?.role === UserRole.STAFF_OPERATIONS;
 
     const { data: classes, isLoading } = useAcademyClasses({
         q: debouncedSearch,

@@ -26,8 +26,8 @@ export default function ClassStudentsPage() {
   const isLecturer = user?.role === UserRole.LECTURER
   const isStaffOrAdmin =
     user?.role === UserRole.ADMIN ||
-    user?.role === UserRole.STAFF ||
-    user?.role === UserRole.STAFF_LMS
+    user?.role === UserRole.STAFF_ACADEMIC ||
+    user?.role === UserRole.STAFF_OPERATIONS
 
   const mode = academyClass?.mode as "VOD" | "LIVE" | undefined
 

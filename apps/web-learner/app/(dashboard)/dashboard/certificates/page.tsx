@@ -22,10 +22,11 @@ export default function CertificatesPage() {
 
     const handleShare = (cert: CertificateResponseDTO) => {
         const verifyUrl = `${window.location.origin}/verify/${cert.certificateCode}`
+        const title = (cert as any)?.class?.name ?? 'Torii Academy'
         if (navigator.share) {
             navigator.share({
                 title: 'Chứng chỉ Torii Academy',
-                text: `Tôi đã hoàn thành khóa học ${cert.courseRun?.courseMaster?.title}!`,
+                text: `Tôi đã hoàn thành khóa học ${title}!`,
                 url: verifyUrl,
             }).catch(console.error)
         } else {
@@ -85,19 +86,23 @@ export default function CertificatesPage() {
                 </div>
             ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {certificates.map((cert: CertificateResponseDTO) => (
+                    {certificates.map((cert: CertificateResponseDTO) => {
+                        const certClass = (cert as any)?.class as { code?: string; name?: string } | undefined
+                        return (
                         <Card key={cert.id} className="border-border bg-card hover:shadow-lg transition-all group overflow-hidden flex flex-col cursor-pointer rounded-2xl">
                             <div className="aspect-[1.4] bg-muted/30 border-b border-border flex flex-col items-center justify-center p-6 text-center space-y-3 relative group-hover:bg-muted/50 transition-colors">
                                 <div className="absolute top-3 right-3">
                                     <Badge className="text-xs font-bold bg-background text-foreground border-border shadow-sm">
-                                        {cert.courseRun?.courseMaster?.jlptLevel || 'CERT'}
+                                        {certClass?.code || 'CERT'}
                                     </Badge>
                                 </div>
                                 <div className="w-16 h-16 rounded-full bg-background shadow-md flex items-center justify-center border border-border/20 group-hover:scale-105 transition-transform duration-500">
                                     <Award className="w-8 h-8 text-primary" />
                                 </div>
                                 <div>
-                                    <h3 className="text-sm font-bold text-foreground line-clamp-2 px-2 leading-snug">{cert.courseRun?.courseMaster?.title}</h3>
+                                    <h3 className="text-sm font-bold text-foreground line-clamp-2 px-2 leading-snug">
+                                        {certClass?.name || 'Chứng chỉ'}
+                                    </h3>
                                     <p className="text-xs text-muted-foreground mt-1 font-mono">{cert.certificateCode}</p>
                                 </div>
                             </div>
@@ -119,14 +124,20 @@ export default function CertificatesPage() {
 
                                 <div className="flex gap-2">
                                     <Button
-                                        asChild
                                         variant="outline"
                                         size="sm"
+                                        disabled={!cert.fileUrl}
                                         className="flex-1 rounded-xl text-xs font-bold h-9 hover:bg-muted transition-all shadow-sm"
                                     >
-                                        <Link href={cert.fileUrl} target="_blank" download>
-                                            <Download className="w-3.5 h-3.5 mr-1.5" /> Tải về
-                                        </Link>
+                                        {cert.fileUrl ? (
+                                            <Link href={cert.fileUrl} target="_blank" download>
+                                                <Download className="w-3.5 h-3.5 mr-1.5" /> Tải về
+                                            </Link>
+                                        ) : (
+                                            <span className="inline-flex items-center">
+                                                <Download className="w-3.5 h-3.5 mr-1.5" /> Chưa có file
+                                            </span>
+                                        )}
                                     </Button>
                                     <Button
                                         variant="outline"
@@ -142,7 +153,7 @@ export default function CertificatesPage() {
                                 </div>
                             </CardContent>
                         </Card>
-                    ))}
+                    )})}
                 </div>
             )}
 
