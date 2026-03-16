@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '@/components/common/page-header';
 import { Button } from '@workspace/ui/components/button';
-import { Plus, BookOpen, Search, Pencil, Eye } from 'lucide-react';
+import { Plus, BookOpen, Search, Pencil, Eye, LayoutTemplate } from 'lucide-react';
 import { useAcademyCourseProfiles, type AcademyCourseProfile } from '@/lib/api/services/academy-course-profiles';
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { Input } from '@workspace/ui/components/input';
@@ -118,6 +118,14 @@ export default function CourseProfilesPage() {
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex items-center justify-end gap-2">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="h-8 gap-1.5"
+                                                    onClick={() => navigate(`/academy/syllabuses/${profile.id}`)}
+                                                >
+                                                    <LayoutTemplate className="h-4 w-4" /> Syllabus
+                                                </Button>
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
