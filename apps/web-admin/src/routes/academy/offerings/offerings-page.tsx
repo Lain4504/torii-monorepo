@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { PageHeader } from "@/components/common/page-header"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
@@ -14,29 +14,32 @@ import {
 import { Badge } from "@workspace/ui/components/badge"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@workspace/ui/components/dialog"
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
 import {
     Plus,
     Search,
     FileEdit,
     Archive,
     Eye,
-    ChevronRight,
 } from "lucide-react"
 import {
     useAcademyCourseOfferings,
     type AcademyCourseOffering,
-    useArchiveAcademyCourseOffering
+    useArchiveAcademyCourseOffering,
+    useSubmitCourseOfferingForApproval
 } from "@/lib/api/services/academy-course-offerings"
 import { useDebounceValue } from "@workspace/ui/hooks/use-debounce-value"
-import { OfferingDialog } from "./components/offering-dialog"
-import { OfferingDetailDialog } from "./components/offering-detail-dialog"
+import { OfferingSheet } from "./components/offering-sheet"
+import { toast } from "@workspace/ui/components/sonner"
+import { SendIcon } from "lucide-react"
 
 const getOfferingStatusLabel = (status: string) => {
     switch (status) {
@@ -46,6 +49,8 @@ const getOfferingStatusLabel = (status: string) => {
             return "Chờ duyệt";
         case "DRAFT":
             return "Bản nháp";
+        case "REJECTED":
+            return "Bị từ chối";
         case "ARCHIVED":
             return "Đã lưu trữ";
         default:
@@ -58,15 +63,21 @@ export default function OfferingsPage() {
     const [debouncedSearch] = useDebounceValue(searchTerm, 500)
     const [dialogOpen, setDialogOpen] = useState(false)
     const [selectedOffering, setSelectedOffering] = useState<AcademyCourseOffering | null>(null)
-    const [detailDialogOpen, setDetailDialogOpen] = useState(false)
+    const navigate = useNavigate()
 
     const { data: offerings, isLoading } = useAcademyCourseOfferings({
         q: debouncedSearch,
     })
 
     const archiveMutation = useArchiveAcademyCourseOffering()
+    const submitForApprovalMutation = useSubmitCourseOfferingForApproval()
 
     const [archiveDialog, setArchiveDialog] = useState<{
+        open: boolean
+        offering: AcademyCourseOffering | null
+    }>({ open: false, offering: null })
+
+    const [submitDialog, setSubmitDialog] = useState<{
         open: boolean
         offering: AcademyCourseOffering | null
     }>({ open: false, offering: null })
@@ -79,7 +90,7 @@ export default function OfferingsPage() {
     const handleEdit = (offering: AcademyCourseOffering) => {
         setSelectedOffering(offering)
         if (offering.status === 'PUBLISHED') {
-            setDetailDialogOpen(true)
+            navigate(`/academy/course-offerings/${offering.id}/detail`)
         } else {
             setDialogOpen(true)
         }
@@ -173,6 +184,23 @@ export default function OfferingsPage() {
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex items-center justify-end gap-2">
+                                                { (offering.status === 'DRAFT' || offering.status === 'REJECTED') && (
+                                                    <Button 
+                                                        variant="default" 
+                                                        size="sm" 
+                                                        className="h-8 gap-1.5 bg-primary hover:bg-primary/90"
+                                                        onClick={() => {
+                                                            if (offering.classes && offering.classes.length > 0) {
+                                                                setSubmitDialog({ open: true, offering })
+                                                            } else {
+                                                                toast.error("Vui lòng chọn ít nhất 1 lớp học trước khi gửi duyệt")
+                                                            }
+                                                        }}
+                                                        disabled={submitForApprovalMutation.isPending}
+                                                    >
+                                                        <SendIcon className="h-3.5 w-3.5" /> Gửi duyệt
+                                                    </Button>
+                                                )}
                                                 <Button variant="outline" size="sm" className="h-8 gap-1.5" onClick={() => handleEdit(offering)}>
                                                     {offering.status === 'PUBLISHED' ? (
                                                         <><Eye className="h-4 w-4" /> Chi tiết</>
@@ -180,25 +208,15 @@ export default function OfferingsPage() {
                                                         <><FileEdit className="h-4 w-4" /> Sửa</>
                                                     )}
                                                 </Button>
-                                                {offering.status === 'PENDING_APPROVAL' && (
-                                                    <Button variant="ghost" size="sm" asChild className="h-8 text-muted-foreground hover:text-primary">
-                                                        <Link to="/academy/offering-requests">
-                                                            Xem yêu cầu duyệt <ChevronRight className="ml-1 size-3" />
-                                                        </Link>
-                                                    </Button>
-                                                )}
-                                                <Button variant="outline" size="sm" className="h-8 gap-1.5" asChild>
-                                                    <Link to={`/academy/approvals/course-offerings/${offering.id}`}>
-                                                        Preview
-                                                    </Link>
-                                                </Button>
+
                                                 <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className="h-8 gap-1.5 text-destructive border-destructive/40 hover:text-destructive hover:bg-destructive/5"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="size-8 text-muted-foreground hover:text-destructive"
                                                     onClick={() => setArchiveDialog({ open: true, offering })}
+                                                    title="Lưu trữ"
                                                 >
-                                                    <Archive className="h-4 w-4" /> Lưu trữ
+                                                    <Archive className="h-4 w-4" />
                                                 </Button>
                                             </div>
                                         </TableCell>
@@ -210,47 +228,68 @@ export default function OfferingsPage() {
                 </div>
             </div>
 
-            <OfferingDialog
+            <OfferingSheet
                 open={dialogOpen}
                 onOpenChange={setDialogOpen}
                 offering={selectedOffering}
             />
 
-            <OfferingDetailDialog
-                open={detailDialogOpen}
-                onOpenChange={setDetailDialogOpen}
-                offering={selectedOffering}
-            />
-
-            {/* Archive Confirmation Dialog */}
-            <Dialog 
+            {/* Archive Confirmation */}
+            <AlertDialog 
                 open={archiveDialog.open} 
                 onOpenChange={(open) => !open && setArchiveDialog({ open: false, offering: null })}
             >
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Xác nhận lưu trữ</DialogTitle>
-                        <DialogDescription>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Xác nhận lưu trữ</AlertDialogTitle>
+                        <AlertDialogDescription>
                             Bạn có chắc chắn muốn lưu trữ gói bán "{archiveDialog.offering?.title}"? 
                             Gói này sẽ không còn hiển thị cho học viên và không thể hồi phục trạng thái bán trực tiếp.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setArchiveDialog({ open: false, offering: null })}>Hủy</Button>
-                        <Button 
-                            variant="destructive"
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Hủy</AlertDialogCancel>
+                        <AlertDialogAction 
+                            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
                             onClick={() => {
                                 if (archiveDialog.offering) {
                                     archiveMutation.mutate(archiveDialog.offering.id)
-                                    setArchiveDialog({ open: false, offering: null })
                                 }
                             }}
                         >
                             Xác nhận lưu trữ
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Submit Confirmation */}
+            <AlertDialog 
+                open={submitDialog.open} 
+                onOpenChange={(open) => !open && setSubmitDialog({ open: false, offering: null })}
+            >
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Gửi duyệt gói bán</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Gói bán "{submitDialog.offering?.title}" sẽ được gửi cho bộ phận phê duyệt. 
+                            Bạn sẽ không thể chỉnh sửa thông tin trong khi gói đang ở trạng thái chờ duyệt.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Kiểm tra lại</AlertDialogCancel>
+                        <AlertDialogAction 
+                            onClick={() => {
+                                if (submitDialog.offering) {
+                                    submitForApprovalMutation.mutate(submitDialog.offering.id)
+                                }
+                            }}
+                        >
+                            Xác nhận gửi duyệt
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

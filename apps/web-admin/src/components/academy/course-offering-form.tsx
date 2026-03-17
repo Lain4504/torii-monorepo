@@ -14,6 +14,27 @@ import {
   FieldLegend,
 } from "@workspace/ui/components/field"
 import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+  ItemActions,
+} from "@workspace/ui/components/item"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@workspace/ui/components/popover"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@workspace/ui/components/command"
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -39,8 +60,8 @@ import {
 } from "@/lib/api/services/academy-course-offerings"
 import { RichTextEditor } from "@/components/editor/rich-text-editor"
 import { Badge } from "@workspace/ui/components/badge"
-import { Checkbox } from "@workspace/ui/components/checkbox"
-import { SearchIcon, XIcon } from "lucide-react"
+import { PlusIcon, CheckIcon, XIcon } from "lucide-react"
+import { cn } from "@workspace/ui/lib/utils"
 
 export function CourseOfferingForm({
   mode,
@@ -200,134 +221,123 @@ export function CourseOfferingForm({
                       )}
                     </FieldLabel>
 
-                    <div className="space-y-4">
-                      {/* Search Input */}
-                      <div className="relative">
-                        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                        <Input
-                          placeholder="Tìm nhanh theo mã hoặc tên lớp..."
-                          className="pl-9 h-10"
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                        {searchTerm && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="absolute right-1 top-1/2 -translate-y-1/2 size-8 hover:bg-transparent"
-                            onClick={() => setSearchTerm("")}
-                          >
-                            <XIcon className="size-4 text-muted-foreground" />
-                          </Button>
-                        )}
-                      </div>
-
-                      {/* Results Grid - responsive 1 to 3 columns */}
-                      <div className="border rounded-lg bg-card overflow-hidden">
-                        <div className="max-h-[400px] overflow-y-auto p-3">
-                          {isLoadingClasses && (
-                            <div className="p-8 text-center text-sm text-muted-foreground italic flex flex-col items-center gap-2">
-                              <Spinner className="size-4" />
-                              Đang tải danh sách lớp...
-                            </div>
-                          )}
-
-                          {!isLoadingClasses && classes.length === 0 && (
-                            <div className="p-8 text-center text-sm text-muted-foreground italic">
-                              {searchTerm
-                                ? "Không tìm thấy kết quả phù hợp."
-                                : selectedMode
-                                  ? "Nhập từ khóa hoặc mã lớp để tìm kiếm."
-                                  : "Vui lòng chọn chế độ học trước."}
-                            </div>
-                          )}
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {classes.map((c: any) => {
-                              const isChecked = selectedIds.includes(c.id)
+                    <div className="space-y-4 pt-4">
+                      {/* Selected Classes List */}
+                      <div className="space-y-2">
+                        {count > 0 ? (
+                          <div className="grid grid-cols-1 gap-2">
+                            {selectedIds.map((id: string) => {
+                              const cls = classes.find((c: any) => c.id === id) ||
+                                          initial?.classes?.find((c: any) => c.classId === id)
+                              if (!cls) return null
                               return (
-                                <div
-                                  key={c.id}
-                                  className={`relative flex flex-col gap-2 p-3 rounded-md border transition-all cursor-pointer group ${
-                                    isChecked 
-                                      ? "border-primary bg-primary/5 ring-1 ring-primary" 
-                                      : "hover:border-primary/50 hover:bg-muted/50"
-                                  }`}
-                                  onClick={() => {
-                                    if (isChecked) {
-                                      field.onChange(selectedIds.filter((id: string) => id !== c.id))
-                                    } else {
-                                      field.onChange([...selectedIds, c.id])
-                                    }
-                                  }}
-                                >
-                                  <div className="flex items-start justify-between gap-2">
-                                    <span className={`text-xs font-bold truncate px-1.5 py-0.5 rounded bg-muted border ${isChecked ? "text-primary border-primary/30" : "text-muted-foreground"}`}>
-                                      {c.code}
-                                    </span>
-                                    <Checkbox
-                                      checked={isChecked}
-                                      className="size-4 pointer-events-none"
-                                    />
-                                  </div>
-                                  
-                                  <div className="min-w-0 flex-1">
-                                    <p className={`text-sm font-medium leading-tight line-clamp-2 ${isChecked ? "text-primary" : ""}`}>
-                                      {c.name}
-                                    </p>
-                                  </div>
-
-                                  <div className="mt-auto pt-2 flex items-center justify-between border-t border-dashed">
-                                     <span className="text-[10px] text-muted-foreground uppercase flex items-center gap-1">
-                                      <span className={`size-1.5 rounded-full ${
-                                        c.status === 'ENROLLING' ? 'bg-green-500' : 'bg-muted-foreground'
-                                      }`} />
-                                      {c.status}
-                                    </span>
-                                    <Badge variant="outline" className="text-[9px] h-3.5 px-1 uppercase opacity-70">
-                                      {c.mode}
+                                <Item key={id} variant="outline" className="group">
+                                  <ItemMedia>
+                                    <Badge variant="outline" className="font-mono text-[10px] uppercase">
+                                      {(cls as any).code}
                                     </Badge>
-                                  </div>
-                                </div>
+                                  </ItemMedia>
+                                  <ItemContent>
+                                    <ItemTitle className="text-sm">{(cls as any).name || (cls as any).title}</ItemTitle>
+                                    <ItemDescription className="text-[10px] uppercase">
+                                      {(cls as any).status} • {(cls as any).mode}
+                                    </ItemDescription>
+                                  </ItemContent>
+                                  <ItemActions>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="size-8 text-muted-foreground hover:text-destructive"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        field.onChange(selectedIds.filter((sid: string) => sid !== id));
+                                      }}
+                                    >
+                                      <XIcon className="size-4" />
+                                    </Button>
+                                  </ItemActions>
+                                </Item>
                               )
                             })}
                           </div>
-                        </div>
-
-                        {/* Summary Footer */}
-                        {count > 0 && (
-                          <div className="px-4 py-2 bg-muted/30 border-t flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-semibold text-primary uppercase tracking-tight">
-                                Đã chọn {count} lớp
-                              </span>
-                              <div className="flex -space-x-2 overflow-hidden">
-                                {selectedIds.slice(0, 3).map((id: string) => (
-                                  <div key={id} className="inline-block size-5 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-bold">
-                                    L
-                                  </div>
-                                ))}
-                                {count > 3 && (
-                                  <div className="flex size-5 items-center justify-center rounded-full border-2 border-background bg-muted text-[8px] font-bold">
-                                    +{count - 3}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 px-2 text-[11px] text-destructive hover:text-destructive hover:bg-destructive/10"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                field.onChange([])
-                              }}
-                            >
-                              Bỏ chọn hết
-                            </Button>
+                        ) : (
+                          <div className="border border-dashed rounded-xl py-6 text-center bg-muted/5 font-medium text-xs text-muted-foreground italic">
+                            Chưa có lớp học nào được chọn cho gói này.
                           </div>
                         )}
                       </div>
+
+                      {/* Add Class Button with Popover Search */}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="w-full border-dashed h-10 gap-2"
+                            type="button"
+                          >
+                            <PlusIcon className="size-4" />
+                            Liên kết thêm lớp học
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="p-0 w-[400px] sm:w-[600px] z-[1002]" align="start">
+                          <Command shouldFilter={false}>
+                            <CommandInput
+                              placeholder="Tìm nhanh mã hoặc tên lớp..."
+                              onValueChange={setSearchTerm}
+                              value={searchTerm}
+                            />
+                            <CommandList className="max-h-[300px]">
+                              {isLoadingClasses && (
+                                <div className="py-6 flex flex-col items-center justify-center gap-2 text-muted-foreground italic text-sm">
+                                  <Spinner className="size-4" />
+                                  Đang tìm kiếm...
+                                </div>
+                              )}
+                              <CommandEmpty>
+                                {!isLoadingClasses && (searchTerm ? "Không tìm thấy lớp học nào." : "Nhập để tìm kiếm...")}
+                              </CommandEmpty>
+                              <CommandGroup heading="Kết quả tìm kiếm">
+                                {classes.map((c: any) => {
+                                  const isChecked = selectedIds.includes(c.id)
+                                  return (
+                                    <CommandItem
+                                      key={c.id}
+                                      onSelect={() => {
+                                        if (isChecked) {
+                                          field.onChange(selectedIds.filter((id: string) => id !== c.id))
+                                        } else {
+                                          field.onChange([...selectedIds, c.id])
+                                        }
+                                      }}
+                                      className="px-4 py-3 cursor-pointer"
+                                    >
+                                      <div className="flex items-center gap-3 w-full">
+                                        <div className={cn(
+                                          "size-4 rounded border flex items-center justify-center transition-colors shrink-0",
+                                          isChecked ? "bg-primary border-primary" : "border-muted-foreground/30"
+                                        )}>
+                                          {isChecked && <CheckIcon className="size-3 text-primary-foreground stroke-[3]" />}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-[10px] font-mono font-bold bg-muted px-1 rounded uppercase shrink-0">
+                                              {c.code}
+                                            </span>
+                                            <p className="text-sm font-medium truncate">{c.name}</p>
+                                          </div>
+                                          <p className="text-[10px] text-muted-foreground uppercase mt-0.5">
+                                            {c.status} • {c.mode}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </CommandItem>
+                                  )
+                                })}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                     </div>
 
                     <FieldDescription>

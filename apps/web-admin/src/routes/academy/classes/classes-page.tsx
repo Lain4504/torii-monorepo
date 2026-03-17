@@ -19,6 +19,19 @@ import {
 } from "@workspace/ui/components/table";
 import { Badge } from '@workspace/ui/components/badge';
 import { Skeleton } from '@workspace/ui/components/skeleton';
+import { useSubmitClassForApproval } from '@/lib/api/services/academy-classes';
+import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
+import { SendIcon } from "lucide-react"
 import { useAppSelector } from "@/hooks/hooks";
 import { selectUser } from "@/store/slices/auth-slice";
 import { UserRole } from "@workspace/schemas";
@@ -30,7 +43,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@workspace/ui/components/dialog";
-import { Link } from "react-router-dom";
+
 
 export default function ClassesPage() {
     const navigate = useNavigate();
@@ -41,7 +54,10 @@ export default function ClassesPage() {
   const [createTypeDialogOpen, setCreateTypeDialogOpen] = useState(false);
   const [createMode, setCreateMode] = useState<"VOD" | "LIVE">("LIVE");
     const [selectedClass, setSelectedClass] = useState<AcademyClass | null>(null);
-  const [statusDialogClass, setStatusDialogClass] = useState<AcademyClass | null>(null);
+    const [statusDialogClass, setStatusDialogClass] = useState<AcademyClass | null>(null);
+    const [submitDialog, setSubmitDialog] = useState<{ open: boolean; cls: AcademyClass | null }>({ open: false, cls: null });
+
+    const submitForApprovalMutation = useSubmitClassForApproval();
 
     const isLecturer = user?.role === UserRole.LECTURER;
     const isStaff = user?.role === UserRole.ADMIN || user?.role === UserRole.STAFF_ACADEMIC || user?.role === UserRole.STAFF_OPERATIONS;
@@ -175,9 +191,15 @@ export default function ClassesPage() {
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex items-center justify-end gap-2">
-                                                {isStaff && (
-                                                    <Button variant="outline" size="sm" className="h-8 gap-1.5" asChild>
-                                                        <Link to={`/academy/approvals/classes/${cls.id}`}>Preview</Link>
+                                                {isStaff && (cls.status === 'DRAFT' || cls.status === 'REJECTED') && (
+                                                    <Button 
+                                                        variant="default" 
+                                                        size="sm" 
+                                                        className="h-8 gap-1.5 bg-primary hover:bg-primary/90"
+                                                        onClick={() => setSubmitDialog({ open: true, cls })}
+                                                        disabled={submitForApprovalMutation.isPending}
+                                                    >
+                                                        <SendIcon className="h-3.5 w-3.5" /> Gửi duyệt
                                                     </Button>
                                                 )}
                                                 <Button variant="outline" size="sm" className="h-8 gap-1.5" onClick={() => navigate(`/academy/classes/${cls.id}/detail`)}>
@@ -319,6 +341,35 @@ export default function ClassesPage() {
                     </div>
                 </DialogContent>
             </Dialog>
+            {/* Confirmation Dialogs */}
+            <AlertDialog open={submitDialog.open} onOpenChange={(open) => setSubmitDialog(prev => ({ ...prev, open }))}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Gửi duyệt lớp học?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Lớp học <strong>{submitDialog.cls?.name}</strong> sẽ được gửi cho quản lý cấp cao để kiểm duyệt nội dung và lịch trình. Bạn không thể chỉnh sửa trong khi chờ duyệt.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Hủy</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={async () => {
+                                if (!submitDialog.cls) return;
+                                try {
+                                    await submitForApprovalMutation.mutateAsync(submitDialog.cls.id);
+                                    toast.success("Đã gửi duyệt lớp học thành công");
+                                    setSubmitDialog({ open: false, cls: null });
+                                } catch (error) {
+                                    toast.error("Có lỗi xảy ra khi gửi duyệt");
+                                }
+                            }}
+                            className="bg-primary text-primary-foreground hover:bg-primary/90"
+                        >
+                            Xác nhận gửi
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

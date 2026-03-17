@@ -7,13 +7,26 @@ import { Badge } from "@workspace/ui/components/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@workspace/ui/components/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@workspace/ui/components/select"
 import { toast } from "sonner"
-import { User, CheckCircle2, XCircle, Clock, AlertCircle, ChevronRight, Calendar, BookOpen, Video } from "lucide-react"
+import { User, CheckCircle2, XCircle, Clock, AlertCircle, ChevronRight, Calendar, BookOpen, Video, Settings2, MapPin } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 import type { AcademyClass } from "@/lib/api/services/academy-classes"
+import { Button } from "@workspace/ui/components/button"
+import { ClassScheduleSheet } from "./class-schedule-sheet"
+import { useAcademyLiveSchedules } from "@/lib/api/services/academy-live-schedules"
 
 interface ClassAttendanceTabProps {
     classId: string
     academyClass?: AcademyClass | null
+}
+
+const WEEKDAY_MAP: Record<number, string> = {
+    1: "Thứ Hai",
+    2: "Thứ Ba",
+    3: "Thứ Tư",
+    4: "Thứ Năm",
+    5: "Thứ Sáu",
+    6: "Thứ Bảy",
+    0: "Chủ Nhật",
 }
 
 export function ClassAttendanceTab({ classId, academyClass }: ClassAttendanceTabProps) {
@@ -21,11 +34,13 @@ export function ClassAttendanceTab({ classId, academyClass }: ClassAttendanceTab
     const from = today.toISOString().slice(0, 10)
     const to = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
 
+    const [scheduleSheetOpen, setScheduleSheetOpen] = useState(false)
     const { data: sessions = [], isLoading: isLoadingSessions } = useAcademyLiveSessions(
         { classId, from, to },
         { enabled: !!classId },
     )
     const { data: enrollmentsData, isLoading: isLoadingEnrollments } = useAcademyEnrollments({ classId, page: 1, limit: 1000 })
+    const { data: schedules = [] } = useAcademyLiveSchedules({ classId }, { enabled: !!classId })
 
     const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null)
 
@@ -103,51 +118,105 @@ export function ClassAttendanceTab({ classId, academyClass }: ClassAttendanceTab
                 <Card className="border-dashed">
                     <CardContent className="py-12 text-center text-muted-foreground">
                         <Calendar className="mx-auto h-12 w-12 opacity-10 mb-2" />
-                        <p>Lớp học hiện chưa có lịch học cố định nào để điểm danh.</p>
+                        <p className="mb-6">Lớp học hiện chưa có lịch học cố định nào để điểm danh.</p>
+                        <Button onClick={() => setScheduleSheetOpen(true)}>
+                            <Settings2 className="mr-2 h-4 w-4" />
+                            Thiết lập lịch học
+                        </Button>
                     </CardContent>
                 </Card>
+                <ClassScheduleSheet 
+                    open={scheduleSheetOpen} 
+                    onOpenChange={setScheduleSheetOpen} 
+                    classId={classId} 
+                />
             </div>
         )
     }
 
     return (
         <div className="space-y-6">
-            {academyClass && (
-                <Card className="border-muted/50">
+            <ClassScheduleSheet 
+                open={scheduleSheetOpen} 
+                onOpenChange={setScheduleSheetOpen} 
+                classId={classId} 
+            />
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <Card className="md:col-span-3 border-muted/50">
                     <CardContent className="p-4">
                         <div className="flex flex-wrap items-center gap-4 text-sm">
                             <div className="flex items-center gap-2">
                                 <BookOpen className="size-4 text-muted-foreground" />
-                                <span className="font-medium">{academyClass.name}</span>
+                                <span className="font-medium">{academyClass?.name}</span>
                             </div>
                             <div className="flex items-center gap-2 text-muted-foreground">
-                                <span className="font-mono text-xs">{academyClass.code}</span>
+                                <span className="font-mono text-xs">{academyClass?.code}</span>
                                 <span>•</span>
                                 <span className="flex items-center gap-1">
                                     <Video className="size-3" />
-                                    {academyClass.mode === "LIVE" ? "LIVE" : "VOD"}
+                                    {academyClass?.mode === "LIVE" ? "LIVE" : "VOD"}
                                 </span>
                             </div>
-                            {academyClass.liveClass?.term && (
+                            {academyClass?.liveClass?.term && (
                                 <span className="text-muted-foreground">
                                     Kỳ: {academyClass.liveClass.term}
                                     {academyClass.liveClass.batch && ` • Batch: ${academyClass.liveClass.batch}`}
                                 </span>
                             )}
                             <Badge variant="outline" className="ml-auto">
-                                {academyClass.status}
+                                {academyClass?.status}
                             </Badge>
                         </div>
                     </CardContent>
                 </Card>
+
+                <Card className="md:col-span-1 border-muted/50 bg-primary/5">
+                    <CardContent className="p-4 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-primary/10 rounded-full">
+                                <Calendar className="size-4 text-primary" />
+                            </div>
+                            <div>
+                                <p className="text-xs font-semibold text-primary uppercase">Lịch học tuần</p>
+                                <p className="text-sm font-medium">{schedules.length} buổi / tuần</p>
+                            </div>
+                        </div>
+                        <Button variant="outline" size="sm" onClick={() => setScheduleSheetOpen(true)}>
+                            Sửa
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {schedules.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                    {schedules.sort((a, b) => a.weekday - b.weekday).map((s) => (
+                        <Badge key={s.id} variant="secondary" className="px-3 py-1.5 flex items-center gap-2 font-medium">
+                            <span className="text-primary font-bold">{WEEKDAY_MAP[s.weekday]}</span>
+                            <span className="text-muted-foreground">{s.startTime} - {s.endTime}</span>
+                            {s.location && (
+                                <>
+                                    <span className="text-muted-foreground/30">•</span>
+                                    <MapPin className="size-3 text-muted-foreground" />
+                                    <span>{s.location}</span>
+                                </>
+                            )}
+                        </Badge>
+                    ))}
+                </div>
             )}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="md:col-span-1 shadow-sm">
                 <CardHeader className="pb-3 border-b bg-muted/30">
-                    <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                        Chọn buổi học
-                    </CardTitle>
-                    <CardDescription>Chọn một buổi (session) theo ngày</CardDescription>
+                    <div className="flex items-center justify-between gap-2">
+                        <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            Chọn buổi học
+                        </CardTitle>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-primary" onClick={() => setScheduleSheetOpen(true)}>
+                            <Settings2 className="h-4 w-4" />
+                        </Button>
+                    </div>
                 </CardHeader>
                 <CardContent className="p-0 overflow-hidden">
                     <div className="divide-y">

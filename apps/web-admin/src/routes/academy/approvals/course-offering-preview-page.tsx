@@ -13,16 +13,26 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@workspace/ui/components/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { toast } from "@workspace/ui/components/sonner"
-import { ChevronRight, CheckCircle2, XCircle, Send } from "lucide-react"
+import { ChevronRight, CheckCircle2, XCircle } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { UserRole } from "@workspace/schemas"
 import {
   useAcademyCourseOffering,
   useApproveCourseOffering,
   useRejectCourseOffering,
-  useSubmitCourseOfferingForApproval,
+  useAvailableClassesForOffering,
 } from "@/lib/api/services/academy-course-offerings"
 import { formatCurrency } from "@/lib/format-utils"
 
@@ -42,14 +52,19 @@ export default function CourseOfferingApprovalPreviewPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { data: offering, isLoading } = useAcademyCourseOffering(id)
-  const submitMutation = useSubmitCourseOfferingForApproval()
   const approveMutation = useApproveCourseOffering()
   const rejectMutation = useRejectCourseOffering()
+
+  const { data: availableClasses = [] } = useAvailableClassesForOffering({
+    mode: (offering as any)?.mode,
+  })
 
   const [rejectDialog, setRejectDialog] = useState<{
     open: boolean
     reason: string
   }>({ open: false, reason: "" })
+
+  const [approveConfirmOpen, setApproveConfirmOpen] = useState(false)
 
   if (isLoading) {
     return (
@@ -73,7 +88,6 @@ export default function CourseOfferingApprovalPreviewPage() {
     user?.role === UserRole.STAFF_ACADEMIC ||
     user?.role === UserRole.STAFF_OPERATIONS
 
-  const canSubmit = isStaffOrAdmin && offering.status === "DRAFT"
   const canApprove = isStaffOrAdmin && offering.status === "PENDING_APPROVAL"
 
   return (
@@ -97,43 +111,12 @@ export default function CourseOfferingApprovalPreviewPage() {
           { label: "Ngày gửi duyệt", value: formatDateTime(offering.submittedForApprovalAt) },
         ]}
         actions={
-          canSubmit || canApprove ? (
+          canApprove ? (
             <div className="flex items-center gap-2">
-              {canSubmit && (
-                <Button
-                  size="lg"
-                  variant="outline"
-                  onClick={async () => {
-                    try {
-                      await submitMutation.mutateAsync(offering.id)
-                      toast.success(`Đã gửi duyệt "${offering.title}"`)
-                      navigate("/academy/approvals")
-                    } catch (err: any) {
-                      toast.error(
-                        err?.response?.data?.message || err?.message || "Không thể gửi duyệt",
-                      )
-                    }
-                  }}
-                  disabled={submitMutation.isPending}
-                  className="gap-2"
-                >
-                  <Send className="size-5" />
-                  Gửi duyệt
-                </Button>
-              )}
+
               <Button
                 size="lg"
-                onClick={async () => {
-                  try {
-                    await approveMutation.mutateAsync(offering.id)
-                    toast.success(`Đã phê duyệt "${offering.title}"`)
-                    navigate("/academy/approvals")
-                  } catch (err: any) {
-                    toast.error(
-                      err?.response?.data?.message || err?.message || "Không thể phê duyệt",
-                    )
-                  }
-                }}
+                onClick={() => setApproveConfirmOpen(true)}
                 disabled={approveMutation.isPending}
                 className="gap-2"
               >
@@ -192,20 +175,25 @@ export default function CourseOfferingApprovalPreviewPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            {offering.classes?.map((cls: any) => (
-              <div
-                key={cls.id || cls.classId}
-                className="flex items-center justify-between rounded-lg border p-3"
-              >
-                <div className="min-w-0">
-                  <p className="text-sm font-medium truncate">{cls.name || cls.title}</p>
-                  <p className="text-xs text-muted-foreground font-mono truncate">{cls.code}</p>
+            {offering.classes?.map((item: any) => {
+              const classId = item.id || item.classId
+              const cls = availableClasses.find((c: any) => c.id === classId) || item
+
+              return (
+                <div
+                  key={classId}
+                  className="flex items-center justify-between rounded-lg border p-3 bg-muted/5 shadow-sm"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold truncate text-primary">{cls.name || cls.title || "Lớp học"}</p>
+                    <p className="text-xs text-muted-foreground font-mono truncate">{cls.code || "N/A"}</p>
+                  </div>
+                  <Badge variant="outline" className="text-[10px] bg-background">
+                    {cls.mode ?? (offering as any).mode ?? "—"}
+                  </Badge>
                 </div>
-                <Badge variant="outline" className="text-[10px]">
-                  {cls.mode ?? "—"}
-                </Badge>
-              </div>
-            ))}
+              )
+            })}
             {(!offering.classes || offering.classes.length === 0) && (
               <p className="text-sm text-muted-foreground italic">
                 Gói này chưa liên kết lớp học nào.
@@ -265,6 +253,36 @@ export default function CourseOfferingApprovalPreviewPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={approveConfirmOpen} onOpenChange={setApproveConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận phê duyệt</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn phê duyệt gói bán "{offering.title}"? 
+              Sau khi phê duyệt, gói bán có thể được chuyển sang trạng thái "Đang bán" (Published).
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                try {
+                  await approveMutation.mutateAsync(offering.id)
+                  toast.success(`Đã phê duyệt "${offering.title}"`)
+                  navigate("/academy/approvals")
+                } catch (err: any) {
+                  toast.error(
+                    err?.response?.data?.message || err?.message || "Không thể phê duyệt",
+                  )
+                }
+              }}
+            >
+              Xác nhận duyệt
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
