@@ -137,9 +137,16 @@ export class LiveScheduleService {
     // Hybrid: pre-generate instances for near future so UI có data ngay.
     // Migration DB sẽ được chạy sau; nếu bảng chưa tồn tại thì bỏ qua để không chặn tạo template.
     try {
-      const from = this.startOfDay(new Date());
-      const to = this.addDays(from, this.DEFAULT_GENERATE_HORIZON_DAYS);
-      await this.generateInstancesForClassRange(input.classId, from, to, requesterId);
+      const from = klass.openingDate || this.startOfDay(new Date());
+      const to =
+        klass.closingDate ||
+        this.addDays(from, this.DEFAULT_GENERATE_HORIZON_DAYS);
+      await this.generateInstancesForClassRange(
+        input.classId,
+        from,
+        to,
+        requesterId,
+      );
     } catch (err) {
       this.logger.warn(
         `generateInstancesForClassRange skipped after create schedule: ${err instanceof Error ? err.message : String(err)}`,
@@ -413,7 +420,12 @@ export class LiveScheduleService {
     await this.assertTemplateMutable(oldSchedule.classId);
     const klass = await this.prisma.class.findUnique({
       where: { id: oldSchedule.classId },
-      select: { instructorId: true, id: true },
+      select: {
+        instructorId: true,
+        id: true,
+        openingDate: true,
+        closingDate: true,
+      },
     });
     await this.assertNoScheduleConflicts({
       classId: oldSchedule.classId,
@@ -440,9 +452,16 @@ export class LiveScheduleService {
 
     // Hybrid: re-generate horizon gần để reflect thay đổi template
     try {
-      const from = this.startOfDay(new Date());
-      const to = this.addDays(from, this.DEFAULT_GENERATE_HORIZON_DAYS);
-      await this.generateInstancesForClassRange(oldSchedule.classId, from, to, requesterId);
+      const from = klass?.openingDate || this.startOfDay(new Date());
+      const to =
+        klass?.closingDate ||
+        this.addDays(from, this.DEFAULT_GENERATE_HORIZON_DAYS);
+      await this.generateInstancesForClassRange(
+        oldSchedule.classId,
+        from,
+        to,
+        requesterId,
+      );
     } catch (err) {
       this.logger.warn(
         `generateInstancesForClassRange skipped after update schedule: ${err instanceof Error ? err.message : String(err)}`,

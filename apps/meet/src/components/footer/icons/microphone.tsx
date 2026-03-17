@@ -376,7 +376,7 @@ const MicrophoneIcon = () => {
   }, [onCloseMicrophoneModal]);
 
   const wrapperClasses = clsx(
-    'relative footer-icon cursor-pointer min-w-10 md:min-w-11 3xl:min-w-[52px] h-10 md:h-11 3xl:h-[52px] rounded-xl border-[3px] 3xl:border-4',
+    'relative footer-icon cursor-pointer w-11 3xl:w-[52px] h-11 3xl:h-[52px] rounded-xl border-[3px] 3xl:border-4',
     {
       'border-destructive!': isMicMuted && isActiveMicrophone,
       'border-primary/25': isActiveMicrophone,
