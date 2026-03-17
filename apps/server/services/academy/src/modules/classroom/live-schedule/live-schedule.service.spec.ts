@@ -29,7 +29,7 @@ describe('LiveScheduleService', () => {
       class: {
         id: 'class-id',
         name: 'Class A',
-        status: 'ENROLLING',
+        status: 'OPENING',
         courseProfile: { title: 'Course A' },
       },
     },

@@ -198,7 +198,7 @@ export class CourseOfferingController {
       this.nats.send({ cmd: 'academy.class.findAll' }, {
         mode: query.mode,
         q: query.q,
-        status: 'PUBLISHED,OPENING,ENROLLING,ONGOING',
+        status: 'PUBLISHED,OPENING,ONGOING',
       }),
     );
     return successResponse({ items });

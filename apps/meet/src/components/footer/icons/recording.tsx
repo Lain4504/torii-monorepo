@@ -13,6 +13,7 @@ import useLocalRecording from '@/components/footer/icons/recording/useLocalRecor
 import useCloudRecording from '@/components/footer/icons/recording/useCloudRecording';
 import { addUserNotification } from '@/store/slices/roomSettingsSlice';
 import { CircleDot } from 'lucide-react';
+import { Button } from '@workspace/ui/components/button';
 
 const RecordingIcon = () => {
   const dispatch = useAppDispatch();
@@ -235,10 +236,11 @@ const RecordingIcon = () => {
           onCloseModal={onCloseModal}
         />
       )}
-      <button
+      <Button
         className={buttonClasses}
         onClick={() => onClickRecordingBtn()}
         disabled={disable}
+        variant="ghost"
       >
         <div className={innerDivClasses}>
           <span className="tooltip">
@@ -253,7 +255,7 @@ const RecordingIcon = () => {
             })}
           />
         </div>
-      </button>
+      </Button>
     </>
   );
 };

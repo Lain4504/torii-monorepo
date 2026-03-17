@@ -16,6 +16,7 @@ import {
 } from '@/components/chat/messages/message/messageTypes';
 import TextBoxArea from '@/components/insights-ai/ai-text-chat/display/textBoxArea';
 import { ArrowDown, X } from 'lucide-react';
+import { Button } from '@workspace/ui/components/button';
 
 const InsightsAiTextChat = () => {
   const dispatch = useAppDispatch();
@@ -116,19 +117,23 @@ const InsightsAiTextChat = () => {
                 <span>Trò chuyện cùng AI</span>
                 <div className="flex items-center space-x-2">
                   {showScrollDownBtn && (
-                    <button
+                    <Button
                       className="cursor-pointer relative z-30 transition-opacity"
                       onClick={forceScrollToBottom}
+                      variant="ghost"
+                      size="icon"
                     >
                       <ArrowDown className="w-5 h-5" />
-                    </button>
+                    </Button>
                   )}
-                  <button
+                  <Button
                     className="cursor-pointer relative z-30"
                     onClick={close}
+                    variant="ghost"
+                    size="icon"
                   >
                     <X className="w-5 h-5 text-muted-foreground" />
-                  </button>
+                  </Button>
                 </div>
               </div>
 

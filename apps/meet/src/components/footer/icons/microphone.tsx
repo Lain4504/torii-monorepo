@@ -44,6 +44,7 @@ import {
 import { getMediaServerConnRoom } from '@/helpers/livekit/utils';
 import { getNatsConn } from '@/helpers/nats';
 import { Mic, MicOff, Plus, X, Lock as LockIcon } from 'lucide-react';
+import { Button } from '@workspace/ui/components/button';
 
 const MicrophoneIcon = () => {
   const dispatch = useAppDispatch();
@@ -409,15 +410,17 @@ const MicrophoneIcon = () => {
               <p className="text-sm text-foreground">
                 Bạn đang bị tắt tiếng
               </p>
-              <button
+              <Button
                 className="text-foreground absolute cursor-pointer top-1 right-1"
                 onClick={() => {
                   tooltipDismissedRef.current = true;
                   setShowMutedTooltip(false);
                 }}
+                variant="ghost"
+                size="icon"
               >
                 <X className="w-4 h-4" />
-              </button>
+              </Button>
             </div>
           </div>
         )}

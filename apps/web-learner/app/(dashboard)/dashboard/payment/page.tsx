@@ -50,7 +50,7 @@ import {
 } from '@workspace/ui/components/table'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@workspace/ui/components/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
-import { useWalletTransactions } from '@/lib/api/services/wallet-api'
+import { useWalletTransactions, useWalletBalance } from '@/lib/api/services/wallet-api'
 import { Coins, Wallet, ArrowUpCircle, ArrowDownCircle } from 'lucide-react'
 import { useAppSelector } from '@/hooks/hooks'
 
@@ -62,6 +62,7 @@ export default function PaymentHistoryPage() {
     const [isDetailOpen, setIsDetailOpen] = useState(false)
 
     const user = useAppSelector(state => state.auth.user)
+    const { data: balanceData } = useWalletBalance()
     const [walletPage, setWalletPage] = useState(1)
 
     const limit = 10;
@@ -182,7 +183,7 @@ export default function PaymentHistoryPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-baseline gap-2">
-                            <span className="text-3xl font-bold text-foreground">{(user as any)?.walletBalance?.toLocaleString() || 0}</span>
+                            <span className="text-3xl font-bold text-foreground">{(balanceData || 0).toLocaleString()}</span>
                             <span className="text-sm font-bold text-amber-600 uppercase tracking-tighter">Xu</span>
                         </div>
                         <p className="text-[10px] text-muted-foreground mt-1 font-medium italic">Sử dụng để thanh toán các dịch vụ & khóa học.</p>

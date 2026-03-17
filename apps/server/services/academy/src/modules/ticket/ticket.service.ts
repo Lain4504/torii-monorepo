@@ -163,7 +163,7 @@ export class TicketService implements ITicketService {
     // No more blocking RESOLVED from PENDING or PROCESSING.
 
     // Use any cast to bypass workspace type link issues temporarily
-    let refundAmount = (dto as any).refundAmount ?? (ticket as any).refundAmount;
+    let refundAmount = dto.refundAmount ?? (ticket as any).refundAmount;
 
     // Auto-calculate refund amount for REFUND tickets if not already set or specifically requested
     if (

@@ -27,6 +27,7 @@ import { Button } from '@workspace/ui/components/button'
 import { Badge } from "@workspace/ui/components/badge"
 import { cn } from "@workspace/ui/lib/utils"
 import { useGamificationProfile, useStreak } from '@/lib/api/services/gamification-api'
+import { useWalletBalance } from '@/lib/api/services/wallet-api'
 import { Progress } from '@workspace/ui/components/progress'
 import {
     Tooltip,
@@ -42,6 +43,7 @@ export function DashboardHeader() {
     const { user } = useAppSelector((state) => state.auth)
     const { data: profile } = useGamificationProfile()
     const { data: streak } = useStreak()
+    const { data: walletBalance } = useWalletBalance()
     const dispatch = useAppDispatch()
     const router = useRouter()
 
@@ -164,7 +166,7 @@ export function DashboardHeader() {
                                     <Link href="/dashboard/payment">
                                         <Badge variant="outline" className="flex items-center gap-1.5 px-3 py-1 font-bold bg-amber-500/5 border-amber-500/20 text-amber-600 hover:bg-amber-500/10 transition-colors">
                                             <Coins className="size-3 fill-amber-500" />
-                                            <span>{formatNumber((user as any)?.walletBalance || 0)}</span>
+                                            <span>{formatNumber(walletBalance || 0)}</span>
                                         </Badge>
                                     </Link>
                                 </TooltipTrigger>

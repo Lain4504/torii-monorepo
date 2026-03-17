@@ -11,6 +11,7 @@ import clsx from 'clsx';
 import '@/components/media-elements/screenshare/style.css';
 import { useAppSelector } from '@/store';
 import { Loader2, Maximize } from 'lucide-react';
+import { Button } from '@workspace/ui/components/button';
 
 interface IVideoElmProps {
   track: RemoteTrackPublication | LocalTrackPublication;
@@ -75,12 +76,14 @@ const VideoElm = ({ track }: IVideoElmProps) => {
         </div>
       )}
       {isLoaded && (
-        <button
+        <Button
           className="absolute z-99 bottom-2 right-2 p-1 bg-black/50 rounded-md opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
           onClick={fullScreen}
+          variant="ghost"
+          size="icon"
         >
           <Maximize className="w-5 h-5 text-white" />
-        </button>
+        </Button>
       )}
       <video
         onLoadedData={onLoadedData}

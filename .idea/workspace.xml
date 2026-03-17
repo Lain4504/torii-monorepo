@@ -89,7 +89,7 @@
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "#287 on update-web-admin",
+    "git-widget-placeholder": "update-meet-insights",
     "go.import.settings.migrated": "true",
     "javascript.preferred.runtime.type.id": "node",
     "kotlin-language-version-configured": "true",
@@ -341,6 +341,7 @@
       <workItem from="1773288495777" duration="14000" />
       <workItem from="1773498697707" duration="301000" />
       <workItem from="1773501761493" duration="231000" />
+      <workItem from="1773710786549" duration="274000" />
     </task>
     <task id="LOCAL-00967" summary="Update schema.prisma">
       <option name="closed" value="true" />

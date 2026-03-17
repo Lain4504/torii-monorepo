@@ -22,6 +22,7 @@ import { addUserNotification } from '@/store/slices/roomSettingsSlice';
 import { Loader2 } from 'lucide-react';
 import {Button} from "@workspace/ui/components/button";
 import { Label } from "@workspace/ui/components/label";
+import { RadioGroup, RadioGroupItem } from '@workspace/ui/components/radio-group';
 
 interface PollFormProps {
   pollDataWithOption: PollDataWithOption;
@@ -129,12 +130,10 @@ const PollForm = ({ pollDataWithOption, isRunning }: PollFormProps) => {
           className="relative flex items-center border border-border min-h-[42px] bg-muted/10 hover:bg-muted/20 transition-all rounded-xl px-2 overflow-hidden my-2 cursor-pointer shadow-sm"
           onClick={() => onClickSelectOption(o.id)}
         >
-          <input
-            type="radio"
+          <RadioGroupItem
             id={`option-${pollDataWithOption.pollId}-${o.id}`}
-            checked={selectedOption === o.id}
-            readOnly
-            className="polls-checkbox relative appearance-none w-[18px] h-[18px] border border-border rounded-md checked:bg-primary checked:border-primary transition-all shadow-xs"
+            value={`${o.id}`}
+            className="polls-checkbox relative rounded-md border border-border shadow-xs data-[checked=true]:bg-primary data-[checked=true]:border-primary"
           />
           <Label
             className="text-sm text-foreground w-full h-full pl-7 z-10 flex items-center cursor-pointer font-medium"
@@ -168,7 +167,12 @@ const PollForm = ({ pollDataWithOption, isRunning }: PollFormProps) => {
       onSubmit={onSubmit}
       name={`voteForm-${pollDataWithOption.pollId}`}
     >
-      {pollOption}
+      <RadioGroup
+        value={selectedOption ? `${selectedOption}` : undefined}
+        onValueChange={(val) => onClickSelectOption(Number(val))}
+      >
+        {pollOption}
+      </RadioGroup>
       {isLoading && (
         <div className="absolute text-center top-1/2 -translate-y-1/2 z-999 left-0 right-0 m-auto">
           <Loader2

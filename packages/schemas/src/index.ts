@@ -8,6 +8,7 @@ export * from './models/order.model';
 export * from './models/coupon.model';
 export * from './models/ticket.model';
 export * from './models/certificate.model';
+export * from './models/refund.model';
 
 
 // DTOs (all types are now here with Zod schemas)
@@ -39,6 +40,7 @@ export * from './dtos/agent.dto';
 export * from './dtos/balance.dto';
 export * from './dtos/academy-class.dto';
 export * from './dtos/academy-class-assignment.dto';
+export * from './dtos/refund.dto';
 
 export * from './dtos/academy-live-schedule.dto';
 export * from './dtos/academy-live-schedule-request.dto';

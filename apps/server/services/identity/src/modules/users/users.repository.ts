@@ -27,11 +27,7 @@ export class UsersRepository implements IUsersRepository {
 
     if (!user) return null;
 
-    return {
-      ...user,
-      xp: (user as any).gamification?.totalXp ?? 0,
-      level: (user as any).gamification?.level ?? 1,
-    } as any;
+    return user as any;
   }
 
   /**
@@ -45,11 +41,7 @@ export class UsersRepository implements IUsersRepository {
 
     if (!user) return null;
 
-    return {
-      ...user,
-      xp: (user as any).gamification?.totalXp ?? 0,
-      level: (user as any).gamification?.level ?? 1,
-    } as any;
+    return user as any;
   }
 
   /**
@@ -72,11 +64,7 @@ export class UsersRepository implements IUsersRepository {
       },
     });
 
-    return users.map((user) => ({
-      ...user,
-      xp: (user as any).gamification?.totalXp ?? 0,
-      level: (user as any).gamification?.level ?? 1,
-    })) as any;
+    return users as any;
   }
 
   /**
@@ -106,11 +94,7 @@ export class UsersRepository implements IUsersRepository {
       include: { gamification: true },
     });
 
-    return {
-      ...user,
-      xp: (user as any).gamification?.totalXp ?? 0,
-      level: (user as any).gamification?.level ?? 1,
-    } as any;
+    return user as any;
   }
 
   /**
@@ -126,11 +110,7 @@ export class UsersRepository implements IUsersRepository {
       include: { gamification: true },
     });
 
-    return {
-      ...user,
-      xp: (user as any).gamification?.totalXp ?? 0,
-      level: (user as any).gamification?.level ?? 1,
-    } as any;
+    return user as any;
   }
 
   /**
@@ -149,11 +129,7 @@ export class UsersRepository implements IUsersRepository {
       include: { gamification: true },
     });
 
-    return {
-      ...user,
-      xp: (user as any).gamification?.totalXp ?? 0,
-      level: (user as any).gamification?.level ?? 1,
-    } as any;
+    return user as any;
   }
 
   /**
@@ -178,11 +154,7 @@ export class UsersRepository implements IUsersRepository {
       include: { gamification: true },
     });
 
-    return {
-      ...user,
-      xp: (user as any).gamification?.totalXp ?? 0,
-      level: (user as any).gamification?.level ?? 1,
-    } as any;
+    return user as any;
   }
 
   /**
@@ -251,8 +223,6 @@ export class UsersRepository implements IUsersRepository {
 
     return {
       ...user,
-      xp: (user as any).gamification?.totalXp ?? 0,
-      level: (user as any).gamification?.level ?? 1,
       userMetadata,
     } as any;
   }

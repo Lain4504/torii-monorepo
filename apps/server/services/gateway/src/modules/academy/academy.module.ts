@@ -26,6 +26,7 @@ import { ModuleController } from './controllers/module.controller';
 import { ClassAssignmentController } from './controllers/class-assignment.controller';
 import { WalletController } from './controllers/wallet.controller';
 import { CertificateController } from './controllers/certificate.controller';
+import { RefundController } from './controllers/refund.controller';
 
 @Module({
   imports: [NatsClientModule],
@@ -54,6 +55,7 @@ import { CertificateController } from './controllers/certificate.controller';
     ClassAssignmentController,
     WalletController,
     CertificateController,
+    RefundController,
   ],
 })
 export class AcademyModule { }

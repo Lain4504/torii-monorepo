@@ -4,6 +4,7 @@ import {
   InsightsUserSessionAction,
 } from '@workspace/protocol';
 import { toast } from 'react-toastify';
+import { Button } from '@workspace/ui/components/button';
 
 import { store, useAppDispatch, useAppSelector } from '@/store';
 import { updateDisplaySpeechSettingOptionsModal } from '@/store/slices/bottomIconsActivitySlice';
@@ -165,15 +166,15 @@ const SpeechSettingsModal = ({
 
       {canShowSpeechSetting && enableSpeech && (
         <div className="bottom-area pt-6 mt-6 border-t border-border flex justify-end gap-5 -mx-4 px-8">
-          <button
-            className="h-10 w-full cursor-pointer rounded-lg bg-primary px-8 text-sm font-semibold text-primary-foreground shadow-sm transition-all duration-300 hover:bg-primary/90 disabled:opacity-50"
+          <Button
+            className="h-10 w-full cursor-pointer rounded-lg px-8 text-sm font-semibold shadow-sm transition-all duration-300 disabled:opacity-50"
             disabled={!readyToStart && !isServiceActive}
             onClick={startOrStopService}
           >
             {canShowSpeechSetting && isServiceActive
               ? "Dừng dịch vụ"
               : "Bắt đầu dịch vụ"}
-          </button>
+          </Button>
         </div>
       )}
     </Modal>
