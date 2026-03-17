@@ -224,7 +224,7 @@ export function LoginForm() {
                                     {...field}
                                     id={field.name}
                                     type="email"
-                                    placeholder="yourname@domain.com"
+                                    placeholder="Nhập email của bạn"
                                     autoComplete="email"
                                 />
                                 <FieldError errors={[fieldState.error]} />

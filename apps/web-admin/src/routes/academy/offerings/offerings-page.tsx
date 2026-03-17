@@ -26,14 +26,12 @@ import {
     Search,
     FileEdit,
     Archive,
-    CheckCircle2,
     Eye,
     ChevronRight,
 } from "lucide-react"
 import {
     useAcademyCourseOfferings,
     type AcademyCourseOffering,
-    useSubmitCourseOfferingForApproval,
     useArchiveAcademyCourseOffering
 } from "@/lib/api/services/academy-course-offerings"
 import { useDebounceValue } from "@workspace/ui/hooks/use-debounce-value"
@@ -66,13 +64,7 @@ export default function OfferingsPage() {
         q: debouncedSearch,
     })
 
-    const submitForApprovalMutation = useSubmitCourseOfferingForApproval()
     const archiveMutation = useArchiveAcademyCourseOffering()
-
-    const [submitDialog, setSubmitDialog] = useState<{
-        open: boolean
-        offering: AcademyCourseOffering | null
-    }>({ open: false, offering: null })
 
     const [archiveDialog, setArchiveDialog] = useState<{
         open: boolean
@@ -188,16 +180,6 @@ export default function OfferingsPage() {
                                                         <><FileEdit className="h-4 w-4" /> Sửa</>
                                                     )}
                                                 </Button>
-                                                {offering.status === 'DRAFT' && (
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        className="h-8 gap-1.5 text-yellow-600 border-yellow-500/40"
-                                                        onClick={() => setSubmitDialog({ open: true, offering })}
-                                                    >
-                                                        <CheckCircle2 className="h-4 w-4" /> Gửi duyệt
-                                                    </Button>
-                                                )}
                                                 {offering.status === 'PENDING_APPROVAL' && (
                                                     <Button variant="ghost" size="sm" asChild className="h-8 text-muted-foreground hover:text-primary">
                                                         <Link to="/academy/offering-requests">
@@ -205,6 +187,11 @@ export default function OfferingsPage() {
                                                         </Link>
                                                     </Button>
                                                 )}
+                                                <Button variant="outline" size="sm" className="h-8 gap-1.5" asChild>
+                                                    <Link to={`/academy/approvals/course-offerings/${offering.id}`}>
+                                                        Preview
+                                                    </Link>
+                                                </Button>
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
@@ -234,35 +221,6 @@ export default function OfferingsPage() {
                 onOpenChange={setDetailDialogOpen}
                 offering={selectedOffering}
             />
-
-            {/* Submit Confirmation Dialog */}
-            <Dialog 
-                open={submitDialog.open} 
-                onOpenChange={(open) => !open && setSubmitDialog({ open: false, offering: null })}
-            >
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Xác nhận gửi duyệt</DialogTitle>
-                        <DialogDescription>
-                            Bạn có chắc chắn muốn gửi duyệt gói bán "{submitDialog.offering?.title}"? 
-                            Sau khi gửi, bạn sẽ không thể chỉnh sửa cho đến khi có phản hồi từ người duyệt.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setSubmitDialog({ open: false, offering: null })}>Hủy</Button>
-                        <Button 
-                            onClick={() => {
-                                if (submitDialog.offering) {
-                                    submitForApprovalMutation.mutate(submitDialog.offering.id)
-                                    setSubmitDialog({ open: false, offering: null })
-                                }
-                            }}
-                        >
-                            Xác nhận gửi
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
 
             {/* Archive Confirmation Dialog */}
             <Dialog 

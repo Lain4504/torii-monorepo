@@ -48,8 +48,7 @@ export const academicNavItems: NavItem[] = [
             { titleKey: "Lớp học", url: "/academy/classes" },
             { titleKey: "Kho Khóa học (Profiles)", url: "/academy/course-profiles", anyPermission: ["academy.content.read", "academy.content.write"] },
             { titleKey: "Gói bán (Offerings)", url: "/academy/course-offerings", anyPermission: ["academy.commerce.read", "academy.commerce.write"] },
-            { titleKey: "Duyệt khóa học", url: "/academy/course-requests", permission: "academy.content.approve" },
-            { titleKey: "Duyệt gói bán", url: "/academy/offering-requests", permission: "academy.commerce.approve" },
+            { titleKey: "Approval Center", url: "/academy/approvals", anyPermission: ["academy.content.approve", "academy.commerce.approve", "academy.delivery.approve", "academy.content.write", "academy.commerce.write", "academy.delivery.write"] },
         ]
     },
     {

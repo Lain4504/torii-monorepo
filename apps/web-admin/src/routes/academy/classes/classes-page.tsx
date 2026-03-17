@@ -3,7 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '@/components/common/page-header';
 import { Button } from '@workspace/ui/components/button';
 import { Plus, Search, Eye, Pencil } from 'lucide-react';
-import { useAcademyClasses, type AcademyClass } from '@/lib/api/services/academy-classes';
+import {
+  useAcademyClasses,
+  type AcademyClass,
+} from '@/lib/api/services/academy-classes';
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { Input } from '@workspace/ui/components/input';
 import {
@@ -27,6 +30,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@workspace/ui/components/dialog";
+import { Link } from "react-router-dom";
 
 export default function ClassesPage() {
     const navigate = useNavigate();
@@ -171,6 +175,11 @@ export default function ClassesPage() {
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex items-center justify-end gap-2">
+                                                {isStaff && (
+                                                    <Button variant="outline" size="sm" className="h-8 gap-1.5" asChild>
+                                                        <Link to={`/academy/approvals/classes/${cls.id}`}>Preview</Link>
+                                                    </Button>
+                                                )}
                                                 <Button variant="outline" size="sm" className="h-8 gap-1.5" onClick={() => navigate(`/academy/classes/${cls.id}/detail`)}>
                                                     <Eye className="h-4 w-4" /> Chi tiết
                                                 </Button>

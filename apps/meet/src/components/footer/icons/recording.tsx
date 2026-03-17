@@ -211,7 +211,7 @@ const RecordingIcon = () => {
   }
 
   const buttonClasses = clsx(
-    'recorder-icon hidden md:block relative footer-icon cursor-pointer w-11 3xl:w-[52px] h-11 3xl:h-[52px] rounded-xl border-[3px] 3xl:border-4',
+    'recorder-icon hidden md:block relative footer-icon cursor-pointer w-12 h-12 3xl:w-14 3xl:h-14 rounded-xl border-[3px] 3xl:border-4',
     {
       'record border-destructive/20': isRecording,
       'border-transparent': !isRecording,
@@ -249,7 +249,7 @@ const RecordingIcon = () => {
               : 'Bắt đầu ghi âm/hình'}
           </span>
           <CircleDot
-            className={clsx('w-5 h-5 transition-colors duration-300', {
+            className={clsx('w-6 h-6 3xl:w-7 3xl:h-7 transition-colors duration-300', {
               'text-destructive animate-pulse': isRecording,
               'text-foreground': !isRecording,
             })}

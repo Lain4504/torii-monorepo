@@ -46,7 +46,7 @@ export class ModuleController {
         @Req() req: ReqWithRequester,
     ) {
         const item = await firstValueFrom(
-            this.nats.send({ cmd: 'academy.module.update' }, { id, ...dto, requesterId: req.requester?.sub }),
+            this.nats.send({ cmd: 'academy.module.update' }, { id, input: dto, requesterId: req.requester?.sub }),
         );
         return successResponse({ item });
     }

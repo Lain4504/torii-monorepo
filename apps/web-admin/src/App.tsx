@@ -53,6 +53,10 @@ import SyllabusBuilderPage from '@/routes/academy/syllabuses/syllabus-builder-pa
 import OfferingsPage from '@/routes/academy/offerings/offerings-page.tsx'
 import OfferingDetailPage from '@/routes/academy/offerings/offering-detail-page.tsx'
 import AssignmentGradingPage from '@/routes/academy/classes/assignment-grading-page.tsx'
+import ApprovalsPage from '@/routes/academy/approvals/approvals-page.tsx'
+import CourseProfileApprovalPreviewPage from '@/routes/academy/approvals/course-profile-preview-page.tsx'
+import CourseOfferingApprovalPreviewPage from '@/routes/academy/approvals/course-offering-preview-page.tsx'
+import ClassApprovalPreviewPage from '@/routes/academy/approvals/class-preview-page.tsx'
 import RewardsPage from '@/routes/gamification/rewards-page.tsx'
 import AchievementsPage from '@/routes/gamification/achievements-page.tsx'
 import SubscriptionPlansPage from '@/routes/academy/ai-subscriptions/plans-page.tsx'
@@ -122,6 +126,12 @@ function App() {
                     {/* AI Subscriptions */}
                     <Route path="academy/ai-subscriptions/plans" element={<SubscriptionPlansPage />} />
                     <Route path="academy/ai-subscriptions/users" element={<UserSubscriptionsPage />} />
+                  </Route>
+                  <Route element={<RoutePermissionGuard anyPermission={["academy.content.approve", "academy.commerce.approve", "academy.delivery.approve", "academy.content.write", "academy.commerce.write", "academy.delivery.write"]} />}>
+                    <Route path="academy/approvals" element={<ApprovalsPage />} />
+                    <Route path="academy/approvals/course-profiles/:id" element={<CourseProfileApprovalPreviewPage />} />
+                    <Route path="academy/approvals/course-offerings/:id" element={<CourseOfferingApprovalPreviewPage />} />
+                    <Route path="academy/approvals/classes/:id" element={<ClassApprovalPreviewPage />} />
                   </Route>
 
                   <Route element={<RoutePermissionGuard permission="coupon.manage" />}>
