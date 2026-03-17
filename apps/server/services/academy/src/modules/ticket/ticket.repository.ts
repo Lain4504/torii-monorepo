@@ -98,6 +98,7 @@ export class TicketRepository implements ITicketRepository {
     status: string,
     response?: string,
     handlerId?: string,
+    refundAmount?: number,
   ): Promise<Ticket> {
     return this.prisma.ticket.update({
       where: { id },
@@ -105,6 +106,7 @@ export class TicketRepository implements ITicketRepository {
         status: status as any,
         response,
         handlerId,
+        refundAmount,
       },
     }) as any;
   }

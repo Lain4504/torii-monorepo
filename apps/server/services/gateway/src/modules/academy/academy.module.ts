@@ -24,7 +24,7 @@ import { ClassAttendanceController } from './controllers/class-attendance.contro
 import { SyllabusController } from './controllers/syllabus.controller';
 import { ModuleController } from './controllers/module.controller';
 import { ClassAssignmentController } from './controllers/class-assignment.controller';
-import { RefundController } from './controllers/refund.controller';
+import { WalletController } from './controllers/wallet.controller';
 import { CertificateController } from './controllers/certificate.controller';
 
 @Module({
@@ -52,7 +52,7 @@ import { CertificateController } from './controllers/certificate.controller';
     SyllabusController,
     ModuleController,
     ClassAssignmentController,
-    RefundController,
+    WalletController,
     CertificateController,
   ],
 })

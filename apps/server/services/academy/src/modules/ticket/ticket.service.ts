@@ -21,7 +21,7 @@ import { ITicketService } from '@server/academy/interfaces/services';
 import { ITicketRepository, TICKET_REPOSITORY_TOKEN } from '@server/academy/interfaces/repositories';
 import { EmailService } from '@server/identity/modules/email/email.service';
 import { AuditLoggerService } from '../audit-logger.service';
-import { RefundService } from './refund.service';
+import { PrismaService } from '@server/shared';
 
 @Injectable()
 export class TicketService implements ITicketService {
@@ -34,7 +34,7 @@ export class TicketService implements ITicketService {
     private readonly natsClient: ClientProxy,
     private readonly emailService: EmailService,
     private readonly audit: AuditLoggerService,
-    private readonly refundService: RefundService,
+    private readonly prisma: PrismaService,
   ) { }
 
   async createTicket(userId: string, dto: CreateTicketDTO, requesterId?: string): Promise<Ticket> {
@@ -76,9 +76,6 @@ export class TicketService implements ITicketService {
 
         const progress = result.enrollment?.completionPercentage || 0;
         if (progress > 20) {
-          this.logger.warn(
-            `User ${userId} attempted refund for class ${classId} with ${progress}% progress.`,
-          );
           throw new BadRequestException(
             'Khóa học không đủ điều kiện hoàn tiền do bạn đã hoàn thành hơn 20% nội dung.',
           );
@@ -91,30 +88,36 @@ export class TicketService implements ITicketService {
           ),
         ).catch(() => null);
 
+        // Auto-resolve orderId for the ticket if it's a refund
+        const orderId = result.enrollment?.sourceOrderId;
+
         ticketMetadata = {
           ...dto.metadata,
           progress,
           enrollmentDate: result.enrollment.enrollmentDate,
           courseTitle: classResult?.name || 'Unknown Class',
+          originalOrderId: orderId, // Store in metadata as well for record
         };
+
+        // Create the ticket with the resolved orderId
+        return this.ticketRepository.create({
+          ...dto,
+          userId,
+          orderId: (dto as any).orderId || orderId, // Prioritize DTO but fallback to enrollment order
+          metadata: ticketMetadata,
+        });
       } catch (error) {
         if (error instanceof BadRequestException) throw error;
-        this.logger.error(
-          `Error checking enrollment for refund: ${error.message}`,
-        );
-        throw new BadRequestException(
-          'Could not verify enrollment status or refund eligibility',
-        );
+        this.logger.error(`Failed to validate refund request: ${error.message}`);
+        throw new BadRequestException('Validation failed for refund request');
       }
     }
 
-    const ticket = await this.ticketRepository.create({
+    return this.ticketRepository.create({
       ...dto,
       userId,
       metadata: ticketMetadata,
     });
-
-    return ticket;
   }
 
   async getTicketById(id: string): Promise<Ticket> {
@@ -156,75 +159,51 @@ export class TicketService implements ITicketService {
       throw new BadRequestException('Ticket is already finalized');
     }
 
-    // Workflow enforcement for REFUND tickets
-    if (ticket.type === TicketType.REFUND) {
-      // 1. Block direct RESOLVED from PENDING (must go through PROCESSING to create Refund record)
-      if (ticket.status === TicketStatus.PENDING && dto.status === TicketStatus.RESOLVED) {
-        throw new BadRequestException(
-          'Yêu cầu hoàn tiền cần được chuyển sang trạng thái "Đang xử lý" để khởi tạo quy trình hoàn tiền trước khi giải quyết.',
-        );
-      }
+    // Simplified Workflow for REFUND tickets
+    // No more blocking RESOLVED from PENDING or PROCESSING.
 
-      // 2. Block manual RESOLVED from PROCESSING (forcing usage of Refund Management UI for side-effects like enrollment removal)
-      if (ticket.status === TicketStatus.PROCESSING && dto.status === TicketStatus.RESOLVED) {
-        throw new BadRequestException(
-          'Vui lòng xử lý và hoàn tất quy trình trong mục "Quản lý hoàn tiền" để giải quyết ticket này tự động.',
-        );
-      }
-    }
+    // Use any cast to bypass workspace type link issues temporarily
+    let refundAmount = (dto as any).refundAmount ?? (ticket as any).refundAmount;
 
+    // Auto-calculate refund amount for REFUND tickets if not already set or specifically requested
     if (
-      dto.status === TicketStatus.PROCESSING &&
-      ticket.type === TicketType.REFUND
+      (dto.status === TicketStatus.PROCESSING || dto.status === TicketStatus.RESOLVED) &&
+      ticket.type === TicketType.REFUND &&
+      !refundAmount
     ) {
       const classId = ticket.classId;
       const userId = ticket.userId;
 
       if (classId && userId) {
         try {
-          // Check if refund already exists
-          const existingRefund = await this.refundService.findAll({ ticketId: id });
-          if (existingRefund.total > 0) {
-            this.logger.warn(`Refund request already exists for ticket ${id}`);
-          } else {
-            // Find order for this enrollment if not specified
-            let orderId = ticket.orderId;
-            let amount = 0;
+          // Find order for this enrollment if not specified in ticket
+          let orderId = ticket.orderId;
 
-            const result = await firstValueFrom(
-              this.natsClient.send(
-                { cmd: 'academy.enrollment.check' },
-                { userId, classId },
-              ),
+          const enrollmentResult = await firstValueFrom(
+            this.natsClient.send(
+              { cmd: 'academy.enrollment.check' },
+              { userId, classId },
+            ),
+          ).catch(() => null);
+
+          if (enrollmentResult?.isEnrolled && enrollmentResult?.enrollment?.sourceOrderId) {
+            orderId = enrollmentResult.enrollment.sourceOrderId;
+          }
+
+          // Fetch order details to get the total amount
+          if (orderId) {
+            const order = await firstValueFrom(
+              this.natsClient.send({ cmd: 'billing.order.findById' }, { id: orderId })
             ).catch(() => null);
 
-            if (result?.isEnrolled && result?.enrollment?.sourceOrderId) {
-              orderId = result.enrollment.sourceOrderId;
+            if (order) {
+              // 1:1 ratio from VND to Coins
+              refundAmount = Number(order.grandTotal || order.amount || 0);
+              this.logger.log(`Auto-calculated refund amount for ticket ${id}: ${refundAmount} (based on order ${orderId})`);
             }
-
-            // Get amount from order or enrollment if possible
-            if (orderId) {
-              const order = await firstValueFrom(
-                this.natsClient.send({ cmd: 'billing.order.findById' }, { id: orderId })
-              ).catch(() => null);
-              if (order) {
-                amount = Number(order.grandTotal || 0);
-              }
-            }
-
-            await this.refundService.createRefund({
-              ticketId: id,
-              orderId,
-              amount,
-              reason: ticket.description,
-              adminNote: dto.response,
-            }, requesterId || handlerId);
-
-            this.logger.log(`Refund request initiated for ticket ${id} in PENDING status`);
           }
         } catch (error) {
-          this.logger.error(`Failed to initiate refund request: ${error.message}`);
-          // Don't fail the whole ticket update, but log it
+          this.logger.error(`Failed to auto-calculate refund amount for ticket ${id}: ${error.message}`);
         }
       }
     }
@@ -234,7 +213,15 @@ export class TicketService implements ITicketService {
       dto.status,
       dto.response,
       handlerId,
+      refundAmount,
     );
+
+    if (
+        ticket.type === TicketType.REFUND &&
+        dto.status === TicketStatus.RESOLVED
+      ) {
+        await this.handleRefundResolved(updatedTicket, handlerId);
+      }
 
     await this.audit.log({
       userId: requesterId || handlerId,
@@ -293,6 +280,58 @@ export class TicketService implements ITicketService {
     }
 
     return updatedTicket;
+  }
+
+  private async handleRefundResolved(ticket: Ticket, handlerId: string) {
+    const { userId, classId, orderId } = ticket;
+    const refundAmount = (ticket as any).refundAmount;
+    const amount = Number(refundAmount || 0);
+
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Credit Coins to User
+      await tx.user.update({
+        where: { id: userId },
+        data: {
+          walletBalance: { increment: amount },
+        },
+      });
+
+      // 2. Create Wallet Transaction
+      await tx.walletTransaction.create({
+        data: {
+          userId,
+          amount,
+          type: 'REFUND',
+          referenceId: ticket.id,
+          description: `Refund for course enrollment (Ticket: ${ticket.subject})`,
+        },
+      });
+
+      // 3. Cancel Enrollment
+      if (classId) {
+        const enrollment = await tx.enrollment.findUnique({
+          where: {
+            userId_classId: { userId, classId },
+          },
+        });
+
+        if (enrollment) {
+          await tx.enrollment.update({
+            where: { id: enrollment.id },
+            data: { status: 'CANCELLED' },
+          });
+          this.logger.log(`Enrollment ${enrollment.id} cancelled for refund ticket ${ticket.id}`);
+        }
+      }
+
+      // 4. Mark Order as REFUNDED if orderId is available
+      if (orderId) {
+        await tx.order.update({
+          where: { id: orderId },
+          data: { status: OrderStatus.REFUNDED },
+        });
+      }
+    });
   }
 
   async getTicketStats(): Promise<{

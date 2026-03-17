@@ -2,7 +2,6 @@ import {
     Home,
     Newspaper,
     CreditCard,
-    BarChart3,
     ShieldCheck,
     Ticket,
     Key,
@@ -90,7 +89,6 @@ export const financeNavItems: NavItem[] = [
         anyPermission: ["academy:order:admin", "academy.commerce.read"],
         items: [
             { titleKey: "Danh sách đơn hàng", url: "/orders" },
-            { titleKey: "Yêu cầu hoàn tiền", url: "/refunds", permission: "support.handle" },
         ]
     },
     {
@@ -110,12 +108,6 @@ export const financeNavItems: NavItem[] = [
         url: "/achievements",
         icon: Trophy,
         permission: "gamification.manage",
-    },
-    {
-        titleKey: "Báo cáo Tài chính",
-        url: "/analytics/revenue",
-        icon: BarChart3,
-        permission: "report.view",
     },
 ];
 

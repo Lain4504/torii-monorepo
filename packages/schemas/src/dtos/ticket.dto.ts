@@ -22,6 +22,7 @@ export type CreateTicketDTO = z.infer<typeof createTicketDTOSchema>;
 export const updateTicketStatusDTOSchema = z.object({
     status: z.nativeEnum(TicketStatus),
     response: z.string().optional(),
+    refundAmount: z.number().optional().nullable(),
 });
 
 export type UpdateTicketStatusDTO = z.infer<typeof updateTicketStatusDTOSchema>;

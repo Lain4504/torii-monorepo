@@ -48,7 +48,11 @@ import {
     TableHeader,
     TableRow,
 } from '@workspace/ui/components/table'
-import { Card } from '@workspace/ui/components/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@workspace/ui/components/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
+import { useWalletTransactions } from '@/lib/api/services/wallet-api'
+import { Coins, Wallet, ArrowUpCircle, ArrowDownCircle } from 'lucide-react'
+import { useAppSelector } from '@/hooks/hooks'
 
 export default function PaymentHistoryPage() {
     const [searchTerm, setSearchTerm] = useState('')
@@ -56,6 +60,9 @@ export default function PaymentHistoryPage() {
     const [currentPage, setCurrentPage] = useState(1)
     const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null)
     const [isDetailOpen, setIsDetailOpen] = useState(false)
+
+    const user = useAppSelector(state => state.auth.user)
+    const [walletPage, setWalletPage] = useState(1)
 
     const limit = 10;
 
@@ -65,6 +72,11 @@ export default function PaymentHistoryPage() {
         status: statusFilter === 'all' ? undefined : statusFilter as any
     })
 
+    const { data: walletData, isLoading: isLoadingWallet } = useWalletTransactions({
+        page: walletPage,
+        limit: limit
+    })
+
     const { data: orderDetails, isLoading: isLoadingDetails } = useOrder(selectedOrderId || '')
 
     const orders = data?.data || []
@@ -72,6 +84,13 @@ export default function PaymentHistoryPage() {
         totalPages: data?.totalPages || 1,
         currentPage: data?.page || 1,
         totalItems: data?.total || 0,
+    }
+
+    const walletTransactions = walletData?.data || []
+    const walletMeta = {
+        totalPages: walletData?.totalPages || 1,
+        currentPage: walletData?.page || 1,
+        totalItems: walletData?.total || 0
     }
 
     const getStatusInfo = (status: string) => {
@@ -150,62 +169,98 @@ export default function PaymentHistoryPage() {
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500 pb-20">
+            {/* Wallet Balance Summary Card */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Card className="rounded-2xl border-border bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent shadow-sm overflow-hidden border">
+                    <CardHeader className="pb-2">
+                        <div className="flex items-center justify-between">
+                            <CardTitle className="text-sm font-medium text-amber-600 uppercase tracking-wider">Số dư Ví Torii</CardTitle>
+                            <div className="p-2 bg-amber-500/10 rounded-xl border border-amber-500/20">
+                                <Wallet className="size-4 text-amber-600" />
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-3xl font-bold text-foreground">{(user as any)?.walletBalance?.toLocaleString() || 0}</span>
+                            <span className="text-sm font-bold text-amber-600 uppercase tracking-tighter">Xu</span>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground mt-1 font-medium italic">Sử dụng để thanh toán các dịch vụ & khóa học.</p>
+                    </CardContent>
+                </Card>
+            </div>
+
             {/* Header */}
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-2 border-b border-border">
                 <div className="space-y-2">
                     <h1 className="text-3xl font-bold text-foreground">
-                        Lịch sử đơn hàng
+                        Thanh toán & Ví
                     </h1>
                     <p className="text-sm font-medium text-muted-foreground w-full max-w-xl">
-                        Theo dõi các giao dịch và trạng thái thanh toán Torii Learner.
+                        Theo dõi các giao dịch, trạng thái thanh toán và số dư Ví Torii.
                     </p>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                    {/* Filter Status */}
-                    <div className="w-full sm:w-[180px]">
-                        <Select value={statusFilter} onValueChange={(val) => {
-                            setStatusFilter(val)
-                            setCurrentPage(1) // Reset to page 1 on filter change
-                        }}>
-                            <SelectTrigger className="h-10 w-full bg-background border-input rounded-xl text-sm font-medium focus:ring-1 focus:ring-primary transition-all shadow-sm">
-                                <div className="flex items-center gap-2">
-                                    <Filter className="w-4 h-4 text-muted-foreground" />
-                                    <SelectValue placeholder="Trạng thái" />
-                                </div>
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Tất cả trạng thái</SelectItem>
-                                <SelectItem value="completed">Thành công</SelectItem>
-                                <SelectItem value="pending">Chờ xử lý</SelectItem>
-                                <SelectItem value="failed">Thất bại</SelectItem>
-                                <SelectItem value="cancelled">Đã hủy</SelectItem>
-                                <SelectItem value="timed_out">Hết thời gian</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    {/* Search */}
-                    <div className="relative flex-1 md:flex-initial w-full sm:w-auto">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Tìm kiếm mã đơn, nội dung..."
-                            className="pl-9 h-10 w-full md:w-64 bg-background border-input rounded-xl text-sm placeholder:text-muted-foreground focus:ring-1 focus:ring-primary transition-all shadow-sm"
-                            value={searchTerm}
-                            onChange={(e) => {
-                                setSearchTerm(e.target.value)
-                                setCurrentPage(1) // Reset to page 1 on search
-                            }}
-                        />
-                    </div>
                 </div>
             </div>
 
-            {/* Table Content */}
-            {
-                isLoading ? (
-                    <ComponentLoading className="h-64" />
-                ) : (
+            <Tabs defaultValue="orders" className="space-y-6">
+                <TabsList className="bg-muted/50 p-1 rounded-xl w-full sm:w-auto overflow-x-auto justify-start inline-flex border border-border/50">
+                    <TabsTrigger value="orders" className="rounded-lg px-6 font-bold flex items-center gap-2 tabular-nums transition-all data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                        <span>Đơn hàng</span>
+                        <Badge variant="secondary" className="px-1.5 py-0 min-w-5 h-5 flex items-center justify-center rounded-full bg-background border-border text-[10px]">
+                            {meta.totalItems}
+                        </Badge>
+                    </TabsTrigger>
+                    <TabsTrigger value="wallet" className="rounded-lg px-6 font-bold flex items-center gap-2 tabular-nums transition-all data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                        <span>Lịch sử Xu</span>
+                        <Badge variant="secondary" className="px-1.5 py-0 min-w-5 h-5 flex items-center justify-center rounded-full bg-background border-border text-[10px]">
+                            {walletMeta.totalItems}
+                        </Badge>
+                    </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="orders" className="mt-0 space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto justify-end">
+                        <div className="w-full sm:w-[180px]">
+                            <Select value={statusFilter} onValueChange={(val) => {
+                                setStatusFilter(val)
+                                setCurrentPage(1)
+                            }}>
+                                <SelectTrigger className="h-10 w-full bg-background border-input rounded-xl text-sm font-medium focus:ring-1 focus:ring-primary transition-all shadow-sm">
+                                    <div className="flex items-center gap-2">
+                                        <Filter className="w-4 h-4 text-muted-foreground" />
+                                        <SelectValue placeholder="Trạng thái" />
+                                    </div>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                                    <SelectItem value="completed">Thành công</SelectItem>
+                                    <SelectItem value="pending">Chờ xử lý</SelectItem>
+                                    <SelectItem value="failed">Thất bại</SelectItem>
+                                    <SelectItem value="cancelled">Đã hủy</SelectItem>
+                                    <SelectItem value="timed_out">Hết thời gian</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Search */}
+                        <div className="relative flex-1 md:flex-initial w-full sm:w-auto">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Input
+                                placeholder="Tìm kiếm mã đơn, nội dung..."
+                                className="pl-9 h-10 w-full md:w-64 bg-background border-input rounded-xl text-sm placeholder:text-muted-foreground focus:ring-1 focus:ring-primary transition-all shadow-sm"
+                                value={searchTerm}
+                                onChange={(e) => {
+                                    setSearchTerm(e.target.value)
+                                    setCurrentPage(1) // Reset to page 1 on search
+                                }}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Table Content */}
+                    {isLoading ? (
+                        <ComponentLoading className="h-64" />
+                    ) : (
                     <div className="space-y-6">
                         <Card className="rounded-2xl border-border bg-card overflow-hidden p-0 shadow-sm">
                             <div className="relative overflow-x-auto">
@@ -287,42 +342,130 @@ export default function PaymentHistoryPage() {
                             </div>
                         </Card>
 
-                        {/* Pagination */}
+                        {/* Orders Pagination */}
                         {orders.length > 0 && meta.totalPages > 1 && (
                             <Pagination>
                                 <PaginationContent>
                                     <PaginationItem>
-                                        <PaginationPrevious
-                                            onClick={() => handlePageChange(currentPage - 1)}
-                                        />
+                                        <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} />
                                     </PaginationItem>
-
                                     {getPageNumbers().map((page, index) => (
                                         <PaginationItem key={index}>
-                                            {page === '...' ? (
-                                                <PaginationEllipsis />
-                                            ) : (
-                                                <PaginationLink
-                                                    isActive={page === currentPage}
-                                                    onClick={() => handlePageChange(page as number)}
-                                                >
+                                            {page === '...' ? <PaginationEllipsis /> : (
+                                                <PaginationLink isActive={page === currentPage} onClick={() => handlePageChange(page as number)}>
                                                     {page}
                                                 </PaginationLink>
                                             )}
                                         </PaginationItem>
                                     ))}
-
                                     <PaginationItem>
-                                        <PaginationNext
-                                            onClick={() => handlePageChange(currentPage + 1)}
-                                        />
+                                        <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
                                     </PaginationItem>
                                 </PaginationContent>
                             </Pagination>
                         )}
                     </div>
-                )
-            }
+                )}
+            </TabsContent>
+
+            <TabsContent value="wallet" className="mt-0 space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    {isLoadingWallet ? (
+                        <ComponentLoading className="h-64" />
+                    ) : (
+                        <div className="space-y-6">
+                            <Card className="rounded-2xl border-border bg-card overflow-hidden p-0 shadow-sm border">
+                                <div className="relative overflow-x-auto font-sans">
+                                    <Table className="min-w-[1000px] border-collapse bg-transparent">
+                                        <TableHeader className="bg-muted/30 border-b border-border">
+                                            <TableRow className="hover:bg-transparent border-none">
+                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0 w-[60px] text-center">STT</TableHead>
+                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0 w-[180px]">Loại giao dịch</TableHead>
+                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0">Nội dung</TableHead>
+                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0 w-[200px] text-center">Thời gian</TableHead>
+                                                <TableHead className="h-11 text-xs font-semibold text-muted-foreground px-4 border-r border-border/30 last:border-r-0 text-right w-[150px]">Số lượng (Xu)</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {walletTransactions.length > 0 ? walletTransactions.map((tx, index) => (
+                                                <TableRow key={tx.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors group">
+                                                    <TableCell className="py-3 px-4 text-xs text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 font-medium text-center">
+                                                        {(walletPage - 1) * limit + index + 1}
+                                                    </TableCell>
+                                                    <TableCell className="py-3 px-4 text-xs text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 font-medium">
+                                                        <div className="flex items-center gap-2">
+                                                            {tx.type === 'REFUND' ? (
+                                                                <div className="flex items-center gap-1.5 text-emerald-600">
+                                                                    <div className="p-1 bg-emerald-500/10 rounded-lg">
+                                                                        <ArrowUpCircle className="size-3" />
+                                                                    </div>
+                                                                    <span className="font-bold tracking-tight">HOÀN TIỀN</span>
+                                                                </div>
+                                                            ) : tx.type === 'PURCHASE' ? (
+                                                                <div className="flex items-center gap-1.5 text-red-600">
+                                                                    <div className="p-1 bg-red-500/10 rounded-lg">
+                                                                        <ArrowDownCircle className="size-3" />
+                                                                    </div>
+                                                                    <span className="font-bold tracking-tight">THANH TOÁN</span>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="flex items-center gap-1.5 text-amber-600">
+                                                                    <div className="p-1 bg-amber-500/10 rounded-lg">
+                                                                        <Coins className="size-3" />
+                                                                    </div>
+                                                                    <span className="font-bold tracking-tight">THIẾT LẬP</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="py-3 px-4 text-xs text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 font-medium max-w-[400px] truncate">
+                                                        {tx.description}
+                                                    </TableCell>
+                                                    <TableCell className="py-3 px-4 text-xs text-foreground/80 whitespace-nowrap border-r border-border/10 last:border-r-0 text-muted-foreground font-mono text-center">
+                                                        {formatDateTime(tx.createdAt)}
+                                                    </TableCell>
+                                                    <TableCell className={cn(
+                                                        "py-3 px-4 text-xs whitespace-nowrap border-r border-border/10 last:border-r-0 text-right font-black tabular-nums tracking-tighter",
+                                                        tx.type === 'REFUND' || tx.type === 'BONUS' ? "text-emerald-600" : "text-red-500"
+                                                    )}>
+                                                        {tx.type === 'REFUND' || tx.type === 'BONUS' ? "+" : "-"}{tx.amount.toLocaleString()}
+                                                    </TableCell>
+                                                </TableRow>
+                                            )) : (
+                                                <TableRow>
+                                                    <TableCell colSpan={5} className="h-32 text-center text-muted-foreground text-sm font-medium italic">
+                                                        Bạn chưa có giao dịch nào trong ví.
+                                                    </TableCell>
+                                                </TableRow>
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            </Card>
+
+                            {/* Wallet Pagination */}
+                            {walletTransactions.length > 0 && walletMeta.totalPages > 1 && (
+                                <Pagination>
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <PaginationPrevious onClick={() => setWalletPage(Math.max(1, walletPage - 1))} />
+                                        </PaginationItem>
+                                        {Array.from({ length: walletMeta.totalPages }, (_, i) => i + 1).map((p) => (
+                                            <PaginationItem key={p}>
+                                                <PaginationLink isActive={p === walletPage} onClick={() => setWalletPage(p)}>
+                                                    {p}
+                                                </PaginationLink>
+                                            </PaginationItem>
+                                        ))}
+                                        <PaginationItem>
+                                            <PaginationNext onClick={() => setWalletPage(Math.min(walletMeta.totalPages, walletPage + 1))} />
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
+                            )}
+                        </div>
+                    )}
+                </TabsContent>
+            </Tabs>
 
             {/* Order Detail Dialog */}
             <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>

@@ -1,4 +1,4 @@
-import { LogOut, BadgeCheck, Bell, Flame, Snowflake, Star, Zap, Gem } from 'lucide-react'
+import { LogOut, BadgeCheck, Bell, Flame, Snowflake, Star, Zap, Gem, Coins } from 'lucide-react'
 import { UserRole } from '@workspace/schemas'
 import { SidebarTrigger } from '@workspace/ui/components/sidebar'
 import { NotificationsDropdown } from '../dashboard/notifications-dropdown'
@@ -158,6 +158,23 @@ export function DashboardHeader() {
                     </div>
 
                     <div className="hidden lg:flex items-center gap-2">
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Link href="/dashboard/payment">
+                                        <Badge variant="outline" className="flex items-center gap-1.5 px-3 py-1 font-bold bg-amber-500/5 border-amber-500/20 text-amber-600 hover:bg-amber-500/10 transition-colors">
+                                            <Coins className="size-3 fill-amber-500" />
+                                            <span>{formatNumber((user as any)?.walletBalance || 0)}</span>
+                                        </Badge>
+                                    </Link>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p className="text-xs font-bold">Số dư xu (Coins)</p>
+                                    <p className="text-[10px] text-muted-foreground">Dùng để thanh toán khóa học.</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>

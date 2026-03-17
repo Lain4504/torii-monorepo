@@ -37,6 +37,7 @@ export const userSchema = z.object({
     avatarUrl: z.string().url().optional().nullable(),
     xp: z.number().int().default(0),
     level: z.number().int().default(1),
+    walletBalance: z.number().default(0),
     appMetadata: z.record(z.unknown()).optional().nullable(),
     userMetadata: z.record(z.unknown()).optional().nullable(),
     verifiedAt: z.date().optional().nullable(),
