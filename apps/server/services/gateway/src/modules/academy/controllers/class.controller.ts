@@ -24,6 +24,7 @@ import {
   successResponse,
   ReqWithRequester,
 } from '@server/shared';
+import { ForbiddenException } from '@nestjs/common';
 import {
   AcademyClassAssignmentCreateDTO,
   AcademyClassCreateDTO,
@@ -48,7 +49,7 @@ import {
 @Controller('api/academy/classes')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class ClassController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
   @Get()
   @Permissions('academy.delivery.read')
@@ -63,8 +64,27 @@ export class ClassController {
   }
 
   @Get(':id')
-  @Permissions('academy.delivery.read')
-  async findById(@Param('id', new ParseUUIDPipe()) id: string) {
+  async findById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const requester = req.requester;
+    const hasReadPerm =
+      requester.permissions?.includes('academy.delivery.read') ||
+      requester.permissions?.includes('*');
+
+    if (!hasReadPerm) {
+      const result = await firstValueFrom(
+        this.nats.send(
+          { cmd: 'academy.enrollment.check' },
+          { userId: requester.sub, classId: id },
+        ),
+      );
+      if (!result?.isEnrolled) {
+        throw new ForbiddenException('You are not enrolled in this class');
+      }
+    }
+
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.class.findById' }, { id }),
     );
@@ -80,7 +100,10 @@ export class ClassController {
     @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.create' }, { ...dto, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.class.create' },
+        { ...dto, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse({ item });
   }
@@ -94,14 +117,36 @@ export class ClassController {
     @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.update' }, { id, input: dto, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.class.update' },
+        { id, input: dto, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse({ item });
   }
 
   @Get(':id/assignments')
-  @Permissions('academy.delivery.read')
-  async getAssignments(@Param('id', new ParseUUIDPipe()) id: string) {
+  async getAssignments(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const requester = req.requester;
+    const hasReadPerm =
+      requester.permissions?.includes('academy.delivery.read') ||
+      requester.permissions?.includes('*');
+
+    if (!hasReadPerm) {
+      const result = await firstValueFrom(
+        this.nats.send(
+          { cmd: 'academy.enrollment.check' },
+          { userId: requester.sub, classId: id },
+        ),
+      );
+      if (!result?.isEnrolled) {
+        throw new ForbiddenException('You are not enrolled in this class');
+      }
+    }
+
     const items = await firstValueFrom(
       this.nats.send({ cmd: 'academy.class.getAssignments' }, { classId: id }),
     );
@@ -118,18 +163,40 @@ export class ClassController {
     @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.addAssignment' }, {
-        ...dto,
-        classId: id,
-        requesterId: req.requester?.sub,
-      }),
+      this.nats.send(
+        { cmd: 'academy.class.addAssignment' },
+        {
+          ...dto,
+          classId: id,
+          requesterId: req.requester?.sub,
+        },
+      ),
     );
     return successResponse({ item });
   }
 
   @Get(':id/curriculum')
-  @Permissions('academy.delivery.read')
-  async getCurriculum(@Param('id', new ParseUUIDPipe()) id: string) {
+  async getCurriculum(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const requester = req.requester;
+    const hasReadPerm =
+      requester.permissions?.includes('academy.delivery.read') ||
+      requester.permissions?.includes('*');
+
+    if (!hasReadPerm) {
+      const result = await firstValueFrom(
+        this.nats.send(
+          { cmd: 'academy.enrollment.check' },
+          { userId: requester.sub, classId: id },
+        ),
+      );
+      if (!result?.isEnrolled) {
+        throw new ForbiddenException('You are not enrolled in this class');
+      }
+    }
+
     const curriculum = await firstValueFrom(
       this.nats.send({ cmd: 'academy.class.getCurriculum' }, { id }),
     );
@@ -138,63 +205,105 @@ export class ClassController {
 
   @Post(':id/publish')
   @Permissions('academy.delivery.write')
-  async publish(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+  async publish(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.publish' }, { id, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.class.publish' },
+        { id, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse({ item });
   }
 
   @Post(':id/start')
   @Permissions('academy.delivery.write')
-  async start(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+  async start(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.start' }, { id, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.class.start' },
+        { id, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse({ item });
   }
 
   @Post(':id/complete')
   @Permissions('academy.delivery.write')
-  async complete(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+  async complete(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.complete' }, { id, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.class.complete' },
+        { id, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse({ item });
   }
 
   @Post(':id/cancel')
   @Permissions('academy.delivery.write')
-  async cancel(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+  async cancel(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.cancel' }, { id, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.class.cancel' },
+        { id, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse({ item });
   }
 
   @Post(':id/archive')
   @Permissions('academy.delivery.write')
-  async archive(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+  async archive(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.archive' }, { id, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.class.archive' },
+        { id, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse({ item });
   }
 
   @Post(':id/submit-for-approval')
   @Permissions('academy.delivery.write')
-  async submitForApproval(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+  async submitForApproval(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.submitForApproval' }, { id, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.class.submitForApproval' },
+        { id, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse({ item });
   }
 
   @Post(':id/approve')
   @Permissions('academy.delivery.approve')
-  async approve(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+  async approve(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.approve' }, { id, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.class.approve' },
+        { id, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse({ item });
   }
@@ -217,9 +326,15 @@ export class ClassController {
 
   @Delete(':id')
   @Permissions('academy.delivery.write')
-  async delete(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+  async delete(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
     const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.delete' }, { id, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.class.delete' },
+        { id, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse(result);
   }
@@ -275,14 +390,9 @@ export class ClassController {
 
   @Delete('modules/:moduleId')
   @Permissions('academy.delivery.write')
-  async deleteModule(
-    @Param('moduleId', new ParseUUIDPipe()) moduleId: string,
-  ) {
+  async deleteModule(@Param('moduleId', new ParseUUIDPipe()) moduleId: string) {
     const result = await firstValueFrom(
-      this.nats.send(
-        { cmd: 'academy.class.deleteModule' },
-        { id: moduleId },
-      ),
+      this.nats.send({ cmd: 'academy.class.deleteModule' }, { id: moduleId }),
     );
     return successResponse(result);
   }
@@ -343,7 +453,24 @@ export class ClassController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: ReqWithRequester,
   ) {
-    const userId = req.requester.sub;
+    const requester = req.requester;
+    const userId = requester.sub;
+
+    const hasReadPerm =
+      requester.permissions?.includes('academy.delivery.read') ||
+      requester.permissions?.includes('*');
+    if (!hasReadPerm) {
+      const result = await firstValueFrom(
+        this.nats.send(
+          { cmd: 'academy.enrollment.check' },
+          { userId, classId: id },
+        ),
+      );
+      if (!result?.isEnrolled) {
+        throw new ForbiddenException('You are not enrolled in this class');
+      }
+    }
+
     const progress = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.class.getUserProgress' },
@@ -361,7 +488,19 @@ export class ClassController {
     @Param('lessonId', new ParseUUIDPipe()) lessonId: string,
     @Req() req: ReqWithRequester,
   ) {
-    const userId = req.requester.sub;
+    const requester = req.requester;
+    const userId = requester.sub;
+
+    const resultEnrollment = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.enrollment.check' },
+        { userId, classId: id },
+      ),
+    );
+    if (!resultEnrollment?.isEnrolled) {
+      throw new ForbiddenException('You are not enrolled in this class');
+    }
+
     const result = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.class.markLessonComplete' },
@@ -371,4 +510,3 @@ export class ClassController {
     return successResponse(result);
   }
 }
-

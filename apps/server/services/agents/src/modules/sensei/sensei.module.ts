@@ -14,4 +14,4 @@ import { AnalyticsModule } from '../analytics/analytics.module';
   providers: [SenseiService, TTSService],
   exports: [SenseiService, TTSService],
 })
-export class SenseiModule { }
+export class SenseiModule {}

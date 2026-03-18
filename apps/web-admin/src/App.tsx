@@ -38,7 +38,6 @@ import TwoFactorVerifyPage from '@/routes/auth/two-factor-verify-page.tsx'
 import { AuditLogsPage } from "@/routes/audit/audit-logs-page.tsx";
 import { PermissionsPage } from "@/routes/permissions/permissions-page.tsx";
 import TicketsPage from '@/routes/tickets/tickets-page.tsx'
-import RefundsPage from '@/routes/finance/refunds-page.tsx'
 import NotFoundPage from '@/routes/error/not-found-page.tsx'
 import AccessDeniedPage from '@/routes/error/access-denied-page.tsx'
 import ServiceUnavailablePage from '@/routes/error/service-unavailable-page.tsx'
@@ -48,16 +47,16 @@ import CourseProfilesPage from '@/routes/academy/course-profiles/course-profiles
 import CourseProfileDetailPage from '@/routes/academy/course-profiles/course-profile-detail-page.tsx'
 import ClassesPage from '@/routes/academy/classes/classes-page.tsx'
 import ClassStudentsPage from '@/routes/academy/classes/class-students-page.tsx'
-import OfferingRequestsPage from '@/routes/academy/offering-requests/offering-requests-page.tsx'
-import CourseRequestsPage from '@/routes/academy/course-profiles/course-requests-page.tsx'
 import SyllabusBuilderPage from '@/routes/academy/syllabuses/syllabus-builder-page.tsx'
 import OfferingsPage from '@/routes/academy/offerings/offerings-page.tsx'
 import OfferingDetailPage from '@/routes/academy/offerings/offering-detail-page.tsx'
 import AssignmentGradingPage from '@/routes/academy/classes/assignment-grading-page.tsx'
+import ApprovalsPage from '@/routes/academy/approvals/approvals-page.tsx'
+import CourseOfferingApprovalPreviewPage from '@/routes/academy/approvals/course-offering-preview-page.tsx'
+import ClassApprovalPreviewPage from '@/routes/academy/approvals/class-preview-page.tsx'
 import RewardsPage from '@/routes/gamification/rewards-page.tsx'
 import AchievementsPage from '@/routes/gamification/achievements-page.tsx'
-import SubscriptionPlansPage from '@/routes/academy/ai-subscriptions/plans-page.tsx'
-import UserSubscriptionsPage from '@/routes/academy/ai-subscriptions/user-subscriptions-page.tsx'
+import AiSubscriptionsPage from '@/routes/academy/ai-subscriptions/ai-subscriptions-page.tsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -116,13 +115,15 @@ function App() {
                     <Route path="academy/syllabuses/:id" element={<SyllabusBuilderPage />} />
                     <Route path="academy/course-offerings" element={<OfferingsPage />} />
                     <Route path="academy/course-offerings/:offeringId/detail" element={<OfferingDetailPage />} />
-                    <Route path="academy/offering-requests" element={<OfferingRequestsPage />} />
-                    <Route path="academy/course-requests" element={<CourseRequestsPage />} />
                     <Route path="academy/classes/:classId/assignments/:assessmentId/submissions" element={<AssignmentGradingPage />} />
 
                     {/* AI Subscriptions */}
-                    <Route path="academy/ai-subscriptions/plans" element={<SubscriptionPlansPage />} />
-                    <Route path="academy/ai-subscriptions/users" element={<UserSubscriptionsPage />} />
+                    <Route path="academy/ai-subscriptions" element={<AiSubscriptionsPage />} />
+                  </Route>
+                  <Route element={<RoutePermissionGuard anyPermission={["academy.content.approve", "academy.commerce.approve", "academy.delivery.approve", "academy.content.write", "academy.commerce.write", "academy.delivery.write"]} />}>
+                    <Route path="academy/approvals" element={<ApprovalsPage />} />
+                    <Route path="academy/approvals/course-offerings/:id" element={<CourseOfferingApprovalPreviewPage />} />
+                    <Route path="academy/approvals/classes/:id" element={<ClassApprovalPreviewPage />} />
                   </Route>
 
                   <Route element={<RoutePermissionGuard permission="coupon.manage" />}>
@@ -133,9 +134,8 @@ function App() {
                     <Route path="rewards" element={<RewardsPage />} />
                   </Route>
 
-                  <Route element={<RoutePermissionGuard anyPermission={["payment.view", "payment.refund", "payment.manage"]} />}>
+                  <Route element={<RoutePermissionGuard anyPermission={["payment.view", "payment.manage"]} />}>
                     <Route path="orders" element={<OrdersPage />} />
-                    <Route path="refunds" element={<RefundsPage />} />
                   </Route>
 
                   <Route element={<RoutePermissionGuard permission="gamification.manage" />}>

@@ -2,12 +2,10 @@ import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
-import { Textarea } from "@workspace/ui/components/textarea"
 import {
   Field,
   FieldError,
   FieldLabel,
-  FieldDescription,
   FieldGroup,
 } from "@workspace/ui/components/field"
 import {
@@ -65,18 +63,12 @@ export function LiveScheduleForm({
         weekday: initial?.weekday ?? 1,
         startTime: initial?.startTime ?? "",
         endTime: initial?.endTime ?? "",
-        location: initial?.location ?? undefined,
-        note: initial?.note ?? undefined,
-        roomId: initial?.roomId ?? undefined,
       }
       : {
         classId: defaultClassId ?? "",
         weekday: 1,
         startTime: "19:00",
         endTime: "21:00",
-        location: undefined,
-        note: undefined,
-        roomId: undefined,
       },
   })
 
@@ -158,62 +150,6 @@ export function LiveScheduleForm({
                 )}
               />
             </div>
-          </FieldGroup>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Địa điểm & Ghi chú</CardTitle>
-          <CardDescription>Xác định nơi học và các lưu ý khác.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <FieldGroup>
-            <Controller
-              name={"location" as any}
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Địa điểm / Room</FieldLabel>
-                  <Input placeholder="Zoom, Google Meet, phòng 301..." {...field} />
-                  <FieldDescription>
-                    Link học online hoặc số phòng học offline.
-                  </FieldDescription>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-
-            <Controller
-              name={"roomId" as any}
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>LMS Room ID (Optional)</FieldLabel>
-                  <Input placeholder="Tự động tạo nếu để trống" {...field} />
-                  <FieldDescription>
-                    ID định danh phòng họp ảo trên hệ thống LMS.
-                  </FieldDescription>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
-
-            <Controller
-              name={"note" as any}
-              control={control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Ghi chú</FieldLabel>
-                  <Textarea
-                    placeholder="Ghi chú thêm cho lịch học..."
-                    className="min-h-[100px]"
-                    {...field}
-                  />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </Field>
-              )}
-            />
           </FieldGroup>
         </CardContent>
       </Card>

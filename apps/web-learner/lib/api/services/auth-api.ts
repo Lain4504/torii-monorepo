@@ -33,6 +33,14 @@ export const authApi = {
         };
     },
 
+    async changePassword(data: { oldPassword: string; newPassword: string }): Promise<{ success: boolean; message?: string }> {
+        const response = await apiClient.post<StandardApiResponse<null>>('/api/auth/change-password', data);
+        return {
+            success: response.data.success,
+            message: response.data.message,
+        };
+    },
+
     async forgotPassword(email: string): Promise<{ success: boolean; message?: string }> {
         const response = await apiClient.post<StandardApiResponse<null>>('/api/auth/forgot-password', { email });
         return {
@@ -124,6 +132,15 @@ export function useVerifyResetToken() {
 export function useResetPassword() {
     return useMutation({
         mutationFn: (data: { token: string; password: string }) => authApi.resetPassword(data),
+    });
+}
+
+/**
+ * Hook: Change Password (authenticated)
+ */
+export function useChangePassword() {
+    return useMutation({
+        mutationFn: (data: { oldPassword: string; newPassword: string }) => authApi.changePassword(data),
     });
 }
 

@@ -36,7 +36,7 @@ import {
 @Controller('api/academy/course-profiles')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class CourseProfileController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
   @Get()
   @Permissions('academy.content.read')
@@ -68,7 +68,10 @@ export class CourseProfileController {
     @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.courseProfile.create' }, { ...dto, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.courseProfile.create' },
+        { ...dto, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse({ item });
   }
@@ -82,27 +85,41 @@ export class CourseProfileController {
     @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.courseProfile.update' }, { id, input: dto, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.courseProfile.update' },
+        { id, input: dto, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse({ item });
   }
 
   @Post(':id/archive')
   @Permissions('academy.content.write')
-  async archive(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+  async archive(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.courseProfile.archive' }, { id, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.courseProfile.archive' },
+        { id, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse({ item });
   }
 
   @Delete(':id')
   @Permissions('academy.content.write')
-  async delete(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+  async delete(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
     const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.courseProfile.delete' }, { id, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.courseProfile.delete' },
+        { id, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse(result);
   }
 }
-

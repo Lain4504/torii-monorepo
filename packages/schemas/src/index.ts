@@ -40,6 +40,7 @@ export * from './dtos/agent.dto';
 export * from './dtos/balance.dto';
 export * from './dtos/academy-class.dto';
 export * from './dtos/academy-class-assignment.dto';
+export * from './dtos/refund.dto';
 
 export * from './dtos/academy-live-schedule.dto';
 export * from './dtos/academy-live-schedule-request.dto';
@@ -57,7 +58,6 @@ export * from './dtos/academy-class-review.dto';
 export * from './dtos/academy-class-attendance.dto';
 export * from './dtos/academy-study-set.dto';
 export * from './dtos/academy-study-note.dto';
-export * from './dtos/refund.dto';
 
 
 

@@ -7,4 +7,3 @@ import { CourseOfferingService } from './course-offering.service';
   controllers: [CourseOfferingHandler],
 })
 export class CourseOfferingModule {}
-

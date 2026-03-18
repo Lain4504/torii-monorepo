@@ -22,7 +22,11 @@ export class SyllabusModuleHandler {
   @MessagePattern({ cmd: 'academy.module.update' })
   update(
     @Payload()
-    data: { id: string; input: SyllabusModuleUpdateDto; requesterId?: string },
+    data: {
+      id: string;
+      input: SyllabusModuleUpdateDto;
+      requesterId?: string;
+    },
   ) {
     return this.modules.update(data.id, data.input, data.requesterId);
   }
@@ -32,4 +36,3 @@ export class SyllabusModuleHandler {
     return this.modules.delete(data.id, data.requesterId);
   }
 }
-

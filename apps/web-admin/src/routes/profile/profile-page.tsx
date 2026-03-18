@@ -1,6 +1,5 @@
 import { ProfileTab } from '@/components/settings/profile-tab';
 import { PageHeader } from '@/components/common/page-header';
-import { Card } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { Settings, Shield, Key } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -21,38 +20,36 @@ export default function ProfilePage() {
                 }
             />
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
+                <div className="lg:col-span-3">
                     <ProfileTab />
                 </div>
 
-                <div className="space-y-6">
-                    <Card>
-                        <div className="p-6">
-                            <h3 className="text-sm font-bold flex items-center gap-2 mb-4">
-                                <Shield className="h-4 w-4 text-primary" />
-                                Truy cập nhanh
-                            </h3>
-                            <div className="space-y-2">
-                                <Button
-                                    variant="ghost"
-                                    className="w-full justify-start text-xs"
-                                    onClick={() => navigate('/settings?tab=security')}
-                                >
-                                    <Shield className="mr-2 h-3.5 w-3.5" />
-                                    Bảo mật & 2FA
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    className="w-full justify-start text-xs"
-                                    onClick={() => navigate('/settings?tab=password')}
-                                >
-                                    <Key className="mr-2 h-3.5 w-3.5" />
-                                    Đổi mật khẩu
-                                </Button>
-                            </div>
+                <div className="space-y-8">
+                    <div className="space-y-4">
+                        <h3 className="text-sm font-bold flex items-center gap-2 text-muted-foreground uppercase tracking-wider">
+                            <Shield className="h-4 w-4 text-primary" />
+                            Truy cập nhanh
+                        </h3>
+                        <div className="flex flex-col gap-1">
+                            <Button
+                                variant="ghost"
+                                className="w-full justify-start text-sm font-medium hover:bg-primary/5 hover:text-primary transition-all group"
+                                onClick={() => navigate('/settings?tab=security')}
+                            >
+                                <Shield className="mr-3 h-4 w-4 opacity-50 group-hover:opacity-100" />
+                                Bảo mật & 2FA
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                className="w-full justify-start text-sm font-medium hover:bg-primary/5 hover:text-primary transition-all group"
+                                onClick={() => navigate('/settings?tab=password')}
+                            >
+                                <Key className="mr-3 h-4 w-4 opacity-50 group-hover:opacity-100" />
+                                Đổi mật khẩu
+                            </Button>
                         </div>
-                    </Card>
+                    </div>
                 </div>
             </div>
         </div>

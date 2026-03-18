@@ -12,15 +12,15 @@ import { BlogHandler } from '@server/academy/modules/blog/blog.handler';
  * Handles blog operations
  */
 @Module({
-    imports: [PrismaModule, NatsClientModule],
-    controllers: [BlogHandler],
-    providers: [
-        BlogRepository,
-        BlogService,
-        BlogProfile,
-        BlogAnalyticsService,
-        BlogAnalyticsScheduler,
-    ],
-    exports: [BlogService, BlogAnalyticsService],
+  imports: [PrismaModule, NatsClientModule],
+  controllers: [BlogHandler],
+  providers: [
+    BlogRepository,
+    BlogService,
+    BlogProfile,
+    BlogAnalyticsService,
+    BlogAnalyticsScheduler,
+  ],
+  exports: [BlogService, BlogAnalyticsService],
 })
-export class BlogModule { }
+export class BlogModule {}

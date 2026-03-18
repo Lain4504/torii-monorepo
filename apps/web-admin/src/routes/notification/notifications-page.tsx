@@ -10,7 +10,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@workspace/ui/components/pagination'
-import { Tabs, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@workspace/ui/components/tabs-lifted'
 import { Skeleton } from '@workspace/ui/components/skeleton'
 import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty'
 import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, useDeleteNotification } from '@/lib/api/services/notifications.ts'

@@ -5,8 +5,8 @@ import { InfrastructureModule } from '../../infrastructure/infrastructure.module
 import { GamificationModule } from '../gamification/gamification.module';
 
 @Module({
-    imports: [InfrastructureModule, GamificationModule],
-    providers: [StudySetService],
-    controllers: [StudySetHandler],
+  imports: [InfrastructureModule, GamificationModule],
+  providers: [StudySetService],
+  controllers: [StudySetHandler],
 })
-export class StudySetModule { }
+export class StudySetModule {}

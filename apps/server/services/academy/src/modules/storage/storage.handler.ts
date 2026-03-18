@@ -23,7 +23,7 @@ export class StorageHandler {
     private readonly storageService: IStorageService,
     @Inject(STORAGE_REPOSITORY_TOKEN)
     private readonly storageRepository: IStorageRepository,
-  ) { }
+  ) {}
 
   @MessagePattern({ cmd: 'academy.storage.generatePresignedUploadUrl' })
   async generatePresignedUploadUrl(

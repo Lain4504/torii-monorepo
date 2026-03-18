@@ -1,4 +1,11 @@
-import { IsArray, IsOptional, IsString, IsUUID, MaxLength, Min } from 'class-validator';
+import {
+  IsArray,
+  IsOptional,
+  IsString,
+  IsUUID,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 export class CourseOfferingCreateDto {
   @IsString()
@@ -117,4 +124,3 @@ export class CourseOfferingSetClassesDto {
   @IsArray()
   classIds!: string[];
 }
-

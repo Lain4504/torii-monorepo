@@ -316,7 +316,10 @@ export class FastMcpService {
       });
 
       // 2. Quiz/Test Scores (V2: exam flow removed)
-      const completedQuizzes: Array<{ completedAt: Date | null; percentage: number | null }> = [];
+      const completedQuizzes: Array<{
+        completedAt: Date | null;
+        percentage: number | null;
+      }> = [];
 
       // 3. Aggregate by Date
       const activityMap = new Map<
@@ -354,8 +357,8 @@ export class FastMcpService {
           averageScore:
             item.scores.length > 0
               ? Math.round(
-                item.scores.reduce((a, b) => a + b, 0) / item.scores.length,
-              )
+                  item.scores.reduce((a, b) => a + b, 0) / item.scores.length,
+                )
               : 0,
         }))
         .sort(
@@ -368,7 +371,11 @@ export class FastMcpService {
       // --- NEW DATA FETCHING ---
 
       // 1. Common Errors (V2: exam flow removed)
-      const commonErrors: Array<{ question: string; category?: string; subcategory?: string }> = [];
+      const commonErrors: Array<{
+        question: string;
+        category?: string;
+        subcategory?: string;
+      }> = [];
 
       // 2. Recent Vocabulary (Flashcards reviewed/added)
       const recentFlashcards = await this.prisma.setCard.findMany({
@@ -398,10 +405,10 @@ export class FastMcpService {
         recentVocabulary,
         stats: gamification
           ? {
-            level: gamification.level,
-            streak: gamification.currentStreak,
-            totalXp: gamification.totalXp,
-          }
+              level: gamification.level,
+              streak: gamification.currentStreak,
+              totalXp: gamification.totalXp,
+            }
           : null,
       };
     } catch (error) {

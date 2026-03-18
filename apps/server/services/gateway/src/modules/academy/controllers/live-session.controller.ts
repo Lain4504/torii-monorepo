@@ -37,7 +37,10 @@ export class AcademyLiveSessionController {
     query: AcademyLiveSessionQueryDTO,
   ) {
     const items = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.liveSession.findAllByClassAndRange' }, query),
+      this.nats.send(
+        { cmd: 'academy.liveSession.findAllByClassAndRange' },
+        query,
+      ),
     );
     return successResponse({ items });
   }
@@ -55,7 +58,8 @@ export class LiveSessionJoinController {
     @Req() req: ReqWithRequester,
   ) {
     const userId = req.requester?.sub;
-    if (!userId) throw new UnauthorizedException('User ID not found in request');
+    if (!userId)
+      throw new UnauthorizedException('User ID not found in request');
 
     const result = await firstValueFrom(
       this.nats.send(
@@ -73,7 +77,8 @@ export class LiveSessionJoinController {
     @Req() req: ReqWithRequester,
   ) {
     const userId = req.requester?.sub;
-    if (!userId) throw new UnauthorizedException('User ID not found in request');
+    if (!userId)
+      throw new UnauthorizedException('User ID not found in request');
 
     const result = await firstValueFrom(
       this.nats.send(
@@ -84,4 +89,3 @@ export class LiveSessionJoinController {
     return successResponse(result);
   }
 }
-

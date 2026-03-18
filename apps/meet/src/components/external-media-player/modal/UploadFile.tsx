@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { RoomUploadedFileType } from '@workspace/protocol';
+import { Input } from '@workspace/ui/components/input';
+import { Label } from '@workspace/ui/components/label';
 
 import { uploadResumableFile } from '@/helpers/fileUpload';
 import { File, Trash2 } from 'lucide-react';
@@ -58,7 +60,7 @@ const UploadFile = ({
           <div className="absolute -bottom-7 text-sm font-medium text-foreground">
             Hỗ trợ các định dạng: {allowedFileTypes.map((type) => '.' + type).join(', ')}
           </div>
-          <input
+          <Input
             type="file"
             id="media-file"
             accept={allowedFileTypes.map((type) => '.' + type).join(',')}
@@ -66,12 +68,12 @@ const UploadFile = ({
             className="absolute left-0 w-full h-full top-0 opacity-0 cursor-pointer"
             disabled={isPlayBtnLoading}
           />
-          <label
+          <Label
             htmlFor="media-file"
             className="w-full h-full py-7 px-5 border border-dashed border-Blue cursor-pointer rounded-sm focus:shadow-input-focus flex items-center justify-center text-center text-foreground"
           >
             Chọn tệp
-          </label>
+          </Label>
         </>
       ) : (
         <div

@@ -60,4 +60,4 @@ import { GamificationModule } from './modules/gamification/gamification.module';
   providers: [ApiKeyGuard],
   exports: [],
 })
-export class GatewayModule { }
+export class GatewayModule {}

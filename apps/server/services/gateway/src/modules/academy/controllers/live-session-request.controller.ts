@@ -61,22 +61,31 @@ export class LiveSessionRequestController {
     dto: AcademyLiveScheduleRequestCreateDTO,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.liveSessionRequest.create' }, {
-        ...dto,
-        requesterId: req.requester.sub,
-      }),
+      this.nats.send(
+        { cmd: 'academy.liveSessionRequest.create' },
+        {
+          ...dto,
+          requesterId: req.requester.sub,
+        },
+      ),
     );
     return successResponse({ item });
   }
 
   @Post(':id/cancel')
   @Permissions('academy.delivery.write')
-  async cancel(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+  async cancel(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.liveSessionRequest.cancel' }, {
-        id,
-        requesterId: req.requester.sub,
-      }),
+      this.nats.send(
+        { cmd: 'academy.liveSessionRequest.cancel' },
+        {
+          id,
+          requesterId: req.requester.sub,
+        },
+      ),
     );
     return successResponse({ item });
   }
@@ -90,11 +99,14 @@ export class LiveSessionRequestController {
     dto: AcademyLiveScheduleRequestApproveDTO,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.liveSessionRequest.approve' }, {
-        id,
-        input: dto,
-        reviewerId: req.requester.sub,
-      }),
+      this.nats.send(
+        { cmd: 'academy.liveSessionRequest.approve' },
+        {
+          id,
+          input: dto,
+          reviewerId: req.requester.sub,
+        },
+      ),
     );
     return successResponse({ item });
   }
@@ -108,11 +120,14 @@ export class LiveSessionRequestController {
     dto: AcademyLiveScheduleRequestRejectDTO,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.liveSessionRequest.reject' }, {
-        id,
-        input: dto,
-        reviewerId: req.requester.sub,
-      }),
+      this.nats.send(
+        { cmd: 'academy.liveSessionRequest.reject' },
+        {
+          id,
+          input: dto,
+          reviewerId: req.requester.sub,
+        },
+      ),
     );
     return successResponse({ item });
   }
@@ -129,4 +144,3 @@ export class LiveSessionRequestController {
     return successResponse(result);
   }
 }
-

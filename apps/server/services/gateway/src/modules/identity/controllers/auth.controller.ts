@@ -244,7 +244,9 @@ export class AuthController {
     @Body() dto: { oldPassword?: string; newPassword?: string },
   ) {
     if (!dto.oldPassword || !dto.newPassword) {
-      throw new BadRequestException('Current and 8 characters long password are required');
+      throw new BadRequestException(
+        'Current and 8 characters long password are required',
+      );
     }
     if (dto.newPassword.length < 8) {
       throw new BadRequestException(

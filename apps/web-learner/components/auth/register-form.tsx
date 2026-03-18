@@ -193,7 +193,7 @@ export function RegisterForm() {
                                     {...field}
                                     id={field.name}
                                     type="email"
-                                    placeholder="futurehero@torii.jp"
+                                    placeholder="Nhập email của bạn"
                                     autoComplete="email"
                                 />
                                 <FieldError errors={[fieldState.error]} />

@@ -37,10 +37,13 @@ export class ClassAssignmentController {
     dto: AcademyClassAssignmentUpdateDTO,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.updateAssignment' }, {
-        id,
-        input: dto,
-      }),
+      this.nats.send(
+        { cmd: 'academy.class.updateAssignment' },
+        {
+          id,
+          input: dto,
+        },
+      ),
     );
     return successResponse({ item });
   }
@@ -52,10 +55,13 @@ export class ClassAssignmentController {
     @Req() req: ReqWithRequester,
   ) {
     const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.removeAssignment' }, {
-        id,
-        requesterId: req.requester?.sub,
-      }),
+      this.nats.send(
+        { cmd: 'academy.class.removeAssignment' },
+        {
+          id,
+          requesterId: req.requester?.sub,
+        },
+      ),
     );
     return successResponse(result);
   }

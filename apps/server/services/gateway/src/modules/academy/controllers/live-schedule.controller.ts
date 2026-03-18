@@ -38,7 +38,7 @@ import {
 @Controller('api/academy/live-schedules')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class LiveScheduleController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
   @Get()
   @Permissions('academy.delivery.read')
@@ -70,10 +70,13 @@ export class LiveScheduleController {
     dto: AcademyLiveScheduleCreateDTO,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.liveSchedule.create' }, {
-        ...dto,
-        requesterId: req.requester.sub,
-      }),
+      this.nats.send(
+        { cmd: 'academy.liveSchedule.create' },
+        {
+          ...dto,
+          requesterId: req.requester.sub,
+        },
+      ),
     );
     return successResponse({ item });
   }
@@ -102,10 +105,13 @@ export class LiveScheduleController {
     @Req() req: ReqWithRequester,
   ) {
     const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.liveSchedule.delete' }, {
-        id,
-        requesterId: req.requester.sub,
-      }),
+      this.nats.send(
+        { cmd: 'academy.liveSchedule.delete' },
+        {
+          id,
+          requesterId: req.requester.sub,
+        },
+      ),
     );
     return successResponse(result);
   }

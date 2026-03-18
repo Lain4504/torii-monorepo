@@ -115,7 +115,7 @@ async function main() {
                 courseProfileId: courseProfile.id,
                 courseEditionId: courseEdition.id,
                 mode: 'VOD',
-                status: 'ENROLLING',
+                status: 'PUBLISHED',
             },
         });
 

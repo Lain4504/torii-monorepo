@@ -29,7 +29,9 @@ export class CertificateController {
 
   @Get()
   @Permissions('academy.delivery.read')
-  async findAll(@Query(new ZodValidationPipe(certificateQueryDTOSchema)) query: any) {
+  async findAll(
+    @Query(new ZodValidationPipe(certificateQueryDTOSchema)) query: any,
+  ) {
     const result = await firstValueFrom(
       this.nats.send({ cmd: 'academy.certificate.findAll' }, query),
     );
@@ -65,4 +67,3 @@ export class CertificateController {
     return successResponse(result);
   }
 }
-

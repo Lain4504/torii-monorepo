@@ -18,12 +18,12 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
   GatewayAuthGuard,
-  Permissions,
   PermissionsGuard,
   ZodValidationPipe,
   successResponse,
   ReqWithRequester,
 } from '@server/shared';
+import { ForbiddenException } from '@nestjs/common';
 import {
   AcademyAssignmentSubmissionCreateDTO,
   AcademyAssignmentSubmissionQueryDTO,
@@ -36,21 +36,46 @@ import {
 @Controller('api/academy/assignment-submissions')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class AssignmentSubmissionController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
   private hasExamManagePermission(req: ReqWithRequester): boolean {
     const permissions = req.requester?.permissions || [];
     return permissions.includes('*') || permissions.includes('exam.manage');
   }
 
+  private hasDeliveryReadPermission(req: ReqWithRequester): boolean {
+    const permissions = req.requester?.permissions || [];
+    return (
+      permissions.includes('*') || permissions.includes('academy.delivery.read')
+    );
+  }
+
+  private async assertLearnerEnrolledInClass(userId: string, classId: string) {
+    const result = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.enrollment.check' }, { userId, classId }),
+    );
+    if (!result?.isEnrolled) {
+      throw new ForbiddenException('You are not enrolled in this class');
+    }
+  }
+
   @Get()
-  @Permissions('academy.delivery.read')
   async findAll(
     @Query(new ZodValidationPipe(academyAssignmentSubmissionQueryDTOSchema))
     query: AcademyAssignmentSubmissionQueryDTO,
     @Req() req: ReqWithRequester,
   ) {
+    const requester = req.requester;
     const isExamManager = this.hasExamManagePermission(req);
+    const hasDeliveryRead = this.hasDeliveryReadPermission(req);
+
+    if (!isExamManager && !hasDeliveryRead) {
+      if (!query.classId) {
+        throw new ForbiddenException('classId is required for learners');
+      }
+      await this.assertLearnerEnrolledInClass(requester.sub, query.classId);
+    }
+
     const items = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.assignmentSubmission.findAll' },
@@ -58,7 +83,10 @@ export class AssignmentSubmissionController {
           ...query,
           requesterId: req.requester?.sub,
           isExamManager,
-          userId: isExamManager ? query.userId : req.requester?.sub,
+          userId:
+            isExamManager || hasDeliveryRead
+              ? query.userId
+              : req.requester?.sub,
         },
       ),
     );
@@ -66,46 +94,92 @@ export class AssignmentSubmissionController {
   }
 
   @Get(':id')
-  @Permissions('academy.delivery.read')
-  async findById(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+  async findById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const requester = req.requester;
     const isExamManager = this.hasExamManagePermission(req);
+    const hasDeliveryRead = this.hasDeliveryReadPermission(req);
+
     const item = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.assignmentSubmission.findById' },
         { id, requesterId: req.requester?.sub, isExamManager },
       ),
     );
+
+    if (!isExamManager && !hasDeliveryRead) {
+      const classId = item?.classId;
+      if (!classId) {
+        throw new ForbiddenException(
+          'Submission is not associated with any class',
+        );
+      }
+      await this.assertLearnerEnrolledInClass(requester.sub, classId);
+    }
+
     return successResponse({ item });
   }
 
   @Post()
-  @Permissions('academy.delivery.read')
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body(new ZodValidationPipe(academyAssignmentSubmissionCreateDTOSchema))
     dto: AcademyAssignmentSubmissionCreateDTO,
     @Req() req: ReqWithRequester,
   ) {
+    const requester = req.requester;
     const isExamManager = this.hasExamManagePermission(req);
-    const resolvedUserId = isExamManager && dto.userId ? dto.userId : req.requester?.sub;
+    const hasDeliveryRead = this.hasDeliveryReadPermission(req);
+    const resolvedUserId =
+      isExamManager && dto.userId ? dto.userId : req.requester?.sub;
+
+    if (!isExamManager && !hasDeliveryRead) {
+      await this.assertLearnerEnrolledInClass(requester.sub, dto.classId);
+    }
+
     const item = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.assignmentSubmission.create' },
-        { ...dto, userId: resolvedUserId, requesterId: req.requester?.sub, isExamManager },
+        {
+          ...dto,
+          userId: resolvedUserId,
+          requesterId: req.requester?.sub,
+          isExamManager,
+        },
       ),
     );
     return successResponse({ item });
   }
 
   @Put(':id')
-  @Permissions('academy.delivery.read')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodValidationPipe(academyAssignmentSubmissionUpdateDTOSchema))
     dto: AcademyAssignmentSubmissionUpdateDTO,
     @Req() req: ReqWithRequester,
   ) {
+    const requester = req.requester;
     const isExamManager = this.hasExamManagePermission(req);
+    const hasDeliveryRead = this.hasDeliveryReadPermission(req);
+
+    if (!isExamManager && !hasDeliveryRead) {
+      const existing = await firstValueFrom(
+        this.nats.send(
+          { cmd: 'academy.assignmentSubmission.findById' },
+          { id, requesterId: req.requester?.sub, isExamManager },
+        ),
+      );
+      const classId = existing?.classId;
+      if (!classId) {
+        throw new ForbiddenException(
+          'Submission is not associated with any class',
+        );
+      }
+      await this.assertLearnerEnrolledInClass(requester.sub, classId);
+    }
+
     const item = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.assignmentSubmission.update' },
@@ -116,9 +190,15 @@ export class AssignmentSubmissionController {
   }
 
   @Delete(':id')
-  @Permissions('exam.manage')
-  async delete(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+  @UseGuards(GatewayAuthGuard, PermissionsGuard)
+  async delete(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
     const isExamManager = this.hasExamManagePermission(req);
+    if (!isExamManager) {
+      throw new ForbiddenException('exam.manage permission is required');
+    }
     const result = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.assignmentSubmission.delete' },
@@ -128,4 +208,3 @@ export class AssignmentSubmissionController {
     return successResponse(result);
   }
 }
-

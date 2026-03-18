@@ -4,8 +4,8 @@ import { AuditLoggerService } from './audit-logger.service';
 
 @Global()
 @Module({
-    imports: [NatsClientModule],
-    providers: [AuditLoggerService],
-    exports: [AuditLoggerService],
+  imports: [NatsClientModule],
+  providers: [AuditLoggerService],
+  exports: [AuditLoggerService],
 })
-export class AuditModule { }
+export class AuditModule {}

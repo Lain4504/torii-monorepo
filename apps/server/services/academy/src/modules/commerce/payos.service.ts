@@ -4,59 +4,59 @@ import { PayOS } from '@payos/node';
 
 @Injectable()
 export class PayOSService {
-    private readonly logger = new Logger(PayOSService.name);
-    private payOS: any;
+  private readonly logger = new Logger(PayOSService.name);
+  private payOS: any;
 
-    constructor(private readonly appConfig: AppConfigService) {
-        const { clientId, apiKey, checksumKey } = this.appConfig.thirdParty.payos;
+  constructor(private readonly appConfig: AppConfigService) {
+    const { clientId, apiKey, checksumKey } = this.appConfig.thirdParty.payos;
 
-        if (!clientId || !apiKey || !checksumKey) {
-            this.logger.warn(
-                'PayOS configuration is missing. Payment features will not work.',
-            );
-        } else {
-            this.logger.log(`Initializing PayOS with ClientID: ${clientId}`);
-            // Use type assertion (as any) to work around faulty type definitions from the library
-            this.payOS = new (PayOS as any)({ clientId, apiKey, checksumKey });
-        }
+    if (!clientId || !apiKey || !checksumKey) {
+      this.logger.warn(
+        'PayOS configuration is missing. Payment features will not work.',
+      );
+    } else {
+      this.logger.log(`Initializing PayOS with ClientID: ${clientId}`);
+      // Use type assertion (as any) to work around faulty type definitions from the library
+      this.payOS = new (PayOS as any)({ clientId, apiKey, checksumKey });
+    }
+  }
+
+  async createPaymentLink(data: {
+    orderCode: number;
+    amount: number;
+    description: string;
+    cancelUrl: string;
+    returnUrl: string;
+    items?: { name: string; quantity: number; price: number }[];
+  }) {
+    if (!this.payOS) {
+      throw new BadRequestException('PayOS is not configured');
     }
 
-    async createPaymentLink(data: {
-        orderCode: number;
-        amount: number;
-        description: string;
-        cancelUrl: string;
-        returnUrl: string;
-        items?: { name: string; quantity: number; price: number }[];
-    }) {
-        if (!this.payOS) {
-            throw new BadRequestException('PayOS is not configured');
-        }
-
-        try {
-            const paymentLinkResponse = await this.payOS.paymentRequests.create(data);
-            return paymentLinkResponse;
-        } catch (error: any) {
-            this.logger.error(
-                `Error creating PayOS payment link: ${error.message}`,
-                error.stack,
-            );
-            throw new BadRequestException(`PayOS error: ${error.message}`);
-        }
+    try {
+      const paymentLinkResponse = await this.payOS.paymentRequests.create(data);
+      return paymentLinkResponse;
+    } catch (error: any) {
+      this.logger.error(
+        `Error creating PayOS payment link: ${error.message}`,
+        error.stack,
+      );
+      throw new BadRequestException(`PayOS error: ${error.message}`);
     }
+  }
 
-    verifyPaymentWebhookData(webhookData: any): boolean {
-        if (!this.payOS) {
-            throw new BadRequestException('PayOS is not configured');
-        }
-        try {
-            return Boolean(this.payOS.webhooks.verify(webhookData));
-        } catch (error: any) {
-            this.logger.error(
-                `Error verifying PayOS webhook payload: ${error.message}`,
-                error.stack,
-            );
-            return false;
-        }
+  verifyPaymentWebhookData(webhookData: any): boolean {
+    if (!this.payOS) {
+      throw new BadRequestException('PayOS is not configured');
     }
+    try {
+      return Boolean(this.payOS.webhooks.verify(webhookData));
+    } catch (error: any) {
+      this.logger.error(
+        `Error verifying PayOS webhook payload: ${error.message}`,
+        error.stack,
+      );
+      return false;
+    }
+  }
 }

@@ -177,7 +177,7 @@ export class UsersService implements IUsersService {
       page: pageNum,
       limit: limitNum,
       totalPages: Math.ceil(total / limitNum),
-    };
+    } as any;
   }
 
   /**
@@ -194,7 +194,7 @@ export class UsersService implements IUsersService {
       user,
       'User',
       'UserResponseDTO',
-    );
+    ) as any;
   }
 
   /**
@@ -211,7 +211,7 @@ export class UsersService implements IUsersService {
       user,
       'User',
       'UserResponseDTO',
-    );
+    ) as any;
   }
 
   /**
@@ -241,7 +241,7 @@ export class UsersService implements IUsersService {
       user,
       'User',
       'UserResponseDTO',
-    );
+    ) as any;
   }
 
   /**
@@ -317,7 +317,7 @@ export class UsersService implements IUsersService {
       user,
       'User',
       'UserResponseDTO',
-    );
+    ) as any;
   }
 
   /**
@@ -347,8 +347,6 @@ export class UsersService implements IUsersService {
       email: user.email,
       displayName: user.displayName,
       role: user.role as UserRole,
-      xp: user.xp,
-      level: user.level,
       verifiedAt: user.verifiedAt,
       bannedUntil: null,
       lastSignInAt: null,
@@ -356,7 +354,7 @@ export class UsersService implements IUsersService {
       updatedAt: user.updatedAt,
       deletedAt: null,
       permissions: authorizationData.permissions,
-    };
+    } as any;
   }
 
   /**
@@ -424,7 +422,7 @@ export class UsersService implements IUsersService {
       updatedUser,
       'User',
       'UserResponseDTO',
-    );
+    ) as any;
   }
 
   /**
@@ -541,6 +539,6 @@ export class UsersService implements IUsersService {
       updatedUser,
       'User',
       'UserResponseDTO',
-    );
+    ) as any;
   }
 }

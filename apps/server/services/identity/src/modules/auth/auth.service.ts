@@ -87,7 +87,7 @@ export class AuthService implements IAuthService {
     private readonly blacklistService: BlacklistService,
     @Inject(NOTIFICATION_SERVICE_TOKEN)
     private readonly notificationService: INotificationService,
-  ) { }
+  ) {}
 
   /**
    * Logout user - Revoke tokens
@@ -189,7 +189,7 @@ export class AuthService implements IAuthService {
       });
     } catch (error) {
       // Không chặn flow đăng ký nếu tạo notification thất bại
-      // eslint-disable-next-line no-console
+
       console.error(
         '[AuthService] Failed to create welcome notification for user',
         user.id,
@@ -225,7 +225,8 @@ export class AuthService implements IAuthService {
 
     return {
       ...user,
-    } as UserResponseDTO;
+      role: user.role as UserRole,
+    } as any;
   }
 
   /**
@@ -344,13 +345,11 @@ export class AuthService implements IAuthService {
         email: user.email,
         displayName: user.displayName,
         role: user.role as UserRole,
-        xp: (user as any).xp,
-        level: (user as any).level,
         verifiedAt: user.verifiedAt,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         permissions,
-      },
+      } as any,
       accessToken,
       refreshToken,
     };
@@ -478,8 +477,6 @@ export class AuthService implements IAuthService {
         email: user.email,
         displayName: user.displayName,
         role: role as UserRole,
-        xp: (user as any).xp,
-        level: (user as any).level,
         verifiedAt: user.verifiedAt,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
@@ -521,7 +518,7 @@ export class AuthService implements IAuthService {
       deletedAt: undefined,
       appMetadata: undefined,
       permissions,
-    } as UserResponseDTO & { permissions: string[] };
+    } as any;
   }
 
   /**
@@ -869,11 +866,16 @@ export class AuthService implements IAuthService {
     const user = await this.usersRepository.findById(userId);
 
     if (!user || !user.password) {
-      throw new UnauthorizedException('User account not found or has no password');
+      throw new UnauthorizedException(
+        'User account not found or has no password',
+      );
     }
 
     // 1. Verify old password
-    const isOldPasswordCorrect = await argon2.verify(user.password, oldPassword);
+    const isOldPasswordCorrect = await argon2.verify(
+      user.password,
+      oldPassword,
+    );
     if (!isOldPasswordCorrect) {
       throw new UnauthorizedException('Current password is incorrect');
     }
@@ -937,14 +939,13 @@ export class AuthService implements IAuthService {
 
     return {
       ...user,
-      xp: (user as any).xp || 0,
-      level: (user as any).level || 1,
       avatarUrl: user.avatarUrl || undefined,
       userMetadata,
       verifiedAt: user.verifiedAt || undefined,
       bannedUntil: user.bannedUntil || undefined,
       lastSignInAt: user.lastSignInAt || undefined,
       deletedAt: user.deletedAt || undefined,
+      role: user.role as UserRole,
       appMetadata: user.appMetadata
         ? typeof user.appMetadata === 'object' &&
           user.appMetadata !== null &&
@@ -952,9 +953,8 @@ export class AuthService implements IAuthService {
           ? (user.appMetadata as Record<string, unknown>)
           : undefined
         : undefined,
-      emailVerified: false,
       permissions,
-    } as UserResponseDTO & { permissions: string[] };
+    } as any;
   }
 
   /**
@@ -1039,6 +1039,7 @@ export class AuthService implements IAuthService {
       bannedUntil: user.bannedUntil || undefined,
       lastSignInAt: user.lastSignInAt || undefined,
       deletedAt: user.deletedAt || undefined,
+      role: user.role as UserRole,
       appMetadata: user.appMetadata
         ? typeof user.appMetadata === 'object' &&
           user.appMetadata !== null &&
@@ -1047,7 +1048,7 @@ export class AuthService implements IAuthService {
           : undefined
         : undefined,
       permissions,
-    } as UserResponseDTO & { permissions: string[] };
+    } as any;
   }
 
   /**
@@ -1117,8 +1118,6 @@ export class AuthService implements IAuthService {
           email: user.email,
           displayName: user.displayName,
           role: user.role as UserRole,
-          xp: (user as any).xp,
-          level: (user as any).level,
           verifiedAt: user.verifiedAt,
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
@@ -1197,8 +1196,6 @@ export class AuthService implements IAuthService {
           email: existingUser.email,
           displayName: existingUser.displayName,
           role: existingUser.role as UserRole,
-          xp: (existingUser as any).xp,
-          level: (existingUser as any).level,
           verifiedAt: existingUser.verifiedAt,
           createdAt: existingUser.createdAt,
           updatedAt: existingUser.updatedAt,
@@ -1241,7 +1238,7 @@ export class AuthService implements IAuthService {
       });
     } catch (error) {
       // Không chặn flow đăng ký nếu tạo notification thất bại
-      // eslint-disable-next-line no-console
+
       console.error(
         '[AuthService] Failed to create welcome notification for Google user',
         newUser.id,
@@ -1286,8 +1283,6 @@ export class AuthService implements IAuthService {
         email: newUser.email,
         displayName: newUser.displayName,
         role: newUser.role as UserRole,
-        xp: (newUser as any).xp,
-        level: (newUser as any).level,
         verifiedAt: newUser.verifiedAt,
         createdAt: newUser.createdAt,
         updatedAt: newUser.updatedAt,
@@ -1354,8 +1349,6 @@ export class AuthService implements IAuthService {
           email: user.email,
           displayName: user.displayName,
           role: user.role as UserRole,
-          xp: (user as any).xp,
-          level: (user as any).level,
           verifiedAt: user.verifiedAt,
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
@@ -1432,8 +1425,6 @@ export class AuthService implements IAuthService {
           email: existingUser.email,
           displayName: existingUser.displayName,
           role: existingUser.role as UserRole,
-          xp: (existingUser as any).xp,
-          level: (existingUser as any).level,
           verifiedAt: existingUser.verifiedAt,
           createdAt: existingUser.createdAt,
           updatedAt: existingUser.updatedAt,
@@ -1520,8 +1511,6 @@ export class AuthService implements IAuthService {
         email: newUser.email,
         displayName: newUser.displayName,
         role: newUser.role as UserRole,
-        xp: (newUser as any).xp,
-        level: (newUser as any).level,
         verifiedAt: newUser.verifiedAt,
         createdAt: newUser.createdAt,
         updatedAt: newUser.updatedAt,

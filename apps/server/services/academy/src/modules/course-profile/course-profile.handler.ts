@@ -9,7 +9,7 @@ import type {
 
 @Controller()
 export class CourseProfileHandler {
-  constructor(private readonly courseProfiles: CourseProfileService) { }
+  constructor(private readonly courseProfiles: CourseProfileService) {}
 
   @MessagePattern({ cmd: 'academy.courseProfile.findAll' })
   findAll(@Payload() query: AcademyCourseProfileQueryDTO) {
@@ -22,13 +22,22 @@ export class CourseProfileHandler {
   }
 
   @MessagePattern({ cmd: 'academy.courseProfile.create' })
-  create(@Payload() data: AcademyCourseProfileCreateDTO & { requesterId?: string }) {
+  create(
+    @Payload() data: AcademyCourseProfileCreateDTO & { requesterId?: string },
+  ) {
     const { requesterId, ...input } = data;
     return this.courseProfiles.create(input, requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.courseProfile.update' })
-  update(@Payload() data: { id: string; input: AcademyCourseProfileUpdateDTO; requesterId?: string }) {
+  update(
+    @Payload()
+    data: {
+      id: string;
+      input: AcademyCourseProfileUpdateDTO;
+      requesterId?: string;
+    },
+  ) {
     return this.courseProfiles.update(data.id, data.input, data.requesterId);
   }
 
@@ -55,12 +64,28 @@ export class CourseProfileHandler {
   }
 
   @MessagePattern({ cmd: 'academy.syllabus.create' })
-  createSyllabus(@Payload() data: { courseProfileId: string; version: string; name?: string; requesterId?: string }) {
+  createSyllabus(
+    @Payload()
+    data: {
+      courseProfileId: string;
+      version: string;
+      name?: string;
+      requesterId?: string;
+    },
+  ) {
     return this.courseProfiles.createSyllabus(data);
   }
 
   @MessagePattern({ cmd: 'academy.syllabus.clone' })
-  cloneSyllabus(@Payload() data: { sourceSyllabusId: string; newVersion: string; newName?: string; requesterId?: string }) {
+  cloneSyllabus(
+    @Payload()
+    data: {
+      sourceSyllabusId: string;
+      newVersion: string;
+      newName?: string;
+      requesterId?: string;
+    },
+  ) {
     return this.courseProfiles.cloneSyllabus(data);
   }
 
@@ -74,4 +99,3 @@ export class CourseProfileHandler {
     return this.courseProfiles.lockSyllabus(data.id, data.requesterId);
   }
 }
-

@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import type { Prisma } from '@prisma/generated';
 import { AuditLoggerService } from '../audit-logger.service';
@@ -24,7 +28,12 @@ export class SyllabusModuleService {
   async create(input: SyllabusModuleCreateDto, requesterId?: string) {
     const syllabus = await this.prisma.syllabus.findUnique({
       where: { id: input.syllabusId },
-      select: { id: true, status: true, courseProfileId: true, versionLabel: true },
+      select: {
+        id: true,
+        status: true,
+        courseProfileId: true,
+        versionLabel: true,
+      },
     });
 
     if (!syllabus) {
@@ -39,8 +48,9 @@ export class SyllabusModuleService {
 
     const nextOrder =
       input.orderIndex ??
-      (await this.prisma.module.count({ where: { syllabusId: input.syllabusId } })) +
-        1;
+      (await this.prisma.module.count({
+        where: { syllabusId: input.syllabusId },
+      })) + 1;
 
     const item = await this.prisma.module.create({
       data: {
@@ -64,11 +74,17 @@ export class SyllabusModuleService {
     return item;
   }
 
-  async update(id: string, input: SyllabusModuleUpdateDto, requesterId?: string) {
+  async update(
+    id: string,
+    input: SyllabusModuleUpdateDto,
+    requesterId?: string,
+  ) {
     const before = await this.prisma.module.findUnique({
       where: { id },
       include: {
-        syllabus: { select: { status: true, versionLabel: true, courseProfileId: true } },
+        syllabus: {
+          select: { status: true, versionLabel: true, courseProfileId: true },
+        },
       },
     });
 
@@ -110,7 +126,9 @@ export class SyllabusModuleService {
     const before = await this.prisma.module.findUnique({
       where: { id },
       include: {
-        syllabus: { select: { status: true, versionLabel: true, courseProfileId: true } },
+        syllabus: {
+          select: { status: true, versionLabel: true, courseProfileId: true },
+        },
         _count: { select: { lessons: true } },
       },
     });
@@ -141,4 +159,3 @@ export class SyllabusModuleService {
     return { ok: true };
   }
 }
-

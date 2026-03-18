@@ -1,10 +1,15 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { LessonService, LessonCreateDto, LessonUpdateDto, LessonQueryDto } from './lesson.service';
+import {
+  LessonService,
+  LessonCreateDto,
+  LessonUpdateDto,
+  LessonQueryDto,
+} from './lesson.service';
 
 @Controller()
 export class LessonHandler {
-  constructor(private readonly lessons: LessonService) { }
+  constructor(private readonly lessons: LessonService) {}
 
   @MessagePattern({ cmd: 'academy.lesson.findAll' })
   findAll(@Payload() query: LessonQueryDto) {
@@ -23,7 +28,14 @@ export class LessonHandler {
   }
 
   @MessagePattern({ cmd: 'academy.lesson.update' })
-  update(@Payload() data: { id: string; input: LessonUpdateDto; requesterId?: string }) {
+  update(
+    @Payload()
+    data: {
+      id: string;
+      input: LessonUpdateDto;
+      requesterId?: string;
+    },
+  ) {
     return this.lessons.update(data.id, data.input, data.requesterId);
   }
 

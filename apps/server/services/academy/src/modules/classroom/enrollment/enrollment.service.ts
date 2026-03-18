@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { Prisma } from '@prisma/generated';
 import { EnrollmentCreateDto, EnrollmentQueryDto } from './dto/enrollment.dto';
@@ -11,7 +15,7 @@ export class EnrollmentService {
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
     private readonly achievementService: AchievementService,
-  ) { }
+  ) {}
 
   // ==============================================================
   // FIND
@@ -65,7 +69,10 @@ export class EnrollmentService {
               where: { userId: e.userId, classId, isCompleted: true },
             });
 
-            progressPercent = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+            progressPercent =
+              totalLessons > 0
+                ? Math.round((completedLessons / totalLessons) * 100)
+                : 0;
           }
 
           const instructor = e.class?.instructor;
@@ -133,7 +140,8 @@ export class EnrollmentService {
     if (!user) throw new BadRequestException('Invalid userId');
 
     // Every Enrollment must have a classId in V2 Class-Centric model
-    if (!input.classId) throw new BadRequestException('classId is required for enrollment');
+    if (!input.classId)
+      throw new BadRequestException('classId is required for enrollment');
 
     const klass = await prisma.class.findUnique({
       where: { id: input.classId },
@@ -148,7 +156,10 @@ export class EnrollmentService {
     if (!klass) throw new BadRequestException('Invalid classId');
 
     // LIVE class must be OPENING or ONGOING to accept enrollment
-    if (klass.mode === 'LIVE' && !['OPENING', 'ONGOING'].includes(klass.status)) {
+    if (
+      klass.mode === 'LIVE' &&
+      !['OPENING', 'ONGOING'].includes(klass.status)
+    ) {
       throw new BadRequestException(
         `LIVE class is not open for enrollment (status: ${klass.status})`,
       );
@@ -201,7 +212,9 @@ export class EnrollmentService {
 
       const allowedStatuses = ['PUBLISHED', 'OPENING'];
       if (!allowedStatuses.includes(offering.status)) {
-        throw new BadRequestException(`Offering is not open for enrollment (status: ${offering.status})`);
+        throw new BadRequestException(
+          `Offering is not open for enrollment (status: ${offering.status})`,
+        );
       }
 
       if (offering.mode !== klass.mode) {
@@ -220,7 +233,9 @@ export class EnrollmentService {
       select: { id: true },
     });
     if (existingByClass) {
-      return prisma.enrollment.findUnique({ where: { id: existingByClass.id } });
+      return prisma.enrollment.findUnique({
+        where: { id: existingByClass.id },
+      });
     }
 
     // Check duplicate per offering if provided (Commercial constraint)
@@ -233,7 +248,9 @@ export class EnrollmentService {
         select: { id: true },
       });
       if (existingByOffering) {
-        return prisma.enrollment.findUnique({ where: { id: existingByOffering.id } });
+        return prisma.enrollment.findUnique({
+          where: { id: existingByOffering.id },
+        });
       }
     }
 
@@ -306,7 +323,9 @@ export class EnrollmentService {
     const enrollment = await this.findById(id);
 
     if (enrollment.class?.mode !== 'LIVE') {
-      throw new BadRequestException('Only LIVE enrollments can be moved between classes');
+      throw new BadRequestException(
+        'Only LIVE enrollments can be moved between classes',
+      );
     }
 
     const targetClass = await this.prisma.class.findUnique({
@@ -314,14 +333,17 @@ export class EnrollmentService {
       select: { id: true, courseProfileId: true, mode: true },
     });
     if (!targetClass) throw new BadRequestException('Target class not found');
-    if (targetClass.mode !== 'LIVE') throw new BadRequestException('Target class must also be LIVE');
+    if (targetClass.mode !== 'LIVE')
+      throw new BadRequestException('Target class must also be LIVE');
 
     const sourceClass = await this.prisma.class.findUnique({
-      where: { id: enrollment.classId! },
+      where: { id: enrollment.classId },
       select: { courseProfileId: true },
     });
     if (sourceClass?.courseProfileId !== targetClass.courseProfileId) {
-      throw new BadRequestException('Target class must belong to the same course profile');
+      throw new BadRequestException(
+        'Target class must belong to the same course profile',
+      );
     }
 
     const result = await this.prisma.enrollment.update({
@@ -354,7 +376,8 @@ export class EnrollmentService {
         user: { select: { id: true } },
       },
     });
-    if (!enrollment || enrollment.status !== 'ACTIVE' || !enrollment.classId) return;
+    if (!enrollment || enrollment.status !== 'ACTIVE' || !enrollment.classId)
+      return;
 
     const totalLessons = await this.prisma.lesson.count({
       where: {
@@ -379,9 +402,14 @@ export class EnrollmentService {
         data: { status: 'COMPLETED' },
       });
 
-      this.achievementService.evaluateForUser(enrollment.userId).catch((err) =>
-        console.error(`Failed to evaluate achievements for user ${enrollment.userId}`, err),
-      );
+      this.achievementService
+        .evaluateForUser(enrollment.userId)
+        .catch((err) =>
+          console.error(
+            `Failed to evaluate achievements for user ${enrollment.userId}`,
+            err,
+          ),
+        );
     }
   }
 
@@ -393,7 +421,9 @@ export class EnrollmentService {
     const enrollment = await this.findById(id);
 
     if (!['CANCELLED', 'EXPIRED'].includes(enrollment.status)) {
-      throw new BadRequestException('Cannot delete active enrollment. Cancel it first.');
+      throw new BadRequestException(
+        'Cannot delete active enrollment. Cancel it first.',
+      );
     }
 
     await this.prisma.enrollment.delete({ where: { id } });
@@ -418,8 +448,12 @@ export class EnrollmentService {
     });
 
     const totalCourses = enrollments.length;
-    const completedCourses = enrollments.filter((e) => e.status === 'COMPLETED').length;
-    const inProgressCourses = enrollments.filter((e) => e.status === 'ACTIVE').length;
+    const completedCourses = enrollments.filter(
+      (e) => e.status === 'COMPLETED',
+    ).length;
+    const inProgressCourses = enrollments.filter(
+      (e) => e.status === 'ACTIVE',
+    ).length;
 
     // Calculate actual average progress
     let totalProgress = 0;
@@ -439,12 +473,16 @@ export class EnrollmentService {
         const completedLessons = await this.prisma.userLessonProgress.count({
           where: { userId: e.userId, classId: e.classId, isCompleted: true },
         });
-        const progress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+        const progress =
+          totalLessons > 0
+            ? Math.round((completedLessons / totalLessons) * 100)
+            : 0;
         totalProgress += progress;
       }
     }
 
-    const averageProgress = totalCourses > 0 ? Math.round(totalProgress / totalCourses) : 0;
+    const averageProgress =
+      totalCourses > 0 ? Math.round(totalProgress / totalCourses) : 0;
 
     return {
       totalCourses,
@@ -483,7 +521,9 @@ export class EnrollmentService {
       where: { userId, classId, isCompleted: true },
     });
     const completionPercentage =
-      totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+      totalLessons > 0
+        ? Math.round((completedLessons / totalLessons) * 100)
+        : 0;
 
     return {
       isEnrolled: true,
@@ -493,5 +533,20 @@ export class EnrollmentService {
         completionPercentage,
       },
     };
+  }
+
+  async checkEnrollmentBySyllabus(userId: string, syllabusId: string) {
+    const enrollment = await this.prisma.enrollment.findFirst({
+      where: {
+        userId,
+        status: 'ACTIVE',
+        class: {
+          syllabusId,
+        },
+      },
+      select: { id: true },
+    });
+
+    return { isEnrolled: !!enrollment };
   }
 }

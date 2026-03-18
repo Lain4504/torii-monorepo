@@ -4,50 +4,69 @@ import { CouponService } from './coupon.service';
 
 @Controller()
 export class CouponHandler {
-    private readonly logger = new Logger(CouponHandler.name);
+  private readonly logger = new Logger(CouponHandler.name);
 
-    constructor(private readonly couponService: CouponService) { }
+  constructor(private readonly couponService: CouponService) {}
 
-    @MessagePattern({ cmd: 'academy.coupon.validate' })
-    validate(@Payload() data: { code: string; userId: string; orderValue: number; offeringIds: string[] }) {
-        try {
-            return this.couponService.validateCoupon(data.code, data.userId, data.orderValue, data.offeringIds);
-        } catch (error) {
-            this.logger.error(`Error validating coupon: ${error.message}`);
-            throw new RpcException(error.message);
-        }
+  @MessagePattern({ cmd: 'academy.coupon.validate' })
+  validate(
+    @Payload()
+    data: {
+      code: string;
+      userId: string;
+      orderValue: number;
+      offeringIds: string[];
+    },
+  ) {
+    try {
+      return this.couponService.validateCoupon(
+        data.code,
+        data.userId,
+        data.orderValue,
+        data.offeringIds,
+      );
+    } catch (error) {
+      this.logger.error(`Error validating coupon: ${error.message}`);
+      throw new RpcException(error.message);
     }
+  }
 
-    @MessagePattern({ cmd: 'academy.coupon.getMyCoupons' })
-    getMyCoupons(@Payload() data: { userId: string }) {
-        return this.couponService.getMyCoupons(data.userId);
-    }
+  @MessagePattern({ cmd: 'academy.coupon.getMyCoupons' })
+  getMyCoupons(@Payload() data: { userId: string }) {
+    return this.couponService.getMyCoupons(data.userId);
+  }
 
-    // --- Admin CRUD ---
+  // --- Admin CRUD ---
 
-    @MessagePattern({ cmd: 'academy.coupon.admin.findAll' })
-    admin_findAll() {
-        return this.couponService.admin_findAll();
-    }
+  @MessagePattern({ cmd: 'academy.coupon.admin.findAll' })
+  admin_findAll() {
+    return this.couponService.admin_findAll();
+  }
 
-    @MessagePattern({ cmd: 'academy.coupon.admin.findOne' })
-    admin_findOne(@Payload() data: { id: string }) {
-        return this.couponService.admin_findOne(data.id);
-    }
+  @MessagePattern({ cmd: 'academy.coupon.admin.findOne' })
+  admin_findOne(@Payload() data: { id: string }) {
+    return this.couponService.admin_findOne(data.id);
+  }
 
-    @MessagePattern({ cmd: 'academy.coupon.admin.create' })
-    admin_create(@Payload() data: any) {
-        const { requesterId, ...input } = data;
-        return this.couponService.admin_create(input, requesterId);
-    }
+  @MessagePattern({ cmd: 'academy.coupon.admin.create' })
+  admin_create(@Payload() data: any) {
+    const { requesterId, ...input } = data;
+    return this.couponService.admin_create(input, requesterId);
+  }
 
-    @MessagePattern({ cmd: 'academy.coupon.admin.update' })
-    admin_update(@Payload() data: { id: string; data: any; requesterId?: string }) {
-        return this.couponService.admin_update(data.id, data.data, data.requesterId);
-    }
+  @MessagePattern({ cmd: 'academy.coupon.admin.update' })
+  admin_update(
+    @Payload() data: { id: string; data: any; requesterId?: string },
+  ) {
+    return this.couponService.admin_update(
+      data.id,
+      data.data,
+      data.requesterId,
+    );
+  }
 
-    @MessagePattern({ cmd: 'academy.coupon.admin.delete' })
-    admin_delete(@Payload() data: { id: string; requesterId?: string }) {
-        return this.couponService.admin_delete(data.id, data.requesterId);
-    }
+  @MessagePattern({ cmd: 'academy.coupon.admin.delete' })
+  admin_delete(@Payload() data: { id: string; requesterId?: string }) {
+    return this.couponService.admin_delete(data.id, data.requesterId);
+  }
 }

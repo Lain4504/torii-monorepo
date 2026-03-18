@@ -87,7 +87,7 @@ export function ForgotPasswordForm() {
                                 {...field}
                                 id={field.name}
                                 type="email"
-                                placeholder="your-registered-email@domain.com"
+                                placeholder="Nhập email của bạn"
                                 autoComplete="email"
                             />
                             <FieldError errors={[fieldState.error]} />

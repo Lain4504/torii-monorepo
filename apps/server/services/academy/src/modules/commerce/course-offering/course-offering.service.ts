@@ -24,7 +24,77 @@ export class CourseOfferingService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
-  ) { }
+  ) {}
+
+  private get publicClassInclude() {
+    return {
+      courseProfile: {
+        select: {
+          id: true,
+          code: true,
+          title: true,
+          description: true,
+          level: true,
+          thumbnailUrl: true,
+        },
+      },
+      instructor: {
+        select: {
+          displayName: true,
+          avatarUrl: true,
+        },
+      },
+      syllabus: {
+        select: {
+          id: true,
+          modules: {
+            orderBy: { orderIndex: 'asc' as const },
+            select: {
+              id: true,
+              title: true,
+              orderIndex: true,
+              lessons: {
+                orderBy: { orderIndex: 'asc' as const },
+                select: {
+                  id: true,
+                  type: true,
+                  title: true,
+                  orderIndex: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+  }
+
+  private flattenClasses(classes: any[]) {
+    return (classes ?? []).map((link: any) => ({
+      ...link.class,
+      isPrimary: link.isPrimary,
+    }));
+  }
+
+  private thinPublicOffering(item: any) {
+    if (!item) return null;
+    return {
+      id: item.id,
+      code: item.code,
+      title: item.title,
+      description: item.description,
+      price: Number(item.price || 0),
+      salePrice: item.salePrice ? Number(item.salePrice) : null,
+      currency: item.currency,
+      mode: item.mode,
+      status: item.status,
+      classes: this.flattenClasses(item.classes),
+      validFrom: item.validFrom,
+      validTo: item.validTo,
+      createdAt: item.createdAt,
+      updatedAt: item.updatedAt,
+    };
+  }
 
   async findAll(query: CourseOfferingQueryDto) {
     const q = query.q?.trim();
@@ -36,60 +106,48 @@ export class CourseOfferingService {
       status: query.status as OfferingStatus,
       ...(q
         ? {
-          OR: [
-            { code: { contains: q, mode: 'insensitive' } },
-            { title: { contains: q, mode: 'insensitive' } },
-          ],
-        }
+            OR: [
+              { code: { contains: q, mode: 'insensitive' } },
+              { title: { contains: q, mode: 'insensitive' } },
+            ],
+          }
         : {}),
       ...(modeFilter ? { mode: modeFilter } : {}),
       ...(modeFilter === ClassMode.LIVE && hasEnrollableLiveClass
         ? {
-          classes: {
-            some: {
-              class: {
-                mode: ClassMode.LIVE,
-                status: ClassStatus.OPENING,
-                enrollmentOpenAt: { not: null, lte: now },
-                enrollmentCloseAt: { not: null, gte: now },
+            classes: {
+              some: {
+                class: {
+                  mode: ClassMode.LIVE,
+                  status: ClassStatus.OPENING,
+                  enrollmentOpenAt: { not: null, lte: now },
+                  enrollmentCloseAt: { not: null, gte: now },
+                },
               },
             },
-          },
-        }
+          }
         : {}),
     };
 
-    return this.prisma.courseOffering.findMany({
+    const items = await this.prisma.courseOffering.findMany({
       where,
       orderBy: [{ createdAt: 'desc' }],
       include: {
         classes: {
           include: {
             class: {
-              include: {
-                courseProfile: {
-                  select: {
-                    level: true,
-                    thumbnailUrl: true,
-                  },
-                },
-                instructor: {
-                  select: {
-                    displayName: true,
-                    avatarUrl: true,
-                  },
-                },
-              },
+              include: this.publicClassInclude,
             },
           },
         },
       },
     });
+
+    return items.map((item) => this.thinPublicOffering(item));
   }
 
   async findPublicByCategory(category: string) {
-    const now = new Date();
-    return this.prisma.courseOffering.findMany({
+    const items = await this.prisma.courseOffering.findMany({
       where: {
         status: OfferingStatus.PUBLISHED,
         classes: {
@@ -107,27 +165,14 @@ export class CourseOfferingService {
         classes: {
           include: {
             class: {
-              include: {
-                courseProfile: {
-                  select: {
-                    level: true,
-                    thumbnailUrl: true,
-                    title: true,
-                    description: true,
-                  },
-                },
-                instructor: {
-                  select: {
-                    displayName: true,
-                    avatarUrl: true,
-                  },
-                },
-              },
+              include: this.publicClassInclude,
             },
           },
         },
       },
     });
+
+    return items.map((item) => this.thinPublicOffering(item));
   }
 
   async findById(id: string) {
@@ -180,7 +225,43 @@ export class CourseOfferingService {
   }
 
   async findPublicById(id: string) {
-    const item = await this.findById(id);
+    const item = await this.prisma.courseOffering.findUnique({
+      where: { id },
+      include: {
+        syllabus: {
+          select: {
+            id: true,
+            modules: {
+              orderBy: { orderIndex: 'asc' },
+              select: {
+                id: true,
+                title: true,
+                orderIndex: true,
+                lessons: {
+                  orderBy: { orderIndex: 'asc' },
+                  select: {
+                    id: true,
+                    type: true,
+                    title: true,
+                    orderIndex: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        classes: {
+          include: {
+            class: {
+              include: this.publicClassInclude,
+            },
+          },
+        },
+      },
+    });
+
+    if (!item) throw new NotFoundException('CourseOffering not found');
+
     const isVodAndPublished =
       item.mode === ClassMode.VOD && item.status === OfferingStatus.PUBLISHED;
     const isLiveAndOpeningOrPublished =
@@ -192,26 +273,27 @@ export class CourseOfferingService {
       throw new NotFoundException('CourseOffering not found');
     }
 
-    if (item.mode === ClassMode.LIVE) {
-      const now = new Date();
-      const enrollableClasses = (item.classes ?? [])
-        .map((link: any) => link?.class)
-        .filter(
-          (c: any) =>
-            c?.mode === ClassMode.LIVE &&
-            c?.status === ClassStatus.OPENING &&
-            c?.enrollmentOpenAt &&
-            c?.enrollmentCloseAt &&
-            new Date(c.enrollmentOpenAt) <= now &&
-            new Date(c.enrollmentCloseAt) >= now,
-        );
-      return {
-        ...item,
-        enrollableClasses,
-      };
-    }
+    const now = new Date();
+    const thinned = this.thinPublicOffering(item)!;
 
-    return item;
+    const enrollableClasses =
+      item.mode === ClassMode.LIVE
+        ? thinned.classes.filter(
+            (c: any) =>
+              c?.mode === ClassMode.LIVE &&
+              c?.status === ClassStatus.OPENING &&
+              c?.enrollmentOpenAt &&
+              c?.enrollmentCloseAt &&
+              new Date(c.enrollmentOpenAt) <= now &&
+              new Date(c.enrollmentCloseAt) >= now,
+          )
+        : [];
+
+    return {
+      ...thinned,
+      syllabus: item.syllabus,
+      enrollableClasses,
+    };
   }
 
   private async validateClassIdsForSelling(classIds: string[]) {
@@ -235,7 +317,7 @@ export class CourseOfferingService {
       ClassStatus.PUBLISHED,
     ];
     for (const cls of classes) {
-      if (!validStatuses.includes(cls.status as ClassStatus)) {
+      if (!validStatuses.includes(cls.status)) {
         throw new BadRequestException(
           `Class ${cls.code} is in status ${cls.status}, which is not valid for enrollment`,
         );
@@ -298,8 +380,8 @@ export class CourseOfferingService {
         type: (input.type as OrderType) || OrderType.COURSE,
         classes: input.classIds?.length
           ? {
-            create: input.classIds.map((classId) => ({ classId })),
-          }
+              create: input.classIds.map((classId) => ({ classId })),
+            }
           : undefined,
       },
     });
@@ -344,7 +426,8 @@ export class CourseOfferingService {
         Number(input.salePrice) !== Number(offering.salePrice)) ||
       (input.title !== undefined && input.title !== offering.title) ||
       (input.mode !== undefined && input.mode !== offering.mode) ||
-      (input.syllabusId !== undefined && input.syllabusId !== offering.syllabusId);
+      (input.syllabusId !== undefined &&
+        input.syllabusId !== offering.syllabusId);
 
     let existingEnrollmentCount = 0;
     if (offering.status === OfferingStatus.PUBLISHED && criticalFieldsChanged) {
@@ -384,9 +467,9 @@ export class CourseOfferingService {
         type: input.type as OrderType,
         classes: input.classIds
           ? {
-            deleteMany: {},
-            create: input.classIds.map((classId) => ({ classId })),
-          }
+              deleteMany: {},
+              create: input.classIds.map((classId) => ({ classId })),
+            }
           : undefined,
       },
     });
@@ -410,10 +493,10 @@ export class CourseOfferingService {
       metadata:
         offering.status === OfferingStatus.PUBLISHED && criticalFieldsChanged
           ? {
-            policy: 'NON_RETROACTIVE_ENTITLEMENT',
-            previousBuyersUnaffected: true,
-            existingEnrollmentCount,
-          }
+              policy: 'NON_RETROACTIVE_ENTITLEMENT',
+              previousBuyersUnaffected: true,
+              existingEnrollmentCount,
+            }
           : undefined,
     });
 
@@ -540,8 +623,8 @@ export class CourseOfferingService {
     const existingEnrollmentCount =
       offering.status === OfferingStatus.PUBLISHED
         ? await this.prisma.enrollment.count({
-          where: { offeringId: input.offeringId },
-        })
+            where: { offeringId: input.offeringId },
+          })
         : 0;
 
     await this.prisma.$transaction([
@@ -573,10 +656,10 @@ export class CourseOfferingService {
         nextStatus,
         ...(offering.status === OfferingStatus.PUBLISHED
           ? {
-            policy: 'NON_RETROACTIVE_ENTITLEMENT',
-            previousBuyersUnaffected: true,
-            existingEnrollmentCount,
-          }
+              policy: 'NON_RETROACTIVE_ENTITLEMENT',
+              previousBuyersUnaffected: true,
+              existingEnrollmentCount,
+            }
           : {}),
       },
     });

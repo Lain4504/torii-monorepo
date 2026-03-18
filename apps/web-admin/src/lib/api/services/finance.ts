@@ -41,3 +41,19 @@ export function useOrderPayments(orderId: string) {
         enabled: !!orderId,
     });
 }
+
+export function useOfferingOrders(offeringId: string, params: any) {
+    return useQuery({
+        queryKey: ['offering-orders', offeringId, params],
+        queryFn: () => orderApi.getOrdersByOffering(offeringId, params),
+        enabled: !!offeringId,
+    });
+}
+
+export function useOfferingStats(offeringId: string) {
+    return useQuery({
+        queryKey: ['offering-stats', offeringId],
+        queryFn: () => orderApi.getStatsByOffering(offeringId),
+        enabled: !!offeringId,
+    });
+}

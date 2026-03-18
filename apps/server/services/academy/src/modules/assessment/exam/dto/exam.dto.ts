@@ -135,4 +135,3 @@ export class ExamQueryDto {
   @IsString()
   status?: string;
 }
-

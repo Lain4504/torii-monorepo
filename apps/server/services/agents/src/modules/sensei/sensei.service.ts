@@ -30,7 +30,7 @@ export class SenseiService implements OnModuleInit {
     private readonly aiUsageTracking: AIUsageTrackingService,
     private readonly analyticsService: AnalyticsService,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) { }
+  ) {}
 
   private async deductCoins(userId: string, taskType: string, usage: any) {
     // Billing is temporarily disabled (No deduction, no usage recording, no logs)
@@ -331,7 +331,9 @@ export class SenseiService implements OnModuleInit {
               select: {
                 syllabus: {
                   select: {
-                    courseProfile: { select: { id: true, title: true, level: true } },
+                    courseProfile: {
+                      select: { id: true, title: true, level: true },
+                    },
                   },
                 },
               },
@@ -458,7 +460,7 @@ export class SenseiService implements OnModuleInit {
           await this.fastMcpService.callGeminiWithSchema(
             prompt,
             AgentRoleplayResponseSchema,
-            { maxRetries: 1 }
+            { maxRetries: 1 },
           );
 
         // For roleplay, we use a consistent room ID to group the session

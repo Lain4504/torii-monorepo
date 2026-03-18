@@ -32,9 +32,6 @@ export default function DashboardPage() {
           <div className="flex items-center gap-3">
             <ButtonGroup>
               <Button variant="outline" asChild size="sm">
-                <Link to="/analytics/revenue">Tài chính</Link>
-              </Button>
-              <Button variant="outline" asChild size="sm">
                 <Link to="/analytics/learning">Học tập</Link>
               </Button>
               <Button variant="outline" asChild size="sm">

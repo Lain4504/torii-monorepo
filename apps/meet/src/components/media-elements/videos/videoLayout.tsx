@@ -22,6 +22,7 @@ import {
 import { useDeviceInfo } from '@/components/media-elements/videos/helpers/useDeviceInfo';
 import { ChevronDown } from 'lucide-react';
 import { updateHasWebcamPages } from '@/store/slices/roomSettingsSlice';
+import { Button } from '@workspace/ui/components/button';
 
 interface IVideoLayoutProps {
   allParticipants: ReactElement<VideoParticipantProps>[];
@@ -210,11 +211,12 @@ const VideoLayout = ({
     // If a "Next" button is needed, create the button component and add it to the end of our display array.
     if (hasNextPage) {
       display.push(
-          <button
+          <Button
               key="next-page"
               role="button"
               className="video-camera-item webcam-next-page order-3 relative bg-card text-foreground cursor-pointer flex items-center justify-between"
               onClick={() => nextPage(currentPage)}
+              variant="ghost"
           >
             <div className="left flex-1 flex justify-center items-center absolute top-0 left-0 w-full h-full">
               {formatNextPreButton(potentialNextItems)}
@@ -222,7 +224,7 @@ const VideoLayout = ({
             <div className="right pb-4 -rotate-90 absolute top-[calc(50%-12px)] right-0">
               <ChevronDown />
             </div>
-          </button>,
+          </Button>,
       );
     }
 
@@ -232,11 +234,12 @@ const VideoLayout = ({
       const prevItems = allParticipants.slice(0, startIndex);
       // The unshift() method adds one or more elements to the beginning of an array.
       display.unshift(
-          <button
+          <Button
               key="prev-page"
               role="button"
               className="video-camera-item webcam-prev-page order-1 relative bg-card text-foreground cursor-pointer flex items-center justify-between"
               onClick={() => prePage(currentPage)}
+              variant="ghost"
           >
             <div className="right rotate-90 absolute top-[calc(50%-12px)] left-3">
               <ChevronDown />
@@ -244,7 +247,7 @@ const VideoLayout = ({
             <div className="left flex-1 flex justify-center items-center absolute top-0 left-0 w-full h-full">
               {formatNextPreButton(prevItems)}
             </div>
-          </button>,
+          </Button>,
       );
     }
 

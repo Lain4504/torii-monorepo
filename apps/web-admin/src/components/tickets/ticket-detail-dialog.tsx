@@ -11,7 +11,7 @@ import { ScrollArea } from '@workspace/ui/components/scroll-area';
 import { Separator } from '@workspace/ui/components/separator';
 import type { TicketResponseDTO } from '@workspace/schemas';
 import { formatDateTime } from '@/lib/format-utils';
-import { User, Calendar, MessageSquare, Tag, Info, Building } from 'lucide-react';
+import { User, Calendar, MessageSquare, Tag, Info, Building, Coins } from 'lucide-react';
 import {
     Item,
     ItemContent,
@@ -85,6 +85,15 @@ export function TicketDetailDialog({
                                 <ItemDescription className="whitespace-pre-wrap">{ticket.description}</ItemDescription>
                             </ItemContent>
                         </Item>
+                        {(ticket as any).refundAmount !== undefined && (ticket as any).refundAmount !== null && (ticket as any).refundAmount > 0 && (
+                            <Item variant="outline">
+                                <ItemMedia><Coins className="size-4 text-primary" /></ItemMedia>
+                                <ItemContent>
+                                    <ItemTitle>Số tiền hoàn trả</ItemTitle>
+                                    <ItemDescription>{(ticket as any).refundAmount} Xu</ItemDescription>
+                                </ItemContent>
+                            </Item>
+                        )}
                         {ticket.response && (
                             <Item variant="outline">
                                 <ItemMedia><Building className="size-4" /></ItemMedia>

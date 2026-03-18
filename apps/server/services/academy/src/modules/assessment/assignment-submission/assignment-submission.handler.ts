@@ -9,26 +9,43 @@ import {
 
 @Controller()
 export class AssignmentSubmissionHandler {
-  constructor(private readonly submissions: AssignmentSubmissionService) { }
+  constructor(private readonly submissions: AssignmentSubmissionService) {}
 
   @MessagePattern({ cmd: 'academy.assignmentSubmission.findAll' })
   findAll(
     @Payload()
-    data: AssignmentSubmissionQueryDto & { requesterId?: string; isExamManager?: boolean },
+    data: AssignmentSubmissionQueryDto & {
+      requesterId?: string;
+      isExamManager?: boolean;
+    },
   ) {
     const { requesterId, isExamManager, ...query } = data;
     return this.submissions.findAll(query, requesterId, isExamManager);
   }
 
   @MessagePattern({ cmd: 'academy.assignmentSubmission.findById' })
-  findById(@Payload() data: { id: string; requesterId?: string; isExamManager?: boolean }) {
-    return this.submissions.findById(data.id, data.requesterId, data.isExamManager);
+  findById(
+    @Payload()
+    data: {
+      id: string;
+      requesterId?: string;
+      isExamManager?: boolean;
+    },
+  ) {
+    return this.submissions.findById(
+      data.id,
+      data.requesterId,
+      data.isExamManager,
+    );
   }
 
   @MessagePattern({ cmd: 'academy.assignmentSubmission.create' })
   create(
     @Payload()
-    data: AssignmentSubmissionCreateDto & { requesterId?: string; isExamManager?: boolean },
+    data: AssignmentSubmissionCreateDto & {
+      requesterId?: string;
+      isExamManager?: boolean;
+    },
   ) {
     const { requesterId, isExamManager, ...input } = data;
     return this.submissions.create(input, requesterId, isExamManager);
@@ -37,14 +54,34 @@ export class AssignmentSubmissionHandler {
   @MessagePattern({ cmd: 'academy.assignmentSubmission.update' })
   update(
     @Payload()
-    data: { id: string; input: AssignmentSubmissionUpdateDto; requesterId?: string; isExamManager?: boolean },
+    data: {
+      id: string;
+      input: AssignmentSubmissionUpdateDto;
+      requesterId?: string;
+      isExamManager?: boolean;
+    },
   ) {
-    return this.submissions.update(data.id, data.input, data.requesterId, data.isExamManager);
+    return this.submissions.update(
+      data.id,
+      data.input,
+      data.requesterId,
+      data.isExamManager,
+    );
   }
 
   @MessagePattern({ cmd: 'academy.assignmentSubmission.delete' })
-  delete(@Payload() data: { id: string; requesterId?: string; isExamManager?: boolean }) {
-    return this.submissions.delete(data.id, data.requesterId, data.isExamManager);
+  delete(
+    @Payload()
+    data: {
+      id: string;
+      requesterId?: string;
+      isExamManager?: boolean;
+    },
+  ) {
+    return this.submissions.delete(
+      data.id,
+      data.requesterId,
+      data.isExamManager,
+    );
   }
 }
-

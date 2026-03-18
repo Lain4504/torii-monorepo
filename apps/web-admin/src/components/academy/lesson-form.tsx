@@ -1,4 +1,5 @@
 import { useForm, Controller } from "react-hook-form"
+import { toast } from "@workspace/ui/components/sonner"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Button } from "@workspace/ui/components/button"
@@ -49,11 +50,11 @@ export function LessonForm({
   const baseSchema =
     mode === "edit"
       ? academyLessonUpdateDTOSchema
-      : academyLessonCreateDTOSchema
+      : academyLessonCreateDTOSchema.omit({ moduleId: true, orderIndex: true })
 
-  const enhancedSchema = baseSchema.superRefine((data, ctx) => {
-    const type = (data as any).type
-    const videoUrl = (data as any).videoUrl
+  const enhancedSchema = (baseSchema as any).superRefine((data: any, ctx: any) => {
+    const type = data.type
+    const videoUrl = data.videoUrl
     if (type === "VIDEO" && (!videoUrl || typeof videoUrl !== "string" || !videoUrl.trim())) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -72,7 +73,7 @@ export function LessonForm({
     defaultValues: {
       title: "",
       type: "VIDEO",
-      videoUrl: "",
+      videoUrl: undefined,
       ...defaultValues,
     },
   })
@@ -80,8 +81,16 @@ export function LessonForm({
   const contentType = watch("type")
   const isMediaUrlType = contentType === "VIDEO"
 
+  const handleFormError = (errors: any) => {
+    console.error("Form errors:", errors)
+    const firstError = Object.values(errors)[0] as any
+    if (firstError?.message) {
+      toast.error(firstError.message || "Vui lòng kiểm tra lại các trường thông tin")
+    }
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit, handleFormError)} className="space-y-6">
       <FieldGroup>
         <Controller
           name="title"

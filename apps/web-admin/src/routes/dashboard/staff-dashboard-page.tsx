@@ -64,9 +64,6 @@ export default function StaffDashboardPage() {
                     <div className="flex items-center gap-3">
                         <div className="flex bg-muted p-1 rounded-xl border">
                             <Button variant="ghost" asChild size="sm">
-                                <Link to="/analytics/revenue">Tài chính</Link>
-                            </Button>
-                            <Button variant="ghost" asChild size="sm">
                                 <Link to="/analytics/learning">Học tập</Link>
                             </Button>
                             <Button variant="ghost" asChild size="sm">

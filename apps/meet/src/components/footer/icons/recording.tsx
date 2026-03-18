@@ -13,6 +13,7 @@ import useLocalRecording from '@/components/footer/icons/recording/useLocalRecor
 import useCloudRecording from '@/components/footer/icons/recording/useCloudRecording';
 import { addUserNotification } from '@/store/slices/roomSettingsSlice';
 import { CircleDot } from 'lucide-react';
+import { Button } from '@workspace/ui/components/button';
 
 const RecordingIcon = () => {
   const dispatch = useAppDispatch();
@@ -210,10 +211,11 @@ const RecordingIcon = () => {
   }
 
   const buttonClasses = clsx(
-    'recorder-icon hidden md:block relative footer-icon cursor-pointer w-11 3xl:w-[52px] h-11 3xl:h-[52px] rounded-xl border-[3px] 3xl:border-4',
+    'recorder-icon relative footer-icon cursor-pointer w-10 md:w-11 3xl:w-[52px] h-10 md:h-11 3xl:h-[52px] rounded-xl border-[3px] 3xl:border-4',
     {
       'record border-destructive/20': isRecording,
       'border-transparent': !isRecording,
+      'opacity-50 pointer-events-none': disable,
     },
   );
 
@@ -235,25 +237,21 @@ const RecordingIcon = () => {
           onCloseModal={onCloseModal}
         />
       )}
-      <button
-        className={buttonClasses}
-        onClick={() => onClickRecordingBtn()}
-        disabled={disable}
-      >
-        <div className={innerDivClasses}>
-          <span className="tooltip">
-            {isRecording
-              ? 'Dừng ghi âm/hình'
-              : 'Bắt đầu ghi âm/hình'}
-          </span>
-          <CircleDot
-            className={clsx('w-5 h-5 transition-colors duration-300', {
-              'text-destructive animate-pulse': isRecording,
-              'text-foreground': !isRecording,
-            })}
-          />
-        </div>
-      </button>
+    <div className={buttonClasses} onClick={() => onClickRecordingBtn()}>
+      <div className={innerDivClasses}>
+        <span className="tooltip">
+          {isRecording
+            ? 'Dừng ghi âm/hình'
+            : 'Bắt đầu ghi âm/hình'}
+        </span>
+        <CircleDot
+          className={clsx('w-4 md:w-5 3xl:w-6 h-auto transition-colors duration-300', {
+            'text-destructive animate-pulse': isRecording,
+            'text-foreground': !isRecording,
+          })}
+        />
+      </div>
+    </div>
     </>
   );
 };

@@ -21,6 +21,7 @@ export interface ITicketRepository {
     status: string,
     response?: string,
     handlerId?: string,
+    refundAmount?: number,
   ): Promise<Ticket>;
   /**
    * Count data.

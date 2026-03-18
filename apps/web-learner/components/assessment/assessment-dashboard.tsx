@@ -23,7 +23,7 @@ import {
     TabsContent,
     TabsList,
     TabsTrigger,
-} from "@workspace/ui/components/tabs"
+} from "@workspace/ui/components/tabs-lifted"
 import { SkillDrill } from "@/components/ai-sensei/skill-drill"
 
 export function AssessmentDashboard() {

@@ -135,7 +135,9 @@ export function CreateUserDialog({
             setShowConfirm(false);
             onOpenChange(false);
         } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : 'Lỗi khi tạo người dùng';
+            const errorMessage =
+                (error as any)?.userMessage ||
+                (error instanceof Error ? error.message : 'Lỗi khi tạo người dùng');
             toast.error('Thất bại', {
                 description: errorMessage,
             });

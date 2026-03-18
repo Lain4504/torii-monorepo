@@ -4,8 +4,8 @@ import { StudyNoteHandler } from './study-note.handler';
 import { InfrastructureModule } from '../../infrastructure/infrastructure.module';
 
 @Module({
-    imports: [InfrastructureModule],
-    providers: [StudyNoteService],
-    controllers: [StudyNoteHandler],
+  imports: [InfrastructureModule],
+  providers: [StudyNoteService],
+  controllers: [StudyNoteHandler],
 })
-export class StudyNoteModule { }
+export class StudyNoteModule {}

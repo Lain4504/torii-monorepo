@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { Maximize, PictureInPicture } from 'lucide-react';
 import { LocalTrackPublication, RemoteTrackPublication } from 'livekit-client';
+import { Button } from '@workspace/ui/components/button';
 
 import VideoElm from '@/components/media-elements/videos/video/videoElm';
 import PinWebcam from '@/components/media-elements/videos/video/pinWebcam';
@@ -57,19 +58,23 @@ const VideoComponent = ({
           <VideoElm track={track} ref={videoRef} />
           <div className="cam-icons w-max h-auto flex items-center gap-2 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-999 transition-all duration-300 opacity-0 group-hover:opacity-100">
             {displayPinIcon ? <PinWebcam userId={userId} /> : null}
-            <button
+            <Button
               className="cam-fullscreen cursor-pointer w-7 h-7 rounded-full bg-background/40 backdrop-blur-sm shadow-sm flex items-center justify-center border border-border/20 text-white hover:bg-background/60 transition-all"
               onClick={fullScreen}
+              variant="ghost"
+              size="icon"
             >
               <Maximize className="w-3.5 h-3.5" />
-            </button>
+            </Button>
             {document.pictureInPictureEnabled && (
-              <button
+              <Button
                 className="cam-pip cursor-pointer w-7 h-7 rounded-full bg-background/40 backdrop-blur-sm shadow-sm flex items-center justify-center border border-border/20 text-white hover:bg-background/60 transition-all"
                 onClick={pictureInPicture}
+                variant="ghost"
+                size="icon"
               >
                 <PictureInPicture className="w-3.5 h-3.5" />
-              </button>
+              </Button>
             )}
             <ConnectionStatus userId={userId} />
           </div>

@@ -24,6 +24,7 @@ export const ticketSchema = z.object({
     classId: z.string().uuid().optional().nullable(),
     orderId: z.string().uuid().optional().nullable(),
     metadata: z.record(z.any()).optional().nullable(),
+    refundAmount: z.number().optional().nullable(),
     response: z.string().optional().nullable(),
     createdAt: z.date(),
     updatedAt: z.date(),

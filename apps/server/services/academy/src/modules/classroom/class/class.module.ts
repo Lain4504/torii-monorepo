@@ -9,5 +9,4 @@ import { GamificationModule } from '../../gamification/gamification.module';
   providers: [ClassService],
   controllers: [ClassHandler],
 })
-export class ClassModule { }
-
+export class ClassModule {}

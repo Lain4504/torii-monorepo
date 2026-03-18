@@ -92,7 +92,7 @@ export default function ForgotPasswordPage() {
                                             <Input
                                                 {...field}
                                                 id={field.name}
-                                                placeholder="admin@torii.academy"
+                                                placeholder="Nhập email của bạn"
                                                 type="email"
                                                 autoComplete="email"
                                             />

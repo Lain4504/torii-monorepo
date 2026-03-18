@@ -33,7 +33,7 @@ import {
 export class TicketController {
   constructor(
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) { }
+  ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -102,7 +102,9 @@ export class TicketController {
     );
 
     // Security check: if not staff/admin, must be the owner
-    const canViewAll = requester.role === 'admin' || requester.permissions?.includes('support.view');
+    const canViewAll =
+      requester.role === 'admin' ||
+      requester.permissions?.includes('support.view');
     if (!canViewAll && result.userId !== requester.sub) {
       return successResponse(null, 'Not found or permission denied');
     }
@@ -130,7 +132,7 @@ export class TicketController {
   @Post(':id/cancel')
   async cancelTicket(@Param('id') id: string, @Req() req: ReqWithRequester) {
     const requester = req.requester;
-    // For learners, we only allow cancelling their own tickets 
+    // For learners, we only allow cancelling their own tickets
     // This ownership is enforced in the Academy service deleteTicket method
     await firstValueFrom(
       this.natsClient.send(

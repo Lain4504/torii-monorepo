@@ -90,17 +90,17 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
     const onSubmit = async (values: CreateTicketFormValues) => {
         try {
             const selectedEnrollment = (enrollments as any[]).find((en: any) => en.classId === values.courseMasterId);
-            const orderId = selectedEnrollment?.sourceOrderId;
 
             await createTicketMutation.mutateAsync({
                 type: values.type,
                 subject: values.subject,
                 description: values.description,
-                classId: values.type === TicketType.REFUND ? values.courseMasterId : undefined,
-                orderId: values.type === TicketType.REFUND ? orderId : undefined,
-                metadata: values.type === TicketType.REFUND ? {
+                classId: values.courseMasterId || undefined,
+                // OrderId is now auto-resolved by backend, so we don't strictly need to pass it
+                metadata: {
                     courseTitle: selectedEnrollment?.class?.name || selectedEnrollment?.courseTitle,
-                } : {},
+                    enrollmentDate: selectedEnrollment?.enrollmentDate,
+                },
             });
             toast.success('Yêu cầu của bạn đã được gửi thành công.');
             onOpenChange(false);
@@ -153,7 +153,13 @@ export function CreateTicketDialog({ open, onOpenChange }: CreateTicketDialogPro
                                 <Field>
                                     <FieldLabel>Khóa học hoàn tiền</FieldLabel>
                                     <Select
-                                        onValueChange={(val) => setValue('courseMasterId', val)}
+                                        onValueChange={(val) => {
+                                            setValue('courseMasterId', val);
+                                            const en = (enrollments as any[]).find((e: any) => e.classId === val);
+                                            if (en) {
+                                                setValue('subject', `Hoàn tiền khóa học: ${en.class?.name || en.courseTitle}`);
+                                            }
+                                        }}
                                     >
                                         <SelectTrigger>
                                             <SelectValue placeholder={isLoadingEnrollments ? "Đang tải..." : "Chọn khóa học"} />

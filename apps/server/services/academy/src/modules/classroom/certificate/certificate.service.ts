@@ -33,12 +33,13 @@ export class CertificateService {
 
     const classCode = enrollment.class?.code ?? 'CLASS';
     const userPrefix = enrollment.user.id.substring(0, 8);
-    const certificateCode = `CERT-${classCode}-${userPrefix}-${Date.now()}`.toUpperCase();
+    const certificateCode =
+      `CERT-${classCode}-${userPrefix}-${Date.now()}`.toUpperCase();
 
     return this.prisma.certificate.create({
       data: {
         userId: enrollment.userId,
-        classId: enrollment.classId!,
+        classId: enrollment.classId,
         enrollmentId: enrollment.id,
         certificateCode,
         issueDate: new Date(),
