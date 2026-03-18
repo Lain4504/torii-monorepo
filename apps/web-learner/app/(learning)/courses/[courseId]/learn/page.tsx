@@ -252,14 +252,15 @@ export default function CourseLearnPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const queryClient = useQueryClient();
+    const hasHandledForbiddenRef = useRef(false);
 
     // ── API ────────────────────────────────────────────────────────────────
     // 1. Fetch the class (V2 Class model)
-    const { data: classData, isLoading: classLoading } = useAcademyClass(classId);
+    const { data: classData, isLoading: classLoading, error: classError } = useAcademyClass(classId);
 
     // 2. Fetch curriculum & enrollment / progress based on classId
-    const { data: curriculum, isLoading: curriculumLoading } = useCurriculum(classId);
-    const { data: enrollmentData } = useAcademyEnrollmentCheck(classId);
+    const { data: curriculum, isLoading: curriculumLoading, error: curriculumError } = useCurriculum(classId);
+    const { data: enrollmentData, error: enrollmentError } = useAcademyEnrollmentCheck(classId);
     const { data: completedContentItemIds = [] } = useAcademyCompletedLessonIds(classId ?? '');
 
     // ── State ──────────────────────────────────────────────────────────────
@@ -270,7 +271,17 @@ export default function CourseLearnPage() {
     const [activeTab, setActiveTab] = useState<'content' | 'discussion'>('content');
 
     useEffect(() => {
-        if (enrollmentData && !enrollmentData.isEnrolled) {
+        const err = (classError || curriculumError || enrollmentError) as any;
+        const status = err?.response?.status;
+        if (!hasHandledForbiddenRef.current && status === 403) {
+            hasHandledForbiddenRef.current = true;
+            toast.error(err?.userMessage || 'Bạn không có quyền truy cập nội dung lớp học này.');
+            router.replace('/dashboard/my-courses');
+            return;
+        }
+
+        if (!hasHandledForbiddenRef.current && enrollmentData && !enrollmentData.isEnrolled) {
+            hasHandledForbiddenRef.current = true;
             toast.error('Bạn chưa được ghi danh vào lớp học này.');
             router.replace('/dashboard/my-courses');
         }
@@ -337,8 +348,8 @@ export default function CourseLearnPage() {
             });
             queryClient.invalidateQueries({ queryKey: ['academy-learning', 'completed-lessons', classId] });
             toast.success('Đã hoàn thành nội dung! 🎉');
-        } catch {
-            toast.error('Không thể cập nhật tiến độ.');
+        } catch (e: any) {
+            toast.error(e?.userMessage || 'Không thể cập nhật tiến độ.');
         }
     }, [currentLesson, completedIds, queryClient, classId]);
 
@@ -392,6 +403,19 @@ export default function CourseLearnPage() {
                     <div className="hidden xl:block w-[380px] border-l border-border p-4 space-y-3">
                         {[1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="h-12 w-full rounded-lg" />)}
                     </div>
+                </div>
+            </div>
+        );
+    }
+
+    // If forbidden handled, avoid flicker / crashes while redirecting
+    const firstError: any = (classError || curriculumError || enrollmentError) as any;
+    if (firstError?.response?.status === 403) {
+        return (
+            <div className="h-screen flex items-center justify-center bg-background">
+                <div className="text-center space-y-3">
+                    <p className="text-lg font-bold text-foreground">Bạn không có quyền truy cập</p>
+                    <p className="text-sm text-muted-foreground">Đang chuyển hướng về khóa học của bạn...</p>
                 </div>
             </div>
         );

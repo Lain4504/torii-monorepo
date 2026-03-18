@@ -9,28 +9,28 @@ import { PrismaService } from '@server/shared/prisma/prisma.service';
  */
 @Injectable()
 export class ClassroomCronService {
-    private readonly logger = new Logger(ClassroomCronService.name);
+  private readonly logger = new Logger(ClassroomCronService.name);
 
-    constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-    /**
-     * Expire enrollments where expiresAt <= now (VOD time-limited access).
-     */
-    @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-    async handleEnrollmentExpirations() {
-        this.logger.log('Checking for enrollment expirations...');
-        const now = new Date();
+  /**
+   * Expire enrollments where expiresAt <= now (VOD time-limited access).
+   */
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async handleEnrollmentExpirations() {
+    this.logger.log('Checking for enrollment expirations...');
+    const now = new Date();
 
-        const expired = await this.prisma.enrollment.updateMany({
-            where: {
-                status: 'ACTIVE',
-                expiresAt: { lte: now },
-            },
-            data: { status: 'EXPIRED' },
-        });
+    const expired = await this.prisma.enrollment.updateMany({
+      where: {
+        status: 'ACTIVE',
+        expiresAt: { lte: now },
+      },
+      data: { status: 'EXPIRED' },
+    });
 
-        if (expired.count > 0) {
-            this.logger.log(`Expired ${expired.count} enrollments`);
-        }
+    if (expired.count > 0) {
+      this.logger.log(`Expired ${expired.count} enrollments`);
     }
+  }
 }

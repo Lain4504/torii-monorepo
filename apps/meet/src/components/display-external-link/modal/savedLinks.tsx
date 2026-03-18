@@ -5,6 +5,7 @@ import FormattedInputField from '@/helpers/ui/formattedInputField';
 import { DB_STORE_NAMES, idbGet, idbStore } from '@/helpers/libs/idb';
 import { PlusCircle } from 'lucide-react';
 import SavedLinkItem from '@/components/display-external-link/modal/savedLinkItem';
+import { Button } from '@workspace/ui/components/button';
 
 const EXTERNAL_DISPLAY_LINK_URLS = 'externalDisplayLinkUrls';
 
@@ -96,13 +97,15 @@ const SavedLinks = ({ link, setLink }: ISavedLinksProps) => {
             Lưu ý: Chỉ hỗ trợ các liên kết an toàn (https)
           </div>
         </div>
-        <button
+        <Button
           className="h-10 w-10 flex items-center justify-center rounded-lg border border-border bg-card text-foreground hover:bg-muted transition-all duration-300 shrink-0 cursor-pointer shadow-sm"
           type="button"
           onClick={addLink}
+          variant="outline"
+          size="icon"
         >
           <PlusCircle className="w-5 h-5" />
-        </button>
+        </Button>
       </div>
       {errorMsg && (
         <div className="error-msg text-xs text-destructive py-1">{errorMsg}</div>

@@ -20,5 +20,4 @@ import { ClassAttendanceModule } from './class-attendance/class-attendance.modul
   ],
   providers: [ClassroomCronService],
 })
-export class ClassroomModule { }
-
+export class ClassroomModule {}

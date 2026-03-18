@@ -5,7 +5,7 @@ import { EnrollmentCreateDto, EnrollmentQueryDto } from './dto/enrollment.dto';
 
 @Controller()
 export class EnrollmentHandler {
-  constructor(private readonly enrollments: EnrollmentService) { }
+  constructor(private readonly enrollments: EnrollmentService) {}
 
   @MessagePattern({ cmd: 'academy.enrollment.findAll' })
   findAll(@Payload() query: EnrollmentQueryDto) {
@@ -24,8 +24,14 @@ export class EnrollmentHandler {
   }
 
   @MessagePattern({ cmd: 'academy.enrollment.updateStatus' })
-  updateStatus(@Payload() data: { id: string; status: string; requesterId?: string }) {
-    return this.enrollments.updateStatus(data.id, data.status, data.requesterId);
+  updateStatus(
+    @Payload() data: { id: string; status: string; requesterId?: string },
+  ) {
+    return this.enrollments.updateStatus(
+      data.id,
+      data.status,
+      data.requesterId,
+    );
   }
 
   @MessagePattern({ cmd: 'academy.enrollment.delete' })
@@ -43,5 +49,12 @@ export class EnrollmentHandler {
   check(@Payload() data: { userId: string; classId: string }) {
     return this.enrollments.checkEnrollment(data.userId, data.classId);
   }
-}
 
+  @MessagePattern({ cmd: 'academy.enrollment.checkBySyllabus' })
+  checkBySyllabus(@Payload() data: { userId: string; syllabusId: string }) {
+    return this.enrollments.checkEnrollmentBySyllabus(
+      data.userId,
+      data.syllabusId,
+    );
+  }
+}

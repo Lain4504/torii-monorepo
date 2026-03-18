@@ -10,7 +10,7 @@ import {
 
 @Controller()
 export class CourseOfferingHandler {
-  constructor(private readonly offerings: CourseOfferingService) { }
+  constructor(private readonly offerings: CourseOfferingService) {}
 
   @MessagePattern({ cmd: 'academy.courseOffering.findAll' })
   findAll(@Payload() query: CourseOfferingQueryDto) {
@@ -39,12 +39,21 @@ export class CourseOfferingHandler {
   }
 
   @MessagePattern({ cmd: 'academy.courseOffering.update' })
-  update(@Payload() data: { id: string; input: CourseOfferingUpdateDto; requesterId?: string }) {
+  update(
+    @Payload()
+    data: {
+      id: string;
+      input: CourseOfferingUpdateDto;
+      requesterId?: string;
+    },
+  ) {
     return this.offerings.update(data.id, data.input, data.requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.courseOffering.setClasses' })
-  setClasses(@Payload() data: CourseOfferingSetClassesDto & { requesterId?: string }) {
+  setClasses(
+    @Payload() data: CourseOfferingSetClassesDto & { requesterId?: string },
+  ) {
     const { requesterId, ...input } = data;
     return this.offerings.setClasses(input, requesterId);
   }
@@ -74,4 +83,3 @@ export class CourseOfferingHandler {
     return this.offerings.reject(data.id, data.reason, data.requesterId);
   }
 }
-

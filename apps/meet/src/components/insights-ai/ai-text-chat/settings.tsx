@@ -5,6 +5,7 @@ import {
   CommonResponseSchema,
   InsightsAITextChatConfigReqSchema,
 } from '@workspace/protocol';
+import { Button } from '@workspace/ui/components/button';
 
 import { useAppSelector } from '@/store';
 import SettingsSwitch from '@/helpers/ui/settingsSwitch';
@@ -127,27 +128,27 @@ const AiTextChatSettings = ({
 
       <div className="px-6 py-6 border-t border-border flex justify-end items-center gap-4 rounded-b-xl bg-card">
         {!aiTextChatFeatures?.isEnabled && (
-          <button
+          <Button
             className="h-10 px-8 w-auto cursor-pointer text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-all duration-300 shadow-sm"
             onClick={() => enableOrUpdateService()}
           >
             Bắt đầu dịch vụ
-          </button>
+          </Button>
         )}
         {aiTextChatFeatures?.isEnabled && (
           <>
-            <button
+            <Button
               className="h-10 px-8 w-auto cursor-pointer text-sm font-semibold bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-lg transition-all duration-300 shadow-sm"
               onClick={() => stopService()}
             >
               Dừng dịch vụ
-            </button>
-            <button
+            </Button>
+            <Button
               className="h-10 px-8 w-auto cursor-pointer text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-all duration-300 shadow-sm"
               onClick={() => enableOrUpdateService()}
             >
               Cập nhật dịch vụ
-            </button>
+            </Button>
           </>
         )}
       </div>

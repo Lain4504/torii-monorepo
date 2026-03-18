@@ -8,7 +8,7 @@ import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@workspace/ui/components/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs-lifted"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@workspace/ui/components/item"
 import { LoginForm } from "@/components/auth/login-form"
@@ -213,12 +213,12 @@ export default function CourseCategoryPage() {
                             <h2 className="text-3xl font-black text-foreground mb-2">Danh Sách Khóa Học</h2>
                             <p className="text-muted-foreground">Chọn giữa học VOD linh hoạt hoặc Lớp Live tương tác.</p>
                         </div>
-                        <TabsList className="bg-muted p-1 h-12 rounded-full border border-border shadow-inner">
-                            <TabsTrigger value="vod" className="rounded-full px-8 h-10 font-bold data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                        <TabsList>
+                            <TabsTrigger value="vod">
                                 <MonitorPlay className="size-4 mr-2" />
                                 VIDEO (VOD)
                             </TabsTrigger>
-                            <TabsTrigger value="live" className="rounded-full px-8 h-10 font-bold data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                            <TabsTrigger value="live">
                                 <Users2 className="size-4 mr-2" />
                                 LỚP LIVE
                             </TabsTrigger>

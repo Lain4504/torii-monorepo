@@ -132,10 +132,7 @@ export class NotificationController {
   async create(@Body() payload: NotificationCreateDTO) {
     try {
       const result = await firstValueFrom(
-        this.natsClient.send(
-          { cmd: 'identity.notification.create' },
-          payload,
-        ),
+        this.natsClient.send({ cmd: 'identity.notification.create' }, payload),
       );
       return successResponse(result, 'Notification created successfully');
     } catch (error: any) {

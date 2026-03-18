@@ -54,4 +54,3 @@ export class AssignmentSubmissionQueryDto {
   @IsUUID()
   userId?: string;
 }
-

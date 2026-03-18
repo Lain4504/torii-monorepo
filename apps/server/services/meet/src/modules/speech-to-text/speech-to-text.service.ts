@@ -132,19 +132,8 @@ export class SpeechToTextService {
       throw new Error('speech-services.service-disabled');
     }
 
-    const key = await this.selectAzureKey();
-    const azureRes = await this.sendRequestToAzureForToken(
-      key.subscriptionKey,
-      key.serviceRegion,
-      key.id,
-    );
-
-    await this.redisSpeechService.azureKeyRequestedTask(roomId, userId, 'add');
-
-    // Broadcast to user via NATS (System Event)
-    await this.broadcastAzureToken(roomId, userId, azureRes);
-
-    return create(CommonResponseSchema, { status: true, msg: 'success' });
+    // Azure is no longer supported, bypass token generation
+    throw new Error('speech-services.azure-no-longer-supported');
   }
 
   async renewAzureToken(
@@ -152,27 +141,7 @@ export class SpeechToTextService {
     userId: string,
     r: AzureTokenRenewReq,
   ): Promise<CommonResponse> {
-    const usage = await this.redisSpeechService.checkUserUsage(roomId, userId);
-    if (usage === '') {
-      throw new Error('speech-services.renew-need-already-using-service');
-    }
-
-    const azureKeys = this.appConfig.azureSpeech.subscriptionKeys;
-    const key = azureKeys.find((k) => k.id === r.keyId);
-    if (!key) {
-      throw new Error('speech-services.renew-subscription-key-not-found');
-    }
-
-    const azureRes = await this.sendRequestToAzureForToken(
-      key.subscriptionKey,
-      r.serviceRegion,
-      r.keyId,
-    );
-    azureRes.renew = true;
-
-    await this.broadcastAzureToken(roomId, userId, azureRes);
-
-    return create(CommonResponseSchema, { status: true, msg: 'success' });
+    throw new Error('speech-services.azure-no-longer-supported');
   }
 
   async speechServiceUserStatus(

@@ -156,47 +156,42 @@ export class InsightsProviderService {
     sourceLang: string,
     targetLangs: string[],
   ): Promise<InsightsTextTranslationResult> {
-    const azureKeys = this.appConfig.azureSpeech?.subscriptionKeys;
-    if (!azureKeys || azureKeys.length === 0) {
-      throw new Error('Azure subscription keys not configured');
+    if (!this.googleClient) {
+      throw new Error('Google Gemini client not initialized');
     }
 
-    // Pick first key
-    const key = azureKeys[0];
-    const endpoint = `https://api.cognitive.microsofttranslator.com/translate?api-version=3.0`;
+    const model = this.googleClient.getGenerativeModel({
+      model: 'gemini-1.5-flash', // Use faster model for translation
+      generationConfig: {
+        responseMimeType: 'application/json',
+      },
+    });
 
-    const params = new URLSearchParams();
-    params.append('from', sourceLang);
-    targetLangs.forEach((lang) => params.append('to', lang));
+    const targetLangsStr = targetLangs.join(', ');
+    const prompt = `Translate the following ${sourceLang} text into these languages: ${targetLangsStr}.
+Return the result as a JSON object where keys are the language codes and values are the translated text.
+
+Source text: "${text}"
+
+JSON format:
+{
+  "lang_code": "translated text"
+}`;
 
     try {
-      const response = await axios.post(
-        `${endpoint}&${params.toString()}`,
-        [{ Text: text }],
-        {
-          headers: {
-            'Ocp-Apim-Subscription-Key': key.subscriptionKey,
-            'Ocp-Apim-Subscription-Region': key.serviceRegion,
-            'Content-Type': 'application/json',
-          },
-        },
-      );
+      const result = await model.generateContent(prompt);
+      const response = result.response;
+      const responseText = response.text();
 
-      if (response.status !== 200) {
-        throw new Error(
-          `Azure translation failed with status ${response.status}`,
+      let translations: Record<string, string>;
+      try {
+        translations = JSON.parse(responseText);
+      } catch (e) {
+        this.logger.error(
+          `Failed to parse Gemini translation response: ${responseText}`,
         );
+        throw new Error('Invalid JSON response from Gemini');
       }
-
-      const data = response.data;
-      if (!data || data.length === 0 || !data[0].translations) {
-        throw new Error('Invalid response from Azure');
-      }
-
-      const translations: Record<string, string> = {};
-      data[0].translations.forEach((t: any) => {
-        translations[t.to] = t.text;
-      });
 
       return create(InsightsTextTranslationResultSchema, {
         sourceText: text,
@@ -204,7 +199,7 @@ export class InsightsProviderService {
         translations: translations,
       });
     } catch (error) {
-      this.logger.error(`Azure translation error: ${error.message}`);
+      this.logger.error(`Gemini translation error: ${error.message}`);
       throw error;
     }
   }

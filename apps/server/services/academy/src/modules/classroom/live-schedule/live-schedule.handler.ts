@@ -17,7 +17,7 @@ import { LiveSessionJoinDto } from './dto/live-session.dto';
 
 @Controller()
 export class LiveScheduleHandler {
-  constructor(private readonly schedules: LiveScheduleService) { }
+  constructor(private readonly schedules: LiveScheduleService) {}
 
   @MessagePattern({ cmd: 'academy.liveSchedule.findAll' })
   findAll(@Payload() query: LiveScheduleBaseQueryDto) {
@@ -30,13 +30,22 @@ export class LiveScheduleHandler {
   }
 
   @MessagePattern({ cmd: 'academy.liveSchedule.create' })
-  create(@Payload() input: LiveScheduleBaseCreateDto & { requesterId?: string }) {
+  create(
+    @Payload() input: LiveScheduleBaseCreateDto & { requesterId?: string },
+  ) {
     const { requesterId, ...dto } = input;
     return this.schedules.create(dto, requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.liveSchedule.update' })
-  update(@Payload() data: { id: string; input: LiveScheduleBaseUpdateDto; requesterId?: string }) {
+  update(
+    @Payload()
+    data: {
+      id: string;
+      input: LiveScheduleBaseUpdateDto;
+      requesterId?: string;
+    },
+  ) {
     return this.schedules.update(data.id, data.input, data.requesterId);
   }
 
@@ -46,23 +55,37 @@ export class LiveScheduleHandler {
   }
 
   @MessagePattern({ cmd: 'academy.liveSession.joinBySessionId' })
-  joinBySessionId(@Payload() data: { sessionId: string; userId: string; isAdmin?: boolean }) {
-    return this.schedules.joinBySessionId(data.sessionId, data.userId, data.isAdmin);
+  joinBySessionId(
+    @Payload() data: { sessionId: string; userId: string; isAdmin?: boolean },
+  ) {
+    return this.schedules.joinBySessionId(
+      data.sessionId,
+      data.userId,
+      data.isAdmin,
+    );
   }
 
   @MessagePattern({ cmd: 'academy.liveSession.findAllByClassAndRange' })
   async findAllSessionsByClassAndRange(
-    @Payload() data: { classId: string; from: string; to: string; requesterId?: string },
+    @Payload()
+    data: {
+      classId: string;
+      from: string;
+      to: string;
+      requesterId?: string;
+    },
   ) {
     const fromDate = new Date(data.from);
     const toDate = new Date(data.to);
     await this.schedules.generateInstancesForClassRange(
       data.classId,
-      fromDate,
-      toDate,
       data.requesterId ?? 'SYSTEM',
     );
-    return this.schedules.listSessionsForClassRange(data.classId, fromDate, toDate);
+    return this.schedules.listSessionsForClassRange(
+      data.classId,
+      fromDate,
+      toDate,
+    );
   }
 
   @MessagePattern({ cmd: 'academy.liveSchedule.previewConflict' })
@@ -91,7 +114,11 @@ export class LiveScheduleHandler {
   @MessagePattern({ cmd: 'academy.liveSessionRequest.approve' })
   approveRequest(
     @Payload()
-    data: { id: string; input: LiveScheduleRequestApproveDto; reviewerId: string },
+    data: {
+      id: string;
+      input: LiveScheduleRequestApproveDto;
+      reviewerId: string;
+    },
   ) {
     return this.schedules.approveRequest(data.id, data.input, data.reviewerId);
   }
@@ -99,7 +126,11 @@ export class LiveScheduleHandler {
   @MessagePattern({ cmd: 'academy.liveSessionRequest.reject' })
   rejectRequest(
     @Payload()
-    data: { id: string; input: LiveScheduleRequestRejectDto; reviewerId: string },
+    data: {
+      id: string;
+      input: LiveScheduleRequestRejectDto;
+      reviewerId: string;
+    },
   ) {
     return this.schedules.rejectRequest(data.id, data.input, data.reviewerId);
   }

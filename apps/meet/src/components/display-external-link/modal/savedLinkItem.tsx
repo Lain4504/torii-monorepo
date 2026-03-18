@@ -1,5 +1,6 @@
 import React from 'react';
 import { File, Trash2 } from 'lucide-react';
+import { Button } from '@workspace/ui/components/button';
 
 interface ISavedLinkItemProps {
   url: string;
@@ -37,15 +38,17 @@ const SavedLinkItem = ({
           <p className="break-all truncate">{url}</p>
         </div>
       </div>
-      <button
+      <Button
         className="delete-btn shrink-0 h-9 w-9 rounded-full hover:bg-destructive/10 text-destructive flex items-center justify-center transition-all duration-200 cursor-pointer"
         onClick={(e) => {
           e.stopPropagation();
           onDelete(url);
         }}
+        variant="ghost"
+        size="icon"
       >
         <Trash2 className="w-4 h-4" />
-      </button>
+      </Button>
     </div>
   );
 };

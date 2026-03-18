@@ -23,6 +23,7 @@ import {
   PermissionsGuard,
   ZodValidationPipe,
   successResponse,
+  successPaginatedResponse,
   ReqWithRequester,
 } from '@server/shared';
 import {
@@ -39,7 +40,7 @@ import {
 @Controller('api/academy/course-offerings')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class CourseOfferingController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
   @Public()
   @Get('public')
@@ -48,7 +49,10 @@ export class CourseOfferingController {
     query: AcademyCourseOfferingQueryDTO,
   ) {
     const items = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.courseOffering.findAll' }, { ...query, status: 'PUBLISHED' }),
+      this.nats.send(
+        { cmd: 'academy.courseOffering.findAll' },
+        { ...query, status: 'PUBLISHED' },
+      ),
     );
     return successResponse({ items });
   }
@@ -66,7 +70,10 @@ export class CourseOfferingController {
   @Get('public/category/:category')
   async findPublicByCategory(@Param('category') category: string) {
     const items = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.courseOffering.findPublicByCategory' }, { category }),
+      this.nats.send(
+        { cmd: 'academy.courseOffering.findPublicByCategory' },
+        { category },
+      ),
     );
     return successResponse({ items });
   }
@@ -101,7 +108,10 @@ export class CourseOfferingController {
     @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.courseOffering.create' }, { ...dto, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.courseOffering.create' },
+        { ...dto, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse({ item });
   }
@@ -115,7 +125,10 @@ export class CourseOfferingController {
     @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.courseOffering.update' }, { id, input: dto, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.courseOffering.update' },
+        { id, input: dto, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse({ item });
   }
@@ -131,7 +144,11 @@ export class CourseOfferingController {
     const item = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.courseOffering.setClasses' },
-        { offeringId: id, classIds: dto.classIds, requesterId: req.requester?.sub },
+        {
+          offeringId: id,
+          classIds: dto.classIds,
+          requesterId: req.requester?.sub,
+        },
       ),
     );
     return successResponse({ item });
@@ -139,36 +156,60 @@ export class CourseOfferingController {
 
   @Post(':id/archive')
   @Permissions('academy.commerce.write')
-  async archive(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+  async archive(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.courseOffering.archive' }, { id, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.courseOffering.archive' },
+        { id, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse({ item });
   }
 
   @Delete(':id')
   @Permissions('academy.commerce.write')
-  async delete(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+  async delete(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
     const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.courseOffering.delete' }, { id, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.courseOffering.delete' },
+        { id, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse(result);
   }
 
   @Post(':id/submit-for-approval')
   @Permissions('academy.commerce.write')
-  async submitForApproval(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+  async submitForApproval(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.courseOffering.submitForApproval' }, { id, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.courseOffering.submitForApproval' },
+        { id, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse({ item });
   }
 
   @Post(':id/approve')
   @Permissions('academy.commerce.approve')
-  async approve(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+  async approve(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.courseOffering.approve' }, { id, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.courseOffering.approve' },
+        { id, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse({ item });
   }
@@ -191,17 +232,44 @@ export class CourseOfferingController {
 
   @Get('selection/classes')
   @Permissions('academy.commerce.read')
-  async findClassesForSelection(
-    @Query() query: { mode?: string; q?: string },
-  ) {
+  async findClassesForSelection(@Query() query: { mode?: string; q?: string }) {
     const items = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.findAll' }, {
-        mode: query.mode,
-        q: query.q,
-        status: 'PUBLISHED,OPENING,ENROLLING,ONGOING',
-      }),
+      this.nats.send(
+        { cmd: 'academy.class.findAll' },
+        {
+          mode: query.mode,
+          q: query.q,
+          status: 'PUBLISHED,OPENING,ONGOING',
+        },
+      ),
     );
     return successResponse({ items });
   }
-}
 
+  @Get(':id/orders')
+  @Permissions('academy.commerce.read')
+  async findOrders(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Query() query: any,
+  ) {
+    const result = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.order.admin.findByOffering' },
+        { offeringId: id, query },
+      ),
+    );
+    return successPaginatedResponse(result);
+  }
+
+  @Get(':id/stats')
+  @Permissions('academy.commerce.read')
+  async getStats(@Param('id', new ParseUUIDPipe()) id: string) {
+    const result = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.order.admin.getStatsByOffering' },
+        { offeringId: id },
+      ),
+    );
+    return successResponse(result);
+  }
+}

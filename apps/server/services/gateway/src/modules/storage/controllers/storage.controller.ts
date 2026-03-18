@@ -24,7 +24,7 @@ import {
 export class StorageController {
   constructor(
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) { }
+  ) {}
 
   @Post('upload-url')
   async generatePresignedUploadUrl(
@@ -63,7 +63,10 @@ export class StorageController {
   async deleteFile(@Param('id') id: string) {
     try {
       const result = await firstValueFrom(
-        this.natsClient.send({ cmd: 'academy.storage.deleteFile' }, { fileId: id }),
+        this.natsClient.send(
+          { cmd: 'academy.storage.deleteFile' },
+          { fileId: id },
+        ),
       );
       // Result from NATS is plain DTO, wrap it in StandardApiResponse
       return successResponse(result);
@@ -89,7 +92,10 @@ export class StorageController {
   async findById(@Param('id') id: string) {
     try {
       const result = await firstValueFrom(
-        this.natsClient.send({ cmd: 'academy.storage.findById' }, { fileId: id }),
+        this.natsClient.send(
+          { cmd: 'academy.storage.findById' },
+          { fileId: id },
+        ),
       );
       return successResponse(result);
     } catch (error: any) {

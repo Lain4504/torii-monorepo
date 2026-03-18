@@ -2,7 +2,6 @@ import {
     Home,
     Newspaper,
     CreditCard,
-    BarChart3,
     ShieldCheck,
     Ticket,
     Key,
@@ -49,18 +48,17 @@ export const academicNavItems: NavItem[] = [
             { titleKey: "Lớp học", url: "/academy/classes" },
             { titleKey: "Kho Khóa học (Profiles)", url: "/academy/course-profiles", anyPermission: ["academy.content.read", "academy.content.write"] },
             { titleKey: "Gói bán (Offerings)", url: "/academy/course-offerings", anyPermission: ["academy.commerce.read", "academy.commerce.write"] },
-            { titleKey: "Duyệt khóa học", url: "/academy/course-requests", permission: "academy.content.approve" },
-            { titleKey: "Duyệt gói bán", url: "/academy/offering-requests", permission: "academy.commerce.approve" },
+            { titleKey: "Approval Center", url: "/academy/approvals", anyPermission: ["academy.content.approve", "academy.commerce.approve", "academy.delivery.approve", "academy.content.write", "academy.commerce.write", "academy.delivery.write"] },
         ]
     },
     {
         titleKey: "AI Subscription",
-        url: "/academy/ai-subscriptions/plans",
+        url: "/academy/ai-subscriptions",
         icon: Bot,
         anyPermission: ["academy:subscription:admin", "academy.commerce.read", "academy.commerce.write"],
         items: [
-            { titleKey: "Gói Subscription", url: "/academy/ai-subscriptions/plans" },
-            { titleKey: "Người dùng", url: "/academy/ai-subscriptions/users" },
+            { titleKey: "Gói Subscription", url: "/academy/ai-subscriptions?tab=plans" },
+            { titleKey: "Người dùng", url: "/academy/ai-subscriptions?tab=users" },
         ]
     },
 ];
@@ -90,7 +88,6 @@ export const financeNavItems: NavItem[] = [
         anyPermission: ["academy:order:admin", "academy.commerce.read"],
         items: [
             { titleKey: "Danh sách đơn hàng", url: "/orders" },
-            { titleKey: "Yêu cầu hoàn tiền", url: "/refunds", permission: "support.handle" },
         ]
     },
     {
@@ -110,12 +107,6 @@ export const financeNavItems: NavItem[] = [
         url: "/achievements",
         icon: Trophy,
         permission: "gamification.manage",
-    },
-    {
-        titleKey: "Báo cáo Tài chính",
-        url: "/analytics/revenue",
-        icon: BarChart3,
-        permission: "report.view",
     },
 ];
 

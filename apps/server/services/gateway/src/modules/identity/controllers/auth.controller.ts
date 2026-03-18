@@ -244,7 +244,9 @@ export class AuthController {
     @Body() dto: { oldPassword?: string; newPassword?: string },
   ) {
     if (!dto.oldPassword || !dto.newPassword) {
-      throw new BadRequestException('Current and 8 characters long password are required');
+      throw new BadRequestException(
+        'Current and 8 characters long password are required',
+      );
     }
     if (dto.newPassword.length < 8) {
       throw new BadRequestException(
@@ -601,11 +603,17 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async unlinkProvider(
     @Req() req: ReqWithRequester,
-    @Query('provider') provider: string,
+    @Param('provider') provider: string,
   ) {
     if (!provider) {
       throw new BadRequestException('Provider is required');
     }
+
+    const allowedProviders = ['google', 'facebook'];
+    if (!allowedProviders.includes(provider)) {
+      throw new BadRequestException('Unsupported provider');
+    }
+
     const requester = req.requester;
     try {
       await firstValueFrom(

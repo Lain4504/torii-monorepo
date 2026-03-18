@@ -48,5 +48,15 @@ export const orderApi = {
     async exportOrders(params?: any): Promise<void> {
          // Assuming this triggers a download or returns a blob
         await apiClient.get('/api/academy/orders/export', { params, responseType: 'blob' });
+    },
+
+    async getOrdersByOffering(offeringId: string, query?: any): Promise<PaginatedApiResponse<OrderResponseDTO>> {
+        const response = await apiClient.get<PaginatedApiResponse<OrderResponseDTO>>(`/api/academy/course-offerings/${offeringId}/orders`, { params: query });
+        return response.data;
+    },
+
+    async getStatsByOffering(offeringId: string): Promise<any> {
+        const response = await apiClient.get<StandardApiResponse<any>>(`/api/academy/course-offerings/${offeringId}/stats`);
+        return response.data.data;
     }
 };

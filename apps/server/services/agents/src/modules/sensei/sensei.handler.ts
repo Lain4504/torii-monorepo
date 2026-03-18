@@ -5,7 +5,6 @@ import { Requester } from '@workspace/schemas';
 import { SenseiService } from './sensei.service';
 import { TTSService } from './tts.service';
 
-
 /**
  * NATS Handler for Sensei Agent
  * Handles inter-service communication via NATS messaging
@@ -15,10 +14,7 @@ export class SenseiHandler {
   constructor(
     private readonly senseiService: SenseiService,
     private readonly ttsService: TTSService,
-
-  ) { }
-
-
+  ) {}
 
   @MessagePattern({ cmd: 'agents.sensei.grammarCheck' })
   async checkGrammar(@Payload() data: { text: string; requester: Requester }) {
@@ -84,12 +80,12 @@ export class SenseiHandler {
     @Payload()
     data: {
       scenario:
-      | 'restaurant'
-      | 'shopping'
-      | 'station'
-      | 'office'
-      | 'casual'
-      | 'formal';
+        | 'restaurant'
+        | 'shopping'
+        | 'station'
+        | 'office'
+        | 'casual'
+        | 'formal';
       level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
       turns?: number;
       requester: Requester;

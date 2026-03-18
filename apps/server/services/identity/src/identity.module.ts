@@ -58,4 +58,4 @@ import { DefaultAdminService } from '@server/identity/services/default-admin.ser
     NotificationModule,
   ],
 })
-export class IdentityModule { }
+export class IdentityModule {}

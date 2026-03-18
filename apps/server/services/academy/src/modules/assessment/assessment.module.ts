@@ -5,4 +5,3 @@ import { AssignmentSubmissionModule } from './assignment-submission/assignment-s
   imports: [AssignmentSubmissionModule],
 })
 export class AssessmentModule {}
-

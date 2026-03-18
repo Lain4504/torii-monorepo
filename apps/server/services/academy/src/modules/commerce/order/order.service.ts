@@ -37,42 +37,46 @@ export class OrderService {
     private readonly audit: AuditLoggerService,
     private readonly aiSubscriptionService: AiSubscriptionService,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) { }
+  ) {}
 
   async preview(userId: string, input: OrderPreviewDto) {
     const offeringIds = Array.from(new Set(input.offeringIds ?? []));
-    const subscriptionPlanIds = Array.from(new Set(input.subscriptionPlanIds ?? []));
+    const subscriptionPlanIds = Array.from(
+      new Set(input.subscriptionPlanIds ?? []),
+    );
     const classIdByOffering = input.classIdByOffering ?? {};
     const now = new Date();
 
     if (!offeringIds.length && !subscriptionPlanIds.length) {
-      throw new BadRequestException('At least one offering or subscription plan must be provided');
+      throw new BadRequestException(
+        'At least one offering or subscription plan must be provided',
+      );
     }
 
     const offerings = offeringIds.length
       ? await this.prisma.courseOffering.findMany({
-        where: {
-          id: { in: offeringIds },
-          status: { in: [OfferingStatus.PUBLISHED, OfferingStatus.OPENING] },
-        },
-        include: {
-          classes: {
-            include: {
-              class: {
-                select: {
-                  id: true,
-                  code: true,
-                  status: true,
-                  mode: true,
-                  courseProfileId: true,
-                  enrollmentOpenAt: true,
-                  enrollmentCloseAt: true,
+          where: {
+            id: { in: offeringIds },
+            status: { in: [OfferingStatus.PUBLISHED, OfferingStatus.OPENING] },
+          },
+          include: {
+            classes: {
+              include: {
+                class: {
+                  select: {
+                    id: true,
+                    code: true,
+                    status: true,
+                    mode: true,
+                    courseProfileId: true,
+                    enrollmentOpenAt: true,
+                    enrollmentCloseAt: true,
+                  },
                 },
               },
             },
           },
-        },
-      })
+        })
       : [];
 
     if (offerings.length !== offeringIds.length) {
@@ -81,7 +85,9 @@ export class OrderService {
 
     for (const offering of offerings) {
       if (!offering.classes.length) {
-        throw new BadRequestException(`Offering ${offering.code} has no class mapped for enrollment`);
+        throw new BadRequestException(
+          `Offering ${offering.code} has no class mapped for enrollment`,
+        );
       }
 
       // LIVE: bắt buộc user chọn đúng 1 classId trong cửa sổ đăng ký
@@ -93,7 +99,9 @@ export class OrderService {
           );
         }
 
-        const link = offering.classes.find((oc) => oc.class.id === selectedClassId);
+        const link = offering.classes.find(
+          (oc) => oc.class.id === selectedClassId,
+        );
         if (!link) {
           throw new BadRequestException(
             `Selected class ${selectedClassId} is not part of offering ${offering.code}`,
@@ -134,15 +142,19 @@ export class OrderService {
       }
     }
 
-    const subscriptionPlans = subscriptionPlanIds.length ? await this.prisma.aiSubscriptionPlan.findMany({
-      where: {
-        id: { in: subscriptionPlanIds },
-        isActive: true,
-      },
-    }) : [];
+    const subscriptionPlans = subscriptionPlanIds.length
+      ? await this.prisma.aiSubscriptionPlan.findMany({
+          where: {
+            id: { in: subscriptionPlanIds },
+            isActive: true,
+          },
+        })
+      : [];
 
     if (subscriptionPlans.length !== subscriptionPlanIds.length) {
-      throw new BadRequestException('Some subscription plans are not available');
+      throw new BadRequestException(
+        'Some subscription plans are not available',
+      );
     }
 
     const subTotal =
@@ -193,7 +205,8 @@ export class OrderService {
     });
 
     const resolvedOfferingIds = preview.offerings.map((o) => o.id);
-    const offeringClassMap = await this.getOfferingClassMap(resolvedOfferingIds);
+    const offeringClassMap =
+      await this.getOfferingClassMap(resolvedOfferingIds);
 
     const classIdByOffering = input.classIdByOffering ?? {};
 
@@ -220,7 +233,13 @@ export class OrderService {
       } as any,
     }));
 
-    const order = await this.createOrderRecord(userId, orderCode, preview, input, orderItemsData);
+    const order = await this.createOrderRecord(
+      userId,
+      orderCode,
+      preview,
+      input,
+      orderItemsData,
+    );
     return this.handlePaymentRedirect(order, preview, input);
   }
 
@@ -242,7 +261,13 @@ export class OrderService {
       } as any,
     }));
 
-    const order = await this.createOrderRecord(userId, orderCode, preview, input, orderItemsData);
+    const order = await this.createOrderRecord(
+      userId,
+      orderCode,
+      preview,
+      input,
+      orderItemsData,
+    );
     return this.handlePaymentRedirect(order, preview, input);
   }
 
@@ -252,7 +277,13 @@ export class OrderService {
     return `ORD-${dateStr}-${randomStr}`;
   }
 
-  private async createOrderRecord(userId: string, orderCode: string, preview: any, input: any, items: any[]) {
+  private async createOrderRecord(
+    userId: string,
+    orderCode: string,
+    preview: any,
+    input: any,
+    items: any[],
+  ) {
     const order = await this.prisma.order.create({
       data: {
         code: orderCode,
@@ -284,7 +315,9 @@ export class OrderService {
 
   private async handlePaymentRedirect(order: any, preview: any, input: any) {
     if (input.paymentMethod === PaymentMethod.PAYOS) {
-      const numericOrderCode = Number(Date.now().toString().slice(-9)) + Math.floor(Math.random() * 1000);
+      const numericOrderCode =
+        Number(Date.now().toString().slice(-9)) +
+        Math.floor(Math.random() * 1000);
       const webLearnerUrl = this.appConfig.identity.webLearnerUrl;
       const payOsDescription = `DH ${order.code}`.slice(0, 25);
 
@@ -321,17 +354,17 @@ export class OrderService {
         },
       });
 
-      return { 
+      return {
         orderId: order.id,
-        orderCode: order.code, 
-        paymentUrl: paymentLink.checkoutUrl 
+        orderCode: order.code,
+        paymentUrl: paymentLink.checkoutUrl,
       };
     }
 
-    return { 
+    return {
       orderId: order.id,
-      orderCode: order.code, 
-      message: 'Order created. Please proceed with manual payment.' 
+      orderCode: order.code,
+      message: 'Order created. Please proceed with manual payment.',
     };
   }
 
@@ -480,7 +513,6 @@ export class OrderService {
     return { ok: true };
   }
 
-
   private async fulfillAiSubscription(tx: any, order: any, item: any) {
     try {
       const expiresAt = new Date();
@@ -496,7 +528,7 @@ export class OrderService {
         data: {
           userId: order.userId,
           planId: item.subscriptionPlanId,
-          planCode: (item.offeringSnapshot as any)?.code || 'unknown',
+          planCode: item.offeringSnapshot?.code || 'unknown',
           startedAt: new Date(),
           expiresAt,
           status: 'ACTIVE',
@@ -505,8 +537,12 @@ export class OrderService {
 
       this.logger.log(`Subscription activated for user ${order.userId}`);
     } catch (err: any) {
-      this.logger.error(`Subscription fulfillment failed for order ${order.code}: ${err.message}`);
-      throw new BadRequestException(`Subscription fulfillment failed: ${err.message}`);
+      this.logger.error(
+        `Subscription fulfillment failed for order ${order.code}: ${err.message}`,
+      );
+      throw new BadRequestException(
+        `Subscription fulfillment failed: ${err.message}`,
+      );
     }
   }
 
@@ -515,6 +551,7 @@ export class OrderService {
   async admin_findAll(query: {
     userId?: string;
     status?: OrderStatus;
+    search?: string;
     limit?: any;
     offset?: any;
     page?: any;
@@ -522,6 +559,18 @@ export class OrderService {
     const where: any = {};
     if (query.userId) where.userId = query.userId;
     if (query.status) where.status = query.status;
+
+    if (query.search) {
+      where.OR = [
+        { code: { contains: query.search, mode: 'insensitive' } },
+        { user: { email: { contains: query.search, mode: 'insensitive' } } },
+        {
+          user: {
+            displayName: { contains: query.search, mode: 'insensitive' },
+          },
+        },
+      ];
+    }
 
     const limit = Math.max(1, Number(query.limit || 20));
     let skip = 0;
@@ -599,6 +648,92 @@ export class OrderService {
     };
   }
 
+  async admin_findOrdersByOffering(
+    offeringId: string,
+    query: { page?: number; limit?: number; search?: string },
+  ) {
+    const where: any = {
+      items: {
+        some: {
+          offeringId: offeringId,
+        },
+      },
+    };
+
+    if (query.search) {
+      where.OR = [
+        { code: { contains: query.search, mode: 'insensitive' } },
+        { user: { email: { contains: query.search, mode: 'insensitive' } } },
+        {
+          user: {
+            displayName: { contains: query.search, mode: 'insensitive' },
+          },
+        },
+      ];
+    }
+
+    const page = Math.max(1, Number(query.page || 1));
+    const limit = Math.max(1, Number(query.limit || 20));
+    const skip = (page - 1) * limit;
+
+    const [total, items] = await Promise.all([
+      this.prisma.order.count({ where }),
+      this.prisma.order.findMany({
+        where,
+        include: {
+          user: { select: { email: true, displayName: true } },
+          items: {
+            where: { offeringId },
+            include: { offering: true },
+          },
+          transactions: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip: skip,
+      }),
+    ]);
+
+    return {
+      data: items,
+      total,
+      limit,
+      page,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async admin_getStatsByOffering(offeringId: string) {
+    const where = {
+      items: {
+        some: {
+          offeringId: offeringId,
+        },
+      },
+    };
+
+    const [totalOrders, revenueResult] = await Promise.all([
+      this.prisma.order.count({ where }),
+      this.prisma.order.aggregate({
+        where: {
+          ...where,
+          status: OrderStatus.PAID,
+        },
+        _sum: {
+          grandTotal: true,
+        },
+      }),
+    ]);
+
+    // Note: totalRevenue here is actually the sum of grandTotal of orders containing this item.
+    // In a multi-item order, this might be slightly inaccurate if we want "revenue from this item only",
+    // but usually in this system, orders are 1:1 with offerings for courses.
+    return {
+      totalOrders,
+      totalRevenue: Number(revenueResult._sum.grandTotal || 0),
+    };
+  }
+
   async admin_findOne(id: string) {
     const order = await this.prisma.order.findUnique({
       where: { id },
@@ -668,11 +803,15 @@ export class OrderService {
 
     if (!order) throw new NotFoundException('Order not found');
 
-    const courseItems = order.items.filter((item) => !!item.offeringId && !!item.offering);
+    const courseItems = order.items.filter(
+      (item) => !!item.offeringId && !!item.offering,
+    );
 
     const fallbackOfferingIds = courseItems
       .filter((item) => {
-        const snapshot = (item.offeringSnapshot ?? {}) as { classIds?: string[] };
+        const snapshot = (item.offeringSnapshot ?? {}) as {
+          classIds?: string[];
+        };
         return !Array.isArray(snapshot.classIds);
       })
       .map((item) => item.offeringId as string);
@@ -685,7 +824,7 @@ export class OrderService {
       const snapshot = (item.offeringSnapshot ?? {}) as { classIds?: string[] };
       const expectedClassIds = Array.isArray(snapshot.classIds)
         ? snapshot.classIds
-        : fallbackClassMap.get(item.offeringId as string) ?? [];
+        : (fallbackClassMap.get(item.offeringId as string) ?? []);
       const enrolledClassIds = order.enrollments
         .filter((enrollment) => enrollment.offeringId === item.offeringId)
         .map((enrollment) => enrollment.classId);
@@ -725,19 +864,19 @@ export class OrderService {
       status: query.status ? (query.status as OrderStatus) : undefined,
       ...(query.search
         ? {
-          OR: [
-            { code: { contains: query.search, mode: 'insensitive' } },
-            {
-              items: {
-                some: {
-                  offering: {
-                    title: { contains: query.search, mode: 'insensitive' },
+            OR: [
+              { code: { contains: query.search, mode: 'insensitive' } },
+              {
+                items: {
+                  some: {
+                    offering: {
+                      title: { contains: query.search, mode: 'insensitive' },
+                    },
                   },
                 },
               },
-            },
-          ],
-        }
+            ],
+          }
         : {}),
     };
 

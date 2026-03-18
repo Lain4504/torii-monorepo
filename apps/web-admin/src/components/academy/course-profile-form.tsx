@@ -26,7 +26,7 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@workspace/ui/components/tabs"
+} from "@workspace/ui/components/tabs-lifted"
 
 import {
   Select,

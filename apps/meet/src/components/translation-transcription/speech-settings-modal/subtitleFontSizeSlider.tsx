@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { throttle } from 'es-toolkit/compat';
+import { Label } from '@workspace/ui/components/label';
 
 import { useAppDispatch, useAppSelector } from '@/store';
 import { updateSubtitleFontSize } from '@/store/slices/speechServicesSlice';
@@ -32,12 +33,12 @@ const SubtitleFontSizeSlider = () => {
   return (
     <div className="font-size px-5 pb-6">
       <div className="top flex justify-between items-center mb-3">
-        <label
+        <Label
           htmlFor="transcription-size"
           className="w-full text-sm font-medium text-foreground ltr:text-left rtl:text-right block"
         >
           Kích thước phông chữ chú thích
-        </label>
+        </Label>
         <div className="count text-xs text-foreground font-medium bg-muted border border-border shadow-sm rounded-[7px] py-0.5 px-2">
           {localFontSize}
         </div>

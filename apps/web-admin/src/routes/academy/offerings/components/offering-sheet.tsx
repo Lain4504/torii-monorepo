@@ -3,13 +3,13 @@ import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@workspace/ui/components/dialog"
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+} from "@workspace/ui/components/sheet"
 import {
   Select,
   SelectContent,
@@ -30,6 +30,27 @@ import {
   FieldLegend,
   FieldDescription,
 } from "@workspace/ui/components/field"
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+  ItemActions,
+} from "@workspace/ui/components/item"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@workspace/ui/components/popover"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@workspace/ui/components/command"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import {
   useCreateAcademyCourseOffering,
@@ -38,7 +59,7 @@ import {
   type AcademyCourseOffering,
 } from "@/lib/api/services/academy-course-offerings"
 import { toast } from "sonner"
-import { Loader2, Check, Search, X } from "lucide-react"
+import { Loader2, Check, X, Plus } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 import { Spinner } from "@workspace/ui/components/spinner"
 
@@ -58,13 +79,13 @@ const offeringSchema = z.object({
 
 type OfferingFormValues = z.infer<typeof offeringSchema>
 
-interface OfferingDialogProps {
+interface OfferingSheetProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   offering?: AcademyCourseOffering | null
 }
 
-export function OfferingDialog({ open, onOpenChange, offering }: OfferingDialogProps) {
+export function OfferingSheet({ open, onOpenChange, offering }: OfferingSheetProps) {
   const isEditing = !!offering
   const createMutation = useCreateAcademyCourseOffering()
   const updateMutation = useUpdateAcademyCourseOffering()
@@ -176,17 +197,17 @@ export function OfferingDialog({ open, onOpenChange, offering }: OfferingDialogP
   const isLoading = createMutation.isPending || updateMutation.isPending
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] p-0 flex flex-col overflow-hidden">
-        <DialogHeader className="px-6 py-4 border-b shrink-0">
-          <DialogTitle>{isEditing ? "Chỉnh sửa Gói bán" : "Tạo Gói bán mới"}</DialogTitle>
-          <DialogDescription>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="!w-full sm:!max-w-[800px] flex flex-col h-full p-0 overflow-hidden">
+        <SheetHeader className="px-6 py-4 border-b shrink-0">
+          <SheetTitle>{isEditing ? "Chỉnh sửa Gói bán" : "Tạo Gói bán mới"}</SheetTitle>
+          <SheetDescription>
             Cấu hình sản phẩm thương mại, giá bán và các quyền lợi đi kèm.
-          </DialogDescription>
-        </DialogHeader>
+          </SheetDescription>
+        </SheetHeader>
 
         <ScrollArea className="flex-1 min-h-0">
-          <div className="p-6">
+          <div className="space-y-6 p-6">
             <form id="offering-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <FieldGroup>
                 <FieldSet>
@@ -288,15 +309,15 @@ export function OfferingDialog({ open, onOpenChange, offering }: OfferingDialogP
                           name="mode"
                           control={control}
                           render={({ field }) => (
-                             <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Chọn loại hình" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="LIVE">Lớp trực tiếp (LIVE)</SelectItem>
-                                  <SelectItem value="VOD">Khóa học Video (VOD)</SelectItem>
-                                </SelectContent>
-                             </Select>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Chọn loại hình" />
+                          </SelectTrigger>
+                          <SelectContent className="z-[1001]">
+                            <SelectItem value="LIVE">Lớp trực tiếp (LIVE)</SelectItem>
+                            <SelectItem value="VOD">Khóa học Video (VOD)</SelectItem>
+                          </SelectContent>
+                        </Select>
                           )}
                         />
                         <FieldError errors={[errors.mode]} />
@@ -308,121 +329,116 @@ export function OfferingDialog({ open, onOpenChange, offering }: OfferingDialogP
                 <FieldSet>
                   <FieldLegend>Lớp học liên kết</FieldLegend>
                   <FieldDescription>
-                    Tìm kiếm và chọn các lớp học sẽ được kích hoạt khi mua gói này.
+                    Các lớp học sẽ được kích hoạt khi học viên mua gói này.
                   </FieldDescription>
-                  
-                  <div className="space-y-4 pt-2">
-                    <div className="relative">
-                       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                       <Input 
-                        placeholder="Tìm lớp học theo tên hoặc mã..." 
-                        className="pl-9 pr-9"
-                        value={classSearch}
-                        onChange={(e) => setClassSearch(e.target.value)}
-                       />
-                       {classSearch && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="absolute right-1 top-1/2 -translate-y-1/2 size-8 hover:bg-transparent"
-                          onClick={() => setClassSearch("")}
-                        >
-                          <X className="size-4 text-muted-foreground" />
-                        </Button>
-                       )}
-                    </div>
 
-                    <div className="border rounded-xl bg-card overflow-hidden">
-                      <div className="max-h-[350px] overflow-y-auto p-4">
-                        {isLoadingClasses && (
-                          <div className="py-12 flex flex-col items-center justify-center gap-2 text-muted-foreground italic text-sm">
-                            <Spinner className="size-5" />
-                            Đang tải danh sách lớp học...
-                          </div>
-                        )}
-
-                        {!isLoadingClasses && classes.length === 0 && (
-                          <div className="py-12 text-center text-muted-foreground italic text-sm">
-                            {classSearch 
-                              ? "Không tìm thấy lớp học nào phù hợp." 
-                              : selectedMode 
-                                ? "Nhập tên hoặc mã lớp để tìm kiếm." 
-                                : "Vui lòng chọn loại hình trước."}
-                          </div>
-                        )}
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                          {classes.map((cls : any) => {
-                            const isChecked = selectedClassIds.includes(cls.id)
+                  <div className="space-y-4 pt-4">
+                    {/* Selected Classes List */}
+                    <div className="space-y-2">
+                      {selectedClassIds.length > 0 ? (
+                        <div className="grid grid-cols-1 gap-2">
+                          {selectedClassIds.map((id) => {
+                            const cls = classes.find((c: any) => c.id === id) || 
+                                        offering?.classes?.find((c: any) => (c.classId ?? c.id) === id)
+                            if (!cls) return null
                             return (
-                              <div
-                                key={cls.id}
-                                className={cn(
-                                  "relative flex flex-col gap-2 p-3 rounded-xl border transition-all cursor-pointer group",
-                                  isChecked
-                                    ? "border-primary bg-primary/5 ring-1 ring-primary shadow-sm"
-                                    : "border-muted hover:border-primary/50 hover:bg-muted/50"
-                                )}
-                                onClick={() => toggleClass(cls.id)}
-                              >
-                                <div className="flex items-center justify-between gap-2">
-                                  <span className={cn(
-                                    "text-[10px] font-bold uppercase px-1.5 py-0.5 rounded border leading-none font-mono",
-                                    isChecked ? "text-primary border-primary/30 bg-primary/5" : "text-muted-foreground bg-muted"
-                                  )}>
-                                    {cls.code}
-                                  </span>
-                                  <div className={cn(
-                                    "size-4 rounded border transition-colors flex items-center justify-center",
-                                    isChecked ? "bg-primary border-primary" : "border-muted-foreground/30"
-                                  )}>
-                                    {isChecked && <Check className="size-3 text-primary-foreground stroke-[3]" />}
-                                  </div>
-                                </div>
-
-                                <div className="space-y-1">
-                                  <p className={cn(
-                                    "text-sm font-semibold leading-snug line-clamp-2",
-                                    isChecked ? "text-primary" : "text-foreground"
-                                  )}>
-                                    {cls.name}
-                                  </p>
-                                </div>
-
-                                <div className="mt-auto pt-2 flex items-center justify-between border-t border-dashed">
-                                  <span className="text-[10px] text-muted-foreground font-medium uppercase truncate">
-                                    {cls.status}
-                                  </span>
-                                  <Badge variant="outline" className="text-[9px] h-3.5 px-1 uppercase opacity-70 scale-90 origin-right">
-                                    {cls.mode}
+                              <Item key={id} variant="outline" className="group">
+                                <ItemMedia>
+                                  <Badge variant="outline" className="font-mono text-[10px] uppercase">
+                                    {(cls as any).code || "CLASS"}
                                   </Badge>
-                                </div>
-                              </div>
+                                </ItemMedia>
+                                <ItemContent>
+                                  <ItemTitle className="text-sm">{(cls as any).name || (cls as any).title}</ItemTitle>
+                                  <ItemDescription className="text-[10px] uppercase">
+                                    {(cls as any).status} • {(cls as any).mode}
+                                  </ItemDescription>
+                                </ItemContent>
+                                <ItemActions>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="size-8 text-muted-foreground hover:text-destructive"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      toggleClass(id);
+                                    }}
+                                  >
+                                    <X className="size-4" />
+                                  </Button>
+                                </ItemActions>
+                              </Item>
                             )
                           })}
                         </div>
-                      </div>
-
-                      {/* Sticky summary inside the section */}
-                      {selectedClassIds.length > 0 && (
-                        <div className="px-4 py-3 bg-muted/30 border-t flex items-center justify-between text-xs">
-                          <div className="font-medium text-primary">
-                            Đã chọn {selectedClassIds.length} lớp học
-                          </div>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-7 text-destructive hover:text-destructive hover:bg-destructive/10 text-[11px] font-medium"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setValue("classIds", []);
-                            }}
-                          >
-                            Bỏ chọn tất cả
-                          </Button>
+                      ) : (
+                        <div className="border border-dashed rounded-xl py-8 text-center bg-muted/5 font-medium text-muted-foreground italic">
+                          Chưa có lớp học nào được chọn.
                         </div>
                       )}
                     </div>
+
+                    {/* Add Class Button with Popover Search */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-full border-dashed h-10 gap-2">
+                          <Plus className="size-4" />
+                          Thêm lớp học vào gói
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="p-0 w-[400px] sm:w-[600px] z-[1002]" align="start">
+                        <Command shouldFilter={false}>
+                          <CommandInput 
+                            placeholder="Tìm kiếm lớp học..." 
+                            onValueChange={setClassSearch}
+                            value={classSearch}
+                          />
+                          <CommandList className="max-h-[300px]">
+                            {isLoadingClasses && (
+                              <div className="py-6 flex flex-col items-center justify-center gap-2 text-muted-foreground italic text-sm">
+                                <Spinner className="size-4" />
+                                Đang tìm kiếm...
+                              </div>
+                            )}
+                            <CommandEmpty>
+                              {!isLoadingClasses && (classSearch ? "Không tìm thấy lớp học nào." : "Nhập để tìm kiếm...")}
+                            </CommandEmpty>
+                            <CommandGroup heading="Kết quả tìm kiếm">
+                              {classes.map((cls: any) => {
+                                const isChecked = selectedClassIds.includes(cls.id)
+                                return (
+                                  <CommandItem
+                                    key={cls.id}
+                                    onSelect={() => toggleClass(cls.id)}
+                                    className="px-4 py-3 cursor-pointer"
+                                  >
+                                    <div className="flex items-center gap-3 w-full">
+                                      <div className={cn(
+                                        "size-4 rounded border flex items-center justify-center transition-colors shrink-0",
+                                        isChecked ? "bg-primary border-primary" : "border-muted-foreground/30"
+                                      )}>
+                                        {isChecked && <Check className="size-3 text-primary-foreground stroke-[3]" />}
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-[10px] font-mono font-bold bg-muted px-1 rounded uppercase shrink-0">
+                                            {cls.code}
+                                          </span>
+                                          <p className="text-sm font-medium truncate">{cls.name}</p>
+                                        </div>
+                                        <p className="text-[10px] text-muted-foreground uppercase mt-0.5">
+                                          {cls.status} • {cls.mode}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </CommandItem>
+                                )
+                              })}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </FieldSet>
               </FieldGroup>
@@ -430,7 +446,7 @@ export function OfferingDialog({ open, onOpenChange, offering }: OfferingDialogP
           </div>
         </ScrollArea>
 
-        <DialogFooter className="px-6 py-4 border-t gap-2 bg-muted/20 shrink-0">
+        <SheetFooter className="px-6 py-4 border-t gap-2 bg-muted/20 shrink-0">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
             Hủy
           </Button>
@@ -438,8 +454,8 @@ export function OfferingDialog({ open, onOpenChange, offering }: OfferingDialogP
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isEditing ? "Lưu thay đổi" : "Tạo Gói bán"}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   )
 }

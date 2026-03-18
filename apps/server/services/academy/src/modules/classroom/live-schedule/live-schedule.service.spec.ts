@@ -15,23 +15,17 @@ describe('LiveScheduleService', () => {
 
   const scheduleMock = {
     id: 'schedule-id',
-    liveClassId: 'live-class-id',
+    classId: 'class-id',
     roomId: 'room-1',
     weekday: now.getDay(),
     startTime,
     endTime,
-    liveClass: {
-      id: 'live-class-id',
-      classId: 'class-id',
-      startDate: inWindowStart,
-      endDate: inWindowEnd,
-      primaryTeacherId: 'teacher-id',
-      class: {
-        id: 'class-id',
-        name: 'Class A',
-        status: 'ENROLLING',
-        courseProfile: { title: 'Course A' },
-      },
+    class: {
+      id: 'class-id',
+      name: 'Class A',
+      status: 'OPENING',
+      courseProfile: { title: 'Course A' },
+      instructor: { id: 'teacher-id' },
     },
   } as any;
 
@@ -103,8 +97,8 @@ describe('LiveScheduleService', () => {
 
     const service = new LiveScheduleService(prisma, {} as any, nats, audit);
 
-    await expect(service.join('schedule-id', 'student-id', false)).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
+    await expect(
+      service.join('schedule-id', 'student-id', false),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 });

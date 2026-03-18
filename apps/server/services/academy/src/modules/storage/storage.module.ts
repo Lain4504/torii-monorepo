@@ -27,4 +27,4 @@ import { STORAGE_SERVICE_TOKEN } from '@server/academy/interfaces/services/i-sto
   ],
   exports: [STORAGE_SERVICE_TOKEN, STORAGE_REPOSITORY_TOKEN],
 })
-export class StorageModule { }
+export class StorageModule {}

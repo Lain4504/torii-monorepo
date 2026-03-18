@@ -24,6 +24,7 @@ import {
   successResponse,
   ReqWithRequester,
 } from '@server/shared';
+import { ForbiddenException } from '@nestjs/common';
 import {
   AcademyLessonCreateDTO,
   academyLessonCreateDTOSchema,
@@ -36,14 +37,34 @@ import {
 @Controller('api/academy/lessons')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class LessonController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
   @Get()
-  @Permissions('academy.content.read')
   async findAll(
     @Query(new ZodValidationPipe(academyLessonQueryDTOSchema))
     query: AcademyLessonQueryDTO,
+    @Req() req: ReqWithRequester,
   ) {
+    const requester = req.requester;
+    const hasContentRead =
+      requester.permissions?.includes('academy.content.read') ||
+      requester.permissions?.includes('*');
+
+    if (!hasContentRead) {
+      if (!query.syllabusId) {
+        throw new ForbiddenException('syllabusId is required for learners');
+      }
+      const result = await firstValueFrom(
+        this.nats.send(
+          { cmd: 'academy.enrollment.checkBySyllabus' },
+          { userId: requester.sub, syllabusId: query.syllabusId },
+        ),
+      );
+      if (!result?.isEnrolled) {
+        throw new ForbiddenException('You are not enrolled in this syllabus');
+      }
+    }
+
     const items = await firstValueFrom(
       this.nats.send({ cmd: 'academy.lesson.findAll' }, query),
     );
@@ -51,8 +72,42 @@ export class LessonController {
   }
 
   @Get(':id')
-  @Permissions('academy.content.read')
-  async findById(@Param('id', new ParseUUIDPipe()) id: string) {
+  async findById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const requester = req.requester;
+    const hasContentRead =
+      requester.permissions?.includes('academy.content.read') ||
+      requester.permissions?.includes('*');
+
+    if (!hasContentRead) {
+      // Find lesson first to get syllabusId
+      const lesson = await firstValueFrom(
+        this.nats.send({ cmd: 'academy.lesson.findById' }, { id }),
+      );
+      if (!lesson) throw new ForbiddenException('Lesson not found');
+      const syllabusId = lesson.module?.syllabusId;
+
+      if (!syllabusId) {
+        throw new ForbiddenException(
+          'Lesson is not associated with any syllabus',
+        );
+      }
+
+      const result = await firstValueFrom(
+        this.nats.send(
+          { cmd: 'academy.enrollment.checkBySyllabus' },
+          { userId: requester.sub, syllabusId },
+        ),
+      );
+      if (!result?.isEnrolled) {
+        throw new ForbiddenException(
+          'You are not enrolled in a class providing this lesson',
+        );
+      }
+    }
+
     const item = await firstValueFrom(
       this.nats.send({ cmd: 'academy.lesson.findById' }, { id }),
     );
@@ -85,16 +140,25 @@ export class LessonController {
     @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.lesson.update' }, { id, input: dto, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.lesson.update' },
+        { id, input: dto, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse({ item });
   }
 
   @Delete(':id')
   @Permissions('academy.content.write')
-  async delete(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: ReqWithRequester) {
+  async delete(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
     const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.lesson.delete' }, { id, requesterId: req.requester?.sub }),
+      this.nats.send(
+        { cmd: 'academy.lesson.delete' },
+        { id, requesterId: req.requester?.sub },
+      ),
     );
     return successResponse(result);
   }

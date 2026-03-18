@@ -4,8 +4,8 @@ import { CertificateListener } from './certificate.listener';
 import { CertificateHandler } from './certificate.handler';
 
 @Module({
-    providers: [CertificateService],
-    controllers: [CertificateListener, CertificateHandler],
-    exports: [CertificateService],
+  providers: [CertificateService],
+  controllers: [CertificateListener, CertificateHandler],
+  exports: [CertificateService],
 })
-export class CertificateModule { }
+export class CertificateModule {}

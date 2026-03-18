@@ -15,6 +15,10 @@ import { BreakoutRoomMessage } from '..';
 import { selectBasicParticipants } from '@/store/slices/participantSlice';
 import useStorePreviousInt from '@/helpers/hooks/useStorePreviousInt';
 import { updateBreakoutRoomDroppedUser } from '@/store/slices/breakoutRoomSlice';
+import { Button } from '@workspace/ui/components/button';
+import { Input } from '@workspace/ui/components/input';
+import { Label } from '@workspace/ui/components/label';
+import { Textarea } from '@workspace/ui/components/textarea';
 
 interface IFromElemsProps {
   createBreakoutRooms: (req: CreateBreakoutRoomsReq) => void;
@@ -172,13 +176,13 @@ const FromElems = ({
           setTotalRooms={setTotalRooms}
         />
         <div className="room-durations w-full sm:w-56 mb-4">
-          <label
+          <Label
             className="block text-sm font-medium text-foreground mb-2"
             htmlFor="breakout-room-duration"
           >
             Thời hạn (phút)
-          </label>
-          <input
+          </Label>
+          <Input
             className="h-10 rounded-xl text-foreground border border-border bg-card shadow-sm w-full px-3 outline-hidden focus:border-primary"
             id="breakout-room-duration"
             type="number"
@@ -189,26 +193,26 @@ const FromElems = ({
       </div>
       <div className="row flex flex-wrap justify-between items-end">
         <div className="room-welcome-messages w-full sm:max-w-122 mb-4 sm:ltr:mr-10 sm:rtl:ml-10">
-          <label
+          <Label
             className="block text-sm font-medium text-foreground mb-1"
             htmlFor="breakout-room-welcome"
           >
             Lời chào mừng
-          </label>
-          <textarea
+          </Label>
+          <Textarea
             className="h-20 rounded-xl text-foreground border border-border bg-card shadow-sm w-full px-3 py-2 outline-hidden focus:border-primary"
             id="breakout-room-welcome"
             onChange={(e) => setWelcomeMsg(e.currentTarget.value)}
             value={welcomeMsg}
-          ></textarea>
+          />
         </div>
         <div className="random-room-select mb-4 rtl:ml-6">
-          <button
+          <Button
             className="h-9 w-auto ml-auto px-5 cursor-pointer text-sm font-semibold bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground transition-all duration-300 shadow-sm"
             onClick={randomSelection}
           >
             Chọn ngẫu nhiên
-          </button>
+          </Button>
         </div>
       </div>
       <div className="draggable-room-area overflow-hidden clear-both flex flex-wrap">
@@ -228,13 +232,13 @@ const FromElems = ({
         })}
       </div>
       <div className="flex justify-end mt-4">
-        <button
+        <Button
           className="h-9 w-auto px-5 cursor-pointer text-sm font-semibold bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground transition-all duration-300 shadow-sm disabled:opacity-50"
           onClick={handleStartBreakoutRooms}
           disabled={isLoading}
         >
           Bắt đầu
-        </button>
+        </Button>
       </div>
     </div>
   );

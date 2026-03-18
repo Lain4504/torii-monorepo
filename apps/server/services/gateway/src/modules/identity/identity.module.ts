@@ -27,4 +27,4 @@ import { NotificationController } from './controllers/notification.controller';
     NotificationController,
   ],
 })
-export class IdentityModule { }
+export class IdentityModule {}

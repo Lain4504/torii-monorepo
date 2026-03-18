@@ -1,9 +1,12 @@
 import { useParams, Link } from "react-router-dom"
-import { useAcademyCourseOffering } from "@/lib/api/services/academy-course-offerings"
-import { useOrders, useOrderStats } from "@/lib/api/services/finance"
+import { 
+  useAcademyCourseOffering,
+  useAvailableClassesForOffering 
+} from "@/lib/api/services/academy-course-offerings"
+import { useOfferingOrders, useOfferingStats } from "@/lib/api/services/finance"
 import { PageHeader } from "@/components/common/page-header"
 import { ChevronRight, Package, ShoppingCart, TrendingUp, Info } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs-lifted"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 import { Skeleton } from "@workspace/ui/components/skeleton"
@@ -13,25 +16,25 @@ import { useState } from "react"
 import { SmartPagination } from "@/components/common/smart-pagination"
 
 export default function OfferingDetailPage() {
-  const { offeringId } = useParams<{ offeringId: string }>()
+  const { offeringId = "" } = useParams<{ offeringId: string }>()
   const [page, setPage] = useState(1)
   
   const { data: offering, isLoading: isLoadingOffering } = useAcademyCourseOffering(offeringId)
   
-  const { data: ordersResponse, isLoading: isLoadingOrders } = useOrders({
+  const { data: availableClasses = [] } = useAvailableClassesForOffering({
+    mode: (offering as any)?.mode,
+  })
+  
+  const { data: ordersResponse, isLoading: isLoadingOrders } = useOfferingOrders(offeringId, {
     page,
     limit: 10,
-    search: offering?.code || offering?.title || undefined,
-  } as any)
+  })
 
-  const { data: statsResponse } = useOrderStats({
-    search: offering?.code || undefined,
-  } as any)
+  const { data: stats } = useOfferingStats(offeringId)
 
   const orders = ordersResponse?.data || []
   const totalOrders = ordersResponse?.total || 0
   const totalPages = ordersResponse?.totalPages || 1
-  const stats = statsResponse?.data
 
   if (isLoadingOffering) {
     return (
@@ -164,15 +167,19 @@ export default function OfferingDetailPage() {
                   <CardDescription>Các lớp học người dùng sẽ được ghi danh sau khi hoàn tất thanh toán.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  {offering.classes?.map((cls: any) => (
-                    <div key={cls.id || cls.classId} className="flex items-center justify-between p-3 rounded-lg border bg-muted/20">
-                      <div>
-                        <p className="text-sm font-medium">{cls.name || cls.title}</p>
-                        <p className="text-xs text-muted-foreground font-mono">{cls.code}</p>
+                  {offering.classes?.map((item: any) => {
+                    const classId = item.id || item.classId
+                    const cls = availableClasses.find((c: any) => c.id === classId) || item
+                    return (
+                      <div key={classId} className="flex items-center justify-between p-3 rounded-lg border bg-muted/20">
+                        <div>
+                          <p className="text-sm font-medium">{cls.name || cls.title || 'Lớp học'}</p>
+                          <p className="text-xs text-muted-foreground font-mono">{cls.code || 'N/A'}</p>
+                        </div>
+                        <Badge variant="secondary" className="text-[10px]">{cls.mode || (offering as any).mode}</Badge>
                       </div>
-                      <Badge variant="secondary" className="text-[10px]">{cls.mode}</Badge>
-                    </div>
-                  ))}
+                    )
+                  })}
                   {(!offering.classes || offering.classes.length === 0) && (
                     <p className="text-sm text-muted-foreground italic">Cảnh báo: Gói bán này chưa liên kết với lớp học nào.</p>
                   )}

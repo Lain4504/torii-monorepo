@@ -9,4 +9,4 @@ import { LiveScheduleService } from './live-schedule.service';
   controllers: [LiveScheduleHandler],
   exports: [LiveScheduleService],
 })
-export class LiveScheduleModule { }
+export class LiveScheduleModule {}

@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { Prisma } from '@prisma/generated';
 import {
@@ -16,7 +20,7 @@ export class CourseProfileService {
     private readonly prisma: PrismaService,
     private readonly syllabus: SyllabusService,
     private readonly audit: AuditLoggerService,
-  ) { }
+  ) {}
 
   async findAll(query: AcademyCourseProfileQueryDTO) {
     const andFilters: Prisma.CourseProfileWhereInput[] = [];
@@ -54,7 +58,8 @@ export class CourseProfileService {
       where: { code: input.code },
       select: { id: true },
     });
-    if (exists) throw new BadRequestException('CourseProfile code already exists');
+    if (exists)
+      throw new BadRequestException('CourseProfile code already exists');
 
     const item = await this.prisma.courseProfile.create({
       data: {
@@ -80,8 +85,14 @@ export class CourseProfileService {
     return item;
   }
 
-  async update(id: string, input: AcademyCourseProfileUpdateDTO, requesterId?: string) {
-    const before = await this.prisma.courseProfile.findUnique({ where: { id } });
+  async update(
+    id: string,
+    input: AcademyCourseProfileUpdateDTO,
+    requesterId?: string,
+  ) {
+    const before = await this.prisma.courseProfile.findUnique({
+      where: { id },
+    });
     if (!before) throw new NotFoundException('CourseProfile not found');
 
     const item = await this.prisma.courseProfile.update({
@@ -112,11 +123,15 @@ export class CourseProfileService {
   async archive(id: string, requesterId?: string) {
     // V2: CourseProfile no longer has metadata/status for archiving.
     // Keep endpoint for backward compatibility, but explicitly block usage.
-    throw new BadRequestException('Archive is not supported in Academy V2. Use delete instead.');
+    throw new BadRequestException(
+      'Archive is not supported in Academy V2. Use delete instead.',
+    );
   }
 
   async delete(id: string, requesterId?: string) {
-    const before = await this.prisma.courseProfile.findUnique({ where: { id } });
+    const before = await this.prisma.courseProfile.findUnique({
+      where: { id },
+    });
     if (!before) throw new NotFoundException('CourseProfile not found');
 
     const [classes, syllabuses] = await this.prisma.$transaction([
@@ -156,7 +171,12 @@ export class CourseProfileService {
     return this.syllabus.findById(id);
   }
 
-  async createSyllabus(input: { courseProfileId: string; version: string; sourceSyllabusId?: string; requesterId?: string }) {
+  async createSyllabus(input: {
+    courseProfileId: string;
+    version: string;
+    sourceSyllabusId?: string;
+    requesterId?: string;
+  }) {
     return this.syllabus.create(
       {
         courseProfileId: input.courseProfileId,
@@ -167,7 +187,11 @@ export class CourseProfileService {
     );
   }
 
-  async cloneSyllabus(input: { sourceSyllabusId: string; newVersion: string; requesterId?: string }) {
+  async cloneSyllabus(input: {
+    sourceSyllabusId: string;
+    newVersion: string;
+    requesterId?: string;
+  }) {
     const source = await this.prisma.syllabus.findUnique({
       where: { id: input.sourceSyllabusId },
       select: { courseProfileId: true },
@@ -184,7 +208,9 @@ export class CourseProfileService {
   }
 
   async publishSyllabus(id: string, requesterId?: string) {
-    throw new BadRequestException('Publish syllabus is not supported in Academy V2.');
+    throw new BadRequestException(
+      'Publish syllabus is not supported in Academy V2.',
+    );
   }
 
   async lockSyllabus(id: string, requesterId?: string) {
@@ -192,4 +218,3 @@ export class CourseProfileService {
     return this.syllabus.lock(id, requesterId);
   }
 }
-

@@ -6,9 +6,9 @@ import { GamificationModule } from '../../gamification/gamification.module';
 import { ClassReviewListener } from './class-review.listener';
 
 @Module({
-    imports: [PrismaModule, GamificationModule],
-    providers: [ClassReviewService],
-    controllers: [ClassReviewHandler, ClassReviewListener],
-    exports: [ClassReviewService],
+  imports: [PrismaModule, GamificationModule],
+  providers: [ClassReviewService],
+  controllers: [ClassReviewHandler, ClassReviewListener],
+  exports: [ClassReviewService],
 })
-export class ClassReviewModule { }
+export class ClassReviewModule {}

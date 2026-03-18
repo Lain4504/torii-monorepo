@@ -11,6 +11,7 @@ import SettingsSwitch from '@/helpers/ui/settingsSwitch';
 import sendAPIRequest from '@/helpers/api/api-client';
 import { Textarea } from '@workspace/ui/components/textarea';
 import { Button } from '@workspace/ui/components/button';
+import { Label } from '@workspace/ui/components/label';
 
 interface MeetingSummarizationProps {
   setErrorMsg: React.Dispatch<React.SetStateAction<string | undefined>>;
@@ -137,12 +138,12 @@ const MeetingSummarization = ({
             </div>
             {isEnabled && (
               <div className="bg-muted/30 border-b border-border -mx-4 px-5 py-4">
-                <label
+                <Label
                   htmlFor="summarizationPrompt"
                   className="block text-sm font-semibold text-foreground mb-2"
                 >
                   Lời nhắc tóm tắt
-                </label>
+                </Label>
                 <Textarea
                   name="summarizationPrompt"
                   id="summarizationPrompt"

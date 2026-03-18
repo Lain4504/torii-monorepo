@@ -45,6 +45,19 @@ export class OrderHandler {
     return this.orderService.admin_getStats(query);
   }
 
+  @MessagePattern({ cmd: 'academy.order.admin.findByOffering' })
+  admin_findByOffering(@Payload() data: { offeringId: string; query: any }) {
+    return this.orderService.admin_findOrdersByOffering(
+      data.offeringId,
+      data.query,
+    );
+  }
+
+  @MessagePattern({ cmd: 'academy.order.admin.getStatsByOffering' })
+  admin_getStatsByOffering(@Payload() data: { offeringId: string }) {
+    return this.orderService.admin_getStatsByOffering(data.offeringId);
+  }
+
   @MessagePattern({ cmd: 'academy.order.admin.findOne' })
   admin_findOne(@Payload() data: { id: string }) {
     return this.orderService.admin_findOne(data.id);
@@ -68,9 +81,15 @@ export class OrderHandler {
 
   @MessagePattern({ cmd: 'academy.order.findAllForUser' })
   findAllForUser(
-    @Payload() data: {
+    @Payload()
+    data: {
       userId: string;
-      query: { page?: number; limit?: number; status?: string; search?: string };
+      query: {
+        page?: number;
+        limit?: number;
+        status?: string;
+        search?: string;
+      };
     },
   ) {
     return this.orderService.findAllForUser(data.userId, data.query ?? {});

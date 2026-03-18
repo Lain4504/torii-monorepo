@@ -11,7 +11,7 @@ redis:
   db: 0
 #  use_tls: false
 #  To use sentinel remove the host key above and add the following
-#  sentinel_master_name: plugnmeet
+#  sentinel_master_name:
 #  sentinel_addresses:
 #    - redis-sentinel-host-1:26379
 #    - redis-sentinel-host-2:26379

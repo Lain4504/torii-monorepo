@@ -24,7 +24,7 @@ export class ClassService {
     private readonly audit: AuditLoggerService,
     private readonly liveSchedules: LiveScheduleService,
     private readonly gamification: GamificationService,
-  ) { }
+  ) {}
 
   // ==============================================================
   // CLASS CRUD
@@ -36,7 +36,12 @@ export class ClassService {
       query.status == null
         ? undefined
         : query.status.includes(',')
-          ? { in: query.status.split(',').map((s) => s.trim()).filter(Boolean) as ClassStatus[] }
+          ? {
+              in: query.status
+                .split(',')
+                .map((s) => s.trim())
+                .filter(Boolean) as ClassStatus[],
+            }
           : (query.status as ClassStatus);
     return this.prisma.class.findMany({
       where: {
@@ -46,11 +51,11 @@ export class ClassService {
         instructorId: query.instructorId ?? undefined,
         ...(q
           ? {
-            OR: [
-              { code: { contains: q, mode: 'insensitive' } },
-              { name: { contains: q, mode: 'insensitive' } },
-            ],
-          }
+              OR: [
+                { code: { contains: q, mode: 'insensitive' } },
+                { name: { contains: q, mode: 'insensitive' } },
+              ],
+            }
           : {}),
       },
       include: {
@@ -155,10 +160,18 @@ export class ClassService {
           mode: input.mode as any,
           status: (input.status as ClassStatus) ?? 'DRAFT',
           instructorId: input.instructorId,
-          openingDate: input.openingDate ? new Date(input.openingDate) : undefined,
-          closingDate: input.closingDate ? new Date(input.closingDate) : undefined,
-          enrollmentOpenAt: input.enrollmentOpenAt ? new Date(input.enrollmentOpenAt) : undefined,
-          enrollmentCloseAt: input.enrollmentCloseAt ? new Date(input.enrollmentCloseAt) : undefined,
+          openingDate: input.openingDate
+            ? new Date(input.openingDate)
+            : undefined,
+          closingDate: input.closingDate
+            ? new Date(input.closingDate)
+            : undefined,
+          enrollmentOpenAt: input.enrollmentOpenAt
+            ? new Date(input.enrollmentOpenAt)
+            : undefined,
+          enrollmentCloseAt: input.enrollmentCloseAt
+            ? new Date(input.enrollmentCloseAt)
+            : undefined,
         },
       });
 
@@ -176,7 +189,11 @@ export class ClassService {
         entity: 'Class',
         entityId: classItem.id,
         description: `Created ${input.mode} class ${input.code}`,
-        metadata: { code: input.code, mode: input.mode, syllabusId: input.syllabusId },
+        metadata: {
+          code: input.code,
+          mode: input.mode,
+          syllabusId: input.syllabusId,
+        },
       });
 
       return classItem;
@@ -202,10 +219,18 @@ export class ClassService {
           status: input.status as ClassStatus,
           instructorId: input.instructorId,
           syllabusId: input.syllabusId,
-          openingDate: input.openingDate ? new Date(input.openingDate) : undefined,
-          closingDate: input.closingDate ? new Date(input.closingDate) : undefined,
-          enrollmentOpenAt: input.enrollmentOpenAt ? new Date(input.enrollmentOpenAt) : undefined,
-          enrollmentCloseAt: input.enrollmentCloseAt ? new Date(input.enrollmentCloseAt) : undefined,
+          openingDate: input.openingDate
+            ? new Date(input.openingDate)
+            : undefined,
+          closingDate: input.closingDate
+            ? new Date(input.closingDate)
+            : undefined,
+          enrollmentOpenAt: input.enrollmentOpenAt
+            ? new Date(input.enrollmentOpenAt)
+            : undefined,
+          enrollmentCloseAt: input.enrollmentCloseAt
+            ? new Date(input.enrollmentCloseAt)
+            : undefined,
         },
       });
 
@@ -223,8 +248,16 @@ export class ClassService {
         entity: 'Class',
         entityId: id,
         description: `Updated class ${classItem.code}`,
-        oldValues: { name: classItem.name, status: classItem.status, syllabusId: classItem.syllabusId },
-        newValues: { name: updatedClass.name, status: updatedClass.status, syllabusId: updatedClass.syllabusId },
+        oldValues: {
+          name: classItem.name,
+          status: classItem.status,
+          syllabusId: classItem.syllabusId,
+        },
+        newValues: {
+          name: updatedClass.name,
+          status: updatedClass.status,
+          syllabusId: updatedClass.syllabusId,
+        },
       });
 
       return updatedClass;
@@ -245,13 +278,19 @@ export class ClassService {
 
     if (classItem.mode === 'LIVE') {
       if (!classItem.syllabusId) {
-        throw new BadRequestException('LIVE class must have a Syllabus before publishing');
+        throw new BadRequestException(
+          'LIVE class must have a Syllabus before publishing',
+        );
       }
       if (!classItem.liveSchedules || classItem.liveSchedules.length === 0) {
-        throw new BadRequestException('LIVE class must have at least one LiveSchedule');
+        throw new BadRequestException(
+          'LIVE class must have at least one LiveSchedule',
+        );
       }
       if (!classItem.openingDate || !classItem.closingDate) {
-        throw new BadRequestException('LIVE class must have openingDate and closingDate before publishing');
+        throw new BadRequestException(
+          'LIVE class must have openingDate and closingDate before publishing',
+        );
       }
     }
 
@@ -270,18 +309,16 @@ export class ClassService {
     if (classItem.mode === 'LIVE') {
       try {
         const from = new Date(classItem.openingDate!);
-        from.setHours(0, 0, 0, 0);
+        from.setUTCHours(0, 0, 0, 0);
         const to = new Date(classItem.closingDate!);
-        to.setHours(0, 0, 0, 0);
+        to.setUTCHours(0, 0, 0, 0);
         await this.liveSchedules.generateInstancesForClassRange(
           classItem.id,
-          from,
-          to,
           requesterId,
         );
       } catch (err) {
         // Do not block publish if generation fails; can be regenerated via API on demand.
-        // eslint-disable-next-line no-console
+
         console.warn(
           `[ClassService.publishClass] generateInstancesForClassRange skipped: ${err instanceof Error ? err.message : String(err)}`,
         );
@@ -306,12 +343,16 @@ export class ClassService {
     });
     if (!classItem) throw new NotFoundException('Class not found');
     if (classItem.status !== 'DRAFT') {
-      throw new BadRequestException('Only DRAFT classes can be submitted for approval');
+      throw new BadRequestException(
+        'Only DRAFT classes can be submitted for approval',
+      );
     }
 
     if (classItem.mode === 'LIVE') {
       if (!classItem.liveSchedules || classItem.liveSchedules.length === 0) {
-        throw new BadRequestException('LIVE class must have a LiveSchedule before submitting');
+        throw new BadRequestException(
+          'LIVE class must have a LiveSchedule before submitting',
+        );
       }
     }
 
@@ -342,7 +383,9 @@ export class ClassService {
   async reject(id: string, reason: string, requesterId: string) {
     const classItem = await this.findById(id);
     if (classItem.status !== ('PENDING_APPROVAL' as ClassStatus)) {
-      throw new BadRequestException('Only PENDING_APPROVAL classes can be rejected');
+      throw new BadRequestException(
+        'Only PENDING_APPROVAL classes can be rejected',
+      );
     }
 
     const updated = await this.prisma.class.update({
@@ -370,7 +413,8 @@ export class ClassService {
   /** LIVE: OPENING → ONGOING */
   async startClass(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
-    if (classItem.mode !== 'LIVE') throw new BadRequestException('Only LIVE classes can be started');
+    if (classItem.mode !== 'LIVE')
+      throw new BadRequestException('Only LIVE classes can be started');
     if (classItem.status === 'ONGOING') return classItem;
 
     const result = await this.prisma.class.update({
@@ -436,12 +480,18 @@ export class ClassService {
   async delete(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.findById(id);
     if (classItem.status !== 'DRAFT' && classItem.status !== 'ARCHIVED') {
-      throw new BadRequestException('Can only delete DRAFT or ARCHIVED classes');
+      throw new BadRequestException(
+        'Can only delete DRAFT or ARCHIVED classes',
+      );
     }
 
-    const enrollCount = await this.prisma.enrollment.count({ where: { classId: id } });
+    const enrollCount = await this.prisma.enrollment.count({
+      where: { classId: id },
+    });
     if (enrollCount > 0) {
-      throw new BadRequestException('Cannot delete class with existing enrollments');
+      throw new BadRequestException(
+        'Cannot delete class with existing enrollments',
+      );
     }
 
     await this.prisma.class.delete({ where: { id } });
@@ -458,7 +508,11 @@ export class ClassService {
   }
 
   /** Duplicate a class (copies liveSchedules, resets status to DRAFT) */
-  async duplicate(id: string, input?: ClassDuplicateDto, requesterId = 'SYSTEM') {
+  async duplicate(
+    id: string,
+    input?: ClassDuplicateDto,
+    requesterId = 'SYSTEM',
+  ) {
     const source = await this.prisma.class.findUnique({
       where: { id },
       include: { liveSchedules: true },
@@ -466,8 +520,11 @@ export class ClassService {
     if (!source) throw new NotFoundException('Class not found');
 
     let targetCode = input?.code || `${source.code}_COPY_${Date.now()}`;
-    const existing = await this.prisma.class.findUnique({ where: { code: targetCode } });
-    if (existing) targetCode = `${targetCode}_${Math.floor(Math.random() * 1000)}`;
+    const existing = await this.prisma.class.findUnique({
+      where: { code: targetCode },
+    });
+    if (existing)
+      targetCode = `${targetCode}_${Math.floor(Math.random() * 1000)}`;
 
     const targetName = input?.name || `${source.name} (Bản sao)`;
 
@@ -575,7 +632,9 @@ export class ClassService {
   }
 
   async updateAssignment(id: string, input: ClassAssignmentUpdateDto) {
-    const item = await this.prisma.classAssignment.findUnique({ where: { id } });
+    const item = await this.prisma.classAssignment.findUnique({
+      where: { id },
+    });
     if (!item) throw new NotFoundException('ClassAssignment not found');
 
     return this.prisma.classAssignment.update({
@@ -590,7 +649,9 @@ export class ClassService {
   }
 
   async removeAssignment(id: string, requesterId = 'SYSTEM') {
-    const item = await this.prisma.classAssignment.findUnique({ where: { id } });
+    const item = await this.prisma.classAssignment.findUnique({
+      where: { id },
+    });
     if (!item) throw new NotFoundException('ClassAssignment not found');
 
     await this.prisma.classAssignment.delete({ where: { id } });
@@ -678,12 +739,14 @@ export class ClassService {
     });
 
     // Trigger gamification for lesson completion (XP/points & level/streak/achievements)
-    this.gamification.trackActivity(userId, ActivityType.LESSON_COMPLETE, {
-      lessonId,
-      classId,
-    }).catch(() => {
-      // Gamification failure should not break core learning flow
-    });
+    this.gamification
+      .trackActivity(userId, ActivityType.LESSON_COMPLETE, {
+        lessonId,
+        classId,
+      })
+      .catch(() => {
+        // Gamification failure should not break core learning flow
+      });
 
     return progress;
   }
@@ -692,7 +755,10 @@ export class ClassService {
   // PRIVATE HELPERS
   // ==============================================================
 
-  private async assertPrimaryTeacherScheduleConflicts(classId: string, instructorId: string) {
+  private async assertPrimaryTeacherScheduleConflicts(
+    classId: string,
+    instructorId: string,
+  ) {
     const ownSchedules = await this.prisma.liveSchedule.findMany({
       where: { classId },
       select: { weekday: true, startTime: true, endTime: true },
@@ -704,7 +770,14 @@ export class ClassService {
         classId: { not: classId },
         class: {
           instructorId,
-          status: { in: ['DRAFT', 'PENDING_APPROVAL', 'OPENING', 'ONGOING'] as ClassStatus[] },
+          status: {
+            in: [
+              'DRAFT',
+              'PENDING_APPROVAL',
+              'OPENING',
+              'ONGOING',
+            ] as ClassStatus[],
+          },
         },
       },
       include: { class: { select: { code: true, name: true } } },
@@ -713,7 +786,14 @@ export class ClassService {
     for (const ownSlot of ownSchedules) {
       for (const candidate of candidateSchedules) {
         if (candidate.weekday !== ownSlot.weekday) continue;
-        if (this.isTimeOverlap(ownSlot.startTime, ownSlot.endTime, candidate.startTime, candidate.endTime)) {
+        if (
+          this.isTimeOverlap(
+            ownSlot.startTime,
+            ownSlot.endTime,
+            candidate.startTime,
+            candidate.endTime,
+          )
+        ) {
           throw new BadRequestException(
             `Teacher schedule conflict with class ${candidate.class.code} (${candidate.class.name})`,
           );
@@ -722,7 +802,12 @@ export class ClassService {
     }
   }
 
-  private isTimeOverlap(startA: string, endA: string, startB: string, endB: string) {
+  private isTimeOverlap(
+    startA: string,
+    endA: string,
+    startB: string,
+    endB: string,
+  ) {
     const aStart = this.toMinutes(startA);
     const aEnd = this.toMinutes(endA);
     const bStart = this.toMinutes(startB);
@@ -734,7 +819,14 @@ export class ClassService {
     const [hourText, minuteText] = (time || '').split(':');
     const hour = Number(hourText);
     const minute = Number(minuteText);
-    if (Number.isNaN(hour) || Number.isNaN(minute) || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+    if (
+      Number.isNaN(hour) ||
+      Number.isNaN(minute) ||
+      hour < 0 ||
+      hour > 23 ||
+      minute < 0 ||
+      minute > 59
+    ) {
       throw new BadRequestException(`Invalid time format: ${time}`);
     }
     return hour * 60 + minute;

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs-lifted"
 import { Card } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 import { LivekitVoiceAgent } from "@/components/ai-sensei/livekit-voice-agent"
@@ -25,17 +25,15 @@ export default function RoleplayPage() {
                     description="Luyện tập hội thoại tiếng Nhật với Sensei"
                     icon={Sparkles}
                 >
-                    <TabsList className="p-1 bg-muted/40 backdrop-blur-md border border-border/50 rounded-xl h-auto flex-1 xl:flex-none">
+                    <TabsList>
                         <TabsTrigger
                             value="interactive"
-                            className="flex-1 xl:flex-none gap-2 py-2.5 px-6 rounded-lg data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all text-sm font-bold"
                         >
                             <MessageSquareText className="size-4" />
                             Hội thoại tự do
                         </TabsTrigger>
                         <TabsTrigger
                             value="scenario"
-                            className="flex-1 xl:flex-none gap-2 py-2.5 px-6 rounded-lg data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all text-sm font-bold"
                         >
                             <MonitorPlay className="size-4" />
                             Live Voice Roleplay

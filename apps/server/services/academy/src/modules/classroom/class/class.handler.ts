@@ -13,7 +13,7 @@ import {
 
 @Controller()
 export class ClassHandler {
-  constructor(private readonly classes: ClassService) { }
+  constructor(private readonly classes: ClassService) {}
 
   // ==== Class CRUD ====
 
@@ -34,7 +34,14 @@ export class ClassHandler {
   }
 
   @MessagePattern({ cmd: 'academy.class.update' })
-  update(@Payload() data: { id: string; input: ClassUpdateDto; requesterId?: string }) {
+  update(
+    @Payload()
+    data: {
+      id: string;
+      input: ClassUpdateDto;
+      requesterId?: string;
+    },
+  ) {
     return this.classes.update(data.id, data.input, data.requesterId);
   }
 
@@ -79,7 +86,14 @@ export class ClassHandler {
   }
 
   @MessagePattern({ cmd: 'academy.class.duplicate' })
-  duplicate(@Payload() data: { id: string; input?: ClassDuplicateDto; requesterId?: string }) {
+  duplicate(
+    @Payload()
+    data: {
+      id: string;
+      input?: ClassDuplicateDto;
+      requesterId?: string;
+    },
+  ) {
     return this.classes.duplicate(data.id, data.input, data.requesterId);
   }
 
@@ -91,13 +105,17 @@ export class ClassHandler {
   }
 
   @MessagePattern({ cmd: 'academy.class.addAssignment' })
-  addAssignment(@Payload() data: ClassAssignmentCreateDto & { requesterId?: string }) {
+  addAssignment(
+    @Payload() data: ClassAssignmentCreateDto & { requesterId?: string },
+  ) {
     const { requesterId, ...input } = data;
     return this.classes.addAssignment(input, requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.class.updateAssignment' })
-  updateAssignment(@Payload() data: { id: string; input: ClassAssignmentUpdateDto }) {
+  updateAssignment(
+    @Payload() data: { id: string; input: ClassAssignmentUpdateDto },
+  ) {
     return this.classes.updateAssignment(data.id, data.input);
   }
 
@@ -121,6 +139,10 @@ export class ClassHandler {
 
   @MessagePattern({ cmd: 'academy.class.markLessonComplete' })
   markLessonComplete(@Payload() data: MarkLessonCompleteDto) {
-    return this.classes.markLessonComplete(data.userId, data.classId, data.lessonId);
+    return this.classes.markLessonComplete(
+      data.userId,
+      data.classId,
+      data.lessonId,
+    );
   }
 }

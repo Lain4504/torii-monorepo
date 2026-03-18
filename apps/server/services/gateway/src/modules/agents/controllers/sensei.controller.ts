@@ -1,31 +1,31 @@
 import {
-    Controller,
-    Post,
-    Get,
-    Body,
-    Inject,
-    Req,
-    UseGuards,
-    Logger,
-    BadRequestException,
-    InternalServerErrorException,
-    HttpException,
-    HttpStatus,
-    Patch,
-    Param,
-    Query,
+  Controller,
+  Post,
+  Get,
+  Body,
+  Inject,
+  Req,
+  UseGuards,
+  Logger,
+  BadRequestException,
+  InternalServerErrorException,
+  HttpException,
+  HttpStatus,
+  Patch,
+  Param,
+  Query,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import {
-    successResponse,
-    errorResponse,
-    GatewayAuthGuard,
-    ReqWithRequester,
-    AppConfigService,
-    generateLivekitAccessToken,
-    PermissionsGuard,
-    Permissions,
+  successResponse,
+  errorResponse,
+  GatewayAuthGuard,
+  ReqWithRequester,
+  AppConfigService,
+  generateLivekitAccessToken,
+  PermissionsGuard,
+  Permissions,
 } from '@server/shared';
 import { WajlcTokenClaimsSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
@@ -37,427 +37,431 @@ import { create } from '@bufbuild/protobuf';
  */
 @Controller('api/agents')
 export class SenseiHandler {
-    private readonly logger = new Logger(SenseiHandler.name);
+  private readonly logger = new Logger(SenseiHandler.name);
 
-    constructor(
-        @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-        private readonly appConfig: AppConfigService,
-    ) { }
+  constructor(
+    @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
+    private readonly appConfig: AppConfigService,
+  ) {}
 
-    @Post('grammar-check')
-    @UseGuards(GatewayAuthGuard)
-    async grammarCheck(@Req() req: ReqWithRequester, @Body() body: any) {
-        const requester = req.requester;
-        const userId = requester?.sub;
-        try {
+  @Post('grammar-check')
+  @UseGuards(GatewayAuthGuard)
+  async grammarCheck(@Req() req: ReqWithRequester, @Body() body: any) {
+    const requester = req.requester;
+    const userId = requester?.sub;
+    try {
+      this.logger.log(`📝 Grammar check request from user ${userId}`);
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'agents.sensei.grammarCheck' },
+          { requester, ...body },
+        ),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(`Grammar check failed for user ${userId}`, error.stack);
+      return errorResponse(error.message || 'Failed to check grammar');
+    }
+  }
 
+  @Post('translate')
+  @UseGuards(GatewayAuthGuard)
+  async translate(@Req() req: ReqWithRequester, @Body() body: any) {
+    const requester = req.requester;
+    const userId = requester?.sub;
+    try {
+      this.logger.log(`🌐 Translation request from user ${userId}`);
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'agents.sensei.translate' },
+          { requester, ...body },
+        ),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(`Translation failed for user ${userId}`, error.stack);
+      return errorResponse(error.message || 'Failed to translate');
+    }
+  }
 
-            this.logger.log(`📝 Grammar check request from user ${userId}`);
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'agents.sensei.grammarCheck' },
-                    { requester, ...body },
-                ),
-            );
-            return successResponse(result);
-        } catch (error: any) {
-            this.logger.error(`Grammar check failed for user ${userId}`, error.stack);
-            return errorResponse(error.message || 'Failed to check grammar');
+  @Post('flashcard')
+  @UseGuards(GatewayAuthGuard)
+  async createFlashcard(@Req() req: ReqWithRequester, @Body() body: any) {
+    const requester = req.requester;
+    const userId = requester?.sub;
+    try {
+      this.logger.log(`📇 Flashcard creation request from user ${userId}`);
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'agents.sensei.createFlashcard' },
+          { requester, ...body },
+        ),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(
+        `Flashcard creation failed for user ${userId}`,
+        error.stack,
+      );
+      return errorResponse(error.message || 'Failed to create flashcard');
+    }
+  }
+
+  @Post('drill/generate')
+  @UseGuards(GatewayAuthGuard)
+  async generateDrill(@Req() req: ReqWithRequester, @Body() body: any) {
+    const requester = req.requester;
+    const userId = requester?.sub;
+    try {
+      this.logger.log(`🎯 Drill generation request from user ${userId}`);
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'agents.sensei.generateDrill' },
+          { requester, ...body },
+        ),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(
+        `Drill generation failed for user ${userId}`,
+        error.stack,
+      );
+      return errorResponse(error.message || 'Failed to generate drill');
+    }
+  }
+
+  @Post('conversation/simulate')
+  @UseGuards(GatewayAuthGuard)
+  async simulateConversation(@Req() req: ReqWithRequester, @Body() body: any) {
+    const requester = req.requester;
+    const userId = requester?.sub;
+    try {
+      this.logger.log(`💬 Conversation simulation request from user ${userId}`);
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'agents.sensei.simulateConversation' },
+          { requester, ...body },
+        ),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(
+        `Conversation simulation failed for user ${userId}`,
+        error.stack,
+      );
+      return errorResponse(error.message || 'Failed to simulate conversation');
+    }
+  }
+
+  @Post('resources/recommend')
+  @UseGuards(GatewayAuthGuard)
+  async recommendResources(@Req() req: ReqWithRequester, @Body() body: any) {
+    const requester = req.requester;
+    const userId = requester?.sub;
+    try {
+      this.logger.log(`📚 Resource recommendation request from user ${userId}`);
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'agents.sensei.recommendResources' },
+          { requester, ...body },
+        ),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(
+        `Resource recommendation failed for user ${userId}`,
+        error.stack,
+      );
+      return errorResponse(error.message || 'Failed to recommend resources');
+    }
+  }
+
+  @Post('chat')
+  @UseGuards(GatewayAuthGuard)
+  async chat(@Req() req: ReqWithRequester, @Body() body: any) {
+    const requester = req.requester;
+    const userId = requester?.sub;
+    try {
+      this.logger.log(`💬 Chat request from user ${userId}`);
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'agents.sensei.chat' },
+          { requester, ...body },
+        ),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(`Chat failed for user ${userId}`, error.stack);
+      return errorResponse(error.message || 'Failed to chat');
+    }
+  }
+
+  @Post('roleplay')
+  @UseGuards(GatewayAuthGuard)
+  async roleplay(@Req() req: ReqWithRequester, @Body() body: any) {
+    const requester = req.requester;
+    const userId = requester?.sub;
+    try {
+      // Check Quota (only for the first turn or general turn)
+      if (!body.history || body.history.length === 0) {
+        const quota = await firstValueFrom(
+          this.natsClient.send(
+            { cmd: 'billing.quota.checkAndConsume' },
+            { userId, feature: 'ai_turns' },
+          ),
+        );
+        if (quota.allowed === false) {
+          return errorResponse(
+            `Bạn đã hết lượt sử dụng AI hôm nay. Vui lòng nâng cấp gói để tiếp tục.`,
+          );
         }
+      }
+
+      this.logger.log(`🎭 Roleplay request from user ${userId}`);
+
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'agents.sensei.roleplay' },
+          { requester, ...body },
+        ),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(`Roleplay failed`, error.stack);
+      return errorResponse(error.message || 'Failed to process roleplay');
+    }
+  }
+
+  @Post('tts')
+  @UseGuards(GatewayAuthGuard)
+  async tts(
+    @Req() req: ReqWithRequester,
+    @Body() body: { text: string; voice?: string },
+  ) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'agents.sensei.tts' },
+          { text: body.text, voice: body.voice },
+        ),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(`TTS generation failed`, error.stack);
+      return errorResponse(error.message || 'Failed to generate TTS');
+    }
+  }
+
+  @Post('livekit-token')
+  @UseGuards(GatewayAuthGuard)
+  async getLivekitToken(
+    @Req() req: ReqWithRequester,
+    @Body() body: { graphName?: string },
+  ) {
+    const requester = req.requester;
+    const userId = requester?.sub;
+
+    try {
+      this.logger.log(
+        `🔑 Fetching LiveKit Token for Roleplay Cloud from user ${userId}`,
+      );
+
+      // Check usage and deduct quota
+      const usageResult = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'billing.quota.checkAndConsume' },
+          {
+            userId,
+            feature: 'ai_turns',
+          },
+        ),
+      );
+
+      if (!usageResult || usageResult.allowed === false) {
+        return errorResponse(
+          usageResult?.message ||
+            'Bạn đã hết lượt sử dụng AI hôm nay. Vui lòng nâng cấp gói để tiếp tục.',
+        );
+      }
+
+      const { apiKey, apiSecret, wsUrl } = this.appConfig.livekitRoleplay;
+      const tokenValidity = 7200; // 2 hours
+      // Unique room per-session: prevents old agent from interfering with new session
+      const graphName = body.graphName || 'japanese_tutor';
+      const sessionId = Date.now().toString(36);
+      const roomId = `roleplay-${graphName}-${userId}-${sessionId}`;
+
+      const claims = create(WajlcTokenClaimsSchema, {
+        roomId: roomId,
+        name: (requester as any)?.name || 'Student',
+        userId: userId,
+        isAdmin: false,
+      });
+
+      const token = await generateLivekitAccessToken(
+        apiKey,
+        apiSecret,
+        tokenValidity,
+        claims,
+      );
+
+      return successResponse({
+        token,
+        wsUrl,
+        roomId,
+        quota: usageResult.status,
+      });
+    } catch (error: any) {
+      this.logger.error(
+        `Failed to generate LiveKit token for user ${userId}`,
+        error.stack,
+      );
+      return errorResponse(error.message || 'Failed to generate token');
+    }
+  }
+
+  @Get('sensei/subscription-plans')
+  @UseGuards(GatewayAuthGuard)
+  async getSubscriptionPlans() {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send({ cmd: 'billing.subscription.getPlans' }, {}),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(`Failed to fetch subscription plans`, error.stack);
+      return successResponse([]); // Return empty array instead of error for UI stability
+    }
+  }
+
+  @Get('sensei/quota-status')
+  @UseGuards(GatewayAuthGuard)
+  async getQuotaStatus(@Req() req: ReqWithRequester) {
+    const userId = req.requester?.sub;
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'billing.quota.getStatus' },
+          {
+            userId,
+            feature: 'ai_turns',
+          },
+        ),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(
+        `Failed to get quota status for user ${userId}`,
+        error.stack,
+      );
+      return errorResponse(error.message || 'Failed to fetch quota status');
+    }
+  }
+
+  // --- Admin CRUD for Subscriptions ---
+
+  @Get('admin/subscriptions/plans')
+  @UseGuards(GatewayAuthGuard, PermissionsGuard)
+  @Permissions('academy:subscription:admin')
+  async admin_getPlans() {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'admin.billing.subscription.getAllPlans' },
+          {},
+        ),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(`Failed to fetch all subscription plans`, error.stack);
+      return errorResponse(error.message || 'Failed to fetch plans');
+    }
+  }
+
+  @Patch('admin/subscriptions/plans/:id')
+  @UseGuards(GatewayAuthGuard, PermissionsGuard)
+  @Permissions('academy:subscription:admin')
+  async admin_updatePlan(@Param('id') id: string, @Body() body: any) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'admin.billing.subscription.updatePlan' },
+          { id, plan: body },
+        ),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(
+        `Failed to update subscription plan ${id}`,
+        error.stack,
+      );
+      return errorResponse(error.message || 'Failed to update plan');
+    }
+  }
+
+  @Get('admin/subscriptions/user-subscriptions')
+  @UseGuards(GatewayAuthGuard, PermissionsGuard)
+  @Permissions('academy:subscription:admin')
+  async admin_getUserSubscriptions(@Query() query: any) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'admin.billing.subscription.getUserSubscriptions' },
+          {
+            page: parseInt(query.page) || 1,
+            limit: parseInt(query.limit) || 10,
+            search: query.search,
+          },
+        ),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(`Failed to fetch user subscriptions`, error.stack);
+      return errorResponse(
+        error.message || 'Failed to fetch user subscriptions',
+      );
+    }
+  }
+
+  private joinCooldowns = new Map<string, number>();
+
+  /**
+   * Called by the frontend when the live voice session ends.
+   * Triggers reliable token-based billing via NATS, as a fallback / complement
+   * to the LiveKit agent's metrics-based billing (which may not fire for Gemini native audio).
+   */
+  @Post('livekit-end')
+  @UseGuards(GatewayAuthGuard)
+  async livekitEnd(
+    @Req() req: ReqWithRequester,
+    @Body()
+    body: {
+      roomName: string;
+      inputTokens: number;
+      outputTokens: number;
+      totalTokens: number;
+      durationSec?: number;
+    },
+  ) {
+    const requester = req.requester;
+    const userId = requester?.sub;
+
+    try {
+      this.logger.log(
+        `🔚 LiveKit session ended for room ${body.roomName}, user=${userId}, tokens=${body.totalTokens}, duration=${body.durationSec ?? 0}s (Billing disabled)`,
+      );
+
+      return successResponse({
+        billed: false,
+      });
+    } catch (error: any) {
+      this.logger.error(
+        `❌ Error in livekit-end (billing disabled) for user ${userId}: ${error.message}`,
+      );
+      return errorResponse(error.message || 'Failed to process session end');
     }
 
-    @Post('translate')
-    @UseGuards(GatewayAuthGuard)
-    async translate(@Req() req: ReqWithRequester, @Body() body: any) {
-        const requester = req.requester;
-        const userId = requester?.sub;
-        try {
-
-
-            this.logger.log(`🌐 Translation request from user ${userId}`);
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'agents.sensei.translate' },
-                    { requester, ...body },
-                ),
-            );
-            return successResponse(result);
-        } catch (error: any) {
-            this.logger.error(`Translation failed for user ${userId}`, error.stack);
-            return errorResponse(error.message || 'Failed to translate');
-        }
-    }
-
-    @Post('flashcard')
-    @UseGuards(GatewayAuthGuard)
-    async createFlashcard(@Req() req: ReqWithRequester, @Body() body: any) {
-        const requester = req.requester;
-        const userId = requester?.sub;
-        try {
-
-
-            this.logger.log(`📇 Flashcard creation request from user ${userId}`);
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'agents.sensei.createFlashcard' },
-                    { requester, ...body },
-                ),
-            );
-            return successResponse(result);
-        } catch (error: any) {
-            this.logger.error(
-                `Flashcard creation failed for user ${userId}`,
-                error.stack,
-            );
-            return errorResponse(error.message || 'Failed to create flashcard');
-        }
-    }
-
-    @Post('drill/generate')
-    @UseGuards(GatewayAuthGuard)
-    async generateDrill(@Req() req: ReqWithRequester, @Body() body: any) {
-        const requester = req.requester;
-        const userId = requester?.sub;
-        try {
-            this.logger.log(`🎯 Drill generation request from user ${userId}`);
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'agents.sensei.generateDrill' },
-                    { requester, ...body },
-                ),
-            );
-            return successResponse(result);
-        } catch (error: any) {
-            this.logger.error(
-                `Drill generation failed for user ${userId}`,
-                error.stack,
-            );
-            return errorResponse(error.message || 'Failed to generate drill');
-        }
-    }
-
-    @Post('conversation/simulate')
-    @UseGuards(GatewayAuthGuard)
-    async simulateConversation(@Req() req: ReqWithRequester, @Body() body: any) {
-        const requester = req.requester;
-        const userId = requester?.sub;
-        try {
-
-
-            this.logger.log(`💬 Conversation simulation request from user ${userId}`);
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'agents.sensei.simulateConversation' },
-                    { requester, ...body },
-                ),
-            );
-            return successResponse(result);
-        } catch (error: any) {
-            this.logger.error(
-                `Conversation simulation failed for user ${userId}`,
-                error.stack,
-            );
-            return errorResponse(error.message || 'Failed to simulate conversation');
-        }
-    }
-
-    @Post('resources/recommend')
-    @UseGuards(GatewayAuthGuard)
-    async recommendResources(@Req() req: ReqWithRequester, @Body() body: any) {
-        const requester = req.requester;
-        const userId = requester?.sub;
-        try {
-            this.logger.log(`📚 Resource recommendation request from user ${userId}`);
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'agents.sensei.recommendResources' },
-                    { requester, ...body },
-                ),
-            );
-            return successResponse(result);
-        } catch (error: any) {
-            this.logger.error(
-                `Resource recommendation failed for user ${userId}`,
-                error.stack,
-            );
-            return errorResponse(error.message || 'Failed to recommend resources');
-        }
-    }
-
-    @Post('chat')
-    @UseGuards(GatewayAuthGuard)
-    async chat(@Req() req: ReqWithRequester, @Body() body: any) {
-        const requester = req.requester;
-        const userId = requester?.sub;
-        try {
-
-
-            this.logger.log(`💬 Chat request from user ${userId}`);
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'agents.sensei.chat' },
-                    { requester, ...body },
-                ),
-            );
-            return successResponse(result);
-        } catch (error: any) {
-            this.logger.error(`Chat failed for user ${userId}`, error.stack);
-            return errorResponse(error.message || 'Failed to chat');
-        }
-    }
-
-    @Post('roleplay')
-    @UseGuards(GatewayAuthGuard)
-    async roleplay(@Req() req: ReqWithRequester, @Body() body: any) {
-        const requester = req.requester;
-        const userId = requester?.sub;
-        try {
-            // Check Quota (only for the first turn or general turn)
-            if (!body.history || body.history.length === 0) {
-                const quota = await firstValueFrom(
-                    this.natsClient.send({ cmd: 'billing.quota.checkAndConsume' }, { userId, feature: 'ai_turns' })
-                );
-                if (quota.allowed === false) {
-                    return errorResponse(`Bạn đã hết lượt sử dụng AI hôm nay. Vui lòng nâng cấp gói để tiếp tục.`);
-                }
-            }
-
-            this.logger.log(`🎭 Roleplay request from user ${userId}`);
-
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'agents.sensei.roleplay' },
-                    { requester, ...body },
-                ),
-            );
-            return successResponse(result);
-        } catch (error: any) {
-            this.logger.error(`Roleplay failed`, error.stack);
-            return errorResponse(error.message || 'Failed to process roleplay');
-        }
-    }
-
-    @Post('tts')
-    @UseGuards(GatewayAuthGuard)
-    async tts(
-        @Req() req: ReqWithRequester,
-        @Body() body: { text: string; voice?: string },
-    ) {
-        try {
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'agents.sensei.tts' },
-                    { text: body.text, voice: body.voice },
-                ),
-            );
-            return successResponse(result);
-        } catch (error: any) {
-            this.logger.error(`TTS generation failed`, error.stack);
-            return errorResponse(error.message || 'Failed to generate TTS');
-        }
-    }
-
-    @Post('livekit-token')
-    @UseGuards(GatewayAuthGuard)
-    async getLivekitToken(
-        @Req() req: ReqWithRequester,
-        @Body() body: { graphName?: string },
-    ) {
-        const requester = req.requester;
-        const userId = requester?.sub;
-
-        try {
-            this.logger.log(
-                `🔑 Fetching LiveKit Token for Roleplay Cloud from user ${userId}`,
-            );
-
-            // Check usage and deduct quota
-            const usageResult = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'billing.quota.checkAndConsume' },
-                    {
-                        userId,
-                        feature: 'ai_turns',
-                    },
-                ),
-            );
-
-            if (!usageResult || usageResult.allowed === false) {
-                return errorResponse(
-                    usageResult?.message ||
-                    'Bạn đã hết lượt sử dụng AI hôm nay. Vui lòng nâng cấp gói để tiếp tục.',
-                );
-            }
-
-            const { apiKey, apiSecret, wsUrl } = this.appConfig.livekitRoleplay;
-            const tokenValidity = 7200; // 2 hours
-            // Unique room per-session: prevents old agent from interfering with new session
-            const graphName = body.graphName || 'japanese_tutor';
-            const sessionId = Date.now().toString(36);
-            const roomId = `roleplay-${graphName}-${userId}-${sessionId}`;
-
-            const claims = create(WajlcTokenClaimsSchema, {
-                roomId: roomId,
-                name: (requester as any)?.name || 'Student',
-                userId: userId,
-                isAdmin: false,
-            });
-
-            const token = await generateLivekitAccessToken(
-                apiKey,
-                apiSecret,
-                tokenValidity,
-                claims,
-            );
-
-            return successResponse({
-                token,
-                wsUrl,
-                roomId,
-                quota: usageResult.status,
-            });
-        } catch (error: any) {
-            this.logger.error(
-                `Failed to generate LiveKit token for user ${userId}`,
-                error.stack,
-            );
-            return errorResponse(error.message || 'Failed to generate token');
-        }
-    }
-
-    @Get('sensei/subscription-plans')
-    @UseGuards(GatewayAuthGuard)
-    async getSubscriptionPlans() {
-        try {
-            const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'billing.subscription.getPlans' }, {}),
-            );
-            return successResponse(result);
-        } catch (error: any) {
-            this.logger.error(`Failed to fetch subscription plans`, error.stack);
-            return successResponse([]); // Return empty array instead of error for UI stability
-        }
-    }
-
-    @Get('sensei/quota-status')
-    @UseGuards(GatewayAuthGuard)
-    async getQuotaStatus(@Req() req: ReqWithRequester) {
-        const userId = req.requester?.sub;
-        try {
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'billing.quota.getStatus' },
-                    {
-                        userId,
-                        feature: 'ai_turns',
-                    },
-                ),
-            );
-            return successResponse(result);
-        } catch (error: any) {
-            this.logger.error(
-                `Failed to get quota status for user ${userId}`,
-                error.stack,
-            );
-            return errorResponse(error.message || 'Failed to fetch quota status');
-        }
-    }
-
-    // --- Admin CRUD for Subscriptions ---
-
-    @Get('admin/subscriptions/plans')
-    @UseGuards(GatewayAuthGuard, PermissionsGuard)
-    @Permissions('academy:subscription:admin')
-    async admin_getPlans() {
-        try {
-            const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'admin.billing.subscription.getAllPlans' }, {}),
-            );
-            return successResponse(result);
-        } catch (error: any) {
-            this.logger.error(`Failed to fetch all subscription plans`, error.stack);
-            return errorResponse(error.message || 'Failed to fetch plans');
-        }
-    }
-
-    @Patch('admin/subscriptions/plans/:id')
-    @UseGuards(GatewayAuthGuard, PermissionsGuard)
-    @Permissions('academy:subscription:admin')
-    async admin_updatePlan(@Param('id') id: string, @Body() body: any) {
-        try {
-            const result = await firstValueFrom(
-                this.natsClient.send({ cmd: 'admin.billing.subscription.updatePlan' }, { id, plan: body }),
-            );
-            return successResponse(result);
-        } catch (error: any) {
-            this.logger.error(`Failed to update subscription plan ${id}`, error.stack);
-            return errorResponse(error.message || 'Failed to update plan');
-        }
-    }
-
-    @Get('admin/subscriptions/user-subscriptions')
-    @UseGuards(GatewayAuthGuard, PermissionsGuard)
-    @Permissions('academy:subscription:admin')
-    async admin_getUserSubscriptions(@Query() query: any) {
-        try {
-            const result = await firstValueFrom(
-                this.natsClient.send(
-                    { cmd: 'admin.billing.subscription.getUserSubscriptions' },
-                    {
-                        page: parseInt(query.page) || 1,
-                        limit: parseInt(query.limit) || 10,
-                        search: query.search,
-                    },
-                ),
-            );
-            return successResponse(result);
-        } catch (error: any) {
-            this.logger.error(`Failed to fetch user subscriptions`, error.stack);
-            return errorResponse(error.message || 'Failed to fetch user subscriptions');
-        }
-    }
-
-    private joinCooldowns = new Map<string, number>();
-
-
-
-    /**
-     * Called by the frontend when the live voice session ends.
-     * Triggers reliable token-based billing via NATS, as a fallback / complement
-     * to the LiveKit agent's metrics-based billing (which may not fire for Gemini native audio).
-     */
-    @Post('livekit-end')
-    @UseGuards(GatewayAuthGuard)
-    async livekitEnd(
-        @Req() req: ReqWithRequester,
-        @Body()
-        body: {
-            roomName: string;
-            inputTokens: number;
-            outputTokens: number;
-            totalTokens: number;
-            durationSec?: number;
-        },
-    ) {
-        const requester = req.requester;
-        const userId = requester?.sub;
-
-        try {
-            this.logger.log(
-                `🔚 LiveKit session ended for room ${body.roomName}, user=${userId}, tokens=${body.totalTokens}, duration=${body.durationSec ?? 0}s (Billing disabled)`,
-            );
-
-            return successResponse({
-                billed: false,
-            });
-        } catch (error: any) {
-            this.logger.error(
-                `❌ Error in livekit-end (billing disabled) for user ${userId}: ${error.message}`,
-            );
-            return errorResponse(error.message || 'Failed to process session end');
-        }
-
-        /*
+    /*
         try {
             if (body.totalTokens > 0) {
                 // Primary: token-based billing
@@ -509,5 +513,5 @@ export class SenseiHandler {
             return errorResponse(error.message || 'Failed to bill session');
         }
         */
-    }
+  }
 }

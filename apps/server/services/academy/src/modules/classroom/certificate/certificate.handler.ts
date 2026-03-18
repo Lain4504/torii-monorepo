@@ -17,7 +17,9 @@ export class CertificateHandler {
   }
 
   @MessagePattern({ cmd: 'academy.certificate.findByUserId' })
-  findByUserId(@Payload() data: { userId: string; page?: string; limit?: string }) {
+  findByUserId(
+    @Payload() data: { userId: string; page?: string; limit?: string },
+  ) {
     return this.certificates.findAll({ ...data, userId: data.userId });
   }
 
@@ -26,4 +28,3 @@ export class CertificateHandler {
     return this.certificates.verifyByCode(data.code);
   }
 }
-

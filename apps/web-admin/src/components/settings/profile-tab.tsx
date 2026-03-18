@@ -1,21 +1,7 @@
-import {
-    Card,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-    CardContent,
-} from '@workspace/ui/components/card';
-import {
-    Item,
-    ItemMedia,
-    ItemContent,
-    ItemTitle,
-    ItemDescription,
-} from '@workspace/ui/components/item';
-import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert";
-import { User, Mail, Calendar, Shield } from 'lucide-react';
+import { Mail, Shield, User, Calendar, CheckCircle, AlertCircle } from 'lucide-react';
 import { formatRelativeTime } from '@/lib/format-utils';
 import { useAppSelector } from '@/hooks/hooks';
+import { cn } from '@workspace/ui/lib/utils';
 
 export function ProfileTab() {
     const user = useAppSelector((state) => state.auth.user);
@@ -28,80 +14,70 @@ export function ProfileTab() {
         );
     }
 
+    const infoItems = [
+        {
+            label: 'Tên Hiển Thị',
+            value: user.displayName || 'Chưa thiết lập',
+            icon: <User className="size-4" />,
+        },
+        {
+            label: 'Email',
+            value: user.email,
+            icon: <Mail className="size-4" />,
+        },
+        {
+            label: 'Vai Trò',
+            value: user.role,
+            icon: <Shield className="size-4" />,
+        },
+        {
+            label: 'Tham Gia Từ',
+            value: user.createdAt ? formatRelativeTime(user.createdAt) : 'N/A',
+            icon: <Calendar className="size-4" />,
+        },
+    ];
+
     return (
-        <div className="space-y-4">
-            {/* Profile Info Card */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Thông Tin Hồ Sơ</CardTitle>
-                    <CardDescription>Chi tiết tài khoản và thông tin cá nhân của bạn</CardDescription>
-                </CardHeader>
+        <div className="space-y-8">
+            <div className="space-y-1">
+                <h2 className="text-xl font-bold tracking-tight">Thông Tin Hồ Sơ</h2>
+                <p className="text-sm text-muted-foreground">Chi tiết tài khoản và thông tin cá nhân của bạn</p>
+            </div>
 
-                <CardContent className="grid gap-4 sm:grid-cols-2">
-                    <Item variant="outline">
-                        <ItemMedia>
-                            <User className="size-4 text-muted-foreground" />
-                        </ItemMedia>
-                        <ItemContent>
-                            <ItemTitle className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Tên Hiển Thị</ItemTitle>
-                            <ItemDescription className="text-sm font-semibold text-foreground">
-                                {user.displayName || 'Chưa thiết lập'}
-                            </ItemDescription>
-                        </ItemContent>
-                    </Item>
+            <div className="space-y-8 max-w-2xl">
+                {infoItems.map((item, index) => (
+                    <div key={index} className="space-y-2 group">
+                        <div className="flex items-center gap-2 text-muted-foreground/60 group-hover:text-primary transition-colors">
+                            {item.icon}
+                            <span className="text-[10px] font-bold uppercase tracking-wider">
+                                {item.label}
+                            </span>
+                        </div>
+                        <div className="text-base font-semibold text-foreground pl-6 border-l-2 border-primary/10 group-hover:border-primary/40 transition-all">
+                            {item.value}
+                        </div>
+                    </div>
+                ))}
+            </div>
 
-                    <Item variant="outline">
-                        <ItemMedia>
-                            <Mail className="size-4 text-muted-foreground" />
-                        </ItemMedia>
-                        <ItemContent>
-                            <ItemTitle className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Email</ItemTitle>
-                            <ItemDescription className="text-sm font-semibold text-foreground truncate">
-                                {user.email}
-                            </ItemDescription>
-                        </ItemContent>
-                    </Item>
-
-                    <Item variant="outline">
-                        <ItemMedia>
-                            <Shield className="size-4 text-muted-foreground" />
-                        </ItemMedia>
-                        <ItemContent>
-                            <ItemTitle className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Vai Trò</ItemTitle>
-                            <ItemDescription className="text-sm font-semibold text-foreground capitalize">
-                                {user.role}
-                            </ItemDescription>
-                        </ItemContent>
-                    </Item>
-
-                    {user.createdAt && (
-                        <Item variant="outline">
-                            <ItemMedia>
-                                <Calendar className="size-4 text-muted-foreground" />
-                            </ItemMedia>
-                            <ItemContent>
-                                <ItemTitle className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Tham Gia Từ</ItemTitle>
-                                <ItemDescription className="text-sm font-semibold text-foreground">
-                                    {formatRelativeTime(user.createdAt)}
-                                </ItemDescription>
-                            </ItemContent>
-                        </Item>
-                    )}
-                </CardContent>
-            </Card>
-
-            {/* Email Verification Status */}
-            <Alert variant={user.verifiedAt ? "default" : "destructive"} className={user.verifiedAt ? "border-emerald-500/20 bg-emerald-500/5 text-emerald-600" : ""}>
-                <Mail className="size-4" />
-                <AlertTitle>
-                    {user.verifiedAt ? 'Email Đã Xác Thực' : 'Email Chưa Xác Thực'}
-                </AlertTitle>
-                <AlertDescription>
-                    {user.verifiedAt
-                        ? 'Địa chỉ email của bạn đã được xác minh.'
-                        : 'Vui lòng xác minh địa chỉ email để truy cập đầy đủ các tính năng.'}
-                </AlertDescription>
-            </Alert>
+            <div className={cn(
+                "rounded-lg p-4 flex items-start gap-3 transition-all border",
+                user.verifiedAt 
+                    ? "bg-emerald-500/5 border-emerald-500/10 text-emerald-600" 
+                    : "bg-destructive/5 border-destructive/10 text-destructive"
+            )}>
+                {user.verifiedAt ? <CheckCircle className="size-5 shrink-0" /> : <AlertCircle className="size-5 shrink-0" />}
+                <div className="space-y-1">
+                    <p className="text-sm font-bold">
+                        {user.verifiedAt ? 'Email Đã Xác Thực' : 'Email Chưa Xác Thực'}
+                    </p>
+                    <p className="text-xs opacity-80">
+                        {user.verifiedAt
+                            ? 'Địa chỉ email của bạn đã được xác minh thành công.'
+                            : 'Vui lòng xác minh địa chỉ email để đảm bảo quyền lợi và bảo mật tài khoản.'}
+                    </p>
+                </div>
+            </div>
         </div>
     );
 }

@@ -26,7 +26,7 @@ import { orderCheckoutSchema, orderPreviewSchema } from './order.schema';
 @Controller('api/academy/orders')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class OrderController {
-  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) { }
+  constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
 
   @Post('preview')
   async preview(
@@ -112,7 +112,6 @@ export class OrderController {
     );
     return successResponse(result);
   }
-
 
   @Get('admin/:id')
   @Permissions('academy:order:admin')

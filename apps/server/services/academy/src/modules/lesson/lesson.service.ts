@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { LessonType } from '@prisma/generated';
 import { AuditLoggerService } from '../audit-logger.service';
@@ -31,7 +35,7 @@ export class LessonService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
-  ) { }
+  ) {}
 
   async findAll(query: LessonQueryDto) {
     const q = query.q?.trim();
@@ -39,9 +43,7 @@ export class LessonService {
     return this.prisma.lesson.findMany({
       where: {
         moduleId: query.moduleId ?? undefined,
-        module: query.syllabusId
-          ? { syllabusId: query.syllabusId }
-          : undefined,
+        module: query.syllabusId ? { syllabusId: query.syllabusId } : undefined,
         ...(q ? { title: { contains: q, mode: 'insensitive' } } : {}),
       },
       include: {
@@ -75,12 +77,16 @@ export class LessonService {
     if (!module) throw new BadRequestException('Invalid moduleId');
 
     if (module.syllabus.status === 'LOCKED') {
-      throw new BadRequestException('Cannot modify lessons in a LOCKED syllabus');
+      throw new BadRequestException(
+        'Cannot modify lessons in a LOCKED syllabus',
+      );
     }
 
     const nextOrder =
       input.orderIndex ??
-      ((await this.prisma.lesson.count({ where: { moduleId: input.moduleId } })) + 1);
+      (await this.prisma.lesson.count({
+        where: { moduleId: input.moduleId },
+      })) + 1;
 
     const item = await this.prisma.lesson.create({
       data: {
@@ -116,7 +122,9 @@ export class LessonService {
       select: { syllabus: { select: { status: true } } },
     });
     if (module?.syllabus.status === 'LOCKED') {
-      throw new BadRequestException('Cannot modify lessons in a LOCKED syllabus');
+      throw new BadRequestException(
+        'Cannot modify lessons in a LOCKED syllabus',
+      );
     }
 
     const item = await this.prisma.lesson.update({
@@ -154,7 +162,9 @@ export class LessonService {
       select: { syllabus: { select: { status: true } } },
     });
     if (module?.syllabus.status === 'LOCKED') {
-      throw new BadRequestException('Cannot delete lessons from a LOCKED syllabus');
+      throw new BadRequestException(
+        'Cannot delete lessons from a LOCKED syllabus',
+      );
     }
 
     await this.prisma.lesson.delete({ where: { id } });

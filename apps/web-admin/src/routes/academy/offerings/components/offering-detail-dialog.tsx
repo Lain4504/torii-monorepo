@@ -16,9 +16,9 @@ import {
   FieldLegend,
 } from "@workspace/ui/components/field"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
-import type { AcademyCourseOffering } from "@/lib/api/services/academy-course-offerings"
-import { ExternalLink } from "lucide-react"
 import { useNavigate } from "react-router-dom"
+import { useAvailableClassesForOffering, type AcademyCourseOffering } from "@/lib/api/services/academy-course-offerings"
+import { ExternalLink } from "lucide-react"
 
 interface OfferingDetailDialogProps {
   open: boolean
@@ -28,6 +28,9 @@ interface OfferingDetailDialogProps {
 
 export function OfferingDetailDialog({ open, onOpenChange, offering }: OfferingDetailDialogProps) {
   const navigate = useNavigate()
+  const { data: availableClasses = [] } = useAvailableClassesForOffering({
+    mode: (offering as any)?.mode,
+  })
 
   if (!offering) return null
 
@@ -106,15 +109,19 @@ export function OfferingDetailDialog({ open, onOpenChange, offering }: OfferingD
                 <FieldSet>
                   <FieldLegend>Lớp học liên kết ({offering.classes?.length || 0})</FieldLegend>
                   <div className="mt-2 space-y-2">
-                    {offering.classes?.map((cls: any) => (
-                      <div key={cls.id || cls.classId} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
-                        <div className="flex flex-col gap-1">
-                          <span className="text-sm font-medium">{cls.name || cls.title || 'Lớp học'}</span>
-                          <span className="text-xs text-muted-foreground font-mono">{cls.code}</span>
+                    {offering.classes?.map((item: any) => {
+                      const classId = item.id || item.classId
+                      const cls = availableClasses.find((c: any) => c.id === classId) || item
+                      return (
+                        <div key={classId} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+                          <div className="flex flex-col gap-1">
+                            <span className="text-sm font-medium">{cls.name || cls.title || 'Lớp học'}</span>
+                            <span className="text-xs text-muted-foreground font-mono">{cls.code}</span>
+                          </div>
+                          <Badge variant="outline" className="text-[10px]">{cls.mode || (offering as any).mode}</Badge>
                         </div>
-                        <Badge variant="outline" className="text-[10px]">{cls.mode}</Badge>
-                      </div>
-                    ))}
+                      )
+                    })}
                     {(!offering.classes || offering.classes.length === 0) && (
                       <div className="text-sm text-muted-foreground italic">Không có lớp học liên kết.</div>
                     )}

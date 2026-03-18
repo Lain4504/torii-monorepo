@@ -7,7 +7,7 @@ import type { IStorageRepository } from '@server/academy/interfaces/repositories
 export class StorageRepository implements IStorageRepository {
   private readonly logger = new Logger(StorageRepository.name);
 
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async findById(fileId: string): Promise<FileAsset | null> {
     return this.prisma.fileAsset.findUnique({

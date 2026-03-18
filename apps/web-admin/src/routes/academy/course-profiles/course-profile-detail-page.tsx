@@ -2,10 +2,25 @@ import { useParams, Link } from "react-router-dom"
 import { useAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
 import { useAcademyClasses } from "@/lib/api/services/academy-classes"
 import { PageHeader } from "@/components/common/page-header"
-import { ChevronRight, BookOpen, Layers, Users } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
+import { ChevronRight, BookOpen, Users } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs-lifted"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
+import { Button } from "@workspace/ui/components/button"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@workspace/ui/components/table"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 
 export default function CourseProfileDetailPage() {
@@ -49,17 +64,6 @@ export default function CourseProfileDetailPage() {
         ]}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-2">
-                <Layers className="size-4" /> Tổng số lớp học
-            </CardDescription>
-            <CardTitle className="text-2xl font-bold">{classes?.length || 0}</CardTitle>
-          </CardHeader>
-        </Card>
-      </div>
-
       <Tabs defaultValue="info" className="w-full">
         <TabsList>
           <TabsTrigger value="info" className="gap-2">
@@ -77,7 +81,7 @@ export default function CourseProfileDetailPage() {
                     <CardTitle>Thông tin khóa học</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-3 gap-4">
                         <div>
                             <p className="text-xs text-muted-foreground uppercase font-semibold">Tên khóa học</p>
                             <p className="text-sm font-medium">{profile.title}</p>
@@ -85,6 +89,10 @@ export default function CourseProfileDetailPage() {
                         <div>
                             <p className="text-xs text-muted-foreground uppercase font-semibold">Mã khóa (Code)</p>
                             <p className="text-sm font-mono">{profile.code}</p>
+                        </div>
+                        <div>
+                            <p className="text-xs text-muted-foreground uppercase font-semibold">Số lượng lớp học</p>
+                            <p className="text-sm font-medium">{classes?.length || 0} lớp</p>
                         </div>
                     </div>
                     <div>
@@ -101,29 +109,50 @@ export default function CourseProfileDetailPage() {
                     <CardTitle>Các lớp học thuộc khóa này</CardTitle>
                     <CardDescription>Danh sách các lớp học hiện có của khóa {profile.title}.</CardDescription>
                 </CardHeader>
-                <CardContent>
-                    <div className="space-y-2">
-                        {classes?.map((cls) => (
-                            <Link 
-                                key={cls.id} 
-                                to={`/academy/classes/${cls.id}/detail`}
-                                className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors"
-                            >
-                                <div>
-                                    <p className="text-sm font-medium">{cls.name}</p>
-                                    <p className="text-xs text-muted-foreground font-mono">{cls.code}</p>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <Badge variant="outline">{cls.mode}</Badge>
-                                    <Badge variant={cls.status === 'PUBLISHED' ? 'default' : 'secondary'}>{cls.status}</Badge>
-                                    <ChevronRight className="size-4 text-muted-foreground" />
-                                </div>
-                            </Link>
-                        ))}
-                        {(!classes || classes.length === 0) && (
-                            <p className="text-sm text-muted-foreground italic text-center py-8">Chưa có lớp học nào được tạo.</p>
-                        )}
-                    </div>
+                <CardContent className="p-0">
+                    <Table>
+                        <TableHeader className="bg-muted/50">
+                            <TableRow className="hover:bg-transparent">
+                                <TableHead className="w-12 px-6">STT</TableHead>
+                                <TableHead>Mã lớp</TableHead>
+                                <TableHead>Tên lớp</TableHead>
+                                <TableHead>Hình thức</TableHead>
+                                <TableHead>Trạng thái</TableHead>
+                                <TableHead className="text-right px-6">Thao tác</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {classes?.map((cls, index) => (
+                                <TableRow key={cls.id} className="group transition-colors">
+                                    <TableCell className="px-6 text-muted-foreground tabular-nums">{index + 1}</TableCell>
+                                    <TableCell className="font-mono text-xs font-bold">{cls.code}</TableCell>
+                                    <TableCell className="font-medium">{cls.name}</TableCell>
+                                    <TableCell>
+                                        <Badge variant="outline" className="uppercase">{cls.mode}</Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Badge variant={cls.status === 'PUBLISHED' ? 'default' : 'secondary'}>
+                                            {cls.status === 'PUBLISHED' ? 'Đang hoạt động' : cls.status}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell className="text-right px-6">
+                                        <Button variant="ghost" size="sm" asChild className="h-8 gap-1.5 hover:text-primary">
+                                            <Link to={`/academy/classes/${cls.id}/detail`}>
+                                                Chi tiết <ChevronRight className="size-4" />
+                                            </Link>
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                            {(!classes || classes.length === 0) && (
+                                <TableRow>
+                                    <TableCell colSpan={6} className="h-32 text-center text-muted-foreground italic">
+                                        Chưa có lớp học nào được tạo.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
                 </CardContent>
              </Card>
           </TabsContent>

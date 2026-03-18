@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { toast } from 'react-toastify';
 import { InsightsChatTranslationConfigReqSchema } from '@workspace/protocol';
 import { create } from '@bufbuild/protobuf';
+import { Button } from '@workspace/ui/components/button';
 
 import TransLangsSelector from '@/components/translation-transcription/transcription-settings/transLangsSelector';
 import { useAppDispatch, useAppSelector } from '@/store';
@@ -109,27 +110,27 @@ const ChatTranslationSettings = ({
       </div>
       <div className="px-6 py-6 border-t border-border flex justify-end items-center gap-4 rounded-b-xl bg-card">
         {!chatTranslationFeatures?.isEnabled && (
-          <button
+          <Button
             className="h-10 px-8 w-auto cursor-pointer text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-all duration-300 shadow-sm"
             onClick={() => enableOrUpdateService()}
           >
             Kích hoạt dịch vụ
-          </button>
+          </Button>
         )}
         {chatTranslationFeatures?.isEnabled && (
           <>
-            <button
+            <Button
               className="h-10 px-8 w-auto cursor-pointer text-sm font-semibold bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-lg transition-all duration-300 shadow-sm"
               onClick={() => stopService()}
             >
               Dừng dịch vụ
-            </button>
-            <button
+            </Button>
+            <Button
               className="h-10 px-8 w-auto cursor-pointer text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-all duration-300 shadow-sm"
               onClick={() => enableOrUpdateService()}
             >
               Cập nhật dịch vụ
-            </button>
+            </Button>
           </>
         )}
       </div>

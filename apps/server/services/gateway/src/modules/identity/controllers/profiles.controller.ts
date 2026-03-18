@@ -14,7 +14,7 @@ import { Public, successResponse, errorResponse } from '@server/shared';
 export class ProfilesController {
   constructor(
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) { }
+  ) {}
 
   @Get(':id')
   @Public()

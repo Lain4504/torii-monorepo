@@ -7,5 +7,4 @@ import { AssignmentSubmissionService } from './assignment-submission.service';
   controllers: [AssignmentSubmissionHandler],
   exports: [AssignmentSubmissionService],
 })
-export class AssignmentSubmissionModule { }
-
+export class AssignmentSubmissionModule {}

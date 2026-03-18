@@ -206,7 +206,7 @@ export function ClassDialog({ open, onOpenChange, academyClass, initialMode = "L
       }
       onOpenChange(false)
     } catch (error: any) {
-      toast.error(error.message || "Đã xảy ra lỗi")
+      toast.error(error?.userMessage || error?.message || "Đã xảy ra lỗi")
     }
   }
 

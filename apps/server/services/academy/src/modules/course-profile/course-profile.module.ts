@@ -10,5 +10,4 @@ import { SyllabusModuleHandler } from './syllabus-module.handler';
   controllers: [CourseProfileHandler, SyllabusModuleHandler],
   exports: [CourseProfileService, SyllabusService, SyllabusModuleService],
 })
-export class CourseProfileModule { }
-
+export class CourseProfileModule {}

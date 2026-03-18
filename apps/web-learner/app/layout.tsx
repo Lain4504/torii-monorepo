@@ -1,14 +1,14 @@
-import { Andika, Nunito, Noto_Sans_JP, Noto_Serif_JP, Space_Grotesk } from "next/font/google"
+import { Montserrat, Nunito, Noto_Sans_JP, Noto_Serif_JP, Space_Grotesk } from "next/font/google"
 
 import "@workspace/ui/styles/globals.css"
 import { Providers } from "@/lib/providers/providers"
 import { Toaster } from "@workspace/ui/components/sonner"
 import { FacebookSDK } from "@/components/auth/facebook-sdk"
 
-const fontSans = Andika({
+const fontSans = Montserrat({
   subsets: ["latin", "vietnamese"],
   variable: "--font-sans",
-  weight: ["400", "700"],
+  weight: ["400", "500", "600", "700", "800", "900"],
 })
 
 const fontHeading = Nunito({

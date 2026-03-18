@@ -70,4 +70,3 @@ export class ExamAttemptQueryDto {
   @IsBoolean()
   latestOnly?: boolean;
 }
-

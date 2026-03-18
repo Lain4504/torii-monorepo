@@ -5,9 +5,9 @@ import { GamificationController } from './gamification.controller';
 import { PrismaModule, NatsClientModule } from '@server/shared';
 
 @Module({
-    imports: [PrismaModule, NatsClientModule],
-    providers: [GamificationService, AchievementService],
-    controllers: [GamificationController],
-    exports: [GamificationService, AchievementService],
+  imports: [PrismaModule, NatsClientModule],
+  providers: [GamificationService, AchievementService],
+  controllers: [GamificationController],
+  exports: [GamificationService, AchievementService],
 })
-export class GamificationModule { }
+export class GamificationModule {}

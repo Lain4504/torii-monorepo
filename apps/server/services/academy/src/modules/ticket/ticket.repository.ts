@@ -10,7 +10,7 @@ import { ITicketRepository } from '@server/academy/interfaces/repositories';
 
 @Injectable()
 export class TicketRepository implements ITicketRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateTicketDTO & { userId: string }): Promise<Ticket> {
     return this.prisma.ticket.create({
@@ -54,7 +54,8 @@ export class TicketRepository implements ITicketRepository {
   ): Promise<{ data: any[]; total: number }> {
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 10;
-    const { type, status, userId, classId, orderId, search } = query as TicketQueryDTO & { search?: string };
+    const { type, status, userId, classId, orderId, search } =
+      query as TicketQueryDTO & { search?: string };
     const skip = (page - 1) * limit;
 
     const where: any = {};
@@ -98,6 +99,7 @@ export class TicketRepository implements ITicketRepository {
     status: string,
     response?: string,
     handlerId?: string,
+    refundAmount?: number,
   ): Promise<Ticket> {
     return this.prisma.ticket.update({
       where: { id },
@@ -105,6 +107,7 @@ export class TicketRepository implements ITicketRepository {
         status: status as any,
         response,
         handlerId,
+        refundAmount,
       },
     }) as any;
   }

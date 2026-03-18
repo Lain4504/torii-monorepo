@@ -1,4 +1,4 @@
-import { LogOut, BadgeCheck, Bell, Flame, Snowflake, Star, Zap, Gem } from 'lucide-react'
+import { LogOut, BadgeCheck, Bell, Flame, Snowflake, Star, Zap, Gem, Coins } from 'lucide-react'
 import { UserRole } from '@workspace/schemas'
 import { SidebarTrigger } from '@workspace/ui/components/sidebar'
 import { NotificationsDropdown } from '../dashboard/notifications-dropdown'
@@ -27,6 +27,7 @@ import { Button } from '@workspace/ui/components/button'
 import { Badge } from "@workspace/ui/components/badge"
 import { cn } from "@workspace/ui/lib/utils"
 import { useGamificationProfile, useStreak } from '@/lib/api/services/gamification-api'
+import { useWalletBalance } from '@/lib/api/services/wallet-api'
 import { Progress } from '@workspace/ui/components/progress'
 import {
     Tooltip,
@@ -42,6 +43,7 @@ export function DashboardHeader() {
     const { user } = useAppSelector((state) => state.auth)
     const { data: profile } = useGamificationProfile()
     const { data: streak } = useStreak()
+    const { data: walletBalance } = useWalletBalance()
     const dispatch = useAppDispatch()
     const router = useRouter()
 
@@ -56,11 +58,14 @@ export function DashboardHeader() {
         }
     }
 
-    // Level & XP Progress logic
-    const level = profile?.level || 1
-    const currentXp = profile?.currentXp || 0
-    const xpToNextLevel = (level ** 2) * 100 - ((level - 1) ** 2) * 100
-    const progress = Math.min(100, Math.max(0, (currentXp / xpToNextLevel) * 100))
+    // Level & XP Progress logic (align with gamification profile UI)
+    // Convention: 1000 XP per level; currentXp is the accumulated XP.
+    const level = profile?.level ?? 1
+    const currentXp = profile?.currentXp ?? 0
+    const xpInThisLevel = currentXp % 1000
+    const xpToNextLevel = 1000 - xpInThisLevel
+    const progress = Math.min(100, Math.max(0, xpInThisLevel / 10))
+    const isActiveToday = streak?.isActiveToday === true
 
     return (
         <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-md">
@@ -101,7 +106,7 @@ export function DashboardHeader() {
                                 </TooltipTrigger>
                                 <TooltipContent>
                                     <p className="text-xs font-bold">Cấp độ {level}</p>
-                                    <p className="text-[10px] text-muted-foreground">Cần {formatNumber(xpToNextLevel - currentXp)} XP nữa để lên cấp</p>
+                                    <p className="text-[10px] text-muted-foreground">Cần {formatNumber(xpToNextLevel)} XP nữa để lên cấp</p>
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
@@ -113,11 +118,11 @@ export function DashboardHeader() {
                                     <Link href="/dashboard/leaderboard" className="flex items-center gap-1.5 px-2 hover:bg-orange-500/10 rounded-full transition-colors cursor-pointer">
                                         <Flame className={cn(
                                             "size-5 transition-all duration-500",
-                                            streak?.isActiveToday ? "text-orange-500 fill-orange-500 animate-pulse" : "text-muted-foreground"
+                                            isActiveToday ? "text-orange-500 fill-orange-500 animate-pulse" : "text-muted-foreground"
                                         )} />
                                         <span className={cn(
                                             "text-xs font-black",
-                                            streak?.isActiveToday ? "text-orange-600" : "text-muted-foreground"
+                                            isActiveToday ? "text-orange-600" : "text-muted-foreground"
                                         )}>
                                             {streak?.currentStreak || 0}
                                         </span>
@@ -126,7 +131,7 @@ export function DashboardHeader() {
                                 <TooltipContent>
                                     <p className="text-xs font-bold">Chuỗi học tập</p>
                                     <p className="text-[10px] text-muted-foreground">
-                                        {streak?.isActiveToday ? "Hôm nay bạn đã hoàn thành bài học!" : "Hãy hoàn thành 1 bài học để giữ chuỗi!"}
+                                        {isActiveToday ? "Hôm nay bạn đã hoàn thành bài học!" : "Hãy hoàn thành 1 bài học để giữ chuỗi!"}
                                     </p>
                                 </TooltipContent>
                             </Tooltip>
@@ -161,6 +166,23 @@ export function DashboardHeader() {
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
+                                    <Link href="/dashboard/payment">
+                                        <Badge variant="outline" className="flex items-center gap-1.5 px-3 py-1 font-bold bg-amber-500/5 border-amber-500/20 text-amber-600 hover:bg-amber-500/10 transition-colors">
+                                            <Coins className="size-3 fill-amber-500" />
+                                            <span>{formatNumber(walletBalance || 0)}</span>
+                                        </Badge>
+                                    </Link>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p className="text-xs font-bold">Số dư xu (Coins)</p>
+                                    <p className="text-[10px] text-muted-foreground">Dùng để thanh toán khóa học.</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
                                     <Link href="/dashboard/rewards">
                                         <Badge variant="outline" className="flex items-center gap-1.5 px-3 py-1 font-bold bg-cyan-500/5 border-cyan-500/20 text-cyan-600 hover:bg-cyan-500/10 transition-colors">
                                             <Gem className="size-3 fill-cyan-500" />
@@ -169,8 +191,8 @@ export function DashboardHeader() {
                                     </Link>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                    <p className="text-xs font-bold">Điểm tích lũy (Points)</p>
-                                    <p className="text-[10px] text-muted-foreground">Dùng để đổi quà và mua vật phẩm.</p>
+                                    <p className="text-xs font-bold">Điểm Torii</p>
+                                    <p className="text-[10px] text-muted-foreground">Dùng để đổi quà trong cửa hàng.</p>
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>

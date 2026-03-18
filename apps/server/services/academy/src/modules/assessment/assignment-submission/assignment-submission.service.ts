@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/generated';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import {
@@ -13,10 +17,16 @@ export class AssignmentSubmissionService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
-  ) { }
+  ) {}
 
-  async findAll(query: AssignmentSubmissionQueryDto, requesterId?: string, isExamManager = false) {
-    const effectiveUserId = isExamManager ? query.userId : requesterId ?? query.userId;
+  async findAll(
+    query: AssignmentSubmissionQueryDto,
+    requesterId?: string,
+    isExamManager = false,
+  ) {
+    const effectiveUserId = isExamManager
+      ? query.userId
+      : (requesterId ?? query.userId);
     return this.prisma.assignmentSubmission.findMany({
       where: {
         classAssignmentId: query.classAssessmentId ?? undefined,
@@ -27,24 +37,44 @@ export class AssignmentSubmissionService {
   }
 
   async findById(id: string, requesterId?: string, isExamManager = false) {
-    const item = await this.prisma.assignmentSubmission.findUnique({ where: { id } });
+    const item = await this.prisma.assignmentSubmission.findUnique({
+      where: { id },
+    });
     if (!item) throw new NotFoundException('AssignmentSubmission not found');
-    if (!isExamManager && requesterId && requesterId !== 'SYSTEM' && item.userId !== requesterId) {
+    if (
+      !isExamManager &&
+      requesterId &&
+      requesterId !== 'SYSTEM' &&
+      item.userId !== requesterId
+    ) {
       throw new BadRequestException('You can only access your own submissions');
     }
     return item;
   }
 
-  async create(input: AssignmentSubmissionCreateDto, requesterId = 'SYSTEM', isExamManager = false) {
+  async create(
+    input: AssignmentSubmissionCreateDto,
+    requesterId = 'SYSTEM',
+    isExamManager = false,
+  ) {
     if (!input.userId) {
       throw new BadRequestException('Missing userId for assignment submission');
     }
-    if (!isExamManager && requesterId && requesterId !== 'SYSTEM' && input.userId !== requesterId) {
-      throw new BadRequestException('You can only create submissions for yourself');
+    if (
+      !isExamManager &&
+      requesterId &&
+      requesterId !== 'SYSTEM' &&
+      input.userId !== requesterId
+    ) {
+      throw new BadRequestException(
+        'You can only create submissions for yourself',
+      );
     }
 
     if (!input.classAssessmentId) {
-      throw new BadRequestException('Missing classAssessmentId for assignment submission');
+      throw new BadRequestException(
+        'Missing classAssessmentId for assignment submission',
+      );
     }
 
     const classAssignment = await this.prisma.classAssignment.findUnique({
@@ -64,7 +94,9 @@ export class AssignmentSubmissionService {
     });
 
     if (existing) {
-      throw new BadRequestException('You have already submitted this assignment');
+      throw new BadRequestException(
+        'You have already submitted this assignment',
+      );
     }
 
     const result = await this.prisma.assignmentSubmission.create({
@@ -72,7 +104,10 @@ export class AssignmentSubmissionService {
         classAssignmentId: input.classAssessmentId,
         userId: input.userId,
         status: (input.status as any) ?? 'SUBMITTED',
-        submittedAt: ((input.status ?? 'SUBMITTED').toUpperCase() === 'SUBMITTED') ? new Date() : null,
+        submittedAt:
+          (input.status ?? 'SUBMITTED').toUpperCase() === 'SUBMITTED'
+            ? new Date()
+            : null,
         content: input.content ?? null,
         fileUrls: input.fileUrls ?? [],
       },
@@ -81,17 +116,28 @@ export class AssignmentSubmissionService {
     return result;
   }
 
-  async update(id: string, input: AssignmentSubmissionUpdateDto, requesterId = 'SYSTEM', isExamManager = false) {
+  async update(
+    id: string,
+    input: AssignmentSubmissionUpdateDto,
+    requesterId = 'SYSTEM',
+    isExamManager = false,
+  ) {
     const oldSubmission = await this.findById(id, requesterId, isExamManager);
 
     const updated = await this.prisma.assignmentSubmission.update({
       where: { id },
       data: {
         status: input.status as any,
-        grade: input.score !== undefined ? new Prisma.Decimal(input.score) : undefined,
+        grade:
+          input.score !== undefined
+            ? new Prisma.Decimal(input.score)
+            : undefined,
         feedback: input.feedback ?? undefined,
         gradedAt: input.score !== undefined ? new Date() : undefined,
-        submittedAt: input.status && input.status.toUpperCase() === 'SUBMITTED' ? new Date() : undefined,
+        submittedAt:
+          input.status && input.status.toUpperCase() === 'SUBMITTED'
+            ? new Date()
+            : undefined,
         content: input.content ?? undefined,
         fileUrls: input.fileUrls ?? undefined,
       },
@@ -122,10 +168,12 @@ export class AssignmentSubmissionService {
       entity: 'AssignmentSubmission',
       entityId: id,
       description: `Deleted assignment submission for user ${submission.userId}`,
-        metadata: { userId: submission.userId, classAssignmentId: submission.classAssignmentId },
+      metadata: {
+        userId: submission.userId,
+        classAssignmentId: submission.classAssignmentId,
+      },
     });
 
     return { ok: true };
   }
 }
-

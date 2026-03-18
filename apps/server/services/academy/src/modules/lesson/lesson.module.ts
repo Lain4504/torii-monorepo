@@ -7,5 +7,4 @@ import { LessonService } from './lesson.service';
   providers: [LessonService],
   exports: [LessonService],
 })
-export class LessonModule { }
-
+export class LessonModule {}

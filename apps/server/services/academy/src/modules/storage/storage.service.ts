@@ -29,7 +29,7 @@ export class StorageService implements IStorageService {
     private readonly sharedStorage: SharedStorageService,
     @Inject(STORAGE_REPOSITORY_TOKEN)
     private readonly storageRepository: IStorageRepository,
-  ) { }
+  ) {}
 
   /**
    * Generate a presigned URL for direct client-side upload
@@ -198,7 +198,7 @@ export class StorageService implements IStorageService {
       if (key.startsWith('http')) {
         key = this.sharedStorage.extractKeyFromUrl(key);
       }
-    } catch (e) { }
+    } catch (e) {}
 
     const signedUrl = await this.sharedStorage.getPresignedUrl({
       key,

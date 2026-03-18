@@ -33,6 +33,14 @@ export const authApi = {
         };
     },
 
+    async changePassword(data: { oldPassword: string; newPassword: string }): Promise<{ success: boolean; message?: string }> {
+        const response = await apiClient.post<StandardApiResponse<null>>('/api/auth/change-password', data);
+        return {
+            success: response.data.success,
+            message: response.data.message,
+        };
+    },
+
     async forgotPassword(email: string): Promise<{ success: boolean; message?: string }> {
         const response = await apiClient.post<StandardApiResponse<null>>('/api/auth/forgot-password', { email });
         return {
@@ -80,10 +88,28 @@ export const authApi = {
             return { user: response.data.data.user };
         }
         throw new Error(response.data.message || 'Validation failed');
-    }
+    },
+
+    async getLinkedProviders(): Promise<{ providers: string[] }> {
+        const response = await apiClient.get<StandardApiResponse<{ providers: string[] }>>('/api/auth/linked-providers');
+        if (!response.data.success || !response.data.data) {
+            throw new Error(response.data.message || 'Failed to load linked providers');
+        }
+        return {
+            providers: response.data.data.providers || [],
+        };
+    },
+
+    async unlinkProvider(provider: 'google' | 'facebook'): Promise<{ success: boolean; message?: string }> {
+        const response = await apiClient.delete<StandardApiResponse<null>>(`/api/auth/link/${provider}`);
+        return {
+            success: response.data.success,
+            message: response.data.message,
+        };
+    },
 };
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 /**
  * Hook: Logout
@@ -128,6 +154,15 @@ export function useResetPassword() {
 }
 
 /**
+ * Hook: Change Password (authenticated)
+ */
+export function useChangePassword() {
+    return useMutation({
+        mutationFn: (data: { oldPassword: string; newPassword: string }) => authApi.changePassword(data),
+    });
+}
+
+/**
  * Hook: Forgot Password
  */
 export function useForgotPassword() {
@@ -160,5 +195,23 @@ export function useGoogleAuth() {
 export function useFacebookAuth() {
     return useMutation({
         mutationFn: (accessToken: string) => authApi.facebookAuth(accessToken),
+    });
+}
+
+export function useLinkedProviders() {
+    return useQuery({
+        queryKey: ['linked-providers'],
+        queryFn: () => authApi.getLinkedProviders(),
+    });
+}
+
+export function useUnlinkProvider() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (provider: 'google' | 'facebook') => authApi.unlinkProvider(provider),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['linked-providers'] });
+        },
     });
 }

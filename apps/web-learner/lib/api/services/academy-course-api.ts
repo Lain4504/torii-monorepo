@@ -6,82 +6,61 @@ import type {
 } from '@workspace/schemas';
 
 function normalizeOfferingForLearner(item: any) {
-  const classes = Array.isArray(item?.classes) ? item.classes : [];
-  const firstClassLink = classes[0];
-  const firstClass = firstClassLink?.class;
-  const profile = firstClass?.courseProfile;
-  const classModes = classes
-    .map((entry: any) => entry?.class?.mode)
-    .filter(Boolean);
-  const hasLiveClass = classModes.includes('LIVE');
+  if (!item) return null;
 
-  const rawPrice = item?.originalPrice ?? item?.price ?? 0;
+  const classes = Array.isArray(item.classes) ? item.classes : [];
+  const primaryClass = classes.find((c: any) => c.isPrimary) || classes[0];
+  const profile = primaryClass?.courseProfile;
+
+  // Check if any class is LIVE or the offering mode is LIVE
+  const isLive = item.mode === 'LIVE' || classes.some((c: any) => c.mode === 'LIVE');
+
+  const rawPrice = item.originalPrice ?? item.price ?? 0;
   const parsedPrice = Number(rawPrice);
 
-  // Map V2 syllabus (modules/lessons) to legacy courseEdition.chapters structure
-  const syllabus =
-    firstClass?.syllabus ??
-    item?.syllabus ??
-    null;
+  // Map V2 syllabus (modules/lessons) to legacy courseEdition.chapters structure for UI compatibility
+  const syllabus = primaryClass?.syllabus ?? item.syllabus ?? null;
+  let courseEdition = primaryClass?.courseEdition;
 
-  let courseEdition = firstClass?.courseEdition;
-  if (!courseEdition && syllabus && Array.isArray(syllabus.modules)) {
-    const chapters = syllabus.modules.map((mod: any) => {
-      const lessons = Array.isArray(mod.lessons) ? mod.lessons : [];
-      return {
-        id: mod.id,
-        title: mod.title,
-        description: null,
-        // UI expects `items` with at least `id`, `title`, `kind`
-        items: lessons.map((lesson: any) => ({
-          id: lesson.id,
-          title: lesson.title,
-          kind: lesson.type || 'VIDEO',
-        })),
-        // No duration in schema yet
-        estimatedMinutes: null,
-      };
-    });
+  if (!courseEdition && syllabus?.modules && Array.isArray(syllabus.modules)) {
+    const chapters = syllabus.modules.map((mod: any) => ({
+      id: mod.id,
+      title: mod.title,
+      description: null,
+      items: (mod.lessons ?? []).map((lesson: any) => ({
+        id: lesson.id,
+        title: lesson.title,
+        kind: lesson.type || 'VIDEO',
+      })),
+      estimatedMinutes: null,
+    }));
     courseEdition = { chapters };
   }
 
-  // Attach courseEdition back to primary class so existing UI can read it
-  const normalizedClasses = classes.map((link: any) => {
-    if (!link?.class) return link;
-    if (link === firstClassLink && courseEdition) {
-      return {
-        ...link,
-        class: {
-          ...link.class,
-          courseEdition,
-        },
-      };
+  // Attach courseEdition to the classes (especially the primary one) for UI use
+  const normalizedClasses = classes.map((cls: any) => {
+    if (cls === primaryClass && courseEdition) {
+      return { ...cls, courseEdition };
     }
-    return link;
+    return cls;
   });
-
-  const enrollableClasses = Array.isArray(item?.enrollableClasses)
-    ? item.enrollableClasses
-    : undefined;
 
   return {
     ...item,
     classes: normalizedClasses,
-    enrollableClasses,
     price: Number.isFinite(parsedPrice) ? parsedPrice : 0,
     thumbnailUrl:
-      item?.thumbnailUrl ||
+      item.thumbnailUrl ||
       profile?.thumbnailUrl ||
-      item?.metadata?.thumbnailUrl ||
+      item.metadata?.thumbnailUrl ||
       null,
     jlptLevel:
-      item?.jlptLevel ||
+      item.jlptLevel ||
       profile?.level ||
-      item?.metadata?.level ||
+      item.metadata?.level ||
       null,
-    isLive: hasLiveClass,
-    // Frontend tabs currently rely on type === 'LIVE' | 'VOD'
-    type: hasLiveClass ? 'LIVE' : 'VOD',
+    isLive,
+    type: isLive ? 'LIVE' : 'VOD',
   };
 }
 
@@ -89,67 +68,35 @@ export const academyOfferingApi = {
   /**
    * Get all course offerings with pagination and filters
    */
-  findAll: async (params: {
-    page?: number;
-    limit?: number;
-    status?: string;
-    type?: string;
-    q?: string;
-    mode?: 'VOD' | 'LIVE';
-    hasEnrollableLiveClass?: boolean;
-  } = {}): Promise<PaginatedApiResponse<any>> => {
-    const { status: _status, ...restParams } = params;
-    const response = await apiClient.get<StandardApiResponse<{ items: any[]; total: number; page: number; limit: number; totalPages: number }>>('/api/academy/course-offerings/public', {
-      params: {
-        status: 'PUBLISHED',
-        ...restParams,
-      },
-    });
-    const data = response.data.data!;
-    const now = new Date();
-    const visibleItems = (data.items ?? []).filter((item: any) => {
-      const fromOk = !item.validFrom || new Date(item.validFrom) <= now;
-      const toOk = !item.validTo || new Date(item.validTo) >= now;
-      return fromOk && toOk;
-    });
-    const normalizedItems = visibleItems.map(normalizeOfferingForLearner);
-    return {
-      success: response.data.success,
-      data: normalizedItems,
-      total: normalizedItems.length,
-      page: data.page ?? 1,
-      limit: data.limit ?? 10,
-      totalPages: data.totalPages ?? 1,
-    };
-  },
-
-  /**
-   * Get all publicly visible offerings
-   */
   findAllPublic: async (params: {
     page?: number;
     limit?: number;
-    status?: string;
-    type?: string;
     q?: string;
     mode?: 'VOD' | 'LIVE';
     hasEnrollableLiveClass?: boolean;
   } = {}): Promise<PaginatedApiResponse<any>> => {
-    const { status: _status, ...restParams } = params;
-    const response = await apiClient.get<StandardApiResponse<{ items: any[]; total: number; page: number; limit: number; totalPages: number }>>('/api/academy/course-offerings/public', {
-      params: {
-        status: 'PUBLISHED',
-        ...restParams,
-      },
-    });
+    const response = await apiClient.get<StandardApiResponse<{ items: any[]; total: number; page: number; limit: number; totalPages: number }>>(
+      '/api/academy/course-offerings/public',
+      {
+        params: {
+          ...params,
+          status: 'PUBLISHED',
+        },
+      }
+    );
+
     const data = response.data.data!;
     const now = new Date();
-    const visibleItems = (data.items ?? []).filter((item: any) => {
-      const fromOk = !item.validFrom || new Date(item.validFrom) <= now;
-      const toOk = !item.validTo || new Date(item.validTo) >= now;
-      return fromOk && toOk;
-    });
-    const normalizedItems = visibleItems.map(normalizeOfferingForLearner);
+
+    // Filter by validity dates and normalize
+    const normalizedItems = (data.items ?? [])
+      .filter((item: any) => {
+        const fromOk = !item.validFrom || new Date(item.validFrom) <= now;
+        const toOk = !item.validTo || new Date(item.validTo) >= now;
+        return fromOk && toOk;
+      })
+      .map(normalizeOfferingForLearner);
+
     return {
       success: response.data.success,
       data: normalizedItems,
@@ -161,18 +108,12 @@ export const academyOfferingApi = {
   },
 
   /**
-   * Get offering by id (includes curriculum)
-   */
-  getById: async (id: string): Promise<any | null> => {
-    const response = await apiClient.get<StandardApiResponse<{ item: any }>>(`/api/academy/course-offerings/public/${id}`);
-    return normalizeOfferingForLearner(response.data.data!.item);
-  },
-
-  /**
-   * Get public offering by id
+   * Get public offering by id (includes curriculum)
    */
   getPublicById: async (id: string): Promise<any | null> => {
-    const response = await apiClient.get<StandardApiResponse<{ item: any }>>(`/api/academy/course-offerings/public/${id}`);
+    const response = await apiClient.get<StandardApiResponse<{ item: any }>>(
+      `/api/academy/course-offerings/public/${id}`
+    );
     return normalizeOfferingForLearner(response.data.data!.item);
   },
 
@@ -181,10 +122,12 @@ export const academyOfferingApi = {
    */
   findByCategory: async (category: string): Promise<PaginatedApiResponse<any>> => {
     const response = await apiClient.get<StandardApiResponse<{ items: any[] }>>(
-      `/api/academy/course-offerings/public/category/${category}`,
+      `/api/academy/course-offerings/public/category/${category}`
     );
+    
     const data = response.data.data!;
     const normalizedItems = (data.items ?? []).map(normalizeOfferingForLearner);
+
     return {
       success: response.data.success,
       data: normalizedItems,
