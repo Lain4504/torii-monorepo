@@ -27,6 +27,20 @@ export class GamificationService {
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) {}
 
+  private getVnDateString(d: Date = new Date()) {
+    const vn = new Date(d.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
+    const y = vn.getFullYear();
+    const m = String(vn.getMonth() + 1).padStart(2, '0');
+    const day = String(vn.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  private diffDays(aDateStr: string, bDateStr: string) {
+    const a = Date.parse(`${aDateStr}T00:00:00.000Z`);
+    const b = Date.parse(`${bDateStr}T00:00:00.000Z`);
+    return Math.round((b - a) / (1000 * 60 * 60 * 24));
+  }
+
   private readonly EARNING_RULES: Record<
     string,
     { xp: number; points: number }
@@ -78,7 +92,7 @@ export class GamificationService {
       };
     }
 
-    const dateString = new Date().toISOString().slice(0, 10);
+    const dateString = this.getVnDateString();
 
     // Points/XP Award Eligibility Check
     let shouldAward = true;
@@ -413,8 +427,8 @@ export class GamificationService {
       });
     }
 
-    const todayStr = new Date().toISOString().slice(0, 10);
-    const streak = await this.prisma.streak.upsert({
+    const todayStr = this.getVnDateString();
+    let streak = await this.prisma.streak.upsert({
       where: { userId },
       update: {},
       create: {
@@ -426,12 +440,36 @@ export class GamificationService {
       },
     });
 
-    const isActiveToday = streak.lastActiveDate === todayStr;
+    // NEW: visiting dashboard counts as daily streak check-in
+    if (streak.lastActiveDate !== todayStr) {
+      const last = streak.lastActiveDate;
+      const diff = last ? this.diffDays(last, todayStr) : 999;
+      const nextStreak = diff === 1 ? (streak.currentStreak ?? 0) + 1 : 1;
+      const nextMax = Math.max(streak.maxStreak ?? 0, nextStreak);
+
+      streak = await this.prisma.streak.update({
+        where: { userId },
+        data: {
+          currentStreak: nextStreak,
+          maxStreak: nextMax,
+          lastActiveDate: todayStr,
+          freezeUsedToday: false,
+        },
+      });
+    }
+
+    // Ensure there's a daily streak log entry
+    await this.prisma.streakLog.upsert({
+      where: { userId_date: { userId, date: todayStr } },
+      update: { status: 'ACTIVE' },
+      create: { userId, date: todayStr, status: 'ACTIVE' },
+    });
+
+    const isActiveToday = true;
     const willBreakTomorrow = !isActiveToday && (streak.currentStreak ?? 0) > 0;
 
-    // Simple gating: show once/day if active today AND toast not yet shown today.
-    const shouldShowToast =
-      isActiveToday && profile.lastToastShownDate !== todayStr;
+    // Show once/day across devices (persisted)
+    const shouldShowToast = profile.lastToastShownDate !== todayStr;
 
     const recent = await this.prisma.streakLog.findMany({
       where: { userId, status: 'ACTIVE' },
@@ -451,7 +489,7 @@ export class GamificationService {
     const monthAgo = new Date(now);
     monthAgo.setDate(now.getDate() - 30);
 
-    const toDateStr = (d: Date) => d.toISOString().slice(0, 10);
+    const toDateStr = (d: Date) => this.getVnDateString(d);
     const weeklyActiveCount = await this.prisma.streakLog.count({
       where: { userId, status: 'ACTIVE', date: { gte: toDateStr(weekAgo), lte: todayStr } },
     });
@@ -475,7 +513,7 @@ export class GamificationService {
   }
 
   async markToastShown(userId: string) {
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayStr = this.getVnDateString();
     await this.prisma.userGamification.upsert({
       where: { userId },
       update: { lastToastShownDate: todayStr },

@@ -40,10 +40,8 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
   useEffect(() => {
     if (!streak || sessionShown) return;
 
-    const todayKey = `streak_welcome_shown_${new Date().toISOString().slice(0, 10)}`;
-    const shownToday = typeof window !== 'undefined' && window.localStorage.getItem(todayKey) === '1';
-
-    const shouldShow = streak.shouldShowToast === true && !shownToday;
+    // Server decides once/day gating to ensure cross-device consistency
+    const shouldShow = streak.shouldShowToast === true;
     if (!shouldShow) return;
 
     const timer = setTimeout(() => {
@@ -53,7 +51,6 @@ export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
         setIsOpen(true);
       }
       setSessionShown(true);
-      try { window.localStorage.setItem(todayKey, '1'); } catch { }
       markToastShown.mutate();
     }, 600);
 

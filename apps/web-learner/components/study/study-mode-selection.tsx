@@ -13,7 +13,7 @@ interface StudyModeSelectionProps {
 
 export function StudyModeSelection({ selectedSetId, selectedCount, activeMode }: StudyModeSelectionProps) {
     return (
-        <section className="w-full max-w-4xl mx-auto space-y-4 pb-2" data-purpose="study-mode-selection">
+        <section className="w-full space-y-4 pb-2" data-purpose="study-mode-selection">
             <div className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <AlertCircle className="h-4 w-4" />
