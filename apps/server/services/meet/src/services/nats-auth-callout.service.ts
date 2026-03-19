@@ -84,7 +84,7 @@ export class NatsAuthCalloutService {
   ): Promise<Buffer> {
     let data: Buffer;
 
-    // Step 1: Decrypt if xKey present (lines 41-57)
+    // Step 1: Decrypt if xKey present
     if (xKey && xKey.length > 0) {
       if (!this.curveKeyPair) {
         this.logger.error('Received encrypted data but curveKeyPair is nil');
@@ -113,7 +113,7 @@ export class NatsAuthCalloutService {
       data = Buffer.isBuffer(rawData) ? rawData : Buffer.from(rawData);
     }
 
-    // Step 2: Decode Authorization Request (lines 59-64)
+    // Step 2: Decode Authorization Request
     // NATS sends JWT token, need to decode it
     let authRequest: AuthorizationRequest;
     try {
@@ -144,7 +144,7 @@ export class NatsAuthCalloutService {
     const userNkey = authRequest.user_nkey || authRequest.nkey || '';
     const serverId = authRequest.server_id?.id || authRequest.server?.id || '';
 
-    // Step 3: Handle claims (lines 69-74)
+    // Step 3: Handle claims
     let userJWT = '';
     let authError: Error | null = null;
 
@@ -154,7 +154,7 @@ export class NatsAuthCalloutService {
         '[Auth-Step 5] Claims handled and permissions set SUCCESS',
       );
 
-      // Step 4: Validate and Sign (lines 77-78)
+      // Step 4: Validate and Sign
       userJWT = await this.validateAndSign(claims);
       this.logger.debug(
         '[Auth-Step 6] Response JWT signed SUCCESS. Sending respond...',
@@ -164,7 +164,7 @@ export class NatsAuthCalloutService {
       authError = error as Error;
     }
 
-    // Step 4: Respond (line 77)
+    // Step 4: Respond
     return this.respond(userNkey, serverId, userJWT, authError, xKey);
   }
 
@@ -178,7 +178,7 @@ export class NatsAuthCalloutService {
     // Debug: Log the entire request to see what we have
     this.logger.debug('Auth callout request:', JSON.stringify(req, null, 2));
 
-    // Extract token from connect options (line 87)
+    // Extract token from connect options
     const connectOpts = req.connect_opts || req.connectOptions;
     const token = connectOpts?.token || connectOpts?.auth_token;
 
@@ -195,7 +195,7 @@ export class NatsAuthCalloutService {
       iss: accountPublicKey,
       sub: req.user_nkey || req.nkey,
       aud: account,
-      name: token, // IMPORTANT: Connect token for tracking (lines 84-88)
+      name: token, // IMPORTANT: Connect token for tracking
       nats: {
         type: 'user',
         version: 2,
@@ -203,7 +203,7 @@ export class NatsAuthCalloutService {
       },
     };
 
-    // Verify token (line 90)
+    // Verify token
     let tokenData;
     try {
       tokenData = await this.authService.verifyToken(token);
@@ -217,14 +217,14 @@ export class NatsAuthCalloutService {
       throw error;
     }
 
-    // Check if recorder (lines 95-98)
+    // Check if recorder
     if (tokenData.name === RECORDER_USER_AUTH_NAME) {
       this.logger.debug('[Auth-Step 4] Handling RECORDER permissions');
       this.setPermissionForRecorder(tokenData, claims.nats);
       return claims;
     }
 
-    // Set permissions for regular client (lines 100-103)
+    // Set permissions for regular client
     this.logger.debug('[Auth-Step 4] Checking User Info in NATS KV...');
     await this.setPermissionForClient(tokenData, claims.nats);
 
@@ -359,7 +359,7 @@ export class NatsAuthCalloutService {
       responseObject.nats.jwt = userJWT;
     }
 
-    // Encode response (lines 210-216)
+    // Encode response
     let data: Buffer;
     try {
       const token = this.generateJwt(responseObject);
@@ -369,7 +369,7 @@ export class NatsAuthCalloutService {
       return Buffer.from('');
     }
 
-    // Check if encryption is required (lines 218-227)
+    // Check if encryption is required
     if (xKey && xKey.length > 0 && this.curveKeyPair) {
       try {
         const encrypted = this.curveKeyPair.seal(data, xKey);

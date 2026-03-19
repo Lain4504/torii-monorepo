@@ -67,6 +67,65 @@ export class GamificationController {
     }
   }
 
+  @Post('mark-toast-shown')
+  async markToastShown(@Req() req: ReqWithRequester) {
+    const user = req.requester;
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send('gamification.markToastShown', { userId: user.sub }),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(
+        `Failed to mark toast shown for user ${user?.sub}`,
+        error.stack,
+      );
+      return errorResponse(error.message || 'Failed to mark toast shown');
+    }
+  }
+
+  @Post('record-activity')
+  async recordActivity(
+    @Req() req: ReqWithRequester,
+    @Body() body: { activityType: any; meta?: any },
+  ) {
+    const user = req.requester;
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send('gamification.recordActivity', {
+          userId: user.sub,
+          activityType: body.activityType,
+          meta: body.meta ?? {},
+        }),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(
+        `Failed to record activity for user ${user?.sub}`,
+        error.stack,
+      );
+      return errorResponse(error.message || 'Failed to record activity');
+    }
+  }
+
+  @Get('leaderboard')
+  async getLeaderboard(@Req() req: ReqWithRequester) {
+    const user = req.requester;
+    const { type } = req.query as any;
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send('gamification.getLeaderboard', {
+          userId: user.sub,
+          type,
+        }),
+      );
+      return successResponse(result);
+    } catch (error: any) {
+      this.logger.error(`Failed to get leaderboard`, error.stack);
+      return errorResponse(error.message || 'Failed to fetch leaderboard');
+    }
+  }
+
   @Get('history')
   async getHistory(@Req() req: ReqWithRequester) {
     const user = req.requester;

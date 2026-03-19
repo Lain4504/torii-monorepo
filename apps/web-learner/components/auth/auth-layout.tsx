@@ -90,7 +90,7 @@ export function AuthLayout({
 
             {/* Right: form trong card */}
             <section
-                className="flex-1 flex flex-col justify-center items-center p-6 md:p-10"
+                className="flex-1 flex flex-col justify-center items-center p-4 sm:p-5 md:p-10"
                 data-purpose="auth-form"
             >
                 <div className="w-full max-w-[440px] space-y-6 animate-in fade-in slide-in-from-right duration-700">
@@ -104,7 +104,7 @@ export function AuthLayout({
                         </Link>
                     </div>
 
-                    <div className="rounded-3xl border border-border bg-card p-9 md:p-10 shadow-xl ring-1 ring-black/5">
+                    <div className="rounded-3xl border border-border bg-card p-7 sm:p-8 md:p-10 shadow-xl ring-1 ring-black/5">
                         <div className="text-center space-y-1.5 mb-8">
                             <h2 className="text-2xl font-extrabold text-foreground tracking-tight">{title}</h2>
                             {description && <p className="text-muted-foreground text-sm">{description}</p>}

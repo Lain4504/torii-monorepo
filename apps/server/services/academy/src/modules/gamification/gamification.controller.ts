@@ -11,7 +11,7 @@ export class GamificationController {
   constructor(
     private readonly gamificationService: GamificationService,
     private readonly achievementService: AchievementService,
-  ) {}
+  ) { }
 
   @MessagePattern('gamification.getProfile')
   async getProfile(@Payload() data: { userId: string }) {
@@ -85,6 +85,24 @@ export class GamificationController {
         data.activityType,
         data.meta,
       );
+    } catch (error) {
+      throw new RpcException(error.message);
+    }
+  }
+
+  @MessagePattern('gamification.markToastShown')
+  async markToastShown(@Payload() data: { userId: string }) {
+    try {
+      return await this.gamificationService.markToastShown(data.userId);
+    } catch (error) {
+      throw new RpcException(error.message);
+    }
+  }
+
+  @MessagePattern('gamification.getLeaderboard')
+  async getLeaderboard(@Payload() data: { userId: string; type?: string }) {
+    try {
+      return await this.gamificationService.getLeaderboard(data.userId, data.type);
     } catch (error) {
       throw new RpcException(error.message);
     }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useStreak } from '@/lib/api/services/gamification-api';
+import { useMarkToastShown, useStreak } from '@/lib/api/services/gamification-api';
 import { Dialog, DialogContent, DialogTitle } from '@workspace/ui/components/dialog';
 import { motion } from 'framer-motion';
 import { Flame, Snowflake, Sparkles, Trophy, Target, Calendar as CalendarIcon } from 'lucide-react';
@@ -10,6 +10,7 @@ import { cn } from '@workspace/ui/lib/utils';
 
 export function StreakWelcomeModal() {
   const { data: streak } = useStreak();
+  const markToastShown = useMarkToastShown();
 
   const [isOpen, setIsOpen] = useState(false);
   const [sessionShown, setSessionShown] = useState(false);
@@ -17,23 +18,25 @@ export function StreakWelcomeModal() {
   useEffect(() => {
     if (!streak || sessionShown) return;
 
-    // Với logic mới, streak chỉ cập nhật khi có activity học.
-    // Modal chỉ cần hiển thị 1 lần mỗi session khi user đã có profile streak.
+    const todayKey = `streak_welcome_shown_${new Date().toISOString().slice(0, 10)}`;
+    const shownToday = typeof window !== 'undefined' && window.localStorage.getItem(todayKey) === '1';
+
+    const shouldShow = streak.shouldShowToast === true && !shownToday;
+    if (!shouldShow) return;
+
     const timer = setTimeout(() => {
       setIsOpen(true);
       setSessionShown(true);
-    }, 800);
+      try { window.localStorage.setItem(todayKey, '1'); } catch { }
+      markToastShown.mutate();
+    }, 600);
 
     return () => clearTimeout(timer);
   }, [streak, sessionShown]);
 
   if (!streak) return null;
 
-  const { currentStreak, freezeCount, lastActiveDate, recentActiveDates } = streak as any;
-
-  // Tự tính xem hôm nay đã active chưa dựa trên lastActiveDate
-  const todayStr = new Date().toISOString().split('T')[0];
-  const isActiveToday = lastActiveDate === todayStr;
+  const { currentStreak, freezeCount, isActiveToday, recentActiveDates } = streak as any;
 
   // Build 7-day calendar
   const buildCalendar = () => {
@@ -107,7 +110,7 @@ export function StreakWelcomeModal() {
 
 
           {/* Main Card */}
-          <div className="relative border-none bg-background p-8 sm:p-10">
+          <div className="relative border-none bg-background p-6 sm:p-8">
             {/* Floating Sparkles */}
             <div className="animate-bounce absolute left-8 top-8">
               <Sparkles className="h-5 w-5 text-primary" />
@@ -117,9 +120,9 @@ export function StreakWelcomeModal() {
             </div>
 
             {/* Content */}
-            <div className="space-y-8">
+            <div className="space-y-6">
               {/* Animated Icon & Title */}
-              <div className="space-y-4 text-center">
+              <div className="space-y-3 text-center">
                 <motion.div
                   initial={{ scale: 0, rotate: -180 }}
                   animate={{
@@ -132,7 +135,7 @@ export function StreakWelcomeModal() {
                     duration: 0.8,
                   }}
                   className={cn(
-                    'inline-flex h-24 w-24 items-center justify-center rounded-full',
+                    'inline-flex h-20 w-20 items-center justify-center rounded-full',
                     currentStreak > 0
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted text-muted-foreground',
@@ -148,7 +151,7 @@ export function StreakWelcomeModal() {
                       repeat: Infinity,
                       repeatDelay: 1,
                     }}
-                    className="text-6xl"
+                    className="text-5xl"
                   >
                     {currentStreak > 0 ? (
                       isActiveToday ? '🔥' : '⚡'
@@ -162,17 +165,11 @@ export function StreakWelcomeModal() {
                   transition={{ delay: 0.4 }}
                   className="space-y-2"
                 >
-                  <h2 className="text-3xl font-black tracking-tight text-foreground">
-                    {currentStreak > 0 ? (
-                      <>
-                        {currentStreak} Ngày Streak!
-                      </>
-                    ) : (
-                      'Bắt Đầu Hành Trình!'
-                    )}
+                  <h2 className="text-2xl font-black tracking-tight text-foreground">
+                    {currentStreak > 0 ? `${currentStreak} ngày liên tiếp` : 'Bắt đầu streak hôm nay'}
                   </h2>
 
-                  <p className="text-lg font-medium">
+                  <p className="text-sm font-medium">
                     {currentStreak > 0 ? (
                       isActiveToday ? (
                         <span className="flex items-center justify-center gap-2 text-emerald-600 dark:text-emerald-400">
@@ -182,12 +179,12 @@ export function StreakWelcomeModal() {
                       ) : (
                         <span className="flex items-center justify-center gap-2 text-primary">
                           <Target className="h-5 w-5" />
-                          Hãy check-in để giữ streak
+                          Hoàn thành 1 bài học để giữ streak
                         </span>
                       )
                     ) : (
                       <span className="text-muted-foreground">
-                        Hoàn thành bài học đầu tiên
+                        Hoàn thành 1 hoạt động học để bắt đầu
                       </span>
                     )}
                   </p>
@@ -202,7 +199,7 @@ export function StreakWelcomeModal() {
                 className="relative"
               >
 
-                <div className="relative rounded-xl border bg-muted/30 p-6">
+                <div className="relative rounded-xl border bg-muted/30 p-4">
                   <p className="mb-4 flex items-center justify-center gap-2 text-center text-xs font-bold uppercase tracking-widest text-muted-foreground">
                     <CalendarIcon className="h-3 w-3" />
                     Lịch Sử 7 Ngày
@@ -227,7 +224,7 @@ export function StreakWelcomeModal() {
                         <motion.div
                           whileHover={{ scale: 1.1 }}
                           className={cn(
-                            'relative flex h-12 w-12 items-center justify-center rounded-lg border transition-all duration-300',
+                            'relative flex h-11 w-11 items-center justify-center rounded-lg border transition-all duration-300',
                             day.status === 'active' && 'bg-primary border-primary text-primary-foreground',
                             day.status === 'completed' && 'bg-primary/20 border-primary/30 text-primary',
                             day.status === 'inactive' && 'bg-muted/50 border-border/50 text-muted-foreground',
@@ -238,11 +235,11 @@ export function StreakWelcomeModal() {
                               animate={{ scale: [1, 1.2, 1] }}
                               transition={{ duration: 1, repeat: Infinity }}
                             >
-                              <Flame className="h-7 w-7 text-white drop-shadow-lg" />
+                              <Flame className="h-6 w-6 text-white drop-shadow-lg" />
                             </motion.div>
                           )}
                           {day.status === 'completed' && (
-                            <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                             </svg>
                           )}
@@ -299,9 +296,9 @@ export function StreakWelcomeModal() {
                 <Button
                   onClick={() => setIsOpen(false)}
                   size="lg"
-                  className="h-12 w-full font-bold"
+                  className="h-11 w-full font-bold"
                 >
-                  {isActiveToday ? '🚀 Tiếp Tục Học' : '💪 Bắt Đầu Học Ngay'}
+                  {isActiveToday ? 'Tiếp tục học' : 'Bắt đầu học ngay'}
                 </Button>
               </motion.div>
             </div>

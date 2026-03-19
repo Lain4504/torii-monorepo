@@ -603,11 +603,17 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async unlinkProvider(
     @Req() req: ReqWithRequester,
-    @Query('provider') provider: string,
+    @Param('provider') provider: string,
   ) {
     if (!provider) {
       throw new BadRequestException('Provider is required');
     }
+
+    const allowedProviders = ['google', 'facebook'];
+    if (!allowedProviders.includes(provider)) {
+      throw new BadRequestException('Unsupported provider');
+    }
+
     const requester = req.requester;
     try {
       await firstValueFrom(

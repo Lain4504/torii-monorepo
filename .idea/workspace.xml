@@ -4,8 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="refactor: update live schedule service and class attendance UI for improved functionality and user experience">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/streak-welcome-modal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/streak-welcome-modal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/dashboard-header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/dashboard-header.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,7 +21,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1976" />
+    <option name="cachedIndexableFilesCount" value="1685" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -48,8 +51,8 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;git@github.com:Lain4504/torii-monorepo.git&quot;,
-    &quot;accountId&quot;: &quot;36ac2fd8-9a60-42a4-b2bf-7fe947db4431&quot;
+    &quot;url&quot;: &quot;https://github.com/Lain4504/torii-monorepo.git&quot;,
+    &quot;accountId&quot;: &quot;5126b88c-ccf3-4397-984d-7c1b52a2aa60&quot;
   },
   &quot;recentNewPullRequestHead&quot;: {
     &quot;server&quot;: {
@@ -88,10 +91,12 @@
     &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;update-meet-insights&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/apps/server/services/meet&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -100,7 +105,8 @@
     &quot;nodejs.jest.jest_package&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/apps/server/node_modules/jest&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/home/lain4504/SEP490/torii-monorepo/node_modules/typescript/lib&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;E:\\projectdev\\demo\\team-source\\torii-monorepo\\node_modules\\typescript\\lib&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
   &quot;keyToStringList&quot;: {
@@ -131,7 +137,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.31033.133" />
+        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.138" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.29346.138" />
       </set>
     </attachedChunks>
   </component>
@@ -343,46 +350,9 @@
       <workItem from="1773710786549" duration="274000" />
       <workItem from="1773793794844" duration="3000" />
       <workItem from="1773793837416" duration="1181000" />
-    </task>
-    <task id="LOCAL-00968" summary="refactor: clean up module exports and formatting across various files">
-      <option name="closed" value="true" />
-      <created>1772700797518</created>
-      <option name="number" value="00968" />
-      <option name="presentableId" value="LOCAL-00968" />
-      <option name="project" value="LOCAL" />
-      <updated>1772700797518</updated>
-    </task>
-    <task id="LOCAL-00969" summary="refactor: clean up module exports and formatting across various files">
-      <option name="closed" value="true" />
-      <created>1772701988312</created>
-      <option name="number" value="00969" />
-      <option name="presentableId" value="LOCAL-00969" />
-      <option name="project" value="LOCAL" />
-      <updated>1772701988312</updated>
-    </task>
-    <task id="LOCAL-00970" summary="add lesson form and media uploader components with rich text support">
-      <option name="closed" value="true" />
-      <created>1772723447800</created>
-      <option name="number" value="00970" />
-      <option name="presentableId" value="LOCAL-00970" />
-      <option name="project" value="LOCAL" />
-      <updated>1772723447800</updated>
-    </task>
-    <task id="LOCAL-00971" summary="add lesson form and media uploader components with rich text support">
-      <option name="closed" value="true" />
-      <created>1772724221577</created>
-      <option name="number" value="00971" />
-      <option name="presentableId" value="LOCAL-00971" />
-      <option name="project" value="LOCAL" />
-      <updated>1772724221577</updated>
-    </task>
-    <task id="LOCAL-00972" summary="add lesson form and media uploader components with rich text support">
-      <option name="closed" value="true" />
-      <created>1772724666919</created>
-      <option name="number" value="00972" />
-      <option name="presentableId" value="LOCAL-00972" />
-      <option name="project" value="LOCAL" />
-      <updated>1772724666919</updated>
+      <workItem from="1773845602638" duration="6385000" />
+      <workItem from="1773854837320" duration="315000" />
+      <workItem from="1773855771162" duration="395000" />
     </task>
     <task id="LOCAL-00973" summary="remove unused academy form components from workspace configuration">
       <option name="closed" value="true" />
@@ -736,7 +706,47 @@
       <option name="project" value="LOCAL" />
       <updated>1773794050862</updated>
     </task>
-    <option name="localTasksCounter" value="1017" />
+    <task id="LOCAL-01017" summary="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
+      <option name="closed" value="true" />
+      <created>1773850013270</created>
+      <option name="number" value="01017" />
+      <option name="presentableId" value="LOCAL-01017" />
+      <option name="project" value="LOCAL" />
+      <updated>1773850013270</updated>
+    </task>
+    <task id="LOCAL-01018" summary="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
+      <option name="closed" value="true" />
+      <created>1773850163582</created>
+      <option name="number" value="01018" />
+      <option name="presentableId" value="LOCAL-01018" />
+      <option name="project" value="LOCAL" />
+      <updated>1773850163582</updated>
+    </task>
+    <task id="LOCAL-01019" summary="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
+      <option name="closed" value="true" />
+      <created>1773852748478</created>
+      <option name="number" value="01019" />
+      <option name="presentableId" value="LOCAL-01019" />
+      <option name="project" value="LOCAL" />
+      <updated>1773852748480</updated>
+    </task>
+    <task id="LOCAL-01020" summary="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
+      <option name="closed" value="true" />
+      <created>1773854927046</created>
+      <option name="number" value="01020" />
+      <option name="presentableId" value="LOCAL-01020" />
+      <option name="project" value="LOCAL" />
+      <updated>1773854927046</updated>
+    </task>
+    <task id="LOCAL-01021" summary="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
+      <option name="closed" value="true" />
+      <created>1773856168013</created>
+      <option name="number" value="01021" />
+      <option name="presentableId" value="LOCAL-01021" />
+      <option name="project" value="LOCAL" />
+      <updated>1773856168013</updated>
+    </task>
+    <option name="localTasksCounter" value="1022" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -771,7 +781,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Update schema.prisma" />
     <MESSAGE value="refactor: clean up module exports and formatting across various files" />
     <MESSAGE value="add lesson form and media uploader components with rich text support" />
     <MESSAGE value="remove unused academy form components from workspace configuration" />
@@ -796,11 +805,11 @@
     <MESSAGE value="feat: update livekit configuration and clean up unused imports in refunds components" />
     <MESSAGE value="fix conflict" />
     <MESSAGE value="refactor: update live schedule service and class attendance UI for improved functionality and user experience" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor: update live schedule service and class attendance UI for improved functionality and user experience" />
+    <MESSAGE value="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>
-    <settings-migrated>true</settings-migrated>
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

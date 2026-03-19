@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 /**
  * COMPREHENSIVE CONFIGURATION SCHEMA
- * EVERYTHING is here. Mirroring plugnmeet-server structure but tailored for Torii.
+ * EVERYTHING is here.
  */
 const ConfigSchema = z.object({
   server: z.object({

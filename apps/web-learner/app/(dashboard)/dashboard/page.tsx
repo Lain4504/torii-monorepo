@@ -130,7 +130,7 @@ export default function DashboardClientPage() {
                             ) : mainCourse ? (
                                 <div className="bg-card rounded-3xl border border-border overflow-hidden shadow-sm hover-lift">
                                     <div className="md:flex">
-                                        <div className="md:w-1/3 h-48 md:h-auto relative">
+                                        <div className="md:w-1/3 relative aspect-video md:aspect-[4/3] overflow-hidden bg-muted">
                                             {mainCourse.thumbnailUrl ? (
                                                 <img
                                                     alt={mainCourse.courseTitle}
@@ -138,7 +138,7 @@ export default function DashboardClientPage() {
                                                     src={mainCourse.thumbnailUrl}
                                                 />
                                             ) : (
-                                                <div className="w-full h-full bg-muted flex items-center justify-center">
+                                                <div className="w-full h-full flex items-center justify-center">
                                                     <BookOpen className="size-12 text-muted-foreground/30" />
                                                 </div>
                                             )}

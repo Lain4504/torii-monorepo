@@ -25,18 +25,18 @@ export class GamificationService {
     private readonly achievementService: AchievementService,
     private readonly audit: AuditLoggerService,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) {}
+  ) { }
 
   private readonly EARNING_RULES: Record<
     string,
     { xp: number; points: number }
   > = {
-    [ActivityType.LOGIN]: { xp: 0, points: 5 },
-    [ActivityType.LESSON_COMPLETE]: { xp: 10, points: 10 },
-    [ActivityType.EXAM_COMPLETE]: { xp: 20, points: 20 },
-    [ActivityType.REVIEW]: { xp: 50, points: 50 },
-    [ActivityType.FLASHCARD_REVIEW]: { xp: 5, points: 5 },
-  };
+      [ActivityType.LOGIN]: { xp: 0, points: 5 },
+      [ActivityType.LESSON_COMPLETE]: { xp: 10, points: 10 },
+      [ActivityType.EXAM_COMPLETE]: { xp: 20, points: 20 },
+      [ActivityType.REVIEW]: { xp: 50, points: 50 },
+      [ActivityType.FLASHCARD_REVIEW]: { xp: 5, points: 5 },
+    };
 
   private readonly ACTIVITY_WEIGHTS: Record<string, number> = {
     [ActivityType.LOGIN]: 1,
@@ -380,23 +380,114 @@ export class GamificationService {
    * Does NOT change streak counters.
    */
   async getStreakStatus(userId: string) {
-    let profile = await this.prisma.userGamification.findUnique({
-      where: { userId },
-    });
+    let profile = await this.prisma.userGamification.findUnique({ where: { userId } });
 
     if (!profile) {
       profile = await this.prisma.userGamification.create({
-        data: {
-          userId,
-          currentXp: 0,
-          totalXp: 0,
-          points: 0,
-          level: 1,
-        },
+        data: { userId, currentXp: 0, totalXp: 0, points: 0, level: 1 },
       });
     }
 
-    return profile;
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const isActiveToday = profile.lastActiveDate === todayStr;
+    const willBreakTomorrow = !isActiveToday && (profile.currentStreak ?? 0) > 0;
+
+    // Simple gating: show once/day if active today AND toast not yet shown today.
+    const shouldShowToast =
+      isActiveToday && profile.lastToastShownDate !== todayStr;
+
+    // recentActiveDates: last 7 distinct dates with any activity count
+    const recent = await this.prisma.dailyActivity.findMany({
+      where: { userId },
+      select: { date: true },
+      distinct: ['date'],
+      orderBy: { date: 'desc' },
+      take: 7,
+    });
+
+    return {
+      currentStreak: profile.currentStreak ?? 0,
+      longestStreak: profile.longestStreak ?? 0,
+      freezeCount: profile.freezeCount ?? 0,
+      isActiveToday,
+      willBreakTomorrow,
+      lastActiveDate: profile.lastActiveDate ?? null,
+      totalActiveDays: profile.totalActiveDays ?? 0,
+      weeklyActiveCount: profile.weeklyActiveCount ?? 0,
+      monthlyActiveCount: profile.monthlyActiveCount ?? 0,
+      recentActiveDates: recent.map((r) => r.date),
+      shouldShowToast,
+    };
+  }
+
+  async markToastShown(userId: string) {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    await this.prisma.userGamification.upsert({
+      where: { userId },
+      update: { lastToastShownDate: todayStr },
+      create: {
+        userId,
+        currentXp: 0,
+        totalXp: 0,
+        points: 0,
+        level: 1,
+        lastToastShownDate: todayStr,
+      },
+    });
+    return { success: true };
+  }
+
+  async getLeaderboard(userId: string, type?: string) {
+    const mode = (type || 'global') as 'global' | 'streak';
+    const orderBy =
+      mode === 'streak'
+        ? ({ currentStreak: 'desc' } as const)
+        : ({ totalXp: 'desc' } as const);
+
+    const top = await this.prisma.userGamification.findMany({
+      orderBy,
+      take: 50,
+      select: {
+        userId: true,
+        level: true,
+        totalXp: true,
+        currentStreak: true,
+        user: { select: { id: true, displayName: true, avatarUrl: true } },
+      },
+    });
+
+    const users = top.map((g) => ({
+      id: g.user.id,
+      displayName: g.user.displayName,
+      avatarUrl: g.user.avatarUrl,
+      xp: g.totalXp,
+      streak: g.currentStreak,
+      level: g.level,
+    }));
+
+    const current = await this.prisma.userGamification.findUnique({
+      where: { userId },
+      select: {
+        userId: true,
+        level: true,
+        totalXp: true,
+        currentStreak: true,
+        user: { select: { id: true, displayName: true, avatarUrl: true } },
+      },
+    });
+
+    const currentUser = current
+      ? {
+        id: current.user.id,
+        displayName: current.user.displayName,
+        avatarUrl: current.user.avatarUrl,
+        xp: current.totalXp,
+        streak: current.currentStreak,
+        level: current.level,
+      }
+      : null;
+
+    return { users, currentUser };
   }
 
   async getHistory(userId: string, limit: number = 20, offset: number = 0) {
