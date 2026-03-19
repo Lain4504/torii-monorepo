@@ -19,7 +19,7 @@ import {
   useDeleteAcademyEnrollment,
   type AcademyEnrollment,
 } from "@/lib/api/services/academy-enrollments"
-import { ClassEnrollmentDialog } from "@/components/academy/class-enrollment-dialog"
+import { ClassEnrollmentSheet } from "@/components/academy/class-enrollment-sheet"
 import {
   Dialog,
   DialogContent,
@@ -38,7 +38,7 @@ export function ClassStudentsTab({
   classId,
   canManageEnrollment = false,
 }: ClassStudentsTabProps) {
-  const [enrollmentDialogOpen, setEnrollmentDialogOpen] = useState(false)
+  const [enrollmentSheetOpen, setEnrollmentSheetOpen] = useState(false)
 
   const {
     data: enrollments = [],
@@ -57,7 +57,7 @@ export function ClassStudentsTab({
     try {
       await createEnrollment.mutateAsync(data)
       toast.success("Đã ghi danh học viên vào lớp")
-      setEnrollmentDialogOpen(false)
+      setEnrollmentSheetOpen(false)
     } catch (error: any) {
       toast.error(error?.response?.data?.message || error.message || "Không thể ghi danh học viên")
     }
@@ -112,7 +112,7 @@ export function ClassStudentsTab({
     <div className="space-y-4">
       {canManageEnrollment && (
         <div className="flex justify-end">
-          <Button size="lg" onClick={() => setEnrollmentDialogOpen(true)}>
+          <Button size="lg" onClick={() => setEnrollmentSheetOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Ghi danh học viên
           </Button>
@@ -232,9 +232,9 @@ export function ClassStudentsTab({
         </Table>
       </div>
 
-      <ClassEnrollmentDialog
-        open={enrollmentDialogOpen}
-        onOpenChange={setEnrollmentDialogOpen}
+      <ClassEnrollmentSheet
+        open={enrollmentSheetOpen}
+        onOpenChange={setEnrollmentSheetOpen}
         classId={classId}
         submitting={createEnrollment.isPending}
         onSubmit={handleCreateEnrollment}

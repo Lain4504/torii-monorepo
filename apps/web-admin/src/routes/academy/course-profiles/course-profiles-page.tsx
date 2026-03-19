@@ -18,13 +18,13 @@ import { Badge } from '@workspace/ui/components/badge';
 import { format } from 'date-fns';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 
-import { CourseProfileDialog } from './components/course-profile-dialog';
+import { CourseProfileSheet } from './components/course-profile-sheet';
 
 export default function CourseProfilesPage() {
     const navigate = useNavigate();
     const [search, setSearch] = useState('');
     const [debouncedSearch] = useDebounceValue(search, 500);
-    const [dialogOpen, setDialogOpen] = useState(false);
+    const [sheetOpen, setSheetOpen] = useState(false);
     const [selectedProfile, setSelectedProfile] = useState<AcademyCourseProfile | null>(null);
 
     const { data: profiles, isLoading } = useAcademyCourseProfiles({
@@ -33,12 +33,12 @@ export default function CourseProfilesPage() {
 
     const handleCreate = () => {
         setSelectedProfile(null);
-        setDialogOpen(true);
+        setSheetOpen(true);
     };
 
     const handleEdit = (profile: AcademyCourseProfile) => {
         setSelectedProfile(profile);
-        setDialogOpen(true);
+        setSheetOpen(true);
     };
 
     return (
@@ -152,9 +152,9 @@ export default function CourseProfilesPage() {
                 </div>
             </div>
 
-            <CourseProfileDialog
-                open={dialogOpen}
-                onOpenChange={setDialogOpen}
+            <CourseProfileSheet
+                open={sheetOpen}
+                onOpenChange={setSheetOpen}
                 profile={selectedProfile}
             />
         </div>

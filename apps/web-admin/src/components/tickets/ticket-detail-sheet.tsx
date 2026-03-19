@@ -1,13 +1,12 @@
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter
-} from '@workspace/ui/components/dialog';
-import { Button } from '@workspace/ui/components/button';
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+} from '@workspace/ui/components/sheet';
 import { ScrollArea } from '@workspace/ui/components/scroll-area';
+import { Button } from '@workspace/ui/components/button';
 import { Separator } from '@workspace/ui/components/separator';
 import type { TicketResponseDTO } from '@workspace/schemas';
 import { formatDateTime } from '@/lib/format-utils';
@@ -20,17 +19,17 @@ import {
     ItemTitle,
 } from "@workspace/ui/components/item";
 
-interface TicketDetailDialogProps {
+interface TicketDetailSheetProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     ticket: TicketResponseDTO | null;
 }
 
-export function TicketDetailDialog({
+export function TicketDetailSheet({
     open,
     onOpenChange,
     ticket,
-}: TicketDetailDialogProps) {
+}: TicketDetailSheetProps) {
     if (!ticket) return null;
 
     const renderMetadata = () => {
@@ -39,24 +38,24 @@ export function TicketDetailDialog({
             <div className="space-y-2 mt-4">
                 <h4 className="text-xs uppercase text-muted-foreground font-semibold">Thông tin bổ sung</h4>
                 <div className="p-4 rounded-lg bg-muted/50 border border-border/50 text-xs font-mono">
-                    <pre>{JSON.stringify(ticket.metadata, null, 2)}</pre>
+                    <pre className="whitespace-pre-wrap break-words">{JSON.stringify(ticket.metadata, null, 2)}</pre>
                 </div>
             </div>
         )
     }
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-lg">
-                <DialogHeader>
-                    <DialogTitle>Chi tiết Ticket #{ticket.id.slice(0, 8)}</DialogTitle>
-                    <DialogDescription>
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent className="!w-full sm:!max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
+                <SheetHeader className="p-6 border-b shrink-0">
+                    <SheetTitle>Chi tiết Ticket #{ticket.id.slice(0, 8)}</SheetTitle>
+                    <SheetDescription>
                         Xem lại thông tin chi tiết và lịch sử của ticket.
-                    </DialogDescription>
-                </DialogHeader>
+                    </SheetDescription>
+                </SheetHeader>
 
-                <ScrollArea className="max-h-[60vh] -mx-6 px-6">
-                    <div className="space-y-6 py-6">
+                <ScrollArea className="flex-1 min-h-0">
+                    <div className="space-y-6 p-6">
                         <Item variant="outline">
                             <ItemMedia><User className="size-4" /></ItemMedia>
                             <ItemContent>
@@ -123,12 +122,12 @@ export function TicketDetailDialog({
                         {renderMetadata()}
                     </div>
                 </ScrollArea>
-                <DialogFooter>
-                    <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full">
+                <div className="p-6 border-t flex justify-end bg-muted/20 shrink-0">
+                    <Button variant="outline" onClick={() => onOpenChange(false)} className="px-8">
                         Đóng
                     </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                </div>
+            </SheetContent>
+        </Sheet>
     );
 }

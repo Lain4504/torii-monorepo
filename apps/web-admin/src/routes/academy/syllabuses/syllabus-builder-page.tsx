@@ -10,7 +10,7 @@ import { ModuleList } from '@/components/academy/syllabus-builder/module-list';
 import { SyllabusSidebar } from '@/components/academy/syllabus-builder/syllabus-sidebar';
 import { SyllabusActionDialogs } from '@/components/academy/syllabus-builder/dialogs/syllabus-action-dialogs';
 import { ModuleDialogs } from '@/components/academy/syllabus-builder/dialogs/module-dialogs';
-import { LessonDialogs } from '@/components/academy/syllabus-builder/dialogs/lesson-dialogs';
+import { LessonSheets } from '@/components/academy/syllabus-builder/dialogs/lesson-sheets';
 import { useAcademySyllabuses, useCreateAcademySyllabus, useCloneAcademySyllabus, useLockAcademySyllabus } from '@/lib/api/services/academy-syllabuses';
 import { useCreateAcademyLesson, useUpdateAcademyLesson, useDeleteAcademyLesson } from '@/lib/api/services/academy-lessons';
 import { toast } from '@workspace/ui/components/sonner';
@@ -439,7 +439,7 @@ export default function SyllabusBuilderPage() {
                 isDeletePending={deleteModuleMutation.isPending}
             />
 
-            <LessonDialogs 
+            <LessonSheets 
                 createLessonOpen={createLessonOpen}
                 setCreateLessonOpen={setCreateLessonOpen}
                 selectedModuleForLesson={selectedModuleForLesson}

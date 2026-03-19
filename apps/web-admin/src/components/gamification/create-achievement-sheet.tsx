@@ -3,13 +3,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@workspace/ui/components/dialog";
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+} from "@workspace/ui/components/sheet";
+import { ScrollArea } from "@workspace/ui/components/scroll-area";
 import {
     Field,
     FieldGroup,
@@ -75,7 +75,7 @@ const formSchema = z.object({
 
 type AchievementFormValues = z.infer<typeof formSchema>;
 
-export function CreateAchievementDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
+export function CreateAchievementSheet({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
     const { mutate: createAchievement, isPending } = useCreateAchievement();
 
     const {
@@ -123,21 +123,21 @@ export function CreateAchievementDialog({ open, onOpenChange }: { open: boolean,
     }
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[700px] max-h-[90vh] p-0 flex flex-col overflow-hidden">
-                <DialogHeader className="p-6 pb-0 flex-none">
-                    <DialogTitle className="flex items-center gap-2">
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent className="!w-full sm:!max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
+                <SheetHeader className="p-6 border-b shrink-0">
+                    <SheetTitle className="flex items-center gap-2">
                         <Trophy className="h-5 w-5 text-primary" />
                         Tạo Thành tích mới
-                    </DialogTitle>
-                    <DialogDescription>
+                    </SheetTitle>
+                    <SheetDescription>
                         Định nghĩa các cột mốc quan trọng để khuyến khích học viên.
-                    </DialogDescription>
-                </DialogHeader>
+                    </SheetDescription>
+                </SheetHeader>
 
-                <div className="flex-1 overflow-y-auto w-full">
-                    <div className="p-6">
-                        <form id="create-achievement-form" onSubmit={handleSubmit(onSubmit)}>
+                <form id="create-achievement-form" onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden" noValidate>
+                    <ScrollArea className="flex-1 min-h-0">
+                        <div className="p-6">
                             <FieldGroup className="space-y-6">
                                 <FieldSet>
                                     <FieldLegend>Thông tin cơ bản</FieldLegend>
@@ -240,17 +240,17 @@ export function CreateAchievementDialog({ open, onOpenChange }: { open: boolean,
                                     </Field>
                                 </FieldSet>
                             </FieldGroup>
-                        </form>
-                    </div>
-                </div>
+                        </div>
+                    </ScrollArea>
 
-                <DialogFooter className="p-6 pt-0 flex-none">
-                    <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>Hủy</Button>
-                    <Button form="create-achievement-form" type="submit" disabled={isPending}>
-                        {isPending ? "Đang tạo..." : "Tạo thành tích"}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                    <div className="p-6 border-t flex justify-end gap-3 bg-muted/20 shrink-0">
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>Hủy</Button>
+                        <Button type="submit" disabled={isPending}>
+                            {isPending ? "Đang tạo..." : "Tạo thành tích"}
+                        </Button>
+                    </div>
+                </form>
+            </SheetContent>
+        </Sheet>
     );
 }

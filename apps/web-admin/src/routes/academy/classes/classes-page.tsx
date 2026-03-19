@@ -35,7 +35,7 @@ import { SendIcon } from "lucide-react"
 import { useAppSelector } from "@/hooks/hooks";
 import { selectUser } from "@/store/slices/auth-slice";
 import { UserRole } from "@workspace/schemas";
-import { ClassDialog } from '@/components/academy/class-dialog';
+
 import {
     Dialog,
     DialogContent,
@@ -43,6 +43,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@workspace/ui/components/dialog";
+import { ClassSheet } from '@/components/academy/class-sheet';
 
 
 export default function ClassesPage() {
@@ -224,7 +225,7 @@ export default function ClassesPage() {
                     </Table>
                 </div>
             </div>
-            <ClassDialog
+            <ClassSheet
                 open={sheetOpen}
                 onOpenChange={setSheetOpen}
                 academyClass={selectedClass ?? undefined}

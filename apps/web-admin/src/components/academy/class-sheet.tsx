@@ -3,13 +3,13 @@ import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@workspace/ui/components/dialog"
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@workspace/ui/components/sheet"
+import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import {
@@ -27,7 +27,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select"
-import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import {
   useCreateAcademyClass,
   useUpdateAcademyClass,
@@ -88,14 +87,14 @@ const classSchema = z.object({
 
 type ClassFormValues = z.infer<typeof classSchema>
 
-interface ClassDialogProps {
+interface ClassSheetProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   academyClass?: AcademyClass | null
   initialMode?: "VOD" | "LIVE"
 }
 
-export function ClassDialog({ open, onOpenChange, academyClass, initialMode = "LIVE" }: ClassDialogProps) {
+export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LIVE" }: ClassSheetProps) {
   const isEditing = !!academyClass
   const createMutation = useCreateAcademyClass()
   const updateMutation = useUpdateAcademyClass()
@@ -186,7 +185,6 @@ export function ClassDialog({ open, onOpenChange, academyClass, initialMode = "L
         enrollmentCloseAt: values.enrollmentCloseAt ? new Date(values.enrollmentCloseAt) : undefined,
       } as any
 
-      // Khi tạo mới, để backend tự default status = DRAFT
       const payload = isEditing
         ? basePayload
         : (() => {
@@ -213,16 +211,16 @@ export function ClassDialog({ open, onOpenChange, academyClass, initialMode = "L
   const isLoading = createMutation.isPending || updateMutation.isPending
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] p-0 flex flex-col overflow-hidden">
-        <DialogHeader className="px-6 py-4 border-b shrink-0">
-          <DialogTitle>{isEditing ? "Chỉnh sửa Lớp học" : "Tạo Lớp học mới"}</DialogTitle>
-          <DialogDescription>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="!w-full sm:!max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
+        <SheetHeader className="px-6 py-4 border-b shrink-0">
+          <SheetTitle>{isEditing ? "Chỉnh sửa Lớp học" : "Tạo Lớp học mới"}</SheetTitle>
+          <SheetDescription>
             {isEditing
               ? "Cập nhật thông tin vận hành cho lớp học này."
               : "Khởi tạo một lớp học mới dựa trên Course Profile và Giáo trình."}
-          </DialogDescription>
-        </DialogHeader>
+          </SheetDescription>
+        </SheetHeader>
 
         <ScrollArea className="flex-1 min-h-0">
           <div className="p-6">
@@ -490,7 +488,7 @@ export function ClassDialog({ open, onOpenChange, academyClass, initialMode = "L
           </div>
         </ScrollArea>
 
-        <DialogFooter className="px-6 py-4 border-t gap-2 bg-muted/20">
+        <div className="px-6 py-4 border-t gap-2 bg-muted/20 flex justify-end shrink-0">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
             Hủy
           </Button>
@@ -498,9 +496,10 @@ export function ClassDialog({ open, onOpenChange, academyClass, initialMode = "L
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isEditing ? "Lưu thay đổi" : "Tạo Lớp"}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </SheetContent>
+    </Sheet>
   )
 }
+
 
