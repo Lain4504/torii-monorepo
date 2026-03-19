@@ -8,7 +8,7 @@ import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { PageHeader } from '@/components/common/page-header';
 import { TicketsPrimaryToolbar } from '@/components/tickets/tickets-primary-toolbar';
 import { TicketsTable } from '@/components/tickets/tickets-table';
-import { TicketDetailDialog } from '@/components/tickets/ticket-detail-dialog';
+import { TicketDetailSheet } from '@/components/tickets/ticket-detail-sheet';
 import { ChangeTicketStatusDialog } from '@/components/tickets/change-ticket-status-dialog';
 import { ticketApi, useTicketStats } from '@/lib/api/services/tickets';
 import { SmartPagination } from "@/components/common/smart-pagination";
@@ -85,7 +85,7 @@ export default function TicketsPage() {
                 />
             </div>
 
-            <TicketDetailDialog
+            <TicketDetailSheet
                 open={!!viewingTicket}
                 onOpenChange={(open) => !open && setViewingTicket(null)}
                 ticket={viewingTicket}

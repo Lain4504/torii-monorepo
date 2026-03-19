@@ -1,13 +1,14 @@
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@workspace/ui/components/dialog"
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@workspace/ui/components/sheet"
+import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { EnrollmentForm } from "@/components/academy/enrollment-form"
 
-interface ClassEnrollmentDialogProps {
+interface ClassEnrollmentSheetProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   classId?: string
@@ -15,24 +16,24 @@ interface ClassEnrollmentDialogProps {
   onSubmit: (data: any) => Promise<void>
 }
 
-export function ClassEnrollmentDialog({
+export function ClassEnrollmentSheet({
   open,
   onOpenChange,
   classId,
   submitting,
   onSubmit,
-}: ClassEnrollmentDialogProps) {
+}: ClassEnrollmentSheetProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] p-0 flex flex-col overflow-hidden">
-        <DialogHeader className="p-6 pb-0">
-          <DialogTitle>Ghi danh học viên vào lớp</DialogTitle>
-          <DialogDescription>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="!w-full sm:!max-w-[700px] max-h-screen p-0 flex flex-col overflow-hidden">
+        <SheetHeader className="p-6 border-b shrink-0">
+          <SheetTitle>Ghi danh học viên vào lớp</SheetTitle>
+          <SheetDescription>
             Chọn lớp và học viên để tạo bản ghi danh thủ công. Thường dùng cho trường hợp đăng ký
             offline hoặc ưu đãi đặc biệt.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex-1 overflow-y-auto">
+          </SheetDescription>
+        </SheetHeader>
+        <ScrollArea className="flex-1 min-h-0">
           <div className="space-y-6 p-6">
             <EnrollmentForm
               mode="create"
@@ -42,9 +43,10 @@ export function ClassEnrollmentDialog({
               submitting={submitting}
             />
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </ScrollArea>
+      </SheetContent>
+    </Sheet>
   )
 }
+
 

@@ -22,7 +22,7 @@ import {
   useDeleteAcademyClassAssessment,
   type AcademyClassAssessment,
 } from "@/lib/api/services/academy-class-assessments"
-import { ClassAssessmentDialog } from "@/components/academy/class-assessment-dialog"
+import { ClassAssessmentSheet } from "@/components/academy/class-assessment-sheet"
 
 export default function ClassAssessmentsPage() {
   const { classId } = useParams<{ classId: string }>()
@@ -38,19 +38,19 @@ export default function ClassAssessmentsPage() {
   const updateMutation = useUpdateAcademyClassAssessment()
   const deleteMutation = useDeleteAcademyClassAssessment()
 
-  const [dialogOpen, setDialogOpen] = useState(false)
+  const [sheetOpen, setSheetOpen] = useState(false)
   const [editingAssessment, setEditingAssessment] = useState<AcademyClassAssessment | null>(null)
 
   const isLoading = isLoadingClass || isLoadingAssessments
 
   const handleCreateClick = () => {
     setEditingAssessment(null)
-    setDialogOpen(true)
+    setSheetOpen(true)
   }
 
   const handleEditClick = (asm: AcademyClassAssessment) => {
     setEditingAssessment(asm)
-    setDialogOpen(true)
+    setSheetOpen(true)
   }
 
   const handleDeleteClick = async (asm: AcademyClassAssessment) => {
@@ -71,7 +71,7 @@ export default function ClassAssessmentsPage() {
         await createMutation.mutateAsync(data)
         toast.success("Đã tạo assessment cho lớp")
       }
-      setDialogOpen(false)
+      setSheetOpen(false)
     } catch (error: any) {
       toast.error(error?.response?.data?.message || error.message || "Không thể lưu assessment")
     }
@@ -227,15 +227,16 @@ export default function ClassAssessmentsPage() {
       </div>
 
       {classId && (
-        <ClassAssessmentDialog
-          open={dialogOpen}
-          onOpenChange={setDialogOpen}
+        <ClassAssessmentSheet
+          open={sheetOpen}
+          onOpenChange={setSheetOpen}
           classId={classId}
           initial={editingAssessment}
           submitting={createMutation.isPending || updateMutation.isPending}
           onSubmit={handleSubmit}
         />
       )}
+
     </div>
   )
 }
