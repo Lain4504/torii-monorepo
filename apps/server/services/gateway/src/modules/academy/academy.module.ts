@@ -27,6 +27,7 @@ import { ClassAssignmentController } from './controllers/class-assignment.contro
 import { WalletController } from './controllers/wallet.controller';
 import { CertificateController } from './controllers/certificate.controller';
 import { RefundController } from './controllers/refund.controller';
+import { JlptMockController } from './controllers/jlpt-mock.controller';
 
 @Module({
   imports: [NatsClientModule],
@@ -56,6 +57,7 @@ import { RefundController } from './controllers/refund.controller';
     WalletController,
     CertificateController,
     RefundController,
+    JlptMockController,
   ],
 })
 export class AcademyModule {}

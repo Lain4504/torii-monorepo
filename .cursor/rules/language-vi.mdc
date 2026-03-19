@@ -1,8 +1,6 @@
 ---
-description: Luôn trả lời bằng tiếng Việt cho tất cả cuộc hội thoại trong workspace này.
 alwaysApply: true
 ---
-
 # Ngôn ngữ trả lời mặc định
 
 - **Luôn trả lời bằng tiếng Việt** (giản thể) trong mọi tình huống, trừ khi người dùng yêu cầu rõ ràng một ngôn ngữ khác cho câu trả lời đó.

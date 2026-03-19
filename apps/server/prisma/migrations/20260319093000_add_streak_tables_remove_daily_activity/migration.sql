@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS "streaks" (
 CREATE INDEX IF NOT EXISTS "idx_streaks_user_id" ON "streaks" ("user_id");
 
 ALTER TABLE "streaks"
-  ADD CONSTRAINT IF NOT EXISTS "fk_streaks_user_id"
+  ADD CONSTRAINT "fk_streaks_user_id"
   FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE;
 
 CREATE TABLE IF NOT EXISTS "streak_logs" (
@@ -30,7 +30,7 @@ CREATE INDEX IF NOT EXISTS "idx_streak_logs_user_id" ON "streak_logs" ("user_id"
 CREATE INDEX IF NOT EXISTS "idx_streak_logs_date" ON "streak_logs" ("date");
 
 ALTER TABLE "streak_logs"
-  ADD CONSTRAINT IF NOT EXISTS "fk_streak_logs_user_id"
+  ADD CONSTRAINT "fk_streak_logs_user_id"
   FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE;
 
 -- 2) Remove daily_activities (no heatmap/analytics)

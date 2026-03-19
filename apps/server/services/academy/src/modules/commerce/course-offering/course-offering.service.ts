@@ -15,7 +15,6 @@ import { AuditLoggerService } from '../../audit-logger.service';
 import {
   CourseOfferingCreateDto,
   CourseOfferingQueryDto,
-  CourseOfferingSetClassesDto,
   CourseOfferingUpdateDto,
 } from './dto/course-offering.dto';
 

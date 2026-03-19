@@ -414,6 +414,9 @@ model User {
   walletBalance                   Decimal                @default(0) @map("wallet_balance") @db.Decimal(12, 2)
   walletTransactions              WalletTransaction[]
 
+  // JLPT Mock (isolated)
+  jlptMockAttempts JlptMockAttempt[] @relation("JlptMockAttemptUser")
+
   @@index([email])
   @@index([role])
   @@map("users")
@@ -1107,7 +1110,6 @@ model Syllabus {
   courseProfile CourseProfile    @relation(fields: [courseProfileId], references: [id], onDelete: Cascade)
   modules       Module[]
   classes       Class[]
-  offerings     CourseOffering[]
 
   @@index([courseProfileId])
   @@map("academy_syllabuses")
@@ -1547,4 +1549,390 @@ model WalletTransaction {
 
   @@index([userId])
   @@map("wallet_transactions")
+}
+
+// ==================================================
+// 13. JLPT MOCK EXAM (ISOLATED MODULE)
+// ==================================================
+
+enum JlptLevelCode {
+  N5
+  N4
+  N3
+  N2
+  N1
+}
+
+enum JlptSectionCode {
+  LANGUAGE_VOCAB
+  LANGUAGE_GRAMMAR_READING
+  LISTENING
+}
+
+enum JlptDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum JlptQuestionType {
+  VOCAB
+  GRAMMAR
+  READING
+  LISTENING
+}
+
+enum JlptMockExamStatus {
+  DRAFT
+  READY
+  PUBLISHED
+  ARCHIVED
+}
+
+enum JlptAttemptStatus {
+  IN_PROGRESS
+  SUBMITTED
+  CANCELLED
+}
+
+enum JlptScoringDomain {
+  LANGUAGE
+  READING
+  LISTENING
+}
+
+model JlptLevel {
+  id                   String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code                 JlptLevelCode @unique
+  nameVi               String?       @map("name_vi") @db.VarChar(50)
+  descriptionVi        String?       @map("description_vi") @db.Text
+  totalDurationMinutes Int           @map("total_duration_minutes")
+  createdAt            DateTime      @default(now()) @map("created_at")
+  updatedAt            DateTime      @default(now()) @updatedAt @map("updated_at")
+
+  sections        JlptSection[]
+  scoringProfiles JlptScoringProfile[]
+  bankQuestions   JlptQuestionBankQuestion[]
+  mockTemplates   JlptMockExamTemplate[]
+
+  @@map("jlpt_levels")
+}
+
+model JlptSection {
+  id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  levelId         String          @map("level_id") @db.Uuid
+  code            JlptSectionCode
+  nameVi          String?         @map("name_vi") @db.VarChar(255)
+  nameJa          String?         @map("name_ja") @db.VarChar(255)
+  durationMinutes Int             @map("duration_minutes")
+  orderIndex      Int             @map("order_index")
+  isListening     Boolean         @default(false) @map("is_listening")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @default(now()) @updatedAt @map("updated_at")
+
+  level  JlptLevel    @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  mondai JlptMondai[]
+
+  @@unique([levelId, code])
+  @@index([levelId])
+  @@index([code])
+  @@map("jlpt_sections")
+}
+
+model JlptMondai {
+  id                       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sectionId                String   @map("section_id") @db.Uuid
+  code                     String   @db.VarChar(64) // stable code like KANJI_READING, ORTHOGRAPHY...
+  titleVi                  String?  @map("title_vi") @db.VarChar(255)
+  titleJa                  String?  @map("title_ja") @db.VarChar(255)
+  descriptionVi            String?  @map("description_vi") @db.Text
+  orderIndex               Int      @map("order_index")
+  recommendedQuestionCount Int?     @map("recommended_question_count")
+  createdAt                DateTime @default(now()) @map("created_at")
+  updatedAt                DateTime @default(now()) @updatedAt @map("updated_at")
+
+  section JlptSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  bankQuestions JlptQuestionBankQuestion[]
+
+  @@unique([sectionId, code])
+  @@index([sectionId])
+  @@index([code])
+  @@map("jlpt_mondai")
+}
+
+model JlptQuestionBankQuestion {
+  id           String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  levelId      String           @map("level_id") @db.Uuid
+  sectionCode  JlptSectionCode  @map("section_code")
+  mondaiId     String?          @map("mondai_id") @db.Uuid
+  questionType JlptQuestionType @map("question_type")
+
+  stemText    String   @map("stem_text") @db.Text
+  contextText String?  @map("context_text") @db.Text
+  explanation String?  @db.Text
+  difficulty  JlptDifficulty @default(EASY)
+  weight      Decimal  @default(1.0) @db.Decimal(5, 2)
+
+  audioAssetId String? @map("audio_asset_id") @db.Uuid
+  imageAssetId String? @map("image_asset_id") @db.Uuid
+
+  sourceProvider String? @map("source_provider") @db.VarChar(50)
+  sourceRef      String? @map("source_ref") @db.VarChar(255)
+  sourcePayload  Json?   @map("source_payload") @db.JsonB
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  level   JlptLevel  @relation(fields: [levelId], references: [id], onDelete: Restrict)
+  mondai  JlptMondai? @relation(fields: [mondaiId], references: [id], onDelete: SetNull)
+  options JlptQuestionBankOption[]
+
+  templateLinks JlptMockExamTemplateQuestion[]
+  answers       JlptMockAnswer[]
+
+  @@index([levelId])
+  @@index([sectionCode])
+  @@index([mondaiId])
+  @@index([questionType])
+  @@map("jlpt_question_bank_questions")
+}
+
+model JlptQuestionBankOption {
+  id         String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  questionId String @map("question_id") @db.Uuid
+
+  key        String  @db.VarChar(4) // A/B/C/D
+  contentText String @map("content_text") @db.Text
+  isCorrect  Boolean @default(false) @map("is_correct")
+  orderIndex Int     @map("order_index")
+
+  question JlptQuestionBankQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  selectedByAnswers JlptMockAnswer[] @relation("JlptAnswerSelectedOption")
+
+  @@unique([questionId, key])
+  @@index([questionId])
+  @@map("jlpt_question_bank_options")
+}
+
+model JlptScoringProfile {
+  id      String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  levelId String        @map("level_id") @db.Uuid
+  name    String        @db.VarChar(100)
+  isActive Boolean      @default(true) @map("is_active")
+
+  minLanguageScaled  Int? @map("min_language_scaled")
+  minReadingScaled   Int? @map("min_reading_scaled")
+  minListeningScaled Int? @map("min_listening_scaled")
+  minTotalScaled     Int? @map("min_total_scaled")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  level    JlptLevel            @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  mappings JlptScoringMapping[]
+  templates JlptMockExamTemplate[]
+
+  @@index([levelId])
+  @@index([isActive])
+  @@map("jlpt_scoring_profiles")
+}
+
+model JlptScoringMapping {
+  id        String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profileId String           @map("profile_id") @db.Uuid
+  domain    JlptScoringDomain
+  rawScore  Int              @map("raw_score")
+  scaledScore Int            @map("scaled_score")
+
+  profile JlptScoringProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, domain, rawScore])
+  @@index([profileId])
+  @@map("jlpt_scoring_mappings")
+}
+
+model JlptMockExamTemplate {
+  id          String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  levelId     String            @map("level_id") @db.Uuid
+  scoringProfileId String       @map("scoring_profile_id") @db.Uuid
+
+  code        String?           @db.VarChar(64)
+  title       String            @db.VarChar(255)
+  description String?           @db.Text
+  status      JlptMockExamStatus @default(DRAFT)
+
+  availableFrom DateTime? @map("available_from")
+  availableTo   DateTime? @map("available_to")
+  maxAttemptsPerUser Int? @map("max_attempts_per_user")
+
+  showDetailedReview Boolean @default(true) @map("show_detailed_review")
+  showCorrectAnswerImmediately Boolean @default(false) @map("show_correct_answer_immediately")
+
+  createdBy String? @map("created_by") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  level          JlptLevel          @relation(fields: [levelId], references: [id], onDelete: Restrict)
+  scoringProfile JlptScoringProfile @relation(fields: [scoringProfileId], references: [id], onDelete: Restrict)
+
+  sections  JlptMockExamSection[]
+  questions JlptMockExamTemplateQuestion[]
+  attempts  JlptMockAttempt[]
+
+  @@index([levelId])
+  @@index([status])
+  @@map("jlpt_mock_exam_templates")
+}
+
+model JlptMockExamSection {
+  id         String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  templateId String         @map("template_id") @db.Uuid
+
+  code            JlptSectionCode
+  title           String?   @db.VarChar(255)
+  durationMinutes Int       @map("duration_minutes")
+  orderIndex      Int       @map("order_index")
+  isListening     Boolean   @default(false) @map("is_listening")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  template JlptMockExamTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  mondai   JlptMockExamMondai[]
+  templateQuestions JlptMockExamTemplateQuestion[]
+  attemptSections JlptMockAttemptSection[]
+
+  @@unique([templateId, orderIndex])
+  @@index([templateId])
+  @@map("jlpt_mock_exam_sections")
+}
+
+model JlptMockExamMondai {
+  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sectionId  String  @map("section_id") @db.Uuid
+
+  code        String  @db.VarChar(64)
+  titleVi     String? @map("title_vi") @db.VarChar(255)
+  titleJa     String? @map("title_ja") @db.VarChar(255)
+  descriptionVi String? @map("description_vi") @db.Text
+  orderIndex  Int     @map("order_index")
+  recommendedQuestionCount Int? @map("recommended_question_count")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  section JlptMockExamSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  templateQuestions JlptMockExamTemplateQuestion[]
+
+  @@unique([sectionId, code])
+  @@index([sectionId])
+  @@map("jlpt_mock_exam_mondai")
+}
+
+model JlptMockExamTemplateQuestion {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  templateId  String  @map("template_id") @db.Uuid
+  sectionId   String  @map("section_id") @db.Uuid
+  mondaiId    String? @map("mondai_id") @db.Uuid
+  questionId  String  @map("question_id") @db.Uuid
+
+  orderIndex Int @map("order_index")
+  weight     Decimal? @db.Decimal(5, 2)
+
+  template JlptMockExamTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  section  JlptMockExamSection  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  mondai   JlptMockExamMondai?  @relation(fields: [mondaiId], references: [id], onDelete: SetNull)
+  question JlptQuestionBankQuestion @relation(fields: [questionId], references: [id], onDelete: Restrict)
+
+  answers JlptMockAnswer[]
+
+  @@unique([templateId, orderIndex])
+  @@index([templateId])
+  @@index([sectionId])
+  @@index([mondaiId])
+  @@index([questionId])
+  @@map("jlpt_mock_exam_template_questions")
+}
+
+model JlptMockAttempt {
+  id         String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String           @map("user_id") @db.Uuid
+  templateId String           @map("template_id") @db.Uuid
+  levelCode  JlptLevelCode    @map("level_code")
+  status     JlptAttemptStatus @default(IN_PROGRESS)
+
+  startedAt   DateTime @default(now()) @map("started_at")
+  submittedAt DateTime? @map("submitted_at")
+
+  // Scores
+  languageScoreRaw   Decimal? @map("language_score_raw") @db.Decimal(6, 2)
+  readingScoreRaw    Decimal? @map("reading_score_raw") @db.Decimal(6, 2)
+  listeningScoreRaw  Decimal? @map("listening_score_raw") @db.Decimal(6, 2)
+
+  languageScoreScaled  Int? @map("language_score_scaled")
+  readingScoreScaled   Int? @map("reading_score_scaled")
+  listeningScoreScaled Int? @map("listening_score_scaled")
+  totalScoreScaled     Int? @map("total_score_scaled")
+
+  passMock Boolean? @map("pass_mock")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user     User                @relation("JlptMockAttemptUser", fields: [userId], references: [id], onDelete: Cascade)
+  template JlptMockExamTemplate @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  sections JlptMockAttemptSection[]
+  answers  JlptMockAnswer[]
+
+  @@index([userId])
+  @@index([templateId])
+  @@index([status])
+  @@map("jlpt_mock_attempts")
+}
+
+model JlptMockAttemptSection {
+  id         String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  attemptId  String @map("attempt_id") @db.Uuid
+  sectionId  String @map("section_id") @db.Uuid
+
+  orderIndex Int @map("order_index")
+  status     String @default("LOCKED") @db.VarChar(20) // LOCKED | ACTIVE | FINISHED
+
+  startedAt DateTime? @map("started_at")
+  endedAt   DateTime? @map("ended_at")
+
+  // Server-calculated end time for countdown
+  endsAt DateTime? @map("ends_at")
+
+  attempt JlptMockAttempt     @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  section JlptMockExamSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, orderIndex])
+  @@index([attemptId])
+  @@index([sectionId])
+  @@map("jlpt_mock_attempt_sections")
+}
+
+model JlptMockAnswer {
+  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  attemptId   String @map("attempt_id") @db.Uuid
+  templateQuestionId String @map("template_question_id") @db.Uuid
+  questionId  String @map("question_id") @db.Uuid
+  selectedOptionId String? @map("selected_option_id") @db.Uuid
+
+  answeredAt DateTime @default(now()) @map("answered_at")
+  isCorrect  Boolean? @map("is_correct")
+  scoreAwarded Decimal? @map("score_awarded") @db.Decimal(5, 2)
+
+  attempt        JlptMockAttempt              @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  templateQuestion JlptMockExamTemplateQuestion @relation(fields: [templateQuestionId], references: [id], onDelete: Cascade)
+  question       JlptQuestionBankQuestion     @relation(fields: [questionId], references: [id], onDelete: Restrict)
+  selectedOption JlptQuestionBankOption?      @relation("JlptAnswerSelectedOption", fields: [selectedOptionId], references: [id], onDelete: SetNull)
+
+  @@unique([attemptId, templateQuestionId])
+  @@index([attemptId])
+  @@index([questionId])
+  @@map("jlpt_mock_answers")
 }
