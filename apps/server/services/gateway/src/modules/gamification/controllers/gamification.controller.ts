@@ -72,7 +72,9 @@ export class GamificationController {
     const user = req.requester;
     try {
       const result = await firstValueFrom(
-        this.natsClient.send('gamification.markToastShown', { userId: user.sub }),
+        this.natsClient.send('gamification.markToastShown', {
+          userId: user.sub,
+        }),
       );
       return successResponse(result);
     } catch (error: any) {

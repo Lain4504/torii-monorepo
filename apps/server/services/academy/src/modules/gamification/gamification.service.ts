@@ -28,7 +28,9 @@ export class GamificationService {
   ) {}
 
   private getVnDateString(d: Date = new Date()) {
-    const vn = new Date(d.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
+    const vn = new Date(
+      d.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }),
+    );
     const y = vn.getFullYear();
     const m = String(vn.getMonth() + 1).padStart(2, '0');
     const day = String(vn.getDate()).padStart(2, '0');
@@ -99,18 +101,19 @@ export class GamificationService {
 
     if (activityType === ActivityType.LOGIN) {
       // LOGIN only awards points once per day
-      const existingLoginAward = await this.prisma.gamificationHistory.findFirst({
-        where: {
-          userId,
-          activityType: ActivityType.LOGIN,
-          createdAt: {
-            gte: new Date(`${dateString}T00:00:00.000Z`),
-            lt: new Date(`${dateString}T23:59:59.999Z`),
+      const existingLoginAward =
+        await this.prisma.gamificationHistory.findFirst({
+          where: {
+            userId,
+            activityType: ActivityType.LOGIN,
+            createdAt: {
+              gte: new Date(`${dateString}T00:00:00.000Z`),
+              lt: new Date(`${dateString}T23:59:59.999Z`),
+            },
+            currency: GamificationCurrency.POINT,
+            type: GamificationTransactionType.EARN,
           },
-          currency: GamificationCurrency.POINT,
-          type: GamificationTransactionType.EARN,
-        },
-      });
+        });
       if (existingLoginAward) {
         shouldAward = false;
       }
@@ -178,7 +181,9 @@ export class GamificationService {
       } else {
         // already active today -> no change
         if (streak.lastActiveDate !== dateString) {
-          const last = streak.lastActiveDate ? new Date(streak.lastActiveDate) : null;
+          const last = streak.lastActiveDate
+            ? new Date(streak.lastActiveDate)
+            : null;
           const today = new Date(dateString);
           let diffDays = 999;
           if (last) {
@@ -206,7 +211,8 @@ export class GamificationService {
         return {
           xpEarned: 0,
           pointsEarned: 0,
-          message: 'Activity tracked, but rewards already awarded for this item/day.',
+          message:
+            'Activity tracked, but rewards already awarded for this item/day.',
         };
       }
 
@@ -229,16 +235,15 @@ export class GamificationService {
       const end = new Date(`${dateString}T23:59:59.999Z`);
 
       // Dedup per object for mini-games (optional metadata keys)
-      const dedupKey =
-        metadata?.lessonId
-          ? `lesson:${metadata.lessonId}`
-          : metadata?.setId
-            ? `set:${metadata.setId}`
-            : metadata?.quizId
-              ? `quiz:${metadata.quizId}`
-              : metadata?.gameId
-                ? `game:${metadata.gameId}`
-                : null;
+      const dedupKey = metadata?.lessonId
+        ? `lesson:${metadata.lessonId}`
+        : metadata?.setId
+          ? `set:${metadata.setId}`
+          : metadata?.quizId
+            ? `quiz:${metadata.quizId}`
+            : metadata?.gameId
+              ? `game:${metadata.gameId}`
+              : null;
 
       if (dedupKey) {
         const existing = await tx.gamificationHistory.findFirst({
@@ -251,7 +256,11 @@ export class GamificationService {
           },
         });
         if (existing) {
-          return { xpEarned: 0, pointsEarned: 0, message: 'Duplicate reward for this item today.' };
+          return {
+            xpEarned: 0,
+            pointsEarned: 0,
+            message: 'Duplicate reward for this item today.',
+          };
         }
       }
 
@@ -419,7 +428,9 @@ export class GamificationService {
    * Does NOT change streak counters.
    */
   async getStreakStatus(userId: string) {
-    let profile = await this.prisma.userGamification.findUnique({ where: { userId } });
+    let profile = await this.prisma.userGamification.findUnique({
+      where: { userId },
+    });
 
     if (!profile) {
       profile = await this.prisma.userGamification.create({
@@ -491,10 +502,18 @@ export class GamificationService {
 
     const toDateStr = (d: Date) => this.getVnDateString(d);
     const weeklyActiveCount = await this.prisma.streakLog.count({
-      where: { userId, status: 'ACTIVE', date: { gte: toDateStr(weekAgo), lte: todayStr } },
+      where: {
+        userId,
+        status: 'ACTIVE',
+        date: { gte: toDateStr(weekAgo), lte: todayStr },
+      },
     });
     const monthlyActiveCount = await this.prisma.streakLog.count({
-      where: { userId, status: 'ACTIVE', date: { gte: toDateStr(monthAgo), lte: todayStr } },
+      where: {
+        userId,
+        status: 'ACTIVE',
+        date: { gte: toDateStr(monthAgo), lte: todayStr },
+      },
     });
 
     return {

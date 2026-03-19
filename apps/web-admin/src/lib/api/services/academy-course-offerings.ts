@@ -20,7 +20,8 @@ export type AcademyCourseOffering = {
   salesStartAt?: string | null
   salesEndAt?: string | null
   metadata?: unknown | null
-  classes?: any[]
+  classId?: string | null
+  class?: any | null
   validFrom?: string | null
   validTo?: string | null
   createdAt: string
@@ -90,14 +91,6 @@ export const academyCourseOfferingsApi = {
       `/api/academy/course-offerings/${id}`,
     )
     return res.data
-  },
-
-  async linkClasses(id: string, classIds: string[]) {
-    const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseOffering }>>(
-      `/api/academy/course-offerings/${id}/set-classes`,
-      { classIds },
-    )
-    return normalizeCourseOffering(res.data.data!.item)
   },
   async submitForApproval(id: string) {
     const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseOffering }>>(
@@ -181,13 +174,7 @@ export function useDeleteAcademyCourseOffering() {
 }
 
 export function useLinkAcademyCourseOfferingClasses() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: ({ id, classIds }: { id: string; classIds: string[] }) =>
-      academyCourseOfferingsApi.linkClasses(id, classIds),
-    onSuccess: (_, { id }) =>
-      qc.invalidateQueries({ queryKey: ["academy-course-offering", id] }),
-  })
+  throw new Error("Legacy API removed: offering is 1:1 with class via classId")
 }
 
 export function useSubmitCourseOfferingForApproval() {

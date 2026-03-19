@@ -8,12 +8,12 @@ import type {
 function normalizeOfferingForLearner(item: any) {
   if (!item) return null;
 
-  const classes = Array.isArray(item.classes) ? item.classes : [];
-  const primaryClass = classes.find((c: any) => c.isPrimary) || classes[0];
+  const primaryClass = item.class ?? null;
+  const classes = primaryClass ? [primaryClass] : [];
   const profile = primaryClass?.courseProfile;
 
   // Check if any class is LIVE or the offering mode is LIVE
-  const isLive = item.mode === 'LIVE' || classes.some((c: any) => c.mode === 'LIVE');
+  const isLive = item.mode === 'LIVE';
 
   const rawPrice = item.originalPrice ?? item.price ?? 0;
   const parsedPrice = Number(rawPrice);
@@ -48,6 +48,7 @@ function normalizeOfferingForLearner(item: any) {
   return {
     ...item,
     classes: normalizedClasses,
+    class: primaryClass,
     price: Number.isFinite(parsedPrice) ? parsedPrice : 0,
     thumbnailUrl:
       item.thumbnailUrl ||

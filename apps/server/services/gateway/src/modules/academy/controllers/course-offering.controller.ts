@@ -29,11 +29,9 @@ import {
 import {
   AcademyCourseOfferingCreateDTO,
   AcademyCourseOfferingQueryDTO,
-  AcademyCourseOfferingSetClassesDTO,
   AcademyCourseOfferingUpdateDTO,
   academyCourseOfferingCreateDTOSchema,
   academyCourseOfferingQueryDTOSchema,
-  academyCourseOfferingSetClassesDTOSchema,
   academyCourseOfferingUpdateDTOSchema,
 } from '@workspace/schemas';
 
@@ -128,27 +126,6 @@ export class CourseOfferingController {
       this.nats.send(
         { cmd: 'academy.courseOffering.update' },
         { id, input: dto, requesterId: req.requester?.sub },
-      ),
-    );
-    return successResponse({ item });
-  }
-
-  @Post(':id/set-classes')
-  @Permissions('academy.commerce.write')
-  async setClasses(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Body(new ZodValidationPipe(academyCourseOfferingSetClassesDTOSchema))
-    dto: AcademyCourseOfferingSetClassesDTO,
-    @Req() req: ReqWithRequester,
-  ) {
-    const item = await firstValueFrom(
-      this.nats.send(
-        { cmd: 'academy.courseOffering.setClasses' },
-        {
-          offeringId: id,
-          classIds: dto.classIds,
-          requesterId: req.requester?.sub,
-        },
       ),
     );
     return successResponse({ item });

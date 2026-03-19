@@ -102,7 +102,10 @@ export class GamificationController {
   @MessagePattern('gamification.getLeaderboard')
   async getLeaderboard(@Payload() data: { userId: string; type?: string }) {
     try {
-      return await this.gamificationService.getLeaderboard(data.userId, data.type);
+      return await this.gamificationService.getLeaderboard(
+        data.userId,
+        data.type,
+      );
     } catch (error) {
       throw new RpcException(error.message);
     }
@@ -228,5 +231,4 @@ export class GamificationController {
       throw new RpcException(error.message);
     }
   }
-
 }

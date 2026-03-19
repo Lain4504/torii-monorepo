@@ -179,7 +179,7 @@ export default function OfferingsPage() {
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-1">
-                                                <Badge variant="outline" className="text-[10px]">{offering.classes?.length || 0} lớp</Badge>
+                                                <Badge variant="outline" className="text-[10px]">{offering.classId ? 1 : 0} lớp</Badge>
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-right">
@@ -190,10 +190,10 @@ export default function OfferingsPage() {
                                                         size="sm" 
                                                         className="h-8 gap-1.5 bg-primary hover:bg-primary/90"
                                                         onClick={() => {
-                                                            if (offering.classes && offering.classes.length > 0) {
+                                                            if (offering.classId) {
                                                                 setSubmitDialog({ open: true, offering })
                                                             } else {
-                                                                toast.error("Vui lòng chọn ít nhất 1 lớp học trước khi gửi duyệt")
+                                                                toast.error("Vui lòng chọn lớp học (classId) trước khi gửi duyệt")
                                                             }
                                                         }}
                                                         disabled={submitForApprovalMutation.isPending}

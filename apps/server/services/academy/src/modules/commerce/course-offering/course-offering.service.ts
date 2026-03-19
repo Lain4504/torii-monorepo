@@ -69,15 +69,9 @@ export class CourseOfferingService {
     };
   }
 
-  private flattenClasses(classes: any[]) {
-    return (classes ?? []).map((link: any) => ({
-      ...link.class,
-      isPrimary: link.isPrimary,
-    }));
-  }
-
   private thinPublicOffering(item: any) {
     if (!item) return null;
+    const klass = item.class;
     return {
       id: item.id,
       code: item.code,
@@ -88,7 +82,7 @@ export class CourseOfferingService {
       currency: item.currency,
       mode: item.mode,
       status: item.status,
-      classes: this.flattenClasses(item.classes),
+      class: klass,
       validFrom: item.validFrom,
       validTo: item.validTo,
       createdAt: item.createdAt,
@@ -115,15 +109,11 @@ export class CourseOfferingService {
       ...(modeFilter ? { mode: modeFilter } : {}),
       ...(modeFilter === ClassMode.LIVE && hasEnrollableLiveClass
         ? {
-            classes: {
-              some: {
-                class: {
-                  mode: ClassMode.LIVE,
-                  status: ClassStatus.OPENING,
-                  enrollmentOpenAt: { not: null, lte: now },
-                  enrollmentCloseAt: { not: null, gte: now },
-                },
-              },
+            class: {
+              mode: ClassMode.LIVE,
+              status: ClassStatus.OPENING,
+              enrollmentOpenAt: { not: null, lte: now },
+              enrollmentCloseAt: { not: null, gte: now },
             },
           }
         : {}),
@@ -133,13 +123,7 @@ export class CourseOfferingService {
       where,
       orderBy: [{ createdAt: 'desc' }],
       include: {
-        classes: {
-          include: {
-            class: {
-              include: this.publicClassInclude,
-            },
-          },
-        },
+        class: { include: this.publicClassInclude },
       },
     });
 
@@ -150,25 +134,15 @@ export class CourseOfferingService {
     const items = await this.prisma.courseOffering.findMany({
       where: {
         status: OfferingStatus.PUBLISHED,
-        classes: {
-          some: {
-            class: {
-              courseProfile: {
-                level: { equals: category, mode: 'insensitive' },
-              },
-            },
+        class: {
+          courseProfile: {
+            level: { equals: category, mode: 'insensitive' },
           },
         },
       },
       orderBy: [{ createdAt: 'desc' }],
       include: {
-        classes: {
-          include: {
-            class: {
-              include: this.publicClassInclude,
-            },
-          },
-        },
+        class: { include: this.publicClassInclude },
       },
     });
 
@@ -179,41 +153,25 @@ export class CourseOfferingService {
     const item = await this.prisma.courseOffering.findUnique({
       where: { id },
       include: {
-        syllabus: {
+        class: {
           include: {
-            modules: {
-              orderBy: { orderIndex: 'asc' },
+            courseProfile: true,
+            syllabus: {
               include: {
-                lessons: {
+                modules: {
                   orderBy: { orderIndex: 'asc' },
-                },
-              },
-            },
-          },
-        },
-        classes: {
-          include: {
-            class: {
-              include: {
-                courseProfile: true,
-                syllabus: {
                   include: {
-                    modules: {
+                    lessons: {
                       orderBy: { orderIndex: 'asc' },
-                      include: {
-                        lessons: {
-                          orderBy: { orderIndex: 'asc' },
-                        },
-                      },
                     },
                   },
                 },
-                instructor: {
-                  select: {
-                    displayName: true,
-                    avatarUrl: true,
-                  },
-                },
+              },
+            },
+            instructor: {
+              select: {
+                displayName: true,
+                avatarUrl: true,
               },
             },
           },
@@ -228,34 +186,8 @@ export class CourseOfferingService {
     const item = await this.prisma.courseOffering.findUnique({
       where: { id },
       include: {
-        syllabus: {
-          select: {
-            id: true,
-            modules: {
-              orderBy: { orderIndex: 'asc' },
-              select: {
-                id: true,
-                title: true,
-                orderIndex: true,
-                lessons: {
-                  orderBy: { orderIndex: 'asc' },
-                  select: {
-                    id: true,
-                    type: true,
-                    title: true,
-                    orderIndex: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-        classes: {
-          include: {
-            class: {
-              include: this.publicClassInclude,
-            },
-          },
+        class: {
+          include: this.publicClassInclude,
         },
       },
     });
@@ -276,77 +208,48 @@ export class CourseOfferingService {
     const now = new Date();
     const thinned = this.thinPublicOffering(item)!;
 
-    const enrollableClasses =
-      item.mode === ClassMode.LIVE
-        ? thinned.classes.filter(
-            (c: any) =>
-              c?.mode === ClassMode.LIVE &&
-              c?.status === ClassStatus.OPENING &&
-              c?.enrollmentOpenAt &&
-              c?.enrollmentCloseAt &&
-              new Date(c.enrollmentOpenAt) <= now &&
-              new Date(c.enrollmentCloseAt) >= now,
-          )
-        : [];
+    const isEnrollableLiveClass =
+      item.mode === ClassMode.LIVE &&
+      thinned.class?.mode === ClassMode.LIVE &&
+      thinned.class?.status === ClassStatus.OPENING &&
+      thinned.class?.enrollmentOpenAt &&
+      thinned.class?.enrollmentCloseAt &&
+      new Date(thinned.class.enrollmentOpenAt) <= now &&
+      new Date(thinned.class.enrollmentCloseAt) >= now;
 
     return {
       ...thinned,
-      syllabus: item.syllabus,
-      enrollableClasses,
+      enrollable: isEnrollableLiveClass,
     };
   }
 
-  private async validateClassIdsForSelling(classIds: string[]) {
-    if (!classIds.length) {
-      throw new BadRequestException(
-        'Course offering must have at least one class to be published',
-      );
-    }
-
-    const classes = await this.prisma.class.findMany({
-      where: { id: { in: classIds } },
+  private async validateClassIdForOffering(classId: string) {
+    const klass = await this.prisma.class.findUnique({
+      where: { id: classId },
+      select: { id: true, code: true, status: true, mode: true },
     });
-
-    if (classes.length !== classIds.length) {
-      throw new BadRequestException('Some classIds do not exist');
-    }
+    if (!klass) throw new BadRequestException('Invalid classId');
 
     const validStatuses: ClassStatus[] = [
       ClassStatus.OPENING,
       ClassStatus.ONGOING,
       ClassStatus.PUBLISHED,
     ];
-    for (const cls of classes) {
-      if (!validStatuses.includes(cls.status)) {
-        throw new BadRequestException(
-          `Class ${cls.code} is in status ${cls.status}, which is not valid for enrollment`,
-        );
-      }
+    if (!validStatuses.includes(klass.status)) {
+      throw new BadRequestException(
+        `Class ${klass.code} is in status ${klass.status}, which is not valid for selling`,
+      );
     }
-  }
-
-  private async validateClassIdsExist(classIds: string[]) {
-    const count = await this.prisma.class.count({
-      where: { id: { in: classIds } },
-    });
-    if (count !== classIds.length) {
-      throw new BadRequestException('Some classIds do not exist');
-    }
+    return klass;
   }
 
   private async validateOfferingForPublish(id: string) {
     const offering = await this.prisma.courseOffering.findUnique({
       where: { id },
-      include: {
-        classes: {
-          select: { classId: true },
-        },
-      },
+      select: { classId: true },
     });
     if (!offering) throw new NotFoundException('Offering not found');
-    await this.validateClassIdsForSelling(
-      offering.classes.map((item) => item.classId),
-    );
+    await this.validateClassIdForOffering(offering.classId);
   }
 
   async create(input: CourseOfferingCreateDto, requesterId = 'SYSTEM') {
@@ -356,15 +259,7 @@ export class CourseOfferingService {
       );
     }
 
-    if (
-      input.classIds?.length &&
-      (input.status === OfferingStatus.PENDING_APPROVAL ||
-        input.status === OfferingStatus.PUBLISHED)
-    ) {
-      await this.validateClassIdsForSelling(input.classIds);
-    } else if (input.classIds?.length) {
-      await this.validateClassIdsExist(input.classIds);
-    }
+    await this.validateClassIdForOffering(input.classId);
 
     const offering = await this.prisma.courseOffering.create({
       data: {
@@ -375,14 +270,9 @@ export class CourseOfferingService {
         salePrice: input.salePrice ? new Prisma.Decimal(input.salePrice) : null,
         currency: input.currency,
         mode: input.mode as ClassMode,
-        syllabusId: input.syllabusId,
+        classId: input.classId,
         status: (input.status as OfferingStatus) || OfferingStatus.DRAFT,
         type: (input.type as OrderType) || OrderType.COURSE,
-        classes: input.classIds?.length
-          ? {
-              create: input.classIds.map((classId) => ({ classId })),
-            }
-          : undefined,
       },
     });
 
@@ -419,15 +309,14 @@ export class CourseOfferingService {
     // Governance: If PUBLISHED, any change to critical fields resets status to PENDING_APPROVAL (or DRAFT)
     let newStatus = (input.status as OfferingStatus) || offering.status;
     const criticalFieldsChanged =
-      input.classIds !== undefined ||
+      input.classId !== undefined ||
       (input.price !== undefined &&
         Number(input.price) !== Number(offering.price)) ||
       (input.salePrice !== undefined &&
         Number(input.salePrice) !== Number(offering.salePrice)) ||
       (input.title !== undefined && input.title !== offering.title) ||
       (input.mode !== undefined && input.mode !== offering.mode) ||
-      (input.syllabusId !== undefined &&
-        input.syllabusId !== offering.syllabusId);
+      false;
 
     let existingEnrollmentCount = 0;
     if (offering.status === OfferingStatus.PUBLISHED && criticalFieldsChanged) {
@@ -437,14 +326,8 @@ export class CourseOfferingService {
       });
     }
 
-    if (
-      input.classIds?.length &&
-      (newStatus === OfferingStatus.PENDING_APPROVAL ||
-        newStatus === OfferingStatus.PUBLISHED)
-    ) {
-      await this.validateClassIdsForSelling(input.classIds);
-    } else if (input.classIds?.length) {
-      await this.validateClassIdsExist(input.classIds);
+    if (input.classId) {
+      await this.validateClassIdForOffering(input.classId);
     }
 
     const updated = await this.prisma.courseOffering.update({
@@ -462,15 +345,9 @@ export class CourseOfferingService {
             : undefined,
         currency: input.currency,
         mode: (input.mode as ClassMode) || undefined,
-        syllabusId: input.syllabusId || undefined,
+        classId: input.classId || undefined,
         status: newStatus,
         type: input.type as OrderType,
-        classes: input.classIds
-          ? {
-              deleteMany: {},
-              create: input.classIds.map((classId) => ({ classId })),
-            }
-          : undefined,
       },
     });
 
@@ -594,77 +471,6 @@ export class CourseOfferingService {
     });
 
     return updated;
-  }
-
-  async setClasses(input: CourseOfferingSetClassesDto, requesterId = 'SYSTEM') {
-    const offering = await this.findById(input.offeringId);
-    if (!input.classIds.length) {
-      if (
-        offering.status === OfferingStatus.PUBLISHED ||
-        offering.status === OfferingStatus.PENDING_APPROVAL
-      ) {
-        throw new BadRequestException(
-          'Course offering must have at least one class to be published',
-        );
-      }
-    } else if (
-      offering.status === OfferingStatus.PUBLISHED ||
-      offering.status === OfferingStatus.PENDING_APPROVAL
-    ) {
-      await this.validateClassIdsForSelling(input.classIds);
-    } else {
-      await this.validateClassIdsExist(input.classIds);
-    }
-
-    const nextStatus =
-      offering.status === OfferingStatus.PUBLISHED
-        ? OfferingStatus.PENDING_APPROVAL
-        : offering.status;
-    const existingEnrollmentCount =
-      offering.status === OfferingStatus.PUBLISHED
-        ? await this.prisma.enrollment.count({
-            where: { offeringId: input.offeringId },
-          })
-        : 0;
-
-    await this.prisma.$transaction([
-      this.prisma.courseOfferingClass.deleteMany({
-        where: { offeringId: input.offeringId },
-      }),
-      this.prisma.courseOfferingClass.createMany({
-        data: input.classIds.map((classId) => ({
-          offeringId: input.offeringId,
-          classId,
-        })),
-        skipDuplicates: true,
-      }),
-      this.prisma.courseOffering.update({
-        where: { id: input.offeringId },
-        data: { status: nextStatus },
-      }),
-    ]);
-
-    await this.audit.log({
-      userId: requesterId,
-      action: 'offering.setClasses',
-      entity: 'CourseOffering',
-      entityId: input.offeringId,
-      description: `Set classes for offering: ${input.offeringId}`,
-      metadata: {
-        classIds: input.classIds,
-        previousStatus: offering.status,
-        nextStatus,
-        ...(offering.status === OfferingStatus.PUBLISHED
-          ? {
-              policy: 'NON_RETROACTIVE_ENTITLEMENT',
-              previousBuyersUnaffected: true,
-              existingEnrollmentCount,
-            }
-          : {}),
-      },
-    });
-
-    return this.findById(input.offeringId);
   }
 
   async archive(id: string, requesterId = 'SYSTEM') {

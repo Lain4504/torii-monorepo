@@ -37,7 +37,7 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
     console.log('🌱 Seeding subscription offerings...');
 
-    // 1. Create a Course Profile and Edition for Subscriptions
+    // 1. Create a Course Profile for Subscriptions
     const courseProfile = await prisma.courseProfile.upsert({
         where: { code: 'subscriptions' },
         update: {},
@@ -45,22 +45,6 @@ async function main() {
             code: 'subscriptions',
             title: 'AI Sensei Subscriptions',
             description: 'Tiered access to AI Sensei features',
-        },
-    });
-
-    const courseEdition = await prisma.courseEdition.upsert({
-        where: {
-            courseProfileId_editionTag: {
-                courseProfileId: courseProfile.id,
-                editionTag: 'v1',
-            },
-        },
-        update: {},
-        create: {
-            editionTag: 'v1',
-            courseProfileId: courseProfile.id,
-            isCurrent: true,
-            status: 'PUBLISHED',
         },
     });
 
@@ -86,25 +70,6 @@ async function main() {
     ];
 
     for (const tier of tiers) {
-        // Create Offering
-        const offering = await prisma.courseOffering.upsert({
-            where: { code: tier.code },
-            update: {
-                type: OrderType.SUBSCRIPTION,
-                status: OfferingStatus.PUBLISHED,
-                metadata: { quotas: { ai_turns: tier.quota } },
-                originalPrice: tier.price,
-            },
-            create: {
-                code: tier.code,
-                title: tier.title,
-                type: OrderType.SUBSCRIPTION,
-                status: OfferingStatus.PUBLISHED,
-                originalPrice: tier.price,
-                metadata: { quotas: { ai_turns: tier.quota } },
-            },
-        });
-
         // Create Class for this tier
         const classObj = await prisma.class.upsert({
             where: { code: `class-${tier.code}` },
@@ -113,26 +78,34 @@ async function main() {
                 code: `class-${tier.code}`,
                 name: `${tier.title} Access`,
                 courseProfileId: courseProfile.id,
-                courseEditionId: courseEdition.id,
                 mode: 'VOD',
                 status: 'PUBLISHED',
             },
         });
 
-        // Link Offering to Class
-        await prisma.courseOfferingClass.upsert({
-            where: {
-                offeringId_classId: {
-                    offeringId: offering.id,
-                    classId: classObj.id,
-                }
-            },
-            update: {},
-            create: {
-                offeringId: offering.id,
+        // Create Offering (1:1 with Class)
+        await prisma.courseOffering.upsert({
+            where: { code: tier.code },
+            update: {
+                type: OrderType.SUBSCRIPTION,
+                status: OfferingStatus.PUBLISHED,
+                metadata: { quotas: { ai_turns: tier.quota } },
+                originalPrice: tier.price,
                 classId: classObj.id,
-                isPrimary: true,
-            }
+                mode: 'VOD',
+            },
+            create: {
+                code: tier.code,
+                title: tier.title,
+                type: OrderType.SUBSCRIPTION,
+                status: OfferingStatus.PUBLISHED,
+                originalPrice: tier.price,
+                metadata: { quotas: { ai_turns: tier.quota } },
+                classId: classObj.id,
+                mode: 'VOD',
+                price: tier.price,
+                currency: 'VND',
+            },
         });
 
         console.log(`✅ Tier [${tier.code}] created/updated.`);

@@ -5,8 +5,6 @@ export const orderCheckoutSchema = z.object({
   offeringIds: z.array(z.string()).optional(),
   // AI subscription plans
   subscriptionPlanIds: z.array(z.string()).optional(),
-  // For LIVE: map offeringId -> selected classId (one per offering)
-  classIdByOffering: z.record(z.string().uuid(), z.string().uuid()).optional(),
   couponCode: z.string().optional(),
   description: z.string().optional(),
   metadata: z.any().optional(),
@@ -19,8 +17,6 @@ export const orderCheckoutSchema = z.object({
 export const orderPreviewSchema = z.object({
   offeringIds: z.array(z.string()).optional(),
   subscriptionPlanIds: z.array(z.string()).optional(),
-  // For LIVE: map offeringId -> selected classId (one per offering)
-  classIdByOffering: z.record(z.string().uuid(), z.string().uuid()).optional(),
   couponCode: z.string().optional(),
   description: z.string().optional(),
 });

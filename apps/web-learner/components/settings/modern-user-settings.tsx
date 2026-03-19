@@ -37,9 +37,15 @@ export default function ModernUserSettings() {
     const queryClient = useQueryClient()
     const fileInputRef = useRef<HTMLInputElement>(null)
 
+    const userMeta = (user as any)?.userMetadata ?? {}
+
     const [formData, setFormData] = useState({
         displayName: user?.displayName || '',
         email: user?.email || '',
+        phone: (userMeta?.phone as string) || '',
+        address: (userMeta?.address as string) || '',
+        bio: (userMeta?.bio as string) || '',
+        dateOfBirth: (userMeta?.dateOfBirth as string) || '', // yyyy-mm-dd or ISO
     })
 
     const [passwordForm, setPasswordForm] = useState({
@@ -55,6 +61,13 @@ export default function ModernUserSettings() {
         mutationFn: (data: typeof formData) =>
             profileApi.updateProfile({
                 displayName: data.displayName,
+                userMetadata: {
+                    ...userMeta,
+                    phone: data.phone || undefined,
+                    address: data.address || undefined,
+                    bio: data.bio || undefined,
+                    dateOfBirth: data.dateOfBirth || undefined,
+                },
             }),
         onSuccess: async () => {
             await dispatch(fetchProfile())
@@ -87,6 +100,10 @@ export default function ModernUserSettings() {
         setFormData({
             displayName: user?.displayName || '',
             email: user?.email || '',
+            phone: (userMeta?.phone as string) || '',
+            address: (userMeta?.address as string) || '',
+            bio: (userMeta?.bio as string) || '',
+            dateOfBirth: (userMeta?.dateOfBirth as string) || '',
         })
     }
 
@@ -258,6 +275,58 @@ export default function ModernUserSettings() {
                                                 <FieldDescription>
                                                     Email được dùng để đăng nhập và nhận thông báo hệ thống.
                                                 </FieldDescription>
+                                            </Field>
+
+                                            <Field>
+                                                <FieldLabel htmlFor="phone">Số điện thoại</FieldLabel>
+                                                <Input
+                                                    id="phone"
+                                                    inputMode="tel"
+                                                    value={formData.phone}
+                                                    onChange={(e) =>
+                                                        setFormData({ ...formData, phone: e.target.value })
+                                                    }
+                                                    placeholder="VD: 090xxxxxxx"
+                                                />
+                                            </Field>
+
+                                            <Field>
+                                                <FieldLabel htmlFor="address">Địa chỉ</FieldLabel>
+                                                <Input
+                                                    id="address"
+                                                    value={formData.address}
+                                                    onChange={(e) =>
+                                                        setFormData({ ...formData, address: e.target.value })
+                                                    }
+                                                    placeholder="VD: Quận 1, TP.HCM"
+                                                />
+                                            </Field>
+
+                                            <Field>
+                                                <FieldLabel htmlFor="dateOfBirth">Ngày sinh</FieldLabel>
+                                                <Input
+                                                    id="dateOfBirth"
+                                                    type="date"
+                                                    value={formData.dateOfBirth}
+                                                    onChange={(e) =>
+                                                        setFormData({ ...formData, dateOfBirth: e.target.value })
+                                                    }
+                                                />
+                                                <FieldDescription>
+                                                    Trường này được lưu trong metadata của tài khoản.
+                                                </FieldDescription>
+                                            </Field>
+
+                                            <Field>
+                                                <FieldLabel htmlFor="bio">Giới thiệu</FieldLabel>
+                                                <Input
+                                                    id="bio"
+                                                    value={formData.bio}
+                                                    onChange={(e) =>
+                                                        setFormData({ ...formData, bio: e.target.value })
+                                                    }
+                                                    placeholder="Một vài dòng về bạn…"
+                                                />
                                             </Field>
                                         </FieldSet>
 

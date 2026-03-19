@@ -71,10 +71,9 @@ const offeringSchema = z.object({
   salePrice: z.coerce.number().min(0, "Giá khuyến mãi không được nhỏ hơn 0").optional().nullable(),
   currency: z.string().min(1, "Vui lòng nhập tiền tệ"),
   mode: z.string().min(1, "Vui lòng chọn loại hình"),
-  syllabusId: z.string().uuid().optional().nullable(),
   status: z.string().optional(),
   type: z.string().optional(),
-  classIds: z.array(z.string().uuid()),
+  classId: z.string().uuid(),
 })
 
 type OfferingFormValues = z.infer<typeof offeringSchema>
@@ -109,14 +108,13 @@ export function OfferingSheet({ open, onOpenChange, offering }: OfferingSheetPro
       salePrice: null,
       currency: "VND",
       mode: "LIVE",
-      syllabusId: null,
       status: "DRAFT",
       type: "COURSE",
-      classIds: [],
+      classId: "",
     },
   })
 
-  const selectedClassIds = watch("classIds")
+  const selectedClassId = watch("classId")
   const selectedMode = watch("mode")
 
   // VOD: PUBLISHED, LIVE: OPENING (đang tuyển sinh) / ONGOING (đang học) – theo live-class-commerce-spec
@@ -137,10 +135,9 @@ export function OfferingSheet({ open, onOpenChange, offering }: OfferingSheetPro
         salePrice: salePriceVal,
         currency: offering.currency || "VND",
         mode: (offering as any).mode || "LIVE",
-        syllabusId: (offering as any).syllabusId || null,
         status: offering.status || "DRAFT",
         type: (offering as any).type || "COURSE",
-        classIds: offering.classes?.map((c: { classId?: string; id: string }) => c.classId ?? c.id) ?? [],
+        classId: offering.classId ?? offering.class?.id ?? "",
       })
     } else {
       reset({
@@ -151,10 +148,9 @@ export function OfferingSheet({ open, onOpenChange, offering }: OfferingSheetPro
         salePrice: null,
         currency: "VND",
         mode: "LIVE",
-        syllabusId: null,
         status: "DRAFT",
         type: "COURSE",
-        classIds: [],
+        classId: "",
       })
     }
   }, [offering, reset])
@@ -164,7 +160,6 @@ export function OfferingSheet({ open, onOpenChange, offering }: OfferingSheetPro
       const payload = {
         ...values,
         salePrice: values.salePrice == null || Number.isNaN(values.salePrice) ? undefined : values.salePrice,
-        syllabusId: values.syllabusId || undefined,
       }
 
       if (isEditing && offering) {
@@ -183,16 +178,7 @@ export function OfferingSheet({ open, onOpenChange, offering }: OfferingSheetPro
     }
   }
 
-  const toggleClass = (classId: string) => {
-    const current = [...selectedClassIds]
-    const index = current.indexOf(classId)
-    if (index > -1) {
-      current.splice(index, 1)
-    } else {
-      current.push(classId)
-    }
-    setValue("classIds", current)
-  }
+  const setClass = (classId: string) => setValue("classId", classId)
 
   const isLoading = createMutation.isPending || updateMutation.isPending
 
@@ -333,44 +319,40 @@ export function OfferingSheet({ open, onOpenChange, offering }: OfferingSheetPro
                   </FieldDescription>
 
                   <div className="space-y-4 pt-4">
-                    {/* Selected Classes List */}
+                    {/* Selected Class */}
                     <div className="space-y-2">
-                      {selectedClassIds.length > 0 ? (
-                        <div className="grid grid-cols-1 gap-2">
-                          {selectedClassIds.map((id) => {
-                            const cls = classes.find((c: any) => c.id === id) || 
-                                        offering?.classes?.find((c: any) => (c.classId ?? c.id) === id)
-                            if (!cls) return null
-                            return (
-                              <Item key={id} variant="outline" className="group">
-                                <ItemMedia>
-                                  <Badge variant="outline" className="font-mono text-[10px] uppercase">
-                                    {(cls as any).code || "CLASS"}
-                                  </Badge>
-                                </ItemMedia>
-                                <ItemContent>
-                                  <ItemTitle className="text-sm">{(cls as any).name || (cls as any).title}</ItemTitle>
-                                  <ItemDescription className="text-[10px] uppercase">
-                                    {(cls as any).status} • {(cls as any).mode}
-                                  </ItemDescription>
-                                </ItemContent>
-                                <ItemActions>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="icon" 
-                                    className="size-8 text-muted-foreground hover:text-destructive"
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      toggleClass(id);
-                                    }}
-                                  >
-                                    <X className="size-4" />
-                                  </Button>
-                                </ItemActions>
-                              </Item>
-                            )
-                          })}
-                        </div>
+                      {selectedClassId ? (
+                        (() => {
+                          const cls = classes.find((c: any) => c.id === selectedClassId) || offering?.class
+                          return (
+                            <Item variant="outline" className="group">
+                              <ItemMedia>
+                                <Badge variant="outline" className="font-mono text-[10px] uppercase">
+                                  {(cls as any)?.code || "CLASS"}
+                                </Badge>
+                              </ItemMedia>
+                              <ItemContent>
+                                <ItemTitle className="text-sm">{(cls as any)?.name || (cls as any)?.title}</ItemTitle>
+                                <ItemDescription className="text-[10px] uppercase">
+                                  {(cls as any)?.status} • {(cls as any)?.mode}
+                                </ItemDescription>
+                              </ItemContent>
+                              <ItemActions>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="size-8 text-muted-foreground hover:text-destructive"
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    setClass("")
+                                  }}
+                                >
+                                  <X className="size-4" />
+                                </Button>
+                              </ItemActions>
+                            </Item>
+                          )
+                        })()
                       ) : (
                         <div className="border border-dashed rounded-xl py-8 text-center bg-muted/5 font-medium text-muted-foreground italic">
                           Chưa có lớp học nào được chọn.
@@ -405,11 +387,11 @@ export function OfferingSheet({ open, onOpenChange, offering }: OfferingSheetPro
                             </CommandEmpty>
                             <CommandGroup heading="Kết quả tìm kiếm">
                               {classes.map((cls: any) => {
-                                const isChecked = selectedClassIds.includes(cls.id)
+                                const isChecked = selectedClassId === cls.id
                                 return (
                                   <CommandItem
                                     key={cls.id}
-                                    onSelect={() => toggleClass(cls.id)}
+                                    onSelect={() => setClass(cls.id)}
                                     className="px-4 py-3 cursor-pointer"
                                   >
                                     <div className="flex items-center gap-3 w-full">

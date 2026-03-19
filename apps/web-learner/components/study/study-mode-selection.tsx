@@ -29,14 +29,14 @@ export function StudyModeSelection({ selectedSetId, selectedCount, activeMode }:
                     <Card
                         className={`flex h-full flex-col items-center justify-between text-center shadow-sm transition-shadow hover:shadow-md ${
                             activeMode === 'review'
-                                ? 'border-primary bg-primary/5'
+                                ? 'border-blue-500/50 bg-blue-500/5'
                                 : 'border-border bg-card'
                         }`}
                         data-purpose="mode-card-flashcard"
                     >
                         <CardContent className="flex h-full flex-col items-center justify-between space-y-4 p-6">
                             <div className="flex flex-col items-center space-y-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600">
                                     <Layers className="h-6 w-6" />
                                 </div>
                                 <div className="space-y-1">
@@ -49,7 +49,7 @@ export function StudyModeSelection({ selectedSetId, selectedCount, activeMode }:
                             <Button
                                 asChild
                                 disabled={!selectedSetId || selectedCount === 0}
-                                className="mt-4 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
+                                className="mt-4 w-full rounded-xl bg-blue-600 text-white hover:bg-blue-700"
                             >
                                 <Link href={selectedSetId ? `/dashboard/study-sets/${selectedSetId}/review` : '#'}>
                                     Bắt đầu Flashcard
@@ -62,27 +62,27 @@ export function StudyModeSelection({ selectedSetId, selectedCount, activeMode }:
                     <Card
                         className={`flex h-full flex-col items-center justify-between text-center shadow-sm transition-shadow hover:shadow-md ${
                             activeMode === 'test'
-                                ? 'border-primary bg-primary/5'
+                                ? 'border-orange-500/50 bg-orange-500/5'
                                 : 'border-border bg-card'
                         }`}
                         data-purpose="mode-card-quiz"
                     >
                         <CardContent className="flex h-full flex-col items-center justify-between space-y-4 p-6">
                             <div className="flex flex-col items-center space-y-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-500/10 text-orange-600">
                                     <Target className="h-6 w-6" />
                                 </div>
                                 <div className="space-y-1">
                                     <p className="text-base font-bold text-foreground">Trắc nghiệm</p>
                                     <p className="text-xs leading-relaxed text-muted-foreground">
-                                        Xem từ vựng, chọn cách đọc. Kiểm tra nhanh kiến thức.
+                                        Trả lời câu hỏi trắc nghiệm để kiểm tra mức độ nhớ từ.
                                     </p>
                                 </div>
                             </div>
                             <Button
                                 asChild
                                 disabled={!selectedSetId || selectedCount === 0}
-                                className="mt-4 w-full rounded-xl"
+                                className="mt-4 w-full rounded-xl bg-orange-500 text-white hover:bg-orange-600"
                             >
                                 <Link href={selectedSetId ? `/dashboard/study-sets/${selectedSetId}/test` : '#'}>
                                     Bắt đầu Trắc nghiệm
@@ -95,30 +95,30 @@ export function StudyModeSelection({ selectedSetId, selectedCount, activeMode }:
                     <Card
                         className={`flex h-full flex-col items-center justify-between text-center shadow-sm transition-shadow hover:shadow-md ${
                             activeMode === 'match'
-                                ? 'border-primary bg-primary/5'
+                                ? 'border-emerald-500/50 bg-emerald-500/5'
                                 : 'border-border bg-card'
                         }`}
                         data-purpose="mode-card-intensive"
                     >
                         <CardContent className="flex h-full flex-col items-center justify-between space-y-4 p-6">
                             <div className="flex flex-col items-center space-y-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
                                     <Zap className="h-6 w-6" />
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-base font-bold text-foreground">Nhồi nhét</p>
+                                    <p className="text-base font-bold text-foreground">Match</p>
                                     <p className="text-xs leading-relaxed text-muted-foreground">
-                                        Gõ đáp án để ghi nhớ sâu hơn. Dành cho người muốn thử thách.
+                                        Ghép cặp thuật ngữ và định nghĩa để tăng phản xạ ghi nhớ.
                                     </p>
                                 </div>
                             </div>
                             <Button
                                 asChild
                                 disabled={!selectedSetId || selectedCount === 0}
-                                className="mt-4 w-full rounded-xl"
+                                className="mt-4 w-full rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
                             >
                                 <Link href={selectedSetId ? `/dashboard/study-sets/${selectedSetId}/match` : '#'}>
-                                    Bắt đầu Nhồi nhét
+                                    Bắt đầu Match
                                 </Link>
                             </Button>
                         </CardContent>

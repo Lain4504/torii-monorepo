@@ -34,9 +34,8 @@ export class CourseOfferingCreateDto {
   @IsString()
   mode!: string; // VOD, LIVE
 
-  @IsOptional()
   @IsUUID()
-  syllabusId?: string;
+  classId!: string;
 
   @IsOptional()
   @IsString()
@@ -47,10 +46,6 @@ export class CourseOfferingCreateDto {
   @IsString()
   @MaxLength(20)
   type?: string; // COURSE, BUNDLE, SUBSCRIPTION
-
-  @IsOptional()
-  @IsArray()
-  classIds?: string[];
 }
 
 export class CourseOfferingUpdateDto {
@@ -82,7 +77,7 @@ export class CourseOfferingUpdateDto {
 
   @IsOptional()
   @IsUUID()
-  syllabusId?: string;
+  classId?: string;
 
   @IsOptional()
   @IsString()
@@ -92,10 +87,6 @@ export class CourseOfferingUpdateDto {
   @IsOptional()
   @IsString()
   type?: string;
-
-  @IsOptional()
-  @IsArray()
-  classIds?: string[];
 }
 
 export class CourseOfferingQueryDto {
@@ -115,12 +106,4 @@ export class CourseOfferingQueryDto {
   /** When true and mode=LIVE, only return offerings with at least one class in enrollment window */
   @IsOptional()
   hasEnrollableLiveClass?: boolean;
-}
-
-export class CourseOfferingSetClassesDto {
-  @IsUUID()
-  offeringId!: string;
-
-  @IsArray()
-  classIds!: string[];
 }

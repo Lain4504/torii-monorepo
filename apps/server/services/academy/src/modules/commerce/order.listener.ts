@@ -24,11 +24,7 @@ export class OrderListener {
           include: {
             offering: {
               include: {
-                classes: {
-                  include: {
-                    class: true,
-                  },
-                },
+                class: true,
               },
             },
           },
@@ -45,42 +41,40 @@ export class OrderListener {
 
     let enrolledCount = 0;
     for (const item of order.items) {
-      if (!item.offering || !item.offering.classes) continue;
+      if (!item.offering || !item.offering.class) continue;
 
-      for (const occ of item.offering.classes) {
-        const klass = occ.class;
+      const klass = item.offering.class;
 
-        // Rule: Enroll only when LIVE class is OPENING or ONGOING, or VOD class is PUBLISHED
-        if (
-          klass.status !== ClassStatus.OPENING &&
-          klass.status !== ClassStatus.ONGOING &&
-          klass.status !== ClassStatus.PUBLISHED
-        ) {
-          console.log(
-            `[Academy] Skip enroll: Class ${klass.id} is ${klass.status}`,
-          );
-          continue;
-        }
+      // Rule: Enroll only when LIVE class is OPENING or ONGOING, or VOD class is PUBLISHED
+      if (
+        klass.status !== ClassStatus.OPENING &&
+        klass.status !== ClassStatus.ONGOING &&
+        klass.status !== ClassStatus.PUBLISHED
+      ) {
+        console.log(
+          `[Academy] Skip enroll: Class ${klass.id} is ${klass.status}`,
+        );
+        continue;
+      }
 
-        try {
-          await this.enrollments.create(
-            {
-              userId: order.userId,
-              offeringId: item.offeringId ?? undefined,
-              classId: klass.id,
-              status: 'ACTIVE',
-              sourceOrderId: order.id,
-            },
-            'SYSTEM',
-          );
-          enrolledCount++;
-        } catch (err: any) {
-          // Ignore duplicate enrollment error or full class silently or log
-          console.error(
-            `[Academy] Failed to enroll user ${order.userId} in class ${klass.id}:`,
-            err.message,
-          );
-        }
+      try {
+        await this.enrollments.create(
+          {
+            userId: order.userId,
+            offeringId: item.offeringId ?? undefined,
+            classId: klass.id,
+            status: 'ACTIVE',
+            sourceOrderId: order.id,
+          },
+          'SYSTEM',
+        );
+        enrolledCount++;
+      } catch (err: any) {
+        // Ignore duplicate enrollment error or full class silently or log
+        console.error(
+          `[Academy] Failed to enroll user ${order.userId} in class ${klass.id}:`,
+          err.message,
+        );
       }
     }
 

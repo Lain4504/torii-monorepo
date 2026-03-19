@@ -1032,6 +1032,15 @@ enum SyllabusStatus {
   LOCKED  // Đã gắn vào lớp ONGOING/PUBLISHED, chỉ đọc
 }
 
+// LIVE term status (cohort/term grouping)
+enum LiveTermStatus {
+  DRAFT
+  OPENING
+  ONGOING
+  COMPLETED
+  ARCHIVED
+}
+
 // Lesson content type
 enum LessonType {
   VIDEO
@@ -1054,9 +1063,37 @@ model CourseProfile {
 
   syllabuses Syllabus[]
   classes    Class[]
+  liveTerms  LiveTerm[]
 
   @@index([level])
   @@map("academy_course_profiles")
+}
+
+model LiveTerm {
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseProfileId String         @map("course_profile_id") @db.Uuid
+
+  // Human-readable term identifier, e.g. "N5-2026Q2"
+  termCode String @map("term_code") @db.VarChar(50)
+
+  status LiveTermStatus @default(DRAFT)
+
+  // Term timeline (operational)
+  openingDate       DateTime? @map("opening_date")
+  closingDate       DateTime? @map("closing_date")
+  enrollmentOpenAt  DateTime? @map("enrollment_open_at")
+  enrollmentCloseAt DateTime? @map("enrollment_close_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  courseProfile CourseProfile @relation(fields: [courseProfileId], references: [id], onDelete: Cascade)
+  classes       Class[]
+
+  @@unique([courseProfileId, termCode])
+  @@index([courseProfileId])
+  @@index([status])
+  @@map("academy_live_terms")
 }
 
 model Syllabus {
@@ -1136,6 +1173,7 @@ model Class {
   id              String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   courseProfileId String      @map("course_profile_id") @db.Uuid
   syllabusId      String?     @map("syllabus_id") @db.Uuid
+  termId          String?     @map("term_id") @db.Uuid
   code            String      @unique @db.VarChar(150)
   name            String      @db.VarChar(255)
   mode            ClassMode   // VOD or LIVE
@@ -1162,19 +1200,21 @@ model Class {
 
   courseProfile        CourseProfile       @relation(fields: [courseProfileId], references: [id], onDelete: Cascade)
   syllabus             Syllabus?           @relation(fields: [syllabusId], references: [id])
+  term                 LiveTerm?           @relation(fields: [termId], references: [id], onDelete: SetNull)
   instructor           User?               @relation("AcademyClassTeacher", fields: [instructorId], references: [id], onDelete: SetNull)
   enrollments          Enrollment[]
   classAssignments     ClassAssignment[]
   userLessonProgress   UserLessonProgress[]
   tickets              Ticket[]
   certificates         Certificate[]
-  offeringLinks        CourseOfferingClass[]
+  offering             CourseOffering?
   reviews              ClassReview[]
   liveSchedules        LiveSchedule[]
   liveScheduleSessions LiveScheduleSession[]
 
   @@index([courseProfileId])
   @@index([syllabusId])
+  @@index([termId])
   @@index([mode])
   @@index([status])
   @@map("academy_classes")
@@ -1350,7 +1390,7 @@ model LiveScheduleRequest {
 
 model CourseOffering {
   id          String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  syllabusId  String?        @map("syllabus_id") @db.Uuid
+  classId     String         @unique @map("class_id") @db.Uuid
   code        String         @unique @db.VarChar(150)
   title       String         @db.VarChar(255)
   description String?        @db.Text
@@ -1373,26 +1413,12 @@ model CourseOffering {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  syllabus    Syllabus?           @relation(fields: [syllabusId], references: [id], onDelete: SetNull)
-  classes     CourseOfferingClass[]
+  class      Class              @relation(fields: [classId], references: [id], onDelete: Cascade)
   orderItems  OrderItem[]
   enrollments Enrollment[]
 
   @@index([status])
   @@map("academy_course_offerings")
-}
-
-model CourseOfferingClass {
-  offeringId String  @map("offering_id") @db.Uuid
-  classId    String  @map("class_id") @db.Uuid
-  isPrimary  Boolean @default(false) @map("is_primary")
-
-  offering CourseOffering @relation(fields: [offeringId], references: [id], onDelete: Cascade)
-  class    Class          @relation(fields: [classId], references: [id], onDelete: Cascade)
-
-  @@id([offeringId, classId])
-  @@index([classId])
-  @@map("academy_course_offering_classes")
 }
 
 /// Enrollment: Quyền truy cập của học viên thông qua Class (Trung tâm vận hành)

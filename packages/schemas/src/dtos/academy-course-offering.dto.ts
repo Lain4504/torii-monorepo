@@ -11,10 +11,9 @@ export const academyCourseOfferingCreateDTOSchema = z.object({
   salePrice: z.number().min(0).optional(),
   currency: z.string().min(1).max(10),
   mode: z.string().min(1), // ClassMode (VOD / LIVE)
-  syllabusId: z.string().uuid().optional(),
+  classId: z.string().uuid(),
   status: z.string().max(20).optional(),
   type: z.string().max(20).optional(),
-  classIds: z.array(z.string().uuid()).optional(),
 });
 export type AcademyCourseOfferingCreateDTO = z.infer<
   typeof academyCourseOfferingCreateDTOSchema
@@ -27,10 +26,9 @@ export const academyCourseOfferingUpdateDTOSchema = z.object({
   salePrice: z.number().min(0).optional(),
   currency: z.string().max(10).optional(),
   mode: z.string().optional(),
-  syllabusId: z.string().uuid().optional(),
+  classId: z.string().uuid().optional(),
   status: z.string().max(20).optional(),
   type: z.string().max(20).optional(),
-  classIds: z.array(z.string().uuid()).optional(),
 });
 export type AcademyCourseOfferingUpdateDTO = z.infer<
   typeof academyCourseOfferingUpdateDTOSchema
@@ -51,13 +49,5 @@ export const academyCourseOfferingQueryDTOSchema = z.object({
 });
 export type AcademyCourseOfferingQueryDTO = z.infer<
   typeof academyCourseOfferingQueryDTOSchema
->;
-
-export const academyCourseOfferingSetClassesDTOSchema = z.object({
-  offeringId: z.string().uuid(),
-  classIds: z.array(z.string().uuid()),
-});
-export type AcademyCourseOfferingSetClassesDTO = z.infer<
-  typeof academyCourseOfferingSetClassesDTOSchema
 >;
 

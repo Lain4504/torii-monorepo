@@ -14,16 +14,12 @@ export interface OrderPreviewDTO {
     offeringIds?: string[];
     // AI subscription plans
     subscriptionPlanIds?: string[];
-    // LIVE: map offeringId -> selected classId (one per offering)
-    classIdByOffering?: Record<string, string>;
     couponCode?: string;
 }
 
 export interface OrderCheckoutDTO {
     offeringIds?: string[];
     subscriptionPlanIds?: string[];
-    // LIVE: map offeringId -> selected classId (one per offering)
-    classIdByOffering?: Record<string, string>;
     couponCode?: string;
     paymentMethod: PaymentMethod | string;
     description?: string;

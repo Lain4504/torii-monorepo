@@ -723,6 +723,27 @@ export class ClassService {
 
   /** Mark a single lesson as complete */
   async markLessonComplete(userId: string, classId: string, lessonId: string) {
+    const klass = await this.prisma.class.findUnique({
+      where: { id: classId },
+      select: { id: true, syllabusId: true },
+    });
+    if (!klass) throw new NotFoundException('Class not found');
+    if (!klass.syllabusId) {
+      throw new BadRequestException('Class has no syllabus');
+    }
+
+    // Validate lesson belongs to this class's syllabus (prevent dirty progress writes)
+    const lesson = await this.prisma.lesson.findFirst({
+      where: {
+        id: lessonId,
+        module: { syllabusId: klass.syllabusId },
+      },
+      select: { id: true },
+    });
+    if (!lesson) {
+      throw new BadRequestException('Lesson does not belong to class syllabus');
+    }
+
     const progress = await this.prisma.userLessonProgress.upsert({
       where: { userId_classId_lessonId: { userId, classId, lessonId } },
       create: {
@@ -747,6 +768,33 @@ export class ClassService {
       .catch(() => {
         // Gamification failure should not break core learning flow
       });
+
+    // Close the loop: mark enrollment COMPLETED when all lessons done
+    const enrollment = await this.prisma.enrollment.findFirst({
+      where: { userId, classId, status: 'ACTIVE' },
+      select: { id: true },
+    });
+    if (enrollment?.id) {
+      const [totalLessons, completedLessons] = await Promise.all([
+        this.prisma.lesson.count({
+          where: { module: { syllabusId: klass.syllabusId } },
+        }),
+        this.prisma.userLessonProgress.count({
+          where: { userId, classId, isCompleted: true },
+        }),
+      ]);
+
+      if (totalLessons > 0 && completedLessons >= totalLessons) {
+        this.prisma.enrollment
+          .update({
+            where: { id: enrollment.id },
+            data: { status: 'COMPLETED' },
+          })
+          .catch(() => {
+            // Non-critical
+          });
+      }
+    }
 
     return progress;
   }

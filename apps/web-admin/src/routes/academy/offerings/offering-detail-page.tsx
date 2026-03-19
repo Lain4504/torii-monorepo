@@ -108,7 +108,7 @@ export default function OfferingDetailPage() {
             <CardDescription className="flex items-center gap-2 text-blue-600">
                 <Package className="size-4" /> Lớp học liên kết
             </CardDescription>
-            <CardTitle className="text-2xl font-bold text-blue-700">{offering.classes?.length || 0}</CardTitle>
+            <CardTitle className="text-2xl font-bold text-blue-700">{offering.classId ? 1 : 0}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-xs text-muted-foreground">Số lượng lớp được kích hoạt</p>
@@ -167,20 +167,20 @@ export default function OfferingDetailPage() {
                   <CardDescription>Các lớp học người dùng sẽ được ghi danh sau khi hoàn tất thanh toán.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  {offering.classes?.map((item: any) => {
-                    const classId = item.id || item.classId
-                    const cls = availableClasses.find((c: any) => c.id === classId) || item
-                    return (
-                      <div key={classId} className="flex items-center justify-between p-3 rounded-lg border bg-muted/20">
-                        <div>
-                          <p className="text-sm font-medium">{cls.name || cls.title || 'Lớp học'}</p>
-                          <p className="text-xs text-muted-foreground font-mono">{cls.code || 'N/A'}</p>
+                  {offering.classId ? (
+                    (() => {
+                      const cls = availableClasses.find((c: any) => c.id === offering.classId) || offering.class
+                      return (
+                        <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/20">
+                          <div>
+                            <p className="text-sm font-medium">{cls?.name || cls?.title || 'Lớp học'}</p>
+                            <p className="text-xs text-muted-foreground font-mono">{cls?.code || 'N/A'}</p>
+                          </div>
+                          <Badge variant="secondary" className="text-[10px]">{cls?.mode || (offering as any).mode}</Badge>
                         </div>
-                        <Badge variant="secondary" className="text-[10px]">{cls.mode || (offering as any).mode}</Badge>
-                      </div>
-                    )
-                  })}
-                  {(!offering.classes || offering.classes.length === 0) && (
+                      )
+                    })()
+                  ) : (
                     <p className="text-sm text-muted-foreground italic">Cảnh báo: Gói bán này chưa liên kết với lớp học nào.</p>
                   )}
                 </CardContent>

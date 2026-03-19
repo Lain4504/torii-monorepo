@@ -120,8 +120,8 @@ export default function CourseCategoryPage() {
         const matched = offerings.data;
 
         return {
-            vod: matched.filter((o: any) => o.classes?.every((c: any) => c.class?.mode === 'VOD')),
-            live: matched.filter((o: any) => o.classes?.some((c: any) => c.class?.mode === 'LIVE'))
+            vod: matched.filter((o: any) => o.mode === 'VOD' || o.type === 'VOD'),
+            live: matched.filter((o: any) => o.mode === 'LIVE' || o.type === 'LIVE')
         };
     }, [offerings]);
 
@@ -243,7 +243,7 @@ export default function CourseCategoryPage() {
                                         >
                                             <div className="relative aspect-video overflow-hidden">
                                                 <img
-                                                    src={course.classes?.[0]?.class?.courseProfile?.thumbnailUrl || "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=2070&auto=format&fit=crop"}
+                                                    src={course.class?.courseProfile?.thumbnailUrl || "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=2070&auto=format&fit=crop"}
                                                     alt={course.title}
                                                     className="w-full h-full object-cover"
                                                 />
@@ -304,7 +304,7 @@ export default function CourseCategoryPage() {
                                 >
                                     <ItemMedia className="size-24 md:size-32 rounded-2xl overflow-hidden border border-border shadow-sm shrink-0">
                                         <img
-                                            src={course.classes?.[0]?.class?.courseProfile?.thumbnailUrl || "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=2070&auto=format&fit=crop"}
+                                            src={course.class?.courseProfile?.thumbnailUrl || "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=2070&auto=format&fit=crop"}
                                             alt={course.title}
                                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                         />
@@ -313,7 +313,7 @@ export default function CourseCategoryPage() {
                                         <div className="flex items-center gap-2 mb-2">
                                             <Badge className="bg-green-100 text-green-700 hover:bg-green-200 border-none font-bold">LIVE</Badge>
                                             <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                                                Khai giảng: {course.classes?.[0]?.class?.startDate ? new Date(course.classes?.[0]?.class?.startDate).toLocaleDateString('vi-VN') : 'TBA'}
+                                                Khai giảng: {(course.class as any)?.openingDate ? new Date((course.class as any).openingDate).toLocaleDateString('vi-VN') : 'TBA'}
                                             </span>
                                         </div>
                                         <ItemTitle className="text-xl md:text-2xl font-black truncate group-hover:text-primary transition-colors mb-2">
@@ -361,13 +361,13 @@ export default function CourseCategoryPage() {
                             >
                                 <div className="relative aspect-video md:aspect-[21/9] overflow-hidden">
                                     <img
-                                        src={selectedCourse.classes?.[0]?.class?.courseProfile?.thumbnailUrl || "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=2070&auto=format&fit=crop"}
+                                        src={selectedCourse.class?.courseProfile?.thumbnailUrl || "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?q=80&w=2070&auto=format&fit=crop"}
                                         alt={selectedCourse.title}
                                         className="w-full h-full object-cover"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-8">
                                         <Badge className="w-fit mb-4 bg-primary text-primary-foreground border-none font-bold">
-                                            {selectedCourse.classes?.[0]?.class?.mode || "Course"}
+                                            {selectedCourse.class?.mode || selectedCourse.mode || "Course"}
                                         </Badge>
                                         <h2 className="text-2xl md:text-4xl font-black text-white leading-tight">
                                             {selectedCourse.title}
@@ -401,7 +401,7 @@ export default function CourseCategoryPage() {
                                                 Mô tả khóa học
                                             </h4>
                                             <p className="text-muted-foreground leading-relaxed">
-                                                {selectedCourse.description || selectedCourse.classes?.[0]?.class?.courseProfile?.description || "Khóa học sẽ cung cấp cho bạn toàn bộ kiến thức cần thiết để chinh phục mục tiêu JLPT của mình một cách hiệu quả nhất."}
+                                                {selectedCourse.description || selectedCourse.class?.courseProfile?.description || "Khóa học sẽ cung cấp cho bạn toàn bộ kiến thức cần thiết để chinh phục mục tiêu JLPT của mình một cách hiệu quả nhất."}
                                             </p>
                                         </div>
 

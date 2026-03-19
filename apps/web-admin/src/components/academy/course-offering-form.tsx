@@ -98,7 +98,7 @@ export function CourseOfferingForm({
         status: initial?.status ?? "DRAFT",
         type: (initial as any)?.type ?? "COURSE",
         mode: (initial as any)?.mode ?? "VOD",
-        classIds: initial?.classes?.map((c: any) => c.classId) || [],
+        classId: initial?.classId ?? initial?.class?.id ?? "",
         metadata: initial?.metadata ?? undefined,
       }
       : {
@@ -111,7 +111,7 @@ export function CourseOfferingForm({
         status: "DRAFT",
         type: "COURSE",
         mode: "VOD",
-        classIds: [],
+        classId: "",
         metadata: undefined,
       }) as any,
   })
@@ -130,11 +130,11 @@ export function CourseOfferingForm({
       className="space-y-6"
       onSubmit={handleSubmit(async (data) => {
         const status = (data as any).status
-        const classIds = ((data as any).classIds || []) as string[]
-        if ((status === "PUBLISHED" || status === "PENDING_APPROVAL") && classIds.length === 0) {
-          setError("classIds" as any, {
+        const classId = ((data as any).classId || "") as string
+        if ((status === "PUBLISHED" || status === "PENDING_APPROVAL") && !classId) {
+          setError("classId" as any, {
             type: "manual",
-            message: "Phải chọn ít nhất 1 lớp trước khi gửi phê duyệt/publish offering.",
+            message: "Phải chọn lớp học (classId) trước khi gửi phê duyệt/publish offering.",
           })
           return
         }
@@ -206,60 +206,53 @@ export function CourseOfferingForm({
             <FieldSeparator />
 
             <Controller
-              name={"classIds" as any}
+              name={"classId" as any}
               control={control}
               render={({ field, fieldState }) => {
-                const count = field.value?.length || 0
-                const selectedIds = field.value || []
+                const selectedId = field.value as string
+                const cls =
+                  classes.find((c: any) => c.id === selectedId) ||
+                  initial?.class ||
+                  null
 
                 return (
                   <Field>
                     <FieldLabel>
-                      Lớp học được kèm theo ({count})
+                      Lớp học được kèm theo
                       {(offeringStatus === "PUBLISHED" || offeringStatus === "PENDING_APPROVAL") && (
                         <span className="text-destructive ml-1">*</span>
                       )}
                     </FieldLabel>
 
                     <div className="space-y-4 pt-4">
-                      {/* Selected Classes List */}
                       <div className="space-y-2">
-                        {count > 0 ? (
-                          <div className="grid grid-cols-1 gap-2">
-                            {selectedIds.map((id: string) => {
-                              const cls = classes.find((c: any) => c.id === id) ||
-                                          initial?.classes?.find((c: any) => c.classId === id)
-                              if (!cls) return null
-                              return (
-                                <Item key={id} variant="outline" className="group">
-                                  <ItemMedia>
-                                    <Badge variant="outline" className="font-mono text-[10px] uppercase">
-                                      {(cls as any).code}
-                                    </Badge>
-                                  </ItemMedia>
-                                  <ItemContent>
-                                    <ItemTitle className="text-sm">{(cls as any).name || (cls as any).title}</ItemTitle>
-                                    <ItemDescription className="text-[10px] uppercase">
-                                      {(cls as any).status} • {(cls as any).mode}
-                                    </ItemDescription>
-                                  </ItemContent>
-                                  <ItemActions>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="size-8 text-muted-foreground hover:text-destructive"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        field.onChange(selectedIds.filter((sid: string) => sid !== id));
-                                      }}
-                                    >
-                                      <XIcon className="size-4" />
-                                    </Button>
-                                  </ItemActions>
-                                </Item>
-                              )
-                            })}
-                          </div>
+                        {selectedId ? (
+                          <Item variant="outline" className="group">
+                            <ItemMedia>
+                              <Badge variant="outline" className="font-mono text-[10px] uppercase">
+                                {(cls as any)?.code ?? "CLASS"}
+                              </Badge>
+                            </ItemMedia>
+                            <ItemContent>
+                              <ItemTitle className="text-sm">{(cls as any)?.name || (cls as any)?.title}</ItemTitle>
+                              <ItemDescription className="text-[10px] uppercase">
+                                {(cls as any)?.status} • {(cls as any)?.mode}
+                              </ItemDescription>
+                            </ItemContent>
+                            <ItemActions>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-8 text-muted-foreground hover:text-destructive"
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  field.onChange("")
+                                }}
+                              >
+                                <XIcon className="size-4" />
+                              </Button>
+                            </ItemActions>
+                          </Item>
                         ) : (
                           <div className="border border-dashed rounded-xl py-6 text-center bg-muted/5 font-medium text-xs text-muted-foreground italic">
                             Chưa có lớp học nào được chọn cho gói này.
@@ -267,7 +260,6 @@ export function CourseOfferingForm({
                         )}
                       </div>
 
-                      {/* Add Class Button with Popover Search */}
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
@@ -276,7 +268,7 @@ export function CourseOfferingForm({
                             type="button"
                           >
                             <PlusIcon className="size-4" />
-                            Liên kết thêm lớp học
+                            Chọn lớp học
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="p-0 w-[400px] sm:w-[600px] z-[1002]" align="start">
@@ -298,17 +290,11 @@ export function CourseOfferingForm({
                               </CommandEmpty>
                               <CommandGroup heading="Kết quả tìm kiếm">
                                 {classes.map((c: any) => {
-                                  const isChecked = selectedIds.includes(c.id)
+                                  const isChecked = selectedId === c.id
                                   return (
                                     <CommandItem
                                       key={c.id}
-                                      onSelect={() => {
-                                        if (isChecked) {
-                                          field.onChange(selectedIds.filter((id: string) => id !== c.id))
-                                        } else {
-                                          field.onChange([...selectedIds, c.id])
-                                        }
-                                      }}
+                                      onSelect={() => field.onChange(c.id)}
                                       className="px-4 py-3 cursor-pointer"
                                     >
                                       <div className="flex items-center gap-3 w-full">
@@ -342,8 +328,8 @@ export function CourseOfferingForm({
 
                     <FieldDescription>
                       {(offeringStatus === "PUBLISHED" || offeringStatus === "PENDING_APPROVAL")
-                        ? "Bắt buộc chọn ít nhất 1 lớp khi gửi phê duyệt hoặc đang bán."
-                        : "Sử dụng ô tìm kiếm và chọn các lớp học tương ứng ở danh sách trên."}
+                        ? "Bắt buộc chọn lớp học khi gửi phê duyệt hoặc đang bán."
+                        : "Chọn 1 lớp học cho gói (1 offering = 1 class)."}
                     </FieldDescription>
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
