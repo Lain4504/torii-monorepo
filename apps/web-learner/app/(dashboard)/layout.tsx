@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { DashboardHeader } from '@/components/layout/dashboard-header'
 import { SidebarInset, SidebarProvider } from '@workspace/ui/components/sidebar'
+import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal'
 
 export default function DashboardLayout({
     children,
@@ -17,6 +18,7 @@ export default function DashboardLayout({
     const [hasMounted, setHasMounted] = useState(false)
     const router = useRouter()
     const [mounted, setMounted] = React.useState(false)
+    const [streakModalOpen, setStreakModalOpen] = React.useState(false)
 
     useEffect(() => {
 
@@ -50,12 +52,13 @@ export default function DashboardLayout({
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <DashboardHeader />
+        <DashboardHeader onOpenStreakModal={() => setStreakModalOpen(true)} />
         <main className="flex-1 overflow-y-auto scrollbar-none nhai-blueprint-bg">
           <div className="max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
             {children}
           </div>
         </main>
+        <StreakWelcomeModal open={streakModalOpen} onOpenChange={setStreakModalOpen} />
       </SidebarInset>
     </SidebarProvider>
     )

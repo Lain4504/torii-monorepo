@@ -39,7 +39,11 @@ import {
 import { CommandMenu } from './command-menu'
 import { QuotaIndicator } from '../ai-sensei/quota-indicator'
 
-export function DashboardHeader() {
+type DashboardHeaderProps = {
+    onOpenStreakModal?: () => void
+}
+
+export function DashboardHeader({ onOpenStreakModal }: DashboardHeaderProps) {
     const { user } = useAppSelector((state) => state.auth)
     const { data: profile } = useGamificationProfile()
     const { data: streak } = useStreak()
@@ -82,122 +86,6 @@ export function DashboardHeader() {
 
                 {/* Right: Actions & Gamification */}
                 <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-                    {/* Gamification Stats (Duolingo Layout Style) */}
-                    <div className="hidden sm:flex items-center gap-1 bg-muted/30 rounded-full px-3 py-1 border border-border/50">
-                        {/* Level & XP */}
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <div className="flex items-center gap-2 pr-2 border-r border-border/50 cursor-help">
-                                        <div className="relative size-7 flex items-center justify-center">
-                                            <Star className="size-6 text-amber-500 fill-amber-500/20" />
-                                            <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-amber-900 mt-0.5">
-                                                {level}
-                                            </span>
-                                        </div>
-                                        <div className="flex flex-col gap-0.5">
-                                            <div className="flex items-center gap-1">
-                                                <Zap className="size-3 text-primary fill-primary" />
-                                                <span className="text-[10px] font-black leading-none">{formatNumber(profile?.totalXp || 0)}</span>
-                                            </div>
-                                            <Progress value={progress} className="h-1 w-12 bg-muted-foreground/20" />
-                                        </div>
-                                    </div>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p className="text-xs font-bold">Cấp độ {level}</p>
-                                    <p className="text-[10px] text-muted-foreground">Cần {formatNumber(xpToNextLevel)} XP nữa để lên cấp</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-
-                        {/* Streak */}
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Link href="/dashboard/leaderboard" className="flex items-center gap-1.5 px-2 hover:bg-orange-500/10 rounded-full transition-colors cursor-pointer">
-                                        <Flame className={cn(
-                                            "size-5 transition-all duration-500",
-                                            isActiveToday ? "text-orange-500 fill-orange-500 animate-pulse" : "text-muted-foreground"
-                                        )} />
-                                        <span className={cn(
-                                            "text-xs font-black",
-                                            isActiveToday ? "text-orange-600" : "text-muted-foreground"
-                                        )}>
-                                            {streak?.currentStreak || 0}
-                                        </span>
-                                    </Link>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p className="text-xs font-bold">Chuỗi học tập</p>
-                                    <p className="text-[10px] text-muted-foreground">
-                                        {isActiveToday ? "Hôm nay bạn đã hoàn thành bài học!" : "Hãy hoàn thành 1 bài học để giữ chuỗi!"}
-                                    </p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-
-                        {/* Streak Freezes (Bùa bảo vệ) */}
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Link href="/dashboard/rewards" className="flex items-center gap-1.5 pl-2 border-l border-border/50 hover:bg-blue-500/10 rounded-full transition-colors cursor-pointer">
-                                        <Snowflake className={cn(
-                                            "size-5",
-                                            (profile?.freezeCount || 0) > 0 ? "text-blue-500 animate-spin-slow" : "text-muted-foreground/30"
-                                        )} />
-                                        <span className={cn(
-                                            "text-xs font-black",
-                                            (profile?.freezeCount || 0) > 0 ? "text-blue-600" : "text-muted-foreground/30"
-                                        )}>
-                                            {profile?.freezeCount || 0}
-                                        </span>
-                                    </Link>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p className="text-xs font-bold">Bùa bảo vệ chuỗi</p>
-                                    <p className="text-[10px] text-muted-foreground">Tự động kích hoạt nếu bạn quên học bài.</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-                    </div>
-
-                    <div className="hidden lg:flex items-center gap-2">
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Link href="/dashboard/payment">
-                                        <Badge variant="outline" className="flex items-center gap-1.5 px-3 py-1 font-bold bg-amber-500/5 border-amber-500/20 text-amber-600 hover:bg-amber-500/10 transition-colors">
-                                            <Coins className="size-3 fill-amber-500" />
-                                            <span>{formatNumber(walletBalance || 0)}</span>
-                                        </Badge>
-                                    </Link>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p className="text-xs font-bold">Số dư xu (Coins)</p>
-                                    <p className="text-[10px] text-muted-foreground">Dùng để thanh toán khóa học.</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Link href="/dashboard/rewards">
-                                        <Badge variant="outline" className="flex items-center gap-1.5 px-3 py-1 font-bold bg-cyan-500/5 border-cyan-500/20 text-cyan-600 hover:bg-cyan-500/10 transition-colors">
-                                            <Gem className="size-3 fill-cyan-500" />
-                                            <span>{formatNumber(profile?.points || 0)}</span>
-                                        </Badge>
-                                    </Link>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p className="text-xs font-bold">Điểm Torii</p>
-                                    <p className="text-[10px] text-muted-foreground">Dùng để đổi quà trong cửa hàng.</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-                    </div>
-
                     <div className="flex items-center gap-1">
                         <QuotaIndicator />
                         <NotificationsDropdown />
@@ -234,6 +122,55 @@ export function DashboardHeader() {
                                     </div>
                                 </div>
                             </DropdownMenuLabel>
+                            <div className="px-2 pb-2">
+                                <div className="rounded-xl border border-border/60 bg-muted/20 p-3 space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <Flame className={cn("size-4", isActiveToday ? "text-orange-500" : "text-muted-foreground")} />
+                                            <span className="text-xs font-bold">Streak</span>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            className="text-xs font-bold text-primary hover:underline"
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                e.stopPropagation()
+                                                onOpenStreakModal?.()
+                                            }}
+                                        >
+                                            🔥 {streak?.currentStreak || 0}
+                                        </button>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <Zap className="size-4 text-primary" />
+                                            <span className="text-xs font-bold">XP</span>
+                                        </div>
+                                        <span className="text-xs font-bold">{formatNumber(profile?.totalXp || 0)}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <Gem className="size-4 text-cyan-600" />
+                                            <span className="text-xs font-bold">Điểm</span>
+                                        </div>
+                                        <span className="text-xs font-bold">{formatNumber(profile?.points || 0)}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <Snowflake className={cn("size-4", (profile?.freezeCount || 0) > 0 ? "text-blue-500" : "text-muted-foreground")} />
+                                            <span className="text-xs font-bold">Freeze</span>
+                                        </div>
+                                        <span className="text-xs font-bold">{profile?.freezeCount || 0}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <Coins className="size-4 text-amber-600" />
+                                            <span className="text-xs font-bold">Coins</span>
+                                        </div>
+                                        <span className="text-xs font-bold">{formatNumber(walletBalance || 0)}</span>
+                                    </div>
+                                </div>
+                            </div>
                             <DropdownMenuSeparator className="mx-2 mb-2" />
                             <DropdownMenuGroup className="space-y-1">
                                 <DropdownMenuItem className="cursor-pointer py-2 font-medium" onClick={() => router.push('/dashboard/settings')}>

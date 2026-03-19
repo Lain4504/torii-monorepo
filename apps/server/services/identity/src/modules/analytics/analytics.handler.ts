@@ -49,27 +49,13 @@ export class AnalyticsHandler {
       return acc;
     }, {});
 
-    // Get daily activity for the last 14 days
-    const fourteenDaysAgo = new Date();
-    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
-
-    const activities = await this.prisma.dailyActivity.groupBy({
-      by: ['date'],
-      _count: { _all: true },
-      where: { createdAt: { gte: fourteenDaysAgo } },
-      orderBy: { date: 'asc' },
-    });
-
     return {
       roles: roles.map((r) => ({ role: r.role, count: r._count._all })),
       monthlyGrowth: Object.entries(monthlyGrowth).map(([name, count]) => ({
         name,
         count,
       })),
-      activityTrends: activities.map((a) => ({
-        date: a.date,
-        count: a._count._all,
-      })),
+      activityTrends: [],
     };
   }
 }

@@ -8,9 +8,17 @@ import { Flame, Snowflake, Sparkles, Trophy, Target, Calendar as CalendarIcon } 
 import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
 
-export function StreakWelcomeModal() {
+type StreakWelcomeModalProps = {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+};
+
+export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
   const { data: streak } = useStreak();
   const markToastShown = useMarkToastShown();
+
+  const isControlled =
+    typeof props.open === 'boolean' && typeof props.onOpenChange === 'function';
 
   const [isOpen, setIsOpen] = useState(false);
   const [sessionShown, setSessionShown] = useState(false);
@@ -25,14 +33,18 @@ export function StreakWelcomeModal() {
     if (!shouldShow) return;
 
     const timer = setTimeout(() => {
-      setIsOpen(true);
+      if (isControlled) {
+        props.onOpenChange?.(true);
+      } else {
+        setIsOpen(true);
+      }
       setSessionShown(true);
       try { window.localStorage.setItem(todayKey, '1'); } catch { }
       markToastShown.mutate();
     }, 600);
 
     return () => clearTimeout(timer);
-  }, [streak, sessionShown]);
+  }, [streak, sessionShown, isControlled, props]);
 
   if (!streak) return null;
 
@@ -40,22 +52,16 @@ export function StreakWelcomeModal() {
 
   // Build 7-day calendar
   const buildCalendar = () => {
-    // We want to show the last 7 days from the perspective of the user's local time (Vietnam)
     const now = new Date();
-    // Use Intl to get current date in Vietnam for the day names/alignment
     const vnToday = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
 
     const days = [];
     const dayNames = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
 
     for (let i = 6; i >= 0; i--) {
-      // Create a date object for 'i' days ago in the user's LOCAL flow
       const date = new Date(vnToday);
       date.setDate(vnToday.getDate() - i);
 
-      // We still need to match against the YYYY-MM-DD (UTC) format the server sends
-      // Server sends UTC date strings. To match "today" accurately if there's a timezone gap:
-      // However, usually these apps treat the "date string" as the unique identifier.
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
@@ -87,7 +93,10 @@ export function StreakWelcomeModal() {
   const calendar = buildCalendar();
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isControlled ? props.open : isOpen}
+      onOpenChange={isControlled ? props.onOpenChange : setIsOpen}
+    >
       <DialogContent className="max-w-lg p-0 overflow-hidden">
         <DialogTitle className="sr-only">
           {currentStreak > 0

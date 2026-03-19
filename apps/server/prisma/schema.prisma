@@ -387,7 +387,8 @@ model User {
 
   // Gamification Relations
   gamification    UserGamification?
-  dailyActivities DailyActivity[]
+  streak          Streak?
+  streakLogs      StreakLog[]
 
   // Commerce (New)
   couponUsages CouponUsage[]
@@ -747,26 +748,41 @@ model UserAchievement {
 
 
 
-model DailyActivity {
-  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String       @map("user_id") @db.Uuid
-  date         String       @db.VarChar(10) // YYYY-MM-DD
-  activityType ActivityType @map("activity_type")
-  count        Int          @default(1) // Số lần activity trong ngày (cho heatmap)
+model Streak {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 
-  // Metadata for analytics
-  meta Json? @default("{}")
+  userId String @unique @map("user_id") @db.Uuid
+
+  currentStreak   Int     @default(0) @map("current_streak")
+  maxStreak       Int     @default(0) @map("max_streak")
+  lastActiveDate  String? @map("last_active_date") @db.VarChar(10) // YYYY-MM-DD
+  freezeUsedToday Boolean @default(false) @map("freeze_used_today")
 
   createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, date, activityType])
+  @@index([userId])
+  @@map("streaks")
+}
+
+model StreakLog {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  userId String @map("user_id") @db.Uuid
+  date   String @db.VarChar(10) // YYYY-MM-DD
+  status String @db.VarChar(20) // ACTIVE | FREEZE | INACTIVE
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
   @@index([userId])
   @@index([date])
-  @@index([activityType])
-  @@map("daily_activities")
+  @@map("streak_logs")
 }
 
 
