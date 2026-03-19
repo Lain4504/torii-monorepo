@@ -47,6 +47,29 @@ export type JlptMockAttempt = {
   levelCode: string
   startedAt?: string | null
   deadlineAt?: string | null
+  // endsAt chỉ có ý nghĩa khi bạn đang làm 1 section (thường là section đầu).
+  // Backend trả về trong response khi startAttempt/nextSection.
+  endsAt?: string | null
+}
+
+export type JlptMockAttemptHistoryItem = {
+  id: string
+  templateId: string
+  status: string
+  level: string
+  startedAt: string | null
+  submittedAt: string | null
+  template: {
+    id: string
+    code: string | null
+    title: string
+  }
+}
+
+export type JlptMockAttemptAnswerItem = {
+  templateQuestionId: string
+  selectedOptionId: string | null
+  answeredAt: string
 }
 
 export const jlptMockApi = {
@@ -68,10 +91,14 @@ export const jlptMockApi = {
 
   async startAttempt(dto: { templateId: string }) {
     const res = await apiClient.post<
-      StandardApiResponse<{ item: { attemptId: string } }>
+      StandardApiResponse<{ item: { attemptId: string; endsAt?: string | null } }>
     >("/api/academy/jlpt-mock/attempts/start", dto)
     const payload = res.data.data!.item
-    return { id: payload.attemptId, templateId: dto.templateId } as JlptMockAttempt
+    return {
+      id: payload.attemptId,
+      templateId: dto.templateId,
+      endsAt: payload.endsAt ?? null,
+    } as JlptMockAttempt
   },
 
   async saveAnswers(dto: {
@@ -103,6 +130,20 @@ export const jlptMockApi = {
       StandardApiResponse<{ item: JlptMockAttempt }>
     >(`/api/academy/jlpt-mock/attempts/${id}`)
     return res.data.data!.item
+  },
+
+  async findAttemptHistory() {
+    const res = await apiClient.get<
+      StandardApiResponse<{ items: JlptMockAttemptHistoryItem[] }>
+    >("/api/academy/jlpt-mock/attempts/history")
+    return res.data.data?.items ?? []
+  },
+
+  async getAttemptAnswers(attemptId: string) {
+    const res = await apiClient.get<
+      StandardApiResponse<{ items: JlptMockAttemptAnswerItem[] }>
+    >(`/api/academy/jlpt-mock/attempts/${attemptId}/answers`)
+    return res.data.data?.items ?? []
   },
 }
 

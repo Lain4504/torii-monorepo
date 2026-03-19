@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs-lifted';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs-scrollable';
 import { ProfileTab } from '@/components/settings/profile-tab';
 import { SecurityTab } from '@/components/settings/security-tab';
 import { SessionsTab } from '@/components/settings/sessions-tab';

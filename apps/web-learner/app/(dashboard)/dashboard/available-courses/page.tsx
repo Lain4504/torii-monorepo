@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@work
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import { Input } from '@workspace/ui/components/input'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs-lifted'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs-scrollable'
 import { Search, Filter, BookOpen, Users, Star, ArrowRight, PlayCircle, Calendar, ShieldCheck, Zap } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'

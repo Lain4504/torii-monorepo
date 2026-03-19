@@ -119,6 +119,41 @@ export class JlptMockController {
     }
   }
 
+  @Get('attempts/history')
+  async findAttemptHistory(@Req() req: ReqWithRequester) {
+    try {
+      const items = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.attempt.findHistory' },
+          {
+            requesterId: req.requester.sub,
+          },
+        ),
+      );
+      return successResponse({ items });
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
+  @Get('attempts/:id/answers')
+  async getAttemptAnswers(@Req() req: ReqWithRequester, @Param('id') id: string) {
+    try {
+      const items = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.attempt.answers' },
+          {
+            attemptId: id,
+            requesterId: req.requester.sub,
+          },
+        ),
+      );
+      return successResponse({ items });
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
   @Post('attempts/submit')
   async submitAttempt(@Req() req: ReqWithRequester, @Body() body: any) {
     try {

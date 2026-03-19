@@ -1,6 +1,8 @@
+import 'tsconfig-paths/register';
+
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { PrismaClient, Prisma } from '@prisma/generated';
+import { PrismaClient, Prisma } from '../generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { loadConfig } from '@server/shared/config/app.config';
 

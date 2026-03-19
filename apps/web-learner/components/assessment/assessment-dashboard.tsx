@@ -23,7 +23,7 @@ import {
     TabsContent,
     TabsList,
     TabsTrigger,
-} from "@workspace/ui/components/tabs-lifted"
+} from "@workspace/ui/components/tabs-scrollable"
 import { SkillDrill } from "@/components/ai-sensei/skill-drill"
 
 export function AssessmentDashboard() {
@@ -62,7 +62,7 @@ export function AssessmentDashboard() {
             </div>
 
             <Tabs defaultValue="overview" className="w-full space-y-8">
-                <TabsList className="bg-muted/50 p-1 rounded-xl w-full md:w-auto h-11 border">
+                <TabsList className="bg-muted/50 p-1 rounded-xl w-full h-11 border">
                     <TabsTrigger value="overview" className="rounded-lg px-6 font-bold text-[10px] uppercase tracking-widest data-[state=active]:shadow-sm">
                         Tổng quan năng lực
                     </TabsTrigger>

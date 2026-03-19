@@ -1,4 +1,6 @@
-import { PrismaClient } from '@prisma/generated';
+import 'tsconfig-paths/register';
+
+import { PrismaClient } from '../generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { loadConfig } from '@server/shared/config/app.config';
  

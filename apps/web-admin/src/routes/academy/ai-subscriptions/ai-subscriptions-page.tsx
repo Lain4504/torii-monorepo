@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { PageHeader } from '@/components/common/page-header';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs-lifted';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs-scrollable';
 import { Users, Activity, UserCircle, Search, Edit2, Save, X } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@workspace/ui/components/table';

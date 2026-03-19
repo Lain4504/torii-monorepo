@@ -2,7 +2,7 @@ import { useEffect, useMemo } from "react"
 import { useParams, Link, useSearchParams } from "react-router-dom"
 import { PageHeader } from "@/components/common/page-header"
 import { ChevronRight, Users, CalendarCheck, FileText, Info } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs-lifted"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs-scrollable"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { useAcademyClass } from "@/lib/api/services/academy-classes"
 import { useAuth } from "@/hooks/use-auth"
@@ -132,7 +132,7 @@ export default function ClassStudentsPage() {
         </div>
       ) : (
         <Tabs value={activeTab} onValueChange={setTab} className="w-full">
-          <TabsList className="w-full sm:w-auto">
+          <TabsList className="w-full">
             <TabsTrigger value={TAB_INFO} className="gap-2">
               <Info className="size-4" />
               Thông tin lớp học

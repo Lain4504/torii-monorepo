@@ -49,7 +49,7 @@ import {
     TableRow,
 } from '@workspace/ui/components/table'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@workspace/ui/components/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs-lifted"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs-scrollable"
 import { useWalletTransactions, useWalletBalance } from '@/lib/api/services/wallet-api'
 import { Coins, Wallet, ArrowUpCircle, ArrowDownCircle } from 'lucide-react'
 import { useAppSelector } from '@/hooks/hooks'

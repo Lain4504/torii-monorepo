@@ -6,7 +6,7 @@ import {
 import { useOfferingOrders, useOfferingStats } from "@/lib/api/services/finance"
 import { PageHeader } from "@/components/common/page-header"
 import { ChevronRight, Package, ShoppingCart, TrendingUp, Info } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs-lifted"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs-scrollable"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 import { Skeleton } from "@workspace/ui/components/skeleton"

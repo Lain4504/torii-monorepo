@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { PageHeader } from "@/components/common/page-header"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs-lifted"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs-scrollable"
 import { Input } from "@workspace/ui/components/input"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
@@ -95,7 +95,7 @@ export default function ApprovalsPage() {
       </div>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as ApprovalTab)}>
-        <TabsList className="w-full sm:w-auto">
+        <TabsList className="w-full">
           <TabsTrigger value="courseOfferings" className="gap-2">
             <Package className="size-4" />
             Offerings

@@ -1,6 +1,6 @@
 'use client'
 
-import { Tabs, TabsList, TabsTrigger } from '@workspace/ui/components/tabs-lifted'
+import { Tabs, TabsList, TabsTrigger } from '@workspace/ui/components/tabs-scrollable'
 import { Trophy, Star, Flame } from 'lucide-react'
 
 interface LeaderboardHeaderProps {

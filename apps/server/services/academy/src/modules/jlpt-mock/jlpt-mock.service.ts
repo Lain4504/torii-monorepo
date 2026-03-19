@@ -802,6 +802,40 @@ export class JlptMockService {
   }
 
   // -------------------------
+  // History (learner)
+  // -------------------------
+  async findAttemptHistory(requesterId: string, limit = 20) {
+    return this.prisma.jlptMockAttempt.findMany({
+      where: { userId: requesterId },
+      orderBy: [{ startedAt: 'desc' }],
+      take: limit,
+      include: {
+        template: { select: { id: true, code: true, title: true } },
+      },
+    });
+  }
+
+  async getAttemptAnswers(attemptId: string, requesterId?: string) {
+    const attempt = await this.prisma.jlptMockAttempt.findUnique({
+      where: { id: attemptId },
+      select: { userId: true, status: true },
+    });
+
+    if (!attempt) throw new NotFoundException('Attempt not found');
+    if (requesterId && requesterId !== attempt.userId) throw new ForbiddenException('Not allowed');
+
+    return this.prisma.jlptMockAnswer.findMany({
+      where: { attemptId },
+      select: {
+        templateQuestionId: true,
+        selectedOptionId: true,
+        answeredAt: true,
+      },
+      orderBy: [{ answeredAt: 'asc' }],
+    });
+  }
+
+  // -------------------------
   // helpers
   // -------------------------
 

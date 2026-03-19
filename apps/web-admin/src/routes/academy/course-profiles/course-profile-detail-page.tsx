@@ -3,7 +3,7 @@ import { useAcademyCourseProfile } from "@/lib/api/services/academy-course-profi
 import { useAcademyClasses } from "@/lib/api/services/academy-classes"
 import { PageHeader } from "@/components/common/page-header"
 import { ChevronRight, BookOpen, Users } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs-lifted"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs-scrollable"
 import {
   Card,
   CardContent,

@@ -71,6 +71,17 @@ export class JlptMockHandler {
     return this.jlpt.getAttemptResult(data.attemptId, data.requesterId);
   }
 
+  @MessagePattern({ cmd: 'academy.jlptMock.attempt.findHistory' })
+  findAttemptHistory(@Payload() data: { requesterId?: string; limit?: number }) {
+    if (!data.requesterId) return [];
+    return this.jlpt.findAttemptHistory(data.requesterId, data.limit ?? 20);
+  }
+
+  @MessagePattern({ cmd: 'academy.jlptMock.attempt.answers' })
+  getAttemptAnswers(@Payload() data: { attemptId: string; requesterId?: string }) {
+    return this.jlpt.getAttemptAnswers(data.attemptId, data.requesterId);
+  }
+
   // --- Admin (minimal) ---
 
   @MessagePattern({ cmd: 'academy.jlptMock.template.create' })
