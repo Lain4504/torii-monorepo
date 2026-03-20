@@ -52,8 +52,6 @@ export default function ClassesPage() {
     const [search, setSearch] = useState('');
     const [debouncedSearch] = useDebounceValue(search, 500);
     const [sheetOpen, setSheetOpen] = useState(false);
-  const [createTypeDialogOpen, setCreateTypeDialogOpen] = useState(false);
-  const [createMode, setCreateMode] = useState<"VOD" | "LIVE">("LIVE");
     const [selectedClass, setSelectedClass] = useState<AcademyClass | null>(null);
     const [statusDialogClass, setStatusDialogClass] = useState<AcademyClass | null>(null);
     const [submitDialog, setSubmitDialog] = useState<{ open: boolean; cls: AcademyClass | null }>({ open: false, cls: null });
@@ -70,7 +68,7 @@ export default function ClassesPage() {
 
     const handleCreate = () => {
         setSelectedClass(null);
-        setCreateTypeDialogOpen(true);
+        setSheetOpen(true);
     };
 
     const handleEdit = (cls: AcademyClass) => {
@@ -236,7 +234,7 @@ export default function ClassesPage() {
                 open={sheetOpen}
                 onOpenChange={setSheetOpen}
                 academyClass={selectedClass ?? undefined}
-                initialMode={createMode}
+                initialMode="LIVE"
             />
 
             {/* Dialog hiển thị luồng trạng thái theo loại lớp */}
@@ -306,49 +304,6 @@ export default function ClassesPage() {
                 </DialogContent>
             </Dialog>
 
-            {/* Dialog chọn loại lớp trước khi tạo */}
-            <Dialog open={createTypeDialogOpen} onOpenChange={setCreateTypeDialogOpen}>
-                <DialogContent className="sm:max-w-[420px]">
-                    <DialogHeader>
-                        <DialogTitle>Chọn loại lớp học</DialogTitle>
-                        <DialogDescription>
-                            Bạn muốn tạo lớp LIVE (dạy trực tiếp) hay khóa học VOD (tự học theo video)?
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-2">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            className="h-20 flex-col items-start justify-center px-4"
-                            onClick={() => {
-                                setCreateMode("LIVE");
-                                setCreateTypeDialogOpen(false);
-                                setSheetOpen(true);
-                            }}
-                        >
-                            <span className="font-semibold">Lớp LIVE</span>
-                            <span className="text-xs text-muted-foreground">
-                                Lớp học có lịch cố định, có giảng viên phụ trách.
-                            </span>
-                        </Button>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            className="h-20 flex-col items-start justify-center px-4"
-                            onClick={() => {
-                                setCreateMode("VOD");
-                                setCreateTypeDialogOpen(false);
-                                setSheetOpen(true);
-                            }}
-                        >
-                            <span className="font-semibold">Khóa VOD</span>
-                            <span className="text-xs text-muted-foreground">
-                                Khóa tự học qua video, không cần lịch LIVE cố định.
-                            </span>
-                        </Button>
-                    </div>
-                </DialogContent>
-            </Dialog>
             {/* Confirmation Dialogs */}
             <AlertDialog open={submitDialog.open} onOpenChange={(open) => setSubmitDialog(prev => ({ ...prev, open }))}>
                 <AlertDialogContent>

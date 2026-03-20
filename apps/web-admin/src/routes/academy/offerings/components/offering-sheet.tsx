@@ -163,9 +163,12 @@ export function OfferingSheet({ open, onOpenChange, offering }: OfferingSheetPro
       }
 
       if (isEditing && offering) {
+        const { code: _code, classId: _classId, mode: _mode, type: _type, currency: _currency, ...updateInput } = payload
         await updateMutation.mutateAsync({
           id: offering.id,
-          input: payload as any,
+          // Backend update endpoint currently ignores classId/mode/currency.
+          // We omit them here to fully respect the "no legacy / no class change" flow.
+          input: updateInput as any,
         })
         toast.success("Cập nhật Gói bán thành công")
       } else {
@@ -263,7 +266,7 @@ export function OfferingSheet({ open, onOpenChange, offering }: OfferingSheetPro
                           name="currency"
                           control={control}
                           render={({ field }) => (
-                            <Input {...field} />
+                            <Input {...field} disabled={isEditing} />
                           )}
                         />
                         <FieldError errors={[errors.currency]} />
@@ -295,7 +298,7 @@ export function OfferingSheet({ open, onOpenChange, offering }: OfferingSheetPro
                           name="mode"
                           control={control}
                           render={({ field }) => (
-                        <Select value={field.value} onValueChange={field.onChange}>
+                        <Select value={field.value} onValueChange={field.onChange} disabled={isEditing}>
                           <SelectTrigger>
                             <SelectValue placeholder="Chọn loại hình" />
                           </SelectTrigger>
@@ -338,18 +341,20 @@ export function OfferingSheet({ open, onOpenChange, offering }: OfferingSheetPro
                                 </ItemDescription>
                               </ItemContent>
                               <ItemActions>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-8 gap-2 border-red-500/30 text-red-600 bg-transparent hover:bg-red-50 hover:text-red-600"
-                                  onClick={(e) => {
-                                    e.preventDefault()
-                                    setClass("")
-                                  }}
-                                >
-                                  <X className="size-4" />
-                                  <span>Bỏ chọn</span>
-                                </Button>
+                                {!isEditing && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 gap-2 border-red-500/30 text-red-600 bg-transparent hover:bg-red-50 hover:text-red-600"
+                                    onClick={(e) => {
+                                      e.preventDefault()
+                                      setClass("")
+                                    }}
+                                  >
+                                    <X className="size-4" />
+                                    <span>Bỏ chọn</span>
+                                  </Button>
+                                )}
                               </ItemActions>
                             </Item>
                           )
@@ -364,7 +369,11 @@ export function OfferingSheet({ open, onOpenChange, offering }: OfferingSheetPro
                     {/* Add Class Button with Popover Search */}
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button variant="outline" className="w-full border-dashed h-10 gap-2">
+                        <Button
+                          variant="outline"
+                          className="w-full border-dashed h-10 gap-2"
+                          disabled={isEditing}
+                        >
                           <Plus className="size-4" />
                           Thêm lớp học vào gói
                         </Button>

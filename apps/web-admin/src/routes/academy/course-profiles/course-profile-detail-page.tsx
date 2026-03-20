@@ -32,6 +32,7 @@ import {
   TableRow,
 } from "@workspace/ui/components/table"
 import { Skeleton } from "@workspace/ui/components/skeleton"
+import { formatDateTime } from "@/lib/format-utils"
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -455,8 +456,8 @@ export default function CourseProfileDetailPage() {
                     </div>
 
                     <div className="pt-4 border-t flex items-center justify-between text-[11px] text-muted-foreground">
-                       <span>Ngày tạo: {new Date(profile.createdAt).toLocaleString('vi-VN')}</span>
-                       <span>Cập nhật cuối: {new Date(profile.updatedAt).toLocaleString('vi-VN')}</span>
+                       <span>Ngày tạo: {formatDateTime(profile.createdAt, "HH:mm dd/MM/yyyy")}</span>
+                       <span>Cập nhật cuối: {formatDateTime(profile.updatedAt, "HH:mm dd/MM/yyyy")}</span>
                     </div>
                 </CardContent>
             </Card>

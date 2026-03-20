@@ -12,6 +12,7 @@ import {
   FileText,
 } from "lucide-react"
 import type { AcademyClass } from "@/lib/api/services/academy-classes"
+import { formatDate } from "@/lib/format-utils"
 
 interface ClassInfoTabProps {
   academyClass: AcademyClass | null | undefined
@@ -41,9 +42,6 @@ export function ClassInfoTab({ academyClass, classId, canManageStatus }: ClassIn
   const vod = academyClass.vodClass
   const isLive = academyClass.mode === "LIVE"
   const term = (academyClass as any).term
-
-  const formatDate = (d: string | null | undefined) =>
-    d ? new Date(d).toLocaleDateString("vi-VN", { dateStyle: "medium" }) : "—"
 
   return (
     <div className="space-y-6">

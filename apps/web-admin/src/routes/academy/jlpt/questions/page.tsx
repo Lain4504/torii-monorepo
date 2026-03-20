@@ -20,14 +20,15 @@ import {
   TableHeader, 
   TableRow 
 } from "@workspace/ui/components/table";
-import { Card, CardContent, CardHeader } from "@workspace/ui/components/card";
 import { Badge } from "@workspace/ui/components/badge";
+import { Skeleton } from "@workspace/ui/components/skeleton";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@workspace/ui/components/dropdown-menu";
+import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from "@workspace/ui/components/empty";
 import { 
   Select, 
   SelectContent, 
@@ -128,8 +129,8 @@ export default function JlptQuestionsPage() {
         </SheetContent>
       </Sheet>
 
-      <Card>
-        <CardHeader className="pb-3">
+      <div className="space-y-4">
+        <div className="pb-3">
           <div className="flex flex-col md:flex-row gap-4 items-end">
             <form onSubmit={handleSearch} className="flex-1 space-y-1.5">
               <div className="relative">
@@ -152,7 +153,9 @@ export default function JlptQuestionsPage() {
                   <SelectContent>
                     <SelectItem value="all">Tất cả</SelectItem>
                     {LEVELS.map((l) => (
-                      <SelectItem key={l} value={l}>{l}</SelectItem>
+                      <SelectItem key={l} value={l}>
+                        {l}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -166,7 +169,9 @@ export default function JlptQuestionsPage() {
                   <SelectContent>
                     <SelectItem value="all">Tất cả</SelectItem>
                     {SECTIONS.map((s) => (
-                      <SelectItem key={s.code} value={s.code}>{s.label}</SelectItem>
+                      <SelectItem key={s.code} value={s.code}>
+                        {s.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -176,93 +181,111 @@ export default function JlptQuestionsPage() {
               <Filter className="w-4 h-4" />
             </Button>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[80px]">Cấp độ</TableHead>
-                  <TableHead>Nội dung câu hỏi</TableHead>
-                  <TableHead className="w-[150px]">Phần thi</TableHead>
-                  <TableHead className="w-[100px]">Asset</TableHead>
-                  <TableHead className="w-[80px] text-right">Lệnh</TableHead>
+        </div>
+
+        <div className="rounded-md bg-background border overflow-hidden">
+          <Table>
+            <TableHeader className="bg-muted/50">
+              <TableRow>
+                <TableHead className="w-[80px]">Cấp độ</TableHead>
+                <TableHead>Nội dung câu hỏi</TableHead>
+                <TableHead className="w-[150px]">Phần thi</TableHead>
+                <TableHead className="w-[100px]">Asset</TableHead>
+                <TableHead className="w-[80px] text-right">Lệnh</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                Array.from({ length: 5 }).map((_, index) => (
+                  <TableRow key={index}>
+                    {Array.from({ length: 5 }).map((_, colIndex) => (
+                      <TableCell key={colIndex}>
+                        <Skeleton className="h-4 w-full" />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : questions.length === 0 ? (
+                <TableRow className="hover:bg-transparent">
+                  <TableCell colSpan={5} className="h-[400px] text-center">
+                    <Empty>
+                      <EmptyMedia>
+                        <Search className="size-8 text-muted-foreground" />
+                      </EmptyMedia>
+                      <EmptyContent>
+                        <EmptyTitle>Không tìm thấy câu hỏi nào</EmptyTitle>
+                        <EmptyDescription>
+                          Thử thay đổi điều kiện lọc hoặc từ khóa tìm kiếm.
+                        </EmptyDescription>
+                      </EmptyContent>
+                    </Empty>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
-                      Đang tải câu hỏi...
+              ) : (
+                questions.map((q) => (
+                  <TableRow key={q.id} className="group transition-colors">
+                    <TableCell>
+                      <Badge variant="outline" className="font-bold">
+                        {q.levelCode}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div
+                        className="max-w-[500px] truncate"
+                        dangerouslySetInnerHTML={{ __html: q.stemText }}
+                      />
+                      <div className="flex gap-1 mt-1">
+                        {q.options.map((o) => (
+                          <Badge
+                            key={o.id}
+                            variant={o.isCorrect ? "default" : "secondary"}
+                            className="text-[10px] px-1.5 py-0"
+                          >
+                            {o.key}
+                          </Badge>
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-xs text-muted-foreground">
+                        {SECTIONS.find((s) => s.code === q.sectionCode)?.label || q.sectionCode}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        {q.audioAssetId && <FileAudio className="w-4 h-4 text-blue-500" />}
+                        {q.imageAssetId && <ImageIcon className="w-4 h-4 text-emerald-500" />}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 gap-2 border-slate-500/30 text-slate-700 bg-transparent hover:bg-slate-50 hover:text-slate-700"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                            Thao tác
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem className="gap-2" onClick={() => openEdit(q)}>
+                            <Edit className="w-4 h-4" /> Sửa
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="gap-2 text-destructive">
+                            <Trash2 className="w-4 h-4" /> Xóa
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                ) : questions.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
-                      Không tìm thấy câu hỏi nào.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  questions.map((q) => (
-                    <TableRow key={q.id}>
-                      <TableCell>
-                        <Badge variant="outline" className="font-bold">{q.levelCode}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="max-w-[500px] truncate" dangerouslySetInnerHTML={{ __html: q.stemText }} />
-                        <div className="flex gap-1 mt-1">
-                          {q.options.map((o) => (
-                            <Badge 
-                              key={o.id} 
-                              variant={o.isCorrect ? "default" : "secondary"}
-                              className="text-[10px] px-1.5 py-0"
-                            >
-                              {o.key}
-                            </Badge>
-                          ))}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-xs text-muted-foreground">
-                          {SECTIONS.find(s => s.code === q.sectionCode)?.label || q.sectionCode}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          {q.audioAssetId && <FileAudio className="w-4 h-4 text-blue-500" />}
-                          {q.imageAssetId && <ImageIcon className="w-4 h-4 text-emerald-500" />}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-8 gap-2 border-slate-500/30 text-slate-700 bg-transparent hover:bg-slate-50 hover:text-slate-700"
-                            >
-                              <MoreHorizontal className="h-4 w-4" />
-                              Thao tác
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem className="gap-2" onClick={() => openEdit(q)}>
-                              <Edit className="w-4 h-4" /> Sửa
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="gap-2 text-destructive">
-                              <Trash2 className="w-4 h-4" /> Xóa
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
     </div>
   );
 }

@@ -41,19 +41,21 @@ import { Loader2 } from "lucide-react"
 
 function startOfDayIso(d: Date) {
   const x = new Date(d)
-  x.setHours(0, 0, 0, 0)
+  // IMPORTANT: Term timeline is used by backend as UTC day boundary.
+  // So we must compute in UTC to avoid shifting date by timezone.
+  x.setUTCHours(0, 0, 0, 0)
   return x
 }
 
 function addDays(d: Date, days: number) {
   const x = new Date(d)
-  x.setDate(x.getDate() + days)
+  x.setUTCDate(x.getUTCDate() + days)
   return x
 }
 
 function addMonths(d: Date, months: number) {
   const x = new Date(d)
-  x.setMonth(x.getMonth() + months)
+  x.setUTCMonth(x.getUTCMonth() + months)
   return x
 }
 
@@ -349,10 +351,10 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
                                 const now = new Date()
                                 const year = now.getFullYear()
                                 const options = [
-                                  { key: `${year}-T1`, label: `T1/${year} (01/01 → 30/04)`, start: new Date(year, 0, 1) },
-                                  { key: `${year}-T2`, label: `T2/${year} (01/05 → 31/08)`, start: new Date(year, 4, 1) },
-                                  { key: `${year}-T3`, label: `T3/${year} (01/09 → 31/12)`, start: new Date(year, 8, 1) },
-                                  { key: `${year + 1}-T1`, label: `T1/${year + 1} (01/01 → 30/04)`, start: new Date(year + 1, 0, 1) },
+                                  { key: `${year}-T1`, label: `T1/${year} (01/01 → 30/04)`, start: new Date(Date.UTC(year, 0, 1)) },
+                                  { key: `${year}-T2`, label: `T2/${year} (01/05 → 31/08)`, start: new Date(Date.UTC(year, 4, 1)) },
+                                  { key: `${year}-T3`, label: `T3/${year} (01/09 → 31/12)`, start: new Date(Date.UTC(year, 8, 1)) },
+                                  { key: `${year + 1}-T1`, label: `T1/${year + 1} (01/01 → 30/04)`, start: new Date(Date.UTC(year + 1, 0, 1)) },
                                 ]
                                 return (
                                   <Select

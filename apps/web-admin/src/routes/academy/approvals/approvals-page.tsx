@@ -22,19 +22,9 @@ import {
 } from "@/lib/api/services/academy-course-offerings"
 import { useAcademyClasses, type AcademyClass } from "@/lib/api/services/academy-classes"
 import { useAcademyCourseProfiles, type AcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
+import { formatDateTime } from "@/lib/format-utils"
 
 type ApprovalTab = "courseOfferings" | "classes" | "courseProfiles"
-
-function formatDateTime(d: string | null | undefined) {
-  if (!d) return "—"
-  return new Date(d).toLocaleDateString("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  })
-}
 
 export default function ApprovalsPage() {
   const [tab, setTab] = useState<ApprovalTab>("courseOfferings")
@@ -174,7 +164,7 @@ export default function ApprovalsPage() {
                           </TableCell>
                           <TableCell className="font-medium">{o.title}</TableCell>
                           <TableCell className="text-sm text-muted-foreground">
-                            {formatDateTime(o.submittedForApprovalAt)}
+                            {formatDateTime(o.submittedForApprovalAt, "HH:mm dd/MM/yyyy")}
                           </TableCell>
                           <TableCell className="text-right">
                             <Button variant="outline" size="sm" asChild className="gap-1">
@@ -245,7 +235,7 @@ export default function ApprovalsPage() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">
-                          {formatDateTime(c.submittedForApprovalAt)}
+                          {formatDateTime(c.submittedForApprovalAt, "HH:mm dd/MM/yyyy")}
                         </TableCell>
                         <TableCell className="text-right">
                           <Button variant="outline" size="sm" asChild className="gap-1">
@@ -306,7 +296,7 @@ export default function ApprovalsPage() {
                         </TableCell>
                         <TableCell className="font-medium">{p.title}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">
-                          {formatDateTime(p.submittedForApprovalAt)}
+                          {formatDateTime(p.submittedForApprovalAt, "HH:mm dd/MM/yyyy")}
                         </TableCell>
                         <TableCell className="text-right">
                           <Button variant="outline" size="sm" asChild className="gap-1">

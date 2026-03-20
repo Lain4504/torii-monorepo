@@ -25,17 +25,7 @@ import {
   useSubmitClassForApproval,
   type AcademyClass,
 } from "@/lib/api/services/academy-classes"
-
-function formatDateTime(d: string | null | undefined) {
-  if (!d) return "—"
-  return new Date(d).toLocaleDateString("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  })
-}
+import { formatDateTime } from "@/lib/format-utils"
 
 const STATUS_LABELS: Record<string, string> = {
   DRAFT: "Bản nháp",
@@ -113,7 +103,7 @@ export default function ClassApprovalPreviewPage() {
           },
           {
             label: "Ngày gửi duyệt",
-            value: formatDateTime(academyClass.submittedForApprovalAt),
+            value: formatDateTime(academyClass.submittedForApprovalAt, "HH:mm dd/MM/yyyy"),
           },
         ]}
         actions={

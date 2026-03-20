@@ -4,23 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update web-admin">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="courser flow end">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/class.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/class.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/dto/class.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/dto/class.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/lesson/lesson.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/lesson/lesson.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/academy/class-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/academy/class-sheet.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/academy/live-class-form.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-classes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-classes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/academy/class-attendance-tab.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/academy/class-attendance-tab.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/classes/classes-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/classes/classes-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/classes/tabs/class-info-tab.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/classes/tabs/class-info-tab.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/course-profiles/course-profile-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/course-profiles/course-profile-detail-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/course-profiles/course-profiles-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/course-profiles/course-profiles-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/blog/blog-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/blog/blog-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/blog/create-blog-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/blog/create-blog-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/blog/edit-blog-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/blog/edit-blog-page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-class.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-class.dto.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -368,31 +355,7 @@
       <workItem from="1773909942327" duration="10648000" />
       <workItem from="1773969256177" duration="35000" />
       <workItem from="1774006608891" duration="2274000" />
-      <workItem from="1774010782764" duration="697000" />
-    </task>
-    <task id="LOCAL-00977" summary="update rich text eidtor">
-      <option name="closed" value="true" />
-      <created>1772794806115</created>
-      <option name="number" value="00977" />
-      <option name="presentableId" value="LOCAL-00977" />
-      <option name="project" value="LOCAL" />
-      <updated>1772794806115</updated>
-    </task>
-    <task id="LOCAL-00978" summary="update rich text eidtor">
-      <option name="closed" value="true" />
-      <created>1772799271081</created>
-      <option name="number" value="00978" />
-      <option name="presentableId" value="LOCAL-00978" />
-      <option name="project" value="LOCAL" />
-      <updated>1772799271081</updated>
-    </task>
-    <task id="LOCAL-00979" summary="update rich text eidtor">
-      <option name="closed" value="true" />
-      <created>1772800984228</created>
-      <option name="number" value="00979" />
-      <option name="presentableId" value="LOCAL-00979" />
-      <option name="project" value="LOCAL" />
-      <updated>1772800984229</updated>
+      <workItem from="1774010782764" duration="2341000" />
     </task>
     <task id="LOCAL-00980" summary="update rich text eidtor">
       <option name="closed" value="true" />
@@ -762,7 +725,31 @@
       <option name="project" value="LOCAL" />
       <updated>1774010822081</updated>
     </task>
-    <option name="localTasksCounter" value="1026" />
+    <task id="LOCAL-01026" summary="update web-admin">
+      <option name="closed" value="true" />
+      <created>1774011486170</created>
+      <option name="number" value="01026" />
+      <option name="presentableId" value="LOCAL-01026" />
+      <option name="project" value="LOCAL" />
+      <updated>1774011486170</updated>
+    </task>
+    <task id="LOCAL-01027" summary="update web-admin">
+      <option name="closed" value="true" />
+      <created>1774012370643</created>
+      <option name="number" value="01027" />
+      <option name="presentableId" value="LOCAL-01027" />
+      <option name="project" value="LOCAL" />
+      <updated>1774012370643</updated>
+    </task>
+    <task id="LOCAL-01028" summary="courser flow end">
+      <option name="closed" value="true" />
+      <created>1774012820838</created>
+      <option name="number" value="01028" />
+      <option name="presentableId" value="LOCAL-01028" />
+      <option name="project" value="LOCAL" />
+      <updated>1774012820838</updated>
+    </task>
+    <option name="localTasksCounter" value="1029" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -797,7 +784,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="add learning progress statistics and enrollment management features" />
     <MESSAGE value="remove unsued file" />
     <MESSAGE value="update rich text eidtor" />
     <MESSAGE value="build learner success" />
@@ -822,7 +808,8 @@
     <MESSAGE value="refactor: simplify class handling in offerings and remove legacy code" />
     <MESSAGE value="feat: add JLPT mock exam module with related services and DTOs" />
     <MESSAGE value="update web-admin" />
-    <option name="LAST_COMMIT_MESSAGE" value="update web-admin" />
+    <MESSAGE value="courser flow end" />
+    <option name="LAST_COMMIT_MESSAGE" value="courser flow end" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

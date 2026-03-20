@@ -26,6 +26,7 @@ import {
     TableRow,
 } from "@workspace/ui/components/table";
 import { Input } from '@workspace/ui/components/input';
+import { formatDate, formatDateTime } from "@/lib/format-utils"
 
 export default function AssignmentGradingPage() {
     const { assessmentId } = useParams<{ classId: string; assessmentId: string }>();
@@ -128,8 +129,8 @@ export default function AssignmentGradingPage() {
                                     <TableCell>
                                         {attempt.submittedAt ? (
                                             <div className="flex flex-col">
-                                                <span className="text-sm">{new Date(attempt.submittedAt).toLocaleDateString()}</span>
-                                                <span className="text-xs text-muted-foreground">{new Date(attempt.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                                <span className="text-sm">{formatDate(attempt.submittedAt)}</span>
+                                                <span className="text-xs text-muted-foreground">{formatDateTime(attempt.submittedAt, "HH:mm")}</span>
                                             </div>
                                         ) : (
                                             <span className="text-muted-foreground text-xs italic">Chưa nộp</span>

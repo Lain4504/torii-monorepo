@@ -21,6 +21,7 @@ import {
   type AcademyClassAssignment,
 } from "@/lib/api/services/academy-class-assignments"
 import { ClassAssignmentSheet } from "@/components/academy/class-assignment-sheet"
+import { formatDateTime } from "@/lib/format-utils"
 import {
   Dialog,
   DialogContent,
@@ -178,10 +179,7 @@ export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
                     {ca.openAt ? (
                       <div className="flex items-center gap-1 text-sm">
                         <Calendar className="size-3 text-muted-foreground" />
-                        {new Date(ca.openAt).toLocaleString("vi-VN", {
-                          dateStyle: "short",
-                          timeStyle: "short",
-                        })}
+                        {formatDateTime(ca.openAt, "HH:mm dd/MM/yyyy")}
                       </div>
                     ) : (
                       <span className="text-xs text-muted-foreground italic">—</span>
@@ -191,10 +189,7 @@ export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
                     {ca.deadline ? (
                       <div className="flex items-center gap-1 text-sm">
                         <Calendar className="size-3 text-muted-foreground" />
-                        {new Date(ca.deadline).toLocaleString("vi-VN", {
-                          dateStyle: "short",
-                          timeStyle: "short",
-                        })}
+                        {formatDateTime(ca.deadline, "HH:mm dd/MM/yyyy")}
                       </div>
                     ) : (
                       <span className="text-xs text-muted-foreground italic">Không đặt</span>

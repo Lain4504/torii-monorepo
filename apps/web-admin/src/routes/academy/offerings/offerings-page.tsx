@@ -91,9 +91,17 @@ export default function OfferingsPage() {
         setSelectedOffering(offering)
         if (offering.status === 'PUBLISHED') {
             navigate(`/academy/course-offerings/${offering.id}/detail`)
-        } else {
-            setDialogOpen(true)
+            return
         }
+        if (offering.status === 'PENDING_APPROVAL') {
+            navigate(`/academy/approvals/course-offerings/${offering.id}`)
+            return
+        }
+        if (offering.status === 'DRAFT' || offering.status === 'REJECTED') {
+            setDialogOpen(true)
+            return
+        }
+        navigate(`/academy/course-offerings/${offering.id}/detail`)
     }
 
     return (
@@ -201,13 +209,43 @@ export default function OfferingsPage() {
                                                         <SendIcon className="h-3.5 w-3.5" /> Gửi duyệt
                                                     </Button>
                                                 )}
-                                                <Button variant="outline" size="sm" className="h-8 gap-1.5" onClick={() => handleEdit(offering)}>
-                                                    {offering.status === 'PUBLISHED' ? (
+                                                {offering.status === 'PUBLISHED' ? (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8 gap-1.5"
+                                                        onClick={() => handleEdit(offering)}
+                                                    >
                                                         <><Eye className="h-4 w-4" /> Chi tiết</>
-                                                    ) : (
+                                                    </Button>
+                                                ) : offering.status === 'DRAFT' || offering.status === 'REJECTED' ? (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8 gap-1.5"
+                                                        onClick={() => handleEdit(offering)}
+                                                    >
                                                         <><FileEdit className="h-4 w-4" /> Sửa</>
-                                                    )}
-                                                </Button>
+                                                    </Button>
+                                                ) : offering.status === 'PENDING_APPROVAL' ? (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8 gap-1.5"
+                                                        onClick={() => handleEdit(offering)}
+                                                    >
+                                                        <><Eye className="h-4 w-4" /> Preview</>
+                                                    </Button>
+                                                ) : (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8 gap-1.5"
+                                                        onClick={() => handleEdit(offering)}
+                                                    >
+                                                        <><Eye className="h-4 w-4" /> Chi tiết</>
+                                                    </Button>
+                                                )}
 
                                                 <Button
                                                     variant="outline"

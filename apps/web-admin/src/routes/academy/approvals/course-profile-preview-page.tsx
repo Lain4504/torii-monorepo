@@ -20,17 +20,7 @@ import { ChevronRight, CheckCircle2, BookOpen } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { UserRole } from "@workspace/schemas"
 import { useAcademyCourseProfile, useApproveAcademyCourseProfile, type AcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
-
-function formatDateTime(d: string | null | undefined) {
-  if (!d) return "—"
-  return new Date(d).toLocaleDateString("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  })
-}
+import { formatDateTime } from "@/lib/format-utils"
 
 const STATUS_LABELS: Record<string, string> = {
   DRAFT: "Bản nháp",
@@ -87,7 +77,7 @@ export default function CourseProfileApprovalPreviewPage() {
         subtitle={`Xem trước và duyệt hồ sơ ${profile.code}`}
         stats={[
           { label: "Trạng thái", value: STATUS_LABELS[profile.status] ?? profile.status },
-          { label: "Ngày gửi duyệt", value: formatDateTime(profile.submittedForApprovalAt) },
+          { label: "Ngày gửi duyệt", value: formatDateTime(profile.submittedForApprovalAt, "HH:mm dd/MM/yyyy") },
         ]}
         actions={
           canApprove ? (
