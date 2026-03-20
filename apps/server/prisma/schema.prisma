@@ -417,9 +417,30 @@ model User {
   // JLPT Mock (isolated)
   jlptMockAttempts JlptMockAttempt[] @relation("JlptMockAttemptUser")
 
+  // Onboarding
+  isOnboarded      Boolean           @default(false) @map("is_onboarded")
+  onboardingSurvey OnboardingSurvey?
+
   @@index([email])
   @@index([role])
   @@map("users")
+}
+
+model OnboardingSurvey {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId              String   @unique @map("user_id") @db.Uuid
+  targetCompletionTime String?  @map("target_completion_time") // e.g. "4 months", "8 months"
+  purpose             String?  @map("purpose") // JLPT, WORK, STUDY, OTHER
+  jlptTargetDate      DateTime? @map("jlpt_target_date")
+  studyFrequency      String?  @map("study_frequency") // e.g. "Daily", "Weekly"
+  studyTimePerSession String?  @map("study_time_per_session") // e.g. "1 hour"
+  currentLevel        String?  @map("current_level") // N5.1, N5.2, ..., NEVER
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("onboarding_surveys")
 }
 
 model UserIdentity {

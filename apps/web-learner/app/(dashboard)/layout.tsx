@@ -14,14 +14,13 @@ export default function DashboardLayout({
 }: {
     children: React.ReactNode
 }) {
-    const { isAuthenticated, status } = useAppSelector((state) => state.auth)
+    const { isAuthenticated, status, user } = useAppSelector((state) => state.auth)
     const [hasMounted, setHasMounted] = useState(false)
     const router = useRouter()
     const [mounted, setMounted] = React.useState(false)
     const [streakModalOpen, setStreakModalOpen] = React.useState(false)
 
     useEffect(() => {
-
         setMounted(true)
     }, [])
 
@@ -29,7 +28,11 @@ export default function DashboardLayout({
         if (mounted && status === 'succeeded' && !isAuthenticated) {
             router.push('/login')
         }
-    }, [isAuthenticated, status, router, mounted])
+
+        if (mounted && status === 'succeeded' && isAuthenticated && user && !user.isOnboarded) {
+            router.push('/onboarding')
+        }
+    }, [isAuthenticated, status, user, router, mounted])
 
     // Delay rendering logic until after hydration to avoid mismatch
     if (!mounted || status === 'loading') {

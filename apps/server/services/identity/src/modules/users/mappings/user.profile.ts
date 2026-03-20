@@ -116,6 +116,10 @@ export class UserProfile extends AutomapperProfile {
             return [...new Set(methods)];
           }),
         ),
+        forMember(
+          (dest: UserResponseDTO) => dest.isOnboarded,
+          mapFrom((src: User) => src.isOnboarded || false),
+        ),
       );
     };
   }

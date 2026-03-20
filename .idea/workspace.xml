@@ -6,10 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add JLPT mock exam module with related services and DTOs">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/academy.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/gateway/src/modules/academy/academy.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(learning)/jlpt/[level]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(learning)/jlpt/[level]/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(learning)/jlpt/mock-ui/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(learning)/jlpt/mock-ui/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(learning)/jlpt/mock-ui/section/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(learning)/jlpt/mock-ui/section/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/styles/common.css" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/styles/common.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/meet/src/styles/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/styles/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/index.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,7 +21,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1688" />
+    <option name="cachedIndexableFilesCount" value="1723" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -94,7 +93,7 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;gamification-updation&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#292 on gamification-updation&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
@@ -138,8 +137,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.138" />
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.29346.138" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.29346.242" />
       </set>
     </attachedChunks>
   </component>
@@ -356,6 +354,7 @@
       <workItem from="1773855771162" duration="1291000" />
       <workItem from="1773881436715" duration="1401000" />
       <workItem from="1773909942327" duration="10648000" />
+      <workItem from="1773969256177" duration="35000" />
     </task>
     <task id="LOCAL-00976" summary="remove unsued file">
       <option name="closed" value="true" />

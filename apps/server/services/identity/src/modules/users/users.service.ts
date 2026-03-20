@@ -21,6 +21,7 @@ import type {
   PaginationOptionsDTO,
   PaginatedResponseDTO,
   AdminCreateInternalUserDTO,
+  OnboardingSurveyDTO,
 } from '@workspace/schemas';
 import {
   userUpdateDTOSchema,
@@ -540,5 +541,22 @@ export class UsersService implements IUsersService {
       'User',
       'UserResponseDTO',
     ) as any;
+  }
+  /**
+   * Save user onboarding survey
+   */
+  async saveOnboardingSurvey(
+    userId: string,
+    dto: OnboardingSurveyDTO,
+  ): Promise<{ success: boolean }> {
+    await this.usersRepository.createOnboardingSurvey(userId, dto);
+    return { success: true };
+  }
+
+  /**
+   * Get user onboarding survey
+   */
+  async getOnboardingSurvey(userId: string): Promise<any> {
+    return this.usersRepository.findOnboardingSurvey(userId);
   }
 }

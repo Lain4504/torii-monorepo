@@ -258,4 +258,34 @@ export class UsersRepository implements IUsersRepository {
       where: { role },
     });
   }
+
+  /**
+   * Find onboarding survey by user ID
+   */
+  async findOnboardingSurvey(userId: string): Promise<any> {
+    return this.prisma.onboardingSurvey.findUnique({
+      where: { userId },
+    });
+  }
+
+  /**
+   * Create or update onboarding survey
+   */
+  async createOnboardingSurvey(userId: string, data: any): Promise<any> {
+    const { userId: _, ...surveyData } = data;
+    return this.prisma.$transaction([
+      this.prisma.onboardingSurvey.upsert({
+        where: { userId },
+        create: {
+          ...surveyData,
+          user: { connect: { id: userId } },
+        },
+        update: surveyData,
+      }),
+      this.prisma.user.update({
+        where: { id: userId },
+        data: { isOnboarded: true },
+      }),
+    ]);
+  }
 }
