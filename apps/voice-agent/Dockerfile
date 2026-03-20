@@ -25,6 +25,12 @@ RUN pnpm run build
 # --- Runner Stage ---
 FROM node:20-slim AS runner
 
+# IMPORTANT: Required for @livekit/rtc-node native Rust binary on Google Cloud.
+# The Rust binary uses system CA certs (unlike Node.js which bundles its own certs).
+# Without this, the agent will fail with:
+#   ConnectError: failed to retrieve region info (https://*.livekit.cloud/settings/regions)
+RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app/apps/voice-agent
 
 # Copy built artifacts and node_modules

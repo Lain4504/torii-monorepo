@@ -25,18 +25,18 @@ export class GamificationService {
     private readonly achievementService: AchievementService,
     private readonly audit: AuditLoggerService,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) {}
+  ) { }
 
   private readonly EARNING_RULES: Record<
     string,
     { xp: number; points: number }
   > = {
-    [ActivityType.LOGIN]: { xp: 0, points: 5 },
-    [ActivityType.LESSON_COMPLETE]: { xp: 10, points: 10 },
-    [ActivityType.EXAM_COMPLETE]: { xp: 20, points: 20 },
-    [ActivityType.REVIEW]: { xp: 50, points: 50 },
-    [ActivityType.FLASHCARD_REVIEW]: { xp: 5, points: 5 },
-  };
+      [ActivityType.LOGIN]: { xp: 0, points: 5 },
+      [ActivityType.LESSON_COMPLETE]: { xp: 10, points: 10 },
+      [ActivityType.EXAM_COMPLETE]: { xp: 20, points: 20 },
+      [ActivityType.REVIEW]: { xp: 50, points: 50 },
+      [ActivityType.FLASHCARD_REVIEW]: { xp: 5, points: 5 },
+    };
 
   private readonly ACTIVITY_WEIGHTS: Record<string, number> = {
     [ActivityType.LOGIN]: 1,
@@ -478,13 +478,13 @@ export class GamificationService {
 
     const currentUser = current
       ? {
-          id: current.user.id,
-          displayName: current.user.displayName,
-          avatarUrl: current.user.avatarUrl,
-          xp: current.totalXp,
-          streak: current.currentStreak,
-          level: current.level,
-        }
+        id: current.user.id,
+        displayName: current.user.displayName,
+        avatarUrl: current.user.avatarUrl,
+        xp: current.totalXp,
+        streak: current.currentStreak,
+        level: current.level,
+      }
       : null;
 
     return { users, currentUser };
