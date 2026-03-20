@@ -22,6 +22,8 @@ export type JlptMockTemplateQuestion = {
     stemText: string
     contextText?: string | null
     sectionCode: string
+    audioAssetId?: string | null
+    imageAssetId?: string | null
     options: {
       id: string
       key: string

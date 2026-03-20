@@ -66,8 +66,12 @@ export class OrderService {
                 status: true,
                 mode: true,
                 courseProfileId: true,
-                enrollmentOpenAt: true,
-                enrollmentCloseAt: true,
+                term: {
+                  select: {
+                    enrollmentOpenAt: true,
+                    enrollmentCloseAt: true,
+                  },
+                },
               },
             },
           },
@@ -95,10 +99,10 @@ export class OrderService {
         }
 
         if (
-          !klass.enrollmentOpenAt ||
-          !klass.enrollmentCloseAt ||
-          new Date(klass.enrollmentOpenAt) > now ||
-          new Date(klass.enrollmentCloseAt) < now
+          !(klass as any).term?.enrollmentOpenAt ||
+          !(klass as any).term?.enrollmentCloseAt ||
+          new Date((klass as any).term.enrollmentOpenAt) > now ||
+          new Date((klass as any).term.enrollmentCloseAt) < now
         ) {
           throw new BadRequestException(
             `Class ${klass.code} is outside enrollment window`,

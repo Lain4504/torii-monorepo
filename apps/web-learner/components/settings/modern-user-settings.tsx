@@ -26,7 +26,7 @@ import { toast } from 'sonner'
 import { SecurityTab } from './security-tab'
 import { SessionsManagement } from './sessions-management'
 import { useAvatarUrl } from '@/hooks/useAvatarUrl'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs-scrollable'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
 import { Input } from '@workspace/ui/components/input'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { useChangePassword } from '@/lib/api/services/auth-api'
@@ -154,7 +154,7 @@ export default function ModernUserSettings() {
         <div>
             <Tabs defaultValue="profile" className="space-y-6">
                 <div className="overflow-x-auto pb-1">
-                    <TabsList>
+                    <TabsList className="w-full whitespace-nowrap">
                         <TabsTrigger value="profile" className="gap-2">
                             <User className="size-4" />
                             Hồ sơ

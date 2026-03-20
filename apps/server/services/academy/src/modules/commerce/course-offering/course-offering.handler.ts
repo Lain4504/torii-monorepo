@@ -28,7 +28,7 @@ export class CourseOfferingHandler {
 
   @MessagePattern({ cmd: 'academy.courseOffering.findPublicByCategory' })
   findPublicByCategory(@Payload() data: { category: string }) {
-    return this.offerings.findPublicByCategory(data.category);
+    return this.offerings.findByCategory(data.category);
   }
 
   @MessagePattern({ cmd: 'academy.courseOffering.create' })

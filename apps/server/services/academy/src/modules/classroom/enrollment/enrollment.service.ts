@@ -9,6 +9,10 @@ import { EnrollmentCreateDto, EnrollmentQueryDto } from './dto/enrollment.dto';
 import { AuditLoggerService } from '../../audit-logger.service';
 import { AchievementService } from '../../gamification/achievement.service';
 
+/**
+ * EnrollmentService - Manages student cohorts and course access.
+ * Refactored to link directly to CourseProfile.
+ */
 @Injectable()
 export class EnrollmentService {
   constructor(
@@ -39,7 +43,12 @@ export class EnrollmentService {
               select: { displayName: true, avatarUrl: true },
             },
             courseProfile: {
-              select: { id: true, title: true, code: true, thumbnailUrl: true },
+              select: {
+                id: true,
+                title: true,
+                code: true,
+                thumbnailUrl: true,
+              },
             },
           },
         },
@@ -47,7 +56,6 @@ export class EnrollmentService {
       orderBy: [{ enrolledAt: 'desc' }],
     });
 
-    // Learner portal: enrich with progress data
     if (query.userId) {
       return Promise.all(
         enrollments.map(async (e) => {
@@ -60,7 +68,7 @@ export class EnrollmentService {
             totalLessons = await this.prisma.lesson.count({
               where: {
                 module: {
-                  syllabus: { classes: { some: { id: classId } } },
+                  courseProfile: { classes: { some: { id: classId } } },
                 },
               },
             });
@@ -90,9 +98,8 @@ export class EnrollmentService {
             courseTitle: e.class?.name ?? courseProfile?.title,
             courseCode: e.class?.code ?? courseProfile?.code,
             thumbnailUrl: courseProfile?.thumbnailUrl,
-            instructorName: instructor?.displayName ?? null,
-            instructorAvatar: instructor?.avatarUrl ?? null,
-            progress: progressPercent,
+            instructor,
+            progressPercent,
             completedLessons,
             totalLessons,
           };
@@ -107,162 +114,57 @@ export class EnrollmentService {
     const item = await this.prisma.enrollment.findUnique({
       where: { id },
       include: {
-        offering: { select: { id: true, mode: true, status: true } },
-        class: { select: { id: true, mode: true, status: true } },
+        user: { select: { id: true, displayName: true, email: true } },
+        class: {
+          include: {
+            instructor: { select: { displayName: true } },
+            courseProfile: { select: { title: true, code: true, level: true } },
+          },
+        },
+        offering: { select: { title: true, mode: true } },
       },
     });
     if (!item) throw new NotFoundException('Enrollment not found');
     return item;
   }
 
+  async findByUserId(userId: string) {
+    return this.findAll({ userId } as any);
+  }
+
   // ==============================================================
-  // CREATE
+  // ENROLLMENT LIFECYCLE
   // ==============================================================
 
-  /**
-   * Create enrollment.
-   * - Requires classId (The operational center).
-   * - Optional offeringId (The purchase gate reference).
-   * - For LIVE: classId must be OPENING/ONGOING.
-   * - For VOD: classId must be PUBLISHED.
-   */
-  async create(
-    input: EnrollmentCreateDto,
-    requesterId = 'SYSTEM',
-    tx?: Prisma.TransactionClient,
-  ) {
-    const prisma = tx ?? this.prisma;
-
-    const user = await prisma.user.findUnique({
-      where: { id: input.userId },
-      select: { id: true },
-    });
-    if (!user) throw new BadRequestException('Invalid userId');
-
-    // Every Enrollment must have a classId in V2 Class-Centric model
-    if (!input.classId)
-      throw new BadRequestException('classId is required for enrollment');
-
-    const klass = await prisma.class.findUnique({
-      where: { id: input.classId },
-      select: {
-        id: true,
-        mode: true,
-        status: true,
-        courseProfileId: true,
-        openingDate: true,
-      },
-    });
-    if (!klass) throw new BadRequestException('Invalid classId');
-
-    // LIVE class must be OPENING or ONGOING to accept enrollment
-    if (
-      klass.mode === 'LIVE' &&
-      !['OPENING', 'ONGOING'].includes(klass.status)
-    ) {
-      throw new BadRequestException(
-        `LIVE class is not open for enrollment (status: ${klass.status})`,
-      );
-    }
-
-    // LIVE: at most one ACTIVE enrollment per user per courseProfile per term (same quarter of openingDate)
-    if (klass.mode === 'LIVE' && klass.courseProfileId && klass.openingDate) {
-      const openDate = new Date(klass.openingDate);
-      const year = openDate.getFullYear();
-      const month = openDate.getMonth();
-      const termStart = new Date(year, Math.floor(month / 4) * 4, 1); // Q1: 0-3, Q2: 4-7, Q3: 8-11
-      const termEnd = new Date(termStart);
-      termEnd.setMonth(termEnd.getMonth() + 4);
-
-      const existingSameTerm = await prisma.enrollment.findFirst({
-        where: {
-          userId: input.userId,
-          status: { in: ['ACTIVE'] },
-          class: {
-            mode: 'LIVE',
-            courseProfileId: klass.courseProfileId,
-            openingDate: {
-              gte: termStart,
-              lt: termEnd,
-            },
-          },
-        },
-        select: { id: true },
-      });
-      if (existingSameTerm) {
-        throw new BadRequestException(
-          'Bạn đã đăng ký 1 lớp LIVE cho khoá này trong kỳ hiện tại',
-        );
-      }
-    }
-    // VOD class must be PUBLISHED to accept enrollment
-    if (klass.mode === 'VOD' && klass.status !== 'PUBLISHED') {
-      throw new BadRequestException(
-        `VOD class is not open for enrollment (status: ${klass.status})`,
-      );
-    }
-
-    // Validate offering if provided (the purchase gate)
-    if (input.offeringId) {
-      const offering = await prisma.courseOffering.findUnique({
-        where: { id: input.offeringId },
-        select: { id: true, mode: true, status: true },
-      });
-      if (!offering) throw new BadRequestException('Invalid offeringId');
-
-      const allowedStatuses = ['PUBLISHED', 'OPENING'];
-      if (!allowedStatuses.includes(offering.status)) {
-        throw new BadRequestException(
-          `Offering is not open for enrollment (status: ${offering.status})`,
-        );
-      }
-
-      if (offering.mode !== klass.mode) {
-        throw new BadRequestException(
-          `Offering mode (${offering.mode}) does not match class mode (${klass.mode})`,
-        );
-      }
-    }
-
-    // Check duplicate per class (Primary operational constraint)
-    const existingByClass = await prisma.enrollment.findFirst({
+  async enroll(input: EnrollmentCreateDto, requesterId = 'SYSTEM') {
+    const existing = await this.prisma.enrollment.findFirst({
       where: {
         userId: input.userId,
         classId: input.classId,
       },
       select: { id: true },
     });
-    if (existingByClass) {
-      return prisma.enrollment.findUnique({
-        where: { id: existingByClass.id },
-      });
+    if (existing) {
+      throw new BadRequestException('User is already enrolled in this class');
     }
 
-    // Check duplicate per offering if provided (Commercial constraint)
-    if (input.offeringId) {
-      const existingByOffering = await prisma.enrollment.findFirst({
-        where: {
-          userId: input.userId,
-          offeringId: input.offeringId,
-        },
-        select: { id: true },
-      });
-      if (existingByOffering) {
-        return prisma.enrollment.findUnique({
-          where: { id: existingByOffering.id },
-        });
-      }
+    const klass = await this.prisma.class.findUnique({
+      where: { id: input.classId },
+      select: { id: true, code: true, mode: true, status: true },
+    });
+    if (!klass) throw new NotFoundException('Class not found');
+
+    if (klass.status === 'ARCHIVED') {
+      throw new BadRequestException('Cannot enroll in an archived class');
     }
 
-    try {
-      const result = await prisma.enrollment.create({
+    return this.prisma.$transaction(async (tx) => {
+      const enrollment = await tx.enrollment.create({
         data: {
           userId: input.userId,
           classId: input.classId,
           offeringId: input.offeringId ?? undefined,
-          expiresAt: input.expiresAt,
-          status: input.status ?? 'ACTIVE',
-          sourceOrderId: input.sourceOrderId,
+          status: 'ACTIVE',
         },
       });
 
@@ -270,283 +172,148 @@ export class EnrollmentService {
         userId: requesterId,
         action: 'enrollment.create',
         entity: 'Enrollment',
-        entityId: result.id,
-        description: `Enrolled user ${input.userId} into class ${input.classId} (offering: ${input.offeringId})`,
-        metadata: { offeringId: input.offeringId, classId: input.classId },
+        entityId: enrollment.id,
+        description: `Enrolled user ${input.userId} to class ${klass.code}`,
+        metadata: { classId: input.classId, offeringId: input.offeringId },
       });
 
-      return result;
-    } catch (err: any) {
-      // Race condition: unique constraint P2002
-      if (err?.code === 'P2002') {
-        const concurrent = await prisma.enrollment.findFirst({
-          where: {
-            userId: input.userId,
-            classId: input.classId,
-          },
-        });
-        if (concurrent) return concurrent;
-      }
-      throw err;
-    }
+      return enrollment;
+    });
   }
 
-  // ==============================================================
-  // STATUS & MANAGEMENT
-  // ==============================================================
+  async cancelEnrollment(id: string, requesterId = 'SYSTEM') {
+    const before = await this.findById(id);
 
-  async updateStatus(id: string, status: string, requesterId = 'SYSTEM') {
-    const old = await this.findById(id);
-    const updated = await this.prisma.enrollment.update({
+    const item = await this.prisma.enrollment.update({
       where: { id },
-      data: { status },
+      data: { status: 'CANCELLED' },
     });
 
     await this.audit.log({
       userId: requesterId,
-      action: 'enrollment.update_status',
+      action: 'enrollment.cancel',
       entity: 'Enrollment',
       entityId: id,
-      description: `Updated enrollment ${id} status: ${old.status} → ${status}`,
-      oldValues: { status: old.status },
-      newValues: { status },
+      description: `Cancelled enrollment ${id}`,
+      oldValues: before,
+      newValues: item,
     });
 
-    return updated;
+    return item;
   }
 
-  /**
-   * Move a LIVE enrollment to a different class of the same course profile.
-   * VOD enrollments don't need to move — they are tied to the offering/syllabus.
-   */
-  async moveEnrollment(id: string, targetClassId: string) {
-    const enrollment = await this.findById(id);
+  async completeEnrollment(id: string, requesterId = 'SYSTEM') {
+    const before = await this.findById(id);
 
-    if (enrollment.class?.mode !== 'LIVE') {
-      throw new BadRequestException(
-        'Only LIVE enrollments can be moved between classes',
-      );
-    }
+    const item = await this.prisma.enrollment.update({
+      where: { id },
+      data: { status: 'COMPLETED' },
+    });
 
+    await this.audit.log({
+      userId: requesterId,
+      action: 'enrollment.complete',
+      entity: 'Enrollment',
+      entityId: id,
+      description: `Marked enrollment ${id} as completed`,
+      oldValues: before,
+      newValues: item,
+    });
+
+    return item;
+  }
+
+  // ==============================================================
+  // CLASS PROGRESS / TRANSITIONS
+  // ==============================================================
+
+  async getCohortProgress(classId: string) {
+    const enrollments = await this.prisma.enrollment.findMany({
+      where: { classId, status: 'ACTIVE' },
+      select: { userId: true, user: { select: { displayName: true, avatarUrl: true } } },
+    });
+
+    const totalLessons = await this.prisma.lesson.count({
+      where: {
+        module: {
+          courseProfile: { classes: { some: { id: classId } } },
+        },
+      },
+    });
+
+    return Promise.all(
+      enrollments.map(async (e) => {
+        const completedLessons = await this.prisma.userLessonProgress.count({
+          where: { userId: e.userId, classId, isCompleted: true },
+        });
+
+        return {
+          userId: e.userId,
+          displayName: e.user.displayName,
+          avatarUrl: e.user.avatarUrl,
+          completedLessons,
+          totalLessons,
+          progressPercent:
+            totalLessons > 0
+              ? Math.round((completedLessons / totalLessons) * 100)
+              : 0,
+        };
+      }),
+    );
+  }
+
+  async migrateStudents(sourceClassId: string, targetClassId: string, requesterId = 'SYSTEM') {
+    const sourceClass = await this.prisma.class.findUnique({
+      where: { id: sourceClassId },
+      include: { _count: { select: { enrollments: true } } },
+    });
     const targetClass = await this.prisma.class.findUnique({
       where: { id: targetClassId },
-      select: { id: true, courseProfileId: true, mode: true },
-    });
-    if (!targetClass) throw new BadRequestException('Target class not found');
-    if (targetClass.mode !== 'LIVE')
-      throw new BadRequestException('Target class must also be LIVE');
-
-    const sourceClass = await this.prisma.class.findUnique({
-      where: { id: enrollment.classId },
-      select: { courseProfileId: true },
-    });
-    if (sourceClass?.courseProfileId !== targetClass.courseProfileId) {
-      throw new BadRequestException(
-        'Target class must belong to the same course profile',
-      );
-    }
-
-    const result = await this.prisma.enrollment.update({
-      where: { id },
-      data: { classId: targetClassId },
     });
 
-    await this.audit.log({
-      userId: 'SYSTEM',
-      action: 'enrollment.move',
-      entity: 'Enrollment',
-      entityId: id,
-      description: `Moved enrollment ${id}: class ${enrollment.classId} → ${targetClassId}`,
-      oldValues: { classId: enrollment.classId },
-      newValues: { classId: targetClassId },
+    if (!sourceClass || !targetClass) throw new NotFoundException('Class not found');
+
+    const enrollments = await this.prisma.enrollment.findMany({
+      where: { classId: sourceClassId, status: 'ACTIVE' },
     });
 
-    return result;
-  }
+    return this.prisma.$transaction(async (tx) => {
+      for (const e of enrollments) {
+        await tx.enrollment.update({
+          where: { id: e.id },
+          data: { classId: targetClassId },
+        });
+      }
 
-  /**
-   * Check if all lessons in the class are completed → mark enrollment COMPLETED.
-   * Triggers achievement evaluation.
-   */
-  async checkCompletion(enrollmentId: string) {
-    const enrollment = await this.prisma.enrollment.findUnique({
-      where: { id: enrollmentId },
-      include: {
-        class: { select: { id: true, syllabusId: true } },
-        user: { select: { id: true } },
-      },
-    });
-    if (!enrollment || enrollment.status !== 'ACTIVE' || !enrollment.classId)
-      return;
-
-    const totalLessons = await this.prisma.lesson.count({
-      where: {
-        module: {
-          syllabus: { classes: { some: { id: enrollment.classId } } },
-        },
-      },
-    });
-    if (totalLessons === 0) return;
-
-    const completedLessons = await this.prisma.userLessonProgress.count({
-      where: {
-        userId: enrollment.userId,
-        classId: enrollment.classId,
-        isCompleted: true,
-      },
-    });
-
-    if (completedLessons >= totalLessons) {
-      await this.prisma.enrollment.update({
-        where: { id: enrollmentId },
-        data: { status: 'COMPLETED' },
+      await this.audit.log({
+        userId: requesterId,
+        action: 'enrollment.migrate',
+        entity: 'Enrollment',
+        entityId: targetClassId,
+        description: `Migrated ${enrollments.length} students from ${sourceClass.code} to ${targetClass.code}`,
       });
 
-      this.achievementService
-        .evaluateForUser(enrollment.userId)
-        .catch((err) =>
-          console.error(
-            `Failed to evaluate achievements for user ${enrollment.userId}`,
-            err,
-          ),
-        );
-    }
-  }
-
-  // ==============================================================
-  // DELETE
-  // ==============================================================
-
-  async delete(id: string, requesterId = 'SYSTEM') {
-    const enrollment = await this.findById(id);
-
-    if (!['CANCELLED', 'EXPIRED'].includes(enrollment.status)) {
-      throw new BadRequestException(
-        'Cannot delete active enrollment. Cancel it first.',
-      );
-    }
-
-    await this.prisma.enrollment.delete({ where: { id } });
-
-    await this.audit.log({
-      userId: requesterId,
-      action: 'enrollment.delete',
-      entity: 'Enrollment',
-      entityId: id,
-      description: `Deleted enrollment ${id} for user ${enrollment.userId}`,
+      return { migratedCount: enrollments.length };
     });
-
-    return { ok: true };
   }
 
-  async getLearnerStats(userId: string) {
-    const enrollments = await this.prisma.enrollment.findMany({
-      where: { userId },
-      include: {
-        class: true,
-      },
-    });
+  async checkEligibility(userId: string, targetId: string, targetType: 'CLASS' | 'OFFERING' | 'COURSE') {
+    const where = targetType === 'CLASS' 
+      ? { userId, classId: targetId }
+      : targetType === 'COURSE'
+        ? { userId, class: { courseProfileId: targetId } }
+        : { userId, offeringId: targetId };
 
-    const totalCourses = enrollments.length;
-    const completedCourses = enrollments.filter(
-      (e) => e.status === 'COMPLETED',
-    ).length;
-    const inProgressCourses = enrollments.filter(
-      (e) => e.status === 'ACTIVE',
-    ).length;
-
-    // Calculate actual average progress
-    let totalProgress = 0;
-    for (const e of enrollments) {
-      if (e.status === 'COMPLETED') {
-        totalProgress += 100;
-        continue;
-      }
-      if (e.classId) {
-        const totalLessons = await this.prisma.lesson.count({
-          where: {
-            module: {
-              syllabus: { classes: { some: { id: e.classId } } },
-            },
-          },
-        });
-        const completedLessons = await this.prisma.userLessonProgress.count({
-          where: { userId: e.userId, classId: e.classId, isCompleted: true },
-        });
-        const progress =
-          totalLessons > 0
-            ? Math.round((completedLessons / totalLessons) * 100)
-            : 0;
-        totalProgress += progress;
-      }
-    }
-
-    const averageProgress =
-      totalCourses > 0 ? Math.round(totalProgress / totalCourses) : 0;
-
-    return {
-      totalCourses,
-      completedCourses,
-      inProgressCourses,
-      totalLearningHours: completedCourses * 2 + inProgressCourses, // Heuristic mock for now
-      averageProgress,
-    };
-  }
-
-  async checkEnrollment(userId: string, classId: string) {
     const enrollment = await this.prisma.enrollment.findFirst({
       where: {
-        userId,
-        classId,
-        status: 'ACTIVE',
-      },
-      include: {
-        class: { select: { name: true, mode: true, status: true } },
+        ...where,
+        status: { in: ['ACTIVE', 'COMPLETED'] },
       },
     });
-
-    if (!enrollment) {
-      return { isEnrolled: false, enrollment: null };
-    }
-
-    // Calculate progress
-    const totalLessons = await this.prisma.lesson.count({
-      where: {
-        module: {
-          syllabus: { classes: { some: { id: classId } } },
-        },
-      },
-    });
-    const completedLessons = await this.prisma.userLessonProgress.count({
-      where: { userId, classId, isCompleted: true },
-    });
-    const completionPercentage =
-      totalLessons > 0
-        ? Math.round((completedLessons / totalLessons) * 100)
-        : 0;
 
     return {
-      isEnrolled: true,
-      enrollment: {
-        ...enrollment,
-        enrollmentDate: enrollment.enrolledAt,
-        completionPercentage,
-      },
+      isEnrolled: !!enrollment,
+      enrollmentStatus: enrollment?.status ?? null,
     };
-  }
-
-  async checkEnrollmentBySyllabus(userId: string, syllabusId: string) {
-    const enrollment = await this.prisma.enrollment.findFirst({
-      where: {
-        userId,
-        status: 'ACTIVE',
-        class: {
-          syllabusId,
-        },
-      },
-      select: { id: true },
-    });
-
-    return { isEnrolled: !!enrollment };
   }
 }

@@ -10,7 +10,7 @@ import type {
 export interface CurriculumLesson {
   id: string; // class_content_items.id
   title: string;
-  kind: string; // 'VIDEO' | 'MATERIAL' | 'EXAM' | 'ASSIGNMENT' | 'TOPIC'
+  kind: string; // 'VIDEO' | 'READING'
   isUnlocked: boolean;
   isPreview: boolean;
   order: number;
@@ -61,7 +61,7 @@ export const academyClassesApi = {
   },
 
   /**
-   * Get curriculum for a class (ClassModule/ClassContentItem)
+   * Get curriculum for a class (from CourseProfile → Modules → Lessons)
    */
   getCurriculum: async (id: string): Promise<{ courseId: string; modules: CurriculumModule[] } | null> => {
     const response = await apiClient.get<StandardApiResponse<{ curriculum: any }>>(
@@ -81,7 +81,7 @@ export const academyClassesApi = {
           id: it.id,
           title: it.title,
           kind: it.type, // Map 'type' to 'kind'
-          isUnlocked: true, // Lessons in syllabus are generally unlocked by default unless otherwise specified
+          isUnlocked: true, // Lessons from course profile are unlocked by default
           isPreview: false,
           order: it.orderIndex,
           videoDuration: it.videoDurationSeconds,

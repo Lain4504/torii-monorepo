@@ -26,10 +26,14 @@ export interface LessonUpdateDto {
 
 export interface LessonQueryDto {
   moduleId?: string;
-  syllabusId?: string;
+  courseProfileId?: string;
   q?: string;
 }
 
+/**
+ * LessonService - Manages actual learning content (Videos, Readings).
+ * Refactored to link indirectly to CourseProfile via Module.
+ */
 @Injectable()
 export class LessonService {
   constructor(
@@ -43,12 +47,12 @@ export class LessonService {
     return this.prisma.lesson.findMany({
       where: {
         moduleId: query.moduleId ?? undefined,
-        module: query.syllabusId ? { syllabusId: query.syllabusId } : undefined,
+        module: query.courseProfileId ? { courseProfileId: query.courseProfileId } : undefined,
         ...(q ? { title: { contains: q, mode: 'insensitive' } } : {}),
       },
       include: {
         module: {
-          select: { id: true, title: true, syllabusId: true, orderIndex: true },
+          select: { id: true, title: true, courseProfileId: true, orderIndex: true },
         },
       },
       orderBy: [{ module: { orderIndex: 'asc' } }, { orderIndex: 'asc' }],
@@ -60,7 +64,7 @@ export class LessonService {
       where: { id },
       include: {
         module: {
-          select: { id: true, title: true, syllabusId: true },
+          select: { id: true, title: true, courseProfileId: true },
         },
       },
     });
@@ -69,16 +73,15 @@ export class LessonService {
   }
 
   async create(input: LessonCreateDto, requesterId?: string) {
-    // Validate module exists
     const module = await this.prisma.module.findUnique({
       where: { id: input.moduleId },
-      select: { id: true, syllabus: { select: { status: true } } },
+      select: { id: true, courseProfile: { select: { status: true } } },
     });
     if (!module) throw new BadRequestException('Invalid moduleId');
 
-    if (module.syllabus.status === 'LOCKED') {
+    if (module.courseProfile.status === 'ARCHIVED') {
       throw new BadRequestException(
-        'Cannot modify lessons in a LOCKED syllabus',
+        'Cannot modify lessons in an ARCHIVED course profile',
       );
     }
 
@@ -116,14 +119,13 @@ export class LessonService {
   async update(id: string, input: LessonUpdateDto, requesterId?: string) {
     const before = await this.findById(id);
 
-    // Guard locked syllabus
     const module = await this.prisma.module.findUnique({
       where: { id: before.moduleId },
-      select: { syllabus: { select: { status: true } } },
+      select: { courseProfile: { select: { status: true } } },
     });
-    if (module?.syllabus.status === 'LOCKED') {
+    if (module?.courseProfile.status === 'ARCHIVED') {
       throw new BadRequestException(
-        'Cannot modify lessons in a LOCKED syllabus',
+        'Cannot modify lessons in an ARCHIVED course profile',
       );
     }
 
@@ -156,14 +158,13 @@ export class LessonService {
   async delete(id: string, requesterId?: string) {
     const before = await this.findById(id);
 
-    // Guard locked syllabus
     const module = await this.prisma.module.findUnique({
       where: { id: before.moduleId },
-      select: { syllabus: { select: { status: true } } },
+      select: { courseProfile: { select: { status: true } } },
     });
-    if (module?.syllabus.status === 'LOCKED') {
+    if (module?.courseProfile.status === 'ARCHIVED') {
       throw new BadRequestException(
-        'Cannot delete lessons from a LOCKED syllabus',
+        'Cannot delete lessons from an ARCHIVED course profile',
       );
     }
 

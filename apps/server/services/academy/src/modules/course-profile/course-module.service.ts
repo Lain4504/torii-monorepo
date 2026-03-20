@@ -7,54 +7,57 @@ import { PrismaService } from '@server/shared/prisma/prisma.service';
 import type { Prisma } from '@prisma/generated';
 import { AuditLoggerService } from '../audit-logger.service';
 
-export interface SyllabusModuleCreateDto {
-  syllabusId: string;
+export interface CourseModuleCreateDto {
+  courseProfileId: string;
   title: string;
   orderIndex?: number;
 }
 
-export interface SyllabusModuleUpdateDto {
+export interface CourseModuleUpdateDto {
   title?: string;
   orderIndex?: number;
 }
 
+/**
+ * CourseModuleService - Manages modules (chapters) directly linked to CourseProfile.
+ * The Syllabus middleman has been removed to simplify management.
+ */
 @Injectable()
-export class SyllabusModuleService {
+export class CourseModuleService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditLoggerService,
   ) {}
 
-  async create(input: SyllabusModuleCreateDto, requesterId?: string) {
-    const syllabus = await this.prisma.syllabus.findUnique({
-      where: { id: input.syllabusId },
+  async create(input: CourseModuleCreateDto, requesterId?: string) {
+    const profile = await this.prisma.courseProfile.findUnique({
+      where: { id: input.courseProfileId },
       select: {
         id: true,
         status: true,
-        courseProfileId: true,
-        versionLabel: true,
+        code: true,
       },
     });
 
-    if (!syllabus) {
-      throw new BadRequestException('Invalid syllabusId');
+    if (!profile) {
+      throw new BadRequestException('Invalid courseProfileId');
     }
 
-    if (syllabus.status === 'LOCKED') {
+    if (profile.status === 'ARCHIVED') {
       throw new BadRequestException(
-        'Không thể chỉnh sửa Module của giáo trình đã bị LOCKED.',
+        'Không thể thêm Module vào CourseProfile đã bị lưu trữ (ARCHIVED).',
       );
     }
 
     const nextOrder =
       input.orderIndex ??
       (await this.prisma.module.count({
-        where: { syllabusId: input.syllabusId },
+        where: { courseProfileId: input.courseProfileId },
       })) + 1;
 
     const item = await this.prisma.module.create({
       data: {
-        syllabusId: input.syllabusId,
+        courseProfileId: input.courseProfileId,
         title: input.title,
         orderIndex: nextOrder,
       },
@@ -66,7 +69,7 @@ export class SyllabusModuleService {
         action: 'module.create',
         entity: 'Module',
         entityId: item.id,
-        description: `Tạo module "${item.title}" trong syllabus ${syllabus.versionLabel} (courseProfileId=${syllabus.courseProfileId})`,
+        description: `Tạo module "${item.title}" trong CourseProfile ${profile.code}`,
         newValues: item,
       });
     }
@@ -76,14 +79,14 @@ export class SyllabusModuleService {
 
   async update(
     id: string,
-    input: SyllabusModuleUpdateDto,
+    input: CourseModuleUpdateDto,
     requesterId?: string,
   ) {
     const before = await this.prisma.module.findUnique({
       where: { id },
       include: {
-        syllabus: {
-          select: { status: true, versionLabel: true, courseProfileId: true },
+        courseProfile: {
+          select: { status: true, code: true },
         },
       },
     });
@@ -92,9 +95,9 @@ export class SyllabusModuleService {
       throw new NotFoundException('Module not found');
     }
 
-    if (before.syllabus.status === 'LOCKED') {
+    if (before.courseProfile.status === 'ARCHIVED') {
       throw new BadRequestException(
-        'Không thể chỉnh sửa Module của giáo trình đã bị LOCKED.',
+        'Không thể chỉnh sửa Module của CourseProfile đã bị lưu trữ (ARCHIVED).',
       );
     }
 
@@ -113,7 +116,7 @@ export class SyllabusModuleService {
         action: 'module.update',
         entity: 'Module',
         entityId: id,
-        description: `Cập nhật module "${before.title}" trong syllabus ${before.syllabus.versionLabel}`,
+        description: `Cập nhật module "${before.title}" trong CourseProfile ${before.courseProfile.code}`,
         oldValues: before,
         newValues: item,
       });
@@ -126,8 +129,8 @@ export class SyllabusModuleService {
     const before = await this.prisma.module.findUnique({
       where: { id },
       include: {
-        syllabus: {
-          select: { status: true, versionLabel: true, courseProfileId: true },
+        courseProfile: {
+          select: { status: true, code: true },
         },
         _count: { select: { lessons: true } },
       },
@@ -137,9 +140,9 @@ export class SyllabusModuleService {
       throw new NotFoundException('Module not found');
     }
 
-    if (before.syllabus.status === 'LOCKED') {
+    if (before.courseProfile.status === 'ARCHIVED') {
       throw new BadRequestException(
-        'Không thể xóa Module của giáo trình đã bị LOCKED.',
+        'Không thể xóa Module của CourseProfile đã bị lưu trữ (ARCHIVED).',
       );
     }
 
@@ -151,7 +154,7 @@ export class SyllabusModuleService {
         action: 'module.delete',
         entity: 'Module',
         entityId: id,
-        description: `Xóa module "${before.title}" (bao gồm ${before._count.lessons} lessons) khỏi syllabus ${before.syllabus.versionLabel}`,
+        description: `Xóa module "${before.title}" (bao gồm ${before._count.lessons} lessons) khỏi CourseProfile ${before.courseProfile.code}`,
         oldValues: before,
       });
     }

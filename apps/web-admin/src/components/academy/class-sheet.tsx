@@ -34,7 +34,6 @@ import {
 } from "@/lib/api/services/academy-classes"
 import { InstructorPicker } from "@/components/academy/instructor-picker"
 import { useAcademyCourseProfiles } from "@/lib/api/services/academy-course-profiles"
-import { useAcademySyllabuses } from "@/lib/api/services/academy-syllabuses"
 import { useUsers } from "@/lib/api/services/users"
 import { UserRole } from "@workspace/schemas"
 import { toast } from "sonner"
@@ -60,7 +59,6 @@ function addMonths(d: Date, months: number) {
 
 const classSchema = z.object({
   courseProfileId: z.string().uuid("Vui lòng chọn Course Profile"),
-  syllabusId: z.string().uuid().optional().nullable(),
   code: z.string().min(2, "Mã lớp phải có ít nhất 2 ký tự"),
   name: z.string().min(3, "Tên lớp phải có ít nhất 3 ký tự"),
   mode: z.enum(["VOD", "LIVE"]),
@@ -73,9 +71,6 @@ const classSchema = z.object({
   enrollmentCloseAt: z.string().optional().nullable(),
 }).superRefine((data, ctx) => {
   if (data.mode === "LIVE") {
-    if (!data.syllabusId) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["syllabusId"], message: "LIVE class cần chọn Syllabus" })
-    }
     if (!data.openingDate) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["openingDate"], message: "LIVE class cần ngày khai giảng" })
     }
@@ -113,7 +108,6 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
     resolver: zodResolver(classSchema),
     defaultValues: {
       courseProfileId: "",
-      syllabusId: null,
       code: "",
       name: "",
       mode: initialMode,
@@ -127,15 +121,14 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
     },
   })
 
-  const selectedCourseProfileId = watch("courseProfileId")
+  // Filter only active profiles when creating new class
+  const activeProfiles = profiles?.filter(p => p.status === 'PUBLISHED') || []
   const selectedMode = watch("mode")
-  const { data: syllabuses } = useAcademySyllabuses(selectedCourseProfileId)
 
   useEffect(() => {
     if (academyClass) {
       reset({
         courseProfileId: academyClass.courseProfileId,
-        syllabusId: (academyClass as any).syllabusId || null,
         code: academyClass.code,
         name: academyClass.name,
         mode: academyClass.mode,
@@ -157,7 +150,6 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
     } else {
       reset({
         courseProfileId: "",
-        syllabusId: null,
         code: "",
         name: "",
         mode: initialMode,
@@ -176,7 +168,6 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
     try {
       const basePayload = {
         ...values,
-        syllabusId: values.syllabusId || undefined,
         instructorId: values.instructorId || undefined,
         termKey: undefined,
         openingDate: values.openingDate ? new Date(values.openingDate) : undefined,
@@ -218,7 +209,7 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
           <SheetDescription>
             {isEditing
               ? "Cập nhật thông tin vận hành cho lớp học này."
-              : "Khởi tạo một lớp học mới dựa trên Course Profile và Giáo trình."}
+              : "Khởi tạo một lớp học mới dựa trên Course Profile."}
           </SheetDescription>
         </SheetHeader>
 
@@ -229,70 +220,32 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
                 <FieldSet>
                   <FieldLegend>Liên kết định nghĩa</FieldLegend>
                   <FieldGroup>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Field>
-                        <FieldLabel>Course Profile</FieldLabel>
-                        <Controller
-                          name="courseProfileId"
-                          control={control}
-                          render={({ field }) => (
-                            <Select
-                              onValueChange={(val) => {
-                                field.onChange(val)
-                                setValue("syllabusId", "")
-                              }}
-                              value={field.value}
-                              disabled={isEditing}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Chọn Course Profile" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {profiles?.map((p) => (
-                                  <SelectItem key={p.id} value={p.id}>
-                                    {p.title} ({p.code})
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-                        />
-                        <FieldError errors={[errors.courseProfileId]} />
-                      </Field>
-
-                      <Field>
-                        <FieldLabel>Giáo trình (Syllabus)</FieldLabel>
-                        <Controller
-                          name="syllabusId"
-                          control={control}
-                          render={({ field }) => (
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value ?? ""}
-                              disabled={!selectedCourseProfileId || isEditing}
-                            >
-                              <SelectTrigger>
-                                <SelectValue
-                                  placeholder={
-                                    !selectedCourseProfileId
-                                      ? "Chọn Profile trước"
-                                      : "Chọn phiên bản giáo trình"
-                                  }
-                                />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {syllabuses?.map((s) => (
-                                  <SelectItem key={s.id} value={s.id}>
-                                    {s.versionLabel} {s.name ? `- ${s.name}` : ""}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-                        />
-                        <FieldError errors={[errors.syllabusId]} />
-                      </Field>
-                    </div>
+                    <Field>
+                      <FieldLabel>Course Profile (Product Version)</FieldLabel>
+                      <Controller
+                        name="courseProfileId"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            disabled={isEditing}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Chọn Course Profile" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {(isEditing ? profiles : activeProfiles)?.map((p) => (
+                                <SelectItem key={p.id} value={p.id}>
+                                  {p.title} ({p.code}) {p.status === 'ARCHIVED' ? '[Lưu trữ]' : ''}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                      <FieldError errors={[errors.courseProfileId]} />
+                    </Field>
                   </FieldGroup>
                 </FieldSet>
 

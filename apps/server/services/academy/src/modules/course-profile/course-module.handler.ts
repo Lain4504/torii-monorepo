@@ -1,19 +1,23 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import {
-  SyllabusModuleCreateDto,
-  SyllabusModuleService,
-  SyllabusModuleUpdateDto,
-} from './syllabus-module.service';
+  CourseModuleCreateDto,
+  CourseModuleService,
+  CourseModuleUpdateDto,
+} from './course-module.service';
 
+/**
+ * CourseModuleHandler - Exposed NATS handlers for Module operations.
+ * These now point directly to CourseProfile-linked modules.
+ */
 @Controller()
-export class SyllabusModuleHandler {
-  constructor(private readonly modules: SyllabusModuleService) {}
+export class CourseModuleHandler {
+  constructor(private readonly modules: CourseModuleService) {}
 
   @MessagePattern({ cmd: 'academy.module.create' })
   create(
     @Payload()
-    data: SyllabusModuleCreateDto & { requesterId?: string },
+    data: CourseModuleCreateDto & { requesterId?: string },
   ) {
     const { requesterId, ...input } = data;
     return this.modules.create(input, requesterId);
@@ -24,7 +28,7 @@ export class SyllabusModuleHandler {
     @Payload()
     data: {
       id: string;
-      input: SyllabusModuleUpdateDto;
+      input: CourseModuleUpdateDto;
       requesterId?: string;
     },
   ) {

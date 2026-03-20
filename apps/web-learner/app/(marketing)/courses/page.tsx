@@ -19,7 +19,7 @@ const levels = [
         borderColor: "border-blue-200",
         badgeColor: "bg-blue-100 text-blue-700",
         icon: <BookOpen className="size-6 text-blue-600" />,
-        syllabus: "Bảng chữ cái, chào hỏi cơ bản, ngữ pháp sơ cấp 1."
+        overview: "Bảng chữ cái, chào hỏi cơ bản, ngữ pháp sơ cấp 1."
     },
     {
         id: "n4",
@@ -31,7 +31,7 @@ const levels = [
         borderColor: "border-emerald-200",
         badgeColor: "bg-emerald-100 text-emerald-700",
         icon: <GraduationCap className="size-6 text-emerald-600" />,
-        syllabus: "Ngữ pháp sơ cấp 2, kanji thông dụng, nghe hiểu cơ bản."
+        overview: "Ngữ pháp sơ cấp 2, kanji thông dụng, nghe hiểu cơ bản."
     },
     {
         id: "n3",
@@ -43,7 +43,7 @@ const levels = [
         borderColor: "border-orange-200",
         badgeColor: "bg-orange-100 text-orange-700",
         icon: <Star className="size-6 text-orange-600" />,
-        syllabus: "Ngữ pháp trung cấp, từ vựng chuyên sâu, đọc hiểu báo chí cơ bản."
+        overview: "Ngữ pháp trung cấp, từ vựng chuyên sâu, đọc hiểu báo chí cơ bản."
     },
     {
         id: "n2",
@@ -55,7 +55,7 @@ const levels = [
         borderColor: "border-purple-200",
         badgeColor: "bg-purple-100 text-purple-700",
         icon: <Users className="size-6 text-purple-600" />,
-        syllabus: "Ngữ pháp cao cấp, hội thoại tự nhiên, kỹ năng biên phiên dịch."
+        overview: "Ngữ pháp cao cấp, hội thoại tự nhiên, kỹ năng biên phiên dịch."
     },
     {
         id: "n1",
@@ -67,7 +67,7 @@ const levels = [
         borderColor: "border-rose-200",
         badgeColor: "bg-rose-100 text-rose-700",
         icon: <Star className="size-6 text-rose-600" />,
-        syllabus: "Ngữ pháp học thuật, kanji khó, am hiểu văn hóa nghệ thuật sâu sắc."
+        overview: "Ngữ pháp học thuật, kanji khó, am hiểu văn hóa nghệ thuật sâu sắc."
     }
 ]
 

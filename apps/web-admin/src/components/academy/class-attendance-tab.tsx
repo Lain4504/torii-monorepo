@@ -18,7 +18,7 @@ import { vi } from "date-fns/locale"
 import { cn } from "@workspace/ui/lib/utils"
 import { ClassScheduleSheet } from "@/components/academy/class-schedule-sheet"
 import { ClassRescheduleRequestSheet } from "@/components/academy/class-reschedule-request-sheet"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs-scrollable"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { useAuth } from "@/hooks/use-auth"
 import { UserRole } from "@workspace/schemas"
 import { useAcademyLiveScheduleRequests, useApproveAcademyLiveScheduleRequest, useRejectAcademyLiveScheduleRequest } from "@/lib/api/services/academy-live-schedule-requests"
@@ -155,7 +155,7 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
 
             <Tabs defaultValue="sessions" className="w-full">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                    <TabsList className="mb-6">
+                    <TabsList className="mb-6 overflow-x-auto whitespace-nowrap">
                         <TabsTrigger value="sessions" className="gap-2">
                             <Calendar className="size-4" />
                             Buổi học & Điểm danh

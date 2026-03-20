@@ -4,6 +4,7 @@ import {
   Get,
   Inject,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -20,7 +21,7 @@ import { firstValueFrom } from 'rxjs';
 
 @UseGuards(GatewayAuthGuard)
 @Controller('api/academy/jlpt-mock')
-export class JlptMockController {
+export class  JlptMockController {
   constructor(
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) {}
@@ -185,6 +186,125 @@ export class JlptMockController {
             attemptId: id,
             requesterId: req.requester.sub,
           },
+        ),
+      );
+      return successResponse({ item });
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
+  // --- Admin Endpoints ---
+
+  @Get('admin/templates')
+  async adminFindAllTemplates(@Req() req: ReqWithRequester, @Query() query: any) {
+    try {
+      const items = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.template.findAll' },
+          { ...query, requesterId: req.requester.sub },
+        ),
+      );
+      return successResponse({ items });
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
+  @Post('admin/templates')
+  async adminCreateTemplate(@Req() req: ReqWithRequester, @Body() body: any) {
+    try {
+      const item = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.template.create' },
+          { ...body, requesterId: req.requester.sub },
+        ),
+      );
+      return successResponse({ item });
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
+  @Patch('admin/templates/:id')
+  async adminUpdateTemplate(
+    @Req() req: ReqWithRequester,
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
+    try {
+      const item = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.template.update' },
+          { id, ...body, requesterId: req.requester.sub },
+        ),
+      );
+      return successResponse({ item });
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
+  @Post('admin/templates/:id/attach-questions')
+  async adminAttachQuestions(
+    @Req() req: ReqWithRequester,
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.template.attachQuestions' },
+          { templateId: id, items: body.items, requesterId: req.requester.sub },
+        ),
+      );
+      return successResponse(result);
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
+  @Get('admin/bank-questions')
+  async adminFindBankQuestions(@Req() req: ReqWithRequester, @Query() query: any) {
+    try {
+      const items = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.bankQuestion.findAll' },
+          { ...query, requesterId: req.requester.sub },
+        ),
+      );
+      return successResponse({ items });
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
+  @Post('admin/bank-questions')
+  async adminCreateBankQuestion(@Req() req: ReqWithRequester, @Body() body: any) {
+    try {
+      const item = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.bankQuestion.create' },
+          { ...body, requesterId: req.requester.sub },
+        ),
+      );
+      return successResponse({ item });
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
+  @Patch('admin/bank-questions/:id')
+  async adminUpdateBankQuestion(
+    @Req() req: ReqWithRequester,
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
+    try {
+      const item = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.bankQuestion.update' },
+          { id, ...body, requesterId: req.requester.sub },
         ),
       );
       return successResponse({ item });

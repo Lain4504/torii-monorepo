@@ -186,7 +186,7 @@ export default function CourseDetailPage() {
             </div>
           </section>
 
-          {/* Syllabus Section */}
+          {/* Curriculum Section */}
           <section className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b pb-4">
               <h2 className="text-2xl font-bold tracking-tight text-foreground">
@@ -199,7 +199,7 @@ export default function CourseDetailPage() {
 
             {chapters.length === 0 ? (
               <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">
-                Syllabus chi tiết chưa được cập nhật.
+                Nội dung chương trình chưa được cập nhật.
               </div>
             ) : (
               <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">

@@ -2,7 +2,6 @@ import { z } from 'zod';
 
 export const academyClassCreateDTOSchema = z.object({
   courseProfileId: z.string().uuid(),
-  syllabusId: z.string().uuid().optional(),
   code: z.string().min(1).max(150),
   name: z.string().min(1).max(255),
   mode: z.enum(['VOD', 'LIVE']),
@@ -16,9 +15,6 @@ export const academyClassCreateDTOSchema = z.object({
   enrollmentCloseAt: z.coerce.date().optional(),
 }).superRefine((data, ctx) => {
   if (data.mode === 'LIVE') {
-    if (!data.syllabusId) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['syllabusId'], message: 'LIVE class cần chọn Syllabus' })
-    }
     if (!data.openingDate) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['openingDate'], message: 'LIVE class cần ngày khai giảng' })
     }
@@ -32,7 +28,6 @@ export type AcademyClassCreateDTO = z.infer<typeof academyClassCreateDTOSchema>;
 export const academyClassUpdateDTOSchema = z.object({
   name: z.string().max(255).optional(),
   instructorId: z.string().uuid().optional(),
-  syllabusId: z.string().uuid().optional(),
   status: z.string().max(20).optional(),
   openingDate: z.coerce.date().optional(),
   closingDate: z.coerce.date().optional(),
@@ -60,7 +55,6 @@ export type AcademyClassDuplicateDTO = z.infer<typeof academyClassDuplicateDTOSc
 export const academyClassModelSchema = z.object({
   id: z.string().uuid(),
   courseProfileId: z.string().uuid(),
-  syllabusId: z.string().uuid().nullable().optional(),
   code: z.string(),
   name: z.string(),
   mode: z.enum(['VOD', 'LIVE']),
@@ -87,41 +81,3 @@ export const academyClassModelSchema = z.object({
   durationDays: z.number().optional(),
 });
 export type AcademyClassModel = z.infer<typeof academyClassModelSchema>;
-
-export const academyClassModuleCreateDTOSchema = z.object({
-  title: z.string().min(1).max(255),
-  orderIndex: z.number().int().min(0).optional(),
-});
-export type AcademyClassModuleCreateDTO = z.infer<
-  typeof academyClassModuleCreateDTOSchema
->;
-
-export const academyClassModuleUpdateDTOSchema = z.object({
-  title: z.string().max(255).optional(),
-  orderIndex: z.number().int().min(0).optional(),
-});
-export type AcademyClassModuleUpdateDTO = z.infer<
-  typeof academyClassModuleUpdateDTOSchema
->;
-
-export const academyClassContentItemCreateDTOSchema = z.object({
-  kind: z
-    .enum(['VIDEO', 'MATERIAL', 'EXAM', 'ASSIGNMENT', 'TOPIC'])
-    .or(z.string().min(1).max(20)),
-  referenceId: z.string().uuid().optional(),
-  orderIndex: z.number().int().min(0).optional(),
-  status: z.string().max(20).optional(),
-  availableFrom: z.coerce.date().optional(),
-  deadline: z.coerce.date().optional(),
-  isPrerequisite: z.boolean().optional(),
-  settings: z.unknown().optional(),
-});
-export type AcademyClassContentItemCreateDTO = z.infer<
-  typeof academyClassContentItemCreateDTOSchema
->;
-
-export const academyClassContentItemUpdateDTOSchema =
-  academyClassContentItemCreateDTOSchema.partial();
-export type AcademyClassContentItemUpdateDTO = z.infer<
-  typeof academyClassContentItemUpdateDTOSchema
->;

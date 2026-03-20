@@ -12,13 +12,22 @@ import {
 } from '@workspace/schemas';
 import { AuditLoggerService } from '../audit-logger.service';
 
-import { SyllabusService } from './syllabus.service';
-
+/**
+ * CourseProfileService - The "Product" Layer
+ *
+ * BUSINESS LOGIC MANIFEST (Extreme Lean - Japanese Center Optimization):
+ * 1. 1-to-1 Content Mapping: Each CourseProfile represents a single blueprint.
+ *    Modules and Lessons are linked DIRECTLY to the CourseProfile.
+ * 2. No Syllabus Entity: The Syllabus table has been removed to simplify the schema.
+ * 3. Major Updates via Duplication: To create a new curriculum version (e.g., for a new year),
+ *    use the `duplicate` method. This clones the Profile, Modules, and Lessons.
+ * 4. Operational Clarity: Staff manages "Products" (CourseProfiles), not version IDs.
+ * 5. Archive Policy: Archived profiles are immutable for new classes/sales but readable for old ones.
+ */
 @Injectable()
 export class CourseProfileService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly syllabus: SyllabusService,
     private readonly audit: AuditLoggerService,
   ) {}
 
@@ -27,6 +36,10 @@ export class CourseProfileService {
 
     if (query.level) {
       andFilters.push({ level: query.level });
+    }
+
+    if ((query as any).status) {
+      andFilters.push({ status: (query as any).status });
     }
 
     if (query.q) {
@@ -48,7 +61,17 @@ export class CourseProfileService {
   }
 
   async findById(id: string) {
-    const item = await this.prisma.courseProfile.findUnique({ where: { id } });
+    const item = await this.prisma.courseProfile.findUnique({
+      where: { id },
+      include: {
+        modules: {
+          include: {
+            lessons: { orderBy: { orderIndex: 'asc' } },
+          },
+          orderBy: { orderIndex: 'asc' },
+        },
+      },
+    });
     if (!item) throw new NotFoundException('CourseProfile not found');
     return item;
   }
@@ -68,6 +91,7 @@ export class CourseProfileService {
         description: input.description ?? null,
         level: input.level ?? null,
         thumbnailUrl: input.thumbnailUrl ?? null,
+        status: (input as any).status || 'PUBLISHED',
       },
     });
 
@@ -102,6 +126,7 @@ export class CourseProfileService {
         description: input.description ?? undefined,
         level: input.level ?? undefined,
         thumbnailUrl: input.thumbnailUrl ?? undefined,
+        status: (input as any).status || undefined,
       },
     });
 
@@ -120,12 +145,106 @@ export class CourseProfileService {
     return item;
   }
 
+  /**
+   * DUPLICATE - The "Yearly Update" Engine
+   * Clones a CourseProfile and all its Modules/Lessons.
+   */
+  async duplicate(id: string, newCode: string, newTitle: string, requesterId?: string) {
+    const source = await this.prisma.courseProfile.findUnique({
+      where: { id },
+      include: {
+        modules: {
+          include: {
+            lessons: { orderBy: { orderIndex: 'asc' } },
+          },
+          orderBy: { orderIndex: 'asc' },
+        },
+      },
+    });
+
+    if (!source) throw new NotFoundException('Source CourseProfile not found');
+
+    const exists = await this.prisma.courseProfile.findUnique({
+      where: { code: newCode },
+    });
+    if (exists) throw new BadRequestException(`Course code ${newCode} already exists`);
+
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Create New Profile
+      const newProfile = await tx.courseProfile.create({
+        data: {
+          code: newCode,
+          title: newTitle,
+          description: source.description,
+          level: source.level,
+          thumbnailUrl: source.thumbnailUrl,
+          status: 'DRAFT',
+        },
+      });
+
+      // 2. Clone Modules and Lessons
+      for (const mod of source.modules) {
+        const newModule = await tx.module.create({
+          data: {
+            courseProfileId: newProfile.id,
+            title: mod.title,
+            orderIndex: mod.orderIndex,
+          },
+        });
+
+        if (mod.lessons.length > 0) {
+          await tx.lesson.createMany({
+            data: mod.lessons.map(l => ({
+              moduleId: newModule.id,
+              title: l.title,
+              type: l.type,
+              orderIndex: l.orderIndex,
+              videoUrl: l.videoUrl,
+              content: l.content,
+            })),
+          });
+        }
+      }
+
+      if (requesterId) {
+        await this.audit.log({
+          userId: requesterId,
+          action: 'DUPLICATE',
+          entity: 'CourseProfile',
+          entityId: newProfile.id,
+          description: `Duplicated from ${source.code} to ${newCode}`,
+          metadata: { sourceId: id, newCode },
+        });
+      }
+
+      return newProfile;
+    });
+  }
+
   async archive(id: string, requesterId?: string) {
-    // V2: CourseProfile no longer has metadata/status for archiving.
-    // Keep endpoint for backward compatibility, but explicitly block usage.
-    throw new BadRequestException(
-      'Archive is not supported in Academy V2. Use delete instead.',
-    );
+    const before = await this.prisma.courseProfile.findUnique({
+      where: { id },
+    });
+    if (!before) throw new NotFoundException('CourseProfile not found');
+
+    const item = await this.prisma.courseProfile.update({
+      where: { id },
+      data: { status: 'ARCHIVED' },
+    });
+
+    if (requesterId) {
+       await this.audit.log({
+         userId: requesterId,
+         action: 'ARCHIVE',
+         entity: 'CourseProfile',
+         entityId: id,
+         description: `Archived course profile ${before.code}`,
+         oldValues: before,
+         newValues: item,
+       });
+    }
+
+    return item;
   }
 
   async delete(id: string, requesterId?: string) {
@@ -134,14 +253,14 @@ export class CourseProfileService {
     });
     if (!before) throw new NotFoundException('CourseProfile not found');
 
-    const [classes, syllabuses] = await this.prisma.$transaction([
+    const [classes, modules] = await this.prisma.$transaction([
       this.prisma.class.count({ where: { courseProfileId: id } }),
-      this.prisma.syllabus.count({ where: { courseProfileId: id } }),
+      this.prisma.module.count({ where: { courseProfileId: id } }),
     ]);
 
-    if (classes || syllabuses) {
+    if (classes || modules) {
       throw new BadRequestException(
-        'Không thể xoá CourseProfile vì đã có dữ liệu liên quan (classes/syllabuses).',
+        'Không thể xoá CourseProfile vì đã có dữ liệu liên quan (lớp học hoặc giáo trình).',
       );
     }
 
@@ -159,62 +278,5 @@ export class CourseProfileService {
     }
 
     return { ok: true };
-  }
-
-  // --- Syllabus Delegates ---
-
-  async findAllSyllabi(courseProfileId: string) {
-    return this.syllabus.findAll(courseProfileId);
-  }
-
-  async findSyllabusById(id: string) {
-    return this.syllabus.findById(id);
-  }
-
-  async createSyllabus(input: {
-    courseProfileId: string;
-    version: string;
-    sourceSyllabusId?: string;
-    requesterId?: string;
-  }) {
-    return this.syllabus.create(
-      {
-        courseProfileId: input.courseProfileId,
-        versionLabel: input.version,
-        sourceSyllabusId: input.sourceSyllabusId,
-      },
-      input.requesterId,
-    );
-  }
-
-  async cloneSyllabus(input: {
-    sourceSyllabusId: string;
-    newVersion: string;
-    requesterId?: string;
-  }) {
-    const source = await this.prisma.syllabus.findUnique({
-      where: { id: input.sourceSyllabusId },
-      select: { courseProfileId: true },
-    });
-    if (!source) throw new NotFoundException('Syllabus not found');
-    return this.syllabus.create(
-      {
-        courseProfileId: source.courseProfileId,
-        versionLabel: input.newVersion,
-        sourceSyllabusId: input.sourceSyllabusId,
-      },
-      input.requesterId,
-    );
-  }
-
-  async publishSyllabus(id: string, requesterId?: string) {
-    throw new BadRequestException(
-      'Publish syllabus is not supported in Academy V2.',
-    );
-  }
-
-  async lockSyllabus(id: string, requesterId?: string) {
-    // lock doesn't take requesterId in service yet, but we'll call it
-    return this.syllabus.lock(id, requesterId);
   }
 }

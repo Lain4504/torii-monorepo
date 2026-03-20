@@ -13,6 +13,8 @@ import {
   AlertDialogTitle,
 } from "@workspace/ui/components/alert-dialog"
 import { jlptMockApi, type JlptMockTemplate, type JlptMockTemplateQuestion } from "@/lib/api/services/jlpt-mock-api"
+import { storageApi } from "@/lib/api/services/storage-api"
+import { ListeningPlayer } from "@/components/learning/jlpt/listening-player"
 import { toast } from "@workspace/ui/components/sonner"
 
 type MondaiSection = {
@@ -62,6 +64,9 @@ export default function JlptMockSectionPage() {
     Record<string, string | undefined>
   >({})
 
+  const [audioUrl, setAudioUrl] = useState<string | undefined>(undefined)
+  const [questionImageUrls, setQuestionImageUrls] = useState<Record<string, string>>({})
+
   // Câu (templateQuestionId) vừa được chọn gần nhất.
   // Sidebar sẽ sáng item tương ứng với câu này.
   const [activeQuestionTemplateId, setActiveQuestionTemplateId] = useState<string | null>(null)
@@ -71,9 +76,21 @@ export default function JlptMockSectionPage() {
 
   useEffect(() => {
     if (endsAtMs == null || Number.isNaN(endsAtMs)) return
-    const t = setInterval(() => setNowMs(Date.now()), 1000)
+    const t = setInterval(() => {
+        const now = Date.now()
+        setNowMs(now)
+        if (now >= endsAtMs) {
+            clearInterval(t)
+            handleAutoSubmit()
+        }
+    }, 1000)
     return () => clearInterval(t)
   }, [endsAtMs])
+
+  const handleAutoSubmit = async () => {
+      toast.info("Hết thời gian làm bài! Đang tự động nộp bài...")
+      await confirmSubmit()
+  }
 
   useEffect(() => {
     if (!templateId) return
@@ -124,6 +141,7 @@ export default function JlptMockSectionPage() {
     setActiveMondaiIndex(0)
     setActiveMondaiCode(null)
     setActiveQuestionTemplateId(null)
+    setAudioUrl(undefined)
   }, [currentSectionOrder])
 
   const SECTION_ORDERS = useMemo(() => {
@@ -251,19 +269,18 @@ export default function JlptMockSectionPage() {
     "のことばの読み方として最もよいものを、1・2・3・4から一つえらびなさい。",
     "のことばを漢字で書くとき、最もよいものを、1・2・3・4から一つえらびなさい。",
     "( )に入れるのに最もよいものを、1・2・3・4から一つえらびなさい。",
-    "に意味が最も近いものを、1・2・3・4から一つえらびなさい。",
-    "つぎのことばの使い方として最もよいものを、1・2・3・4から一つえらびなさい。",
+    "に意味が最も近いものを、1・2・3・4 từ一つえらびなさい。",
+    "つぎのことばの使い方として最もよいものを、1・2・3・4 từ一つえらびなさい。",
   ]
 
-  const instructionByMondaiCode: Record<string, string> = {
-    'GRAMMAR_SENTENCE_1': problemInstruction[2] ?? problemInstruction[0] ?? "",
-  }
+  const activeMondaiObject = useMemo(() => {
+    return ((currentSection as any)?.mondai ?? []).find((m: any) => m.id === activeMondaiId)
+  }, [currentSection, activeMondaiId])
 
   const activeProblemInstruction =
-    (activeMondaiCode && instructionByMondaiCode[activeMondaiCode]) ??
-    problemInstruction[activeMondaiIndex] ??
-    problemInstruction[0] ??
-    ""
+    activeMondaiObject?.instructionJa ||
+    problemInstruction[activeMondaiIndex] ||
+    problemInstruction[0]
 
   const confirmSubmit = async () => {
     setShowConfirmSubmit(false)
@@ -285,7 +302,7 @@ export default function JlptMockSectionPage() {
       if (isLastSection) {
         await jlptMockApi.submitAttempt({ attemptId })
         toast.success("Đã nộp bài JLPT mock")
-        router.push("/dashboard/jlpt-list-exam")
+        router.push(`/jlpt/attempt/history/${attemptId}`)
         return
       }
 
@@ -333,11 +350,30 @@ export default function JlptMockSectionPage() {
           .sort((a, b) => new Date(b.answeredAt).getTime() - new Date(a.answeredAt).getTime())[0]
         if (lastAnswered?.templateQuestionId) setActiveQuestionTemplateId(lastAnswered.templateQuestionId)
         else if (sectionQuestionsSorted[0]?.id) setActiveQuestionTemplateId(sectionQuestionsSorted[0].id)
+        
+        // Fetch audio if listening
+        if (currentSection?.isListening) {
+           const firstListenQ = sectionQuestionsSorted.find(q => q.question.audioAssetId)
+           if (firstListenQ?.question.audioAssetId) {
+               const { url } = await storageApi.getSignedUrl({ fileId: firstListenQ.question.audioAssetId })
+               setAudioUrl(url)
+           }
+        }
+
+        // Fetch images for questions in this section
+        const questionsWithImages = sectionQuestionsSorted.filter(q => q.question.imageAssetId)
+        for (const q of questionsWithImages) {
+            if (q.question.imageAssetId) {
+              const { url } = await storageApi.getSignedUrl({ fileId: q.question.imageAssetId })
+              setQuestionImageUrls(prev => ({ ...prev, [q.id]: url }))
+            }
+        }
+
       } catch (e) {
         console.error(e)
       }
     })()
-  }, [attemptId, sectionQuestionsSorted.length, questionIndexByTemplateQuestionId])
+  }, [attemptId, sectionQuestionsSorted.length, questionIndexByTemplateQuestionId, currentSection?.isListening])
 
   const handleSelectOption = async (templateQuestionId: string, optionId: string) => {
     if (!attemptId) {
@@ -508,6 +544,10 @@ export default function JlptMockSectionPage() {
 
         <main className="flex-1 overflow-y-auto bg-background p-8 relative">
           <div className="max-w-4xl mx-auto space-y-6 pb-24">
+            {currentSection?.isListening && (
+               <ListeningPlayer audioUrl={audioUrl} autoPlay />
+            )}
+
             <div className="bg-card border border-border rounded-xl p-4 shadow-sm mb-6">
               <p className="text-foreground font-medium">
                 {`問題${activeMondaiIndex + 1}　＿＿＿${activeProblemInstruction}`}
@@ -527,6 +567,17 @@ export default function JlptMockSectionPage() {
                     {q.sentence}
                   </p>
                 </div>
+                
+                {activeMondaiQuestions.find(amq => amq.id === q.templateQuestionId)?.question.imageAssetId && (
+                   <div className="ml-12 mb-6 border rounded-lg overflow-hidden bg-accent/20">
+                      <img 
+                        src={questionImageUrls[q.templateQuestionId]} 
+                        alt="Question Content" 
+                        className="max-w-full h-auto object-contain mx-auto"
+                      />
+                   </div>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-12">
                   {q.options.map((opt, index) => (
                     <button

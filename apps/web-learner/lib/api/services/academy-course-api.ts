@@ -10,20 +10,12 @@ function normalizeOfferingForLearner(item: any) {
 
   const primaryClass = item.class ?? null;
   const classes = primaryClass ? [primaryClass] : [];
-  const profile = primaryClass?.courseProfile;
-
-  // Check if any class is LIVE or the offering mode is LIVE
-  const isLive = item.mode === 'LIVE';
-
-  const rawPrice = item.originalPrice ?? item.price ?? 0;
-  const parsedPrice = Number(rawPrice);
-
-  // Map V2 syllabus (modules/lessons) to legacy courseEdition.chapters structure for UI compatibility
-  const syllabus = primaryClass?.syllabus ?? item.syllabus ?? null;
+  // Map CourseProfile (modules/lessons) to legacy courseEdition.chapters structure for UI compatibility
+  const profile = primaryClass?.courseProfile || item.class?.courseProfile || item.courseProfile;
   let courseEdition = primaryClass?.courseEdition;
 
-  if (!courseEdition && syllabus?.modules && Array.isArray(syllabus.modules)) {
-    const chapters = syllabus.modules.map((mod: any) => ({
+  if (!courseEdition && profile?.modules && Array.isArray(profile.modules)) {
+    const chapters = profile.modules.map((mod: any) => ({
       id: mod.id,
       title: mod.title,
       description: null,
@@ -36,6 +28,12 @@ function normalizeOfferingForLearner(item: any) {
     }));
     courseEdition = { chapters };
   }
+
+  // Check if any class is LIVE or the offering mode is LIVE
+  const isLive = item.mode === 'LIVE';
+
+  const rawPrice = item.originalPrice ?? item.price ?? 0;
+  const parsedPrice = Number(rawPrice);
 
   // Attach courseEdition to the classes (especially the primary one) for UI use
   const normalizedClasses = classes.map((cls: any) => {

@@ -1,17 +1,26 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
     TrendingUp, Award, Flame, BookOpen, Sparkles, Lock, Check,
-    ChevronRight, RefreshCcw, AlertCircle, X, Loader2, Clock,
-    BarChart3, Target, BookMarked, Calendar,
+    ChevronRight, RefreshCcw, AlertCircle, Clock,
+    BarChart3, Target, BookMarked, Calendar, Zap, ArrowUpRight
 } from 'lucide-react';
 import { useAcademyLearningStats as useLearningStats, useAcademyMyCourses as useMyCourses } from '@/lib/api/services/academy-learning-progress-api';
 import { useAnalyticsSnapshot, useGenerateAnalyticsSnapshot } from '@/lib/api/services/agent-api';
-import { useMySchedule, liveSessionApi } from '@/lib/api/services/academy-live-session-api';
 import type { AnalyticsSnapshot } from '@/lib/api/services/agent-api';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { toast } from '@workspace/ui/components/sonner';
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    Cell
+} from 'recharts';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -19,9 +28,9 @@ const JLPT_LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'] as const;
 type JlptLevel = typeof JLPT_LEVELS[number];
 
 function fmtHours(hours: number | undefined | null) {
-    if (hours === undefined || hours === null || isNaN(hours)) return '0 phút';
-    if (hours < 1) return `${Math.round(hours * 60)} phút`;
-    return `${hours.toFixed(1)} giờ`;
+    if (hours === undefined || hours === null || isNaN(hours)) return '0 m';
+    if (hours < 1) return `${Math.round(hours * 60)}m`;
+    return `${hours.toFixed(1)}h`;
 }
 
 function fmtRelTime(iso: string | undefined | null) {
@@ -40,9 +49,8 @@ function fmtRelTime(iso: string | undefined | null) {
 function AILoadingDialog({ onClose }: { onClose: () => void }) {
     return (
         <div className="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-card border border-border rounded-2xl shadow-2xl max-w-sm w-full p-8 text-center">
+            <div className="bg-card border border-border rounded-2xl shadow-2xl max-w-sm w-full p-8 text-center ring-1 ring-primary/20">
                 <div className="relative mb-6 mx-auto w-20 h-20">
-                    {/* Animated orbit rings */}
                     <span className="absolute inset-0 rounded-full border-4 border-primary/20 animate-ping" />
                     <span className="absolute inset-2 rounded-full border-2 border-primary/40 animate-spin" style={{ animationDuration: '3s' }} />
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -57,7 +65,7 @@ function AILoadingDialog({ onClose }: { onClose: () => void }) {
                 <div className="space-y-2 text-left mb-6">
                     {['Đang tổng hợp tiến độ học tập...', 'Đang phân tích điểm mạnh & yếu...', 'Đang tạo lộ trình cá nhân...'].map((step, i) => (
                         <div key={i} className="flex items-center gap-3 text-sm">
-                            <Loader2 className="h-3.5 w-3.5 text-primary animate-spin shrink-0" style={{ animationDelay: `${i * 0.3}s` }} />
+                            <Zap className="h-3.5 w-3.5 text-primary animate-pulse shrink-0" style={{ animationDelay: `${i * 0.3}s` }} />
                             <span className="text-muted-foreground">{step}</span>
                         </div>
                     ))}
@@ -73,12 +81,11 @@ function AILoadingDialog({ onClose }: { onClose: () => void }) {
     );
 }
 
-// ─── AI Insights Panel (shown after snapshot loaded) ─────────────────────────
+// ─── AI Insights Panel ───────────────────────────────────────────────────────
 
 function AIInsightsPanel({ snapshot, targetLevel }: { snapshot: AnalyticsSnapshot; targetLevel: JlptLevel }) {
     const profile = snapshot.profileData;
     const studyPath = snapshot.studyPathData;
-    const progress = snapshot.progressData;
 
     const roadmap: Array<{ title: string; status: string; description?: string }> =
         studyPath?.studyPathRecommendation?.roadmap ?? [];
@@ -86,160 +93,105 @@ function AIInsightsPanel({ snapshot, targetLevel }: { snapshot: AnalyticsSnapsho
     const weaknesses: any[] = profile?.weaknesses ?? [];
     const recommendations: string[] = profile?.recommendations ?? [];
     const readinessScore: number = profile?.readinessScore ?? profile?.readinessPercentage ?? 0;
-    const metrics = progress?.metrics;
-
-    // Normalize metrics from different API formats
-    const completedLessons = metrics?.completedLessons ?? metrics?.lessonsCompleted ?? 0;
-    const averageScore = metrics?.averageScore ?? 0;
-    const studyHours = metrics?.studyHours ?? (metrics?.studyTime ? metrics.studyTime / 60 : 0);
-    const streak = metrics?.streak ?? 0;
 
     return (
         <div className="space-y-6">
-            {/* Generated At badge */}
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Clock className="h-3.5 w-3.5" />
-                <span>AI phân tích lần cuối: {fmtRelTime(snapshot.generatedAt)}</span>
+            <div className="flex items-center justify-between">
+                <h2 className="text-lg font-bold flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-primary" /> Phân tích chuyên sâu (AI)
+                </h2>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Clock className="h-3.5 w-3.5" />
+                    <span>Lần cuối: {fmtRelTime(snapshot.generatedAt)}</span>
+                </div>
             </div>
 
-            {/* Readiness score */}
             {readinessScore > 0 && (
-                <div className="rounded-xl border border-primary/20 bg-primary/5 p-6">
-                    <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-bold text-foreground flex items-center gap-2">
-                            <Award className="h-5 w-5 text-primary" /> Mức độ sẵn sàng {targetLevel}
-                        </h3>
-                        <span className="text-3xl font-black text-primary">{readinessScore}%</span>
+                <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6 shadow-sm overflow-hidden relative">
+                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                        <Award className="h-24 w-24 text-primary" />
                     </div>
-                    <div className="w-full bg-muted h-3 rounded-full overflow-hidden">
-                        <div className="bg-primary h-full rounded-full transition-all duration-700"
-                            style={{ width: `${readinessScore}%` }} />
+                    <div className="relative z-10">
+                        <div className="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 className="font-bold text-foreground">Mức độ sẵn sàng {targetLevel}</h3>
+                                <p className="text-sm text-muted-foreground">Dựa trên kết quả bài tập và bài test</p>
+                            </div>
+                            <span className="text-4xl font-black text-primary">{readinessScore}%</span>
+                        </div>
+                        <div className="w-full bg-muted h-3 rounded-full overflow-hidden mb-3">
+                            <div className="bg-primary h-full rounded-full transition-all duration-1000 ease-out"
+                                style={{ width: `${readinessScore}%` }} />
+                        </div>
+                        <p className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
+                            <AlertCircle className="h-3.5 w-3.5" />
+                            {readinessScore >= 85 ? 'Xuất sắc! Bạn hoàn toàn có thể tự tin tham gia kỳ thi sắp tới.' :
+                                readinessScore >= 65 ? 'Khá tốt! Hãy tập trung hoàn thiện các điểm yếu để đảm bảo kết quả.' :
+                                    'Bạn cần dành thêm thời gian ôn luyện các chủ đề trọng tâm bên dưới.'}
+                        </p>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-2">
-                        {readinessScore >= 80 ? 'Bạn gần như sẵn sàng thi!' :
-                            readinessScore >= 60 ? 'Tiếp tục luyện tập, bạn đang tiến bộ tốt!' :
-                                'Còn nhiều điểm cần cải thiện — hãy theo lộ trình bên dưới.'}
-                    </p>
                 </div>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {/* Strengths */}
-                {strengths.length > 0 && (
-                    <div className="rounded-xl border bg-card p-5">
-                        <h3 className="font-semibold text-sm text-emerald-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                            <TrendingUp className="h-4 w-4" /> Điểm mạnh
-                        </h3>
-                        <ul className="space-y-2">
-                            {strengths.map((s, i) => {
-                                const topic = typeof s === 'string' ? s : (s?.topic ?? s?.title ?? '');
-                                const desc = typeof s === 'object' ? s?.description : null;
-                                return (
-                                    <li key={i} className="flex items-start gap-2 text-sm">
-                                        <div className="flex flex-col">
-                                            <div className="flex items-center gap-2">
-                                                <Check className="h-4 w-4 text-emerald-500 shrink-0" />
-                                                <span className="text-foreground/80 font-medium">{topic}</span>
-                                            </div>
-                                            {desc && <p className="text-xs text-muted-foreground mt-0.5 ml-6">{desc}</p>}
-                                        </div>
-                                    </li>
-                                );
-                            })}
-                        </ul>
-                    </div>
-                )}
-
-                {/* Weaknesses */}
-                {weaknesses.length > 0 && (
-                    <div className="rounded-xl border bg-card p-5">
-                        <h3 className="font-semibold text-sm text-red-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                            <AlertCircle className="h-4 w-4" /> Cần cải thiện
-                        </h3>
-                        {weaknesses.map((w, i) => {
-                            const topic = typeof w === 'string' ? w : (w?.topic ?? w?.title ?? '');
-                            const desc = typeof w === 'object' ? (w?.description ?? w?.suggestedReview) : null;
+                <div className="rounded-2xl border bg-card p-5 shadow-sm">
+                    <h3 className="font-semibold text-sm text-emerald-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <div className="p-1 rounded bg-emerald-500/10"><TrendingUp className="h-4 w-4" /></div>
+                        Điểm mạnh
+                    </h3>
+                    <ul className="space-y-3">
+                        {strengths.slice(0, 4).map((s, i) => {
+                            const topic = typeof s === 'string' ? s : (s?.topic ?? s?.title ?? '');
+                            const desc = typeof s === 'object' ? s?.description : null;
                             return (
-                                <li key={i} className="flex items-start gap-2 text-sm">
-                                    <div className="flex flex-col">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-red-400 shrink-0">•</span>
-                                            <span className="text-foreground/80 font-medium">{topic}</span>
-                                        </div>
-                                        {desc && <p className="text-xs text-muted-foreground mt-0.5 ml-4">{desc}</p>}
+                                <li key={i} className="flex items-start gap-3 text-sm">
+                                    <div className="mt-0.5"><Check className="h-4 w-4 text-emerald-500" /></div>
+                                    <div>
+                                        <span className="text-foreground/90 font-semibold">{topic}</span>
+                                        {desc && <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{desc}</p>}
                                     </div>
                                 </li>
                             );
                         })}
-                    </div>
-                )}
+                    </ul>
+                </div>
+
+                <div className="rounded-2xl border bg-card p-5 shadow-sm">
+                    <h3 className="font-semibold text-sm text-amber-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <div className="p-1 rounded bg-amber-500/10"><AlertCircle className="h-4 w-4" /></div>
+                        Cần cải thiện
+                    </h3>
+                    <ul className="space-y-3">
+                        {weaknesses.slice(0, 4).map((w, i) => {
+                            const topic = typeof w === 'string' ? w : (w?.topic ?? w?.title ?? '');
+                            const desc = typeof w === 'object' ? (w?.description ?? w?.suggestedReview) : null;
+                            return (
+                                <li key={i} className="flex items-start gap-3 text-sm">
+                                    <div className="mt-0.5 text-amber-500 font-bold">•</div>
+                                    <div>
+                                        <span className="text-foreground/90 font-semibold">{topic}</span>
+                                        {desc && <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{desc}</p>}
+                                    </div>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                </div>
             </div>
 
-            {/* Study Path Roadmap */}
-            {roadmap.length > 0 && (
-                <div className="rounded-xl border bg-card overflow-hidden">
-                    <div className="p-5 border-b border-border">
-                        <h3 className="font-bold text-foreground">Lộ trình học {targetLevel} (AI gợi ý)</h3>
-                        {studyPath?.studyPathRecommendation?.estimatedWeeks && (
-                            <p className="text-xs text-muted-foreground mt-1">Ước tính {studyPath.studyPathRecommendation.estimatedWeeks} tuần</p>
-                        )}
-                    </div>
-                    <div className="p-5 space-y-6 relative">
-                        <div className="absolute left-9 top-8 bottom-8 w-0.5 bg-border" />
-                        {roadmap.map((step, i) => (
-                            <div key={i} className="flex gap-4 relative z-10">
-                                <div className={`shrink-0 w-6 h-6 rounded-full ring-4 ring-card flex items-center justify-center
-                                    ${step.status === 'completed' ? 'bg-emerald-500' :
-                                        step.status === 'in-progress' ? 'bg-primary' : 'bg-border'}`}>
-                                    {step.status === 'completed' ? <Check className="w-3 h-3 text-white" /> :
-                                        step.status === 'in-progress' ? <div className="w-2 h-2 rounded-full bg-white animate-pulse" /> :
-                                            <Lock className="w-3 h-3 text-muted-foreground" />}
-                                </div>
-                                <div className={step.status === 'locked' ? 'opacity-50' : ''}>
-                                    <p className={`text-sm font-bold ${step.status === 'in-progress' ? 'text-primary' : 'text-foreground'}`}>
-                                        {step.title}
-                                    </p>
-                                    {step.description && (
-                                        <p className="text-xs text-muted-foreground mt-0.5">{step.description}</p>
-                                    )}
-                                </div>
+            {recommendations.length > 0 && (
+                <div className="rounded-2xl border bg-card p-5 shadow-sm border-l-4 border-l-primary">
+                    <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
+                        <Zap className="h-4 w-4 text-primary" /> Chiến lược ôn luyện
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {recommendations.map((rec, i) => (
+                            <div key={i} className="text-sm text-foreground/80 bg-muted/30 p-3 rounded-xl flex items-start gap-3">
+                                <ArrowUpRight className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                                <span>{rec}</span>
                             </div>
                         ))}
                     </div>
-                </div>
-            )}
-
-            {/* Recommendations */}
-            {recommendations.length > 0 && (
-                <div className="rounded-xl border bg-card p-5">
-                    <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2 text-sm">
-                        <RefreshCcw className="h-4 w-4 text-primary" /> Lời khuyên từ AI
-                    </h3>
-                    <ul className="space-y-2">
-                        {recommendations.map((rec, i) => (
-                            <li key={i} className="text-sm text-muted-foreground leading-relaxed flex items-start gap-2">
-                                <span className="text-primary shrink-0">→</span> {rec}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
-
-            {/* Metrics from trackProgress */}
-            {metrics && (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    {[
-                        { label: 'Bài đã học (tháng)', value: completedLessons, icon: BookOpen },
-                        { label: 'Điểm trung bình', value: `${averageScore}%`, icon: Target },
-                        { label: 'Giờ học', value: fmtHours(studyHours), icon: Clock },
-                        { label: 'Streak', value: `${streak} ngày`, icon: Flame },
-                    ].map(({ label, value, icon: Icon }) => (
-                        <div key={label} className="rounded-xl border bg-card p-4">
-                            <Icon className="h-4 w-4 text-primary mb-2" />
-                            <p className="text-xl font-bold text-foreground">{value}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
-                        </div>
-                    ))}
                 </div>
             )}
         </div>
@@ -252,15 +204,10 @@ export function AnalyticsDashboard() {
     const [targetLevel, setTargetLevel] = useState<JlptLevel>('N5');
     const [showAIDialog, setShowAIDialog] = useState(false);
 
-    // ── Non-AI data (always fetched) ─────────────────────────────
     const { data: stats, isLoading: statsLoading } = useLearningStats();
     const { data: courses = [], isLoading: coursesLoading } = useMyCourses();
-
-    // ── AI Snapshot (Redis cache check, no AI call) ───────────────
-    const { data: snapshotData } = useAnalyticsSnapshot(targetLevel);
+    const { data: snapshotData, refetch: refetchSnapshot } = useAnalyticsSnapshot(targetLevel);
     const snapshot = snapshotData?.snapshot ?? null;
-
-    // ── AI Generation mutation ────────────────────────────────────
     const generateMutation = useGenerateAnalyticsSnapshot();
 
     const handleRequestAI = async () => {
@@ -268,6 +215,7 @@ export function AnalyticsDashboard() {
         try {
             await generateMutation.mutateAsync(targetLevel);
             toast.success('AI đã phân tích xong! 🎉');
+            refetchSnapshot();
         } catch (err: any) {
             toast.error(err.message || 'AI phân tích thất bại. Vui lòng thử lại.');
         } finally {
@@ -275,115 +223,229 @@ export function AnalyticsDashboard() {
         }
     };
 
+    const chartData = useMemo(() => {
+        if (!stats?.weeklyActivity) return [];
+        const days = ['Th 2', 'Th 3', 'Th 4', 'Th 5', 'Th 6', 'Th 7', 'CN'];
+        return stats.weeklyActivity.map((val: number, i: number) => ({
+            name: days[i],
+            value: val
+        }));
+    }, [stats]);
+
     return (
-        <div className="bg-background text-foreground min-h-screen font-sans antialiased">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-700">
             {showAIDialog && <AILoadingDialog onClose={() => setShowAIDialog(false)} />}
 
-            <div className="flex flex-col w-full space-y-8 animate-in fade-in duration-700">
-
-                {/* ── Header ──────────────────────── */}
-                <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="space-y-1">
-                        <nav aria-label="Breadcrumb" className="flex text-sm text-muted-foreground mb-2">
-                            <ol className="flex items-center space-x-2">
-                                <li>Dashboard</li>
-                                <li className="flex items-center space-x-2">
-                                    <ChevronRight className="w-4 h-4" />
-                                    <span className="text-foreground font-medium">Phân tích học tập</span>
-                                </li>
-                            </ol>
-                        </nav>
-                        <h1 className="text-3xl font-bold tracking-tight">Phân Tích Học Tập</h1>
-                        <p className="text-muted-foreground">Tổng quan tiến độ và lộ trình chinh phục JLPT của bạn.</p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-3">
-                        {/* JLPT Target picker */}
-                        <div className="flex items-center gap-1 bg-muted/40 rounded-xl p-1 border border-border">
-                            {JLPT_LEVELS.map(lv => (
-                                <button
-                                    key={lv}
-                                    onClick={() => setTargetLevel(lv)}
-                                    className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${targetLevel === lv ? 'bg-primary text-primary-foreground shadow' : 'text-muted-foreground hover:text-foreground'}`}
-                                >
-                                    {lv}
-                                </button>
-                            ))}
-                        </div>
-                        {/* AI Analysis button */}
+            {/* ── Header ──────────────────────── */}
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <h1 className="text-3xl font-black tracking-tight text-foreground">Phân Tích Tiến Độ</h1>
+                    <p className="text-muted-foreground mt-1 text-sm">Cá nhân hóa lộ trình và theo dõi mục tiêu JLPT của bạn.</p>
+                </div>
+                <div className="flex flex-wrap items-center gap-3 bg-secondary/30 p-1.5 rounded-2xl border">
+                    {JLPT_LEVELS.map(lv => (
                         <button
-                            onClick={handleRequestAI}
-                            disabled={generateMutation.isPending}
-                            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition shadow-lg shadow-primary/20 disabled:opacity-60"
+                            key={lv}
+                            onClick={() => setTargetLevel(lv)}
+                            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${targetLevel === lv ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:bg-secondary'}`}
                         >
-                            <Sparkles className="w-4 h-4" />
-                            {snapshot ? 'Làm mới phân tích AI' : 'Phân tích bằng AI'}
+                            {lv}
                         </button>
-                    </div>
-                </header>
+                    ))}
+                    <div className="w-[1px] h-6 bg-border mx-1" />
+                    <button
+                        onClick={handleRequestAI}
+                        disabled={generateMutation.isPending}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 text-primary font-bold text-xs hover:bg-primary/20 transition disabled:opacity-50"
+                    >
+                        <Sparkles className="w-3.5 h-3.5" />
+                        AI Analysis
+                    </button>
+                </div>
+            </header>
 
-                {/* ── Quick Stats (Non-AI, always shown) ─────────── */}
-                <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {statsLoading ? (
-                        Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-xl" />)
-                    ) : stats ? (
-                        <>
-                            <StatCard icon={<TrendingUp className="w-4 h-4 text-emerald-500" />} label="Tổng khóa học"
-                                value={stats.totalCourses ?? 0} sub={`${stats.inProgressCourses ?? 0} đang học`} />
-                            <StatCard icon={<Award className="w-4 h-4 text-primary" />} label="Tiến độ trung bình"
-                                value={`${Math.round(stats.averageProgress ?? 0)}%`}
-                                progress={stats.averageProgress ?? 0}
-                                sub={`${stats.completedCourses ?? 0} khóa hoàn thành`} />
-                            <StatCard icon={<Flame className="w-4 h-4 text-orange-500" />} label="Học tập"
-                                value={`Active`}
-                                sub={`Tiếp tục duy trì`} />
-                            <StatCard icon={<BookOpen className="w-4 h-4 text-blue-500" />} label="Giờ học tích lũy"
-                                value={fmtHours(stats.totalLearningHours)}
-                                sub="Tổng thời gian học" />
-                        </>
-                    ) : null}
+            {/* ── Hero Stats ────────────────── */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Weekly Chart */}
+                <section className="lg:col-span-2 rounded-3xl border bg-card p-6 shadow-sm overflow-hidden flex flex-col">
+                    <div className="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 className="font-bold text-base flex items-center gap-2">
+                                <BarChart3 className="h-4 w-4 text-primary" /> Hoạt động học tập
+                            </h2>
+                            <p className="text-xs text-muted-foreground mt-0.5">Số bài học hoàn thành trong 7 ngày qua</p>
+                        </div>
+                        <div className="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                            Weekly Trend
+                        </div>
+                    </div>
+
+                    <div className="h-[240px] w-full mt-auto">
+                        {statsLoading ? (
+                            <Skeleton className="w-full h-full rounded-xl" />
+                        ) : (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(var(--border), 0.1)" />
+                                    <XAxis
+                                        dataKey="name"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fill: 'currentColor', fontSize: 10, opacity: 0.5 }}
+                                        dy={10}
+                                    />
+                                    <YAxis hide />
+                                    <Tooltip
+                                        cursor={{ fill: 'rgba(var(--primary), 0.05)' }}
+                                        contentStyle={{
+                                            backgroundColor: 'hsl(var(--card))',
+                                            borderRadius: '12px',
+                                            border: '1px solid hsl(var(--border))',
+                                            boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+                                            fontSize: '12px'
+                                        }}
+                                    />
+                                    <Bar dataKey="value" radius={[6, 6, 0, 0]} barSize={32}>
+                                        {chartData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={index === 6 ? 'hsl(var(--primary))' : 'hsl(var(--primary) / 0.3)'} />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        )}
+                    </div>
                 </section>
 
-                {/* ── My Courses Progress (Non-AI) ───────────────── */}
-                {!coursesLoading && courses.length > 0 && (
-                    <section className="rounded-xl border bg-card shadow p-6">
-                        <h2 className="font-bold text-lg mb-5 flex items-center gap-2">
-                            <BookMarked className="h-5 w-5 text-primary" /> Khóa học đang học
-                        </h2>
+                {/* Gamification & Goals Sidebar */}
+                <section className="space-y-6">
+                    <div className="rounded-3xl border bg-card p-6 shadow-sm relative overflow-hidden group">
+                        <div className="absolute -top-6 -right-6 h-24 w-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all duration-500" />
+                        <div className="relative z-10 flex items-center justify-between mb-6">
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center text-orange-500">
+                                    <Flame className="w-6 h-6 fill-current" />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">Study Streak</p>
+                                    <p className="text-2xl font-black text-foreground line-height-1 mt-0.5">{stats?.streak ?? 0} Ngày</p>
+                                </div>
+                            </div>
+                            {stats?.streak > 0 && <span className="bg-emerald-500/10 text-emerald-500 text-[10px] font-bold px-2 py-1 rounded-lg">🔥 ON FIRE</span>}
+                        </div>
                         <div className="space-y-4">
-                            {courses.slice(0, 5).map(course => (
-                                <div key={course.id} className="flex items-center gap-4">
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between mb-1">
-                                            <p className="text-sm font-semibold text-foreground truncate">{course.courseTitle}</p>
-                                            <span className="text-xs text-muted-foreground shrink-0 ml-2">{Math.round(course.progress ?? 0)}%</span>
+                            <div className="flex items-center justify-between text-sm">
+                                <span className="text-muted-foreground">Cấp độ {stats?.level ?? 1}</span>
+                                <span className="font-bold text-primary">{stats?.xp ?? 0} XP</span>
+                            </div>
+                            <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
+                                <div className="bg-primary h-full rounded-full transition-all" style={{ width: '65%' }} />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="rounded-3xl border bg-primary text-primary-foreground p-6 shadow-lg shadow-primary/20 relative overflow-hidden group">
+                        <Zap className="absolute -bottom-4 -right-4 h-32 w-32 opacity-10 group-hover:scale-110 transition-transform duration-700" />
+                        <div className="relative z-10">
+                            <p className="text-[10px] uppercase font-bold tracking-widest opacity-70">Mục tiêu hôm nay</p>
+                            <h3 className="text-2xl font-black mt-1">{chartData[6]?.value ?? 0} / {stats?.onboarding?.dailyGoal || 3}</h3>
+                            <p className="text-xs mt-2 opacity-80 leading-relaxed font-medium">
+                                {Number(chartData[6]?.value) >= (stats?.onboarding?.dailyGoal || 3)
+                                    ? "Thật tuyệt vời! Bạn đã hoàn thành mục tiêu ngày hôm nay. 🎉"
+                                    : `Cố lên! Bạn chỉ còn thiếu ${Math.max(0, (stats?.onboarding?.dailyGoal || 3) - (chartData[6]?.value || 0))} bài học nữa.`}
+                            </p>
+                            <div className="mt-4 flex gap-2">
+                                <div className="h-1.5 flex-1 bg-white/20 rounded-full overflow-hidden">
+                                    <div className="h-full bg-white transition-all duration-1000" style={{ width: `${Math.min(100, ((chartData[6]?.value || 0) / (stats?.onboarding?.dailyGoal || 3)) * 100)}%` }} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            {/* ── Status Cards ──────────────── */}
+            <section className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <StatMetric
+                    icon={<Target className="w-5 h-5 text-blue-500" />}
+                    label="Mục tiêu"
+                    value={stats?.onboarding?.targetLevel || 'Chưa đặt'}
+                    sub={`Lúc bắt đầu: ${stats?.onboarding?.currentLevel || 'N/A'}`}
+                />
+                <StatMetric
+                    icon={<Award className="w-5 h-5 text-emerald-500" />}
+                    label="Tiến độ trung bình"
+                    value={`${stats?.averageProgress ?? 0}%`}
+                    sub={`${stats?.completedCourses ?? 0} khóa đã xong`}
+                    progress={stats?.averageProgress}
+                />
+                <StatMetric
+                    icon={<Clock className="w-5 h-5 text-purple-500" />}
+                    label="Tổng thời gian"
+                    value={fmtHours(stats?.totalLearningHours)}
+                    sub="Tích lũy từ khi bắt đầu"
+                />
+            </section>
+
+            {/* ── Courses section ───────────── */}
+            <div className="grid grid-cols-1 xl:grid-cols-5 gap-8 items-start">
+                <div className="xl:col-span-3 space-y-6">
+                    <section className="rounded-3xl border bg-card shadow-sm p-8">
+                        <div className="flex items-center justify-between mb-8">
+                            <h2 className="font-bold text-xl flex items-center gap-3">
+                                <BookMarked className="h-6 w-6 text-primary" /> Khóa học của bạn
+                            </h2>
+                            <button className="text-xs font-bold text-primary hover:underline underline-offset-4">Xem tất cả</button>
+                        </div>
+                        <div className="space-y-6">
+                            {coursesLoading ? <Skeleton className="h-40 w-full" /> : courses.slice(0, 4).map(course => (
+                                <div key={course.id} className="group cursor-pointer hover:bg-muted/30 p-4 -mx-4 rounded-2xl transition-colors">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-16 h-16 rounded-xl bg-muted overflow-hidden shrink-0 border relative">
+                                            {course.thumbnailUrl ? (
+                                                <img src={course.thumbnailUrl} alt={course.courseTitle} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                            ) : (
+                                                <BookOpen className="w-6 h-6 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-muted-foreground" />
+                                            )}
                                         </div>
-                                        <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-                                            <div className="bg-primary h-full rounded-full transition-all duration-500"
-                                                style={{ width: `${course.progress ?? 0}%` }} />
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <p className="text-sm font-bold text-foreground truncate">{course.courseTitle}</p>
+                                                <span className="text-sm font-black text-primary ml-2">{Math.round(course.progress ?? 0)}%</span>
+                                            </div>
+                                            <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
+                                                <div className="bg-primary h-full rounded-full transition-all duration-700"
+                                                    style={{ width: `${course.progress ?? 0}%` }} />
+                                            </div>
+                                            <div className="flex items-center justify-between mt-2">
+                                                <p className="text-[10px] text-muted-foreground font-medium">
+                                                    Bài {course.completedLessons} / {course.totalLessons}
+                                                </p>
+                                                <p className="text-[10px] text-muted-foreground font-medium">
+                                                    {course.updatedAt ? `Học lần cuối: ${fmtRelTime(course.updatedAt.toISOString())}` : ''}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <p className="text-xs text-muted-foreground mt-1">
-                                            {course.completedLessons}/{course.totalLessons} bài{' '}
-                                            {course.updatedAt ? `· ${fmtRelTime(course.updatedAt.toISOString())}` : ''}
-                                        </p>
                                     </div>
                                 </div>
                             ))}
+                            {courses.length === 0 && <div className="text-center py-10 text-muted-foreground text-sm font-medium">Bạn chưa tham gia khóa học nào.</div>}
                         </div>
                     </section>
-                )}
+                </div>
 
-                {/* ── AI Insights section ─────────────────────────── */}
-                <section>
-                    {snapshot ? (
-                        <AIInsightsPanel snapshot={snapshot} targetLevel={targetLevel} />
-                    ) : (
-                        <AICallToAction
-                            targetLevel={targetLevel}
-                            onRequest={handleRequestAI}
-                            isLoading={generateMutation.isPending}
-                        />
-                    )}
-                </section>
+                <div className="xl:col-span-2">
+                    <section>
+                        {snapshot ? (
+                            <AIInsightsPanel snapshot={snapshot} targetLevel={targetLevel} />
+                        ) : (
+                            <AICallToAction
+                                targetLevel={targetLevel}
+                                onRequest={handleRequestAI}
+                                isLoading={generateMutation.isPending}
+                            />
+                        )}
+                    </section>
+                </div>
             </div>
         </div>
     );
@@ -391,23 +453,27 @@ export function AnalyticsDashboard() {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function StatCard({ icon, label, value, sub, progress }: {
+function StatMetric({ icon, label, value, sub, progress }: {
     icon: React.ReactNode; label: string; value: string | number; sub?: string; progress?: number;
 }) {
     return (
-        <div className="rounded-xl border bg-card shadow p-6">
-            <div className="flex items-center justify-between pb-2">
-                <p className="text-sm font-medium">{label}</p>
-                {icon}
+        <div className="rounded-3xl border bg-card shadow-sm p-6 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-3 mb-4">
+                <div className="p-2.5 rounded-2xl bg-muted/50 border shrink-0">{icon}</div>
+                <div>
+                    <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">{label}</p>
+                    <p className="text-xl font-black text-foreground mt-0.5">{value}</p>
+                </div>
             </div>
-            <div className="text-2xl font-bold">{value}</div>
             {progress !== undefined && (
-                <div className="w-full bg-secondary h-2 rounded-full mt-2 overflow-hidden">
-                    <div className="bg-primary h-full rounded-full transition-all duration-700"
+                <div className="w-full bg-muted h-1.5 rounded-full overflow-hidden mb-3">
+                    <div className="bg-primary h-full rounded-full transition-all duration-1000"
                         style={{ width: `${Math.min(progress, 100)}%` }} />
                 </div>
             )}
-            {sub && <p className="text-xs text-muted-foreground mt-1.5">{sub}</p>}
+            <p className="text-xs text-muted-foreground font-medium flex items-center gap-1.5 italic">
+                {sub}
+            </p>
         </div>
     );
 }
@@ -416,31 +482,30 @@ function AICallToAction({ targetLevel, onRequest, isLoading }: {
     targetLevel: string; onRequest: () => void; isLoading: boolean;
 }) {
     return (
-        <div className="rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-10 flex flex-col items-center text-center gap-5">
-            <div className="p-4 rounded-2xl bg-primary/10">
-                <Sparkles className="h-10 w-10 text-primary" />
+        <div className="rounded-3xl border border-dashed border-primary/40 bg-primary/5 p-8 flex flex-col items-center text-center gap-6 relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-full h-full bg-grid-white/[0.02] pointer-events-none" />
+            <div className="p-5 rounded-3xl bg-primary shadow-xl shadow-primary/20 rotate-3 group-hover:rotate-0 transition-transform duration-500">
+                <Sparkles className="h-10 w-10 text-primary-foreground" />
             </div>
-            <div>
-                <h3 className="text-xl font-bold text-foreground mb-2">Phân tích AI chuyên sâu</h3>
-                <p className="text-muted-foreground text-sm max-w-md mx-auto leading-relaxed">
-                    AI sẽ phân tích toàn bộ lịch sử học tập của bạn để đưa ra thông tin về điểm mạnh, điểm yếu,
-                    và lộ trình chinh phục <strong>{targetLevel}</strong> được cá nhân hóa.
-                    Kết quả sẽ được lưu lại <strong>24 giờ</strong> — không gọi lại API nếu chưa hết hạn.
+            <div className="relative z-10">
+                <h3 className="text-xl font-black text-foreground mb-3">Phân tích AI Sensei</h3>
+                <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-medium">
+                    Để AI phân tích dữ liệu học tập của bạn và đưa ra lộ trình tối ưu nhất cho mục tiêu <strong>{targetLevel}</strong>.
                 </p>
-            </div>
-            <div className="flex flex-wrap gap-3 justify-center text-xs text-muted-foreground">
-                {['📊 Tiến độ theo tháng', '🎯 Điểm mạnh & yếu', '🗺️ Lộ trình cá nhân', '💡 Lời khuyên học tập'].map(f => (
-                    <span key={f} className="px-3 py-1.5 bg-card border border-border rounded-full">{f}</span>
-                ))}
             </div>
             <button
                 onClick={onRequest}
                 disabled={isLoading}
-                className="mt-2 flex items-center gap-2 px-8 py-3 bg-primary text-primary-foreground rounded-xl font-bold hover:bg-primary/90 transition shadow-lg shadow-primary/25 disabled:opacity-60"
+                className="relative z-10 mt-2 flex items-center gap-3 px-8 py-3.5 bg-primary text-primary-foreground rounded-2xl font-bold hover:shadow-xl hover:shadow-primary/30 transition-all active:scale-95 disabled:scale-100 disabled:opacity-60"
             >
                 <Sparkles className="h-5 w-5" />
-                {isLoading ? 'Đang phân tích...' : `Phân tích ngay với ${targetLevel}`}
+                {isLoading ? 'Đang phân tích...' : `Phân tích dữ liệu ${targetLevel}`}
             </button>
+            <div className="flex flex-wrap gap-2 justify-center mt-2 relative z-10">
+                {['Điểm mạnh & yếu', 'Lộ trình cá nhân', 'Dự đoán kết quả'].map(f => (
+                    <span key={f} className="text-[10px] font-bold px-3 py-1.5 bg-card border rounded-full text-muted-foreground shadow-sm">{f}</span>
+                ))}
+            </div>
         </div>
     );
 }

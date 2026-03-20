@@ -58,7 +58,7 @@ export class OrderListener {
       }
 
       try {
-        await this.enrollments.create(
+        await this.enrollments.enroll(
           {
             userId: order.userId,
             offeringId: item.offeringId ?? undefined,

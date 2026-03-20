@@ -1,12 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { apiClient } from "@/lib/api/api-client"
 import type {
-  AcademyClassContentItemCreateDTO,
-  AcademyClassContentItemUpdateDTO,
   AcademyClassCreateDTO,
   AcademyClassDuplicateDTO,
-  AcademyClassModuleCreateDTO,
-  AcademyClassModuleUpdateDTO,
   AcademyClassQueryDTO,
   AcademyClassUpdateDTO,
   StandardApiResponse,
@@ -15,7 +11,6 @@ import type {
 export type AcademyClass = {
   id: string
   courseProfileId: string
-  syllabusId?: string | null
   code: string
   name: string
   mode: "VOD" | "LIVE"
@@ -41,9 +36,10 @@ export type AcademyClass = {
     status: string
   } | null
 
-  // Legacy backward compat (some endpoints might still include these)
+  // Backward-compat fields (some endpoints might still include these)
   vodClass?: any | null
   liveClass?: any | null
+  courseProfile?: any | null
 }
 
 export const academyClassesApi = {
@@ -72,72 +68,17 @@ export const academyClassesApi = {
             id: string
             title: string
             orderIndex: number
-            items: {
+            lessons: {
               id: string
-              kind: string
-              referenceId?: string | null
+              title: string
+              type: string
               orderIndex: number
-              status: string
-              availableFrom?: string | null
-              deadline?: string | null
-              isPrerequisite: boolean
             }[]
           }[]
         }
       }>
     >(`/api/academy/classes/${id}/curriculum`)
     return res.data.data!.curriculum
-  },
-
-  async addModule(classId: string, input: AcademyClassModuleCreateDTO) {
-    const res = await apiClient.post<
-      StandardApiResponse<{ module: { id: string } }>
-    >(`/api/academy/classes/${classId}/modules`, input)
-    return res.data.data!.module
-  },
-
-  async updateModule(
-    moduleId: string,
-    input: AcademyClassModuleUpdateDTO,
-  ) {
-    const res = await apiClient.put<
-      StandardApiResponse<{ module: { id: string } }>
-    >(`/api/academy/classes/modules/${moduleId}`, input)
-    return res.data.data!.module
-  },
-
-  async deleteModule(moduleId: string) {
-    const res = await apiClient.delete<
-      StandardApiResponse<{ ok: boolean }>
-    >(`/api/academy/classes/modules/${moduleId}`)
-    return res.data.data
-  },
-
-  async addContentItem(
-    moduleId: string,
-    input: AcademyClassContentItemCreateDTO,
-  ) {
-    const res = await apiClient.post<
-      StandardApiResponse<{ item: { id: string } }>
-    >(`/api/academy/classes/modules/${moduleId}/items`, input)
-    return res.data.data!.item
-  },
-
-  async updateContentItem(
-    itemId: string,
-    input: AcademyClassContentItemUpdateDTO,
-  ) {
-    const res = await apiClient.put<
-      StandardApiResponse<{ item: { id: string } }>
-    >(`/api/academy/classes/items/${itemId}`, input)
-    return res.data.data!.item
-  },
-
-  async deleteContentItem(itemId: string) {
-    const res = await apiClient.delete<
-      StandardApiResponse<{ ok: boolean }>
-    >(`/api/academy/classes/items/${itemId}`)
-    return res.data.data
   },
 
   async create(input: AcademyClassCreateDTO) {

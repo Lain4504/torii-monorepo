@@ -1,6 +1,6 @@
 'use client'
 
-import { Tabs, TabsList, TabsTrigger } from '@workspace/ui/components/tabs-scrollable'
+import { Tabs, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
 import { Trophy, Star, Flame } from 'lucide-react'
 
 interface LeaderboardHeaderProps {
@@ -22,7 +22,7 @@ export function LeaderboardHeader({ type, onTypeChange }: LeaderboardHeaderProps
             </div>
 
             <Tabs value={type} onValueChange={(v) => onTypeChange(v as any)} className="w-full md:w-auto">
-                <TabsList>
+                <TabsList className="w-full md:w-auto overflow-x-auto whitespace-nowrap">
                     <TabsTrigger value="global">
                         <Star className="mr-2 h-4 w-4" />
                         Toàn cầu (XP)

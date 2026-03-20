@@ -11,6 +11,10 @@ import {
   MarkLessonCompleteDto,
 } from './dto/class.dto';
 
+/**
+ * ClassHandler - NATS Interface for Class Operations.
+ * Refactored to link directly to CourseProfile.
+ */
 @Controller()
 export class ClassHandler {
   constructor(private readonly classes: ClassService) {}
@@ -124,10 +128,11 @@ export class ClassHandler {
     return this.classes.removeAssignment(data.id, data.requesterId);
   }
 
+  /** Gets curriculum (modules/lessons) for the course profile associated with this class */
   @MessagePattern({ cmd: 'academy.class.getCurriculum' })
   async getCurriculum(@Payload() data: { id: string }) {
     const klass = await this.classes.findById(data.id);
-    return klass.syllabus;
+    return klass.courseProfile;
   }
 
   // ==== Lesson Progress ====

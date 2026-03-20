@@ -51,22 +51,22 @@ export class StudyNoteController {
         { id: lessonId },
       ),
     );
-    const syllabusId = lesson?.module?.syllabusId;
-    if (!syllabusId) {
+    const courseProfileId = lesson?.module?.courseProfileId;
+    if (!courseProfileId) {
       throw new ForbiddenException(
-        'Lesson is not associated with any syllabus',
+        'Lesson is not associated with any course profile',
       );
     }
 
     const result = await firstValueFrom(
       this.natsClient.send(
-        { cmd: 'academy.enrollment.checkBySyllabus' },
-        { userId, syllabusId },
+        { cmd: 'academy.enrollment.checkEligibility' },
+        { userId, targetId: courseProfileId, targetType: 'COURSE' },
       ),
     );
     if (!result?.isEnrolled) {
       throw new ForbiddenException(
-        'You are not enrolled in a class providing this lesson',
+        'You are not enrolled in a course providing this lesson',
       );
     }
   }

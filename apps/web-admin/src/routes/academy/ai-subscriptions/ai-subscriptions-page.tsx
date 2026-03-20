@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { PageHeader } from '@/components/common/page-header';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs-scrollable';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
 import { Users, Activity, UserCircle, Search, Edit2, Save, X } from 'lucide-react';
 import { cn } from '@workspace/ui/lib/utils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@workspace/ui/components/table';
@@ -31,7 +31,7 @@ export default function AiSubscriptionsPage() {
             />
 
             <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-                <TabsList className="mb-4">
+                <TabsList className="mb-4 overflow-x-auto whitespace-nowrap">
                     <TabsTrigger value="plans" className="gap-2">
                         <Activity className="size-4" />
                         Gói Subscription

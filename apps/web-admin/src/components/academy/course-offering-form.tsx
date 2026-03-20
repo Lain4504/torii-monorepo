@@ -46,7 +46,7 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@workspace/ui/components/tabs-scrollable"
+} from "@workspace/ui/components/tabs"
 import { Spinner } from "@workspace/ui/components/spinner"
 import {
   academyCourseOfferingCreateDTOSchema,
@@ -350,7 +350,7 @@ export function CourseOfferingForm({
             render={({ field, fieldState }) => (
               <Field>
                 <Tabs defaultValue="edit" className="mt-2">
-                  <TabsList className="mb-4">
+                  <TabsList className="mb-4 overflow-x-auto whitespace-nowrap">
                     <TabsTrigger value="edit">Chỉnh sửa</TabsTrigger>
                     <TabsTrigger value="preview">Xem trước</TabsTrigger>
                   </TabsList>

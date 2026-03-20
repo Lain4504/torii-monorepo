@@ -8,7 +8,7 @@ import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@workspace/ui/components/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs-scrollable"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@workspace/ui/components/item"
 import { LoginForm } from "@/components/auth/login-form"
@@ -29,8 +29,8 @@ import {
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 
-// Syllabus Data
-const levelSyllabus: Record<string, {
+// Curriculum Data
+const levelCurriculum: Record<string, {
     title: string;
     description: string;
     points: string[];
@@ -108,9 +108,9 @@ export default function CourseCategoryPage() {
     const [selectedCourse, setSelectedCourse] = useState<any>(null);
     const [showLoginDialog, setShowLoginDialog] = useState(false);
 
-    const syllabus = levelSyllabus[levelId] || levelSyllabus.n5;
+    const curriculum = levelCurriculum[levelId] || levelCurriculum.n5;
 
-    if (!syllabus) {
+    if (!curriculum) {
         return <div className="p-24 text-center">Cấp độ không hợp lệ</div>;
     }
 
@@ -158,7 +158,7 @@ export default function CourseCategoryPage() {
                 </div>
             </div>
 
-            {/* Syllabus Section */}
+            {/* Curriculum Section */}
             <section className="bg-muted/30 border-y border-border py-16">
                 <div className="container mx-auto px-4 max-w-7xl">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -169,13 +169,13 @@ export default function CourseCategoryPage() {
                         >
                             <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
                                 <BookOpen className="text-primary size-8" />
-                                {syllabus.title}
+                                {curriculum.title}
                             </h2>
                             <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-                                {syllabus.description}
+                                {curriculum.description}
                             </p>
                             <div className="space-y-4">
-                                {syllabus.points.map((point, i) => (
+                                {curriculum.points.map((point, i) => (
                                     <div key={i} className="flex items-start gap-3 bg-background p-4 rounded-xl border border-border shadow-sm group hover:border-primary/30 transition-colors">
                                         <CheckCircle2 className="text-primary size-5 mt-0.5 shrink-0" />
                                         <span className="font-medium text-foreground/80">{point}</span>
@@ -192,7 +192,7 @@ export default function CourseCategoryPage() {
                         >
                             <img
                                 src={`https://images.unsplash.com/photo-1528360983277-13d401cdc186?q=80&w=2070&auto=format&fit=crop`}
-                                alt="Syllabus visual"
+                                alt="Course curriculum visual"
                                 className="w-full h-full object-cover"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-8">
@@ -213,7 +213,7 @@ export default function CourseCategoryPage() {
                             <h2 className="text-3xl font-black text-foreground mb-2">Danh Sách Khóa Học</h2>
                             <p className="text-muted-foreground">Chọn giữa học VOD linh hoạt hoặc Lớp Live tương tác.</p>
                         </div>
-                        <TabsList>
+                        <TabsList className="w-full overflow-x-auto whitespace-nowrap">
                             <TabsTrigger value="vod">
                                 <MonitorPlay className="size-4 mr-2" />
                                 VIDEO (VOD)

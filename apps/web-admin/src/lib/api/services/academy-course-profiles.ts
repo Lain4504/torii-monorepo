@@ -11,11 +11,13 @@ export type AcademyCourseProfile = {
   id: string
   code: string
   title: string
+  status: string
   description?: string | null
   level?: string | null
   thumbnailUrl?: string | null
   createdAt: string
   updatedAt: string
+  modules?: any[]
 }
 
 export const academyCourseProfilesApi = {
@@ -45,6 +47,14 @@ export const academyCourseProfilesApi = {
   async update(id: string, input: AcademyCourseProfileUpdateDTO) {
     const res = await apiClient.put<StandardApiResponse<{ item: AcademyCourseProfile }>>(
       `/api/academy/course-profiles/${id}`,
+      input,
+    )
+    return res.data.data!.item
+  },
+
+  async duplicate(id: string, input: { newCode: string; newTitle: string }) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseProfile }>>(
+      `/api/academy/course-profiles/${id}/duplicate`,
       input,
     )
     return res.data.data!.item

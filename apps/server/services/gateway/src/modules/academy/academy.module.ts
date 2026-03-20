@@ -21,7 +21,6 @@ import {
 } from './controllers/live-session.controller';
 import { LiveSessionRequestController } from './controllers/live-session-request.controller';
 import { ClassAttendanceController } from './controllers/class-attendance.controller';
-import { SyllabusController } from './controllers/syllabus.controller';
 import { ModuleController } from './controllers/module.controller';
 import { ClassAssignmentController } from './controllers/class-assignment.controller';
 import { WalletController } from './controllers/wallet.controller';
@@ -51,7 +50,6 @@ import { JlptMockController } from './controllers/jlpt-mock.controller';
     LiveSessionJoinController,
     LiveSessionRequestController,
     ClassAttendanceController,
-    SyllabusController,
     ModuleController,
     ClassAssignmentController,
     WalletController,

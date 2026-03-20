@@ -47,7 +47,6 @@ import CourseProfilesPage from '@/routes/academy/course-profiles/course-profiles
 import CourseProfileDetailPage from '@/routes/academy/course-profiles/course-profile-detail-page.tsx'
 import ClassesPage from '@/routes/academy/classes/classes-page.tsx'
 import ClassStudentsPage from '@/routes/academy/classes/class-students-page.tsx'
-import SyllabusBuilderPage from '@/routes/academy/syllabuses/syllabus-builder-page.tsx'
 import OfferingsPage from '@/routes/academy/offerings/offerings-page.tsx'
 import OfferingDetailPage from '@/routes/academy/offerings/offering-detail-page.tsx'
 import AssignmentGradingPage from '@/routes/academy/classes/assignment-grading-page.tsx'
@@ -57,6 +56,11 @@ import ClassApprovalPreviewPage from '@/routes/academy/approvals/class-preview-p
 import RewardsPage from '@/routes/gamification/rewards-page.tsx'
 import AchievementsPage from '@/routes/gamification/achievements-page.tsx'
 import AiSubscriptionsPage from '@/routes/academy/ai-subscriptions/ai-subscriptions-page.tsx'
+
+import JlptTemplatesPage from '@/routes/academy/jlpt/templates/page.tsx'
+import JlptQuestionsPage from '@/routes/academy/jlpt/questions/page.tsx'
+import JlptQuestionDetailPage from '@/routes/academy/jlpt/questions/[id]/page.tsx'
+import JlptTemplateDetailPage from '@/routes/academy/jlpt/templates/[id]/page.tsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -112,13 +116,18 @@ function App() {
                     <Route path="academy/classes/:classId/detail" element={<ClassStudentsPage />} />
                     <Route path="academy/classes/:classId/schedule" element={<NavigateToClassTab tab="schedule" />} />
                     <Route path="academy/classes/:classId/assessments" element={<NavigateToClassTab tab="assignments" />} />
-                    <Route path="academy/syllabuses/:id" element={<SyllabusBuilderPage />} />
                     <Route path="academy/course-offerings" element={<OfferingsPage />} />
                     <Route path="academy/course-offerings/:offeringId/detail" element={<OfferingDetailPage />} />
                     <Route path="academy/classes/:classId/assignments/:assessmentId/submissions" element={<AssignmentGradingPage />} />
 
                     {/* AI Subscriptions */}
                     <Route path="academy/ai-subscriptions" element={<AiSubscriptionsPage />} />
+
+                    {/* JLPT Mock Exams */}
+                    <Route path="academy/jlpt/templates" element={<JlptTemplatesPage />} />
+                    <Route path="academy/jlpt/templates/:id" element={<JlptTemplateDetailPage />} />
+                    <Route path="academy/jlpt/questions" element={<JlptQuestionsPage />} />
+                    <Route path="academy/jlpt/questions/:id" element={<JlptQuestionDetailPage />} />
                   </Route>
                   <Route element={<RoutePermissionGuard anyPermission={["academy.content.approve", "academy.commerce.approve", "academy.delivery.approve", "academy.content.write", "academy.commerce.write", "academy.delivery.write"]} />}>
                     <Route path="academy/approvals" element={<ApprovalsPage />} />

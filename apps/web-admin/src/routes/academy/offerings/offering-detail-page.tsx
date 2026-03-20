@@ -6,7 +6,7 @@ import {
 import { useOfferingOrders, useOfferingStats } from "@/lib/api/services/finance"
 import { PageHeader } from "@/components/common/page-header"
 import { ChevronRight, Package, ShoppingCart, TrendingUp, Info } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs-scrollable"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 import { Skeleton } from "@workspace/ui/components/skeleton"
@@ -117,7 +117,7 @@ export default function OfferingDetailPage() {
       </div>
 
       <Tabs defaultValue="info" className="w-full">
-        <TabsList>
+        <TabsList className="w-full overflow-x-auto whitespace-nowrap">
           <TabsTrigger value="info" className="gap-2">
             <Info className="size-4" /> Thông tin gói
           </TabsTrigger>

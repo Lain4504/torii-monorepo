@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs-scrollable"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { Card } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 import { LivekitVoiceAgent } from "@/components/ai-sensei/livekit-voice-agent"
@@ -25,7 +25,7 @@ export default function RoleplayPage() {
                     description="Luyện tập hội thoại tiếng Nhật với Sensei"
                     icon={Sparkles}
                 >
-                    <TabsList>
+                    <TabsList className="w-full overflow-x-auto whitespace-nowrap">
                         <TabsTrigger
                             value="interactive"
                         >
