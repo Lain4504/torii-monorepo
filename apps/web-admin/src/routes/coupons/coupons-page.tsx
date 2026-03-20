@@ -14,8 +14,8 @@ import { CouponsTable } from '@/components/coupons/coupons-table';
 import type { CouponResponseDTO } from '@workspace/schemas';
 import { CouponStatus } from '@workspace/schemas';
 
-import { CreateCouponDialog } from '@/components/coupons/create-coupon-dialog';
-import { EditCouponDialog } from '@/components/coupons/edit-coupon-dialog';
+import { CreateCouponSheet } from '@/components/coupons/create-coupon-sheet';
+import { EditCouponSheet } from '@/components/coupons/edit-coupon-sheet';
 import { SmartPagination } from '@/components/common/smart-pagination';
 import { DeleteCouponDialog } from '@/components/coupons/delete-coupon-dialog';
 
@@ -148,7 +148,7 @@ export default function CouponsPage() {
             {/* Dialogs */}
             <Suspense fallback={null}>
                 {createOpen && (
-                    <CreateCouponDialog
+                    <CreateCouponSheet
                         open={createOpen}
                         onOpenChange={setCreateOpen}
                     />
@@ -156,7 +156,7 @@ export default function CouponsPage() {
 
                 {selectedCoupon && (
                     <>
-                        <EditCouponDialog
+                        <EditCouponSheet
                             open={editOpen}
                             onOpenChange={setEditOpen}
                             coupon={selectedCoupon}

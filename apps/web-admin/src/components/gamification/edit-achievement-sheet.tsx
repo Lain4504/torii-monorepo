@@ -4,13 +4,13 @@ import * as z from "zod";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@workspace/ui/components/dialog";
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+} from "@workspace/ui/components/sheet";
+import { ScrollArea } from "@workspace/ui/components/scroll-area";
 import {
     Field,
     FieldGroup,
@@ -77,7 +77,7 @@ const formSchema = z.object({
 
 type AchievementFormValues = z.infer<typeof formSchema>;
 
-export function EditAchievementDialog({
+export function EditAchievementSheet({
     open,
     onOpenChange,
     achievement
@@ -94,7 +94,7 @@ export function EditAchievementDialog({
         setValue,
         reset,
         watch,
-        formState: { errors },
+        formState: { errors, isDirty },
     } = useForm<AchievementFormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -154,21 +154,21 @@ export function EditAchievementDialog({
     }
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[700px] max-h-[90vh] p-0 flex flex-col overflow-hidden">
-                <DialogHeader className="p-6 pb-0 flex-none">
-                    <DialogTitle className="flex items-center gap-2">
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent className="!w-full sm:!max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
+                <SheetHeader className="p-6 border-b shrink-0">
+                    <SheetTitle className="flex items-center gap-2">
                         <Trophy className="h-5 w-5 text-primary" />
                         Chỉnh sửa Thành tích
-                    </DialogTitle>
-                    <DialogDescription>
+                    </SheetTitle>
+                    <SheetDescription>
                         Cập nhật thông tin và điều kiện cho thành tích này.
-                    </DialogDescription>
-                </DialogHeader>
+                    </SheetDescription>
+                </SheetHeader>
 
-                <div className="flex-1 overflow-y-auto w-full">
-                    <div className="p-6">
-                        <form id="edit-achievement-form" onSubmit={handleSubmit(onSubmit)}>
+                <form id="edit-achievement-form" onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden" noValidate>
+                    <ScrollArea className="flex-1 min-h-0">
+                        <div className="p-6">
                             <FieldGroup className="space-y-6">
                                 <FieldSet>
                                     <FieldLegend>Thông tin cơ bản</FieldLegend>
@@ -270,17 +270,17 @@ export function EditAchievementDialog({
                                     </Field>
                                 </FieldSet>
                             </FieldGroup>
-                        </form>
-                    </div>
-                </div>
+                        </div>
+                    </ScrollArea>
 
-                <DialogFooter className="p-6 pt-0 flex-none">
-                    <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>Hủy</Button>
-                    <Button form="edit-achievement-form" type="submit" disabled={isPending}>
-                        {isPending ? "Đang cập nhật..." : "Cập nhật"}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                    <div className="p-6 border-t flex justify-end gap-3 bg-muted/20 shrink-0">
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>Hủy</Button>
+                        <Button type="submit" disabled={isPending || !isDirty}>
+                            {isPending ? "Đang cập nhật..." : "Cập nhật"}
+                        </Button>
+                    </div>
+                </form>
+            </SheetContent>
+        </Sheet>
     );
 }

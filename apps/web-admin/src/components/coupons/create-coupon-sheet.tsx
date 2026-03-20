@@ -1,12 +1,12 @@
 import { useForm, Controller } from 'react-hook-form';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from '@workspace/ui/components/dialog';
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+} from '@workspace/ui/components/sheet';
+import { ScrollArea } from '@workspace/ui/components/scroll-area';
 
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
@@ -28,12 +28,12 @@ import { CouponDiscountType, type CouponCreateDTO } from '@workspace/schemas';
 import { useCreateCoupon } from "@/lib/api/services/coupons";
 import { Spinner } from "@workspace/ui/components/spinner";
 
-interface CreateCouponDialogProps {
+interface CreateCouponSheetProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
 
-export function CreateCouponDialog({ open, onOpenChange }: CreateCouponDialogProps) {
+export function CreateCouponSheet({ open, onOpenChange }: CreateCouponSheetProps) {
     const createMutation = useCreateCoupon();
 
     // Default validUntil = 30 days from now
@@ -101,17 +101,17 @@ export function CreateCouponDialog({ open, onOpenChange }: CreateCouponDialogPro
     };
 
     return (
-        <Dialog open={open} onOpenChange={handleClose}>
-            <DialogContent className="sm:max-w-[800px] max-h-[90vh] p-0 flex flex-col overflow-hidden">
-                <DialogHeader className="p-6 pb-0 shadow-sm z-10 bg-background">
-                    <DialogTitle>Tạo Coupon Mới</DialogTitle>
-                    <DialogDescription>
+        <Sheet open={open} onOpenChange={handleClose}>
+            <SheetContent className="!w-full sm:!max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
+                <SheetHeader className="p-6 border-b shrink-0">
+                    <SheetTitle>Tạo Coupon Mới</SheetTitle>
+                    <SheetDescription>
                         Thiết lập mã giảm giá mới cho hệ thống.
-                    </DialogDescription>
-                </DialogHeader>
+                    </SheetDescription>
+                </SheetHeader>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden" noValidate>
-                    <div className="flex-1 overflow-y-auto">
+                    <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
 
                             {/* Basic Info */}
@@ -351,9 +351,9 @@ export function CreateCouponDialog({ open, onOpenChange }: CreateCouponDialogPro
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </ScrollArea>
 
-                    <DialogFooter className="p-6 pt-0 mt-4 shadow-sm z-10 bg-background">
+                    <div className="p-6 border-t flex justify-end gap-3 bg-muted/20 shrink-0">
                         <Button
                             type="button"
                             variant="outline"
@@ -376,9 +376,9 @@ export function CreateCouponDialog({ open, onOpenChange }: CreateCouponDialogPro
                                 </>
                             )}
                         </Button>
-                    </DialogFooter>
+                    </div>
                 </form>
-            </DialogContent>
-        </Dialog>
+            </SheetContent>
+        </Sheet>
     );
 }

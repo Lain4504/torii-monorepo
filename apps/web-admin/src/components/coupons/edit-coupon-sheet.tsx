@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from '@workspace/ui/components/dialog';
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+} from '@workspace/ui/components/sheet';
+import { ScrollArea } from '@workspace/ui/components/scroll-area';
 
 import { Button } from '@workspace/ui/components/button';
 import { Input } from '@workspace/ui/components/input';
@@ -30,13 +30,13 @@ import { useUpdateCoupon } from "@/lib/api/services/coupons";
 import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/alert';
 import { Spinner } from "@workspace/ui/components/spinner";
 
-interface EditCouponDialogProps {
+interface EditCouponSheetProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     coupon: CouponResponseDTO;
 }
 
-export function EditCouponDialog({ open, onOpenChange, coupon }: EditCouponDialogProps) {
+export function EditCouponSheet({ open, onOpenChange, coupon }: EditCouponSheetProps) {
     const updateMutation = useUpdateCoupon();
     const hasUsage = coupon.usageCount > 0;
 
@@ -128,17 +128,17 @@ export function EditCouponDialog({ open, onOpenChange, coupon }: EditCouponDialo
     };
 
     return (
-        <Dialog open={open} onOpenChange={handleClose}>
-            <DialogContent className="sm:max-w-[800px] max-h-[90vh] p-0 flex flex-col overflow-hidden">
-                <DialogHeader className="p-6 pb-0 shadow-sm z-10 bg-background">
-                    <DialogTitle>Chỉnh Sửa Coupon</DialogTitle>
-                    <DialogDescription>
+        <Sheet open={open} onOpenChange={handleClose}>
+            <SheetContent className="!w-full sm:!max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
+                <SheetHeader className="p-6 border-b shrink-0">
+                    <SheetTitle>Chỉnh Sửa Coupon</SheetTitle>
+                    <SheetDescription>
                         Cập nhật thông tin mã phiếu giảm giá #{coupon.id.slice(0, 8)}
-                    </DialogDescription>
-                </DialogHeader>
+                    </SheetDescription>
+                </SheetHeader>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 overflow-hidden" noValidate>
-                    <div className="flex-1 overflow-y-auto">
+                    <ScrollArea className="flex-1 min-h-0">
                         <div className="space-y-6 p-6">
 
                             {hasUsage && (
@@ -356,7 +356,7 @@ export function EditCouponDialog({ open, onOpenChange, coupon }: EditCouponDialo
                                                     <PopoverContent className="w-auto p-0">
                                                         <Calendar
                                                             mode="single"
-                                                            selected={new Date(field.value!)}
+                                                            selected={field.value ? new Date(field.value) : undefined}
                                                             onSelect={field.onChange}
                                                             initialFocus
                                                         />
@@ -390,7 +390,7 @@ export function EditCouponDialog({ open, onOpenChange, coupon }: EditCouponDialo
                                                     <PopoverContent className="w-auto p-0">
                                                         <Calendar
                                                             mode="single"
-                                                            selected={new Date(field.value!)}
+                                                            selected={field.value ? new Date(field.value) : undefined}
                                                             onSelect={field.onChange}
                                                             initialFocus
                                                         />
@@ -403,9 +403,9 @@ export function EditCouponDialog({ open, onOpenChange, coupon }: EditCouponDialo
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </ScrollArea>
 
-                    <DialogFooter className="p-6 pt-0 mt-4 shadow-sm z-10 bg-background">
+                    <div className="p-6 border-t flex justify-end gap-3 bg-muted/20 shrink-0">
                         <Button
                             type="button"
                             variant="outline"
@@ -428,9 +428,9 @@ export function EditCouponDialog({ open, onOpenChange, coupon }: EditCouponDialo
                                 </>
                             )}
                         </Button>
-                    </DialogFooter>
+                    </div>
                 </form>
-            </DialogContent>
-        </Dialog>
+            </SheetContent>
+        </Sheet>
     );
 }

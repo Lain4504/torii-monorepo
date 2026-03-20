@@ -5,8 +5,8 @@ import { PageHeader } from '@/components/common/page-header';
 import { Can } from '@/lib/guard/can';
 import { useAdminAchievements } from '@/lib/api/services/gamification';
 import { AchievementsTable } from '@/components/gamification/achievements-table';
-import { CreateAchievementDialog } from '@/components/gamification/create-achievement-dialog';
-import { EditAchievementDialog } from '@/components/gamification/edit-achievement-dialog';
+import { CreateAchievementSheet } from '@/components/gamification/create-achievement-sheet';
+import { EditAchievementSheet } from '@/components/gamification/edit-achievement-sheet';
 import { DeleteAchievementDialog } from '@/components/gamification/delete-achievement-dialog';
 import type { AchievementDTO } from '@workspace/schemas';
 
@@ -65,7 +65,7 @@ export default function AchievementsPage() {
             {/* Dialogs */}
             <Suspense fallback={null}>
                 {createOpen && (
-                    <CreateAchievementDialog
+                    <CreateAchievementSheet
                         open={createOpen}
                         onOpenChange={setCreateOpen}
                     />
@@ -73,7 +73,7 @@ export default function AchievementsPage() {
 
                 {selectedAchievement && (
                     <>
-                        <EditAchievementDialog
+                        <EditAchievementSheet
                             open={editOpen}
                             onOpenChange={setEditOpen}
                             achievement={selectedAchievement}
