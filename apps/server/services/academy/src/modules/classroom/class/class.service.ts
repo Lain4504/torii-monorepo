@@ -85,6 +85,12 @@ export class ClassService {
             thumbnailUrl: true,
           },
         },
+        term: {
+          select: {
+            id: true,
+            termCode: true,
+          },
+        },
       },
       orderBy: [{ createdAt: 'desc' }],
     });
@@ -135,6 +141,13 @@ export class ClassService {
     return item;
   }
 
+  async findTerms(courseProfileId: string) {
+    return this.prisma.liveTerm.findMany({
+      where: { courseProfileId },
+      orderBy: { openingDate: 'desc' },
+    });
+  }
+
   async create(input: ClassCreateDto, requesterId = 'SYSTEM') {
     const profile = await this.prisma.courseProfile.findUnique({
       where: { id: input.courseProfileId },
@@ -153,14 +166,21 @@ export class ClassService {
 
       if (input.mode === 'LIVE' && !resolvedTermId) {
         if (!input.term) {
-          throw new BadRequestException('LIVE class requires `termId` or `term`.');
+          throw new BadRequestException(
+            'LIVE class requires `termId` or `term`.',
+          );
         }
 
         const openingDate = new Date(input.term.openingDate as any);
         const closingDate = new Date(input.term.closingDate as any);
 
-        if (Number.isNaN(openingDate.getTime()) || Number.isNaN(closingDate.getTime())) {
-          throw new BadRequestException('LIVE class requires valid term opening/closing dates.');
+        if (
+          Number.isNaN(openingDate.getTime()) ||
+          Number.isNaN(closingDate.getTime())
+        ) {
+          throw new BadRequestException(
+            'LIVE class requires valid term opening/closing dates.',
+          );
         }
 
         const enrollmentOpenAt =
@@ -212,7 +232,9 @@ export class ClassService {
       }
 
       if (input.mode === 'LIVE' && !resolvedTermId) {
-        throw new BadRequestException('LIVE class requires `termId` or `term`.');
+        throw new BadRequestException(
+          'LIVE class requires `termId` or `term`.',
+        );
       }
 
       const classItem = await tx.class.create({

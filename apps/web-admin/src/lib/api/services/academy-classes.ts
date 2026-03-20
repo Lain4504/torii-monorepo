@@ -174,6 +174,13 @@ export const academyClassesApi = {
     )
     return res.data.data!.item
   },
+  async findTerms(courseProfileId: string) {
+    const res = await apiClient.get<StandardApiResponse<{ items: any[] }>>(
+      "/api/academy/classes/selection/terms",
+      { params: { courseProfileId } },
+    )
+    return res.data.data!.items
+  },
 }
 
 export function useAcademyClasses(params: AcademyClassQueryDTO) {
@@ -309,5 +316,13 @@ export function useArchiveClass() {
   return useMutation({
     mutationFn: (id: string) => academyClassesApi.archive(id),
     onSuccess: (_, id) => invalidateClassQueries(qc, id),
+  })
+}
+
+export function useAcademyLiveTerms(courseProfileId?: string) {
+  return useQuery({
+    enabled: !!courseProfileId,
+    queryKey: ["academy-live-terms", courseProfileId],
+    queryFn: () => academyClassesApi.findTerms(courseProfileId!),
   })
 }

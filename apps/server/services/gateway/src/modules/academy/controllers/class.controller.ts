@@ -55,6 +55,17 @@ export class ClassController {
     return successResponse({ items });
   }
 
+  @Get('selection/terms')
+  @Permissions('academy.delivery.read')
+  async findTerms(
+    @Query('courseProfileId', new ParseUUIDPipe()) courseProfileId: string,
+  ) {
+    const items = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.findTerms' }, { courseProfileId }),
+    );
+    return successResponse({ items });
+  }
+
   @Get(':id')
   async findById(
     @Param('id', new ParseUUIDPipe()) id: string,

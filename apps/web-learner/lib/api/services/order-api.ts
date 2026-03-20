@@ -15,6 +15,7 @@ export interface OrderPreviewDTO {
     // AI subscription plans
     subscriptionPlanIds?: string[];
     couponCode?: string;
+    classIdByOffering?: Record<string, string>;
 }
 
 export interface OrderCheckoutDTO {
@@ -24,6 +25,7 @@ export interface OrderCheckoutDTO {
     paymentMethod: PaymentMethod | string;
     description?: string;
     metadata?: any;
+    classIdByOffering?: Record<string, string>;
 }
 
 export interface OrderPreviewResponse {

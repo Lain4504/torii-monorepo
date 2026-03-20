@@ -9,7 +9,12 @@ function normalizeOfferingForLearner(item: any) {
   if (!item) return null;
 
   const primaryClass = item.class ?? null;
-  const classes = primaryClass ? [primaryClass] : [];
+  const classes =
+    item.classes && Array.isArray(item.classes) && item.classes.length > 0
+      ? item.classes
+      : primaryClass
+        ? [primaryClass]
+        : [];
   // Map CourseProfile (modules/lessons) to legacy courseEdition.chapters structure for UI compatibility
   const profile = primaryClass?.courseProfile || item.class?.courseProfile || item.courseProfile;
   let courseEdition = primaryClass?.courseEdition;

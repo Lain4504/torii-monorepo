@@ -75,7 +75,12 @@ export class CourseOfferingService {
       currency: item.currency,
       mode: item.mode,
       status: item.status,
+      courseProfileId: item.courseProfileId,
+      termId: item.termId,
+      classId: item.classId,
       class: klass,
+      courseProfile: item.courseProfile,
+      term: item.term,
       validFrom: item.validFrom,
       validTo: item.validTo,
       createdAt: item.createdAt,
@@ -100,10 +105,8 @@ export class CourseOfferingService {
       ...(modeFilter ? { mode: modeFilter as any } : {}),
       ...(query.level
         ? {
-            class: {
-              courseProfile: {
-                level: { equals: query.level, mode: 'insensitive' },
-              },
+            courseProfile: {
+              level: { equals: query.level, mode: 'insensitive' },
             },
           }
         : {}),
@@ -112,8 +115,17 @@ export class CourseOfferingService {
     const offerings = await this.prisma.courseOffering.findMany({
       where,
       include: {
+        courseProfile: {
+          select: { id: true, title: true, code: true, level: true },
+        },
+        term: true,
         class: {
-          include: this.publicClassInclude,
+          include: {
+            instructor: {
+              select: { id: true, displayName: true, avatarUrl: true },
+            },
+            term: true, // Thêm cho chắc
+          },
         },
       },
       orderBy: { createdAt: 'desc' },
@@ -126,10 +138,8 @@ export class CourseOfferingService {
     const offerings = await this.prisma.courseOffering.findMany({
       where: {
         status: OfferingStatus.PUBLISHED,
-        class: {
-          courseProfile: {
-            level: { equals: category, mode: 'insensitive' },
-          },
+        courseProfile: {
+          level: { equals: category, mode: 'insensitive' },
         },
       },
       include: {
@@ -146,12 +156,37 @@ export class CourseOfferingService {
     const item = await this.prisma.courseOffering.findUnique({
       where: { id },
       include: {
+        courseProfile: true,
+        term: true,
         class: {
           include: this.publicClassInclude,
         },
       },
     });
     if (!item) throw new NotFoundException('Offering not found');
+
+    if (item.mode === 'LIVE') {
+      const siblingClasses = await this.prisma.class.findMany({
+        where: {
+          courseProfileId: item.courseProfileId,
+          mode: 'LIVE',
+          termId: item.termId,
+        },
+        include: {
+          instructor: {
+            select: { id: true, displayName: true, avatarUrl: true },
+          },
+          term: true,
+        },
+        orderBy: {
+          term: {
+            openingDate: 'asc',
+          },
+        },
+      });
+      return { ...item, classes: siblingClasses };
+    }
+
     return item;
   }
 
@@ -159,18 +194,19 @@ export class CourseOfferingService {
     const offering = await this.prisma.courseOffering.findUnique({
       where: { id },
       include: {
-        class: {
+        courseProfile: {
           include: {
-            courseProfile: {
+            modules: {
+              orderBy: { orderIndex: 'asc' },
               include: {
-                modules: {
-                  orderBy: { orderIndex: 'asc' },
-                  include: {
-                    lessons: { orderBy: { orderIndex: 'asc' } },
-                  },
-                },
+                lessons: { orderBy: { orderIndex: 'asc' } },
               },
             },
+          },
+        },
+        term: true,
+        class: {
+          include: {
             instructor: { select: { displayName: true, avatarUrl: true } },
             term: true,
           },
@@ -199,39 +235,77 @@ export class CourseOfferingService {
       enrollableReason = 'OFFERING_EXPIRED';
     }
 
-    const klass = offering.class;
-    if (klass.mode === 'LIVE' && klass.term) {
-      if (klass.term.enrollmentCloseAt && klass.term.enrollmentCloseAt < now) {
+    // Check enrollment window via Term
+    const term = offering.term || offering.class?.term;
+    if (offering.mode === 'LIVE' && term) {
+      if (term.enrollmentCloseAt && term.enrollmentCloseAt < now) {
         isEnrollable = false;
         enrollableReason = 'ENROLLMENT_CLOSED';
       }
+      if (term.enrollmentOpenAt && term.enrollmentOpenAt > now) {
+        isEnrollable = false;
+        enrollableReason = 'ENROLLMENT_NOT_YET_OPEN';
+      }
     }
 
-    return {
+    const result = {
       ...this.thinPublicOffering(offering),
       isEnrollable,
       enrollableReason,
+      courseProfile: offering.courseProfile,
+      siblingClasses: [] as any[],
     };
+
+    if (offering.mode === 'LIVE') {
+      const siblingClasses = await this.prisma.class.findMany({
+        where: {
+          courseProfileId: offering.courseProfileId,
+          mode: 'LIVE',
+          status: { in: ['PUBLISHED', 'OPENING', 'ONGOING'] },
+          termId: offering.termId,
+        },
+        include: {
+          instructor: { select: { displayName: true, avatarUrl: true } },
+          term: true,
+        },
+        orderBy: {
+          term: {
+            openingDate: 'asc',
+          },
+        },
+      });
+      result.siblingClasses = siblingClasses;
+    }
+
+    return result;
   }
 
   async create(input: CourseOfferingCreateDto, requesterId = 'SYSTEM') {
-    const klass = await this.prisma.class.findUnique({
-      where: { id: input.classId },
-      select: { mode: true },
-    });
-    if (!klass) throw new BadRequestException('Invalid classId');
+    if (!input.courseProfileId) {
+      throw new BadRequestException(
+        'courseProfileId is mandatory for CourseOffering',
+      );
+    }
+    if (!input.mode) {
+      throw new BadRequestException(
+        'mode (VOD/LIVE) is mandatory for CourseOffering',
+      );
+    }
 
     const item = await this.prisma.courseOffering.create({
       data: {
-        classId: input.classId,
+        mode: input.mode as any,
+        courseProfileId: input.courseProfileId,
+        termId: input.termId || null,
+        classId: input.classId || null,
         code: input.code,
         title: input.title,
         description: input.description,
         price: input.price,
         salePrice: input.salePrice,
         currency: input.currency || 'VND',
-        mode: klass.mode as any,
         status: OfferingStatus.DRAFT,
+        type: 'COURSE',
         validFrom: input.validFrom ? new Date(input.validFrom) : null,
         validTo: input.validTo ? new Date(input.validTo) : null,
       },
@@ -259,17 +333,37 @@ export class CourseOfferingService {
     });
     if (!before) throw new NotFoundException('Offering not found');
 
+    const data: Prisma.CourseOfferingUncheckedUpdateInput = {
+      title: input.title,
+      description: input.description,
+      price: input.price ? new Prisma.Decimal(input.price) : undefined,
+      salePrice:
+        input.salePrice !== undefined
+          ? input.salePrice
+            ? new Prisma.Decimal(input.salePrice)
+            : null
+          : undefined,
+      courseProfileId: input.courseProfileId,
+      termId: input.termId,
+      classId: input.classId,
+      status: (input.status as OfferingStatus) ?? undefined,
+      validFrom:
+        input.validFrom !== undefined
+          ? input.validFrom
+            ? new Date(input.validFrom)
+            : null
+          : undefined,
+      validTo:
+        input.validTo !== undefined
+          ? input.validTo
+            ? new Date(input.validTo)
+            : null
+          : undefined,
+    };
+
     const item = await this.prisma.courseOffering.update({
       where: { id },
-      data: {
-        title: input.title,
-        description: input.description,
-        price: input.price,
-        salePrice: input.salePrice,
-        status: (input.status as OfferingStatus) ?? undefined,
-        validFrom: input.validFrom ? new Date(input.validFrom) : undefined,
-        validTo: input.validTo ? new Date(input.validTo) : undefined,
-      },
+      data,
     });
 
     await this.audit.log({
@@ -308,46 +402,47 @@ export class CourseOfferingService {
   }
 
   async approve(id: string, requesterId: string) {
-    const item = await this.findById(id);
-
-    // Gating: chỉ approve offering khi class đã publish đúng điều kiện,
-    // và CourseProfile (nội dung học thuật) đã được approve (PUBLISHED).
-    const offeringWithClass = await this.prisma.courseOffering.findUnique({
+    const item = await this.prisma.courseOffering.findUnique({
       where: { id },
       include: {
-        class: {
-          select: {
-            mode: true,
-            status: true,
-            courseProfile: { select: { status: true } },
-          },
-        },
+        courseProfile: { select: { status: true } },
+        class: { select: { mode: true, status: true } },
+        term: { select: { status: true } },
       },
     });
 
-    const klass = offeringWithClass?.class;
-    const profileStatus = klass?.courseProfile?.status;
-    if (!klass) throw new BadRequestException('Offering has no class mapped');
+    if (!item) throw new NotFoundException('Offering not found');
+
+    const profileStatus = item.courseProfile?.status;
     if (profileStatus !== 'PUBLISHED') {
       throw new BadRequestException(
         `Cannot approve offering because course profile is not published (status: ${profileStatus ?? 'UNKNOWN'}).`,
       );
     }
 
-    if (klass.mode === 'LIVE') {
-      if (klass.status !== ClassStatus.OPENING) {
+    if (item.mode === 'LIVE') {
+      if (!item.termId) {
         throw new BadRequestException(
-          `Cannot approve offering because LIVE class is not OPENING (status: ${klass.status}).`,
+          'LIVE offering must be attached to a Term',
         );
       }
+      // You can add more gates here like checking if at least 1 class exists in term.
     } else {
+      if (!item.classId) {
+        throw new BadRequestException(
+          'VOD offering must be attached to a Class (Blueprint)',
+        );
+      }
+      const klass = item.class;
+      if (!klass) throw new NotFoundException('Mapped VOD class not found');
+
       if (
         klass.status !== ClassStatus.PUBLISHED &&
         klass.status !== ClassStatus.OPENING &&
         klass.status !== ClassStatus.ONGOING
       ) {
         throw new BadRequestException(
-          `Cannot approve offering because class is not sellable (status: ${klass.status}).`,
+          `Cannot approve offering because VOD class is not sellable (status: ${klass.status}).`,
         );
       }
     }

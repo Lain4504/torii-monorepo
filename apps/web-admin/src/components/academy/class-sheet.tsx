@@ -99,7 +99,7 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
   const createMutation = useCreateAcademyClass()
   const updateMutation = useUpdateAcademyClass()
 
-  const { data: profiles } = useAcademyCourseProfiles({})
+  const { data: profiles } = useAcademyCourseProfiles({ status: isEditing ? undefined : 'PUBLISHED' })
   const { data: instructors } = useUsers({ role: UserRole.LECTURER, limit: 100 })
 
   const {

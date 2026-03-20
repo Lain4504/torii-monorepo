@@ -37,17 +37,20 @@ export class CourseOfferingCreateDto {
   mode!: string; // VOD, LIVE
 
   @IsUUID()
-  classId!: string;
+  courseProfileId!: string;
+
+  @IsOptional()
+  @IsUUID()
+  termId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  classId?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(20)
   status?: string; // DRAFT, PUBLISHED, OPENING, ARCHIVED
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(20)
-  type?: string; // COURSE, BUNDLE, SUBSCRIPTION
 
   @IsOptional()
   @IsDateString()
@@ -87,16 +90,20 @@ export class CourseOfferingUpdateDto {
 
   @IsOptional()
   @IsUUID()
+  courseProfileId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  termId?: string;
+
+  @IsOptional()
+  @IsUUID()
   classId?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(20)
   status?: string;
-
-  @IsOptional()
-  @IsString()
-  type?: string;
 
   @IsOptional()
   @IsDateString()

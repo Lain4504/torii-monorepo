@@ -41,9 +41,29 @@ export class OrderListener {
 
     let enrolledCount = 0;
     for (const item of order.items) {
-      if (!item.offering || !item.offering.class) continue;
+      if (!item.offering) continue;
 
-      const klass = item.offering.class;
+      const snapshot = item.offeringSnapshot as any;
+      const classIdToEnroll =
+        snapshot?.selectedClassId ??
+        snapshot?.classId ??
+        item.offering?.classId;
+
+      if (!classIdToEnroll) {
+        console.warn(`[Academy] No classId found for item ${item.id}`);
+        continue;
+      }
+
+      const klass = await this.prisma.class.findUnique({
+        where: { id: classIdToEnroll },
+      });
+
+      if (!klass) {
+        console.warn(
+          `[Academy] Class ${classIdToEnroll} not found for enrollment.`,
+        );
+        continue;
+      }
 
       // Rule: Enroll only when LIVE class is OPENING or ONGOING, or VOD class is PUBLISHED
       if (

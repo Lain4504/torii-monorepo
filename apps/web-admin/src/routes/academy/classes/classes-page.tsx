@@ -128,6 +128,7 @@ export default function ClassesPage() {
                                 <TableHead className="w-12">STT</TableHead>
                                 <TableHead className="w-[120px]">Mã Lớp</TableHead>
                                 <TableHead>Tên Lớp</TableHead>
+                                <TableHead>Kỳ học / Term</TableHead>
                                 <TableHead>Loại hình</TableHead>
                                 <TableHead className="w-[180px]">Trạng thái</TableHead>
                                 <TableHead>Học viên</TableHead>
@@ -160,6 +161,15 @@ export default function ClassesPage() {
                                         <TableCell className="font-mono font-medium">{cls.code}</TableCell>
                                         <TableCell>
                                             <div className="font-medium">{cls.name}</div>
+                                        </TableCell>
+                                        <TableCell>
+                                            {(cls as any).term?.termCode ? (
+                                                <Badge variant="outline" className="font-mono text-[10px]">
+                                                    {(cls as any).term.termCode}
+                                                </Badge>
+                                            ) : (
+                                                <span className="text-muted-foreground italic text-xs">-</span>
+                                            )}
                                         </TableCell>
                                         <TableCell>
                                             {cls.mode === 'LIVE' ? (

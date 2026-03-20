@@ -1101,6 +1101,7 @@ model CourseProfile {
   modules       Module[]
   classes       Class[]
   liveTerms     LiveTerm[]
+  offerings     CourseOffering[]
 
   @@index([level])
   @@map("academy_course_profiles")
@@ -1126,6 +1127,7 @@ model LiveTerm {
 
   courseProfile CourseProfile @relation(fields: [courseProfileId], references: [id], onDelete: Cascade)
   classes       Class[]
+  offerings     CourseOffering[]
 
   @@unique([courseProfileId, termCode])
   @@index([courseProfileId])
@@ -1221,7 +1223,7 @@ model Class {
   userLessonProgress   UserLessonProgress[]
   tickets              Ticket[]
   certificates         Certificate[]
-  offering             CourseOffering?
+  offerings            CourseOffering[]
   reviews              ClassReview[]
   liveSchedules        LiveSchedule[]
   liveScheduleSessions LiveScheduleSession[]
@@ -1402,19 +1404,21 @@ model LiveScheduleRequest {
 // ==================================================
 
 model CourseOffering {
-  id          String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  classId     String         @unique @map("class_id") @db.Uuid
-  code        String         @unique @db.VarChar(150)
-  title       String         @db.VarChar(255)
-  description String?        @db.Text
-  price       Decimal        @map("price") @db.Decimal(12, 2)
-  salePrice   Decimal?       @map("sale_price") @db.Decimal(12, 2)
-  currency    String         @default("VND") @db.VarChar(10)
-  mode        ClassMode      // VOD or LIVE
-  status      OfferingStatus @default(DRAFT)
-  type        OrderType      @default(COURSE)
-  validFrom   DateTime?      @map("valid_from")
-  validTo     DateTime?      @map("valid_to")
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseProfileId String         @map("course_profile_id") @db.Uuid
+  termId          String?        @map("term_id") @db.Uuid
+  classId         String?        @map("class_id") @db.Uuid // Optional for LIVE, used for VOD proxy
+  code            String         @unique @db.VarChar(150)
+  title           String         @db.VarChar(255)
+  description     String?        @db.Text
+  price           Decimal        @map("price") @db.Decimal(12, 2)
+  salePrice       Decimal?       @map("sale_price") @db.Decimal(12, 2)
+  currency        String         @default("VND") @db.VarChar(10)
+  mode            ClassMode      // VOD or LIVE
+  status          OfferingStatus @default(DRAFT)
+  type            OrderType      @default(COURSE)
+  validFrom       DateTime?      @map("valid_from")
+  validTo         DateTime?      @map("valid_to")
 
   // Approval workflow
   submittedForApprovalAt DateTime? @map("submitted_for_approval_at")
@@ -1428,11 +1432,15 @@ model CourseOffering {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  class      Class              @relation(fields: [classId], references: [id], onDelete: Cascade)
-  orderItems  OrderItem[]
-  enrollments Enrollment[]
+  courseProfile CourseProfile @relation(fields: [courseProfileId], references: [id], onDelete: Cascade)
+  term          LiveTerm?     @relation(fields: [termId], references: [id], onDelete: SetNull)
+  class         Class?        @relation(fields: [classId], references: [id], onDelete: SetNull)
+  orderItems    OrderItem[]
+  enrollments   Enrollment[]
 
   @@index([status])
+  @@index([courseProfileId])
+  @@index([termId])
   @@map("academy_course_offerings")
 }
 

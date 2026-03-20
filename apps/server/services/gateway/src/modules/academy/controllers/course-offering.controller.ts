@@ -209,13 +209,16 @@ export class CourseOfferingController {
 
   @Get('selection/classes')
   @Permissions('academy.commerce.read')
-  async findClassesForSelection(@Query() query: { mode?: string; q?: string }) {
+  async findClassesForSelection(
+    @Query() query: { mode?: string; q?: string; courseProfileId?: string },
+  ) {
     const items = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.class.findAll' },
         {
           mode: query.mode,
           q: query.q,
+          courseProfileId: query.courseProfileId,
           status: 'PUBLISHED,OPENING,ONGOING',
         },
       ),

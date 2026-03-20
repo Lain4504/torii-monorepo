@@ -228,13 +228,26 @@ export class JlptMockService {
     const where: Prisma.JlptMockExamTemplateWhereInput =
       andFilters.length > 0 ? { AND: andFilters } : {};
 
-    return this.prisma.jlptMockExamTemplate.findMany({
+    const templates = await this.prisma.jlptMockExamTemplate.findMany({
       where,
       orderBy: [{ createdAt: 'desc' }],
       include: {
-        level: { select: { code: true } },
+        level: { select: { code: true, totalDurationMinutes: true } },
       },
     });
+
+    // Flatten response for frontend (admin + learner) contract:
+    // - `levelCode` from `level.code`
+    // - `totalDurationMinutes` from `level.totalDurationMinutes`
+    return templates.map((t) => ({
+      id: t.id,
+      code: t.code,
+      title: t.title,
+      description: t.description,
+      status: t.status,
+      levelCode: t.level.code,
+      totalDurationMinutes: t.level.totalDurationMinutes,
+    }));
   }
 
   async findTemplateById(id: string) {

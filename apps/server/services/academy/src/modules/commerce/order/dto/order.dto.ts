@@ -29,6 +29,10 @@ export class OrderCheckoutDto {
   @IsOptional()
   metadata?: any;
 
+  @IsOptional()
+  @IsObject()
+  classIdByOffering?: Record<string, string>;
+
   @IsEnum(PaymentMethod)
   paymentMethod!: PaymentMethod;
 }
@@ -51,4 +55,8 @@ export class OrderPreviewDto {
   @IsOptional()
   @IsString()
   description?: string;
+
+  @IsOptional()
+  @IsObject()
+  classIdByOffering?: Record<string, string>;
 }

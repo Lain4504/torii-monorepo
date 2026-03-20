@@ -138,7 +138,7 @@ export default function OfferingsPage() {
                                 <TableHead>Tên gói bán</TableHead>
                                 <TableHead>Giá (VND)</TableHead>
                                 <TableHead>Trạng thái</TableHead>
-                                <TableHead>Lớp liên kết</TableHead>
+                                <TableHead>Liên kết/Kỳ học</TableHead>
                                 <TableHead className="text-right">Thao tác</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -186,28 +186,56 @@ export default function OfferingsPage() {
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
-                                            <div className="flex items-center gap-1">
-                                                <Badge variant="outline" className="text-[10px]">{offering.classId ? 1 : 0} lớp</Badge>
+                                            <div className="flex flex-col gap-1">
+                                                <Badge variant="secondary" className="text-[10px] w-fit">
+                                                    {offering.mode}
+                                                </Badge>
+                                                {offering.mode === 'LIVE' ? (
+                                                    <span className="text-xs font-bold text-primary">
+                                                        {offering.term?.termCode || 'Chưa gắn kỳ'}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-xs font-medium">
+                                                        {offering.class?.code || 'Chưa gắn lớp'}
+                                                    </span>
+                                                )}
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex items-center justify-end gap-2">
                                                 { (offering.status === 'DRAFT' || offering.status === 'REJECTED') && (
+                                                    (() => {
+                                                        const linkedClassId = offering.classId ?? offering.class?.id
+                                                        const linkedClassMode = offering.class?.mode ?? offering.mode
+                                                        const linkedClassStatus = offering.class?.status
+                                                        const isLiveOffering = linkedClassMode === 'LIVE'
+                                                        const needsOpening = isLiveOffering && linkedClassStatus && linkedClassStatus !== 'OPENING'
+                                                        const canSubmit = !!linkedClassId && !needsOpening
+                                                        const submitTitle = !linkedClassId
+                                                            ? "Vui lòng chọn lớp học (classId) trước khi gửi duyệt"
+                                                            : needsOpening
+                                                              ? "LIVE cần class ở trạng thái OPENING trước khi gửi duyệt"
+                                                              : undefined
+
+                                                        return (
                                                     <Button 
                                                         variant="default" 
                                                         size="sm" 
                                                         className="h-8 gap-1.5 bg-primary hover:bg-primary/90"
                                                         onClick={() => {
-                                                            if (offering.classId) {
+                                                            if (linkedClassId) {
                                                                 setSubmitDialog({ open: true, offering })
                                                             } else {
-                                                                toast.error("Vui lòng chọn lớp học (classId) trước khi gửi duyệt")
+                                                                toast.error(submitTitle ?? "Vui lòng chọn lớp học (classId) trước khi gửi duyệt")
                                                             }
                                                         }}
-                                                        disabled={submitForApprovalMutation.isPending}
+                                                        disabled={submitForApprovalMutation.isPending || !canSubmit}
+                                                        title={submitTitle}
                                                     >
                                                         <SendIcon className="h-3.5 w-3.5" /> Gửi duyệt
                                                     </Button>
+                                                        )
+                                                    })()
                                                 )}
                                                 {offering.status === 'PUBLISHED' ? (
                                                     <Button

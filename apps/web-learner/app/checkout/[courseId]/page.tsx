@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAppSelector } from '@/hooks/hooks'
 import { Button } from '@workspace/ui/components/button'
@@ -20,7 +20,7 @@ import {
     DialogTitle,
 } from "@workspace/ui/components/dialog"
 import { formatNumber } from '@/utils/format-utils'
-import { ShieldCheck, ArrowLeft, CheckCircle2, Gift, TicketPercent, BookOpen, Users } from 'lucide-react'
+import { ShieldCheck, ArrowLeft, CheckCircle2, Gift, TicketPercent, BookOpen, Users, Clock } from 'lucide-react'
 import { toast } from '@workspace/ui/components/sonner'
 import { useAcademyOffering } from '@/lib/api/services/academy-course-api'
 import { academyEnrollmentApi as enrollmentApi } from '@/lib/api/services/academy-enrollment-api'
@@ -52,7 +52,11 @@ export default function CheckoutPage() {
     const { data: offering, isLoading: isLoadingOffering } = useAcademyOffering(courseId)
     const [isProcessing, setIsProcessing] = useState(false)
     const isLIVE = offering?.type === 'LIVE'
-    const selectedClass = offering?.class ?? null
+    
+    // Selection state
+    const [selectedClassId, setSelectedClassId] = useState<string | null>(null)
+    
+    const selectedClass = (offering?.classes || []).find((c: any) => c.id === selectedClassId) || offering?.class || null
     const lessonCount = Array.isArray(selectedClass?.courseEdition?.chapters)
         ? selectedClass.courseEdition.chapters.reduce((acc: number, chapter: any) => {
             const chapterItems = Array.isArray(chapter?.items) ? chapter.items : []
@@ -77,6 +81,13 @@ export default function CheckoutPage() {
     const [recipientStatus, setRecipientStatus] = useState<'idle' | 'checking' | 'enrolled' | 'not_found' | 'available'>('idle')
     const [showSuccessDialog, setShowSuccessDialog] = useState(false)
 
+    // Set default selected class when offering is loaded
+    useEffect(() => {
+        if (offering?.classId && !selectedClassId) {
+            setSelectedClassId(offering.classId)
+        }
+    }, [offering, selectedClassId])
+
     // Debounced Recipient Check
     useEffect(() => {
         if (!isGift || !recipientEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail)) {
@@ -87,7 +98,6 @@ export default function CheckoutPage() {
         const checkRecipient = async () => {
             try {
                 setRecipientStatus('checking')
-                // Enrollment check stays the same as it likely uses courseMasterId
                 const result = await enrollmentApi.checkGiftRecipient(recipientEmail, courseId)
                 if (result.isEnrolled) setRecipientStatus('enrolled')
                 else if (!result.isRegistered) setRecipientStatus('not_found')
@@ -106,7 +116,7 @@ export default function CheckoutPage() {
         if (offering?.id) {
             handlePreview()
         }
-    }, [offering?.id, couponCode])
+    }, [offering?.id, couponCode, selectedClassId])
 
     const handlePreview = async () => {
         if (!offering?.id) return
@@ -114,7 +124,8 @@ export default function CheckoutPage() {
             setIsPreviewing(true)
             const result = await orderApi.previewOrder({
                 offeringIds: [offering.id],
-                couponCode: couponCode.trim() || undefined
+                couponCode: couponCode.trim() || undefined,
+                classIdByOffering: selectedClassId ? { [offering.id]: selectedClassId } : undefined
             })
             setPreview(result)
         } catch (error) {
@@ -133,8 +144,8 @@ export default function CheckoutPage() {
             if (recipientEmail === user.email) return toast.error('Bạn không thể tự mua tặng chính mình')
         }
 
-        if (isLIVE && !selectedClass) {
-            toast.error('Gói LIVE này chưa được gắn lớp học.')
+        if (isLIVE && !selectedClassId) {
+            toast.error('Vui lòng chọn một lớp học để tham gia.')
             return
         }
 
@@ -144,6 +155,7 @@ export default function CheckoutPage() {
                 offeringIds: [offering.id],
                 paymentMethod: PaymentMethod.PAYOS,
                 couponCode: couponCode.trim() || undefined,
+                classIdByOffering: selectedClassId ? { [offering.id]: selectedClassId } : undefined,
                 metadata: {
                     isGift,
                     recipientEmail: isGift ? recipientEmail : undefined,
@@ -211,6 +223,33 @@ export default function CheckoutPage() {
                                 </div>
                             </CardContent>
                         </Card>
+
+                        {isLIVE && offering.classes && offering.classes.length > 1 && (
+                            <Card>
+                                <CardHeader><CardTitle className="text-xl">Chọn lớp học (Kỳ học)</CardTitle></CardHeader>
+                                <CardContent className="space-y-4">
+                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                         {offering.classes.map((cls: any) => (
+                                             <div key={cls.id} 
+                                                  onClick={() => setSelectedClassId(cls.id)}
+                                                  className={`p-4 border rounded-xl cursor-pointer transition-all ${selectedClassId === cls.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'hover:border-primary/50'}`}>
+                                                 <div className="flex justify-between items-start mb-2">
+                                                     <span className="font-bold">{cls.name || cls.code}</span>
+                                                     {selectedClassId === cls.id && <CheckCircle2 className="size-4 text-primary" />}
+                                                 </div>
+                                                 <p className="text-xs text-muted-foreground line-clamp-1">GV: {cls.instructor?.displayName || 'Chưa gán'}</p>
+                                                 {cls.term && (
+                                                     <p className="text-[10px] text-muted-foreground mt-2 inline-flex items-center gap-1 bg-muted px-1.5 py-0.5 rounded">
+                                                         <Clock className="size-3" />
+                                                         Khai giảng: {new Date(cls.term.openingDate).toLocaleDateString()}
+                                                     </p>
+                                                 )}
+                                             </div>
+                                         ))}
+                                     </div>
+                                </CardContent>
+                            </Card>
+                        )}
 
                         <Card>
                             <CardHeader>

@@ -150,4 +150,9 @@ export class ClassHandler {
       data.lessonId,
     );
   }
+
+  @MessagePattern({ cmd: 'academy.class.findTerms' })
+  findTerms(@Payload() data: { courseProfileId: string }) {
+    return this.classes.findTerms(data.courseProfileId);
+  }
 }
