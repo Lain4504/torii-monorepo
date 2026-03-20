@@ -19,7 +19,7 @@ import { toast } from "@workspace/ui/components/sonner"
 import { ChevronRight, CheckCircle2, BookOpen } from "lucide-react"
 import { useAuth } from "@/hooks/use-auth"
 import { UserRole } from "@workspace/schemas"
-import { useAcademyCourseProfile, useApproveAcademyCourseProfile, type AcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
+import { useAcademyCourseProfile, useApproveAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
 import { formatDateTime } from "@/lib/format-utils"
 
 const STATUS_LABELS: Record<string, string> = {

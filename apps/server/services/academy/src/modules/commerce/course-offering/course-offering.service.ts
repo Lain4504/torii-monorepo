@@ -281,6 +281,9 @@ export class CourseOfferingService {
   }
 
   async create(input: CourseOfferingCreateDto, requesterId = 'SYSTEM') {
+    // TEMP DEBUG
+    // eslint-disable-next-line no-console
+    console.log('[CourseOfferingService.create] keys=', Object.keys(input), 'courseProfileId=', (input as any)?.courseProfileId);
     if (!input.courseProfileId) {
       throw new BadRequestException(
         'courseProfileId is mandatory for CourseOffering',

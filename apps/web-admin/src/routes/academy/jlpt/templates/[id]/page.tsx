@@ -23,7 +23,6 @@ import {
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
-  DialogTrigger,
   DialogFooter
 } from "@workspace/ui/components/dialog";
 import { Checkbox } from "@workspace/ui/components/checkbox";
@@ -262,7 +261,7 @@ export default function JlptTemplateBuilderPage() {
             )}
           </div>
           <DialogFooter className="p-4 border-t bg-muted/30">
-            <Button variant="outline" onClick={() => setIsSheetOpen(false)}>Hủy</Button>
+            <Button variant="outline" onClick={() => setIsPickerOpen(false)}>Hủy</Button>
             <Button disabled={selectedBankIds.size === 0} onClick={handleAttachQuestions}>Thêm {selectedBankIds.size} câu hỏi</Button>
           </DialogFooter>
         </DialogContent>

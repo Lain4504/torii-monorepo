@@ -132,6 +132,89 @@ export class EnrollmentService {
     return this.findAll({ userId } as any);
   }
 
+  /**
+   * Thống kê học tập cho learner (GET /api/academy/enrollments/stats).
+   */
+  async getStatsForUser(userId: string) {
+    const rows = await this.findAll({
+      userId,
+      status: 'ACTIVE',
+    } as EnrollmentQueryDto);
+
+    const list = Array.isArray(rows) ? rows : [];
+
+    let sumProgress = 0;
+    let completedCourses = 0;
+    let inProgressCourses = 0;
+    let totalLearningHours = 0;
+    const MINUTES_PER_LESSON = 15;
+
+    for (const r of list) {
+      const p =
+        typeof (r as { progressPercent?: number }).progressPercent === 'number'
+          ? (r as { progressPercent: number }).progressPercent
+          : 0;
+      sumProgress += p;
+      if (p >= 100) completedCourses++;
+      else if (p > 0) inProgressCourses++;
+      const cl =
+        typeof (r as { completedLessons?: number }).completedLessons ===
+        'number'
+          ? (r as { completedLessons: number }).completedLessons
+          : 0;
+      totalLearningHours += (cl * MINUTES_PER_LESSON) / 60;
+    }
+
+    const totalCourses = list.length;
+    const averageProgress =
+      totalCourses > 0 ? Math.round(sumProgress / totalCourses) : 0;
+
+    const weeklyActivity = await this.countCompletedLessonsLast7Days(userId);
+
+    return {
+      totalCourses,
+      completedCourses,
+      inProgressCourses,
+      averageProgress,
+      totalLearningHours: Math.round(totalLearningHours * 10) / 10,
+      weeklyActivity,
+      streak: 0,
+      level: 1,
+      xp: 0,
+      onboarding: {
+        dailyGoal: 3,
+      },
+    };
+  }
+
+  /** 7 phần tử: số bài hoàn thành mỗi ngày (rolling từ start = hôm nay - 6). */
+  private async countCompletedLessonsLast7Days(
+    userId: string,
+  ): Promise<number[]> {
+    const days = 7;
+    const start = new Date();
+    start.setDate(start.getDate() - (days - 1));
+    start.setHours(0, 0, 0, 0);
+
+    const rows = await this.prisma.userLessonProgress.findMany({
+      where: {
+        userId,
+        isCompleted: true,
+        lastWatchedAt: { gte: start },
+      },
+      select: { lastWatchedAt: true },
+    });
+
+    const counts = new Array(days).fill(0);
+    for (const r of rows) {
+      if (!r.lastWatchedAt) continue;
+      const t = new Date(r.lastWatchedAt).setHours(0, 0, 0, 0);
+      const idx = Math.round((t - start.getTime()) / 86400000);
+      if (idx >= 0 && idx < days) counts[idx]++;
+    }
+    return counts;
+  }
+
   // ==============================================================
   // ENROLLMENT LIFECYCLE
   // ==============================================================

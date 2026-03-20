@@ -43,6 +43,7 @@ function monthYearToISODate(label: string | null | undefined): string | null {
   if (!match) return null
 
   const monthName = match[1]
+  if (!monthName) return null
   const year = Number(match[2])
   const monthIndexMap: Record<string, number> = {
     July: 6,
@@ -152,6 +153,7 @@ export function SurveyFlow() {
   }
 
   const currentStepKey = activeSteps[currentStep]
+  if (!currentStepKey) return null
 
   const slideVariants = {
     enter: (direction: number) => ({
@@ -213,7 +215,7 @@ export function SurveyFlow() {
         {currentStep === activeSteps.length - 1 ? (
           <Button 
             onClick={handleFinish} 
-            loading={isSubmitting}
+            disabled={isSubmitting}
             className="min-w-40 bg-gradient-to-r from-primary to-primary-foreground/20 hover:scale-105 transition-transform"
           >
             Get Started!

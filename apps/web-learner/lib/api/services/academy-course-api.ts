@@ -9,14 +9,12 @@ function normalizeOfferingForLearner(item: any) {
   if (!item) return null;
 
   const primaryClass = item.class ?? null;
-  const classes =
-    item.classes && Array.isArray(item.classes) && item.classes.length > 0
-      ? item.classes
-      : primaryClass
-        ? [primaryClass]
-        : [];
-  // Map CourseProfile (modules/lessons) to legacy courseEdition.chapters structure for UI compatibility
-  const profile = primaryClass?.courseProfile || item.class?.courseProfile || item.courseProfile;
+  const profile =
+    primaryClass?.courseProfile ||
+    item.class?.courseProfile ||
+    item.courseProfile;
+
+  // Map CourseProfile (modules/lessons) → courseEdition.chapters (dùng khi không có edition từ lớp)
   let courseEdition = primaryClass?.courseEdition;
 
   if (!courseEdition && profile?.modules && Array.isArray(profile.modules)) {
@@ -34,14 +32,28 @@ function normalizeOfferingForLearner(item: any) {
     courseEdition = { chapters };
   }
 
-  // Check if any class is LIVE or the offering mode is LIVE
+  let classes =
+    item.classes && Array.isArray(item.classes) && item.classes.length > 0
+      ? item.classes
+      : primaryClass
+        ? [primaryClass]
+        : [];
+
+  const siblingClasses = Array.isArray(item.siblingClasses) ? item.siblingClasses : [];
+  // Gói LIVE gắn term: API trả siblingClasses (lớp cùng kỳ), không set item.class
+  if (item.mode === 'LIVE' && siblingClasses.length > 0) {
+    classes = siblingClasses;
+  }
+
   const isLive = item.mode === 'LIVE';
 
   const rawPrice = item.originalPrice ?? item.price ?? 0;
   const parsedPrice = Number(rawPrice);
 
-  // Attach courseEdition to the classes (especially the primary one) for UI use
   const normalizedClasses = classes.map((cls: any) => {
+    if (courseEdition && !Array.isArray(cls.courseEdition?.chapters)) {
+      return { ...cls, courseEdition };
+    }
     if (cls === primaryClass && courseEdition) {
       return { ...cls, courseEdition };
     }
@@ -52,6 +64,9 @@ function normalizeOfferingForLearner(item: any) {
     ...item,
     classes: normalizedClasses,
     class: primaryClass,
+    siblingClasses,
+    /** Luôn có khi curriculum lấy từ courseProfile (kể cả LIVE không có class 1:1) */
+    courseEdition: courseEdition ?? null,
     price: Number.isFinite(parsedPrice) ? parsedPrice : 0,
     thumbnailUrl:
       item.thumbnailUrl ||

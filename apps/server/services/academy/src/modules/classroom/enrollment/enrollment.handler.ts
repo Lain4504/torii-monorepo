@@ -11,6 +11,11 @@ import { EnrollmentCreateDto, EnrollmentQueryDto } from './dto/enrollment.dto';
 export class EnrollmentHandler {
   constructor(private readonly enrollments: EnrollmentService) {}
 
+  @MessagePattern({ cmd: 'academy.enrollment.getStats' })
+  getStats(@Payload() data: { userId: string }) {
+    return this.enrollments.getStatsForUser(data.userId);
+  }
+
   @MessagePattern({ cmd: 'academy.enrollment.findAll' })
   findAll(@Payload() query: EnrollmentQueryDto) {
     return this.enrollments.findAll(query);

@@ -56,7 +56,7 @@ export function ListeningPlayer({ audioUrl, autoPlay, onEnded }: ListeningPlayer
   const handleVolumeChange = (val: number[]) => {
     setVolume(val)
     if (audioRef.current) {
-      audioRef.current.volume = val[0] / 100
+      audioRef.current.volume = (val[0] ?? 0) / 100
     }
   }
 

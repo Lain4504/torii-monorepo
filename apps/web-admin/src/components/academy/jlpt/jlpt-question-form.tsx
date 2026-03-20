@@ -13,8 +13,7 @@ import {
 import { 
   Field, 
   FieldLabel, 
-  FieldError, 
-  FieldGroup 
+ 
 } from "@workspace/ui/components/field";
 import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card";
 import { Switch } from "@workspace/ui/components/switch";
@@ -42,7 +41,7 @@ export function JlptQuestionForm({
   const [uploading, setUploading] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm({
+  const { control, handleSubmit, watch, setValue } = useForm({
     defaultValues: initialData || {
       levelCode: "N3",
       sectionCode: "LANGUAGE_VOCAB",

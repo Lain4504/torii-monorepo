@@ -355,8 +355,8 @@ export default function JlptMockSectionPage() {
         if (currentSection?.isListening) {
            const firstListenQ = sectionQuestionsSorted.find(q => q.question.audioAssetId)
            if (firstListenQ?.question.audioAssetId) {
-               const { url } = await storageApi.getSignedUrl({ fileId: firstListenQ.question.audioAssetId })
-               setAudioUrl(url)
+               const { signedUrl } = await storageApi.getSignedUrl({ fileId: firstListenQ.question.audioAssetId })
+               setAudioUrl(signedUrl)
            }
         }
 
@@ -364,8 +364,8 @@ export default function JlptMockSectionPage() {
         const questionsWithImages = sectionQuestionsSorted.filter(q => q.question.imageAssetId)
         for (const q of questionsWithImages) {
             if (q.question.imageAssetId) {
-              const { url } = await storageApi.getSignedUrl({ fileId: q.question.imageAssetId })
-              setQuestionImageUrls(prev => ({ ...prev, [q.id]: url }))
+              const { signedUrl } = await storageApi.getSignedUrl({ fileId: q.question.imageAssetId })
+              setQuestionImageUrls(prev => ({ ...prev, [q.id]: signedUrl }))
             }
         }
 

@@ -45,7 +45,6 @@ export default function JlptQuestionDetailPage() {
   const navigate = useNavigate();
   const isNew = id === "new";
 
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [data, setData] = useState<any>({
     levelCode: "N3",

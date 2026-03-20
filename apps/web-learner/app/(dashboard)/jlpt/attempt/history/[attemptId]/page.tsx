@@ -39,7 +39,9 @@ export default function JlptAttemptHistoryDetailPage() {
       try {
         setLoading(true)
         const res = await jlptMockApi.getAttemptById(attemptId)
-        setData(res as JlptAttemptDetail)
+        // API mock có thể trả về kiểu khác JlptAttemptDetail, nên cast theo chủ đích.
+        // Next/TS strict hơn yêu cầu phải cast qua `unknown` trước.
+        setData(res as unknown as JlptAttemptDetail)
       } catch (e: any) {
         console.error(e)
         toast.error(e?.message ?? 'Không tải được lịch sử làm bài')

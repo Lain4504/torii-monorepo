@@ -3,6 +3,29 @@ import { z } from 'zod';
 // DTO cho CourseOffering bám sát CourseOfferingCreateDto / CourseOfferingUpdateDto bên service academy
 // và model Prisma CourseOffering.
 
+/** HTML datetime-local (YYYY-MM-DDTHH:mm, không timezone) hoặc chuỗi ISO đầy đủ từ API */
+const marketingDateTimeString = z.union([
+    z.string().datetime({ local: true }),
+    z.string().datetime({ offset: true }),
+    z.string().datetime(),
+]);
+
+const optionalMarketingDateTime = z.preprocess(
+    (v) => (v === '' || v === null ? undefined : v),
+    marketingDateTimeString.optional(),
+);
+
+const optionalMarketingDateTimeNullable = z.preprocess(
+    (v) => (v === '' ? undefined : v),
+    z.union([z.null(), marketingDateTimeString]).optional(),
+);
+
+/** Select/rHF thường gửi "" thay vì undefined — Zod .uuid().optional() không chấp nhận "". */
+const optionalUuid = z.preprocess(
+    (v) => (v === '' || v === null ? undefined : v),
+    z.string().uuid().optional(),
+);
+
 export const academyCourseOfferingCreateDTOSchema = z
     .object({
         code: z.string().min(1).max(150),
@@ -13,11 +36,11 @@ export const academyCourseOfferingCreateDTOSchema = z
         currency: z.string().min(1).max(10),
         mode: z.string().min(1), // ClassMode (VOD / LIVE)
         courseProfileId: z.string().uuid(),
-        termId: z.string().uuid().optional(),
-        classId: z.string().uuid().optional(),
+        termId: optionalUuid,
+        classId: optionalUuid,
         status: z.string().max(20).optional(),
-        validFrom: z.string().datetime().optional().or(z.null()),
-        validTo: z.string().datetime().optional().or(z.null()),
+        validFrom: optionalMarketingDateTime,
+        validTo: optionalMarketingDateTime,
     })
     .refine(
         (data) => {
@@ -40,12 +63,12 @@ export const academyCourseOfferingUpdateDTOSchema = z.object({
     salePrice: z.number().min(0).optional(),
     currency: z.string().max(10).optional(),
     mode: z.string().optional(),
-    courseProfileId: z.string().uuid().optional(),
-    termId: z.string().uuid().optional(),
-    classId: z.string().uuid().optional(),
+    courseProfileId: optionalUuid,
+    termId: optionalUuid,
+    classId: optionalUuid,
     status: z.string().max(20).optional(),
-    validFrom: z.string().datetime().optional().or(z.null()),
-    validTo: z.string().datetime().optional().or(z.null()),
+    validFrom: optionalMarketingDateTimeNullable,
+    validTo: optionalMarketingDateTimeNullable,
 });
 export type AcademyCourseOfferingUpdateDTO = z.infer<
   typeof academyCourseOfferingUpdateDTOSchema

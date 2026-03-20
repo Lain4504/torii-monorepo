@@ -60,10 +60,7 @@ export default function CheckoutPage() {
     const lessonCount = Array.isArray(selectedClass?.courseEdition?.chapters)
         ? selectedClass.courseEdition.chapters.reduce((acc: number, chapter: any) => {
             const chapterItems = Array.isArray(chapter?.items) ? chapter.items : []
-            return (
-                acc +
-                chapterItems.filter((item: any) => item?.kind === 'LESSON').length
-            )
+            return acc + chapterItems.length
         }, 0)
         : 0
 
@@ -81,10 +78,19 @@ export default function CheckoutPage() {
     const [recipientStatus, setRecipientStatus] = useState<'idle' | 'checking' | 'enrolled' | 'not_found' | 'available'>('idle')
     const [showSuccessDialog, setShowSuccessDialog] = useState(false)
 
-    // Set default selected class when offering is loaded
+    // Gói LIVE theo term: classId có thể null, danh sách lớp nằm trong offering.classes (siblingClasses)
     useEffect(() => {
-        if (offering?.classId && !selectedClassId) {
+        if (!offering || selectedClassId) return
+        if (offering.classId) {
             setSelectedClassId(offering.classId)
+            return
+        }
+        if (
+            offering.type === 'LIVE' &&
+            Array.isArray(offering.classes) &&
+            offering.classes.length === 1
+        ) {
+            setSelectedClassId(offering.classes[0].id)
         }
     }, [offering, selectedClassId])
 
@@ -212,7 +218,7 @@ export default function CheckoutPage() {
                                         <ItemGroup>
                                             <Item size="sm">
                                                 <ItemMedia variant="icon"><Users /></ItemMedia>
-                                            <ItemContent><ItemTitle>{formatNumber(selectedClass ? 1 : 0)} lớp khả dụng</ItemTitle></ItemContent>
+                                            <ItemContent><ItemTitle>{formatNumber(offering.classes?.length ?? (selectedClass ? 1 : 0))} lớp khả dụng</ItemTitle></ItemContent>
                                             </Item>
                                             <Item size="sm">
                                                 <ItemMedia variant="icon"><BookOpen /></ItemMedia>

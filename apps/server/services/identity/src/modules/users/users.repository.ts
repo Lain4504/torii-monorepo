@@ -181,6 +181,7 @@ export class UsersRepository implements IUsersRepository {
     xp: number;
     level: number;
     balance: number;
+    isOnboarded: boolean;
     avatarUrl: string | null;
     userMetadata: Record<string, unknown> | null;
     verifiedAt: Date | null;
@@ -194,6 +195,7 @@ export class UsersRepository implements IUsersRepository {
         email: true,
         displayName: true,
         role: true,
+        isOnboarded: true,
         avatarUrl: true,
         userMetadata: true,
         verifiedAt: true,

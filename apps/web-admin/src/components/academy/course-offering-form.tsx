@@ -44,6 +44,15 @@ import { Badge } from "@workspace/ui/components/badge"
 import { CalendarIcon } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 
+/** Chuỗi ISO từ API → giá trị cho input datetime-local (giờ địa phương trình duyệt). */
+function isoToDatetimeLocalValue(iso: string | null | undefined): string {
+  if (!iso) return ""
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ""
+  const pad = (n: number) => String(n).padStart(2, "0")
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
 export function CourseOfferingForm({
   mode,
   initial,
@@ -81,8 +90,8 @@ export function CourseOfferingForm({
         courseProfileId: initial?.courseProfileId ?? "",
         termId: initial?.termId ?? "",
         classId: initial?.classId ?? "",
-        validFrom: initial?.validFrom ? new Date(initial.validFrom).toISOString().slice(0, 16) : "",
-        validTo: initial?.validTo ? new Date(initial.validTo).toISOString().slice(0, 16) : "",
+        validFrom: isoToDatetimeLocalValue(initial?.validFrom ?? undefined),
+        validTo: isoToDatetimeLocalValue(initial?.validTo ?? undefined),
         metadata: initial?.metadata ?? undefined,
       }
       : {
@@ -149,9 +158,10 @@ export function CourseOfferingForm({
           }
         }
         const payload = { ...(data as any), courseProfileId } as any
-        // Debug: ensure the payload sent to backend contains courseProfileId
-        // eslint-disable-next-line no-console
-        console.log('[CourseOfferingForm] create payload', payload)
+        const vf = (payload.validFrom as string | undefined)?.trim()
+        const vt = (payload.validTo as string | undefined)?.trim()
+        payload.validFrom = vf ? new Date(vf).toISOString() : undefined
+        payload.validTo = vt ? new Date(vt).toISOString() : undefined
         await onSubmit(payload)
       })}
       noValidate

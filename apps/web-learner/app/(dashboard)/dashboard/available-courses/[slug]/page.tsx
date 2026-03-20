@@ -36,10 +36,20 @@ export default function CourseDetailPage() {
 
   const klass = offering?.class ?? null
   const isLIVE = offering?.type === "LIVE"
-  const classCount = klass ? 1 : 0
-  const chapters = Array.isArray(klass?.courseEdition?.chapters)
-    ? klass.courseEdition.chapters
-    : []
+  const liveClasses = Array.isArray(offering?.classes) ? offering.classes : []
+  const openingClassCount = liveClasses.filter((c: any) => c?.status === "OPENING").length
+  const classCountDisplay = isLIVE
+    ? openingClassCount
+    : liveClasses.length > 0
+      ? liveClasses.length
+      : klass
+        ? 1
+        : 0
+  const chapters = Array.isArray((offering as any)?.courseEdition?.chapters)
+    ? (offering as any).courseEdition.chapters
+    : Array.isArray(klass?.courseEdition?.chapters)
+      ? klass.courseEdition.chapters
+      : []
   const lessonCount = chapters.reduce((acc: number, chapter: any) => {
     const chapterItems = Array.isArray(chapter?.items) ? chapter.items : []
     return acc + chapterItems.length
@@ -135,8 +145,8 @@ export default function CourseDetailPage() {
                 <Users className="h-5 w-5 text-primary/70" />
                 <span>
                   {isLIVE
-                    ? `${classCount} lớp đang mở đăng ký`
-                    : `${classCount} lớp khả dụng`}
+                    ? `${classCountDisplay} lớp đang mở đăng ký`
+                    : `${classCountDisplay} lớp khả dụng`}
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -269,7 +279,56 @@ export default function CourseDetailPage() {
             )}
           </section>
 
-          {isLIVE && !klass && (
+          {isLIVE && liveClasses.length > 0 && (
+            <section className="space-y-6">
+              <h2 className="text-2xl font-bold tracking-tight text-foreground border-b pb-4">
+                Thông tin lớp học
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {liveClasses.map((cls: any) => (
+                  <div
+                    key={cls.id}
+                    className="rounded-xl border bg-card p-4 shadow-sm space-y-2"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                          Lớp
+                        </p>
+                        <p className="font-semibold text-base">{cls.name || cls.code}</p>
+                        <p className="text-xs text-muted-foreground font-mono">{cls.code}</p>
+                      </div>
+                      <Badge
+                        variant={cls.status === "OPENING" ? "default" : "secondary"}
+                        className="shrink-0"
+                      >
+                        {cls.status === "OPENING"
+                          ? "Đang mở đăng ký"
+                          : cls.status || "—"}
+                      </Badge>
+                    </div>
+                    {cls.instructor?.displayName && (
+                      <p className="text-sm text-muted-foreground">
+                        Giảng viên:{" "}
+                        <span className="text-foreground font-medium">
+                          {cls.instructor.displayName}
+                        </span>
+                      </p>
+                    )}
+                    {cls.term?.openingDate && (
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Calendar className="h-3.5 w-3.5" />
+                        Khai giảng:{" "}
+                        {new Date(cls.term.openingDate).toLocaleDateString("vi-VN")}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {isLIVE && liveClasses.length === 0 && (
             <section className="space-y-6">
               <h2 className="text-2xl font-bold tracking-tight text-foreground border-b pb-4">
                 Thông tin lớp học
@@ -279,7 +338,7 @@ export default function CourseDetailPage() {
                 <div className="space-y-1">
                   <p className="font-semibold text-lg">Chưa có lớp học</p>
                   <p className="text-sm text-muted-foreground px-10">
-                    Gói LIVE này chưa được gắn lớp học. Vui lòng liên hệ hỗ trợ.
+                    Gói LIVE này chưa có lớp trong kỳ học. Vui lòng liên hệ hỗ trợ.
                   </p>
                 </div>
               </div>
@@ -340,16 +399,20 @@ export default function CourseDetailPage() {
                       <Button
                         className="w-full h-14 text-base font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]"
                         size="lg"
-                        disabled={!klass}
+                        disabled={liveClasses.length === 0}
                         asChild
                       >
                         <Link
-                          href={klass ? `/checkout/${offering.id}` : "#"}
+                          href={
+                            liveClasses.length > 0
+                              ? `/checkout/${offering.id}`
+                              : "#"
+                          }
                         >
                           Tiến hành thanh toán <ArrowRight className="ml-2 h-5 w-5" />
                         </Link>
                       </Button>
-                      {!klass && (
+                      {liveClasses.length === 0 && (
                         <p className="text-center text-sm text-red-500 font-medium">
                           Hiện chưa có lớp nào khả dụng.
                         </p>

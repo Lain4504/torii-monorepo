@@ -87,10 +87,15 @@ export default function OfferingsPage() {
         setDialogOpen(true)
     }
 
+    /** Trang read-only + đơn hàng: `/academy/course-offerings/:id/detail` */
+    const goToOfferingDetail = (offeringId: string) => {
+        navigate(`/academy/course-offerings/${offeringId}/detail`)
+    }
+
     const handleEdit = (offering: AcademyCourseOffering) => {
         setSelectedOffering(offering)
         if (offering.status === 'PUBLISHED') {
-            navigate(`/academy/course-offerings/${offering.id}/detail`)
+            goToOfferingDetail(offering.id)
             return
         }
         if (offering.status === 'PENDING_APPROVAL') {
@@ -101,7 +106,12 @@ export default function OfferingsPage() {
             setDialogOpen(true)
             return
         }
-        navigate(`/academy/course-offerings/${offering.id}/detail`)
+        goToOfferingDetail(offering.id)
+    }
+
+    const openEditSheet = (offering: AcademyCourseOffering) => {
+        setSelectedOffering(offering)
+        setDialogOpen(true)
     }
 
     return (
@@ -205,16 +215,27 @@ export default function OfferingsPage() {
                                             <div className="flex items-center justify-end gap-2">
                                                 { (offering.status === 'DRAFT' || offering.status === 'REJECTED') && (
                                                     (() => {
+                                                        const mode = offering.mode
+                                                        const isVod = mode === "VOD"
+                                                        const isLive = mode === "LIVE"
                                                         const linkedClassId = offering.classId ?? offering.class?.id
-                                                        const linkedClassMode = offering.class?.mode ?? offering.mode
+                                                        const linkedTermId = offering.termId ?? offering.term?.id
                                                         const linkedClassStatus = offering.class?.status
-                                                        const isLiveOffering = linkedClassMode === 'LIVE'
-                                                        const needsOpening = isLiveOffering && linkedClassStatus && linkedClassStatus !== 'OPENING'
-                                                        const canSubmit = !!linkedClassId && !needsOpening
-                                                        const submitTitle = !linkedClassId
-                                                            ? "Vui lòng chọn lớp học (classId) trước khi gửi duyệt"
+                                                        /** VOD: bắt buộc class. LIVE: bắt buộc term (không dùng classId trên offering). */
+                                                        const hasRequiredLink = isVod ? !!linkedClassId : !!linkedTermId
+                                                        /** Chỉ khi offering gắn sẵn một lớp LIVE cụ thể mới kiểm tra OPENING */
+                                                        const needsOpening =
+                                                            isLive &&
+                                                            !!linkedClassId &&
+                                                            !!linkedClassStatus &&
+                                                            linkedClassStatus !== "OPENING"
+                                                        const canSubmit = hasRequiredLink && !needsOpening
+                                                        const submitTitle = !hasRequiredLink
+                                                            ? isVod
+                                                                ? "Vui lòng chọn lớp học (VOD) trước khi gửi duyệt"
+                                                                : "Vui lòng chọn kỳ học (Term) cho gói LIVE trước khi gửi duyệt"
                                                             : needsOpening
-                                                              ? "LIVE cần class ở trạng thái OPENING trước khi gửi duyệt"
+                                                              ? "Lớp LIVE liên kết cần ở trạng thái OPENING trước khi gửi duyệt"
                                                               : undefined
 
                                                         return (
@@ -223,10 +244,13 @@ export default function OfferingsPage() {
                                                         size="sm" 
                                                         className="h-8 gap-1.5 bg-primary hover:bg-primary/90"
                                                         onClick={() => {
-                                                            if (linkedClassId) {
+                                                            if (canSubmit) {
                                                                 setSubmitDialog({ open: true, offering })
                                                             } else {
-                                                                toast.error(submitTitle ?? "Vui lòng chọn lớp học (classId) trước khi gửi duyệt")
+                                                                toast.error(
+                                                                    submitTitle ??
+                                                                        "Chưa đủ điều kiện để gửi duyệt",
+                                                                )
                                                             }
                                                         }}
                                                         disabled={submitForApprovalMutation.isPending || !canSubmit}
@@ -247,14 +271,24 @@ export default function OfferingsPage() {
                                                         <><Eye className="h-4 w-4" /> Chi tiết</>
                                                     </Button>
                                                 ) : offering.status === 'DRAFT' || offering.status === 'REJECTED' ? (
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        className="h-8 gap-1.5"
-                                                        onClick={() => handleEdit(offering)}
-                                                    >
-                                                        <><FileEdit className="h-4 w-4" /> Sửa</>
-                                                    </Button>
+                                                    <>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="h-8 gap-1.5"
+                                                            onClick={() => goToOfferingDetail(offering.id)}
+                                                        >
+                                                            <Eye className="h-4 w-4" /> Chi tiết
+                                                        </Button>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="h-8 gap-1.5"
+                                                            onClick={() => openEditSheet(offering)}
+                                                        >
+                                                            <FileEdit className="h-4 w-4" /> Sửa
+                                                        </Button>
+                                                    </>
                                                 ) : offering.status === 'PENDING_APPROVAL' ? (
                                                     <Button
                                                         variant="outline"

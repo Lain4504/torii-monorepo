@@ -38,7 +38,6 @@ import {
   BlogStatus,
   type BlogCreateDTO,
   type BlogUpdateDTO,
-  type BlogResponseDTO,
 } from "@workspace/schemas"
 import { useBlog, useCreateBlog, useUpdateBlog } from "@/lib/api/services/blog"
 import type React from "react"
