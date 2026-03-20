@@ -20,7 +20,7 @@ import {
   useRemoveAcademyClassAssignment,
   type AcademyClassAssignment,
 } from "@/lib/api/services/academy-class-assignments"
-import { ClassAssignmentDialog } from "@/components/academy/class-assignment-dialog"
+import { ClassAssignmentSheet } from "@/components/academy/class-assignment-sheet"
 import {
   Dialog,
   DialogContent,
@@ -46,7 +46,7 @@ export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
   const updateMutation = useUpdateAcademyClassAssignment(classId)
   const removeMutation = useRemoveAcademyClassAssignment(classId)
 
-  const [dialogOpen, setDialogOpen] = useState(false)
+  const [sheetOpen, setSheetOpen] = useState(false)
   const [editingAssignment, setEditingAssignment] =
     useState<AcademyClassAssignment | null>(null)
   const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false)
@@ -54,12 +54,12 @@ export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
 
   const handleCreateClick = () => {
     setEditingAssignment(null)
-    setDialogOpen(true)
+    setSheetOpen(true)
   }
 
   const handleEditClick = (ca: AcademyClassAssignment) => {
     setEditingAssignment(ca)
-    setDialogOpen(true)
+    setSheetOpen(true)
   }
 
   const handleRemoveClick = (ca: AcademyClassAssignment) => {
@@ -102,7 +102,7 @@ export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
         })
         toast.success("Đã giao bài tập cho lớp")
       }
-      setDialogOpen(false)
+      setSheetOpen(false)
     } catch (error: any) {
       toast.error(
         error?.response?.data?.message || error.message || "Không thể lưu bài tập",
@@ -239,9 +239,9 @@ export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
         </Table>
       </div>
 
-      <ClassAssignmentDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
+      <ClassAssignmentSheet
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
         initial={editingAssignment}
         submitting={addMutation.isPending || updateMutation.isPending}
         onSubmit={handleSubmit}

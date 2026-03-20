@@ -8,13 +8,13 @@ import {
     type UpdatePointRewardDTO,
 } from "@workspace/schemas"
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from "@workspace/ui/components/dialog"
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+} from "@workspace/ui/components/sheet"
+import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import {
     Field,
     FieldGroup,
@@ -39,13 +39,13 @@ import { useUpdateReward } from "@/lib/api/services/gamification"
 import { Star, Gift, Save } from "lucide-react"
 import { Spinner } from "@workspace/ui/components/spinner"
 
-interface EditRewardDialogProps {
+interface EditRewardSheetProps {
     open: boolean
     onOpenChange: (open: boolean) => void
     reward: PointRewardDTO
 }
 
-export function EditRewardDialog({ open, onOpenChange, reward }: EditRewardDialogProps) {
+export function EditRewardSheet({ open, onOpenChange, reward }: EditRewardSheetProps) {
     const updateMutation = useUpdateReward()
 
     const {
@@ -74,11 +74,10 @@ export function EditRewardDialog({ open, onOpenChange, reward }: EditRewardDialo
         },
     })
 
-    // const config = watch("config")
     const discountType = watch("config.discountType")
 
     useEffect(() => {
-        if (reward) {
+        if (reward && open) {
             reset({
                 name: reward.name,
                 description: reward.description || "",
@@ -94,7 +93,7 @@ export function EditRewardDialog({ open, onOpenChange, reward }: EditRewardDialo
                 isActive: reward.isActive,
             })
         }
-    }, [reward, reset])
+    }, [reward, open, reset])
 
     const handleClose = () => {
         if (!updateMutation.isPending) {
@@ -113,21 +112,21 @@ export function EditRewardDialog({ open, onOpenChange, reward }: EditRewardDialo
     }
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[700px] max-h-[90vh] p-0 flex flex-col overflow-hidden">
-                <DialogHeader className="p-6 pb-0">
-                    <DialogTitle className="flex items-center gap-2">
-                        <Gift className="h-5 w-5 text-primary" />
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent className="!w-full sm:!max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
+                <SheetHeader className="p-6 border-b shrink-0">
+                    <SheetTitle className="flex items-center gap-2">
+                        < Gift className="h-5 w-5 text-primary" />
                         Chỉnh sửa mẫu phần thưởng
-                    </DialogTitle>
-                    <DialogDescription>
+                    </SheetTitle>
+                    <SheetDescription>
                         Cập nhật các thông tin và điều kiện của phần thưởng.
-                    </DialogDescription>
-                </DialogHeader>
+                    </SheetDescription>
+                </SheetHeader>
 
-                <div className="flex-1 overflow-y-auto">
-                    <div className="space-y-6 p-6">
-                        <form id="edit-reward-form" onSubmit={handleSubmit(onSubmit as any)}>
+                <form id="edit-reward-form" onSubmit={handleSubmit(onSubmit as any)} className="flex flex-col flex-1 overflow-hidden" noValidate>
+                    <ScrollArea className="flex-1 min-h-0">
+                        <div className="space-y-6 p-6">
                             <FieldGroup>
                                 <FieldSet>
                                     <FieldLegend>Thông tin cơ bản</FieldLegend>
@@ -229,42 +228,41 @@ export function EditRewardDialog({ open, onOpenChange, reward }: EditRewardDialo
                                             <FieldDescription>Người dùng có thể nhìn thấy và đổi quà này.</FieldDescription>
                                         </div>
                                         <Switch
-                                            defaultChecked={reward.isActive}
+                                            checked={watch("isActive")}
                                             onCheckedChange={(val) => setValue("isActive", val)}
                                         />
                                     </Field>
                                 </FieldSet>
                             </FieldGroup>
-                        </form>
-                    </div>
-                </div>
+                        </div>
+                    </ScrollArea>
 
-                <DialogFooter className="p-6 pt-0">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleClose}
-                        disabled={updateMutation.isPending}>
-                        Hủy Bố
-                    </Button>
-                    <Button
-                        form="edit-reward-form"
-                        type="submit"
-                        disabled={updateMutation.isPending || !isDirty}>
-                        {updateMutation.isPending ? (
-                            <>
-                                <Spinner className="mr-2" />
-                                Đang lưu...
-                            </>
-                        ) : (
-                            <>
-                                <Save className="mr-2 h-4 w-4" />
-                                Lưu thay đổi
-                            </>
-                        )}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                    <div className="p-6 border-t flex justify-end gap-3 bg-muted/20 shrink-0">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleClose}
+                            disabled={updateMutation.isPending}>
+                            Hủy Bỏ
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={updateMutation.isPending || !isDirty}>
+                            {updateMutation.isPending ? (
+                                <>
+                                    <Spinner className="mr-2" />
+                                    Đang lưu...
+                                </>
+                            ) : (
+                                <>
+                                    <Save className="mr-2 h-4 w-4" />
+                                    Lưu thay đổi
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                </form>
+            </SheetContent>
+        </Sheet>
     )
 }

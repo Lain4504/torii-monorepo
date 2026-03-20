@@ -6,13 +6,13 @@ import {
     type CreatePointRewardDTO,
 } from "@workspace/schemas"
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from "@workspace/ui/components/dialog"
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+} from "@workspace/ui/components/sheet"
+import { ScrollArea } from "@workspace/ui/components/scroll-area"
 import {
     Field,
     FieldGroup,
@@ -37,12 +37,12 @@ import { useCreateReward } from "@/lib/api/services/gamification"
 import { Star, Gift, Ticket } from "lucide-react"
 import { Spinner } from "@workspace/ui/components/spinner"
 
-interface CreateRewardDialogProps {
+interface CreateRewardSheetProps {
     open: boolean
     onOpenChange: (open: boolean) => void
 }
 
-export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogProps) {
+export function CreateRewardSheet({ open, onOpenChange }: CreateRewardSheetProps) {
     const createMutation = useCreateReward()
 
     const {
@@ -71,7 +71,6 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
         },
     })
 
-    // const config = watch("config")
     const discountType = watch("config.discountType")
 
     const handleClose = () => {
@@ -92,21 +91,21 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
     }
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[700px] max-h-[90vh] p-0 flex flex-col overflow-hidden">
-                <DialogHeader className="p-6 pb-0">
-                    <DialogTitle className="flex items-center gap-2">
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent className="!w-full sm:!max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
+                <SheetHeader className="p-6 border-b shrink-0">
+                    <SheetTitle className="flex items-center gap-2">
                         <Gift className="h-5 w-5 text-primary" />
                         Tạo mẫu phần thưởng mới
-                    </DialogTitle>
-                    <DialogDescription>
+                    </SheetTitle>
+                    <SheetDescription>
                         Thiết lập thông tin phần thưởng để người dùng dùng điểm XP quy đổi.
-                    </DialogDescription>
-                </DialogHeader>
+                    </SheetDescription>
+                </SheetHeader>
 
-                <div className="flex-1 overflow-y-auto">
-                    <div className="space-y-6 p-6">
-                        <form id="create-reward-form" onSubmit={handleSubmit(onSubmit as any)}>
+                <form id="create-reward-form" onSubmit={handleSubmit(onSubmit as any)} className="flex flex-col flex-1 overflow-hidden" noValidate>
+                    <ScrollArea className="flex-1 min-h-0">
+                        <div className="space-y-6 p-6">
                             <FieldGroup>
                                 <FieldSet>
                                     <FieldLegend>Thông tin cơ bản</FieldLegend>
@@ -222,36 +221,35 @@ export function CreateRewardDialog({ open, onOpenChange }: CreateRewardDialogPro
                                     </Field>
                                 </FieldSet>
                             </FieldGroup>
-                        </form>
-                    </div>
-                </div>
+                        </div>
+                    </ScrollArea>
 
-                <DialogFooter className="p-6 pt-0">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleClose}
-                        disabled={createMutation.isPending}>
-                        Hủy Bỏ
-                    </Button>
-                    <Button
-                        form="create-reward-form"
-                        type="submit"
-                        disabled={createMutation.isPending || !isDirty}>
-                        {createMutation.isPending ? (
-                            <>
-                                <Spinner className="mr-2" />
-                                Đang tạo...
-                            </>
-                        ) : (
-                            <>
-                                <Ticket className="mr-2 h-4 w-4" />
-                                Tạo phần thưởng
-                            </>
-                        )}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                    <div className="p-6 border-t flex justify-end gap-3 bg-muted/20 shrink-0">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleClose}
+                            disabled={createMutation.isPending}>
+                            Hủy Bỏ
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={createMutation.isPending || !isDirty}>
+                            {createMutation.isPending ? (
+                                <>
+                                    <Spinner className="mr-2" />
+                                    Đang tạo...
+                                </>
+                            ) : (
+                                <>
+                                    <Ticket className="mr-2 h-4 w-4" />
+                                    Tạo phần thưởng
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                </form>
+            </SheetContent>
+        </Sheet>
     )
 }

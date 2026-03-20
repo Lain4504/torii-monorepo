@@ -3,13 +3,12 @@ import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@workspace/ui/components/dialog"
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@workspace/ui/components/sheet"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { Textarea } from "@workspace/ui/components/textarea"
@@ -49,13 +48,13 @@ const courseProfileSchema = z.object({
 
 type CourseProfileFormValues = z.infer<typeof courseProfileSchema>
 
-interface CourseProfileDialogProps {
+interface CourseProfileSheetProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   profile?: AcademyCourseProfile | null
 }
 
-export function CourseProfileDialog({ open, onOpenChange, profile }: CourseProfileDialogProps) {
+export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfileSheetProps) {
   const isEditing = !!profile
   const createMutation = useCreateAcademyCourseProfile()
   const updateMutation = useUpdateAcademyCourseProfile()
@@ -127,16 +126,16 @@ export function CourseProfileDialog({ open, onOpenChange, profile }: CourseProfi
   const isLoading = createMutation.isPending || updateMutation.isPending
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] p-0 flex flex-col overflow-hidden">
-        <DialogHeader className="px-6 py-4 border-b shrink-0">
-          <DialogTitle>{isEditing ? "Chỉnh sửa hồ sơ khóa học" : "Tạo hồ sơ khóa học mới"}</DialogTitle>
-          <DialogDescription>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="!w-full sm:!max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
+        <SheetHeader className="px-6 py-4 border-b shrink-0">
+          <SheetTitle>{isEditing ? "Chỉnh sửa hồ sơ khóa học" : "Tạo hồ sơ khóa học mới"}</SheetTitle>
+          <SheetDescription>
             {isEditing
               ? "Cập nhật thông tin định nghĩa cho khóa học này."
               : "Định nghĩa một đầu mục khóa học mới trong hệ thống."}
-          </DialogDescription>
-        </DialogHeader>
+          </SheetDescription>
+        </SheetHeader>
 
         <ScrollArea className="flex-1 min-h-0">
           <div className="p-6 space-y-6">
@@ -241,7 +240,7 @@ export function CourseProfileDialog({ open, onOpenChange, profile }: CourseProfi
           </div>
         </ScrollArea>
 
-        <DialogFooter className="px-6 py-4 border-t gap-2 bg-muted/20 shrink-0">
+        <div className="px-6 py-4 border-t flex justify-end gap-3 bg-muted/20 shrink-0">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
             Hủy
           </Button>
@@ -249,8 +248,8 @@ export function CourseProfileDialog({ open, onOpenChange, profile }: CourseProfi
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isEditing ? "Lưu thay đổi" : "Tạo Profile"}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </SheetContent>
+    </Sheet>
   )
 }
