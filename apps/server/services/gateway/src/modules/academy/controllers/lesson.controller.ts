@@ -52,12 +52,18 @@ export class LessonController {
 
     if (!hasContentRead) {
       if (!query.courseProfileId) {
-        throw new ForbiddenException('courseProfileId is required for learners');
+        throw new ForbiddenException(
+          'courseProfileId is required for learners',
+        );
       }
       const result = await firstValueFrom(
         this.nats.send(
           { cmd: 'academy.enrollment.checkEligibility' },
-          { userId: requester.sub, targetId: query.courseProfileId, targetType: 'COURSE' },
+          {
+            userId: requester.sub,
+            targetId: query.courseProfileId,
+            targetType: 'COURSE',
+          },
         ),
       );
       if (!result?.isEnrolled) {
@@ -98,7 +104,11 @@ export class LessonController {
       const result = await firstValueFrom(
         this.nats.send(
           { cmd: 'academy.enrollment.checkEligibility' },
-          { userId: requester.sub, targetId: courseProfileId, targetType: 'COURSE' },
+          {
+            userId: requester.sub,
+            targetId: courseProfileId,
+            targetType: 'COURSE',
+          },
         ),
       );
       if (!result?.isEnrolled) {

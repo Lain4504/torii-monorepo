@@ -193,15 +193,22 @@ export default function ClassesPage() {
                                         <TableCell className="text-right">
                                             <div className="flex items-center justify-end gap-2">
                                                 {isStaff && (cls.status === 'DRAFT' || cls.status === 'REJECTED') && (
+                                                    (() => {
+                                                        const liveScheduleCount = cls.mode === 'LIVE' ? (cls._count?.liveSchedules ?? 0) : 0
+                                                        const isLiveMissingSchedule = cls.mode === 'LIVE' && liveScheduleCount === 0
+                                                        return (
                                                     <Button 
                                                         variant="default" 
                                                         size="sm" 
                                                         className="h-8 gap-1.5 bg-primary hover:bg-primary/90"
+                                                        title={isLiveMissingSchedule ? "LIVE cần ít nhất 1 lịch học tuần trước khi gửi duyệt" : undefined}
                                                         onClick={() => setSubmitDialog({ open: true, cls })}
-                                                        disabled={submitForApprovalMutation.isPending}
+                                                        disabled={submitForApprovalMutation.isPending || isLiveMissingSchedule}
                                                     >
                                                         <SendIcon className="h-3.5 w-3.5" /> Gửi duyệt
                                                     </Button>
+                                                        )
+                                                    })()
                                                 )}
                                                 <Button variant="outline" size="sm" className="h-8 gap-1.5" onClick={() => navigate(`/academy/classes/${cls.id}/detail`)}>
                                                     <Eye className="h-4 w-4" /> Chi tiết

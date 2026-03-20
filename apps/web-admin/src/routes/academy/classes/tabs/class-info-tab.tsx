@@ -40,6 +40,7 @@ export function ClassInfoTab({ academyClass, classId, canManageStatus }: ClassIn
 
   const vod = academyClass.vodClass
   const isLive = academyClass.mode === "LIVE"
+  const term = (academyClass as any).term
 
   const formatDate = (d: string | null | undefined) =>
     d ? new Date(d).toLocaleDateString("vi-VN", { dateStyle: "medium" }) : "—"
@@ -121,19 +122,19 @@ export function ClassInfoTab({ academyClass, classId, canManageStatus }: ClassIn
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <div>
                 <p className="text-xs text-muted-foreground">Ngày mở</p>
-                <p className="font-medium">{formatDate((academyClass as any).openingDate)}</p>
+                  <p className="font-medium">{formatDate(term?.openingDate)}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Ngày đóng</p>
-                <p className="font-medium">{formatDate((academyClass as any).closingDate)}</p>
+                  <p className="font-medium">{formatDate(term?.closingDate)}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Mở đăng ký</p>
-                <p className="font-medium">{formatDate((academyClass as any).enrollmentOpenAt)}</p>
+                  <p className="font-medium">{formatDate(term?.enrollmentOpenAt)}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Đóng đăng ký</p>
-                <p className="font-medium">{formatDate((academyClass as any).enrollmentCloseAt)}</p>
+                  <p className="font-medium">{formatDate(term?.enrollmentCloseAt)}</p>
               </div>
             </div>
           </CardContent>

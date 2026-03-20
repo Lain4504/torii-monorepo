@@ -34,7 +34,7 @@ import {
     ChevronRight,
     ShieldCheck,
     BadgeCheck,
-    Lock
+    Lock,
 } from 'lucide-react';
 import { UserRole, adminCreateInternalUserDTOSchema } from '@workspace/schemas';
 import { toast } from 'sonner';
@@ -323,6 +323,7 @@ export function CreateUserDialog({
                                     <Button
                                         type="button"
                                         variant="ghost"
+                                        size="sm"
                                         onClick={() => handleOpenChange(false)}
                                         disabled={createInternalUser.isPending}
                                     >
@@ -345,6 +346,7 @@ export function CreateUserDialog({
                                     <Button
                                         type="button"
                                         variant="ghost"
+                                        size="sm"
                                         onClick={handleBackToDetails}
                                         disabled={createInternalUser.isPending}
                                     >

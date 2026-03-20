@@ -24,9 +24,18 @@ export type AcademyCourseProfileUpdateDTO = z.infer<
 export const academyCourseProfileQueryDTOSchema = z.object({
   q: z.string().optional(),
   level: z.string().optional(),
+  status: z.string().optional(),
 });
 export type AcademyCourseProfileQueryDTO = z.infer<
   typeof academyCourseProfileQueryDTOSchema
+>;
+
+export const academyCourseProfileDuplicateDTOSchema = z.object({
+  newCode: z.string().min(2).max(100),
+  newTitle: z.string().min(2).max(255),
+});
+export type AcademyCourseProfileDuplicateDTO = z.infer<
+  typeof academyCourseProfileDuplicateDTOSchema
 >;
 
 export type AcademyCourseProfileModel = any;

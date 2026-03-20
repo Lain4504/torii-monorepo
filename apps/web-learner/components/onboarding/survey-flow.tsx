@@ -34,6 +34,50 @@ const STEPS = [
   'Complete',
 ]
 
+function monthYearToISODate(label: string | null | undefined): string | null {
+  const raw = label?.trim()
+  if (!raw || raw === 'Not decided yet') return null
+
+  // Expected labels in UI: "July 2024", "December 2024", ...
+  const match = raw.match(/^([A-Za-z]+)\s+(\d{4})$/)
+  if (!match) return null
+
+  const monthName = match[1]
+  const year = Number(match[2])
+  const monthIndexMap: Record<string, number> = {
+    July: 6,
+    December: 11,
+  }
+
+  const monthIndex = monthIndexMap[monthName]
+  if (monthIndex === undefined || !Number.isFinite(year)) return null
+
+  // Use UTC midnight so Prisma receives a valid datetime string
+  return new Date(Date.UTC(year, monthIndex, 1)).toISOString()
+}
+
+function mapCurrentLevel(label: string | null | undefined): string | undefined {
+  const raw = label?.trim()
+  if (!raw) return undefined
+
+  switch (raw) {
+    case 'Never learned':
+    case 'Zero (Beginner)':
+      return 'NEVER'
+    case 'N5.1 (Start)':
+      return 'N5.1'
+    case 'N5.2 (Mid)':
+      return 'N5.2'
+    case 'N5.3 (End)':
+      return 'N5.3'
+    default: {
+      const direct = ['N4', 'N3', 'N2', 'N1']
+      if (direct.includes(raw)) return raw
+      return undefined
+    }
+  }
+}
+
 export function SurveyFlow() {
   const [currentStep, setCurrentStep] = useState(0)
   const [direction, setDirection] = useState(0)
@@ -77,14 +121,23 @@ export function SurveyFlow() {
   const handleFinish = async () => {
     setIsSubmitting(true)
     try {
-      const response = await apiClient.post('/api/onboarding/survey', {
-        learningTarget: formData.learningTarget,
-        learningPurpose: formData.learningPurpose,
-        jlptExamDate: formData.learningPurpose === 'JLPT' ? formData.jlptExamDate : null,
-        dailyStudyTime: formData.dailyStudyTime,
-        currentLevel: formData.currentLevel,
-        wantsPlacementTest: formData.wantsPlacementTest,
-      })
+      const payload = {
+        // Match backend DTO/schema fields
+        targetCompletionTime:
+          formData.learningTarget === 'No deadline'
+            ? undefined
+            : formData.learningTarget,
+        purpose: formData.learningPurpose,
+        jlptTargetDate:
+          formData.learningPurpose === 'JLPT'
+            ? monthYearToISODate(formData.jlptExamDate)
+            : null,
+        studyFrequency: 'Daily',
+        studyTimePerSession: `${formData.dailyStudyTime} minutes`,
+        currentLevel: mapCurrentLevel(formData.currentLevel),
+      }
+
+      const response = await apiClient.post('/api/onboarding/survey', payload)
 
       if (response.data.success) {
         toast.success('Onboarding complete!')
@@ -118,9 +171,9 @@ export function SurveyFlow() {
   }
 
   return (
-    <div className="w-full flex flex-col gap-8">
+    <div className="w-full flex flex-col gap-4 h-full min-h-0">
       {/* Header & Progress */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3 flex-shrink-0">
         <div className="flex items-center justify-between text-sm font-medium text-muted-foreground">
           <span>{Math.round(progress)}% Complete</span>
           <span>Step {currentStep + 1} of {activeSteps.length}</span>
@@ -129,7 +182,7 @@ export function SurveyFlow() {
       </div>
 
       {/* Slide Container */}
-      <div className="min-h-[450px] relative">
+      <div className="flex-1 relative min-h-0 overflow-hidden">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={currentStepKey}
@@ -139,7 +192,7 @@ export function SurveyFlow() {
             animate="center"
             exit="exit"
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="w-full flex flex-col items-center text-center gap-6"
+            className="w-full h-full flex flex-col items-center text-center gap-4 min-h-0 overflow-hidden"
           >
             {renderStepContent(currentStepKey, formData, setFormData)}
           </motion.div>
@@ -147,7 +200,7 @@ export function SurveyFlow() {
       </div>
 
       {/* Footer Controls */}
-      <div className="flex items-center justify-between pt-8 border-t border-border/50">
+      <div className="flex items-center justify-between pt-4 border-t border-border/50 flex-shrink-0">
         <Button
           variant="ghost"
           onClick={handleBack}
@@ -179,7 +232,7 @@ function renderStepContent(key: string, data: any, setData: any) {
   switch (key) {
     case 'Welcome':
       return (
-        <div className="flex flex-col items-center gap-6 mt-8">
+        <div className="flex flex-col items-center gap-4">
           <div className="w-24 h-24 rounded-3xl bg-primary/10 flex items-center justify-center text-primary animate-pulse">
             <Sparkles className="w-12 h-12" />
           </div>
@@ -346,7 +399,7 @@ function renderStepContent(key: string, data: any, setData: any) {
       )
     case 'Complete':
       return (
-        <div className="flex flex-col items-center gap-6 mt-8 animate-in zoom-in duration-500">
+        <div className="flex flex-col items-center gap-4 animate-in zoom-in duration-500">
            <div className="w-24 h-24 rounded-full bg-green-500/10 flex items-center justify-center text-green-500">
             <Check className="w-12 h-12" />
           </div>
@@ -370,7 +423,7 @@ function SelectButton({ label, isSelected, onClick, className }: any) {
       size="lg"
       onClick={onClick}
       className={cn(
-        "h-auto py-5 flex items-center justify-between group relative overflow-hidden transition-all text-base",
+        "h-auto py-4 flex items-center justify-between group relative overflow-hidden transition-all text-base",
         isSelected ? "border-primary bg-primary/5 text-primary shadow-sm" : "hover:border-primary/50",
         className
       )}

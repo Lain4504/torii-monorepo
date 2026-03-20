@@ -43,7 +43,14 @@ export class EnrollmentHandler {
   }
 
   @MessagePattern({ cmd: 'academy.enrollment.migrateStudents' })
-  migrate(@Payload() data: { sourceClassId: string; targetClassId: string; requesterId?: string }) {
+  migrate(
+    @Payload()
+    data: {
+      sourceClassId: string;
+      targetClassId: string;
+      requesterId?: string;
+    },
+  ) {
     return this.enrollments.migrateStudents(
       data.sourceClassId,
       data.targetClassId,
@@ -52,7 +59,18 @@ export class EnrollmentHandler {
   }
 
   @MessagePattern({ cmd: 'academy.enrollment.checkEligibility' })
-  checkEligibility(@Payload() data: { userId: string; targetId: string; targetType: 'CLASS' | 'OFFERING' | 'COURSE' }) {
-    return this.enrollments.checkEligibility(data.userId, data.targetId, data.targetType);
+  checkEligibility(
+    @Payload()
+    data: {
+      userId: string;
+      targetId: string;
+      targetType: 'CLASS' | 'OFFERING' | 'COURSE';
+    },
+  ) {
+    return this.enrollments.checkEligibility(
+      data.userId,
+      data.targetId,
+      data.targetType,
+    );
   }
 }

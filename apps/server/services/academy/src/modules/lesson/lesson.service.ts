@@ -47,12 +47,19 @@ export class LessonService {
     return this.prisma.lesson.findMany({
       where: {
         moduleId: query.moduleId ?? undefined,
-        module: query.courseProfileId ? { courseProfileId: query.courseProfileId } : undefined,
+        module: query.courseProfileId
+          ? { courseProfileId: query.courseProfileId }
+          : undefined,
         ...(q ? { title: { contains: q, mode: 'insensitive' } } : {}),
       },
       include: {
         module: {
-          select: { id: true, title: true, courseProfileId: true, orderIndex: true },
+          select: {
+            id: true,
+            title: true,
+            courseProfileId: true,
+            orderIndex: true,
+          },
         },
       },
       orderBy: [{ module: { orderIndex: 'asc' } }, { orderIndex: 'asc' }],
@@ -79,9 +86,9 @@ export class LessonService {
     });
     if (!module) throw new BadRequestException('Invalid moduleId');
 
-    if (module.courseProfile.status === 'ARCHIVED') {
+    if (module.courseProfile.status !== 'DRAFT') {
       throw new BadRequestException(
-        'Cannot modify lessons in an ARCHIVED course profile',
+        'Không thể thêm/chỉnh sửa Lesson khi CourseProfile chưa ở trạng thái DRAFT.',
       );
     }
 
@@ -123,9 +130,9 @@ export class LessonService {
       where: { id: before.moduleId },
       select: { courseProfile: { select: { status: true } } },
     });
-    if (module?.courseProfile.status === 'ARCHIVED') {
+    if (module?.courseProfile.status !== 'DRAFT') {
       throw new BadRequestException(
-        'Cannot modify lessons in an ARCHIVED course profile',
+        'Không thể chỉnh sửa Lesson khi CourseProfile chưa ở trạng thái DRAFT.',
       );
     }
 
@@ -162,9 +169,9 @@ export class LessonService {
       where: { id: before.moduleId },
       select: { courseProfile: { select: { status: true } } },
     });
-    if (module?.courseProfile.status === 'ARCHIVED') {
+    if (module?.courseProfile.status !== 'DRAFT') {
       throw new BadRequestException(
-        'Cannot delete lessons from an ARCHIVED course profile',
+        'Không thể xóa Lesson khi CourseProfile chưa ở trạng thái DRAFT.',
       );
     }
 

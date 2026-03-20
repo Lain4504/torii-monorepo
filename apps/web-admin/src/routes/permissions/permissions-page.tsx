@@ -339,7 +339,7 @@ export function PermissionsPage() {
 
                             <div className="flex items-center gap-2">
                                 <Button
-                                    variant="ghost"
+                                    variant="outline"
                                     size="sm"
                                     onClick={handleReset}
                                     disabled={updateMutation.isPending}

@@ -41,8 +41,8 @@ export default function OnboardingLayout({
     if (!isAuthenticated) return null;
 
     return (
-        <div className="min-h-screen bg-background nhai-blueprint-bg flex items-center justify-center p-4">
-            <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto no-scrollbar">
+        <div className="min-h-screen h-screen bg-background nhai-blueprint-bg flex items-center justify-center p-4 overflow-hidden">
+            <div className="w-full max-w-4xl h-full overflow-hidden">
                 {children}
             </div>
         </div>

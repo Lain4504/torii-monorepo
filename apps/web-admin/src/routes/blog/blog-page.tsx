@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { BlogPrimaryToolbar } from '@/components/blogs/blog-primary-toolbar.tsx';
 import { BlogTable } from '@/components/blogs/blog-table.tsx';
 import { DeleteBlogDialog } from '@/components/blogs/delete-blog-dialog.tsx';
 import { ScheduleBlogDialog } from '@/components/blogs/schedule-blog-dialog.tsx';
+import { BlogSheet } from '@/components/blogs/blog-sheet.tsx';
 import type { BlogResponseDTO, BlogQueryDTO } from '@workspace/schemas';
 import { Button } from '@workspace/ui/components/button';
 
@@ -29,7 +29,9 @@ export function BlogPage() {
     const [deletingBlog, setDeletingBlog] = useState<BlogResponseDTO | null>(null);
     const [schedulingBlog, setSchedulingBlog] = useState<BlogResponseDTO | null>(null);
 
-    const navigate = useNavigate();
+    // Blog sheet state
+    const [blogSheetOpen, setBlogSheetOpen] = useState(false)
+    const [sheetBlogId, setSheetBlogId] = useState<string | null>(null)
 
     // Query params
     const queryParams: BlogQueryDTO = {
@@ -87,7 +89,10 @@ export function BlogPage() {
                 ]}
                 actions={
                     <Button
-                        onClick={() => navigate('/blogs/create')}
+                        onClick={() => {
+                            setSheetBlogId(null)
+                            setBlogSheetOpen(true)
+                        }}
                         size="lg"
                     >
                         <Plus />
@@ -112,7 +117,10 @@ export function BlogPage() {
                 <div className="rounded-md bg-background border overflow-hidden">
                     <BlogTable
                         data={blogs}
-                        onEdit={(b) => navigate(`/blogs/${b.id}/edit`)}
+                        onEdit={(b) => {
+                            setSheetBlogId(b.id)
+                            setBlogSheetOpen(true)
+                        }}
                         onDelete={setDeletingBlog}
                         onScheduleChange={setSchedulingBlog}
                         page={page}
@@ -141,6 +149,15 @@ export function BlogPage() {
                 open={!!schedulingBlog}
                 onOpenChange={(open) => !open && setSchedulingBlog(null)}
                 blogId={schedulingBlog?.id || ''}
+            />
+
+            <BlogSheet
+                open={blogSheetOpen}
+                onOpenChange={(open) => {
+                    setBlogSheetOpen(open)
+                    if (!open) setSheetBlogId(null)
+                }}
+                blogId={sheetBlogId}
             />
         </div>
     );

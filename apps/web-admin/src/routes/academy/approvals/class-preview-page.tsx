@@ -82,6 +82,10 @@ export default function ClassApprovalPreviewPage() {
     )
   }
 
+  const isLive = academyClass.mode === "LIVE"
+  const liveScheduleCount = academyClass._count?.liveSchedules ?? 0
+  const isLiveMissingSchedule = isLive && liveScheduleCount === 0
+
   const canSubmit = isStaffOrAdmin && academyClass.status === "DRAFT"
   const canApprove = isStaffOrAdmin && academyClass.status === "PENDING_APPROVAL"
 
@@ -130,7 +134,7 @@ export default function ClassApprovalPreviewPage() {
                       )
                     }
                   }}
-                  disabled={submitMutation.isPending}
+                  disabled={submitMutation.isPending || isLiveMissingSchedule}
                   className="gap-2"
                 >
                   Gửi duyệt
@@ -167,6 +171,13 @@ export default function ClassApprovalPreviewPage() {
           ) : undefined
         }
       />
+
+      {isLiveMissingSchedule && isLive && canSubmit && (
+        <div className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-4 py-3">
+          Lớp LIVE cần có <strong>ít nhất 1 lịch học tuần</strong> trước khi gửi duyệt.
+          Vui lòng thiết lập lịch ở trang quản lý lớp.
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>

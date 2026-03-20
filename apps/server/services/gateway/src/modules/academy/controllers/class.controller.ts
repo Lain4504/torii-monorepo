@@ -28,20 +28,12 @@ import { ForbiddenException } from '@nestjs/common';
 import {
   AcademyClassAssignmentCreateDTO,
   AcademyClassCreateDTO,
-  AcademyClassContentItemCreateDTO,
-  AcademyClassContentItemUpdateDTO,
   AcademyClassDuplicateDTO,
-  AcademyClassModuleCreateDTO,
-  AcademyClassModuleUpdateDTO,
   AcademyClassQueryDTO,
   AcademyClassUpdateDTO,
   academyClassAssignmentCreateDTOSchema,
   academyClassCreateDTOSchema,
-  academyClassContentItemCreateDTOSchema,
-  academyClassContentItemUpdateDTOSchema,
   academyClassDuplicateDTOSchema,
-  academyClassModuleCreateDTOSchema,
-  academyClassModuleUpdateDTOSchema,
   academyClassQueryDTOSchema,
   academyClassUpdateDTOSchema,
 } from '@workspace/schemas';
@@ -354,93 +346,6 @@ export class ClassController {
       ),
     );
     return successResponse({ item });
-  }
-
-  @Post(':id/modules')
-  @Permissions('academy.delivery.write')
-  async addModule(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Body(new ZodValidationPipe(academyClassModuleCreateDTOSchema))
-    dto: AcademyClassModuleCreateDTO,
-  ) {
-    const module = await firstValueFrom(
-      this.nats.send(
-        { cmd: 'academy.class.addModule' },
-        { classId: id, ...dto },
-      ),
-    );
-    return successResponse({ module });
-  }
-
-  @Put('modules/:moduleId')
-  @Permissions('academy.delivery.write')
-  async updateModule(
-    @Param('moduleId', new ParseUUIDPipe()) moduleId: string,
-    @Body(new ZodValidationPipe(academyClassModuleUpdateDTOSchema))
-    dto: AcademyClassModuleUpdateDTO,
-  ) {
-    const module = await firstValueFrom(
-      this.nats.send(
-        { cmd: 'academy.class.updateModule' },
-        { id: moduleId, input: dto },
-      ),
-    );
-    return successResponse({ module });
-  }
-
-  @Delete('modules/:moduleId')
-  @Permissions('academy.delivery.write')
-  async deleteModule(@Param('moduleId', new ParseUUIDPipe()) moduleId: string) {
-    const result = await firstValueFrom(
-      this.nats.send({ cmd: 'academy.class.deleteModule' }, { id: moduleId }),
-    );
-    return successResponse(result);
-  }
-
-  @Post('modules/:moduleId/items')
-  @Permissions('academy.delivery.write')
-  async addContentItem(
-    @Param('moduleId', new ParseUUIDPipe()) moduleId: string,
-    @Body(new ZodValidationPipe(academyClassContentItemCreateDTOSchema))
-    dto: AcademyClassContentItemCreateDTO,
-  ) {
-    const item = await firstValueFrom(
-      this.nats.send(
-        { cmd: 'academy.class.addContentItem' },
-        { moduleId, ...dto },
-      ),
-    );
-    return successResponse({ item });
-  }
-
-  @Put('items/:itemId')
-  @Permissions('academy.delivery.write')
-  async updateContentItem(
-    @Param('itemId', new ParseUUIDPipe()) itemId: string,
-    @Body(new ZodValidationPipe(academyClassContentItemUpdateDTOSchema))
-    dto: AcademyClassContentItemUpdateDTO,
-  ) {
-    const item = await firstValueFrom(
-      this.nats.send(
-        { cmd: 'academy.class.updateContentItem' },
-        { id: itemId, input: dto },
-      ),
-    );
-    return successResponse({ item });
-  }
-
-  @Delete('items/:itemId')
-  @Permissions('academy.delivery.write')
-  async deleteContentItem(
-    @Param('itemId', new ParseUUIDPipe()) itemId: string,
-  ) {
-    const result = await firstValueFrom(
-      this.nats.send(
-        { cmd: 'academy.class.deleteContentItem' },
-        { id: itemId },
-      ),
-    );
-    return successResponse(result);
   }
 
   // ==============================================================

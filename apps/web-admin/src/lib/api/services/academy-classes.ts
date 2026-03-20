@@ -11,14 +11,22 @@ import type {
 export type AcademyClass = {
   id: string
   courseProfileId: string
+  termId?: string | null
   code: string
   name: string
   mode: "VOD" | "LIVE"
   status: string
-  openingDate?: string | null
-  closingDate?: string | null
-  enrollmentOpenAt?: string | null
-  enrollmentCloseAt?: string | null
+  _count?: {
+    enrollments?: number
+    liveSchedules?: number
+  }
+  term?: {
+    termCode?: string
+    openingDate?: string | null
+    closingDate?: string | null
+    enrollmentOpenAt?: string | null
+    enrollmentCloseAt?: string | null
+  } | null
   instructorId?: string | null
   createdAt: string
   updatedAt: string

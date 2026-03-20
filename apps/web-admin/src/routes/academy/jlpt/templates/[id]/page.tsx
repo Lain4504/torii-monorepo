@@ -109,8 +109,14 @@ export default function JlptTemplateBuilderPage() {
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/academy/jlpt/templates")}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 border-slate-500/30 text-slate-700 bg-transparent hover:bg-slate-50 hover:text-slate-700"
+            onClick={() => navigate("/academy/jlpt/templates")}
+          >
             <ArrowLeft className="w-5 h-5" />
+            Quay lại
           </Button>
           <div>
             <div className="flex items-center gap-2">
@@ -120,7 +126,7 @@ export default function JlptTemplateBuilderPage() {
             <p className="text-muted-foreground text-sm uppercase font-mono tracking-tighter">ID: {template.id} · CODE: {template.code}</p>
           </div>
         </div>
-        <div className="flex gap-2">
+                    <div className="flex gap-2">
           <Button variant="outline" className="gap-2">
             <Settings2 className="w-4 h-4" /> Cài đặt chung
           </Button>
@@ -158,7 +164,14 @@ export default function JlptTemplateBuilderPage() {
                     <Button variant="outline" size="sm" className="gap-2" onClick={() => handleOpenPicker(section.id)}>
                       <Plus className="w-4 h-4" /> Chọn từ Bank
                     </Button>
-                    <Button variant="ghost" size="icon"><Settings2 className="w-4 h-4" /></Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 border-indigo-500/30 text-indigo-700 bg-transparent hover:bg-indigo-50 hover:text-indigo-700"
+                    >
+                      <Settings2 className="w-4 h-4" />
+                      Cài đặt
+                    </Button>
                   </div>
                 </div>
               </CardHeader>
@@ -187,7 +200,14 @@ export default function JlptTemplateBuilderPage() {
                             </div>
                             <div className="flex items-center gap-2">
                                <Input type="number" className="w-16 h-8 text-center" placeholder="Điểm" defaultValue={q.weight || 1} />
-                               <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive opacity-0 group-hover:opacity-100"><Trash2 className="w-4 h-4" /></Button>
+                               <Button
+                                 variant="outline"
+                                 size="sm"
+                                 className="h-8 gap-2 border-red-500/30 text-red-600 bg-transparent hover:bg-red-50 hover:text-red-600 opacity-100"
+                               >
+                                 <Trash2 className="w-4 h-4" />
+                                 Xóa
+                               </Button>
                             </div>
                           </div>
                         ))

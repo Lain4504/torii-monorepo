@@ -426,7 +426,8 @@ export class FastMcpService {
           : null,
         onboarding: onboarding
           ? {
-              targetCompletionTime: onboarding.targetCompletionTime ?? undefined,
+              targetCompletionTime:
+                onboarding.targetCompletionTime ?? undefined,
               purpose: onboarding.purpose ?? undefined,
               jlptTargetDate: onboarding.jlptTargetDate?.toISOString(),
               studyFrequency: onboarding.studyFrequency ?? undefined,

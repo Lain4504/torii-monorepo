@@ -91,7 +91,8 @@ export class CourseProfileService {
         description: input.description ?? null,
         level: input.level ?? null,
         thumbnailUrl: input.thumbnailUrl ?? null,
-        status: (input as any).status || 'PUBLISHED',
+        // CourseProfile không nên auto-PUBLISHED khi tạo mới (phải qua trạng thái duyệt theo workflow).
+        status: (input as any).status ?? 'DRAFT',
       },
     });
 
@@ -119,6 +120,13 @@ export class CourseProfileService {
     });
     if (!before) throw new NotFoundException('CourseProfile not found');
 
+    // Khi đã gửi duyệt hoặc đã publish (PUBLISHED), khóa chỉnh sửa để đảm bảo tính bất biến của curriculum.
+    if (before.status !== 'DRAFT') {
+      throw new BadRequestException(
+        'Không thể chỉnh sửa CourseProfile khi khóa đã được duyệt (chỉ cho phép ở trạng thái DRAFT).',
+      );
+    }
+
     const item = await this.prisma.courseProfile.update({
       where: { id },
       data: {
@@ -145,11 +153,101 @@ export class CourseProfileService {
     return item;
   }
 
+  async submitForApproval(id: string, requesterId?: string) {
+    const before = await this.prisma.courseProfile.findUnique({
+      where: { id },
+    });
+    if (!before) throw new NotFoundException('CourseProfile not found');
+
+    if (before.status !== 'DRAFT') {
+      throw new BadRequestException(
+        'Chỉ có CourseProfile ở trạng thái DRAFT mới có thể gửi duyệt.',
+      );
+    }
+
+    // Flow yêu cầu: phải có ít nhất 1 Module và 1 Lesson thì mới được gửi duyệt.
+    const moduleCount = await this.prisma.module.count({
+      where: { courseProfileId: id },
+    });
+    const lessonCount = await this.prisma.lesson.count({
+      where: { module: { courseProfileId: id } },
+    });
+    if (moduleCount === 0 || lessonCount === 0) {
+      throw new BadRequestException(
+        'CourseProfile cần có Modules và Lessons trước khi gửi duyệt.',
+      );
+    }
+
+    const item = await this.prisma.courseProfile.update({
+      where: { id },
+      data: {
+        status: 'PENDING_APPROVAL',
+        submittedForApprovalAt: new Date(),
+        submittedBy: requesterId ?? undefined,
+      },
+    });
+
+    if (requesterId) {
+      await this.audit.log({
+        userId: requesterId,
+        action: 'SUBMIT_FOR_APPROVAL',
+        entity: 'CourseProfile',
+        entityId: id,
+        description: `Submit course profile ${before.code} for approval`,
+        oldValues: before,
+        newValues: item,
+      });
+    }
+
+    return item;
+  }
+
+  async approve(id: string, requesterId?: string) {
+    const before = await this.prisma.courseProfile.findUnique({
+      where: { id },
+    });
+    if (!before) throw new NotFoundException('CourseProfile not found');
+
+    if (before.status !== 'PENDING_APPROVAL') {
+      throw new BadRequestException(
+        'Chỉ có CourseProfile ở trạng thái PENDING_APPROVAL mới có thể được duyệt.',
+      );
+    }
+
+    const item = await this.prisma.courseProfile.update({
+      where: { id },
+      data: {
+        status: 'PUBLISHED',
+        approvedAt: new Date(),
+        approvedBy: requesterId ?? undefined,
+      },
+    });
+
+    if (requesterId) {
+      await this.audit.log({
+        userId: requesterId,
+        action: 'APPROVE',
+        entity: 'CourseProfile',
+        entityId: id,
+        description: `Approve course profile ${before.code}`,
+        oldValues: before,
+        newValues: item,
+      });
+    }
+
+    return item;
+  }
+
   /**
    * DUPLICATE - The "Yearly Update" Engine
    * Clones a CourseProfile and all its Modules/Lessons.
    */
-  async duplicate(id: string, newCode: string, newTitle: string, requesterId?: string) {
+  async duplicate(
+    id: string,
+    newCode: string,
+    newTitle: string,
+    requesterId?: string,
+  ) {
     const source = await this.prisma.courseProfile.findUnique({
       where: { id },
       include: {
@@ -167,7 +265,8 @@ export class CourseProfileService {
     const exists = await this.prisma.courseProfile.findUnique({
       where: { code: newCode },
     });
-    if (exists) throw new BadRequestException(`Course code ${newCode} already exists`);
+    if (exists)
+      throw new BadRequestException(`Course code ${newCode} already exists`);
 
     return this.prisma.$transaction(async (tx) => {
       // 1. Create New Profile
@@ -194,7 +293,7 @@ export class CourseProfileService {
 
         if (mod.lessons.length > 0) {
           await tx.lesson.createMany({
-            data: mod.lessons.map(l => ({
+            data: mod.lessons.map((l) => ({
               moduleId: newModule.id,
               title: l.title,
               type: l.type,
@@ -233,15 +332,15 @@ export class CourseProfileService {
     });
 
     if (requesterId) {
-       await this.audit.log({
-         userId: requesterId,
-         action: 'ARCHIVE',
-         entity: 'CourseProfile',
-         entityId: id,
-         description: `Archived course profile ${before.code}`,
-         oldValues: before,
-         newValues: item,
-       });
+      await this.audit.log({
+        userId: requesterId,
+        action: 'ARCHIVE',
+        entity: 'CourseProfile',
+        entityId: id,
+        description: `Archived course profile ${before.code}`,
+        oldValues: before,
+        newValues: item,
+      });
     }
 
     return item;

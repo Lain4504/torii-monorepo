@@ -106,7 +106,9 @@ export function PasswordTab() {
                                                 autoComplete="current-password"
                                             />
                                             <Button
-                                                type="button" variant="ghost" size="icon"
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
                                                 className="absolute right-1 top-1/2 -translate-y-1/2 size-8 rounded-md"
                                                 onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                                             >
@@ -137,7 +139,9 @@ export function PasswordTab() {
                                                 autoComplete="new-password"
                                             />
                                             <Button
-                                                type="button" variant="ghost" size="icon"
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
                                                 className="absolute right-1 top-1/2 -translate-y-1/2 size-8 rounded-md"
                                                 onClick={() => setShowNewPassword(!showNewPassword)}
                                             >
@@ -168,7 +172,9 @@ export function PasswordTab() {
                                                 autoComplete="new-password"
                                             />
                                             <Button
-                                                type="button" variant="ghost" size="icon"
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
                                                 className="absolute right-1 top-1/2 -translate-y-1/2 size-8 rounded-md"
                                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                             >

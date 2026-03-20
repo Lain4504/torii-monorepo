@@ -230,7 +230,10 @@ export class EnrollmentService {
   async getCohortProgress(classId: string) {
     const enrollments = await this.prisma.enrollment.findMany({
       where: { classId, status: 'ACTIVE' },
-      select: { userId: true, user: { select: { displayName: true, avatarUrl: true } } },
+      select: {
+        userId: true,
+        user: { select: { displayName: true, avatarUrl: true } },
+      },
     });
 
     const totalLessons = await this.prisma.lesson.count({
@@ -262,7 +265,11 @@ export class EnrollmentService {
     );
   }
 
-  async migrateStudents(sourceClassId: string, targetClassId: string, requesterId = 'SYSTEM') {
+  async migrateStudents(
+    sourceClassId: string,
+    targetClassId: string,
+    requesterId = 'SYSTEM',
+  ) {
     const sourceClass = await this.prisma.class.findUnique({
       where: { id: sourceClassId },
       include: { _count: { select: { enrollments: true } } },
@@ -271,7 +278,8 @@ export class EnrollmentService {
       where: { id: targetClassId },
     });
 
-    if (!sourceClass || !targetClass) throw new NotFoundException('Class not found');
+    if (!sourceClass || !targetClass)
+      throw new NotFoundException('Class not found');
 
     const enrollments = await this.prisma.enrollment.findMany({
       where: { classId: sourceClassId, status: 'ACTIVE' },
@@ -297,12 +305,17 @@ export class EnrollmentService {
     });
   }
 
-  async checkEligibility(userId: string, targetId: string, targetType: 'CLASS' | 'OFFERING' | 'COURSE') {
-    const where = targetType === 'CLASS' 
-      ? { userId, classId: targetId }
-      : targetType === 'COURSE'
-        ? { userId, class: { courseProfileId: targetId } }
-        : { userId, offeringId: targetId };
+  async checkEligibility(
+    userId: string,
+    targetId: string,
+    targetType: 'CLASS' | 'OFFERING' | 'COURSE',
+  ) {
+    const where =
+      targetType === 'CLASS'
+        ? { userId, classId: targetId }
+        : targetType === 'COURSE'
+          ? { userId, class: { courseProfileId: targetId } }
+          : { userId, offeringId: targetId };
 
     const enrollment = await this.prisma.enrollment.findFirst({
       where: {

@@ -9,8 +9,16 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { successResponse, errorResponse, ReqWithRequester, GatewayAuthGuard } from '@server/shared';
-import { onboardingSurveyDTOSchema, OnboardingSurveyDTO } from '@workspace/schemas';
+import {
+  successResponse,
+  errorResponse,
+  ReqWithRequester,
+  GatewayAuthGuard,
+} from '@server/shared';
+import {
+  onboardingSurveyDTOSchema,
+  OnboardingSurveyDTO,
+} from '@workspace/schemas';
 
 @Controller('api/onboarding')
 @UseGuards(GatewayAuthGuard)
@@ -26,12 +34,12 @@ export class OnboardingController {
   ) {
     try {
       // Validate with zod
-      onboardingSurveyDTOSchema.parse(dto);
+      const dtoValidated = onboardingSurveyDTOSchema.parse(dto);
 
       const response = await firstValueFrom(
         this.natsClient.send(
           { cmd: 'identity.users.saveOnboardingSurvey' },
-          { userId: req.requester.sub, dto },
+          { userId: req.requester.sub, dto: dtoValidated },
         ),
       );
 

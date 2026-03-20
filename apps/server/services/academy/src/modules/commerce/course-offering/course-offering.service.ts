@@ -6,6 +6,8 @@ import {
 import {
   Prisma,
   OfferingStatus,
+  ClassStatus,
+  ClassMode,
 } from '@prisma/generated';
 import { PrismaService } from '@server/shared/prisma/prisma.service';
 import { AuditLoggerService } from '../../audit-logger.service';
@@ -99,7 +101,9 @@ export class CourseOfferingService {
       ...(query.level
         ? {
             class: {
-              courseProfile: { level: { equals: query.level, mode: 'insensitive' } },
+              courseProfile: {
+                level: { equals: query.level, mode: 'insensitive' },
+              },
             },
           }
         : {}),
@@ -175,7 +179,7 @@ export class CourseOfferingService {
     });
 
     if (!offering) throw new NotFoundException('Offering not found');
-    
+
     // Enrollability check Logic
     let isEnrollable = true;
     let enrollableReason = 'OK';
@@ -197,10 +201,10 @@ export class CourseOfferingService {
 
     const klass = offering.class;
     if (klass.mode === 'LIVE' && klass.term) {
-       if (klass.term.enrollmentCloseAt && klass.term.enrollmentCloseAt < now) {
-          isEnrollable = false;
-          enrollableReason = 'ENROLLMENT_CLOSED';
-       }
+      if (klass.term.enrollmentCloseAt && klass.term.enrollmentCloseAt < now) {
+        isEnrollable = false;
+        enrollableReason = 'ENROLLMENT_CLOSED';
+      }
     }
 
     return {
@@ -245,8 +249,14 @@ export class CourseOfferingService {
     return item;
   }
 
-  async update(id: string, input: CourseOfferingUpdateDto, requesterId = 'SYSTEM') {
-    const before = await this.prisma.courseOffering.findUnique({ where: { id } });
+  async update(
+    id: string,
+    input: CourseOfferingUpdateDto,
+    requesterId = 'SYSTEM',
+  ) {
+    const before = await this.prisma.courseOffering.findUnique({
+      where: { id },
+    });
     if (!before) throw new NotFoundException('Offering not found');
 
     const item = await this.prisma.courseOffering.update({
@@ -279,7 +289,7 @@ export class CourseOfferingService {
     const item = await this.findById(id);
     const result = await this.prisma.courseOffering.update({
       where: { id },
-      data: { 
+      data: {
         status: OfferingStatus.PENDING_APPROVAL,
         submittedForApprovalAt: new Date(),
         submittedBy: requesterId,
@@ -298,32 +308,75 @@ export class CourseOfferingService {
   }
 
   async approve(id: string, requesterId: string) {
-     const item = await this.findById(id);
-     const result = await this.prisma.courseOffering.update({
-       where: { id },
-       data: { 
-         status: OfferingStatus.PUBLISHED,
-         approvedAt: new Date(),
-         approvedBy: requesterId,
-       },
-     });
+    const item = await this.findById(id);
 
-     await this.audit.log({
-       userId: requesterId,
-       action: 'offering.approve',
-       entity: 'CourseOffering',
-       entityId: id,
-       description: `Approved offering ${item.code}`,
-     });
+    // Gating: chỉ approve offering khi class đã publish đúng điều kiện,
+    // và CourseProfile (nội dung học thuật) đã được approve (PUBLISHED).
+    const offeringWithClass = await this.prisma.courseOffering.findUnique({
+      where: { id },
+      include: {
+        class: {
+          select: {
+            mode: true,
+            status: true,
+            courseProfile: { select: { status: true } },
+          },
+        },
+      },
+    });
 
-     return result;
+    const klass = offeringWithClass?.class;
+    const profileStatus = klass?.courseProfile?.status;
+    if (!klass) throw new BadRequestException('Offering has no class mapped');
+    if (profileStatus !== 'PUBLISHED') {
+      throw new BadRequestException(
+        `Cannot approve offering because course profile is not published (status: ${profileStatus ?? 'UNKNOWN'}).`,
+      );
+    }
+
+    if (klass.mode === 'LIVE') {
+      if (klass.status !== ClassStatus.OPENING) {
+        throw new BadRequestException(
+          `Cannot approve offering because LIVE class is not OPENING (status: ${klass.status}).`,
+        );
+      }
+    } else {
+      if (
+        klass.status !== ClassStatus.PUBLISHED &&
+        klass.status !== ClassStatus.OPENING &&
+        klass.status !== ClassStatus.ONGOING
+      ) {
+        throw new BadRequestException(
+          `Cannot approve offering because class is not sellable (status: ${klass.status}).`,
+        );
+      }
+    }
+
+    const result = await this.prisma.courseOffering.update({
+      where: { id },
+      data: {
+        status: OfferingStatus.PUBLISHED,
+        approvedAt: new Date(),
+        approvedBy: requesterId,
+      },
+    });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'offering.approve',
+      entity: 'CourseOffering',
+      entityId: id,
+      description: `Approved offering ${item.code}`,
+    });
+
+    return result;
   }
 
   async reject(id: string, reason: string, requesterId: string) {
     const item = await this.findById(id);
     const result = await this.prisma.courseOffering.update({
       where: { id },
-      data: { 
+      data: {
         status: OfferingStatus.DRAFT,
         rejectedAt: new Date(),
         rejectedBy: requesterId,
@@ -374,7 +427,9 @@ export class CourseOfferingService {
     if (!item) throw new NotFoundException('Offering not found');
 
     if (item._count.enrollments > 0) {
-      throw new BadRequestException('Cannot delete offering with active enrollments');
+      throw new BadRequestException(
+        'Cannot delete offering with active enrollments',
+      );
     }
 
     await this.prisma.courseOffering.delete({ where: { id } });

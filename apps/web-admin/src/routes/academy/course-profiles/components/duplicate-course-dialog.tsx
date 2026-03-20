@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -10,19 +10,12 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@workspace/ui/components/dialog";
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@workspace/ui/components/form";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@workspace/ui/components/field";
 import { Input } from "@workspace/ui/components/input";
 import { Button } from "@workspace/ui/components/button";
-import { Copy, AlertCircle } from 'lucide-react';
+import { Copy, AlertCircle, X } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAcademyCourseProfiles, type AcademyCourseProfile, academyCourseProfilesApi } from '@/lib/api/services/academy-course-profiles';
+import { type AcademyCourseProfile, academyCourseProfilesApi } from '@/lib/api/services/academy-course-profiles';
 import { useQueryClient } from '@tanstack/react-query';
 
 const duplicateSchema = z.object({
@@ -93,42 +86,52 @@ export function DuplicateCourseDialog({ open, onOpenChange, profile }: Duplicate
                   <p>Hành động này sẽ sao chép toàn bộ cấu trúc bài giảng. Các dữ liệu về học viên và lớp học sẽ không bị sao chép.</p>
                 </div>
 
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <FormField
-                            control={form.control}
+                <FieldGroup>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+                        <Controller
                             name="newCode"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Mã khóa học mới (Unique Code)</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="VD: N5-2025" {...field} className="font-mono uppercase" />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field>
+                                    <FieldLabel>Mã khóa học mới (Unique Code)</FieldLabel>
+                                    <Input placeholder="VD: N5-2025" {...field} className="font-mono uppercase" />
+                                    <FieldError>{fieldState.error?.message}</FieldError>
+                                </Field>
                             )}
                         />
-                        <FormField
-                            control={form.control}
+                        <Controller
                             name="newTitle"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Tên khóa học mới</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="VD: Khóa học N5 - Năm 2025" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field>
+                                    <FieldLabel>Tên khóa học mới</FieldLabel>
+                                    <Input placeholder="VD: Khóa học N5 - Năm 2025" {...field} />
+                                    <FieldError>{fieldState.error?.message}</FieldError>
+                                </Field>
                             )}
                         />
                         <DialogFooter className="pt-4">
-                            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Hủy</Button>
-                            <Button type="submit" disabled={isSubmitting} className="font-bold">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => onOpenChange(false)}
+                              className="gap-2 border-slate-500/30 text-slate-700 bg-transparent hover:bg-slate-50 hover:text-slate-700"
+                            >
+                              <X className="size-4" />
+                              Hủy
+                            </Button>
+                            <Button
+                              type="submit"
+                              disabled={isSubmitting}
+                              variant="outline"
+                              className="gap-2 border-blue-500/30 text-blue-700 bg-transparent hover:bg-blue-50 hover:text-blue-700 font-bold"
+                            >
+                                <Copy className="size-4" />
                                 {isSubmitting ? "Đang nhân bản..." : "Bắt đầu nhân bản"}
                             </Button>
                         </DialogFooter>
                     </form>
-                </Form>
+                </FieldGroup>
             </DialogContent>
         </Dialog>
     );

@@ -45,7 +45,11 @@ export class JlptMockHandler {
   saveAnswers(
     @Payload() data: JlptMockAttemptSaveAnswersDto & { requesterId?: string },
   ) {
-    return this.jlpt.saveAnswers(data.attemptId, data.answers, data.requesterId);
+    return this.jlpt.saveAnswers(
+      data.attemptId,
+      data.answers,
+      data.requesterId,
+    );
   }
 
   @MessagePattern({ cmd: 'academy.jlptMock.attempt.nextSection' })
@@ -67,18 +71,24 @@ export class JlptMockHandler {
   }
 
   @MessagePattern({ cmd: 'academy.jlptMock.attempt.result' })
-  getAttemptResult(@Payload() data: { attemptId: string; requesterId?: string }) {
+  getAttemptResult(
+    @Payload() data: { attemptId: string; requesterId?: string },
+  ) {
     return this.jlpt.getAttemptResult(data.attemptId, data.requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.jlptMock.attempt.findHistory' })
-  findAttemptHistory(@Payload() data: { requesterId?: string; limit?: number }) {
+  findAttemptHistory(
+    @Payload() data: { requesterId?: string; limit?: number },
+  ) {
     if (!data.requesterId) return [];
     return this.jlpt.findAttemptHistory(data.requesterId, data.limit ?? 20);
   }
 
   @MessagePattern({ cmd: 'academy.jlptMock.attempt.answers' })
-  getAttemptAnswers(@Payload() data: { attemptId: string; requesterId?: string }) {
+  getAttemptAnswers(
+    @Payload() data: { attemptId: string; requesterId?: string },
+  ) {
     return this.jlpt.getAttemptAnswers(data.attemptId, data.requesterId);
   }
 
@@ -133,9 +143,12 @@ export class JlptMockHandler {
   @MessagePattern({ cmd: 'academy.jlptMock.bankQuestion.update' })
   updateBankQuestion(
     @Payload()
-    data: { id: string; input: JlptBankQuestionUpdateDto; requesterId?: string },
+    data: {
+      id: string;
+      input: JlptBankQuestionUpdateDto;
+      requesterId?: string;
+    },
   ) {
     return this.jlpt.updateBankQuestion(data.id, data.input, data.requesterId);
   }
 }
-

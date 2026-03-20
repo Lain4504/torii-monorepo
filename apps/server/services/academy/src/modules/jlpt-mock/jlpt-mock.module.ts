@@ -8,4 +8,3 @@ import { JlptMockHandler } from './jlpt-mock.handler';
   exports: [JlptMockService],
 })
 export class JlptMockModule {}
-

@@ -157,7 +157,13 @@ export function GroupQuestionFlow({
                                     </Dialog>
                                 </div>
                                 <div className="flex gap-3">
-                                    <Button type="button" variant="ghost" onClick={onCancel}>Huỷ</Button>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        onClick={onCancel}
+                                    >
+                                        Huỷ
+                                    </Button>
                                     <Button type="submit" disabled={create.isPending || update.isPending} className="min-w-[140px]">
                                         <Save className="mr-2 size-4" />
                                         {isParentCreated ? "Lưu thay đổi" : "Lưu & Tiếp tục"}

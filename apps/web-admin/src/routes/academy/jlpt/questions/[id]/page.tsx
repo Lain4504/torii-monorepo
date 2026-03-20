@@ -137,8 +137,14 @@ export default function JlptQuestionDetailPage() {
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2 border-slate-500/30 text-slate-700 bg-transparent hover:bg-slate-50 hover:text-slate-700"
+          onClick={() => navigate(-1)}
+        >
           <ChevronLeft className="w-5 h-5" />
+          Quay lại
         </Button>
         <h1 className="text-2xl font-bold tracking-tight">
           {isNew ? "Thêm câu hỏi mới" : "Chỉnh sửa câu hỏi"}
@@ -221,13 +227,14 @@ export default function JlptQuestionDetailPage() {
                         />
                       </TableCell>
                       <TableCell>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="text-destructive h-8 w-8"
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 gap-2 border-red-500/30 text-red-600 bg-transparent hover:bg-red-50 hover:text-red-600"
                           onClick={() => removeOption(idx)}
                         >
                           <Trash2 className="w-4 h-4" />
+                          Xóa
                         </Button>
                       </TableCell>
                     </TableRow>

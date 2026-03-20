@@ -2,6 +2,7 @@ import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
+import { Save, X } from "lucide-react"
 import {
   Field,
   FieldError,
@@ -207,14 +208,21 @@ export function CourseProfileForm({
         <Field orientation="horizontal" className="justify-end pt-6 border-t">
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             onClick={onCancel}
             disabled={submitting}
+            className="gap-2 border-slate-500/30 text-slate-700 bg-transparent hover:bg-slate-50 hover:text-slate-700"
           >
+            <X className="size-4" />
             Hủy bỏ
           </Button>
-          <Button type="submit" disabled={submitting} className="min-w-[120px]">
-            {submitting ? <Spinner className="mr-2 h-4 w-4" /> : null}
+          <Button
+            type="submit"
+            disabled={submitting}
+            className="min-w-[160px] gap-2 border-primary/30 text-primary bg-transparent hover:bg-primary/5"
+            variant="outline"
+          >
+            {submitting ? <Spinner className="h-4 w-4" /> : <Save className="size-4" />}
             {isEdit ? "Cập nhật Profile" : "Tạo Profile"}
           </Button>
         </Field>

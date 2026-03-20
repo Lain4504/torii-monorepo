@@ -67,7 +67,7 @@ export class ClassService {
       },
       include: {
         _count: {
-          select: { enrollments: true },
+          select: { enrollments: true, liveSchedules: true },
         },
         instructor: {
           select: {
@@ -116,9 +116,18 @@ export class ClassService {
             },
           },
         },
+        term: {
+          select: {
+            termCode: true,
+            openingDate: true,
+            closingDate: true,
+            enrollmentOpenAt: true,
+            enrollmentCloseAt: true,
+          },
+        },
         liveSchedules: true,
         _count: {
-          select: { enrollments: true },
+          select: { enrollments: true, liveSchedules: true },
         },
       },
     });
@@ -134,10 +143,78 @@ export class ClassService {
     if (!profile) throw new BadRequestException('Invalid courseProfileId');
 
     if (profile.status === 'ARCHIVED') {
-      throw new BadRequestException('Cannot create class for an archived course profile.');
+      throw new BadRequestException(
+        'Cannot create class for an archived course profile.',
+      );
     }
 
     return this.prisma.$transaction(async (tx) => {
+      let resolvedTermId = input.termId ?? undefined;
+
+      if (input.mode === 'LIVE' && !resolvedTermId) {
+        if (!input.term) {
+          throw new BadRequestException('LIVE class requires `termId` or `term`.');
+        }
+
+        const openingDate = new Date(input.term.openingDate as any);
+        const closingDate = new Date(input.term.closingDate as any);
+
+        if (Number.isNaN(openingDate.getTime()) || Number.isNaN(closingDate.getTime())) {
+          throw new BadRequestException('LIVE class requires valid term opening/closing dates.');
+        }
+
+        const enrollmentOpenAt =
+          input.term.enrollmentOpenAt != null
+            ? new Date(input.term.enrollmentOpenAt as any)
+            : undefined;
+        const enrollmentCloseAt =
+          input.term.enrollmentCloseAt != null
+            ? new Date(input.term.enrollmentCloseAt as any)
+            : undefined;
+
+        const liveTerm = await tx.liveTerm.upsert({
+          where: {
+            courseProfileId_termCode: {
+              courseProfileId: input.courseProfileId,
+              termCode: input.term.termCode,
+            },
+          },
+          create: {
+            courseProfileId: input.courseProfileId,
+            termCode: input.term.termCode,
+            status: 'DRAFT',
+            openingDate,
+            closingDate,
+            enrollmentOpenAt:
+              enrollmentOpenAt && !Number.isNaN(enrollmentOpenAt.getTime())
+                ? enrollmentOpenAt
+                : null,
+            enrollmentCloseAt:
+              enrollmentCloseAt && !Number.isNaN(enrollmentCloseAt.getTime())
+                ? enrollmentCloseAt
+                : null,
+          },
+          update: {
+            openingDate,
+            closingDate,
+            enrollmentOpenAt:
+              enrollmentOpenAt && !Number.isNaN(enrollmentOpenAt.getTime())
+                ? enrollmentOpenAt
+                : null,
+            enrollmentCloseAt:
+              enrollmentCloseAt && !Number.isNaN(enrollmentCloseAt.getTime())
+                ? enrollmentCloseAt
+                : null,
+          },
+        });
+
+        resolvedTermId = liveTerm.id;
+      }
+
+      if (input.mode === 'LIVE' && !resolvedTermId) {
+        throw new BadRequestException('LIVE class requires `termId` or `term`.');
+      }
+
       const classItem = await tx.class.create({
         data: {
           courseProfileId: input.courseProfileId,
@@ -146,7 +223,7 @@ export class ClassService {
           mode: input.mode as any,
           status: (input.status as ClassStatus) ?? 'DRAFT',
           instructorId: input.instructorId,
-          termId: input.termId ?? undefined,
+          termId: resolvedTermId,
         },
       });
 
@@ -274,9 +351,21 @@ export class ClassService {
   async publishClass(id: string, requesterId = 'SYSTEM') {
     const classItem = await this.prisma.class.findUnique({
       where: { id },
-      include: { liveSchedules: { take: 1 } },
+      include: {
+        liveSchedules: { take: 1 },
+        courseProfile: {
+          select: { status: true, code: true },
+        },
+      },
     });
     if (!classItem) throw new NotFoundException('Class not found');
+
+    // CourseProfile phải đã được approve (PUBLISHED) thì mới publish lớp.
+    if (classItem.courseProfile?.status !== 'PUBLISHED') {
+      throw new BadRequestException(
+        `Cannot publish class because course profile is not published (status: ${classItem.courseProfile?.status ?? 'UNKNOWN'}).`,
+      );
+    }
 
     if (classItem.mode === 'LIVE') {
       if (!classItem.liveSchedules || classItem.liveSchedules.length === 0) {
@@ -366,7 +455,11 @@ export class ClassService {
     return result;
   }
 
-  async duplicate(id: string, input?: ClassDuplicateDto, requesterId = 'SYSTEM') {
+  async duplicate(
+    id: string,
+    input?: ClassDuplicateDto,
+    requesterId = 'SYSTEM',
+  ) {
     const source = await this.prisma.class.findUnique({
       where: { id },
       include: { liveSchedules: true },
@@ -446,7 +539,9 @@ export class ClassService {
     const classItem = await this.findById(id);
 
     if (classItem._count.enrollments > 0) {
-      throw new BadRequestException('Cannot delete class with active enrollments');
+      throw new BadRequestException(
+        'Cannot delete class with active enrollments',
+      );
     }
 
     await this.prisma.class.delete({ where: { id } });
@@ -462,8 +557,11 @@ export class ClassService {
     return { ok: true };
   }
 
-  private async assertPrimaryTeacherScheduleConflicts(classId: string, instructorId: string) {
-     // No changes needed to logic, just bypass
+  private async assertPrimaryTeacherScheduleConflicts(
+    classId: string,
+    instructorId: string,
+  ) {
+    // No changes needed to logic, just bypass
   }
 
   // ==============================================================
@@ -487,7 +585,7 @@ export class ClassService {
       select: { id: true, mode: true },
     });
     if (!klass) throw new NotFoundException('Class not found');
-    
+
     return this.prisma.$transaction(async (tx) => {
       const assignment = await tx.assignment.create({
         data: {
@@ -519,12 +617,15 @@ export class ClassService {
         titleOverride: input.titleOverride,
         openAt: input.openAt ? new Date(input.openAt) : undefined,
         deadline: input.deadline ? new Date(input.deadline) : undefined,
-        assignment: input.title || input.instructions ? {
-          update: {
-             title: input.title,
-             instructions: input.instructions,
-          }
-        } : undefined,
+        assignment:
+          input.title || input.instructions
+            ? {
+                update: {
+                  title: input.title,
+                  instructions: input.instructions,
+                },
+              }
+            : undefined,
       },
       include: { assignment: true },
     });
@@ -544,7 +645,7 @@ export class ClassService {
 
   async getUserProgress(userId: string, classId: string) {
     const klass = await this.findById(classId);
-    
+
     const completed = await this.prisma.userLessonProgress.findMany({
       where: { userId, classId, isCompleted: true },
       select: { lessonId: true, updatedAt: true },

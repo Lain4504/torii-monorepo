@@ -4,11 +4,23 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: add JLPT mock exam module with related services and DTOs">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="update web-admin">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/styles/common.css" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/styles/common.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/meet/src/styles/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/apps/meet/src/styles/index.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/class.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/class.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/dto/class.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/classroom/class/dto/class.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/server/services/academy/src/modules/lesson/lesson.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/server/services/academy/src/modules/lesson/lesson.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/academy/class-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/components/academy/class-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/components/academy/live-class-form.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-classes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-classes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/classes/classes-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/classes/classes-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/classes/tabs/class-info-tab.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/classes/tabs/class-info-tab.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/course-profiles/course-profile-detail-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/course-profiles/course-profile-detail-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/course-profiles/course-profiles-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/course-profiles/course-profiles-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/blog/blog-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/blog/blog-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/blog/create-blog-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/blog/create-blog-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/blog/edit-blog-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/blog/edit-blog-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-class.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/schemas/src/dtos/academy-class.dto.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,7 +33,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1723" />
+    <option name="cachedIndexableFilesCount" value="1728" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -355,14 +367,8 @@
       <workItem from="1773881436715" duration="1401000" />
       <workItem from="1773909942327" duration="10648000" />
       <workItem from="1773969256177" duration="35000" />
-    </task>
-    <task id="LOCAL-00976" summary="remove unsued file">
-      <option name="closed" value="true" />
-      <created>1772792351338</created>
-      <option name="number" value="00976" />
-      <option name="presentableId" value="LOCAL-00976" />
-      <option name="project" value="LOCAL" />
-      <updated>1772792351338</updated>
+      <workItem from="1774006608891" duration="2274000" />
+      <workItem from="1774010782764" duration="697000" />
     </task>
     <task id="LOCAL-00977" summary="update rich text eidtor">
       <option name="closed" value="true" />
@@ -748,7 +754,15 @@
       <option name="project" value="LOCAL" />
       <updated>1773917376174</updated>
     </task>
-    <option name="localTasksCounter" value="1025" />
+    <task id="LOCAL-01025" summary="update web-admin">
+      <option name="closed" value="true" />
+      <created>1774010822081</created>
+      <option name="number" value="01025" />
+      <option name="presentableId" value="LOCAL-01025" />
+      <option name="project" value="LOCAL" />
+      <updated>1774010822081</updated>
+    </task>
+    <option name="localTasksCounter" value="1026" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -783,7 +797,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="remove unused academy form components from workspace configuration" />
     <MESSAGE value="add learning progress statistics and enrollment management features" />
     <MESSAGE value="remove unsued file" />
     <MESSAGE value="update rich text eidtor" />
@@ -808,7 +821,8 @@
     <MESSAGE value="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;" />
     <MESSAGE value="refactor: simplify class handling in offerings and remove legacy code" />
     <MESSAGE value="feat: add JLPT mock exam module with related services and DTOs" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add JLPT mock exam module with related services and DTOs" />
+    <MESSAGE value="update web-admin" />
+    <option name="LAST_COMMIT_MESSAGE" value="update web-admin" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

@@ -154,8 +154,13 @@ export default function JlptTemplatesPage() {
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8 gap-2 border-slate-500/30 text-slate-700 bg-transparent hover:bg-slate-50 hover:text-slate-700"
+                            >
                               <MoreHorizontal className="h-4 w-4" />
+                              Thao tác
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">

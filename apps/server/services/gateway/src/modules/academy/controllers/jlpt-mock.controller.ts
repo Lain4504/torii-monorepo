@@ -21,7 +21,7 @@ import { firstValueFrom } from 'rxjs';
 
 @UseGuards(GatewayAuthGuard)
 @Controller('api/academy/jlpt-mock')
-export class  JlptMockController {
+export class JlptMockController {
   constructor(
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) {}
@@ -138,7 +138,10 @@ export class  JlptMockController {
   }
 
   @Get('attempts/:id/answers')
-  async getAttemptAnswers(@Req() req: ReqWithRequester, @Param('id') id: string) {
+  async getAttemptAnswers(
+    @Req() req: ReqWithRequester,
+    @Param('id') id: string,
+  ) {
     try {
       const items = await firstValueFrom(
         this.natsClient.send(
@@ -197,7 +200,10 @@ export class  JlptMockController {
   // --- Admin Endpoints ---
 
   @Get('admin/templates')
-  async adminFindAllTemplates(@Req() req: ReqWithRequester, @Query() query: any) {
+  async adminFindAllTemplates(
+    @Req() req: ReqWithRequester,
+    @Query() query: any,
+  ) {
     try {
       const items = await firstValueFrom(
         this.natsClient.send(
@@ -265,7 +271,10 @@ export class  JlptMockController {
   }
 
   @Get('admin/bank-questions')
-  async adminFindBankQuestions(@Req() req: ReqWithRequester, @Query() query: any) {
+  async adminFindBankQuestions(
+    @Req() req: ReqWithRequester,
+    @Query() query: any,
+  ) {
     try {
       const items = await firstValueFrom(
         this.natsClient.send(
@@ -280,7 +289,10 @@ export class  JlptMockController {
   }
 
   @Post('admin/bank-questions')
-  async adminCreateBankQuestion(@Req() req: ReqWithRequester, @Body() body: any) {
+  async adminCreateBankQuestion(
+    @Req() req: ReqWithRequester,
+    @Body() body: any,
+  ) {
     try {
       const item = await firstValueFrom(
         this.natsClient.send(
@@ -313,4 +325,3 @@ export class  JlptMockController {
     }
   }
 }
-

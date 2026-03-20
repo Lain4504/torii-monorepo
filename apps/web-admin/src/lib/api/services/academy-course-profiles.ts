@@ -17,6 +17,10 @@ export type AcademyCourseProfile = {
   thumbnailUrl?: string | null
   createdAt: string
   updatedAt: string
+  submittedForApprovalAt?: string | null
+  submittedBy?: string | null
+  approvedAt?: string | null
+  approvedBy?: string | null
   modules?: any[]
 }
 
@@ -68,6 +72,22 @@ export const academyCourseProfilesApi = {
     return res.data.data!.item
   },
 
+  async submitForApproval(id: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseProfile }>>(
+      `/api/academy/course-profiles/${id}/submit-for-approval`,
+      {},
+    )
+    return res.data.data!.item
+  },
+
+  async approve(id: string) {
+    const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseProfile }>>(
+      `/api/academy/course-profiles/${id}/approve`,
+      {},
+    )
+    return res.data.data!.item
+  },
+
   async delete(id: string) {
     const res = await apiClient.delete<StandardApiResponse<{ ok: boolean }>>(
       `/api/academy/course-profiles/${id}`,
@@ -112,6 +132,28 @@ export function useArchiveAcademyCourseProfile() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => academyCourseProfilesApi.archive(id),
+    onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: ["academy-course-profiles"] })
+      qc.invalidateQueries({ queryKey: ["academy-course-profile", id] })
+    },
+  })
+}
+
+export function useSubmitAcademyCourseProfileForApproval() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => academyCourseProfilesApi.submitForApproval(id),
+    onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: ["academy-course-profiles"] })
+      qc.invalidateQueries({ queryKey: ["academy-course-profile", id] })
+    },
+  })
+}
+
+export function useApproveAcademyCourseProfile() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => academyCourseProfilesApi.approve(id),
     onSuccess: (_, id) => {
       qc.invalidateQueries({ queryKey: ["academy-course-profiles"] })
       qc.invalidateQueries({ queryKey: ["academy-course-profile", id] })

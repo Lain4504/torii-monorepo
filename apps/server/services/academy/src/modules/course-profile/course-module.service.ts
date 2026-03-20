@@ -43,9 +43,9 @@ export class CourseModuleService {
       throw new BadRequestException('Invalid courseProfileId');
     }
 
-    if (profile.status === 'ARCHIVED') {
+    if (profile.status !== 'DRAFT') {
       throw new BadRequestException(
-        'Không thể thêm Module vào CourseProfile đã bị lưu trữ (ARCHIVED).',
+        'Không thể thêm/chỉnh sửa Module khi CourseProfile chưa ở trạng thái DRAFT.',
       );
     }
 
@@ -77,11 +77,7 @@ export class CourseModuleService {
     return item;
   }
 
-  async update(
-    id: string,
-    input: CourseModuleUpdateDto,
-    requesterId?: string,
-  ) {
+  async update(id: string, input: CourseModuleUpdateDto, requesterId?: string) {
     const before = await this.prisma.module.findUnique({
       where: { id },
       include: {
@@ -95,9 +91,9 @@ export class CourseModuleService {
       throw new NotFoundException('Module not found');
     }
 
-    if (before.courseProfile.status === 'ARCHIVED') {
+    if (before.courseProfile.status !== 'DRAFT') {
       throw new BadRequestException(
-        'Không thể chỉnh sửa Module của CourseProfile đã bị lưu trữ (ARCHIVED).',
+        'Không thể chỉnh sửa Module khi CourseProfile chưa ở trạng thái DRAFT.',
       );
     }
 
@@ -140,9 +136,9 @@ export class CourseModuleService {
       throw new NotFoundException('Module not found');
     }
 
-    if (before.courseProfile.status === 'ARCHIVED') {
+    if (before.courseProfile.status !== 'DRAFT') {
       throw new BadRequestException(
-        'Không thể xóa Module của CourseProfile đã bị lưu trữ (ARCHIVED).',
+        'Không thể xóa Module khi CourseProfile chưa ở trạng thái DRAFT.',
       );
     }
 

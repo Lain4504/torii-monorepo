@@ -27,8 +27,8 @@ import NotificationsPage from '@/routes/notification/notifications-page.tsx'
 import SettingsPage from '@/routes/settings/settings-page.tsx'
 import ProfilePage from '@/routes/profile/profile-page.tsx'
 import { BlogPage } from '@/routes/blog/blog-page.tsx'
-import EditBlogPage from '@/routes/blog/edit-blog-page.tsx'
 import CreateBlogPage from '@/routes/blog/create-blog-page.tsx'
+import EditBlogPage from '@/routes/blog/edit-blog-page.tsx'
 
 import LoginPage from '@/routes/auth/login-page.tsx'
 import ForgotPasswordPage from '@/routes/auth/forgot-password-page.tsx'
@@ -53,6 +53,7 @@ import AssignmentGradingPage from '@/routes/academy/classes/assignment-grading-p
 import ApprovalsPage from '@/routes/academy/approvals/approvals-page.tsx'
 import CourseOfferingApprovalPreviewPage from '@/routes/academy/approvals/course-offering-preview-page.tsx'
 import ClassApprovalPreviewPage from '@/routes/academy/approvals/class-preview-page.tsx'
+import CourseProfileApprovalPreviewPage from '@/routes/academy/approvals/course-profile-preview-page'
 import RewardsPage from '@/routes/gamification/rewards-page.tsx'
 import AchievementsPage from '@/routes/gamification/achievements-page.tsx'
 import AiSubscriptionsPage from '@/routes/academy/ai-subscriptions/ai-subscriptions-page.tsx'
@@ -133,6 +134,10 @@ function App() {
                     <Route path="academy/approvals" element={<ApprovalsPage />} />
                     <Route path="academy/approvals/course-offerings/:id" element={<CourseOfferingApprovalPreviewPage />} />
                     <Route path="academy/approvals/classes/:id" element={<ClassApprovalPreviewPage />} />
+                    <Route
+                      path="academy/approvals/course-profiles/:id"
+                      element={<CourseProfileApprovalPreviewPage />}
+                    />
                   </Route>
 
                   <Route element={<RoutePermissionGuard permission="coupon.manage" />}>

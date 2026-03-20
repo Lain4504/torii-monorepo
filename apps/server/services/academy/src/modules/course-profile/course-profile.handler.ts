@@ -44,6 +44,16 @@ export class CourseProfileHandler {
     return this.courseProfiles.update(data.id, data.input, data.requesterId);
   }
 
+  @MessagePattern({ cmd: 'academy.courseProfile.submitForApproval' })
+  submitForApproval(@Payload() data: { id: string; requesterId?: string }) {
+    return this.courseProfiles.submitForApproval(data.id, data.requesterId);
+  }
+
+  @MessagePattern({ cmd: 'academy.courseProfile.approve' })
+  approve(@Payload() data: { id: string; requesterId?: string }) {
+    return this.courseProfiles.approve(data.id, data.requesterId);
+  }
+
   @MessagePattern({ cmd: 'academy.courseProfile.duplicate' })
   duplicate(
     @Payload()

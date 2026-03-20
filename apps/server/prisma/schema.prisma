@@ -1056,6 +1056,7 @@ model Certificate {
 // Course Profile status
 enum CourseProfileStatus {
   DRAFT
+  PENDING_APPROVAL
   PUBLISHED
   ARCHIVED
 }
@@ -1086,7 +1087,14 @@ model CourseProfile {
   description  String?             @db.Text
   level        String?             @db.VarChar(50) // N5, N4, N3, N2, N1
   thumbnailUrl String?             @map("thumbnail_url") @db.Text
-  status       CourseProfileStatus @default(PUBLISHED)
+  status       CourseProfileStatus @default(DRAFT)
+
+  // Approval workflow
+  submittedForApprovalAt DateTime? @map("submitted_for_approval_at")
+  submittedBy            String?   @map("submitted_by") @db.Uuid
+  approvedAt             DateTime? @map("approved_at")
+  approvedBy             String?   @map("approved_by") @db.Uuid
+
   createdAt    DateTime            @default(now()) @map("created_at")
   updatedAt    DateTime            @default(now()) @updatedAt @map("updated_at")
 

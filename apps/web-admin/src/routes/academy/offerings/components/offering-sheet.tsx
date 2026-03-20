@@ -339,15 +339,16 @@ export function OfferingSheet({ open, onOpenChange, offering }: OfferingSheetPro
                               </ItemContent>
                               <ItemActions>
                                 <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="size-8 text-muted-foreground hover:text-destructive"
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-8 gap-2 border-red-500/30 text-red-600 bg-transparent hover:bg-red-50 hover:text-red-600"
                                   onClick={(e) => {
                                     e.preventDefault()
                                     setClass("")
                                   }}
                                 >
                                   <X className="size-4" />
+                                  <span>Bỏ chọn</span>
                                 </Button>
                               </ItemActions>
                             </Item>

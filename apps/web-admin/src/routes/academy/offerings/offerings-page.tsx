@@ -210,13 +210,14 @@ export default function OfferingsPage() {
                                                 </Button>
 
                                                 <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="size-8 text-muted-foreground hover:text-destructive"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="h-8 gap-2 border-orange-500/30 text-orange-700 bg-transparent hover:bg-orange-50 hover:text-orange-700"
                                                     onClick={() => setArchiveDialog({ open: true, offering })}
                                                     title="Lưu trữ"
                                                 >
                                                     <Archive className="h-4 w-4" />
+                                                    <span>Lưu trữ</span>
                                                 </Button>
                                             </div>
                                         </TableCell>

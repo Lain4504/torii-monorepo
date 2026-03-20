@@ -47,9 +47,12 @@ export class JlptMockService {
       andFilters.push({ levelId: level.id });
     }
 
-    if (query.sectionCode) andFilters.push({ sectionCode: query.sectionCode as any });
-    if (query.questionType) andFilters.push({ questionType: query.questionType as any });
-    if (query.difficulty) andFilters.push({ difficulty: query.difficulty as any });
+    if (query.sectionCode)
+      andFilters.push({ sectionCode: query.sectionCode as any });
+    if (query.questionType)
+      andFilters.push({ questionType: query.questionType as any });
+    if (query.difficulty)
+      andFilters.push({ difficulty: query.difficulty as any });
 
     if (query.mondaiCode) {
       andFilters.push({ mondai: { is: { code: query.mondaiCode } } });
@@ -79,7 +82,10 @@ export class JlptMockService {
     });
   }
 
-  async createBankQuestion(input: JlptBankQuestionCreateDto, requesterId?: string) {
+  async createBankQuestion(
+    input: JlptBankQuestionCreateDto,
+    requesterId?: string,
+  ) {
     const level = await this.prisma.jlptLevel.findUnique({
       where: { code: input.level as any },
       select: { id: true },
@@ -126,7 +132,11 @@ export class JlptMockService {
     });
   }
 
-  async updateBankQuestion(id: string, input: JlptBankQuestionUpdateDto, requesterId?: string) {
+  async updateBankQuestion(
+    id: string,
+    input: JlptBankQuestionUpdateDto,
+    requesterId?: string,
+  ) {
     const before = await this.prisma.jlptQuestionBankQuestion.findUnique({
       where: { id },
       select: { id: true, levelId: true, sectionCode: true },
@@ -145,7 +155,8 @@ export class JlptMockService {
           },
           select: { id: true },
         });
-        if (!section) throw new BadRequestException('Invalid section for level');
+        if (!section)
+          throw new BadRequestException('Invalid section for level');
         const mondai = await this.prisma.jlptMondai.findFirst({
           where: { sectionId: section.id, code: input.mondaiCode },
           select: { id: true },
@@ -284,7 +295,10 @@ export class JlptMockService {
     return { ...template, questions };
   }
 
-  async createTemplate(input: JlptMockExamTemplateCreateDto, requesterId?: string) {
+  async createTemplate(
+    input: JlptMockExamTemplateCreateDto,
+    requesterId?: string,
+  ) {
     const level = await this.prisma.jlptLevel.findUnique({
       where: { code: input.level as any },
       select: { id: true, code: true },
@@ -309,11 +323,14 @@ export class JlptMockService {
         title: input.title,
         description: input.description ?? null,
         status: (input.status as any) ?? 'DRAFT',
-        availableFrom: input.availableFrom ? new Date(input.availableFrom) : null,
+        availableFrom: input.availableFrom
+          ? new Date(input.availableFrom)
+          : null,
         availableTo: input.availableTo ? new Date(input.availableTo) : null,
         maxAttemptsPerUser: input.maxAttemptsPerUser ?? null,
         showDetailedReview: input.showDetailedReview ?? true,
-        showCorrectAnswerImmediately: input.showCorrectAnswerImmediately ?? false,
+        showCorrectAnswerImmediately:
+          input.showCorrectAnswerImmediately ?? false,
         createdBy: requesterId ?? null,
         sections: {
           create: sections.map((s) => ({
@@ -329,7 +346,11 @@ export class JlptMockService {
     });
   }
 
-  async updateTemplate(id: string, input: JlptMockExamTemplateUpdateDto, requesterId?: string) {
+  async updateTemplate(
+    id: string,
+    input: JlptMockExamTemplateUpdateDto,
+    requesterId?: string,
+  ) {
     const before = await this.prisma.jlptMockExamTemplate.findUnique({
       where: { id },
       select: { id: true },
@@ -362,17 +383,26 @@ export class JlptMockService {
         description: input.description ?? undefined,
         scoringProfileId,
         status: (input.status as any) ?? undefined,
-        availableFrom: input.availableFrom ? new Date(input.availableFrom) : undefined,
-        availableTo: input.availableTo ? new Date(input.availableTo) : undefined,
+        availableFrom: input.availableFrom
+          ? new Date(input.availableFrom)
+          : undefined,
+        availableTo: input.availableTo
+          ? new Date(input.availableTo)
+          : undefined,
         maxAttemptsPerUser: input.maxAttemptsPerUser ?? undefined,
         showDetailedReview: input.showDetailedReview ?? undefined,
-        showCorrectAnswerImmediately: input.showCorrectAnswerImmediately ?? undefined,
+        showCorrectAnswerImmediately:
+          input.showCorrectAnswerImmediately ?? undefined,
         updatedAt: new Date(),
       },
     });
   }
 
-  async attachQuestions(templateId: string, items: AttachQuestionItem[], requesterId?: string) {
+  async attachQuestions(
+    templateId: string,
+    items: AttachQuestionItem[],
+    requesterId?: string,
+  ) {
     const template = await this.prisma.jlptMockExamTemplate.findUnique({
       where: { id: templateId },
       select: { id: true, status: true },
@@ -482,12 +512,18 @@ export class JlptMockService {
         attemptId: attempt.id,
         serverTime: now.toISOString(),
         currentSectionOrder: 1,
-        endsAt: attemptSections.find((s) => s.orderIndex === 1)?.endsAt?.toISOString(),
+        endsAt: attemptSections
+          .find((s) => s.orderIndex === 1)
+          ?.endsAt?.toISOString(),
       };
     });
   }
 
-  async saveAnswers(attemptId: string, answers: SaveAnswerItem[], requesterId?: string) {
+  async saveAnswers(
+    attemptId: string,
+    answers: SaveAnswerItem[],
+    requesterId?: string,
+  ) {
     const attempt = await this.prisma.jlptMockAttempt.findUnique({
       where: { id: attemptId },
       select: { id: true, userId: true, status: true },
@@ -509,7 +545,9 @@ export class JlptMockService {
       answers.map((a) => {
         const tq = tqMap.get(a.templateQuestionId);
         if (!tq)
-          throw new BadRequestException(`Invalid templateQuestionId: ${a.templateQuestionId}`);
+          throw new BadRequestException(
+            `Invalid templateQuestionId: ${a.templateQuestionId}`,
+          );
 
         return this.prisma.jlptMockAnswer.upsert({
           where: {
@@ -535,7 +573,11 @@ export class JlptMockService {
     return { ok: true };
   }
 
-  async nextSection(attemptId: string, currentSectionOrder: number, requesterId?: string) {
+  async nextSection(
+    attemptId: string,
+    currentSectionOrder: number,
+    requesterId?: string,
+  ) {
     const attempt = await this.prisma.jlptMockAttempt.findUnique({
       where: { id: attemptId },
       select: { id: true, userId: true, status: true },
@@ -547,7 +589,9 @@ export class JlptMockService {
       throw new ForbiddenException('Not allowed');
 
     const current = await this.prisma.jlptMockAttemptSection.findUnique({
-      where: { attemptId_orderIndex: { attemptId, orderIndex: currentSectionOrder } },
+      where: {
+        attemptId_orderIndex: { attemptId, orderIndex: currentSectionOrder },
+      },
       include: { section: true },
     });
     if (!current) throw new NotFoundException('Attempt section not found');
@@ -556,7 +600,10 @@ export class JlptMockService {
 
     const next = await this.prisma.jlptMockAttemptSection.findUnique({
       where: {
-        attemptId_orderIndex: { attemptId, orderIndex: currentSectionOrder + 1 },
+        attemptId_orderIndex: {
+          attemptId,
+          orderIndex: currentSectionOrder + 1,
+        },
       },
       include: { section: true },
     });
@@ -567,7 +614,9 @@ export class JlptMockService {
       throw new BadRequestException('Next section is not locked');
 
     const now = new Date();
-    const endsAt = new Date(now.getTime() + next.section.durationMinutes * 60_000);
+    const endsAt = new Date(
+      now.getTime() + next.section.durationMinutes * 60_000,
+    );
 
     await this.prisma.$transaction([
       this.prisma.jlptMockAttemptSection.update({
@@ -644,7 +693,8 @@ export class JlptMockService {
       if (!ans || !ans.selectedOptionId) continue;
 
       const correctOptionId = correctOptionByQuestion.get(tq.questionId);
-      const isCorrect = !!correctOptionId && ans.selectedOptionId === correctOptionId;
+      const isCorrect =
+        !!correctOptionId && ans.selectedOptionId === correctOptionId;
 
       const awarded = isCorrect ? weight : 0;
       if (domain === 'LANGUAGE') langRaw += awarded;
@@ -677,11 +727,22 @@ export class JlptMockService {
     const scaled = {
       language: this._mapScaled(profile.mappings, 'LANGUAGE', langRaw, langMax),
       reading: this._mapScaled(profile.mappings, 'READING', readRaw, readMax),
-      listening: this._mapScaled(profile.mappings, 'LISTENING', listenRaw, listenMax),
+      listening: this._mapScaled(
+        profile.mappings,
+        'LISTENING',
+        listenRaw,
+        listenMax,
+      ),
     };
     const totalScaled = scaled.language + scaled.reading + scaled.listening;
 
-    const passMock = this._isPass(profile, scaled.language, scaled.reading, scaled.listening, totalScaled);
+    const passMock = this._isPass(
+      profile,
+      scaled.language,
+      scaled.reading,
+      scaled.listening,
+      totalScaled,
+    );
 
     const now = new Date();
     await this.prisma.$transaction([
@@ -822,7 +883,8 @@ export class JlptMockService {
     });
 
     if (!attempt) throw new NotFoundException('Attempt not found');
-    if (requesterId && requesterId !== attempt.userId) throw new ForbiddenException('Not allowed');
+    if (requesterId && requesterId !== attempt.userId)
+      throw new ForbiddenException('Not allowed');
 
     return this.prisma.jlptMockAnswer.findMany({
       where: { attemptId },
@@ -843,34 +905,112 @@ export class JlptMockService {
     // Official JLPT test times (JLPT guideline)
     if (levelCode === 'N5') {
       return [
-        { code: 'LANGUAGE_VOCAB', title: 'Language Knowledge (Vocabulary)', durationMinutes: 20, orderIndex: 1, isListening: false },
-        { code: 'LANGUAGE_GRAMMAR_READING', title: 'Language Knowledge (Grammar) · Reading', durationMinutes: 40, orderIndex: 2, isListening: false },
-        { code: 'LISTENING', title: 'Listening', durationMinutes: 30, orderIndex: 3, isListening: true },
+        {
+          code: 'LANGUAGE_VOCAB',
+          title: 'Language Knowledge (Vocabulary)',
+          durationMinutes: 20,
+          orderIndex: 1,
+          isListening: false,
+        },
+        {
+          code: 'LANGUAGE_GRAMMAR_READING',
+          title: 'Language Knowledge (Grammar) · Reading',
+          durationMinutes: 40,
+          orderIndex: 2,
+          isListening: false,
+        },
+        {
+          code: 'LISTENING',
+          title: 'Listening',
+          durationMinutes: 30,
+          orderIndex: 3,
+          isListening: true,
+        },
       ];
     }
     if (levelCode === 'N4') {
       return [
-        { code: 'LANGUAGE_VOCAB', title: 'Language Knowledge (Vocabulary)', durationMinutes: 25, orderIndex: 1, isListening: false },
-        { code: 'LANGUAGE_GRAMMAR_READING', title: 'Language Knowledge (Grammar) · Reading', durationMinutes: 55, orderIndex: 2, isListening: false },
-        { code: 'LISTENING', title: 'Listening', durationMinutes: 35, orderIndex: 3, isListening: true },
+        {
+          code: 'LANGUAGE_VOCAB',
+          title: 'Language Knowledge (Vocabulary)',
+          durationMinutes: 25,
+          orderIndex: 1,
+          isListening: false,
+        },
+        {
+          code: 'LANGUAGE_GRAMMAR_READING',
+          title: 'Language Knowledge (Grammar) · Reading',
+          durationMinutes: 55,
+          orderIndex: 2,
+          isListening: false,
+        },
+        {
+          code: 'LISTENING',
+          title: 'Listening',
+          durationMinutes: 35,
+          orderIndex: 3,
+          isListening: true,
+        },
       ];
     }
     if (levelCode === 'N3') {
       return [
-        { code: 'LANGUAGE_VOCAB', title: 'Language Knowledge (Vocabulary)', durationMinutes: 30, orderIndex: 1, isListening: false },
-        { code: 'LANGUAGE_GRAMMAR_READING', title: 'Language Knowledge (Grammar) · Reading', durationMinutes: 70, orderIndex: 2, isListening: false },
-        { code: 'LISTENING', title: 'Listening', durationMinutes: 40, orderIndex: 3, isListening: true },
+        {
+          code: 'LANGUAGE_VOCAB',
+          title: 'Language Knowledge (Vocabulary)',
+          durationMinutes: 30,
+          orderIndex: 1,
+          isListening: false,
+        },
+        {
+          code: 'LANGUAGE_GRAMMAR_READING',
+          title: 'Language Knowledge (Grammar) · Reading',
+          durationMinutes: 70,
+          orderIndex: 2,
+          isListening: false,
+        },
+        {
+          code: 'LISTENING',
+          title: 'Listening',
+          durationMinutes: 40,
+          orderIndex: 3,
+          isListening: true,
+        },
       ];
     }
     if (levelCode === 'N2') {
       return [
-        { code: 'LANGUAGE_GRAMMAR_READING', title: 'Language Knowledge (Vocabulary/Grammar) · Reading', durationMinutes: 105, orderIndex: 1, isListening: false },
-        { code: 'LISTENING', title: 'Listening', durationMinutes: 50, orderIndex: 2, isListening: true },
+        {
+          code: 'LANGUAGE_GRAMMAR_READING',
+          title: 'Language Knowledge (Vocabulary/Grammar) · Reading',
+          durationMinutes: 105,
+          orderIndex: 1,
+          isListening: false,
+        },
+        {
+          code: 'LISTENING',
+          title: 'Listening',
+          durationMinutes: 50,
+          orderIndex: 2,
+          isListening: true,
+        },
       ];
     }
     return [
-      { code: 'LANGUAGE_GRAMMAR_READING', title: 'Language Knowledge (Vocabulary/Grammar) · Reading', durationMinutes: 110, orderIndex: 1, isListening: false },
-      { code: 'LISTENING', title: 'Listening', durationMinutes: 55, orderIndex: 2, isListening: true },
+      {
+        code: 'LANGUAGE_GRAMMAR_READING',
+        title: 'Language Knowledge (Vocabulary/Grammar) · Reading',
+        durationMinutes: 110,
+        orderIndex: 1,
+        isListening: false,
+      },
+      {
+        code: 'LISTENING',
+        title: 'Listening',
+        durationMinutes: 55,
+        orderIndex: 2,
+        isListening: true,
+      },
     ];
   }
 
@@ -887,7 +1027,9 @@ export class JlptMockService {
     maxRaw: number,
   ) {
     const rawInt = Math.floor(raw);
-    const exact = mappings.find((m) => m.domain === domain && m.rawScore === rawInt);
+    const exact = mappings.find(
+      (m) => m.domain === domain && m.rawScore === rawInt,
+    );
     if (exact) return exact.scaledScore;
     if (maxRaw <= 0) return 0;
     return Math.max(0, Math.min(60, Math.round((raw / maxRaw) * 60)));
@@ -918,4 +1060,3 @@ export class JlptMockService {
     );
   }
 }
-

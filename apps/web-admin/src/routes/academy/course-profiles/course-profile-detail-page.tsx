@@ -1,9 +1,19 @@
+import { useEffect, useState } from "react"
+import { useQueryClient } from "@tanstack/react-query"
 import { useParams, Link } from "react-router-dom"
 import { useAcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
 import { useAcademyClasses } from "@/lib/api/services/academy-classes"
 import { PageHeader } from "@/components/common/page-header"
-import { ChevronRight, BookOpen, Users, LayoutDashboard, Layers, FileVideo, Plus, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
+import { ChevronRight, BookOpen, Users, LayoutDashboard, Layers, Plus, MoreHorizontal, Pencil, Trash2, ChevronDown, ChevronUp, Video, FileText } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@workspace/ui/components/dialog"
 import {
   Card,
   CardContent,
@@ -29,12 +39,59 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from "@workspace/ui/components/dropdown-menu"
+import { CreateCourseModuleDialog } from "./components/create-module-dialog"
+import { EditCourseModuleDialog } from "./components/edit-module-dialog"
+import { CreateLessonDialog } from "./components/create-lesson-sheet"
+import { EditLessonDialog } from "./components/edit-lesson-sheet"
+import { useDeleteAcademyCourseModule } from "@/lib/api/services/academy-course-modules"
+import { useDeleteAcademyLesson } from "@/lib/api/services/academy-lessons"
+import { toast } from "sonner"
+import { CourseProfileSheet } from "./components/course-profile-sheet"
 
 export default function CourseProfileDetailPage() {
   const { profileId } = useParams<{ profileId: string }>()
+  const [createModuleOpen, setCreateModuleOpen] = useState(false)
+  const [editModuleOpen, setEditModuleOpen] = useState(false)
+  const [editingModule, setEditingModule] = useState<any | null>(null)
+
+  const [createLessonOpen, setCreateLessonOpen] = useState(false)
+  const [createLessonModuleId, setCreateLessonModuleId] = useState<string | null>(null)
+
+  const [editLessonOpen, setEditLessonOpen] = useState(false)
+  const [editingLesson, setEditingLesson] = useState<any | null>(null)
+
+  const [deleteModuleConfirm, setDeleteModuleConfirm] = useState<{
+    open: boolean
+    moduleId: string | null
+    moduleTitle: string | null
+  }>({ open: false, moduleId: null, moduleTitle: null })
+
+  const [deleteLessonConfirm, setDeleteLessonConfirm] = useState<{
+    open: boolean
+    lessonId: string | null
+    lessonTitle: string | null
+  }>({ open: false, lessonId: null, lessonTitle: null })
+
+  const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({})
+  const [profileSheetOpen, setProfileSheetOpen] = useState(false)
   
   const { data: profile, isLoading: isLoadingProfile } = useAcademyCourseProfile(profileId)
   const { data: classes } = useAcademyClasses({ courseProfileId: profileId } as any)
+
+  const qc = useQueryClient()
+  const deleteModuleMutation = useDeleteAcademyCourseModule()
+  const deleteLessonMutation = useDeleteAcademyLesson()
+
+  useEffect(() => {
+    const mods = profile?.modules ?? []
+    if (!mods.length) return
+    setExpandedModules((prev) => {
+      if (Object.keys(prev).length > 0) return prev
+      const first = mods[0]
+      if (!first) return prev
+      return { [first.id]: true }
+    })
+  }, [profile])
 
   if (isLoadingProfile) {
     return (
@@ -56,6 +113,10 @@ export default function CourseProfileDetailPage() {
       </div>
     )
   }
+
+  // Sau khi đã gửi duyệt / được duyệt (PENDING_APPROVAL / PUBLISHED) thì không được chỉnh sửa curriculum nữa.
+  const isLocked = profile.status !== "DRAFT"
+  const modules = profile.modules ?? []
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -80,22 +141,27 @@ export default function CourseProfileDetailPage() {
         ]}
         actions={
           <div className="flex gap-2">
-             <Button variant="outline">Chỉnh sửa Profile</Button>
-             <Button>Xuất dữ liệu</Button>
+             <Button
+               variant="outline"
+               disabled={isLocked}
+               onClick={() => setProfileSheetOpen(true)}
+             >
+               Chỉnh sửa Profile
+             </Button>
           </div>
         }
       />
 
-      <Tabs defaultValue="curriculum" className="w-full">
-        <TabsList className="bg-muted/50 p-1">
-          <TabsTrigger value="curriculum" className="gap-2 px-4 py-2 data-[state=active]:bg-background shadow-sm">
+      <Tabs defaultValue="info" className="w-full">
+        <TabsList className="bg-muted/50 p-1 rounded-lg overflow-x-auto max-w-full">
+          <TabsTrigger value="info" className="gap-2 px-4 py-2 whitespace-nowrap data-[state=active]:bg-background shadow-sm">
+            <BookOpen className="size-4" /> Thông tin chi tiết
+          </TabsTrigger>
+          <TabsTrigger value="curriculum" className="gap-2 px-4 py-2 whitespace-nowrap data-[state=active]:bg-background shadow-sm">
             <Layers className="size-4" /> Chương trình học (Modules)
           </TabsTrigger>
-          <TabsTrigger value="classes" className="gap-2 px-4 py-2 data-[state=active]:bg-background shadow-sm">
+          <TabsTrigger value="classes" className="gap-2 px-4 py-2 whitespace-nowrap data-[state=active]:bg-background shadow-sm">
             <Users className="size-4" /> Danh sách lớp học
-          </TabsTrigger>
-          <TabsTrigger value="info" className="gap-2 px-4 py-2 data-[state=active]:bg-background shadow-sm">
-            <BookOpen className="size-4" /> Thông tin chi tiết
           </TabsTrigger>
         </TabsList>
 
@@ -106,84 +172,192 @@ export default function CourseProfileDetailPage() {
                    <h3 className="text-lg font-bold">Quản lý chương trình</h3>
                    <p className="text-sm text-muted-foreground">Phân chia giáo trình thành các Module và Bài giảng (Lessons).</p>
                 </div>
-                <Button variant="outline" size="sm" className="gap-2 border-primary/20 hover:bg-primary/5 text-primary font-medium">
-                   <Plus className="size-4" /> Thêm Module mới
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2 border-primary/20 hover:bg-primary/5 text-primary font-medium"
+                    onClick={() => setCreateModuleOpen(true)}
+                    disabled={isLocked}
+                  >
+                    <Plus className="size-4" /> Thêm Module mới
+                  </Button>
+                </div>
              </div>
 
-             {(!profile.modules || profile.modules.length === 0) ? (
+             {(modules.length === 0) ? (
                 <Card className="border-dashed shadow-none">
                    <CardContent className="flex flex-col items-center justify-center py-16 text-muted-foreground">
                       <Layers className="size-12 mb-4 opacity-10" />
                       <p className="font-medium text-balance text-center max-w-xs">Hồ sơ khóa học này chưa có chương trình học nào.</p>
-                      <Button variant="outline" size="sm" className="mt-4">Khởi tạo Module đầu tiên</Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-4"
+                        onClick={() => setCreateModuleOpen(true)}
+                        disabled={isLocked}
+                      >
+                        Khởi tạo Module đầu tiên
+                      </Button>
                    </CardContent>
                 </Card>
              ) : (
-                <div className="grid gap-6">
-                   {profile.modules.map((module) => (
-                      <Card key={module.id} className="overflow-hidden border-l-4 border-l-primary shadow-sm hover:shadow-md transition-shadow">
-                         <CardHeader className="flex flex-row items-center justify-between bg-muted/20 py-4 px-6">
-                            <div className="flex items-center gap-3">
-                               <div className="size-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs">
-                                  {module.orderIndex}
-                               </div>
-                               <div>
-                                  <CardTitle className="text-base font-semibold">{module.title}</CardTitle>
-                                  <CardDescription className="text-xs">{module.lessons?.length || 0} bài giảng</CardDescription>
-                               </div>
+                <div className="space-y-4">
+                  {modules.map((module) => {
+                    const isExpanded = !!expandedModules[module.id]
+                    return (
+                      <Card key={module.id} className="overflow-hidden">
+                        <div className="flex items-center justify-between gap-3 p-4">
+                          <button
+                            type="button"
+                            className="flex-1 min-w-0 text-left flex items-center gap-3"
+                            onClick={() => {
+                              setExpandedModules((prev) => ({
+                                ...prev,
+                                [module.id]: !prev[module.id],
+                              }))
+                            }}
+                          >
+                            <div className="size-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs">
+                              {module.orderIndex}
                             </div>
-                            <div className="flex gap-2">
-                               <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
-                                  <Plus className="size-4" />
-                               </Button>
-                               <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                     <Button variant="ghost" size="icon" className="h-8 w-8">
-                                        <MoreHorizontal className="size-4" />
-                                     </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                     <DropdownMenuItem className="gap-2"><Pencil className="size-4" /> Chỉnh sửa</DropdownMenuItem>
-                                     <DropdownMenuSeparator />
-                                     <DropdownMenuItem className="gap-2 text-destructive"><Trash2 className="size-4" /> Xóa Module</DropdownMenuItem>
-                                  </DropdownMenuContent>
-                               </DropdownMenu>
+                            <div className="min-w-0">
+                              <CardTitle className="text-base font-semibold truncate">
+                                {module.title}
+                              </CardTitle>
+                              <CardDescription className="text-xs">
+                                {module.lessons?.length || 0} bài giảng
+                              </CardDescription>
                             </div>
-                         </CardHeader>
-                         <CardContent className="p-0">
-                            <Table>
-                               <TableBody>
-                                  {module.lessons?.map((lesson, idx) => (
-                                     <TableRow key={lesson.id} className="group hover:bg-muted/30">
-                                        <TableCell className="w-12 text-center text-muted-foreground text-xs tabular-nums">{idx + 1}</TableCell>
-                                        <TableCell className="w-10 p-0">
-                                           {lesson.type === 'VIDEO' ? <FileVideo className="size-4 text-blue-500" /> : <BookOpen className="size-4 text-emerald-500" />}
-                                        </TableCell>
-                                        <TableCell className="font-medium py-3">
-                                           <div className="flex flex-col">
-                                              <span>{lesson.title}</span>
-                                              <span className="text-[10px] text-muted-foreground uppercase">{lesson.type}</span>
-                                           </div>
-                                        </TableCell>
-                                        <TableCell className="text-right pr-6 opacity-0 group-hover:opacity-100 transition-opacity">
-                                           <div className="flex justify-end gap-1">
-                                              <Button variant="ghost" size="icon" className="h-7 w-7"><Pencil className="size-3" /></Button>
-                                              <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive"><Trash2 className="size-3" /></Button>
-                                           </div>
-                                        </TableCell>
-                                     </TableRow>
-                                  ))}
-                                  {(!module.lessons || module.lessons.length === 0) && (
-                                     <TableRow>
-                                        <TableCell colSpan={4} className="h-12 text-center text-xs text-muted-foreground italic">Chưa có bài giảng.</TableCell>
-                                     </TableRow>
-                                  )}
-                               </TableBody>
-                            </Table>
-                         </CardContent>
+                          </button>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  disabled={isLocked}
+                                  className="h-8 w-8"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <MoreHorizontal className="size-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem
+                                  className="gap-2"
+                                  disabled={isLocked}
+                                  onClick={() => {
+                                    setEditingModule(module)
+                                    setEditModuleOpen(true)
+                                  }}
+                                >
+                                  <Pencil className="size-4" /> Chỉnh sửa
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  className="gap-2 text-destructive"
+                                  disabled={isLocked}
+                                  onClick={() => {
+                                    setDeleteModuleConfirm({
+                                      open: true,
+                                      moduleId: module.id,
+                                      moduleTitle: module.title,
+                                    })
+                                  }}
+                                >
+                                  <Trash2 className="size-4" /> Xóa Module
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+
+                            {isExpanded ? (
+                              <ChevronUp className="size-4 text-muted-foreground" />
+                            ) : (
+                              <ChevronDown className="size-4 text-muted-foreground" />
+                            )}
+                          </div>
+                        </div>
+
+                        {isExpanded && (
+                          <CardContent className="pt-0">
+                            <div className="space-y-1 p-2">
+                              {module.lessons?.map((lesson: any) => (
+                                <div
+                                  key={lesson.id}
+                                  className="flex items-center justify-between gap-3 rounded-md px-3 py-2 hover:bg-muted/30"
+                                >
+                                  <div className="flex items-center gap-3 min-w-0">
+                                    {lesson.type === "VIDEO" ? (
+                                      <Video className="size-4 text-blue-500 shrink-0" />
+                                    ) : (
+                                      <FileText className="size-4 text-orange-500 shrink-0" />
+                                    )}
+                                    <div className="min-w-0">
+                                      <p className="text-sm font-medium truncate">{lesson.title}</p>
+                                      <p className="text-[10px] text-muted-foreground uppercase">
+                                        {lesson.type}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-center gap-1">
+                                    <Button
+                                      variant="outline"
+                                      size="icon"
+                                      className="h-8 w-8"
+                                      disabled={isLocked}
+                                      onClick={() => {
+                                        setEditingLesson(lesson)
+                                        setEditLessonOpen(true)
+                                      }}
+                                    >
+                                      <Pencil className="size-4" />
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="icon"
+                                      className="h-8 w-8"
+                                      disabled={isLocked}
+                                      onClick={() => {
+                                        setDeleteLessonConfirm({
+                                          open: true,
+                                          lessonId: lesson.id,
+                                          lessonTitle: lesson.title,
+                                        })
+                                      }}
+                                    >
+                                      <Trash2 className="size-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              ))}
+
+                              {(!module.lessons || module.lessons.length === 0) && (
+                                <div className="py-8 text-center text-xs text-muted-foreground italic">
+                                  Chưa có bài giảng.
+                                </div>
+                              )}
+
+                              <Button
+                                variant="ghost"
+                                className="w-full justify-start gap-2 mt-2"
+                                disabled={isLocked}
+                                onClick={() => {
+                                  setCreateLessonModuleId(module.id)
+                                  setCreateLessonOpen(true)
+                                }}
+                              >
+                                <Plus className="size-4" />
+                                Thêm bài học mới
+                              </Button>
+                            </div>
+                          </CardContent>
+                        )}
                       </Card>
-                   ))}
+                    )
+                  })}
                 </div>
              )}
           </TabsContent>
@@ -224,9 +398,16 @@ export default function CourseProfileDetailPage() {
                                         </Badge>
                                     </TableCell>
                                     <TableCell className="text-right px-6">
-                                        <Button variant="ghost" size="sm" asChild className="h-8 gap-1.5 hover:text-primary">
-                                            <Link to={`/academy/classes/${cls.id}/detail`}>
-                                                Quản lý lớp <ChevronRight className="size-4" />
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        asChild
+                                        className="h-8 gap-2 border-primary/30 text-primary bg-transparent hover:bg-primary/5"
+                                      >
+                                        <Link to={`/academy/classes/${cls.id}/detail`} className="flex items-center gap-2">
+                                            <LayoutDashboard className="size-4" />
+                                            Quản lý lớp
+                                            <ChevronRight className="size-4" />
                                             </Link>
                                         </Button>
                                     </TableCell>
@@ -282,6 +463,131 @@ export default function CourseProfileDetailPage() {
           </TabsContent>
         </div>
       </Tabs>
+
+      <CreateCourseModuleDialog
+        open={createModuleOpen}
+        onOpenChange={setCreateModuleOpen}
+        courseProfileId={profileId as string}
+      />
+
+      <EditCourseModuleDialog
+        open={editModuleOpen}
+        onOpenChange={setEditModuleOpen}
+        courseProfileId={profileId as string}
+        module={editingModule}
+      />
+
+      {createLessonModuleId && (
+        <CreateLessonDialog
+          open={createLessonOpen}
+          onOpenChange={setCreateLessonOpen}
+          moduleId={createLessonModuleId}
+          courseProfileId={profileId as string}
+        />
+      )}
+
+      {editingLesson && (
+        <EditLessonDialog
+          open={editLessonOpen}
+          onOpenChange={setEditLessonOpen}
+          lesson={editingLesson}
+          courseProfileId={profileId as string}
+        />
+      )}
+
+      <CourseProfileSheet
+        open={profileSheetOpen}
+        onOpenChange={setProfileSheetOpen}
+        profile={profile as any}
+      />
+
+      <Dialog
+        open={deleteModuleConfirm.open}
+        onOpenChange={(open) => {
+          if (!open) setDeleteModuleConfirm({ open: false, moduleId: null, moduleTitle: null })
+        }}
+      >
+        <DialogContent className="sm:max-w-[480px]">
+          <DialogHeader>
+            <DialogTitle>Xác nhận xóa Module</DialogTitle>
+            <DialogDescription>
+              Bạn có chắc chắn muốn xóa Module <strong>{deleteModuleConfirm.moduleTitle}</strong>? Tất cả các bài học bên trong module này cũng sẽ bị xóa.
+              Hành động này không thể hoàn tác.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteModuleConfirm({ open: false, moduleId: null, moduleTitle: null })}
+              disabled={deleteModuleMutation.isPending}
+            >
+              Hủy
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                if (!deleteModuleConfirm.moduleId) return
+                try {
+                  await deleteModuleMutation.mutateAsync({
+                    courseProfileId: profileId as string,
+                    moduleId: deleteModuleConfirm.moduleId,
+                  })
+                  setExpandedModules({})
+                  setDeleteModuleConfirm({ open: false, moduleId: null, moduleTitle: null })
+                  toast.success("Đã xóa Module")
+                } catch (err: any) {
+                  toast.error(err?.response?.data?.message || err.message || "Không thể xóa Module")
+                }
+              }}
+              disabled={deleteModuleMutation.isPending}
+            >
+              Xóa Module
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={deleteLessonConfirm.open}
+        onOpenChange={(open) => {
+          if (!open) setDeleteLessonConfirm({ open: false, lessonId: null, lessonTitle: null })
+        }}
+      >
+        <DialogContent className="sm:max-w-[480px]">
+          <DialogHeader>
+            <DialogTitle>Xác nhận xóa bài học</DialogTitle>
+            <DialogDescription>
+              Bạn có chắc chắn muốn xóa bài học <strong>{deleteLessonConfirm.lessonTitle}</strong>? Hành động này không thể hoàn tác.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteLessonConfirm({ open: false, lessonId: null, lessonTitle: null })}
+              disabled={deleteLessonMutation.isPending}
+            >
+              Hủy
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                if (!deleteLessonConfirm.lessonId) return
+                try {
+                  await deleteLessonMutation.mutateAsync(deleteLessonConfirm.lessonId)
+                  await qc.invalidateQueries({ queryKey: ["academy-course-profile", profileId as string] })
+                  setDeleteLessonConfirm({ open: false, lessonId: null, lessonTitle: null })
+                  toast.success("Đã xóa bài học")
+                } catch (err: any) {
+                  toast.error(err?.response?.data?.message || err.message || "Không thể xóa bài học")
+                }
+              }}
+              disabled={deleteLessonMutation.isPending}
+            >
+              Xóa bài học
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

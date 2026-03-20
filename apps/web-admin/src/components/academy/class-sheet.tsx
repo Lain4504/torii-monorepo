@@ -71,6 +71,9 @@ const classSchema = z.object({
   enrollmentCloseAt: z.string().optional().nullable(),
 }).superRefine((data, ctx) => {
   if (data.mode === "LIVE") {
+    if (!data.termKey) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["termKey"], message: "Vui lòng chọn kỳ học" })
+    }
     if (!data.openingDate) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["openingDate"], message: "LIVE class cần ngày khai giảng" })
     }
@@ -127,24 +130,26 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
 
   useEffect(() => {
     if (academyClass) {
+      const term = (academyClass as any).term
       reset({
         courseProfileId: academyClass.courseProfileId,
         code: academyClass.code,
         name: academyClass.name,
         mode: academyClass.mode,
-        instructorId: (academyClass as any).instructorId ?? academyClass.liveClass?.instructorId ?? null,
+        instructorId: (academyClass as any).instructorId ?? null,
         status: (academyClass as any).status ?? "DRAFT",
-        openingDate: (academyClass as any).openingDate
-          ? new Date((academyClass as any).openingDate).toISOString().slice(0, 10)
+        termKey: term?.termCode ?? "",
+        openingDate: term?.openingDate
+          ? new Date(term.openingDate).toISOString().slice(0, 10)
           : null,
-        closingDate: (academyClass as any).closingDate
-          ? new Date((academyClass as any).closingDate).toISOString().slice(0, 10)
+        closingDate: term?.closingDate
+          ? new Date(term.closingDate).toISOString().slice(0, 10)
           : null,
-        enrollmentOpenAt: (academyClass as any).enrollmentOpenAt
-          ? new Date((academyClass as any).enrollmentOpenAt).toISOString().slice(0, 10)
+        enrollmentOpenAt: term?.enrollmentOpenAt
+          ? new Date(term.enrollmentOpenAt).toISOString().slice(0, 10)
           : null,
-        enrollmentCloseAt: (academyClass as any).enrollmentCloseAt
-          ? new Date((academyClass as any).enrollmentCloseAt).toISOString().slice(0, 10)
+        enrollmentCloseAt: term?.enrollmentCloseAt
+          ? new Date(term.enrollmentCloseAt).toISOString().slice(0, 10)
           : null,
       })
     } else {
@@ -166,31 +171,43 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
 
   async function onSubmit(values: ClassFormValues) {
     try {
-      const basePayload = {
-        ...values,
-        instructorId: values.instructorId || undefined,
-        termKey: undefined,
-        openingDate: values.openingDate ? new Date(values.openingDate) : undefined,
-        closingDate: values.closingDate ? new Date(values.closingDate) : undefined,
-        enrollmentOpenAt: values.enrollmentOpenAt ? new Date(values.enrollmentOpenAt) : undefined,
-        enrollmentCloseAt: values.enrollmentCloseAt ? new Date(values.enrollmentCloseAt) : undefined,
-      } as any
-
-      const payload = isEditing
-        ? basePayload
-        : (() => {
-            const { status, ...rest } = basePayload
-            return rest
-          })()
-
       if (isEditing && academyClass) {
+        const input = {
+          name: values.name,
+          instructorId: values.instructorId || undefined,
+          status: values.status || undefined,
+          courseProfileId: values.courseProfileId,
+          termId: (academyClass as any).termId ?? undefined,
+        } as any
         await updateMutation.mutateAsync({
           id: academyClass.id,
-          input: payload as any,
+          input,
         })
         toast.success("Cập nhật Lớp học thành công")
       } else {
-        await createMutation.mutateAsync(payload as any)
+        const input = {
+          courseProfileId: values.courseProfileId,
+          code: values.code,
+          name: values.name,
+          mode: values.mode,
+          instructorId: values.instructorId || undefined,
+          status: values.status || undefined,
+          term:
+            values.mode === "LIVE"
+              ? {
+                  termCode: values.termKey!,
+                  openingDate: new Date(values.openingDate as any),
+                  closingDate: new Date(values.closingDate as any),
+                  enrollmentOpenAt: values.enrollmentOpenAt
+                    ? new Date(values.enrollmentOpenAt)
+                    : undefined,
+                  enrollmentCloseAt: values.enrollmentCloseAt
+                    ? new Date(values.enrollmentCloseAt)
+                    : undefined,
+                }
+              : undefined,
+        } as any
+        await createMutation.mutateAsync(input)
         toast.success("Tạo Lớp học thành công")
       }
       onOpenChange(false)
@@ -284,7 +301,7 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
                             name="code"
                             control={control}
                             render={({ field }) => (
-                              <Input placeholder="VD: N5-2402" {...field} />
+                              <Input placeholder="VD: N5-2402" {...field} disabled={isEditing} />
                             )}
                           />
                           <FieldError errors={[errors.code]} />
@@ -324,7 +341,7 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
 
                         {!isEditing && (
                           <Field>
-                            <FieldLabel>Kỳ học (4 tháng)</FieldLabel>
+                            <FieldLabel>Kỳ học LIVE (LiveTerm) (4 tháng)</FieldLabel>
                             <Controller
                               name="termKey"
                               control={control}
@@ -373,8 +390,12 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
                         )}
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="col-span-full text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-4 py-3">
+                            Với lớp <strong>LIVE</strong>, trước khi gửi duyệt cần cấu hình
+                            <strong> ít nhất 1 lịch học tuần</strong> tại trang chi tiết lớp.
+                          </div>
                           <Field>
-                            <FieldLabel>Ngày khai giảng (auto)</FieldLabel>
+                            <FieldLabel>Ngày khai giảng</FieldLabel>
                             <Controller
                               name="openingDate"
                               control={control}
@@ -383,13 +404,14 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
                                   type="date"
                                   value={field.value || ""}
                                   onChange={field.onChange}
+                                  disabled={isEditing}
                                 />
                               )}
                             />
                             <FieldError errors={[errors.openingDate]} />
                           </Field>
                           <Field>
-                            <FieldLabel>Ngày kết thúc học (auto)</FieldLabel>
+                            <FieldLabel>Ngày kết thúc học</FieldLabel>
                             <Controller
                               name="closingDate"
                               control={control}
@@ -398,13 +420,14 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
                                   type="date"
                                   value={field.value || ""}
                                   onChange={field.onChange}
+                                  disabled={isEditing}
                                 />
                               )}
                             />
                             <FieldError errors={[errors.closingDate]} />
                           </Field>
                           <Field>
-                            <FieldLabel>Mở đăng ký (auto: -3 tuần)</FieldLabel>
+                            <FieldLabel>Mở đăng ký</FieldLabel>
                             <Controller
                               name="enrollmentOpenAt"
                               control={control}
@@ -413,12 +436,13 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
                                   type="date"
                                   value={field.value || ""}
                                   onChange={field.onChange}
+                                  disabled={isEditing}
                                 />
                               )}
                             />
                           </Field>
                           <Field>
-                            <FieldLabel>Đóng đăng ký (auto)</FieldLabel>
+                            <FieldLabel>Đóng đăng ký</FieldLabel>
                             <Controller
                               name="enrollmentCloseAt"
                               control={control}
@@ -427,6 +451,7 @@ export function ClassSheet({ open, onOpenChange, academyClass, initialMode = "LI
                                   type="date"
                                   value={field.value || ""}
                                   onChange={field.onChange}
+                                  disabled={isEditing}
                                 />
                               )}
                             />

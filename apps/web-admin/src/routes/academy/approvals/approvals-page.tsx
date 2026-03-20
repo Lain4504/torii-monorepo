@@ -15,14 +15,15 @@ import {
   TableRow,
 } from "@workspace/ui/components/table"
 import { useDebounceValue } from "@workspace/ui/hooks/use-debounce-value"
-import { ChevronRight, Search, Eye, Package, GraduationCap } from "lucide-react"
+import { ChevronRight, Search, Eye, Package, GraduationCap, BookOpen } from "lucide-react"
 import {
   useAcademyCourseOfferings,
   type AcademyCourseOffering,
 } from "@/lib/api/services/academy-course-offerings"
 import { useAcademyClasses, type AcademyClass } from "@/lib/api/services/academy-classes"
+import { useAcademyCourseProfiles, type AcademyCourseProfile } from "@/lib/api/services/academy-course-profiles"
 
-type ApprovalTab = "courseOfferings" | "classes"
+type ApprovalTab = "courseOfferings" | "classes" | "courseProfiles"
 
 function formatDateTime(d: string | null | undefined) {
   if (!d) return "—"
@@ -51,6 +52,12 @@ export default function ApprovalsPage() {
     q: debouncedSearch || undefined,
   } as any)
 
+  const { data: courseProfiles = [], isLoading: isLoadingCourseProfiles } =
+    useAcademyCourseProfiles({
+      status: "PENDING_APPROVAL",
+      q: debouncedSearch || undefined,
+    })
+
   const pendingOfferings = useMemo(
     () => offerings.filter((o) => o.status === "PENDING_APPROVAL"),
     [offerings],
@@ -60,9 +67,15 @@ export default function ApprovalsPage() {
     [classes],
   )
 
+  const pendingCourseProfiles = useMemo(
+    () => courseProfiles.filter((p) => p.status === "PENDING_APPROVAL"),
+    [courseProfiles],
+  )
+
   const isLoading =
     (tab === "courseOfferings" && isLoadingOfferings) ||
-    (tab === "classes" && isLoadingClasses)
+    (tab === "classes" && isLoadingClasses) ||
+    (tab === "courseProfiles" && isLoadingCourseProfiles)
 
   return (
     <div className="flex flex-col gap-6">
@@ -105,6 +118,11 @@ export default function ApprovalsPage() {
             <GraduationCap className="size-4" />
             Classes
             <Badge variant="secondary">{pendingClasses.length}</Badge>
+          </TabsTrigger>
+          <TabsTrigger value="courseProfiles" className="gap-2">
+            <BookOpen className="size-4" />
+            Course Profiles
+            <Badge variant="secondary">{pendingCourseProfiles.length}</Badge>
           </TabsTrigger>
         </TabsList>
 
@@ -232,6 +250,67 @@ export default function ApprovalsPage() {
                         <TableCell className="text-right">
                           <Button variant="outline" size="sm" asChild className="gap-1">
                             <Link to={`/academy/approvals/classes/${c.id}`}>
+                              <Eye className="size-4" />
+                              Preview
+                            </Link>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="courseProfiles">
+            <div className="bg-card border rounded-xl shadow-sm overflow-hidden">
+              <Table>
+                <TableHeader className="bg-muted/50">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="w-12">STT</TableHead>
+                    <TableHead className="w-[120px]">Mã</TableHead>
+                    <TableHead>Tên gốc</TableHead>
+                    <TableHead className="w-[200px]">Ngày gửi duyệt</TableHead>
+                    <TableHead className="text-right w-[140px]">Xem</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {isLoading ? (
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <TableRow key={i}>
+                        <TableCell>
+                          <Skeleton className="h-4 w-6" />
+                        </TableCell>
+                        {Array.from({ length: 4 }).map((_, j) => (
+                          <TableCell key={j}>
+                            <Skeleton className="h-4 w-full" />
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  ) : pendingCourseProfiles.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
+                        Không có CourseProfile nào đang chờ duyệt.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    pendingCourseProfiles.map((p: AcademyCourseProfile, index: number) => (
+                      <TableRow key={p.id}>
+                        <TableCell className="text-muted-foreground tabular-nums">
+                          {index + 1}
+                        </TableCell>
+                        <TableCell className="font-mono text-xs font-bold">
+                          {p.code}
+                        </TableCell>
+                        <TableCell className="font-medium">{p.title}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {formatDateTime(p.submittedForApprovalAt)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="outline" size="sm" asChild className="gap-1">
+                            <Link to={`/academy/approvals/course-profiles/${p.id}`}>
                               <Eye className="size-4" />
                               Preview
                             </Link>

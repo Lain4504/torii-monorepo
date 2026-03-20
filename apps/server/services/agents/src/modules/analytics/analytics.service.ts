@@ -252,7 +252,8 @@ export class AnalyticsService implements OnModuleInit, OnModuleDestroy {
       }),
       async ({ userId, targetLevel, timeframe }) => {
         const userContext = await this.fastMcpService.getUserContext(userId);
-        const curriculum = this.fastMcpService.loadResource('jlpt-syllabus.json');
+        const curriculum =
+          this.fastMcpService.loadResource('jlpt-syllabus.json');
         const levelCurriculum = curriculum ? curriculum[targetLevel] : null;
 
         const template = this.fastMcpService.loadPromptTemplate(

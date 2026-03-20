@@ -33,16 +33,16 @@ export default function ProfilePage() {
                         </h3>
                         <div className="flex flex-col gap-1">
                             <Button
-                                variant="ghost"
-                                className="w-full justify-start text-sm font-medium hover:bg-primary/5 hover:text-primary transition-all group"
+                                variant="outline"
+                                className="w-full justify-start text-sm font-medium border-primary/20 text-primary bg-transparent hover:bg-primary/5 hover:text-primary transition-all group"
                                 onClick={() => navigate('/settings?tab=security')}
                             >
                                 <Shield className="mr-3 h-4 w-4 opacity-50 group-hover:opacity-100" />
                                 Bảo mật & 2FA
                             </Button>
                             <Button
-                                variant="ghost"
-                                className="w-full justify-start text-sm font-medium hover:bg-primary/5 hover:text-primary transition-all group"
+                                variant="outline"
+                                className="w-full justify-start text-sm font-medium border-primary/20 text-primary bg-transparent hover:bg-primary/5 hover:text-primary transition-all group"
                                 onClick={() => navigate('/settings?tab=password')}
                             >
                                 <Key className="mr-3 h-4 w-4 opacity-50 group-hover:opacity-100" />

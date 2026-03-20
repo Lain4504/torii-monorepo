@@ -16,6 +16,17 @@ export class ClassCreateDto {
   @IsUUID()
   termId?: string;
 
+  @IsOptional()
+  term?:
+    | {
+        termCode: string;
+        openingDate: Date | string;
+        closingDate: Date | string;
+        enrollmentOpenAt?: Date | string;
+        enrollmentCloseAt?: Date | string;
+      }
+    | undefined;
+
   @IsString()
   @MaxLength(50)
   code!: string;

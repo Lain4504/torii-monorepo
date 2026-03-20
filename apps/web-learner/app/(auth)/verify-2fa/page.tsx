@@ -90,7 +90,7 @@ export default function TwoFactorVerifyPage() {
             if (user) {
 
                 // Update Redux Store
-                await dispatch(checkAuth());
+                const authAction = await dispatch(checkAuth());
 
                 // Clear temp token
                 sessionStorage.removeItem('2fa_tempToken');
@@ -99,8 +99,15 @@ export default function TwoFactorVerifyPage() {
 
                 // Get redirect URL from 'from' param or default to dashboard
                 const redirectTo = searchParams.get('from') || '/dashboard';
+                const nextRoute =
+                  authAction.meta.requestStatus === 'fulfilled' &&
+                  authAction.payload &&
+                  'isOnboarded' in authAction.payload &&
+                  authAction.payload.isOnboarded === false
+                    ? '/onboarding'
+                    : redirectTo;
 
-                router.push(redirectTo);
+                router.push(nextRoute);
                 router.refresh();
             } else {
                 toast.error('Xác thực thất bại');

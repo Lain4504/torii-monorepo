@@ -8,18 +8,25 @@ export const academyClassCreateDTOSchema = z.object({
   status: z.string().max(20).optional(),
   instructorId: z.string().uuid().optional(),
 
-  // LIVE timeline (auto-generated from term in UI, but persisted in DB)
-  openingDate: z.coerce.date().optional(),
-  closingDate: z.coerce.date().optional(),
-  enrollmentOpenAt: z.coerce.date().optional(),
-  enrollmentCloseAt: z.coerce.date().optional(),
+  // LIVE must be attached to a LiveTerm (termId) OR create a LiveTerm inline.
+  termId: z.string().uuid().optional(),
+  term: z
+    .object({
+      termCode: z.string().min(1).max(50),
+      openingDate: z.coerce.date(),
+      closingDate: z.coerce.date(),
+      enrollmentOpenAt: z.coerce.date().optional(),
+      enrollmentCloseAt: z.coerce.date().optional(),
+    })
+    .optional(),
 }).superRefine((data, ctx) => {
   if (data.mode === 'LIVE') {
-    if (!data.openingDate) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['openingDate'], message: 'LIVE class cần ngày khai giảng' })
-    }
-    if (!data.closingDate) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['closingDate'], message: 'LIVE class cần ngày bế giảng' })
+    if (!data.termId && !data.term) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['termId'],
+        message: 'LIVE class cần `termId` hoặc `term`',
+      })
     }
   }
 });
@@ -29,10 +36,8 @@ export const academyClassUpdateDTOSchema = z.object({
   name: z.string().max(255).optional(),
   instructorId: z.string().uuid().optional(),
   status: z.string().max(20).optional(),
-  openingDate: z.coerce.date().optional(),
-  closingDate: z.coerce.date().optional(),
-  enrollmentOpenAt: z.coerce.date().optional(),
-  enrollmentCloseAt: z.coerce.date().optional(),
+  courseProfileId: z.string().uuid().optional(),
+  termId: z.string().uuid().optional(),
 });
 
 export type AcademyClassUpdateDTO = z.infer<typeof academyClassUpdateDTOSchema>;
@@ -60,10 +65,17 @@ export const academyClassModelSchema = z.object({
   mode: z.enum(['VOD', 'LIVE']),
   status: z.string(),
   instructorId: z.string().uuid().nullable().optional(),
-  openingDate: z.coerce.date().nullable().optional(),
-  closingDate: z.coerce.date().nullable().optional(),
-  enrollmentOpenAt: z.coerce.date().nullable().optional(),
-  enrollmentCloseAt: z.coerce.date().nullable().optional(),
+  termId: z.string().uuid().nullable().optional(),
+  term: z
+    .object({
+      termCode: z.string(),
+      openingDate: z.coerce.date().nullable().optional(),
+      closingDate: z.coerce.date().nullable().optional(),
+      enrollmentOpenAt: z.coerce.date().nullable().optional(),
+      enrollmentCloseAt: z.coerce.date().nullable().optional(),
+    })
+    .optional()
+    .nullable(),
   submittedForApprovalAt: z.coerce.date().nullable().optional(),
   submittedBy: z.string().uuid().nullable().optional(),
   approvedAt: z.coerce.date().nullable().optional(),

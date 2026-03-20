@@ -205,8 +205,8 @@ export function ClassScheduleSheet({ open, onOpenChange, classId }: ClassSchedul
                       </div>
                       <Button 
                         type="button" 
-                        variant="ghost" 
-                        size="icon" 
+                        variant="ghost"
+                        size="icon"
                         className="size-8 text-destructive hover:bg-destructive/10"
                         onClick={() => remove(index)}
                       >

@@ -148,4 +148,3 @@ export class JlptBankQuestionUpdateDto {
   @Type(() => JlptBankOptionInputDto)
   options?: JlptBankOptionInputDto[];
 }
-
