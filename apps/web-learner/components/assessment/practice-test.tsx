@@ -20,7 +20,6 @@ import {
 import { Target, ChevronRight, ClipboardList, CheckCircle2, XCircle, Clock, Sparkles } from "lucide-react"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { Spinner } from "@workspace/ui/components/spinner"
-import { SkillDrill } from "@/components/ai-sensei/skill-drill"
 import { nanoid } from 'nanoid'
 
 // Types
@@ -68,10 +67,10 @@ export function PracticeTest() {
     const [config, setConfig] = React.useState<TestConfig>({ level: "N5", section: "vocabulary" })
     const [testId, setTestId] = React.useState<string | null>(null)
     const [quizData, setQuizData] = React.useState<QuizData | null>(null)
-    const [optionMap, setOptionMap] = React.useState<Record<string, Record<string, string>>>({}) 
+    const [optionMap, setOptionMap] = React.useState<Record<string, Record<string, string>>>({})
     const [result, setResult] = React.useState<TestResult | null>(null)
     const [timeLeft, setTimeLeft] = React.useState<number>(0)
-    
+
     // Timer effect
     React.useEffect(() => {
         if (status === "running" && timeLeft > 0) {
@@ -98,7 +97,7 @@ export function PracticeTest() {
             const data = await agentApi.assessment.generateTest(config.level, config.section, count)
 
             setTestId(data.testId)
-            
+
             // Map to QuizData
             const newOptionMap: Record<string, Record<string, string>> = {}
             const questions = data.questions.map(q => {
@@ -106,7 +105,7 @@ export function PracticeTest() {
                     id: nanoid(),
                     label: opt
                 }))
-                
+
                 const currentQuestionOptionMap: Record<string, string> = {}
                 optionObjects.forEach(opt => {
                     currentQuestionOptionMap[opt.id] = opt.label
@@ -150,7 +149,7 @@ export function PracticeTest() {
             setIsLoading(false)
         }
     }
-    
+
     const handleQuizComplete = async (quizResult: QuizResult) => {
         if (!testId || !quizData) return
         setIsLoading(true)
@@ -179,14 +178,14 @@ export function PracticeTest() {
                     const userSelection = (userSelectedId && qOptionMap) ? qOptionMap[userSelectedId] || "" : ""
                     const correctId = q.correctIds[0]
                     const correctAnswer = (correctId && qOptionMap) ? qOptionMap[correctId] || "" : ""
-                    
+
                     return {
                         id: q.id,
                         text: q.question,
                         userSelection: userSelection,
-                        correctAnswer: correctAnswer, 
+                        correctAnswer: correctAnswer,
                         isCorrect: detail?.isCorrect ?? false,
-                        explanation: detail?.explanation 
+                        explanation: detail?.explanation
                     }
                 })
             })
@@ -266,7 +265,7 @@ export function PracticeTest() {
         return (
             <div className="max-w-4xl mx-auto space-y-6">
                 <div className="flex justify-end">
-                     <div className={cn(
+                    <div className={cn(
                         "flex items-center gap-2 px-3 py-1.5 rounded-full border bg-muted/50 font-mono text-sm font-bold",
                         timeLeft < 60 ? "text-destructive animate-pulse border-destructive/50" : "text-primary"
                     )}>
@@ -301,7 +300,7 @@ export function PracticeTest() {
                                 <div className="text-sm text-muted-foreground">Incorrect</div>
                                 <div className="text-2xl font-bold text-red-600">{result.incorrectCount}</div>
                             </div>
-                             <div className="text-center">
+                            <div className="text-center">
                                 <div className="text-sm text-muted-foreground">Score</div>
                                 <div className="text-2xl font-bold text-primary">{Math.round(result.percentage)}%</div>
                             </div>
@@ -314,22 +313,8 @@ export function PracticeTest() {
                     </CardContent>
                 </Card>
 
-                <div className="pt-12 border-t space-y-8">
-                    <div className="space-y-2">
-                        <h3 className="text-xl font-bold flex items-center gap-2">
-                            <Sparkles className="size-5 text-primary" />
-                            Lấp lỗ hổng kiến thức
-                        </h3>
-                        <p className="text-sm text-muted-foreground">AI Sensei gợi ý bạn luyện tập tập trung vào phần vừa thi để cải thiện điểm số.</p>
-                    </div>
-
-                    <Card className="border-primary/20 bg-primary/5 shadow-none rounded-2xl overflow-hidden">
-                        <CardContent className="p-0">
-                            <SkillDrill embed />
-                        </CardContent>
-                    </Card>
-                </div>
             </div>
+            </div >
         )
     }
 

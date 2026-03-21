@@ -8,7 +8,6 @@ import {
   AgentGrammarCheckResponseSchema,
   AgentTranslateResponseSchema,
   AgentFlashcardResponseSchema,
-  AgentDrillResponseSchema,
   AgentConversationSimulationResponseSchema,
   AgentResourceRecommendationResponseSchema,
   AgentChatResponseSchema,
@@ -30,7 +29,7 @@ export class SenseiService implements OnModuleInit {
     private readonly aiUsageTracking: AIUsageTrackingService,
     private readonly analyticsService: AnalyticsService,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) {}
+  ) { }
 
   private async deductCoins(userId: string, taskType: string, usage: any) {
     // Billing is temporarily disabled (No deduction, no usage recording, no logs)
@@ -183,56 +182,6 @@ export class SenseiService implements OnModuleInit {
       },
     );
 
-    // 4. Practice Drill
-    this.fastMcpService.addTool(
-      'sensei_generate_drill',
-      'Generate practice drills',
-      z.object({
-        userId: z.string(),
-        type: z.enum([
-          'grammar',
-          'vocabulary',
-          'kanji',
-          'listening',
-          'reading',
-        ]),
-        topic: z.string(),
-        level: z.enum(['N5', 'N4', 'N3', 'N2', 'N1']).default('N4'),
-        count: z.number().default(5),
-      }),
-      async ({ userId, type, topic, level, count }) => {
-        const userContext = await this.fastMcpService.getUserContext(userId);
-        const template = this.fastMcpService.loadPromptTemplate(
-          'sensei/practice-drill.md',
-        );
-        const prompt = template({
-          type,
-          topic,
-          level,
-          count,
-          userContext,
-          timestamp: new Date().toISOString(),
-        });
-        const { data, usage } = await this.fastMcpService.callGeminiWithSchema(
-          prompt,
-          AgentDrillResponseSchema,
-          { maxRetries: 1 },
-        );
-
-        await this.aiUsageTracking.updateAITextChatUsage(
-          `gen-${userId}`,
-          userId,
-          `drill_${type}`,
-          usage.promptTokenCount,
-          usage.candidatesTokenCount,
-          usage.totalTokenCount,
-        );
-
-        // await this.deductCoins(userId, `drill_${type}`, usage);
-
-        return data;
-      },
-    );
 
     // 5. Simulate Conversation
     this.fastMcpService.addTool(
@@ -555,21 +504,6 @@ export class SenseiService implements OnModuleInit {
     });
   }
 
-  async generatePracticeDrill(
-    requester: Requester,
-    type: 'grammar' | 'vocabulary' | 'kanji' | 'listening' | 'reading',
-    topic: string,
-    level: 'N5' | 'N4' | 'N3' | 'N2' | 'N1' = 'N4',
-    count: number = 5,
-  ): Promise<any> {
-    return this.fastMcpService.callTool('sensei_generate_drill', {
-      userId: requester.sub,
-      type,
-      topic,
-      level,
-      count,
-    });
-  }
 
   async simulateConversation(
     requester: Requester,

@@ -18,13 +18,6 @@ import Link from "next/link"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentReadinessProfileResponseDTO as ReadinessProfileResponse } from "@workspace/schemas"
 import { cn } from "@workspace/ui/lib/utils"
-import {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
-} from "@workspace/ui/components/tabs"
-import { SkillDrill } from "@/components/ai-sensei/skill-drill"
 
 export function AssessmentDashboard() {
     const [profile, setProfile] = React.useState<ReadinessProfileResponse | null>(null)
@@ -65,9 +58,6 @@ export function AssessmentDashboard() {
                 <TabsList className="bg-muted/50 p-1 rounded-xl w-full h-11 border overflow-x-auto whitespace-nowrap">
                     <TabsTrigger value="overview" className="rounded-lg px-6 font-bold text-[10px] uppercase tracking-widest data-[state=active]:shadow-sm">
                         Tổng quan năng lực
-                    </TabsTrigger>
-                    <TabsTrigger value="drills" className="rounded-lg px-6 font-bold text-[10px] uppercase tracking-widest data-[state=active]:shadow-sm">
-                        Luyện tập Trọng tâm
                     </TabsTrigger>
                 </TabsList>
 
@@ -223,10 +213,6 @@ export function AssessmentDashboard() {
                             </Card>
                         </div>
                     </div>
-                </TabsContent>
-
-                <TabsContent value="drills" className="focus-visible:outline-none">
-                    <SkillDrill embed />
                 </TabsContent>
             </Tabs>
         </div>
