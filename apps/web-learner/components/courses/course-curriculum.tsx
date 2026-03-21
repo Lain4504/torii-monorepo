@@ -75,25 +75,16 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
                                 <div className="px-4 pb-4 space-y-3">
                                     {module.lessons.map((lesson) => {
                                         const kind = (lesson.kind || '').toUpperCase()
-                                        const isLesson = kind === 'LESSON'
-                                        const isQuiz = kind === 'QUIZ' || kind === 'QUIZ_TEMPLATE'
-                                        const isAssignment = kind === 'ASSIGNMENT' || kind === 'ASSIGNMENT_TEMPLATE'
+                                        const isVideo = kind === 'VIDEO'
+                                        const isReading = kind === 'READING'
 
-                                        const TypeIcon = isQuiz
-                                            ? HelpCircle
-                                            : isAssignment
-                                                ? ClipboardList
-                                                : isLesson
-                                                    ? PlayCircle
-                                                    : FileText
+                                        const TypeIcon = isVideo
+                                            ? PlayCircle
+                                            : FileText
 
-                                        const typeLabel = isQuiz
-                                            ? 'Quiz kiểm tra'
-                                            : isAssignment
-                                                ? 'Bài tập'
-                                                : isLesson
-                                                    ? 'Video bài giảng'
-                                                    : 'Tài liệu'
+                                        const typeLabel = isVideo
+                                            ? 'Video bài giảng'
+                                            : 'Tài liệu đọc'
 
                                         return (
                                             <div
@@ -110,13 +101,9 @@ export function CourseCurriculum({ curriculum, courseSlug }: CourseCurriculumPro
                                                     <TypeIcon
                                                         className={cn(
                                                             "size-5 shrink-0",
-                                                            isQuiz
-                                                                ? "text-violet-500"
-                                                                : isAssignment
-                                                                    ? "text-amber-500"
-                                                                    : isLesson
-                                                                        ? "text-blue-500"
-                                                                        : "text-green-500"
+                                                            isVideo
+                                                                ? "text-blue-500"
+                                                                : "text-green-500"
                                                         )}
                                                     />
                                                     <div className="flex flex-col min-w-0">

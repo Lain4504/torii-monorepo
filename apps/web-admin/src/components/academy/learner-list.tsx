@@ -10,6 +10,7 @@ import {
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
 import { User, Mail, Calendar, Edit2, ExternalLink } from "lucide-react"
+import { formatDate } from "@/lib/format-utils"
 
 interface LearnerListProps {
   enrollments: any[]
@@ -68,7 +69,7 @@ export function LearnerList({ enrollments, isLoading }: LearnerListProps) {
               <TableCell className="text-sm">
                 <div className="flex items-center gap-1.5 text-muted-foreground">
                   <Calendar className="h-3.5 w-3.5" />
-                  {new Date(en.enrolledAt).toLocaleDateString("vi-VN")}
+                  {formatDate(en.enrolledAt)}
                 </div>
               </TableCell>
               <TableCell>

@@ -8,22 +8,17 @@ import type {
 function normalizeOfferingForLearner(item: any) {
   if (!item) return null;
 
-  const classes = Array.isArray(item.classes) ? item.classes : [];
-  const primaryClass = classes.find((c: any) => c.isPrimary) || classes[0];
-  const profile = primaryClass?.courseProfile;
+  const primaryClass = item.class ?? null;
+  const profile =
+    primaryClass?.courseProfile ||
+    item.class?.courseProfile ||
+    item.courseProfile;
 
-  // Check if any class is LIVE or the offering mode is LIVE
-  const isLive = item.mode === 'LIVE' || classes.some((c: any) => c.mode === 'LIVE');
-
-  const rawPrice = item.originalPrice ?? item.price ?? 0;
-  const parsedPrice = Number(rawPrice);
-
-  // Map V2 syllabus (modules/lessons) to legacy courseEdition.chapters structure for UI compatibility
-  const syllabus = primaryClass?.syllabus ?? item.syllabus ?? null;
+  // Map CourseProfile (modules/lessons) → courseEdition.chapters (dùng khi không có edition từ lớp)
   let courseEdition = primaryClass?.courseEdition;
 
-  if (!courseEdition && syllabus?.modules && Array.isArray(syllabus.modules)) {
-    const chapters = syllabus.modules.map((mod: any) => ({
+  if (!courseEdition && profile?.modules && Array.isArray(profile.modules)) {
+    const chapters = profile.modules.map((mod: any) => ({
       id: mod.id,
       title: mod.title,
       description: null,
@@ -37,8 +32,28 @@ function normalizeOfferingForLearner(item: any) {
     courseEdition = { chapters };
   }
 
-  // Attach courseEdition to the classes (especially the primary one) for UI use
+  let classes =
+    item.classes && Array.isArray(item.classes) && item.classes.length > 0
+      ? item.classes
+      : primaryClass
+        ? [primaryClass]
+        : [];
+
+  const siblingClasses = Array.isArray(item.siblingClasses) ? item.siblingClasses : [];
+  // Gói LIVE gắn term: API trả siblingClasses (lớp cùng kỳ), không set item.class
+  if (item.mode === 'LIVE' && siblingClasses.length > 0) {
+    classes = siblingClasses;
+  }
+
+  const isLive = item.mode === 'LIVE';
+
+  const rawPrice = item.originalPrice ?? item.price ?? 0;
+  const parsedPrice = Number(rawPrice);
+
   const normalizedClasses = classes.map((cls: any) => {
+    if (courseEdition && !Array.isArray(cls.courseEdition?.chapters)) {
+      return { ...cls, courseEdition };
+    }
     if (cls === primaryClass && courseEdition) {
       return { ...cls, courseEdition };
     }
@@ -48,6 +63,10 @@ function normalizeOfferingForLearner(item: any) {
   return {
     ...item,
     classes: normalizedClasses,
+    class: primaryClass,
+    siblingClasses,
+    /** Luôn có khi curriculum lấy từ courseProfile (kể cả LIVE không có class 1:1) */
+    courseEdition: courseEdition ?? null,
     price: Number.isFinite(parsedPrice) ? parsedPrice : 0,
     thumbnailUrl:
       item.thumbnailUrl ||

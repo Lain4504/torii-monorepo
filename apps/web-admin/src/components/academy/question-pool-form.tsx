@@ -281,7 +281,12 @@ export function QuestionPoolForm({
             </Card>
 
             <div className="flex justify-end gap-3 pt-4">
-                <Button type="button" variant="ghost" onClick={onCancel} disabled={submitting}>
+                <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={onCancel}
+                    disabled={submitting}
+                >
                     Hủy bỏ
                 </Button>
                 <Button type="submit" disabled={submitting} className="px-8 h-10 shadow-sm">

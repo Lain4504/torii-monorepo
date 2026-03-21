@@ -18,7 +18,7 @@ import { vi } from "date-fns/locale"
 import { cn } from "@workspace/ui/lib/utils"
 import { ClassScheduleSheet } from "@/components/academy/class-schedule-sheet"
 import { ClassRescheduleRequestSheet } from "@/components/academy/class-reschedule-request-sheet"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs-lifted"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { useAuth } from "@/hooks/use-auth"
 import { UserRole } from "@workspace/schemas"
 import { useAcademyLiveScheduleRequests, useApproveAcademyLiveScheduleRequest, useRejectAcademyLiveScheduleRequest } from "@/lib/api/services/academy-live-schedule-requests"
@@ -155,7 +155,7 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
 
             <Tabs defaultValue="sessions" className="w-full">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                    <TabsList className="mb-6">
+                    <TabsList className="mb-6 overflow-x-auto whitespace-nowrap">
                         <TabsTrigger value="sessions" className="gap-2">
                             <Calendar className="size-4" />
                             Buổi học & Điểm danh
@@ -434,54 +434,60 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                 </TabsContent>
 
                 <TabsContent value="schedule" className="space-y-6 focus-visible:outline-none focus-visible:ring-0">
-                    <Card className="shadow-sm border-primary/20 overflow-hidden leading-relaxed">
-                        <CardHeader className="bg-primary/5 border-b flex flex-col md:flex-row items-start md:items-center justify-between space-y-4 md:space-y-0 p-6">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-primary/10 rounded-2xl shadow-inner border border-primary/20">
-                                    <Calendar className="size-7 text-primary" />
+                    <Card className="shadow-sm overflow-hidden">
+                        <CardHeader className="border-b p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-primary/10 rounded-lg">
+                                    <Calendar className="size-5 text-primary" />
                                 </div>
                                 <div>
-                                    <CardTitle className="text-xl font-bold tracking-tight text-primary">Thời khóa biểu định kỳ</CardTitle>
-                                    <CardDescription className="text-sm font-medium">Lịch học lặp lại mỗi tuần - Nguồn dữ liệu chính cho hệ thống.</CardDescription>
+                                    <CardTitle className="text-base font-bold">Thời khóa biểu định kỳ</CardTitle>
+                                    <CardDescription className="text-xs">
+                                        Lịch học lặp lại theo tuần (nguồn dữ liệu tạo buổi học).
+                                    </CardDescription>
                                 </div>
                             </div>
-                            <Button size="lg" className="shadow-lg hover:shadow-xl transition-all h-11 px-6 font-bold gap-2" onClick={() => setScheduleSheetOpen(true)}>
-                                <Settings2 className="size-5" />
+                            <Button size="sm" variant="outline" className="gap-2" onClick={() => setScheduleSheetOpen(true)}>
+                                <Settings2 className="size-4" />
                                 Thiết lập lịch học
                             </Button>
                         </CardHeader>
-                        <CardContent className="p-8">
+
+                        <CardContent className="p-6">
                             {hasSchedules ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {[...schedules].sort((a: any, b: any) => a.weekday - b.weekday).map((s: any) => (
-                                        <Card key={s.id} className="relative overflow-hidden border-l-4 border-l-primary shadow-sm hover:shadow-md transition-all group hover:-translate-y-1">
-                                            <CardContent className="p-6 flex flex-col gap-5">
-                                                <div className="flex items-center justify-between">
-                                                    <Badge className="bg-primary/10 text-primary font-black px-4 py-1.5 border border-primary/20 text-sm">
+                                <div className="space-y-3">
+                                    {[...schedules]
+                                        .sort((a: any, b: any) => a.weekday - b.weekday)
+                                        .map((s: any) => (
+                                            <div
+                                                key={s.id}
+                                                className="flex items-center justify-between gap-4 border rounded-lg px-4 py-3 bg-muted/5"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <Badge variant="secondary" className="font-bold">
                                                         {WEEKDAY_MAP[s.weekday]}
                                                     </Badge>
-                                                    <div className="flex items-center gap-2 text-primary text-base font-black">
-                                                        <Clock className="size-5" />
-                                                        {s.startTime} - {s.endTime}
-                                                    </div>
                                                 </div>
-                                            </CardContent>
-                                        </Card>
-                                    ))}
+                                                <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                                                    <Clock className="size-4" />
+                                                    {s.startTime} - {s.endTime}
+                                                </div>
+                                            </div>
+                                        ))}
                                 </div>
                             ) : (
-                                <div className="py-24 text-center flex flex-col items-center gap-6 bg-muted/5 rounded-2xl border-2 border-dashed border-primary/20">
-                                    <div className="size-24 rounded-full bg-muted/50 flex items-center justify-center shadow-inner">
-                                        <Clock className="size-12 text-muted-foreground opacity-20" />
+                                <div className="py-14 text-center flex flex-col items-center gap-4">
+                                    <div className="size-12 rounded-full bg-muted/50 flex items-center justify-center">
+                                        <Clock className="size-6 text-muted-foreground opacity-30" />
                                     </div>
-                                    <div className="space-y-2 max-w-[450px]">
-                                        <p className="text-xl font-black text-foreground">Chưa có lịch học định kỳ</p>
-                                        <p className="text-sm text-muted-foreground font-medium italic leading-relaxed">
-                                            Lịch học định kỳ là source of truth để hệ thống tự động sinh ra danh sách các buổi học cho từng tuần. Hãy thiết lập ngay để bắt đầu quản lý lớp học.
+                                    <div className="space-y-1 max-w-[520px]">
+                                        <p className="font-bold">Chưa có lịch học định kỳ</p>
+                                        <p className="text-sm text-muted-foreground">
+                                            Thiết lập lịch tuần để hệ thống tự động sinh danh sách buổi học.
                                         </p>
                                     </div>
-                                    <Button size="lg" onClick={() => setScheduleSheetOpen(true)} className="mt-4 px-8 font-bold h-12 shadow-lg">
-                                        <Plus className="mr-2 h-6 w-6" />
+                                    <Button size="sm" className="mt-2 gap-2" onClick={() => setScheduleSheetOpen(true)}>
+                                        <Plus className="size-4" />
                                         Bắt đầu thiết lập
                                     </Button>
                                 </div>
@@ -489,20 +495,15 @@ export function ClassAttendanceTab({ classId: propClassId, academyClass: propAca
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-amber-50/50 border-amber-200/50 shadow-sm leading-relaxed overflow-hidden">
-                        <CardContent className="p-5 flex gap-4 text-amber-900/80 text-sm font-medium">
-                            <div className="p-2 bg-amber-100 rounded-lg shrink-0 h-fit">
-                                <AlertCircle className="size-5 text-amber-600 font-bold" />
-                            </div>
-                            <div className="space-y-1">
-                                <p className="font-bold text-amber-900 uppercase tracking-tight text-xs">Cơ chế đồng bộ lịch</p>
-                                <p className="italic">
-                                    Thay đổi tại đây sẽ được hệ thống áp dụng để tái tạo lại toàn bộ chuỗi buổi học định kỳ. 
-                                    Nếu bạn chỉ muốn thay đổi thời gian cho <strong>một buổi học duy nhất</strong> (do giảng viên bận đột xuất hoặc nghỉ lễ), hãy sử dụng nút <strong>Dời lịch</strong> tại danh sách buổi học.
-                                </p>
-                            </div>
-                        </CardContent>
-                    </Card>
+                    <div className="text-sm text-muted-foreground leading-relaxed">
+                        <div className="flex items-start gap-2">
+                            <AlertCircle className="size-4 mt-0.5 text-amber-600" />
+                            <span>
+                                Thay đổi tại đây sẽ ảnh hưởng đến chuỗi buổi học được sinh ra tự động.
+                                Nếu chỉ cần điều chỉnh <strong>một buổi</strong>, hãy dùng “Dời lịch” ở danh sách buổi học.
+                            </span>
+                        </div>
+                    </div>
                 </TabsContent>
             </Tabs>
         </div>

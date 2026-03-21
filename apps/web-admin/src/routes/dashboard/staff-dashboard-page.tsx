@@ -63,11 +63,27 @@ export default function StaffDashboardPage() {
                 actions={
                     <div className="flex items-center gap-3">
                         <div className="flex bg-muted p-1 rounded-xl border">
-                            <Button variant="ghost" asChild size="sm">
-                                <Link to="/analytics/learning">Học tập</Link>
+                            <Button
+                              variant="outline"
+                              asChild
+                              size="sm"
+                              className="border-primary/30 text-primary bg-transparent hover:bg-primary/5"
+                            >
+                                <Link to="/analytics/learning" className="flex items-center gap-2">
+                                    <BookOpen className="size-4" />
+                                    Học tập
+                                </Link>
                             </Button>
-                            <Button variant="ghost" asChild size="sm">
-                                <Link to="/analytics/users">Học viên</Link>
+                            <Button
+                              variant="outline"
+                              asChild
+                              size="sm"
+                              className="border-primary/30 text-primary bg-transparent hover:bg-primary/5"
+                            >
+                                <Link to="/analytics/users" className="flex items-center gap-2">
+                                    <Users className="size-4" />
+                                    Học viên
+                                </Link>
                             </Button>
                         </div>
                         <Button size="lg" className="group">

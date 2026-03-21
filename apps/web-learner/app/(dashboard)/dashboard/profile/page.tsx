@@ -1,7 +1,7 @@
 'use client'
 
 import { useAppSelector } from '@/hooks/hooks'
-import { useGamificationProfile, useAchievements } from '@/lib/api/services/gamification-api'
+import { useGamificationProfile, useAchievements, useStreak } from '@/lib/api/services/gamification-api'
 import { useCertificates } from '@/lib/api/services/certificate-api'
 import { useMyCoupons } from '@/lib/api/services/coupon-api'
 import { useAcademyMyCourses } from '@/lib/api/services/academy-learning-progress-api'
@@ -50,6 +50,7 @@ const item = {
 export default function ProfilePage() {
     const { user } = useAppSelector((state) => state.auth)
     const { data: gamification, isLoading: loadingGamification } = useGamificationProfile()
+    const { data: streak } = useStreak()
     const { data: achievementsData, isLoading: loadingAchievements } = useAchievements()
     const { data: certsResp, isLoading: loadingCerts } = useCertificates({ limit: '3' })
     const { data: coupons, isLoading: loadingCoupons } = useMyCoupons()
@@ -156,7 +157,7 @@ export default function ProfilePage() {
                                 <Flame className="size-4" />
                             </div>
                             <div>
-                                <p className="text-2xl font-black text-foreground">{gamification?.currentStreak || 0}</p>
+                                <p className="text-2xl font-black text-foreground">{streak?.currentStreak || 0}</p>
                                 <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Ngày học liên tiếp</p>
                             </div>
                         </div>

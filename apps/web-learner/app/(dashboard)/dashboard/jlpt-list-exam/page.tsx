@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@workspace/ui/components/button"
-import { ChevronRight, GraduationCap, Languages } from "lucide-react"
+import { ChevronRight, GraduationCap, History, Languages } from "lucide-react"
 
 const LEVELS = [
     { code: "N5", color: "bg-emerald-500/10 text-emerald-600", description: "Sơ cấp – N5" },
@@ -15,6 +15,17 @@ const LEVELS = [
 export default function JlptListExamPage() {
     return (
             <div className="space-y-8">
+                <div className="fixed bottom-10 right-10 z-20">
+                    <Link href="/jlpt/attempt/history">
+                        <Button
+                            variant="secondary"
+                            className="px-4 py-2 rounded-full flex items-center gap-2 shadow-sm"
+                        >
+                            <History className="w-4 h-4" />
+                            Lịch sử
+                        </Button>
+                    </Link>
+                </div>
 
                 {/* Header */}
                 <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">

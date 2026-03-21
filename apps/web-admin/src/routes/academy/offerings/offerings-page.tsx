@@ -87,13 +87,31 @@ export default function OfferingsPage() {
         setDialogOpen(true)
     }
 
+    /** Trang read-only + đơn hàng: `/academy/course-offerings/:id/detail` */
+    const goToOfferingDetail = (offeringId: string) => {
+        navigate(`/academy/course-offerings/${offeringId}/detail`)
+    }
+
     const handleEdit = (offering: AcademyCourseOffering) => {
         setSelectedOffering(offering)
         if (offering.status === 'PUBLISHED') {
-            navigate(`/academy/course-offerings/${offering.id}/detail`)
-        } else {
-            setDialogOpen(true)
+            goToOfferingDetail(offering.id)
+            return
         }
+        if (offering.status === 'PENDING_APPROVAL') {
+            navigate(`/academy/approvals/course-offerings/${offering.id}`)
+            return
+        }
+        if (offering.status === 'DRAFT' || offering.status === 'REJECTED') {
+            setDialogOpen(true)
+            return
+        }
+        goToOfferingDetail(offering.id)
+    }
+
+    const openEditSheet = (offering: AcademyCourseOffering) => {
+        setSelectedOffering(offering)
+        setDialogOpen(true)
     }
 
     return (
@@ -130,7 +148,7 @@ export default function OfferingsPage() {
                                 <TableHead>Tên gói bán</TableHead>
                                 <TableHead>Giá (VND)</TableHead>
                                 <TableHead>Trạng thái</TableHead>
-                                <TableHead>Lớp liên kết</TableHead>
+                                <TableHead>Liên kết/Kỳ học</TableHead>
                                 <TableHead className="text-right">Thao tác</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -178,45 +196,128 @@ export default function OfferingsPage() {
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
-                                            <div className="flex items-center gap-1">
-                                                <Badge variant="outline" className="text-[10px]">{offering.classes?.length || 0} lớp</Badge>
+                                            <div className="flex flex-col gap-1">
+                                                <Badge variant="secondary" className="text-[10px] w-fit">
+                                                    {offering.mode}
+                                                </Badge>
+                                                {offering.mode === 'LIVE' ? (
+                                                    <span className="text-xs font-bold text-primary">
+                                                        {offering.term?.termCode || 'Chưa gắn kỳ'}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-xs font-medium">
+                                                        {offering.class?.code || 'Chưa gắn lớp'}
+                                                    </span>
+                                                )}
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex items-center justify-end gap-2">
                                                 { (offering.status === 'DRAFT' || offering.status === 'REJECTED') && (
+                                                    (() => {
+                                                        const mode = offering.mode
+                                                        const isVod = mode === "VOD"
+                                                        const isLive = mode === "LIVE"
+                                                        const linkedClassId = offering.classId ?? offering.class?.id
+                                                        const linkedTermId = offering.termId ?? offering.term?.id
+                                                        const linkedClassStatus = offering.class?.status
+                                                        /** VOD: bắt buộc class. LIVE: bắt buộc term (không dùng classId trên offering). */
+                                                        const hasRequiredLink = isVod ? !!linkedClassId : !!linkedTermId
+                                                        /** Chỉ khi offering gắn sẵn một lớp LIVE cụ thể mới kiểm tra OPENING */
+                                                        const needsOpening =
+                                                            isLive &&
+                                                            !!linkedClassId &&
+                                                            !!linkedClassStatus &&
+                                                            linkedClassStatus !== "OPENING"
+                                                        const canSubmit = hasRequiredLink && !needsOpening
+                                                        const submitTitle = !hasRequiredLink
+                                                            ? isVod
+                                                                ? "Vui lòng chọn lớp học (VOD) trước khi gửi duyệt"
+                                                                : "Vui lòng chọn kỳ học (Term) cho gói LIVE trước khi gửi duyệt"
+                                                            : needsOpening
+                                                              ? "Lớp LIVE liên kết cần ở trạng thái OPENING trước khi gửi duyệt"
+                                                              : undefined
+
+                                                        return (
                                                     <Button 
                                                         variant="default" 
                                                         size="sm" 
                                                         className="h-8 gap-1.5 bg-primary hover:bg-primary/90"
                                                         onClick={() => {
-                                                            if (offering.classes && offering.classes.length > 0) {
+                                                            if (canSubmit) {
                                                                 setSubmitDialog({ open: true, offering })
                                                             } else {
-                                                                toast.error("Vui lòng chọn ít nhất 1 lớp học trước khi gửi duyệt")
+                                                                toast.error(
+                                                                    submitTitle ??
+                                                                        "Chưa đủ điều kiện để gửi duyệt",
+                                                                )
                                                             }
                                                         }}
-                                                        disabled={submitForApprovalMutation.isPending}
+                                                        disabled={submitForApprovalMutation.isPending || !canSubmit}
+                                                        title={submitTitle}
                                                     >
                                                         <SendIcon className="h-3.5 w-3.5" /> Gửi duyệt
                                                     </Button>
+                                                        )
+                                                    })()
                                                 )}
-                                                <Button variant="outline" size="sm" className="h-8 gap-1.5" onClick={() => handleEdit(offering)}>
-                                                    {offering.status === 'PUBLISHED' ? (
+                                                {offering.status === 'PUBLISHED' ? (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8 gap-1.5"
+                                                        onClick={() => handleEdit(offering)}
+                                                    >
                                                         <><Eye className="h-4 w-4" /> Chi tiết</>
-                                                    ) : (
-                                                        <><FileEdit className="h-4 w-4" /> Sửa</>
-                                                    )}
-                                                </Button>
+                                                    </Button>
+                                                ) : offering.status === 'DRAFT' || offering.status === 'REJECTED' ? (
+                                                    <>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="h-8 gap-1.5"
+                                                            onClick={() => goToOfferingDetail(offering.id)}
+                                                        >
+                                                            <Eye className="h-4 w-4" /> Chi tiết
+                                                        </Button>
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            className="h-8 gap-1.5"
+                                                            onClick={() => openEditSheet(offering)}
+                                                        >
+                                                            <FileEdit className="h-4 w-4" /> Sửa
+                                                        </Button>
+                                                    </>
+                                                ) : offering.status === 'PENDING_APPROVAL' ? (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8 gap-1.5"
+                                                        onClick={() => handleEdit(offering)}
+                                                    >
+                                                        <><Eye className="h-4 w-4" /> Preview</>
+                                                    </Button>
+                                                ) : (
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8 gap-1.5"
+                                                        onClick={() => handleEdit(offering)}
+                                                    >
+                                                        <><Eye className="h-4 w-4" /> Chi tiết</>
+                                                    </Button>
+                                                )}
 
                                                 <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="size-8 text-muted-foreground hover:text-destructive"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="h-8 gap-2 border-orange-500/30 text-orange-700 bg-transparent hover:bg-orange-50 hover:text-orange-700"
                                                     onClick={() => setArchiveDialog({ open: true, offering })}
                                                     title="Lưu trữ"
                                                 >
                                                     <Archive className="h-4 w-4" />
+                                                    <span>Lưu trữ</span>
                                                 </Button>
                                             </div>
                                         </TableCell>

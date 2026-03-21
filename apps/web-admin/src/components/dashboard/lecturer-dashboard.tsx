@@ -45,7 +45,7 @@ export default function LecturerDashboard() {
 
             <div className="grid gap-6 md:grid-cols-3">
                 <StatsCard
-                    title="Syllabus của tôi"
+                    title="Khóa học của tôi"
                     value={myCourses?.total || 0}
                     sub="Khung chương trình đang biên soạn"
                     icon={BookOpen}

@@ -4,7 +4,6 @@ import { CourseOfferingService } from './course-offering.service';
 import {
   CourseOfferingCreateDto,
   CourseOfferingQueryDto,
-  CourseOfferingSetClassesDto,
   CourseOfferingUpdateDto,
 } from './dto/course-offering.dto';
 
@@ -29,7 +28,7 @@ export class CourseOfferingHandler {
 
   @MessagePattern({ cmd: 'academy.courseOffering.findPublicByCategory' })
   findPublicByCategory(@Payload() data: { category: string }) {
-    return this.offerings.findPublicByCategory(data.category);
+    return this.offerings.findByCategory(data.category);
   }
 
   @MessagePattern({ cmd: 'academy.courseOffering.create' })
@@ -48,14 +47,6 @@ export class CourseOfferingHandler {
     },
   ) {
     return this.offerings.update(data.id, data.input, data.requesterId);
-  }
-
-  @MessagePattern({ cmd: 'academy.courseOffering.setClasses' })
-  setClasses(
-    @Payload() data: CourseOfferingSetClassesDto & { requesterId?: string },
-  ) {
-    const { requesterId, ...input } = data;
-    return this.offerings.setClasses(input, requesterId);
   }
 
   @MessagePattern({ cmd: 'academy.courseOffering.archive' })

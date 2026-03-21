@@ -1,0 +1,3884 @@
+{
+  "levelCode": "N1",
+  "examTitle": "JLPT N1 Full Exam 2024 - Part 1 | JLPT N1 Full Exam 2024 - Part 2 Reading | JLPT N1 Full Exam 2024 - Part 3 Listening",
+  "sections": [
+    {
+      "code": "LANGUAGE_GRAMMAR_READING",
+      "durationMinutes": 110,
+      "orderIndex": 1,
+      "mondais": [
+        {
+          "mondaiCode": "N1_M1_KANJI",
+          "titleJa": "問題1 漢字読み",
+          "titleVi": "Đọc Kanji",
+          "orderIndex": 1,
+          "questions": [
+            {
+              "stemText": "彼の説明は__曖昧__だ。",
+              "contextText": null,
+              "orderIndex": 1,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "あいまい",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "えいまい",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "あいもう",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "えいもう",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "この問題は__厳密__に扱うべきだ。",
+              "contextText": null,
+              "orderIndex": 2,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "げんみつ",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "げんめつ",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "げんびつ",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "げんまつ",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼は__概念__を理解している。",
+              "contextText": null,
+              "orderIndex": 3,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "がいねん",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "かいねん",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "がいれん",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "かいれん",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼の態度は__傲慢__だ。",
+              "contextText": null,
+              "orderIndex": 4,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "ごうまん",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "こうまん",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "ごまん",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "こうばん",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼の意見は__妥当__だ。",
+              "contextText": null,
+              "orderIndex": 5,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "だとう",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "だどう",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "たとう",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "たどう",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼は__顕著__な成果を上げた。",
+              "contextText": null,
+              "orderIndex": 6,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "けんちょ",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "けんしょ",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "げんちょ",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "げんしょ",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼の説明は__曖昧__だ。",
+              "contextText": null,
+              "orderIndex": 7,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "あいまい",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "えいまい",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "あいもう",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "えいもう",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼の説明は__曖昧__だ。",
+              "contextText": null,
+              "orderIndex": 8,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "あいまい",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "えいまい",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "あいもう",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "えいもう",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼は__概念__を理解している。",
+              "contextText": null,
+              "orderIndex": 9,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "がいねん",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "かいねん",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "がいれん",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "かいれん",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼の態度は__傲慢__だ。",
+              "contextText": null,
+              "orderIndex": 10,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "ごうまん",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "こうまん",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "ごまん",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "こうばん",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼は__概念__を理解している。",
+              "contextText": null,
+              "orderIndex": 11,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "がいねん",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "かいねん",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "がいれん",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "かいれん",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "mondaiCode": "N1_M2_CONTEXT",
+          "titleJa": "問題2 文脈規定",
+          "titleVi": "Chọn từ theo ngữ cảnh",
+          "orderIndex": 2,
+          "questions": [
+            {
+              "stemText": "彼は困難に直面しても決して__ない__。",
+              "contextText": null,
+              "orderIndex": 1,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "屈し",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "壊し",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "崩し",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "逃げ",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼は計画を__した__。",
+              "contextText": null,
+              "orderIndex": 2,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "遂行",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "破壊",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "削除",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "停止",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼は計画を__した__。",
+              "contextText": null,
+              "orderIndex": 3,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "遂行",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "破壊",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "削除",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "停止",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼は計画を__した__。",
+              "contextText": null,
+              "orderIndex": 4,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "遂行",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "破壊",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "削除",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "停止",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼は計画を__した__。",
+              "contextText": null,
+              "orderIndex": 5,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "遂行",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "破壊",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "削除",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "停止",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼は困難に直面しても決して__ない__。",
+              "contextText": null,
+              "orderIndex": 6,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "屈し",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "壊し",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "崩し",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "逃げ",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼は困難に直面しても決して__ない__。",
+              "contextText": null,
+              "orderIndex": 7,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "屈し",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "壊し",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "崩し",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "逃げ",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "mondaiCode": "N1_M3_SYNONYM",
+          "titleJa": "問題3 類義語",
+          "titleVi": "Từ đồng nghĩa",
+          "orderIndex": 3,
+          "questions": [
+            {
+              "stemText": "__迅速__な対応",
+              "contextText": null,
+              "orderIndex": 1,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "素早い",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "遅い",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "弱い",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "難しい",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "__迅速__な対応",
+              "contextText": null,
+              "orderIndex": 2,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "素早い",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "遅い",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "弱い",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "難しい",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "__迅速__な対応",
+              "contextText": null,
+              "orderIndex": 3,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "素早い",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "遅い",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "弱い",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "難しい",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "__迅速__な対応",
+              "contextText": null,
+              "orderIndex": 4,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "素早い",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "遅い",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "弱い",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "難しい",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "__迅速__な対応",
+              "contextText": null,
+              "orderIndex": 5,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "素早い",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "遅い",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "弱い",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "難しい",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "__迅速__な対応",
+              "contextText": null,
+              "orderIndex": 6,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "素早い",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "遅い",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "弱い",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "難しい",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "mondaiCode": "N1_M4_USAGE",
+          "titleJa": "問題4 用法",
+          "titleVi": "Cách dùng",
+          "orderIndex": 4,
+          "questions": [
+            {
+              "stemText": "「顧みる」の使い方",
+              "contextText": null,
+              "orderIndex": 1,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "過去を顧みる",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "未来を顧みる",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "音を顧みる",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "食べ物を顧みる",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "「顧みる」の使い方",
+              "contextText": null,
+              "orderIndex": 2,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "過去を顧みる",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "未来を顧みる",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "音を顧みる",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "食べ物を顧みる",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "「顧みる」の使い方",
+              "contextText": null,
+              "orderIndex": 3,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "過去を顧みる",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "未来を顧みる",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "音を顧みる",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "食べ物を顧みる",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "「顧みる」の使い方",
+              "contextText": null,
+              "orderIndex": 4,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "過去を顧みる",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "未来を顧みる",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "音を顧みる",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "食べ物を顧みる",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "「顧みる」の使い方",
+              "contextText": null,
+              "orderIndex": 5,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "過去を顧みる",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "未来を顧みる",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "音を顧みる",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "食べ物を顧みる",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "「顧みる」の使い方",
+              "contextText": null,
+              "orderIndex": 6,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "過去を顧みる",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "未来を顧みる",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "音を顧みる",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "食べ物を顧みる",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "mondaiCode": "N1_M5_GRAMMAR1",
+          "titleJa": "問題5 文法1",
+          "titleVi": "Ngữ pháp 1",
+          "orderIndex": 5,
+          "questions": [
+            {
+              "stemText": "努力（　）成功はない。",
+              "contextText": null,
+              "orderIndex": 1,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "なくしては",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "ないでは",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "なくても",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "なしで",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "努力（　）成功はない。",
+              "contextText": null,
+              "orderIndex": 2,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "なくしては",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "ないでは",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "なくても",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "なしで",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "努力（　）成功はない。",
+              "contextText": null,
+              "orderIndex": 3,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "なくしては",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "ないでは",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "なくても",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "なしで",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "努力（　）成功はない。",
+              "contextText": null,
+              "orderIndex": 4,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "なくしては",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "ないでは",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "なくても",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "なしで",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "努力（　）成功はない。",
+              "contextText": null,
+              "orderIndex": 5,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "なくしては",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "ないでは",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "なくても",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "なしで",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "努力（　）成功はない。",
+              "contextText": null,
+              "orderIndex": 6,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "なくしては",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "ないでは",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "なくても",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "なしで",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "mondaiCode": "N1_M6_COMPOSITION",
+          "titleJa": "問題6 文の組み立て",
+          "titleVi": "Sắp xếp câu",
+          "orderIndex": 6,
+          "questions": [
+            {
+              "stemText": "彼は ★ ＿＿＿ ＿＿＿ ＿＿＿ と言った。",
+              "contextText": "1 今すぐ 2 行くべきだ 3 と彼は",
+              "orderIndex": 1,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "1→2→3",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "2→1→3",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "3→1→2",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "1→3→2",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼は ★ ＿＿＿ ＿＿＿ ＿＿＿ と言った。",
+              "contextText": "1 今すぐ 2 行くべきだ 3 と彼は",
+              "orderIndex": 2,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "1→2→3",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "2→1→3",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "3→1→2",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "1→3→2",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼は ★ ＿＿＿ ＿＿＿ ＿＿＿ と言った。",
+              "contextText": "1 今すぐ 2 行くべきだ 3 と彼は",
+              "orderIndex": 3,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "1→2→3",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "2→1→3",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "3→1→2",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "1→3→2",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼は ★ ＿＿＿ ＿＿＿ ＿＿＿ と言った。",
+              "contextText": "1 今すぐ 2 行くべきだ 3 と彼は",
+              "orderIndex": 4,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "1→2→3",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "2→1→3",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "3→1→2",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "1→3→2",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼は ★ ＿＿＿ ＿＿＿ ＿＿＿ と言った。",
+              "contextText": "1 今すぐ 2 行くべきだ 3 と彼は",
+              "orderIndex": 5,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "1→2→3",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "2→1→3",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "3→1→2",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "1→3→2",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼は ★ ＿＿＿ ＿＿＿ ＿＿＿ と言った。",
+              "contextText": "1 今すぐ 2 行くべきだ 3 と彼は",
+              "orderIndex": 6,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "1→2→3",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "2→1→3",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "3→1→2",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "1→3→2",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "mondaiCode": "N1_M7_TEXT_GRAMMAR",
+          "titleJa": "問題7 文章の文法",
+          "titleVi": "Ngữ pháp đoạn văn",
+          "orderIndex": 7,
+          "questions": [
+            {
+              "stemText": "彼は成功した。（　）努力したからだ。",
+              "contextText": null,
+              "orderIndex": 1,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "なぜなら",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "しかし",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "つまり",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "それでも",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼は成功した。（　）努力したからだ。",
+              "contextText": null,
+              "orderIndex": 2,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "なぜなら",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "しかし",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "つまり",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "それでも",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼は成功した。（　）努力したからだ。",
+              "contextText": null,
+              "orderIndex": 3,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "なぜなら",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "しかし",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "つまり",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "それでも",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼は成功した。（　）努力したからだ。",
+              "contextText": null,
+              "orderIndex": 4,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "なぜなら",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "しかし",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "つまり",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "それでも",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "彼は成功した。（　）努力したからだ。",
+              "contextText": null,
+              "orderIndex": 5,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "なぜなら",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "しかし",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "つまり",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "それでも",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "mondaiCode": "N1_M8_SHORT_READING",
+          "titleJa": "問題8 内容理解（短文）",
+          "titleVi": "Đọc hiểu ngắn",
+          "orderIndex": 8,
+          "questions": [
+            {
+              "stemText": "筆者の主張は何か。",
+              "contextText": "現代社会では情報があふれているが、その中から必要な情報を選ぶ力が求められている。",
+              "orderIndex": 1,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "情報は不要だ",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "情報を選ぶ力が重要だ",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "情報は危険だ",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "情報を減らすべきだ",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "筆者の意見に最も近いものはどれか。",
+              "contextText": "努力は必ずしも成功を保証するものではないが、努力なしに成功することはない。",
+              "orderIndex": 2,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "努力は無意味だ",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "努力だけで成功する",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "努力は成功の必要条件である",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "成功は運だけだ",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "筆者の意見に最も近いものはどれか。",
+              "contextText": "努力は必ずしも成功を保証するものではないが、努力なしに成功することはない。",
+              "orderIndex": 3,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "努力は無意味だ",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "努力だけで成功する",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "努力は成功の必要条件である",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "成功は運だけだ",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "筆者の意見に最も近いものはどれか。",
+              "contextText": "努力は必ずしも成功を保証するものではないが、努力なしに成功することはない。",
+              "orderIndex": 4,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "努力は無意味だ",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "努力だけで成功する",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "努力は成功の必要条件である",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "成功は運だけだ",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "筆者の意見に最も近いものはどれか。",
+              "contextText": "努力は必ずしも成功を保証するものではないが、努力なしに成功することはない。",
+              "orderIndex": 5,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "努力は無意味だ",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "努力だけで成功する",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "努力は成功の必要条件である",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "成功は運だけだ",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "筆者の意見に最も近いものはどれか。",
+              "contextText": "努力は必ずしも成功を保証するものではないが、努力なしに成功することはない。",
+              "orderIndex": 6,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "努力は無意味だ",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "努力だけで成功する",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "努力は成功の必要条件である",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "成功は運だけだ",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "mondaiCode": "N1_M9_MEDIUM_READING",
+          "titleJa": "問題9 内容理解（中文）",
+          "titleVi": "Đọc hiểu trung bình",
+          "orderIndex": 9,
+          "questions": [
+            {
+              "stemText": "筆者が最も言いたいことは何か。",
+              "contextText": "近年、多くの企業がリモートワークを導入している。それにより通勤時間が削減され、生産性が向上したという意見もある。一方で、コミュニケーション不足を指摘する声も少なくない。",
+              "orderIndex": 1,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "リモートワークは完全に良い",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "リモートワークには利点と課題がある",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "通勤は必要ない",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "企業は変化すべきでない",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "本文の内容として正しいものはどれか。",
+              "contextText": "教育においては知識だけでなく、思考力を育てることが重要である。単に覚えるだけでは応用が利かないためである。",
+              "orderIndex": 2,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "知識だけで十分だ",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "思考力は不要だ",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "思考力が重要だ",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "暗記が最重要だ",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "筆者が最も言いたいことは何か。",
+              "contextText": "近年、多くの企業がリモートワークを導入している。それにより通勤時間が削減され、生産性が向上したという意見もある。一方で、コミュニケーション不足を指摘する声も少なくない。",
+              "orderIndex": 3,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "リモートワークは完全に良い",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "リモートワークには利点と課題がある",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "通勤は必要ない",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "企業は変化すべきでない",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "筆者が最も言いたいことは何か。",
+              "contextText": "近年、多くの企業がリモートワークを導入している。それにより通勤時間が削減され、生産性が向上したという意見もある。一方で、コミュニケーション不足を指摘する声も少なくない。",
+              "orderIndex": 4,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "リモートワークは完全に良い",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "リモートワークには利点と課題がある",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "通勤は必要ない",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "企業は変化すべきでない",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "筆者が最も言いたいことは何か。",
+              "contextText": "近年、多くの企業がリモートワークを導入している。それにより通勤時間が削減され、生産性が向上したという意見もある。一方で、コミュニケーション不足を指摘する声も少なくない。",
+              "orderIndex": 5,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "リモートワークは完全に良い",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "リモートワークには利点と課題がある",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "通勤は必要ない",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "企業は変化すべきでない",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "筆者が最も言いたいことは何か。",
+              "contextText": "近年、多くの企業がリモートワークを導入している。それにより通勤時間が削減され、生産性が向上したという意見もある。一方で、コミュニケーション不足を指摘する声も少なくない。",
+              "orderIndex": 6,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "リモートワークは完全に良い",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "リモートワークには利点と課題がある",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "通勤は必要ない",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "企業は変化すべきでない",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "mondaiCode": "N1_M10_LONG_READING",
+          "titleJa": "問題10 内容理解（長文）",
+          "titleVi": "Đọc hiểu dài",
+          "orderIndex": 10,
+          "questions": [
+            {
+              "stemText": "筆者の結論として最も適切なものはどれか。",
+              "contextText": "現代社会では多様性が重視されている。異なる価値観や文化を受け入れることで、新たな発想やイノベーションが生まれる。しかし、それには相互理解と寛容な姿勢が不可欠である。",
+              "orderIndex": 1,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "多様性は不要",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "多様性は重要だが理解が必要",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "価値観は統一すべき",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "文化は変えるべきでない",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "筆者の結論として最も適切なものはどれか。",
+              "contextText": "現代社会では多様性が重視されている。異なる価値観や文化を受け入れることで、新たな発想やイノベーションが生まれる。しかし、それには相互理解と寛容な姿勢が不可欠である。",
+              "orderIndex": 2,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "多様性は不要",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "多様性は重要だが理解が必要",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "価値観は統一すべき",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "文化は変えるべきでない",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "筆者の結論として最も適切なものはどれか。",
+              "contextText": "現代社会では多様性が重視されている。異なる価値観や文化を受け入れることで、新たな発想やイノベーションが生まれる。しかし、それには相互理解と寛容な姿勢が不可欠である。",
+              "orderIndex": 3,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "多様性は不要",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "多様性は重要だが理解が必要",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "価値観は統一すべき",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "文化は変えるべきでない",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "筆者の結論として最も適切なものはどれか。",
+              "contextText": "現代社会では多様性が重視されている。異なる価値観や文化を受け入れることで、新たな発想やイノベーションが生まれる。しかし、それには相互理解と寛容な姿勢が不可欠である。",
+              "orderIndex": 4,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "多様性は不要",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "多様性は重要だが理解が必要",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "価値観は統一すべき",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "文化は変えるべきでない",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "筆者の結論として最も適切なものはどれか。",
+              "contextText": "現代社会では多様性が重視されている。異なる価値観や文化を受け入れることで、新たな発想やイノベーションが生まれる。しかし、それには相互理解と寛容な姿勢が不可欠である。",
+              "orderIndex": 5,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "多様性は不要",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "多様性は重要だが理解が必要",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "価値観は統一すべき",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "文化は変えるべきでない",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "mondaiCode": "N1_M11_INTEGRATED",
+          "titleJa": "問題11 統合理解",
+          "titleVi": "Đọc hiểu tổng hợp",
+          "orderIndex": 11,
+          "questions": [
+            {
+              "stemText": "2つの文章から分かることは何か。",
+              "contextText": "A：環境保護のためにプラスチック削減が必要だ。\nB：プラスチックは便利だが環境に悪影響を与える。",
+              "orderIndex": 1,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "プラスチックは完璧だ",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "プラスチックは不要",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "利便性と環境問題がある",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "環境問題は存在しない",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "2つの文章から分かることは何か。",
+              "contextText": "A：環境保護のためにプラスチック削減が必要だ。\nB：プラスチックは便利だが環境に悪影響を与える。",
+              "orderIndex": 2,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "プラスチックは完璧だ",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "プラスチックは不要",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "利便性と環境問題がある",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "環境問題は存在しない",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "2つの文章から分かることは何か。",
+              "contextText": "A：環境保護のためにプラスチック削減が必要だ。\nB：プラスチックは便利だが環境に悪影響を与える。",
+              "orderIndex": 3,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "プラスチックは完璧だ",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "プラスチックは不要",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "利便性と環境問題がある",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "環境問題は存在しない",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "2つの文章から分かることは何か。",
+              "contextText": "A：環境保護のためにプラスチック削減が必要だ。\nB：プラスチックは便利だが環境に悪影響を与える。",
+              "orderIndex": 4,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "プラスチックは完璧だ",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "プラスチックは不要",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "利便性と環境問題がある",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "環境問題は存在しない",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "2つの文章から分かることは何か。",
+              "contextText": "A：環境保護のためにプラスチック削減が必要だ。\nB：プラスチックは便利だが環境に悪影響を与える。",
+              "orderIndex": 5,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "プラスチックは完璧だ",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "プラスチックは不要",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "利便性と環境問題がある",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "環境問題は存在しない",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "mondaiCode": "N1_M12_ARGUMENT",
+          "titleJa": "問題12 主張理解（長文）",
+          "titleVi": "Hiểu lập luận",
+          "orderIndex": 12,
+          "questions": [
+            {
+              "stemText": "筆者の主張は何か。",
+              "contextText": "技術の進歩は人々の生活を便利にする一方で、依存を生み出す危険性もある。そのため、適切なバランスが求められる。",
+              "orderIndex": 1,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "技術は危険だ",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "技術は不要",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "技術はバランスが重要",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "依存は問題ない",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "筆者の主張は何か。",
+              "contextText": "技術の進歩は人々の生活を便利にする一方で、依存を生み出す危険性もある。そのため、適切なバランスが求められる。",
+              "orderIndex": 2,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "技術は危険だ",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "技術は不要",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "技術はバランスが重要",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "依存は問題ない",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "筆者の主張は何か。",
+              "contextText": "技術の進歩は人々の生活を便利にする一方で、依存を生み出す危険性もある。そのため、適切なバランスが求められる。",
+              "orderIndex": 3,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "技術は危険だ",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "技術は不要",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "技術はバランスが重要",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "依存は問題ない",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "筆者の主張は何か。",
+              "contextText": "技術の進歩は人々の生活を便利にする一方で、依存を生み出す危険性もある。そのため、適切なバランスが求められる。",
+              "orderIndex": 4,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "技術は危険だ",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "技術は不要",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "技術はバランスが重要",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "依存は問題ない",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "筆者の主張は何か。",
+              "contextText": "技術の進歩は人々の生活を便利にする一方で、依存を生み出す危険性もある。そのため、適切なバランスが求められる。",
+              "orderIndex": 5,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "技術は危険だ",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "技術は不要",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "技術はバランスが重要",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "依存は問題ない",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "mondaiCode": "N1_M13_INFO_SEARCH",
+          "titleJa": "問題13 情報検索",
+          "titleVi": "Tìm thông tin",
+          "orderIndex": 13,
+          "questions": [
+            {
+              "stemText": "会議は何時からか。",
+              "contextText": "会議のお知らせ：日時：3月10日 午後3時〜 場所：会議室A",
+              "orderIndex": 1,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "午後2時",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "午後3時",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "午後4時",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "午前3時",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "場所はどこか。",
+              "contextText": "イベント案内：場所：ホールB",
+              "orderIndex": 2,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "ホールA",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "ホールB",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "ホールC",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "会議室",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "会議は何時からか。",
+              "contextText": "会議のお知らせ：日時：3月10日 午後3時〜 場所：会議室A",
+              "orderIndex": 3,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "午後2時",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "午後3時",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "午後4時",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "午前3時",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "場所はどこか。",
+              "contextText": "イベント案内：場所：ホールB",
+              "orderIndex": 4,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "ホールA",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "ホールB",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "ホールC",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "会議室",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "会議は何時からか。",
+              "contextText": "会議のお知らせ：日時：3月10日 午後3時〜 場所：会議室A",
+              "orderIndex": 5,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "午後2時",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "午後3時",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "午後4時",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "午前3時",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "場所はどこか。",
+              "contextText": "イベント案内：場所：ホールB",
+              "orderIndex": 6,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "ホールA",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "ホールB",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "ホールC",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "会議室",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "LISTENING",
+      "durationMinutes": 60,
+      "orderIndex": 2,
+      "mondais": [
+        {
+          "mondaiCode": "N1_L1_TASK",
+          "titleJa": "問題1 課題理解",
+          "titleVi": "Hiểu vấn đề",
+          "orderIndex": 1,
+          "questions": [
+            {
+              "stemText": "男は何をすることにしたか。",
+              "contextText": "男：明日の会議に備えて、今夜資料を仕上げます。",
+              "orderIndex": 1,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "会議をキャンセルする",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "資料を準備する",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "旅行に行く",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "休む",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "女は次に何をするか。",
+              "contextText": "女：レポートが終わったら、すぐ提出します。",
+              "orderIndex": 2,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "提出する",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "削除する",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "印刷しない",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "放置する",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "男は何をすることにしたか。",
+              "contextText": "男：明日の会議に備えて、今夜資料を仕上げます。",
+              "orderIndex": 3,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "会議をキャンセルする",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "資料を準備する",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "旅行に行く",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "休む",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "男は何をすることにしたか。",
+              "contextText": "男：明日の会議に備えて、今夜資料を仕上げます。",
+              "orderIndex": 4,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "会議をキャンセルする",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "資料を準備する",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "旅行に行く",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "休む",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "男は何をすることにしたか。",
+              "contextText": "男：明日の会議に備えて、今夜資料を仕上げます。",
+              "orderIndex": 5,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "会議をキャンセルする",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "資料を準備する",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "旅行に行く",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "休む",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "男は何をすることにしたか。",
+              "contextText": "男：明日の会議に備えて、今夜資料を仕上げます。",
+              "orderIndex": 6,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "会議をキャンセルする",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "資料を準備する",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "旅行に行く",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "休む",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "男は何をすることにしたか。",
+              "contextText": "男：明日の会議に備えて、今夜資料を仕上げます。",
+              "orderIndex": 7,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "会議をキャンセルする",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "資料を準備する",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "旅行に行く",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "休む",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "男は何をすることにしたか。",
+              "contextText": "男：明日の会議に備えて、今夜資料を仕上げます。",
+              "orderIndex": 8,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "会議をキャンセルする",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "資料を準備する",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "旅行に行く",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "休む",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "mondaiCode": "N1_L2_POINT",
+          "titleJa": "問題2 ポイント理解",
+          "titleVi": "Hiểu ý chính",
+          "orderIndex": 2,
+          "questions": [
+            {
+              "stemText": "話のポイントは何か。",
+              "contextText": "会議の開始時間が変更されたことについて話している。",
+              "orderIndex": 1,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "場所変更",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "時間変更",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "中止",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "延期",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "何について話しているか。",
+              "contextText": "新しいプロジェクトの予算について議論している。",
+              "orderIndex": 2,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "人事",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "予算",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "旅行",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "休暇",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "何について話しているか。",
+              "contextText": "新しいプロジェクトの予算について議論している。",
+              "orderIndex": 3,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "人事",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "予算",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "旅行",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "休暇",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "話のポイントは何か。",
+              "contextText": "会議の開始時間が変更されたことについて話している。",
+              "orderIndex": 4,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "場所変更",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "時間変更",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "中止",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "延期",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "話のポイントは何か。",
+              "contextText": "会議の開始時間が変更されたことについて話している。",
+              "orderIndex": 5,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "場所変更",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "時間変更",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "中止",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "延期",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "何について話しているか。",
+              "contextText": "新しいプロジェクトの予算について議論している。",
+              "orderIndex": 6,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "人事",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "予算",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "旅行",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "休暇",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "話のポイントは何か。",
+              "contextText": "会議の開始時間が変更されたことについて話している。",
+              "orderIndex": 7,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "場所変更",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "時間変更",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "中止",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "延期",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "何について話しているか。",
+              "contextText": "新しいプロジェクトの予算について議論している。",
+              "orderIndex": 8,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "人事",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "予算",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "旅行",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "休暇",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "mondaiCode": "N1_L3_SUMMARY",
+          "titleJa": "問題3 概要理解",
+          "titleVi": "Hiểu tổng quát",
+          "orderIndex": 3,
+          "questions": [
+            {
+              "stemText": "話の内容として最も適切なものはどれか。",
+              "contextText": "講演では環境問題とその解決策について説明している。",
+              "orderIndex": 1,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "旅行の話",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "環境問題",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "食事の話",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "教育の話",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "話者の目的は何か。",
+              "contextText": "新製品の特徴を説明し、購入を促している。",
+              "orderIndex": 2,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "批判する",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "販売促進",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "中止する",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "比較する",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "話の内容として最も適切なものはどれか。",
+              "contextText": "講演では環境問題とその解決策について説明している。",
+              "orderIndex": 3,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "旅行の話",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "環境問題",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "食事の話",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "教育の話",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "話者の目的は何か。",
+              "contextText": "新製品の特徴を説明し、購入を促している。",
+              "orderIndex": 4,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "批判する",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "販売促進",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "中止する",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "比較する",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "話の内容として最も適切なものはどれか。",
+              "contextText": "講演では環境問題とその解決策について説明している。",
+              "orderIndex": 5,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "旅行の話",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "環境問題",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "食事の話",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "教育の話",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "話の内容として最も適切なものはどれか。",
+              "contextText": "講演では環境問題とその解決策について説明している。",
+              "orderIndex": 6,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "旅行の話",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "環境問題",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "食事の話",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "教育の話",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "話の内容として最も適切なものはどれか。",
+              "contextText": "講演では環境問題とその解決策について説明している。",
+              "orderIndex": 7,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "旅行の話",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "環境問題",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "食事の話",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "教育の話",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "話の内容として最も適切なものはどれか。",
+              "contextText": "講演では環境問題とその解決策について説明している。",
+              "orderIndex": 8,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "旅行の話",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "環境問題",
+                  "isCorrect": true,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "食事の話",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "教育の話",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "mondaiCode": "N1_L4_RESPONSE",
+          "titleJa": "問題4 即時応答",
+          "titleVi": "Phản xạ nhanh",
+          "orderIndex": 4,
+          "questions": [
+            {
+              "stemText": "質問：今何時ですか。",
+              "contextText": null,
+              "orderIndex": 1,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "3時です",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "昨日です",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "学校です",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "暑いです",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "質問：どこへ行きますか。",
+              "contextText": null,
+              "orderIndex": 2,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "東京へ行きます",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "本です",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "青いです",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "昨日です",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "質問：どこへ行きますか。",
+              "contextText": null,
+              "orderIndex": 3,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "東京へ行きます",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "本です",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "青いです",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "昨日です",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "質問：どこへ行きますか。",
+              "contextText": null,
+              "orderIndex": 4,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "東京へ行きます",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "本です",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "青いです",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "昨日です",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "質問：どこへ行きますか。",
+              "contextText": null,
+              "orderIndex": 5,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "東京へ行きます",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "本です",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "青いです",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "昨日です",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "質問：どこへ行きますか。",
+              "contextText": null,
+              "orderIndex": 6,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "東京へ行きます",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "本です",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "青いです",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "昨日です",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "質問：どこへ行きますか。",
+              "contextText": null,
+              "orderIndex": 7,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "東京へ行きます",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "本です",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "青いです",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "昨日です",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "質問：今何時ですか。",
+              "contextText": null,
+              "orderIndex": 8,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "3時です",
+                  "isCorrect": true,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "昨日です",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "学校です",
+                  "isCorrect": false,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "暑いです",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "mondaiCode": "N1_L5_INTEGRATED",
+          "titleJa": "問題5 統合理解",
+          "titleVi": "Hiểu tổng hợp",
+          "orderIndex": 5,
+          "questions": [
+            {
+              "stemText": "最も適切な結論はどれか。",
+              "contextText": "複数の提案を比較した結果、コストと効率のバランスが最も良い案を採用することになった。",
+              "orderIndex": 1,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "最も安い案",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "最も効率が悪い案",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "バランスの良い案",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "未決定",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "話し合いの結果は何か。",
+              "contextText": "全員一致で新しい計画を採用することが決まった。",
+              "orderIndex": 2,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "中止",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "延期",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "新計画採用",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "未決定",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "最も適切な結論はどれか。",
+              "contextText": "複数の提案を比較した結果、コストと効率のバランスが最も良い案を採用することになった。",
+              "orderIndex": 3,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "最も安い案",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "最も効率が悪い案",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "バランスの良い案",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "未決定",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "最も適切な結論はどれか。",
+              "contextText": "複数の提案を比較した結果、コストと効率のバランスが最も良い案を採用することになった。",
+              "orderIndex": 4,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "最も安い案",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "最も効率が悪い案",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "バランスの良い案",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "未決定",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "最も適切な結論はどれか。",
+              "contextText": "複数の提案を比較した結果、コストと効率のバランスが最も良い案を採用することになった。",
+              "orderIndex": 5,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "最も安い案",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "最も効率が悪い案",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "バランスの良い案",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "未決定",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "最も適切な結論はどれか。",
+              "contextText": "複数の提案を比較した結果、コストと効率のバランスが最も良い案を採用することになった。",
+              "orderIndex": 6,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "最も安い案",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "最も効率が悪い案",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "バランスの良い案",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "未決定",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "最も適切な結論はどれか。",
+              "contextText": "複数の提案を比較した結果、コストと効率のバランスが最も良い案を採用することになった。",
+              "orderIndex": 7,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "最も安い案",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "最も効率が悪い案",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "バランスの良い案",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "未決定",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            },
+            {
+              "stemText": "話し合いの結果は何か。",
+              "contextText": "全員一致で新しい計画を採用することが決まった。",
+              "orderIndex": 8,
+              "options": [
+                {
+                  "key": "1",
+                  "contentText": "中止",
+                  "isCorrect": false,
+                  "orderIndex": 1
+                },
+                {
+                  "key": "2",
+                  "contentText": "延期",
+                  "isCorrect": false,
+                  "orderIndex": 2
+                },
+                {
+                  "key": "3",
+                  "contentText": "新計画採用",
+                  "isCorrect": true,
+                  "orderIndex": 3
+                },
+                {
+                  "key": "4",
+                  "contentText": "未決定",
+                  "isCorrect": false,
+                  "orderIndex": 4
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

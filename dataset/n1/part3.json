@@ -1,0 +1,168 @@
+{
+    "levelCode": "N1",
+    "examTitle": "JLPT N1 Full Exam 2024 - Part 3 Listening",
+    "sections": [
+      {
+        "sectionCode": "LISTENING",
+        "durationMinutes": 60,
+        "mondais": [
+  
+          {
+            "mondaiCode": "N1_L1_TASK",
+            "titleJa": "問題1 課題理解",
+            "titleVi": "Hiểu vấn đề",
+            "orderIndex": 1,
+            "questions": [
+              {
+                "stemText": "男は何をすることにしたか。",
+                "contextText": "男：明日の会議に備えて、今夜資料を仕上げます。",
+                "orderIndex": 1,
+                "options": [
+                  {"key":"1","contentText":"会議をキャンセルする","isCorrect":false,"orderIndex":1},
+                  {"key":"2","contentText":"資料を準備する","isCorrect":true,"orderIndex":2},
+                  {"key":"3","contentText":"旅行に行く","isCorrect":false,"orderIndex":3},
+                  {"key":"4","contentText":"休む","isCorrect":false,"orderIndex":4}
+                ]
+              },
+              {
+                "stemText": "女は次に何をするか。",
+                "contextText": "女：レポートが終わったら、すぐ提出します。",
+                "orderIndex": 2,
+                "options": [
+                  {"key":"1","contentText":"提出する","isCorrect":true,"orderIndex":1},
+                  {"key":"2","contentText":"削除する","isCorrect":false,"orderIndex":2},
+                  {"key":"3","contentText":"印刷しない","isCorrect":false,"orderIndex":3},
+                  {"key":"4","contentText":"放置する","isCorrect":false,"orderIndex":4}
+                ]
+              }
+            ]
+          },
+  
+          {
+            "mondaiCode": "N1_L2_POINT",
+            "titleJa": "問題2 ポイント理解",
+            "titleVi": "Hiểu ý chính",
+            "orderIndex": 2,
+            "questions": [
+              {
+                "stemText": "話のポイントは何か。",
+                "contextText": "会議の開始時間が変更されたことについて話している。",
+                "orderIndex": 1,
+                "options": [
+                  {"key":"1","contentText":"場所変更","isCorrect":false,"orderIndex":1},
+                  {"key":"2","contentText":"時間変更","isCorrect":true,"orderIndex":2},
+                  {"key":"3","contentText":"中止","isCorrect":false,"orderIndex":3},
+                  {"key":"4","contentText":"延期","isCorrect":false,"orderIndex":4}
+                ]
+              },
+              {
+                "stemText": "何について話しているか。",
+                "contextText": "新しいプロジェクトの予算について議論している。",
+                "orderIndex": 2,
+                "options": [
+                  {"key":"1","contentText":"人事","isCorrect":false,"orderIndex":1},
+                  {"key":"2","contentText":"予算","isCorrect":true,"orderIndex":2},
+                  {"key":"3","contentText":"旅行","isCorrect":false,"orderIndex":3},
+                  {"key":"4","contentText":"休暇","isCorrect":false,"orderIndex":4}
+                ]
+              }
+            ]
+          },
+  
+          {
+            "mondaiCode": "N1_L3_SUMMARY",
+            "titleJa": "問題3 概要理解",
+            "titleVi": "Hiểu tổng quát",
+            "orderIndex": 3,
+            "questions": [
+              {
+                "stemText": "話の内容として最も適切なものはどれか。",
+                "contextText": "講演では環境問題とその解決策について説明している。",
+                "orderIndex": 1,
+                "options": [
+                  {"key":"1","contentText":"旅行の話","isCorrect":false,"orderIndex":1},
+                  {"key":"2","contentText":"環境問題","isCorrect":true,"orderIndex":2},
+                  {"key":"3","contentText":"食事の話","isCorrect":false,"orderIndex":3},
+                  {"key":"4","contentText":"教育の話","isCorrect":false,"orderIndex":4}
+                ]
+              },
+              {
+                "stemText": "話者の目的は何か。",
+                "contextText": "新製品の特徴を説明し、購入を促している。",
+                "orderIndex": 2,
+                "options": [
+                  {"key":"1","contentText":"批判する","isCorrect":false,"orderIndex":1},
+                  {"key":"2","contentText":"販売促進","isCorrect":true,"orderIndex":2},
+                  {"key":"3","contentText":"中止する","isCorrect":false,"orderIndex":3},
+                  {"key":"4","contentText":"比較する","isCorrect":false,"orderIndex":4}
+                ]
+              }
+            ]
+          },
+  
+          {
+            "mondaiCode": "N1_L4_RESPONSE",
+            "titleJa": "問題4 即時応答",
+            "titleVi": "Phản xạ nhanh",
+            "orderIndex": 4,
+            "questions": [
+              {
+                "stemText": "質問：今何時ですか。",
+                "contextText": null,
+                "orderIndex": 1,
+                "options": [
+                  {"key":"1","contentText":"3時です","isCorrect":true,"orderIndex":1},
+                  {"key":"2","contentText":"昨日です","isCorrect":false,"orderIndex":2},
+                  {"key":"3","contentText":"学校です","isCorrect":false,"orderIndex":3},
+                  {"key":"4","contentText":"暑いです","isCorrect":false,"orderIndex":4}
+                ]
+              },
+              {
+                "stemText": "質問：どこへ行きますか。",
+                "contextText": null,
+                "orderIndex": 2,
+                "options": [
+                  {"key":"1","contentText":"東京へ行きます","isCorrect":true,"orderIndex":1},
+                  {"key":"2","contentText":"本です","isCorrect":false,"orderIndex":2},
+                  {"key":"3","contentText":"青いです","isCorrect":false,"orderIndex":3},
+                  {"key":"4","contentText":"昨日です","isCorrect":false,"orderIndex":4}
+                ]
+              }
+            ]
+          },
+  
+          {
+            "mondaiCode": "N1_L5_INTEGRATED",
+            "titleJa": "問題5 統合理解",
+            "titleVi": "Hiểu tổng hợp",
+            "orderIndex": 5,
+            "questions": [
+              {
+                "stemText": "最も適切な結論はどれか。",
+                "contextText": "複数の提案を比較した結果、コストと効率のバランスが最も良い案を採用することになった。",
+                "orderIndex": 1,
+                "options": [
+                  {"key":"1","contentText":"最も安い案","isCorrect":false,"orderIndex":1},
+                  {"key":"2","contentText":"最も効率が悪い案","isCorrect":false,"orderIndex":2},
+                  {"key":"3","contentText":"バランスの良い案","isCorrect":true,"orderIndex":3},
+                  {"key":"4","contentText":"未決定","isCorrect":false,"orderIndex":4}
+                ]
+              },
+              {
+                "stemText": "話し合いの結果は何か。",
+                "contextText": "全員一致で新しい計画を採用することが決まった。",
+                "orderIndex": 2,
+                "options": [
+                  {"key":"1","contentText":"中止","isCorrect":false,"orderIndex":1},
+                  {"key":"2","contentText":"延期","isCorrect":false,"orderIndex":2},
+                  {"key":"3","contentText":"新計画採用","isCorrect":true,"orderIndex":3},
+                  {"key":"4","contentText":"未決定","isCorrect":false,"orderIndex":4}
+                ]
+              }
+            ]
+          }
+  
+        ]
+      }
+    ]
+  }

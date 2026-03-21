@@ -181,6 +181,7 @@ export class UsersRepository implements IUsersRepository {
     xp: number;
     level: number;
     balance: number;
+    isOnboarded: boolean;
     avatarUrl: string | null;
     userMetadata: Record<string, unknown> | null;
     verifiedAt: Date | null;
@@ -194,6 +195,7 @@ export class UsersRepository implements IUsersRepository {
         email: true,
         displayName: true,
         role: true,
+        isOnboarded: true,
         avatarUrl: true,
         userMetadata: true,
         verifiedAt: true,
@@ -257,5 +259,35 @@ export class UsersRepository implements IUsersRepository {
     return this.prisma.user.count({
       where: { role },
     });
+  }
+
+  /**
+   * Find onboarding survey by user ID
+   */
+  async findOnboardingSurvey(userId: string): Promise<any> {
+    return this.prisma.onboardingSurvey.findUnique({
+      where: { userId },
+    });
+  }
+
+  /**
+   * Create or update onboarding survey
+   */
+  async createOnboardingSurvey(userId: string, data: any): Promise<any> {
+    const { userId: _, ...surveyData } = data;
+    return this.prisma.$transaction([
+      this.prisma.onboardingSurvey.upsert({
+        where: { userId },
+        create: {
+          ...surveyData,
+          user: { connect: { id: userId } },
+        },
+        update: surveyData,
+      }),
+      this.prisma.user.update({
+        where: { id: userId },
+        data: { isOnboarded: true },
+      }),
+    ]);
   }
 }

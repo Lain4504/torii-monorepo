@@ -4,11 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
+    <list default="true" id="8abde2a0-79d8-46fb-ae84-754077e6d498" name="Changes" comment="courser flow end">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/app/(dashboard)/dashboard/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/dashboard/streak-welcome-modal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/dashboard/streak-welcome-modal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apps/web-learner/components/layout/dashboard-header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-learner/components/layout/dashboard-header.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-course-offerings.ts" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/lib/api/services/academy-course-offerings.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/offerings/components/offering-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/offerings/components/offering-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/offerings/offerings-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web-admin/src/routes/academy/offerings/offerings-page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,7 +21,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="1685" />
+    <option name="cachedIndexableFilesCount" value="1728" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -93,7 +93,7 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#292 on gamification-updation&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
@@ -137,8 +137,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.138" />
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.29346.138" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.29346.242" />
       </set>
     </attachedChunks>
   </component>
@@ -352,79 +351,12 @@
       <workItem from="1773793837416" duration="1181000" />
       <workItem from="1773845602638" duration="6385000" />
       <workItem from="1773854837320" duration="315000" />
-      <workItem from="1773855771162" duration="395000" />
-    </task>
-    <task id="LOCAL-00973" summary="remove unused academy form components from workspace configuration">
-      <option name="closed" value="true" />
-      <created>1772726366239</created>
-      <option name="number" value="00973" />
-      <option name="presentableId" value="LOCAL-00973" />
-      <option name="project" value="LOCAL" />
-      <updated>1772726366239</updated>
-    </task>
-    <task id="LOCAL-00974" summary="add learning progress statistics and enrollment management features">
-      <option name="closed" value="true" />
-      <created>1772726939267</created>
-      <option name="number" value="00974" />
-      <option name="presentableId" value="LOCAL-00974" />
-      <option name="project" value="LOCAL" />
-      <updated>1772726939267</updated>
-    </task>
-    <task id="LOCAL-00975" summary="remove unsued file">
-      <option name="closed" value="true" />
-      <created>1772792207215</created>
-      <option name="number" value="00975" />
-      <option name="presentableId" value="LOCAL-00975" />
-      <option name="project" value="LOCAL" />
-      <updated>1772792207215</updated>
-    </task>
-    <task id="LOCAL-00976" summary="remove unsued file">
-      <option name="closed" value="true" />
-      <created>1772792351338</created>
-      <option name="number" value="00976" />
-      <option name="presentableId" value="LOCAL-00976" />
-      <option name="project" value="LOCAL" />
-      <updated>1772792351338</updated>
-    </task>
-    <task id="LOCAL-00977" summary="update rich text eidtor">
-      <option name="closed" value="true" />
-      <created>1772794806115</created>
-      <option name="number" value="00977" />
-      <option name="presentableId" value="LOCAL-00977" />
-      <option name="project" value="LOCAL" />
-      <updated>1772794806115</updated>
-    </task>
-    <task id="LOCAL-00978" summary="update rich text eidtor">
-      <option name="closed" value="true" />
-      <created>1772799271081</created>
-      <option name="number" value="00978" />
-      <option name="presentableId" value="LOCAL-00978" />
-      <option name="project" value="LOCAL" />
-      <updated>1772799271081</updated>
-    </task>
-    <task id="LOCAL-00979" summary="update rich text eidtor">
-      <option name="closed" value="true" />
-      <created>1772800984228</created>
-      <option name="number" value="00979" />
-      <option name="presentableId" value="LOCAL-00979" />
-      <option name="project" value="LOCAL" />
-      <updated>1772800984229</updated>
-    </task>
-    <task id="LOCAL-00980" summary="update rich text eidtor">
-      <option name="closed" value="true" />
-      <created>1772803420532</created>
-      <option name="number" value="00980" />
-      <option name="presentableId" value="LOCAL-00980" />
-      <option name="project" value="LOCAL" />
-      <updated>1772803420533</updated>
-    </task>
-    <task id="LOCAL-00981" summary="update rich text eidtor">
-      <option name="closed" value="true" />
-      <created>1772804762233</created>
-      <option name="number" value="00981" />
-      <option name="presentableId" value="LOCAL-00981" />
-      <option name="project" value="LOCAL" />
-      <updated>1772804762233</updated>
+      <workItem from="1773855771162" duration="1291000" />
+      <workItem from="1773881436715" duration="1401000" />
+      <workItem from="1773909942327" duration="10648000" />
+      <workItem from="1773969256177" duration="35000" />
+      <workItem from="1774006608891" duration="2274000" />
+      <workItem from="1774010782764" duration="3424000" />
     </task>
     <task id="LOCAL-00982" summary="update rich text eidtor">
       <option name="closed" value="true" />
@@ -746,7 +678,79 @@
       <option name="project" value="LOCAL" />
       <updated>1773856168013</updated>
     </task>
-    <option name="localTasksCounter" value="1022" />
+    <task id="LOCAL-01022" summary="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;">
+      <option name="closed" value="true" />
+      <created>1773856436017</created>
+      <option name="number" value="01022" />
+      <option name="presentableId" value="LOCAL-01022" />
+      <option name="project" value="LOCAL" />
+      <updated>1773856436017</updated>
+    </task>
+    <task id="LOCAL-01023" summary="refactor: simplify class handling in offerings and remove legacy code">
+      <option name="closed" value="true" />
+      <created>1773910987047</created>
+      <option name="number" value="01023" />
+      <option name="presentableId" value="LOCAL-01023" />
+      <option name="project" value="LOCAL" />
+      <updated>1773910987048</updated>
+    </task>
+    <task id="LOCAL-01024" summary="feat: add JLPT mock exam module with related services and DTOs">
+      <option name="closed" value="true" />
+      <created>1773917376174</created>
+      <option name="number" value="01024" />
+      <option name="presentableId" value="LOCAL-01024" />
+      <option name="project" value="LOCAL" />
+      <updated>1773917376174</updated>
+    </task>
+    <task id="LOCAL-01025" summary="update web-admin">
+      <option name="closed" value="true" />
+      <created>1774010822081</created>
+      <option name="number" value="01025" />
+      <option name="presentableId" value="LOCAL-01025" />
+      <option name="project" value="LOCAL" />
+      <updated>1774010822081</updated>
+    </task>
+    <task id="LOCAL-01026" summary="update web-admin">
+      <option name="closed" value="true" />
+      <created>1774011486170</created>
+      <option name="number" value="01026" />
+      <option name="presentableId" value="LOCAL-01026" />
+      <option name="project" value="LOCAL" />
+      <updated>1774011486170</updated>
+    </task>
+    <task id="LOCAL-01027" summary="update web-admin">
+      <option name="closed" value="true" />
+      <created>1774012370643</created>
+      <option name="number" value="01027" />
+      <option name="presentableId" value="LOCAL-01027" />
+      <option name="project" value="LOCAL" />
+      <updated>1774012370643</updated>
+    </task>
+    <task id="LOCAL-01028" summary="courser flow end">
+      <option name="closed" value="true" />
+      <created>1774012820838</created>
+      <option name="number" value="01028" />
+      <option name="presentableId" value="LOCAL-01028" />
+      <option name="project" value="LOCAL" />
+      <updated>1774012820838</updated>
+    </task>
+    <task id="LOCAL-01029" summary="courser flow end">
+      <option name="closed" value="true" />
+      <created>1774014224989</created>
+      <option name="number" value="01029" />
+      <option name="presentableId" value="LOCAL-01029" />
+      <option name="project" value="LOCAL" />
+      <updated>1774014224990</updated>
+    </task>
+    <task id="LOCAL-01030" summary="courser flow end">
+      <option name="closed" value="true" />
+      <created>1774017068149</created>
+      <option name="number" value="01030" />
+      <option name="presentableId" value="LOCAL-01030" />
+      <option name="project" value="LOCAL" />
+      <updated>1774017068149</updated>
+    </task>
+    <option name="localTasksCounter" value="1031" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -763,7 +767,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="update-meet-insights" />
+                        <option value="gamification-updation" />
                       </list>
                     </value>
                   </entry>
@@ -781,10 +785,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactor: clean up module exports and formatting across various files" />
-    <MESSAGE value="add lesson form and media uploader components with rich text support" />
-    <MESSAGE value="remove unused academy form components from workspace configuration" />
-    <MESSAGE value="add learning progress statistics and enrollment management features" />
     <MESSAGE value="remove unsued file" />
     <MESSAGE value="update rich text eidtor" />
     <MESSAGE value="build learner success" />
@@ -806,7 +806,11 @@
     <MESSAGE value="fix conflict" />
     <MESSAGE value="refactor: update live schedule service and class attendance UI for improved functionality and user experience" />
     <MESSAGE value="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: update meet insights (#289)&#10;&#10;Co-authored-by: luan &lt;149026591+finallbossl@users.noreply.github.com&gt;&#10;Co-authored-by: Ngochieu3165 &lt;163821440+ngochieu3165@users.noreply.github.com&gt;&#10;Co-authored-by: Kin03 &lt;khangnldqe180010@fpt.edu.vn&gt;" />
+    <MESSAGE value="refactor: simplify class handling in offerings and remove legacy code" />
+    <MESSAGE value="feat: add JLPT mock exam module with related services and DTOs" />
+    <MESSAGE value="update web-admin" />
+    <MESSAGE value="courser flow end" />
+    <option name="LAST_COMMIT_MESSAGE" value="courser flow end" />
   </component>
   <component name="VgoProject">
     <integration-enabled>false</integration-enabled>

@@ -192,11 +192,12 @@ export default function OrdersPage() {
                   </div>
                   {hasDateFilter && (
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
                       className="w-full"
                       onClick={() => { setStartDate(''); setEndDate(''); }}
                     >
+                      <RotateCcw className="size-4" />
                       Xóa bộ lọc
                     </Button>
                   )}

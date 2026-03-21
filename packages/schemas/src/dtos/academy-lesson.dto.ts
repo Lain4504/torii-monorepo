@@ -40,7 +40,7 @@ export type AcademyLessonUpdateDTO = z.infer<typeof academyLessonUpdateDTOSchema
 
 export const academyLessonQueryDTOSchema = z.object({
   moduleId: z.string().uuid().optional(),
-  syllabusId: z.string().uuid().optional(),
+  courseProfileId: z.string().uuid().optional(),
   q: z.string().optional(),
 });
 

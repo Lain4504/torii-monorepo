@@ -45,7 +45,13 @@ export function OperationItem({ icon: Icon, title, desc, tag, tagColor, time, li
             <div className="text-right shrink-0">
                 <p className="text-[10px] font-medium text-muted-foreground/40 mb-1">{time}</p>
                 <Link to={link}>
-                    <Button variant="ghost" size="sm" className="font-semibold hover:bg-primary/5 hover:text-primary shadow-none">Xử lý</Button>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="font-semibold hover:bg-primary/5 hover:text-primary shadow-none"
+                    >
+                        Xử lý
+                    </Button>
                 </Link>
             </div>
         </div>

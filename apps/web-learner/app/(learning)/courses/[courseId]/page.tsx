@@ -40,7 +40,7 @@ export default function CoursePortalPage() {
         );
     }
 
-    // Nếu là học viên LIVE -> Hiển thị Dashboard (Lịch học, Syllabus...)
+    // Nếu là học viên LIVE -> Hiển thị Dashboard (Lịch học, Nội dung...)
     const enrollment = enrollmentData?.enrollment as any;
     if (enrollmentData?.isEnrolled && enrollment?.type?.toLowerCase() === 'live') {
         return <LiveClassDashboard />;

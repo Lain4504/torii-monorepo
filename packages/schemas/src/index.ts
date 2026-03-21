@@ -13,6 +13,7 @@ export * from './models/refund.model';
 
 // DTOs (all types are now here with Zod schemas)
 export * from './dtos/user.dto';
+export * from './dtos/onboarding.dto';
 export * from './dtos/auth.dto';
 export * from './dtos/oauth.dto';
 export * from './dtos/two-factor-auth.dto';

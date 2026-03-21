@@ -3,34 +3,72 @@ import { z } from 'zod';
 // DTO cho CourseOffering bám sát CourseOfferingCreateDto / CourseOfferingUpdateDto bên service academy
 // và model Prisma CourseOffering.
 
-export const academyCourseOfferingCreateDTOSchema = z.object({
-  code: z.string().min(1).max(150),
-  title: z.string().min(1).max(255),
-  description: z.string().optional(),
-  price: z.number().min(0),
-  salePrice: z.number().min(0).optional(),
-  currency: z.string().min(1).max(10),
-  mode: z.string().min(1), // ClassMode (VOD / LIVE)
-  syllabusId: z.string().uuid().optional(),
-  status: z.string().max(20).optional(),
-  type: z.string().max(20).optional(),
-  classIds: z.array(z.string().uuid()).optional(),
-});
-export type AcademyCourseOfferingCreateDTO = z.infer<
-  typeof academyCourseOfferingCreateDTOSchema
->;
+/** HTML datetime-local (YYYY-MM-DDTHH:mm, không timezone) hoặc chuỗi ISO đầy đủ từ API */
+const marketingDateTimeString = z.union([
+    z.string().datetime({ local: true }),
+    z.string().datetime({ offset: true }),
+    z.string().datetime(),
+]);
+
+const optionalMarketingDateTime = z.preprocess(
+    (v) => (v === '' || v === null ? undefined : v),
+    marketingDateTimeString.optional(),
+);
+
+const optionalMarketingDateTimeNullable = z.preprocess(
+    (v) => (v === '' ? undefined : v),
+    z.union([z.null(), marketingDateTimeString]).optional(),
+);
+
+/** Select/rHF thường gửi "" thay vì undefined — Zod .uuid().optional() không chấp nhận "". */
+const optionalUuid = z.preprocess(
+    (v) => (v === '' || v === null ? undefined : v),
+    z.string().uuid().optional(),
+);
+
+export const academyCourseOfferingCreateDTOSchema = z
+    .object({
+        code: z.string().min(1).max(150),
+        title: z.string().min(1).max(255),
+        description: z.string().optional(),
+        price: z.number().min(0),
+        salePrice: z.number().min(0).optional(),
+        currency: z.string().min(1).max(10),
+        mode: z.string().min(1), // ClassMode (VOD / LIVE)
+        courseProfileId: z.string().uuid(),
+        termId: optionalUuid,
+        classId: optionalUuid,
+        status: z.string().max(20).optional(),
+        validFrom: optionalMarketingDateTime,
+        validTo: optionalMarketingDateTime,
+    })
+    .refine(
+        (data) => {
+            if (data.mode === 'LIVE' && !data.termId) return false;
+            if (data.mode === 'VOD' && !data.classId) return false;
+            return true;
+        },
+        {
+            message: 'LIVE mode requires termId, VOD mode requires classId',
+            path: ['termId'],
+        },
+    );
+
+export type AcademyCourseOfferingCreateDTO = z.infer<typeof academyCourseOfferingCreateDTOSchema>;
 
 export const academyCourseOfferingUpdateDTOSchema = z.object({
-  title: z.string().max(255).optional(),
-  description: z.string().optional(),
-  price: z.number().min(0).optional(),
-  salePrice: z.number().min(0).optional(),
-  currency: z.string().max(10).optional(),
-  mode: z.string().optional(),
-  syllabusId: z.string().uuid().optional(),
-  status: z.string().max(20).optional(),
-  type: z.string().max(20).optional(),
-  classIds: z.array(z.string().uuid()).optional(),
+    title: z.string().max(255).optional(),
+    description: z.string().optional(),
+    price: z.number().min(0).optional(),
+    salePrice: z.number().min(0).optional(),
+    currency: z.string().max(10).optional(),
+    mode: z.string().optional(),
+    courseProfileId: optionalUuid,
+    termId: optionalUuid,
+    classId: optionalUuid,
+    status: z.string().max(20).optional(),
+    validFrom: optionalMarketingDateTimeNullable,
+    validTo: optionalMarketingDateTimeNullable,
 });
 export type AcademyCourseOfferingUpdateDTO = z.infer<
   typeof academyCourseOfferingUpdateDTOSchema
@@ -51,13 +89,5 @@ export const academyCourseOfferingQueryDTOSchema = z.object({
 });
 export type AcademyCourseOfferingQueryDTO = z.infer<
   typeof academyCourseOfferingQueryDTOSchema
->;
-
-export const academyCourseOfferingSetClassesDTOSchema = z.object({
-  offeringId: z.string().uuid(),
-  classIds: z.array(z.string().uuid()),
-});
-export type AcademyCourseOfferingSetClassesDTO = z.infer<
-  typeof academyCourseOfferingSetClassesDTOSchema
 >;
 

@@ -49,7 +49,7 @@ import {
     TableRow,
 } from '@workspace/ui/components/table'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@workspace/ui/components/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs-lifted"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import { useWalletTransactions, useWalletBalance } from '@/lib/api/services/wallet-api'
 import { Coins, Wallet, ArrowUpCircle, ArrowDownCircle } from 'lucide-react'
 import { useAppSelector } from '@/hooks/hooks'
@@ -204,7 +204,7 @@ export default function PaymentHistoryPage() {
             </div>
 
             <Tabs defaultValue="orders" className="space-y-6">
-                <TabsList>
+                <TabsList className="w-full overflow-x-auto whitespace-nowrap">
                     <TabsTrigger value="orders">
                         <span>Đơn hàng</span>
                         <Badge variant="secondary" className="px-1.5 py-0 min-w-5 h-5 flex items-center justify-center rounded-full bg-background border-border text-[10px]">

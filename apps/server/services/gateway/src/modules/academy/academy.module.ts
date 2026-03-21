@@ -21,12 +21,12 @@ import {
 } from './controllers/live-session.controller';
 import { LiveSessionRequestController } from './controllers/live-session-request.controller';
 import { ClassAttendanceController } from './controllers/class-attendance.controller';
-import { SyllabusController } from './controllers/syllabus.controller';
 import { ModuleController } from './controllers/module.controller';
 import { ClassAssignmentController } from './controllers/class-assignment.controller';
 import { WalletController } from './controllers/wallet.controller';
 import { CertificateController } from './controllers/certificate.controller';
 import { RefundController } from './controllers/refund.controller';
+import { JlptMockController } from './controllers/jlpt-mock.controller';
 
 @Module({
   imports: [NatsClientModule],
@@ -50,12 +50,12 @@ import { RefundController } from './controllers/refund.controller';
     LiveSessionJoinController,
     LiveSessionRequestController,
     ClassAttendanceController,
-    SyllabusController,
     ModuleController,
     ClassAssignmentController,
     WalletController,
     CertificateController,
     RefundController,
+    JlptMockController,
   ],
 })
 export class AcademyModule {}

@@ -42,13 +42,70 @@
 
 - Prisma:
   - `code`, `title`, `description?`
-  - `price`, `salePrice?`, `currency`
-  - `mode: ClassMode` (`VOD`/`LIVE`)
-  - `status: OfferingStatus` (`DRAFT`, `PENDING_APPROVAL`, `PUBLISHED`, `OPENING`, `ARCHIVED`)
-  - **Không có** `startDate/endDate/sellDate`. Thời gian bán/học được lấy từ `Class` đối với LIVE.
+  - `price`, `salePr  - `courseProfileId?: string`
+  - `status?: string` (DRAFT, PUBLISHED, etc.)
+  - `instructorId?: string`
 
-- `academy-course-offering.dto.ts` (schemas) đã được clean:
-  - Create/Update DTO chỉ giữ: `code`, `title`, `description?`, `price`, `salePrice?`, `currency`, `mode`, `status?`, `type?`, `syllabusId?`, `classIds?` (tuỳ backend).
+### [GET] /api/academy/classes?courseProfileId=...
+- Admin/Staff query classes.
+- Filtering options:
+    - optional: `courseProfileId`, `status`, `instructorId`
+
+### [PUT] /api/academy/classes/:id
+- Update class details.
+- payload:
+    - optional: `name`, `status`, `courseProfileId`, `instructorId`
+    - logic check: if changing `courseProfileId`, and existing students present, warn (or fail).
+    - note: VOD classes usually stay fixed to their profile.
+
+---
+
+## Part 2: Course Offering (Packages)
+
+Enrollment entry points are defined via `CourseOffering`.
+
+### [POST] /api/academy/offerings
+- payload: `code`, `title`, `description`, `price`, `salePrice`, `currency`, `classId`, `validFrom`, `validTo`.
+- logic: Automatically sets `mode` based on target `class.mode`.
+- approval: `status` starts as `DRAFT`. Must be approved via `submitForApproval` workflow.
+
+### [GET] /api/academy/available-courses
+- Public endpoint for store front.
+- Returns `CourseOffering` items.
+- Filter by `category` (N5, N4, etc.).
+- Metadata: `isEnrollable`, `enrollableReason`.
+
+---
+
+## Part 3: Enrollment
+
+### [POST] /api/academy/enrollments
+- Admin manually adds a student to a class.
+- payload: `userId`, `classId`, `offeringId?`.
+
+### [GET] /api/academy/enrollments/my-courses
+- Learner gets their active classes.
+- Include course profile and recent learning progress.
+
+---
+
+## Refactoring Summary (Syllabus Removal)
+
+- All references to `Syllabus` have been removed.
+- Course Content (Modules, Lessons) is now directly linked to `CourseProfileId`.
+- Classes now belong directly to a `CourseProfile`.
+- Duplicating a `CourseProfile` duplicates its entire curriculum (Modules + Lessons), enabling easy "2025 versioning" without the extra Syllabus layer.
+- Create/Update DTO only contains: `code`, `title`, `description?`, `price`, `salePrice?`, `currency`, `mode`, `status?`, `type?`, `courseProfileId?`, `classIds?`.
+
+---
+
+## Implementation Log
+
+- [x] Prisma Schema update (Remove academy_syllabuses table).
+- [x] Service refactor (Academy, Gateway, Agents).
+- [x] Frontend UI update (Web Admin course detail, Web Learner portal).
+- [x] Documentation update (Current file).
+ `code`, `title`, `description?`, `price`, `salePrice?`, `currency`, `mode`, `status?`, `type?`, `courseProfileId?`, `classIds?` (tuỳ backend).
 
 #### 1.3. `Order` / `OrderItem`
 

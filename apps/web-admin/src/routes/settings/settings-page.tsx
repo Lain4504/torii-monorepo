@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs-lifted';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs';
 import { ProfileTab } from '@/components/settings/profile-tab';
 import { SecurityTab } from '@/components/settings/security-tab';
 import { SessionsTab } from '@/components/settings/sessions-tab';
@@ -23,7 +23,7 @@ export default function SettingsPage() {
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
+        <TabsList className="w-full overflow-x-auto whitespace-nowrap">
           <TabsTrigger value="profile">Hồ Sơ</TabsTrigger>
           <TabsTrigger value="security">Bảo Mật</TabsTrigger>
           <TabsTrigger value="sessions">Phiên Đăng Nhập</TabsTrigger>

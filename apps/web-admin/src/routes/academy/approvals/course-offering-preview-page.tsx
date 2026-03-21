@@ -34,18 +34,7 @@ import {
   useRejectCourseOffering,
   useAvailableClassesForOffering,
 } from "@/lib/api/services/academy-course-offerings"
-import { formatCurrency } from "@/lib/format-utils"
-
-function formatDateTime(d: string | null | undefined) {
-  if (!d) return "—"
-  return new Date(d).toLocaleDateString("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  })
-}
+import { formatCurrency, formatDateTime } from "@/lib/format-utils"
 
 export default function CourseOfferingApprovalPreviewPage() {
   const { id } = useParams<{ id: string }>()
@@ -89,6 +78,9 @@ export default function CourseOfferingApprovalPreviewPage() {
     user?.role === UserRole.STAFF_OPERATIONS
 
   const canApprove = isStaffOrAdmin && offering.status === "PENDING_APPROVAL"
+  const linkedClass =
+    offering.class ??
+    (offering.classId ? availableClasses.find((c: any) => c.id === offering.classId) : null)
 
   return (
     <div className="flex flex-col gap-6">
@@ -108,7 +100,7 @@ export default function CourseOfferingApprovalPreviewPage() {
         subtitle={`Xem trước và duyệt gói #${offering.code}`}
         stats={[
           { label: "Trạng thái", value: offering.status ?? "—" },
-          { label: "Ngày gửi duyệt", value: formatDateTime(offering.submittedForApprovalAt) },
+          { label: "Ngày gửi duyệt", value: formatDateTime(offering.submittedForApprovalAt, "HH:mm dd/MM/yyyy") },
         ]}
         actions={
           canApprove ? (
@@ -175,29 +167,22 @@ export default function CourseOfferingApprovalPreviewPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            {offering.classes?.map((item: any) => {
-              const classId = item.id || item.classId
-              const cls = availableClasses.find((c: any) => c.id === classId) || item
-
-              return (
-                <div
-                  key={classId}
-                  className="flex items-center justify-between rounded-lg border p-3 bg-muted/5 shadow-sm"
-                >
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold truncate text-primary">{cls.name || cls.title || "Lớp học"}</p>
-                    <p className="text-xs text-muted-foreground font-mono truncate">{cls.code || "N/A"}</p>
-                  </div>
-                  <Badge variant="outline" className="text-[10px] bg-background">
-                    {cls.mode ?? (offering as any).mode ?? "—"}
-                  </Badge>
+            {linkedClass ? (
+              <div className="flex items-center justify-between rounded-lg border p-3 bg-muted/5 shadow-sm">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold truncate text-primary">
+                    {linkedClass.name || linkedClass.title || "Lớp học"}
+                  </p>
+                  <p className="text-xs text-muted-foreground font-mono truncate">
+                    {linkedClass.code || "N/A"}
+                  </p>
                 </div>
-              )
-            })}
-            {(!offering.classes || offering.classes.length === 0) && (
-              <p className="text-sm text-muted-foreground italic">
-                Gói này chưa liên kết lớp học nào.
-              </p>
+                <Badge variant="outline" className="text-[10px] bg-background">
+                  {linkedClass.mode ?? (offering as any).mode ?? "—"}
+                </Badge>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground italic">Gói này chưa liên kết lớp học nào.</p>
             )}
           </CardContent>
         </Card>

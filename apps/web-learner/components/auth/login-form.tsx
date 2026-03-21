@@ -38,11 +38,19 @@ export function LoginForm() {
             const resultAction = await dispatch(login(data))
 
             if (login.fulfilled.match(resultAction)) {
-                await dispatch(checkAuth())
+                const authAction = await dispatch(checkAuth())
+                const from = searchParams.get('from')
+                const redirectTo =
+                    authAction.meta.requestStatus === 'fulfilled' &&
+                    authAction.payload &&
+                    'isOnboarded' in authAction.payload &&
+                    authAction.payload.isOnboarded === false
+                        ? '/onboarding'
+                        : from || '/dashboard'
                 toast.success('Đăng nhập thành công', {
                     description: 'Chào mừng quay trở lại Torii Nihongo!',
                 })
-                router.push(searchParams.get('from') || '/dashboard')
+                router.push(redirectTo)
             } else {
                 if (
                     resultAction.payload &&
@@ -90,9 +98,17 @@ export function LoginForm() {
             callback: async (response: any) => {
                 try {
                     const result = await googleAuthMutation.mutateAsync(response.credential)
-                    await dispatch(checkAuth())
+                    const authAction = await dispatch(checkAuth())
+                    const from = searchParams.get('from')
+                    const redirectTo =
+                        authAction.meta.requestStatus === 'fulfilled' &&
+                        authAction.payload &&
+                        'isOnboarded' in authAction.payload &&
+                        authAction.payload.isOnboarded === false
+                            ? '/onboarding'
+                            : from || '/dashboard'
                     toast.success(`Chào mừng, ${result.user.displayName || 'Người dùng'}!`)
-                    router.push(searchParams.get('from') || '/dashboard')
+                    router.push(redirectTo)
                 } catch (error: any) {
                     toast.error(error?.message || 'Đăng nhập Google thất bại')
                 } finally {
@@ -134,9 +150,17 @@ export function LoginForm() {
                     facebookAuthMutation
                         .mutateAsync(accessToken)
                         .then(async (result) => {
-                            await dispatch(checkAuth())
+                            const authAction = await dispatch(checkAuth())
+                            const from = searchParams.get('from')
+                            const redirectTo =
+                                authAction.meta.requestStatus === 'fulfilled' &&
+                                authAction.payload &&
+                                'isOnboarded' in authAction.payload &&
+                                authAction.payload.isOnboarded === false
+                                    ? '/onboarding'
+                                    : from || '/dashboard'
                             toast.success(`Chào mừng, ${result.user.displayName || 'Người dùng'}!`)
-                            router.push(searchParams.get('from') || '/dashboard')
+                            router.push(redirectTo)
                         })
                         .catch((error: any) => {
                             toast.error(error?.message || 'Đăng nhập Facebook thất bại')

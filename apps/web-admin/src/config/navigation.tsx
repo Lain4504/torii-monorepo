@@ -10,6 +10,7 @@ import {
     GraduationCap,
     Trophy,
     Bot,
+    Languages,
 } from "lucide-react";
 
 export interface NavItem {
@@ -49,6 +50,16 @@ export const academicNavItems: NavItem[] = [
             { titleKey: "Kho Khóa học (Profiles)", url: "/academy/course-profiles", anyPermission: ["academy.content.read", "academy.content.write"] },
             { titleKey: "Gói bán (Offerings)", url: "/academy/course-offerings", anyPermission: ["academy.commerce.read", "academy.commerce.write"] },
             { titleKey: "Approval Center", url: "/academy/approvals", anyPermission: ["academy.content.approve", "academy.commerce.approve", "academy.delivery.approve", "academy.content.write", "academy.commerce.write", "academy.delivery.write"] },
+        ]
+    },
+    {
+        titleKey: "JLPT Mock Exams",
+        url: "/academy/jlpt/templates",
+        icon: Languages,
+        anyPermission: ["academy.content.read", "academy.content.write"],
+        items: [
+            { titleKey: "Quản lý Đề thi (Templates)", url: "/academy/jlpt/templates" },
+            { titleKey: "Ngân hàng Câu hỏi", url: "/academy/jlpt/questions" },
         ]
     },
     {

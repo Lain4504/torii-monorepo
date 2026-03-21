@@ -102,6 +102,7 @@ export class LiveScheduleService {
   async create(input: LiveScheduleCreateDto, requesterId = 'SYSTEM') {
     const klass = await this.prisma.class.findUnique({
       where: { id: input.classId },
+      include: { term: true },
     });
     if (!klass) throw new BadRequestException('Invalid classId');
     await this.assertTemplateMutable(input.classId);
@@ -127,7 +128,7 @@ export class LiveScheduleService {
 
     // Hybrid: pre-generate instances for near future so UI có data ngay.
     // Migration DB sẽ được chạy sau; nếu bảng chưa tồn tại thì bỏ qua để không chặn tạo template.
-    if (klass.openingDate && klass.closingDate) {
+    if (klass.term?.openingDate && klass.term?.closingDate) {
       try {
         await this.generateInstancesForClassRange(input.classId, requesterId);
       } catch (err) {
@@ -417,12 +418,7 @@ export class LiveScheduleService {
     await this.assertTemplateMutable(oldSchedule.classId);
     const klass = await this.prisma.class.findUnique({
       where: { id: oldSchedule.classId },
-      select: {
-        instructorId: true,
-        id: true,
-        openingDate: true,
-        closingDate: true,
-      },
+      include: { term: true },
     });
     await this.assertNoScheduleConflicts({
       classId: oldSchedule.classId,
@@ -445,7 +441,7 @@ export class LiveScheduleService {
     const actorId = requesterId === 'SYSTEM' ? null : requesterId;
 
     // Hybrid: re-generate horizon gần để reflect thay đổi template
-    if (klass?.openingDate && klass?.closingDate) {
+    if (klass?.term?.openingDate && klass?.term?.closingDate) {
       try {
         await this.generateInstancesForClassRange(
           oldSchedule.classId,
@@ -496,21 +492,16 @@ export class LiveScheduleService {
   ) {
     const klass = await this.prisma.class.findUnique({
       where: { id: classId },
-      select: {
-        id: true,
-        instructorId: true,
-        openingDate: true,
-        closingDate: true,
-      },
+      include: { term: true },
     });
     if (!klass) throw new BadRequestException('Invalid classId');
 
     // Clamp the requested range into the Class boundaries
-    const classStart = klass.openingDate
-      ? this.startOfDay(klass.openingDate)
+    const classStart = klass.term?.openingDate
+      ? this.startOfDay(klass.term.openingDate)
       : null;
-    const classEnd = klass.closingDate
-      ? this.startOfDay(klass.closingDate)
+    const classEnd = klass.term?.closingDate
+      ? this.startOfDay(klass.term.closingDate)
       : null;
 
     if (!classStart || !classEnd) {

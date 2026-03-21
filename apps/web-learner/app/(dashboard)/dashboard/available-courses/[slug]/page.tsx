@@ -1,6 +1,5 @@
 'use client'
 
-import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useParams } from "next/navigation"
@@ -17,8 +16,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@workspace/ui/components/accordion"
-import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group"
-import { Label } from "@workspace/ui/components/label"
 import {
   ArrowLeft,
   ArrowRight,
@@ -36,17 +33,23 @@ export default function CourseDetailPage() {
   const params = useParams<{ slug: string }>()
   const offeringId = params?.slug
   const { data: offering, isLoading } = useAcademyOffering(offeringId)
-  const [selectedClassId, setSelectedClassId] = useState<string>("")
-  const [hasAutoSelected, setHasAutoSelected] = useState(false)
 
-  const classes = Array.isArray(offering?.classes) ? offering.classes : []
-  const enrollableClasses = Array.isArray(offering?.enrollableClasses) ? offering.enrollableClasses : []
+  const klass = offering?.class ?? null
   const isLIVE = offering?.type === "LIVE"
-  const classCount = isLIVE ? enrollableClasses.length : classes.length
-  const primaryClass = classes.find((entry: any) => entry?.isPrimary) ?? classes[0]
-  const chapters = Array.isArray(primaryClass?.courseEdition?.chapters)
-    ? primaryClass.courseEdition.chapters
-    : []
+  const liveClasses = Array.isArray(offering?.classes) ? offering.classes : []
+  const openingClassCount = liveClasses.filter((c: any) => c?.status === "OPENING").length
+  const classCountDisplay = isLIVE
+    ? openingClassCount
+    : liveClasses.length > 0
+      ? liveClasses.length
+      : klass
+        ? 1
+        : 0
+  const chapters = Array.isArray((offering as any)?.courseEdition?.chapters)
+    ? (offering as any).courseEdition.chapters
+    : Array.isArray(klass?.courseEdition?.chapters)
+      ? klass.courseEdition.chapters
+      : []
   const lessonCount = chapters.reduce((acc: number, chapter: any) => {
     const chapterItems = Array.isArray(chapter?.items) ? chapter.items : []
     return acc + chapterItems.length
@@ -56,21 +59,7 @@ export default function CourseDetailPage() {
     return acc + (Number.isFinite(raw) ? raw : 0)
   }, 0)
 
-  // Auto-select first enrollable class
-  useEffect(() => {
-    if (offering && isLIVE && enrollableClasses.length > 0 && !hasAutoSelected) {
-      setSelectedClassId(enrollableClasses[0].id)
-      setHasAutoSelected(true)
-    }
-  }, [offering, isLIVE, enrollableClasses, hasAutoSelected])
-
-  // Reset selected class if it's not even in the classes list (unlikely shift)
-  useEffect(() => {
-    if (selectedClassId && classes.length > 0 && !classes.some((c: any) => c.id === selectedClassId)) {
-      setSelectedClassId("")
-      setHasAutoSelected(false)
-    }
-  }, [selectedClassId, classes])
+  // LIVE offerings are now 1:1 with a specific class (no class selection UI)
 
   if (isLoading) {
     return (
@@ -156,8 +145,8 @@ export default function CourseDetailPage() {
                 <Users className="h-5 w-5 text-primary/70" />
                 <span>
                   {isLIVE
-                    ? `${classCount} lớp đang mở đăng ký`
-                    : `${classCount} lớp khả dụng`}
+                    ? `${classCountDisplay} lớp đang mở đăng ký`
+                    : `${classCountDisplay} lớp khả dụng`}
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -207,7 +196,7 @@ export default function CourseDetailPage() {
             </div>
           </section>
 
-          {/* Syllabus Section */}
+          {/* Curriculum Section */}
           <section className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b pb-4">
               <h2 className="text-2xl font-bold tracking-tight text-foreground">
@@ -220,7 +209,7 @@ export default function CourseDetailPage() {
 
             {chapters.length === 0 ? (
               <div className="rounded-xl border border-dashed p-8 text-center text-muted-foreground">
-                Syllabus chi tiết chưa được cập nhật.
+                Nội dung chương trình chưa được cập nhật.
               </div>
             ) : (
               <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden">
@@ -290,102 +279,66 @@ export default function CourseDetailPage() {
             )}
           </section>
 
-          {/* LIVE: Chọn lớp đăng ký */}
-          {isLIVE && classes.length > 0 && (
+          {isLIVE && liveClasses.length > 0 && (
             <section className="space-y-6">
               <h2 className="text-2xl font-bold tracking-tight text-foreground border-b pb-4">
-                Chọn lớp học phù hợp
+                Thông tin lớp học
               </h2>
-              <p className="text-muted-foreground text-sm">
-                Vui lòng chọn một lớp học đang mở đăng ký dưới đây để tiếp tục.
-              </p>
-              <RadioGroup
-                value={selectedClassId}
-                onValueChange={setSelectedClassId}
-                className="space-y-3"
-              >
-                {classes.map((cls: any) => {
-                  const isEnrollable = enrollableClasses.some((ec: any) => ec.id === cls.id);
-                  const isSelected = selectedClassId === cls.id;
-                  
-                  return (
-                    <div
-                      key={cls.id}
-                      className={`relative flex items-start space-x-3 rounded-xl border p-4 shadow-sm transition-all ${
-                        isEnrollable 
-                          ? isSelected 
-                            ? "border-primary bg-primary/5 ring-1 ring-primary"
-                            : "bg-card hover:border-primary/50 cursor-pointer" 
-                          : "opacity-60 cursor-not-allowed bg-muted/20 grayscale-[0.2]"
-                      }`}
-                    >
-                      <div className="pt-1">
-                        <RadioGroupItem 
-                          value={cls.id} 
-                          id={cls.id} 
-                          disabled={!isEnrollable} 
-                        />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {liveClasses.map((cls: any) => (
+                  <div
+                    key={cls.id}
+                    className="rounded-xl border bg-card p-4 shadow-sm space-y-2"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                          Lớp
+                        </p>
+                        <p className="font-semibold text-base">{cls.name || cls.code}</p>
+                        <p className="text-xs text-muted-foreground font-mono">{cls.code}</p>
                       </div>
-                      <Label
-                        htmlFor={cls.id}
-                        className={`flex-1 space-y-2 font-normal ${isEnrollable ? "cursor-pointer" : "cursor-not-allowed"}`}
+                      <Badge
+                        variant={cls.status === "OPENING" ? "default" : "secondary"}
+                        className="shrink-0"
                       >
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <div className="font-bold text-lg">{cls.name || cls.code}</div>
-                          <Badge 
-                            variant={isEnrollable ? "default" : "secondary"}
-                            className={`h-5 text-[10px] font-bold ${isEnrollable ? "bg-emerald-600 hover:bg-emerald-700" : ""}`}
-                          >
-                            {isEnrollable ? "Đang mở đăng ký" : "Chưa mở / Đã đóng"}
-                          </Badge>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-xs text-muted-foreground font-medium">
-                          {cls.instructor?.displayName && (
-                            <div className="flex items-center gap-2">
-                              <Users className="size-3.5 text-primary/70" />
-                              <span>Giảng viên: <span className="text-foreground">{cls.instructor.displayName}</span></span>
-                            </div>
-                          )}
-                          {cls.openingDate && (
-                            <div className="flex items-center gap-2">
-                              <Calendar className="size-3.5 text-primary/70" />
-                              <span>Khai giảng: <span className="text-foreground">{new Date(cls.openingDate).toLocaleDateString("vi-VN")}</span></span>
-                            </div>
-                          )}
-                          {cls.enrollmentCloseAt && (
-                            <div className="flex items-center gap-2">
-                              <Clock className="size-3.5 text-primary/70" />
-                              <span>Hạn đăng ký: <span className={isEnrollable ? "text-emerald-600 font-semibold" : "text-foreground"}>
-                                {new Date(cls.enrollmentCloseAt).toLocaleDateString("vi-VN")}
-                              </span></span>
-                            </div>
-                          )}
-                          <div className="flex items-center gap-2">
-                            <ShieldCheck className="size-3.5 text-primary/70" />
-                            <span>Hình thức: <span className="text-foreground uppercase">{cls.mode || "LIVE"}</span></span>
-                          </div>
-                        </div>
-                      </Label>
+                        {cls.status === "OPENING"
+                          ? "Đang mở đăng ký"
+                          : cls.status || "—"}
+                      </Badge>
                     </div>
-                  );
-                })}
-              </RadioGroup>
+                    {cls.instructor?.displayName && (
+                      <p className="text-sm text-muted-foreground">
+                        Giảng viên:{" "}
+                        <span className="text-foreground font-medium">
+                          {cls.instructor.displayName}
+                        </span>
+                      </p>
+                    )}
+                    {cls.term?.openingDate && (
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Calendar className="h-3.5 w-3.5" />
+                        Khai giảng:{" "}
+                        {new Date(cls.term.openingDate).toLocaleDateString("vi-VN")}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
             </section>
           )}
 
-          {/* If LIVE but no classes at all */}
-          {isLIVE && classes.length === 0 && (
+          {isLIVE && liveClasses.length === 0 && (
             <section className="space-y-6">
               <h2 className="text-2xl font-bold tracking-tight text-foreground border-b pb-4">
-                Chọn lớp học
+                Thông tin lớp học
               </h2>
               <div className="rounded-2xl border border-dashed border-muted-foreground/30 p-10 text-center space-y-3 bg-muted/10">
                 <Users className="size-10 mx-auto text-muted-foreground/50" />
                 <div className="space-y-1">
                   <p className="font-semibold text-lg">Chưa có lớp học</p>
                   <p className="text-sm text-muted-foreground px-10">
-                    Hiện tại chưa có lớp học nào khả dụng cho khóa học này. Vui lòng quay lại sau hoặc liên hệ hỗ trợ.
+                    Gói LIVE này chưa có lớp trong kỳ học. Vui lòng liên hệ hỗ trợ.
                   </p>
                 </div>
               </div>
@@ -393,7 +346,7 @@ export default function CourseDetailPage() {
           )}
 
           {/* Class Information (if primaryClass exists) */}
-          {primaryClass && !isLIVE && (
+          {klass && !isLIVE && (
             <section className="space-y-6">
               <h2 className="text-2xl font-bold tracking-tight text-foreground border-b pb-4">
                 Thông tin lớp học chính
@@ -401,21 +354,21 @@ export default function CourseDetailPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1 rounded-xl border bg-card p-4 shadow-sm">
                   <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Tên lớp</span>
-                  <span className="font-semibold text-base">{primaryClass.name || "N/A"}</span>
+                  <span className="font-semibold text-base">{klass.name || "N/A"}</span>
                 </div>
                 <div className="flex flex-col gap-1 rounded-xl border bg-card p-4 shadow-sm">
                   <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Mã lớp</span>
-                  <span className="font-semibold text-base tracking-tight">{primaryClass.code || "N/A"}</span>
+                  <span className="font-semibold text-base tracking-tight">{klass.code || "N/A"}</span>
                 </div>
                 <div className="flex flex-col gap-1 rounded-xl border bg-card p-4 shadow-sm">
                   <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Hình thức học</span>
-                  <span className="font-semibold text-base">{primaryClass.mode || offering.type || "N/A"}</span>
+                  <span className="font-semibold text-base">{klass.mode || offering.type || "N/A"}</span>
                 </div>
                 <div className="flex flex-col gap-1 rounded-xl border bg-card p-4 shadow-sm">
                   <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Thời lượng dự kiến</span>
                   <span className="font-semibold text-base">
-                    {primaryClass.settings?.hours_count
-                      ? `${primaryClass.settings.hours_count} giờ`
+                    {klass.settings?.hours_count
+                      ? `${klass.settings.hours_count} giờ`
                       : "Đang cập nhật"}
                   </span>
                 </div>
@@ -446,32 +399,22 @@ export default function CourseDetailPage() {
                       <Button
                         className="w-full h-14 text-base font-bold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]"
                         size="lg"
-                        disabled={classes.length === 0 || !selectedClassId || !enrollableClasses.some((ec: any) => ec.id === selectedClassId)}
+                        disabled={liveClasses.length === 0}
                         asChild
                       >
                         <Link
                           href={
-                            selectedClassId
-                              ? `/checkout/${offering.id}?classId=${selectedClassId}`
+                            liveClasses.length > 0
+                              ? `/checkout/${offering.id}`
                               : "#"
                           }
                         >
                           Tiến hành thanh toán <ArrowRight className="ml-2 h-5 w-5" />
                         </Link>
                       </Button>
-                      {classes.length === 0 && (
+                      {liveClasses.length === 0 && (
                         <p className="text-center text-sm text-red-500 font-medium">
                           Hiện chưa có lớp nào khả dụng.
-                        </p>
-                      )}
-                      {classes.length > 0 && !selectedClassId && (
-                        <p className="text-center text-sm text-muted-foreground">
-                          Vui lòng chọn một lớp ở trên.
-                        </p>
-                      )}
-                      {selectedClassId && !enrollableClasses.some((ec: any) => ec.id === selectedClassId) && (
-                        <p className="text-center text-sm text-amber-600 font-medium">
-                          Lớp này hiện không trong thời gian đăng ký.
                         </p>
                       )}
                     </>

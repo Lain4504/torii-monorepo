@@ -7,6 +7,7 @@ import type {
   UserAdminUpdateDTO,
   AdminCreateInternalUserDTO,
   Requester,
+  OnboardingSurveyDTO,
 } from '@workspace/schemas';
 
 @Controller()
@@ -90,5 +91,17 @@ export class UsersHandler {
         data.dto,
       ),
     };
+  }
+
+  @MessagePattern({ cmd: 'identity.users.saveOnboardingSurvey' })
+  async saveOnboardingSurvey(
+    @Payload() data: { userId: string; dto: OnboardingSurveyDTO },
+  ) {
+    return this.usersService.saveOnboardingSurvey(data.userId, data.dto);
+  }
+
+  @MessagePattern({ cmd: 'identity.users.getOnboardingSurvey' })
+  async getOnboardingSurvey(@Payload() data: { userId: string }) {
+    return this.usersService.getOnboardingSurvey(data.userId);
   }
 }

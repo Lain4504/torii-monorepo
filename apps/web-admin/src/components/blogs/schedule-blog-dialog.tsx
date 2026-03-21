@@ -27,6 +27,7 @@ import { toast } from 'sonner';
 import { useUpdateBlog } from '@/lib/api/services/blog';
 import { Spinner } from "@workspace/ui/components/spinner";
 import { BlogStatus } from '@workspace/schemas';
+import { formatDateTime } from "@/lib/format-utils"
 
 interface ScheduleBlogDialogProps {
     open: boolean;
@@ -132,7 +133,7 @@ export function ScheduleBlogDialog({
                         <AlertDialogDescription>
                             Bài viết sẽ được tự động xuất bản vào lúc
                             <strong className="mx-1 text-primary">
-                                {new Date(publishedAt).toLocaleString('vi-VN')}
+                                {formatDateTime(publishedAt, "HH:mm dd/MM/yyyy")}
                             </strong>.
                             Bạn có chắc chắn muốn tiếp tục?
                         </AlertDialogDescription>

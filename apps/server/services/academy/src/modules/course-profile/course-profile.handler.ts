@@ -7,6 +7,9 @@ import type {
   AcademyCourseProfileUpdateDTO,
 } from '@workspace/schemas';
 
+/**
+ * CourseProfileHandler - Exposed NATS handlers for Product (CourseProfile) operations.
+ */
 @Controller()
 export class CourseProfileHandler {
   constructor(private readonly courseProfiles: CourseProfileService) {}
@@ -41,6 +44,34 @@ export class CourseProfileHandler {
     return this.courseProfiles.update(data.id, data.input, data.requesterId);
   }
 
+  @MessagePattern({ cmd: 'academy.courseProfile.submitForApproval' })
+  submitForApproval(@Payload() data: { id: string; requesterId?: string }) {
+    return this.courseProfiles.submitForApproval(data.id, data.requesterId);
+  }
+
+  @MessagePattern({ cmd: 'academy.courseProfile.approve' })
+  approve(@Payload() data: { id: string; requesterId?: string }) {
+    return this.courseProfiles.approve(data.id, data.requesterId);
+  }
+
+  @MessagePattern({ cmd: 'academy.courseProfile.duplicate' })
+  duplicate(
+    @Payload()
+    data: {
+      id: string;
+      newCode: string;
+      newTitle: string;
+      requesterId?: string;
+    },
+  ) {
+    return this.courseProfiles.duplicate(
+      data.id,
+      data.newCode,
+      data.newTitle,
+      data.requesterId,
+    );
+  }
+
   @MessagePattern({ cmd: 'academy.courseProfile.archive' })
   archive(@Payload() data: { id: string; requesterId?: string }) {
     return this.courseProfiles.archive(data.id, data.requesterId);
@@ -49,53 +80,5 @@ export class CourseProfileHandler {
   @MessagePattern({ cmd: 'academy.courseProfile.delete' })
   delete(@Payload() data: { id: string; requesterId?: string }) {
     return this.courseProfiles.delete(data.id, data.requesterId);
-  }
-
-  // --- Syllabus management ---
-
-  @MessagePattern({ cmd: 'academy.syllabus.findAll' })
-  findAllSyllabi(@Payload() data: { courseProfileId: string }) {
-    return this.courseProfiles.findAllSyllabi(data.courseProfileId);
-  }
-
-  @MessagePattern({ cmd: 'academy.syllabus.findById' })
-  findSyllabusById(@Payload() data: { id: string }) {
-    return this.courseProfiles.findSyllabusById(data.id);
-  }
-
-  @MessagePattern({ cmd: 'academy.syllabus.create' })
-  createSyllabus(
-    @Payload()
-    data: {
-      courseProfileId: string;
-      version: string;
-      name?: string;
-      requesterId?: string;
-    },
-  ) {
-    return this.courseProfiles.createSyllabus(data);
-  }
-
-  @MessagePattern({ cmd: 'academy.syllabus.clone' })
-  cloneSyllabus(
-    @Payload()
-    data: {
-      sourceSyllabusId: string;
-      newVersion: string;
-      newName?: string;
-      requesterId?: string;
-    },
-  ) {
-    return this.courseProfiles.cloneSyllabus(data);
-  }
-
-  @MessagePattern({ cmd: 'academy.syllabus.publish' })
-  publishSyllabus(@Payload() data: { id: string; requesterId?: string }) {
-    return this.courseProfiles.publishSyllabus(data.id, data.requesterId);
-  }
-
-  @MessagePattern({ cmd: 'academy.syllabus.lock' })
-  lockSyllabus(@Payload() data: { id: string; requesterId?: string }) {
-    return this.courseProfiles.lockSyllabus(data.id, data.requesterId);
   }
 }

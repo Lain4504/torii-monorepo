@@ -4,14 +4,13 @@ import { useQuery } from '@tanstack/react-query';
 import { useAppSelector } from '@/hooks/hooks';
 import { academyLearningProgressApi, useAcademyMyCourses, useAcademyLearningHistory, useAcademyLearningStats } from '@/lib/api/services/academy-learning-progress-api';
 
-import { useGamificationProfile, useStreak, useAchievements, useActivityHeatmap } from '@/lib/api/services/gamification-api';
+import { useGamificationProfile, useStreak, useAchievements } from '@/lib/api/services/gamification-api';
 import { useMySchedule } from '@/lib/api/services/academy-live-session-api';
 import Link from 'next/link';
 import { formatDistanceToNow, subDays } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { BookOpen, Clock, Calendar, Video } from 'lucide-react';
 import { LiveSessionStatus, UserRole } from '@workspace/schemas';
-import Heatmap from '@workspace/ui/components/heatmap';
 import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal';
 
 function formatDuration(seconds: number): string {
@@ -39,10 +38,6 @@ export default function DashboardClientPage() {
 
     const startDate = subDays(new Date(), 365);
     const endDate = new Date();
-    const { data: heatmapData } = useActivityHeatmap(
-        startDate.toISOString().split('T')[0],
-        endDate.toISOString().split('T')[0]
-    );
 
     const mainCourse = courses?.[0];
     const otherCourses = courses?.slice(1, 3) || [];
@@ -186,39 +181,6 @@ export default function DashboardClientPage() {
                                     </Link>
                                 </div>
                             )}
-                        </section>
-
-                        {/* Activity Heatmap */}
-                        <section className="bg-card p-6 rounded-3xl border border-border shadow-sm" data-purpose="activity-heatmap">
-                            <div className="flex justify-between items-center mb-6">
-                                <h3 className="font-bold">Lịch sử hoạt động</h3>
-                                <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-                                    365 ngày gần nhất
-                                </div>
-                            </div>
-                            <div className="w-full overflow-x-auto pb-4 custom-scrollbar" ref={(el) => { if (el) el.scrollLeft = el.scrollWidth; }}>
-                                <Heatmap
-                                    data={heatmapData || []}
-                                    startDate={startDate}
-                                    endDate={endDate}
-                                    colorMode="discrete"
-                                    displayStyle="squares"
-                                    colorScale={[
-                                        "var(--heatmap-zero)",
-                                        "var(--heatmap-1)",
-                                        "var(--heatmap-2)",
-                                        "var(--heatmap-3)",
-                                        "var(--heatmap-4)",
-                                    ]}
-                                    customColorMap={(value) => {
-                                        if (value <= 0) return 0;
-                                        if (value <= 2) return 1; // Nhạt (Login)
-                                        if (value <= 5) return 2; // Vừa (Lesson)
-                                        if (value <= 9) return 3; // Đậm
-                                        return 4; // Rất đậm (Exam hoặc nhiều hoạt động)
-                                    }}
-                                />
-                            </div>
                         </section>
 
                         {/* Analytics & Progress */}

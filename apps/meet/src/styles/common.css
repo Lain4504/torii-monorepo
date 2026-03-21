@@ -1,13 +1,13 @@
 body {
   margin: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--ui-font, "Montserrat", sans-serif);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-weight: 400;
 }
 
 code {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--ui-font, "Montserrat", sans-serif);
 }
 
 section.Toastify {

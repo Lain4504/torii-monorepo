@@ -31,7 +31,7 @@ export function ClassQuizSourcePanel({
                     <FieldLabel>Nguồn đề thi</FieldLabel>
                     <Input disabled value="VOD: dùng đề mặc định của Quiz Template (không override)" />
                     <FieldDescription>
-                        Lớp VOD không cho phép giảng viên ghi đè đề thi, hệ thống luôn dùng đề mặc định của syllabus.
+                        Lớp VOD không cho phép giảng viên ghi đè đề thi, hệ thống luôn dùng đề mặc định của chương trình học.
                     </FieldDescription>
                 </Field>
             </FieldGroup>

@@ -182,12 +182,14 @@ export function QuestionOptionsEditor({
                     <div key={opt.id} className="flex items-center gap-2">
                         <Button
                             type="button"
-                            variant="ghost"
-                            size="icon"
                             className={cn(
                                 "shrink-0 rounded-full",
-                                isCorrect(opt.value) ? "text-green-600 bg-green-50" : "text-muted-foreground hover:bg-muted"
+                                isCorrect(opt.value)
+                                    ? "text-green-600 bg-green-50"
+                                    : "text-muted-foreground hover:bg-muted"
                             )}
+                            variant="ghost"
+                            size="icon"
                             onClick={() => toggleCorrect(opt.value)}
                         >
                             <CheckCircle2 className="size-5" />
