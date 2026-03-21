@@ -25,7 +25,7 @@ export class GamificationService {
     private readonly achievementService: AchievementService,
     private readonly audit: AuditLoggerService,
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
-  ) {}
+  ) { }
 
   private getVnDateString(d: Date = new Date()) {
     const vn = new Date(
@@ -589,13 +589,13 @@ export class GamificationService {
 
     const currentUser = current
       ? {
-          id: current.user.id,
-          displayName: current.user.displayName,
-          avatarUrl: current.user.avatarUrl,
-          xp: current.totalXp,
-          streak: current.currentStreak,
-          level: current.level,
-        }
+        id: current.user.id,
+        displayName: current.user.displayName,
+        avatarUrl: current.user.avatarUrl,
+        xp: current.totalXp,
+        streak: current.currentStreak,
+        level: current.level,
+      }
       : null;
 
     return { users, currentUser };

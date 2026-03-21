@@ -239,6 +239,11 @@ services:
       dockerfile: apps/voice-agent/Dockerfile
     image: ${DOCKER_USERNAME}/torii-voice-agent:latest
     restart: always
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    networks:
+      - voice-agent-net
     env_file:
       - .env
     environment:
@@ -257,3 +262,12 @@ volumes:
   redisdata:
   natsdata:
   livekitdata:
+
+
+networks:
+  # Separate network for voice-agent with MTU 1400 to fix GCP connectivity.
+  # Does NOT affect default network used by LiveKit Meet and other services.
+  voice-agent-net:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1400

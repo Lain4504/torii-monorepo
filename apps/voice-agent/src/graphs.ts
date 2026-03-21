@@ -28,8 +28,8 @@ export const VOICE_GRAPHS: Record<string, VoiceGraph> = {
 - Respond warmly and encouragingly. Always stay in character.`,
         language: 'ja-JP',
         voice: 'Aoede',
-        model: 'gemini-2.5-flash-native-audio-latest',
-        temperature: 0.8,
+        model: 'gemini-2.5-flash-native-audio-preview-12-2025',
+        temperature: 0.7,
     },
 
     // 自由会話 – ロールプレイ練習
@@ -47,8 +47,8 @@ export const VOICE_GRAPHS: Record<string, VoiceGraph> = {
 - Be patient, friendly, and encouraging`,
         language: 'ja-JP',
         voice: 'Puck',
-        model: 'gemini-2.5-flash-native-audio-latest',
-        temperature: 0.9,
+        model: 'gemini-2.5-flash-native-audio-preview-12-2025',
+        temperature: 0.8,
     },
 
     // 일반 英会話
@@ -65,8 +65,8 @@ Rules:
 - Be encouraging and supportive.`,
         language: 'ja-JP',
         voice: 'Charon',
-        model: 'gemini-2.5-flash-native-audio-latest',
-        temperature: 0.8,
+        model: 'gemini-2.5-flash-native-audio-preview-12-2025',
+        temperature: 0.7,
     },
 };
 

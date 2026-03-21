@@ -65,23 +65,14 @@ export default defineAgent({
             return false;
         };
 
-        // 1. Initial check with jitter to allow for name propagation from other agents
-        const jitter = Math.floor(Math.random() * 800) + 400;
+        // 1. Initial check with minimal jitter to avoid race conditions
+        const jitter = Math.floor(Math.random() * 100) + 50; // Just 50-150ms
         await new Promise(resolve => setTimeout(resolve, jitter));
 
-        // Wait up to 2 seconds for peer names to potentially propagate
-        let attempts = 0;
-        while (attempts < 3) {
-            if (await checkSafety()) return;
-            const hasZombiePeers = Array.from(ctx.room.remoteParticipants.values()).some(p =>
-                p.identity.startsWith('agent-') && (!p.name || p.name === '0')
-            );
-            if (!hasZombiePeers) break;
+        if (await checkSafety()) return;
 
-            console.log(`[Agent] [Safety] Peer agent(s) found but name hasn't propagated. Waiting... (Attempt ${attempts + 1})`);
-            await new Promise(resolve => setTimeout(resolve, 500));
-            attempts++;
-        }
+        // Removed retry loop for legacy name propagation to minimize initial delay.
+        // Modern agents use metadata which is much faster.
 
         // 2. Continuous monitoring for new agents joining or updating info
         ctx.room.on('participantConnected', async (p) => {
@@ -160,6 +151,16 @@ export default defineAgent({
             voice: graph.voice as any,
             temperature: graph.temperature || 0.8,
             instructions: graph.systemPrompt,
+            // ─── Latency Optimization ──────────────────────────────────────────
+            // Use END_SENSITIVITY_HIGH so agent detects end-of-speech faster.
+            // Reduce silenceDurationMs from default ~800ms to 400ms.
+            realtimeInputConfig: {
+                automaticActivityDetection: {
+                    endOfSpeechSensitivity: 'END_SENSITIVITY_HIGH' as any,
+                    silenceDurationMs: 400,
+                    prefixPaddingMs: 200,
+                },
+            },
         });
 
         const session = new voice.AgentSession({
