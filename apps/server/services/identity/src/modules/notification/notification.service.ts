@@ -7,6 +7,8 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import * as admin from 'firebase-admin';
+import * as fs from 'fs';
+import * as path from 'path';
 import { AppConfigService, PrismaService } from '@server/shared';
 import { Notification } from '@prisma/generated';
 import {
@@ -48,10 +50,35 @@ export class NotificationService
         return;
       }
 
-      // Check if file exists (relative from project root)
-      const fs = require('fs');
-      const path = require('path');
-      const fullPath = path.resolve(process.cwd(), serviceAccountPath);
+      // Check if file exists with fallback locations (to ensure it works on Linux/VPS/Docker)
+      let fullPath = serviceAccountPath;
+
+      if (!path.isAbsolute(serviceAccountPath)) {
+        const fallbacks = [
+          // 1. Primary: Relative to project root (process.cwd())
+          path.resolve(process.cwd(), serviceAccountPath),
+          // 2. Relative to dist root in monorepo where Nest CLI might place things during deployment
+          path.join(process.cwd(), 'dist', serviceAccountPath),
+          // 3. Relative to current file (helpful in local dev)
+          path.join(__dirname, '../../../../', serviceAccountPath),
+          // 4. Relative to identity service root in source
+          path.join(
+            process.cwd(),
+            'apps/server/services/identity',
+            serviceAccountPath,
+          ),
+          // 5. Absolute path fallback for containerized environments
+          path.join('/app', serviceAccountPath),
+        ];
+
+        for (const fallback of fallbacks) {
+          if (fs.existsSync(fallback)) {
+            this.logger.debug(`Found Firebase service account key at: ${fallback}`);
+            fullPath = fallback;
+            break;
+          }
+        }
+      }
 
       if (!fs.existsSync(fullPath)) {
         this.logger.warn(
