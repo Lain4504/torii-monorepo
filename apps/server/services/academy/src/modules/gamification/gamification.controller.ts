@@ -102,7 +102,10 @@ export class GamificationController {
   @MessagePattern('gamification.getLeaderboard')
   async getLeaderboard(@Payload() data: { userId: string; type?: string }) {
     try {
-      return await this.gamificationService.getLeaderboard(data.userId, data.type);
+      return await this.gamificationService.getLeaderboard(
+        data.userId,
+        data.type,
+      );
     } catch (error) {
       throw new RpcException(error.message);
     }
@@ -225,25 +228,6 @@ export class GamificationController {
         data.requesterId,
       );
     } catch (error) {
-      throw new RpcException(error.message);
-    }
-  }
-
-  @MessagePattern('gamification.getActivityHeatmap')
-  async getActivityHeatmap(
-    @Payload() data: { userId: string; startDate?: string; endDate?: string },
-  ) {
-    try {
-      return await this.gamificationService.getActivityHeatmap(
-        data.userId,
-        data.startDate,
-        data.endDate,
-      );
-    } catch (error) {
-      this.logger.error(
-        `Error getting activity heatmap: ${error.message}`,
-        error.stack,
-      );
       throw new RpcException(error.message);
     }
   }

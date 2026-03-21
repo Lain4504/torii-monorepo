@@ -38,9 +38,7 @@ function LessonIcon({ lesson, isActive, isCompleted }: {
 }) {
     if (isCompleted) return <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500 shrink-0" />;
     if (!lesson.isUnlocked) return <Lock className="h-4 w-4 text-muted-foreground/40 shrink-0" />;
-    if (isAssignmentItemKind(lesson.kind)) return <BookOpen className={`h-4 w-4 shrink-0 ${isActive ? 'text-amber-500' : 'text-muted-foreground/60'}`} />;
-    if (isExamItemKind(lesson.kind)) return <HelpCircle className={`h-4 w-4 shrink-0 ${isActive ? 'text-violet-500' : 'text-muted-foreground/60'}`} />;
-    if (isMaterialItemKind(lesson.kind) || isTopicItemKind(lesson.kind)) {
+    if (normalizeItemKind(lesson.kind) === 'READING') {
         return <FileText className={`h-4 w-4 shrink-0 ${isActive ? 'text-blue-500' : 'text-muted-foreground/60'}`} />;
     }
     return <PlayCircle className={`h-4 w-4 shrink-0 ${isActive ? 'text-primary' : 'text-muted-foreground/50'}`} />;
@@ -50,38 +48,9 @@ function normalizeItemKind(kind?: string) {
     return (kind || '').toUpperCase();
 }
 
-function isVideoItemKind(kind?: string) {
-    return normalizeItemKind(kind) === 'VIDEO';
-}
-
-function isExamItemKind(kind?: string) {
-    return normalizeItemKind(kind) === 'EXAM';
-}
-
-function isAssignmentItemKind(kind?: string) {
-    return normalizeItemKind(kind) === 'ASSIGNMENT';
-}
-
-function isMaterialItemKind(kind?: string) {
-    return normalizeItemKind(kind) === 'MATERIAL';
-}
-
-function isTopicItemKind(kind?: string) {
-    return normalizeItemKind(kind) === 'TOPIC';
-}
-
-function isTrackableItemKind(kind?: string) {
-    // chỉ track tiến độ cho VIDEO
-    return isVideoItemKind(kind);
-}
-
-function isLessonItemKind(kind?: string) {
-    const k = normalizeItemKind(kind);
-    return k === 'VIDEO' || k === 'MATERIAL' || k === 'TOPIC';
-}
-
 function isTrackableLessonKind(kind?: string) {
-    return isTrackableItemKind(kind);
+    const k = normalizeItemKind(kind);
+    return k === 'VIDEO' || k === 'READING';
 }
 
 // ─── Video Player ─────────────────────────────────────────────────────────────
@@ -289,7 +258,7 @@ export default function CourseLearnPage() {
 
     const completedIds = new Set(completedContentItemIds);
     const currentLessonKind = normalizeItemKind(currentLesson?.kind);
-    const shouldFetchLessonDetail = !!currentLesson?.referenceId && (isVideoItemKind(currentLessonKind) || currentLessonKind === 'READING');
+    const shouldFetchLessonDetail = !!currentLesson?.referenceId;
 
     // ── Load curriculum → pick first uncompleted lesson + expand all ───────
     useEffect(() => {
@@ -312,7 +281,7 @@ export default function CourseLearnPage() {
         let pick: CurriculumLesson | null = null;
         for (const mod of curriculum.modules) {
             for (const lesson of mod.lessons) {
-                const completed = isTrackableItemKind(lesson.kind)
+                const completed = isTrackableLessonKind(lesson.kind)
                     ? completedIds.has(lesson.id)
                     : false;
                 if (lesson.isUnlocked && !completed) {
@@ -336,7 +305,7 @@ export default function CourseLearnPage() {
     // ── Progress ───────────────────────────────────────────────────────────
     const markLessonComplete = useCallback(async () => {
         if (!currentLesson) return;
-        if (!isTrackableItemKind(currentLesson.kind)) {
+        if (!isTrackableLessonKind(currentLesson.kind)) {
             toast.info('Loại nội dung này không được tính vào tiến độ học.');
             return;
         }
@@ -373,7 +342,7 @@ export default function CourseLearnPage() {
     });
 
     // ── Computed ───────────────────────────────────────────────────────────
-    const progressLessons = allLessons.filter((lesson) => isTrackableItemKind(lesson.kind));
+    const progressLessons = allLessons.filter((lesson) => isTrackableLessonKind(lesson.kind));
     const totalLessons = progressLessons.length || allLessons.length;
     const completedCount = (progressLessons.length
         ? progressLessons.filter((lesson) => completedIds.has(lesson.id))
@@ -383,7 +352,7 @@ export default function CourseLearnPage() {
     const radius = 24, circumference = 2 * Math.PI * radius;
     const strokeDashoffset = circumference - (progressPct / 100) * circumference;
     const isCurrentDone = !!currentLesson &&
-        isTrackableItemKind(currentLesson.kind) &&
+        isTrackableLessonKind(currentLesson.kind) &&
         completedIds.has(currentLesson.id);
 
     // ── Loading ────────────────────────────────────────────────────────────
@@ -432,8 +401,8 @@ export default function CourseLearnPage() {
         );
     }
 
-    const isVideoLesson = isLessonItemKind(currentLessonKind) && lessonDetail?.type === 'VIDEO';
-    const isArticleLesson = isLessonItemKind(currentLessonKind) && lessonDetail?.type === 'READING';
+    const isVideoLesson = currentLessonKind === 'VIDEO';
+    const isArticleLesson = currentLessonKind === 'READING';
 
 
     // ─────────────────────────────────────────────────────────────────────────

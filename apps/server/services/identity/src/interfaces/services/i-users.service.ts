@@ -6,6 +6,7 @@ import type {
   PaginatedResponseDTO,
   Requester,
   AdminCreateInternalUserDTO,
+  OnboardingSurveyDTO,
 } from '@workspace/schemas';
 
 /**
@@ -126,4 +127,17 @@ export interface IUsersService {
     userId: string,
     dto: any,
   ): Promise<UserResponseDTO>;
+
+  /**
+   * Save user onboarding survey
+   */
+  saveOnboardingSurvey(
+    userId: string,
+    dto: OnboardingSurveyDTO,
+  ): Promise<{ success: boolean }>;
+
+  /**
+   * Get user onboarding survey
+   */
+  getOnboardingSurvey(userId: string): Promise<any>;
 }

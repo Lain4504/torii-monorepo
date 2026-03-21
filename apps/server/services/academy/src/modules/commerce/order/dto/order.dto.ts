@@ -18,11 +18,6 @@ export class OrderCheckoutDto {
   @IsString({ each: true })
   subscriptionPlanIds?: string[];
 
-  /** For LIVE offerings: map offeringId -> selected classId (one class per offering) */
-  @IsOptional()
-  @IsObject()
-  classIdByOffering?: Record<string, string>;
-
   @IsOptional()
   @IsString()
   couponCode?: string;
@@ -33,6 +28,10 @@ export class OrderCheckoutDto {
 
   @IsOptional()
   metadata?: any;
+
+  @IsOptional()
+  @IsObject()
+  classIdByOffering?: Record<string, string>;
 
   @IsEnum(PaymentMethod)
   paymentMethod!: PaymentMethod;
@@ -49,11 +48,6 @@ export class OrderPreviewDto {
   @IsString({ each: true })
   subscriptionPlanIds?: string[];
 
-  /** For LIVE offerings: map offeringId -> selected classId */
-  @IsOptional()
-  @IsObject()
-  classIdByOffering?: Record<string, string>;
-
   @IsOptional()
   @IsString()
   couponCode?: string;
@@ -61,4 +55,8 @@ export class OrderPreviewDto {
   @IsOptional()
   @IsString()
   description?: string;
+
+  @IsOptional()
+  @IsObject()
+  classIdByOffering?: Record<string, string>;
 }

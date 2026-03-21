@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@work
 import { Button } from '@workspace/ui/components/button'
 import { Badge } from '@workspace/ui/components/badge'
 import { Input } from '@workspace/ui/components/input'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs-lifted'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
 import { Search, Filter, BookOpen, Users, Star, ArrowRight, PlayCircle, Calendar, ShieldCheck, Zap } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -55,7 +55,7 @@ export default function DashboardCoursesPage() {
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="mb-6">
+                <TabsList className="mb-6 w-full overflow-x-auto whitespace-nowrap">
                     <TabsTrigger value="all">Tất cả</TabsTrigger>
                     <TabsTrigger value="vod">Học qua Video (VOD)</TabsTrigger>
                     <TabsTrigger value="live">Lớp học trực tiếp (Live)</TabsTrigger>

@@ -72,7 +72,9 @@ export class GamificationController {
     const user = req.requester;
     try {
       const result = await firstValueFrom(
-        this.natsClient.send('gamification.markToastShown', { userId: user.sub }),
+        this.natsClient.send('gamification.markToastShown', {
+          userId: user.sub,
+        }),
       );
       return successResponse(result);
     } catch (error: any) {
@@ -202,28 +204,6 @@ export class GamificationController {
         error.stack,
       );
       return errorResponse(error.message || 'Failed to fetch achievements');
-    }
-  }
-
-  @Get('activity-heatmap')
-  async getActivityHeatmap(@Req() req: ReqWithRequester) {
-    const user = req.requester;
-    const { startDate, endDate } = req.query as any;
-    try {
-      const result = await firstValueFrom(
-        this.natsClient.send('gamification.getActivityHeatmap', {
-          userId: user.sub,
-          startDate,
-          endDate,
-        }),
-      );
-      return successResponse(result);
-    } catch (error: any) {
-      this.logger.error(
-        `Failed to get activity heatmap for user ${user?.sub}`,
-        error.stack,
-      );
-      return errorResponse(error.message || 'Failed to fetch activity heatmap');
     }
   }
 

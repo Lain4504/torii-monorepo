@@ -91,6 +91,7 @@ export interface IUsersRepository {
     email: string;
     displayName: string;
     role: string;
+    isOnboarded: boolean;
     avatarUrl: string | null;
     userMetadata: Record<string, unknown> | null;
     verifiedAt: Date | null;
@@ -118,4 +119,14 @@ export interface IUsersRepository {
    * @returns Total count of users with the specified role
    */
   countByRole(role: string): Promise<number>;
+
+  /**
+   * Find onboarding survey by user ID
+   */
+  findOnboardingSurvey(userId: string): Promise<any>;
+
+  /**
+   * Create or update onboarding survey
+   */
+  createOnboardingSurvey(userId: string, data: any): Promise<any>;
 }

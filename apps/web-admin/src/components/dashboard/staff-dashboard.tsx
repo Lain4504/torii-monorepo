@@ -47,7 +47,7 @@ export default function StaffDashboard() {
                 <StatsCard
                     title="Chờ Phê duyệt"
                     value={pendingCourses?.total || 0}
-                    sub="Syllabus đang chờ kiểm duyệt"
+                    sub="Khóa học đang chờ kiểm duyệt"
                     icon={Zap}
                     highlight={Number(pendingCourses?.total) > 0}
                 />

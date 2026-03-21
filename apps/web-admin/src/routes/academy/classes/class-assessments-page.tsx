@@ -23,6 +23,7 @@ import {
   type AcademyClassAssessment,
 } from "@/lib/api/services/academy-class-assessments"
 import { ClassAssessmentSheet } from "@/components/academy/class-assessment-sheet"
+import { formatDateTime } from "@/lib/format-utils"
 
 export default function ClassAssessmentsPage() {
   const { classId } = useParams<{ classId: string }>()
@@ -163,10 +164,7 @@ export default function ClassAssessmentsPage() {
                         <div className="flex items-center gap-1 text-sm">
                           <Calendar className="size-3 text-muted-foreground" />
                           <span>
-                            {new Date(asm.deadline).toLocaleString("vi-VN", {
-                              dateStyle: "short",
-                              timeStyle: "short",
-                            })}
+                            {formatDateTime(asm.deadline, "HH:mm dd/MM/yyyy")}
                           </span>
                         </div>
                       ) : (

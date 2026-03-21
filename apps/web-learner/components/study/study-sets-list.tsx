@@ -7,6 +7,8 @@ import {
     useDeleteAcademyStudySet as useDeleteStudySet,
     useAcademyStudySet,
     useCreateAcademySetCard,
+    useUpdateAcademySetCard,
+    useDeleteAcademySetCard,
 } from '@/lib/api/services/academy-study-set-api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
@@ -31,6 +33,8 @@ export function StudySetsList() {
     const createSet = useCreateStudySet();
     const deleteSet = useDeleteStudySet();
     const createCard = useCreateAcademySetCard();
+    const updateCard = useUpdateAcademySetCard();
+    const deleteCard = useDeleteAcademySetCard();
 
     const [openDialog, setOpenDialog] = useState(false);
     const [title, setTitle] = useState('');
@@ -80,6 +84,11 @@ export function StudySetsList() {
     const [newTerm, setNewTerm] = useState('');
     const [newDefinition, setNewDefinition] = useState('');
 
+    // Inline editing state (click row -> edit form)
+    const [editingCardId, setEditingCardId] = useState<string | null>(null);
+    const [editTerm, setEditTerm] = useState('');
+    const [editDefinition, setEditDefinition] = useState('');
+
     const handleCreateCard = async () => {
         if (!selectedSetId) {
             toast.error('Hãy chọn một bộ thẻ trước khi thêm thẻ mới.');
@@ -96,6 +105,51 @@ export function StudySetsList() {
             toast.success('Đã thêm thẻ mới!');
         } catch (e: any) {
             toast.error(e.message || 'Lỗi khi thêm thẻ');
+        }
+    };
+
+    const startEditingCard = (card: any) => {
+        setEditingCardId(card.id);
+        setEditTerm((card.term ?? '').toString());
+        setEditDefinition((card.definition ?? '').toString());
+    };
+
+    const cancelEditingCard = () => {
+        setEditingCardId(null);
+        setEditTerm('');
+        setEditDefinition('');
+    };
+
+    const handleSaveCard = async (cardId: string) => {
+        if (!selectedSetId) return;
+        const term = editTerm.trim();
+        const definition = editDefinition.trim();
+        if (!term || !definition) {
+            toast.error('Vui lòng nhập đủ mặt trước và mặt sau.');
+            return;
+        }
+        try {
+            await updateCard.mutateAsync({
+                setId: selectedSetId,
+                cardId,
+                payload: { term, definition },
+            });
+            toast.success('Đã cập nhật thẻ!');
+            cancelEditingCard();
+        } catch (e: any) {
+            toast.error(e.message || 'Lỗi cập nhật thẻ');
+        }
+    };
+
+    const handleDeleteCard = async (cardId: string) => {
+        if (!selectedSetId) return;
+        if (!confirm('Bạn có chắc muốn xóa thẻ này?')) return;
+        try {
+            await deleteCard.mutateAsync({ setId: selectedSetId, cardId });
+            toast.success('Đã xóa thẻ!');
+            if (editingCardId === cardId) cancelEditingCard();
+        } catch (e: any) {
+            toast.error(e.message || 'Lỗi xóa thẻ');
         }
     };
 
@@ -277,7 +331,7 @@ export function StudySetsList() {
                                 Danh sách thẻ ({selectedCount})
                             </CardTitle>
                             <CardDescription className="mt-1 text-xs">
-                                Xem nhanh và chỉnh sửa nhanh các thẻ trong bộ được chọn.
+                                Nhấn vào một thẻ để chỉnh sửa nhanh (chỉ gồm mặt trước / mặt sau).
                             </CardDescription>
                         </div>
                     </CardHeader>
@@ -304,7 +358,7 @@ export function StudySetsList() {
                                 <div>
                                     <p className="text-sm font-semibold">Bộ thẻ này chưa có thẻ nào</p>
                                     <p className="mt-1 text-xs text-muted-foreground">
-                                        Thêm thẻ mới ngay bên dưới bằng form “Thêm thuật ngữ mới”.
+                                        Thêm thẻ mới ngay bên dưới bằng form “Thêm thẻ”.
                                     </p>
                                 </div>
                             </div>
@@ -314,34 +368,79 @@ export function StudySetsList() {
                                     <thead>
                                         <tr className="border-b border-border text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                                             <th className="pb-2 pr-4">#</th>
-                                            <th className="pb-2 pr-4">Thuật ngữ</th>
-                                            <th className="pb-2 pr-4">Định nghĩa</th>
-                                            <th className="pb-2 pr-4">Gợi ý</th>
+                                            <th className="pb-2 pr-4">Mặt trước</th>
+                                            <th className="pb-2 pr-4">Mặt sau</th>
                                             <th className="pb-2 text-right">Thao tác</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-border">
                                         {selectedSet.setCards.map((card, index) => (
-                                            <tr
-                                                key={card.id}
-                                                className="transition-colors hover:bg-muted/50"
-                                            >
-                                                <td className="py-3 pr-4 text-xs text-muted-foreground">
-                                                    {index + 1}
-                                                </td>
-                                                <td className="py-3 pr-4 text-base font-medium text-foreground">
-                                                    {card.term}
-                                                </td>
-                                                <td className="py-3 pr-4 text-sm text-foreground/80">
-                                                    {card.definition}
-                                                </td>
-                                                <td className="py-3 pr-4 text-xs text-muted-foreground">
-                                                    {card.hint || '—'}
-                                                </td>
-                                                <td className="py-3 text-right text-xs">
-                                                    {/* Hành động chi tiết được xử lý ngay tại đây bằng click trên dòng */}
-                                                </td>
-                                            </tr>
+                                            editingCardId === card.id ? (
+                                                <tr key={card.id} className="bg-muted/30">
+                                                    <td className="py-3 pr-4 text-xs text-muted-foreground align-top">
+                                                        {index + 1}
+                                                    </td>
+                                                    <td className="py-3 pr-4 align-top">
+                                                        <Input
+                                                            value={editTerm}
+                                                            onChange={(e) => setEditTerm(e.target.value)}
+                                                            placeholder="Mặt trước..."
+                                                        />
+                                                    </td>
+                                                    <td className="py-3 pr-4 align-top">
+                                                        <Input
+                                                            value={editDefinition}
+                                                            onChange={(e) => setEditDefinition(e.target.value)}
+                                                            placeholder="Mặt sau..."
+                                                        />
+                                                    </td>
+                                                    <td className="py-3 text-right align-top">
+                                                        <div className="flex justify-end gap-2">
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline"
+                                                                onClick={cancelEditingCard}
+                                                            >
+                                                                Hủy
+                                                            </Button>
+                                                            <Button
+                                                                size="sm"
+                                                                onClick={() => handleSaveCard(card.id)}
+                                                                disabled={updateCard.isPending}
+                                                            >
+                                                                {updateCard.isPending ? 'Đang lưu...' : 'Lưu'}
+                                                            </Button>
+                                                            <Button
+                                                                size="sm"
+                                                                variant="destructive"
+                                                                onClick={() => handleDeleteCard(card.id)}
+                                                                disabled={deleteCard.isPending}
+                                                            >
+                                                                Xóa
+                                                            </Button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ) : (
+                                                <tr
+                                                    key={card.id}
+                                                    className="cursor-pointer transition-colors hover:bg-muted/50"
+                                                    onClick={() => startEditingCard(card)}
+                                                >
+                                                    <td className="py-3 pr-4 text-xs text-muted-foreground">
+                                                        {index + 1}
+                                                    </td>
+                                                    <td className="py-3 pr-4 text-base font-medium text-foreground">
+                                                        {card.term}
+                                                    </td>
+                                                    <td className="py-3 pr-4 text-sm text-foreground/80">
+                                                        {card.definition}
+                                                    </td>
+                                                    <td className="py-3 text-right text-xs text-muted-foreground">
+                                                        Nhấn để sửa
+                                                    </td>
+                                                </tr>
+                                            )
                                         ))}
                                     </tbody>
                                 </table>
@@ -353,7 +452,7 @@ export function StudySetsList() {
                                 <div className="grid md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
-                                            Thêm thuật ngữ mới
+                                            Thêm thẻ (mặt trước)
                                         </label>
                                         <Input
                                             placeholder="Mặt trước..."
@@ -366,7 +465,7 @@ export function StudySetsList() {
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
-                                            Thêm định nghĩa
+                                            Thêm thẻ (mặt sau)
                                         </label>
                                         <Input
                                             placeholder="Mặt sau..."

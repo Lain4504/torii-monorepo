@@ -252,8 +252,9 @@ export class AnalyticsService implements OnModuleInit, OnModuleDestroy {
       }),
       async ({ userId, targetLevel, timeframe }) => {
         const userContext = await this.fastMcpService.getUserContext(userId);
-        const syllabus = this.fastMcpService.loadResource('jlpt-syllabus.json');
-        const levelSyllabus = syllabus ? syllabus[targetLevel] : null;
+        const curriculum =
+          this.fastMcpService.loadResource('jlpt-syllabus.json');
+        const levelCurriculum = curriculum ? curriculum[targetLevel] : null;
 
         const template = this.fastMcpService.loadPromptTemplate(
           'analytics/study-path-suggestion.md',
@@ -263,7 +264,7 @@ export class AnalyticsService implements OnModuleInit, OnModuleDestroy {
           targetLevel,
           timeframe,
           userContext,
-          syllabus: levelSyllabus,
+          curriculum: levelCurriculum,
           timestamp: new Date().toISOString(),
         });
 

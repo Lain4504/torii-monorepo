@@ -27,6 +27,8 @@ import {
 import {
   AcademyCourseProfileCreateDTO,
   academyCourseProfileCreateDTOSchema,
+  AcademyCourseProfileDuplicateDTO,
+  academyCourseProfileDuplicateDTOSchema,
   AcademyCourseProfileQueryDTO,
   academyCourseProfileQueryDTOSchema,
   AcademyCourseProfileUpdateDTO,
@@ -88,6 +90,58 @@ export class CourseProfileController {
       this.nats.send(
         { cmd: 'academy.courseProfile.update' },
         { id, input: dto, requesterId: req.requester?.sub },
+      ),
+    );
+    return successResponse({ item });
+  }
+
+  @Post(':id/submit-for-approval')
+  @Permissions('academy.content.write')
+  async submitForApproval(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.courseProfile.submitForApproval' },
+        { id, requesterId: req.requester?.sub },
+      ),
+    );
+    return successResponse({ item });
+  }
+
+  @Post(':id/approve')
+  @Permissions('academy.content.approve')
+  async approve(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Req() req: ReqWithRequester,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.courseProfile.approve' },
+        { id, requesterId: req.requester?.sub },
+      ),
+    );
+    return successResponse({ item });
+  }
+
+  @Post(':id/duplicate')
+  @Permissions('academy.content.write')
+  async duplicate(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body(new ZodValidationPipe(academyCourseProfileDuplicateDTOSchema))
+    dto: AcademyCourseProfileDuplicateDTO,
+    @Req() req: ReqWithRequester,
+  ) {
+    const item = await firstValueFrom(
+      this.nats.send(
+        { cmd: 'academy.courseProfile.duplicate' },
+        {
+          id,
+          newCode: dto.newCode,
+          newTitle: dto.newTitle,
+          requesterId: req.requester?.sub,
+        },
       ),
     );
     return successResponse({ item });

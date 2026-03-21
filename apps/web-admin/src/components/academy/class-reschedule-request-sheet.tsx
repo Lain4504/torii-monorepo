@@ -42,6 +42,7 @@ import {
   useCreateAcademyLiveScheduleRequest,
   usePreviewAcademyLiveSessionConflict,
 } from "@/lib/api/services/academy-live-schedule-requests"
+import { formatDate, formatDateTime } from "@/lib/format-utils"
 
 interface ClassRescheduleRequestSheetProps {
   open: boolean
@@ -114,7 +115,7 @@ export function ClassRescheduleRequestSheet({
           <SheetTitle>Yêu cầu dời lịch / Nghỉ phép</SheetTitle>
           <SheetDescription>
             Gửi yêu cầu dời lịch học hoặc xin nghỉ cho buổi học ngày{" "}
-            {new Date(session.sessionDate).toLocaleDateString("vi-VN")}.
+            {formatDate(session.sessionDate)}.
           </SheetDescription>
         </SheetHeader>
 
@@ -185,7 +186,7 @@ export function ClassRescheduleRequestSheet({
                         <div className="text-sm space-y-4 text-foreground font-medium">
                             <div className="flex items-center gap-3 bg-muted/30 p-2 rounded-lg">
                                 <CalendarIcon className="size-4 text-primary" />
-                                <span>{new Date(session.sessionDate).toLocaleDateString("vi-VN", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                                <span>{formatDateTime(session.sessionDate, "EEEE, dd MMMM yyyy")}</span>
                             </div>
                             <div className="flex items-center gap-3 bg-muted/30 p-2 rounded-lg">
                                 <Clock className="size-4 text-primary" />

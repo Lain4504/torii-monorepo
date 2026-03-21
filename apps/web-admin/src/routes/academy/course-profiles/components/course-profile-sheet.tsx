@@ -36,7 +36,7 @@ import {
 } from "@/lib/api/services/academy-course-profiles"
 import { LessonMediaUploader } from "@/components/academy/lesson-media-uploader"
 import { toast } from "sonner"
-import { Loader2 } from "lucide-react"
+import { Loader2, Save, X } from "lucide-react"
 
 const courseProfileSchema = z.object({
   code: z.string().min(2, "Mã profile phải có ít nhất 2 ký tự"),
@@ -241,11 +241,27 @@ export function CourseProfileSheet({ open, onOpenChange, profile }: CourseProfil
         </ScrollArea>
 
         <div className="px-6 py-4 border-t flex justify-end gap-3 bg-muted/20 shrink-0">
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isLoading}
+            className="gap-2 border-slate-500/30 text-slate-700 bg-transparent hover:bg-slate-50 hover:text-slate-700"
+          >
+            <X className="size-4" />
             Hủy
           </Button>
-          <Button type="submit" form="course-profile-form" disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          <Button
+            type="submit"
+            form="course-profile-form"
+            disabled={isLoading}
+            variant="outline"
+            className="gap-2 border-primary/30 text-primary bg-transparent hover:bg-primary/5"
+          >
+            {isLoading ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Save className="size-4" />
+            )}
             {isEditing ? "Lưu thay đổi" : "Tạo Profile"}
           </Button>
         </div>

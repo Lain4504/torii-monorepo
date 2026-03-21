@@ -316,10 +316,8 @@ export class SenseiService implements OnModuleInit {
           where: {
             title: { contains: topic, mode: 'insensitive' },
             module: {
-              syllabus: {
-                courseProfile: {
-                  ...(level ? { level } : {}),
-                },
+              courseProfile: {
+                ...(level ? { level } : {}),
               },
             },
           },
@@ -329,12 +327,8 @@ export class SenseiService implements OnModuleInit {
             title: true,
             module: {
               select: {
-                syllabus: {
-                  select: {
-                    courseProfile: {
-                      select: { id: true, title: true, level: true },
-                    },
-                  },
+                courseProfile: {
+                  select: { id: true, title: true, level: true },
                 },
               },
             },
@@ -352,9 +346,9 @@ export class SenseiService implements OnModuleInit {
           ...lessons.map((l) => ({
             title: l.title,
             type: 'Lesson',
-            level: l.module.syllabus.courseProfile?.level || 'N/A',
-            url: `/learning/${l.module.syllabus.courseProfile?.id}/lesson/${l.id}`,
-            description: `Lesson in course: ${l.module.syllabus.courseProfile?.title}`,
+            level: l.module.courseProfile?.level || 'N/A',
+            url: `/learning/${l.module.courseProfile?.id}/lesson/${l.id}`,
+            description: `Lesson in course: ${l.module.courseProfile?.title}`,
           })),
         ];
 

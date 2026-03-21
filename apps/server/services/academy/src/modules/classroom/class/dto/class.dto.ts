@@ -1,5 +1,4 @@
 import {
-  IsDateString,
   IsInt,
   IsOptional,
   IsString,
@@ -15,14 +14,25 @@ export class ClassCreateDto {
 
   @IsOptional()
   @IsUUID()
-  syllabusId?: string;
+  termId?: string;
+
+  @IsOptional()
+  term?:
+    | {
+        termCode: string;
+        openingDate: Date | string;
+        closingDate: Date | string;
+        enrollmentOpenAt?: Date | string;
+        enrollmentCloseAt?: Date | string;
+      }
+    | undefined;
 
   @IsString()
-  @MaxLength(150)
+  @MaxLength(50)
   code!: string;
 
   @IsString()
-  @MaxLength(255)
+  @MaxLength(150)
   name!: string;
 
   @IsString()
@@ -35,29 +45,12 @@ export class ClassCreateDto {
   @IsOptional()
   @IsUUID()
   instructorId?: string;
-
-  // LIVE timeline fields (optional for VOD)
-  @IsOptional()
-  @IsDateString()
-  openingDate?: string;
-
-  @IsOptional()
-  @IsDateString()
-  closingDate?: string;
-
-  @IsOptional()
-  @IsDateString()
-  enrollmentOpenAt?: string;
-
-  @IsOptional()
-  @IsDateString()
-  enrollmentCloseAt?: string;
 }
 
 export class ClassUpdateDto {
   @IsOptional()
   @IsString()
-  @MaxLength(255)
+  @MaxLength(150)
   name?: string;
 
   @IsOptional()
@@ -66,27 +59,15 @@ export class ClassUpdateDto {
 
   @IsOptional()
   @IsUUID()
-  syllabusId?: string;
+  courseProfileId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  termId?: string;
 
   @IsOptional()
   @IsUUID()
   instructorId?: string;
-
-  @IsOptional()
-  @IsDateString()
-  openingDate?: string;
-
-  @IsOptional()
-  @IsDateString()
-  closingDate?: string;
-
-  @IsOptional()
-  @IsDateString()
-  enrollmentOpenAt?: string;
-
-  @IsOptional()
-  @IsDateString()
-  enrollmentCloseAt?: string;
 }
 
 export class ClassQueryDto {
@@ -114,12 +95,12 @@ export class ClassQueryDto {
 export class ClassDuplicateDto {
   @IsOptional()
   @IsString()
-  @MaxLength(150)
+  @MaxLength(50)
   code?: string;
 
   @IsOptional()
   @IsString()
-  @MaxLength(255)
+  @MaxLength(150)
   name?: string;
 
   @IsOptional()
@@ -128,7 +109,6 @@ export class ClassDuplicateDto {
 }
 
 // --- ClassAssignment DTOs ---
-
 export class ClassAssignmentCreateDto {
   @IsUUID()
   classId!: string;
@@ -137,8 +117,9 @@ export class ClassAssignmentCreateDto {
   @MaxLength(255)
   title!: string;
 
+  @IsOptional()
   @IsString()
-  instructions!: string;
+  instructions?: string;
 
   @IsOptional()
   @IsString()
@@ -146,27 +127,39 @@ export class ClassAssignmentCreateDto {
   titleOverride?: string;
 
   @IsOptional()
-  openAt?: Date;
+  @IsString() // ISO Date
+  openAt?: string;
 
   @IsOptional()
-  deadline?: Date;
+  @IsString() // ISO Date
+  deadline?: string;
 }
 
 export class ClassAssignmentUpdateDto {
   @IsOptional()
   @IsString()
   @MaxLength(255)
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  instructions?: string;
+
+  @IsOptional()
+  @IsString() // ISO Date
+  openAt?: string;
+
+  @IsOptional()
+  @IsString() // ISO Date
+  deadline?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
   titleOverride?: string;
-
-  @IsOptional()
-  openAt?: Date;
-
-  @IsOptional()
-  deadline?: Date;
 }
 
-// --- UserLessonProgress DTOs ---
-
+// --- Lesson Progress DTOs ---
 export class MarkLessonCompleteDto {
   @IsUUID()
   userId!: string;

@@ -10,7 +10,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@workspace/ui/components/pagination'
-import { Tabs, TabsList, TabsTrigger } from '@workspace/ui/components/tabs-lifted'
+import { Tabs, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
 import { Skeleton } from '@workspace/ui/components/skeleton'
 import { Empty, EmptyContent, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty'
 import { useNotifications, useUnreadNotificationsCount, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, useDeleteNotification } from '@/lib/api/services/notifications.ts'
@@ -144,7 +144,7 @@ export default function NotificationsPage() {
 
       {/* Filter Tabs */}
       <Tabs value={filter} onValueChange={(v) => { setFilter(v as 'all' | 'unread'); setPage(1); }}>
-        <TabsList>
+        <TabsList className="w-full overflow-x-auto whitespace-nowrap">
           <TabsTrigger value="all">Tất cả</TabsTrigger>
           <TabsTrigger value="unread">
             Chưa đọc

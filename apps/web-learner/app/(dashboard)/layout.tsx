@@ -7,19 +7,20 @@ import { useEffect, useState } from 'react'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { DashboardHeader } from '@/components/layout/dashboard-header'
 import { SidebarInset, SidebarProvider } from '@workspace/ui/components/sidebar'
+import { StreakWelcomeModal } from '@/components/dashboard/streak-welcome-modal'
 
 export default function DashboardLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
-    const { isAuthenticated, status } = useAppSelector((state) => state.auth)
+    const { isAuthenticated, status, user } = useAppSelector((state) => state.auth)
     const [hasMounted, setHasMounted] = useState(false)
     const router = useRouter()
     const [mounted, setMounted] = React.useState(false)
+    const [streakModalOpen, setStreakModalOpen] = React.useState(false)
 
     useEffect(() => {
-
         setMounted(true)
     }, [])
 
@@ -27,7 +28,11 @@ export default function DashboardLayout({
         if (mounted && status === 'succeeded' && !isAuthenticated) {
             router.push('/login')
         }
-    }, [isAuthenticated, status, router, mounted])
+
+        if (mounted && status === 'succeeded' && isAuthenticated && user && !user.isOnboarded) {
+            router.push('/onboarding')
+        }
+    }, [isAuthenticated, status, user, router, mounted])
 
     // Delay rendering logic until after hydration to avoid mismatch
     if (!mounted || status === 'loading') {
@@ -50,12 +55,13 @@ export default function DashboardLayout({
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <DashboardHeader />
+        <DashboardHeader onOpenStreakModal={() => setStreakModalOpen(true)} />
         <main className="flex-1 overflow-y-auto scrollbar-none nhai-blueprint-bg">
           <div className="max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
             {children}
           </div>
         </main>
+        <StreakWelcomeModal open={streakModalOpen} onOpenChange={setStreakModalOpen} />
       </SidebarInset>
     </SidebarProvider>
     )

@@ -1,61 +1,85 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMarkToastShown, useStreak } from '@/lib/api/services/gamification-api';
 import { Dialog, DialogContent, DialogTitle } from '@workspace/ui/components/dialog';
-import { motion } from 'framer-motion';
-import { Flame, Snowflake, Sparkles, Trophy, Target, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { cn } from '@workspace/ui/lib/utils';
 
-export function StreakWelcomeModal() {
+type StreakWelcomeModalProps = {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+};
+
+export function StreakWelcomeModal(props: StreakWelcomeModalProps = {}) {
   const { data: streak } = useStreak();
   const markToastShown = useMarkToastShown();
 
+  const isControlled =
+    typeof props.open === 'boolean' && typeof props.onOpenChange === 'function';
+
   const [isOpen, setIsOpen] = useState(false);
   const [sessionShown, setSessionShown] = useState(false);
+  const [mode, setMode] = useState<'weekly' | 'detail'>('weekly');
+  const prevOpenRef = useRef<boolean>(false);
+
+  const effectiveOpen = isControlled ? (props.open as boolean) : isOpen;
+  const setEffectiveOpen = isControlled
+    ? (props.onOpenChange as (open: boolean) => void)
+    : setIsOpen;
+
+  // When modal opens (manual click), reset to weekly view.
+  useEffect(() => {
+    const prev = prevOpenRef.current;
+    if (!prev && effectiveOpen) {
+      setMode('weekly');
+    }
+    prevOpenRef.current = effectiveOpen;
+  }, [effectiveOpen]);
 
   useEffect(() => {
     if (!streak || sessionShown) return;
 
-    const todayKey = `streak_welcome_shown_${new Date().toISOString().slice(0, 10)}`;
-    const shownToday = typeof window !== 'undefined' && window.localStorage.getItem(todayKey) === '1';
-
-    const shouldShow = streak.shouldShowToast === true && !shownToday;
+    // Server decides once/day gating to ensure cross-device consistency
+    const shouldShow = streak.shouldShowToast === true;
     if (!shouldShow) return;
 
     const timer = setTimeout(() => {
-      setIsOpen(true);
+      if (isControlled) {
+        props.onOpenChange?.(true);
+      } else {
+        setIsOpen(true);
+      }
       setSessionShown(true);
-      try { window.localStorage.setItem(todayKey, '1'); } catch { }
       markToastShown.mutate();
     }, 600);
 
     return () => clearTimeout(timer);
-  }, [streak, sessionShown]);
+  }, [streak, sessionShown, isControlled]);
 
-  if (!streak) return null;
+  const currentStreak = (streak as any)?.currentStreak ?? 0;
+  const freezeCount = (streak as any)?.freezeCount ?? 0;
+  const isActiveToday = (streak as any)?.isActiveToday === true;
+  const recentActiveDates = (streak as any)?.recentActiveDates ?? [];
 
-  const { currentStreak, freezeCount, isActiveToday, recentActiveDates } = streak as any;
-
-  // Build 7-day calendar
-  const buildCalendar = () => {
-    // We want to show the last 7 days from the perspective of the user's local time (Vietnam)
+  const weekly = useMemo(() => {
     const now = new Date();
-    // Use Intl to get current date in Vietnam for the day names/alignment
-    const vnToday = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
+    const vnToday = new Date(
+      now.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }),
+    );
 
-    const days = [];
+    const days: {
+      dayName: string;
+      status: 'done' | 'todo';
+      dateStr: string;
+    }[] = [];
+
     const dayNames = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
 
     for (let i = 6; i >= 0; i--) {
-      // Create a date object for 'i' days ago in the user's LOCAL flow
       const date = new Date(vnToday);
       date.setDate(vnToday.getDate() - i);
 
-      // We still need to match against the YYYY-MM-DD (UTC) format the server sends
-      // Server sends UTC date strings. To match "today" accurately if there's a timezone gap:
-      // However, usually these apps treat the "date string" as the unique identifier.
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
@@ -65,245 +89,254 @@ export function StreakWelcomeModal() {
       const adjustedDay = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
       const isToday = i === 0;
 
-      let status: 'active' | 'completed' | 'inactive' = 'inactive';
-
-      if (isToday && isActiveToday) {
-        status = 'active';
-      } else if (Array.isArray(recentActiveDates) && recentActiveDates.includes(dateStr)) {
-        status = 'completed';
-      }
+      const done =
+        (isToday && isActiveToday) ||
+        (Array.isArray(recentActiveDates) && recentActiveDates.includes(dateStr));
 
       days.push({
-        status,
-        isToday,
-        dayName: dayNames[adjustedDay],
-        date: date.getDate()
+        dayName: dayNames[adjustedDay] ?? '',
+        status: done ? 'done' : 'todo',
+        dateStr,
       });
     }
-
     return days;
-  };
+  }, [isActiveToday, recentActiveDates]);
 
-  const calendar = buildCalendar();
+  const [detailMonth, setDetailMonth] = useState(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  });
+
+  useEffect(() => {
+    if (effectiveOpen) {
+      const now = new Date();
+      setDetailMonth(new Date(now.getFullYear(), now.getMonth(), 1));
+    }
+  }, [effectiveOpen]);
+
+  const detail = useMemo(() => {
+    // Build monthly grid (Sun..Sat)
+    const year = detailMonth.getFullYear();
+    const month = detailMonth.getMonth();
+    const first = new Date(year, month, 1);
+    const last = new Date(year, month + 1, 0);
+    const startDay = first.getDay(); // 0=Sun
+    const daysInMonth = last.getDate();
+
+    const toDateStr = (d: Date) => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${dd}`;
+    };
+
+    const vnToday = new Date(
+      new Date().toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }),
+    );
+    const todayStr = toDateStr(vnToday);
+
+    const cells: {
+      label: number | null;
+      state: 'done' | 'todo' | 'today';
+    }[] = [];
+
+    // padding before 1st
+    for (let i = 0; i < startDay; i++) {
+      cells.push({ label: null, state: 'todo' });
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dt = new Date(year, month, d);
+      const ds = toDateStr(dt);
+      const done = Array.isArray(recentActiveDates) && recentActiveDates.includes(ds);
+      const isToday = ds === todayStr;
+      cells.push({
+        label: d,
+        state: isToday ? 'today' : done ? 'done' : 'todo',
+      });
+    }
+    // pad to full weeks
+    while (cells.length % 7 !== 0) {
+      cells.push({ label: null, state: 'todo' });
+    }
+
+    return { year, month, cells };
+  }, [detailMonth, recentActiveDates]);
+
+  const monthLabel = useMemo(() => {
+    const m = detailMonth.getMonth() + 1;
+    const y = detailMonth.getFullYear();
+    return `Tháng ${m}/${y}`;
+  }, [detailMonth]);
+
+  if (!streak) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="max-w-lg p-0 overflow-hidden">
-        <DialogTitle className="sr-only">
-          {currentStreak > 0
-            ? `Streak hiện tại: ${currentStreak} ngày`
-            : 'Bắt đầu hành trình học tập'}
-        </DialogTitle>
+    <Dialog open={effectiveOpen} onOpenChange={setEffectiveOpen}>
+      <DialogContent className="max-w-3xl overflow-hidden border-border/60 bg-background/95 p-0 shadow-2xl backdrop-blur-md">
+        <DialogTitle className="sr-only">Streak</DialogTitle>
 
-        <motion.div
-          initial={{ scale: 0.5, opacity: 0, y: 50 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.5, opacity: 0, y: 50 }}
-          transition={{
-            type: 'spring',
-            damping: 20,
-            stiffness: 300,
-          }}
-          className="relative"
-        >
-          {/* Gradient Blob Background */}
-
-
-          {/* Main Card */}
-          <div className="relative border-none bg-background p-6 sm:p-8">
-            {/* Floating Sparkles */}
-            <div className="animate-bounce absolute left-8 top-8">
-              <Sparkles className="h-5 w-5 text-primary" />
-            </div>
-            <div className="animation-delay-200 animate-bounce absolute right-16 top-12">
-              <Sparkles className="h-4 w-4 text-primary/70" />
+        {mode === 'weekly' ? (
+          <div className="bg-background">
+            <div className="px-3 pt-6 pb-4 sm:px-8 sm:pt-8 sm:pb-6">
+              <div className="space-y-1 text-center">
+                <div className="text-xl font-black tracking-tight text-foreground">
+                  {currentStreak || 0}{' '}
+                  <span className="text-primary">ngày streak</span>
+                </div>
+                <div className="text-sm font-medium text-muted-foreground">
+                  {isActiveToday
+                    ? 'Bạn đã học hôm nay.'
+                    : 'Hoàn thành 1 hoạt động học để giữ streak.'}
+                </div>
+              </div>
             </div>
 
-            {/* Content */}
-            <div className="space-y-6">
-              {/* Animated Icon & Title */}
-              <div className="space-y-3 text-center">
-                <motion.div
-                  initial={{ scale: 0, rotate: -180 }}
-                  animate={{
-                    scale: 1,
-                    rotate: 0,
-                  }}
-                  transition={{
-                    type: 'spring',
-                    delay: 0.2,
-                    duration: 0.8,
-                  }}
-                  className={cn(
-                    'inline-flex h-20 w-20 items-center justify-center rounded-full',
-                    currentStreak > 0
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-muted-foreground',
-                  )}
-                >
-                  <motion.div
-                    animate={{
-                      scale: [1, 1.2, 1],
-                      rotate: [0, 5, -5, 0],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      repeatDelay: 1,
-                    }}
-                    className="text-5xl"
-                  >
-                    {currentStreak > 0 ? (
-                      isActiveToday ? '🔥' : '⚡'
-                    ) : '🎯'}
-                  </motion.div>
-                </motion.div>
+            <div className="px-3 pb-6 sm:px-8 sm:pb-8">
+              <div className="mx-auto w-full max-w-xl rounded-2xl border border-border/60 bg-muted/20 p-3 sm:max-w-2xl sm:p-5">
+                <div className="mx-auto grid w-fit grid-cols-7 gap-2 sm:gap-3">
+                  {weekly.map((d, idx) => (
+                    <div key={idx} className="flex flex-col items-center gap-2">
+                      <div className="text-xs font-bold text-muted-foreground">
+                        {d.dayName}
+                      </div>
+                      <div
+                        className={cn(
+                          'relative h-10 w-10 rounded-full border sm:h-11 sm:w-11',
+                          d.status === 'done'
+                            ? 'border-primary/30 bg-primary text-primary-foreground'
+                            : 'border-border/70 bg-muted/40',
+                        )}
+                      >
+                        {d.status === 'done' && (
+                          <div className="absolute inset-0 flex items-center justify-center text-primary-foreground text-base font-black">
+                            ✓
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
 
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="space-y-2"
-                >
-                  <h2 className="text-2xl font-black tracking-tight text-foreground">
-                    {currentStreak > 0 ? `${currentStreak} ngày liên tiếp` : 'Bắt đầu streak hôm nay'}
-                  </h2>
-
-                  <p className="text-sm font-medium">
-                    {currentStreak > 0 ? (
-                      isActiveToday ? (
-                        <span className="flex items-center justify-center gap-2 text-emerald-600 dark:text-emerald-400">
-                          <span className="animate-pulse inline-block h-2 w-2 rounded-full bg-emerald-500" />
-                          Bạn đã check-in hôm nay!
-                        </span>
-                      ) : (
-                        <span className="flex items-center justify-center gap-2 text-primary">
-                          <Target className="h-5 w-5" />
-                          Hoàn thành 1 bài học để giữ streak
-                        </span>
-                      )
-                    ) : (
-                      <span className="text-muted-foreground">
-                        Hoàn thành 1 hoạt động học để bắt đầu
-                      </span>
-                    )}
-                  </p>
-                </motion.div>
+                <div className="mt-5 text-center text-sm font-semibold text-muted-foreground">
+                  {currentStreak > 0
+                    ? 'Tiếp tục duy trì streak nhé.'
+                    : 'Bắt đầu streak bằng một hoạt động học.'}
+                </div>
               </div>
 
-              {/* 7-Day Calendar - Premium Design */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5 }}
-                className="relative"
-              >
-
-                <div className="relative rounded-xl border bg-muted/30 p-4">
-                  <p className="mb-4 flex items-center justify-center gap-2 text-center text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                    <CalendarIcon className="h-3 w-3" />
-                    Lịch Sử 7 Ngày
-                  </p>
-
-                  <div className="grid grid-cols-7 gap-3">
-                    {calendar.map((day, idx) => (
-                      <motion.div
-                        key={idx}
-                        initial={{ scale: 0, y: 20 }}
-                        animate={{ scale: 1, y: 0 }}
-                        transition={{
-                          delay: 0.6 + idx * 0.05,
-                          type: 'spring',
-                        }}
-                        className="flex flex-col items-center gap-2"
-                      >
-                        <span className="text-xs font-bold text-muted-foreground">
-                          {day.dayName}
-                        </span>
-
-                        <motion.div
-                          whileHover={{ scale: 1.1 }}
-                          className={cn(
-                            'relative flex h-11 w-11 items-center justify-center rounded-lg border transition-all duration-300',
-                            day.status === 'active' && 'bg-primary border-primary text-primary-foreground',
-                            day.status === 'completed' && 'bg-primary/20 border-primary/30 text-primary',
-                            day.status === 'inactive' && 'bg-muted/50 border-border/50 text-muted-foreground',
-                          )}
-                        >
-                          {day.status === 'active' && (
-                            <motion.div
-                              animate={{ scale: [1, 1.2, 1] }}
-                              transition={{ duration: 1, repeat: Infinity }}
-                            >
-                              <Flame className="h-6 w-6 text-white drop-shadow-lg" />
-                            </motion.div>
-                          )}
-                          {day.status === 'completed' && (
-                            <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                            </svg>
-                          )}
-                          {day.isToday && (
-                            <div className="absolute -bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-primary" />
-                          )}
-                        </motion.div>
-                      </motion.div>
-                    ))}
-                  </div>
+              <div className="mt-8 flex items-center justify-between">
+                <div className="text-sm font-semibold text-muted-foreground">
+                  Freeze: <span className="font-black text-foreground">{freezeCount || 0}</span>
                 </div>
-              </motion.div>
 
-              {/* Stats Row */}
-              {(freezeCount > 0 || currentStreak > 0) && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.9 }}
-                  className="grid grid-cols-2 gap-4"
-                >
-                  {currentStreak > 0 && (
-                    <div className="flex items-center gap-3 rounded-lg border bg-muted/30 p-4">
-                      <div className="rounded-md bg-primary/10 p-2 text-primary">
-                        <Trophy className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-primary">{currentStreak} ngày</p>
-                        <p className="text-xs text-muted-foreground">Hiện tại</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {freezeCount > 0 && (
-                    <div className="flex items-center gap-3 rounded-lg border bg-muted/30 p-4">
-                      <div className="rounded-md bg-primary/10 p-2 text-primary">
-                        <Snowflake className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-primary">{freezeCount} lần</p>
-                        <p className="text-xs text-muted-foreground">Đóng băng</p>
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
-              )}
-
-              {/* CTA Button */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1 }}
-              >
                 <Button
-                  onClick={() => setIsOpen(false)}
-                  size="lg"
-                  className="h-11 w-full font-bold"
+                  variant="outline"
+                  className="h-10 rounded-xl px-4 font-bold"
+                  onClick={() => setMode('detail')}
                 >
-                  {isActiveToday ? 'Tiếp tục học' : 'Bắt đầu học ngay'}
+                  Xem chi tiết
                 </Button>
-              </motion.div>
+              </div>
             </div>
           </div>
-        </motion.div>
+        ) : (
+          <div className="bg-background px-3 py-6 sm:px-8 sm:py-8">
+            <div className="mx-auto w-full max-w-2xl">
+              <div className="text-center">
+                <div className="text-xl font-black tracking-tight text-foreground">
+                  {currentStreak || 0}{' '}
+                  <span className="text-primary">ngày streak</span>
+                </div>
+              </div>
+
+              <div className="mt-5 text-base font-black text-foreground">Lịch sử học</div>
+
+              <div className="mt-4 w-full rounded-2xl border border-border/60 bg-muted/20 p-4 sm:p-6">
+                <div className="flex items-center justify-between">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="h-10 w-10 rounded-full p-0 text-xl font-black text-muted-foreground hover:bg-muted/60"
+                    onClick={() =>
+                      setDetailMonth((d) =>
+                        new Date(d.getFullYear(), d.getMonth() - 1, 1),
+                      )
+                    }
+                  >
+                    ‹
+                  </Button>
+                  <div className="text-sm font-black text-foreground">
+                    {monthLabel}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="h-10 w-10 rounded-full p-0 text-xl font-black text-muted-foreground hover:bg-muted/60"
+                    onClick={() =>
+                      setDetailMonth((d) =>
+                        new Date(d.getFullYear(), d.getMonth() + 1, 1),
+                      )
+                    }
+                  >
+                    ›
+                  </Button>
+                </div>
+
+              <div className="mx-auto mt-5 grid w-fit grid-cols-7 gap-3 text-center text-xs font-black text-muted-foreground">
+                <div className="w-10">SUN</div>
+                <div className="w-10">MON</div>
+                <div className="w-10">TUE</div>
+                <div className="w-10">WED</div>
+                <div className="w-10">THU</div>
+                <div className="w-10">FRI</div>
+                <div className="w-10">SAT</div>
+              </div>
+
+                <div className="mx-auto mt-4 grid w-fit grid-cols-7 gap-3">
+                {detail.cells.map((c, idx) => (
+                  <div
+                    key={idx}
+                    className={cn(
+                      'h-10 w-10 rounded-lg text-center text-sm font-black leading-10',
+                      c.label == null && 'opacity-0',
+                      c.label != null && c.state === 'todo' && 'bg-muted/40 text-muted-foreground',
+                      c.label != null && c.state === 'done' && 'bg-primary/15 text-primary',
+                      c.label != null && c.state === 'today' && 'bg-primary text-primary-foreground',
+                    )}
+                  >
+                    {c.label ?? ''}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+              <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm font-bold">
+                <div className="flex items-center gap-2">
+                  <span className="inline-block h-5 w-5 rounded bg-primary/15" />
+                  <span>Đã học</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="inline-block h-5 w-5 rounded bg-muted/40" />
+                  <span>Chưa học</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="inline-block h-5 w-5 rounded bg-blue-600" />
+                  <span>Đóng băng</span>
+                </div>
+
+                <div className="ml-auto">
+                  <Button
+                    variant="outline"
+                    className="h-10 rounded-xl px-4 font-bold"
+                    onClick={() => setMode('weekly')}
+                  >
+                    Quay lại
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

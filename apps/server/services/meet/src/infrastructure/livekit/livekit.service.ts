@@ -203,7 +203,6 @@ export class LiveKitService {
       name: userInfo.name,
       userId: userInfo.userId,
       isAdmin: userInfo.isAdmin,
-      profilePic: metadata?.profilePic,
     });
 
     return await generateLivekitAccessToken(

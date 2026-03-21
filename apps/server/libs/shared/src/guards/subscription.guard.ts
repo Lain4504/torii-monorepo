@@ -34,11 +34,9 @@ export class SubscriptionGuard implements CanActivate {
         status: 'ACTIVE',
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
         class: {
-          offeringLinks: {
+          offerings: {
             some: {
-              offering: {
-                type: 'SUBSCRIPTION',
-              },
+              type: 'SUBSCRIPTION',
             },
           },
         },
@@ -46,11 +44,7 @@ export class SubscriptionGuard implements CanActivate {
       include: {
         class: {
           include: {
-            offeringLinks: {
-              include: {
-                offering: true,
-              },
-            },
+            offerings: true,
           },
         },
       },
@@ -66,12 +60,9 @@ export class SubscriptionGuard implements CanActivate {
     }
 
     // Attach subscription info to request for downstream use (e.g., quota checking)
-    // We take the first subscription-type offering found
     const subscriptionOffering = (
-      activeSubscription as any
-    ).class.offeringLinks.find(
-      (oc: any) => oc.offering.type === 'SUBSCRIPTION',
-    )?.offering;
+      activeSubscription.class as any
+    ).offerings?.find((o: any) => o.type === 'SUBSCRIPTION');
 
     if (subscriptionOffering) {
       request['subscription'] = {

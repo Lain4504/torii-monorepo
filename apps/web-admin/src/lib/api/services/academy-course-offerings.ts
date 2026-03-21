@@ -17,10 +17,16 @@ export type AcademyCourseOffering = {
   originalPrice?: number | string | null
   currency: string
   status?: string | null
+  mode: string
   salesStartAt?: string | null
   salesEndAt?: string | null
   metadata?: unknown | null
-  classes?: any[]
+  courseProfileId?: string | null
+  termId?: string | null
+  classId?: string | null
+  class?: any | null
+  courseProfile?: any | null
+  term?: any | null
   validFrom?: string | null
   validTo?: string | null
   createdAt: string
@@ -32,12 +38,18 @@ export type AcademyCourseOffering = {
   submittedBy: string | null
   approvedAt: string | null
   approvedBy: string | null
+  classes?: any[] | null
 }
 
 function normalizeCourseOffering(item: any): AcademyCourseOffering {
   const normalizedPrice = Number(item?.originalPrice ?? item?.price ?? 0)
+  const normalizedClassId = item?.classId ?? item?.class?.id ?? null
   return {
     ...item,
+    classId: normalizedClassId,
+    courseProfile: item?.courseProfile ?? null,
+    term: item?.term ?? null,
+    classes: item?.classes ?? [],
     price: Number.isFinite(normalizedPrice) ? normalizedPrice : 0,
     originalPrice: item?.originalPrice ?? item?.price ?? null,
     salesStartAt: item?.salesStartAt ?? item?.validFrom ?? null,
@@ -91,14 +103,6 @@ export const academyCourseOfferingsApi = {
     )
     return res.data
   },
-
-  async linkClasses(id: string, classIds: string[]) {
-    const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseOffering }>>(
-      `/api/academy/course-offerings/${id}/set-classes`,
-      { classIds },
-    )
-    return normalizeCourseOffering(res.data.data!.item)
-  },
   async submitForApproval(id: string) {
     const res = await apiClient.post<StandardApiResponse<{ item: AcademyCourseOffering }>>(
       `/api/academy/course-offerings/${id}/submit-for-approval`,
@@ -120,7 +124,7 @@ export const academyCourseOfferingsApi = {
     )
     return normalizeCourseOffering(res.data.data!.item)
   },
-  async findClassesForSelection(params: { mode?: string; q?: string }) {
+  async findClassesForSelection(params: { mode?: string; q?: string; courseProfileId?: string }) {
     const res = await apiClient.get<StandardApiResponse<{ items: any[] }>>(
       "/api/academy/course-offerings/selection/classes",
       { params },
@@ -181,13 +185,7 @@ export function useDeleteAcademyCourseOffering() {
 }
 
 export function useLinkAcademyCourseOfferingClasses() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: ({ id, classIds }: { id: string; classIds: string[] }) =>
-      academyCourseOfferingsApi.linkClasses(id, classIds),
-    onSuccess: (_, { id }) =>
-      qc.invalidateQueries({ queryKey: ["academy-course-offering", id] }),
-  })
+  throw new Error("Legacy API removed: offering is 1:1 with class via classId")
 }
 
 export function useSubmitCourseOfferingForApproval() {
@@ -232,7 +230,7 @@ export function useRejectCourseOffering() {
   })
 }
 
-export function useAvailableClassesForOffering(params: { mode?: string; q?: string }) {
+export function useAvailableClassesForOffering(params: { mode?: string; q?: string; courseProfileId?: string }) {
   return useQuery({
     queryKey: ["academy-course-offering-classes-selection", params],
     queryFn: () => academyCourseOfferingsApi.findClassesForSelection(params),

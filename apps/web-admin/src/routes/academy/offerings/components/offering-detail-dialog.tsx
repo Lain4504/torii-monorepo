@@ -33,6 +33,9 @@ export function OfferingDetailDialog({ open, onOpenChange, offering }: OfferingD
   })
 
   if (!offering) return null
+  const linkedClass =
+    offering.class ??
+    (offering.classId ? availableClasses.find((c: any) => c.id === offering.classId) : null)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -107,23 +110,24 @@ export function OfferingDetailDialog({ open, onOpenChange, offering }: OfferingD
                 </FieldSet>
 
                 <FieldSet>
-                  <FieldLegend>Lớp học liên kết ({offering.classes?.length || 0})</FieldLegend>
+                  <FieldLegend>Lớp học liên kết ({linkedClass ? 1 : 0})</FieldLegend>
                   <div className="mt-2 space-y-2">
-                    {offering.classes?.map((item: any) => {
-                      const classId = item.id || item.classId
-                      const cls = availableClasses.find((c: any) => c.id === classId) || item
-                      return (
-                        <div key={classId} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
-                          <div className="flex flex-col gap-1">
-                            <span className="text-sm font-medium">{cls.name || cls.title || 'Lớp học'}</span>
-                            <span className="text-xs text-muted-foreground font-mono">{cls.code}</span>
-                          </div>
-                          <Badge variant="outline" className="text-[10px]">{cls.mode || (offering as any).mode}</Badge>
+                    {linkedClass ? (
+                      <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-sm font-medium">
+                            {linkedClass.name || linkedClass.title || "Lớp học"}
+                          </span>
+                          <span className="text-xs text-muted-foreground font-mono">{linkedClass.code}</span>
                         </div>
-                      )
-                    })}
-                    {(!offering.classes || offering.classes.length === 0) && (
-                      <div className="text-sm text-muted-foreground italic">Không có lớp học liên kết.</div>
+                        <Badge variant="outline" className="text-[10px]">
+                          {linkedClass.mode || (offering as any).mode}
+                        </Badge>
+                      </div>
+                    ) : (
+                      <div className="text-sm text-muted-foreground italic">
+                        Không có lớp học liên kết.
+                      </div>
                     )}
                   </div>
                 </FieldSet>

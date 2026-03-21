@@ -10,6 +10,7 @@ import { AuthController } from './controllers/auth.controller';
 
 import { ProfilesController } from './controllers/profiles.controller';
 import { NotificationController } from './controllers/notification.controller';
+import { OnboardingController } from './controllers/onboarding.controller';
 
 /**
  * Identity Module for Gateway
@@ -25,6 +26,7 @@ import { NotificationController } from './controllers/notification.controller';
     AuthController,
     ProfilesController,
     NotificationController,
+    OnboardingController,
   ],
 })
 export class IdentityModule {}

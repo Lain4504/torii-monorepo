@@ -249,7 +249,13 @@ export class ClassReviewService {
         where,
         include: {
           user: { select: { id: true, displayName: true, email: true } },
-          class: { select: { id: true, name: true, courseProfileId: true } },
+          class: {
+            select: {
+              id: true,
+              name: true,
+              courseProfileId: true,
+            },
+          },
         },
         orderBy: { createdAt: 'desc' },
         take: Number(query.limit || 20),
@@ -368,7 +374,7 @@ export class ClassReviewService {
     const totalLessons = await this.prisma.lesson.count({
       where: {
         module: {
-          syllabus: { classes: { some: { id: classId } } },
+          courseProfile: { classes: { some: { id: classId } } },
         },
       },
     });

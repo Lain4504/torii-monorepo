@@ -13,6 +13,7 @@ import {
   Query,
   Req,
   UseGuards,
+  ForbiddenException,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -24,7 +25,6 @@ import {
   successResponse,
   ReqWithRequester,
 } from '@server/shared';
-import { ForbiddenException } from '@nestjs/common';
 import {
   AcademyLessonCreateDTO,
   academyLessonCreateDTOSchema,
@@ -51,17 +51,23 @@ export class LessonController {
       requester.permissions?.includes('*');
 
     if (!hasContentRead) {
-      if (!query.syllabusId) {
-        throw new ForbiddenException('syllabusId is required for learners');
+      if (!query.courseProfileId) {
+        throw new ForbiddenException(
+          'courseProfileId is required for learners',
+        );
       }
       const result = await firstValueFrom(
         this.nats.send(
-          { cmd: 'academy.enrollment.checkBySyllabus' },
-          { userId: requester.sub, syllabusId: query.syllabusId },
+          { cmd: 'academy.enrollment.checkEligibility' },
+          {
+            userId: requester.sub,
+            targetId: query.courseProfileId,
+            targetType: 'COURSE',
+          },
         ),
       );
       if (!result?.isEnrolled) {
-        throw new ForbiddenException('You are not enrolled in this syllabus');
+        throw new ForbiddenException('You are not enrolled in this course');
       }
     }
 
@@ -82,28 +88,32 @@ export class LessonController {
       requester.permissions?.includes('*');
 
     if (!hasContentRead) {
-      // Find lesson first to get syllabusId
+      // Find lesson first to get courseProfileId
       const lesson = await firstValueFrom(
         this.nats.send({ cmd: 'academy.lesson.findById' }, { id }),
       );
       if (!lesson) throw new ForbiddenException('Lesson not found');
-      const syllabusId = lesson.module?.syllabusId;
+      const courseProfileId = lesson.module?.courseProfileId;
 
-      if (!syllabusId) {
+      if (!courseProfileId) {
         throw new ForbiddenException(
-          'Lesson is not associated with any syllabus',
+          'Lesson is not associated with any course',
         );
       }
 
       const result = await firstValueFrom(
         this.nats.send(
-          { cmd: 'academy.enrollment.checkBySyllabus' },
-          { userId: requester.sub, syllabusId },
+          { cmd: 'academy.enrollment.checkEligibility' },
+          {
+            userId: requester.sub,
+            targetId: courseProfileId,
+            targetType: 'COURSE',
+          },
         ),
       );
       if (!result?.isEnrolled) {
         throw new ForbiddenException(
-          'You are not enrolled in a class providing this lesson',
+          'You are not enrolled in a course providing this lesson',
         );
       }
     }

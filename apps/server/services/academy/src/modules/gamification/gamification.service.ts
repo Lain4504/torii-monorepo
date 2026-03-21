@@ -27,16 +27,34 @@ export class GamificationService {
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) { }
 
+  private getVnDateString(d: Date = new Date()) {
+    const vn = new Date(
+      d.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }),
+    );
+    const y = vn.getFullYear();
+    const m = String(vn.getMonth() + 1).padStart(2, '0');
+    const day = String(vn.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  private diffDays(aDateStr: string, bDateStr: string) {
+    const a = Date.parse(`${aDateStr}T00:00:00.000Z`);
+    const b = Date.parse(`${bDateStr}T00:00:00.000Z`);
+    return Math.round((b - a) / (1000 * 60 * 60 * 24));
+  }
+
   private readonly EARNING_RULES: Record<
     string,
     { xp: number; points: number }
   > = {
-      [ActivityType.LOGIN]: { xp: 0, points: 5 },
-      [ActivityType.LESSON_COMPLETE]: { xp: 10, points: 10 },
-      [ActivityType.EXAM_COMPLETE]: { xp: 20, points: 20 },
-      [ActivityType.REVIEW]: { xp: 50, points: 50 },
-      [ActivityType.FLASHCARD_REVIEW]: { xp: 5, points: 5 },
-    };
+    [ActivityType.LOGIN]: { xp: 0, points: 5 },
+    [ActivityType.LESSON_COMPLETE]: { xp: 10, points: 10 },
+    [ActivityType.EXAM_COMPLETE]: { xp: 20, points: 20 },
+    [ActivityType.REVIEW]: { xp: 50, points: 50 },
+    [ActivityType.FLASHCARD_REVIEW]: { xp: 5, points: 5 },
+    [ActivityType.QUIZ_ANSWER]: { xp: 1, points: 0 },
+    [ActivityType.PRACTICE]: { xp: 2, points: 0 },
+  };
 
   private readonly ACTIVITY_WEIGHTS: Record<string, number> = {
     [ActivityType.LOGIN]: 1,
@@ -44,6 +62,19 @@ export class GamificationService {
     [ActivityType.EXAM_COMPLETE]: 10,
     [ActivityType.REVIEW]: 3,
     [ActivityType.FLASHCARD_REVIEW]: 2,
+    [ActivityType.QUIZ_ANSWER]: 1,
+    [ActivityType.PRACTICE]: 1,
+  };
+
+  private readonly DAILY_XP_CAP: Partial<Record<ActivityType, number>> = {
+    [ActivityType.QUIZ_ANSWER]: 20,
+    [ActivityType.FLASHCARD_REVIEW]: 15,
+    [ActivityType.PRACTICE]: 10,
+  };
+
+  private readonly DAILY_POINTS_CAP: Partial<Record<ActivityType, number>> = {
+    [ActivityType.LOGIN]: 5,
+    [ActivityType.FLASHCARD_REVIEW]: 20,
   };
 
   /**
@@ -63,25 +94,27 @@ export class GamificationService {
       };
     }
 
-    const dateString = new Date().toISOString().split('T')[0];
-
-    // Retrieve existing activity for this day and type
-    const existingActivity = await this.prisma.dailyActivity.findUnique({
-      where: {
-        userId_date_activityType: {
-          userId,
-          date: dateString,
-          activityType,
-        },
-      },
-    });
+    const dateString = this.getVnDateString();
 
     // Points/XP Award Eligibility Check
     let shouldAward = true;
 
     if (activityType === ActivityType.LOGIN) {
       // LOGIN only awards points once per day
-      if (existingActivity) {
+      const existingLoginAward =
+        await this.prisma.gamificationHistory.findFirst({
+          where: {
+            userId,
+            activityType: ActivityType.LOGIN,
+            createdAt: {
+              gte: new Date(`${dateString}T00:00:00.000Z`),
+              lt: new Date(`${dateString}T23:59:59.999Z`),
+            },
+            currency: GamificationCurrency.POINT,
+            type: GamificationTransactionType.EARN,
+          },
+        });
+      if (existingLoginAward) {
         shouldAward = false;
       }
     } else if (activityType === ActivityType.REVIEW && metadata?.reviewId) {
@@ -116,41 +149,70 @@ export class GamificationService {
       }
     }
 
-    const weight = this.ACTIVITY_WEIGHTS[activityType] || 1;
-
     return this.prisma.$transaction(async (tx) => {
-      // Log or update the daily activity summary (Always increment count for Heatmap)
-      await tx.dailyActivity.upsert({
+      // --- Streak log (1 record/day) ---
+      await tx.streakLog.upsert({
         where: {
-          userId_date_activityType: {
+          userId_date: {
             userId,
             date: dateString,
-            activityType,
           },
         },
-        update: {
-          // For LOGIN, we only record it once per day (increment 0 if exists)
-          // For other activities, we add their weight
-          count:
-            activityType === ActivityType.LOGIN
-              ? { increment: 0 }
-              : { increment: weight },
-          meta: metadata,
-        },
+        update: { status: 'ACTIVE' },
         create: {
           userId,
-          activityType,
           date: dateString,
-          count: weight,
-          meta: metadata,
+          status: 'ACTIVE',
         },
       });
+
+      // --- Update streak summary ---
+      const streak = await tx.streak.findUnique({ where: { userId } });
+      if (!streak) {
+        await tx.streak.create({
+          data: {
+            userId,
+            currentStreak: 1,
+            maxStreak: 1,
+            lastActiveDate: dateString,
+            freezeUsedToday: false,
+          },
+        });
+      } else {
+        // already active today -> no change
+        if (streak.lastActiveDate !== dateString) {
+          const last = streak.lastActiveDate
+            ? new Date(streak.lastActiveDate)
+            : null;
+          const today = new Date(dateString);
+          let diffDays = 999;
+          if (last) {
+            last.setHours(0, 0, 0, 0);
+            today.setHours(0, 0, 0, 0);
+            const diffTime = Math.abs(today.getTime() - last.getTime());
+            diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          }
+
+          const nextStreak = diffDays === 1 ? streak.currentStreak + 1 : 1;
+          const nextMax = Math.max(streak.maxStreak, nextStreak);
+          await tx.streak.update({
+            where: { userId },
+            data: {
+              currentStreak: nextStreak,
+              maxStreak: nextMax,
+              lastActiveDate: dateString,
+              freezeUsedToday: false,
+            },
+          });
+        }
+      }
 
       if (!shouldAward) {
         return {
           xpEarned: 0,
           pointsEarned: 0,
-          message: 'Activity tracked for heatmap, but points already awarded.',
+          message:
+            'Activity tracked, but rewards already awarded for this item/day.',
         };
       }
 
@@ -168,7 +230,87 @@ export class GamificationService {
         });
       }
 
+      // --- Caps & dedup ---
+      const start = new Date(`${dateString}T00:00:00.000Z`);
+      const end = new Date(`${dateString}T23:59:59.999Z`);
+
+      // Dedup per object for mini-games (optional metadata keys)
+      const dedupKey = metadata?.lessonId
+        ? `lesson:${metadata.lessonId}`
+        : metadata?.setId
+          ? `set:${metadata.setId}`
+          : metadata?.quizId
+            ? `quiz:${metadata.quizId}`
+            : metadata?.gameId
+              ? `game:${metadata.gameId}`
+              : null;
+
+      if (dedupKey) {
+        const existing = await tx.gamificationHistory.findFirst({
+          where: {
+            userId,
+            activityType,
+            type: GamificationTransactionType.EARN,
+            createdAt: { gte: start, lte: end },
+            metadata: { path: ['dedupKey'], equals: dedupKey },
+          },
+        });
+        if (existing) {
+          return {
+            xpEarned: 0,
+            pointsEarned: 0,
+            message: 'Duplicate reward for this item today.',
+          };
+        }
+      }
+
       const { xp, points } = rule;
+      let xpAward = xp;
+      let pointsAward = points;
+
+      const xpCap = this.DAILY_XP_CAP[activityType];
+      if (xpCap != null && xpAward > 0) {
+        const s = await tx.gamificationHistory.aggregate({
+          where: {
+            userId,
+            activityType,
+            currency: GamificationCurrency.XP,
+            type: GamificationTransactionType.EARN,
+            createdAt: { gte: start, lte: end },
+          },
+          _sum: { amount: true },
+        });
+        const used = s._sum.amount ?? 0;
+        xpAward = Math.max(0, Math.min(xpAward, xpCap - used));
+      }
+
+      const pointsCap = this.DAILY_POINTS_CAP[activityType];
+      if (pointsCap != null && pointsAward > 0) {
+        const s = await tx.gamificationHistory.aggregate({
+          where: {
+            userId,
+            activityType,
+            currency: GamificationCurrency.POINT,
+            type: GamificationTransactionType.EARN,
+            createdAt: { gte: start, lte: end },
+          },
+          _sum: { amount: true },
+        });
+        const used = s._sum.amount ?? 0;
+        pointsAward = Math.max(0, Math.min(pointsAward, pointsCap - used));
+      }
+
+      const rewardMeta = {
+        ...metadata,
+        date: dateString,
+        source: 'ACTIVITY',
+        ...(dedupKey ? { dedupKey } : {}),
+      };
+
+      if (xpAward === 0 && pointsAward === 0) {
+        return { xpEarned: 0, pointsEarned: 0, message: 'Daily cap reached.' };
+      }
+
       const newTotalXp = profile.totalXp + xp;
       const newLevel = Math.floor(newTotalXp / 1000) + 1;
 
@@ -176,45 +318,45 @@ export class GamificationService {
       const updatedProfile = await tx.userGamification.update({
         where: { userId },
         data: {
-          currentXp: { increment: xp },
-          totalXp: { increment: xp },
-          points: { increment: points },
+          currentXp: { increment: xpAward },
+          totalXp: { increment: xpAward },
+          points: { increment: pointsAward },
           level: newLevel,
         },
       });
 
       // Write point tracking in history
-      if (points > 0) {
+      if (pointsAward > 0) {
         await tx.gamificationHistory.create({
           data: {
             userId,
-            amount: points,
+            amount: pointsAward,
             currency: GamificationCurrency.POINT,
             type: GamificationTransactionType.EARN,
             activityType,
             description: `Received points for ${activityType}`,
-            metadata,
+            metadata: rewardMeta,
           },
         });
       }
 
-      if (xp > 0) {
+      if (xpAward > 0) {
         await tx.gamificationHistory.create({
           data: {
             userId,
-            amount: xp,
+            amount: xpAward,
             currency: GamificationCurrency.XP,
             type: GamificationTransactionType.EARN,
             activityType,
             description: `Received XP for ${activityType}`,
-            metadata,
+            metadata: rewardMeta,
           },
         });
       }
 
       const result = {
-        xpEarned: xp,
-        pointsEarned: points,
+        xpEarned: xpAward,
+        pointsEarned: pointsAward,
         newLevel: updatedProfile.level,
       };
 
@@ -246,8 +388,8 @@ export class GamificationService {
 
       // Update streak & evaluate achievements asynchronously based on this activity
       // Note: we don't await to keep the main transaction fast
-      this.checkAndGetStreak(userId)
-        .then(() => this.achievementService.evaluateForUser(userId))
+      this.achievementService
+        .evaluateForUser(userId)
         .catch((err) =>
           this.logger.error(
             `Failed to update streak/achievements for user ${userId}:`,
@@ -257,100 +399,6 @@ export class GamificationService {
 
       return result;
     });
-  }
-
-  /**
-   * Lazy checks the streak.
-   * Computes missing days and consumes freeze shields if necessary.
-   */
-  async checkAndGetStreak(userId: string) {
-    let profile = await this.prisma.userGamification.findUnique({
-      where: { userId },
-    });
-
-    if (!profile) {
-      profile = await this.prisma.userGamification.create({
-        data: {
-          userId,
-          currentXp: 0,
-          totalXp: 0,
-          points: 0,
-          level: 1,
-        },
-      });
-    }
-
-    const today = new Date();
-    // Zero out time
-    today.setHours(0, 0, 0, 0);
-
-    const todayStr = today.toISOString().split('T')[0];
-
-    if (!profile.lastActiveDate) {
-      // First time streak
-      return this.prisma.userGamification.update({
-        where: { userId },
-        data: {
-          currentStreak: 1,
-          longestStreak: 1,
-          lastActiveDate: todayStr,
-        },
-      });
-    }
-
-    const lastActive = new Date(profile.lastActiveDate);
-    lastActive.setHours(0, 0, 0, 0);
-
-    const diffTime = Math.abs(today.getTime() - lastActive.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0 || profile.lastActiveDate === todayStr) {
-      // Already active today, do not change streak on repeated calls
-      return profile;
-    }
-
-    if (diffDays === 1) {
-      // Perfect sequential login
-      const newStreak = profile.currentStreak + 1;
-      const updated = await this.prisma.userGamification.update({
-        where: { userId },
-        data: {
-          currentStreak: newStreak,
-          longestStreak: Math.max(profile.longestStreak, newStreak),
-          lastActiveDate: todayStr,
-        },
-      });
-      return updated;
-    }
-
-    // Missed one or more days. Try to consume streak freezes.
-    const missingDaysToCover = diffDays - 1;
-
-    if (profile.freezeCount >= missingDaysToCover) {
-      // Used streak freeze
-      const newStreak = profile.currentStreak + 1;
-      const updated = await this.prisma.userGamification.update({
-        where: { userId },
-        data: {
-          freezeCount: { decrement: missingDaysToCover },
-          currentStreak: newStreak,
-          longestStreak: Math.max(profile.longestStreak, newStreak),
-          lastActiveDate: todayStr,
-        },
-      });
-      return updated;
-    }
-
-    // Start anew today
-    const updated = await this.prisma.userGamification.update({
-      where: { userId },
-      data: {
-        currentStreak: 1, // Start anew today
-        lastActiveDate: todayStr,
-      },
-    });
-
-    return updated;
   }
 
   /**
@@ -380,7 +428,9 @@ export class GamificationService {
    * Does NOT change streak counters.
    */
   async getStreakStatus(userId: string) {
-    let profile = await this.prisma.userGamification.findUnique({ where: { userId } });
+    let profile = await this.prisma.userGamification.findUnique({
+      where: { userId },
+    });
 
     if (!profile) {
       profile = await this.prisma.userGamification.create({
@@ -388,40 +438,101 @@ export class GamificationService {
       });
     }
 
-    const todayStr = new Date().toISOString().slice(0, 10);
-    const isActiveToday = profile.lastActiveDate === todayStr;
-    const willBreakTomorrow = !isActiveToday && (profile.currentStreak ?? 0) > 0;
-
-    // Simple gating: show once/day if active today AND toast not yet shown today.
-    const shouldShowToast =
-      isActiveToday && profile.lastToastShownDate !== todayStr;
-
-    // recentActiveDates: last 7 distinct dates with any activity count
-    const recent = await this.prisma.dailyActivity.findMany({
+    const todayStr = this.getVnDateString();
+    let streak = await this.prisma.streak.upsert({
       where: { userId },
+      update: {},
+      create: {
+        userId,
+        currentStreak: 0,
+        maxStreak: 0,
+        lastActiveDate: null,
+        freezeUsedToday: false,
+      },
+    });
+
+    // NEW: visiting dashboard counts as daily streak check-in
+    if (streak.lastActiveDate !== todayStr) {
+      const last = streak.lastActiveDate;
+      const diff = last ? this.diffDays(last, todayStr) : 999;
+      const nextStreak = diff === 1 ? (streak.currentStreak ?? 0) + 1 : 1;
+      const nextMax = Math.max(streak.maxStreak ?? 0, nextStreak);
+
+      streak = await this.prisma.streak.update({
+        where: { userId },
+        data: {
+          currentStreak: nextStreak,
+          maxStreak: nextMax,
+          lastActiveDate: todayStr,
+          freezeUsedToday: false,
+        },
+      });
+    }
+
+    // Ensure there's a daily streak log entry
+    await this.prisma.streakLog.upsert({
+      where: { userId_date: { userId, date: todayStr } },
+      update: { status: 'ACTIVE' },
+      create: { userId, date: todayStr, status: 'ACTIVE' },
+    });
+
+    const isActiveToday = true;
+    const willBreakTomorrow = !isActiveToday && (streak.currentStreak ?? 0) > 0;
+
+    // Show once/day across devices (persisted)
+    const shouldShowToast = profile.lastToastShownDate !== todayStr;
+
+    const recent = await this.prisma.streakLog.findMany({
+      where: { userId, status: 'ACTIVE' },
       select: { date: true },
-      distinct: ['date'],
       orderBy: { date: 'desc' },
-      take: 7,
+      take: 14,
+    });
+
+    // Derive counts from streak logs (DailyActivity removed)
+    const totalActiveDays = await this.prisma.streakLog.count({
+      where: { userId, status: 'ACTIVE' },
+    });
+
+    const now = new Date();
+    const weekAgo = new Date(now);
+    weekAgo.setDate(now.getDate() - 7);
+    const monthAgo = new Date(now);
+    monthAgo.setDate(now.getDate() - 30);
+
+    const toDateStr = (d: Date) => this.getVnDateString(d);
+    const weeklyActiveCount = await this.prisma.streakLog.count({
+      where: {
+        userId,
+        status: 'ACTIVE',
+        date: { gte: toDateStr(weekAgo), lte: todayStr },
+      },
+    });
+    const monthlyActiveCount = await this.prisma.streakLog.count({
+      where: {
+        userId,
+        status: 'ACTIVE',
+        date: { gte: toDateStr(monthAgo), lte: todayStr },
+      },
     });
 
     return {
-      currentStreak: profile.currentStreak ?? 0,
-      longestStreak: profile.longestStreak ?? 0,
+      currentStreak: streak.currentStreak ?? 0,
+      longestStreak: streak.maxStreak ?? 0,
       freezeCount: profile.freezeCount ?? 0,
       isActiveToday,
       willBreakTomorrow,
-      lastActiveDate: profile.lastActiveDate ?? null,
-      totalActiveDays: profile.totalActiveDays ?? 0,
-      weeklyActiveCount: profile.weeklyActiveCount ?? 0,
-      monthlyActiveCount: profile.monthlyActiveCount ?? 0,
+      lastActiveDate: streak.lastActiveDate ?? null,
+      totalActiveDays,
+      weeklyActiveCount,
+      monthlyActiveCount,
       recentActiveDates: recent.map((r) => r.date),
       shouldShowToast,
     };
   }
 
   async markToastShown(userId: string) {
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayStr = this.getVnDateString();
     await this.prisma.userGamification.upsert({
       where: { userId },
       update: { lastToastShownDate: todayStr },
@@ -697,50 +808,5 @@ export class GamificationService {
     return result;
   }
 
-  /**
-   * Get heatmap data for a user.
-   */
-  async getActivityHeatmap(
-    userId: string,
-    startDate?: string,
-    endDate?: string,
-  ) {
-    // Use raw query to avoid issues with Prisma's groupBy/findMany when used with certain driver adapters
-    // that cause "column must appear in GROUP BY clause" or nested aggregate errors.
-
-    let query = `
-            SELECT date, SUM(count)::int as value 
-            FROM daily_activities 
-            WHERE user_id = $1::uuid
-        `;
-
-    const params: any[] = [userId];
-    let paramCount = 2;
-
-    if (startDate) {
-      query += ` AND date >= $${paramCount++}`;
-      params.push(startDate);
-    }
-
-    if (endDate) {
-      query += ` AND date <= $${paramCount++}`;
-      params.push(endDate);
-    }
-
-    query += ` GROUP BY date ORDER BY date ASC`;
-
-    try {
-      const result = await this.prisma.$queryRawUnsafe<
-        { date: string; value: number }[]
-      >(query, ...params);
-      return result;
-    } catch (error) {
-      this.logger.error(
-        `Failed to execute heatmap raw query: ${error.message}`,
-        error.stack,
-      );
-      // Fallback to empty array to avoid crashing the whole request
-      return [];
-    }
-  }
+  // activity-heatmap removed (DailyActivity removed)
 }

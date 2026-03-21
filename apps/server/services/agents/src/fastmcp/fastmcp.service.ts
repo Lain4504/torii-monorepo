@@ -15,6 +15,14 @@ export interface ToolContext {
   commonErrors?: any[];
   recentVocabulary?: any[];
   stats?: { level: number; streak: number; totalXp: number } | null;
+  onboarding?: {
+    targetCompletionTime?: string;
+    purpose?: string;
+    jlptTargetDate?: string;
+    studyFrequency?: string;
+    studyTimePerSession?: string;
+    currentLevel?: string;
+  } | null;
 }
 
 /**
@@ -283,6 +291,7 @@ export class FastMcpService {
                 select: {
                   id: true,
                   title: true,
+                  level: true,
                 },
               },
             },
@@ -396,6 +405,11 @@ export class FastMcpService {
         where: { userId },
       });
 
+      // 4. Onboarding Survey
+      const onboarding = await this.prisma.onboardingSurvey.findUnique({
+        where: { userId },
+      });
+
       return {
         userId,
         enrolledCourses: courseTitles,
@@ -408,6 +422,17 @@ export class FastMcpService {
               level: gamification.level,
               streak: gamification.currentStreak,
               totalXp: gamification.totalXp,
+            }
+          : null,
+        onboarding: onboarding
+          ? {
+              targetCompletionTime:
+                onboarding.targetCompletionTime ?? undefined,
+              purpose: onboarding.purpose ?? undefined,
+              jlptTargetDate: onboarding.jlptTargetDate?.toISOString(),
+              studyFrequency: onboarding.studyFrequency ?? undefined,
+              studyTimePerSession: onboarding.studyTimePerSession ?? undefined,
+              currentLevel: onboarding.currentLevel ?? undefined,
             }
           : null,
       };

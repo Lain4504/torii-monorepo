@@ -44,7 +44,6 @@ export class OrderService {
     const subscriptionPlanIds = Array.from(
       new Set(input.subscriptionPlanIds ?? []),
     );
-    const classIdByOffering = input.classIdByOffering ?? {};
     const now = new Date();
 
     if (!offeringIds.length && !subscriptionPlanIds.length) {
@@ -60,19 +59,10 @@ export class OrderService {
             status: { in: [OfferingStatus.PUBLISHED, OfferingStatus.OPENING] },
           },
           include: {
-            classes: {
-              include: {
-                class: {
-                  select: {
-                    id: true,
-                    code: true,
-                    status: true,
-                    mode: true,
-                    courseProfileId: true,
-                    enrollmentOpenAt: true,
-                    enrollmentCloseAt: true,
-                  },
-                },
+            term: {
+              select: {
+                enrollmentOpenAt: true,
+                enrollmentCloseAt: true,
               },
             },
           },
@@ -84,60 +74,91 @@ export class OrderService {
     }
 
     for (const offering of offerings) {
-      if (!offering.classes.length) {
+      const selectedClassId = input.classIdByOffering?.[offering.id];
+      let klass: any;
+
+      if (offering.mode === ClassMode.LIVE) {
+        if (!selectedClassId) {
+          throw new BadRequestException(
+            `Vui lòng chọn lớp học cụ thể cho gói ${offering.code}`,
+          );
+        }
+        klass = await this.prisma.class.findUnique({
+          where: { id: selectedClassId },
+          include: {
+            term: {
+              select: {
+                enrollmentOpenAt: true,
+                enrollmentCloseAt: true,
+              },
+            },
+          },
+        });
+
+        if (
+          !klass ||
+          klass.courseProfileId !== offering.courseProfileId ||
+          klass.termId !== offering.termId
+        ) {
+          throw new BadRequestException(
+            `Lớp học đã chọn không hợp lệ cho gói bán ${offering.code}`,
+          );
+        }
+      } else {
+        // VOD
+        if (!offering.classId) {
+          throw new BadRequestException(
+            `Gói bán VOD ${offering.code} chưa được cấu hình lớp học.`,
+          );
+        }
+        klass = await this.prisma.class.findUnique({
+          where: { id: offering.classId },
+          include: {
+            term: {
+              select: {
+                enrollmentOpenAt: true,
+                enrollmentCloseAt: true,
+              },
+            },
+          },
+        });
+      }
+
+      if (!klass) {
         throw new BadRequestException(
           `Offering ${offering.code} has no class mapped for enrollment`,
         );
       }
 
-      // LIVE: bắt buộc user chọn đúng 1 classId trong cửa sổ đăng ký
+      // LIVE: class must be OPENING and within enrollment window
       if (offering.mode === ClassMode.LIVE) {
-        const selectedClassId = classIdByOffering[offering.id];
-        if (!selectedClassId) {
-          throw new BadRequestException(
-            `LIVE offering ${offering.code} requires a selected class (classIdByOffering)`,
-          );
-        }
-
-        const link = offering.classes.find(
-          (oc) => oc.class.id === selectedClassId,
-        );
-        if (!link) {
-          throw new BadRequestException(
-            `Selected class ${selectedClassId} is not part of offering ${offering.code}`,
-          );
-        }
-
-        const klass = link.class;
         if (klass.status !== ClassStatus.OPENING) {
           throw new BadRequestException(
             `Class ${klass.code} is not open for enrollment (status: ${klass.status})`,
           );
         }
 
+        const term = klass.term;
         if (
-          !klass.enrollmentOpenAt ||
-          !klass.enrollmentCloseAt ||
-          new Date(klass.enrollmentOpenAt) > now ||
-          new Date(klass.enrollmentCloseAt) < now
+          !term?.enrollmentOpenAt ||
+          !term?.enrollmentCloseAt ||
+          new Date(term.enrollmentOpenAt) > now ||
+          new Date(term.enrollmentCloseAt) < now
         ) {
           throw new BadRequestException(
-            `Class ${klass.code} is outside enrollment window`,
+            `Class ${klass.code} is outside enrollment window or has no term defined`,
           );
         }
       } else {
-        // VOD hoặc mode khác: chấp nhận các class OPENING/ONGOING
-        for (const offeringClass of offering.classes) {
-          const klass = offeringClass.class;
-          if (
-            klass.status !== ClassStatus.OPENING &&
-            klass.status !== ClassStatus.ONGOING &&
-            klass.status !== ClassStatus.PUBLISHED
-          ) {
-            throw new BadRequestException(
-              `Class ${klass.code} is in status ${klass.status}, not sellable`,
-            );
-          }
+        // VOD or other: class must be PUBLISHED/OPENING/ONGOING
+        if (
+          klass.status !== ClassStatus.OPENING &&
+          klass.status !== ClassStatus.ONGOING &&
+          klass.status !== ClassStatus.PUBLISHED
+        ) {
+          throw new BadRequestException(
+            `Class ${klass.code} is in status ${klass.status}, not sellable`,
+          );
         }
       }
     }
@@ -204,34 +225,23 @@ export class OrderService {
       subscriptionPlanIds: [], // Force only courses
     });
 
-    const resolvedOfferingIds = preview.offerings.map((o) => o.id);
-    const offeringClassMap =
-      await this.getOfferingClassMap(resolvedOfferingIds);
-
-    const classIdByOffering = input.classIdByOffering ?? {};
-
-    // Snapshot classIds theo spec:
-    // - LIVE: chỉ classId user đã chọn
-    // - VOD/khác: tất cả classIds được map với offering
-    const snapshotClassIdsByOffering = new Map<string, string[]>();
-    for (const o of preview.offerings) {
-      if (o.mode === ClassMode.LIVE && classIdByOffering[o.id]) {
-        snapshotClassIdsByOffering.set(o.id, [classIdByOffering[o.id]]);
-      } else {
-        snapshotClassIdsByOffering.set(o.id, offeringClassMap.get(o.id) ?? []);
-      }
-    }
-
     const orderCode = this.generateOrderCode();
-    const orderItemsData = preview.offerings.map((o) => ({
-      offeringId: o.id,
-      price: o.salePrice ?? o.price,
-      offeringSnapshot: {
-        title: o.title,
-        code: o.code,
-        classIds: snapshotClassIdsByOffering.get(o.id) ?? [],
-      } as any,
-    }));
+    const orderItemsData = preview.offerings.map((o) => {
+      // Use selected classId if provided for this offering
+      const selectedClassId = input.classIdByOffering?.[o.id];
+      const classIdToEnroll = selectedClassId ?? o.classId;
+
+      return {
+        offeringId: o.id,
+        price: o.salePrice ?? o.price,
+        offeringSnapshot: {
+          title: o.title,
+          code: o.code,
+          mode: o.mode,
+          selectedClassId: classIdToEnroll,
+        } as any,
+      };
+    });
 
     const order = await this.createOrderRecord(
       userId,
@@ -807,24 +817,11 @@ export class OrderService {
       (item) => !!item.offeringId && !!item.offering,
     );
 
-    const fallbackOfferingIds = courseItems
-      .filter((item) => {
-        const snapshot = (item.offeringSnapshot ?? {}) as {
-          classIds?: string[];
-        };
-        return !Array.isArray(snapshot.classIds);
-      })
-      .map((item) => item.offeringId as string);
-
-    const fallbackClassMap = fallbackOfferingIds.length
-      ? await this.getOfferingClassMap(fallbackOfferingIds)
-      : new Map<string, string[]>();
-
     const itemResults = courseItems.map((item) => {
       const snapshot = (item.offeringSnapshot ?? {}) as { classIds?: string[] };
       const expectedClassIds = Array.isArray(snapshot.classIds)
         ? snapshot.classIds
-        : (fallbackClassMap.get(item.offeringId as string) ?? []);
+        : [];
       const enrolledClassIds = order.enrollments
         .filter((enrollment) => enrollment.offeringId === item.offeringId)
         .map((enrollment) => enrollment.classId);
@@ -926,27 +923,5 @@ export class OrderService {
     });
     if (!order) throw new NotFoundException('Order not found');
     return order;
-  }
-
-  private async getOfferingClassMap(offeringIds: string[]) {
-    if (!offeringIds.length) {
-      return new Map<string, string[]>();
-    }
-
-    const links = await this.prisma.courseOfferingClass.findMany({
-      where: { offeringId: { in: offeringIds } },
-      select: { offeringId: true, classId: true },
-    });
-
-    const map = new Map<string, string[]>();
-    for (const offeringId of offeringIds) {
-      map.set(offeringId, []);
-    }
-    for (const link of links) {
-      const current = map.get(link.offeringId) ?? [];
-      current.push(link.classId);
-      map.set(link.offeringId, current);
-    }
-    return map;
   }
 }

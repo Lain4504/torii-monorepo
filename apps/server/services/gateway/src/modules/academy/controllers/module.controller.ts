@@ -20,7 +20,7 @@ import {
   ReqWithRequester,
 } from '@server/shared';
 
-@Controller('api/academy/syllabuses/:syllabusId/modules')
+@Controller('api/academy/course-profiles/:courseProfileId/modules')
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class ModuleController {
   constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
@@ -28,14 +28,14 @@ export class ModuleController {
   @Post()
   @Permissions('academy.content.write')
   async create(
-    @Param('syllabusId', new ParseUUIDPipe()) syllabusId: string,
+    @Param('courseProfileId', new ParseUUIDPipe()) courseProfileId: string,
     @Body() dto: { title: string; orderIndex?: number },
     @Req() req: ReqWithRequester,
   ) {
     const item = await firstValueFrom(
       this.nats.send(
         { cmd: 'academy.module.create' },
-        { ...dto, syllabusId, requesterId: req.requester?.sub },
+        { ...dto, courseProfileId, requesterId: req.requester?.sub },
       ),
     );
     return successResponse({ item });

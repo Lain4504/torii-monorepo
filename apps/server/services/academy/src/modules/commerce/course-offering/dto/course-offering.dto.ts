@@ -1,5 +1,7 @@
 import {
   IsArray,
+  IsBoolean,
+  IsDateString,
   IsOptional,
   IsString,
   IsUUID,
@@ -34,9 +36,16 @@ export class CourseOfferingCreateDto {
   @IsString()
   mode!: string; // VOD, LIVE
 
+  @IsUUID()
+  courseProfileId!: string;
+
   @IsOptional()
   @IsUUID()
-  syllabusId?: string;
+  termId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  classId?: string;
 
   @IsOptional()
   @IsString()
@@ -44,13 +53,12 @@ export class CourseOfferingCreateDto {
   status?: string; // DRAFT, PUBLISHED, OPENING, ARCHIVED
 
   @IsOptional()
-  @IsString()
-  @MaxLength(20)
-  type?: string; // COURSE, BUNDLE, SUBSCRIPTION
+  @IsDateString()
+  validFrom?: string;
 
   @IsOptional()
-  @IsArray()
-  classIds?: string[];
+  @IsDateString()
+  validTo?: string;
 }
 
 export class CourseOfferingUpdateDto {
@@ -82,7 +90,15 @@ export class CourseOfferingUpdateDto {
 
   @IsOptional()
   @IsUUID()
-  syllabusId?: string;
+  courseProfileId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  termId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  classId?: string;
 
   @IsOptional()
   @IsString()
@@ -90,12 +106,12 @@ export class CourseOfferingUpdateDto {
   status?: string;
 
   @IsOptional()
-  @IsString()
-  type?: string;
+  @IsDateString()
+  validFrom?: string;
 
   @IsOptional()
-  @IsArray()
-  classIds?: string[];
+  @IsDateString()
+  validTo?: string;
 }
 
 export class CourseOfferingQueryDto {
@@ -112,15 +128,13 @@ export class CourseOfferingQueryDto {
   @IsString()
   mode?: string;
 
+  /** LEVEL như N5, N4, N3... */
+  @IsOptional()
+  @IsString()
+  level?: string;
+
   /** When true and mode=LIVE, only return offerings with at least one class in enrollment window */
   @IsOptional()
+  @IsBoolean()
   hasEnrollableLiveClass?: boolean;
-}
-
-export class CourseOfferingSetClassesDto {
-  @IsUUID()
-  offeringId!: string;
-
-  @IsArray()
-  classIds!: string[];
 }

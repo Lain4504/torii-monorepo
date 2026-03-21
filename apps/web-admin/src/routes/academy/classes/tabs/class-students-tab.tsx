@@ -12,6 +12,7 @@ import { Badge } from "@workspace/ui/components/badge"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Plus, User, Trash2 } from "lucide-react"
 import { toast } from "@workspace/ui/components/sonner"
+import { formatDate } from "@/lib/format-utils"
 import {
   useAcademyEnrollments,
   useCreateAcademyEnrollment,
@@ -169,13 +170,13 @@ export function ClassStudentsTab({
                   </TableCell>
                   <TableCell>
                     <span className="text-sm">
-                      {new Date(en.enrolledAt).toLocaleDateString("vi-VN")}
+                      {formatDate(en.enrolledAt)}
                     </span>
                   </TableCell>
                   <TableCell>
                     {en.expiresAt ? (
                       <span className="text-sm">
-                        {new Date(en.expiresAt).toLocaleDateString("vi-VN")}
+                        {formatDate(en.expiresAt)}
                       </span>
                     ) : (
                       <span className="text-xs text-muted-foreground italic">

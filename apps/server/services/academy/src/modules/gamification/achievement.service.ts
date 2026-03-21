@@ -127,16 +127,16 @@ export class AchievementService {
   ): Promise<number> {
     switch (type) {
       case 'STREAK_DAYS': {
-        const gamification = await this.prisma.userGamification.findUnique({
+        const streak = await this.prisma.streak.findUnique({
           where: { userId },
         });
-        return gamification?.currentStreak || 0;
+        return streak?.currentStreak || 0;
       }
       case 'LONGEST_STREAK': {
-        const gamification = await this.prisma.userGamification.findUnique({
+        const streak = await this.prisma.streak.findUnique({
           where: { userId },
         });
-        return gamification?.longestStreak || 0;
+        return streak?.maxStreak || 0;
       }
       case 'LOGIN_DAYS': {
         const gamification = await this.prisma.userGamification.findUnique({

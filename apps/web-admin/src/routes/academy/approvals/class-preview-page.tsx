@@ -25,17 +25,7 @@ import {
   useSubmitClassForApproval,
   type AcademyClass,
 } from "@/lib/api/services/academy-classes"
-
-function formatDateTime(d: string | null | undefined) {
-  if (!d) return "—"
-  return new Date(d).toLocaleDateString("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  })
-}
+import { formatDateTime } from "@/lib/format-utils"
 
 const STATUS_LABELS: Record<string, string> = {
   DRAFT: "Bản nháp",
@@ -82,6 +72,10 @@ export default function ClassApprovalPreviewPage() {
     )
   }
 
+  const isLive = academyClass.mode === "LIVE"
+  const liveScheduleCount = academyClass._count?.liveSchedules ?? 0
+  const isLiveMissingSchedule = isLive && liveScheduleCount === 0
+
   const canSubmit = isStaffOrAdmin && academyClass.status === "DRAFT"
   const canApprove = isStaffOrAdmin && academyClass.status === "PENDING_APPROVAL"
 
@@ -109,7 +103,7 @@ export default function ClassApprovalPreviewPage() {
           },
           {
             label: "Ngày gửi duyệt",
-            value: formatDateTime(academyClass.submittedForApprovalAt),
+            value: formatDateTime(academyClass.submittedForApprovalAt, "HH:mm dd/MM/yyyy"),
           },
         ]}
         actions={
@@ -130,7 +124,7 @@ export default function ClassApprovalPreviewPage() {
                       )
                     }
                   }}
-                  disabled={submitMutation.isPending}
+                  disabled={submitMutation.isPending || isLiveMissingSchedule}
                   className="gap-2"
                 >
                   Gửi duyệt
@@ -167,6 +161,13 @@ export default function ClassApprovalPreviewPage() {
           ) : undefined
         }
       />
+
+      {isLiveMissingSchedule && isLive && canSubmit && (
+        <div className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-4 py-3">
+          Lớp LIVE cần có <strong>ít nhất 1 lịch học tuần</strong> trước khi gửi duyệt.
+          Vui lòng thiết lập lịch ở trang quản lý lớp.
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>

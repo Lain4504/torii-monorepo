@@ -52,8 +52,6 @@ export default function ClassesPage() {
     const [search, setSearch] = useState('');
     const [debouncedSearch] = useDebounceValue(search, 500);
     const [sheetOpen, setSheetOpen] = useState(false);
-  const [createTypeDialogOpen, setCreateTypeDialogOpen] = useState(false);
-  const [createMode, setCreateMode] = useState<"VOD" | "LIVE">("LIVE");
     const [selectedClass, setSelectedClass] = useState<AcademyClass | null>(null);
     const [statusDialogClass, setStatusDialogClass] = useState<AcademyClass | null>(null);
     const [submitDialog, setSubmitDialog] = useState<{ open: boolean; cls: AcademyClass | null }>({ open: false, cls: null });
@@ -70,7 +68,7 @@ export default function ClassesPage() {
 
     const handleCreate = () => {
         setSelectedClass(null);
-        setCreateTypeDialogOpen(true);
+        setSheetOpen(true);
     };
 
     const handleEdit = (cls: AcademyClass) => {
@@ -130,6 +128,7 @@ export default function ClassesPage() {
                                 <TableHead className="w-12">STT</TableHead>
                                 <TableHead className="w-[120px]">Mã Lớp</TableHead>
                                 <TableHead>Tên Lớp</TableHead>
+                                <TableHead>Kỳ học / Term</TableHead>
                                 <TableHead>Loại hình</TableHead>
                                 <TableHead className="w-[180px]">Trạng thái</TableHead>
                                 <TableHead>Học viên</TableHead>
@@ -164,6 +163,15 @@ export default function ClassesPage() {
                                             <div className="font-medium">{cls.name}</div>
                                         </TableCell>
                                         <TableCell>
+                                            {(cls as any).term?.termCode ? (
+                                                <Badge variant="outline" className="font-mono text-[10px]">
+                                                    {(cls as any).term.termCode}
+                                                </Badge>
+                                            ) : (
+                                                <span className="text-muted-foreground italic text-xs">-</span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
                                             {cls.mode === 'LIVE' ? (
                                                 <Badge variant="secondary" className="bg-green-500/10 text-green-500 border-green-500/20">
                                                     LIVE
@@ -193,15 +201,22 @@ export default function ClassesPage() {
                                         <TableCell className="text-right">
                                             <div className="flex items-center justify-end gap-2">
                                                 {isStaff && (cls.status === 'DRAFT' || cls.status === 'REJECTED') && (
+                                                    (() => {
+                                                        const liveScheduleCount = cls.mode === 'LIVE' ? (cls._count?.liveSchedules ?? 0) : 0
+                                                        const isLiveMissingSchedule = cls.mode === 'LIVE' && liveScheduleCount === 0
+                                                        return (
                                                     <Button 
                                                         variant="default" 
                                                         size="sm" 
                                                         className="h-8 gap-1.5 bg-primary hover:bg-primary/90"
+                                                        title={isLiveMissingSchedule ? "LIVE cần ít nhất 1 lịch học tuần trước khi gửi duyệt" : undefined}
                                                         onClick={() => setSubmitDialog({ open: true, cls })}
-                                                        disabled={submitForApprovalMutation.isPending}
+                                                        disabled={submitForApprovalMutation.isPending || isLiveMissingSchedule}
                                                     >
                                                         <SendIcon className="h-3.5 w-3.5" /> Gửi duyệt
                                                     </Button>
+                                                        )
+                                                    })()
                                                 )}
                                                 <Button variant="outline" size="sm" className="h-8 gap-1.5" onClick={() => navigate(`/academy/classes/${cls.id}/detail`)}>
                                                     <Eye className="h-4 w-4" /> Chi tiết
@@ -229,7 +244,7 @@ export default function ClassesPage() {
                 open={sheetOpen}
                 onOpenChange={setSheetOpen}
                 academyClass={selectedClass ?? undefined}
-                initialMode={createMode}
+                initialMode="LIVE"
             />
 
             {/* Dialog hiển thị luồng trạng thái theo loại lớp */}
@@ -299,49 +314,6 @@ export default function ClassesPage() {
                 </DialogContent>
             </Dialog>
 
-            {/* Dialog chọn loại lớp trước khi tạo */}
-            <Dialog open={createTypeDialogOpen} onOpenChange={setCreateTypeDialogOpen}>
-                <DialogContent className="sm:max-w-[420px]">
-                    <DialogHeader>
-                        <DialogTitle>Chọn loại lớp học</DialogTitle>
-                        <DialogDescription>
-                            Bạn muốn tạo lớp LIVE (dạy trực tiếp) hay khóa học VOD (tự học theo video)?
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-2">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            className="h-20 flex-col items-start justify-center px-4"
-                            onClick={() => {
-                                setCreateMode("LIVE");
-                                setCreateTypeDialogOpen(false);
-                                setSheetOpen(true);
-                            }}
-                        >
-                            <span className="font-semibold">Lớp LIVE</span>
-                            <span className="text-xs text-muted-foreground">
-                                Lớp học có lịch cố định, có giảng viên phụ trách.
-                            </span>
-                        </Button>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            className="h-20 flex-col items-start justify-center px-4"
-                            onClick={() => {
-                                setCreateMode("VOD");
-                                setCreateTypeDialogOpen(false);
-                                setSheetOpen(true);
-                            }}
-                        >
-                            <span className="font-semibold">Khóa VOD</span>
-                            <span className="text-xs text-muted-foreground">
-                                Khóa tự học qua video, không cần lịch LIVE cố định.
-                            </span>
-                        </Button>
-                    </div>
-                </DialogContent>
-            </Dialog>
             {/* Confirmation Dialogs */}
             <AlertDialog open={submitDialog.open} onOpenChange={(open) => setSubmitDialog(prev => ({ ...prev, open }))}>
                 <AlertDialogContent>
