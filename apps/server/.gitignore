@@ -9,3 +9,4 @@ proto-deps
 # Configuration
 /config/config.yaml
 !/config/config.sample.yaml
+/config/flutterapp-8448e-firebase-adminsdk-fbsvc-465d4ddb89.json
