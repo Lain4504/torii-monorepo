@@ -199,6 +199,24 @@ export class NotificationHandler {
     return this.notificationService.create(payload);
   }
 
+  @MessagePattern({ cmd: 'identity.notification.registerToken' })
+  async registerToken(
+    @Payload()
+    data: {
+      token: string;
+      platform?: string;
+      deviceName?: string;
+      requester: Requester;
+    },
+  ) {
+    return this.notificationService.registerDeviceToken({
+      userId: data.requester.sub,
+      token: data.token,
+      platform: data.platform,
+      deviceName: data.deviceName,
+    });
+  }
+
   // --- Event Patterns for internal microservices ---
 
   /**

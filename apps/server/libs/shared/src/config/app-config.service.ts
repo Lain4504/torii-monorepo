@@ -72,4 +72,7 @@ export class AppConfigService {
   get thirdParty(): AppConfig['thirdParty'] {
     return this.configService.get<AppConfig['thirdParty']>('thirdParty')!;
   }
+  get firebase(): AppConfig['firebase'] {
+    return this.configService.get<AppConfig['firebase']>('firebase')!;
+  }
 }

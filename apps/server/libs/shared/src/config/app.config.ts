@@ -246,6 +246,9 @@ const ConfigSchema = z.object({
       publicUrl: z.string().optional(),
     }),
   }),
+  firebase: z.object({
+    serviceAccountKey: z.string().optional(),
+  }),
 });
 
 export type AppConfig = z.infer<typeof ConfigSchema>;

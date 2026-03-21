@@ -127,6 +127,24 @@ export class NotificationController {
     }
   }
 
+  @Post('register-token')
+  async registerToken(
+    @Req() req: ReqWithRequester,
+    @Body() body: { token: string; platform?: string; deviceName?: string },
+  ) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'identity.notification.registerToken' },
+          { ...body, requester: req.requester },
+        ),
+      );
+      return successResponse(result, 'Device token registered successfully');
+    } catch (error: any) {
+      return errorResponse(error?.message || 'Failed to register device token');
+    }
+  }
+
   @Post()
   @UsePipes(new ZodValidationPipe(notificationCreateDTOSchema))
   async create(@Body() payload: NotificationCreateDTO) {

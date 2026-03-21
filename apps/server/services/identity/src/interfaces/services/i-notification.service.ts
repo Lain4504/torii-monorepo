@@ -103,4 +103,14 @@ export interface INotificationService {
     viewCount: number;
     date: string;
   }): Promise<void>;
+
+  /**
+   * Register a device token for push notifications
+   */
+  registerDeviceToken(payload: {
+    userId: string;
+    token: string;
+    platform?: string;
+    deviceName?: string;
+  }): Promise<{ success: boolean; message: string }>;
 }
