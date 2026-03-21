@@ -4,8 +4,10 @@ import {
   BadRequestException,
   NotFoundException,
   Inject,
+  OnModuleInit,
 } from '@nestjs/common';
-import { PrismaService } from '@server/shared';
+import * as admin from 'firebase-admin';
+import { AppConfigService, PrismaService } from '@server/shared';
 import { Notification } from '@prisma/generated';
 import {
   NotificationResponseDTO,
@@ -19,14 +21,56 @@ import type { INotificationRepository } from '@server/identity/interfaces/reposi
 import { NOTIFICATION_REPOSITORY_TOKEN } from '@server/identity/interfaces/repositories';
 
 @Injectable()
-export class NotificationService implements INotificationService {
+export class NotificationService
+  implements INotificationService, OnModuleInit
+{
   private readonly logger = new Logger(NotificationService.name);
+  private firebaseApp: admin.app.App | null = null;
 
   constructor(
     @Inject(NOTIFICATION_REPOSITORY_TOKEN)
     private readonly notificationRepository: INotificationRepository,
     private readonly prisma: PrismaService, // Still needed for cross-service queries (blog, user)
+    private readonly appConfig: AppConfigService,
   ) {}
+
+  /**
+   * Initialize Firebase Admin SDK
+   */
+  onModuleInit() {
+    try {
+      const serviceAccountPath = this.appConfig.firebase.serviceAccountKey;
+
+      if (!serviceAccountPath) {
+        this.logger.warn(
+          'Firebase service account key path not provided. Push notifications will be disabled.',
+        );
+        return;
+      }
+
+      // Check if file exists (relative from project root)
+      const fs = require('fs');
+      const path = require('path');
+      const fullPath = path.resolve(process.cwd(), serviceAccountPath);
+
+      if (!fs.existsSync(fullPath)) {
+        this.logger.warn(
+          `Firebase service account key not found at ${fullPath}. Push notifications will be disabled.`,
+        );
+        return;
+      }
+
+      const serviceAccount = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
+
+      this.firebaseApp = admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+
+      this.logger.log('Firebase Admin SDK initialized successfully');
+    } catch (error: any) {
+      this.logger.error('Failed to initialize Firebase Admin SDK', error);
+    }
+  }
 
   /**
    * Map Notification entity to NotificationResponseDto
@@ -254,6 +298,15 @@ export class NotificationService implements INotificationService {
         sentVia: data.sentVia || ['in_app'],
         isRead: false,
       });
+
+      // If push is requested, send via FCM
+      if (
+        data.sentVia?.includes('push') ||
+        (!data.sentVia && notification.sentVia.includes('in_app'))
+      ) {
+        // For now, let's just try to send push if device tokens exist for the user
+        await this.sendPushNotification(notification);
+      }
 
       return this.toNotificationResponseDto(notification);
     } catch (error: any) {
@@ -509,6 +562,125 @@ export class NotificationService implements INotificationService {
     } catch (error: any) {
       this.logger.error('Error handling blog interaction stats event:', error);
       // Don't throw - event-driven should be fire-and-forget
+    }
+  }
+
+  /**
+   * Register a user device token for FCM
+   */
+  async registerDeviceToken(payload: {
+    userId: string;
+    token: string;
+    platform?: string;
+    deviceName?: string;
+  }): Promise<{ success: boolean; message: string }> {
+    try {
+      this.logger.log(
+        `Registering device token for user ${payload.userId}: ${payload.token.substring(0, 10)}...`,
+      );
+
+      // Upsert token (update if exists, create if not)
+      await this.prisma.userDeviceToken.upsert({
+        where: { token: payload.token },
+        update: {
+          userId: payload.userId,
+          platform: payload.platform ?? undefined,
+          deviceName: payload.deviceName ?? undefined,
+          updatedAt: new Date(),
+        },
+        create: {
+          userId: payload.userId,
+          token: payload.token,
+          platform: payload.platform ?? undefined,
+          deviceName: payload.deviceName ?? undefined,
+        },
+      });
+
+      return {
+        success: true,
+        message: 'Device token registered successfully',
+      };
+    } catch (error: any) {
+      this.logger.error('Failed to register device token', error);
+      throw new BadRequestException(
+        `Failed to register device token: ${error.message}`,
+      );
+    }
+  }
+
+  /**
+   * Helper to send push notification to all devices of a user
+   */
+  private async sendPushNotification(notification: Notification): Promise<void> {
+    if (!this.firebaseApp) {
+      this.logger.debug('FCM skipped: Firebase not initialized');
+      return;
+    }
+
+    try {
+      // Get all device tokens for this user
+      const deviceTokens = await this.prisma.userDeviceToken.findMany({
+        where: { userId: notification.userId },
+        select: { token: true },
+      });
+
+      if (deviceTokens.length === 0) {
+        this.logger.debug(
+          `No device tokens found for user ${notification.userId}`,
+        );
+        return;
+      }
+
+      const tokens = deviceTokens.map((t) => t.token);
+
+      const message: admin.messaging.MulticastMessage = {
+        tokens,
+        notification: {
+          title: notification.title,
+          body: notification.message,
+        },
+        data: {
+          notificationId: notification.id,
+          type: notification.notificationType || 'general',
+          metadata: JSON.stringify(notification.metadata || {}),
+        },
+        android: {
+          priority: 'high',
+          notification: {
+            channelId: 'high_importance_channel', // Matches strings.xml on Android
+          },
+        },
+      };
+
+      const response = await admin.messaging().sendEachForMulticast(message);
+
+      this.logger.log(
+        `Sent push notifications to ${deviceTokens.length} devices for user ${notification.userId}. ` +
+          `Success: ${response.successCount}, Failure: ${response.failureCount}`,
+      );
+
+      // Optionally cleanup invalid tokens
+      if (response.failureCount > 0) {
+        const tokensToRemove: string[] = [];
+        response.responses.forEach((resp, idx) => {
+          if (
+            !resp.success &&
+            (resp.error?.code === 'messaging/invalid-registration-token' ||
+              resp.error?.code === 'messaging/registration-token-not-registered')
+          ) {
+            tokensToRemove.push(tokens[idx]);
+          }
+        });
+
+        if (tokensToRemove.length > 0) {
+          await this.prisma.userDeviceToken.deleteMany({
+            where: { token: { in: tokensToRemove } },
+          });
+          this.logger.log(`Cleaned up ${tokensToRemove.length} invalid tokens`);
+        }
+      }
+    } catch (error: any) {
+      this.logger.error('Error sending push notifications via FCM', error);
     }
   }
 }

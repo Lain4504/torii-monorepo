@@ -412,6 +412,7 @@ model User {
   aiUserSubscriptions             AiUserSubscription[]
   walletBalance                   Decimal                @default(0) @map("wallet_balance") @db.Decimal(12, 2)
   walletTransactions              WalletTransaction[]
+  deviceTokens                    UserDeviceToken[]
 
   @@index([email])
   @@index([role])
@@ -943,6 +944,21 @@ model Notification {
   @@index([isRead])
   @@index([createdAt])
   @@map("notifications")
+}
+
+model UserDeviceToken {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  token      String   @unique
+  platform   String?  // 'android', 'ios'
+  deviceName String?  @map("device_name")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("user_device_tokens")
 }
 
 // ==================================================
