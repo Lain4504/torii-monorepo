@@ -9,17 +9,19 @@ import type {
 
 export type AcademyAssignmentSubmission = {
   id: string
-  classId: string
-  classAssessmentId: string
-  assignmentTemplateId: string
+  classId?: string
+  classAssessmentId?: string
+  assignmentTemplateId?: string
   userId: string
   status: string
   score?: number | null
+  grade?: number | string | null
   submittedAt?: string | null
   gradedAt?: string | null
   content?: unknown | null
   createdAt: string
   updatedAt: string
+  user?: { id: string; displayName?: string | null; email?: string | null } | null
 }
 
 export const academyAssignmentSubmissionsApi = {
@@ -63,10 +65,12 @@ export const academyAssignmentSubmissionsApi = {
 
 export function useAcademyAssignmentSubmissions(
   params: AcademyAssignmentSubmissionQueryDTO,
+  options?: { enabled?: boolean },
 ) {
   return useQuery({
     queryKey: ["academy-assignment-submissions", params],
     queryFn: () => academyAssignmentSubmissionsApi.findAll(params),
+    enabled: options?.enabled ?? true,
   })
 }
 

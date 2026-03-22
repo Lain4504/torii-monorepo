@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Inject,
   Param,
   ParseUUIDPipe,
@@ -28,6 +29,15 @@ import {
 @UseGuards(GatewayAuthGuard, PermissionsGuard)
 export class ClassAssignmentController {
   constructor(@Inject('NATS_SERVICE') private readonly nats: ClientProxy) {}
+
+  @Get(':id')
+  @Permissions('academy.delivery.read')
+  async findById(@Param('id', new ParseUUIDPipe()) id: string) {
+    const item = await firstValueFrom(
+      this.nats.send({ cmd: 'academy.class.getAssignmentById' }, { id }),
+    );
+    return successResponse({ item });
+  }
 
   @Put(':id')
   @Permissions('academy.delivery.write')

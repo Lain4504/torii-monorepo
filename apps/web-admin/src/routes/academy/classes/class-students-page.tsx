@@ -57,11 +57,7 @@ export default function ClassStudentsPage() {
     return defaultTab
   }, [tabParam, availableTabs])
 
-  const canManageEnrollment = useMemo(() => {
-    if (!mode) return false
-    if (mode === "VOD" && isLecturer) return false
-    return (mode === "LIVE" && isLecturer) || isStaffOrAdmin
-  }, [mode, isLecturer, isStaffOrAdmin])
+  const canManageEnrollment = isStaffOrAdmin
 
   const setTab = (value: string) => {
     setSearchParams((prev) => {

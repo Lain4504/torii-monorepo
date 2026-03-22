@@ -150,7 +150,7 @@ export function ClassAssignmentSheet({
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
-      <SheetContent className="!w-full sm:!max-w-[520px] max-h-screen p-0 flex flex-col overflow-hidden">
+      <SheetContent className="!w-full sm:!max-w-[800px] max-h-screen p-0 flex flex-col overflow-hidden">
         <SheetHeader className="p-6 border-b shrink-0">
           <SheetTitle>
             {isEdit ? "Chỉnh sửa bài tập" : "Giao bài tập cho lớp"}

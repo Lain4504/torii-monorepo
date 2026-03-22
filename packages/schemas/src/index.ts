@@ -46,9 +46,6 @@ export * from './dtos/refund.dto';
 export * from './dtos/academy-live-schedule.dto';
 export * from './dtos/academy-live-schedule-request.dto';
 export * from './dtos/academy-live-session.dto';
-export * from './dtos/academy-class-assessment.dto';
-
-
 
 export * from './dtos/academy-assignment-submission.dto';
 export * from './dtos/academy-lesson.dto';

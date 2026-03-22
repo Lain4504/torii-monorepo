@@ -83,6 +83,7 @@ export class AssignmentSubmissionController {
           ...query,
           requesterId: req.requester?.sub,
           isExamManager,
+          canViewAll: isExamManager || hasDeliveryRead,
           userId:
             isExamManager || hasDeliveryRead
               ? query.userId

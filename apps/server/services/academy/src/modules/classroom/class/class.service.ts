@@ -590,6 +590,18 @@ export class ClassService {
   // CLASS ASSIGNMENTS
   // ==============================================================
 
+  async getClassAssignmentById(id: string) {
+    const ca = await this.prisma.classAssignment.findUnique({
+      where: { id },
+      include: {
+        assignment: true,
+        _count: { select: { submissions: true } },
+      },
+    });
+    if (!ca) throw new NotFoundException('Class assignment not found');
+    return ca;
+  }
+
   async getAssignments(classId: string) {
     return this.prisma.classAssignment.findMany({
       where: { classId },

@@ -28,6 +28,13 @@ export type AcademyClassAssignment = {
 }
 
 export const academyClassAssignmentsApi = {
+  async findById(id: string) {
+    const res = await apiClient.get<
+      StandardApiResponse<{ item: AcademyClassAssignment }>
+    >(`/api/academy/class-assignments/${id}`)
+    return res.data.data!.item
+  },
+
   async findByClassId(classId: string) {
     const res = await apiClient.get<
       StandardApiResponse<{ items: AcademyClassAssignment[] }>
@@ -55,6 +62,14 @@ export const academyClassAssignmentsApi = {
     )
     return res.data
   },
+}
+
+export function useAcademyClassAssignment(id: string | undefined) {
+  return useQuery({
+    enabled: !!id,
+    queryKey: ["academy-class-assignment", id],
+    queryFn: () => academyClassAssignmentsApi.findById(id!),
+  })
 }
 
 export function useAcademyClassAssignments(classId: string) {
