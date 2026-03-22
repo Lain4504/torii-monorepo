@@ -5,7 +5,6 @@ import {
     AgentGrammarCheckResponseDTO,
     AgentTranslateResponseDTO,
     AgentFlashcardResponseDTO,
-    AgentDrillResponseDTO,
     AgentConversationSimulationResponseDTO,
     AgentResourceRecommendationResponseDTO,
     AgentTestGenerationResponseDTO,
@@ -107,23 +106,6 @@ export const agentApi = {
             });
             if (!response.data.success || !response.data.data) {
                 throw new Error(response.data.message || 'Failed to create flashcard');
-            }
-            return response.data.data;
-        },
-        generateDrill: async (
-            type: 'grammar' | 'vocabulary' | 'kanji' | 'listening' | 'reading',
-            topic: string,
-            level: 'N5' | 'N4' | 'N3' | 'N2' | 'N1' = 'N4',
-            count: number = 5
-        ): Promise<AgentDrillResponseDTO> => {
-            const response = await apiClient.post<{ success: boolean; data: AgentDrillResponseDTO; message?: string }>('/api/agents/drill/generate', {
-                type,
-                topic,
-                level,
-                count
-            });
-            if (!response.data.success || !response.data.data) {
-                throw new Error(response.data.message || 'Failed to generate drill');
             }
             return response.data.data;
         },

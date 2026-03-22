@@ -14,7 +14,7 @@ export class SenseiHandler {
   constructor(
     private readonly senseiService: SenseiService,
     private readonly ttsService: TTSService,
-  ) {}
+  ) { }
 
   @MessagePattern({ cmd: 'agents.sensei.grammarCheck' })
   async checkGrammar(@Payload() data: { text: string; requester: Requester }) {
@@ -55,37 +55,18 @@ export class SenseiHandler {
     );
   }
 
-  @MessagePattern({ cmd: 'agents.sensei.generateDrill' })
-  async generateDrill(
-    @Payload()
-    data: {
-      type: 'grammar' | 'vocabulary' | 'kanji' | 'listening' | 'reading';
-      topic: string;
-      level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
-      count?: number;
-      requester: Requester;
-    },
-  ) {
-    return this.senseiService.generatePracticeDrill(
-      data.requester,
-      data.type,
-      data.topic,
-      data.level || 'N4',
-      data.count || 5,
-    );
-  }
 
   @MessagePattern({ cmd: 'agents.sensei.simulateConversation' })
   async simulateConversation(
     @Payload()
     data: {
       scenario:
-        | 'restaurant'
-        | 'shopping'
-        | 'station'
-        | 'office'
-        | 'casual'
-        | 'formal';
+      | 'restaurant'
+      | 'shopping'
+      | 'station'
+      | 'office'
+      | 'casual'
+      | 'formal';
       level?: 'N5' | 'N4' | 'N3' | 'N2' | 'N1';
       turns?: number;
       requester: Requester;

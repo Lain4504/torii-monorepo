@@ -42,7 +42,7 @@ export class SenseiHandler {
   constructor(
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
     private readonly appConfig: AppConfigService,
-  ) {}
+  ) { }
 
   @Post('grammar-check')
   @UseGuards(GatewayAuthGuard)
@@ -107,28 +107,6 @@ export class SenseiHandler {
     }
   }
 
-  @Post('drill/generate')
-  @UseGuards(GatewayAuthGuard)
-  async generateDrill(@Req() req: ReqWithRequester, @Body() body: any) {
-    const requester = req.requester;
-    const userId = requester?.sub;
-    try {
-      this.logger.log(`🎯 Drill generation request from user ${userId}`);
-      const result = await firstValueFrom(
-        this.natsClient.send(
-          { cmd: 'agents.sensei.generateDrill' },
-          { requester, ...body },
-        ),
-      );
-      return successResponse(result);
-    } catch (error: any) {
-      this.logger.error(
-        `Drill generation failed for user ${userId}`,
-        error.stack,
-      );
-      return errorResponse(error.message || 'Failed to generate drill');
-    }
-  }
 
   @Post('conversation/simulate')
   @UseGuards(GatewayAuthGuard)
@@ -280,7 +258,7 @@ export class SenseiHandler {
       if (!usageResult || usageResult.allowed === false) {
         return errorResponse(
           usageResult?.message ||
-            'Bạn đã hết lượt sử dụng AI hôm nay. Vui lòng nâng cấp gói để tiếp tục.',
+          'Bạn đã hết lượt sử dụng AI hôm nay. Vui lòng nâng cấp gói để tiếp tục.',
         );
       }
 
