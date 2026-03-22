@@ -206,15 +206,6 @@ export interface IAuthService {
   linkProvider(userId: string, provider: string, token: string): Promise<void>;
 
   /**
-   * Link Google account to existing user
-   * @param userId - The user's unique identifier
-   * @param idToken - Google ID token
-   * @throws ConflictException if Google account already linked to another user
-   * @throws UnauthorizedException if token is invalid
-   */
-  linkGoogleAccount(userId: string, idToken: string): Promise<void>;
-
-  /**
    * Logout user
    * Blacklists access token and revokes refresh token session
    * Works with both valid and expired tokens

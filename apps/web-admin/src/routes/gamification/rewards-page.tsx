@@ -40,7 +40,7 @@ export default function RewardsPage() {
     return (
         <div className="flex flex-col gap-8">
             <PageHeader
-                title="Quản lý Phẩn thưởng (Gamification)"
+                title="Quản lý Phần thưởng (Gamification)"
                 subtitle="Thiết lập các phần thưởng mà học viên có thể dùng điểm XP/Points để đổi lấy mã giảm giá."
                 actions={
                     <Can permission="gamification.manage">

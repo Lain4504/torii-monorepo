@@ -104,18 +104,35 @@ export const authApi = {
         throw new Error(response.data.message || 'Validation failed');
     },
 
-    async getLinkedProviders(): Promise<{ providers: string[] }> {
-        const response = await apiClient.get<StandardApiResponse<{ providers: unknown }>>('/api/auth/linked-providers');
+    async getLinkedProviders(): Promise<{ providers: string[]; hasPassword: boolean }> {
+        const response = await apiClient.get<StandardApiResponse<{ providers: unknown; hasPassword: boolean }>>('/api/auth/linked-providers');
         if (!response.data.success || !response.data.data) {
             throw new Error(response.data.message || 'Failed to load linked providers');
         }
         return {
             providers: normalizeLinkedProviderIds(response.data.data.providers),
+            hasPassword: response.data.data.hasPassword || false,
         };
     },
 
     async unlinkProvider(provider: 'google' | 'facebook'): Promise<{ success: boolean; message?: string }> {
         const response = await apiClient.delete<StandardApiResponse<null>>(`/api/auth/link/${provider}`);
+        return {
+            success: response.data.success,
+            message: response.data.message,
+        };
+    },
+
+    async linkGoogle(idToken: string): Promise<{ success: boolean; message?: string }> {
+        const response = await apiClient.post<StandardApiResponse<null>>('/api/auth/link/google', { idToken });
+        return {
+            success: response.data.success,
+            message: response.data.message,
+        };
+    },
+
+    async linkFacebook(accessToken: string): Promise<{ success: boolean; message?: string }> {
+        const response = await apiClient.post<StandardApiResponse<null>>('/api/auth/link/facebook', { accessToken });
         return {
             success: response.data.success,
             message: response.data.message,
@@ -224,6 +241,28 @@ export function useUnlinkProvider() {
 
     return useMutation({
         mutationFn: (provider: 'google' | 'facebook') => authApi.unlinkProvider(provider),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['linked-providers'] });
+        },
+    });
+}
+
+export function useLinkGoogle() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (idToken: string) => authApi.linkGoogle(idToken),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['linked-providers'] });
+        },
+    });
+}
+
+export function useLinkFacebook() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (accessToken: string) => authApi.linkFacebook(accessToken),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['linked-providers'] });
         },

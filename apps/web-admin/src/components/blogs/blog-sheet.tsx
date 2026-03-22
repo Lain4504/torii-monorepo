@@ -34,6 +34,7 @@ import { X, Save } from "lucide-react"
 import { useAppSelector } from "@/hooks/hooks"
 import { selectUser } from "@/store/slices/auth-slice"
 import { storageApi } from "@/lib/api/services/storage-api"
+import { formatForDateTimeLocal } from "@/lib/format-utils"
 import {
   BlogStatus,
   type BlogCreateDTO,
@@ -102,9 +103,9 @@ export function BlogSheet({ open, onOpenChange, blogId }: BlogSheetProps) {
       reset({
         title: blog.title || "",
         excerpt: blog.excerpt || "",
-        status: blog.status as BlogStatus,
+        status: (blog.status?.toLowerCase() as BlogStatus) || BlogStatus.DRAFT,
         publishedAt: blog.publishedAt
-          ? new Date(blog.publishedAt).toISOString().slice(0, 16)
+          ? formatForDateTimeLocal(blog.publishedAt)
           : "",
       })
       setCoverImageFile(null)
