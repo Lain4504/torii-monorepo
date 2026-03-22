@@ -23,7 +23,6 @@ export default function ClassStudentsPage() {
   const { data: academyClass, isLoading: isLoadingClass } = useAcademyClass(classId)
   const { user } = useAuth()
 
-  const isLecturer = user?.role === UserRole.LECTURER
   const isStaffOrAdmin =
     user?.role === UserRole.ADMIN ||
     user?.role === UserRole.STAFF_ACADEMIC ||

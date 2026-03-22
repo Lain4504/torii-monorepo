@@ -2,22 +2,34 @@
 
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
-import { Card, CardContent } from '@workspace/ui/components/card'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@workspace/ui/components/table'
 import { Badge } from '@workspace/ui/components/badge'
 import { Button } from '@workspace/ui/components/button'
+import { Card } from '@workspace/ui/components/card'
 import { PageLoading } from '@workspace/ui/components/page-loading'
-import { ArrowLeft, History as HistoryIcon } from 'lucide-react'
+import { ArrowLeft, ChevronRight, History as HistoryIcon } from 'lucide-react'
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from '@workspace/ui/components/empty'
 
 import { jlptMockApi, type JlptMockAttemptHistoryItem } from '@/lib/api/services/jlpt-mock-api'
+import { cn } from '@workspace/ui/lib/utils'
 
 function statusBadge(status: string) {
-  if (status === 'SUBMITTED') return { text: 'SUBMITTED', variant: 'outline' as const }
-  if (status === 'IN_PROGRESS') return { text: 'IN_PROGRESS', variant: 'secondary' as const }
-  return { text: status, variant: 'destructive' as const }
+  if (status === 'SUBMITTED') return { text: 'Đã nộp', variant: 'default' as const }
+  if (status === 'IN_PROGRESS') return { text: 'Đang làm', variant: 'secondary' as const }
+  return { text: status, variant: 'outline' as const }
 }
 
 export default function JlptAttemptHistoryPage() {
+  const router = useRouter()
   const { data: items = [], isLoading } = useQuery({
     queryKey: ['jlpt-attempt-history'],
     queryFn: () => jlptMockApi.findAttemptHistory(),
@@ -26,92 +38,118 @@ export default function JlptAttemptHistoryPage() {
   if (isLoading) return <PageLoading className="h-screen" />
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
+    <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/jlpt-list-exam">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-xl size-10 bg-background/50 backdrop-blur-md border border-white/5 hover:bg-white/10 hover:text-primary transition-all"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        </Link>
-
+        <Button variant="ghost" size="icon" className="rounded-lg shrink-0" asChild>
+          <Link href="/dashboard/jlpt-list-exam">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+        </Button>
         <div>
-          <h1 className="text-3xl font-black uppercase tracking-tighter italic text-foreground flex items-center gap-3">
-            <HistoryIcon className="size-8 text-primary" />
-            JLPT Attempt History
-          </h1>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1">
-            Lịch sử làm bài JLPT mock theo tài khoản hiện tại
+          <h1 className="text-2xl font-bold text-foreground">Lịch sử làm bài JLPT</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Xem lại kết quả các bài thi JLPT mock đã thực hiện
           </p>
         </div>
       </div>
 
       {items.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 border border-dashed border-white/10 rounded-[3rem] bg-white/5">
-          <div className="p-6 rounded-full bg-muted/10 mb-6">
-            <HistoryIcon className="size-10 text-muted-foreground/30" />
+        <Card className="border-dashed">
+          <div className="flex justify-center py-16 px-6">
+            <Empty className="max-w-sm">
+              <EmptyHeader>
+                <EmptyMedia variant="icon" className="bg-muted">
+                  <HistoryIcon className="h-8 w-8 text-muted-foreground" />
+                </EmptyMedia>
+                <EmptyTitle className="text-lg font-semibold">Chưa có lịch sử làm bài</EmptyTitle>
+                <EmptyDescription className="text-muted-foreground">
+                  Hãy bắt đầu làm một đề JLPT để có lịch sử và xem kết quả.
+                </EmptyDescription>
+                <Button asChild className="mt-4">
+                  <Link href="/dashboard/jlpt-list-exam">Đến danh sách đề thi</Link>
+                </Button>
+              </EmptyHeader>
+            </Empty>
           </div>
-          <h3 className="text-xl font-black uppercase tracking-tight italic text-muted-foreground/50">
-            No Attempts Found
-          </h3>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/30 mt-2">
-            Hãy bắt đầu làm một đề JLPT để có lịch sử
-          </p>
-        </div>
+        </Card>
       ) : (
-        <div className="grid gap-4">
-          {items.map((item: JlptMockAttemptHistoryItem) => {
-            const badge = statusBadge(item.status)
-            return (
-              <Card
-                key={item.id}
-                className="group overflow-hidden border-white/5 bg-background/40 backdrop-blur-sm hover:bg-background/60 hover:border-primary/20 transition-all duration-300"
-              >
-                <CardContent className="p-6">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-3">
-                        <Badge
-                          variant={badge.variant}
-                          className="rounded-md px-1.5 py-0.5 text-[9px] font-black uppercase tracking-widest border-0"
-                        >
-                          {badge.text}
-                        </Badge>
-                        <span className="text-xs font-bold text-muted-foreground">
-                          {item.template.code ?? item.templateId}
-                        </span>
-                      </div>
-
-                      <div className="font-black text-lg text-foreground">{item.template.title}</div>
-
-                      <div className="text-xs text-muted-foreground">
-                        {item.startedAt ? format(new Date(item.startedAt), 'dd MMM yyyy, HH:mm') : 'N/A'}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <Link href={`/jlpt/attempt/history/${item.id}`}>
-                        <Button className="rounded-xl font-black uppercase tracking-widest text-[10px] h-10 bg-white/5 hover:bg-primary hover:text-primary-foreground border border-white/10 hover:border-primary/20 transition-all shadow-none hover:shadow-lg hover:shadow-primary/10">
-                          Xem lại
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </CardContent>
-                <div
-                  className={`h-1 w-full ${
-                    item.status === 'SUBMITTED' ? 'bg-primary/20' : 'bg-destructive/20'
-                  }`}
-                />
-              </Card>
-            )
-          })}
-        </div>
+        <Card className="overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/50 hover:bg-muted/50">
+                <TableHead className="w-12">#</TableHead>
+                <TableHead>Đề thi</TableHead>
+                <TableHead className="hidden sm:table-cell">Mã đề</TableHead>
+                <TableHead className="hidden md:table-cell">Trình độ</TableHead>
+                <TableHead>Ngày làm</TableHead>
+                <TableHead>Trạng thái</TableHead>
+                <TableHead className="w-24 text-right"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {items.map((item, idx) => {
+                const badge = statusBadge(item.status)
+                return (
+                  <TableRow
+                    key={item.id}
+                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => router.push(`/jlpt/attempt/history/${item.id}`)}
+                  >
+                    <TableCell className="font-medium text-muted-foreground">
+                      {idx + 1}
+                    </TableCell>
+                    <TableCell>
+                      <div className="font-medium">{item.template.title}</div>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell text-muted-foreground text-sm">
+                      {item.template.code ?? item.templateId}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <Badge variant="outline" className="font-normal">
+                        {item.level}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-sm">
+                      {item.submittedAt
+                        ? format(new Date(item.submittedAt), 'dd/MM/yyyy HH:mm')
+                        : item.startedAt
+                          ? format(new Date(item.startedAt), 'dd/MM/yyyy HH:mm')
+                          : '—'}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={badge.variant}
+                        className={cn(
+                          badge.variant === 'default' && 'bg-primary/10 text-primary border-primary/20',
+                          badge.variant === 'secondary' && 'bg-muted text-muted-foreground'
+                        )}
+                      >
+                        {badge.text}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-2"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          router.push(`/jlpt/attempt/history/${item.id}`)
+                        }}
+                        asChild
+                      >
+                        <Link href={`/jlpt/attempt/history/${item.id}`} onClick={(e) => e.stopPropagation()}>
+                          <ChevronRight className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </Card>
       )}
     </div>
   )
 }
-

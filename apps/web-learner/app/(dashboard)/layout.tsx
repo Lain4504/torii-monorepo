@@ -57,7 +57,7 @@ export default function DashboardLayout({
       <SidebarInset>
         <DashboardHeader onOpenStreakModal={() => setStreakModalOpen(true)} />
         <main className="flex-1 overflow-y-auto scrollbar-none nhai-blueprint-bg">
-          <div className="max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
+          <div className="max-w-[1600px] mx-auto px-2 py-3 sm:px-6 sm:py-6 lg:px-8 lg:py-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
             {children}
           </div>
         </main>

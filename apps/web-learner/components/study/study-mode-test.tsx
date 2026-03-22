@@ -166,7 +166,7 @@ const TestResultScreen = ({
 
     return (
         <div 
-            className="min-h-[calc(100vh-4rem)] flex flex-col items-center p-4 md:p-8 w-full overflow-x-hidden"
+            className="flex min-h-[calc(100vh-4rem)] w-full flex-col items-center overflow-x-hidden px-2 py-3 md:px-8 md:py-8"
             data-purpose="quiz-page"
         >
             <div className="w-full max-w-5xl mx-auto flex flex-col space-y-4">

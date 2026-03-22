@@ -464,10 +464,13 @@ export function JlptQuestionForm({
                   <Switch
                     checked={opt.isCorrect}
                     onCheckedChange={(checked) => {
-                      const newOptions = options.map((o: { contentText: string; isCorrect: boolean }, i: number) => ({
-                        ...o,
-                        isCorrect: i === idx ? checked : checked ? false : o.isCorrect,
-                      }));
+                      const newOptions = options.map(
+                        (o: { key?: string; contentText: string; isCorrect: boolean }, i: number) => ({
+                          key: o.key ?? String(i + 1),
+                          contentText: o.contentText,
+                          isCorrect: i === idx ? checked : checked ? false : o.isCorrect,
+                        }),
+                      );
                       setValue("options", newOptions);
                     }}
                   />

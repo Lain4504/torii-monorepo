@@ -18,7 +18,7 @@ export default function RoleplayPage() {
     const [activeTab, setActiveTab] = React.useState("interactive")
 
     return (
-        <div className="h-full flex flex-col p-4 md:p-8 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-primary/5 via-background to-background">
+        <div className="flex h-full min-h-0 flex-col px-2 py-3 sm:px-6 sm:py-6 lg:px-8">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
                 <SenseiPageHeader
                     title="AI Roleplay"
