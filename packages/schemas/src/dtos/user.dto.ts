@@ -1,11 +1,13 @@
 import { z } from 'zod';
-import { userSchema, UserRole } from '../models/user.model';
+import { ErrFirstNameAtLeast2Chars, userSchema, UserRole } from '../models/user.model';
 
 // Registration DTO
 export const userRegistrationDTOSchema = z.object({
     email: userSchema.shape.email,
     password: userSchema.shape.password,
     displayName: userSchema.shape.displayName.optional(), // Optional for email+password only registration
+    /** Alias for displayName; displayName wins if both are sent */
+    fullName: z.string().min(2, ErrFirstNameAtLeast2Chars.message).optional(),
     platform: z.enum(['web', 'mobile']).optional().default('web'),
 });
 

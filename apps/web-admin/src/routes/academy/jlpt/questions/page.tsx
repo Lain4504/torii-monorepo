@@ -45,7 +45,9 @@ import {
   JlptQuestionsToolbar,
   JLPT_SECTIONS,
   jlptQuestionTypeLabel,
+  jlptSectionLabel,
   jlptDifficultyLabel,
+  formatJlptMondaiLabel,
   type JlptMondaiOption,
 } from "@/components/academy/jlpt/jlpt-questions-toolbar";
 import { academyJlptMockApi, type JlptBankQuestion } from "@/lib/api/services/academy-jlpt-mock";
@@ -187,7 +189,7 @@ export default function JlptQuestionsPage() {
     ];
     return orderedCodes.map((sectionCode) => ({
       sectionCode,
-      label: JLPT_SECTIONS.find((s) => s.code === sectionCode)?.label ?? sectionCode,
+      label: jlptSectionLabel(sectionCode),
       items: map.get(sectionCode)!,
     }));
   }, [questions]);
@@ -196,7 +198,7 @@ export default function JlptQuestionsPage() {
     <div className="flex flex-col gap-6 px-3 py-6 sm:gap-8 sm:px-6">
       <PageHeader
         title="Ngân hàng Câu hỏi JLPT"
-        subtitle="Cấu trúc theo các phần 言語知識・読解・聴解 (N5–N1); lọc theo cấp, phần thi, dạng bài, mondai và độ khó."
+        subtitle="Ba phần lớn như đề JLPT: từ vựng & chữ Hán, ngữ pháp & đọc, nghe; chi tiết từng dạng (漢字読み, 内容理解…) lọc bằng Mondai."
         actions={
           <Button className="gap-2" size="lg" onClick={openAdd}>
             <Plus className="size-4" />
@@ -339,13 +341,15 @@ export default function JlptQuestionsPage() {
                           </TableCell>
                           <TableCell>
                             <span className="text-xs text-muted-foreground">
-                              {JLPT_SECTIONS.find((s) => s.code === q.sectionCode)?.label || q.sectionCode}
+                              {jlptSectionLabel(q.sectionCode)}
                             </span>
                           </TableCell>
                           <TableCell>
                             {q.mondai ? (
-                              <div className="max-w-[200px] space-y-0.5">
-                                <div className="text-xs font-medium leading-tight">{q.mondai.titleVi}</div>
+                              <div className="max-w-[220px] space-y-0.5">
+                                <div className="text-xs font-medium leading-tight">
+                                  {formatJlptMondaiLabel(q.mondai)}
+                                </div>
                                 <div className="font-mono text-[10px] text-muted-foreground">{q.mondai.code}</div>
                               </div>
                             ) : (

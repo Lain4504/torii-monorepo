@@ -13,16 +13,20 @@ import {
 export const JLPT_LEVELS = ['N1', 'N2', 'N3', 'N4', 'N5'] as const;
 
 /**
- * Ba khối lớn trong đề: 言語(文字・語彙) / 言語+読解 / 聴解 — khớp enum backend.
- * N2/N1 gộp từ vựng+文法+読解 trong một phiên; trong DB vẫn tách vocab/grammar/reading theo `questionType`.
+ * Ba khối lớn trong đề JLPT (khớp enum backend) — tương ứng cấu trúc N1:
+ * - 言語知識（文字・語彙）→ LANGUAGE_VOCAB
+ * - 言語知識（文法）・読解 → LANGUAGE_GRAMMAR_READING
+ * - 聴解 → LISTENING
+ *
+ * Các “dạng bài” chi tiết (漢字読み, 文脈規定, 内容理解（短文）, 課題理解…) nằm ở bộ lọc **Mondai**, seed trong `jlpt_mondai`.
  */
 export const JLPT_SECTIONS = [
-    { code: 'LANGUAGE_VOCAB', label: '言語知識・文字語彙 (Từ vựng)' },
-    { code: 'LANGUAGE_GRAMMAR_READING', label: '言語知識・文法 / 読解 (Ngữ pháp & Đọc)' },
-    { code: 'LISTENING', label: '聴解 (Nghe hiểu)' },
+    { code: 'LANGUAGE_VOCAB', label: 'Từ vựng & chữ Hán (文字・語彙)' },
+    { code: 'LANGUAGE_GRAMMAR_READING', label: 'Ngữ pháp & đọc hiểu (文法・読解)' },
+    { code: 'LISTENING', label: 'Nghe hiểu (聴解)' },
 ] as const;
 
-/** Dạng câu theo scoring domain (VOCAB / GRAMMAR / READING / LISTENING). */
+/** Dạng câu theo domain (VOCAB / GRAMMAR / READING / LISTENING) — khớp phân môn trong đề chính thức. */
 export const JLPT_QUESTION_TYPES = [
     { value: 'VOCAB', label: 'Từ vựng (文字・語彙)' },
     { value: 'GRAMMAR', label: 'Ngữ pháp (文法)' },
@@ -38,6 +42,24 @@ export const JLPT_DIFFICULTIES = [
 
 export function jlptQuestionTypeLabel(code: string): string {
     return JLPT_QUESTION_TYPES.find((t) => t.value === code)?.label ?? code;
+}
+
+export function jlptSectionLabel(code: string): string {
+    return JLPT_SECTIONS.find((s) => s.code === code)?.label ?? code;
+}
+
+/** Hiển thị mondai: tiếng Việt (tiếng Nhật), fallback mã nếu thiếu tên. */
+export function formatJlptMondaiLabel(m: {
+    titleVi?: string | null;
+    titleJa?: string | null;
+    code?: string;
+}): string {
+    const vi = (m.titleVi ?? '').trim();
+    const ja = (m.titleJa ?? '').trim();
+    if (vi && ja) return `${vi} (${ja})`;
+    if (vi) return vi;
+    if (ja) return ja;
+    return (m.code ?? '').trim() || '—';
 }
 
 export function jlptDifficultyLabel(code: string): string {
@@ -183,9 +205,9 @@ export function JlptQuestionsToolbar({
                     {mondaiOptions.map((m) => (
                         <SelectItem key={m.id} value={m.code}>
                             <span className="line-clamp-2">
-                                {m.titleVi || m.code}
-                                <span className="ml-1 font-mono text-xs text-muted-foreground">
-                                    ({m.code})
+                                {formatJlptMondaiLabel(m)}
+                                <span className="ml-1 font-mono text-[10px] text-muted-foreground">
+                                    · {m.code}
                                 </span>
                             </span>
                         </SelectItem>

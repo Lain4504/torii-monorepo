@@ -18,18 +18,18 @@ import { FileAudio, Image as ImageIcon, Plus, Trash2, Loader2, Info } from "luci
 import { storageApi } from "@/lib/api/services/storage-api";
 import { academyJlptMockApi, type JlptBankQuestion } from "@/lib/api/services/academy-jlpt-mock";
 import { toast } from "sonner";
-import { JLPT_QUESTION_TYPES, JLPT_DIFFICULTIES } from "@/components/academy/jlpt/jlpt-questions-toolbar";
+import {
+  JLPT_SECTIONS,
+  JLPT_QUESTION_TYPES,
+  JLPT_DIFFICULTIES,
+  formatJlptMondaiLabel,
+} from "@/components/academy/jlpt/jlpt-questions-toolbar";
 import {
   inferQuestionTypeFromMondai,
   inferQuestionTypeFromSection,
 } from "@/lib/jlpt/infer-question-type-from-mondai";
 
 const LEVELS = ["N1", "N2", "N3", "N4", "N5"];
-const SECTIONS = [
-  { code: "LANGUAGE_VOCAB", label: "言語知識・文字語彙 (Từ vựng)" },
-  { code: "LANGUAGE_GRAMMAR_READING", label: "言語知識・文法 / 読解 (Ngữ pháp & Đọc)" },
-  { code: "LISTENING", label: "聴解 (Nghe hiểu)" },
-];
 
 const VALID_QT = new Set(["VOCAB", "GRAMMAR", "READING", "LISTENING"]);
 
@@ -140,7 +140,7 @@ export function JlptQuestionForm({
           id: initialData.mondai!.id,
           code,
           titleVi: initialData.mondai!.titleVi ?? null,
-          titleJa: null,
+          titleJa: initialData.mondai!.titleJa ?? null,
         },
         ...mondaiList,
       ];
@@ -257,7 +257,7 @@ export function JlptQuestionForm({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {SECTIONS.map((s) => (
+                      {JLPT_SECTIONS.map((s) => (
                         <SelectItem key={s.code} value={s.code}>
                           {s.label}
                         </SelectItem>
@@ -300,9 +300,8 @@ export function JlptQuestionForm({
                     {mondaiOptionsForSelect.map((m) => (
                       <SelectItem key={m.id} value={m.code}>
                         <span className="line-clamp-2">
-                          <span className="font-mono text-xs text-muted-foreground">{m.code}</span>
-                          {" · "}
-                          {m.titleVi || m.titleJa || "—"}
+                          {formatJlptMondaiLabel(m)}
+                          <span className="ml-1 font-mono text-[10px] text-muted-foreground">· {m.code}</span>
                         </span>
                       </SelectItem>
                     ))}

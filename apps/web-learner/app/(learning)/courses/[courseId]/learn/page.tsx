@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useAcademyClass, useCurriculum, type CurriculumLesson, type CurriculumModule } from '@/lib/api/services/academy-classes';
 import { useAcademyEnrollmentCheck } from '@/lib/api/services/academy-enrollment-api';
@@ -33,11 +33,11 @@ function fmtDuration(seconds?: number) {
 
 // ─── Lesson icon ──────────────────────────────────────────────────────────────
 
-function LessonIcon({ lesson, isActive, isCompleted }: {
-    lesson: CurriculumLesson; isActive: boolean; isCompleted: boolean;
+function LessonIcon({ lesson, isActive, isCompleted, unlocked }: {
+    lesson: CurriculumLesson; isActive: boolean; isCompleted: boolean; unlocked: boolean;
 }) {
     if (isCompleted) return <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500 shrink-0" />;
-    if (!lesson.isUnlocked) return <Lock className="h-4 w-4 text-muted-foreground/40 shrink-0" />;
+    if (!unlocked) return <Lock className="h-4 w-4 text-muted-foreground/40 shrink-0" />;
     if (normalizeItemKind(lesson.kind) === 'READING') {
         return <FileText className={`h-4 w-4 shrink-0 ${isActive ? 'text-blue-500' : 'text-muted-foreground/60'}`} />;
     }
@@ -51,6 +51,11 @@ function normalizeItemKind(kind?: string) {
 function isTrackableLessonKind(kind?: string) {
     const k = normalizeItemKind(kind);
     return k === 'VIDEO' || k === 'READING';
+}
+
+/** ID lưu trong tiến độ server — trùng với `referenceId` (content) khi có, không thì `id` node curriculum */
+function lessonProgressId(lesson: { id: string; referenceId?: string | null }) {
+    return lesson.referenceId ?? lesson.id;
 }
 
 // ─── Video Player ─────────────────────────────────────────────────────────────
@@ -142,7 +147,7 @@ function ArticleViewer({ lesson, onComplete }: { lesson: AcademyLessonModel; onC
 
 
 function ModuleItem({
-    mod, isExpanded, onToggle, currentLessonId, completedIds, onSelectLesson
+    mod, isExpanded, onToggle, currentLessonId, completedIds, onSelectLesson, isLessonUnlocked
 }: {
     mod: CurriculumModule;
     isExpanded: boolean;
@@ -150,12 +155,14 @@ function ModuleItem({
     currentLessonId: string | null;
     completedIds: Set<string>;
     onSelectLesson: (l: CurriculumLesson) => void;
+    isLessonUnlocked: (l: CurriculumLesson) => boolean;
 }) {
     const hasActive = mod.lessons.some(l => l.id === currentLessonId);
+    const trackableInMod = mod.lessons.filter((l) => isTrackableLessonKind(l.kind));
+    const denom = trackableInMod.length > 0 ? trackableInMod.length : mod.lessons.length;
     const doneCount = mod.lessons.filter((lesson) => {
         if (!isTrackableLessonKind(lesson.kind)) return false;
-        const trackId = lesson.referenceId ?? lesson.id;
-        return completedIds.has(trackId);
+        return completedIds.has(lessonProgressId(lesson));
     }).length;
 
     return (
@@ -166,7 +173,7 @@ function ModuleItem({
             >
                 <div className="min-w-0 pr-3">
                     <p className={`text-sm font-semibold truncate ${hasActive ? 'text-primary' : 'text-foreground'}`}>{mod.title}</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">{doneCount}/{mod.lessons.length} bài{mod.durationMinutes ? ` · ${mod.durationMinutes} phút` : ''}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">{doneCount}/{denom} bài{mod.durationMinutes ? ` · ${mod.durationMinutes} phút` : ''}</p>
                 </div>
                 {isExpanded
                     ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -178,20 +185,21 @@ function ModuleItem({
                 <div className="bg-background/50">
                     {mod.lessons.map(lesson => {
                         const isActive = lesson.id === currentLessonId;
+                        const unlocked = isLessonUnlocked(lesson);
                         const isDone = isTrackableLessonKind(lesson.kind)
-                            ? completedIds.has(lesson.referenceId ?? lesson.id)
+                            ? completedIds.has(lessonProgressId(lesson))
                             : false;
                         return (
                             <button
                                 key={lesson.id}
-                                disabled={!lesson.isUnlocked}
-                                onClick={() => lesson.isUnlocked && onSelectLesson(lesson)}
+                                disabled={!unlocked}
+                                onClick={() => unlocked && onSelectLesson(lesson)}
                                 className={`w-full px-5 py-3 flex items-center gap-3 text-left border-l-4 transition-colors
                                     ${isActive ? 'border-primary bg-primary/5' : 'border-transparent hover:bg-muted/30'}
-                                    ${!lesson.isUnlocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                                    ${!unlocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                                 `}
                             >
-                                <LessonIcon lesson={lesson} isActive={isActive} isCompleted={isDone} />
+                                <LessonIcon lesson={lesson} isActive={isActive} isCompleted={isDone} unlocked={unlocked} />
                                 <div className="flex-1 min-w-0">
                                     <p className={`text-sm truncate ${isActive ? 'font-bold text-foreground' : isDone ? 'text-muted-foreground' : 'text-foreground/80'}`}>
                                         {lesson.title}
@@ -199,8 +207,8 @@ function ModuleItem({
                                     <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-muted-foreground">
                                         {isActive && <span className="text-primary font-semibold">Đang học</span>}
                                         {isDone && !isActive && <span className="text-emerald-500">Hoàn thành</span>}
-                                        {!isActive && !isDone && lesson.isUnlocked && <span>Chưa học</span>}
-                                        {!lesson.isUnlocked && <span>Đã khóa</span>}
+                                        {!isActive && !isDone && unlocked && <span>Chưa học</span>}
+                                        {!unlocked && <span>Đã khóa</span>}
                                         {lesson.videoDuration && <span>· {fmtDuration(lesson.videoDuration)}</span>}
                                     </div>
                                 </div>
@@ -256,7 +264,30 @@ export default function CourseLearnPage() {
         }
     }, [enrollmentData, router]);
 
-    const completedIds = new Set(completedContentItemIds);
+    const completedIds = useMemo(() => new Set(completedContentItemIds), [completedContentItemIds]);
+
+    const allLessons: CurriculumLesson[] = curriculum?.modules.flatMap((m: any) => m.lessons) ?? [];
+    const trackableOrdered = useMemo(
+        () => allLessons.filter((l) => isTrackableLessonKind(l.kind)),
+        [allLessons],
+    );
+
+    const isSequentialUnlocked = useCallback(
+        (lesson: CurriculumLesson) => {
+            if (!isTrackableLessonKind(lesson.kind)) return true;
+            const idx = trackableOrdered.findIndex((l) => l.id === lesson.id);
+            if (idx <= 0) return true;
+            const prev = trackableOrdered[idx - 1];
+            return prev ? completedIds.has(lessonProgressId(prev)) : true;
+        },
+        [trackableOrdered, completedIds],
+    );
+
+    const effectiveLessonUnlocked = useCallback(
+        (lesson: CurriculumLesson) => lesson.isUnlocked && isSequentialUnlocked(lesson),
+        [isSequentialUnlocked],
+    );
+
     const currentLessonKind = normalizeItemKind(currentLesson?.kind);
     const shouldFetchLessonDetail = !!currentLesson?.referenceId;
 
@@ -268,33 +299,32 @@ export default function CourseLearnPage() {
 
         // Pick first unlocked uncompleted lesson
         if (currentLesson) return; // already selected
+        const flat = curriculum.modules.flatMap((m: any) => m.lessons) as CurriculumLesson[];
         const requestedLessonId = searchParams.get('lesson');
         if (requestedLessonId) {
             for (const mod of curriculum.modules) {
                 const requested = mod.lessons.find((lesson: CurriculumLesson) => lesson.id === requestedLessonId);
-                if (requested?.isUnlocked) {
+                if (requested && effectiveLessonUnlocked(requested)) {
                     setCurrentLesson(requested);
                     return;
                 }
             }
         }
         let pick: CurriculumLesson | null = null;
-        for (const mod of curriculum.modules) {
-            for (const lesson of mod.lessons) {
-                const completed = isTrackableLessonKind(lesson.kind)
-                    ? completedIds.has(lesson.id)
-                    : false;
-                if (lesson.isUnlocked && !completed) {
-                    pick = lesson; break;
-                }
+        for (const lesson of flat) {
+            const completed = isTrackableLessonKind(lesson.kind)
+                ? completedIds.has(lessonProgressId(lesson))
+                : false;
+            if (effectiveLessonUnlocked(lesson) && !completed) {
+                pick = lesson;
+                break;
             }
-            if (pick) break;
         }
         // fallback: first lesson at all
         if (!pick) pick = curriculum.modules[0]?.lessons[0] ?? null;
         setCurrentLesson(pick);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [curriculum?.courseId, searchParams]);
+    }, [curriculum?.courseId, searchParams, completedContentItemIds]);
 
     // ── Fetch current lesson details (video url, article content etc.) ─────
     const { data: lessonDetail, isLoading: lessonLoading } = useAcademyLesson(
@@ -309,7 +339,7 @@ export default function CourseLearnPage() {
             toast.info('Loại nội dung này không được tính vào tiến độ học.');
             return;
         }
-        if (completedIds.has(currentLesson.id)) { toast.info('Nội dung này đã được hoàn thành!'); return; }
+        if (completedIds.has(lessonProgressId(currentLesson))) { toast.info('Nội dung này đã được hoàn thành!'); return; }
         try {
             await academyLearningProgressApi.trackProgress({
                 lessonId: currentLesson.id,
@@ -323,13 +353,12 @@ export default function CourseLearnPage() {
     }, [currentLesson, completedIds, queryClient, classId]);
 
     // ── Nav ────────────────────────────────────────────────────────────────
-    const allLessons: CurriculumLesson[] = curriculum?.modules.flatMap((m: any) => m.lessons) ?? [];
     const currentIndex = currentLesson ? allLessons.findIndex(l => l.id === currentLesson.id) : -1;
     const prevLesson = currentIndex > 0 ? (allLessons[currentIndex - 1] ?? null) : null;
     const nextLesson = currentIndex < allLessons.length - 1 ? (allLessons[currentIndex + 1] ?? null) : null;
 
     const goTo = (lesson: CurriculumLesson | null) => {
-        if (!lesson?.isUnlocked) return;
+        if (!lesson || !effectiveLessonUnlocked(lesson)) return;
         setCurrentLesson(lesson);
         setSidebarOpen(false);
         setActiveTab('content');
@@ -345,7 +374,7 @@ export default function CourseLearnPage() {
     const progressLessons = allLessons.filter((lesson) => isTrackableLessonKind(lesson.kind));
     const totalLessons = progressLessons.length || allLessons.length;
     const completedCount = (progressLessons.length
-        ? progressLessons.filter((lesson) => completedIds.has(lesson.id))
+        ? progressLessons.filter((lesson) => completedIds.has(lessonProgressId(lesson)))
         : []
     ).length;
     const progressPct = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
@@ -353,7 +382,7 @@ export default function CourseLearnPage() {
     const strokeDashoffset = circumference - (progressPct / 100) * circumference;
     const isCurrentDone = !!currentLesson &&
         isTrackableLessonKind(currentLesson.kind) &&
-        completedIds.has(currentLesson.id);
+        completedIds.has(lessonProgressId(currentLesson));
 
     // ── Loading ────────────────────────────────────────────────────────────
     if (classLoading || curriculumLoading) {
@@ -469,7 +498,7 @@ export default function CourseLearnPage() {
                                     </div>
                                 </div>
                                 <div className="flex flex-wrap gap-2 shrink-0">
-                                    <button onClick={() => goTo(prevLesson)} disabled={!prevLesson?.isUnlocked}
+                                    <button onClick={() => goTo(prevLesson)} disabled={!prevLesson || !effectiveLessonUnlocked(prevLesson)}
                                         className="px-4 py-2.5 border border-border rounded-lg font-semibold text-sm hover:bg-muted transition disabled:opacity-40 flex items-center gap-1">
                                         <ChevronLeft className="h-4 w-4" /> Bài trước
                                     </button>
@@ -479,7 +508,7 @@ export default function CourseLearnPage() {
                                             <CheckCircle2 className="h-4 w-4" /> Hoàn thành
                                         </button>
                                     )}
-                                    <button onClick={() => goTo(nextLesson)} disabled={!nextLesson?.isUnlocked}
+                                    <button onClick={() => goTo(nextLesson)} disabled={!nextLesson || !effectiveLessonUnlocked(nextLesson)}
                                         className="px-4 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold text-sm hover:bg-primary/90 transition disabled:opacity-40 flex items-center gap-1 shadow-lg shadow-primary/20">
                                         Bài tiếp theo <ChevronRight className="h-4 w-4" />
                                     </button>
@@ -525,11 +554,11 @@ export default function CourseLearnPage() {
                     {isArticleLesson && currentLesson && !lessonLoading && (
                         <>
                             <div className="border-b border-border px-5 sm:px-10 pt-10 pb-0 max-w-3xl mx-auto flex flex-wrap gap-2 mb-0">
-                                <button onClick={() => goTo(prevLesson)} disabled={!prevLesson?.isUnlocked}
+                                <button onClick={() => goTo(prevLesson)} disabled={!prevLesson || !effectiveLessonUnlocked(prevLesson)}
                                     className="px-4 py-2 border border-border rounded-lg font-semibold text-sm hover:bg-muted transition disabled:opacity-40 flex items-center gap-1">
                                     <ChevronLeft className="h-4 w-4" /> Bài trước
                                 </button>
-                                <button onClick={() => goTo(nextLesson)} disabled={!nextLesson?.isUnlocked}
+                                <button onClick={() => goTo(nextLesson)} disabled={!nextLesson || !effectiveLessonUnlocked(nextLesson)}
                                     className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold text-sm hover:bg-primary/90 transition disabled:opacity-40 flex items-center gap-1">
                                     Bài tiếp theo <ChevronRight className="h-4 w-4" />
                                 </button>
@@ -600,6 +629,7 @@ export default function CourseLearnPage() {
                                 onToggle={() => toggleModule(mod.id)}
                                 currentLessonId={currentLesson?.id ?? null}
                                 completedIds={completedIds}
+                                isLessonUnlocked={effectiveLessonUnlocked}
                                 onSelectLesson={lesson => { setCurrentLesson(lesson); setSidebarOpen(false); }}
                             />
                         ))}

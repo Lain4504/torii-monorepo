@@ -15,6 +15,8 @@ export type JlptBankQuestionMondai = {
   id: string;
   code: string;
   titleVi: string;
+  /** Tên dạng bài theo đề JLPT (tiếng Nhật), ví dụ 漢字読み */
+  titleJa?: string | null;
 };
 
 /** Dữ liệu thô từ API có thể có `level: { code }` thay vì `levelCode` ở root. */
@@ -57,8 +59,17 @@ export function normalizeJlptBankQuestion(raw: Record<string, unknown> | null | 
     isCorrect: Boolean(o.isCorrect),
   }));
 
-  const mondai = raw.mondai && typeof raw.mondai === 'object'
-    ? (raw.mondai as JlptBankQuestionMondai)
+  const mondaiRaw = raw.mondai && typeof raw.mondai === 'object' ? (raw.mondai as Record<string, unknown>) : null;
+  const mondai = mondaiRaw
+    ? ({
+        id: String(mondaiRaw.id ?? ''),
+        code: String(mondaiRaw.code ?? ''),
+        titleVi: String(mondaiRaw.titleVi ?? ''),
+        titleJa:
+          mondaiRaw.titleJa != null && mondaiRaw.titleJa !== ''
+            ? String(mondaiRaw.titleJa)
+            : null,
+      } satisfies JlptBankQuestionMondai)
     : null;
 
   return {

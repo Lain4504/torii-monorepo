@@ -105,7 +105,7 @@ export class JlptMockService {
       andFilters.length > 0 ? { AND: andFilters } : {};
 
     const include = {
-      mondai: { select: { id: true, code: true, titleVi: true } },
+      mondai: { select: { id: true, code: true, titleVi: true, titleJa: true } },
       options: { orderBy: [{ orderIndex: 'asc' as const }] },
       level: { select: { code: true } },
     };
@@ -191,7 +191,7 @@ export class JlptMockService {
     }
 
     const include = {
-      mondai: { select: { id: true, code: true, titleVi: true } },
+      mondai: { select: { id: true, code: true, titleVi: true, titleJa: true } },
       options: { orderBy: [{ orderIndex: 'asc' as const }] },
       level: { select: { code: true } },
     };
@@ -257,7 +257,7 @@ export class JlptMockService {
     }
 
     const include = {
-      mondai: { select: { id: true, code: true, titleVi: true } },
+      mondai: { select: { id: true, code: true, titleVi: true, titleJa: true } },
       options: { orderBy: [{ orderIndex: 'asc' as const }] },
       level: { select: { code: true } },
     };
@@ -363,7 +363,7 @@ export class JlptMockService {
           orderBy: [{ orderIndex: 'asc' }],
           include: {
             section: { select: { id: true, orderIndex: true, code: true } },
-            mondai: { select: { id: true, code: true, titleVi: true } },
+            mondai: { select: { id: true, code: true, titleVi: true, titleJa: true } },
             question: {
               include: { options: { orderBy: [{ orderIndex: 'asc' }] } },
             },
