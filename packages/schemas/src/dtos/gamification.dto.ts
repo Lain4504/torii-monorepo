@@ -54,6 +54,8 @@ export const StreakStatusDTOSchema = z.object({
     currentStreak: z.number().int(),
     longestStreak: z.number().int(),
     freezeCount: z.number().int(),
+    /** true nếu hôm nay streak được nối nhờ tiêu 1 freeze (miss 1 ngày). */
+    streakSavedByFreeze: z.boolean().optional(),
     isActiveToday: z.boolean(),
     willBreakTomorrow: z.boolean(),
     lastActiveDate: z.string().nullable(),
