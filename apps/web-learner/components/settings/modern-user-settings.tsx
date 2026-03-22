@@ -29,7 +29,7 @@ import { useAvatarUrl } from '@/hooks/useAvatarUrl'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui/components/tabs'
 import { Input } from '@workspace/ui/components/input'
 import { Spinner } from '@workspace/ui/components/spinner'
-import { useChangePassword } from '@/lib/api/services/auth-api'
+import { useChangePassword, useLinkedProviders } from '@/lib/api/services/auth-api'
 
 export default function ModernUserSettings() {
     const { user } = useAppSelector((state) => state.auth)
@@ -107,12 +107,15 @@ export default function ModernUserSettings() {
         })
     }
 
+    const { data: linkedProviders } = useLinkedProviders()
+    const hasPassword = linkedProviders?.hasPassword ?? true // Default to true to avoid UI flicker
+
     const handleChangePassword = async () => {
         const currentPassword = passwordForm.currentPassword.trim()
         const newPassword = passwordForm.newPassword.trim()
         const confirmNewPassword = passwordForm.confirmNewPassword.trim()
 
-        if (!currentPassword) {
+        if (hasPassword && !currentPassword) {
             toast.error('Vui lòng nhập mật khẩu hiện tại')
             return
         }
@@ -124,27 +127,27 @@ export default function ModernUserSettings() {
             toast.error('Mật khẩu xác nhận không khớp')
             return
         }
-        if (newPassword === currentPassword) {
+        if (hasPassword && newPassword === currentPassword) {
             toast.error('Mật khẩu mới phải khác mật khẩu hiện tại')
             return
         }
 
         try {
             const res = await changePasswordMutation.mutateAsync({
-                oldPassword: currentPassword,
+                oldPassword: hasPassword ? currentPassword : '', // Send empty if no old password
                 newPassword,
             })
             if (res.success) {
-                toast.success('Đổi mật khẩu thành công')
+                toast.success(hasPassword ? 'Đổi mật khẩu thành công' : 'Thiết lập mật khẩu thành công')
                 setPasswordForm({ currentPassword: '', newPassword: '', confirmNewPassword: '' })
                 setShowCurrentPassword(false)
                 setShowNewPassword(false)
                 setShowConfirmNewPassword(false)
             } else {
-                toast.error(res.message || 'Đổi mật khẩu thất bại')
+                toast.error(res.message || (hasPassword ? 'Đổi mật khẩu thất bại' : 'Thiết lập mật khẩu thất bại'))
             }
         } catch (error: any) {
-            toast.error(error?.message || 'Đổi mật khẩu thất bại')
+            toast.error(error?.message || (hasPassword ? 'Đổi mật khẩu thất bại' : 'Thiết lập mật khẩu thất bại'))
         }
     }
 
@@ -165,7 +168,7 @@ export default function ModernUserSettings() {
                         </TabsTrigger>
                         <TabsTrigger value="password" className="gap-2">
                             <Lock className="size-4" />
-                            Đổi mật khẩu
+                            {hasPassword ? 'Đổi mật khẩu' : 'Thiết lập mật khẩu'}
                         </TabsTrigger>
                         <TabsTrigger value="sessions" className="gap-2">
                             <Monitor className="size-4" />
@@ -361,49 +364,49 @@ export default function ModernUserSettings() {
                 <TabsContent value="password" className="space-y-6 mt-0 outline-none">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Đổi mật khẩu</CardTitle>
+                            <CardTitle>{hasPassword ? 'Đổi mật khẩu' : 'Thiết lập mật khẩu'}</CardTitle>
                             <CardDescription>
-                                Cập nhật mật khẩu đăng nhập của bạn. Mật khẩu mới phải có ít nhất 8 ký tự.
+                                {hasPassword 
+                                    ? 'Cập nhật mật khẩu đăng nhập của bạn. Mật khẩu mới phải có ít nhất 8 ký tự.'
+                                    : 'Tên đăng nhập của bạn là email. Hãy thiết lập mật khẩu để có thể đăng nhập bằng email & mật khẩu.'}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
                             <FieldGroup>
                                 <FieldSet>
                                     <FieldLegend>Mật khẩu</FieldLegend>
-                                    <FieldDescription>
-                                        Vì lý do bảo mật, vui lòng nhập mật khẩu hiện tại để xác nhận thay đổi.
-                                    </FieldDescription>
-
-                                    <Field>
-                                        <FieldLabel htmlFor="currentPassword">Mật khẩu hiện tại</FieldLabel>
-                                        <div className="relative">
-                                            <Input
-                                                id="currentPassword"
-                                                type={showCurrentPassword ? 'text' : 'password'}
-                                                value={passwordForm.currentPassword}
-                                                onChange={(e) =>
-                                                    setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))
-                                                }
-                                                placeholder="••••••••"
-                                                className="pr-10"
-                                                autoComplete="current-password"
-                                            />
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="icon"
-                                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                                onClick={() => setShowCurrentPassword((v) => !v)}
-                                            >
-                                                {showCurrentPassword ? (
-                                                    <EyeOff className="size-4 text-muted-foreground" />
-                                                ) : (
-                                                    <Eye className="size-4 text-muted-foreground" />
-                                                )}
-                                                <span className="sr-only">Hiện/ẩn mật khẩu</span>
-                                            </Button>
-                                        </div>
-                                    </Field>
+                                    {hasPassword && (
+                                        <Field>
+                                            <FieldLabel htmlFor="currentPassword">Mật khẩu hiện tại</FieldLabel>
+                                            <div className="relative">
+                                                <Input
+                                                    id="currentPassword"
+                                                    type={showCurrentPassword ? 'text' : 'password'}
+                                                    value={passwordForm.currentPassword}
+                                                    onChange={(e) =>
+                                                        setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))
+                                                    }
+                                                    placeholder="••••••••"
+                                                    className="pr-10"
+                                                    autoComplete="current-password"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                                    onClick={() => setShowCurrentPassword((v) => !v)}
+                                                >
+                                                    {showCurrentPassword ? (
+                                                        <EyeOff className="size-4 text-muted-foreground" />
+                                                    ) : (
+                                                        <Eye className="size-4 text-muted-foreground" />
+                                                    )}
+                                                    <span className="sr-only">Hiện/ẩn mật khẩu</span>
+                                                </Button>
+                                            </div>
+                                        </Field>
+                                    )}
 
                                     <Field>
                                         <FieldLabel htmlFor="newPassword">Mật khẩu mới</FieldLabel>
@@ -493,7 +496,7 @@ export default function ModernUserSettings() {
                                                 Đang cập nhật...
                                             </>
                                         ) : (
-                                            'Cập nhật mật khẩu'
+                                            hasPassword ? 'Cập nhật mật khẩu' : 'Thiết lập mật khẩu'
                                         )}
                                     </Button>
                                 </Field>

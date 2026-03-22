@@ -25,7 +25,8 @@ const getStatusLabel = (status: string) => {
         archived: 'Đã lưu trữ',
         scheduled: 'Đã lên lịch',
     };
-    return labels[status] || status;
+    const normalizedStatus = status?.toLowerCase();
+    return labels[normalizedStatus] || status;
 };
 
 export const getBlogColumns = ({ onEdit, onDelete, onScheduleChange, page, limit }: BlogColumnsProps) => [
@@ -111,7 +112,17 @@ export const getBlogColumns = ({ onEdit, onDelete, onScheduleChange, page, limit
     columnHelper.accessor('status', {
         header: 'Trạng thái',
         cell: (info) => {
-            const status = info.getValue() as string;
+            const blog = info.row.original;
+            let status = (info.getValue() as string)?.toLowerCase();
+
+            // Virtual status: if scheduled and time passed, show as published
+            const isPastScheduled = status === 'scheduled' &&
+                blog.publishedAt && new Date(blog.publishedAt) <= new Date();
+
+            if (isPastScheduled) {
+                status = 'published';
+            }
+
             const isScheduled = status === 'scheduled';
 
             return (

@@ -102,13 +102,19 @@ export class BlogService implements IBlogService {
     }
 
     // Create blog
+    // Determine status and publication date
     if (finalDto.status === BlogStatus.PUBLISHED && !finalDto.publishedAt) {
+      // If setting to published without a date, use now
       finalDto.publishedAt = new Date();
-    } else if (
-      finalDto.publishedAt &&
-      new Date(finalDto.publishedAt) > new Date()
-    ) {
-      finalDto.status = BlogStatus.SCHEDULED;
+    } else if (finalDto.publishedAt) {
+      const pubDate = new Date(finalDto.publishedAt);
+      if (pubDate > new Date()) {
+        // Future date means scheduled
+        finalDto.status = BlogStatus.SCHEDULED;
+      } else if (finalDto.status === BlogStatus.SCHEDULED || !finalDto.status) {
+        // Past date for a scheduled post means it's effectively published
+        finalDto.status = BlogStatus.PUBLISHED;
+      }
     }
 
     // Create blog
@@ -149,36 +155,61 @@ export class BlogService implements IBlogService {
     const limitNum = parseInt(String(query.limit || 10), 10);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.BlogWhereInput = {};
-
-    if (query.status) {
-      where.status = query.status;
-      // If status is published, only show posts with publishedAt <= now unless showScheduled is requested (admin)
-      if (query.status === BlogStatus.PUBLISHED && !query.showScheduled) {
-        where.publishedAt = {
-          lte: new Date(),
-        };
-      } else if (
-        query.status === BlogStatus.SCHEDULED &&
-        !query.showScheduled
-      ) {
-        // Exclude scheduled posts from public view unless requested
-        where.status = {
-          not: BlogStatus.SCHEDULED,
-        };
-      }
-    }
+    const where: Prisma.BlogWhereInput = {
+      AND: [],
+    };
+    const and = where.AND as Prisma.BlogWhereInput[];
 
     if (query.authorId) {
-      where.authorId = query.authorId;
+      and.push({ authorId: query.authorId });
     }
 
+    // Handle status filtering with "Virtual Publication" logic
+    if (query.status === BlogStatus.PUBLISHED) {
+      // "Published" view includes explicitly published + passed scheduled posts
+      and.push({
+        OR: [
+          { status: BlogStatus.PUBLISHED },
+          {
+            status: BlogStatus.SCHEDULED,
+            publishedAt: { lte: new Date() },
+          },
+        ],
+      });
+    } else if (query.status === BlogStatus.SCHEDULED) {
+      if (query.showScheduled) {
+        // Admin view for "Scheduled" tab usually wants future posts
+        // But if they want ALL scheduled, we could just filter by status.
+        // For now, let's keep it to Future only in the "Scheduled" tab if it's the specific filter.
+        and.push({
+          status: BlogStatus.SCHEDULED,
+          publishedAt: { gt: new Date() },
+        });
+      } else {
+        // Public view for "Scheduled" (rare) only shows passed ones
+        and.push({
+          status: BlogStatus.SCHEDULED,
+          publishedAt: { lte: new Date() },
+        });
+      }
+    } else if (query.status) {
+      and.push({ status: query.status });
+    }
+
+    // Search filter
     if (query.search) {
-      where.OR = [
-        { title: { contains: query.search, mode: 'insensitive' } },
-        { content: { contains: query.search, mode: 'insensitive' } },
-        { slug: { contains: query.search, mode: 'insensitive' } },
-      ];
+      and.push({
+        OR: [
+          { title: { contains: query.search, mode: 'insensitive' } },
+          { content: { contains: query.search, mode: 'insensitive' } },
+          { slug: { contains: query.search, mode: 'insensitive' } },
+        ],
+      });
+    }
+
+    // If no filters added, remove the empty AND
+    if (and.length === 0) {
+      delete where.AND;
     }
 
     const orderBy: Prisma.BlogOrderByWithRelationInput = {};
@@ -317,12 +348,28 @@ export class BlogService implements IBlogService {
       updateData.slug = slug;
     }
 
-    if (dto.publishedAt !== undefined) {
-      updateData.publishedAt = dto.publishedAt;
-      if (dto.status === BlogStatus.PUBLISHED && !dto.publishedAt) {
+    // Intelligent status/date handling
+    if (dto.status || dto.publishedAt !== undefined) {
+      const status = dto.status || existing.status;
+      const publishedAt =
+        dto.publishedAt !== undefined ? dto.publishedAt : existing.publishedAt;
+
+      if (status === BlogStatus.PUBLISHED && !publishedAt) {
+        // If becoming published but has no date, set to now
         updateData.publishedAt = new Date();
-      } else if (dto.publishedAt && new Date(dto.publishedAt) > new Date()) {
-        updateData.status = BlogStatus.SCHEDULED;
+        updateData.status = BlogStatus.PUBLISHED;
+      } else if (publishedAt) {
+        const pubDate = new Date(publishedAt);
+        if (pubDate > new Date()) {
+          // Future date -> Always SCHEDULED
+          updateData.status = BlogStatus.SCHEDULED;
+        } else if (status === BlogStatus.SCHEDULED || status === BlogStatus.DRAFT) {
+          // Past date and currently scheduled/draft -> effectively PUBLISHED
+          // Only auto-publish if it was intended to be scheduled/published
+          if (status !== BlogStatus.DRAFT || dto.status === BlogStatus.PUBLISHED) {
+            updateData.status = BlogStatus.PUBLISHED;
+          }
+        }
       }
     }
 

@@ -868,19 +868,22 @@ export class AuthService implements IAuthService {
   ): Promise<void> {
     const user = await this.usersRepository.findById(userId);
 
-    if (!user || !user.password) {
-      throw new UnauthorizedException(
-        'User account not found or has no password',
-      );
+    if (!user) {
+      throw new UnauthorizedException('User account not found');
     }
 
-    // 1. Verify old password
-    const isOldPasswordCorrect = await argon2.verify(
-      user.password,
-      oldPassword,
-    );
-    if (!isOldPasswordCorrect) {
-      throw new UnauthorizedException('Current password is incorrect');
+    // 1. Verify old password if it exists
+    if (user.password) {
+      if (!oldPassword) {
+        throw new UnauthorizedException('Current password is required');
+      }
+      const isOldPasswordCorrect = await argon2.verify(
+        user.password,
+        oldPassword,
+      );
+      if (!isOldPasswordCorrect) {
+        throw new UnauthorizedException('Current password is incorrect');
+      }
     }
 
     // 2. Hash new password
@@ -1156,19 +1159,36 @@ export class AuthService implements IAuthService {
         };
       const providers = currentMetadata.providers || ['email'];
 
+      const metadataToMerge = (googleUser as unknown as UserMetadata) || {};
+
       await this.usersRepository.update(existingUser.id, {
-        avatarUrl: googleUser.picture,
+        avatarUrl: existingUser.avatarUrl || googleUser.picture,
         appMetadata: {
           ...currentMetadata,
           providers: [...new Set([...providers, 'google'])],
         } as unknown as Prisma.InputJsonValue,
-        userMetadata:
-          googleUser as unknown as UserMetadata as unknown as Prisma.InputJsonValue,
+        userMetadata: {
+          ...((existingUser.userMetadata as unknown as UserMetadata) || {}),
+          ...metadataToMerge,
+        } as unknown as Prisma.InputJsonValue,
         verifiedAt: googleUser.email_verified
           ? new Date()
           : existingUser.verifiedAt,
         lastSignInAt: new Date(),
       });
+
+      // Emit audit log
+      this.natsClient.emit(
+        { cmd: 'identity.audit.log' },
+        {
+          userId: existingUser.id,
+          action: 'user.identity_linked',
+          entity: 'user_identity',
+          entityId: googleUser.sub,
+          description: `Automatically linked Google account: ${googleUser.sub}`,
+          metadata: { provider: 'google', providerId: googleUser.sub },
+        },
+      );
 
       const { permissions } =
         await this.authorizationService.getUserPermissions(
@@ -1387,17 +1407,34 @@ export class AuthService implements IAuthService {
         };
       const providers = currentMetadata.providers || ['email'];
 
+      const metadataToMerge = (facebookUser as unknown as UserMetadata) || {};
+
       await this.usersRepository.update(existingUser.id, {
         avatarUrl: existingUser.avatarUrl || facebookUser.picture?.data.url,
         appMetadata: {
           ...currentMetadata,
           providers: [...new Set([...providers, 'facebook'])],
         } as unknown as Prisma.InputJsonValue,
-        userMetadata:
-          facebookUser as unknown as UserMetadata as unknown as Prisma.InputJsonValue,
+        userMetadata: {
+          ...((existingUser.userMetadata as unknown as UserMetadata) || {}),
+          ...metadataToMerge,
+        } as unknown as Prisma.InputJsonValue,
         verifiedAt: existingUser.verifiedAt || new Date(), // Facebook verify is implicit or just trust it
         lastSignInAt: new Date(),
       });
+
+      // Emit audit log
+      this.natsClient.emit(
+        { cmd: 'identity.audit.log' },
+        {
+          userId: existingUser.id,
+          action: 'user.identity_linked',
+          entity: 'user_identity',
+          entityId: facebookUser.id,
+          description: `Automatically linked Facebook account: ${facebookUser.id}`,
+          metadata: { provider: 'facebook', providerId: facebookUser.id },
+        },
+      );
 
       const { permissions } =
         await this.authorizationService.getUserPermissions(
@@ -1597,94 +1634,57 @@ export class AuthService implements IAuthService {
     const avatarUrl =
       provider === 'facebook'
         ? (providerUser as FacebookUserInfo).picture?.data.url
-        : undefined;
+        : (providerUser as GoogleUserInfo).picture;
+
+    const metadataToMerge = (providerUser as unknown as UserMetadata) || {};
 
     await this.usersRepository.update(userId, {
-      avatarUrl: user?.avatarUrl || avatarUrl,
+      avatarUrl: user.avatarUrl || avatarUrl,
       appMetadata: {
         ...currentMetadata,
         providers: [...new Set([...providers, provider])],
       } as unknown as Prisma.InputJsonValue,
-      userMetadata:
-        providerUser as unknown as UserMetadata as unknown as Prisma.InputJsonValue,
-    });
-  }
-
-  /**
-   * Link Google account to existing user
-   */
-  async linkGoogleAccount(userId: string, idToken: string): Promise<void> {
-    // Verify Google ID token
-    const googleUser = await this.googleAuthService.verifyIdToken(idToken);
-
-    // Check if Google account already linked to another user
-    const existingIdentity = await this.userIdentityRepository.findByProvider(
-      'google',
-      googleUser.sub,
-    );
-
-    if (existingIdentity) {
-      throw new ConflictException(
-        'This Google account is already linked to another user',
-      );
-    }
-
-    // Check if already linked to this user
-    const hasGoogle = await this.userIdentityRepository.hasProvider(
-      userId,
-      'google',
-    );
-    if (hasGoogle) {
-      throw new ConflictException('Google account already linked to this user');
-    }
-
-    // Create Google identity
-    await this.userIdentityRepository.create({
-      user: { connect: { id: userId } },
-      provider: 'google',
-      providerId: googleUser.sub,
-      providerData: googleUser as unknown as Prisma.InputJsonValue,
-    });
-
-    // Update user metadata
-    const user = await this.usersRepository.findById(userId);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    // Block if banned or deleted
-    this.checkUserStatus(user);
-
-    const currentMetadata = (user.appMetadata as unknown as AppMetadata) || {
-      provider: 'email',
-      providers: ['email'],
-    };
-    const providers = currentMetadata.providers || ['email'];
-
-    await this.usersRepository.update(userId, {
-      avatarUrl: user?.avatarUrl || googleUser.picture,
-      appMetadata: {
-        ...currentMetadata,
-        providers: [...new Set([...providers, 'google'])],
+      userMetadata: {
+        ...((user.userMetadata as unknown as UserMetadata) || {}),
+        ...metadataToMerge,
       } as unknown as Prisma.InputJsonValue,
-      userMetadata:
-        googleUser as unknown as UserMetadata as unknown as Prisma.InputJsonValue,
     });
+
+    // 6. Emit audit log
+    this.natsClient.emit(
+      { cmd: 'identity.audit.log' },
+      {
+        userId,
+        action: 'user.identity_linked',
+        entity: 'user_identity',
+        entityId: providerId,
+        description: `Linked ${provider} account: ${providerId}`,
+        metadata: { provider, providerId },
+      },
+    );
   }
 
   /**
    * Unlink OAuth provider from user
    */
   async unlinkProvider(userId: string, provider: string): Promise<void> {
-    // Check if user has multiple providers
+    // 1. Get user and check if they exist
+    const user = await this.usersRepository.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // 2. Check if user has multiple authentication methods
     const identityCount =
       await this.userIdentityRepository.countByUserId(userId);
+    const hasPassword = !!user.password;
 
-    if (identityCount <= 1) {
+    // Cannot unlink if this is the ONLY way to log in
+    if (identityCount <= 1 && !hasPassword) {
       throw new BadRequestException('Cannot unlink last authentication method');
     }
 
-    // Find and delete identity
+    // 3. Find and delete identity
     const identities = await this.userIdentityRepository.findByUserId(userId);
     const identity = identities.find((i) => i.provider === provider);
 
@@ -1694,9 +1694,8 @@ export class AuthService implements IAuthService {
 
     await this.userIdentityRepository.delete(identity.id);
 
-    // Update user metadata
-    const user = await this.usersRepository.findById(userId);
-    const currentMetadata = (user?.appMetadata as unknown as AppMetadata) || {
+    // 4. Update user metadata
+    const currentMetadata = (user.appMetadata as unknown as AppMetadata) || {
       provider: 'email',
       providers: ['email'],
     };
@@ -1711,6 +1710,19 @@ export class AuthService implements IAuthService {
         providers,
       } as unknown as Prisma.InputJsonValue,
     });
+
+    // 5. Emit audit log
+    this.natsClient.emit(
+      { cmd: 'identity.audit.log' },
+      {
+        userId,
+        action: 'user.identity_unlinked',
+        entity: 'user_identity',
+        entityId: identity.providerId,
+        description: `Unlinked ${provider} account`,
+        metadata: { provider, providerId: identity.providerId },
+      },
+    );
   }
 
   /**
@@ -1720,7 +1732,7 @@ export class AuthService implements IAuthService {
     const identities = await this.userIdentityRepository.findByUserId(userId);
     const user = await this.usersRepository.findById(userId);
 
-    return {
+    const result = {
       providers: identities.map((identity) => ({
         provider: identity.provider,
         email:
@@ -1729,6 +1741,8 @@ export class AuthService implements IAuthService {
       })),
       hasPassword: !!user?.password,
     };
+    console.log(`[getLinkedProviders] Returning: ${JSON.stringify(result)}`);
+    return result;
   }
 
   // ========================================

@@ -243,10 +243,8 @@ export class AuthController {
     @Req() req: ReqWithRequester,
     @Body() dto: { oldPassword?: string; newPassword?: string },
   ) {
-    if (!dto.oldPassword || !dto.newPassword) {
-      throw new BadRequestException(
-        'Current and 8 characters long password are required',
-      );
+    if (!dto.newPassword) {
+      throw new BadRequestException('New password is required');
     }
     if (dto.newPassword.length < 8) {
       throw new BadRequestException(
@@ -550,8 +548,8 @@ export class AuthController {
     try {
       await firstValueFrom(
         this.natsClient.send(
-          { cmd: 'identity.auth.linkGoogle' },
-          { userId: requester.sub, idToken },
+          { cmd: 'identity.auth.linkProvider' },
+          { userId: requester.sub, provider: 'google', token: idToken },
         ),
       );
       return successResponse(
@@ -635,13 +633,16 @@ export class AuthController {
   async getLinkedProviders(@Req() req: ReqWithRequester) {
     const requester = req.requester;
     try {
-      const providers = await firstValueFrom(
+      const result = await firstValueFrom(
         this.natsClient.send(
           { cmd: 'identity.auth.getLinkedProviders' },
           { userId: requester.sub },
         ),
       );
-      return successResponse({ providers });
+      return successResponse({
+        providers: result.providers.map((p: any) => p.provider),
+        hasPassword: result.hasPassword,
+      });
     } catch (error: unknown) {
       return errorResponse(
         error instanceof Error

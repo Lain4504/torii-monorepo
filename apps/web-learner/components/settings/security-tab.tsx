@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react';
-import { Shield, RefreshCw, AlertTriangle, Link as LinkIcon, Unlink, Mail } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Shield, RefreshCw, AlertTriangle, Link as LinkIcon, Unlink, Mail, Plus } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@workspace/ui/components/card';
 import { Badge } from '@workspace/ui/components/badge';
@@ -9,19 +9,38 @@ import { Alert, AlertDescription, AlertTitle } from '@workspace/ui/components/al
 import { toast } from 'sonner';
 
 import { use2FAStatus } from '@/lib/api/services/two-factor-auth-api';
-import { useLinkedProviders, useUnlinkProvider } from '@/lib/api/services/auth-api';
+import { useLinkedProviders, useUnlinkProvider, useLinkGoogle, useLinkFacebook } from '@/lib/api/services/auth-api';
 import { EnableTwoFactorDialog } from './enable-two-factor-dialog';
 import { DisableTwoFactorDialog } from './disable-two-factor-dialog';
 import { BackupCodesDialog } from './backup-codes-dialog';
+import { Spinner } from '@workspace/ui/components/spinner';
 
 
 export function SecurityTab() {
     const { data: status, isLoading } = use2FAStatus();
     const { data: linkedProviders, isLoading: isLoadingProviders } = useLinkedProviders();
     const unlinkMutation = useUnlinkProvider();
+    const linkGoogleMutation = useLinkGoogle();
+    const linkFacebookMutation = useLinkFacebook();
+
     const [showEnableDialog, setShowEnableDialog] = useState(false);
     const [showDisableDialog, setShowDisableDialog] = useState(false);
     const [showBackupCodesDialog, setShowBackupCodesDialog] = useState(false);
+
+    const [googleLoading, setGoogleLoading] = useState(false);
+    const [facebookLoading, setFacebookLoading] = useState(false);
+
+    useEffect(() => {
+        // Load Google SDK
+        if (typeof window !== 'undefined' && !document.getElementById('google-gsi-script')) {
+            const googleScript = document.createElement('script');
+            googleScript.id = 'google-gsi-script';
+            googleScript.src = 'https://accounts.google.com/gsi/client';
+            googleScript.async = true;
+            googleScript.defer = true;
+            document.body.appendChild(googleScript);
+        }
+    }, []);
 
     if (isLoading) {
         return (
@@ -34,10 +53,19 @@ export function SecurityTab() {
     const isEnabled = status?.isEnabled || false;
 
     const providers = linkedProviders?.providers || [];
+    const hasPassword = linkedProviders?.hasPassword || false;
     const hasGoogle = providers.includes('google');
     const hasFacebook = providers.includes('facebook');
 
+    // Count available methods: social providers + password
+    const totalMethods = providers.length + (hasPassword ? 1 : 0);
+
     const handleUnlink = async (provider: 'google' | 'facebook') => {
+        if (totalMethods <= 1) {
+            toast.error('Không thể hủy liên kết phương thức đăng nhập cuối cùng. Vui lòng đặt mật khẩu hoặc liên kết phương thức khác trước.');
+            return;
+        }
+
         try {
             const res = await unlinkMutation.mutateAsync(provider);
             if (res.success) {
@@ -48,6 +76,102 @@ export function SecurityTab() {
         } catch (error: any) {
             toast.error(error?.message || 'Hủy liên kết thất bại');
         }
+    };
+
+    const handleLinkGoogle = () => {
+        const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+        console.log('[Debug] Google Client ID:', googleClientId);
+        if (!googleClientId) {
+            toast.error('Google OAuth chưa được cấu hình');
+            return;
+        }
+        setGoogleLoading(true);
+        if (typeof window === 'undefined' || !(window as any).google?.accounts?.id) {
+            toast.error('Google SDK chưa tải. Vui lòng thử lại sau.');
+            setGoogleLoading(false);
+            return;
+        }
+
+        (window as any).google.accounts.id.initialize({
+            client_id: googleClientId,
+            callback: async (response: any) => {
+                try {
+                    const res = await linkGoogleMutation.mutateAsync(response.credential);
+                    if (res.success) {
+                        toast.success('Liên kết Google thành công');
+                    } else {
+                        toast.error(res.message || 'Liên kết Google thất bại');
+                    }
+                } catch (error: any) {
+                    toast.error(error?.message || 'Liên kết Google thất bại');
+                } finally {
+                    setGoogleLoading(false);
+                }
+            },
+        });
+
+        // Use standard button rendering to bypass strict One Tap origin checks in some browsers
+        const buttonWrapper = document.createElement('div');
+        buttonWrapper.style.cssText = 'position:absolute;opacity:0;pointer-events:none;width:0;height:0';
+        document.body.appendChild(buttonWrapper);
+        (window as any).google.accounts.id.renderButton(buttonWrapper, { type: 'standard', size: 'large' });
+
+        setTimeout(() => {
+            const btn = buttonWrapper.querySelector('div[role="button"]') as HTMLElement;
+            if (btn) {
+                btn.click();
+            } else {
+                try {
+                    (window as any).google.accounts.id.prompt();
+                } catch {
+                    setGoogleLoading(false);
+                    toast.error('Không thể khởi tạo Google Sign-In');
+                }
+            }
+            // Cleanup after a while
+            setTimeout(() => document.body.removeChild(buttonWrapper), 2000);
+        }, 100);
+    };
+
+    const handleLinkFacebook = () => {
+        const facebookAppId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
+        if (!facebookAppId) {
+            toast.error('Facebook App ID chưa được cấu hình');
+            return;
+        }
+
+        if (typeof window === 'undefined' || !(window as any).FB) {
+            toast.error('Facebook SDK chưa tải. Vui lòng thử lại sau.');
+            return;
+        }
+
+        setFacebookLoading(true);
+        (window as any).FB.login(
+            (response: any) => {
+                if (response.authResponse) {
+                    const { accessToken } = response.authResponse;
+                    linkFacebookMutation
+                        .mutateAsync(accessToken)
+                        .then((res) => {
+                            if (res.success) {
+                                toast.success('Liên kết Facebook thành công');
+                            } else {
+                                toast.error(res.message || 'Liên kết Facebook thất bại');
+                            }
+                        })
+                        .catch((error: any) => {
+                            toast.error(error?.message || 'Liên kết Facebook thất bại');
+                        })
+                        .finally(() => {
+                            setFacebookLoading(false);
+                        });
+                } else {
+                    setFacebookLoading(false);
+                    toast.error('Liên kết Facebook bị hủy');
+                }
+            },
+            { scope: 'public_profile,email' }
+        );
     };
 
     return (
@@ -148,8 +272,8 @@ export function SecurityTab() {
                         </CardDescription>
                     </div>
                     <Badge variant="outline" className="flex items-center gap-1">
-                        <Mail className="w-3 h-3" />
-                        Đăng nhập chính: Email
+                        {hasPassword ? <Mail className="w-3 h-3" /> : <Shield className="w-3 h-3" />}
+                        Đăng nhập chính: {hasPassword ? 'Email & Password' : 'Social OAuth'}
                     </Badge>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -171,7 +295,7 @@ export function SecurityTab() {
                                     >
                                         {hasGoogle ? 'Đã liên kết' : 'Chưa liên kết'}
                                     </Badge>
-                                    {hasGoogle && (
+                                    {hasGoogle ? (
                                         <Button
                                             variant="outline"
                                             size="sm"
@@ -180,6 +304,16 @@ export function SecurityTab() {
                                         >
                                             <Unlink className="w-3 h-3 mr-1.5" />
                                             Hủy liên kết
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            disabled={googleLoading}
+                                            onClick={handleLinkGoogle}
+                                        >
+                                            {googleLoading ? <Spinner className="w-3 h-3 mr-1.5" /> : <Plus className="w-3 h-3 mr-1.5" />}
+                                            Kết nối Google
                                         </Button>
                                     )}
                                 </div>
@@ -199,7 +333,7 @@ export function SecurityTab() {
                                     >
                                         {hasFacebook ? 'Đã liên kết' : 'Chưa liên kết'}
                                     </Badge>
-                                    {hasFacebook && (
+                                    {hasFacebook ? (
                                         <Button
                                             variant="outline"
                                             size="sm"
@@ -209,13 +343,22 @@ export function SecurityTab() {
                                             <Unlink className="w-3 h-3 mr-1.5" />
                                             Hủy liên kết
                                         </Button>
+                                    ) : (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            disabled={facebookLoading}
+                                            onClick={handleLinkFacebook}
+                                        >
+                                            {facebookLoading ? <Spinner className="w-3 h-3 mr-1.5" /> : <Plus className="w-3 h-3 mr-1.5" />}
+                                            Kết nối Facebook
+                                        </Button>
                                     )}
                                 </div>
                             </div>
 
                             <p className="text-xs text-muted-foreground">
-                                Để thêm mới liên kết, hãy đăng nhập bằng Google hoặc Facebook từ màn hình đăng nhập. 
-                                Chúng tôi sẽ tự động gắn tài khoản mạng xã hội với tài khoản hiện tại của bạn nếu email trùng khớp.
+                                Ngoài việc đăng nhập bằng Google/Facebook trực tiếp, bạn có thể liên kết chúng tại đây để quản lý tài khoản thuận tiện hơn.
                             </p>
                         </div>
                     )}

@@ -45,6 +45,7 @@ const achievementTypes = [
     { value: 'POINTS_EARNED_TOTAL', label: 'Tổng điểm tích lũy' },
     { value: 'LEVEL_REACHED', label: 'Cấp độ đạt được' },
     { value: 'REVIEWS_PUBLISHED', label: 'Số lượt đánh giá khóa học' },
+    { value: 'CUSTOM', label: 'Tùy chỉnh / Khác' },
 ];
 
 const icons = [
@@ -66,10 +67,10 @@ const formSchema = z.object({
     icon: z.string(),
     requirements: z.object({
         type: z.string(),
-        value: z.number().min(1),
+        value: z.number().min(1).optional().default(1),
     }),
     rewards: z.object({
-        points: z.number().min(0),
+        points: z.number().min(1, "Phần thưởng (XP) phải lớn hơn 0"),
     }),
     isActive: z.boolean(),
     orderIndex: z.number(),
@@ -96,7 +97,7 @@ export function EditAchievementSheet({
         watch,
         formState: { errors, isDirty },
     } = useForm<AchievementFormValues>({
-        resolver: zodResolver(formSchema),
+        resolver: zodResolver(formSchema) as any,
         defaultValues: {
             code: achievement.code,
             title: achievement.title,
@@ -140,6 +141,7 @@ export function EditAchievementSheet({
     const category = watch("category");
     const icon = watch("icon");
     const reqType = watch("requirements.type");
+    const needsValue = reqType !== 'CUSTOM';
 
     const onSubmit: SubmitHandler<AchievementFormValues> = (values) => {
         updateAchievement({ id: achievement.id, data: values }, {
@@ -194,7 +196,7 @@ export function EditAchievementSheet({
                                     <div className="grid grid-cols-2 gap-4">
                                         <Field>
                                             <FieldLabel>Phân loại</FieldLabel>
-                                            <Select value={category} onValueChange={(val) => setValue("category", val)}>
+                                            <Select value={category} onValueChange={(val) => setValue("category", val, { shouldDirty: true })}>
                                                 <SelectTrigger>
                                                     <SelectValue />
                                                 </SelectTrigger>
@@ -205,7 +207,7 @@ export function EditAchievementSheet({
                                         </Field>
                                         <Field>
                                             <FieldLabel>Icon hiển thị</FieldLabel>
-                                            <Select value={icon} onValueChange={(val) => setValue("icon", val)}>
+                                            <Select value={icon} onValueChange={(val) => setValue("icon", val, { shouldDirty: true })}>
                                                 <SelectTrigger>
                                                     <SelectValue />
                                                 </SelectTrigger>
@@ -229,7 +231,7 @@ export function EditAchievementSheet({
                                     <div className="grid grid-cols-2 gap-4">
                                         <Field>
                                             <FieldLabel>Loại chỉ số</FieldLabel>
-                                            <Select value={reqType} onValueChange={(val) => setValue("requirements.type", val)}>
+                                            <Select value={reqType} onValueChange={(val) => setValue("requirements.type", val, { shouldDirty: true })}>
                                                 <SelectTrigger>
                                                     <SelectValue />
                                                 </SelectTrigger>
@@ -238,17 +240,23 @@ export function EditAchievementSheet({
                                                 </SelectContent>
                                             </Select>
                                         </Field>
-                                        <Field>
-                                            <FieldLabel>Giá trị cần đạt</FieldLabel>
-                                            <Input type="number" {...register("requirements.value", { valueAsNumber: true })} />
-                                        </Field>
+                                        {needsValue && (
+                                            <Field>
+                                                <FieldLabel>Giá trị cần đạt</FieldLabel>
+                                                <Input type="number" {...register("requirements.value", { valueAsNumber: true })} />
+                                                {errors.requirements?.value && <FieldDescription className="text-destructive">{errors.requirements.value.message}</FieldDescription>}
+                                            </Field>
+                                        )}
                                     </div>
                                 </FieldSet>
 
                                 <FieldSet>
                                     <div className="grid grid-cols-2 gap-4">
                                         <Field>
-                                            <FieldLabel>Phần thưởng (Points)</FieldLabel>
+                                            <FieldLabel className="flex items-center gap-1.5">
+                                                <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                                                Phần thưởng (XP)
+                                            </FieldLabel>
                                             <Input type="number" {...register("rewards.points", { valueAsNumber: true })} />
                                             {errors.rewards?.points && <FieldDescription className="text-destructive">{errors.rewards.points.message}</FieldDescription>}
                                         </Field>
@@ -263,10 +271,10 @@ export function EditAchievementSheet({
                                             <FieldLabel>Đang hoạt động</FieldLabel>
                                             <FieldDescription>Học viên có thể đạt được thành tích này.</FieldDescription>
                                         </div>
-                                        <Switch
-                                            checked={watch("isActive")}
-                                            onCheckedChange={(val) => setValue("isActive", val)}
-                                        />
+                                            <Switch
+                                                checked={watch("isActive")}
+                                                onCheckedChange={(val) => setValue("isActive", val, { shouldDirty: true })}
+                                            />
                                     </Field>
                                 </FieldSet>
                             </FieldGroup>

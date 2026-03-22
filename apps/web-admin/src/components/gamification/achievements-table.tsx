@@ -90,8 +90,8 @@ export function AchievementsTable({ data, isLoading, onEdit, onDelete }: Achieve
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        <div className="flex items-center gap-1 font-bold text-amber-500">
-                                            <Zap className="h-3 w-3" />
+                                        <div className="flex items-center gap-1 font-bold text-amber-600">
+                                            <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
                                             {(achievement.rewards as any)?.points || 0}
                                         </div>
                                     </TableCell>

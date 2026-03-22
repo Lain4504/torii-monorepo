@@ -27,7 +27,7 @@ import { toast } from 'sonner';
 import { useUpdateBlog } from '@/lib/api/services/blog';
 import { Spinner } from "@workspace/ui/components/spinner";
 import { BlogStatus } from '@workspace/schemas';
-import { formatDateTime } from "@/lib/format-utils"
+import { formatDateTime, formatForDateTimeLocal } from "@/lib/format-utils"
 
 interface ScheduleBlogDialogProps {
     open: boolean;
@@ -110,7 +110,7 @@ export function ScheduleBlogDialog({
                                 type="datetime-local"
                                 value={publishedAt}
                                 onChange={(e) => setPublishedAt(e.target.value)}
-                                min={new Date().toISOString().slice(0, 16)}
+                                min={formatForDateTimeLocal(new Date())}
                             />
                         </Field>
                     </div>
