@@ -43,12 +43,29 @@ import {
 import { useBlog, useCreateBlog, useUpdateBlog } from "@/lib/api/services/blog"
 import type React from "react"
 
-const blogSchema = z.object({
-  title: z.string().min(1, "Tiêu đề là bắt buộc"),
-  excerpt: z.string().optional(),
-  status: z.nativeEnum(BlogStatus),
-  publishedAt: z.string().optional(),
-})
+const blogSchema = z
+  .object({
+    title: z.string().min(1, "Tiêu đề là bắt buộc"),
+    excerpt: z.string().optional(),
+    content: z.string().min(1, "Nội dung không được để trống"),
+    status: z.nativeEnum(BlogStatus),
+    publishedAt: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.status === BlogStatus.SCHEDULED) {
+        if (!data.publishedAt) return false
+        const pubDate = new Date(data.publishedAt)
+        // Cho phép trễ 1 phút để tránh lỗi do thời gian xử lý form
+        return pubDate > new Date(Date.now() - 60000)
+      }
+      return true
+    },
+    {
+      message: "Thời gian đăng bài phải ở trong tương lai",
+      path: ["publishedAt"],
+    },
+  )
 
 type BlogFormValues = z.infer<typeof blogSchema>
 
@@ -66,7 +83,6 @@ export function BlogSheet({ open, onOpenChange, blogId }: BlogSheetProps) {
 
   const user = useAppSelector(selectUser)
 
-  const [content, setContent] = useState<string>("")
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null)
   const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null)
   const [uploadingCover, setUploadingCover] = useState(false)
@@ -75,6 +91,7 @@ export function BlogSheet({ open, onOpenChange, blogId }: BlogSheetProps) {
     () => ({
       title: "",
       excerpt: "",
+      content: "",
       status: BlogStatus.DRAFT,
       publishedAt: "",
     }),
@@ -99,19 +116,19 @@ export function BlogSheet({ open, onOpenChange, blogId }: BlogSheetProps) {
     if (isEditing) {
       if (!blog || !blogId) return
 
-      setContent(blog.content || "")
+      const normalizedStatus = (blog.status?.toLowerCase() as BlogStatus) || BlogStatus.DRAFT
       reset({
         title: blog.title || "",
         excerpt: blog.excerpt || "",
-        status: (blog.status?.toLowerCase() as BlogStatus) || BlogStatus.DRAFT,
+        content: blog.content || "",
+        status: normalizedStatus,
         publishedAt: blog.publishedAt
           ? formatForDateTimeLocal(blog.publishedAt)
           : "",
       })
       setCoverImageFile(null)
-      setCoverImagePreview(null)
+      setCoverImagePreview(blog.coverImageUrl || null)
     } else {
-      setContent("")
       setCoverImageFile(null)
       setCoverImagePreview(null)
       reset(defaultValues)
@@ -170,13 +187,22 @@ export function BlogSheet({ open, onOpenChange, blogId }: BlogSheetProps) {
       if (isEditing) {
         if (!blogId || !blog) return
 
+        setUploadingCover(true)
+        let coverImageUrl: string | null = (blog.coverImageUrl as string | null) ?? null
+        if (coverImageFile) {
+          coverImageUrl = await handleFileUpload(coverImageFile, "blog-images")
+        } else if (coverImagePreview === null) {
+          coverImageUrl = null
+        }
+
         await updateBlog.mutateAsync({
           id: blogId,
           blog: {
             title: data.title,
             excerpt: data.excerpt || undefined,
-            content,
+            content: data.content,
             status: data.status,
+            coverImageUrl: coverImageUrl || undefined,
             publishedAt:
               data.status === BlogStatus.SCHEDULED && data.publishedAt
                 ? new Date(data.publishedAt)
@@ -202,7 +228,7 @@ export function BlogSheet({ open, onOpenChange, blogId }: BlogSheetProps) {
 
       const dto: BlogCreateDTO = {
         title: data.title,
-        content: content || "<p></p>",
+        content: data.content,
         excerpt: data.excerpt || undefined,
         status: data.status,
         publishedAt:
@@ -320,9 +346,13 @@ export function BlogSheet({ open, onOpenChange, blogId }: BlogSheetProps) {
                                     <SelectItem value={BlogStatus.SCHEDULED}>
                                       Lên lịch
                                     </SelectItem>
-                                    <SelectItem value={BlogStatus.ARCHIVED}>
-                                      Đã lưu trữ
-                                    </SelectItem>
+                                    {(isEditing &&
+                                      (blog?.status?.toLowerCase() === BlogStatus.PUBLISHED ||
+                                        blog?.status?.toLowerCase() === BlogStatus.ARCHIVED)) && (
+                                      <SelectItem value={BlogStatus.ARCHIVED}>
+                                        Đã lưu trữ
+                                      </SelectItem>
+                                    )}
                                   </SelectContent>
                                 </Select>
                                 <FieldError errors={[fieldState.error]} />
@@ -346,6 +376,7 @@ export function BlogSheet({ open, onOpenChange, blogId }: BlogSheetProps) {
                                     id={field.name}
                                     type="datetime-local"
                                     {...field}
+                                    min={formatForDateTimeLocal(new Date())}
                                   />
                                   <FieldError
                                     errors={[fieldState.error]}
@@ -355,56 +386,63 @@ export function BlogSheet({ open, onOpenChange, blogId }: BlogSheetProps) {
                             />
                           )}
 
-                          {!isEditing && (
-                            <Field>
-                              <FieldLabel htmlFor="cover-image-upload">
-                                Ảnh bìa (Tùy chọn)
-                              </FieldLabel>
-                              <div className="space-y-4">
-                                <div className="flex items-center gap-3">
-                                  <Input
-                                    id="cover-image-upload"
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleCoverImageChange}
-                                    className="pt-2 file:text-foreground"
-                                  />
-                                  {coverImageFile && (
-                                    <Button
-                                      type="button"
-                                      variant="outline"
-                                      size="sm"
-                                      className="gap-2 border-red-500/30 text-red-600 bg-transparent hover:bg-red-50 hover:text-red-600"
-                                      onClick={removeCoverImage}
-                                      disabled={isSubmitting}
-                                    >
-                                      <X className="h-4 w-4" />
-                                      Xóa ảnh
-                                    </Button>
-                                  )}
-                                </div>
-
-                                {(coverImagePreview || coverImageFile) && (
-                                  <div className="relative rounded-lg overflow-hidden border border-border/50 aspect-video w-full">
-                                    <img
-                                      src={coverImagePreview || ""}
-                                      alt="Bản xem trước"
-                                      className="w-full h-full object-cover"
-                                    />
-                                  </div>
+                          <Field>
+                            <FieldLabel htmlFor="cover-image-upload">
+                              Ảnh bìa (Tùy chọn)
+                            </FieldLabel>
+                            <div className="space-y-4">
+                              <div className="flex items-center gap-3">
+                                <Input
+                                  id="cover-image-upload"
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleCoverImageChange}
+                                  className="pt-2 file:text-foreground"
+                                />
+                                {(coverImageFile || coverImagePreview) && (
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="gap-2 border-red-500/30 text-red-600 bg-transparent hover:bg-red-50 hover:text-red-600"
+                                    onClick={removeCoverImage}
+                                    disabled={isSubmitting}
+                                  >
+                                    <X className="h-4 w-4" />
+                                    Xóa ảnh
+                                  </Button>
                                 )}
                               </div>
-                            </Field>
-                          )}
+
+                              {(coverImagePreview || coverImageFile) && (
+                                <div className="relative rounded-lg overflow-hidden border border-border/50 aspect-video w-full">
+                                  <img
+                                    src={coverImagePreview || ""}
+                                    alt="Bản xem trước"
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </Field>
                       </FieldGroup>
                     </FieldSet>
                   </FieldGroup>
                 </div>
 
                 <div className="h-full min-h-[500px]">
-                  <RichTextEditor
-                    initialContent={content}
-                    onUpdate={(data: string) => setContent(data)}
+                  <Controller
+                    control={control}
+                    name="content"
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <RichTextEditor
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                        <FieldError errors={[fieldState.error]} />
+                      </Field>
+                    )}
                   />
                 </div>
               </form>
