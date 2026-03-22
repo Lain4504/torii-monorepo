@@ -67,10 +67,6 @@ export const academicNavItems: NavItem[] = [
         url: "/academy/ai-subscriptions",
         icon: Bot,
         anyPermission: ["academy:subscription:admin", "academy.commerce.read", "academy.commerce.write"],
-        items: [
-            { titleKey: "Gói Subscription", url: "/academy/ai-subscriptions?tab=plans" },
-            { titleKey: "Người dùng", url: "/academy/ai-subscriptions?tab=users" },
-        ]
     },
 ];
 

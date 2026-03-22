@@ -28,24 +28,31 @@ type ApprovalTab = "courseOfferings" | "classes" | "courseProfiles"
 
 export default function ApprovalsPage() {
   const [tab, setTab] = useState<ApprovalTab>("courseOfferings")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [debouncedSearch] = useDebounceValue(searchTerm, 500)
+  
+  const [offeringSearch, setOfferingSearch] = useState("")
+  const [debouncedOfferingSearch] = useDebounceValue(offeringSearch, 500)
+
+  const [classSearch, setClassSearch] = useState("")
+  const [debouncedClassSearch] = useDebounceValue(classSearch, 500)
+
+  const [profileSearch, setProfileSearch] = useState("")
+  const [debouncedProfileSearch] = useDebounceValue(profileSearch, 500)
 
   const { data: offerings = [], isLoading: isLoadingOfferings } =
     useAcademyCourseOfferings({
       status: "PENDING_APPROVAL",
-      q: debouncedSearch || undefined,
+      q: debouncedOfferingSearch || undefined,
     })
 
   const { data: classes = [], isLoading: isLoadingClasses } = useAcademyClasses({
     status: "PENDING_APPROVAL",
-    q: debouncedSearch || undefined,
+    q: debouncedClassSearch || undefined,
   } as any)
 
   const { data: courseProfiles = [], isLoading: isLoadingCourseProfiles } =
     useAcademyCourseProfiles({
       status: "PENDING_APPROVAL",
-      q: debouncedSearch || undefined,
+      q: debouncedProfileSearch || undefined,
     })
 
   const pendingOfferings = useMemo(
@@ -85,17 +92,6 @@ export default function ApprovalsPage() {
         subtitle="Xem trước và duyệt các nội dung/chính sách bán trước khi xuất bản."
       />
 
-      <div className="flex items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-          <Input
-            placeholder="Tìm theo mã hoặc tên..."
-            className="pl-10"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-      </div>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as ApprovalTab)}>
         <TabsList className="w-full overflow-x-auto whitespace-nowrap">
@@ -117,7 +113,16 @@ export default function ApprovalsPage() {
         </TabsList>
 
         <div className="mt-6">
-          <TabsContent value="courseOfferings">
+          <TabsContent value="courseOfferings" className="space-y-4">
+            <div className="relative max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <Input
+                placeholder="Tìm Offering theo mã hoặc tên..."
+                className="pl-10 h-10"
+                value={offeringSearch}
+                onChange={(e) => setOfferingSearch(e.target.value)}
+              />
+            </div>
             <div className="bg-card border rounded-xl shadow-sm overflow-hidden">
               <Table>
                 <TableHeader className="bg-muted/50">
@@ -183,7 +188,16 @@ export default function ApprovalsPage() {
             </div>
           </TabsContent>
 
-          <TabsContent value="classes">
+          <TabsContent value="classes" className="space-y-4">
+            <div className="relative max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <Input
+                placeholder="Tìm Class theo mã hoặc tên..."
+                className="pl-10 h-10"
+                value={classSearch}
+                onChange={(e) => setClassSearch(e.target.value)}
+              />
+            </div>
             <div className="bg-card border rounded-xl shadow-sm overflow-hidden">
               <Table>
                 <TableHeader className="bg-muted/50">
@@ -253,7 +267,16 @@ export default function ApprovalsPage() {
             </div>
           </TabsContent>
 
-          <TabsContent value="courseProfiles">
+          <TabsContent value="courseProfiles" className="space-y-4">
+            <div className="relative max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <Input
+                placeholder="Tìm Course Profile theo mã hoặc tên..."
+                className="pl-10 h-10"
+                value={profileSearch}
+                onChange={(e) => setProfileSearch(e.target.value)}
+              />
+            </div>
             <div className="bg-card border rounded-xl shadow-sm overflow-hidden">
               <Table>
                 <TableHeader className="bg-muted/50">

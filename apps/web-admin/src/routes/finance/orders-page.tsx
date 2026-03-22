@@ -11,6 +11,16 @@ import {
   SelectValue,
 } from "@workspace/ui/components/select";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog";
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -50,8 +60,10 @@ export default function OrdersPage() {
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [selectedOrder, setSelectedOrder] = useState<OrderResponseDTO | null>(null);
+  const [orderToCancel, setOrderToCancel] = useState<OrderResponseDTO | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const isExportDialogOpen = useBoolean();
+  const isCancelDialogOpen = useBoolean();
 
   useEffect(() => {
     setPage(1);
@@ -218,9 +230,8 @@ export default function OrdersPage() {
               setIsSheetOpen(true);
             }}
             onCancel={(order) => {
-              if (confirm(`Bạn có chắc muốn hủy đơn hàng ${order.id.slice(0, 8)}...?`)) {
-                cancelMutation.mutate(order.id);
-              }
+              setOrderToCancel(order);
+              isCancelDialogOpen.setTrue();
             }}
             onExport={(order) => {
               // Client-side export for single item
@@ -275,6 +286,30 @@ export default function OrdersPage() {
           endDate,
         }}
       />
+
+      <AlertDialog open={isCancelDialogOpen.value} onOpenChange={isCancelDialogOpen.setValue}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận hủy đơn hàng</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn hủy đơn hàng <span className="font-mono font-bold text-foreground">{(orderToCancel as any)?.code || orderToCancel?.id.slice(0, 8)}</span>? 
+              Hành động này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Bỏ qua</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (orderToCancel) cancelMutation.mutate(orderToCancel.id);
+              }}
+              disabled={cancelMutation.isPending}
+            >
+              {cancelMutation.isPending ? 'Đang xử lý...' : 'Xác nhận hủy'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

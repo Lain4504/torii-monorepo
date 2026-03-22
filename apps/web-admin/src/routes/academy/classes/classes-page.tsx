@@ -9,6 +9,7 @@ import {
 } from '@/lib/api/services/academy-classes';
 import { useDebounceValue } from '@workspace/ui/hooks/use-debounce-value';
 import { Input } from '@workspace/ui/components/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@workspace/ui/components/select';
 import {
     Table,
     TableBody,
@@ -55,6 +56,10 @@ export default function ClassesPage() {
     const [selectedClass, setSelectedClass] = useState<AcademyClass | null>(null);
     const [statusDialogClass, setStatusDialogClass] = useState<AcademyClass | null>(null);
     const [submitDialog, setSubmitDialog] = useState<{ open: boolean; cls: AcademyClass | null }>({ open: false, cls: null });
+    
+    // Filters
+    const [mode, setMode] = useState<string | undefined>(undefined);
+    const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
 
     const submitForApprovalMutation = useSubmitClassForApproval();
 
@@ -64,6 +69,8 @@ export default function ClassesPage() {
     const { data: classes, isLoading } = useAcademyClasses({
         q: debouncedSearch,
         instructorId: (isLecturer ? user?.id : undefined) as any,
+        mode: mode || undefined,
+        status: statusFilter || undefined,
     });
 
     const handleCreate = () => {
@@ -94,6 +101,24 @@ export default function ClassesPage() {
         { label: "Tổng số học viên", value: "---" }
     ], [classes]);
 
+    const vodStatuses = [
+        { value: 'DRAFT', label: 'Bản nháp' },
+        { value: 'PENDING_APPROVAL', label: 'Chờ duyệt' },
+        { value: 'PUBLISHED', label: 'Đã xuất bản' },
+        { value: 'ARCHIVED', label: 'Lưu trữ' },
+    ];
+
+    const liveStatuses = [
+        { value: 'DRAFT', label: 'Bản nháp' },
+        { value: 'PENDING_APPROVAL', label: 'Chờ duyệt' },
+        { value: 'OPENING', label: 'Đang tuyển sinh' },
+        { value: 'ONGOING', label: 'Đang diễn ra' },
+        { value: 'COMPLETED', label: 'Đã hoàn thành' },
+        { value: 'ARCHIVED', label: 'Lưu trữ' },
+    ];
+
+    const currentStatusOptions = mode === 'VOD' ? vodStatuses : mode === 'LIVE' ? liveStatuses : [];
+
     return (
         <div className="flex flex-col gap-8">
             <PageHeader
@@ -116,8 +141,56 @@ export default function ClassesPage() {
                             placeholder="Tìm kiếm theo mã hoặc tên lớp..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="pl-9"
+                            className="pl-9 h-10"
                         />
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <Select value={mode || "all"} onValueChange={(val) => {
+                            setMode(val === "all" ? undefined : val);
+                            setStatusFilter(undefined); // Reset status when mode changes
+                        }}>
+                            <SelectTrigger className="w-[180px] h-10">
+                                <SelectValue placeholder="Loại hình lớp" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Tất cả loại hình</SelectItem>
+                                <SelectItem value="LIVE">LIVE (Trực tiếp)</SelectItem>
+                                <SelectItem value="VOD">VOD (Tự học)</SelectItem>
+                            </SelectContent>
+                        </Select>
+
+                        <Select 
+                            value={statusFilter || "all"} 
+                            onValueChange={(val) => setStatusFilter(val === "all" ? undefined : val)}
+                            disabled={!mode}
+                        >
+                            <SelectTrigger className="w-[180px] h-10">
+                                <SelectValue placeholder={!mode ? "Chọn loại hình trước" : "Trạng thái"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                                {currentStatusOptions.map(opt => (
+                                    <SelectItem key={opt.value} value={opt.value}>
+                                        {opt.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
+                        {(mode || statusFilter) && (
+                            <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => {
+                                    setMode(undefined);
+                                    setStatusFilter(undefined);
+                                }}
+                                className="text-muted-foreground hover:text-foreground text-xs h-10"
+                            >
+                                Xóa bộ lọc
+                            </Button>
+                        )}
                     </div>
                 </div>
 

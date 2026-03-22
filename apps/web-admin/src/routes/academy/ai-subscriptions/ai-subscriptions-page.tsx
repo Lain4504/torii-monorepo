@@ -182,7 +182,7 @@ function PlansTabContent() {
                                         )}
                                     </TableCell>
                                     <TableCell className="text-center">
-                                        <Badge 
+                                        <Badge
                                             variant={plan.isActive ? "default" : "secondary"}
                                             className={cn(
                                                 "uppercase text-[10px] tracking-wider font-bold",
@@ -196,18 +196,18 @@ function PlansTabContent() {
                                         <div className="flex items-center justify-center gap-2">
                                             {editingId === plan.id ? (
                                                 <>
-                                                    <Button 
-                                                        size="sm" 
-                                                        variant="outline" 
-                                                        className="h-8 w-8 p-0" 
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        className="h-8 w-8 p-0"
                                                         onClick={handleCancel}
                                                     >
                                                         <X className="h-4 w-4" />
                                                     </Button>
-                                                    <Button 
-                                                        size="sm" 
-                                                        className="h-8" 
-                                                        onClick={handleSave} 
+                                                    <Button
+                                                        size="sm"
+                                                        className="h-8"
+                                                        onClick={handleSave}
                                                         disabled={updateMutation.isPending}
                                                     >
                                                         <Save className="h-4 w-4 mr-2" />
@@ -215,10 +215,10 @@ function PlansTabContent() {
                                                     </Button>
                                                 </>
                                             ) : (
-                                                <Button 
-                                                    size="sm" 
-                                                    variant="outline" 
-                                                    className="h-8 gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200" 
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="h-8 gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200"
                                                     onClick={() => handleEdit(plan)}
                                                 >
                                                     <Edit2 className="h-4 w-4" />
@@ -374,7 +374,7 @@ function UserSubscriptionsTabContent() {
                                     </div>
                                 </TableCell>
                                 <TableCell className="text-center">
-                                    <Badge 
+                                    <Badge
                                         variant={sub.status === 'ACTIVE' ? "default" : sub.status === 'EXPIRED' ? "secondary" : "destructive"}
                                         className={cn(
                                             "uppercase text-[10px] tracking-wider font-bold",

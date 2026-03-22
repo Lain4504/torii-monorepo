@@ -791,6 +791,34 @@ export class OrderService {
     return updated;
   }
 
+  async admin_cancel(id: string, requesterId = 'SYSTEM') {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+    });
+
+    if (!order) throw new NotFoundException('Order not found');
+
+    if (order.status === OrderStatus.CANCELLED) {
+      throw new BadRequestException('Order is already cancelled');
+    }
+
+    const updated = await this.prisma.order.update({
+      where: { id },
+      data: { status: OrderStatus.CANCELLED },
+    });
+
+    await this.audit.log({
+      userId: requesterId,
+      action: 'order.cancel',
+      entity: 'Order',
+      entityId: id,
+      description: `Admin cancelled order ${order.code} (previous status: ${order.status})`,
+      metadata: { oldStatus: order.status },
+    });
+
+    return updated;
+  }
+
   async getByCodeForUser(userId: string, orderCode: string) {
     const order = await this.prisma.order.findFirst({
       where: { code: orderCode, userId },

@@ -6,6 +6,17 @@ import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog"
+
+import {
   Dialog,
   DialogContent,
   DialogDescription as UIDialogDescription,
@@ -51,6 +62,8 @@ export default function ClassApprovalPreviewPage() {
     open: boolean
     reason: string
   }>({ open: false, reason: "" })
+
+  const [approveConfirmOpen, setApproveConfirmOpen] = useState(false)
 
   const isStaffOrAdmin =
     user?.role === UserRole.ADMIN ||
@@ -132,15 +145,7 @@ export default function ClassApprovalPreviewPage() {
               )}
               <Button
                 size="lg"
-                onClick={async () => {
-                  try {
-                    await approveMutation.mutateAsync(academyClass.id)
-                    toast.success(`Đã phê duyệt "${academyClass.name}"`)
-                    navigate("/academy/approvals")
-                  } catch (err: any) {
-                    toast.error(err.userMessage || "Không thể phê duyệt")
-                  }
-                }}
+                onClick={() => setApproveConfirmOpen(true)}
                 disabled={approveMutation.isPending}
                 className="gap-2"
               >
@@ -242,6 +247,35 @@ export default function ClassApprovalPreviewPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={approveConfirmOpen} onOpenChange={setApproveConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận phê duyệt</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc muốn phê duyệt lớp <span className="font-medium">{academyClass.name}</span>?
+              Sau khi duyệt, lớp sẽ được chuyển sang trạng thái <span className="font-medium">OPENING</span> (đối với lớp LIVE) hoặc <span className="font-medium">PUBLISHED</span> (đối với lớp VOD).
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                try {
+                  await approveMutation.mutateAsync(academyClass.id)
+                  toast.success(`Đã phê duyệt "${academyClass.name}"`)
+                  navigate("/academy/approvals")
+                } catch (err: any) {
+                  toast.error(err.userMessage || "Không thể phê duyệt")
+                }
+              }}
+              disabled={approveMutation.isPending}
+            >
+              Xác nhận duyệt
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
