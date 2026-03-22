@@ -1,7 +1,11 @@
 "use client"
 
+import { useMemo } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { ChevronRight, Sparkles, type LucideIcon } from "lucide-react"
+import { useAppSelector } from "@/hooks/hooks"
+import { selectUser } from "@/store/slices/auth-slice"
+import { UserRole } from "@workspace/schemas"
 
 import {
     Collapsible,
@@ -37,10 +41,14 @@ export interface NavMainItem {
     isActive?: boolean
     permission?: string
     anyPermission?: string[]
+    excludeRoles?: UserRole[]
     items?: {
         title: string
         url: string
         permission?: string
+        anyPermission?: string[]
+        excludeRoles?: UserRole[]
+        lecturerTitleKey?: string
     }[]
 }
 
@@ -54,6 +62,23 @@ export function NavMain({
     const { pathname } = useLocation()
     const { state, isMobile } = useSidebar()
     const isCollapsed = state === "collapsed"
+    const user = useAppSelector(selectUser)
+    const role = user?.role as UserRole | undefined
+
+    const visibleItems = useMemo(() => {
+        return items
+            .filter((item) => !role || !item.excludeRoles?.includes(role))
+            .map((item) => {
+                if (!item.items?.length) return item
+                const subs = item.items.filter((sub) => !role || !sub.excludeRoles?.includes(role))
+                if (subs.length === 0) return null
+                return { ...item, items: subs }
+            })
+            .filter((x): x is NavMainItem => x != null)
+    }, [items, role])
+
+    const subTitle = (sub: { title: string; lecturerTitleKey?: string }) =>
+        role === UserRole.LECTURER && sub.lecturerTitleKey ? sub.lecturerTitleKey : sub.title
 
     return (
         <SidebarGroup className="group-data-[collapsible=icon]:px-0">
@@ -61,7 +86,7 @@ export function NavMain({
                 {label}
             </SidebarGroupLabel>
             <SidebarMenu>
-                {items.map((item) => {
+                {visibleItems.map((item) => {
                     const isItemActive = item.url === "/" ? pathname === "/" : pathname.startsWith(item.url)
                     const hasSubItems = item.items && item.items.length > 0
 
@@ -105,7 +130,7 @@ export function NavMain({
                                         </DropdownMenuLabel>
                                         <DropdownMenuSeparator className="bg-border/10" />
                                         {item.items?.map((subItem) => (
-                                            <PermissionWrapper key={subItem.title} permission={subItem.permission}>
+                                            <PermissionWrapper key={subItem.title} permission={subItem.permission} anyPermission={subItem.anyPermission}>
                                                 <DropdownMenuItem asChild>
                                                     <Link
                                                         to={subItem.url}
@@ -114,7 +139,7 @@ export function NavMain({
                                                             pathname === subItem.url ? "bg-primary/5 text-primary" : "text-muted-foreground/70"
                                                         )}
                                                     >
-                                                        {subItem.title}
+                                                        {subTitle(subItem)}
                                                     </Link>
                                                 </DropdownMenuItem>
                                             </PermissionWrapper>
@@ -137,13 +162,13 @@ export function NavMain({
                                         <SidebarMenuSub className="ml-4 border-l border-primary/10 pl-2 mt-1 space-y-1 group-data-[collapsible=icon]:hidden">
                                             {item.items?.map((subItem) => (
                                                 <SidebarMenuSubItem key={subItem.title}>
-                                                    <PermissionWrapper permission={subItem.permission}>
+                                                    <PermissionWrapper permission={subItem.permission} anyPermission={subItem.anyPermission}>
                                                         <SidebarMenuSubButton asChild isActive={pathname === subItem.url}>
                                                             <Link to={subItem.url} className={cn(
                                                                 "h-8 rounded-lg text-[13px] font-medium transition-colors",
                                                                 pathname === subItem.url ? "text-primary bg-primary/5" : "text-muted-foreground/60 hover:text-foreground hover:bg-muted/30"
                                                             )}>
-                                                                <span className="truncate">{subItem.title}</span>
+                                                                <span className="truncate">{subTitle(subItem)}</span>
                                                             </Link>
                                                         </SidebarMenuSubButton>
                                                     </PermissionWrapper>

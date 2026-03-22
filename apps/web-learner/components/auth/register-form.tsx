@@ -21,6 +21,10 @@ import { Badge } from '@workspace/ui/components/badge'
 
 const registerFormSchema = z
     .object({
+        fullName: z
+            .string()
+            .min(2, 'Họ và tên phải có ít nhất 2 ký tự')
+            .max(120, 'Họ và tên quá dài'),
         email: z.string().email('Địa chỉ email không hợp lệ'),
         password: z
             .string()
@@ -52,7 +56,7 @@ export function RegisterForm() {
 
     const form = useForm<RegisterFormData>({
         resolver: zodResolver(registerFormSchema),
-        defaultValues: { email: '', password: '', confirmPassword: '' },
+        defaultValues: { fullName: '', email: '', password: '', confirmPassword: '' },
         mode: 'onChange',
     })
 
@@ -80,8 +84,15 @@ export function RegisterForm() {
 
     const onSubmit = async (data: RegisterFormData) => {
         try {
-            const { confirmPassword, ...registrationData } = data
-            const resultAction = await dispatch(registerAction({ ...registrationData, platform: 'web' }))
+            const { confirmPassword, fullName, ...rest } = data
+            const resultAction = await dispatch(
+                registerAction({
+                    email: rest.email,
+                    password: rest.password,
+                    fullName: fullName.trim(),
+                    platform: 'web',
+                }),
+            )
 
             if (registerAction.fulfilled.match(resultAction)) {
                 form.reset()
@@ -183,6 +194,26 @@ export function RegisterForm() {
         <div className="space-y-6">
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6" noValidate>
                 <FieldGroup>
+                    <Controller
+                        control={form.control}
+                        name="fullName"
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name} className="text-sm font-semibold">
+                                    Họ và tên (full name)
+                                </FieldLabel>
+                                <Input
+                                    {...field}
+                                    id={field.name}
+                                    type="text"
+                                    placeholder="Nhập họ và tên đầy đủ của bạn"
+                                    autoComplete="name"
+                                />
+                                <FieldError errors={[fieldState.error]} />
+                            </Field>
+                        )}
+                    />
+
                     <Controller
                         control={form.control}
                         name="email"

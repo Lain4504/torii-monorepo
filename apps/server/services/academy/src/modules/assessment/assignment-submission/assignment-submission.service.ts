@@ -23,14 +23,19 @@ export class AssignmentSubmissionService {
     query: AssignmentSubmissionQueryDto,
     requesterId?: string,
     isExamManager = false,
+    canViewAll = false,
   ) {
-    const effectiveUserId = isExamManager
-      ? query.userId
-      : (requesterId ?? query.userId);
+    const effectiveUserId =
+      isExamManager || canViewAll ? query.userId : requesterId ?? query.userId;
     return this.prisma.assignmentSubmission.findMany({
       where: {
         classAssignmentId: query.classAssessmentId ?? undefined,
         userId: effectiveUserId ?? undefined,
+      },
+      include: {
+        user: {
+          select: { id: true, displayName: true, email: true },
+        },
       },
       orderBy: [{ createdAt: 'desc' }],
     });

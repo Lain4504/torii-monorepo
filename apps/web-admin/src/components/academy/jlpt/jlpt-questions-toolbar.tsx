@@ -1,0 +1,234 @@
+import { Filter, Layers, Loader2, RefreshCw, Search, BookOpen, Gauge } from 'lucide-react';
+import { Button } from '@workspace/ui/components/button';
+import { Input } from '@workspace/ui/components/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@workspace/ui/components/select';
+
+/** Cấp độ JLPT (N5–N1, format hiện hành). */
+export const JLPT_LEVELS = ['N1', 'N2', 'N3', 'N4', 'N5'] as const;
+
+/**
+ * Ba khối lớn trong đề JLPT (khớp enum backend) — tương ứng cấu trúc N1:
+ * - 言語知識（文字・語彙）→ LANGUAGE_VOCAB
+ * - 言語知識（文法）・読解 → LANGUAGE_GRAMMAR_READING
+ * - 聴解 → LISTENING
+ *
+ * Các “dạng bài” chi tiết (漢字読み, 文脈規定, 内容理解（短文）, 課題理解…) nằm ở bộ lọc **Mondai**, seed trong `jlpt_mondai`.
+ */
+export const JLPT_SECTIONS = [
+    { code: 'LANGUAGE_VOCAB', label: 'Từ vựng & chữ Hán (文字・語彙)' },
+    { code: 'LANGUAGE_GRAMMAR_READING', label: 'Ngữ pháp & đọc hiểu (文法・読解)' },
+    { code: 'LISTENING', label: 'Nghe hiểu (聴解)' },
+] as const;
+
+/** Dạng câu theo domain (VOCAB / GRAMMAR / READING / LISTENING) — khớp phân môn trong đề chính thức. */
+export const JLPT_QUESTION_TYPES = [
+    { value: 'VOCAB', label: 'Từ vựng (文字・語彙)' },
+    { value: 'GRAMMAR', label: 'Ngữ pháp (文法)' },
+    { value: 'READING', label: 'Đọc hiểu (読解)' },
+    { value: 'LISTENING', label: 'Nghe hiểu (聴解)' },
+] as const;
+
+export const JLPT_DIFFICULTIES = [
+    { value: 'EASY', label: 'Dễ' },
+    { value: 'MEDIUM', label: 'Trung bình' },
+    { value: 'HARD', label: 'Khó' },
+] as const;
+
+export function jlptQuestionTypeLabel(code: string): string {
+    return JLPT_QUESTION_TYPES.find((t) => t.value === code)?.label ?? code;
+}
+
+export function jlptSectionLabel(code: string): string {
+    return JLPT_SECTIONS.find((s) => s.code === code)?.label ?? code;
+}
+
+/** Hiển thị mondai: tiếng Việt (tiếng Nhật), fallback mã nếu thiếu tên. */
+export function formatJlptMondaiLabel(m: {
+    titleVi?: string | null;
+    titleJa?: string | null;
+    code?: string;
+}): string {
+    const vi = (m.titleVi ?? '').trim();
+    const ja = (m.titleJa ?? '').trim();
+    if (vi && ja) return `${vi} (${ja})`;
+    if (vi) return vi;
+    if (ja) return ja;
+    return (m.code ?? '').trim() || '—';
+}
+
+export function jlptDifficultyLabel(code: string): string {
+    return JLPT_DIFFICULTIES.find((d) => d.value === code)?.label ?? code;
+}
+
+export type JlptMondaiOption = { id: string; code: string; titleVi: string | null; titleJa: string | null };
+
+export interface JlptQuestionsToolbarProps {
+    search: string;
+    onSearchChange: (value: string) => void;
+    onSearchSubmit: (e: React.FormEvent) => void;
+    level: string;
+    onLevelChange: (value: string) => void;
+    section: string;
+    onSectionChange: (value: string) => void;
+    questionType: string;
+    onQuestionTypeChange: (value: string) => void;
+    difficulty: string;
+    onDifficultyChange: (value: string) => void;
+    mondaiCode: string;
+    onMondaiCodeChange: (value: string) => void;
+    mondaiOptions: JlptMondaiOption[];
+    onRefresh: () => void;
+    loading?: boolean;
+}
+
+export function JlptQuestionsToolbar({
+    search,
+    onSearchChange,
+    onSearchSubmit,
+    level,
+    onLevelChange,
+    section,
+    onSectionChange,
+    questionType,
+    onQuestionTypeChange,
+    difficulty,
+    onDifficultyChange,
+    mondaiCode,
+    onMondaiCodeChange,
+    mondaiOptions,
+    onRefresh,
+    loading,
+}: JlptQuestionsToolbarProps) {
+    const mondaiDisabled = level === 'all' || section === 'all';
+
+    return (
+        <div className="flex w-full flex-wrap items-stretch gap-3 sm:items-center">
+            <form
+                onSubmit={onSearchSubmit}
+                className="relative min-w-[min(100%,240px)] w-full flex-[1_1_100%] sm:flex-[1_1_220px] sm:max-w-md"
+            >
+                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                    placeholder="Tìm kiếm nội dung câu hỏi..."
+                    value={search}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                    className="pl-10"
+                />
+            </form>
+
+            <Select value={level} onValueChange={onLevelChange}>
+                <SelectTrigger className="w-full min-w-[140px] sm:w-[150px]">
+                    <div className="flex min-w-0 items-center gap-2">
+                        <Filter className="size-3.5 shrink-0 text-muted-foreground" />
+                        <SelectValue placeholder="Cấp độ" />
+                    </div>
+                </SelectTrigger>
+                <SelectContent align="start">
+                    <SelectItem value="all">Tất cả cấp độ</SelectItem>
+                    {JLPT_LEVELS.map((l) => (
+                        <SelectItem key={l} value={l}>
+                            {l}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+
+            <Select value={section} onValueChange={onSectionChange}>
+                <SelectTrigger className="w-full min-w-[min(100%,220px)] sm:min-w-[220px] sm:max-w-[280px]">
+                    <div className="flex min-w-0 flex-1 items-center gap-2">
+                        <Layers className="size-3.5 shrink-0 text-muted-foreground" />
+                        <SelectValue placeholder="Phần thi" />
+                    </div>
+                </SelectTrigger>
+                <SelectContent align="start" className="max-h-[min(320px,50vh)]">
+                    <SelectItem value="all">Tất cả phần thi</SelectItem>
+                    {JLPT_SECTIONS.map((s) => (
+                        <SelectItem key={s.code} value={s.code}>
+                            {s.label}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+
+            <Select value={questionType} onValueChange={onQuestionTypeChange}>
+                <SelectTrigger className="w-full min-w-[160px] sm:w-[188px]">
+                    <div className="flex min-w-0 items-center gap-2">
+                        <BookOpen className="size-3.5 shrink-0 text-muted-foreground" />
+                        <SelectValue placeholder="Dạng bài" />
+                    </div>
+                </SelectTrigger>
+                <SelectContent align="start">
+                    <SelectItem value="all">Tất cả dạng</SelectItem>
+                    {JLPT_QUESTION_TYPES.map((t) => (
+                        <SelectItem key={t.value} value={t.value}>
+                            {t.label}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+
+            <Select value={difficulty} onValueChange={onDifficultyChange}>
+                <SelectTrigger className="w-full min-w-[120px] sm:w-[140px]">
+                    <div className="flex min-w-0 items-center gap-2">
+                        <Gauge className="size-3.5 shrink-0 text-muted-foreground" />
+                        <SelectValue placeholder="Độ khó" />
+                    </div>
+                </SelectTrigger>
+                <SelectContent align="start">
+                    <SelectItem value="all">Tất cả độ khó</SelectItem>
+                    {JLPT_DIFFICULTIES.map((d) => (
+                        <SelectItem key={d.value} value={d.value}>
+                            {d.label}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+
+            <Select value={mondaiCode} onValueChange={onMondaiCodeChange} disabled={mondaiDisabled}>
+                <SelectTrigger className="w-full min-w-[min(100%,200px)] sm:min-w-[200px] sm:max-w-[280px]">
+                    <SelectValue
+                        placeholder={
+                            mondaiDisabled
+                                ? 'Chọn cấp + phần thi → Mondai'
+                                : 'Mondai (問題形式)'
+                        }
+                    />
+                </SelectTrigger>
+                <SelectContent align="start" className="max-h-[min(280px,45vh)]">
+                    <SelectItem value="all">Tất cả mondai</SelectItem>
+                    {mondaiOptions.map((m) => (
+                        <SelectItem key={m.id} value={m.code}>
+                            <span className="line-clamp-2">
+                                {formatJlptMondaiLabel(m)}
+                                <span className="ml-1 font-mono text-[10px] text-muted-foreground">
+                                    · {m.code}
+                                </span>
+                            </span>
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+
+            <Button
+                type="button"
+                variant="outline"
+                className="w-full shrink-0 gap-2 sm:ml-auto sm:w-auto"
+                onClick={onRefresh}
+                disabled={loading}
+            >
+                {loading ? (
+                    <Loader2 className="size-4 animate-spin" />
+                ) : (
+                    <RefreshCw className="size-4" />
+                )}
+                Làm mới
+            </Button>
+        </div>
+    );
+}

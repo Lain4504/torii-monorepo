@@ -79,8 +79,8 @@ export function DashboardHeader({ onOpenStreakModal }: DashboardHeaderProps) {
                     <SidebarTrigger />
                 </div>
 
-                {/* Center: Search */}
-                <div className="flex-1 max-w-xl hidden lg:block">
+                {/* Center: Search - hiển thị trên mọi kích thước màn hình */}
+                <div className="flex-1 flex justify-end lg:justify-center min-w-0 max-w-xl">
                     <CommandMenu />
                 </div>
 

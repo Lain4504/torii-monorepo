@@ -14,6 +14,7 @@ import {
     ItemMedia,
     ItemTitle,
 } from "@workspace/ui/components/item"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 import Link from "next/link"
 import { agentApi } from "@/lib/api/services/agent-api"
 import { AgentReadinessProfileResponseDTO as ReadinessProfileResponse } from "@workspace/schemas"

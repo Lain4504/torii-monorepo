@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsEnum,
@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  Max,
   MaxLength,
   Min,
   ValidateNested,
@@ -30,35 +31,71 @@ export enum JlptBankSectionCodeDto {
   LISTENING = 'LISTENING',
 }
 
+const emptyToUndef = ({ value }: { value: unknown }) =>
+  value === '' || value === null || value === undefined ? undefined : value;
+
 export class JlptBankQuestionQueryDto {
+  @Transform(emptyToUndef)
   @IsOptional()
   @IsString()
   level?: string; // N5..N1
 
+  @Transform(emptyToUndef)
   @IsOptional()
   @IsEnum(JlptBankSectionCodeDto)
   sectionCode?: JlptBankSectionCodeDto;
 
+  @Transform(emptyToUndef)
   @IsOptional()
   @IsString()
   mondaiCode?: string;
 
+  @Transform(emptyToUndef)
   @IsOptional()
   @IsEnum(JlptBankQuestionTypeDto)
   questionType?: JlptBankQuestionTypeDto;
 
+  @Transform(emptyToUndef)
   @IsOptional()
   @IsEnum(JlptBankDifficultyDto)
   difficulty?: JlptBankDifficultyDto;
 
+  @Transform(emptyToUndef)
   @IsOptional()
   @IsString()
   q?: string;
 
+  /** Trang (bắt đầu từ 1). */
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(1)
+  page?: number;
+
+  /** Kích thước trang (1–100). */
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  limit?: number;
+
+  /** @deprecated Dùng `limit` — giữ tương thích cũ. */
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
   take?: number;
+}
+
+/** Query cho dropdown mondai (lọc theo đúng cấp + phần thi JLPT). */
+export class JlptBankMondaiListQueryDto {
+  @IsString()
+  level!: string;
+
+  @IsEnum(JlptBankSectionCodeDto)
+  sectionCode!: JlptBankSectionCodeDto;
 }
 
 export class JlptBankOptionInputDto {

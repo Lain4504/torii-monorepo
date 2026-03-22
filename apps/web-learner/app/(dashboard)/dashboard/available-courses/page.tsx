@@ -28,10 +28,23 @@ export default function DashboardCoursesPage() {
     const liveCourses = courses.filter((c: any) => c.type === 'LIVE' || c.isLive)
     const vodCourses = courses.filter((c: any) => c.type === 'VOD' || !c.isLive)
 
-    // Simple search filtering
-    const filteredCourses = (list: any[]) => list.filter(c =>
-        c.title.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    const matchesSearch = (c: any, q: string) => {
+        if (!q.trim()) return true
+        const n = q.toLowerCase()
+        const hay = [
+            c.title,
+            c.learnerDisplayTitle,
+            c.class?.name,
+            c.courseProfile?.title,
+            c.code,
+        ]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase()
+        return hay.includes(n)
+    }
+
+    const filteredCourses = (list: any[]) => list.filter((c) => matchesSearch(c, searchQuery))
 
     return (
         <div className="space-y-8 pb-10">
@@ -138,7 +151,7 @@ function CourseGrid({ courses, type }: any) {
                     <div className="aspect-video relative overflow-hidden">
                         <Image
                             src={course.thumbnailUrl || '/course-placeholder.jpg'}
-                            alt={course.title}
+                            alt={course.learnerDisplayTitle || course.title}
                             fill
                             className="object-cover group-hover:scale-110 transition-transform duration-500"
                         />
@@ -151,8 +164,16 @@ function CourseGrid({ courses, type }: any) {
                     <div className="p-4 space-y-4 flex-1 flex flex-col text-left">
                         <div className="space-y-2 flex-1">
                             <h3 className="font-bold text-base line-clamp-2 group-hover:text-primary transition-colors">
-                                {course.title}
+                                {course.learnerDisplayTitle || course.title}
                             </h3>
+                            {course.liveContextLine && (
+                                <p className="text-xs text-muted-foreground line-clamp-1">{course.liveContextLine}</p>
+                            )}
+                            {course.learnerMarketingSubtitle && (
+                                <p className="text-xs text-muted-foreground line-clamp-1">
+                                    Gói: {course.learnerMarketingSubtitle}
+                                </p>
+                            )}
                             <div className="flex items-center gap-4 text-xs text-muted-foreground">
                                 <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {formatNumber(course.totalStudents || 0)}</span>
                                 <span className="flex items-center gap-1"><Star className="h-3 w-3 fill-yellow-400 text-yellow-400" /> {course.rating || '5.0'}</span>

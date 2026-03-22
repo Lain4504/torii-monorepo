@@ -103,6 +103,11 @@ export class ClassHandler {
 
   // ==== Class Assignments ====
 
+  @MessagePattern({ cmd: 'academy.class.getAssignmentById' })
+  getClassAssignmentById(@Payload() data: { id: string }) {
+    return this.classes.getClassAssignmentById(data.id);
+  }
+
   @MessagePattern({ cmd: 'academy.class.getAssignments' })
   getAssignments(@Payload() data: { classId: string }) {
     return this.classes.getAssignments(data.classId);

@@ -159,7 +159,10 @@ export class AuthService implements IAuthService {
     const hashedPassword = await argon2.hash(dto.password);
 
     // Use email username as displayName if not provided
-    const displayName = dto.displayName || dto.email.split('@')[0];
+    const displayName =
+      dto.displayName?.trim() ||
+      dto.fullName?.trim() ||
+      dto.email.split('@')[0];
 
     // Create user
     const fullUser = await this.usersRepository.create({

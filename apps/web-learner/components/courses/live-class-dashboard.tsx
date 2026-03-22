@@ -73,7 +73,7 @@ export function LiveClassDashboard() {
         .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
 
     return (
-        <div className="max-w-[1400px] mx-auto p-4 md:p-8 space-y-8">
+        <div className="mx-auto max-w-[1400px] space-y-8 px-2 py-3 md:px-8 md:py-8">
             {/* Header / Intro Card */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-2 space-y-6">

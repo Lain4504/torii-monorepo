@@ -23,7 +23,6 @@ export default function ClassStudentsPage() {
   const { data: academyClass, isLoading: isLoadingClass } = useAcademyClass(classId)
   const { user } = useAuth()
 
-  const isLecturer = user?.role === UserRole.LECTURER
   const isStaffOrAdmin =
     user?.role === UserRole.ADMIN ||
     user?.role === UserRole.STAFF_ACADEMIC ||
@@ -57,11 +56,7 @@ export default function ClassStudentsPage() {
     return defaultTab
   }, [tabParam, availableTabs])
 
-  const canManageEnrollment = useMemo(() => {
-    if (!mode) return false
-    if (mode === "VOD" && isLecturer) return false
-    return (mode === "LIVE" && isLecturer) || isStaffOrAdmin
-  }, [mode, isLecturer, isStaffOrAdmin])
+  const canManageEnrollment = isStaffOrAdmin
 
   const setTab = (value: string) => {
     setSearchParams((prev) => {

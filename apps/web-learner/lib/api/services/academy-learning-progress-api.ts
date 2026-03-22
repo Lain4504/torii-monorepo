@@ -44,11 +44,28 @@ export const academyLearningProgressApi = {
     },
 
     /**
-     * Get IDs of completed content items for a specific class
+     * Get IDs of completed content items for a specific class.
+     * Backend `getUserProgress` trả `{ modules: [{ lessons: [{ id, isCompleted, ... }] }] }` — không có `lessons` phẳng.
      */
     getCompletedLessonIds: async (classId: string): Promise<string[]> => {
         const data = await academyLearningProgressApi.getClassProgress(classId);
-        return data.lessons.filter((l: any) => l.isCompleted).map((l: any) => l.lessonId);
+        const ids = new Set<string>();
+        const addIfDone = (l: { isCompleted?: boolean; lessonId?: string; id?: string } | null | undefined) => {
+            if (!l?.isCompleted) return;
+            const id = (l.lessonId ?? l.id)?.toString();
+            if (id) ids.add(id);
+        };
+        if (Array.isArray(data?.lessons)) {
+            data.lessons.forEach((l: any) => addIfDone(l));
+        }
+        if (Array.isArray(data?.modules)) {
+            for (const mod of data.modules) {
+                if (Array.isArray(mod?.lessons)) {
+                    mod.lessons.forEach((l: any) => addIfDone(l));
+                }
+            }
+        }
+        return [...ids];
     },
 
     /**

@@ -4,11 +4,19 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
-import { Card, CardContent } from '@workspace/ui/components/card'
+import { Card, CardContent, CardHeader } from '@workspace/ui/components/card'
 import { Badge } from '@workspace/ui/components/badge'
 import { Button } from '@workspace/ui/components/button'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@workspace/ui/components/table'
 import { PageLoading } from '@workspace/ui/components/page-loading'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, BookOpen } from 'lucide-react'
 import { toast } from '@workspace/ui/components/sonner'
 
 import { jlptMockApi } from '@/lib/api/services/jlpt-mock-api'
@@ -22,8 +30,22 @@ type JlptAttemptDetail = {
     startedAt: string | null
     submittedAt: string | null
   }
-  scores: any
-  answers: Array<any>
+  scores: {
+    languageRaw?: number
+    readingRaw?: number
+    listeningRaw?: number
+    languageScaled?: number
+    readingScaled?: number
+    listeningScaled?: number
+    totalScaled?: number
+    passMock?: boolean
+  }
+}
+
+const SECTION_LABELS: Record<string, string> = {
+  languageScaled: 'Language Knowledge',
+  readingScaled: 'Reading',
+  listeningScaled: 'Listening',
 }
 
 export default function JlptAttemptHistoryDetailPage() {
@@ -39,12 +61,10 @@ export default function JlptAttemptHistoryDetailPage() {
       try {
         setLoading(true)
         const res = await jlptMockApi.getAttemptById(attemptId)
-        // API mock có thể trả về kiểu khác JlptAttemptDetail, nên cast theo chủ đích.
-        // Next/TS strict hơn yêu cầu phải cast qua `unknown` trước.
         setData(res as unknown as JlptAttemptDetail)
       } catch (e: any) {
         console.error(e)
-        toast.error(e?.message ?? 'Không tải được lịch sử làm bài')
+        toast.error(e?.message ?? 'Không tải được kết quả bài thi')
       } finally {
         setLoading(false)
       }
@@ -54,141 +74,102 @@ export default function JlptAttemptHistoryDetailPage() {
   if (!attemptId) return null
   if (loading || !data) return <PageLoading className="h-screen" />
 
-  const { attempt, scores, answers } = data
-  const languageScaled = scores?.languageScaled
-  const readingScaled = scores?.readingScaled
-  const listeningScaled = scores?.listeningScaled
+  const { attempt, scores } = data
+  const scoreOrNna = (v: number | undefined | null) =>
+    v === 0 ? 0 : v != null ? v : '—'
 
-  const scoreOrNna = (v: any) => (v === 0 ? 0 : v ?? 'N/A')
+  const sectionRows = [
+    { key: 'languageScaled', label: SECTION_LABELS.languageScaled, value: scores?.languageScaled },
+    { key: 'readingScaled', label: SECTION_LABELS.readingScaled, value: scores?.readingScaled },
+    { key: 'listeningScaled', label: SECTION_LABELS.listeningScaled, value: scores?.listeningScaled },
+  ]
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
+    <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/jlpt/attempt/history">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-xl size-10 bg-background/50 backdrop-blur-md border border-white/5 hover:bg-white/10 hover:text-primary transition-all"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        </Link>
-
+        <Button variant="ghost" size="icon" className="rounded-lg shrink-0" asChild>
+          <Link href="/jlpt/attempt/history">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+        </Button>
         <div>
-          <h1 className="text-3xl font-black uppercase tracking-tighter italic text-foreground">
-            JLPT Result Review
-          </h1>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1">
-            Attempt ID: {attemptId.substring(0, 8)}...
+          <h1 className="text-2xl font-bold text-foreground">Kết quả bài thi JLPT</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {attempt.submittedAt
+              ? `Nộp bài: ${format(new Date(attempt.submittedAt), 'dd/MM/yyyy HH:mm')}`
+              : attempt.startedAt
+                ? `Bắt đầu: ${format(new Date(attempt.startedAt), 'dd/MM/yyyy HH:mm')}`
+                : '—'}
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card className="lg:col-span-2">
-          <CardContent className="p-6 space-y-4">
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader className="pb-2">
             <div className="flex items-center gap-3">
-              <Badge
-                variant={attempt.status === 'SUBMITTED' ? 'default' : 'secondary'}
-                className="rounded-md px-2 py-1 text-[11px] font-black uppercase tracking-widest"
-              >
+              <Badge variant={attempt.status === 'SUBMITTED' ? 'default' : 'secondary'}>
                 {attempt.status}
               </Badge>
-              <span className="text-xs font-bold text-muted-foreground">{attempt.level}</span>
-            </div>
-
-            <div className="text-xs text-muted-foreground">
-              {attempt.submittedAt
-                ? `Submitted: ${format(new Date(attempt.submittedAt), 'dd MMM yyyy, HH:mm')}`
-                : attempt.startedAt
-                  ? `Started: ${format(new Date(attempt.startedAt), 'dd MMM yyyy, HH:mm')}`
-                  : 'N/A'}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-              <Card className="shadow-none border-white/5 bg-background/40">
-                <CardContent className="p-4">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
-                    LANGUAGE
-                  </div>
-                  <div className="text-xl font-black">{scoreOrNna(languageScaled)}</div>
-                </CardContent>
-              </Card>
-              <Card className="shadow-none border-white/5 bg-background/40">
-                <CardContent className="p-4">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
-                    READING
-                  </div>
-                  <div className="text-xl font-black">{scoreOrNna(readingScaled)}</div>
-                </CardContent>
-              </Card>
-              <Card className="shadow-none border-white/5 bg-background/40">
-                <CardContent className="p-4">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
-                    LISTENING
-                  </div>
-                  <div className="text-xl font-black">{scoreOrNna(listeningScaled)}</div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {typeof scores?.passMock === 'boolean' && (
-              <div className="pt-2">
+              <Badge variant="outline">{attempt.level}</Badge>
+              {typeof scores?.passMock === 'boolean' && (
                 <Badge
                   variant={scores.passMock ? 'default' : 'destructive'}
-                  className="rounded-md px-2 py-1 text-[11px] font-black uppercase tracking-widest"
+                  className={scores.passMock ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : ''}
                 >
-                  {scores.passMock ? 'PASSED' : 'NOT PASSED'}
+                  {scores.passMock ? 'Đạt' : 'Chưa đạt'}
                 </Badge>
-              </div>
-            )}
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent border-b">
+                  <TableHead>Phần thi</TableHead>
+                  <TableHead className="text-right w-24">Điểm</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sectionRows.map((row) => (
+                  <TableRow key={row.key}>
+                    <TableCell className="font-medium">{row.label}</TableCell>
+                    <TableCell className="text-right font-semibold">
+                      {scoreOrNna(row.value)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {scores?.totalScaled != null && (
+                  <TableRow className="bg-muted/30 font-semibold">
+                    <TableCell>Tổng điểm</TableCell>
+                    <TableCell className="text-right">{scoreOrNna(scores.totalScaled)}</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6 space-y-3">
-            <div className="text-sm font-black">Tóm tắt</div>
-            <div className="text-xs text-muted-foreground">Tổng câu trả lời: {answers?.length ?? 0}</div>
-            <div className="text-xs text-muted-foreground">
-              TemplateId: {attempt.templateId.substring(0, 8)}...
+          <CardHeader className="pb-2">
+            <h3 className="text-base font-semibold flex items-center gap-2">
+              <BookOpen className="h-4 w-4" />
+              Thông tin
+            </h3>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="text-sm text-muted-foreground">
+              Mã attempt: <span className="font-mono text-foreground">{attemptId.substring(0, 8)}...</span>
             </div>
-            <Button variant="outline" className="w-full" onClick={() => router.push('/dashboard/jlpt-list-exam')}>
-              Quay lại danh sách đề
+            <Button variant="outline" className="w-full" asChild>
+              <Link href="/jlpt/attempt/history">Quay lại lịch sử</Link>
+            </Button>
+            <Button variant="secondary" className="w-full" asChild>
+              <Link href="/dashboard/jlpt-list-exam">Danh sách đề thi</Link>
             </Button>
           </CardContent>
         </Card>
       </div>
-
-      <div className="grid gap-4">
-        {(answers ?? []).map((a, idx) => {
-          const chosenOption = a.review?.options?.find((o: any) => o.id === a.selectedOptionId)
-          return (
-            <Card key={a.templateQuestionId ?? idx} className="border-white/5 bg-background/40">
-              <CardContent className="p-6 space-y-3">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                    Q{idx + 1} · {a.section?.code ?? 'N/A'} · {a.mondai?.code ?? 'N/A'}
-                  </div>
-                  <Badge
-                    variant={a.isCorrect ? 'default' : 'destructive'}
-                    className="rounded-md px-2 py-1 text-[11px] font-black uppercase tracking-widest"
-                  >
-                    {a.isCorrect ? 'Đúng' : 'Sai'}
-                  </Badge>
-                </div>
-
-                {a.review?.stemText && <div className="text-sm font-semibold">{a.review.stemText}</div>}
-
-                <div className="text-xs text-muted-foreground">
-                  Đáp án bạn chọn: {chosenOption?.contentText ?? a.selectedOptionId ?? 'Chưa chọn'}
-                </div>
-                <div className="text-xs text-muted-foreground">Điểm: {a.scoreAwarded ?? 'N/A'}</div>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
     </div>
   )
 }
-

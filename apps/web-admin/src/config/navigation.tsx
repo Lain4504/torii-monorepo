@@ -12,6 +12,7 @@ import {
     Bot,
     Languages,
 } from "lucide-react";
+import { UserRole } from "@workspace/schemas";
 
 export interface NavItem {
     titleKey: string;
@@ -22,14 +23,19 @@ export interface NavItem {
     anyPermission?: string[];
     role?: string;
     roles?: string[];
+    /** Ẩn mục này với các role (vd: lecturer không thấy JLPT / AI). */
+    excludeRoles?: UserRole[];
     descriptionKey?: string;
     items?: {
         titleKey: string;
         url: string;
+        /** Nhãn thay thế khi user là lecturer (vd: "Lớp của tôi"). */
+        lecturerTitleKey?: string;
         permission?: string;
         anyPermission?: string[];
         role?: string;
         roles?: string[];
+        excludeRoles?: UserRole[];
     }[];
 }
 
@@ -46,10 +52,10 @@ export const academicNavItems: NavItem[] = [
         icon: GraduationCap,
         anyPermission: ["academy.content.read", "academy.content.write", "academy.delivery.read", "academy.delivery.write", "academy.content.approve", "academy.commerce.approve"],
         items: [
-            { titleKey: "Lớp học", url: "/academy/classes" },
-            { titleKey: "Kho Khóa học (Profiles)", url: "/academy/course-profiles", anyPermission: ["academy.content.read", "academy.content.write"] },
-            { titleKey: "Gói bán (Offerings)", url: "/academy/course-offerings", anyPermission: ["academy.commerce.read", "academy.commerce.write"] },
-            { titleKey: "Approval Center", url: "/academy/approvals", anyPermission: ["academy.content.approve", "academy.commerce.approve", "academy.delivery.approve", "academy.content.write", "academy.commerce.write", "academy.delivery.write"] },
+            { titleKey: "Lớp học", url: "/academy/classes", lecturerTitleKey: "Lớp của tôi" },
+            { titleKey: "Kho Khóa học (Profiles)", url: "/academy/course-profiles", anyPermission: ["academy.content.read", "academy.content.write"], excludeRoles: [UserRole.LECTURER] },
+            { titleKey: "Gói bán (Offerings)", url: "/academy/course-offerings", anyPermission: ["academy.commerce.read", "academy.commerce.write"], excludeRoles: [UserRole.LECTURER] },
+            { titleKey: "Approval Center", url: "/academy/approvals", anyPermission: ["academy.content.approve", "academy.commerce.approve", "academy.delivery.approve", "academy.content.write", "academy.commerce.write", "academy.delivery.write"], excludeRoles: [UserRole.LECTURER] },
         ]
     },
     {
@@ -57,6 +63,7 @@ export const academicNavItems: NavItem[] = [
         url: "/academy/jlpt/templates",
         icon: Languages,
         anyPermission: ["academy.content.read", "academy.content.write"],
+        excludeRoles: [UserRole.LECTURER],
         items: [
             { titleKey: "Quản lý Đề thi (Templates)", url: "/academy/jlpt/templates" },
             { titleKey: "Ngân hàng Câu hỏi", url: "/academy/jlpt/questions" },
@@ -66,6 +73,7 @@ export const academicNavItems: NavItem[] = [
         titleKey: "AI Subscription",
         url: "/academy/ai-subscriptions",
         icon: Bot,
+        excludeRoles: [UserRole.LECTURER],
         anyPermission: ["academy:subscription:admin", "academy.commerce.read", "academy.commerce.write"],
     },
 ];

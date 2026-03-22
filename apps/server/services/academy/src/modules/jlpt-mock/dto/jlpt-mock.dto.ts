@@ -57,8 +57,10 @@ export class JlptMockExamTemplateCreateDto {
   @IsString()
   description?: string;
 
+  /** Nếu bỏ trống, server dùng profile chấm điểm đang active đầu tiên của cấp độ. */
+  @IsOptional()
   @IsUUID()
-  scoringProfileId!: string;
+  scoringProfileId?: string;
 
   @IsOptional()
   @IsEnum(JlptMockExamStatusDto)

@@ -87,7 +87,8 @@ export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
         await updateMutation.mutateAsync({
           id: editingAssignment.id,
           input: {
-            titleOverride: data.titleOverride || undefined,
+            title: data.title,
+            instructions: data.instructions,
             openAt: data.openAt ? new Date(data.openAt) : undefined,
             deadline: data.deadline ? new Date(data.deadline) : undefined,
           },
@@ -97,7 +98,6 @@ export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
         await addMutation.mutateAsync({
           title: data.title,
           instructions: data.instructions,
-          titleOverride: data.titleOverride || undefined,
           openAt: data.openAt ? new Date(data.openAt) : undefined,
           deadline: data.deadline ? new Date(data.deadline) : undefined,
         })
@@ -165,7 +165,7 @@ export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
                       </div>
                       <div className="flex flex-col">
                         <span className="font-medium text-sm">
-                          {ca.titleOverride || ca.assignment?.title || "Bài tập"}
+                          {ca.assignment?.title || ca.titleOverride || "Bài tập"}
                         </span>
                         {ca.titleOverride && ca.assignment?.title && (
                           <span className="text-xs text-muted-foreground">
@@ -248,7 +248,7 @@ export function ClassAssignmentsTab({ classId }: ClassAssignmentsTabProps) {
           <DialogHeader>
             <DialogTitle>Xác nhận gỡ bài tập</DialogTitle>
             <DialogDescription>
-              Bạn có chắc chắn muốn gỡ bài tập <strong>{selectedForRemove?.titleOverride || selectedForRemove?.assignment?.title}</strong> khỏi lớp học này? 
+              Bạn có chắc chắn muốn gỡ bài tập <strong>{selectedForRemove?.assignment?.title || selectedForRemove?.titleOverride}</strong> khỏi lớp học này? 
               Dữ liệu về các bài nộp của học viên cho bài tập này (nếu có) cũng có thể bị ảnh hưởng.
             </DialogDescription>
           </DialogHeader>

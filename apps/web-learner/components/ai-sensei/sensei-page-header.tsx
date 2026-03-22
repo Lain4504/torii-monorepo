@@ -21,7 +21,7 @@ export function SenseiPageHeader({
     className
 }: SenseiPageHeaderProps) {
     return (
-        <div className={cn("flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6 mb-8 mt-2", className)}>
+        <div className={cn("mb-4 mt-0 flex flex-col items-start justify-between gap-4 sm:mb-8 sm:mt-1 sm:gap-6 xl:flex-row xl:items-center", className)}>
             <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-4">
                     <div className="bg-primary/10 p-2.5 rounded-2xl shrink-0">

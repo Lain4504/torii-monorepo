@@ -137,8 +137,16 @@ export default function CourseDetailPage() {
             </div>
 
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
-              {offering.title}
+              {offering.learnerDisplayTitle || offering.title}
             </h1>
+            {offering.liveContextLine && (
+              <p className="text-base text-muted-foreground font-medium">{offering.liveContextLine}</p>
+            )}
+            {offering.learnerMarketingSubtitle && (
+              <p className="text-sm text-muted-foreground">
+                Tên gói bán: <span className="text-foreground/90">{offering.learnerMarketingSubtitle}</span>
+              </p>
+            )}
 
             <div className="flex flex-wrap gap-y-4 gap-x-8 text-sm font-medium text-muted-foreground pt-2">
               <div className="flex items-center gap-2">
@@ -174,7 +182,7 @@ export default function CourseDetailPage() {
           <div className="relative aspect-video rounded-2xl overflow-hidden shadow-xl border border-border/50 group">
             <Image
               src={offering.thumbnailUrl || "/course-placeholder.jpg"}
-              alt={offering.title}
+              alt={offering.learnerDisplayTitle || offering.title}
               fill
               className="object-cover transition-transform duration-700 group-hover:scale-105"
               priority

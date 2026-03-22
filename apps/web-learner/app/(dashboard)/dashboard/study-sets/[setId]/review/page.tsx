@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default async function StudySetReviewPage({ params }: { params: Promise<{ setId: string }> }) {
     const { setId } = await params;
     return (
-        <div className="flex-1 space-y-4 p-4 md:p-8 pt-6 min-h-[calc(100vh-4rem)] flex flex-col">
+        <div className="flex min-h-[calc(100vh-4rem)] flex-1 flex-col space-y-4 px-2 py-3 pt-4 sm:px-6 sm:py-6 sm:pt-6 md:px-8">
             <StudySetReview setId={setId} />
         </div>
     );

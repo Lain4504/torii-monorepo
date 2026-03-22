@@ -63,7 +63,6 @@ export function DashboardHeader() {
                 'quizzes': 'Trắc nghiệm',
                 'assignments': 'Bài tập',
                 'exams': 'Kỳ thi',
-                'class-assessments': 'Đánh giá lớp',
                 'question-pools': 'Ngân hàng câu hỏi',
                 'users': 'Người dùng',
                 'roles': 'Vai trò',

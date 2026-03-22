@@ -17,10 +17,16 @@ export class AssignmentSubmissionHandler {
     data: AssignmentSubmissionQueryDto & {
       requesterId?: string;
       isExamManager?: boolean;
+      canViewAll?: boolean;
     },
   ) {
-    const { requesterId, isExamManager, ...query } = data;
-    return this.submissions.findAll(query, requesterId, isExamManager);
+    const { requesterId, isExamManager, canViewAll, ...query } = data;
+    return this.submissions.findAll(
+      query,
+      requesterId,
+      isExamManager,
+      canViewAll,
+    );
   }
 
   @MessagePattern({ cmd: 'academy.assignmentSubmission.findById' })

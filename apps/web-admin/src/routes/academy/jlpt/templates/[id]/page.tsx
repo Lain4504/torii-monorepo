@@ -61,10 +61,21 @@ export default function JlptTemplateBuilderPage() {
     if (!template) return;
     try {
       setPickerLoading(true);
-      const data = await academyJlptMockApi.findAllBankQuestions({
-        level: template.levelCode,
-      });
-      setPickerQuestions(data);
+      const merged: JlptBankQuestion[] = [];
+      let page = 1;
+      let totalPages = 1;
+      const limit = 100;
+      do {
+        const res = await academyJlptMockApi.findAllBankQuestions({
+          level: template.levelCode,
+          page,
+          limit,
+        });
+        merged.push(...res.items);
+        totalPages = res.totalPages;
+        page += 1;
+      } while (page <= totalPages && page <= 50);
+      setPickerQuestions(merged);
     } catch (error) {
       toast.error("Không thể tải ngân hàng câu hỏi");
     } finally {

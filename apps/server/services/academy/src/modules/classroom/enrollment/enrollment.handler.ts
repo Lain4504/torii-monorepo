@@ -63,6 +63,16 @@ export class EnrollmentHandler {
     );
   }
 
+  /** Gateway dùng để kiểm tra user có ghi danh vào class không (markLessonComplete, getAssignments, …). */
+  @MessagePattern({ cmd: 'academy.enrollment.check' })
+  check(@Payload() data: { userId: string; classId: string }) {
+    return this.enrollments.checkEligibility(
+      data.userId,
+      data.classId,
+      'CLASS',
+    );
+  }
+
   @MessagePattern({ cmd: 'academy.enrollment.checkEligibility' })
   checkEligibility(
     @Payload()

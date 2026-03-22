@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Shield, RefreshCw, AlertTriangle, Link as LinkIcon, Unlink, Mail } from 'lucide-react';
+import { Shield, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Button } from '@workspace/ui/components/button';
 import { Skeleton } from '@workspace/ui/components/skeleton';
 import { use2FAStatus } from '@/lib/api/services/two-factor-auth';
@@ -22,13 +22,9 @@ import { EnableTwoFactorDialog } from './enable-two-factor-dialog';
 import { DisableTwoFactorDialog } from './disable-two-factor-dialog';
 import { BackupCodesDialog } from './backup-codes-dialog';
 import { formatRelativeTime } from '@/lib/format-utils';
-import { useLinkedProviders, useUnlinkProvider } from '@/lib/api/services/auth';
-import { toast } from '@workspace/ui/components/sonner';
 
 export function SecurityTab() {
     const { data: status, isLoading } = use2FAStatus();
-    const { data: linkedProviders, isLoading: isLoadingProviders } = useLinkedProviders();
-    const unlinkMutation = useUnlinkProvider();
     const [showEnableDialog, setShowEnableDialog] = useState(false);
     const [showDisableDialog, setShowDisableDialog] = useState(false);
     const [showBackupCodesDialog, setShowBackupCodesDialog] = useState(false);
@@ -47,23 +43,6 @@ export function SecurityTab() {
     }
 
     const isEnabled = status?.isEnabled || false;
-
-    const providers = linkedProviders?.providers || [];
-    const hasGoogle = providers.includes('google');
-    const hasFacebook = providers.includes('facebook');
-
-    const handleUnlink = async (provider: 'google' | 'facebook') => {
-        try {
-            const res = await unlinkMutation.mutateAsync(provider);
-            if (res.success) {
-                toast.success(`Đã hủy liên kết ${provider === 'google' ? 'Google' : 'Facebook'}`);
-            } else {
-                toast.error(res.message || 'Hủy liên kết thất bại');
-            }
-        } catch (error: any) {
-            toast.error(error?.message || 'Hủy liên kết thất bại');
-        }
-    };
 
     return (
         <div className="space-y-4">
@@ -170,93 +149,6 @@ export function SecurityTab() {
                             </>
                         )}
                     </div>
-                </CardContent>
-            </Card>
-
-            {/* Social login / linked providers */}
-            <Card>
-                <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
-                    <div className="space-y-1">
-                        <CardTitle className="text-lg font-bold flex items-center gap-2">
-                            <LinkIcon className="w-4 h-4 text-primary" />
-                            Tài Khoản Liên Kết
-                        </CardTitle>
-                        <CardDescription>
-                            Quản lý liên kết tài khoản Google / Facebook với tài khoản admin của bạn.
-                        </CardDescription>
-                    </div>
-                    <Badge variant="outline" className="flex items-center gap-1">
-                        <Mail className="w-3 h-3" />
-                        Đăng nhập chính: Email
-                    </Badge>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    {isLoadingProviders ? (
-                        <p className="text-sm text-muted-foreground">Đang tải trạng thái tài khoản liên kết...</p>
-                    ) : (
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between rounded-lg border bg-muted/40 px-3 py-2.5">
-                                <div className="flex flex-col">
-                                    <span className="text-sm font-medium">Google</span>
-                                    <span className="text-xs text-muted-foreground">
-                                        Dùng tài khoản Google để đăng nhập nhanh vào trang quản trị.
-                                    </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Badge
-                                        variant={hasGoogle ? 'default' : 'secondary'}
-                                        className="text-[10px] uppercase font-bold"
-                                    >
-                                        {hasGoogle ? 'Đã liên kết' : 'Chưa liên kết'}
-                                    </Badge>
-                                    {hasGoogle && (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            disabled={unlinkMutation.isPending}
-                                            onClick={() => handleUnlink('google')}
-                                        >
-                                            <Unlink className="w-3 h-3 mr-1.5" />
-                                            Hủy liên kết
-                                        </Button>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="flex items-center justify-between rounded-lg border bg-muted/40 px-3 py-2.5">
-                                <div className="flex flex-col">
-                                    <span className="text-sm font-medium">Facebook</span>
-                                    <span className="text-xs text-muted-foreground">
-                                        Dùng tài khoản Facebook để đăng nhập nhanh vào trang quản trị.
-                                    </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Badge
-                                        variant={hasFacebook ? 'default' : 'secondary'}
-                                        className="text-[10px] uppercase font-bold"
-                                    >
-                                        {hasFacebook ? 'Đã liên kết' : 'Chưa liên kết'}
-                                    </Badge>
-                                    {hasFacebook && (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            disabled={unlinkMutation.isPending}
-                                            onClick={() => handleUnlink('facebook')}
-                                        >
-                                            <Unlink className="w-3 h-3 mr-1.5" />
-                                            Hủy liên kết
-                                        </Button>
-                                    )}
-                                </div>
-                            </div>
-
-                            <p className="text-xs text-muted-foreground">
-                                Để thêm mới liên kết, hãy đăng nhập bằng Google hoặc Facebook từ màn hình đăng nhập admin. 
-                                Hệ thống sẽ tự động gắn tài khoản mạng xã hội với người dùng hiện tại nếu email trùng khớp.
-                            </p>
-                        </div>
-                    )}
                 </CardContent>
             </Card>
 

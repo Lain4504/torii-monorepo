@@ -314,7 +314,6 @@ export function PracticeTest() {
                 </Card>
 
             </div>
-            </div >
         )
     }
 

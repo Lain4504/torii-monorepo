@@ -12,6 +12,7 @@ import {
   JlptMockExamTemplateUpdateDto,
 } from './dto/jlpt-mock.dto';
 import {
+  JlptBankMondaiListQueryDto,
   JlptBankQuestionCreateDto,
   JlptBankQuestionQueryDto,
   JlptBankQuestionUpdateDto,
@@ -130,6 +131,11 @@ export class JlptMockHandler {
   @MessagePattern({ cmd: 'academy.jlptMock.bankQuestion.findAll' })
   findAllBankQuestions(@Payload() query: JlptBankQuestionQueryDto) {
     return this.jlpt.findAllBankQuestions(query);
+  }
+
+  @MessagePattern({ cmd: 'academy.jlptMock.bankQuestion.mondaiList' })
+  listMondaiForBankFilters(@Payload() query: JlptBankMondaiListQueryDto) {
+    return this.jlpt.listMondaiForBankFilters(query);
   }
 
   @MessagePattern({ cmd: 'academy.jlptMock.bankQuestion.create' })

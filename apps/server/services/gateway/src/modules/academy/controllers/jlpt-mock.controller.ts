@@ -242,7 +242,7 @@ export class JlptMockController {
       const item = await firstValueFrom(
         this.natsClient.send(
           { cmd: 'academy.jlptMock.template.update' },
-          { id, ...body, requesterId: req.requester.sub },
+          { id, input: body, requesterId: req.requester.sub },
         ),
       );
       return successResponse({ item });
@@ -276,13 +276,36 @@ export class JlptMockController {
     @Query() query: any,
   ) {
     try {
-      const items = await firstValueFrom(
+      const result = await firstValueFrom(
         this.natsClient.send(
           { cmd: 'academy.jlptMock.bankQuestion.findAll' },
           { ...query, requesterId: req.requester.sub },
         ),
       );
-      return successResponse({ items });
+      return successResponse(result);
+    } catch (e: any) {
+      return errorResponse(e.message);
+    }
+  }
+
+  /** Mondai theo cấp độ + phần thi (dùng cho bộ lọc ngân hàng câu). */
+  @Get('admin/bank-questions/mondai-options')
+  async adminBankMondaiOptions(
+    @Req() req: ReqWithRequester,
+    @Query() query: { level?: string; sectionCode?: string },
+  ) {
+    try {
+      const result = await firstValueFrom(
+        this.natsClient.send(
+          { cmd: 'academy.jlptMock.bankQuestion.mondaiList' },
+          {
+            level: query.level,
+            sectionCode: query.sectionCode,
+            requesterId: req.requester.sub,
+          },
+        ),
+      );
+      return successResponse(result);
     } catch (e: any) {
       return errorResponse(e.message);
     }
@@ -316,7 +339,7 @@ export class JlptMockController {
       const item = await firstValueFrom(
         this.natsClient.send(
           { cmd: 'academy.jlptMock.bankQuestion.update' },
-          { id, ...body, requesterId: req.requester.sub },
+          { id, input: body, requesterId: req.requester.sub },
         ),
       );
       return successResponse({ item });

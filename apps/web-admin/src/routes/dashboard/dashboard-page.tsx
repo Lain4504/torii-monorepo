@@ -23,26 +23,34 @@ export default function DashboardPage() {
     return "Chào buổi tối"
   }
 
+  const isLecturer = role === UserRole.LECTURER
+
   return (
     <div className="flex flex-col gap-8">
       <PageHeader
         title={`${getGreeting()}, ${user?.displayName?.split(' ')[0] || 'ADMIN'}`}
-        subtitle={`Bảng chỉ huy trung tâm Torii Admin`}
+        subtitle={isLecturer ? "Bảng điều khiển giảng viên • Quản lý lớp học và buổi giảng" : "Bảng chỉ huy trung tâm Torii Admin"}
         actions={
-          <div className="flex items-center gap-3">
-            <ButtonGroup>
-              <Button variant="outline" asChild size="sm">
-                <Link to="/analytics/learning">Học tập</Link>
-              </Button>
-              <Button variant="outline" asChild size="sm">
-                <Link to="/analytics/users">Học viên</Link>
-              </Button>
-            </ButtonGroup>
-            <Button size="sm">
-              <Zap className="size-4 mr-2" />
-              Lệnh nhanh
+          isLecturer ? (
+            <Button asChild size="sm" className="font-semibold">
+              <Link to="/academy/classes">Lớp của tôi</Link>
             </Button>
-          </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <ButtonGroup>
+                <Button variant="outline" asChild size="sm">
+                  <Link to="/analytics/learning">Học tập</Link>
+                </Button>
+                <Button variant="outline" asChild size="sm">
+                  <Link to="/analytics/users">Học viên</Link>
+                </Button>
+              </ButtonGroup>
+              <Button size="sm">
+                <Zap className="size-4 mr-2" />
+                Lệnh nhanh
+              </Button>
+            </div>
+          )
         }
       />
 

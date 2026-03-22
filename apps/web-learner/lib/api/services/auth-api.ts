@@ -1,6 +1,20 @@
 import { apiClient } from '../api-client';
 import type { StandardApiResponse } from '@workspace/schemas';
 
+function normalizeLinkedProviderIds(raw: unknown): string[] {
+    if (!Array.isArray(raw)) return [];
+    return raw
+        .map((item) => {
+            if (typeof item === 'string') return item;
+            if (item && typeof item === 'object' && 'provider' in item) {
+                const p = (item as { provider: unknown }).provider;
+                return typeof p === 'string' ? p : '';
+            }
+            return '';
+        })
+        .filter((s): s is string => s.length > 0);
+}
+
 export const authApi = {
     /**
      * Resend verification email
@@ -91,12 +105,12 @@ export const authApi = {
     },
 
     async getLinkedProviders(): Promise<{ providers: string[] }> {
-        const response = await apiClient.get<StandardApiResponse<{ providers: string[] }>>('/api/auth/linked-providers');
+        const response = await apiClient.get<StandardApiResponse<{ providers: unknown }>>('/api/auth/linked-providers');
         if (!response.data.success || !response.data.data) {
             throw new Error(response.data.message || 'Failed to load linked providers');
         }
         return {
-            providers: response.data.data.providers || [],
+            providers: normalizeLinkedProviderIds(response.data.data.providers),
         };
     },
 

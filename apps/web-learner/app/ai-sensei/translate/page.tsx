@@ -6,7 +6,7 @@ import { Languages } from "lucide-react"
 
 export default function TranslatePage() {
     return (
-        <div className="h-full flex flex-col p-4 md:p-8 overflow-y-auto custom-scrollbar nhai-blueprint-bg">
+        <div className="flex h-full min-h-0 flex-col overflow-y-auto px-2 py-3 custom-scrollbar sm:px-6 sm:py-6 lg:px-8">
             <SenseiPageHeader
                 title="Dịch thuật & Ngữ pháp"
                 description="Dịch văn bản và phân tích cấu trúc ngữ pháp thông minh"
